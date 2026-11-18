@@ -6,6 +6,8 @@ import {
 } from '@/cms/@types/cms';
 import { POST_VIEW_RETENTION_DAYS } from '@/cms/db/models/PostViews';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
+import { isFieldRequested } from '@/cms/utils/pagination';
+import type { GraphQLResolveInfo } from 'graphql';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
@@ -303,6 +305,8 @@ class PostQueryResolver extends BaseQueryResolver {
       query,
       { ...args, clientPortalId, language: readAccess.language || language },
       FIELD_MAPPINGS.POST,
+      'post',
+      { withTotalCount: false },
     );
 
     return list;
@@ -471,12 +475,19 @@ class PostQueryResolver extends BaseQueryResolver {
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.POST,
+      'post',
+      { withTotalCount: false },
     );
 
     return list;
   }
 
-  async cpPostList(_parent: any, args: any, context: IContext): Promise<any> {
+  async cpPostList(
+    _parent: any,
+    args: any,
+    context: IContext,
+    info?: GraphQLResolveInfo,
+  ): Promise<any> {
     const { language, webId } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
@@ -491,6 +502,8 @@ class PostQueryResolver extends BaseQueryResolver {
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.POST,
+      'post',
+      { withTotalCount: isFieldRequested(info, 'totalCount') },
     );
 
     return { posts: list, totalCount, pageInfo };
@@ -600,8 +613,18 @@ export const postQueries: Record<string, Resolver> = {
     return new PostQueryResolver(context).cpPosts(_parent, args, context);
   },
 
-  cpPostList: (_parent: any, args: any, context: IContext) => {
-    return new PostQueryResolver(context).cpPostList(_parent, args, context);
+  cpPostList: (
+    _parent: any,
+    args: any,
+    context: IContext,
+    info: GraphQLResolveInfo,
+  ) => {
+    return new PostQueryResolver(context).cpPostList(
+      _parent,
+      args,
+      context,
+      info,
+    );
   },
 
   cpPost: (_parent: any, args: any, context: IContext) => {

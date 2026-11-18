@@ -1,3 +1,4 @@
+export { reportQueries as TunableReports } from './reports';
 import AccountCategories from './accountCategories';
 export { accountQueries as Accounts } from './accounts';
 export { adjustInventoryQueries as AdjustInventories } from './adjustInventories';

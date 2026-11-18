@@ -10,6 +10,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { listUserSessions, readSessionCookie } from '@/auth/session';
+import { loadTeamAvailabilitySettings } from '../availability';
 
 type IListArgs = {
   sortDirection?: number;
@@ -200,6 +201,14 @@ export const userQueries = {
     );
 
     return { enabled: true, items, series };
+  },
+
+  async teamAvailabilitySettings(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return loadTeamAvailabilitySettings(models);
   },
 
   async userDetail(

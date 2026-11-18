@@ -32,6 +32,7 @@ export const useTrRecordsRemove = (
         toast({
           title: t('success'),
           description: t('transaction-deleted-successfully'),
+          variant: 'success',
         });
       },
       refetchQueries: [

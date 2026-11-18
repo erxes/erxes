@@ -1,3 +1,5 @@
+import { ProjectConnectionPanel } from '../contact/ProjectConnectionPanel';
+import { PROJECT_CONNECTION_CONTENT_TYPE } from '../contact/projectContactConnection';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { PropertiesSidePanel } from '@/operation/components/PropertiesSidePanel';
 import { isRecord } from '@/operation/utils/isRecord';
@@ -13,12 +15,15 @@ import { TaskPanelDetail } from './TaskPanelDetail';
 import { TRIAGE_CONTENT_TYPE } from '@/triage/constants';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
+import { useTriageCustomFieldEdit } from '@/triage/hooks/useTriageCustomFieldEdit';
 import { TriagePanelActions } from './TriagePanelActions';
 import { TriagePanelDetail } from './TriagePanelDetail';
 import { TaskPanelNew } from './TaskPanelNew';
 import { TriagePanelNew } from './TriagePanelNew';
 import { TaskConnectionPanel } from '../contact/TaskConnectionPanel';
 import { TASK_CONNECTION_CONTENT_TYPE } from '../contact/taskContactConnection';
+import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
+import { ProjectPanel } from './ProjectPanel';
 
 const TITLE_FIELD_CLASS_NAME = 'rounded-sm px-1 font-medium shadow-none';
 
@@ -92,6 +97,23 @@ const TriagePanelTitle = ({ triageId }: { triageId: string }) => {
   );
 };
 
+const TriagePanelProperties = ({ triageId }: { triageId: string }) => {
+  const { triage } = useGetTriage(triageId);
+
+  return (
+    <ScrollArea className="flex-1 min-h-0">
+      <PropertiesSidePanel
+        contentType={TASK_CONTENT_TYPE}
+        contentId={triageId}
+        propertiesData={
+          isRecord(triage?.propertiesData) ? triage.propertiesData : undefined
+        }
+        mutateHook={useTriageCustomFieldEdit}
+      />
+    </ScrollArea>
+  );
+};
+
 const TriagePanelActivity = ({ triageId }: { triageId: string }) => {
   const { triage } = useGetTriage(triageId);
 
@@ -107,7 +129,7 @@ const TriagePanelActivity = ({ triageId }: { triageId: string }) => {
   );
 };
 
-// A triage, until it is accepted as a task (it has no properties).
+// A triage, until it is accepted as a task.
 const TriagePanel = ({
   triageId,
   view,
@@ -132,7 +154,7 @@ const TriagePanel = ({
   }
 
   if (view === 'properties') {
-    return null;
+    return <TriagePanelProperties triageId={triageId} />;
   }
 
   return <TriagePanelDetail triageId={triageId} />;
@@ -154,6 +176,30 @@ export const TaskPanelActivity = ({ taskId }: { taskId: string }) => {
   );
 };
 
+// A task's side-panel views.
+const TaskPanel = ({
+  taskId,
+  view,
+}: {
+  taskId: string;
+  view: IRecordPanelProps['view'];
+}) => {
+  switch (view) {
+    case 'new':
+      return <TaskPanelNew />;
+    case 'title':
+      return <TaskPanelTitle taskId={taskId} />;
+    case 'actions':
+      return <TaskPanelActions taskId={taskId} />;
+    case 'properties':
+      return <TaskPanelProperties taskId={taskId} />;
+    case 'activity':
+      return <TaskPanelActivity taskId={taskId} />;
+    default:
+      return <TaskPanelDetail taskId={taskId} />;
+  }
+};
+
 // Operation records drawn in the app's side panel (`widgets.recordPanels`).
 export const RecordPanel = ({
   contentType,
@@ -162,38 +208,26 @@ export const RecordPanel = ({
 }: IRecordPanelProps) => {
   const { t } = useTranslation('operation');
 
-  if (contentType === TASK_CONNECTION_CONTENT_TYPE) {
-    if (view === 'title') return t('connect-task', 'Connect task');
-    return view === 'new' ? <TaskConnectionPanel /> : null;
+  switch (contentType) {
+    case PROJECT_CONNECTION_CONTENT_TYPE:
+      if (view === 'title') return t('connect-project', 'Connect project');
+      return view === 'new' ? <ProjectConnectionPanel /> : null;
+    case TASK_CONNECTION_CONTENT_TYPE:
+      if (view === 'title') return t('connect-task', 'Connect task');
+      return view === 'new' ? <TaskConnectionPanel /> : null;
+    case TRIAGE_CONTENT_TYPE:
+      return <TriagePanel triageId={contentId} view={view} />;
+    case PROJECT_CONTENT_TYPE:
+      return (
+        <ProjectPanel
+          contentType={contentType}
+          contentId={contentId}
+          view={view}
+        />
+      );
+    case TASK_CONTENT_TYPE:
+      return <TaskPanel taskId={contentId} view={view} />;
+    default:
+      return null;
   }
-
-  if (contentType === TRIAGE_CONTENT_TYPE) {
-    return <TriagePanel triageId={contentId} view={view} />;
-  }
-
-  if (contentType !== TASK_CONTENT_TYPE) {
-    return null;
-  }
-
-  if (view === 'new') {
-    return <TaskPanelNew />;
-  }
-
-  if (view === 'title') {
-    return <TaskPanelTitle taskId={contentId} />;
-  }
-
-  if (view === 'actions') {
-    return <TaskPanelActions taskId={contentId} />;
-  }
-
-  if (view === 'properties') {
-    return <TaskPanelProperties taskId={contentId} />;
-  }
-
-  if (view === 'activity') {
-    return <TaskPanelActivity taskId={contentId} />;
-  }
-
-  return <TaskPanelDetail taskId={contentId} />;
 };

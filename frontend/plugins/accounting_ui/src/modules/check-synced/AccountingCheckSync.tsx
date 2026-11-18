@@ -1,3 +1,4 @@
+import { IconRefreshAlert } from '@tabler/icons-react';
 import { Filter, Spinner } from 'erxes-ui';
 import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -37,6 +38,7 @@ export const AccountingCheckSync = () => {
         <AccountingHeader
           returnLink="/accounting/check-sync"
           returnText={t('check-sync')}
+          icon={IconRefreshAlert}
         />
         <div className="flex flex-auto flex-col overflow-hidden">
           <Suspense

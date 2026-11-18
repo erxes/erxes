@@ -4,6 +4,7 @@ dotenv.config();
 
 import { randomFillSync } from 'node:crypto';
 import { Db, MongoClient } from 'mongodb';
+import { findOrganization } from '../../findOrganization';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -210,9 +211,7 @@ const command = async () => {
   const coreDbName = extractDbName(coreUrl);
   const coreDb = client.db(coreDbName);
 
-  const targetOrg = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+  const targetOrg = await findOrganization(coreDb, TARGET_SUBDOMAIN);
 
   if (!targetOrg) {
     throw new Error(

@@ -26,6 +26,7 @@ export const useReserveRemEdit = () => {
         toast({
           title: t('success'),
           description: t('reserve-remainder-updated'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

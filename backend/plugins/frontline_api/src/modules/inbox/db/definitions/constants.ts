@@ -39,6 +39,7 @@ export const AUTOMATED_REPLY_REASON = {
   OPERATOR_REPLY: 'operator_reply',
   MANUAL: 'manual',
   TIMEOUT_EXPIRED: 'timeout_expired',
+  AUTOMATION: 'automation',
 } as const;
 
 export const MESSAGE_TYPES = {

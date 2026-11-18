@@ -1,0 +1,2827 @@
+{
+  "accounting": {
+    "transaction": {
+      "name": "Гүйлгээ",
+      "description": "Гүйлгээний удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн гүйлгээ",
+        "all": "Бүх гүйлгээ"
+      },
+      "actions": {
+        "readTransactions": {
+          "title": "Гүйлгээ харах",
+          "description": "Гүйлгээ харах"
+        },
+        "manageTransactions": {
+          "title": "Гүйлгээ удирдах",
+          "description": "Гүйлгээ үүсгэх, засах"
+        },
+        "removeTransactions": {
+          "title": "Гүйлгээ устгах",
+          "description": "Гүйлгээ устгах"
+        },
+        "linkTransactions": {
+          "title": "Гүйлгээ холбох",
+          "description": "Гүйлгээ холбох"
+        },
+        "transactionsImportManage": {
+          "title": "Гүйлгээ импортлох",
+          "description": "Гүйлгээ импортлох"
+        },
+        "transactionsExportManage": {
+          "title": "Гүйлгээ экспортлох",
+          "description": "Гүйлгээ экспортлох"
+        },
+        "readMainTransactions": {
+          "title": "Ерөнхий журналын гүйлгээ харах",
+          "description": "Ерөнхий журналын гүйлгээ харах"
+        },
+        "manageMainTransactions": {
+          "title": "Ерөнхий журналын гүйлгээ удирдах",
+          "description": "Ерөнхий журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeMainTransactions": {
+          "title": "Ерөнхий журналын гүйлгээ устгах",
+          "description": "Ерөнхий журналын гүйлгээ устгах"
+        },
+        "readCashTransactions": {
+          "title": "Бэлэн мөнгөний журналын гүйлгээ харах",
+          "description": "Бэлэн мөнгөний журналын гүйлгээ харах"
+        },
+        "manageCashTransactions": {
+          "title": "Бэлэн мөнгөний журналын гүйлгээ удирдах",
+          "description": "Бэлэн мөнгөний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeCashTransactions": {
+          "title": "Бэлэн мөнгөний журналын гүйлгээ устгах",
+          "description": "Бэлэн мөнгөний журналын гүйлгээ устгах"
+        },
+        "readBankTransactions": {
+          "title": "Харилцахын журналын гүйлгээ харах",
+          "description": "Харилцахын журналын гүйлгээ харах"
+        },
+        "manageBankTransactions": {
+          "title": "Харилцахын журналын гүйлгээ удирдах",
+          "description": "Харилцахын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeBankTransactions": {
+          "title": "Харилцахын журналын гүйлгээ устгах",
+          "description": "Харилцахын журналын гүйлгээ устгах"
+        },
+        "readReceivableTransactions": {
+          "title": "Авлагын журналын гүйлгээ харах",
+          "description": "Авлагын журналын гүйлгээ харах"
+        },
+        "manageReceivableTransactions": {
+          "title": "Авлагын журналын гүйлгээ удирдах",
+          "description": "Авлагын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeReceivableTransactions": {
+          "title": "Авлагын журналын гүйлгээ устгах",
+          "description": "Авлагын журналын гүйлгээ устгах"
+        },
+        "readPayableTransactions": {
+          "title": "Өглөгийн журналын гүйлгээ харах",
+          "description": "Өглөгийн журналын гүйлгээ харах"
+        },
+        "managePayableTransactions": {
+          "title": "Өглөгийн журналын гүйлгээ удирдах",
+          "description": "Өглөгийн журналын гүйлгээ үүсгэх, засах"
+        },
+        "removePayableTransactions": {
+          "title": "Өглөгийн журналын гүйлгээ устгах",
+          "description": "Өглөгийн журналын гүйлгээ устгах"
+        },
+        "readTaxTransactions": {
+          "title": "Татварын журналын гүйлгээ харах",
+          "description": "Татварын журналын гүйлгээ харах"
+        },
+        "manageTaxTransactions": {
+          "title": "Татварын журналын гүйлгээ удирдах",
+          "description": "Татварын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeTaxTransactions": {
+          "title": "Татварын журналын гүйлгээ устгах",
+          "description": "Татварын журналын гүйлгээ устгах"
+        },
+        "readInventoryOpeningTransactions": {
+          "title": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ харах",
+          "description": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ харах"
+        },
+        "manageInventoryOpeningTransactions": {
+          "title": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ удирдах",
+          "description": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInventoryOpeningTransactions": {
+          "title": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ устгах",
+          "description": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ устгах"
+        },
+        "readInvIncomeTransactions": {
+          "title": "Барааны орлогын журналын гүйлгээ харах",
+          "description": "Барааны орлогын журналын гүйлгээ харах"
+        },
+        "manageInvIncomeTransactions": {
+          "title": "Барааны орлогын журналын гүйлгээ удирдах",
+          "description": "Барааны орлогын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvIncomeTransactions": {
+          "title": "Барааны орлогын журналын гүйлгээ устгах",
+          "description": "Барааны орлогын журналын гүйлгээ устгах"
+        },
+        "readInvOutTransactions": {
+          "title": "Барааны зарлагын журналын гүйлгээ харах",
+          "description": "Барааны зарлагын журналын гүйлгээ харах"
+        },
+        "manageInvOutTransactions": {
+          "title": "Барааны зарлагын журналын гүйлгээ удирдах",
+          "description": "Барааны зарлагын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvOutTransactions": {
+          "title": "Барааны зарлагын журналын гүйлгээ устгах",
+          "description": "Барааны зарлагын журналын гүйлгээ устгах"
+        },
+        "readInvJustifyTransactions": {
+          "title": "Барааны өртөг залруулгын журналын гүйлгээ харах",
+          "description": "Барааны өртөг залруулгын журналын гүйлгээ харах"
+        },
+        "manageInvJustifyTransactions": {
+          "title": "Барааны өртөг залруулгын журналын гүйлгээ удирдах",
+          "description": "Барааны өртөг залруулгын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvJustifyTransactions": {
+          "title": "Барааны өртөг залруулгын журналын гүйлгээ устгах",
+          "description": "Барааны өртөг залруулгын журналын гүйлгээ устгах"
+        },
+        "readInvMoveTransactions": {
+          "title": "Дотоод хөдөлгөөний журналын гүйлгээ харах",
+          "description": "Дотоод хөдөлгөөний журналын гүйлгээ харах"
+        },
+        "manageInvMoveTransactions": {
+          "title": "Дотоод хөдөлгөөний журналын гүйлгээ удирдах",
+          "description": "Дотоод хөдөлгөөний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvMoveTransactions": {
+          "title": "Дотоод хөдөлгөөний журналын гүйлгээ устгах",
+          "description": "Дотоод хөдөлгөөний журналын гүйлгээ устгах"
+        },
+        "readInvSaleTransactions": {
+          "title": "Борлуулалтын журналын гүйлгээ харах",
+          "description": "Борлуулалтын журналын гүйлгээ харах"
+        },
+        "manageInvSaleTransactions": {
+          "title": "Борлуулалтын журналын гүйлгээ удирдах",
+          "description": "Борлуулалтын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvSaleTransactions": {
+          "title": "Борлуулалтын журналын гүйлгээ устгах",
+          "description": "Борлуулалтын журналын гүйлгээ устгах"
+        },
+        "readInvSaleReturnTransactions": {
+          "title": "Борлуулалтын буцаалтын журналын гүйлгээ харах",
+          "description": "Борлуулалтын буцаалтын журналын гүйлгээ харах"
+        },
+        "manageInvSaleReturnTransactions": {
+          "title": "Борлуулалтын буцаалтын журналын гүйлгээ удирдах",
+          "description": "Борлуулалтын буцаалтын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvSaleReturnTransactions": {
+          "title": "Борлуулалтын буцаалтын журналын гүйлгээ устгах",
+          "description": "Борлуулалтын буцаалтын журналын гүйлгээ устгах"
+        },
+        "readAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ харах"
+        },
+        "manageAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ устгах"
+        },
+        "readFxaCapitalTransactions": {
+          "title": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ харах"
+        },
+        "manageFxaCapitalTransactions": {
+          "title": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaCapitalTransactions": {
+          "title": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ устгах"
+        },
+        "readFxaRevaluationTransactions": {
+          "title": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ харах"
+        },
+        "manageFxaRevaluationTransactions": {
+          "title": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaRevaluationTransactions": {
+          "title": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ устгах"
+        },
+        "readFxaIncomeTransactions": {
+          "title": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ харах"
+        },
+        "manageFxaIncomeTransactions": {
+          "title": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaIncomeTransactions": {
+          "title": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ устгах"
+        },
+        "readFxaOutTransactions": {
+          "title": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ харах"
+        },
+        "manageFxaOutTransactions": {
+          "title": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaOutTransactions": {
+          "title": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ устгах"
+        },
+        "readFxaMoveTransactions": {
+          "title": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ харах"
+        },
+        "manageFxaMoveTransactions": {
+          "title": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaMoveTransactions": {
+          "title": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ устгах"
+        },
+        "readFxaSaleTransactions": {
+          "title": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ харах"
+        },
+        "manageFxaSaleTransactions": {
+          "title": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaSaleTransactions": {
+          "title": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ устгах"
+        }
+      }
+    },
+    "account": {
+      "name": "Данс",
+      "description": "Дансны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "accountsRead": {
+          "title": "Данс харах",
+          "description": "Данс харах"
+        },
+        "manageAccounts": {
+          "title": "Данс удирдах",
+          "description": "Данс үүсгэх, засах"
+        },
+        "removeAccounts": {
+          "title": "Данс устгах",
+          "description": "Данс устгах"
+        },
+        "accountsMerge": {
+          "title": "Данс нэгтгэх",
+          "description": "Данс нэгтгэх"
+        },
+        "accountsImportManage": {
+          "title": "Данс импортлох",
+          "description": "Данс импортлох"
+        }
+      }
+    },
+    "accountCategory": {
+      "name": "Дансны ангилал",
+      "description": "Дансны ангиллын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн ангилал",
+        "all": "Бүх ангилал"
+      },
+      "actions": {
+        "readAccountCategories": {
+          "title": "Ангилал харах",
+          "description": "Дансны ангилал харах"
+        },
+        "manageAccountCategories": {
+          "title": "Ангилал удирдах",
+          "description": "Дансны ангилал үүсгэх, засах"
+        },
+        "removeAccountCategories": {
+          "title": "Ангилал устгах",
+          "description": "Дансны ангилал устгах"
+        },
+        "accountCategoriesImportManage": {
+          "title": "Дансны ангилал импортлох",
+          "description": "Дансны ангилал импортлох"
+        }
+      }
+    },
+    "adjustClosing": {
+      "name": "Хаалтын тохируулга",
+      "description": "Хаалтын тохируулгын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тохируулга",
+        "all": "Бүх тохируулга"
+      },
+      "actions": {
+        "readAdjustClosings": {
+          "title": "Хаалтын тохируулга харах",
+          "description": "Хаалтын тохируулга харах"
+        },
+        "manageAdjustClosings": {
+          "title": "Хаалтын тохируулга удирдах",
+          "description": "Хаалтын тохируулга үүсгэх, ажиллуулах"
+        },
+        "publishAdjustClosings": {
+          "title": "Хаалтын тохируулга нийтлэх",
+          "description": "Хаалтын тохируулгыг нийтлэх"
+        },
+        "cancelAdjustClosings": {
+          "title": "Хаалтын тохируулга цуцлах",
+          "description": "Нийтэлсэн хаалтын тохируулгыг цуцлах"
+        },
+        "removeAdjustClosings": {
+          "title": "Хаалтын тохируулга устгах",
+          "description": "Хаалтын тохируулга устгах"
+        }
+      }
+    },
+    "adjustDebtRate": {
+      "name": "Авлага, өглөгийн ханшийн тэгшитгэл",
+      "description": "Авлага, өглөгийн ханшийн тэгшитгэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тэгшитгэл",
+        "all": "Бүх тэгшитгэл"
+      },
+      "actions": {
+        "readAdjustDebtRates": {
+          "title": "Авлага, өглөгийн ханшийн тэгшитгэл харах",
+          "description": "Авлага, өглөгийн ханшийн тэгшитгэл харах"
+        },
+        "manageAdjustDebtRates": {
+          "title": "Авлага, өглөгийн ханшийн тэгшитгэл удирдах",
+          "description": "Авлага, өглөгийн ханшийн тэгшитгэл үүсгэх, ажиллуулах"
+        },
+        "removeAdjustDebtRates": {
+          "title": "Авлага, өглөгийн ханшийн тэгшитгэл устгах",
+          "description": "Авлага, өглөгийн ханшийн тэгшитгэл устгах"
+        }
+      }
+    },
+    "adjustFixedAsset": {
+      "name": "Үндсэн хөрөнгийн тохируулга",
+      "description": "Үндсэн хөрөнгийн тохируулгын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тохируулга",
+        "all": "Бүх тохируулга"
+      },
+      "actions": {
+        "readAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга харах",
+          "description": "Үндсэн хөрөнгийн тохируулга харах"
+        },
+        "manageAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга удирдах",
+          "description": "Үндсэн хөрөнгийн тохируулга үүсгэх, ажиллуулах"
+        },
+        "publishAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга нийтлэх",
+          "description": "Үндсэн хөрөнгийн тохируулгыг нийтлэх"
+        },
+        "cancelAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга цуцлах",
+          "description": "Нийтэлсэн үндсэн хөрөнгийн тохируулгыг цуцлах"
+        },
+        "removeAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга устгах",
+          "description": "Үндсэн хөрөнгийн тохируулгыг устгах"
+        },
+        "clearAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга цэвэрлэх",
+          "description": "Үндсэн хөрөнгийн тохируулгыг цэвэрлэх"
+        }
+      }
+    },
+    "adjustFundRate": {
+      "name": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл",
+      "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тэгшитгэл",
+        "all": "Бүх тэгшитгэл"
+      },
+      "actions": {
+        "readAdjustFundRates": {
+          "title": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл харах",
+          "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл харах"
+        },
+        "manageAdjustFundRates": {
+          "title": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл удирдах",
+          "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл үүсгэх, ажиллуулах"
+        },
+        "removeAdjustFundRates": {
+          "title": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл устгах",
+          "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл устгах"
+        }
+      }
+    },
+    "adjustInventory": {
+      "name": "Бараа материалын өртөг тооцоолол",
+      "description": "Бараа материалын өртөг тооцооллын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тооцоолол",
+        "all": "Бүх тооцоолол"
+      },
+      "actions": {
+        "readAdjustInventories": {
+          "title": "Өртөг тооцоолол харах",
+          "description": "Бараа материалын өртөг тооцоолол харах"
+        },
+        "manageAdjustInventories": {
+          "title": "Өртөг тооцоолол удирдах",
+          "description": "Бараа материалын өртөг тооцоолол үүсгэх, ажиллуулах"
+        },
+        "publishAdjustInventories": {
+          "title": "Өртөг тооцоолол нийтлэх",
+          "description": "Өртөг тооцооллыг нийтлэх"
+        },
+        "cancelAdjustInventories": {
+          "title": "Өртөг тооцоолол цуцлах",
+          "description": "Нийтэлсэн өртөг тооцооллыг цуцлах"
+        },
+        "removeAdjustInventories": {
+          "title": "Өртөг тооцоолол устгах",
+          "description": "Өртөг тооцооллыг устгах"
+        },
+        "clearAdjustInventories": {
+          "title": "Өртөг тооцоолол цэвэрлэх",
+          "description": "Өртөг тооцооллыг цэвэрлэх"
+        }
+      }
+    },
+    "checkSync": {
+      "name": "Мэдээ таталт",
+      "description": "Санхүүгийн мэдээ таталтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн мэдээ таталтын бичлэг",
+        "all": "Бүх мэдээ таталтын бичлэг"
+      },
+      "actions": {
+        "readAccountingCheckSync": {
+          "title": "Мэдээ таталт харах",
+          "description": "Санхүүгийн гүйлгээний синк төлөв шалгах"
+        },
+        "manageAccountingCheckSync": {
+          "title": "Мэдээ таталт удирдах",
+          "description": "Хэлцэл, захиалгыг санхүүгийн гүйлгээ рүү синк хийх"
+        }
+      }
+    },
+    "config": {
+      "name": "Тохиргоо",
+      "description": "Санхүүгийн тохиргооны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тохиргоо",
+        "all": "Бүх тохиргоо"
+      },
+      "actions": {
+        "readAccountingConfigs": {
+          "title": "Тохиргоо харах",
+          "description": "Санхүүгийн тохиргоо харах"
+        },
+        "manageAccountingConfigs": {
+          "title": "Тохиргоо удирдах",
+          "description": "Санхүүгийн тохиргоо үүсгэх, засах"
+        },
+        "removeAccountingConfigs": {
+          "title": "Тохиргоо устгах",
+          "description": "Санхүүгийн тохиргоо устгах"
+        }
+      }
+    },
+    "job": {
+      "name": "Ажил",
+      "description": "Бараа материалын ажлын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн ажил",
+        "all": "Бүх ажил"
+      },
+      "actions": {
+        "readJobs": {
+          "title": "Ажил харах",
+          "description": "Бараа материалын ажил харах"
+        },
+        "manageJobs": {
+          "title": "Ажил удирдах",
+          "description": "Бараа материалын ажил үүсгэх, засах"
+        },
+        "removeJobs": {
+          "title": "Ажил устгах",
+          "description": "Бараа материалын ажил устгах"
+        }
+      }
+    },
+    "jobExecution": {
+      "name": "Ажлын гүйцэтгэл",
+      "description": "Бараа материалын ажлын гүйцэтгэл",
+      "scopes": {
+        "all": "Бүх ажлын гүйцэтгэл"
+      },
+      "actions": {
+        "readJobExecutions": {
+          "title": "Ажлын гүйцэтгэл харах",
+          "description": "Ажлын гүйцэтгэл харах"
+        },
+        "manageJobExecutions": {
+          "title": "Ажлын гүйцэтгэл удирдах",
+          "description": "Ажлын гүйцэтгэл үүсгэх, засах, гүйлгээ үүсгэх, буцаах"
+        },
+        "removeJobExecutions": {
+          "title": "Ажлын гүйцэтгэл устгах",
+          "description": "Ноорог ажлын гүйцэтгэл устгах"
+        }
+      }
+    },
+    "safeRemainder": {
+      "name": "Бараа материалын тооллого",
+      "description": "Бараа материалын тооллогын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тооллого",
+        "all": "Бүх тооллого"
+      },
+      "actions": {
+        "readSafeRemainders": {
+          "title": "Тооллого харах",
+          "description": "Бараа материалын тооллого, түүний мөрүүдийг харах"
+        },
+        "manageSafeRemainders": {
+          "title": "Тооллого удирдах",
+          "description": "Тооллого үүсгэх, засах, илгээх, дахин тооцоолох, ажиллуулах"
+        },
+        "removeSafeRemainders": {
+          "title": "Тооллого устгах",
+          "description": "Тооллого болон түүний мөрүүдийг устгах"
+        },
+        "viewSafeRemainderItemCounts": {
+          "title": "Тооллогын системийн тоо харах",
+          "description": "Системийн тоо ширхэгийг харах, тооллогын мөрүүдийг зөрүүгээр шүүх"
+        }
+      }
+    },
+    "taxRow": {
+      "name": "Татварын мөр",
+      "description": "Татварын мөрийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн татварын мөр",
+        "all": "Бүх татварын мөр"
+      },
+      "actions": {
+        "readTaxRows": {
+          "title": "Татварын мөр харах",
+          "description": "Татварын мөр харах"
+        },
+        "manageTaxRows": {
+          "title": "Татварын мөр удирдах",
+          "description": "Татварын мөр үүсгэх, засах"
+        },
+        "removeTaxRows": {
+          "title": "Татварын мөр устгах",
+          "description": "Татварын мөр устгах"
+        },
+        "taxRowsImportManage": {
+          "title": "Татварын мөр импортлох",
+          "description": "Татварын мөр импортлох"
+        }
+      }
+    }
+  },
+  "core": {
+    "emailTemplates": {
+      "name": "Имэйл загварууд",
+      "description": "Имэйл загварууд",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн загвар",
+        "all": "Бүх загвар"
+      },
+      "actions": {
+        "emailTemplatesRead": {
+          "title": "Имэйл загвар харах",
+          "description": "Имэйл загвар харах"
+        },
+        "emailTemplatesCreate": {
+          "title": "Имэйл загвар үүсгэх",
+          "description": "Имэйл загвар үүсгэх"
+        },
+        "emailTemplatesUpdate": {
+          "title": "Имэйл загвар засах",
+          "description": "Имэйл загвар засах"
+        },
+        "emailTemplatesDelete": {
+          "title": "Имэйл загвар устгах",
+          "description": "Имэйл загвар устгах"
+        }
+      }
+    },
+    "notificationTemplates": {
+      "name": "Мэдэгдлийн загварууд",
+      "description": "Мэдэгдлийн имэйл загварууд",
+      "scopes": {
+        "all": "Бүх загвар"
+      },
+      "actions": {
+        "notificationTemplatesManage": {
+          "title": "Мэдэгдлийн загвар удирдах",
+          "description": "Мэдэгдлийн имэйл болон имэйлийн брэндийг засах, нийтлэх, буцаах"
+        }
+      }
+    },
+    "contacts": {
+      "name": "Харилцагчид",
+      "description": "Харилцагчийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл эзэмшдэг бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "contactsRead": {
+          "title": "Харилцагч харах",
+          "description": "Харилцагч харах"
+        },
+        "contactsCreate": {
+          "title": "Харилцагч үүсгэх",
+          "description": "Харилцагч үүсгэх"
+        },
+        "contactsUpdate": {
+          "title": "Харилцагч засах",
+          "description": "Харилцагч засах"
+        },
+        "contactsDelete": {
+          "title": "Харилцагч устгах",
+          "description": "Харилцагч устгах"
+        },
+        "contactsMerge": {
+          "title": "Харилцагч нийлүүлэх",
+          "description": "Харилцагч нийлүүлэх"
+        },
+        "customersImportManage": {
+          "title": "Харилцагч импортлох",
+          "description": "Харилцагч импортлох"
+        },
+        "customersExportManage": {
+          "title": "Харилцагч экспортлох",
+          "description": "Харилцагч экспортлох"
+        },
+        "companiesImportManage": {
+          "title": "Компани импортлох",
+          "description": "Компани импортлох"
+        },
+        "companiesExportManage": {
+          "title": "Компани экспортлох",
+          "description": "Компани экспортлох"
+        }
+      }
+    },
+    "products": {
+      "name": "Бүтээгдэхүүнүүд",
+      "description": "Бүтээгдэхүүний удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "productsRead": {
+          "title": "Бүтээгдэхүүн харах",
+          "description": "Бүтээгдэхүүн харах"
+        },
+        "productsCreate": {
+          "title": "Бүтээгдэхүүн үүсгэх",
+          "description": "Бүтээгдэхүүн үүсгэх"
+        },
+        "productsUpdate": {
+          "title": "Бүтээгдэхүүн засах",
+          "description": "Бүтээгдэхүүн засах"
+        },
+        "productsDelete": {
+          "title": "Бүтээгдэхүүн устгах",
+          "description": "Бүтээгдэхүүн устгах"
+        },
+        "productsMerge": {
+          "title": "Бүтээгдэхүүн нийлүүлэх",
+          "description": "Бүтээгдэхүүн нийлүүлэх"
+        },
+        "productCategoriesManage": {
+          "title": "Бүтээгдэхүүний ангилал удирдах",
+          "description": "Бүтээгдэхүүний ангилал үүсгэх, засах, устгах"
+        },
+        "productsConfigsManage": {
+          "title": "Бүтээгдэхүүний тохиргоо удирдах",
+          "description": "Бүтээгдэхүүний тохиргоо шинэчлэх"
+        },
+        "uomsManage": {
+          "title": "Хэмжих нэгж удирдах",
+          "description": "Хэмжих нэгж үүсгэх, засах, устгах"
+        },
+        "productRulesManage": {
+          "title": "Бүтээгдэхүүний дүрэм удирдах",
+          "description": "Бүтээгдэхүүний дүрэм үүсгэх, засах, устгах"
+        },
+        "productsImportManage": {
+          "title": "Бүтээгдэхүүн импортлох",
+          "description": "Бүтээгдэхүүн импортлох"
+        },
+        "productsExportManage": {
+          "title": "Бүтээгдэхүүн экспортлох",
+          "description": "Бүтээгдэхүүн экспортлох"
+        }
+      }
+    },
+    "files": {
+      "name": "Файлууд",
+      "description": "Файлын менежер",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "filesRead": {
+          "title": "Файл ашиглах",
+          "description": "Файл ашиглах; хүн бүрийн харах, өөрчлөх эрхийг хавтасны хандалтаар тохируулна"
+        },
+        "filesAdmin": {
+          "title": "Файлын админ",
+          "description": "Бүх файл, хавтсыг харах, татах (зөвхөн унших); хэрэглээ бүр бүртгэгдэнэ"
+        }
+      }
+    },
+    "data-extensions": {
+      "name": "Өгөгдлийн өргөтгөл",
+      "description": "Өгөгдлийн өргөтгөлийн талбарын тодорхойлолт",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "dataExtensionsRead": {
+          "title": "Өгөгдлийн өргөтгөлийн талбар харах",
+          "description": "Бичлэгийн төрөл бүрт тодорхойлсон өргөтгөлийн талбаруудыг харах"
+        },
+        "dataExtensionsManage": {
+          "title": "Өгөгдлийн өргөтгөлийн талбар удирдах",
+          "description": "Өргөтгөлийн талбар нэмэх, засах, архивлах, сэргээх"
+        },
+        "dataExtensionRecordsRead": {
+          "title": "Нэмэлт объектын бичлэг харах",
+          "description": "Гэрээ гэх мэт байгууллагын тодорхойлсон объектын бичлэгийг харах"
+        },
+        "dataExtensionRecordsManage": {
+          "title": "Нэмэлт объектын бичлэг удирдах",
+          "description": "Байгууллагын тодорхойлсон объектын бичлэг үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "properties": {
+      "name": "Талбарууд",
+      "description": "Нэмэлт талбар ба талбарын бүлэг",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "propertiesRead": {
+          "title": "Талбар харах",
+          "description": "Нэмэлт талбар харах"
+        },
+        "fieldsManage": {
+          "title": "Талбар удирдах",
+          "description": "Нэмэлт талбар үүсгэх, засах, устгах"
+        },
+        "fieldGroupsManage": {
+          "title": "Талбарын бүлэг удирдах",
+          "description": "Талбарын бүлэг үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "tags": {
+      "name": "Тагууд",
+      "description": "Тагийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "tagsRead": {
+          "title": "Таг харах",
+          "description": "Таг харах"
+        },
+        "tagsCreate": {
+          "title": "Таг үүсгэх",
+          "description": "Таг үүсгэх"
+        },
+        "tagsUpdate": {
+          "title": "Таг засах",
+          "description": "Таг засах"
+        },
+        "tagsDelete": {
+          "title": "Таг устгах",
+          "description": "Таг устгах"
+        },
+        "tagsTag": {
+          "title": "Таг хавсаргах",
+          "description": "Бичлэгт таг хавсаргах"
+        }
+      }
+    },
+    "segments": {
+      "name": "Сегментүүд",
+      "description": "Сегментийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "segmentsRead": {
+          "title": "Сегмент харах",
+          "description": "Сегмент харах"
+        },
+        "segmentsManage": {
+          "title": "Сегмент удирдах",
+          "description": "Сегмент үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "documents": {
+      "name": "Баримтууд",
+      "description": "Баримтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "documentsRead": {
+          "title": "Баримт харах",
+          "description": "Баримт харах"
+        },
+        "manageDocuments": {
+          "title": "Баримт удирдах",
+          "description": "Баримт үүсгэх, засах"
+        },
+        "removeDocuments": {
+          "title": "Баримт устгах",
+          "description": "Баримт устгах"
+        }
+      }
+    },
+    "brands": {
+      "name": "Брэндүүд",
+      "description": "Брэндийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "brandsRead": {
+          "title": "Брэнд харах",
+          "description": "Брэнд харах"
+        },
+        "brandsCreate": {
+          "title": "Брэнд үүсгэх",
+          "description": "Брэнд үүсгэх"
+        },
+        "brandsUpdate": {
+          "title": "Брэнд засах",
+          "description": "Брэнд засах"
+        },
+        "brandsDelete": {
+          "title": "Брэнд устгах",
+          "description": "Брэнд устгах"
+        }
+      }
+    },
+    "organization": {
+      "name": "Багийн бүтэц",
+      "description": "Байгууллагын бүтцийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "organizationRead": {
+          "title": "Байгууллагын бүтэц харах",
+          "description": "Бүтэц, хэлтэс, салбар, нэгж, албан тушаалыг харах"
+        },
+        "structuresManage": {
+          "title": "Бүтэц удирдах",
+          "description": "Бүтэц үүсгэх, засах, устгах"
+        },
+        "departmentsManage": {
+          "title": "Хэлтэс удирдах",
+          "description": "Хэлтэс үүсгэх, засах, устгах"
+        },
+        "branchesManage": {
+          "title": "Салбар удирдах",
+          "description": "Салбар үүсгэх, засах, устгах"
+        },
+        "unitsManage": {
+          "title": "Нэгж удирдах",
+          "description": "Нэгж үүсгэх, засах, устгах"
+        },
+        "positionsManage": {
+          "title": "Албан тушаал удирдах",
+          "description": "Албан тушаал үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "teamMembers": {
+      "name": "Багийн гишүүд",
+      "description": "Багийн гишүүний удирдлага",
+      "scopes": {
+        "own": "Зөвхөн өөрийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "teamMembersRead": {
+          "title": "Багийн гишүүд харах",
+          "description": "Багийн гишүүд харах"
+        },
+        "teamMembersInvite": {
+          "title": "Багийн гишүүн урих",
+          "description": "Хэрэглэгчийг багт урих"
+        },
+        "teamMembersUpdate": {
+          "title": "Багийн гишүүн засах",
+          "description": "Багийн гишүүний мэдээлэл засах"
+        },
+        "teamMembersRemove": {
+          "title": "Багийн гишүүн хасах",
+          "description": "Багийн гишүүнийг идэвхгүй болгох"
+        },
+        "teamMembersResetPassword": {
+          "title": "Гишүүний нууц үг сэргээх",
+          "description": "Багийн гишүүний нууц үг сэргээх"
+        },
+        "teamMembersViewActivity": {
+          "title": "Гишүүний идэвх харах",
+          "description": "Бусад гишүүд хэзээ, хэр удаан идэвхтэй байсныг харах"
+        },
+        "teamMembersImportManage": {
+          "title": "Багийн гишүүд импортлох",
+          "description": "Багийн гишүүд импортлох"
+        },
+        "teamMembersExportManage": {
+          "title": "Багийн гишүүд экспортлох",
+          "description": "Багийн гишүүд экспортлох"
+        }
+      }
+    },
+    "broadcasts": {
+      "name": "Броадкаст",
+      "description": "Броадкаст болон мессежийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "broadcastRead": {
+          "title": "Броадкаст харах",
+          "description": "Мессеж харах"
+        },
+        "broadcastCreate": {
+          "title": "Броадкаст үүсгэх",
+          "description": "Мессеж үүсгэх"
+        },
+        "broadcastUpdate": {
+          "title": "Броадкаст засах",
+          "description": "Мессеж засах"
+        },
+        "broadcastDelete": {
+          "title": "Броадкаст устгах",
+          "description": "Мессеж устгах"
+        },
+        "broadcastConfigsManage": {
+          "title": "Броадкастын тохиргоо удирдах",
+          "description": "Броадкастын тохиргоо шинэчлэх"
+        }
+      }
+    },
+    "importExport": {
+      "name": "Импорт / Экспорт",
+      "description": "Импорт, экспортын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "importsManage": {
+          "title": "Импорт удирдах",
+          "description": "Импорт эхлүүлэх, цуцлах, дахин оролдох, үргэлжлүүлэх"
+        },
+        "exportsManage": {
+          "title": "Экспорт удирдах",
+          "description": "Экспорт эхлүүлэх, цуцлах, дахин оролдох"
+        }
+      }
+    },
+    "bundle": {
+      "name": "Багц",
+      "description": "Багцын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "bundleRead": {
+          "title": "Багц харах",
+          "description": "Багцын дүрэм, нөхцөл харах"
+        },
+        "bundleRulesManage": {
+          "title": "Багцын дүрэм удирдах",
+          "description": "Багцын дүрэм үүсгэх, засах, устгах"
+        },
+        "bundleConditionsManage": {
+          "title": "Багцын нөхцөл удирдах",
+          "description": "Багцын нөхцөл үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "permissions": {
+      "name": "Зөвшөөрлүүд",
+      "description": "Зөвшөөрлийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "permissionsRead": {
+          "title": "Зөвшөөрөл харах",
+          "description": "Зөвшөөрлийн бүлэг харах"
+        },
+        "permissionsManage": {
+          "title": "Зөвшөөрөл удирдах",
+          "description": "Зөвшөөрлийн бүлэг үүсгэх, засах, устгах, эрх олгох"
+        }
+      }
+    },
+    "apps": {
+      "name": "Аппууд",
+      "description": "Аппын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "appsRead": {
+          "title": "Апп харах",
+          "description": "Апп харах"
+        },
+        "appsManage": {
+          "title": "Апп удирдах",
+          "description": "Апп үүсгэх, засах, цуцлах, устгах"
+        }
+      }
+    },
+    "clientPortal": {
+      "name": "Харилцагчийн портал",
+      "description": "Харилцагчийн порталын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "clientPortalRead": {
+          "title": "Харилцагчийн портал харах",
+          "description": "Харилцагчийн порталын тохиргоо харах"
+        },
+        "clientPortalManage": {
+          "title": "Харилцагчийн портал удирдах",
+          "description": "Харилцагчийн портал үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "approval": {
+      "name": "Баталгаажуулалт",
+      "description": "Баталгаажуулалтын түгжээний удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "approvalLocksManage": {
+          "title": "Баталгаажуулалтын түгжээ удирдах",
+          "description": "Баталгаажуулалтын түгжээ үүсгэх, чөлөөлөх"
+        },
+        "approvalLocksForceRelease": {
+          "title": "Түгжээг хүчээр чөлөөлөх",
+          "description": "Түгжигдсэн нөөцийг шалтгаан бичиж хүчээр чөлөөлөх"
+        }
+      }
+    },
+    "automations": {
+      "name": "Автоматжуулалтууд",
+      "description": "Автоматжуулалтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "automationsRead": {
+          "title": "Автоматжуулалт харах",
+          "description": "Автоматжуулалт харах"
+        },
+        "automationsCreate": {
+          "title": "Автоматжуулалт үүсгэх",
+          "description": "Автоматжуулалт үүсгэх"
+        },
+        "automationsUpdate": {
+          "title": "Автоматжуулалт засах",
+          "description": "Автоматжуулалт засах"
+        },
+        "automationsDelete": {
+          "title": "Автоматжуулалт устгах",
+          "description": "Автоматжуулалт устгах"
+        },
+        "automationsAiAgentAdd": {
+          "title": "AI агент үүсгэх",
+          "description": "AI агент үүсгэх"
+        },
+        "automationsAiAgentEdit": {
+          "title": "AI агент засах",
+          "description": "AI агент засах"
+        },
+        "automationsAiAgentRemove": {
+          "title": "AI агент устгах",
+          "description": "AI агент устгах"
+        }
+      }
+    },
+    "logs": {
+      "name": "Системийн лог",
+      "description": "Системийн логт хандах",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "logsRead": {
+          "title": "Системийн лог харах",
+          "description": "Системийн лог харах"
+        }
+      }
+    },
+    "internalNotes": {
+      "name": "Дотоод тэмдэглэл",
+      "description": "Дотоод тэмдэглэлийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "internalNotesManage": {
+          "title": "Дотоод тэмдэглэл удирдах",
+          "description": "Дотоод тэмдэглэл үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "agents": {
+      "name": "AI туслах",
+      "description": "AI туслах",
+      "scopes": {
+        "all": "Бүх агентад хандах"
+      },
+      "actions": {
+        "showAgents": {
+          "title": "AI туслах харах",
+          "description": "AI туслах харах"
+        },
+        "agentsChat": {
+          "title": "AI туслахтай чатлах",
+          "description": "AI туслахын чат ашиглах"
+        },
+        "manageAgentsSettings": {
+          "title": "AI туслахын тохиргоо удирдах",
+          "description": "Байгууллагын түвшний AI туслахын тохиргоог удирдах (код горимыг асаах, унтраах)"
+        }
+      }
+    }
+  },
+  "sales": {
+    "deal": {
+      "name": "Хэлцлүүд",
+      "description": "Хэлцлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хариуцсан хэлцэл",
+        "group": "Хэрэглэгчийн хэлтсийн хэлцэл",
+        "all": "Бүх хэлцэл"
+      },
+      "actions": {
+        "showDeals": {
+          "title": "Хэлцэл харах",
+          "description": "Хэлцэл харах"
+        },
+        "dealsAdd": {
+          "title": "Хэлцэл нэмэх",
+          "description": "Хэлцэл үүсгэх"
+        },
+        "dealsEdit": {
+          "title": "Хэлцэл засах",
+          "description": "Хэлцэл засах"
+        },
+        "dealsProductsEdit": {
+          "title": "Хэлцлийн бүтээгдэхүүний үнэ засах",
+          "description": "Хэлцэл дэх бүтээгдэхүүний нэгж үнийг өөрчлөх"
+        },
+        "dealsProductsDelete": {
+          "title": "Хэлцлийн бүтээгдэхүүн устгах",
+          "description": "Хэлцлээс бүтээгдэхүүн хасах"
+        },
+        "dealsRemove": {
+          "title": "Хэлцэл устгах",
+          "description": "Хэлцэл устгах"
+        },
+        "dealsWatch": {
+          "title": "Хэлцэл хянах",
+          "description": "Хэлцэл хянах"
+        },
+        "dealsArchive": {
+          "title": "Хэлцэл архивлах",
+          "description": "Хэлцэл архивлах / архивлалтыг цуцлах"
+        },
+        "dealsExportManage": {
+          "title": "Хэлцэл экспортлох",
+          "description": "Хэлцэл экспортлох"
+        }
+      }
+    },
+    "board": {
+      "name": "Боардууд",
+      "description": "Боардын удирдлага",
+      "scopes": {
+        "all": "Бүх боард"
+      },
+      "actions": {
+        "boardsAdd": {
+          "title": "Боард нэмэх",
+          "description": "Боард үүсгэх"
+        },
+        "boardsArchive": {
+          "title": "Боард архивлах / архивлалтыг цуцлах",
+          "description": "Боард, түүний дамжлага, хэлцлүүдийг архивлах; боардын архивлалтыг цуцлах"
+        },
+        "boardsEdit": {
+          "title": "Боард засах",
+          "description": "Боард засах"
+        },
+        "boardsRemove": {
+          "title": "Боард устгах",
+          "description": "Боард устгах"
+        },
+        "updateTimeTracking": {
+          "title": "Цаг бүртгэл шинэчлэх",
+          "description": "Боардын бичлэгийн цаг бүртгэлийг шинэчлэх"
+        }
+      }
+    },
+    "pipeline": {
+      "name": "Дамжлагууд",
+      "description": "Дамжлагын удирдлага",
+      "scopes": {
+        "all": "Бүх дамжлага"
+      },
+      "actions": {
+        "pipelinesAdd": {
+          "title": "Дамжлага нэмэх",
+          "description": "Дамжлага үүсгэх"
+        },
+        "pipelinesEdit": {
+          "title": "Дамжлага засах",
+          "description": "Дамжлага засах"
+        },
+        "pipelinesWatch": {
+          "title": "Дамжлага хянах",
+          "description": "Дамжлага хянах"
+        }
+      }
+    },
+    "stage": {
+      "name": "Үе шатууд",
+      "description": "Үе шатын удирдлага",
+      "scopes": {
+        "all": "Бүх үе шат"
+      },
+      "actions": {
+        "stagesEdit": {
+          "title": "Үе шат засах",
+          "description": "Үе шат засах"
+        },
+        "stagesRemove": {
+          "title": "Үе шат устгах",
+          "description": "Үе шат устгах"
+        },
+        "itemsSort": {
+          "title": "Үе шат дахь бичлэгийг эрэмбэлэх",
+          "description": "Үе шат дахь бичлэгүүдийг эрэмбэлэх"
+        }
+      }
+    },
+    "checklist": {
+      "name": "Жагсаалтууд",
+      "description": "Жагсаалтын удирдлага",
+      "scopes": {
+        "all": "Бүх жагсаалт"
+      },
+      "actions": {
+        "checklistsAdd": {
+          "title": "Жагсаалт нэмэх",
+          "description": "Жагсаалт үүсгэх"
+        },
+        "checklistsEdit": {
+          "title": "Жагсаалт засах",
+          "description": "Жагсаалт засах (мөрийн өөрчлөлтийг оруулаад)"
+        },
+        "checklistsRemove": {
+          "title": "Жагсаалт устгах",
+          "description": "Жагсаалт устгах"
+        }
+      }
+    },
+    "pipelineLabel": {
+      "name": "Дамжлагын шошгонууд",
+      "description": "Дамжлагын шошгоны удирдлага",
+      "scopes": {
+        "all": "Бүх дамжлагын шошго"
+      },
+      "actions": {
+        "pipelineLabelsAdd": {
+          "title": "Дамжлагын шошго нэмэх",
+          "description": "Дамжлагын шошго үүсгэх"
+        },
+        "pipelineLabelsEdit": {
+          "title": "Дамжлагын шошго засах",
+          "description": "Дамжлагын шошго засах"
+        },
+        "pipelineLabelsRemove": {
+          "title": "Дамжлагын шошго устгах",
+          "description": "Дамжлагын шошго устгах"
+        }
+      }
+    },
+    "pipelineTemplate": {
+      "name": "Дамжлагын загварууд",
+      "description": "Дамжлагын загварын удирдлага",
+      "scopes": {
+        "all": "Бүх дамжлагын загвар"
+      },
+      "actions": {
+        "showTemplates": {
+          "title": "Загвар харах",
+          "description": "Дамжлагын загвар харах"
+        },
+        "templatesAdd": {
+          "title": "Загвар нэмэх",
+          "description": "Загвар үүсгэх"
+        },
+        "templatesEdit": {
+          "title": "Загвар засах",
+          "description": "Загвар засах"
+        },
+        "templatesRemove": {
+          "title": "Загвар устгах",
+          "description": "Загвар устгах"
+        }
+      }
+    },
+    "pos": {
+      "name": "ПОС",
+      "description": "ПОС-ийн удирдлага",
+      "scopes": {
+        "all": "ПОС-ийн бүх өгөгдөл"
+      },
+      "actions": {
+        "posRead": {
+          "title": "ПОС-ийн дэлгэрэнгүй харах",
+          "description": "ПОС-ийн тохиргоо харах"
+        },
+        "posOrderRead": {
+          "title": "Захиалга харах",
+          "description": "ПОС-ийн захиалга харах"
+        },
+        "posCoversRead": {
+          "title": "Хаалт харах",
+          "description": "ПОС-ийн хаалт харах"
+        },
+        "posAdd": {
+          "title": "ПОС нэмэх",
+          "description": "Шинэ ПОС үүсгэх"
+        },
+        "posEdit": {
+          "title": "ПОС засах",
+          "description": "ПОС шинэчлэх"
+        },
+        "posRemove": {
+          "title": "ПОС устгах",
+          "description": "ПОС устгах"
+        },
+        "posOrderChangePayments": {
+          "title": "Захиалгын төлбөр өөрчлөх",
+          "description": "Захиалгын төлбөрийг өөрчлөх"
+        },
+        "productGroupsBulkInsert": {
+          "title": "Бүтээгдэхүүний бүлэг удирдах",
+          "description": "Бүтээгдэхүүний бүлгүүдийг бөөнөөр шинэчлэх"
+        },
+        "posSlotBulkUpdate": {
+          "title": "Слот удирдах",
+          "description": "ПОС-ийн слотуудыг бөөнөөр шинэчлэх"
+        },
+        "posCoversEdit": {
+          "title": "Хаалт засах",
+          "description": "ПОС-ийн хаалт засах"
+        },
+        "posCoversRemove": {
+          "title": "Хаалт устгах",
+          "description": "ПОС-ийн хаалт устгах"
+        },
+        "posItemsExportManage": {
+          "title": "ПОС бичилт экспортлох",
+          "description": "ПОС бичилт экспортлох"
+        },
+        "posOrdersExportManage": {
+          "title": "ПОС захиалга экспортлох",
+          "description": "ПОС захиалга экспортлох"
+        }
+      }
+    }
+  },
+  "frontline": {
+    "inbox": {
+      "name": "Инбокс",
+      "description": "Инбокс ба харилцан яриа",
+      "scopes": {
+        "own": "Хэрэглэгчид оноосон харилцан яриа",
+        "group": "Хэрэглэгчийн хэлтсийн харилцан яриа",
+        "all": "Бүх харилцан яриа"
+      },
+      "actions": {
+        "showConversations": {
+          "title": "Харилцан яриа харах",
+          "description": "Инбоксын харилцан яриа харах"
+        },
+        "conversationMessageAdd": {
+          "title": "Мессеж илгээх",
+          "description": "Харилцан ярианд мессеж илгээх"
+        },
+        "conversationMessageEdit": {
+          "title": "Мессеж засах",
+          "description": "Илгээсэн мессеж засах"
+        },
+        "conversationsAssign": {
+          "title": "Харилцан яриа оноох",
+          "description": "Харилцан яриаг ажилтанд оноох"
+        },
+        "conversationsUnassign": {
+          "title": "Оноолтыг цуцлах",
+          "description": "Ажилтны оноолтыг хасах"
+        },
+        "conversationsChangeStatus": {
+          "title": "Харилцан ярианы төлөв өөрчлөх",
+          "description": "Харилцан яриаг нээх эсвэл хаах"
+        },
+        "conversationsResolve": {
+          "title": "Харилцан яриа шийдвэрлэх",
+          "description": "Харилцан яриаг шийдвэрлэсэн гэж тэмдэглэх"
+        },
+        "conversationEditCustomFields": {
+          "title": "Нэмэлт талбар засах",
+          "description": "Харилцан ярианы нэмэлт талбарын утга засах"
+        }
+      }
+    },
+    "channel": {
+      "name": "Сувгууд",
+      "description": "Сувгийн удирдлага",
+      "scopes": {
+        "all": "Бүх суваг"
+      },
+      "actions": {
+        "showChannels": {
+          "title": "Суваг харах",
+          "description": "Өөрийн гишүүнчлэлтэй сувгуудыг харах"
+        },
+        "showAllChannels": {
+          "title": "Бүх суваг харах",
+          "description": "Гишүүнчлэлээс үл хамааран бүх сувгийг харах"
+        },
+        "channelAdd": {
+          "title": "Суваг нэмэх",
+          "description": "Шинэ суваг үүсгэх"
+        },
+        "channelUpdate": {
+          "title": "Суваг засах",
+          "description": "Сувгийн тохиргоо засах"
+        },
+        "channelRemove": {
+          "title": "Суваг устгах",
+          "description": "Суваг устгах"
+        },
+        "channelManageMembers": {
+          "title": "Сувгийн гишүүд удирдах",
+          "description": "Сувгийн гишүүдийг нэмэх, хасах, шинэчлэх"
+        }
+      }
+    },
+    "integration": {
+      "name": "Холболтууд",
+      "description": "Холболтын удирдлага",
+      "scopes": {
+        "all": "Бүх холболт"
+      },
+      "actions": {
+        "showIntegrations": {
+          "title": "Холболт харах",
+          "description": "Холболтын жагсаалт харах"
+        },
+        "integrationsAdd": {
+          "title": "Холболт нэмэх",
+          "description": "Холболт үүсгэх"
+        },
+        "integrationsEdit": {
+          "title": "Холболт засах",
+          "description": "Холболтын тохиргоо засах"
+        },
+        "integrationsRemove": {
+          "title": "Холболт устгах",
+          "description": "Холболт устгах"
+        }
+      }
+    },
+    "ticket": {
+      "name": "Тикетүүд",
+      "description": "Тикетийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчид оноосон тикет",
+        "group": "Хэрэглэгчийн хэлтсийн тикет",
+        "all": "Бүх тикет"
+      },
+      "actions": {
+        "showTickets": {
+          "title": "Тикет харах",
+          "description": "Тикет харах"
+        },
+        "createTicket": {
+          "title": "Тикет нэмэх",
+          "description": "Тикет үүсгэх"
+        },
+        "updateTicket": {
+          "title": "Тикет засах",
+          "description": "Тикет засах"
+        },
+        "removeTicket": {
+          "title": "Тикет устгах",
+          "description": "Тикет устгах"
+        },
+        "ticketStatusesManage": {
+          "title": "Тикетийн төлөв удирдах",
+          "description": "Дамжлагын төлөв нэмэх, засах, устгах"
+        },
+        "ticketsExportManage": {
+          "title": "Тикет экспортлох",
+          "description": "Тикетийг файл руу экспортлох"
+        },
+        "ticketsImportManage": {
+          "title": "Тикет импортлох",
+          "description": "Тикетийг файлаас импортлох"
+        }
+      }
+    },
+    "form": {
+      "name": "Маягтууд",
+      "description": "Маягтын удирдлага",
+      "scopes": {
+        "all": "Бүх маягт"
+      },
+      "actions": {
+        "showForms": {
+          "title": "Маягт харах",
+          "description": "Маягтын жагсаалт харах"
+        },
+        "formsAdd": {
+          "title": "Маягт нэмэх",
+          "description": "Маягт үүсгэх"
+        },
+        "formsEdit": {
+          "title": "Маягт засах",
+          "description": "Маягт засах"
+        },
+        "formsRemove": {
+          "title": "Маягт устгах",
+          "description": "Маягт устгах"
+        },
+        "formsDuplicate": {
+          "title": "Маягт хувилах",
+          "description": "Байгаа маягтыг хувилах"
+        },
+        "formsToggleStatus": {
+          "title": "Маягтын төлөв солих",
+          "description": "Маягтыг идэвхжүүлэх эсвэл идэвхгүй болгох"
+        },
+        "showFormSubmissions": {
+          "title": "Маягтын илгээлт харах",
+          "description": "Маягтын илгээлтийн өгөгдөл харах"
+        },
+        "formSubmissionsRemove": {
+          "title": "Маягтын илгээлт устгах",
+          "description": "Маягтын илгээлт устгах"
+        },
+        "formSubmissionsExportManage": {
+          "title": "Маягтын илгээлт экспортлох",
+          "description": "Маягтын илгээлтийг файл руу экспортлох"
+        }
+      }
+    },
+    "survey": {
+      "name": "Судалгаа",
+      "description": "Судалгааны удирдлага",
+      "scopes": {
+        "all": "Бүх судалгаа"
+      },
+      "actions": {
+        "showSurveys": {
+          "title": "Судалгаа харах",
+          "description": "Судалгааны жагсаалт харах"
+        },
+        "surveyAdd": {
+          "title": "Судалгаа нэмэх",
+          "description": "Судалгаа үүсгэх"
+        },
+        "surveyEdit": {
+          "title": "Судалгаа засах",
+          "description": "Судалгаа засах"
+        },
+        "surveyRemove": {
+          "title": "Судалгаа устгах",
+          "description": "Судалгаа устгах"
+        },
+        "surveyToggleStatus": {
+          "title": "Судалгааны төлөв солих",
+          "description": "Судалгааг идэвхжүүлэх эсвэл архивлах"
+        },
+        "surveySendToConversation": {
+          "title": "Судалгаа илгээх",
+          "description": "Мессенжерийн харилцан ярианд судалгаа илгээх"
+        }
+      }
+    },
+    "callReport": {
+      "name": "Дуудлагын тайлан",
+      "description": "Дуудлагын төвийн тайлан",
+      "scopes": {
+        "all": "Бүх дуудлагын дараалал"
+      },
+      "actions": {
+        "showCallReports": {
+          "title": "Дуудлагын тайлан харах",
+          "description": "Хэрэглэгчийн ажилладаг дарааллын дуудлагын тайланг нээх"
+        },
+        "showAllCallReports": {
+          "title": "Бүх дуудлагын дараалал харах",
+          "description": "Зөвхөн хэрэглэгчийн ажилладаг бус, бүх дарааллын дуудлагын тайланг харах"
+        }
+      }
+    },
+    "responseTemplate": {
+      "name": "Хариу загварууд",
+      "description": "Хариу загварын удирдлага",
+      "scopes": {
+        "all": "Бүх хариу загвар"
+      },
+      "actions": {
+        "showResponseTemplates": {
+          "title": "Хариу загвар харах",
+          "description": "Хариу загвар харах"
+        },
+        "responseTemplatesAdd": {
+          "title": "Хариу загвар нэмэх",
+          "description": "Хариу загвар үүсгэх"
+        },
+        "responseTemplatesEdit": {
+          "title": "Хариу загвар засах",
+          "description": "Хариу загвар засах"
+        },
+        "responseTemplatesRemove": {
+          "title": "Хариу загвар устгах",
+          "description": "Хариу загвар устгах"
+        }
+      }
+    },
+    "knowledgeBase": {
+      "name": "Мэдлэгийн сан",
+      "description": "Мэдлэгийн сангийн удирдлага",
+      "scopes": {
+        "all": "Мэдлэгийн сангийн бүх агуулга"
+      },
+      "actions": {
+        "showKnowledgeBase": {
+          "title": "Мэдлэгийн сан харах",
+          "description": "Мэдлэгийн сангийн сэдэв, нийтлэл харах"
+        },
+        "knowledgeBaseTopicsManage": {
+          "title": "Сэдэв удирдах",
+          "description": "Мэдлэгийн сангийн сэдэв нэмэх, засах, устгах"
+        },
+        "knowledgeBaseCategoriesManage": {
+          "title": "Ангилал удирдах",
+          "description": "Мэдлэгийн сангийн ангилал нэмэх, засах, устгах"
+        },
+        "knowledgeBaseArticlesManage": {
+          "title": "Нийтлэл удирдах",
+          "description": "Мэдлэгийн сангийн нийтлэл нэмэх, засах, устгах"
+        }
+      }
+    },
+    "helpCenter": {
+      "name": "Тусламжийн төв",
+      "description": "Тусламжийн төвийн тохиргоо",
+      "scopes": {
+        "all": "Тусламжийн төвийн бүх тохиргоо"
+      },
+      "actions": {
+        "showHelpCenter": {
+          "title": "Тусламжийн төв харах",
+          "description": "Тусламжийн төвийн ерөнхий тохиргоо, харагдах байдлыг харах"
+        },
+        "helpCenterManage": {
+          "title": "Тусламжийн төв удирдах",
+          "description": "Тусламжийн төвийн ерөнхий тохиргоо, харагдах байдлыг үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    }
+  },
+  "operation": {
+    "task": {
+      "name": "Даалгаврууд",
+      "description": "Даалгаврын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хэрэглэгчид оноосон бичлэг",
+        "group": "Хэрэглэгчийн багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "taskRead": {
+          "title": "Даалгавар харах",
+          "description": "Даалгавар харах"
+        },
+        "taskCreate": {
+          "title": "Даалгавар үүсгэх",
+          "description": "Даалгавар үүсгэх"
+        },
+        "taskUpdate": {
+          "title": "Даалгавар засах",
+          "description": "Даалгавар засах"
+        },
+        "taskRemove": {
+          "title": "Даалгавар устгах",
+          "description": "Даалгавар устгах"
+        },
+        "taskAssign": {
+          "title": "Даалгавар оноох",
+          "description": "Даалгавар оноох"
+        },
+        "taskExportManage": {
+          "title": "Даалгавар экспортлох",
+          "description": "Даалгавар экспортлох"
+        },
+        "taskImportManage": {
+          "title": "Даалгавар импортлох",
+          "description": "Даалгавар импортлох"
+        }
+      }
+    },
+    "triage": {
+      "name": "Триаж",
+      "description": "Триажийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "group": "Хэрэглэгчийн багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "triageRead": {
+          "title": "Триаж харах",
+          "description": "Триаж харах"
+        },
+        "triageCreate": {
+          "title": "Триаж үүсгэх",
+          "description": "Триаж үүсгэх"
+        },
+        "triageUpdate": {
+          "title": "Триаж засах",
+          "description": "Триаж засах"
+        },
+        "triageConvert": {
+          "title": "Триажийг даалгавар болгох",
+          "description": "Триажийг даалгавар болгон хөрвүүлэх"
+        }
+      }
+    },
+    "project": {
+      "name": "Төслүүд",
+      "description": "Төслийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хэрэглэгчид оноосон бичлэг",
+        "group": "Хэрэглэгчийн багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "projectRead": {
+          "title": "Төсөл харах",
+          "description": "Төсөл харах"
+        },
+        "projectCreate": {
+          "title": "Төсөл үүсгэх",
+          "description": "Төсөл үүсгэх"
+        },
+        "projectUpdate": {
+          "title": "Төсөл засах",
+          "description": "Төсөл засах"
+        },
+        "projectRemove": {
+          "title": "Төсөл устгах",
+          "description": "Төсөл устгах"
+        },
+        "projectExportManage": {
+          "title": "Төсөл экспортлох",
+          "description": "Төсөл экспортлох"
+        }
+      }
+    },
+    "milestone": {
+      "name": "Тэмдэглэлтүүд",
+      "description": "Тэмдэглэлтийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "group": "Хэрэглэгчийн төслийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "milestoneRead": {
+          "title": "Тэмдэглэлт харах",
+          "description": "Тэмдэглэлт харах"
+        },
+        "milestoneCreate": {
+          "title": "Тэмдэглэлт үүсгэх",
+          "description": "Тэмдэглэлт үүсгэх"
+        },
+        "milestoneUpdate": {
+          "title": "Тэмдэглэлт засах",
+          "description": "Тэмдэглэлт засах"
+        },
+        "milestoneRemove": {
+          "title": "Тэмдэглэлт устгах",
+          "description": "Тэмдэглэлт устгах"
+        }
+      }
+    },
+    "cycle": {
+      "name": "Мөчлөгүүд",
+      "description": "Мөчлөгийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хэрэглэгчид оноосон бичлэг",
+        "group": "Таны багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "cycleRead": {
+          "title": "Мөчлөг харах",
+          "description": "Мөчлөг харах"
+        },
+        "cycleCreate": {
+          "title": "Мөчлөг үүсгэх",
+          "description": "Мөчлөг үүсгэх"
+        },
+        "cycleUpdate": {
+          "title": "Мөчлөг засах",
+          "description": "Мөчлөг засах"
+        },
+        "cycleRemove": {
+          "title": "Мөчлөг устгах",
+          "description": "Мөчлөг устгах"
+        },
+        "cycleEnd": {
+          "title": "Мөчлөг дуусгах",
+          "description": "Идэвхтэй мөчлөгийг дуусгах"
+        }
+      }
+    },
+    "team": {
+      "name": "Багууд",
+      "description": "Багийн удирдлага",
+      "scopes": {
+        "own": "Таны үүсгэсэн эсвэл танд оноосон бичлэг",
+        "group": "Таны багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "teamRead": {
+          "title": "Баг харах",
+          "description": "Баг харах"
+        },
+        "teamCreate": {
+          "title": "Баг үүсгэх",
+          "description": "Баг үүсгэх"
+        },
+        "teamUpdate": {
+          "title": "Баг засах",
+          "description": "Баг засах"
+        },
+        "teamRemove": {
+          "title": "Баг устгах",
+          "description": "Баг устгах"
+        },
+        "teamMemberManage": {
+          "title": "Багийн гишүүд удирдах",
+          "description": "Багийн гишүүдийг нэмэх, хасах, шинэчлэх"
+        }
+      }
+    },
+    "note": {
+      "name": "Тэмдэглэлүүд",
+      "description": "Тэмдэглэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тэмдэглэл",
+        "all": "Бүх тэмдэглэл"
+      },
+      "actions": {
+        "noteRead": {
+          "title": "Тэмдэглэл харах",
+          "description": "Тэмдэглэл харах"
+        },
+        "noteCreate": {
+          "title": "Тэмдэглэл үүсгэх",
+          "description": "Тэмдэглэл үүсгэх"
+        },
+        "noteUpdate": {
+          "title": "Тэмдэглэл засах",
+          "description": "Тэмдэглэл засах"
+        },
+        "noteRemove": {
+          "title": "Тэмдэглэл устгах",
+          "description": "Тэмдэглэл устгах"
+        }
+      }
+    },
+    "status": {
+      "name": "Төлөвүүд",
+      "description": "Төлөвийн удирдлага",
+      "scopes": {
+        "group": "Хэрэглэгчийн багийн төлөв",
+        "all": "Бүх төлөв"
+      },
+      "actions": {
+        "statusRead": {
+          "title": "Төлөв харах",
+          "description": "Төлөв харах"
+        },
+        "statusCreate": {
+          "title": "Төлөв үүсгэх",
+          "description": "Төлөв үүсгэх"
+        },
+        "statusUpdate": {
+          "title": "Төлөв засах",
+          "description": "Төлөв засах"
+        },
+        "statusRemove": {
+          "title": "Төлөв устгах",
+          "description": "Төлөв устгах"
+        }
+      }
+    }
+  },
+  "mongolian": {
+    "configs": {
+      "name": "Тохиргоо",
+      "description": "Mongolian плагины тохиргоо",
+      "scopes": {
+        "all": "Бүх тохиргоо"
+      },
+      "actions": {
+        "showMnConfig": {
+          "title": "Тохиргоо харах",
+          "description": "Mongolian плагины тохиргоо харах"
+        },
+        "manageMnConfig": {
+          "title": "Тохиргоо удирдах",
+          "description": "Mongolian плагины тохиргоо үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "ebarimt": {
+      "name": "Эбаримт",
+      "description": "Эбаримтын илгээлтийн хариу ба үйлдлүүд",
+      "scopes": {
+        "all": "Эбаримтын бүх үйлдэл"
+      },
+      "actions": {
+        "putResponses": {
+          "title": "Илгээлтийн хариу харах",
+          "description": "Эбаримтын илгээлтийн хариу харах"
+        },
+        "putResponsesCount": {
+          "title": "Илгээлтийн хариу тоолох",
+          "description": "Эбаримтын илгээлтийн хариуны тоог харах"
+        },
+        "putResponseDetail": {
+          "title": "Илгээлтийн хариуны дэлгэрэнгүй харах",
+          "description": "Эбаримтын нэг илгээлтийн хариуг харах"
+        },
+        "putResponsesAmount": {
+          "title": "Илгээлтийн хариуны дүн харах",
+          "description": "Илгээлтийн хариуны нэгтгэсэн дүн"
+        },
+        "putResponsesByDate": {
+          "title": "Илгээлтийн хариуг огноогоор харах",
+          "description": "Илгээлтийн хариуг огноогоор бүлэглэж харах"
+        },
+        "putResponsesDuplicated": {
+          "title": "Давхардсан илгээлтийн хариу харах",
+          "description": "Давхардсан илгээлтийн хариу харах"
+        },
+        "putResponsesDuplicatedCount": {
+          "title": "Давхардсан илгээлтийн хариу тоолох",
+          "description": "Давхардсан илгээлтийн хариуны тоог харах"
+        },
+        "putResponsesDuplicatedDetail": {
+          "title": "Давхардсан илгээлтийн хариуны дэлгэрэнгүй харах",
+          "description": "Давхардсан илгээлтийн хариуны дэлгэрэнгүй"
+        },
+        "putResponseReturnBill": {
+          "title": "Баримт буцаах",
+          "description": "Эбаримтын баримт буцаах"
+        },
+        "putResponseReReturn": {
+          "title": "Баримт дахин буцаах",
+          "description": "Эбаримтын баримтыг дахин буцаах"
+        }
+      }
+    },
+    "ebarimtProductRules": {
+      "name": "Эбаримтын бүтээгдэхүүний дүрэм",
+      "description": "Эбаримтын бүтээгдэхүүний дүрэм",
+      "scopes": {
+        "all": "Бүх бүтээгдэхүүний дүрэм"
+      },
+      "actions": {
+        "showEbarimtProductRules": {
+          "title": "Бүтээгдэхүүний дүрэм харах",
+          "description": "Эбаримтын бүтээгдэхүүний дүрэм харах"
+        },
+        "manageEbarimtProductRules": {
+          "title": "Бүтээгдэхүүний дүрэм удирдах",
+          "description": "Бүтээгдэхүүний дүрэм үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "ebarimtProductGroups": {
+      "name": "Эбаримтын бүтээгдэхүүний бүлэг",
+      "description": "Эбаримтын бүтээгдэхүүний бүлэг",
+      "scopes": {
+        "all": "Бүх бүтээгдэхүүний бүлэг"
+      },
+      "actions": {
+        "showEbarimtProductGroups": {
+          "title": "Бүтээгдэхүүний бүлэг харах",
+          "description": "Эбаримтын бүтээгдэхүүний бүлэг харах"
+        },
+        "manageEbarimtProductGroups": {
+          "title": "Бүтээгдэхүүний бүлэг удирдах",
+          "description": "Бүтээгдэхүүний бүлэг үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "erkhet": {
+      "name": "Эрхэт",
+      "description": "Эрхэттэй синк хийх ба мэдээлэл авах",
+      "scopes": {
+        "all": "Эрхэтийн бүх үйлдэл"
+      },
+      "actions": {
+        "erkhetManageSync": {
+          "title": "Эрхэтийн синк удирдах",
+          "description": "Эрхэтийн синкийг эхлүүлэх, удирдах"
+        },
+        "showErkhetRemainders": {
+          "title": "Үлдэгдэл харах",
+          "description": "Эрхэтээс бүтээгдэхүүний үлдэгдэл харах"
+        },
+        "showErkhetDebt": {
+          "title": "Харилцагчийн өр харах",
+          "description": "Эрхэтээс харилцагчийн өрийн мэдээлэл харах"
+        },
+        "showErkhetSyncHistory": {
+          "title": "Синкийн түүх харах",
+          "description": "Эрхэтийн синкийн түүхийн лог харах"
+        }
+      }
+    },
+    "exchangeRates": {
+      "name": "Ханш",
+      "description": "Валютын ханшийн удирдлага",
+      "scopes": {
+        "all": "Бүх ханш"
+      },
+      "actions": {
+        "exchangeRatesManage": {
+          "title": "Ханш удирдах",
+          "description": "Ханш үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "msdynamic": {
+      "name": "MS Dynamics",
+      "description": "MS Dynamics 365 Business Central-тай синк хийх",
+      "scopes": {
+        "all": "MS Dynamics-ийн бүх үйлдэл"
+      },
+      "actions": {
+        "showMsd": {
+          "title": "MS Dynamics-ийн өгөгдөл харах",
+          "description": "MS Dynamics-ийн синкийн түүх, бүтээгдэхүүний үлдэгдэл, харилцагчийн холбоосыг харах"
+        },
+        "msdCheck": {
+          "title": "MS Dynamics-ийн синк төлөв шалгах",
+          "description": "erxes ба MS Dynamics хоорондын бүтээгдэхүүний синк төлөвийг харах"
+        },
+        "msdSync": {
+          "title": "MS Dynamics-тай синк хийх",
+          "description": "Бүтээгдэхүүн, харилцагчийг синк хийж, захиалгыг MS Dynamics руу илгээх"
+        }
+      }
+    }
+  },
+  "content": {
+    "cmsPost": {
+      "name": "CMS нийтлэлүүд",
+      "description": "CMS мэдээ, нийтлэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн бичсэн нийтлэл",
+        "all": "Бүх CMS нийтлэл"
+      },
+      "actions": {
+        "cmsPostsSharePostiz": {
+          "title": "CMS нийтлэлийг Postiz-ээр хуваалцах",
+          "description": "Сонгосон CMS нийтлэлийг байгууллагын workspace-ээр сошиал сувгуудад нийтлэх"
+        },
+        "cmsPostsRead": {
+          "title": "CMS нийтлэл харах",
+          "description": "CMS нийтлэл болон орчуулгыг харах"
+        },
+        "cmsPostsCreatePublished": {
+          "title": "CMS нийтлэл үүсгэж нийтлэх",
+          "description": "Шууд нийтлэгдэх CMS нийтлэл үүсгэх"
+        },
+        "cmsPostsCreateReview": {
+          "title": "Хянуулах CMS нийтлэл үүсгэх",
+          "description": "Редакторын зөвшөөрөл шаардлагатай CMS нийтлэл үүсгэх"
+        },
+        "cmsPostsUpdate": {
+          "title": "CMS нийтлэл засах",
+          "description": "Сэтгүүлчдийн үүсгэсэн CMS нийтлэлийг засах"
+        },
+        "cmsPostsApprove": {
+          "title": "CMS нийтлэл батлах",
+          "description": "Зөвшөөрөлд илгээсэн CMS нийтлэлийг нийтлэх"
+        },
+        "cmsPostsRemove": {
+          "title": "CMS нийтлэл устгах",
+          "description": "CMS нийтлэл устгах"
+        },
+        "cmsPermissionsManage": {
+          "title": "CMS-ийн үүрэг удирдах",
+          "description": "CMS-ийн сэтгүүлч, редакторын эрхийг удирдах"
+        },
+        "cmsLanguageAll": {
+          "title": "CMS-ийн бүх хэл",
+          "description": "Ямар ч хэл дээр CMS агуулга үүсгэх, засах, батлах"
+        },
+        "cmsLanguageMn": {
+          "title": "CMS-ийн монгол хэл",
+          "description": "Монгол хэл дээрх CMS агуулга үүсгэх, засах, батлах"
+        },
+        "cmsLanguageEn": {
+          "title": "CMS-ийн англи хэл",
+          "description": "Англи хэл дээрх CMS агуулга үүсгэх, засах, батлах"
+        }
+      }
+    }
+  },
+  "payment": {
+    "invoice": {
+      "name": "Нэхэмжлэлүүд",
+      "description": "Нэхэмжлэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "paymentInvoiceView": {
+          "title": "Нэхэмжлэл харах",
+          "description": "Нэхэмжлэлийн бичлэг харах"
+        },
+        "paymentInvoiceEdit": {
+          "title": "Нэхэмжлэл засах",
+          "description": "Нэхэмжлэлийн тайлбар, дүн, валют, төлөвийг засах"
+        }
+      }
+    }
+  },
+  "loyalty": {
+    "agent": {
+      "name": "Агентууд",
+      "description": "Агентын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "agentView": {
+          "title": "Агент харах",
+          "description": "Агентын бичлэг харах"
+        },
+        "agentCreate": {
+          "title": "Агент үүсгэх",
+          "description": "Агентын бичлэг үүсгэх"
+        },
+        "agentUpdate": {
+          "title": "Агент засах",
+          "description": "Агентын бичлэг засах"
+        },
+        "agentRemove": {
+          "title": "Агент устгах",
+          "description": "Агентын бичлэг устгах"
+        }
+      }
+    },
+    "assignment": {
+      "name": "Хуваарилалтууд",
+      "description": "Хуваарилалтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "assignmentView": {
+          "title": "Хуваарилалт харах",
+          "description": "Хуваарилалтын бичлэг харах"
+        },
+        "assignmentCreate": {
+          "title": "Хуваарилалт үүсгэх",
+          "description": "Хуваарилалтын бичлэг үүсгэх"
+        },
+        "assignmentRemove": {
+          "title": "Хуваарилалт устгах",
+          "description": "Хуваарилалтын бичлэг устгах"
+        }
+      }
+    },
+    "assignmentCampaign": {
+      "name": "Хуваарилалтын аян",
+      "description": "Хуваарилалтын аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "config": {
+      "name": "Тохиргоо",
+      "description": "Лояалти тохиргоо",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyConfigView": {
+          "title": "Лояалти тохиргоо харах",
+          "description": "Лояалти тохиргоо харах"
+        },
+        "loyaltyConfigUpdate": {
+          "title": "Лояалти тохиргоо шинэчлэх",
+          "description": "Лояалти тохиргоо шинэчлэх"
+        }
+      }
+    },
+    "loyalty": {
+      "name": "Лояалти",
+      "description": "Лояалти үйлдлүүд",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyView": {
+          "title": "Лояалти өгөгдөл харах",
+          "description": "Лояалти бичлэг харах"
+        },
+        "loyaltyCheck": {
+          "title": "Лояалти шалгах",
+          "description": "Ваучер ашиглах боломжтой эсэхийг шалгах"
+        },
+        "loyaltyShareScore": {
+          "title": "Оноо хуваалцах",
+          "description": "Хэрэглэгчдийн хооронд лояалти оноо хуваалцах"
+        },
+        "loyaltyConfirmVoucher": {
+          "title": "Ваучерын борлуулалт баталгаажуулах",
+          "description": "Борлуулалтад ваучер ашигласныг баталгаажуулах"
+        }
+      }
+    },
+    "coupon": {
+      "name": "Купонууд",
+      "description": "Купоны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "couponView": {
+          "title": "Купон харах",
+          "description": "Купоны бичлэг харах"
+        },
+        "couponCreate": {
+          "title": "Купон үүсгэх",
+          "description": "Купоны бичлэг үүсгэх"
+        },
+        "couponEdit": {
+          "title": "Купон засах",
+          "description": "Купоны бичлэг засах"
+        },
+        "couponRemove": {
+          "title": "Купон устгах",
+          "description": "Купоны бичлэг устгах"
+        },
+        "couponExportManage": {
+          "title": "Купон экспортлох",
+          "description": "Купоны бичлэг экспортлох"
+        }
+      }
+    },
+    "couponCampaign": {
+      "name": "Купоны аян",
+      "description": "Купоны аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "donate": {
+      "name": "Хандивууд",
+      "description": "Хандивын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "donateView": {
+          "title": "Хандив харах",
+          "description": "Хандивын бичлэг харах"
+        },
+        "donateCreate": {
+          "title": "Хандив үүсгэх",
+          "description": "Хандивын бичлэг үүсгэх"
+        },
+        "donateEdit": {
+          "title": "Хандив засах",
+          "description": "Хандивын бичлэг засах"
+        },
+        "donateRemove": {
+          "title": "Хандив устгах",
+          "description": "Хандивын бичлэг устгах"
+        }
+      }
+    },
+    "donateCampaign": {
+      "name": "Хандивын аян",
+      "description": "Хандивын аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "lottery": {
+      "name": "Сугалаанууд",
+      "description": "Сугалааны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "lotteryView": {
+          "title": "Сугалаа харах",
+          "description": "Сугалааны бичлэг харах"
+        },
+        "lotteryCreate": {
+          "title": "Сугалаа үүсгэх",
+          "description": "Сугалааны бичлэг үүсгэх"
+        },
+        "lotteryEdit": {
+          "title": "Сугалаа засах",
+          "description": "Сугалааны бичлэг засах"
+        },
+        "lotteryRemove": {
+          "title": "Сугалаа устгах",
+          "description": "Сугалааны бичлэг устгах"
+        },
+        "lotteryBuy": {
+          "title": "Сугалааны тасалбар худалдан авах",
+          "description": "Сугалааны тасалбар худалдан авах"
+        }
+      }
+    },
+    "lotteryCampaign": {
+      "name": "Сугалааны аян",
+      "description": "Сугалааны аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        },
+        "lotteryCampaignDo": {
+          "title": "Сугалаа явуулах",
+          "description": "Сугалааны тохирол явуулах"
+        }
+      }
+    },
+    "pricing": {
+      "name": "Үнэ тогтоолт",
+      "description": "Үнэ тогтоолтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "pricingView": {
+          "title": "Үнэ тогтоолт харах",
+          "description": "Үнэ тогтоолтын бичлэг харах"
+        },
+        "pricingCreate": {
+          "title": "Үнэ тогтоолт үүсгэх",
+          "description": "Үнэ тогтоолтын бичлэг үүсгэх"
+        },
+        "pricingUpdate": {
+          "title": "Үнэ тогтоолт засах",
+          "description": "Үнэ тогтоолтын бичлэг засах"
+        },
+        "pricingRemove": {
+          "title": "Үнэ тогтоолт устгах",
+          "description": "Үнэ тогтоолтын бичлэг устгах"
+        }
+      }
+    },
+    "pricingPlan": {
+      "name": "Үнийн төлөвлөгөө",
+      "description": "Үнийн төлөвлөгөөний удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "pricingPlanView": {
+          "title": "Үнийн төлөвлөгөө харах",
+          "description": "Үнийн төлөвлөгөөний бичлэг харах"
+        },
+        "pricingPlanCreate": {
+          "title": "Үнийн төлөвлөгөө үүсгэх",
+          "description": "Үнийн төлөвлөгөөний бичлэг үүсгэх"
+        },
+        "pricingPlanUpdate": {
+          "title": "Үнийн төлөвлөгөө засах",
+          "description": "Үнийн төлөвлөгөөний бичлэг засах"
+        },
+        "pricingPlanRemove": {
+          "title": "Үнийн төлөвлөгөө устгах",
+          "description": "Үнийн төлөвлөгөөний бичлэг устгах"
+        }
+      }
+    },
+    "scoreCampaign": {
+      "name": "Онооны аян",
+      "description": "Онооны аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        },
+        "scoreRefund": {
+          "title": "Лояалти оноо буцаах",
+          "description": "Хэрэглэгчид оноо буцааж олгох"
+        }
+      }
+    },
+    "scoreLog": {
+      "name": "Онооны түүх",
+      "description": "Онооны түүхийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "scoreLogView": {
+          "title": "Онооны түүх харах",
+          "description": "Онооны түүхийн бичлэг харах"
+        },
+        "scoreLogChange": {
+          "title": "Оноо өөрчлөх",
+          "description": "Хэрэглэгчийн оноог гараар өөрчлөх"
+        },
+        "loyaltyAccountFreeze": {
+          "title": "Данс царцаах",
+          "description": "Лояалти дансыг царцаах, царцаалтыг цуцлах"
+        },
+        "loyaltyAccountSetTier": {
+          "title": "Түвшин тогтоох",
+          "description": "Дансны түвшинг гараар тогтоох"
+        }
+      }
+    },
+    "spin": {
+      "name": "Эргүүлгүүд",
+      "description": "Эргүүлгийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "spinView": {
+          "title": "Эргүүлэг харах",
+          "description": "Эргүүлгийн бичлэг харах"
+        },
+        "spinCreate": {
+          "title": "Эргүүлэг үүсгэх",
+          "description": "Эргүүлгийн бичлэг үүсгэх"
+        },
+        "spinEdit": {
+          "title": "Эргүүлэг засах",
+          "description": "Эргүүлгийн бичлэг засах"
+        },
+        "spinRemove": {
+          "title": "Эргүүлэг устгах",
+          "description": "Эргүүлгийн бичлэг устгах"
+        },
+        "spinBuy": {
+          "title": "Эргүүлэг худалдан авах",
+          "description": "Эргүүлэг худалдан авах"
+        },
+        "spinDo": {
+          "title": "Эргүүлэг эргүүлэх",
+          "description": "Эргүүлэг эргүүлэх"
+        }
+      }
+    },
+    "spinCampaign": {
+      "name": "Эргүүлгийн аян",
+      "description": "Эргүүлгийн аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "voucher": {
+      "name": "Ваучерууд",
+      "description": "Ваучерын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "voucherView": {
+          "title": "Ваучер харах",
+          "description": "Ваучерын бичлэг харах"
+        },
+        "voucherCreate": {
+          "title": "Ваучер үүсгэх",
+          "description": "Ваучерын бичлэг үүсгэх"
+        },
+        "voucherEdit": {
+          "title": "Ваучер засах",
+          "description": "Ваучерын бичлэг засах"
+        },
+        "voucherRemove": {
+          "title": "Ваучер устгах",
+          "description": "Ваучерын бичлэг устгах"
+        },
+        "voucherBuy": {
+          "title": "Ваучер худалдан авах",
+          "description": "Ваучер худалдан авах"
+        }
+      }
+    },
+    "voucherCampaign": {
+      "name": "Ваучерын аян",
+      "description": "Ваучерын аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    }
+  },
+  "groups": {
+    "accounting:admin": {
+      "description": "Санхүүгийн плагинд бүрэн хандах эрх"
+    },
+    "accounting:viewer": {
+      "description": "Санхүүгийн плагиныг зөвхөн харах эрх"
+    },
+    "core:admin": {
+      "description": "Core модулиудад бүрэн хандах эрх"
+    },
+    "core:user": {
+      "description": "Core модулиудад энгийн хэрэглэгчийн хандах эрх"
+    },
+    "core:viewer": {
+      "description": "Бүх Core модулийг зөвхөн харах эрх, өөрийн өгөгдлийг өөрчилж болно"
+    },
+    "sales:admin": {
+      "description": "Борлуулалтын плагинд бүрэн хандах эрх"
+    },
+    "sales:user": {
+      "description": "Борлуулалтын багийн энгийн гишүүн"
+    },
+    "sales:viewer": {
+      "description": "Хэлцэл болон ПОС-ийг зөвхөн харах эрх"
+    },
+    "frontline:admin": {
+      "description": "Frontline-ийн бүх модульд бүрэн хандах эрх"
+    },
+    "frontline:user": {
+      "description": "Дэмжлэгийн энгийн хэрэглэгч — инбокс, тикет, загварууд"
+    },
+    "frontline:viewer": {
+      "description": "Харилцан яриа, тикет, мэдлэгийн санг зөвхөн харах эрх"
+    },
+    "operation:admin": {
+      "description": "Operation плагинд бүрэн хандах эрх"
+    },
+    "operation:user": {
+      "description": "Багийн энгийн гишүүн"
+    },
+    "operation:viewer": {
+      "description": "Зөвхөн харах эрх"
+    },
+    "mongolian:admin": {
+      "description": "Mongolian плагинд бүрэн хандах эрх"
+    },
+    "mongolian:user": {
+      "description": "Харах болон хязгаарлагдмал удирдах эрхтэй энгийн хэрэглэгч"
+    },
+    "mongolian:viewer": {
+      "description": "Mongolian плагиныг зөвхөн харах эрх"
+    },
+    "content:cms-journalist-1": {
+      "description": "CMS мэдээ бичиж шууд нийтлэх боломжтой"
+    },
+    "content:cms-journalist-2": {
+      "description": "Редакторын зөвшөөрөл шаардлагатай CMS мэдээ бичих боломжтой"
+    },
+    "content:cms-editor": {
+      "description": "Сэтгүүлчдийн CMS мэдээг засах, батлах боломжтой"
+    },
+    "content:cms-admin": {
+      "description": "CMS нийтлэл, үүрэг, баталгаажуулалтад бүрэн хандах эрх"
+    },
+    "content:viewer": {
+      "description": "CMS нийтлэлийг зөвхөн харах эрх"
+    },
+    "payment:admin": {
+      "description": "Төлбөрийн нэхэмжлэл харах, засах"
+    },
+    "payment:viewer": {
+      "description": "Төлбөрийн нэхэмжлэлийг зөвхөн харах эрх"
+    },
+    "loyalty:admin": {
+      "description": "Лояалти плагинд бүрэн хандах эрх"
+    },
+    "loyalty:user": {
+      "description": "Лояалтийн энгийн хэрэглэгч"
+    },
+    "loyalty:viewer": {
+      "description": "Зөвхөн харах эрх"
+    }
+  }
+}

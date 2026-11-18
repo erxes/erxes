@@ -43,6 +43,14 @@ const DiscordRemoteEntry = lazy(() =>
   })),
 );
 
+const TelegramRemoteEntry = lazy(() =>
+  import('../modules/telegram/components/TelegramRemoteEntry').then(
+    (module) => ({
+      default: module.TelegramRemoteEntry,
+    }),
+  ),
+);
+
 const MailRemoteEntry = lazy(() =>
   import('../modules/mail/components/MailRemoteEntry').then((module) => ({
     default: module.MailRemoteEntry,
@@ -72,6 +80,7 @@ const Remotes: Record<
   tickets: TicketRemoteEntry,
   inbox: InboxRemoteEntry,
   discord: DiscordRemoteEntry,
+  telegram: TelegramRemoteEntry,
   mail: MailRemoteEntry,
   form: FormRemoteEntry,
   knowledgebase: KnowledgebaseRemoteEntry,

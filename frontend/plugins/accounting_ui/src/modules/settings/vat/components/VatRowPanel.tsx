@@ -88,6 +88,7 @@ const VatRowPanelActions = ({ contentId }: ISettingsPanelViewProps) => {
             toast({
               title: t('success'),
               description: t('vat-rows-deleted-successfully'),
+              variant: 'success',
             });
             onCompleted();
           },

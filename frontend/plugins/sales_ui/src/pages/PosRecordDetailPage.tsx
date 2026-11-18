@@ -135,8 +135,9 @@ const PosRecordPage = ({
       back: backToList,
       canGoBack: false,
       close: backToList,
+      listPath,
     }),
-    [record, tab, setTab, openRecord, backToList],
+    [record, tab, setTab, openRecord, backToList, listPath],
   );
 
   return (
@@ -147,7 +148,7 @@ const PosRecordPage = ({
             <PageHeader.Start className="flex-auto min-w-0">
               {breadcrumb}
             </PageHeader.Start>
-            {actions && <PageHeader.End>{actions}</PageHeader.End>}
+            <PageHeader.End>{actions}</PageHeader.End>
           </PageHeader>
           <RecordSidePanel.Tabs
             value={tab ?? defaultTab}

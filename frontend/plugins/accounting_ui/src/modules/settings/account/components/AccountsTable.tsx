@@ -1,37 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
 import { IconDatabaseOff } from '@tabler/icons-react';
-import { RecordTable, Skeleton, Table } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddAccount } from '@/settings/account/components/AddAccount';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
 import { AccountsCommandbar } from '@/settings/account/components/AccountsCommandBar';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '@/accountsSessionKeys';
-import { useMemo } from 'react';
-
-const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const { t } = useTranslation('accounting');
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {accountsColumns(t).map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const AccountsTable = () => {
   const { t } = useTranslation('accounting');
@@ -64,7 +39,7 @@ export const AccountsTable = () => {
               handleFetchMore={handleFetchMore}
             />
             <RecordTable.RowList />
-            {isInitialLoading && <AccountsInitialSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

@@ -8,6 +8,7 @@ import {
   markInvoicePaymentKindsStale,
   syncMarkedInvoicePaymentKinds,
 } from '~/modules/payment/services/invoicePaymentKinds';
+import { scheduleInvoiceRecheck } from '~/modules/payment/services/invoiceRecheckQueue';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
@@ -121,6 +122,17 @@ export const loadTransactionClass = (models: IModels) => {
 
       // outside the try: a failure here must not delete a created transaction
       await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
+
+      // Re-checks the invoice with its provider later, in case the paid
+      // callback never arrives (customer closed the page, provider push lost).
+      // A failure to queue must not fail the payment the customer is making.
+      try {
+        await scheduleInvoiceRecheck(subdomain, transaction.invoiceId);
+      } catch (e) {
+        console.error(
+          `Failed to schedule re-check for invoice ${transaction.invoiceId}: ${e.message}`,
+        );
+      }
 
       return transaction;
     }

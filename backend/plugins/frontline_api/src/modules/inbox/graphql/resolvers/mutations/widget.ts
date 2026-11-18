@@ -25,8 +25,14 @@ import {
   MESSAGE_TYPES,
 } from '~/modules/inbox/db/definitions/constants';
 import { trackViewPageEvent } from '~/modules/inbox/events';
-import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
+import {
+  debugError,
+  fillSearchTextItem,
+  getMessengerAutomation,
+  getMessengerGetStarted,
+} from '~/modules/inbox/utils';
 import { withLiveTicketOptions } from '~/modules/ticket/utils/ticketConfig';
+import { isAutomatedReplyPaused } from '~/modules/inbox/services/automatedReplyPause';
 import { nanoid } from 'nanoid';
 import {
   assertOwnsConversation,
@@ -181,29 +187,11 @@ export const getMessengerData = async (
   let aiAgentLabel = 'erxes';
 
   if (automationId) {
-    const automations = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'automation',
-      action: 'find',
-      input: {
-        query: {
-          triggerType: 'frontline:inbox.messages',
-        },
-      },
-    }).catch(() => []);
+    const automation = await getMessengerAutomation(subdomain, automationId);
 
-    const automation = (automations || []).find(
-      (a: any) => String(a._id) === String(automationId),
-    );
-
-    getStartedCondition =
-      (automation?.triggers || [])
-        .flatMap((t: any) => t.config?.conditions || [])
-        .find((c: any) => c.type === 'getStarted') || false;
-
+    getStartedCondition = getMessengerGetStarted(automation) || false;
     aiAgentLabel =
-      (automation?.actions || []).find((a: any) => a.type === 'aiAgent')
+      (automation?.actions || []).find(({ type }) => type === 'aiAgent')
         ?.label ?? 'erxes';
   }
 
@@ -538,16 +526,9 @@ export const widgetMutations: Record<string, Resolver> = {
           },
         });
 
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'automations',
-          method: 'mutation',
-          module: 'automations',
-          action: 'trigger',
-          input: {
-            type: 'core:company',
-            targets: [company],
-          },
+        sendAutomationTrigger(subdomain, {
+          type: 'core:company',
+          targets: [company],
         });
       } else {
         companyData.primaryName = companyData.name;
@@ -821,7 +802,8 @@ export const widgetMutations: Record<string, Resolver> = {
     if (
       botId &&
       !HAS_BOTENDPOINT_URL &&
-      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR &&
+      !(await isAutomatedReplyPaused(models, conversation))
     ) {
       graphqlPubsub.publish(
         `conversationBotTypingStatus:${msg.conversationId}`,
@@ -1265,6 +1247,11 @@ export const widgetMutations: Record<string, Resolver> = {
         number: Date.now().toString(),
         createdBy: user?._id,
       });
+
+      await models.Ticket.syncSla(ticket._id, subdomain).catch((error) =>
+        console.error(`Ticket ${ticket._id} SLA sync failed:`, error),
+      );
+
       return ticket;
     } catch (e) {
       throw new Error(e.message);

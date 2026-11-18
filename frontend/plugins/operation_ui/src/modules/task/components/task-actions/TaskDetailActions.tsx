@@ -12,10 +12,7 @@ import {
   TasksMoveToTeamTrigger,
 } from './MoveToTeam';
 import { MakeACopyTrigger } from './MakeACopy';
-import {
-  ConvertToProjectSheet,
-  ConvertToProjectTrigger,
-} from '@/task/components/task-selects/ConvertToProject';
+import { ConvertToProjectTrigger } from '@/task/components/task-selects/ConvertToProject';
 import { CopyTaskTrigger, CopyTaskCommandBarItem } from './CopyTask';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,7 +23,6 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('main');
-  const [converting, setConverting] = useState(false);
   const [printing, setPrinting] = useState(false);
   const { hasActionPermission } = usePermissionCheck();
   const canPrint = hasActionPermission('documentsRead');
@@ -71,11 +67,7 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                   />
                   <MakeACopyTrigger taskId={taskId} setOpen={setOpen} />
                   {task && (
-                    <ConvertToProjectTrigger
-                      task={task}
-                      setOpen={setOpen}
-                      onConvert={() => setConverting(true)}
-                    />
+                    <ConvertToProjectTrigger task={task} setOpen={setOpen} />
                   )}
                   <CopyTaskTrigger setCurrentContent={setCurrentContent} />
                   {canPrint && (
@@ -162,13 +154,6 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
           open={printing}
           onOpenChange={setPrinting}
           trigger={null}
-        />
-      )}
-      {task && (
-        <ConvertToProjectSheet
-          task={task}
-          open={converting}
-          onOpenChange={setConverting}
         />
       )}
     </>

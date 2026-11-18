@@ -1,6 +1,8 @@
 export const types = `
   type AdjustFixedAsset @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
+    expenseAccountId: String
+    taxExpenseAccountId: String
     date: Date
     description: String
     status: String
@@ -25,28 +27,19 @@ export const types = `
     branchId: String
     departmentId: String
 
+    count: Float
     originalCost: Float
     salvageValue: Float
-    openingBookValue: Float
-    preDeprecation: Float
+    accumulatedDepreciation: Float
     depreciationAmount: Float
-    bookDepreciationAmount: Float
-    closingAccumulatedDepreciation: Float
-    closingBookValue: Float
-
-    openingTaxBase: Float
-    openingTaxAccumulatedDepreciation: Float
     taxDepreciationAmount: Float
-    closingTaxAccumulatedDepreciation: Float
-    closingTaxBase: Float
-
-    openingTemporaryDifference: Float
-    temporaryDifferenceAmount: Float
-    closingTemporaryDifference: Float
-    deferredTaxAmount: Float
-    deferredTaxType: String
-    deferredTaxTransactionId: String
-    deferredTaxTrDetailId: String
+    taxAccumulatedDepreciation: Float
+    temporaryDifference: Float
+    deferredTaxAsset: Float
+    deferredTaxLiability: Float
+    revaluationLoss: Float
+    revaluationReserve: Float
+    previous: AdjustFxaDetail
 
     transactionId: String
     transactionDetailId: String
@@ -110,5 +103,5 @@ export const mutations = `
   adjustFixedAssetRemove(adjustId: String!): String
   adjustFixedAssetClear(adjustId: String!): AdjustFixedAsset
   adjustFixedAssetRun(adjustId: String!): AdjustFixedAsset
-  adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!): AdjustFixedAsset
+  adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!, taxExpenseAccountId: String): AdjustFixedAsset
 `;

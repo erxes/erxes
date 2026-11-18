@@ -10,6 +10,7 @@ import {
   MongoClient,
   WriteError,
 } from 'mongodb';
+import { findOrganization, findSourceOrganization } from '../findOrganization';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -316,9 +317,7 @@ async function main() {
 
     const coreDb = client.db(coreDbName);
 
-    const sourceOrg = await coreDb
-      .collection('organizations')
-      .findOne({ subdomain: SOURCE_SUBDOMAIN }, { projection: { _id: 1 } });
+    const sourceOrg = await findSourceOrganization(coreDb, SOURCE_SUBDOMAIN);
 
     if (!sourceOrg) {
       throw new Error(
@@ -326,9 +325,7 @@ async function main() {
       );
     }
 
-    const targetOrg = await coreDb
-      .collection('organizations')
-      .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+    const targetOrg = await findOrganization(coreDb, TARGET_SUBDOMAIN);
 
     if (!targetOrg) {
       throw new Error(

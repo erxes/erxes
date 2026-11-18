@@ -1,7 +1,7 @@
 import { gql } from '~/gql';
 
 export const FIXED_ASSET_CATEGORIES_ADD = gql(`
-mutation accountingFixedAssetCategoriesAdd($code: String!, $name: String!, $description: String, $parentId: String, $status: String, $depreciationMethod: String, $defaultAnnualDepreciationRate: Float, $defaultSalvageValue: Float, $taxDepreciationMethod: String, $defaultTaxAnnualDepreciationRate: Float, $defaultTaxSalvageValue: Float) {
+mutation accountingFixedAssetCategoriesAdd($code: String!, $name: String!, $description: String, $parentId: String, $status: String, $depreciationMethod: String, $defaultAnnualDepreciationRate: Float, $defaultSalvageValue: Float, $taxDepreciationMethod: String, $defaultTaxAnnualDepreciationRate: Float, $defaultTaxSalvageValue: Float, $incomeTaxRate: Float) {
   fixedAssetCategoriesAdd(
     code: $code
     name: $name
@@ -14,6 +14,7 @@ mutation accountingFixedAssetCategoriesAdd($code: String!, $name: String!, $desc
     taxDepreciationMethod: $taxDepreciationMethod
     defaultTaxAnnualDepreciationRate: $defaultTaxAnnualDepreciationRate
     defaultTaxSalvageValue: $defaultTaxSalvageValue
+    incomeTaxRate: $incomeTaxRate
   ) {
     _id
   }
@@ -21,7 +22,7 @@ mutation accountingFixedAssetCategoriesAdd($code: String!, $name: String!, $desc
 `);
 
 export const FIXED_ASSET_CATEGORIES_EDIT = gql(`
-mutation accountingFixedAssetCategoriesEdit($_id: String!, $code: String!, $name: String!, $description: String, $parentId: String, $status: String, $depreciationMethod: String, $defaultAnnualDepreciationRate: Float, $defaultSalvageValue: Float, $taxDepreciationMethod: String, $defaultTaxAnnualDepreciationRate: Float, $defaultTaxSalvageValue: Float) {
+mutation accountingFixedAssetCategoriesEdit($_id: String!, $code: String!, $name: String!, $description: String, $parentId: String, $status: String, $depreciationMethod: String, $defaultAnnualDepreciationRate: Float, $defaultSalvageValue: Float, $taxDepreciationMethod: String, $defaultTaxAnnualDepreciationRate: Float, $defaultTaxSalvageValue: Float, $incomeTaxRate: Float) {
   fixedAssetCategoriesEdit(
     _id: $_id
     code: $code
@@ -35,6 +36,7 @@ mutation accountingFixedAssetCategoriesEdit($_id: String!, $code: String!, $name
     taxDepreciationMethod: $taxDepreciationMethod
     defaultTaxAnnualDepreciationRate: $defaultTaxAnnualDepreciationRate
     defaultTaxSalvageValue: $defaultTaxSalvageValue
+    incomeTaxRate: $incomeTaxRate
   ) {
     _id
   }
@@ -48,19 +50,13 @@ mutation accountingFixedAssetCategoriesRemove($_id: String!) {
 `);
 
 export const FIXED_ASSETS_ADD = gql(`
-mutation accountingFixedAssetsAdd($code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $depreciationMethod: String, $annualDepreciationRate: Float, $salvageValue: Float, $taxDepreciationMethod: String, $taxAnnualDepreciationRate: Float, $taxSalvageValue: Float, $propertiesData: JSON) {
+mutation accountingFixedAssetsAdd($code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $propertiesData: JSON) {
   fixedAssetsAdd(
     code: $code
     name: $name
     categoryId: $categoryId
     description: $description
     status: $status
-    depreciationMethod: $depreciationMethod
-    annualDepreciationRate: $annualDepreciationRate
-    salvageValue: $salvageValue
-    taxDepreciationMethod: $taxDepreciationMethod
-    taxAnnualDepreciationRate: $taxAnnualDepreciationRate
-    taxSalvageValue: $taxSalvageValue
     propertiesData: $propertiesData
   ) {
     _id
@@ -69,7 +65,7 @@ mutation accountingFixedAssetsAdd($code: String!, $name: String!, $categoryId: S
 `);
 
 export const FIXED_ASSETS_EDIT = gql(`
-mutation accountingFixedAssetsEdit($_id: String!, $code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $depreciationMethod: String, $annualDepreciationRate: Float, $salvageValue: Float, $taxDepreciationMethod: String, $taxAnnualDepreciationRate: Float, $taxSalvageValue: Float, $propertiesData: JSON) {
+mutation accountingFixedAssetsEdit($_id: String!, $code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $propertiesData: JSON) {
   fixedAssetsEdit(
     _id: $_id
     code: $code
@@ -77,12 +73,6 @@ mutation accountingFixedAssetsEdit($_id: String!, $code: String!, $name: String!
     categoryId: $categoryId
     description: $description
     status: $status
-    depreciationMethod: $depreciationMethod
-    annualDepreciationRate: $annualDepreciationRate
-    salvageValue: $salvageValue
-    taxDepreciationMethod: $taxDepreciationMethod
-    taxAnnualDepreciationRate: $taxAnnualDepreciationRate
-    taxSalvageValue: $taxSalvageValue
     propertiesData: $propertiesData
   ) {
     _id

@@ -5,11 +5,12 @@ import { AddTransaction } from '@/transactions/components/AddTransaction';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
 import { TrRecordTable } from '@/transactions/components/TrRecordTable';
 import { useTransactionsFilterVariables } from '@/transactions/hooks/useTransactionVars';
-import { IconPlus } from '@tabler/icons-react';
+import { IconListCheck, IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageSubHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Can, Export } from 'ui-modules';
 import { TrRecsTotalCount } from '~/modules/transactions/components/TrRecsTotalCount';
+import { AccountingPath } from '@/types/AccountingPath';
 
 export const TrRecordListPage = () => {
   const { t } = useTranslation('accounting');
@@ -20,16 +21,18 @@ export const TrRecordListPage = () => {
       <div className="flex flex-auto overflow-hidden">
         <JournalNavigation />
         <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
-          <AccountingHeader>
-            <div className="px-3">
-              <AddTransaction>
-                <Button>
-                  <IconPlus />
-                  {t('add-transaction')}
-                  <Kbd>C</Kbd>
-                </Button>
-              </AddTransaction>
-            </div>
+          <AccountingHeader
+            returnLink={AccountingPath.Records}
+            returnText={t('journal-entries')}
+            icon={IconListCheck}
+          >
+            <AddTransaction>
+              <Button>
+                <IconPlus />
+                {t('add-transaction')}
+                <Kbd>C</Kbd>
+              </Button>
+            </AddTransaction>
           </AccountingHeader>
           <PageSubHeader>
             <TransactionsFilter afterBar={<TrRecsTotalCount />} />

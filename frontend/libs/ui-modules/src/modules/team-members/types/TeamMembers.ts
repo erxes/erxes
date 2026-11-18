@@ -13,6 +13,7 @@ export interface IUser {
   appearance?: {
     layout?: string | null;
     frameColor?: string | null;
+    navPosition?: string | null;
   } | null;
   details?: {
     firstName?: string;

@@ -37,6 +37,8 @@ export interface ICompany {
   tagIds?: string[];
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField;
+  contactRoles?: string[];
+  dataExtensions?: Record<string, unknown>;
   trackedData?: ICustomField[];
   website?: string;
   code?: string;

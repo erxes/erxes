@@ -140,9 +140,6 @@ export const AddTransaction = ({
                 onNavigate={() => handleOpenChange(false)}
               />
             ))}
-            <Command.Item disabled value={t('adjustment')} className="pl-7">
-              {t('adjustment')}
-            </Command.Item>
           </Command.List>
         </Command>
       </Popover.Content>

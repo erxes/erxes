@@ -94,12 +94,7 @@ const CartItem = ({
             className="text-xs font-extrabold"
           />
           <StrikedPrice price={originalPrice} />
-          <LoyaltyDiscountBadge
-            itemId={_id}
-            discountInfos={discountInfos}
-            unitPrice={unitPrice}
-            count={count}
-          />
+          <LoyaltyDiscountBadge itemId={_id} discountInfos={discountInfos} />
         </span>
         <span className="w-6/12">
           <ProductPrice

@@ -1,5 +1,4 @@
 import {
-  isEnabled,
   markResolvers,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -8,6 +7,10 @@ import * as momentTz from 'moment-timezone';
 import { IModels, IContext } from '~/connectionResolvers';
 import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
 import { toCustomerConversationView } from '@/inbox/utils/customerConversationView';
+import {
+  getMessengerAutomation,
+  getMessengerGetStarted,
+} from '~/modules/inbox/utils';
 import {
   assertOwnsConversation,
   assertOwnsTicket,
@@ -120,31 +123,14 @@ export const widgetQueries: Record<string, Resolver> = {
 
       if (!integration) return null;
 
-      type GetStartedCondition = { isSelected?: boolean } | any;
-
-      let getStartedCondition: GetStartedCondition = false;
-
-      if (await isEnabled('automations')) {
-        const getStarted = await sendTRPCMessage({
+      // The messenger's own automation, as the connect mutation reads it
+      const getStartedCondition = getMessengerGetStarted(
+        await getMessengerAutomation(
           subdomain,
-          pluginName: 'automations',
-          method: 'query',
-          module: 'triggers',
-          action: 'find',
-          input: {
-            query: {
-              triggerType: 'inbox:messages',
-              botId: integration._id,
-            },
-          },
-        }).catch((error) => {
-          throw error;
-        });
-
-        getStartedCondition = (
-          getStarted[0]?.triggers[0]?.config?.conditions || []
-        ).find((condition) => condition.type === 'getStarted');
-      }
+          (integration.messengerData as { automationId?: string } | undefined)
+            ?.automationId,
+        ),
+      );
 
       const messengerData = integration.messengerData || {
         supporterIds: [],

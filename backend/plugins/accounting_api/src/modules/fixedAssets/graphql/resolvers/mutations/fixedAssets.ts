@@ -104,6 +104,11 @@ const buildOwnerRecordDoc = (
   createdAt: new Date(),
 });
 
+const validateCategoryIncomeTaxRate = (rate?: number): void => {
+  if (rate !== undefined && (!Number.isFinite(rate) || rate < 0 || rate > 100))
+    throw new Error('Income tax rate must be between 0 and 100.');
+};
+
 const fixedAssetMutations = {
   async fixedAssetCategoriesAdd(
     _root: undefined,
@@ -112,6 +117,7 @@ const fixedAssetMutations = {
   ) {
     await checkPermission('manageAccounts');
 
+    validateCategoryIncomeTaxRate(doc.incomeTaxRate);
     return models.FixedAssetCategories.create({
       ...doc,
       status: doc.status || 'active',
@@ -126,6 +132,7 @@ const fixedAssetMutations = {
   ) {
     await checkPermission('manageAccounts');
 
+    validateCategoryIncomeTaxRate(doc.incomeTaxRate);
     await models.FixedAssetCategories.updateOne(
       { _id },
       {
@@ -167,24 +174,9 @@ const fixedAssetMutations = {
   ) {
     await checkPermission('manageAccounts');
 
-    const category = await models.FixedAssetCategories.findOne({
-      _id: doc.categoryId,
-    }).lean();
-
     return models.FixedAssets.create({
       ...doc,
       status: doc.status || 'active',
-      depreciationMethod:
-        doc.depreciationMethod || category?.depreciationMethod,
-      annualDepreciationRate:
-        doc.annualDepreciationRate ?? category?.defaultAnnualDepreciationRate,
-      salvageValue: doc.salvageValue ?? category?.defaultSalvageValue,
-      taxDepreciationMethod:
-        doc.taxDepreciationMethod || category?.taxDepreciationMethod,
-      taxAnnualDepreciationRate:
-        doc.taxAnnualDepreciationRate ??
-        category?.defaultTaxAnnualDepreciationRate,
-      taxSalvageValue: doc.taxSalvageValue ?? category?.defaultTaxSalvageValue,
       ...buildAuditFields(user?._id),
     });
   },

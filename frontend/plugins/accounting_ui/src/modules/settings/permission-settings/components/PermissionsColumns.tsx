@@ -5,6 +5,7 @@ import {
   Command,
   NumberField,
   Popover,
+  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
@@ -54,11 +55,13 @@ const PermissionLevelCell = ({
 };
 
 const PermissionInlineScopeCell = ({
+  scope,
   value,
   options,
   onChange,
   placeholder = '-',
 }: {
+  scope: string;
   value?: string;
   options: ReadonlyArray<ScopeOption>;
   onChange: (next: string) => void;
@@ -69,7 +72,7 @@ const PermissionInlineScopeCell = ({
   const selected = options.find((o) => o.value === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
       <RecordTableInlineCell.Trigger>
         {selected ? <ScopeDisplay option={selected} /> : placeholder}
       </RecordTableInlineCell.Trigger>
@@ -94,7 +97,7 @@ const PermissionInlineScopeCell = ({
           </Command.List>
         </Command>
       </RecordTableInlineCell.Content>
-    </Popover>
+    </PopoverScoped>
   );
 };
 
@@ -163,6 +166,7 @@ const PermissionReadCell = ({ cell }: { cell: Cell<IPermission, unknown> }) => {
 
   return (
     <PermissionInlineScopeCell
+      scope={`permission-${original._id}-read`}
       value={original.read}
       options={ACCOUNT_PERMISSIONS.READ}
       onChange={(next) =>
@@ -182,6 +186,7 @@ const PermissionWriteCell = ({
 
   return (
     <PermissionInlineScopeCell
+      scope={`permission-${original._id}-write`}
       value={original.write}
       options={ACCOUNT_PERMISSIONS.WRITE}
       onChange={(next) =>

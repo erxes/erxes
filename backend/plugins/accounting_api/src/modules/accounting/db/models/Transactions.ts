@@ -10,7 +10,11 @@ import { commonRemove, commonRemoveValidation } from '../../utils/commonRemove';
 import { commonSave, commonSaveValidation } from '../../utils/commonSave';
 import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
 import { transactionSchema } from '../definitions/transaction';
-import { generateTrStatusActivityLog, setPtrStatus } from './utils';
+import {
+  generateTrStatusActivityLog,
+  getRelAccountOverride,
+  setPtrStatus,
+} from './utils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
@@ -36,13 +40,13 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   createPTransaction(
     docs: ITransaction[],
     userId: string,
-    options?: { skipAccountPermission?: boolean },
+    options?: { skipAccountPermission?: boolean; preservePtrIds?: boolean },
   ): Promise<ITransactionDocument[]>;
   updatePTransaction(
     parentId: string,
     docs: (ITransaction & { _id?: string })[],
     userId: string,
-    options?: { skipAccountPermission?: boolean },
+    options?: { skipAccountPermission?: boolean; preservePtrIds?: boolean },
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -87,29 +91,21 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-const normalizeRelAccountCodes = (codes: unknown): string[] | undefined => {
-  if (!Array.isArray(codes)) {
-    return;
-  }
-
-  const cleanCodes = codes
-    .filter((code): code is string => typeof code === 'string')
-    .map((code) => code.trim())
-    .filter(Boolean);
-
-  return cleanCodes.length ? cleanCodes : undefined;
-};
-
-const normalizeRelAccounts = (relAccounts: unknown) => {
+const normalizeRelAccounts = (
+  relAccounts: unknown,
+  previous?: ITransaction['relAccounts'],
+) => {
   if (!relAccounts || typeof relAccounts !== 'object') {
     return;
   }
 
-  const customDt = normalizeRelAccountCodes(
+  const customDt = getRelAccountOverride(
     (relAccounts as { customDt?: unknown }).customDt,
+    previous?.dt,
   );
-  const customCt = normalizeRelAccountCodes(
+  const customCt = getRelAccountOverride(
     (relAccounts as { customCt?: unknown }).customCt,
+    previous?.ct,
   );
 
   if (!customDt && !customCt) {
@@ -124,9 +120,10 @@ const normalizeRelAccounts = (relAccounts: unknown) => {
 
 const normalizeTransactionRelAccounts = (
   doc: ITransaction & { relAccounts?: unknown },
+  previous?: ITransaction['relAccounts'],
 ) => {
   const cleanDoc = { ...doc };
-  const relAccounts = normalizeRelAccounts(doc.relAccounts);
+  const relAccounts = normalizeRelAccounts(doc.relAccounts, previous);
   const shouldClearRelAccountOverrides = !relAccounts;
 
   if (relAccounts) {
@@ -409,7 +406,7 @@ export const loadTransactionClass = (
     ) {
       const oldTr = await models.Transactions.getTransaction({ _id });
       const { cleanDoc, shouldClearRelAccountOverrides } =
-        normalizeTransactionRelAccounts(doc);
+        normalizeTransactionRelAccounts(doc, oldTr.relAccounts);
       const { cleanDoc: normalizedDoc, unsetDoc } =
         splitUndefinedUnsetFields(cleanDoc);
 
@@ -463,7 +460,10 @@ export const loadTransactionClass = (
     public static async createPTransaction(
       docs: ITransaction[],
       userId: string,
-      options: { skipAccountPermission?: boolean } = {},
+      options: {
+        skipAccountPermission?: boolean;
+        preservePtrIds?: boolean;
+      } = {},
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
       if (!options.skipAccountPermission) {
@@ -493,11 +493,12 @@ export const loadTransactionClass = (
 
         for (const doc of docs) {
           const cleanDoc = cleanCreatePTransactionDoc(doc);
+          const rowPtrId = options.preservePtrIds ? doc.ptrId || ptrId : ptrId;
 
           if (!parentId) {
             const firstTrs = await commonSave(subdomain, models, userId, {
               ...cleanDoc,
-              ptrId,
+              ptrId: rowPtrId,
             });
             parentId = firstTrs.mainTr.parentId;
             ptrNumber = await this.getPtrNumber(firstTrs.mainTr);
@@ -523,7 +524,7 @@ export const loadTransactionClass = (
           } else {
             const trs = await commonSave(subdomain, models, userId, {
               ...cleanDoc,
-              ptrId,
+              ptrId: rowPtrId,
               parentId,
               number: cleanDoc.number ?? ptrNumber,
               ptrNumber,
@@ -588,7 +589,10 @@ export const loadTransactionClass = (
       parentId: string,
       docs: (ITransaction & { _id?: string })[],
       userId: string,
-      options: { skipAccountPermission?: boolean } = {},
+      options: {
+        skipAccountPermission?: boolean;
+        preservePtrIds?: boolean;
+      } = {},
     ) {
       const oldGroupTrs = await models.Transactions.find({ parentId }).lean();
       const oldTrs = oldGroupTrs.filter((tr) => !tr.originId);
@@ -664,7 +668,12 @@ export const loadTransactionClass = (
             subdomain,
             models,
             userId,
-            { ...cleanDoc, ptrId, parentId, ptrNumber },
+            {
+              ...cleanDoc,
+              ptrId: options.preservePtrIds ? doc.ptrId || ptrId : ptrId,
+              parentId,
+              ptrNumber,
+            },
             oldTrs.find((ot) => ot._id === doc._id),
           );
           transactions.push(trs.mainTr);
@@ -679,7 +688,7 @@ export const loadTransactionClass = (
           const { cleanDoc } = normalizeTransactionRelAccounts(doc);
           const trs = await commonSave(subdomain, models, userId, {
             ...cleanDoc,
-            ptrId,
+            ptrId: options.preservePtrIds ? doc.ptrId || ptrId : ptrId,
             parentId,
             ptrNumber,
           });

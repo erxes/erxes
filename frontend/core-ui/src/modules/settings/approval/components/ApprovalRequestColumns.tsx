@@ -133,7 +133,9 @@ export const approvalRequestColumns = ({
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="min-w-0">
-        <TextOverflowTooltip value={row.original.reason || '-'} />
+        <TextOverflowTooltip
+          value={row.original.reason || row.original.change?.summary || '-'}
+        />
       </RecordTableInlineCell>
     ),
   },

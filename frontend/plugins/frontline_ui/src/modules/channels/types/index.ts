@@ -12,7 +12,6 @@ import { CHANNEL_MEMBER_FORM_SCHEMA } from '@/channels/schema/member';
 export enum ChannelHotKeyScope {
   ChannelAddSheet = 'frontline-channel-add-sheet',
   ChannelSettingsPage = 'frontline-channel-settings-page',
-  ChannelDetailPage = 'frontline-channel-detail-page',
   ChannelMembersPage = 'frontline-channel-members-page',
   ChannelAddMemberSheet = 'frontline-channel-add-member-sheet',
   ChannelIntegrationsPage = 'frontline-channel-integrations-page',

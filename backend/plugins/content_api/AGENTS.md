@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -31,14 +31,16 @@
 
 ## Architecture
 
-| Area            | Path                         | Responsibility                                         |
-| --------------- | ---------------------------- | ------------------------------------------------------ |
-| Runtime         | `src/main.ts`                | Plugin startup.                                        |
-| Models          | `src/connectionResolvers.ts` | Tenant-scoped models.                                  |
-| CMS             | `src/modules/cms`            | CMS persistence, GraphQL and access rules.             |
-| Social delivery | `src/modules/cms/postiz`     | Signed bridge, delivery queue and triggered runs.      |
-| Web Builder     | `src/modules/webbuilder`     | Websites and page persistence.                         |
-| Permissions     | `src/meta/permissions.ts`    | CMS actions, language grants and default groups.       |
+| Area            | Path                                      | Responsibility                                      |
+| --------------- | ----------------------------------------- | --------------------------------------------------- |
+| Runtime         | `src/main.ts`                             | Plugin startup.                                     |
+| Models          | `src/connectionResolvers.ts`              | Tenant-scoped models.                               |
+| Slug indexes    | `src/modules/cms/db/ensureSlugIndexes.ts` | Replaces legacy tenant-wide slug unique indexes.    |
+| Pagination      | `src/modules/cms/utils/pagination.ts`     | Count-free cursor lists and requested-field checks. |
+| CMS             | `src/modules/cms`                         | CMS persistence, GraphQL and access rules.          |
+| Social delivery | `src/modules/cms/postiz`                  | Signed bridge, delivery queue and triggered runs.   |
+| Web Builder     | `src/modules/webbuilder`                  | Websites and page persistence.                      |
+| Permissions     | `src/meta/permissions.ts`                 | CMS actions, language grants and default groups.    |
 
 ## Contracts
 
@@ -58,6 +60,8 @@
 
 - Tenant models come from `generateModels(subdomain)`.
 - CMS records use `clientPortalId` to identify a website.
+- Post and tag slugs are unique per website: `cms_posts` `{ slug, clientPortalId }` and `cms_tags` `{ clientPortalId, slug }`. A tenant-wide unique `slug_1` is legacy; `ensureCmsSlugIndexes` drops it once per tenant database on the first post/tag create or update, after the per-site unique index exists.
+- Public list indexes: `cms_posts` `{ clientPortalId, status, categoryIds, _id }` and `{ clientPortalId, count }`; `cms_menu_items` `{ clientPortalId, kind, _id }`; `cms_pages` `{ clientPortalId, _id }`; `cms_categories` `{ clientPortalId, status, _id }`. Mongoose builds them per tenant when its models first load.
 - `cms_postiz_deliveries` stores immutable snapshots and deterministic request IDs through retries.
 - New snapshots include the authenticated request `subdomain`; older records may lack it.
 - `webs.texts` is a Mixed field: string values or nested objects. Older webs may lack it.
@@ -67,6 +71,9 @@
 - A site's default language comes from `getCmsDefaultLanguage` in `src/modules/cms/utils/common.ts`: the stored `language`, then the first entry of `languages`. Base document fields hold that language and `Translations` hold the others, so mutations and language permissions must all use it. `content_ui` resolves it the same way.
 - When `language` is unset the default is only implied, and older data can hold a row in it. Reads apply a saved row and otherwise use the base fields (`shouldSkipTranslation`). Edits go through `getCmsSaveLanguages`, which writes to that row when one exists and skips any `translations` entry for the saved language, so a save is never masked. Language-filtered reads filter only on an explicit default. Keep all of this scoped to sites with no `language`: on an explicit site a row in the default is stale and stays ignored.
 - A settings save on a site with no `language` moves no text. `updateContentCMS` leaves `language` unset when the saved value equals the default computed from the saved `languages`, and stores any other value with no move. `rehomeDefaultLanguageContent` runs only when a stored `language` changes.
+- Never declare `unique: true` on a CMS `slug` field; uniqueness is per website only, and every slug lookup must include `clientPortalId`.
+- Public cp\* list filters must stay covered by an index whose leading field is `clientPortalId`; one unindexed public list on a large site saturates the shared Mongo primary.
+- `getListWithTranslations` counts only when the caller returns `totalCount`; list-only resolvers pass `withTotalCount: false`, and `cpPostList` counts only when the client selects `totalCount`. `cursorPaginateList` must keep the shared `cursorPaginate` ordering and cursor format.
 - Sharing is only for ordinary published posts. Recheck CMS assignment, publishing/sharing permissions, author scope and language access before enqueue and dispatch.
 - Journalist 2's sharing grant does not grant approval or immediate publication. That role alone still cannot dispatch a share; the existing publish/approve and Postiz membership requirements remain mandatory.
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.

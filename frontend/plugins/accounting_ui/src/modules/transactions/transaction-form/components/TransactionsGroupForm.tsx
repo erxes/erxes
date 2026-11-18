@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { memo, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { currentUserState, IUser, SelectMember } from 'ui-modules';
 import {
   TR_STATUS_GROUPS,
@@ -28,7 +28,7 @@ import { activeJournalState, followTrDocsState } from '../states/trStates';
 import { TAddTransactionGroup } from '../types/JournalForms';
 import { Summary } from './Summary';
 import { TransactionsTabsList } from './TransactionTabs';
-import { cleanTrDocs } from './utils';
+import { cleanTrDocs, isHiddenTransaction } from './utils';
 import {
   getAvailableTrStatusOptions,
   getNextMentionFields,
@@ -80,7 +80,7 @@ const FormFields = memo(
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
-                  className="h-8 flex w-full"
+                  className="flex w-full"
                 />
               </Form.Control>
             </Form.Item>
@@ -127,7 +127,7 @@ const FormFields = memo(
                     );
                   }}
                 >
-                  <Select.Trigger className="h-8">
+                  <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -219,14 +219,14 @@ export const TransactionsGroupForm = () => {
   const setActiveJournal = useSetAtom(activeJournalState);
   const setFollowTrDocs = useSetAtom(followTrDocsState);
 
-  const { createTransaction } = useTransactionsCreate();
-  const { updateTransaction } = useTransactionsUpdate();
+  const { createTransaction, loading: createLoading } = useTransactionsCreate();
+  const { updateTransaction, loading: updateLoading } = useTransactionsUpdate();
 
   const onSubmit = (data: TAddTransactionGroup) => {
     if (error) {
       return;
     }
-    if (data.trDocs?.some((trDoc: any) => trDoc?.permission === 'hidden')) {
+    if (data.trDocs?.some(isHiddenTransaction)) {
       return;
     }
 
@@ -252,9 +252,11 @@ export const TransactionsGroupForm = () => {
     }
   };
 
-  const onError = (error: any) => {
-    if (error?.trDocs?.length > 0) {
-      setActiveJournal(error.trDocs.findIndex((tab: any) => !!tab).toString());
+  const onError = (errors: FieldErrors<TAddTransactionGroup>) => {
+    const trDocErrors = errors.trDocs;
+
+    if (Array.isArray(trDocErrors) && trDocErrors.length > 0) {
+      setActiveJournal(trDocErrors.findIndex((tab) => !!tab).toString());
     }
   };
 
@@ -321,7 +323,11 @@ export const TransactionsGroupForm = () => {
             {parentId ? t('edit-transaction') : t('create-transaction')}
           </h3>
           <div className="">
-            <Summary errorMessage={error?.message} form={form} />
+            <Summary
+              errorMessage={error?.message}
+              form={form}
+              saving={createLoading || updateLoading}
+            />
           </div>
         </div>
         <FormFields form={form} currentUserId={currentUser._id} />

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -64,6 +64,7 @@
 ### Consumes
 
 - Core organization config `mainCurrency` through public tRPC when `mainCurrency` is not provided.
+- Core `users.find` tRPC (with a `fields` projection) for Erkhet sync-log `createdUser`.
 - Shared backend utilities, startup, Mongoose helpers, pagination constants, and service-to-service messaging from `erxes-api-shared`.
 
 ## Data and State
@@ -78,9 +79,18 @@
 
 ## Local Invariants
 
+- Resolvers call `checkPermission` with the bare action name declared in
+  `src/meta/permissions.ts` (`putResponses`, not `ebarimt:putResponses`): the
+  shared permission map is keyed by action name only, so a prefixed name denies
+  every non-owner even with the `mongolian:admin` group.
 - Deal contacts for ebarimt, erkhet and product places come from `getDealContactIds` (`modules/ebarimt/utils/dealContacts.ts`): the deal's own `customerId` / `companyId` (a list of at most one); given only the deal id, the deal is read from sales `deal.findOne`. No relations are read.
 - eBarimt bill-type mappings accept `regNoField` / `companyNameField` and legacy `regNo` / `companyName` keys; `basic` mappings read deal fields and other mappings read `propertiesData`. An explicit B2C selection takes precedence over the linked company.
 - Erkhet sales receipt sync accepts company registration numbers and 11/12/14-digit TINs as B2B codes.
+- Erkhet sync-log `createdUser` resolves the core user through tRPC
+  `users.find` projected to `_id`, `email`, `username` and `details` (null when
+  `createdBy` is empty, the user is missing or core is unreachable). It must
+  never return the full core user document, which holds the password hash and
+  tokens, through the `JSON` field.
 - MS Dynamic deal sync selects the direct `companyId` first, then `customerId`; it must not read legacy core conformities for deals.
 - Subscription fields (`ebarimtResponded`, `productPlacesResponded`) are declared only in `src/apollo/subscription.ts`, which the gateway serves. Declaring one again in the subgraph SDL fails `schema:print`.
 - Exchange-rate lookup accepts Date-coercible values because service-to-service tRPC calls serialize JavaScript `Date` values over HTTP.

@@ -320,7 +320,7 @@ export const loadEngageMessageClass = (
       );
 
       if (isWorkflowCampaign(updated.method) && workflow) {
-        await setCampaignAutomationFlow(models, _id, workflow);
+        await setCampaignAutomationFlow(models, _id, workflow, userId);
       }
 
       if (!campaign.isLive && doc.isLive) {

@@ -1,5 +1,20 @@
 import * as dotenv from 'dotenv';
-import { Express } from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
+import {
+  clientPortalHeaderName,
+  cpUserHeaderName,
+  erxesSubdomainHeaderName,
+  getSubdomain,
+  setUserHeader,
+  userHeaderName,
+} from 'erxes-api-shared/utils';
+import {
+  DATA_EXTENSIONS_PROOF_HEADERS,
+  DATA_EXTENSIONS_SERVICE,
+  gatewayProofPayload,
+  isDataExtensionsServiceEnabled,
+  signDataExtensionsProof,
+} from 'erxes-api-shared/core-modules';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { Agent, ServerResponse } from 'http';
 import { apolloRouterPort } from '~/apollo-router';
@@ -163,5 +178,139 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
         error: proxyError,
       },
     }),
+  );
+}
+
+/**
+ * Who serves the Data Extensions API: the standalone app when it is enabled,
+ * otherwise core. Read per request from the current targets, which the
+ * gateway refreshes when services join or leave.
+ */
+export const dataExtensionsAddress = (targets: ErxesProxyTarget[]) => {
+  if (isDataExtensionsServiceEnabled()) {
+    const app = targets.find(
+      (target) => target.name === DATA_EXTENSIONS_SERVICE,
+    );
+
+    if (!app) {
+      throw new Error(`${DATA_EXTENSIONS_SERVICE} service not found`);
+    }
+
+    return app.address;
+  }
+
+  const core = targets.find((target) => target.name === 'core');
+
+  if (!core) {
+    throw new Error('core service not found');
+  }
+
+  return NODE_ENV === 'production' ? core.address : 'http://localhost:3300';
+};
+
+/**
+ * Identity headers on this route come only from what the gateway verified.
+ * Anything a client sent under those names is dropped first, and the result
+ * is signed so the runtime can tell it apart from the generic plugin proxy.
+ */
+const forwardVerifiedIdentity = (
+  req: Request & { user?: Record<string, unknown> },
+  _res: Response,
+  next: NextFunction,
+) => {
+  delete req.headers[userHeaderName];
+  delete req.headers.userid;
+  delete req.headers[cpUserHeaderName];
+  delete req.headers[clientPortalHeaderName];
+  delete req.headers[erxesSubdomainHeaderName];
+
+  for (const header of Object.values(DATA_EXTENSIONS_PROOF_HEADERS)) {
+    delete req.headers[header];
+  }
+
+  if (req.user?._id) {
+    setUserHeader(req.headers, req.user);
+  }
+
+  const userHeader = req.headers[userHeaderName];
+
+  if (req.user?._id && typeof userHeader === 'string') {
+    // The tenant the user was authenticated against in userMiddleware.
+    const subdomain = getSubdomain(req);
+    const proof = signDataExtensionsProof(
+      'gateway',
+      gatewayProofPayload(subdomain, userHeader),
+    );
+
+    req.headers[DATA_EXTENSIONS_PROOF_HEADERS.subdomain] = subdomain;
+    req.headers[DATA_EXTENSIONS_PROOF_HEADERS.issuedAt] = String(
+      proof.issuedAt,
+    );
+    req.headers[DATA_EXTENSIONS_PROOF_HEADERS.signature] = proof.signature;
+  }
+
+  next();
+};
+
+/**
+ * The gateway answers CORS for this route (its own middleware ran before the
+ * proxy). The serving service's headers are dropped so they cannot replace
+ * them: a plugin's default `*` origin is refused by browsers on credentialed
+ * requests.
+ */
+const keepGatewayCors = (upstream, req: any, res: ServerResponse) => {
+  for (const header of Object.keys(upstream.headers)) {
+    if (header.toLowerCase().startsWith('access-control-')) {
+      delete upstream.headers[header];
+    }
+  }
+
+  proxyRes(upstream, req, res);
+};
+
+/**
+ * Tenant-generated Data Extensions schemas, served outside the router by
+ * the standalone app or by core. Only the GraphQL route is public: other
+ * `/data-extensions/*` paths (internal metrics) are refused.
+ */
+export function applyDataExtensionsProxy(
+  app: Express,
+  targets: ErxesProxyTarget[],
+) {
+  app.use(
+    '/data-extensions/graphql',
+    forwardVerifiedIdentity,
+    createProxyMiddleware({
+      target: dataExtensionsAddress(targets),
+      router: () => dataExtensionsAddress(global.currentTargets || targets),
+      pathRewrite: () => '/data-extensions/graphql',
+      agent: proxyAgent,
+      proxyTimeout: PROXY_IDLE_TIMEOUT_MS,
+      on: {
+        proxyReq,
+        proxyRes: keepGatewayCors,
+        error: proxyError,
+      },
+    }),
+  );
+
+  app.use('/data-extensions', (_req: Request, res: Response) => {
+    res.status(404).json({ error: 'Not found' });
+  });
+}
+
+/**
+ * The standalone Data Extensions app is reached only through the supergraph
+ * and `/data-extensions/graphql`. Its other routes (internal metrics, the
+ * runtime without the gateway's proof) are refused on the generic plugin
+ * proxy instead of reaching it.
+ */
+export function refuseDataExtensionsPluginProxy(app: Express) {
+  app.use(
+    // A lookahead: Express only applies a `use` match that ends at a `/`.
+    new RegExp(`^/pl:${DATA_EXTENSIONS_SERVICE}(?=/|$)`, 'i'),
+    (_req: Request, res: Response) => {
+      res.status(404).json({ error: 'Not found' });
+    },
   );
 }

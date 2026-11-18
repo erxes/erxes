@@ -14,6 +14,7 @@ import { getSafeRemainderCostDifference } from '../utils/safeRemainderTransactio
 import {
   SafeRemainderCountField,
   SafeRemainderDifferenceField,
+  SafeRemainderCountCell,
   SafeRemainderNumberCell,
   SafeRemainderProductCell,
 } from './SafeRemainderCells';
@@ -128,7 +129,7 @@ export const safeRemDetailColumnsSale = (
     ),
     accessorKey: 'preCount',
     cell: ({ row }) => (
-      <SafeRemainderNumberCell value={row.original.preCount ?? 0} />
+      <SafeRemainderCountCell value={row.original.preCount ?? 0} />
     ),
   },
   {

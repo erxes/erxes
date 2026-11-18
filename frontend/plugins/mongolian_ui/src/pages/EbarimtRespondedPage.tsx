@@ -2,8 +2,7 @@ import { useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { EBARIMT_RESPONDED } from '~/modules/ebarimt/responded/graphql/respondedSubscription';
-import { PerResponse } from '~/modules/ebarimt/responded/components/PerResponse';
-import { Response } from '~/modules/ebarimt/responded/components/Response';
+import { printEbarimtResponses } from '~/modules/ebarimt/responded/utils/printEbarimtResponses';
 
 const SESSION_CODE_STORAGE_KEY = 'sessioncode';
 
@@ -31,22 +30,7 @@ export const EbarimtRespondedPage = () => {
         return;
       }
 
-      const printContents: string[] = [];
-      let counter = 0;
-
-      for (const content of contents) {
-        printContents.push(PerResponse(content, counter));
-        counter += 1;
-      }
-
-      const printMainContent = Response(printContents);
-
-      const myWindow =
-        window.open(`__`, '_blank', 'width=800, height=800') || undefined;
-
-      if (myWindow?.document?.write) {
-        myWindow.document.write(printMainContent);
-      } else {
+      if (!printEbarimtResponses(contents)) {
         alert('please allow Pop-ups and redirects on site settings!!!');
       }
     },

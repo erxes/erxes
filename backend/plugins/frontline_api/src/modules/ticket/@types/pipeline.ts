@@ -4,6 +4,8 @@ import {
   IListParams,
 } from 'erxes-api-shared/core-types';
 
+import type { TTicketSlaPolicy } from './sla';
+
 export interface ITicketPipeline {
   name: string;
   description?: string;
@@ -29,6 +31,7 @@ export interface ITicketPipeline {
   memberIds?: string[];
   statusId?: string;
   createLayout?: string[][] | null;
+  slaPolicy?: TTicketSlaPolicy | null;
 }
 
 export interface ITicketPipelineUpdate extends ITicketPipeline {

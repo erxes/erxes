@@ -23,7 +23,21 @@ const accounts = [
 ];
 
 const transactions = [
-  { _id: 'tr-1', number: 'N1', details: [{ _id: 'd1', accountId: 'cash' }] },
+  {
+    _id: 'tr-1',
+    number: 'N1',
+    details: [
+      {
+        _id: 'd1',
+        accountId: 'cash',
+        followInfos: {
+          fixedAssetCategoryId: 'category',
+          fixedAssetCode: 'PC-001',
+          fixedAssetName: 'Computer',
+        },
+      },
+    ],
+  },
   { _id: 'tr-2', number: 'N2', details: [{ _id: 'd2', accountId: 'bank' }] },
   { _id: 'tr-3', number: 'N3', details: [{ _id: 'd3', accountId: 'payable' }] },
 ];
@@ -86,4 +100,17 @@ test('an export for a removed account category fails instead of exporting every 
   await expect(exportNumbers({ accountCategoryId: 'removed' })).rejects.toThrow(
     'AccountCategory not found',
   );
+});
+
+test('export keeps fixed asset CSV columns flat while reading acquisition identity from followInfos', async () => {
+  const rows = await getTransactionExportData(
+    { filters: {}, limit: 100 } as Parameters<
+      typeof getTransactionExportData
+    >[0],
+    context,
+  );
+  expect(rows.find((row) => row._id === 'tr-1')).toMatchObject({
+    fixedAssetCode: 'PC-001',
+    fixedAssetName: 'Computer',
+  });
 });

@@ -2330,7 +2330,14 @@
       "fb-sent-in-messenger": "Sent in Messenger",
       "fb-reply-to-comment": "Reply to comment",
       "page": "Page",
-      "no-channel": "No channel"
+      "no-channel": "No channel",
+      "config-call-description": "STUN and TURN servers used by in-browser calls.",
+      "config-facebook-description": "App ID, secret and verify token used to connect Facebook pages.",
+      "config-instagram-description": "App credentials used to connect Instagram business accounts.",
+      "config-mail-description": "Receive and send inbox mail through your own Cloudflare account.",
+      "config-rail-hint": "Workspace-wide settings. Inboxes are connected per channel.",
+      "config-telegram-description": "Bots are connected from each inbox. There is nothing to set here.",
+      "providers": "Providers"
     },
     "response-template": {
       "add-response-template": "Add response template",
@@ -3162,7 +3169,10 @@
       "needs-repair": "Needs repair",
       "broken": "Broken",
       "syncing": "Syncing",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "template-connect-page": "Connect a Facebook page first. It opens in a new tab; come back here and it shows up.",
+      "template-connect-page-action": "Connect Facebook page",
+      "template-connect-another-page": "Connect another page"
     },
     "knowledgebase": {
       "appearance": "Appearance",
@@ -3320,7 +3330,9 @@
       "title-label": "Title",
       "unnamed-category": "Unnamed category",
       "unnamed-topic": "Unnamed topic",
-      "updated-at": "Updated at"
+      "updated-at": "Updated at",
+      "kb-article-load-failed": "This article could not be loaded.",
+      "kb-activity-unavailable": "Activity history is not available for knowledge base records."
     },
     "ticket": {
       "actions": "Actions",
@@ -3970,7 +3982,38 @@
       "move-resource-survey_one": "survey",
       "move-resource-survey_other": "surveys",
       "move-resource-response-template_one": "response template",
-      "move-resource-response-template_other": "response templates"
+      "move-resource-response-template_other": "response templates",
+      "add-teammates": "Add teammates",
+      "all-changes-saved": "All changes saved",
+      "available": "Available",
+      "back-to-channels": "Back to channels",
+      "channel": "Channel",
+      "channel-description-placeholder": "What conversations and tickets belong here?",
+      "channel-members-hint": "You join as the channel admin. You can add more people later.",
+      "channel-name-placeholder": "e.g. Customer support",
+      "channel-not-found-description": "This channel does not exist or you no longer have access to it.",
+      "channel-read-only": "Only the workspace owner and channel admins can edit this channel.",
+      "channel-saved": "Channel saved",
+      "choose-icon": "Choose icon",
+      "connected": "Connected",
+      "create-channel-intro": "A channel groups a team with its inboxes, ticket pipelines, forms and replies.",
+      "danger-zone": "Danger zone",
+      "danger-zone-description": "Actions here affect everyone in the channel.",
+      "delete-channel": "Delete channel",
+      "delete-channel-hint": "Permanently removes {{name}} for everyone. This cannot be undone.",
+      "discard": "Discard",
+      "general": "General",
+      "general-description": "How this channel appears in the inbox, tickets and reports.",
+      "integration-needs-attention": "Needs attention",
+      "integrations-connected-count": "{{connected}} of {{total}} connected",
+      "integrations-load-error": "Could not load integrations",
+      "optional": "(optional)",
+      "personal-channel-unavailable": "Personal inbox unavailable",
+      "private": "Private",
+      "save-changes": "Save changes",
+      "try-again": "Try again",
+      "unsaved-changes": "Unsaved changes",
+      "integrations-partial": "First {{count}} only"
     },
     "pipelines": {
       "add": "Add",
@@ -4278,6 +4321,23 @@
       "mail-trigger-inboxes-description": "Only enroll mail that arrives in the checked inboxes. Leave every inbox unchecked to cover all of them.",
       "mail-trigger-unverified": "Include unverified senders",
       "mail-trigger-unverified-description": "Mail whose envelope sender does not match its From address is skipped unless this is on. Send Email never answers such mail; Draft Email Reply leaves it for a teammate to review."
+    },
+    "automations-telegram": {
+      "trigger": {
+        "form-name": "Telegram Message Trigger",
+        "chats": "Chats",
+        "chats-private": "Private chats only",
+        "chats-all": "Private chats and groups",
+        "chats-description": "In groups the bot would answer every matching message, so groups are off unless you turn them on.",
+        "keywords": "Keyword filter (optional)",
+        "keywords-placeholder": "e.g. price, order — leave blank for every message",
+        "keywords-description": "Only start when the message contains one of these comma-separated keywords."
+      },
+      "action": {
+        "form-name": "Send Telegram Message",
+        "message": "Message",
+        "message-description": "Sent as the bot to the chat that triggered the workflow. Insert an AI Agent output to reply with its answer."
+      }
     }
   },
   "messenger-message-action-form-name": "Messenger Message Action Form",

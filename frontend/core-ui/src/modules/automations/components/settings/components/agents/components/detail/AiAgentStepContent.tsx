@@ -1,6 +1,7 @@
 import { AiAgentBrainStep } from '@/automations/components/settings/components/agents/components/detail/steps/AiAgentBrainStep';
 import { AiAgentConnectionStep } from '@/automations/components/settings/components/agents/components/detail/steps/AiAgentConnectionStep';
 import { AiAgentIdentityStep } from '@/automations/components/settings/components/agents/components/detail/steps/AiAgentIdentityStep';
+import { AiAgentLookupStep } from '@/automations/components/settings/components/agents/components/detail/steps/AiAgentLookupStep';
 import { AiAgentMemoryStep } from '@/automations/components/settings/components/agents/components/detail/steps/AiAgentMemoryStep';
 import { AiAgentTestStep } from '@/automations/components/settings/components/agents/components/detail/steps/AiAgentTestStep';
 import { TAiAgentStep } from '@/automations/components/settings/components/agents/constants/aiAgentSteps';
@@ -13,6 +14,7 @@ const STEP_COMPONENTS: Record<TAiAgentStep, ComponentType> = {
   connection: AiAgentConnectionStep,
   brain: AiAgentBrainStep,
   memory: AiAgentMemoryStep,
+  lookup: AiAgentLookupStep,
   test: AiAgentTestStep,
 };
 

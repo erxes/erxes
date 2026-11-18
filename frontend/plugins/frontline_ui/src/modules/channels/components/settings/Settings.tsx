@@ -7,6 +7,7 @@ import { Outlet } from 'react-router-dom';
 import { SettingsHeader } from 'ui-modules';
 import { ChannelSettingsPageEffect } from '@/channels/components/settings/ChannelSettingsPageEffect';
 import { ChannelSettingsBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb';
+import { ChannelWorkspaceLayout } from '@/channels/components/settings/channel-workspace/ChannelWorkspaceLayout';
 
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
@@ -86,9 +87,9 @@ export const ChannelsSettingsIndexPage = lazy(() =>
   })),
 );
 
-export const ChannelDetailsPage = lazy(() =>
-  import('~/pages/ChannelDetailsPage').then((module) => ({
-    default: module.ChannelDetailsPage,
+export const ChannelGeneralPage = lazy(() =>
+  import('~/pages/ChannelGeneralPage').then((module) => ({
+    default: module.ChannelGeneralPage,
   })),
 );
 
@@ -128,6 +129,11 @@ export const PipelinePropertiesPage = lazy(() =>
   })),
 );
 
+export const PipelineSlaPage = lazy(() =>
+  import('~/pages/PipelineSlaPage').then((module) => ({
+    default: module.PipelineSlaPage,
+  })),
+);
 export const PipelineMailPage = lazy(() =>
   import('~/pages/PipelineMailPage').then((module) => ({
     default: module.PipelineMailPage,
@@ -165,22 +171,40 @@ const ChannelsSettings = () => {
           }
         >
           <Route path="/" element={<ChannelsSettingsIndexPage />} />
-          <Route
-            path={FrontlinePaths.ChannelDetails}
-            element={<ChannelDetailsPage />}
-          />
-          <Route
-            path={FrontlinePaths.ChannelMembers}
-            element={<ChannelMembersPage />}
-          />
-          <Route
-            path={FrontlinePaths.ChannelIntegrations}
-            element={<IntegrationDetailPage />}
-          />
-          <Route
-            path={FrontlinePaths.ChannelPipelines}
-            element={<ChannelPipelinesPage />}
-          />
+          <Route element={<ChannelWorkspaceLayout />}>
+            <Route
+              path={FrontlinePaths.ChannelDetails}
+              element={<ChannelMembersPage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelGeneral}
+              element={<ChannelGeneralPage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelMembers}
+              element={<ChannelMembersPage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelIntegrations}
+              element={<IntegrationDetailPage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelPipelines}
+              element={<ChannelPipelinesPage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelResponsePage}
+              element={<ChannelResponsePage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelForms}
+              element={<ChannelFormsPage />}
+            />
+            <Route
+              path={FrontlinePaths.ChannelSurveys}
+              element={<ChannelSurveysPage />}
+            />
+          </Route>
           <Route
             path={FrontlinePaths.PipelineDetail}
             element={<PipelineLayoutPage />}
@@ -206,22 +230,14 @@ const ChannelsSettings = () => {
               path={PIPELINE_TAB_SEGMENTS.mail}
               element={<PipelineMailPage />}
             />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.sla}
+              element={<PipelineSlaPage />}
+            />
           </Route>
-          <Route
-            path={FrontlinePaths.ChannelResponsePage}
-            element={<ChannelResponsePage />}
-          />
           <Route
             path={FrontlinePaths.ResponseDetail}
             element={<ResponseDetailPage />}
-          />
-          <Route
-            path={FrontlinePaths.ChannelForms}
-            element={<ChannelFormsPage />}
-          />
-          <Route
-            path={FrontlinePaths.ChannelSurveys}
-            element={<ChannelSurveysPage />}
           />
           <Route
             path={FrontlinePaths.SurveysCreate}

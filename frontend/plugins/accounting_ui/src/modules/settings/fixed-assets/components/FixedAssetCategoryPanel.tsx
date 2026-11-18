@@ -183,6 +183,7 @@ const useSaveFixedAssetCategory = (contentId: string) => {
         defaultTaxAnnualDepreciationRate:
           current.defaultTaxAnnualDepreciationRate,
         defaultTaxSalvageValue: current.defaultTaxSalvageValue,
+        incomeTaxRate: current.incomeTaxRate,
         ...mergePendingChanges(current, changes),
       },
     });
@@ -244,6 +245,16 @@ const FixedAssetCategoryPanelDetail = ({
               onSave={(change) => save(category, change)}
             />
           ))}
+          <PanelField label={t('income-tax-rate')}>
+            <SettingsPanelNumberField
+              scope={`${SCOPE}.incomeTaxRate`}
+              value={category.incomeTaxRate}
+              min={0}
+              max={100}
+              placeholder={t('income-tax-rate')}
+              onSave={(incomeTaxRate) => save(category, { incomeTaxRate })}
+            />
+          </PanelField>
           <SettingsPanelDescriptionField
             key={category._id}
             value={category.description || ''}

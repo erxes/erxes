@@ -12,7 +12,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-const RELATED_TRANSACTIONS_QUERY = gql(`
+export const RELATED_TRANSACTIONS_QUERY = gql(`
 query accountingRelatedTransactions($contentType: String!, $contentId: String!) {
   accTransactionsByContent(
     contentType: $contentType

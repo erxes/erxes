@@ -51,23 +51,25 @@ export const setExecutionWaitAction = async (
   );
 
   if (condition.type === EXECUTE_WAIT_TYPES.DELAY) {
-    const { subdomain, startWaitingDate, waitFor, timeUnit } = condition;
+    const { subdomain, startWaitingDate, waitFor, timeUnit, performAt } =
+      condition;
 
     if (!subdomain) {
       throw new Error('Not found subdomain for delay action');
     }
 
-    if (!timeUnit) {
+    if (!performAt && !timeUnit) {
       throw new Error('Not found timeUnit  for delay action');
     }
 
-    if (!waitFor) {
+    if (!performAt && !waitFor) {
       throw new Error(`Not found waitFor in ${timeUnit} for delay action`);
     }
 
-    const performDate = moment(startWaitingDate)
-      .add(waitFor, timeUnit)
-      .toDate();
+    // A working-time delay is computed against a calendar before it gets here.
+    const performDate = performAt
+      ? new Date(performAt)
+      : moment(startWaitingDate).add(waitFor, timeUnit).toDate();
 
     // Calculate delay in milliseconds
 

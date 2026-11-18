@@ -156,6 +156,12 @@ import {
 } from '@/notificationTemplates/graphql/schema';
 
 import {
+  mutations as CurrencyRateMutations,
+  queries as CurrencyRateQueries,
+  types as CurrencyRateTypes,
+} from '@/currencyRates/graphql/schema';
+
+import {
   mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
@@ -223,22 +229,37 @@ import {
 } from '@/broadcast/graphql/schemas';
 
 import {
-  types as bundleTypes,
-  queries as bundleQueries,
-  mutations as bundleMutations,
-} from '@/bundle/graphql/schemas';
-
-import {
   types as templateTypes,
   queries as templateQueries,
   mutations as templateMutations,
 } from '@/template/graphql/schemas';
 
 import {
+  types as bundleTypes,
+  queries as bundleQueries,
+  mutations as bundleMutations,
+} from '@/bundle/graphql/schemas';
+
+import {
   types as searchTypes,
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+import {
+  mutations as dataExtensionMutationDefs,
+  queries as dataExtensionQueryDefs,
+  types as dataExtensionTypeDefs,
+} from '@/data-extensions/graphql/schemas';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
+
+// When the standalone Data Extensions app runs, it serves these instead;
+// both declaring them would break the gateway's supergraph.
+const servesDataExtensions = !isDataExtensionsServiceEnabled();
+const DataExtensionTypes = servesDataExtensions ? dataExtensionTypeDefs : '';
+const DataExtensionQueries = servesDataExtensions ? dataExtensionQueryDefs : '';
+const DataExtensionMutations = servesDataExtensions
+  ? dataExtensionMutationDefs
+  : '';
 
 import {
   mutations as AgentsConnectionMutations,
@@ -301,6 +322,7 @@ export const types = `
     ${AutomationsTypes}
     ${EmailTemplateTypes}
     ${NotificationTemplateTypes}
+    ${CurrencyRateTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
@@ -320,6 +342,7 @@ export const types = `
     ${AgentsThreadTypes}
     ${AgentsSettingsTypes}
     ${AgentsToolTypes}
+    ${DataExtensionTypes}
   `;
 
 export const queries = `
@@ -351,6 +374,7 @@ export const queries = `
     ${AutomationsQueries}
     ${EmailTemplateQueries}
     ${NotificationTemplateQueries}
+    ${CurrencyRateQueries}
     ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
@@ -371,6 +395,7 @@ export const queries = `
     ${AgentsThreadQueries}
     ${AgentsSettingsQueries}
     ${AgentsToolQueries}
+    ${DataExtensionQueries}
   `;
 
 export const mutations = `
@@ -400,6 +425,7 @@ export const mutations = `
     ${AutomationsMutations}
     ${EmailTemplateMutations}
     ${NotificationTemplateMutations}
+    ${CurrencyRateMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${PropertiesMutations}
@@ -416,6 +442,7 @@ export const mutations = `
     ${AgentsConnectionMutations}
     ${AgentsThreadMutations}
     ${AgentsSettingsMutations}
+    ${DataExtensionMutations}
   `;
 
 export default { types, queries, mutations };

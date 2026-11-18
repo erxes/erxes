@@ -9,6 +9,22 @@ export const extractPhoneNumberFromCounterpart = (counterpart: string) => {
   return counterpart.slice(startIndex, endIndex);
 };
 
+interface ISipMessageWithHeaders {
+  getHeader: (name: string) => string | undefined;
+}
+
+const hasHeaders = (message: unknown): message is ISipMessageWithHeaders =>
+  typeof message === 'object' &&
+  message !== null &&
+  'getHeader' in message &&
+  typeof message.getHeader === 'function';
+
+export const isCallCompletedElsewhere = (message: unknown): boolean => {
+  if (!hasHeaders(message)) return false;
+  const reason = (message.getHeader('Reason') || '').toLowerCase();
+  return reason.includes('cause=200') || reason.includes('completed elsewhere');
+};
+
 export function parseCallDirection(
   direction: string | null,
 ): CallDirectionEnum {

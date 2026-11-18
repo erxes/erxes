@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import {
-  transformConfigFormSchema,
   TRANSFORM_VALUE_TYPES,
   TTransformConfigForm,
 } from '@/automations/components/builder/nodes/actions/transform/states/transformForm';
+import {
+  useTransformConfigForm,
+  useTransformConfigRow,
+} from '@/automations/components/builder/nodes/actions/transform/hooks/useTransformConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconChevronDown,
   IconChevronRight,
@@ -13,77 +15,30 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, Collapsible, Form, Input, Label, Select } from 'erxes-ui';
-import { useState } from 'react';
-import {
-  FieldArrayWithId,
-  FormProvider,
-  useFieldArray,
-  useForm,
-  useFormContext,
-} from 'react-hook-form';
+import { FieldArrayWithId, FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
-  TAutomationAction,
   TAutomationActionProps,
   TPlaceholderInputSuggestion,
-  useFormValidationErrorHandler,
 } from 'ui-modules';
-
-const generateDefaultValues = (
-  currentAction: TAutomationAction<TTransformConfigForm>,
-): TTransformConfigForm => {
-  const mappings = currentAction?.config?.mappings;
-
-  return {
-    mappings: mappings?.length
-      ? mappings.map((mapping) => ({
-          ...mapping,
-          type: mapping.type || 'text',
-          isExpression: mapping.isExpression || false,
-        }))
-      : [{ key: '', value: '', type: 'text', isExpression: false }],
-  };
-};
 
 export const TransformConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TTransformConfigForm>) => {
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Transform Configuration',
-  });
   const { t } = useTranslation('automations');
-  const form = useForm<TTransformConfigForm>({
-    resolver: zodResolver(transformConfigFormSchema),
-    defaultValues: generateDefaultValues(currentAction),
-  });
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'mappings',
-  });
+  const { form, fields, canRemove, addMapping, remove, onSave } =
+    useTransformConfigForm({ currentAction, handleSave });
 
   return (
     <FormProvider {...form}>
-      <AutomationConfigFormWrapper
-        onSave={form.handleSubmit(handleSave, handleValidationErrors)}
-      >
+      <AutomationConfigFormWrapper onSave={onSave}>
         <div className="flex w-[560px] flex-col gap-5">
           <div className="flex items-center justify-between">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t('transform-output-mappings')}
             </Label>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                append({
-                  key: '',
-                  value: '',
-                  type: 'text',
-                  isExpression: false,
-                })
-              }
-            >
+            <Button type="button" variant="outline" onClick={addMapping}>
               <IconPlus />
               {t('transform-add-mapping')}
             </Button>
@@ -95,7 +50,7 @@ export const TransformConfigForm = ({
               field={field}
               index={index}
               remove={remove}
-              canRemove={fields.length > 1}
+              canRemove={canRemove}
             />
           ))}
         </div>
@@ -115,9 +70,9 @@ const TranformConfigRow = ({
   remove: (index: number) => void;
   canRemove: boolean;
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { control, setValue } = useFormContext<TTransformConfigForm>();
   const { t } = useTranslation('automations');
+  const { isOpen, setIsOpen, control, isExpression, onChangeInputMode } =
+    useTransformConfigRow(index);
 
   return (
     <Collapsible
@@ -196,15 +151,8 @@ const TranformConfigRow = ({
                 <PlaceholderInput
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  isExpression={
-                    control._formValues.mappings?.[index]?.isExpression
-                  }
-                  onChangeInputMode={(mode) =>
-                    setValue(
-                      `mappings.${index}.isExpression`,
-                      mode === 'expression',
-                    )
-                  }
+                  isExpression={isExpression}
+                  onChangeInputMode={onChangeInputMode}
                   disabled={[TPlaceholderInputSuggestion.Attribute]}
                 >
                   <PlaceholderInput.Header />

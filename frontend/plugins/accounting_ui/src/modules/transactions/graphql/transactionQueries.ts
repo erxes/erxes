@@ -107,9 +107,6 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
         assignedUserId
         productId
         fixedAssetId
-        fixedAssetCategoryId
-        fixedAssetCode
-        fixedAssetName
         count
         unitPrice
         weight
@@ -154,9 +151,6 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
         assignedUserId
         productId
         fixedAssetId
-        fixedAssetCategoryId
-        fixedAssetCode
-        fixedAssetName
         count
         unitPrice
         weight
@@ -209,9 +203,6 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
           assignedUserId
           productId
           fixedAssetId
-          fixedAssetCategoryId
-          fixedAssetCode
-          fixedAssetName
           count
           unitPrice
           weight
@@ -244,9 +235,6 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
           assignedUserId
           productId
           fixedAssetId
-          fixedAssetCategoryId
-          fixedAssetCode
-          fixedAssetName
           count
           unitPrice
           weight
@@ -403,9 +391,6 @@ query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: Stri
         assignedUserId
         productId
         fixedAssetId
-        fixedAssetCategoryId
-        fixedAssetCode
-        fixedAssetName
         count
         unitPrice
         weight
@@ -450,9 +435,6 @@ query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: Stri
         assignedUserId
         productId
         fixedAssetId
-        fixedAssetCategoryId
-        fixedAssetCode
-        fixedAssetName
         count
         unitPrice
         weight
@@ -505,9 +487,6 @@ query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: Stri
           assignedUserId
           productId
           fixedAssetId
-          fixedAssetCategoryId
-          fixedAssetCode
-          fixedAssetName
           count
           unitPrice
           weight
@@ -540,9 +519,6 @@ query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: Stri
           assignedUserId
           productId
           fixedAssetId
-          fixedAssetCategoryId
-          fixedAssetCode
-          fixedAssetName
           count
           unitPrice
           weight

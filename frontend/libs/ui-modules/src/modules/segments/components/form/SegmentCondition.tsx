@@ -1,29 +1,8 @@
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Combobox,
-  Command,
-  Form,
-  Popover,
-  Select,
-  useIsMobile,
-} from 'erxes-ui';
-import { FieldPath } from 'react-hook-form';
+import { Button, cn, Combobox, Command, Form, Popover, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useSegment } from '../../context/SegmentProvider';
-import {
-  SEGMENT_TYPE_KEY,
-  useSegmentConditionRow,
-} from '../../hooks/useSegmentConditionRow';
-import {
-  TNodePath,
-  TSegmentField,
-  TSegmentForm,
-  TSegmentNode,
-  TSegmentOperator,
-} from '../../types';
-import { useSegmentLabels } from '../../hooks/useSegmentLabels';
+import { useSegmentConditionView } from '../../hooks/useSegmentConditionView';
+import { TNodePath, TSegmentNode } from '../../types';
 import { FieldWithError } from '../FieldWithError';
 import { SegmentConditionValue } from './SegmentConditionValue';
 import { SegmentReferenceValue } from './SegmentReferenceValue';
@@ -38,34 +17,35 @@ export const SegmentCondition = ({
   onRemove: () => void;
   onReplace: (next: TSegmentNode) => void;
 }) => {
-  const { form, stats } = useSegment();
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
   const {
     unavailable,
     isReference,
     isRelation,
     isMeasure,
-    propertyTypes,
     selectedType,
-    options,
     selectedField,
     operator,
     comparisonPath,
-    selectType,
     selectField,
     loading,
-  } = useSegmentConditionRow(path, onReplace);
-  const { fieldLabel, operatorLabel, operatorHint, typeLabel } =
-    useSegmentLabels();
-  const stepped = useIsMobile();
-
-  const fieldType = selectedType?.contentType;
-
-  const operatorName = `${comparisonPath}.operator` as FieldPath<TSegmentForm>;
-
-  const hasValue = Boolean(
-    selectedField && operator && operator.input !== 'none',
-  );
+    stepped,
+    fieldType,
+    hasTypeChoice,
+    typeOptions,
+    selectedTypeValue,
+    selectedTypeLabel,
+    selectedFieldLabel,
+    propertyGroups,
+    operatorName,
+    operatorOptions,
+    operatorHint,
+    hasValue,
+    unavailableMessage,
+    control,
+    onTypeChange,
+    changeOperator,
+  } = useSegmentConditionView(path, onReplace);
 
   const removeButton = (
     <Button
@@ -90,15 +70,12 @@ export const SegmentCondition = ({
           className={cn(
             'flex flex-auto items-center gap-2 rounded-md',
             'border border-dashed bg-muted px-3 py-1.5 text-sm',
-            !stepped &&
-              (propertyTypes.length > 1 ? 'min-w-[604px]' : 'min-w-[436px]'),
+            !stepped && (hasTypeChoice ? 'min-w-[604px]' : 'min-w-[436px]'),
             stepped && 'min-w-0',
           )}
         >
           <IconInfoCircle className="size-4 shrink-0 text-muted-foreground" />
-          {unavailable.pluginName
-            ? t('plugin-disabled', { plugin: unavailable.pluginName })
-            : t('condition-unavailable')}
+          {unavailableMessage}
         </p>
         <Button
           variant="ghost"
@@ -122,35 +99,16 @@ export const SegmentCondition = ({
           stepped ? 'flex-row flex-wrap' : 'flex-row',
         )}
       >
-        {propertyTypes.length > 1 && (
+        {hasTypeChoice && (
           <div className="w-[160px] shrink-0">
-            <Select
-              value={
-                selectedType?.relationKey || selectedType?.contentType || ''
-              }
-              onValueChange={(next) => {
-                const type = propertyTypes.find(
-                  (candidate) =>
-                    (candidate.relationKey || candidate.contentType) === next,
-                );
-
-                if (type) {
-                  selectType(type);
-                }
-              }}
-            >
+            <Select value={selectedTypeValue} onValueChange={onTypeChange}>
               <Select.Trigger className="w-full">
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
-                {propertyTypes.map((option) => (
-                  <Select.Item
-                    key={option.relationKey || option.contentType}
-                    value={option.relationKey || option.contentType}
-                  >
-                    {option.contentType === SEGMENT_TYPE_KEY
-                      ? t('segment-membership')
-                      : typeLabel(option)}
+                {typeOptions.map((option) => (
+                  <Select.Item key={option.value} value={option.value}>
+                    {option.label}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -172,16 +130,14 @@ export const SegmentCondition = ({
                 <SegmentRelationFilters
                   path={path}
                   relatedType={selectedType.contentType}
-                  label={typeLabel(selectedType)}
+                  label={selectedTypeLabel}
                 />
               )}
               <Popover>
                 <Combobox.Trigger disabled={loading} className="w-full">
                   <Combobox.Value
                     placeholder={t('select-property')}
-                    value={
-                      selectedField && fieldLabel(fieldType, selectedField)
-                    }
+                    value={selectedFieldLabel}
                   />
                 </Combobox.Trigger>
                 <Combobox.Content>
@@ -189,14 +145,21 @@ export const SegmentCondition = ({
                     <Command.Input placeholder={t('search-properties')} />
                     <Command.List className="max-h-64">
                       <Command.Empty>{t('no-property-found')}</Command.Empty>
-                      {options.map((option: TSegmentField) => (
-                        <Command.Item
-                          key={option.key}
-                          value={fieldLabel(fieldType, option)}
-                          onSelect={() => selectField(option)}
+                      {propertyGroups.map((group) => (
+                        <Command.Group
+                          key={group.key}
+                          heading={t(`property-group.${group.key}`)}
                         >
-                          {fieldLabel(fieldType, option)}
-                        </Command.Item>
+                          {group.options.map(({ option, label }) => (
+                            <Command.Item
+                              key={option.key}
+                              value={label}
+                              onSelect={() => selectField(option)}
+                            >
+                              {label}
+                            </Command.Item>
+                          ))}
+                        </Command.Group>
                       ))}
                     </Command.List>
                   </Command>
@@ -210,36 +173,24 @@ export const SegmentCondition = ({
               )}
             >
               <Form.Field
-                control={form.control}
+                control={control}
                 name={operatorName}
                 render={({ field, fieldState }) => (
                   <FieldWithError error={fieldState.error}>
                     <Select
                       value={typeof field.value === 'string' ? field.value : ''}
                       disabled={!selectedField}
-                      onValueChange={(next) => {
-                        field.onChange(next);
-                        form.setValue(
-                          `${comparisonPath}.value` as FieldPath<TSegmentForm>,
-                          undefined,
-                        );
-                        stats.countSettled();
-                      }}
+                      onValueChange={changeOperator(field.onChange)}
                     >
                       <Select.Trigger className="w-full">
                         <Select.Value placeholder={t('select-condition')} />
                       </Select.Trigger>
                       <Select.Content>
-                        {(selectedField?.operators || []).map(
-                          (option: TSegmentOperator) => (
-                            <Select.Item
-                              key={option.value}
-                              value={option.value}
-                            >
-                              {operatorLabel(option)}
-                            </Select.Item>
-                          ),
-                        )}
+                        {operatorOptions.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {option.label}
+                          </Select.Item>
+                        ))}
                       </Select.Content>
                     </Select>
                   </FieldWithError>
@@ -272,7 +223,7 @@ export const SegmentCondition = ({
         {(!stepped || !hasValue) && removeButton}
       </div>
 
-      {operatorHint(operator) && (
+      {operatorHint && (
         <p
           className={cn(
             'flex items-start gap-1.5 pt-1 text-xs text-muted-foreground',
@@ -280,7 +231,7 @@ export const SegmentCondition = ({
           )}
         >
           <IconInfoCircle className="size-3.5 shrink-0 mt-px" />
-          {operatorHint(operator)}
+          {operatorHint}
         </p>
       )}
     </div>

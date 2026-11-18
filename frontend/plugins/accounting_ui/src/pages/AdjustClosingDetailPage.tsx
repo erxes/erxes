@@ -1,3 +1,4 @@
+import { IconAdjustmentsCode } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AdjustClosingDetail } from '~/modules/adjustments/closing/components/AdjustClosingDetail';
@@ -13,6 +14,7 @@ export const AdjustClosingDetailPage = () => {
       <AccountingHeader
         returnLink="/accounting/adjustment/closing"
         returnText={t('Closing')}
+        icon={IconAdjustmentsCode}
       />
       <AdjustClosingDetail id={id} />
     </AccountingLayout>

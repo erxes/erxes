@@ -78,6 +78,8 @@ export const telegramConversationMessageSchema = new Schema({
   pollUpdateAt: Date,
   customerId: { type: String, index: true },
   userId: { type: String, index: true },
+  // Sent by an automation (AI agent etc.), not a person
+  fromBot: Boolean,
   senderName: String,
   processingToken: String,
   processingUntil: Date,

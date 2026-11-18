@@ -31,8 +31,21 @@ import {
   sendOAuthError,
   validateClientSecret,
 } from './utils';
+import {
+  authorizeRouter,
+  pkceMatches,
+  redeemAuthorizationCode,
+} from './authorize';
+import {
+  PRODUCT_ACCESS_TOKEN_EXPIRES_IN,
+  signProductAccessToken,
+} from './productTokens';
+import { getOrganizationId } from '@/organization/identity/identity';
+import { findOAuthClient } from './platformClients';
 
 export const router: Router = Router();
+
+router.use(authorizeRouter);
 
 const getClientSecret = (req: Request): string | undefined =>
   String(req.body?.client_secret || req.headers['oauth_secret'] || '').trim() ||
@@ -167,8 +180,8 @@ router.get('/oauth/device/details', async (req: Request, res: Response) => {
       isRateLimitError(e)
         ? 429
         : e instanceof Error && e.message === 'Not authenticated'
-          ? 401
-          : 400,
+        ? 401
+        : 400,
       isRateLimitError(e) ? 'rate_limit_exceeded' : 'invalid_request',
       e instanceof Error ? e.message : 'Invalid request',
     );
@@ -249,8 +262,8 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
       isRateLimitError(e)
         ? 429
         : e instanceof Error && e.message === 'Not authenticated'
-          ? 401
-          : 400,
+        ? 401
+        : 400,
       isRateLimitError(e) ? 'rate_limit_exceeded' : 'invalid_request',
       e instanceof Error ? e.message : 'Invalid request',
     );
@@ -302,8 +315,8 @@ router.post('/oauth/device/deny', async (req: Request, res: Response) => {
       isRateLimitError(e)
         ? 429
         : e instanceof Error && e.message === 'Not authenticated'
-          ? 401
-          : 400,
+        ? 401
+        : 400,
       isRateLimitError(e) ? 'rate_limit_exceeded' : 'invalid_request',
       e instanceof Error ? e.message : 'Invalid request',
     );
@@ -402,13 +415,108 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
     }
   }
 
+  if (grantType === 'authorization_code') {
+    try {
+      const clientId = String(req.body?.client_id || '').trim();
+      const clientSecret = getClientSecret(req);
+      const code = String(req.body?.code || '').trim();
+      const redirectUri = String(req.body?.redirect_uri || '').trim();
+      const codeVerifier = String(req.body?.code_verifier || '').trim();
+
+      const oauthClientApp = await findOAuthClient(models, clientId, subdomain);
+
+      if (!oauthClientApp) {
+        throw new Error('Invalid client_id');
+      }
+
+      validateClientSecret(oauthClientApp, clientSecret);
+
+      if (!code || !redirectUri || !codeVerifier) {
+        return sendOAuthError(
+          res,
+          400,
+          'invalid_request',
+          'Missing code, redirect_uri or code_verifier',
+        );
+      }
+
+      // One use only: a replayed or stolen code finds nothing
+      const granted = await redeemAuthorizationCode(subdomain, code);
+
+      if (
+        !granted ||
+        granted.clientId !== clientId ||
+        granted.redirectUri !== redirectUri ||
+        !pkceMatches(codeVerifier, granted.codeChallenge)
+      ) {
+        return sendOAuthError(res, 400, 'invalid_grant');
+      }
+
+      const user = await models.Users.findOne({
+        _id: granted.userId,
+        isActive: true,
+      });
+
+      if (!user || (await models.Users.isSupportUser(user._id))) {
+        return sendOAuthError(res, 400, 'invalid_grant');
+      }
+
+      const userFields = await models.Users.getTokenFields(user);
+      const { refreshToken } = await createOAuthRefreshToken({
+        models,
+        userId: user._id,
+        clientId,
+        expiresIn:
+          oauthClientApp.type === 'confidential'
+            ? REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL
+            : REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
+        scope: granted.scope,
+        format: 'jwt',
+      });
+
+      await models.OAuthClientApps.updateOne(
+        { clientId },
+        { $set: { lastUsedAt: new Date() } },
+      );
+
+      return res.json({
+        tokenType: 'Bearer',
+        accessToken: signProductAccessToken({
+          user: { ...userFields, _id: String(user._id) },
+          clientId,
+          subdomain,
+          organizationId: await getOrganizationId(models, subdomain),
+          scope: granted.scope,
+        }),
+        refreshToken,
+        expiresIn: PRODUCT_ACCESS_TOKEN_EXPIRES_IN,
+        user: userFields,
+      });
+    } catch (e) {
+      if (isClientAuthError(e)) {
+        return sendOAuthError(res, 401, 'invalid_client', e.message);
+      }
+      return sendOAuthError(
+        res,
+        400,
+        'invalid_request',
+        e instanceof Error ? e.message : 'Invalid request',
+      );
+    }
+  }
+
   if (grantType === 'refresh_token') {
     try {
       const clientId = String(req.body?.client_id || '').trim();
       const clientSecret = getClientSecret(req);
       const refreshToken = String(req.body?.refresh_token || '').trim();
 
-      const oauthClientApp = await getOAuthClientApp(models, clientId);
+      const oauthClientApp = await findOAuthClient(models, clientId, subdomain);
+
+      if (!oauthClientApp) {
+        throw new Error('Invalid client_id');
+      }
+
       validateClientSecret(oauthClientApp, clientSecret);
 
       if (!refreshToken) {
@@ -441,10 +549,19 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         return sendOAuthError(res, 401, 'invalid_grant');
       }
 
-      const accessExpiresIn = getAccessTokenExpiresIn({
-        clientType: oauthClientApp.type,
-        accessTokenLifetime: oauthClientApp.accessTokenLifetime,
-      });
+      // Tokens from the authorization code flow stay RS256 product tokens
+      const isProductToken = tokenDoc.format === 'jwt';
+
+      if (isProductToken && (await models.Users.isSupportUser(user._id))) {
+        return sendOAuthError(res, 401, 'invalid_grant');
+      }
+
+      const accessExpiresIn = isProductToken
+        ? PRODUCT_ACCESS_TOKEN_EXPIRES_IN
+        : getAccessTokenExpiresIn({
+            clientType: oauthClientApp.type,
+            accessTokenLifetime: oauthClientApp.accessTokenLifetime,
+          });
 
       const refreshExpiresIn =
         oauthClientApp.type === 'confidential'
@@ -453,14 +570,25 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
 
       const inheritedScope = tokenDoc.scope || undefined;
 
-      const accessToken = await createOAuthAccessToken({
-        models,
-        user,
-        clientId,
-        subdomain,
-        expiresIn: accessExpiresIn,
-        scope: inheritedScope,
-      });
+      const accessToken = isProductToken
+        ? signProductAccessToken({
+            user: {
+              ...(await models.Users.getTokenFields(user)),
+              _id: String(user._id),
+            },
+            clientId,
+            subdomain,
+            organizationId: await getOrganizationId(models, subdomain),
+            scope: inheritedScope,
+          })
+        : await createOAuthAccessToken({
+            models,
+            user,
+            clientId,
+            subdomain,
+            expiresIn: accessExpiresIn,
+            scope: inheritedScope,
+          });
 
       const nextRefreshToken = await createOAuthRefreshToken({
         models,
@@ -468,6 +596,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         clientId,
         expiresIn: refreshExpiresIn,
         scope: inheritedScope,
+        ...(isProductToken ? { format: 'jwt' as const } : {}),
       });
 
       await models.OAuthClientApps.updateOne(

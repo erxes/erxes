@@ -229,7 +229,7 @@ export const RemainderDetailSheet = () => {
             )}
           </ScrollArea>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end px-6 py-4 border-t border-border">
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button variant="outline" onClick={handleReCalc} disabled={loading}>
             {loading ? (
               <>

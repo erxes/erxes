@@ -54,44 +54,44 @@ export const isServiceRunning = async (
   );
 };
 
-export const handleAutomation = async (
-  subdomain: string,
-  {
-    conversationMessage,
-    payload,
-  }: {
-    conversationMessage: any;
-    payload: any;
-  },
-) => {
-  const target = { ...conversationMessage.toObject() };
-  const type = 'inbox:messages';
-  if (payload) {
-    if (typeof payload === 'string') {
-      target.payload = JSON.parse(payload || '{}');
-    } else {
-      target.payload = payload;
-    }
-  }
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'automations',
-    method: 'mutation',
-    module: 'triggers',
-    action: 'trigger',
-    input: {
-      type,
-      targets: [target],
-    },
-  })
-    .catch((err) => {
-      debugError(`Error sending automation message: ${err.message}`);
-      throw err;
-    })
-    .then(() => {
-      debugInfo(`Sent message successfully`);
-    });
+type TMessengerAutomation = {
+  _id: string;
+  triggers?: { config?: { conditions?: { type?: string; isSelected?: boolean }[] } }[];
+  actions?: { type?: string; label?: string }[];
 };
+
+/**
+ * The automation a messenger names in its settings, read from core: only
+ * active Erxes Messenger automations count, as in the builder.
+ */
+export const getMessengerAutomation = async (
+  subdomain: string,
+  automationId?: string,
+): Promise<TMessengerAutomation | undefined> => {
+  if (!automationId) {
+    return undefined;
+  }
+
+  const automations: TMessengerAutomation[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'automation',
+    action: 'find',
+    input: { query: { triggerType: 'frontline:inbox.messages' } },
+    defaultValue: [],
+  }).catch(() => []);
+
+  return (automations || []).find(
+    ({ _id }) => String(_id) === String(automationId),
+  );
+};
+
+// The messenger shows a "Get started" button when its automation asks for it
+export const getMessengerGetStarted = (automation?: TMessengerAutomation) =>
+  (automation?.triggers || [])
+    .flatMap((trigger) => trigger.config?.conditions || [])
+    .find((condition) => condition.type === 'getStarted');
+
 export interface RPSuccess {
   status: 'success';
   data?: any;

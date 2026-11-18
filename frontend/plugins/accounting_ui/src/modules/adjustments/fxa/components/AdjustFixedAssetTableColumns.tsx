@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { IAdjustFixedAsset } from '../types/AdjustFixedAsset';
+import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
 
 const DateCell = ({ value }: { value?: Date }) => (
   <RecordTableInlineCell>
@@ -54,7 +55,9 @@ export const adjustFixedAssetTableColumns = (
     ),
     accessorKey: 'status',
     cell: ({ getValue }) => (
-      <RecordTableInlineCell>{t(getValue<string>())}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        <AdjustStatusBadge status={getValue<string>()} />
+      </RecordTableInlineCell>
     ),
   },
 ];

@@ -97,6 +97,7 @@ const AccountCategoryPanelActions = ({
             toast({
               title: t('success'),
               description: t('account-category-deleted-successfully'),
+              variant: 'success',
             });
             onCompleted();
           },

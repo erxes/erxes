@@ -24,6 +24,10 @@ import {
   formatMessageForAi,
   listAiMedia,
 } from '@/integrations/facebook/meta/automation/utils/turnTaking';
+import {
+  actionMessageCustomer,
+  CUSTOMER_MESSAGE_COLLECTION,
+} from '@/integrations/facebook/meta/automation/messages/customerMessage';
 
 const toISOString = (value?: Date | string) => {
   if (!value) {
@@ -70,6 +74,13 @@ export const facebookAutomationWorkers = {
       switch (collectionType) {
         case 'messages':
           return await actionCreateMessage({
+            models,
+            subdomain,
+            action,
+            execution,
+          });
+        case CUSTOMER_MESSAGE_COLLECTION:
+          return await actionMessageCustomer({
             models,
             subdomain,
             action,

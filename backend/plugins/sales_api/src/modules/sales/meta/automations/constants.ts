@@ -23,6 +23,7 @@ import {
   dealCreateActionConfigSchema,
 } from './configSchemas';
 import { validateDealCreateConfig } from './configValidators';
+import { resolveDealPaymentUrl } from './resolveDealPaymentUrl';
 
 type TAutomationProductData = IProductData & { maxQuantity?: number };
 
@@ -235,6 +236,7 @@ const DEAL_DOCUMENT_AMOUNT_RESOLVERS = Object.fromEntries(
 );
 
 export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
+export const SALES_POS_ORDER_FIND_OBJECT_TYPE = 'sales:pos.orders';
 
 const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
   {
@@ -383,6 +385,7 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
       ],
     },
     { key: 'link', label: 'Deal link' },
+    { key: 'onlinePaymentUrl', label: 'Online payment URL' },
     { key: 'pipelineLabels', label: 'Pipeline labels' },
     { key: 'createdAt', label: 'Created at' },
     { key: 'updatedAt', label: 'Updated at' },
@@ -402,6 +405,8 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     paidAmount: async ({ subdomain, source }) =>
       dealPaidAmount(await generateModels(subdomain), source),
     purchaseItems: ({ source }) => dealPurchaseItems(source),
+    onlinePaymentUrl: ({ subdomain, source }) =>
+      resolveDealPaymentUrl({ source, subdomain }),
     unUsedTotalAmount: ({ source }) => dealScoreTotal(source),
     bothTotalAmount: ({ source }) => {
       let totalAmount = 0;
@@ -415,6 +420,30 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
   },
 };
 
+type TDealCreateActionResult = {
+  targetId?: string;
+  name?: string;
+  number?: string;
+  totalAmount?: number;
+};
+
+// What a Create deal step hands to later steps: its own result, plus a payment
+// link read from the deal it created.
+const DEAL_CREATE_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition<TDealCreateActionResult> =
+  {
+    variables: [
+      { key: 'targetId', label: 'Deal ID', field: 'targetId' },
+      { key: 'name', label: 'Deal name' },
+      { key: 'number', label: 'Deal number' },
+      { key: 'totalAmount', label: 'Total amount' },
+      { key: 'onlinePaymentUrl', label: 'Online payment URL' },
+    ],
+    resolvers: {
+      onlinePaymentUrl: ({ subdomain, source }) =>
+        resolveDealPaymentUrl({ source, subdomain }),
+    },
+  };
+
 const SALES_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
   {
     value: SALES_DEAL_FIND_OBJECT_TYPE,
@@ -425,6 +454,44 @@ const SALES_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
       { value: 'number', label: 'Number' },
     ],
     output: SALES_DEAL_TRIGGER_OUTPUT,
+  },
+  {
+    value: SALES_POS_ORDER_FIND_OBJECT_TYPE,
+    label: 'POS order',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'number', label: 'Number' },
+    ],
+    output: {
+      variables: [
+        { key: '_id', label: 'POS order ID', field: '_id' },
+        { key: 'number', label: 'POS order Number', field: 'number' },
+        { key: 'status', label: 'POS order Status', field: 'status' },
+        { key: 'createdAt', label: 'POS order Created At', field: 'createdAt' },
+        { key: 'paidDate', label: 'POS order Paid Date', field: 'paidDate' },
+        { key: 'dueDate', label: 'POS order Due Date', field: 'dueDate' },
+        {
+          key: 'totalAmount',
+          label: 'POS order Total Amount',
+          field: 'totalAmount',
+        },
+        {
+          key: 'finalAmount',
+          label: 'POS order Final Amount',
+          field: 'finalAmount',
+        },
+        { key: 'type', label: 'POS order Type', field: 'type' },
+      ],
+    },
+    lookup: {
+      description:
+        "The customer's own POS orders as they are now. status: new = accepted, " +
+        'doing/reDoing = being prepared, done = ready, complete = handed over, ' +
+        'pending = waiting, return = returned; a paidDate means it is paid. ' +
+        'A new order may show only once it is paid.',
+      customerField: 'customerId',
+      byFields: ['number'],
+    },
   },
 ];
 
@@ -496,6 +563,7 @@ export const salesAutomationContants = {
       isTargetSource: true,
       targetSourceType: 'sales:sales.deal',
       allowTargetFromActions: true,
+      output: DEAL_CREATE_ACTION_OUTPUT,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {

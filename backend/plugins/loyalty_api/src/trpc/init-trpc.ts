@@ -8,6 +8,7 @@ import {
   handleLoyaltyOwnerChange,
 } from '~/utils/utils';
 import { checkPricing, getMainConditions } from '~/modules/pricing/utils';
+import { getScheduleStatus } from '~/modules/pricing/utils/scheduleStatus';
 import {
   calculateDiscountValue,
   calculatePriceAdjust,
@@ -130,6 +131,10 @@ export const checkPricingInput = z.object({
     .union([z.date(), z.string().datetime({ offset: true })])
     .pipe(z.coerce.date())
     .optional(),
+  orderCreatedAt: z
+    .union([z.date(), z.string().datetime({ offset: true })])
+    .pipe(z.coerce.date())
+    .optional(),
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
   departmentId: z.string().optional().default(''),
@@ -140,6 +145,22 @@ export const checkPricingInput = z.object({
   customerId: z.string().optional(),
   brokerType: participantKindSchema,
   brokerId: z.string().optional(),
+});
+
+const scheduleStatusInput = z.object({
+  productIds: z.array(z.string()).max(500),
+  branchId: z.string().optional().default(''),
+  departmentId: z.string().optional().default(''),
+  customerType: participantKindSchema,
+  customerId: z.string().optional(),
+  checkout: z
+    .union([z.date(), z.string().datetime({ offset: true })])
+    .pipe(z.coerce.date())
+    .optional(),
+  orderCreatedAt: z
+    .union([z.date(), z.string().datetime({ offset: true })])
+    .pipe(z.coerce.date())
+    .optional(),
 });
 
 const quantityRulesInput = z.object({
@@ -368,6 +389,7 @@ export const appRouter = t.router({
         const models = await ctx.models;
         const {
           date,
+          orderCreatedAt,
           prioritizeRule,
           totalAmount,
           departmentId,
@@ -392,6 +414,7 @@ export const appRouter = t.router({
 
         return await checkPricing({
           date,
+          orderCreatedAt,
           models,
           subdomain,
           prioritizeRule,
@@ -406,6 +429,16 @@ export const appRouter = t.router({
           brokerId,
         });
       }),
+
+    scheduleStatus: t.procedure
+      .input(scheduleStatusInput)
+      .query(async ({ ctx, input }) =>
+        getScheduleStatus({
+          ...input,
+          models: await ctx.models,
+          subdomain: ctx.subdomain,
+        }),
+      ),
 
     getQuantityRules: t.procedure
       .input(quantityRulesInput)

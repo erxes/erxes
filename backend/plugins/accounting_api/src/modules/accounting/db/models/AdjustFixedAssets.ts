@@ -1,3 +1,4 @@
+import { JOURNALS, TR_SIDES } from '../../@types/constants';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import {
@@ -13,7 +14,8 @@ import {
 } from '../definitions/adjustFixedAsset';
 import { IModels } from '~/connectionResolvers';
 
-export interface IAdjustFixedAssetModel extends Model<IAdjustFixedAssetDocument> {
+export interface IAdjustFixedAssetModel
+  extends Model<IAdjustFixedAssetDocument> {
   getAdjustFixedAsset(_id: string): Promise<IAdjustFixedAssetDocument>;
   createAdjustFixedAsset(
     doc: IAdjustFixedAsset,
@@ -48,9 +50,30 @@ export const loadAdjustFixedAssetClass = (
       return adjusting;
     }
 
-    public static createAdjustFixedAsset(doc: IAdjustFixedAsset) {
+    public static async createAdjustFixedAsset(doc: IAdjustFixedAsset) {
+      const previous = await models.AdjustFixedAssets.findOne({
+        expenseAccountId: { $exists: true, $nin: ['', null] },
+      })
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .lean();
+      const previousTransaction =
+        previous?.expenseAccountId || doc.expenseAccountId
+          ? undefined
+          : await models.Transactions.findOne({
+              contentType: 'accounting:adjustFixedAsset',
+              journal: JOURNALS.FXA_DEP,
+              side: TR_SIDES.DEBIT,
+            })
+              .sort({ date: -1, createdAt: -1 })
+              .lean();
       return models.AdjustFixedAssets.create({
         ...doc,
+        expenseAccountId:
+          doc.expenseAccountId ||
+          previous?.expenseAccountId ||
+          previousTransaction?.details[0]?.accountId,
+        taxExpenseAccountId:
+          doc.taxExpenseAccountId || previous?.taxExpenseAccountId,
         status: ADJ_FXA_STATUSES.DRAFT,
         createdAt: new Date(),
       });
@@ -99,6 +122,16 @@ export const loadAdjustFixedAssetClass = (
         )
       ) {
         throw new Error('This fixed asset adjustment cannot be deleted.');
+      }
+
+      const linkedTransaction = await models.Transactions.findOne({
+        contentType: 'accounting:adjustFixedAsset',
+        contentId: _id,
+      }).lean();
+      if (linkedTransaction) {
+        throw new Error(
+          'Clear the linked depreciation transactions before deleting this adjustment.',
+        );
       }
 
       await models.AdjustFxaDetails.deleteMany({ adjustId: _id });

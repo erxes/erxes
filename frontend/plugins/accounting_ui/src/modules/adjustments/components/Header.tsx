@@ -1,13 +1,16 @@
+import { IconAdjustmentsCode } from '@tabler/icons-react';
 import { AccountingHeader } from '@/layout/components/Header';
 import { useNavigate, useParams } from 'react-router';
 import { Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { createFavoriteBreadcrumb } from 'ui-modules';
 
 export const adjustTypes = [
   { value: 'fundRate', label: 'fund-rate' },
   { value: 'debRate', label: 'debt-rate' },
   { value: 'inventory', label: 'inventory' },
   { value: 'fxa', label: 'fixed-asset' },
+  { value: 'closing', label: 'closing-entry' },
 ];
 
 export const AdjustmentHeader = ({
@@ -21,6 +24,7 @@ export const AdjustmentHeader = ({
   const navigate = useNavigate();
   const params = useParams();
   const subTitle = defaultKind || params['*']?.replace('adjustment/', '');
+  const currentKind = adjustTypes.find((kind) => kind.value === subTitle);
 
   return (
     <AccountingHeader
@@ -45,8 +49,14 @@ export const AdjustmentHeader = ({
           </Select.Content>
         </Select>
       }
-      returnLink="/accounting/adjustment/inventory"
-      returnText={t('inventory')}
+      returnLink={`/accounting/adjustment/${currentKind?.value ?? 'inventory'}`}
+      returnText={t('adjustment-settings')}
+      favoriteBreadcrumb={createFavoriteBreadcrumb(
+        t('accounting'),
+        t('adjustment-settings'),
+        currentKind && t(currentKind.label, { nsSeparator: false }),
+      )}
+      icon={IconAdjustmentsCode}
     >
       {children}
     </AccountingHeader>

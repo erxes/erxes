@@ -162,7 +162,11 @@ export const readNamespacedValue = (
     return collected.length ? collected : undefined;
   }
 
-  return bag[request.entryKey];
+  // Property keys are bare ids; a dotted key reads into a composite value,
+  // such as the amount of a Data Extensions currency.
+  return request.entryKey.includes('.')
+    ? readSegmentPath(bag, request.entryKey)
+    : bag[request.entryKey];
 };
 
 export const namespacePaths = (

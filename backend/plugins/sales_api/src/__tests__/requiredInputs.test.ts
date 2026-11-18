@@ -601,19 +601,14 @@ describe('supported requests keep their behavior', () => {
     ]);
   });
 
-  it('requires product-edit permission before looking up the deal', async () => {
-    context.checkPermission
-      .mockResolvedValueOnce(undefined)
-      .mockRejectedValueOnce(new Error('Permission denied'));
-    const result = await run(
-      'mutation salesRequiredInputProductPermission { dealsCreateProductsData(dealId: "deal", docs: []) }',
+  it('adds product rows with deal-edit permission alone', async () => {
+    context.checkPermission.mockImplementation(async (action: string) => {
+      if (action === 'dealsProductsEdit') throw new Error('Permission denied');
+    });
+    await run(
+      'mutation salesRequiredInputProductPermission { dealsCreateProductsData(dealId: "deal", docs: [{productId: "product", discountPercent: 10}]) }',
     );
-    expect(result.errors?.[0].message).toBe('Permission denied');
-    expect(context.checkPermission.mock.calls).toEqual([
-      ['dealsEdit'],
-      ['dealsProductsEdit'],
-    ]);
-    expectNoModelCalls();
+    expect(context.checkPermission.mock.calls).toEqual([['dealsEdit']]);
   });
 
   it('requires delete permission before looking up product rows', async () => {

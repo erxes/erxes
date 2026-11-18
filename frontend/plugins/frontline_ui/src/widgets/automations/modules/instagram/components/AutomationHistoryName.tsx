@@ -16,16 +16,21 @@ export const InstagramAutomationHistoryName = ({
           <IconExternalLink />
         </Link>
       </Button>
-      {`\u00A0/\u00A0`}
-      <Button asChild variant="link">
-        <Link
-          target="_blank"
-          to={`/frontline/inbox?conversationId=${target?.conversationId}`}
-        >
-          {t('see-conversation')}
-          <IconExternalLink />
-        </Link>
-      </Button>
+      {/* The inbox opens a conversation by its own id; older runs lack it */}
+      {target?.erxesApiId && (
+        <>
+          {`\u00A0/\u00A0`}
+          <Button asChild variant="link">
+            <Link
+              target="_blank"
+              to={`/frontline/inbox?conversationId=${target.erxesApiId}`}
+            >
+              {t('see-conversation')}
+              <IconExternalLink />
+            </Link>
+          </Button>
+        </>
+      )}
     </>
   );
 };

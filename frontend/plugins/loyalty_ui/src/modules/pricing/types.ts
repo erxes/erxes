@@ -21,11 +21,6 @@ export interface IPricing {
   updatedAt: string;
 }
 
-export interface IPricingRepeatValue {
-  label: string;
-  value: string;
-}
-
 export interface IPricingQuantityRule {
   type: string;
   value: number;
@@ -56,14 +51,26 @@ export interface IPricingExpiryRule {
   priceAdjustFactor: number;
 }
 
-export interface IPricingRepeatRule {
-  type: string;
-  dayStartValue?: string;
-  dayEndValue?: string;
-  weekValue?: IPricingRepeatValue[];
-  monthValue?: IPricingRepeatValue[];
-  yearStartValue?: string;
-  yearEndValue?: string;
+export type PricingScheduleWindowType =
+  | 'daily'
+  | 'weekly'
+  | 'monthly'
+  | 'yearly';
+
+// Which moment of a purchase the schedule is checked at.
+export type PricingScheduleMoment = 'checkout' | 'orderCreated' | 'either';
+
+// Read on the organization's wall clock. An end earlier than the start runs
+// past midnight; '24:00' ends the day.
+export interface IPricingActiveWindow {
+  type: PricingScheduleWindowType;
+  startTime: string;
+  endTime: string;
+  weekDays?: number[] | null;
+  monthDays?: number[] | null;
+  // 'MM-DD'; a later start than end wraps the new year.
+  fromMonthDay?: string | null;
+  toMonthDay?: string | null;
 }
 
 // A line sold under the core product condition with this code is priced by
@@ -148,7 +155,9 @@ export interface IPricingPlanDetail {
   expiryRules?: IPricingExpiryRule[];
 
   isRepeatEnabled?: boolean;
-  repeatRules?: IPricingRepeatRule[];
+  activeWindows?: IPricingActiveWindow[];
+  closedDates?: string[];
+  scheduleMoment?: PricingScheduleMoment;
 
   conditionRules?: IPricingConditionRule[];
 

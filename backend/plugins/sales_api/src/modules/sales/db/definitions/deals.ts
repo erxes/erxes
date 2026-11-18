@@ -1,3 +1,4 @@
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 import {
   attachmentSchema,
   customFieldSchema,
@@ -249,3 +250,6 @@ dealSchema.index({ stageId: 1, status: 1, createdAt: -1, _id: 1 });
 dealSchema.index({ stageId: 1, status: 1, parentId: 1 });
 dealSchema.index({ parentId: 1, order: 1, _id: 1, status: 1 });
 dealSchema.index({ stageId: 1, number: 1 });
+
+// Data Extension values are written only through the owner contract.
+applyDataExtensionsNamespace(dealSchema);

@@ -99,7 +99,7 @@ export const saveSaleTransactions = async ({
           ...sale,
           details: sale.details.map((detail) => ({
             ...detail,
-            accountId: sale.followInfos.saleOutAccountId,
+            accountId: sale.followInfos?.saleOutAccountId || '',
           })),
         },
         previous.map((row) => row._id),

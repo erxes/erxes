@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
+import { findOrganization } from '../../findOrganization';
+import { requireChannelId, resolveChannelId } from './_channel';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -71,9 +73,7 @@ const command = async () => {
   const coreDbName = extractDbName(coreUrl);
   const coreDb = client.db(coreDbName);
 
-  const targetOrg = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+  const targetOrg = await findOrganization(coreDb, TARGET_SUBDOMAIN);
 
   if (!targetOrg) {
     throw new Error(
@@ -94,8 +94,14 @@ const command = async () => {
   NEW_FIELDS = db.collection('frontline_form_fields');
   NEW_SUBMISSIONS = db.collection('frontline_form_submissions');
 
+  const channelId =
+    (await OLD_FORMS.countDocuments()) > 0
+      ? await requireChannelId(db)
+      : await resolveChannelId(db);
+
   try {
     console.log('🚀 Started migrating forms...');
+    console.log(`   channel: ${channelId}`);
 
     console.log(`   source forms: ${await OLD_FORMS.countDocuments()}`);
 
@@ -144,8 +150,6 @@ const command = async () => {
           };
         }
       }
-
-      const channelId = STATIC_CHANNEL_ID;
 
       // Explicitly map to new schema — drops brandId, merges steps into leadData
       const newDoc = {

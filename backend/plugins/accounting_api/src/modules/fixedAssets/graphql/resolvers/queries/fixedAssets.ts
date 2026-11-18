@@ -1,5 +1,18 @@
+import { buildChooserOwnerBalances } from '@/fixedAssets/utils/chooser';
+import { checkPermissionTrs } from '@/accounting/utils/trPermissions';
+import {
+  getFxaLedgerAssets,
+  fxaMovementSign,
+  getFxaTransactionExclusionFilter,
+} from '@/accounting/utils/fxaLedger';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import {
+  getFxaCorrections,
+  getFxaRulesAtDate,
+} from '@/accounting/utils/fxaRules';
+import { getFxaCapitalValuation } from '@/accounting/utils/fxaCapitalValuation';
+import { assertTransactionJournalPermission } from '@/accounting/utils/transactionPermissions';
 import {
   JOURNALS,
   TR_INVENTORY_STATUS_TYPES,
@@ -9,6 +22,40 @@ import {
   FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
 
+const movementJournals = [
+  JOURNALS.FXA_INCOME,
+  JOURNALS.FXA_OUT,
+  JOURNALS.FXA_MOVE,
+  JOURNALS.FXA_MOVE_IN,
+  JOURNALS.FXA_SALE,
+  JOURNALS.FXA_SALE_OUT,
+  JOURNALS.FXA_DEP,
+  JOURNALS.FXA_DEP_IN,
+  JOURNALS.FXA_DEP_OUT,
+  JOURNALS.FXA_REVALUATION,
+  JOURNALS.FXA_CAPITAL,
+];
+const chooserJournals = new Set<string>([
+  JOURNALS.FXA_OUT,
+  JOURNALS.FXA_MOVE,
+  JOURNALS.FXA_SALE,
+  JOURNALS.FXA_CAPITAL,
+  JOURNALS.FXA_REVALUATION,
+]);
+
+type TChooserParams = {
+  journal: string;
+  date: Date;
+  searchValue?: string;
+  categoryId?: string;
+  branchId?: string;
+  departmentId?: string;
+  ownerId?: string;
+  excludeTransactionId?: string;
+  page?: number;
+  perPage?: number;
+};
+
 const FXA_MOVEMENT_JOURNALS = [
   JOURNALS.FXA_INCOME,
   JOURNALS.FXA_OUT,
@@ -16,20 +63,6 @@ const FXA_MOVEMENT_JOURNALS = [
   JOURNALS.FXA_MOVE,
   JOURNALS.FXA_MOVE_IN,
 ];
-
-const getFxaMovementSign = (journal?: string) => {
-  switch (journal) {
-    case JOURNALS.FXA_INCOME:
-    case JOURNALS.FXA_MOVE_IN:
-      return 1;
-    case JOURNALS.FXA_OUT:
-    case JOURNALS.FXA_SALE:
-    case JOURNALS.FXA_MOVE:
-      return -1;
-    default:
-      return 0;
-  }
-};
 
 const normalizeLocationId = (value?: string) => value || '';
 
@@ -69,21 +102,6 @@ type TFixedAssetMovementTransaction = {
   }[];
 };
 
-export const getFixedAssetRemainderExclusionFilter = (
-  transaction?: { _id?: string; parentId?: string } | null,
-  excludeTransactionId?: string,
-) => {
-  if (transaction?.parentId) {
-    return { parentId: { $ne: transaction.parentId } };
-  }
-
-  if (excludeTransactionId) {
-    return { _id: { $ne: excludeTransactionId } };
-  }
-
-  return {};
-};
-
 const getFxaLocationRemainderKey = ({
   branchId,
   departmentId,
@@ -113,7 +131,7 @@ export const buildFixedAssetLocationRemainderRows = ({
   const remainders = new Map<string, TFixedAssetLocationRemainderRow>();
 
   for (const transaction of transactions) {
-    const sign = getFxaMovementSign(transaction.journal);
+    const sign = fxaMovementSign(transaction.journal);
 
     if (!sign) {
       continue;
@@ -181,6 +199,7 @@ type TFxaOwnerRecordParams = {
   createdFrom?: Date;
   createdTo?: Date;
   transactionId?: string;
+  excludeTransactionId?: string;
   page?: number;
   perPage?: number;
   limit?: number;
@@ -221,8 +240,8 @@ const buildFxaOwnerRecordFilter = async (
             params.fixedAssetId
               ? fixedAssetId === params.fixedAssetId
               : params.fixedAssetIds?.length
-                ? params.fixedAssetIds.includes(fixedAssetId)
-                : true,
+              ? params.fixedAssetIds.includes(fixedAssetId)
+              : true,
           ),
         }
       : { $in: fixedAssetIds };
@@ -249,6 +268,12 @@ const buildFxaOwnerRecordFilter = async (
 
   if (params.transactionId) {
     filter.transactionId = params.transactionId;
+  }
+  if (params.excludeTransactionId) {
+    filter.transactionId = {
+      ...(params.transactionId ? { $eq: params.transactionId } : {}),
+      $ne: params.excludeTransactionId,
+    };
   }
 
   return filter;
@@ -319,6 +344,171 @@ const getFxaOwnerRecordBalances = async (
 };
 
 const fixedAssets = {
+  accountingFixedAssetChooser: async (
+    _root: unknown,
+    params: TChooserParams,
+    context: IContext,
+  ) => {
+    const { models, user } = context;
+    if (!user?._id) throw new Error('Authentication required.');
+    if (!chooserJournals.has(params.journal))
+      throw new Error('Unsupported fixed asset chooser journal.');
+    if (!params.date || !Number.isFinite(new Date(params.date).getTime()))
+      throw new Error('Select a valid transaction date.');
+    await assertTransactionJournalPermission(context, params.journal, 'read');
+    const date = new Date(params.date);
+    date.setHours(23, 59, 59, 999);
+    const filter: Record<string, unknown> = {
+      status: { $ne: 'deleted' },
+    };
+    if (params.categoryId) filter.categoryId = params.categoryId;
+    if (params.searchValue) {
+      const regex = new RegExp(escapeRegExp(params.searchValue.trim()), 'i');
+      filter.$or = [{ code: regex }, { name: regex }];
+    }
+    const masters = await models.FixedAssets.find(filter)
+      .sort({ code: 1, _id: 1 })
+      .lean();
+    const assets = await getFxaLedgerAssets(
+      models,
+      date,
+      masters.map((asset) => asset._id),
+      params.excludeTransactionId,
+    );
+    const empty = { items: [], totalCount: 0, hasMore: false };
+    if (!assets.length) return empty;
+    const ids = assets.map((asset) => asset._id);
+    const excluded = params.excludeTransactionId
+      ? await models.Transactions.findOne(
+          { _id: params.excludeTransactionId },
+          { _id: 1, parentId: 1 },
+        ).lean()
+      : null;
+    const exclusion = getFxaTransactionExclusionFilter(
+      excluded,
+      params.excludeTransactionId,
+    );
+    const transactions = await models.Transactions.find({
+      journal: { $in: movementJournals },
+      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+      'details.fixedAssetId': { $in: ids },
+      date: { $lte: date },
+      ...exclusion,
+    }).lean();
+    const permissions = await checkPermissionTrs(models, transactions, user);
+    const hiddenIds = new Set(
+      permissions
+        .filter((transaction) => transaction.permission === 'hidden')
+        .map((transaction) => transaction._id),
+    );
+    const hiddenAssets = new Set(
+      transactions
+        .filter((transaction) => hiddenIds.has(transaction._id))
+        .flatMap((transaction) =>
+          transaction.details.map((detail) => detail.fixedAssetId),
+        ),
+    );
+    const visibleAssets = assets.filter(
+      (asset) => !hiddenAssets.has(asset._id),
+    );
+    const visibleIds = new Set(visibleAssets.map((asset) => asset._id));
+    const visibleTransactions = transactions.filter(
+      (transaction) => !hiddenIds.has(transaction._id),
+    );
+    const ownerRecords = await models.FxaOwnerRecords.find({
+      fixedAssetId: { $in: [...visibleIds] },
+      status: 'active',
+      $or: [
+        {
+          transactionId: {
+            $in: visibleTransactions.map((transaction) => transaction._id),
+          },
+        },
+        { transactionId: { $exists: false } },
+        { transactionId: '' },
+      ],
+      createdAt: { $lte: date },
+    }).lean();
+    // Transaction-linked rows use their business date, not the later import/creation timestamp.
+    const linkedRecords = await models.FxaOwnerRecords.find({
+      fixedAssetId: { $in: [...visibleIds] },
+      status: 'active',
+      transactionId: {
+        $in: visibleTransactions.map((transaction) => transaction._id),
+      },
+    }).lean();
+    const ownerById = new Map(
+      [...ownerRecords, ...linkedRecords].map((record) => [record._id, record]),
+    );
+    const owners = buildChooserOwnerBalances(visibleTransactions, [
+      ...ownerById.values(),
+    ]);
+    const branchId =
+      params.branchId === '_' ? '' : params.branchId || undefined;
+    const departmentId =
+      params.departmentId === '_' ? '' : params.departmentId || undefined;
+    const locations = buildFixedAssetLocationRemainderRows({
+      fixedAssetIds: [...visibleIds],
+      transactions: visibleTransactions,
+    });
+    const correctionsDate = new Date(date.getTime() + 1);
+    const corrections = await getFxaCorrections(
+      models,
+      correctionsDate,
+      params.excludeTransactionId,
+    );
+    const items = visibleAssets.flatMap((asset) => {
+      const assetOwners = owners.filter(
+        (owner) => owner.fixedAssetId === asset._id,
+      );
+      const unknownOwners = assetOwners.filter(
+        (owner) =>
+          owner.branchId === undefined || owner.departmentId === undefined,
+      );
+      const allAssetLocations = locations
+        .filter((location) => location.fixedAssetId === asset._id)
+        .map((location) => ({
+          ...location,
+          owners: assetOwners.filter(
+            (owner) =>
+              owner.branchId === location.branchId &&
+              owner.departmentId === location.departmentId,
+          ),
+        }));
+      const matchingLocations = allAssetLocations.filter(
+        (location) =>
+          (branchId === undefined || location.branchId === branchId) &&
+          (departmentId === undefined ||
+            location.departmentId === departmentId) &&
+          (!params.ownerId ||
+            location.owners.some((owner) => owner.ownerId === params.ownerId) ||
+            unknownOwners.some((owner) => owner.ownerId === params.ownerId)),
+      );
+      if (!matchingLocations.length) return [];
+      const assetLocations =
+        params.journal === JOURNALS.FXA_CAPITAL
+          ? allAssetLocations
+          : matchingLocations;
+      if (!assetLocations.length) return [];
+      return [
+        {
+          asset: { ...asset, ...getFxaRulesAtDate(asset, corrections, date) },
+          locations: assetLocations,
+          unlocatedOwners: unknownOwners,
+        },
+      ];
+    });
+    const perPage = Math.min(
+      100,
+      Math.max(1, Math.trunc(params.perPage || 20)),
+    );
+    const offset = (Math.max(1, Math.trunc(params.page || 1)) - 1) * perPage;
+    return {
+      items: items.slice(offset, offset + perPage),
+      totalCount: items.length,
+      hasMore: offset + perPage < items.length,
+    };
+  },
   fxaOwnerRecords: async (
     _root: undefined,
     params: TFxaOwnerRecordParams,
@@ -361,16 +551,20 @@ const fixedAssets = {
       categoryId,
       status,
       limit,
+      date,
+      excludeTransactionId,
     }: {
       searchValue?: string;
       ids?: string[];
       categoryId?: string;
       status?: string;
       limit?: number;
+      date?: Date;
+      excludeTransactionId?: string;
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    const filter: any = { status: { $ne: 'deleted' } };
+    const filter: Record<string, unknown> = { status: { $ne: 'deleted' } };
 
     if (ids?.length) {
       filter._id = { $in: ids };
@@ -389,10 +583,83 @@ const fixedAssets = {
       filter.$or = [{ code: regex }, { name: regex }];
     }
 
-    return models.FixedAssets.find(filter)
+    const assets = await models.FixedAssets.find(filter)
       .sort({ code: 1 })
       .limit(limit || 30)
       .lean();
+    const atDate = date || new Date();
+    if (!user?._id) throw new Error('Authentication required.');
+    const ledgerAssets = await getFxaLedgerAssets(
+      models,
+      atDate,
+      assets.map((asset) => asset._id),
+      excludeTransactionId,
+    );
+    const endDate = getEndOfDay(atDate);
+    endDate.setMilliseconds(endDate.getMilliseconds() + 1);
+    const changes = await getFxaCorrections(
+      models,
+      endDate,
+      excludeTransactionId,
+    );
+    return Promise.all(
+      ledgerAssets.map(async (asset) => {
+        const rules = getFxaRulesAtDate(asset, changes, getEndOfDay(atDate));
+        if (
+          !changes.some(
+            (change) =>
+              change.fixedAssetId === asset._id &&
+              change.rules.originalCost !== undefined,
+          )
+        ) {
+          return { ...asset, ...rules };
+        }
+        const valuation = await getFxaCapitalValuation(
+          models,
+          asset._id,
+          atDate,
+          excludeTransactionId,
+          user,
+        );
+        return {
+          ...asset,
+          ...rules,
+          originalCost: valuation.originalCost,
+          currentCount: valuation.count,
+          accumulatedDepreciation: valuation.preDeprecation,
+          bookValue:
+            valuation.originalCost * valuation.count - valuation.preDeprecation,
+        };
+      }),
+    );
+  },
+
+  fixedAssetCapitalValuation: async (
+    _root: undefined,
+    {
+      fixedAssetId,
+      date,
+      excludeTransactionId,
+      journal = JOURNALS.FXA_CAPITAL,
+    }: {
+      fixedAssetId: string;
+      date: Date;
+      excludeTransactionId?: string;
+      journal?: string;
+    },
+    context: IContext,
+  ) => {
+    if (![JOURNALS.FXA_CAPITAL, JOURNALS.FXA_REVALUATION].includes(journal))
+      throw new Error('Unsupported fixed asset valuation journal.');
+    if (!context.user?._id) throw new Error('Authentication required.');
+    await assertTransactionJournalPermission(context, journal, 'read');
+    return getFxaCapitalValuation(
+      context.models,
+      fixedAssetId,
+      date,
+      excludeTransactionId,
+      context.user,
+    );
   },
 
   fixedAssetDetail: async (
@@ -400,7 +667,10 @@ const fixedAssets = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.FixedAssets.findOne({ _id }).lean();
+    return (
+      (await getFxaLedgerAssets(models, new Date(), [_id]))[0] ||
+      models.FixedAssets.findOne({ _id }).lean()
+    );
   },
 
   fixedAssetLocationRemainder: async (
@@ -439,7 +709,7 @@ const fixedAssets = {
 
     Object.assign(
       filter,
-      getFixedAssetRemainderExclusionFilter(
+      getFxaTransactionExclusionFilter(
         excludedTransaction,
         excludeTransactionId,
       ),

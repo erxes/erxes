@@ -59,6 +59,7 @@ export const VatRowsDelete = () => {
           toast({
             title: t('success'),
             description: t('vat-row-deleted-successfully'),
+            variant: 'success',
           });
         },
       });

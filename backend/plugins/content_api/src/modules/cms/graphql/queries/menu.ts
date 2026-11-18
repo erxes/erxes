@@ -18,6 +18,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.MENU,
       'menu',
+      { withTotalCount: false },
     );
 
     return models.MenuItems.hydrateMenuItems(list);
@@ -38,6 +39,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.MENU,
       'menu',
+      { withTotalCount: false },
     );
 
     return models.MenuItems.hydrateMenuItems(list);
@@ -79,6 +81,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.MENU,
       'menu',
+      { withTotalCount: false },
     );
 
     return models.MenuItems.hydrateMenuItems(list);
@@ -98,6 +101,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.MENU,
       'menu',
+      { withTotalCount: false },
     );
 
     return models.MenuItems.hydrateMenuItems(list);

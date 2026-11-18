@@ -19,6 +19,7 @@ import {
   receiveUser,
 } from '~/modules/posclient/utils/syncUtils';
 import { filterOrders } from '@/posclient/graphql/resolvers/queries/orders';
+import { syncCreatedOrder } from '~/modules/posclient/utils/syncCreatedOrder';
 
 const t = initTRPC.context<PosTRPCContext>().create();
 
@@ -206,11 +207,15 @@ export const posclientTrpcRouter = t.router({
         throw new Error('Cannot find pos user or config');
       }
 
-      return await ordersAdd(order, {
+      const created = await ordersAdd(order, {
         subdomain,
         models,
         config,
       });
+
+      await syncCreatedOrder({ subdomain, models, config, order: created });
+
+      return created;
     }),
     fullOrders: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;

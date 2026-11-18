@@ -90,20 +90,16 @@ const AccountingCheckSyncedOrderRuleContent = ({
   const getRuleTitle = useOrderRuleTitle();
   const rules = data?.accountingsConfigs || [];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">{t('loading')}</span>
-      </div>
-    );
-  }
-
   return (
     <Command>
       <Command.Input placeholder={t('search-rule')} />
-      <Command.Empty>
-        <span className="text-muted-foreground">{t('no-rules-found')}</span>
-      </Command.Empty>
+      {loading ? (
+        <Combobox.Empty loading />
+      ) : (
+        <Command.Empty>
+          <span className="text-muted-foreground">{t('no-rules-found')}</span>
+        </Command.Empty>
+      )}
       <Command.List>
         {rules.map((rule) => {
           const title = getRuleTitle(rule);

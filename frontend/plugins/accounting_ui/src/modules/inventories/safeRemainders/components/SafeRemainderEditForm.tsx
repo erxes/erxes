@@ -251,7 +251,7 @@ export const EditSafeRemainder = () => {
           </div>
         </div>
         <div className="flex shrink-0 justify-end border-t bg-background px-6 py-3">
-          <Button type="submit" size="lg" disabled={loading}>
+          <Button type="submit" disabled={loading}>
             {loading && <Spinner />}
             {t('save')}
           </Button>

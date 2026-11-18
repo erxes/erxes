@@ -59,6 +59,7 @@ export const AccountCategoriesDelete = () => {
             toast({
               title: t('success'),
               description: t('account-category-deleted-successfully-label'),
+              variant: 'success',
             });
           },
         });

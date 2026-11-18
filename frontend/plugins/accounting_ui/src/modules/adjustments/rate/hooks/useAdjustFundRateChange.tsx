@@ -26,6 +26,7 @@ export const useAdjustFundRateChange = () => {
         toast({
           title: t('success'),
           description: t('Updated successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

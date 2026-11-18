@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { flexRender } from '@tanstack/react-table';
+import { Column, flexRender } from '@tanstack/react-table';
 import { cn, RecordTable, Table } from 'erxes-ui';
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -17,7 +17,7 @@ const PTR_STATUS_LABELS: Record<string, string> = {
 
 const formatAmount = (amount?: number) => (amount ?? 0).toLocaleString();
 
-const getPinnedCellStyle = (column: any) => ({
+const getPinnedCellStyle = (column: Column<unknown>) => ({
   width: `calc(var(--col-${column.id}-size) * 1px)`,
   left:
     column.getIsPinned() === 'left'
@@ -136,6 +136,7 @@ export const AccountingTableRow = ({
         <RowComponent
           key={row.original._id}
           id={row.original._id}
+          original={row.original}
           data-state={row.getIsSelected() && 'selected'}
           handleRowViewChange={(inView) =>
             handleRowViewChange?.(row.original._id, inView)

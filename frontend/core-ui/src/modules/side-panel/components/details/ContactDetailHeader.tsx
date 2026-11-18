@@ -45,11 +45,9 @@ export const ContactDetailHeader = ({
           />
         )}
       </PageHeader.Start>
-      {actions && (
-        <PageHeader.End className="ml-auto min-w-0 max-w-full">
-          {actions}
-        </PageHeader.End>
-      )}
+      <PageHeader.End className="ml-auto min-w-0 max-w-full">
+        {actions}
+      </PageHeader.End>
     </PageHeader>
   );
 };

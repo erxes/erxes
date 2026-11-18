@@ -8,12 +8,17 @@ import {
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { publishTicketChanged } from '~/modules/ticket/utils/publishTicketChanged';
 import { prepareTicketPropertyWrite } from '~/modules/ticket/meta/automations/ticketPropertyWrites';
 import { createTicketAction } from '~/modules/ticket/meta/automations/actions/createTicketAction';
 import {
   isTicketStatusChanged,
   TICKET_STATUS_CHANGED_RELATION,
 } from '~/modules/ticket/meta/automations/trigger/checkStatusChangedTrigger';
+import {
+  matchTicketSlaEvent,
+  TICKET_SLA_RELATION,
+} from '~/modules/ticket/meta/automations/trigger/checkSlaTrigger';
 
 export const ticketAutomationProducers = {
   receiveActions: async (
@@ -43,8 +48,10 @@ export const ticketAutomationProducers = {
     eventUpdateDescription,
   }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER]) =>
     collectionType === 'tickets' &&
-    relationType === TICKET_STATUS_CHANGED_RELATION &&
-    isTicketStatusChanged({ target, config, eventUpdateDescription }),
+    ((relationType === TICKET_STATUS_CHANGED_RELATION &&
+      isTicketStatusChanged({ target, config, eventUpdateDescription })) ||
+      (relationType === TICKET_SLA_RELATION &&
+        !!matchTicketSlaEvent({ target, config, eventUpdateDescription }))),
 
   setProperties: async (
     data: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
@@ -74,8 +81,8 @@ export const ticketAutomationProducers = {
       selector,
       fetchItems: async (itemSelector) =>
         await models.Ticket.find(itemSelector).lean(),
-      update: async ({ selector: itemSelector, modifier, item }) =>
-        await models.Ticket.updateMany(
+      update: async ({ selector: itemSelector, modifier, item }) => {
+        const result = await models.Ticket.updateMany(
           itemSelector,
           await prepareTicketPropertyWrite({
             models,
@@ -83,7 +90,24 @@ export const ticketAutomationProducers = {
             item,
             target: (execution.target || {}) as Record<string, unknown>,
           }),
-        ),
+        );
+
+        // Priority or status may have moved; the SLA follows.
+        if (item?._id) {
+          await models.Ticket.syncSla(String(item._id), subdomain).catch(
+            (error) =>
+              console.error(`Ticket ${item._id} SLA sync failed:`, error),
+          );
+
+          const updated = await models.Ticket.findOne({ _id: item._id }).lean();
+
+          if (updated) {
+            publishTicketChanged(updated, 'update');
+          }
+        }
+
+        return result;
+      },
       targetType,
     });
   },

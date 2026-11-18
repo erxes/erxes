@@ -34,6 +34,7 @@ export const useAdjustFundRateRemove = (
         toast({
           title: t('success'),
           description: t('Fund Rate Adjustment removed successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

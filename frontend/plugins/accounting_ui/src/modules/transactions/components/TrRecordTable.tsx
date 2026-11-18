@@ -24,7 +24,7 @@ export const TrRecordTable = () => {
     () =>
       showsInventoryDetails
         ? trRecordColumns(t)
-        : trRecordColumns(t).filter((column) => !column.id?.includes('inv')),
+        : trRecordColumns(t).filter((column) => !column.id?.includes('details')),
     [showsInventoryDetails, t],
   );
 

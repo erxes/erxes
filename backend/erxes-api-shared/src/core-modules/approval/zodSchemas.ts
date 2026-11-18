@@ -53,3 +53,17 @@ export const approvalChangeApplyInputSchema = z.object({
     approverId: z.string().min(1),
   }),
 });
+
+export const approvalChangeRejectInputSchema = z.object({
+  subdomain: z.string(),
+  data: z.object({
+    requestId: z.string().min(1),
+    changeType: z.string().min(1),
+    payload: z.record(z.string(), z.unknown()).optional(),
+    contentType: z.string().min(1),
+    contentId: z.string().min(1),
+    requesterId: z.string().min(1),
+    rejecterId: z.string().optional(),
+    reason: z.string().optional(),
+  }),
+});

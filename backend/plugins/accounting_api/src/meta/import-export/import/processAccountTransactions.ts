@@ -237,6 +237,18 @@ const getDetailDoc = async (row, currentTr, relatedData) => {
       : fixNum(row.amount, 6);
 
   return {
+    followInfos: {
+      fixedAssetCategoryId:
+        (isFxaIncome &&
+          getRowFixedAssetCategoryCode(row) &&
+          fixedAssetCategories.find(
+            (category) => category.code === getRowFixedAssetCategoryCode(row),
+          )?._id) ||
+        '',
+      fixedAssetCode: isFxaIncome ? getRowFixedAssetCode(row) || '' : '',
+      fixedAssetName:
+        (isFxaIncome && (row.fixedAssetName || row.productName)) || '',
+    },
     _id: nanoid(),
     accountId: accounts?.find((acc) => acc.code === row.accountCode)?._id,
     branchId: branches?.find((branch) => branch.code === row.branchId)?._id,
@@ -264,16 +276,7 @@ const getDetailDoc = async (row, currentTr, relatedData) => {
           (fixedAsset) => fixedAsset.code === getRowFixedAssetCode(row),
         )?._id) ||
       '',
-    fixedAssetCategoryId:
-      (isFxaIncome &&
-        getRowFixedAssetCategoryCode(row) &&
-        fixedAssetCategories.find(
-          (category) => category.code === getRowFixedAssetCategoryCode(row),
-        )?._id) ||
-      '',
-    fixedAssetCode: isFxaIncome ? getRowFixedAssetCode(row) || '' : '',
-    fixedAssetName:
-      (isFxaIncome && (row.fixedAssetName || row.productName)) || '',
+
     count,
     unitPrice,
 

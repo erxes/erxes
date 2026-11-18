@@ -16,7 +16,6 @@ jest.mock('../product', () => ({
 }));
 
 jest.mock('../rule', () => ({
-  checkRepeatRule: jest.fn(() => true),
   calculateDiscountValue: jest.fn((_type: string, value: number) => value),
   calculatePriceAdjust: jest.fn(
     (_price: number, discountValue: number) => discountValue,

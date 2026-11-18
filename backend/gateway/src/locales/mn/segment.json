@@ -90,7 +90,12 @@
     "broadcast-create": "Шөнө бүрийн broadcast",
     "automation-kind": "Automation",
     "broadcast-kind": "Broadcast",
-    "broadcast-kind-nightly": "Шөнийн broadcast"
+    "broadcast-kind-nightly": "Шөнийн broadcast",
+    "property-group": {
+      "dataExtensions": "Өгөгдлийн өргөтгөл",
+      "fields": "Талбарууд",
+      "properties": "Нэмэлт шинж чанар"
+    }
   },
   "filter": {
     "segments": "Сегмент",
@@ -263,5 +268,6 @@
   "delete-confirm": "\"{{name}}\" устгах уу?",
   "delete-selected-confirm": "Сонгосон {{total}} сегментийг устгахдаа итгэлтэй байна уу?",
   "segment-deleted": "Сегмент амжилттай устгагдлаа",
-  "segments-deleted": "Сегментүүд амжилттай устгагдлаа"
+  "segments-deleted": "Сегментүүд амжилттай устгагдлаа",
+  "from-template": "Template-ээс"
 }

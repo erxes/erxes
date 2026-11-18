@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ComponentType } from 'react';
+import { IconFileOff } from '@tabler/icons-react';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { TrJournalEnum } from '~/modules/transactions/types/constants';
 import { PRINT_DOCUMENTS } from '../../contants/printDocuments';
@@ -76,7 +78,9 @@ export const PrintBody = ({
     ? printDocuments[transaction.journal]
     : undefined;
   if (!Component) {
-    return <div className="p-10 text-red-500">{t('no-voucher-found')}</div>;
+    return (
+      <AccountingEmptyState icon={IconFileOff} title={t('no-voucher-found')} />
+    );
   }
 
   return <Component transaction={transaction} />;

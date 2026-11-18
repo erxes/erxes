@@ -80,7 +80,11 @@ export const useExecutionActions = () => {
           }),
         Promise.resolve(),
       );
-      toast({ title: t('success'), description: t('production-updated') });
+      toast({
+        title: t('success'),
+        description: t('production-updated'),
+        variant: 'success',
+      });
     } catch (error) {
       toast({
         title: t('error'),

@@ -7,7 +7,7 @@ import { NavigationChildControlsProvider } from '@/navigation/components/app-sid
 import { NavigationCorePanelContent } from '@/navigation/components/app-sidebar/NavigationCoreModules';
 import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
-import { TemplatesContextNavigation } from '@/templates/components/TemplatesContextNavigation';
+import { DataExtensionsContextNavigation } from '@/data-extensions/components/DataExtensionsSidebar';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { SETTINGS_TAB_ID } from '@/navigation/hooks/useAppTabs';
@@ -32,12 +32,12 @@ const getCoreModuleSidebar = (
     return <SegmentsContextNavigation />;
   }
 
-  if (pathname.startsWith('/templates')) {
-    return <TemplatesContextNavigation />;
-  }
-
   if (pathname.startsWith(`/${AppPath.Documents}`)) {
     return <DocumentsContextNavigation />;
+  }
+
+  if (pathname.startsWith(`/${AppPath.DataExtensions}`)) {
+    return <DataExtensionsContextNavigation />;
   }
 
   if (activity.modules.some((module) => module.submenus?.length)) {

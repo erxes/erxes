@@ -97,6 +97,17 @@ export const AI_AGENT_BOT_STEP_POSES: Record<TAiAgentStep, TAiAgentBotPose> = {
     props: [],
     mood: 'Reading…',
   },
+  lookup: {
+    leftHand: [41, 100],
+    rightHand: [98, 74],
+    eye: 'normal',
+    eyeOffset: [3, 0],
+    glance: true,
+    tilt: 4,
+    heart: 'ok',
+    props: ['lens'],
+    mood: 'Looking it up…',
+  },
   test: {
     leftHand: [41, 100],
     rightHand: [98, 74],

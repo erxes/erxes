@@ -1,3 +1,4 @@
+import { IconScale } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { SafeRemainderFilter } from '~/modules/inventories/safeRemainders/components/SafeRemainderFilters';
@@ -18,6 +19,7 @@ export const SafeRemaindersPage = () => {
       <AccountingHeader
         returnLink="/accounting/inventories/safe-remainders"
         returnText={t('Safe Remainders')}
+        icon={IconScale}
         skipSettings={true}
       >
         <AddSafeRemainder />

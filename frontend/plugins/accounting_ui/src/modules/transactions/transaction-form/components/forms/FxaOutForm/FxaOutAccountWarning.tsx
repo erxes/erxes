@@ -1,0 +1,97 @@
+import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
+import { useEffect } from 'react';
+import { useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
+import { AccountStatus } from '@/settings/account/types/Account';
+import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
+import { ITransactionGroupForm } from '@/transactions/transaction-form/types/JournalForms';
+
+export const FxaOutAccountWarning = ({
+  form,
+  index,
+  sale = false,
+}: {
+  form: ITransactionGroupForm;
+  index: number;
+  sale?: boolean;
+}) => {
+  const { t } = useTranslation('accounting');
+  const accountId = useWatch({
+    control: form.control,
+    name: sale
+      ? `trDocs.${index}.followInfos.saleOutAccountId`
+      : `trDocs.${index}.details.0.accountId`,
+  });
+  const currentDepreciationAccountId = useWatch({
+    control: form.control,
+    name: `trDocs.${index}.followInfos.accumulatedDepreciationAccountId`,
+  });
+  const { configs, loading, error, refetch } = useFixedAssetAccountConfigs();
+  const depreciationAccountId =
+    configs.find((config) => config.accountId === accountId)?.value
+      .depreciationAccountId || '';
+  const {
+    accounts,
+    loading: accountsLoading,
+    error: accountsError,
+    refetch: refetchAccounts,
+  } = useAccountsInline({
+    variables: {
+      ids: [accountId, depreciationAccountId].filter((id): id is string =>
+        Boolean(id),
+      ),
+      permissionMode: 'write',
+    },
+    skip: !accountId,
+  });
+
+  useEffect(() => {
+    if (loading || error) return;
+    if (currentDepreciationAccountId !== depreciationAccountId) {
+      form.setValue(
+        `trDocs.${index}.followInfos.accumulatedDepreciationAccountId`,
+        depreciationAccountId,
+        { shouldValidate: true },
+      );
+    }
+  }, [
+    currentDepreciationAccountId,
+    depreciationAccountId,
+    error,
+    form,
+    index,
+    loading,
+  ]);
+
+  useEffect(() => {
+    if (!accountId) return;
+    const refresh = () => {
+      void refetch().catch(() => undefined);
+      void refetchAccounts().catch(() => undefined);
+    };
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, [accountId, refetch, refetchAccounts]);
+
+  const hasConfiguredAccount = accounts.some(
+    (account) =>
+      account._id === depreciationAccountId &&
+      account.status === AccountStatus.ACTIVE,
+  );
+  if (!accountId || loading || accountsLoading) return null;
+  if (!error && !accountsError && depreciationAccountId && hasConfiguredAccount)
+    return null;
+  return (
+    <FxaAccountMatchingWarning
+      message={
+        error?.message ||
+        accountsError?.message ||
+        t('fxa-missing-depreciation-account', {
+          defaultValue:
+            'Сонгосон үндсэн хөрөнгийн дансанд хуримтлагдсан элэгдлийн дансны холбоос тохируулаагүй эсвэл ашиглах боломжгүй байна.',
+        })
+      }
+    />
+  );
+};

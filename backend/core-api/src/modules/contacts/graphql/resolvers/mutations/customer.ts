@@ -7,6 +7,7 @@ import { getEnv } from 'erxes-api-shared/utils';
 import { syncCustomerContactToCPUsers } from '@/clientportal/services/user/contactService';
 import { IContext } from '~/connectionResolvers';
 import { COC_LIFECYCLE_STATE_TYPES } from '~/modules/contacts/constants';
+import { buildContactRolesUpdate } from '~/modules/contacts/utils';
 
 export const customerMutations: Record<string, Resolver<any, any, IContext>> = {
   /**
@@ -49,6 +50,24 @@ export const customerMutations: Record<string, Resolver<any, any, IContext>> = {
     await syncCustomerContactToCPUsers(models, _id, doc);
 
     return updated;
+  },
+
+  /**
+   * Sets the vendor/client roles a customer or lead holds
+   */
+  async customersSetContactRoles(
+    _parent: undefined,
+    { _id, contactRoles }: { _id: string; contactRoles: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('contactsUpdate');
+
+    const update = buildContactRolesUpdate(contactRoles);
+
+    await models.Customers.getCustomer(_id);
+    await models.Customers.updateOne({ _id }, update);
+
+    return models.Customers.getCustomer(_id);
   },
 
   /**

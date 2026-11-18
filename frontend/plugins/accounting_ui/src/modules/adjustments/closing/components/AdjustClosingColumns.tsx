@@ -6,16 +6,10 @@ import {
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
-import {
-  Input,
-  PopoverScoped,
-  RecordTable,
-  RecordTableInlineCell,
-} from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
 import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
@@ -42,23 +36,11 @@ const StatusCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
 
 const DescriptionCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
   const value = cell.getValue();
-  const [description, setDescription] = useState(
-    typeof value === 'string' ? value : '',
-  );
-  const _id = cell.row.original._id;
 
   return (
-    <PopoverScoped scope={`transaction-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {typeof value === 'string' && value ? value : '-'}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+    <RecordTableInlineCell>
+      {typeof value === 'string' && value ? value : '-'}
+    </RecordTableInlineCell>
   );
 };
 

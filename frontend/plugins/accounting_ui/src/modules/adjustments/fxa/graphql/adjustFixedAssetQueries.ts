@@ -27,6 +27,8 @@ query accountingAdjustFixedAssets($startDate: Date, $endDate: Date, $description
     modifiedBy
     date
     description
+    expenseAccountId
+    taxExpenseAccountId
     status
     error
     warning
@@ -61,6 +63,8 @@ query accountingAdjustFixedAssetDetail($_id: String!) {
     modifiedBy
     date
     description
+    expenseAccountId
+    taxExpenseAccountId
     status
     error
     warning
@@ -87,14 +91,37 @@ query accountingAdjustFxaDetails($_id: String!, $page: Int, $perPage: Int, $sort
     accountId
     branchId
     departmentId
+    count
     originalCost
     salvageValue
-    openingBookValue
-    preDeprecation
+    accumulatedDepreciation
     depreciationAmount
-    bookDepreciationAmount
-    closingAccumulatedDepreciation
-    closingBookValue
+    taxDepreciationAmount
+    taxAccumulatedDepreciation
+    temporaryDifference
+    deferredTaxAsset
+    deferredTaxLiability
+    revaluationLoss
+    revaluationReserve
+    previous {
+      _id
+      adjustId
+      fixedAssetId
+      branchId
+      departmentId
+      count
+      originalCost
+      salvageValue
+      accumulatedDepreciation
+      depreciationAmount
+      taxDepreciationAmount
+      taxAccumulatedDepreciation
+      temporaryDifference
+      deferredTaxAsset
+      deferredTaxLiability
+      revaluationLoss
+      revaluationReserve
+    }
     transactionId
     transactionDetailId
     error

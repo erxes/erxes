@@ -1,6 +1,5 @@
-import { type MutableRefObject, useLayoutEffect, useRef } from 'react';
-import { useFormContext } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSegmentPageDraft } from '@/segments/hooks/useSegmentPageDraft';
+import { type MutableRefObject } from 'react';
 import type { TSegmentForm } from 'ui-modules';
 
 /** Carries unsaved segment values from the panel into its detail page. */
@@ -11,30 +10,7 @@ export const SegmentPageDraft = ({
   draft: MutableRefObject<(() => TSegmentForm) | null>;
   initialDraft?: TSegmentForm;
 }) => {
-  const { getValues, reset } = useFormContext<TSegmentForm>();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const state: { segmentDraft?: TSegmentForm } | null = location.state;
-  const restored = useRef(false);
-  useLayoutEffect(() => {
-    draft.current = getValues;
-    if (!restored.current && initialDraft) {
-      restored.current = true;
-      reset(initialDraft, { keepDefaultValues: true });
-      const nextState = { ...state };
-      delete nextState.segmentDraft;
-      navigate(
-        {
-          pathname: location.pathname,
-          search: location.search,
-          hash: location.hash,
-        },
-        { replace: true, state: nextState },
-      );
-    }
-    return () => {
-      draft.current = null;
-    };
-  }, [draft, getValues, reset, initialDraft, location, navigate, state]);
+  useSegmentPageDraft(draft, initialDraft);
+
   return null;
 };

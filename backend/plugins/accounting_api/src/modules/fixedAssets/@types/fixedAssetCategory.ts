@@ -13,6 +13,7 @@ export interface IFixedAssetCategory {
   taxDepreciationMethod?: string;
   defaultTaxAnnualDepreciationRate?: number;
   defaultTaxSalvageValue?: number;
+  incomeTaxRate?: number;
 
   createdAt?: Date;
   updatedAt?: Date;

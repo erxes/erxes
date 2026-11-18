@@ -1,3 +1,4 @@
+import { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount } from '@/settings/account/types/Account';
@@ -15,7 +16,7 @@ export const AccountField = ({
   labelTxt,
   onAccountChange,
 }: ICommonFieldProps & {
-  filter?: any;
+  filter?: ComponentProps<typeof SelectAccount>['defaultFilter'];
   allDetails?: boolean;
   onAccountChange?: (account: IAccount) => void;
 }) => {
@@ -27,16 +28,13 @@ export const AccountField = ({
   const onChangeAccount = (account: IAccount) => {
     if (allDetails) {
       details.forEach((_d, ind) => {
-        form.setValue(`trDocs.${index}.details.${ind}.account`, account as any);
-        form.setValue(
-          `trDocs.${index}.details.${ind}.accountId`,
-          account._id as any,
-        );
+        form.setValue(`trDocs.${index}.details.${ind}.account`, account);
+        form.setValue(`trDocs.${index}.details.${ind}.accountId`, account._id);
       });
     } else {
       form.setValue(
         `trDocs.${index}.details.${detIndex ?? 0}.account`,
-        account as any,
+        account,
       );
     }
 
@@ -94,7 +92,7 @@ export const SideField = ({
           <Form.Label>{labelTxt ? t(labelTxt) : t('side')}</Form.Label>
           <Select value={field.value} onValueChange={field.onChange}>
             <Form.Control>
-              <Select.Trigger className="h-8">
+              <Select.Trigger>
                 <Select.Value />
               </Select.Trigger>
             </Form.Control>
@@ -106,6 +104,7 @@ export const SideField = ({
               ))}
             </Select.Content>
           </Select>
+          <Form.Message />
         </Form.Item>
       )}
     />
@@ -138,6 +137,7 @@ export const AmountField = ({
               }}
             />
           </Form.Control>
+          <Form.Message />
         </Form.Item>
       )}
     />

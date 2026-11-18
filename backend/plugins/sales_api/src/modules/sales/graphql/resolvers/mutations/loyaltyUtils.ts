@@ -92,7 +92,7 @@ export const checkLoyalties = async (
 export const checkPricing = async (
   subdomain: string,
   models: IModels,
-  deal: IDeal & { _id?: string },
+  deal: IDeal & { _id?: string; createdAt?: Date },
 ) => {
   const activeProductsData =
     deal.productsData?.filter((pd) => pd.tickUsed && !pd.bonusCount) || [];
@@ -128,6 +128,8 @@ export const checkPricing = async (
     module: 'pricing',
     action: 'checkPricing',
     input: {
+      // Checkout is now; the plan picks which moment its schedule reads.
+      orderCreatedAt: deal.createdAt,
       prioritizeRule: 'exclude',
       totalAmount,
       branchId: deal.branchIds?.[0] || '',

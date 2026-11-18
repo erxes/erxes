@@ -31,6 +31,7 @@ export const useReCalcRemainders = (
         toast({
           title: t('success'),
           description: t('re-calced-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

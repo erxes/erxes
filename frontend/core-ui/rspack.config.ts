@@ -85,7 +85,20 @@ export default composePlugins(
     if (process.env.NODE_ENV !== 'production') {
       config.watchOptions = {
         ...config.watchOptions,
-        ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
+        ignored: [
+          '**/node_modules/**',
+          '**/dist/**',
+          '**/.nx/**',
+          '**/__tests__/**',
+          '**/*.spec.ts',
+          '**/*.spec.tsx',
+          '**/*.spec.js',
+          '**/*.spec.jsx',
+          '**/*.test.ts',
+          '**/*.test.tsx',
+          '**/*.test.js',
+          '**/*.test.jsx',
+        ],
       };
     }
 

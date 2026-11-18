@@ -11,16 +11,12 @@ import * as jwt from 'jsonwebtoken';
 import { IContext, IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
 import { LoginError } from '~/modules/auth/loginError';
+import { afterStaffLogin, staffPasswordLogin } from '~/modules/auth/staffLogin';
 import { endSession, startSession } from '~/modules/auth/session';
-import { createTwoFactorChallenge } from '~/modules/auth/twoFactor/challenge';
-import { armLdapRecheck } from '~/modules/auth/ldap/worker';
 import {
-  assertLoginAllowed,
-  clearLoginFailures,
   getCallbackRedirectUrl,
   getRequestIp,
   isValidEmail,
-  recordLoginFailure,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
 import { assertSaasEnvironment, MAGIC_LINK_STATE } from '~/utils/saas';
@@ -58,44 +54,22 @@ export const authMutations = {
 
     return await logHandler(
       async () => {
-        await assertLoginAllowed(subdomain, getRequestIp(req), args.email);
+        const result = await staffPasswordLogin({
+          models,
+          subdomain,
+          ip: getRequestIp(req),
+          email: args.email,
+          password: args.password,
+          deviceToken: args.deviceToken,
+        });
 
-        let response: Awaited<ReturnType<typeof models.Users.login>>;
-
-        try {
-          response = await models.Users.login(args);
-        } catch (e) {
-          // An unreachable directory is not the user's mistake, so it must not lock them out
-          if (
-            !(e instanceof LoginError && e.reason === 'directory_unreachable')
-          ) {
-            await recordLoginFailure(subdomain, args.email);
-          }
-          throw e;
-        }
-
-        await clearLoginFailures(subdomain, args.email);
-
-        const { user, method } = response;
-        loginResult.method = method;
-
-        const twoFactor = await models.TwoFactors.requirement(user);
-
-        if (twoFactor !== 'none') {
-          const challenge = await createTwoFactorChallenge(subdomain, {
-            userId: user._id,
-            method,
-            setup: twoFactor === 'setup',
-          });
-
+        if (result.status !== 'loggedIn') {
           // An error, so a client unaware of 2FA can never look signed in
-          throw new LoginError(
-            twoFactor === 'setup'
-              ? 'two_factor_setup_required'
-              : 'two_factor_required',
-            challenge,
-          );
+          throw new LoginError(result.status, result.challenge);
         }
+
+        const { user, method } = result;
+        loginResult.method = method;
 
         await startSession({
           models,
@@ -106,12 +80,7 @@ export const authMutations = {
           res,
         });
 
-        if (method === 'ldap') {
-          // Re-arms the directory recheck after a restart; never blocks sign-in
-          await armLdapRecheck(models, subdomain).catch((e: Error) =>
-            console.error(`LDAP recheck scheduling failed: ${e.message}`),
-          );
-        }
+        await afterStaffLogin(models, subdomain, method);
 
         return 'loggedIn';
       },

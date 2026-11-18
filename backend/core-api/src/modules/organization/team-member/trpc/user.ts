@@ -1,6 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { resolveTeamAvailability } from '../availability';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -19,6 +20,12 @@ export const userTrpcRouter = t.router({
 
         return models.Users.find(query, fields);
       }),
+    // Whether each member takes new work now, as automations pick people.
+    availability: t.procedure
+      .input(z.object({ userIds: z.array(z.string()) }))
+      .query(async ({ ctx, input }) =>
+        resolveTeamAvailability(ctx.models, input.userIds),
+      ),
     findOne: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {

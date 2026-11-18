@@ -93,6 +93,6 @@
     },
     {
       "path": "./frontend/plugins/operation_ui/tsconfig.json"
-    },
+    }
   ]
 }

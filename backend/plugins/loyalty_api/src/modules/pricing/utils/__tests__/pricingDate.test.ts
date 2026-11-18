@@ -7,25 +7,24 @@ jest.mock('../product', () => ({
 jest.mock('../eligibility', () => ({
   planMatchesContext: async () => true,
 }));
+jest.mock('@/score/services/periodSchedule', () => ({
+  loyaltyTimeZone: async () => 'Asia/Ulaanbaatar',
+}));
 
 import { IModels } from '~/connectionResolvers';
 import { IPricingPlan } from '../../@types/pricingPlan';
-import { IRepeatRule } from '../../@types/repeatRule';
+import { IActiveWindow } from '../../@types/schedule';
 import { checkPricing } from '../index';
-import { checkRepeatRule } from '../rule';
 
-const NOW = new Date(2026, 10, 4, 13);
-const THEN = new Date(2020, 0, 6, 10, 30);
-const repeatRule = (overrides: Partial<IRepeatRule> = {}): IRepeatRule => ({
-  type: 'everyWeek',
-  dayStartValue: new Date(2020, 0, 1, 10),
-  dayEndValue: new Date(2020, 0, 1, 11),
-  weekValue: [{ label: 'Monday', value: '1' }],
-  monthValue: [{ label: '6', value: '6' }],
-  yearStartValue: new Date(2020, 0, 1),
-  yearEndValue: new Date(2020, 0, 31),
-  ...overrides,
-});
+// Wednesday 13:00 and Monday 10:30 in Ulaanbaatar.
+const NOW = new Date('2026-11-04T05:00:00Z');
+const THEN = new Date('2020-01-06T02:30:00Z');
+const mondayMorning: IActiveWindow = {
+  type: 'weekly',
+  weekDays: [1],
+  startTime: '10:00',
+  endTime: '11:00',
+};
 
 const pricingPlan = (overrides: Partial<IPricingPlan> = {}): IPricingPlan => ({
   name: 'Dated plan',
@@ -45,13 +44,14 @@ const fixture = (plan: IPricingPlan) => {
   const models = { PricingPlans: { find } } as unknown as IModels;
   return {
     find,
-    run: (date?: Date) =>
+    run: (date?: Date, orderCreatedAt?: Date) =>
       checkPricing({
         models,
         subdomain: 'test',
         prioritizeRule: 'exclude',
         totalAmount: 100,
         date,
+        orderCreatedAt,
         orderItems: [
           {
             itemId: 'line-a',
@@ -69,11 +69,11 @@ beforeEach(() => jest.useFakeTimers().setSystemTime(NOW));
 afterEach(() => jest.useRealTimers());
 
 describe('pricing evaluation date', () => {
-  it('uses the supplied timestamp for plan dates and repeat eligibility', async () => {
+  it('uses the supplied timestamp for plan dates and the schedule', async () => {
     const f = fixture(
       pricingPlan({
         isRepeatEnabled: true,
-        repeatRules: [repeatRule()],
+        activeWindows: [mondayMorning],
       }),
     );
     const result = await f.run(THEN);
@@ -98,7 +98,7 @@ describe('pricing evaluation date', () => {
     const f = fixture(
       pricingPlan({
         isRepeatEnabled: true,
-        repeatRules: [repeatRule()],
+        activeWindows: [mondayMorning],
       }),
     );
     expect((await f.run())?.['line-a'].value).toBe(0);
@@ -142,15 +142,60 @@ describe('pricing evaluation date', () => {
     expect((await f.run())?.['line-a'].value).toBe(20);
   });
 
-  it.each(['everyDay', 'everyWeek', 'everyMonth', 'everyYear'])(
-    'uses the supplied date for %s repeat rules',
-    (type) => {
-      const plan = {
-        isRepeatEnabled: true,
-        repeatRules: [repeatRule({ type })],
-      };
-      expect(checkRepeatRule(plan, THEN)).toBe(true);
-      expect(checkRepeatRule(plan)).toBe(false);
+  // Monday 10:50 and 11:10 in Ulaanbaatar, around a 10:00–11:00 window.
+  const opened = new Date('2020-01-06T02:50:00Z');
+  const paid = new Date('2020-01-06T03:10:00Z');
+
+  it.each([
+    ['checkout', 0],
+    ['orderCreated', 10],
+    ['either', 10],
+  ] as const)(
+    'checks the schedule at the %s moment',
+    async (scheduleMoment, value) => {
+      const f = fixture(
+        pricingPlan({
+          isRepeatEnabled: true,
+          activeWindows: [mondayMorning],
+          scheduleMoment,
+        }),
+      );
+
+      expect((await f.run(paid, opened))?.['line-a'].value).toBe(value);
     },
   );
+
+  it('treats a purchase without an order start as starting at checkout', async () => {
+    const f = fixture(
+      pricingPlan({
+        isRepeatEnabled: true,
+        activeWindows: [mondayMorning],
+        scheduleMoment: 'orderCreated',
+      }),
+    );
+
+    expect((await f.run(opened))?.['line-a'].value).toBe(10);
+    expect((await f.run(paid))?.['line-a'].value).toBe(0);
+  });
+
+  it('says which plan, window and moment priced a line', async () => {
+    const f = fixture(
+      pricingPlan({
+        isRepeatEnabled: true,
+        activeWindows: [mondayMorning],
+        scheduleMoment: 'orderCreated',
+      }),
+    );
+    const line = (await f.run(paid, opened))?.['line-a'];
+
+    expect(line?.reasons).toEqual([
+      expect.objectContaining({
+        planName: 'Dated plan',
+        kind: 'discount',
+        value: 10,
+        window: mondayMorning,
+        matchedMoment: 'orderCreated',
+      }),
+    ]);
+  });
 });

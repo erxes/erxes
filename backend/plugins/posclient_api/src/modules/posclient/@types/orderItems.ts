@@ -1,3 +1,4 @@
+import type { IPricingReason } from '~/modules/posclient/utils/discountInfos';
 import { IAttachment } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
@@ -13,6 +14,7 @@ export interface IOrderItem {
     title?: string;
     amount?: number;
     percent?: number;
+    reasons?: IPricingReason[];
   }>;
   bonusCount?: number;
   bonusVoucherId?: string;

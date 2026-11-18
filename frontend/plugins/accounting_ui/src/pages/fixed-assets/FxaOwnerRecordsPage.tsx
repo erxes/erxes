@@ -1,3 +1,4 @@
+import { IconUserCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { AccountingHeader } from '~/modules/layout/components/Header';
@@ -13,6 +14,7 @@ export const FxaOwnerRecordsPage = () => {
       <AccountingHeader
         returnLink="/accounting/fixed-assets/owner-records"
         returnText={t('asset-custodian')}
+        icon={IconUserCheck}
         skipSettings={true}
       >
         <FxaOwnerRecordActions />

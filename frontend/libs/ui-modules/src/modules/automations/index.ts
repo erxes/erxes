@@ -11,6 +11,8 @@ export * from './hooks/useAutomationVariableBlockEditorDrop';
 export * from './hooks/useAutomationVariableCodeMirrorDrop';
 export * from './components/AutomationRemoteEntryWrapper';
 export * from './components/AutomationNodeMetaInfoRow';
+export * from './components/templateRequirement/TemplateRequirementOptions';
+export * from './hooks/useTemplateRequirementOptions';
 export * from './components/actionResult/ActionResult';
 export type { TActionResultStatus } from './components/actionResult/ActionResultParts';
 export * from './contexts/AutomationVariableInsertionContext';

@@ -43,6 +43,8 @@ const RecordTableCellContent = React.forwardRef<
       disableTransition
       className={cn(
         'p-0 w-(--radix-popper-anchor-width) min-w-56 rounded',
+        !className &&
+          'has-[>input]:w-[var(--radix-popper-anchor-width)] has-[>input]:min-w-0 [&>input]:h-8 [&>input]:px-2',
         className,
       )}
       ref={ref}

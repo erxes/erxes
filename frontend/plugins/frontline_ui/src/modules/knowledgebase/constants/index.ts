@@ -69,6 +69,10 @@ import {
 
 export const KNOWLEDGE_BASE_PATH = '/frontline/knowledgebase';
 
+export const ARTICLE_MEDIA_TAB = 'media';
+
+export const ARTICLE_CONTENT_TAB = 'content';
+
 export const KB_RECORD_CONTENT_TYPES = {
   article: 'frontline:knowledgebase.article',
   topic: 'frontline:knowledgebase.topic',

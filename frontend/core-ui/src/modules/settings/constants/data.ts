@@ -7,6 +7,7 @@ import {
   IconActivity,
   IconLayoutDashboard,
   IconAdjustmentsAlt,
+  IconArrowsExchange,
   IconBolt,
   IconBroadcast,
   IconBuilding,
@@ -184,6 +185,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('brands'),
       icon: IconChessKnight,
       path: SettingsWorkspacePath.Brands,
+    },
+    {
+      name: t('exchange-rates', 'Exchange rates'),
+      icon: IconArrowsExchange,
+      path: SettingsWorkspacePath.ExchangeRates,
     },
     {
       name: t('properties', 'Properties'),
@@ -439,6 +445,7 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
   [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.ExchangeRates]: 'exchangeRates',
   [SettingsWorkspacePath.Properties]: 'properties',
   [SettingsWorkspacePath.Products]: 'products',
   [SettingsWorkspacePath.Automations]: 'automations',

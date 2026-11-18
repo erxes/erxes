@@ -8,6 +8,7 @@ import {
   Select,
   Spinner,
   Table,
+  Tooltip,
 } from 'erxes-ui';
 import { useId } from 'react';
 import { UseFormReturn, useFieldArray, useWatch } from 'react-hook-form';
@@ -57,6 +58,24 @@ export const JobItems = ({
       quantity: 1,
       costRatio: showCostRatio ? 1 : undefined,
     });
+
+  const removeButton = (index: number) => (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8"
+      aria-label={t('job-remove-group-row', {
+        group: title,
+        row: index + 1,
+      })}
+      title={t('job-remove-row')}
+      onClick={() => remove(index)}
+      disabled={fields.length === 1}
+    >
+      <IconTrash />
+    </Button>
+  );
 
   return (
     <div className="space-y-1">
@@ -211,7 +230,7 @@ export const JobItems = ({
                                 {quantityField.value?.toLocaleString() ?? '-'}
                               </RecordTableInlineCell.Trigger>
                             </Form.Control>
-                            <RecordTableInlineCell.Content>
+                            <RecordTableInlineCell.Content className="min-w-0">
                               <JobNumberInput
                                 value={quantityField.value}
                                 min={0}
@@ -243,7 +262,7 @@ export const JobItems = ({
                                   {ratioField.value?.toLocaleString() ?? '-'}
                                 </RecordTableInlineCell.Trigger>
                               </Form.Control>
-                              <RecordTableInlineCell.Content>
+                              <RecordTableInlineCell.Content className="min-w-0">
                                 <JobNumberInput
                                   value={ratioField.value}
                                   min={0}
@@ -258,21 +277,20 @@ export const JobItems = ({
                     </Table.Cell>
                   )}
                   <Table.Cell className="w-8">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      aria-label={t('job-remove-group-row', {
-                        group: title,
-                        row: index + 1,
-                      })}
-                      title={t('job-remove-row')}
-                      onClick={() => remove(index)}
-                      disabled={fields.length === 1}
-                    >
-                      <IconTrash />
-                    </Button>
+                    {fields.length === 1 ? (
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <span>{removeButton(index)}</span>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="bottom" className="max-w-64">
+                          {name === 'inputs'
+                            ? t('job-add-input')
+                            : t('job-add-output')}
+                        </Tooltip.Content>
+                      </Tooltip>
+                    ) : (
+                      removeButton(index)
+                    )}
                   </Table.Cell>
                 </Table.Row>
               );

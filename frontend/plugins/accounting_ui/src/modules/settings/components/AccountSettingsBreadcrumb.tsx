@@ -1,4 +1,8 @@
-import { IconCashBanknote } from '@tabler/icons-react';
+import {
+  IconBuildingWarehouse,
+  IconCashBanknote,
+  IconPackages,
+} from '@tabler/icons-react';
 import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -14,18 +18,34 @@ const ROUTES = [
   ...INVENTORY_SETTINGS_ROUTES,
 ];
 
+const SECTIONS = [
+  {
+    pathPrefix: '/accounting/settings/fixed-assets',
+    name: 'fixed-asset',
+    icon: IconBuildingWarehouse,
+  },
+  {
+    pathPrefix: '/accounting/settings/inventories',
+    name: 'inventory',
+    icon: IconPackages,
+  },
+];
+
 export const AccountSettingsBreadcrumb = () => {
   const { t } = useTranslation('accounting');
   const { pathname } = useLocation();
   const route = ROUTES.find(({ path }) => `/${path}` === pathname);
-  const isInventory = pathname.startsWith('/accounting/settings/inventories');
+  const section = SECTIONS.find(({ pathPrefix }) =>
+    pathname.startsWith(pathPrefix),
+  );
+  const SectionIcon = section?.icon ?? IconCashBanknote;
 
   return (
     <div className="flex min-w-0 items-center gap-2">
       <Button variant="ghost" className="shrink-0">
-        <IconCashBanknote />
+        <SectionIcon />
         <span className="hidden sm:inline">
-          {isInventory ? t('inventory') : t('accounting-settings')}
+          {section ? t(section.name) : t('accounting-settings')}
         </span>
       </Button>
       <Separator.Inline />

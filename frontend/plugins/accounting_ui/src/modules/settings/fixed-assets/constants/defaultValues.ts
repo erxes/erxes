@@ -14,6 +14,7 @@ export const FIXED_ASSET_CATEGORY_DEFAULT_VALUES: TFixedAssetCategoryForm = {
   defaultTaxUsefulLife: undefined,
   defaultTaxAnnualDepreciationRate: undefined,
   defaultTaxSalvageValue: undefined,
+  incomeTaxRate: undefined,
 };
 
 export const FIXED_ASSET_DEFAULT_VALUES: TFixedAssetForm = {
@@ -22,13 +23,5 @@ export const FIXED_ASSET_DEFAULT_VALUES: TFixedAssetForm = {
   categoryId: '',
   description: '',
   status: 'active',
-  depreciationMethod: undefined,
-  usefulLife: undefined,
-  annualDepreciationRate: undefined,
-  salvageValue: undefined,
-  taxDepreciationMethod: undefined,
-  taxUsefulLife: undefined,
-  taxAnnualDepreciationRate: undefined,
-  taxSalvageValue: undefined,
   propertiesData: undefined,
 };

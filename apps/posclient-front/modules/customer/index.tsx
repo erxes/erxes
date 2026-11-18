@@ -34,6 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import useOrderCU from "../orders/hooks/useOrderCU"
 import { CustomerAddDialog } from "./components/CustomerAddDialog"
 import { LoyaltySummary } from "./components/LoyaltySummary"
+import { PricingScheduleBanner } from "./components/PricingScheduleBanner"
 import CustomerType from "./CustomerType"
 import { queries } from "./graphql"
 import { useCustomerForm } from "./hooks/useCustomerForm"
@@ -178,6 +179,7 @@ const Customer = () => {
         </Popover>
       </div>
       <LoyaltySummary />
+      <PricingScheduleBanner />
       <CustomerAddDialog
         open={addOpen}
         rows={rows}

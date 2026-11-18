@@ -8,7 +8,7 @@ export const ebarimtMutations = {
     { models, subdomain, checkPermission }: IContext,
   ) {
     // Check permission for returning a bill
-    await checkPermission('ebarimt:putResponseReturnBill');
+    await checkPermission('putResponseReturnBill');
 
     const { _id } = args;
 
@@ -76,7 +76,7 @@ export const ebarimtMutations = {
     { models, subdomain, checkPermission }: IContext,
   ) {
     // Check permission for re-returning a bill
-    await checkPermission('ebarimt:putResponseReReturn');
+    await checkPermission('putResponseReReturn');
 
     const { _id } = args;
 

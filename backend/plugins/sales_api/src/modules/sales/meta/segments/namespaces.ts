@@ -1,4 +1,7 @@
-import { SegmentFieldNamespace } from 'erxes-api-shared/core-modules';
+import {
+  dataExtensionSegmentNamespace,
+  SegmentFieldNamespace,
+} from 'erxes-api-shared/core-modules';
 import { DEAL_TYPE } from './collections';
 
 export const SALES_SEGMENT_FIELD_NAMESPACES: Record<
@@ -12,5 +15,6 @@ export const SALES_SEGMENT_FIELD_NAMESPACES: Record<
       path: 'propertiesData',
       propertyType: 'sales:deal',
     },
+    dataExtensionSegmentNamespace('sales:deal'),
   ],
 };

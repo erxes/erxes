@@ -3,6 +3,7 @@ import { IPriceRule } from './priceRule';
 import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
+import { IActiveWindow, ScheduleMoment } from './schedule';
 
 export type PricingPlanPriority = '' | 'public' | 'posBase' | 'pipelineBase';
 
@@ -96,6 +97,10 @@ export interface IPricingPlan {
 
   isRepeatEnabled?: boolean;
   repeatRules?: IRepeatRule[];
+  activeWindows?: IActiveWindow[];
+  // 'YYYY-MM-DD' days on which no window starts.
+  closedDates?: string[];
+  scheduleMoment?: ScheduleMoment;
 
   conditionRules?: IPricingConditionRule[];
 

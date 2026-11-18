@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { randomFillSync } from 'node:crypto';
 import { Collection, Db, Document, MongoClient } from 'mongodb';
+import { findOrganization } from '../../findOrganization';
 
 dotenv.config();
 
@@ -87,9 +88,7 @@ const command = async () => {
   const coreDbName = extractDbName(coreUrl);
   const coreDb = client.db(coreDbName);
 
-  const targetOrg = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+  const targetOrg = await findOrganization(coreDb, TARGET_SUBDOMAIN);
 
   if (!targetOrg) {
     throw new Error(

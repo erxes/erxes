@@ -1,11 +1,13 @@
 import { Db, MongoClient } from 'mongodb';
+import { findOrganization, Organization } from '../../findOrganization';
 
 /**
  * The databases a command runs on, picked from the environment:
  * - `ALL_ORGS=true` (SaaS): every organization in core's `organizations`,
  *   each in its own `erxes_<organizationId>` database;
- * - `TARGET_SUBDOMAIN` (SaaS, one organization; set by run-commands.ts and
- *   the migrations Kubernetes Job): that organization's database;
+ * - `TARGET_SUBDOMAIN` (SaaS, one organization, by subdomain or `_id`; set by
+ *   run-commands.ts and the migrations Kubernetes Job): that organization's
+ *   database;
  * - neither (self-hosted): the database named in `MONGO_URL`.
  *
  * Connect the client to `CORE_MONGO_URL || MONGO_URL`: the core database on
@@ -23,12 +25,22 @@ export const getTargetDbs = async (
     return [{ label: coreDb.databaseName, db: coreDb }];
   }
 
-  const organizations = await coreDb
-    .collection<{ _id: unknown; subdomain?: string }>('organizations')
-    .find(ALL_ORGS === 'true' ? {} : { subdomain: TARGET_SUBDOMAIN }, {
-      projection: { _id: 1, subdomain: 1 },
-    })
-    .toArray();
+  const organizations: Organization[] = [];
+
+  if (ALL_ORGS === 'true') {
+    organizations.push(
+      ...(await coreDb
+        .collection<Organization>('organizations')
+        .find({}, { projection: { _id: 1, subdomain: 1 } })
+        .toArray()),
+    );
+  } else {
+    const organization = await findOrganization(coreDb, TARGET_SUBDOMAIN);
+
+    if (organization) {
+      organizations.push(organization);
+    }
+  }
 
   if (!organizations.length) {
     throw new Error(

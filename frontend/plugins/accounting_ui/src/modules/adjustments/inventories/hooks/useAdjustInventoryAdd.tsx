@@ -35,6 +35,7 @@ export const useAdjustInventoryAdd = (
         toast({
           title: t('success'),
           description: t('adjust-inventory-created-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

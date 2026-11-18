@@ -41,6 +41,7 @@ export const useSafeRemainderEdit = (
         toast({
           title: t('success'),
           description: t('safe-remainder-updated'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

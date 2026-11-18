@@ -8,6 +8,7 @@ export const PIPELINE_TAB_SEGMENTS = {
   permissions: 'permissions',
   properties: 'properties',
   mail: 'mail',
+  sla: 'sla',
 } as const;
 
 export type TPipelineTabSegment =
@@ -31,6 +32,11 @@ export const PIPELINE_TABS: {
     segment: PIPELINE_TAB_SEGMENTS.mail,
     labelKey: 'pipeline-mail',
     defaultLabel: 'Mail settings',
+  },
+  {
+    segment: PIPELINE_TAB_SEGMENTS.sla,
+    labelKey: 'pipeline-sla',
+    defaultLabel: 'SLA',
   },
 ];
 

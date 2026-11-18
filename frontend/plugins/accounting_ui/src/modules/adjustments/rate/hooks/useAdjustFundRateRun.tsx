@@ -52,6 +52,7 @@ export const useAdjustFundRateRun = (_id: string) => {
         toast({
           title: t('success'),
           description: t('Fund rate adjustment calculated successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },
@@ -68,6 +69,7 @@ export const useAdjustFundRateRun = (_id: string) => {
           description: t(
             'Fund rate adjustment transaction created successfully',
           ),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

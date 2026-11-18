@@ -46,6 +46,16 @@ const trDetailWrapper = (detail?: ITrDetail) => {
   };
 };
 
+export const fxaCapitalDetailDefaultValues = (detail: ITrDetail = {}) => ({
+  ...trDetailWrapper(detail),
+  count: 0 as const,
+  followInfos: {
+    ...detail.followInfos,
+    originalCost: detail.followInfos?.originalCost,
+    annualDepreciationRate: detail.followInfos?.annualDepreciationRate ?? 0,
+  },
+});
+
 const getInventoryDetailFollowInfos = (
   detail: ITrDetail,
   doc?: Partial<ITransaction>,
@@ -406,11 +416,6 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
       doc?.followInfos?.saleCostAccountId ||
       doc?.followInfos?.lossAccountId ||
       '',
-    revaluationReserveAccountId: doc?.followInfos?.revaluationReserveAccountId,
-    deferredTaxAssetAccountId: doc?.followInfos?.deferredTaxAssetAccountId,
-    deferredTaxLiabilityAccountId:
-      doc?.followInfos?.deferredTaxLiabilityAccountId,
-    incomeTaxExpenseAccountId: doc?.followInfos?.incomeTaxExpenseAccountId,
     moveInBranchId: doc?.followInfos?.moveInBranchId ?? '',
     moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
     ownerId: doc?.followInfos?.ownerId || doc?.followInfos?.responsibleUserId,
@@ -418,29 +423,19 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
 };
 
 const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
-  doc?.details?.length
-    ? doc.details.map((det) => ({
-        ...trDetailWrapper(det),
-        fixedAssetId: det.fixedAssetId || '',
-        fixedAssetCategoryId: det.fixedAssetCategoryId || '',
-        fixedAssetCode: det.fixedAssetCode || '',
-        fixedAssetName: det.fixedAssetName || '',
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
-    : [
-        {
-          ...trDetailWrapper(),
-          fixedAssetId: '',
-          fixedAssetCategoryId: '',
-          fixedAssetCode: '',
-          fixedAssetName: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ];
+  (doc?.details?.length ? doc.details : [{}]).map((detail) => ({
+    ...trDetailWrapper(detail),
+    fixedAssetId: detail.fixedAssetId || '',
+    followInfos: {
+      ...detail.followInfos,
+      fixedAssetCategoryId: detail.followInfos?.fixedAssetCategoryId || '',
+      fixedAssetCode: detail.followInfos?.fixedAssetCode || '',
+      fixedAssetName: detail.followInfos?.fixedAssetName || '',
+    },
+    count: detail.count ?? 0,
+    unitPrice: detail.unitPrice ?? 0,
+    amount: detail.amount ?? 0,
+  }));
 
 const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
   const extraData = { ...doc?.extraData };
@@ -577,6 +572,19 @@ export function JOURNALS_BY_JOURNAL(
 
     case TrJournalEnum.INV_SALE_RETURN:
       result = INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_CAPITAL:
+    case TrJournalEnum.FXA_REVALUATION:
+      result = {
+        ...trDataWrapper(doc),
+        journal,
+        side: doc.side || TR_SIDES.DEBIT,
+        followInfos: undefined,
+        details: (doc.details?.length ? doc.details : [{}]).map(
+          fxaCapitalDetailDefaultValues,
+        ),
+      };
       break;
 
     case TrJournalEnum.FXA_INCOME:

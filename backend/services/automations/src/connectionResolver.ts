@@ -28,6 +28,7 @@ import {
   aiKnowledgeRouteSchema,
   IAiKnowledgeRouteDocument,
 } from './mongo/aiKnowledgeRoute';
+import { IPickTurnDocument, pickTurnSchema } from './mongo/pickTurns';
 import {
   AiAgentDocument,
   aiAgentSchema,
@@ -50,6 +51,7 @@ export interface IModels {
   AiAgentKnowledgeIndexRuns: Model<IAiAgentKnowledgeIndexRunDocument>;
   AiKnowledgeRoutes: Model<IAiKnowledgeRouteDocument>;
   AiMemoryEvents: Model<IAiMemoryEventDocument>;
+  PickTurns: Model<IPickTurnDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -115,6 +117,11 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     IAiMemoryEventDocument,
     Model<IAiMemoryEventDocument>
   >('automations_ai_memory_events', aiMemoryEventSchema);
+
+  models.PickTurns = db.model<IPickTurnDocument, Model<IPickTurnDocument>>(
+    'automations_pick_turns',
+    pickTurnSchema,
+  );
 
   return models;
 };

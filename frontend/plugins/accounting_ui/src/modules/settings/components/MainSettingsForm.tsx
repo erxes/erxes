@@ -60,7 +60,6 @@ export const MainSettingsForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-8"
       >
-        <h1 className="text-lg font-semibold">{t('general-settings-label')}</h1>
         <Collapsible defaultOpen>
           <Collapsible.TriggerButton className="h-8 w-auto text-base">
             <Collapsible.TriggerIcon />

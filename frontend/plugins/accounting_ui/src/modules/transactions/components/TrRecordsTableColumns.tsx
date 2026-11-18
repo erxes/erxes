@@ -9,11 +9,13 @@ import {
 import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
+  Badge,
   Combobox,
   Command,
   CurrencyCode,
   CurrencyFormatedDisplay,
   fixNum,
+  formatAmount,
   Popover,
   RecordTable,
   RecordTableInlineCell,
@@ -84,6 +86,21 @@ const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
   <SideAmountCell row={row} cellSide={TR_SIDES.CREDIT} />
 );
 
+const CountItemCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITrRecord>;
+  value: number;
+}) => {
+  const { details } = row.original;
+  if (!details?.productId && !details?.fixedAssetId) {
+    return undefined;
+  }
+
+  return <RecordTableInlineCell>{formatAmount(value)}</RecordTableInlineCell>;
+};
+
 const AmountItemCell = ({
   row,
   value,
@@ -134,7 +151,11 @@ const StatusCell = ({ row }: { row: Row<ITrRecord> }) => {
 
   return (
     <RecordTableInlineCell>
-      {t(TR_STATUS_LABELS[status || ''] || '') || status}
+      {status && (
+        <Badge variant="secondary" className="font-medium">
+          {t(TR_STATUS_LABELS[status] || '') || status}
+        </Badge>
+      )}
     </RecordTableInlineCell>
   );
 };
@@ -311,31 +332,31 @@ export const trRecordColumns = (
     cell: ({ row }) => <JournalCell row={row} />,
   },
   {
-    id: 'product-inv',
+    id: 'item-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('product-asset')} />
     ),
-    accessorKey: 'product-inv',
+    accessorKey: 'item-details',
     cell: ({ row }) => <ProductCell row={row} />,
   },
   {
-    id: 'unitPrice-inv',
+    id: 'unitPrice-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('unit-price')} />
     ),
-    accessorKey: 'unitPrice-inv',
+    accessorKey: 'unitPrice-details',
     cell: ({ row }) => (
       <AmountItemCell row={row} value={row.original?.details?.unitPrice ?? 0} />
     ),
   },
   {
-    id: 'count-inv',
+    id: 'count-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('quantity-label')} />
     ),
-    accessorKey: 'count-inv',
+    accessorKey: 'count-details',
     cell: ({ row }) => (
-      <AmountItemCell row={row} value={row.original?.details?.count ?? 0} />
+      <CountItemCell row={row} value={row.original?.details?.count ?? 0} />
     ),
   },
   {

@@ -10,7 +10,7 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
+import { BoardSelect, PipelineSelect, SelectStage } from 'ui-modules';
 
 import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -92,10 +92,14 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       ),
       cell: ({ row }) => {
         return (
-          <StageSelect
-            stageId={row.original.stageId ?? undefined}
+          <SelectStage.InlineCell
+            mode="single"
+            value={row.original.stageId ?? ''}
             pipelineId={row.original.pipeline?._id || ''}
-            onChange={(stageId) => {
+            autoSelectFirst={false}
+            onValueChange={(stageId, isAutoSelection) => {
+              if (isAutoSelection) return;
+
               moveDealStage({
                 deal: row.original,
                 stageId,

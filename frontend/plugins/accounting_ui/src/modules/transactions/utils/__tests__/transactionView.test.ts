@@ -3,11 +3,9 @@ import { JOURNALS_BY_JOURNAL } from '../../transaction-form/contants/defaultValu
 import { TrJournalEnum } from '../../types/constants';
 import { fxaIncomeDetailSchema } from '../../transaction-form/contants/transactionSchema';
 
-jest.mock(
-  'ui-modules',
-  () => ({ CustomerType: { CUSTOMER: 'customer', COMPANY: 'company' } }),
-  { virtual: true },
-);
+jest.mock('ui-modules', () => ({
+  CustomerType: { CUSTOMER: 'customer', COMPANY: 'company' },
+}));
 
 const transaction = (
   journal: TrJournalEnum,
@@ -145,12 +143,15 @@ test('fixed asset income initializes pre-depreciation from detail follow info', 
           _id: 'detail-1',
           accountId: 'asset-account',
           amount: 300,
-          fixedAssetCategoryId: 'category-1',
-          fixedAssetCode: 'asset-1',
-          fixedAssetName: 'Asset 1',
+
           count: 3,
           unitPrice: 100,
-          followInfos: { preDeprecation: 20 },
+          followInfos: {
+            fixedAssetCategoryId: 'category-1',
+            fixedAssetCode: 'asset-1',
+            fixedAssetName: 'Asset 1',
+            preDeprecation: 20,
+          },
         },
       ],
     }),
@@ -165,12 +166,15 @@ test('fixed asset income ignores financial values supplied in root metadata', ()
     transaction(TrJournalEnum.FXA_INCOME, {
       details: [
         {
+          followInfos: {
+            fixedAssetCategoryId: 'category-1',
+            fixedAssetCode: 'asset-1',
+            fixedAssetName: 'Asset 1',
+          },
           _id: 'detail-1',
           accountId: 'asset-account',
           amount: 300,
-          fixedAssetCategoryId: 'category-1',
-          fixedAssetCode: 'asset-1',
-          fixedAssetName: 'Asset 1',
+
           count: 3,
           unitPrice: 100,
         },
@@ -213,13 +217,17 @@ test.each([
           {
             _id: 'detail-1',
             accountId: 'asset-account',
-            fixedAssetCategoryId: 'category-1',
-            fixedAssetCode: 'asset-1',
-            fixedAssetName: 'Asset',
+
             amount: 300,
             count: 3,
             unitPrice: 100,
-            followInfos: { ...detailInfo, custom: 'preserve' },
+            followInfos: {
+              fixedAssetCategoryId: 'category-1',
+              fixedAssetCode: 'asset-1',
+              fixedAssetName: 'Asset',
+              ...detailInfo,
+              custom: 'preserve',
+            },
           },
         ],
         followInfos: {
@@ -234,7 +242,16 @@ test.each([
       }),
     );
     const savedDetail = fxaIncomeDetailSchema.parse(draft.details[0]);
+    for (const key of [
+      'fixedAssetCategoryId',
+      'fixedAssetCode',
+      'fixedAssetName',
+    ])
+      expect(savedDetail).not.toHaveProperty(key);
     expect(savedDetail.followInfos).toEqual({
+      fixedAssetCategoryId: 'category-1',
+      fixedAssetCode: 'asset-1',
+      fixedAssetName: 'Asset',
       ...expected,
       custom: 'preserve',
     });
@@ -284,3 +301,94 @@ test('an explicitly disabled detail split takes precedence over legacy root meta
     invSplit: { hasSplit: false },
   });
 });
+
+test('correction rules and explicit zero residual value survive reopening', () => {
+  const view = transaction(TrJournalEnum.FXA_REVALUATION, {
+    details: [
+      {
+        _id: 'detail-1',
+        accountId: 'dep-account',
+        fixedAssetId: 'asset-1',
+        amount: 5,
+        count: 0,
+        followInfos: {
+          depreciationMethod: 'decliningBalance',
+          annualDepreciationRate: 20,
+          salvageValue: 0,
+          depreciationStartDate: '2026-02-01',
+        },
+      },
+    ],
+  });
+  const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_REVALUATION, view);
+  expect(draft.journal).toBe(TrJournalEnum.FXA_REVALUATION);
+  expect(draft.details[0]).toMatchObject({
+    amount: 5,
+    count: 0,
+    followInfos: {
+      depreciationMethod: 'decliningBalance',
+      annualDepreciationRate: 20,
+      salvageValue: 0,
+      depreciationStartDate: '2026-02-01',
+    },
+  });
+});
+
+test('capitalization reopening preserves asset rules and discards obsolete counterpart settings', () => {
+  const view = transaction(TrJournalEnum.FXA_CAPITAL, {
+    followInfos: { capitalAccountId: 'reserve-account' },
+    details: [
+      {
+        _id: 'detail',
+        fixedAssetId: 'asset',
+        accountId: 'asset-account',
+        amount: 100,
+        count: 0,
+        followInfos: {
+          originalCost: 200,
+          annualDepreciationRate: 20,
+          preDeprecation: 0,
+          salvageValue: 0,
+          depreciationBase: 200,
+          depreciationStartDate: '2026-02-01',
+        },
+      },
+    ],
+  });
+  const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_CAPITAL, view);
+  expect(draft.followInfos).toBeUndefined();
+  expect(draft.details[0]).toMatchObject({
+    count: 0,
+    amount: 100,
+    followInfos: {
+      originalCost: 200,
+      preDeprecation: 0,
+      depreciationBase: 200,
+    },
+  });
+});
+
+test.each(['fixedAssetCategoryId', 'fixedAssetCode', 'fixedAssetName'])(
+  'income validation requires nested acquisition %s',
+  (key) => {
+    const detail = {
+      _id: 'detail',
+      accountId: 'account',
+      amount: 100,
+      count: 1,
+      unitPrice: 100,
+      followInfos: Object.fromEntries(
+        Object.entries({
+          fixedAssetCategoryId: 'category',
+          fixedAssetCode: 'PC',
+          fixedAssetName: 'Computer',
+        }).filter(([field]) => field !== key),
+      ),
+    };
+    expect(fxaIncomeDetailSchema.safeParse(detail).success).toBe(false);
+    expect(
+      fxaIncomeDetailSchema.safeParse({ ...detail, followInfos: undefined })
+        .success,
+    ).toBe(false);
+  },
+);

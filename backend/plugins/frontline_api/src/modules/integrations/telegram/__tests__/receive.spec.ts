@@ -1,12 +1,17 @@
 import type { IModels } from '~/connectionResolvers';
 import type { ITelegramBotDocument } from '../@types/bot';
 import { receiveTelegramMessage } from '../controller/receiveMessage';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
   getOrCreateCustomer,
   getOrCreateConversation,
   getOrCreateMessage,
 } from '../controller/store';
 
+jest.mock('erxes-api-shared/core-modules', () => ({
+  ...jest.requireActual('erxes-api-shared/core-modules'),
+  sendAutomationTrigger: jest.fn(),
+}));
 jest.mock('../controller/store', () => ({
   getOrCreateCustomer: jest.fn(),
   getOrCreateConversation: jest.fn(),
@@ -17,6 +22,7 @@ const models = {
   TelegramConversations: {
     updateMany: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
   },
+  TelegramConversationMessages: { exists: jest.fn().mockResolvedValue(null) },
 } as unknown as IModels;
 const bot = {
   _id: 'bot',
@@ -121,4 +127,55 @@ test('imports unsupported content as a notice and other bots without fake human 
   await receive({ from: { ...sender, is_bot: true } });
   expect(getOrCreateMessage).toHaveBeenCalledTimes(1);
   expect(getOrCreateCustomer).not.toHaveBeenCalled();
+});
+
+describe('automation trigger', () => {
+  const linkedCustomer = { erxesApiId: 'customer' };
+  const storedMessage = {
+    _id: 'stored',
+    content: 'hello',
+    chatId: '123',
+    attachments: [],
+    createdAt: new Date(1_700_000_000_000),
+  };
+
+  beforeEach(() => {
+    (getOrCreateCustomer as jest.Mock).mockResolvedValue(linkedCustomer);
+    (getOrCreateConversation as jest.Mock).mockResolvedValue({
+      erxesApiId: 'inbox-conversation',
+      chatType: 'private',
+    });
+    (getOrCreateMessage as jest.Mock).mockResolvedValue(storedMessage);
+  });
+
+  it('enrols a new customer message with the inbox conversation id', async () => {
+    await receive();
+
+    expect(sendAutomationTrigger).toHaveBeenCalledWith(
+      'tenant',
+      {
+        type: 'frontline:telegram.messages',
+        targets: [
+          expect.objectContaining({
+            _id: 'stored',
+            conversationId: 'inbox-conversation',
+            customerId: 'customer',
+            integrationId: 'integration',
+            chatType: 'private',
+          }),
+        ],
+      },
+      { transport: 'trpc' },
+    );
+  });
+
+  it('skips edits and retried webhooks', async () => {
+    await receive({ edit_date: 1_700_000_100 });
+    (
+      models.TelegramConversationMessages.exists as jest.Mock
+    ).mockResolvedValueOnce({ _id: 'stored' });
+    await receive();
+
+    expect(sendAutomationTrigger).not.toHaveBeenCalled();
+  });
 });

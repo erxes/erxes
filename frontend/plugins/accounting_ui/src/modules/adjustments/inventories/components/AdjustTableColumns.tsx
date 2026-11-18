@@ -3,36 +3,14 @@ import dayjs from 'dayjs';
 import { Cell, CellContext, ColumnDef } from '@tanstack/react-table';
 import { IAdjustInventory } from '../types/AdjustInventory';
 import { Link } from 'react-router-dom';
-import {
-  RecordTable,
-  Input,
-  RecordTableInlineCell,
-  PopoverScoped,
-} from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { IconFile, IconCalendar } from '@tabler/icons-react';
-import { useState } from 'react';
 
 const DescriptionCell = ({
   getValue,
-  row,
-}: CellContext<IAdjustInventory, string>) => {
-  const [description, setDescription] = useState(getValue());
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`transaction-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue()}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
+}: CellContext<IAdjustInventory, string>) => (
+  <RecordTableInlineCell>{getValue()}</RecordTableInlineCell>
+);
 
 const DateCell = ({ getValue }: CellContext<IAdjustInventory, Date>) => {
   return (

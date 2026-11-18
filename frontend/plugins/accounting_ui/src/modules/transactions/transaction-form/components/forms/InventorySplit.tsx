@@ -159,16 +159,14 @@ export const InventorySplitSheet = ({
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none sm:max-w-lg">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
-          <div className="min-w-0 flex-1">
-            <Sheet.Title>{t('split-product')}</Sheet.Title>
-            <Sheet.Description>
-              {t('product-split-settings-label')}
-            </Sheet.Description>
-          </div>
+        <Sheet.Header>
+          <Sheet.Title>{t('split-product')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto space-y-4">
+          <Sheet.Description>
+            {t('product-split-settings-label')}
+          </Sheet.Description>
           <div className="flex items-center justify-between gap-4 rounded-md border p-3">
             <Label htmlFor={`inventory-split-${detail._id}`}>
               {t('enable-product-split')}

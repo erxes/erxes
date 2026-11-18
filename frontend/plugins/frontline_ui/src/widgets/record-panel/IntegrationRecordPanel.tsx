@@ -67,10 +67,15 @@ export const IntegrationRecordPanel = ({
   const draft = useSidePanelDraft<{ kind: string; channelId: string }>(
     INTEGRATION_CONTENT_TYPE,
   );
-  const route = matchPath(
-    '/frontline/settings/channels/details/:id/:integrationType',
-    pathname,
-  );
+  const route =
+    matchPath(
+      '/frontline/settings/channels/details/:id/:integrationType',
+      pathname,
+    ) ??
+    matchPath(
+      '/frontline/settings/personal-channel/details/:id/:integrationType',
+      pathname,
+    );
   const isNew = contentId === 'new';
   const { integrationDetail, loading, error } = useIntegrationDetail({
     integrationId: isNew ? null : contentId,

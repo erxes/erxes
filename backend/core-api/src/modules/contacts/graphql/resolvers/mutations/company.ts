@@ -1,6 +1,7 @@
 import { ICompany, Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { ICpCompanyInput } from '~/modules/contacts/@types/company';
+import { buildContactRolesUpdate } from '~/modules/contacts/utils';
 
 export const companyMutations: Record<
   string,
@@ -61,6 +62,24 @@ export const companyMutations: Record<
     await checkPermission('contactsMerge');
 
     return models.Companies.mergeCompanies(companyIds, companyFields);
+  },
+
+  /**
+   * Sets the vendor/client roles a company holds
+   */
+  async companiesSetContactRoles(
+    _parent: undefined,
+    { _id, contactRoles }: { _id: string; contactRoles: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('contactsUpdate');
+
+    const update = buildContactRolesUpdate(contactRoles);
+
+    await models.Companies.getCompany(_id);
+    await models.Companies.updateOne({ _id }, update);
+
+    return models.Companies.getCompany(_id);
   },
 
   async cpCompaniesAdd(_parent: undefined, doc: ICpCompanyInput, { models, cpUser, clientPortal }: IContext) {

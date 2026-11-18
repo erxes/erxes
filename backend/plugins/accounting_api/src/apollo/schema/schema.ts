@@ -1,4 +1,9 @@
 import {
+  types as tunableReportTypes,
+  queries as tunableReportQueries,
+  mutations as tunableReportMutations,
+} from '@/accounting/graphql/schemas/report';
+import {
   mutations as accountMutations,
   queries as accountQueries,
   types as accountTypes,
@@ -111,6 +116,7 @@ import {
 } from '~/modules/fixedAssets/graphql/schemas/fxaOwnerRecord';
 
 export const types = `
+  ${tunableReportTypes}
   enum CacheControlScope {
     PUBLIC
     PRIVATE
@@ -152,6 +158,7 @@ export const types = `
 `;
 
 export const queries = `
+  ${tunableReportQueries}
   ${accountQueries}
   ${accountingsConfigQueries}
   ${checkSyncedQueries}
@@ -177,6 +184,7 @@ export const queries = `
 `;
 
 export const mutations = `
+  ${tunableReportMutations}
   ${accountMutations}
   ${accountingsConfigMutations}
   ${checkSyncedMutations}

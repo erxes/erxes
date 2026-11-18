@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import type { TCreatedVia } from '../../../core-types/common';
 
 // Notification schema for in-app notifications
 export interface INotificationDocument extends Document {
@@ -31,6 +32,7 @@ export interface INotificationDocument extends Document {
   expiresAt?: Date; // Auto-cleanup old notifications
   updatedAt?: Date;
   kind: 'system' | 'user';
+  createdVia?: TCreatedVia;
 }
 
 export const notificationSchema = new Schema(
@@ -120,6 +122,21 @@ export const notificationSchema = new Schema(
       enum: ['system', 'user'],
       default: 'user',
       index: true,
+    },
+
+    // What sent it when no person did: the same provenance `schemaWrapper`
+    // gives other records. Absent on notifications people caused.
+    createdVia: {
+      type: {
+        source: { type: String },
+        sourceId: { type: String },
+        sourceName: { type: String, optional: true },
+        runId: { type: String, optional: true },
+        actorId: { type: String, optional: true },
+      },
+      optional: true,
+      default: undefined,
+      _id: false,
     },
   },
   { timestamps: true },

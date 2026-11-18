@@ -1,4 +1,5 @@
 import { AutomationBuilderErrorPolicy } from '@/automations/components/builder/sidebar/components/AutomationBuilderErrorPolicy';
+import { AutomationBuilderNodeHistory } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeHistory';
 import { AutomationBuilderNodeOutputVariables } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeOutputVariables';
 import { AutomationBuilderSidebarHeaderActions } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarHeaderActions';
 import { AutomationBuilderVariablesHelpPopover } from '@/automations/components/builder/sidebar/components/AutomationBuilderVariablesHelpPopover';
@@ -10,6 +11,7 @@ import { ComponentType } from 'react';
 const PANEL_CONTENT: Record<AutomationSecondaryPanel, ComponentType> = {
   [AutomationSecondaryPanel.Variables]: AutomationBuilderNodeOutputVariables,
   [AutomationSecondaryPanel.ErrorPolicy]: AutomationBuilderErrorPolicy,
+  [AutomationSecondaryPanel.History]: AutomationBuilderNodeHistory,
 };
 
 export const AutomationBuilderSecondarySidebar = ({

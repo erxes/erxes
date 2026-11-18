@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-16`
 
 ## Scope
 
@@ -46,8 +46,10 @@
   fresh deployment; a copy is materialized only when someone installs one.
   Neither restricts the target, so both are offered on a broadcast campaign as
   well — giving the team a task per customer rather than messaging that
-  customer. Both declare `operation:task.team` and `operation:task.status`
-  requirements, the status scoped by the team.
+  customer. Both declare an `operation:task.status` requirement (team and
+  status together) and a `core:text` requirement that becomes the task
+  description, so installing stays closed until the organization writes what
+  the task asks.
 
 - Task segment `tagIds` lists `operation:task` tags plus workspace tags
   (`query.variables`).
@@ -104,6 +106,23 @@ priority?, assigneeId?, labelIds?, tagIds?, startDate?, targetDate?,
 propertiesData? } })`
   resolves `teamId` from the status, creates the task as `userId`, publishes
   `operationTaskChanged` / `operationTaskListChanged`, and returns `{ _id }`.
+- Data Extensions owner contract in `src/trpc/dataExtensions.ts`:
+  `dataExtensions.records.get({ recordType, ids })` and
+  `dataExtensions.records.patch({ recordType, _id, values })` and
+  `dataExtensions.records.findByRelation({ recordType, key, targetIds, limit? })`
+  and `dataExtensions.records.link({ recordType, key, ids, targetId, action })`
+  and `dataExtensions.records.search({ recordType, searchValue?, limit? })`
+  for `operation:task|triage|project|milestone|team|cycle|status|note`. Every
+  call must carry a `proof` the Data Extensions runtime in core-api signs (with
+  `JWT_TOKEN_SECRET`) for this tenant, actor and exact input after checking
+  the caller's Operation permissions; unsigned calls are refused. Patches are
+  validated against the definitions active at commit time.
+- Data Extensions relations store the linked id (or ids) under
+  `dataExtensions.<key>` on the source record; `findByRelation` answers the
+  reverse side and lazily indexes `dataExtensions.<key>` (unique for
+  one-to-one links). `link` adds or removes one target id on many source
+  records at once; the runtime uses it when a client edits the reverse side
+  (for example a project's tasks).
 
 ### Consumes
 
@@ -116,6 +135,10 @@ propertiesData? } })`
 - `sendNotification` with `event` (`TOperationNotificationEvent`) from
   `src/utils/notifications.ts`; core sends email and push on the channels each
   recipient's settings resolve to.
+- Core-owned Data Extensions metadata (`data_extensions_fields`,
+  `data_extensions_schema_versions`) in the same tenant database, read through
+  `getDataExtensionModels` from `erxes-api-shared/core-modules`. Operation never
+  writes it.
 
 ## Data and State
 
@@ -130,10 +153,15 @@ propertiesData? } })`
 - `operation_tasks.propertiesData` holds `operation:task` property values keyed
   by field id. Only `task.createFromSource` writes it today, and the task
   GraphQL type does not expose it; import/export read it.
+- Tasks, triage, projects, milestones, teams, cycles, statuses and notes declare
+  an optional `dataExtensions` object through `applyDataExtensionsNamespace`.
+  Values are keyed by Data Extensions field key and written only by the owner
+  patch above, through the native collection with the ObjectId cast.
 
 ## Local Invariants
 
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
+- Triages keep `propertiesData` for the task's custom properties (`operation:task` fields; there is no `triage` property type). `operationAddTriage` / `operationUpdateTriage` accept it and validate it through core `fields.validateFieldValues`, the same way `updateTask` does, `Triage` exposes it, and `operationConvertTriageToTask` copies it onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.
 - Every automation action declares a `configSchema` (`src/modules/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create task (`name`, `teamId`, `status`) and create project (`name`, a team). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
 - Every `createNotifications` call passes `event`, typed
@@ -147,6 +175,12 @@ propertiesData? } })`
 - `createTask` / `updateTask`, `createProject` / `updateProject` and `operationAddTriage` / `operationUpdateTriage` accept `customerId` / `companyId` (one of each) and save them on the record; `getTasks`, `getProjects` and `operationGetTriageList` filter by them (a contact's records). `Task`, `Project` and `Triage` expose both fields.
 - `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: a triage then starts in the team's backlog, any other task in its first to-do (`UNSTARTED`) status by `order`.
 - Operation owns its records' contacts: change them only through its own mutations (and `contactFields.sync` for merges and removals); never create core relations for record ↔ contact links.
+- `applyDataExtensionsNamespace` strips `dataExtensions` from inserts, updates
+  and bulk writes made through the models, and rejects a `save()` that changed
+  it, so unrelated edits keep the values. Do not set or spread
+  `dataExtensions` in model writes; triage conversion and copies do not carry
+  it over.
+
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.

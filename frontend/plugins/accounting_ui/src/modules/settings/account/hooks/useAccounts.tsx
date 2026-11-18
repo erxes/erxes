@@ -76,7 +76,8 @@ export const useAccountsInline = (
     data: queryData,
     loading,
     error,
+    refetch,
   } = useQuery(GET_ASSIGNED_ACCOUNTS, options);
   const data = toGraphqlView(queryData);
-  return { accounts: data?.accounts || [], loading, error };
+  return { accounts: data?.accounts || [], loading, error, refetch };
 };

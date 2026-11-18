@@ -25,7 +25,20 @@ export const triggerInstagramAutomation = async (
     return;
   }
 
-  const target: any = { ...conversationMessage };
+  const models = await generateModels(subdomain);
+  const instagramConversation = await models.InstagramConversations.findOne(
+    { _id: conversationMessage.conversationId },
+    { erxesApiId: 1 },
+  ).lean();
+  // The inbox conversation; `conversationId` is the account's own thread
+  const target: Partial<IInstagramConversationMessageDocument> & {
+    erxesApiId?: string;
+    payload?: { executionId?: string; actionId?: string; btnId?: string };
+    adData?: unknown;
+  } = {
+    ...conversationMessage,
+    erxesApiId: instagramConversation?.erxesApiId,
+  };
   let type = 'frontline:instagram.messages';
   let repeatOptions;
   if (payload) {

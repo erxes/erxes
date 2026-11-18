@@ -69,6 +69,9 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
   { timestamps: true },
 );
 
+// Public menu lists filter by site and kind, ordered by _id.
+cmsMenuSchema.index({ clientPortalId: 1, kind: 1, _id: 1 });
+
 export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
   {
     _id: mongooseStringRandomId,
@@ -108,3 +111,6 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
   },
   { timestamps: true },
 );
+
+// Public page lists filter by site, ordered by _id.
+cmsPageSchema.index({ clientPortalId: 1, _id: 1 });

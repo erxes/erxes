@@ -9,9 +9,7 @@ export const AdjustInventoryListPage = () => {
   return (
     <AccountingLayout>
       <AdjustmentHeader>
-        <div className="px-3">
-          <AddAdjustInventory />
-        </div>
+        <AddAdjustInventory />
       </AdjustmentHeader>
       <PageSubHeader>
         <TransactionsFilter />

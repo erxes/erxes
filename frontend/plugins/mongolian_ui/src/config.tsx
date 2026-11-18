@@ -1,4 +1,4 @@
-import { IconSandbox } from '@tabler/icons-react';
+import { IconReceiptTax, IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { mongolianProductRemainderProvider } from '@/erkhet-sync/product-remainders/productRemainderProvider';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
@@ -14,6 +14,14 @@ export const CONFIG: IUIConfig = {
   },
   widgets: {
     productRemainderProviders: [mongolianProductRemainderProvider],
+    relationWidgets: [
+      {
+        name: 'ebarimt',
+        label: 'eBarimt',
+        icon: IconReceiptTax,
+        contentTypes: ['sales:deal'],
+      },
+    ],
   },
   modules: [
     {

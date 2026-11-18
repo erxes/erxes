@@ -1,34 +1,17 @@
-import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+import {
+  AI_AGENT_RUNTIME_DEFAULTS,
+  useAiAgentRuntimeForm,
+} from '@/automations/components/settings/components/agents/hooks/useAiAgentRuntimeForm';
 import { Button, Collapsible, Form, Input } from 'erxes-ui';
-import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-
-const RUNTIME_DEFAULTS = {
-  temperature: 0,
-  maxTokens: 2000,
-  timeoutMs: 15000,
-};
 
 // Matches AI_AGENT_LIMITS on the service; a reasoning model can spend
 // thousands of tokens thinking before it writes a word.
 const MAX_TOKENS_LIMIT = 32768;
 
-const toNumber = (value: string) => {
-  if (value === '') {
-    return 0;
-  }
-
-  return Number(value);
-};
-
 export const AiAgentRuntimeForm = () => {
   const { t } = useTranslation('automations');
-  const { control } = useFormContext<TAiAgentForm>();
-  const runtime = useWatch({ control, name: 'runtime' });
-
-  const temperature = runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
-  const maxTokens = runtime?.maxTokens ?? RUNTIME_DEFAULTS.maxTokens;
-  const timeoutMs = runtime?.timeoutMs ?? RUNTIME_DEFAULTS.timeoutMs;
+  const { control, appliedValues, asNumber } = useAiAgentRuntimeForm();
 
   return (
     <div className="grid gap-4">
@@ -44,11 +27,7 @@ export const AiAgentRuntimeForm = () => {
         </Collapsible.Trigger>
 
         <p className="px-3 pt-2 text-xs text-muted-foreground">
-          {t('settings-agent-defaults-applied', {
-            temperature,
-            maxTokens: maxTokens.toLocaleString(),
-            seconds: Math.round(timeoutMs / 1000),
-          })}
+          {t('settings-agent-defaults-applied', appliedValues)}
         </p>
 
         <Collapsible.Content className="grid gap-4 pt-4">
@@ -64,10 +43,8 @@ export const AiAgentRuntimeForm = () => {
                     step="0.1"
                     min={0}
                     max={2}
-                    value={field.value ?? RUNTIME_DEFAULTS.temperature}
-                    onChange={(event) =>
-                      field.onChange(toNumber(event.target.value))
-                    }
+                    value={field.value ?? AI_AGENT_RUNTIME_DEFAULTS.temperature}
+                    onChange={asNumber(field.onChange)}
                   />
                 </Form.Control>
                 <Form.Description>
@@ -89,10 +66,8 @@ export const AiAgentRuntimeForm = () => {
                     type="number"
                     min={1}
                     max={MAX_TOKENS_LIMIT}
-                    value={field.value ?? RUNTIME_DEFAULTS.maxTokens}
-                    onChange={(event) =>
-                      field.onChange(toNumber(event.target.value))
-                    }
+                    value={field.value ?? AI_AGENT_RUNTIME_DEFAULTS.maxTokens}
+                    onChange={asNumber(field.onChange)}
                   />
                 </Form.Control>
                 <Form.Description>
@@ -114,10 +89,8 @@ export const AiAgentRuntimeForm = () => {
                     type="number"
                     min={1000}
                     max={30000}
-                    value={field.value ?? RUNTIME_DEFAULTS.timeoutMs}
-                    onChange={(event) =>
-                      field.onChange(toNumber(event.target.value))
-                    }
+                    value={field.value ?? AI_AGENT_RUNTIME_DEFAULTS.timeoutMs}
+                    onChange={asNumber(field.onChange)}
                   />
                 </Form.Control>
                 <Form.Description>

@@ -1,27 +1,14 @@
 import { logHandler, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ITwoFactorPolicy } from '@/auth/db/definitions/twoFactor';
-import { armLdapRecheck } from '@/auth/ldap/worker';
 import { LoginError } from '@/auth/loginError';
 import { startSession } from '@/auth/session';
-import {
-  endTwoFactorChallenge,
-  failTwoFactorChallenge,
-  readTwoFactorChallenge,
-} from '@/auth/twoFactor/challenge';
-import {
-  assertLoginAllowed,
-  clearLoginFailures,
-  getRequestIp,
-  recordLoginFailure,
-} from '@/auth/utils';
+import { afterStaffLogin, staffTwoFactorLogin } from '@/auth/staffLogin';
+import { readTwoFactorChallenge } from '@/auth/twoFactor/challenge';
+import { getRequestIp } from '@/auth/utils';
 import { validatePermissionGroupIds } from '@/organization/team-member/graphql/mutations';
 
 const POLICY_PERMISSION = 'permissionsManage';
-
-// Wrong codes count against the account, not the challenge, so new sign-ins
-// cannot reset the budget for guessing
-const twoFactorLimitKey = (userId: string) => `2fa:${userId}`;
 
 const invalidCode = () => new Error('Invalid two-factor code');
 
@@ -55,49 +42,26 @@ export const twoFactorLoginMutations = {
       throw new LoginError('two_factor_expired');
     }
 
-    const limitKey = twoFactorLimitKey(pending.userId);
-
     return logHandler(
       async () => {
-        await assertLoginAllowed(subdomain, getRequestIp(req), limitKey);
-
-        const user = await models.Users.findOne({
-          _id: pending.userId,
-          isActive: true,
+        const { user, method, recoveryCodes } = await staffTwoFactorLogin({
+          models,
+          subdomain,
+          ip: getRequestIp(req),
+          challenge,
+          code,
         });
-
-        if (!user) {
-          await endTwoFactorChallenge(subdomain, challenge);
-          throw new LoginError('two_factor_expired');
-        }
-
-        const recoveryCodes = pending.setup
-          ? await models.TwoFactors.confirmSetup(user._id, code)
-          : (await models.TwoFactors.verifyCode(user._id, code)) && [];
-
-        if (!recoveryCodes) {
-          await failTwoFactorChallenge(subdomain, challenge, pending);
-          await recordLoginFailure(subdomain, limitKey);
-          throw new LoginError('two_factor_invalid');
-        }
-
-        await endTwoFactorChallenge(subdomain, challenge);
-        await clearLoginFailures(subdomain, limitKey);
 
         await startSession({
           models,
           subdomain,
           userId: user._id,
-          method: pending.method,
+          method,
           req,
           res,
         });
 
-        if (pending.method === 'ldap') {
-          await armLdapRecheck(models, subdomain).catch((e: Error) =>
-            console.error(`LDAP recheck scheduling failed: ${e.message}`),
-          );
-        }
+        await afterStaffLogin(models, subdomain, method);
 
         return recoveryCodes;
       },

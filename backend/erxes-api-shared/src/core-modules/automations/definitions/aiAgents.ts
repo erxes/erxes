@@ -130,20 +130,13 @@ export interface IAiAgentKnowledgeSource {
   config?: Record<string, unknown>;
 }
 
-export interface IAiAgentTool {
-  pluginName: string;
-  moduleName: string;
-  key: string;
-  enabled?: boolean;
-  config?: Record<string, unknown>;
-}
-
 export interface IAiAgentContext {
   systemPrompt: string;
   retrieval?: IAiAgentRetrieval;
   files: IAiAgentFile[];
   knowledgeSources?: IAiAgentKnowledgeSource[];
-  tools?: IAiAgentTool[];
+  // Find object types the agent may look up for the customer it talks to
+  lookups?: string[];
 }
 
 export interface IAiAgent {
@@ -260,20 +253,6 @@ const aiAgentKnowledgeSourceSchema = new Schema<IAiAgentKnowledgeSource>(
   { _id: false },
 );
 
-const aiAgentToolSchema = new Schema<IAiAgentTool>(
-  {
-    pluginName: { type: String, required: true },
-    moduleName: { type: String, required: true },
-    key: { type: String, required: true },
-    enabled: { type: Boolean, default: true },
-    config: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-  { _id: false },
-);
-
 const aiAgentContextSchema = new Schema<IAiAgentContext>(
   {
     systemPrompt: { type: String, default: '' },
@@ -301,8 +280,8 @@ const aiAgentContextSchema = new Schema<IAiAgentContext>(
       type: [aiAgentKnowledgeSourceSchema],
       default: () => [],
     },
-    tools: {
-      type: [aiAgentToolSchema],
+    lookups: {
+      type: [String],
       default: () => [],
     },
   },

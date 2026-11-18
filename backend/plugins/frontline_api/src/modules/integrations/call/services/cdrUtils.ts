@@ -351,6 +351,18 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
   return 'MISSED';
 };
 
+export const isForwardedLeg = (leg: any): boolean =>
+  String(leg?.actionType ?? leg?.action_type ?? '').includes('FOLLOWME');
+
+export const deriveInboxCallStatus = (legs: any[]): string => {
+  const operatorLegs = legs.filter((leg) => !isForwardedLeg(leg));
+  const status = deriveCallStatusFromLegs(operatorLegs);
+
+  if (operatorLegs.length === legs.length) return status;
+
+  return status === 'ANSWERED' || status === 'VOICEMAIL' ? status : 'NO ANSWER';
+};
+
 export const getConversationContent = async (
   models: IModels,
   cdrParams,
@@ -372,13 +384,11 @@ export const getConversationContent = async (
   const storedCdrs = await models.CallCdrs.find(legSelector);
   const legs: any[] = [...storedCdrs, cdrParams];
 
-  const status = deriveCallStatusFromLegs(legs);
+  const status = deriveInboxCallStatus(legs);
 
   if (status === 'ANSWERED') return `ANSWERED · ${direction}`;
 
   if (direction === 'Outbound') return `OUTBOUND`;
-
-  if (status === 'FOLLOWME') return `NO ANSWER · ${direction}`;
 
   return `${status} · ${direction}`;
 };
@@ -386,7 +396,13 @@ export const getConversationContent = async (
 export function selectRelevantCdr(histories: any[]): any | null {
   if (!Array.isArray(histories) || histories.length === 0) return null;
 
-  const answered = histories.find(isHumanAnsweredLeg);
+  const answered = histories.find(
+    (leg) => isHumanAnsweredLeg(leg) && !isForwardedLeg(leg),
+  );
+
+  const forwarded = histories.find(
+    (leg) => isHumanAnsweredLeg(leg) && isForwardedLeg(leg),
+  );
 
   const ivr = histories.find(
     (h) =>
@@ -401,7 +417,14 @@ export function selectRelevantCdr(histories: any[]): any | null {
       h.disposition === 'NO ANSWER' && h.billsec === 0 && h.lastapp === 'Queue',
   );
 
-  return answered || noAnswer || ivr || histories[histories.length - 1] || null;
+  return (
+    answered ||
+    forwarded ||
+    noAnswer ||
+    ivr ||
+    histories[histories.length - 1] ||
+    null
+  );
 }
 export const calculateFileDir = (doc) => {
   let fileDir = 'monitor';

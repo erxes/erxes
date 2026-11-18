@@ -32,6 +32,7 @@ export enum SettingsWorkspacePath {
   Products = 'products',
   ProductsCatchAll = 'products/*',
   Brands = 'brands',
+  ExchangeRates = 'exchange-rates',
   PropertiesCatchAll = 'properties/*',
   Automations = 'automations',
   AutomationsCatchAll = `${Automations}/*`,

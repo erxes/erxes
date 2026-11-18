@@ -1,14 +1,12 @@
+import { getFxaTransactionExclusionFilter } from '@/accounting/utils/fxaLedger';
 import { JOURNALS } from '@/accounting/@types/constants';
 
-import {
-  buildFixedAssetLocationRemainderRows,
-  getFixedAssetRemainderExclusionFilter,
-} from '../fixedAssets';
+import { buildFixedAssetLocationRemainderRows } from '../fixedAssets';
 
-describe('getFixedAssetRemainderExclusionFilter', () => {
+describe('getFxaTransactionExclusionFilter', () => {
   it('excludes the whole parent workflow for an edited transaction', () => {
     expect(
-      getFixedAssetRemainderExclusionFilter(
+      getFxaTransactionExclusionFilter(
         { _id: 'out-1', parentId: 'parent-1' },
         'out-1',
       ),
@@ -16,7 +14,7 @@ describe('getFixedAssetRemainderExclusionFilter', () => {
   });
 
   it('falls back to the transaction id when the transaction is unavailable', () => {
-    expect(getFixedAssetRemainderExclusionFilter(null, 'out-1')).toEqual({
+    expect(getFxaTransactionExclusionFilter(null, 'out-1')).toEqual({
       _id: { $ne: 'out-1' },
     });
   });

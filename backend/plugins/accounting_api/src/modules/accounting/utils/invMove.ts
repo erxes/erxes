@@ -27,7 +27,7 @@ class InvMoveInTrs {
 
   public async checkValidation() {
     const { moveInAccountId, moveInBranchId, moveInDepartmentId } =
-      this.trDoc.followInfos;
+      this.trDoc.followInfos || {};
 
     // Зарим Erkhet location erxes дээр зөвхөн branch-р илэрхийлэгддэг.
     // Тиймээс branch department ядаж нэг нь заавал бөглөгдсөн байх ёстой
@@ -96,8 +96,8 @@ class InvMoveInTrs {
       status: transaction.status,
       mentionOwnerId: transaction.mentionOwnerId,
       mentionUserIds: transaction.mentionUserIds,
-      branchId: this.trDoc.followInfos.moveInBranchId,
-      departmentId: this.trDoc.followInfos.moveInDepartmentId,
+      branchId: this.trDoc.followInfos?.moveInBranchId,
+      departmentId: this.trDoc.followInfos?.moveInDepartmentId,
       customerType: transaction.customerType,
       customerId: transaction.customerId,
       details: [],
@@ -124,11 +124,11 @@ class InvMoveInTrs {
         branchId:
           detail.followInfos?.moveInBranchId ||
           oldInDetail?.branchId ||
-          this.trDoc.followInfos.moveInBranchId,
+          this.trDoc.followInfos?.moveInBranchId,
         departmentId:
           detail.followInfos?.moveInDepartmentId ||
           oldInDetail?.departmentId ||
-          this.trDoc.followInfos.moveInDepartmentId,
+          this.trDoc.followInfos?.moveInDepartmentId,
       });
     }
 

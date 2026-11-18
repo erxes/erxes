@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const triageSchema = new Schema(
   {
@@ -20,11 +21,18 @@ export const triageSchema = new Schema(
     companyId: { type: String, label: 'Company', default: null, index: true },
     // Task tags (tag type `operation:task`); carried to the task it becomes.
     tagIds: { type: [String], label: 'Tag IDs' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
   },
   {
     timestamps: true,
   },
 );
+
+applyDataExtensionsNamespace(triageSchema);
 
 triageSchema.index(
   { githubRepoName: 1, githubIssueNumber: 1 },

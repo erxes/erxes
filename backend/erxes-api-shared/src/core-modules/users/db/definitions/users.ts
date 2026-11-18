@@ -2,6 +2,7 @@ import { Schema } from 'mongoose';
 import { mongooseField, schemaWrapper } from '../../../../utils';
 
 import { customFieldSchema } from '../../../common/db/definitions/common';
+import { applyDataExtensionsNamespace } from '../../../data-extensions/namespaceGuard';
 import { USER_MOVEMENT_STATUSES, USER_ROLES } from '../../constants';
 
 enum IUserChatStatus {
@@ -206,8 +207,25 @@ export const userSchema = schemaWrapper(
       optional: true,
       label: 'Last seen at',
     }),
+    availability: mongooseField({
+      type: new Schema(
+        {
+          status: { type: String, enum: ['available', 'unavailable'] },
+          until: { type: Date },
+          reason: { type: String },
+          setBy: { type: String },
+          setAt: { type: Date },
+        },
+        { _id: false },
+      ),
+      optional: true,
+      default: undefined,
+      label: 'Availability',
+    }),
   }),
 );
+
+applyDataExtensionsNamespace(userSchema);
 
 export const userMovemmentSchema = schemaWrapper(
   new Schema({

@@ -73,7 +73,7 @@ export const InstagramIntegrationSetup = () => {
         brandId: data.brandId,
         data: { pageIds: [pageId] },
       },
-      refetchQueries: ['Integrations'],
+      refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
     });
   };
 

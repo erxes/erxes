@@ -10,6 +10,7 @@ import {
 import {
   SafeRemainderCountField,
   SafeRemainderDifferenceField,
+  SafeRemainderCountCell,
   SafeRemainderNumberCell,
   SafeRemainderProductCell,
 } from './SafeRemainderCells';
@@ -50,9 +51,7 @@ export const safeRemDetailColumnsIncome = (
       />
     ),
     accessorKey: 'preCount',
-    cell: ({ row }) => (
-      <SafeRemainderNumberCell value={row.original.preCount} />
-    ),
+    cell: ({ row }) => <SafeRemainderCountCell value={row.original.preCount} />,
   },
   {
     id: 'activeCost',

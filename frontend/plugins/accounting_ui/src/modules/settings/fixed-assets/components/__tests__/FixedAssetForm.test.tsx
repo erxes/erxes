@@ -110,37 +110,20 @@ const save = () =>
 
 beforeEach(() => mockToast.mockClear());
 
-test('picking a category fills depreciation defaults and they are saved', async () => {
+test('master form saves identity without acquisition finance fields', async () => {
   const onSubmit = jest.fn();
   renderForm(onSubmit, { code: 'LT-7', name: 'Laptop' });
-
   fireEvent.click(screen.getByText('pick'));
-
-  expect(
-    (screen.getByLabelText('useful-life-in-years') as HTMLInputElement).value,
-  ).toBe('4');
-
+  expect(screen.queryByLabelText('useful-life-in-years')).toBeNull();
   await save();
-
   expect(onSubmit.mock.calls[0][0]).toMatchObject({
     categoryId: 'computers',
-    annualDepreciationRate: 25,
-    usefulLife: 4,
-    salvageValue: 100,
+    code: 'LT-7',
+    name: 'Laptop',
   });
-});
-
-test('typing useful life updates the annual rate', () => {
-  renderForm(jest.fn());
-
-  fireEvent.change(screen.getByLabelText('useful-life-in-years'), {
-    target: { value: '8' },
-  });
-
-  expect(
-    (screen.getByLabelText('annual-depreciation-rate') as HTMLInputElement)
-      .value,
-  ).toBe('12.5');
+  expect(onSubmit.mock.calls[0][0]).not.toHaveProperty(
+    'annualDepreciationRate',
+  );
 });
 
 test('an asset without code, name or category warns and is not saved', async () => {

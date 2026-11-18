@@ -1,4 +1,5 @@
 import { schemaWrapper } from 'erxes-api-shared/utils';
+import { SCHEDULE_MOMENTS } from '@/pricing/@types/schedule';
 import { Schema } from 'mongoose';
 import {
   APPLY_TYPES,
@@ -7,6 +8,7 @@ import {
   PRIORITY_TYPES,
   STATUS_TYPES,
 } from './constants';
+import { activeWindowSchema } from './activeWindow';
 import { conditionRuleSchema } from './conditionRule';
 import { expiryRuleSchema } from './expiryRule';
 import { priceRuleSchema } from './priceRule';
@@ -112,6 +114,13 @@ export const pricingPlanSchema = schemaWrapper(
 
       isRepeatEnabled: { type: Boolean, default: false },
       repeatRules: { type: [repeatRuleSchema], default: [] },
+      activeWindows: { type: [activeWindowSchema], default: [] },
+      closedDates: { type: [String], default: [] },
+      scheduleMoment: {
+        type: String,
+        enum: SCHEDULE_MOMENTS,
+        default: 'checkout',
+      },
 
       conditionRules: { type: [conditionRuleSchema], default: [] },
 

@@ -96,6 +96,7 @@ test('an accountant typing a 5 year useful life gets a 20% annual rate and can s
     target: { value: '12.5' },
   });
   expect(field('tax-useful-life-in-years')).toHaveProperty('value', '8');
+  fireEvent.change(field('income-tax-rate'), { target: { value: '10' } });
 
   fireEvent.click(screen.getByRole('button', { name: 'save-category' }));
 
@@ -107,6 +108,7 @@ test('an accountant typing a 5 year useful life gets a 20% annual rate and can s
     defaultAnnualDepreciationRate: 20,
     defaultTaxUsefulLife: 8,
     defaultTaxAnnualDepreciationRate: 12.5,
+    incomeTaxRate: 10,
   });
 });
 

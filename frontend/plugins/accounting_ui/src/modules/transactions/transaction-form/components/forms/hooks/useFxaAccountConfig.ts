@@ -30,17 +30,5 @@ export const useFxaAccountConfig = (
       `trDocs.${index}.followInfos.accumulatedDepreciationAccountId`,
       value.depreciationAccountId,
     );
-    form.setValue(
-      `trDocs.${index}.followInfos.deferredTaxAssetAccountId`,
-      value.taxAssetAccountId,
-    );
-    form.setValue(
-      `trDocs.${index}.followInfos.deferredTaxLiabilityAccountId`,
-      value.taxLiabilityAccountId,
-    );
-    form.setValue(
-      `trDocs.${index}.followInfos.incomeTaxExpenseAccountId`,
-      value.TaxExpenseAccountId,
-    );
   };
 };

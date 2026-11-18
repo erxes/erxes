@@ -23,9 +23,10 @@ import { resolveOrgPairs } from './orgs';
 
 const MIGRATIONS_DIR = __dirname;
 
-// Domains run in this order first (others follow, alphabetically). Core data is
-// migrated before plugin data that may reference it.
-const DOMAIN_ORDER = ['core'];
+// Domains run in this order first (others follow, alphabetically). The target
+// organization is provisioned before core data, and core data before plugin
+// data that may reference it.
+const DOMAIN_ORDER = ['appsumo', 'core'];
 
 const NESTED_SCRIPTS = ['core/products/migrateProducts.ts'];
 

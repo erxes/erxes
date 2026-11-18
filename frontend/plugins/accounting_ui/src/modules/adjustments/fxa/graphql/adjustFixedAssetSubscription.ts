@@ -10,6 +10,8 @@ subscription AccountingAdjustFixedAssetChanged($adjustId: String!) {
     modifiedBy
     date
     description
+    expenseAccountId
+    taxExpenseAccountId
     status
     error
     warning

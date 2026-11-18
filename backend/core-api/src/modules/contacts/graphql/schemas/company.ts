@@ -42,6 +42,7 @@ export const types = `
 
     trackedData: JSON
     propertiesData: JSON
+    contactRoles: [String]
 
     customers: [Customer]
     getTags: [Tag]
@@ -144,6 +145,7 @@ export const mutations = `
   companiesEdit(_id: String!, ${mutationParams}): Company
   companiesRemove(companyIds: [String]): [String]
   companiesMerge(companyIds: [String], companyFields: JSON) : Company
+  companiesSetContactRoles(_id: String!, contactRoles: [String!]!): Company
 
   cpCompaniesAdd(${cpCompanyMutationParams}): Company
   cpCompaniesEdit(_id: String!, ${cpCompanyMutationParams}): Company

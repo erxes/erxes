@@ -54,6 +54,7 @@ export const USER_HEADER_OMITTED_FIELDS = [
   'propertiesData',
   'links',
   'loginToken',
+  'dataExtensions',
 ] as const;
 
 export const HEADER_SIZE_WARN_BYTES = 32 * 1024;

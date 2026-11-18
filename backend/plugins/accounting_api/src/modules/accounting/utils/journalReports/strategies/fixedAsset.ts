@@ -7,6 +7,8 @@ export const fixedAssetReportBase: IJournalReportBase = {
   extraTransactionMatch: {
     journal: {
       $in: [
+        JOURNALS.FXA_CAPITAL,
+        JOURNALS.FXA_REVALUATION,
         JOURNALS.FXA_INCOME,
         JOURNALS.FXA_OUT,
         JOURNALS.FXA_DEP,

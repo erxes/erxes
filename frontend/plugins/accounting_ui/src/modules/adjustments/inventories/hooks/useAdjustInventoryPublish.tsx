@@ -41,6 +41,7 @@ export const useAdjustInventoryPublish = (
         toast({
           title: t('success'),
           description: t('inventory-adjust-running-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

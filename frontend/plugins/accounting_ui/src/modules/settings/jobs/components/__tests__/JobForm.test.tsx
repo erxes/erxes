@@ -76,6 +76,7 @@ jest.mock('erxes-ui', () => {
     Select: 'select',
     Spinner: () => null,
     RecordTableInlineCell: Wrapper,
+    Tooltip: Object.assign(Wrapper, { Trigger: Wrapper, Content: Wrapper }),
     Table: Object.assign(
       (props: ComponentProps<'table'>) => <table {...props} />,
       { Header: 'thead', Row: 'tr', Head: 'th', Body: 'tbody', Cell: 'td' },

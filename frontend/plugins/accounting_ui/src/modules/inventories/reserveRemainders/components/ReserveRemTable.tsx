@@ -1,11 +1,8 @@
-import { useMemo } from 'react';
 import {
   Button,
   CommandBar,
   RecordTable,
   Separator,
-  Skeleton,
-  Table,
   useConfirm,
 } from 'erxes-ui';
 import { IconPackageOff, IconTrash } from '@tabler/icons-react';
@@ -15,30 +12,6 @@ import { AddReserveRem } from '@/inventories/reserveRemainders/components/Reserv
 import { useReserveRems } from '@/inventories/reserveRemainders/hooks/useReserveRems';
 import { useReserveRemsRemove } from '@/inventories/reserveRemainders/hooks/useReserveRemsRemove';
 import { reserveRemColumns } from '@/inventories/reserveRemainders/components/ReserveRemColumns';
-
-const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const { t } = useTranslation('accounting');
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, (_, i) => `skeleton-row-${i}`),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {reserveRemColumns(t).map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const ReserveRemTable = () => {
   const { t } = useTranslation('accounting');
@@ -63,7 +36,7 @@ export const ReserveRemTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && <ReserveRemInitialSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             {!isInitialLoading && totalCount > (reserveRems?.length ?? 0) && (
               <RecordTable.RowSkeleton
                 rows={4}

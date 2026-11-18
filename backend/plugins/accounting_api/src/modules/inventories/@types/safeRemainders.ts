@@ -10,6 +10,8 @@ export interface IUpdateRemaindersParams {
 
 export interface ISafeRemainderTrRule {
   accountId: string;
+  outAccountId?: string;
+  costAccountId?: string;
   customerType?: string;
   customerId?: string;
   [key: string]: unknown;

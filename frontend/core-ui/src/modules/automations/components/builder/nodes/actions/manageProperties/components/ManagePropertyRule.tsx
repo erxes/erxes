@@ -1,16 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import {
-  describeManagePropertyRule,
-  useManagePropertyRule,
-} from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
+import { useManagePropertyRuleCard } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRuleCard';
 import { AutomationRuleCard } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationRuleCard';
-import {
-  ManagePropertyCustomInput,
-  useManagePropertyCustomInput,
-} from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
+import { ManagePropertyCustomInput } from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
-import { useState } from 'react';
 import {
   AutomationConditionalField,
   PlaceholderInput,
@@ -32,30 +25,25 @@ export const ManagePropertyRule = ({
   index,
   onRemove,
 }: LocalRuleProps) => {
+  const { t } = useTranslation('automations');
   const {
     form,
     control,
-    setValue,
-    groups,
     operators,
     handleFieldChange,
-    handleUpdate,
     placeholderInputProps,
     rule,
-    selectedField,
-  } = useManagePropertyRule({ propertyType, sourceType, index });
-  const { t } = useTranslation('automations');
-  const CustomInput = useManagePropertyCustomInput(propertyType, selectedField);
-  // A custom input stores ids, which read as noise in a one-line summary
-  const summary = describeManagePropertyRule(rule, operators, !CustomInput);
-  const [showFallback, setShowFallback] = useState(
-    () => !!String(rule?.fallbackValue ?? '').trim(),
-  );
-
-  const handleRemoveFallback = () => {
-    setValue(`rules.${index}.fallbackValue`, undefined, { shouldDirty: true });
-    setShowFallback(false);
-  };
+    CustomInput,
+    summary,
+    groupOptions,
+    showFallbackInput,
+    showFallbackButton,
+    openFallback,
+    removeFallback,
+    onInputModeChange,
+    metaOf,
+    changeMetaOf,
+  } = useManagePropertyRuleCard({ propertyType, sourceType, index });
 
   return (
     <AutomationRuleCard
@@ -79,25 +67,19 @@ export const ManagePropertyRule = ({
                   />
                 </Select.Trigger>
                 <Select.Content>
-                  {Object.entries(groups).map(([key, fields], index) => {
-                    const groupName =
-                      fields.find(({ group }) => group === key)?.groupDetail
-                        ?.name || key;
-
-                    return (
-                      <div key={index}>
-                        <Select.Group>
-                          <Select.Label>{groupName}</Select.Label>
-                          {fields.map(({ _id, name, label }) => (
-                            <Select.Item key={_id} value={name || ''}>
-                              {label}
-                            </Select.Item>
-                          ))}
-                        </Select.Group>
-                        <Select.Separator />
-                      </div>
-                    );
-                  })}
+                  {groupOptions.map((group) => (
+                    <div key={group.key}>
+                      <Select.Group>
+                        <Select.Label>{group.label}</Select.Label>
+                        {group.fields.map(({ _id, name, label }) => (
+                          <Select.Item key={_id} value={name || ''}>
+                            {label}
+                          </Select.Item>
+                        ))}
+                      </Select.Group>
+                      <Select.Separator />
+                    </div>
+                  ))}
                 </Select.Content>
               </Select>
               <Form.Message />
@@ -141,12 +123,8 @@ export const ManagePropertyRule = ({
                 CustomInput={CustomInput}
                 value={field.value ?? ''}
                 onChange={field.onChange}
-                meta={valueForm.watch(`rules.${index}.meta`)}
-                onMetaChange={(meta) =>
-                  valueForm.setValue(`rules.${index}.meta`, meta, {
-                    shouldDirty: true,
-                  })
-                }
+                meta={metaOf(valueForm)}
+                onMetaChange={changeMetaOf(valueForm)}
                 disabled={placeholderInputProps.isDisabled}
               />
             ) : (
@@ -156,9 +134,7 @@ export const ManagePropertyRule = ({
                 onChange={field.onChange}
                 disabled={[TPlaceholderInputSuggestion.Attribute]}
                 isExpression={rule.isExpression}
-                onChangeInputMode={(mode) =>
-                  handleUpdate({ isExpression: mode === 'expression' })
-                }
+                onChangeInputMode={onInputModeChange}
                 {...placeholderInputProps}
               >
                 <PlaceholderInput.Header />
@@ -167,52 +143,52 @@ export const ManagePropertyRule = ({
           }
         />
 
-        {!CustomInput &&
-          (showFallback ? (
-            <Form.Field
-              control={control}
-              name={`rules.${index}.fallbackValue`}
-              render={({ field }) => (
-                <Form.Item className="mt-3">
-                  <div className="flex items-center justify-between">
-                    <Form.Label>
-                      {t('manage-properties-else-description')}
-                    </Form.Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="size-6"
-                      onClick={handleRemoveFallback}
-                    >
-                      <IconX size={14} />
-                    </Button>
-                  </div>
-                  <PlaceholderInput
-                    propertyType={propertyType}
-                    value={field.value ?? ''}
-                    onChange={field.onChange}
-                    disabled={[TPlaceholderInputSuggestion.Attribute]}
-                    {...placeholderInputProps}
+        {showFallbackInput && (
+          <Form.Field
+            control={control}
+            name={`rules.${index}.fallbackValue`}
+            render={({ field }) => (
+              <Form.Item className="mt-3">
+                <div className="flex items-center justify-between">
+                  <Form.Label>
+                    {t('manage-properties-else-description')}
+                  </Form.Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-6"
+                    onClick={removeFallback}
                   >
-                    <PlaceholderInput.Header />
-                  </PlaceholderInput>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="mt-2 text-muted-foreground"
-              onClick={() => setShowFallback(true)}
-            >
-              <IconPlus size={14} />
-              {t('manage-properties-else-fallback')}
-            </Button>
-          ))}
+                    <IconX size={14} />
+                  </Button>
+                </div>
+                <PlaceholderInput
+                  propertyType={propertyType}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
+                  {...placeholderInputProps}
+                >
+                  <PlaceholderInput.Header />
+                </PlaceholderInput>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+        {showFallbackButton && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="mt-2 text-muted-foreground"
+            onClick={openFallback}
+          >
+            <IconPlus size={14} />
+            {t('manage-properties-else-fallback')}
+          </Button>
+        )}
       </div>
     </AutomationRuleCard>
   );

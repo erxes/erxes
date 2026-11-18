@@ -24,7 +24,7 @@ export const MailSendingRequired = ({ reason }: { reason?: string | null }) => {
         </p>
         <Button variant="secondary" asChild className="w-full">
           <Link
-            to={`/${FrontlinePaths.Frontline}/settings${FrontlinePaths.IntegrationConfig}`}
+            to={`/${FrontlinePaths.Frontline}/settings${FrontlinePaths.IntegrationConfig}/mail`}
           >
             <IconExternalLink size={16} />
             {t('mail-sending-required-cloudflare-action')}

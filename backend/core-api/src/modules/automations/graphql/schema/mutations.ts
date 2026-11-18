@@ -38,6 +38,11 @@ const mutations = `
   automationWorkflowTemplatesAdd(name: String!, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
   automationWorkflowTemplatesEdit(_id: String!, name: String, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
   automationWorkflowTemplatesRemove(_id: String!): JSON
+
+  automationFoldersAdd(name: String!, icon: String): AutomationFolder
+  automationFoldersEdit(_id: String!, name: String!, icon: String): AutomationFolder
+  automationFoldersRemove(_id: String!): JSON
+  automationsMoveToFolder(automationIds: [String!]!, folderId: String): JSON
 `;
 
 export default mutations;

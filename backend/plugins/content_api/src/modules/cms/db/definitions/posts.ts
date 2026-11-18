@@ -19,7 +19,8 @@ export const postSchema = new Schema<IPostDocument>(
     count: { type: Number, default: 0 },
     title: { type: String, required: true },
     type: { type: String, required: true, default: 'post' },
-    slug: { type: String, required: true, unique: true },
+    // Unique per CMS only, through the { slug, clientPortalId } index below.
+    slug: { type: String, required: true },
     content: { type: String },
     excerpt: { type: String, default: '', optional: true },
     categoryIds: { type: [String], ref: 'PostCategory' },
@@ -75,6 +76,12 @@ postSchema.index(
 
 postSchema.index({ webId: 1 });
 
+// Public post lists filter by site, status and category, ordered by _id.
+postSchema.index({ clientPortalId: 1, status: 1, categoryIds: 1, _id: 1 });
+
+// Post lookups by number and the next-number query on every create.
+postSchema.index({ clientPortalId: 1, count: 1 });
+
 export const postCategorySchema = new Schema<IPostCategoryDocument>(
   {
     _id: mongooseStringRandomId,
@@ -94,16 +101,19 @@ postCategorySchema.index(
   { unique: true, sparse: true },
 );
 
+postCategorySchema.index({ clientPortalId: 1, status: 1, _id: 1 });
+
 export const postTagSchema = new Schema<IPostTagDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
+    // Unique per CMS only, through the { clientPortalId, slug } index below.
+    slug: { type: String, required: true },
     createdUserId: { type: String, ref: 'User' }, // team member
     colorCode: { type: String },
   },
   { timestamps: true },
 );
 
-postTagSchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });
+postTagSchema.index({ clientPortalId: 1, slug: 1 }, { unique: true });

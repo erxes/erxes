@@ -26,7 +26,10 @@ import {
 } from "@/components/ui/tooltip"
 import Uploader from "@/components/ui/uploader"
 
-import { LoyaltyDiscountBadge } from "@/modules/customer/components/LoyaltyDiscountBadge"
+import {
+  LoyaltyDiscountBadge,
+  LoyaltyDiscountReason,
+} from "@/modules/customer/components/LoyaltyDiscountBadge"
 import { StrikedPrice } from "@/modules/customer/components/StrikedPrice"
 import { usePreviewUnitPrice } from "@/modules/customer/hooks/usePreviewUnitPrice"
 import { CartItemCondition, CartItemConditionBadge } from "./CartItemCondition"
@@ -129,10 +132,9 @@ const CartItem = ({
               <LoyaltyDiscountBadge
                 itemId={_id}
                 discountInfos={discountInfos}
-                unitPrice={unitPrice}
-                count={count}
               />
             </div>
+            <LoyaltyDiscountReason itemId={_id} discountInfos={discountInfos} />
           </div>
           <div className="flex w-5/12 items-center justify-end">
             <Button

@@ -1,0 +1,5 @@
+/*
+  The fonts erxes uses (Inter, Roboto Mono). Optional: core-ui loads them from
+  its index.html; a standalone app without that page imports this file.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Roboto+Mono:wght@100..700&display=swap');

@@ -201,6 +201,7 @@ export const useAccountingCheckSyncedAction = <
         toast({
           title: t('success'),
           description: t(successMsg, { count: checked.length }),
+          variant: 'success',
         });
       }
     },

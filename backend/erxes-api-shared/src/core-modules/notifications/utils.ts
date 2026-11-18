@@ -12,6 +12,17 @@ const baseNotificationSchema = z.object({
 
   contentType: z.string(),
   content: z.string().optional(),
+
+  // Provenance when no person sent it (an automation run); see TCreatedVia.
+  createdVia: z
+    .object({
+      source: z.string(),
+      sourceId: z.string(),
+      sourceName: z.string().optional(),
+      runId: z.string().optional(),
+      actorId: z.string().optional(),
+    })
+    .optional(),
 });
 
 const systemNotificationSchema = baseNotificationSchema.extend({

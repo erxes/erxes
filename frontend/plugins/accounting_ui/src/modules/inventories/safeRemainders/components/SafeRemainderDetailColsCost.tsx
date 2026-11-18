@@ -5,6 +5,7 @@ import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
 import { getSafeRemainderCostAdjustmentDifference } from '../utils/safeRemainderTransactions';
 import {
+  SafeRemainderCountCell,
   SafeRemainderNumberCell,
   SafeRemainderProductCell,
 } from './SafeRemainderCells';
@@ -42,9 +43,7 @@ export const safeRemDetailColumnsCost = (
         label={t('recorded-balance')}
       />
     ),
-    cell: ({ row }) => (
-      <SafeRemainderNumberCell value={row.original.preCount} />
-    ),
+    cell: ({ row }) => <SafeRemainderCountCell value={row.original.preCount} />,
   },
   {
     id: 'activeCost',
@@ -66,7 +65,7 @@ export const safeRemDetailColumnsCost = (
         label={t('counted-balance')}
       />
     ),
-    cell: ({ row }) => <SafeRemainderNumberCell value={row.original.count} />,
+    cell: ({ row }) => <SafeRemainderCountCell value={row.original.count} />,
   },
   {
     id: 'unitCost',
@@ -110,7 +109,7 @@ export const safeRemDetailColumnsCost = (
       />
     ),
     cell: ({ row }) => (
-      <SafeRemainderNumberCell
+      <SafeRemainderCountCell
         value={row.original.count - row.original.preCount}
       />
     ),

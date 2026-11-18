@@ -22,6 +22,7 @@ import {
   OrderItem,
   PayByProductItem,
 } from "@/types/order.types"
+import type { PricingReason } from "@/lib/pricingReason"
 import { fixNum, getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { customerSearchAtom, selectedTabAtom } from "."
@@ -60,8 +61,19 @@ export const voucherIdAtom = atom((get) => {
 export const couponCodeAtom = atom<string | null>(null)
 // Pricing and loyalty discount per cart line a save would give, before it is saved.
 export const loyaltyPreviewAtom = atom<
-  Record<string, { percent: number; unitPrice: number }>
+  Record<
+    string,
+    {
+      percent: number
+      unitPrice: number
+      title?: string
+      reasons?: PricingReason[]
+    }
+  >
 >({})
+// Bumped when a scheduled pricing window opens or closes, so the cart's
+// preview is asked again at that moment.
+export const pricingBoundaryAtom = atom<number>(0)
 // Bonus products a save would add as new lines, shown under the cart until then.
 export const loyaltyPreviewBonusesAtom = atom<
   { productId: string; name: string; count: number }[]

@@ -16,13 +16,92 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useWorkflowTemplateNameCell } from '@/automations/hooks/useWorkflowTemplateNameCell';
+
+type TTranslate = (key: string, options?: Record<string, unknown>) => string;
 
 type TWorkflowTemplateColumnsProps = {
-  t: (key: string, options?: Record<string, unknown>) => string;
+  t: TTranslate;
   onRename: (template: TWorkflowTemplate, name: string) => void;
   onRemove: (templateId: string) => void;
+};
+
+const EMPTY_VALUE = '—';
+
+const countOf = (items?: unknown[]) => (items || []).length;
+
+const WorkflowTemplateMoreCell = ({
+  template,
+  onRemove,
+  t,
+}: {
+  template: TWorkflowTemplate;
+  onRemove: (templateId: string) => void;
+  t: TTranslate;
+}) => {
+  const actions = useWorkflowTemplateActions({ template, onRemove });
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <RecordTable.MoreButton className="h-full w-full" />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content
+        align="start"
+        className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <DropdownMenu.Item asChild onSelect={actions.onEdit}>
+          <Button variant="ghost" size="sm" className="w-full justify-start">
+            <IconEdit className="size-4" />
+            {t('edit')}
+          </Button>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-destructive"
+            onClick={actions.onRemove}
+          >
+            <IconTrash className="size-4" />
+            {t('delete')}
+          </Button>
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+const WorkflowTemplateNameCell = ({
+  template,
+  onRename,
+}: {
+  template: TWorkflowTemplate;
+  onRename: (template: TWorkflowTemplate, name: string) => void;
+}) => {
+  const { currentName, editingName, setEditingName, rename, openTemplate } =
+    useWorkflowTemplateNameCell(template, onRename);
+
+  return (
+    <PopoverScoped
+      closeOnEnter
+      onEnter={rename}
+      dependencies={[template._id, currentName, editingName]}
+    >
+      <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Anchor onClick={openTemplate}>
+          <span className="truncate">{currentName}</span>
+        </RecordTableInlineCell.Anchor>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <Input
+          value={editingName}
+          onChange={(event) => setEditingName(event.target.value)}
+        />
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
+  );
 };
 
 export const getWorkflowTemplateColumns = ({
@@ -32,47 +111,13 @@ export const getWorkflowTemplateColumns = ({
 }: TWorkflowTemplateColumnsProps): ColumnDef<TWorkflowTemplate>[] => [
   {
     id: 'more',
-    cell: ({ cell }) => {
-      const actions = useWorkflowTemplateActions({
-        template: cell.row.original,
-        onRemove,
-      });
-
-      return (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <RecordTable.MoreButton className="h-full w-full" />
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            align="start"
-            className="w-[100px] min-w-0 [&>button]:cursor-pointer"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <DropdownMenu.Item asChild onSelect={actions.onEdit}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-              >
-                <IconEdit className="size-4" />
-                {t('edit')}
-              </Button>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-destructive"
-                onClick={actions.onRemove}
-              >
-                <IconTrash className="size-4" />
-                {t('delete')}
-              </Button>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ cell }) => (
+      <WorkflowTemplateMoreCell
+        template={cell.row.original}
+        onRemove={onRemove}
+        t={t}
+      />
+    ),
     size: 33,
     maxSize: 33,
     minSize: 33,
@@ -81,42 +126,12 @@ export const getWorkflowTemplateColumns = ({
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => {
-      const currentName = cell.getValue() as string;
-      const template = cell.row.original;
-      const [editingName, setEditingName] = useState(currentName);
-      const navigate = useNavigate();
-
-      const handleEnter = () => {
-        if (editingName === currentName || !editingName.trim()) {
-          return;
-        }
-
-        onRename(template, editingName);
-      };
-
-      return (
-        <PopoverScoped
-          closeOnEnter
-          onEnter={handleEnter}
-          dependencies={[template._id, currentName, editingName]}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Anchor
-              onClick={() => navigate(`/automations/templates/${template._id}`)}
-            >
-              <span className="truncate">{currentName}</span>
-            </RecordTableInlineCell.Anchor>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input
-              value={editingName}
-              onChange={(event) => setEditingName(event.target.value)}
-            />
-          </RecordTableInlineCell.Content>
-        </PopoverScoped>
-      );
-    },
+    cell: ({ cell }) => (
+      <WorkflowTemplateNameCell
+        template={cell.row.original}
+        onRename={onRename}
+      />
+    ),
     minSize: 150,
   },
   {
@@ -126,7 +141,7 @@ export const getWorkflowTemplateColumns = ({
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="truncate text-muted-foreground">
-          {(cell.getValue() as string) || '—'}
+          {cell.row.original.description || EMPTY_VALUE}
         </span>
       </RecordTableInlineCell>
     ),
@@ -139,7 +154,7 @@ export const getWorkflowTemplateColumns = ({
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <IconShare size={12} />
-        {((cell.getValue() as unknown[]) || []).length}
+        {countOf(cell.row.original.actions)}
       </RecordTableInlineCell>
     ),
     size: 80,
@@ -151,7 +166,7 @@ export const getWorkflowTemplateColumns = ({
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <IconArrowBarToRight size={12} />
-        {Object.keys((cell.getValue() as object) || {}).length}
+        {countOf(Object.keys(cell.row.original.inputs || {}))}
       </RecordTableInlineCell>
     ),
     size: 80,

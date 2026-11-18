@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid';
-import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   JOURNALS,
@@ -15,10 +14,9 @@ import {
 import { createOrUpdateTr } from './utils';
 import {
   cleanFxaFollowTr,
+  deleteEmptyFxaFollowTr,
   getFxaDisposalSummaries,
   getFxaMoveFollowInfos,
-  getUniqueFxaOwnerRecordIds,
-  rebuildFixedAssetCurrentCounts,
   removeFxaOwnerRecordsByTransaction,
   syncFxaOwnerRecordMovements,
   TFxaDisposalSummary,
@@ -87,8 +85,8 @@ export const createFxaMoveInFollowTr = async (
       originType: TR_DETAIL_FOLLOW_TYPES.FXA_MOVE_IN,
       fixedAssetId: detail.fixedAssetId,
       accountId: detail.accountId,
-      branchId: followInfos.moveInBranchId,
-      departmentId: followInfos.moveInDepartmentId,
+      branchId: followInfos.moveInBranchId ?? '',
+      departmentId: followInfos.moveInDepartmentId ?? '',
       count: detail.count,
       unitPrice: detail.unitPrice,
       amount: detail.amount,
@@ -110,8 +108,8 @@ export const createFxaMoveInFollowTr = async (
       status: transaction.status,
       mentionOwnerId: transaction.mentionOwnerId,
       mentionUserIds: transaction.mentionUserIds,
-      branchId: followInfos.moveInBranchId,
-      departmentId: followInfos.moveInDepartmentId,
+      branchId: followInfos.moveInBranchId ?? '',
+      departmentId: followInfos.moveInDepartmentId ?? '',
       customerType: transaction.customerType,
       customerId: transaction.customerId,
       journal: JOURNALS.FXA_MOVE_IN,
@@ -120,17 +118,6 @@ export const createFxaMoveInFollowTr = async (
     },
     oldMoveInTr,
   );
-};
-
-const deleteEmptyFxaFollowTr = async (
-  models: IModels,
-  oldTr?: ITransactionDocument | null,
-) => {
-  if (!oldTr?._id) {
-    return;
-  }
-
-  await models.Transactions.deleteMany({ _id: oldTr._id });
 };
 
 const buildFxaMoveDepreciationDetails = ({
@@ -161,12 +148,10 @@ const buildFxaMoveDepreciationDetails = ({
         originType,
         fixedAssetId: summary.fixedAssetId,
         accountId: accountId || '',
-        branchId,
-        departmentId,
-        count: summary.count,
-        unitPrice: summary.count
-          ? fixNum(summary.accumulatedDepreciation / summary.count)
-          : 0,
+        branchId: branchId ?? summary.branchId ?? '',
+        departmentId: departmentId ?? summary.departmentId ?? '',
+        count: 0,
+        unitPrice: 0,
         amount: summary.accumulatedDepreciation,
       } as ITrDetail;
     });
@@ -248,16 +233,14 @@ export const createFxaMoveDepreciationFollowTrs = async (
 
   const outDetails = buildFxaMoveDepreciationDetails({
     accountId: followInfos.accumulatedDepreciationAccountId,
-    branchId: transaction.branchId,
-    departmentId: transaction.departmentId,
     oldTr: oldOutTr,
     originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_OUT,
     summaries,
   });
   const inDetails = buildFxaMoveDepreciationDetails({
     accountId: followInfos.accumulatedDepreciationAccountId,
-    branchId: followInfos.moveInBranchId,
-    departmentId: followInfos.moveInDepartmentId,
+    branchId: followInfos.moveInBranchId ?? '',
+    departmentId: followInfos.moveInDepartmentId ?? '',
     oldTr: oldInTr,
     originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_IN,
     summaries,
@@ -272,8 +255,8 @@ export const createFxaMoveDepreciationFollowTrs = async (
       models,
       userId,
       buildFxaMoveDepreciationTrDoc({
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
+        branchId: '',
+        departmentId: '',
         details: outDetails,
         journal: JOURNALS.FXA_DEP_OUT,
         oldTr: oldOutTr,
@@ -288,8 +271,8 @@ export const createFxaMoveDepreciationFollowTrs = async (
       models,
       userId,
       buildFxaMoveDepreciationTrDoc({
-        branchId: followInfos.moveInBranchId,
-        departmentId: followInfos.moveInDepartmentId,
+        branchId: followInfos.moveInBranchId ?? '',
+        departmentId: followInfos.moveInDepartmentId ?? '',
         details: inDetails,
         journal: JOURNALS.FXA_DEP_IN,
         oldTr: oldInTr,
@@ -315,15 +298,4 @@ export const syncFxaMoveInstances = async (
     transaction,
     userId,
   });
-
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 };

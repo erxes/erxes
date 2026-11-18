@@ -19,6 +19,7 @@ export interface ITriage {
   customerId?: string | null;
   companyId?: string | null;
   tagIds?: string[];
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -48,6 +49,7 @@ export interface ITriageAddInput {
   customerId?: string | null;
   companyId?: string | null;
   tagIds?: string[];
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface ITriageUpdateInput {
@@ -59,4 +61,5 @@ export interface ITriageUpdateInput {
   teamId?: string;
   priority?: number;
   status?: number;
+  propertiesData?: Record<string, unknown>;
 }

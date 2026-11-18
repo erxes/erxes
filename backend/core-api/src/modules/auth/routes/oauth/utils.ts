@@ -278,12 +278,14 @@ export const createOAuthRefreshToken = async ({
   clientId,
   expiresIn,
   scope,
+  format,
 }: {
   models: IModels;
   userId: string;
   clientId: string;
   expiresIn: number;
   scope?: string;
+  format?: 'jwt';
 }) => {
   const refreshToken = createRandomToken(48);
   const tokenHash = hashToken(refreshToken);
@@ -295,6 +297,7 @@ export const createOAuthRefreshToken = async ({
     clientId,
     expiresAt,
     ...(scope ? { scope } : {}),
+    ...(format ? { format } : {}),
   });
 
   return { refreshToken, tokenHash, expiresAt };

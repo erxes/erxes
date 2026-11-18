@@ -1,5 +1,15 @@
 import type { DealProductData } from '@/deals/utils/dealJson';
-import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
+import {
+  IconArrowsLeftRight,
+  IconBuildingSkyscraper,
+  IconCurrency,
+  IconCurrencyDollar,
+  IconGitBranch,
+  IconPentagonNumber1,
+  IconReceipt2,
+  IconReceiptTax,
+  IconRuler,
+} from '@tabler/icons-react';
 import {
   Checkbox,
   CurrencyCode,
@@ -58,13 +68,49 @@ export const ProductNumberField = ({
   children?: React.ReactNode;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
+  const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canEditPrice = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canDiscount = isLoaded && hasActionPermission('dealsEdit');
+  const isUnitPrice = field === 'unitPrice';
 
-  if (field === 'unitPrice' && !canEdit) {
+  if (isUnitPrice && !canEditPrice && !canDiscount) {
     return <TextOverflowTooltip value={formatAmount(value)} />;
   }
+
+  const savesAsDiscount = (price: number) =>
+    isUnitPrice && (!canEditPrice || price < (Number(product.unitPrice) || 0));
+
+  const saveAsDiscount = (price: number) => {
+    const unitPrice = Number(product.unitPrice) || 0;
+
+    if (!Number.isFinite(price) || price < 0 || price > unitPrice) {
+      toast({
+        variant: 'destructive',
+        title: t('invalid-value', 'Invalid value'),
+        description: t(
+          'unit-price-discount-only',
+          'Only Sales Admin can raise the unit price. Enter a price between 0 and the current unit price.',
+        ),
+      });
+      return;
+    }
+
+    const updatedProduct = applyRowDiscount(
+      product,
+      (unitPrice - price) * (Number(product.quantity) || 0),
+    );
+
+    updateRecord(product, {
+      discountInfos: updatedProduct.discountInfos,
+      discount: updatedProduct.discount,
+      discountPercent: updatedProduct.discountPercent,
+      tax: updatedProduct.tax,
+      amount: updatedProduct.amount,
+    });
+  };
 
   return (
     <NumberField
@@ -73,7 +119,9 @@ export const ProductNumberField = ({
       scope={`product-${_id}-${field}`}
       formatValue={formatValue}
       onSave={(value) => {
-        if (calculateProduct) {
+        if (savesAsDiscount(value)) {
+          saveAsDiscount(value);
+        } else if (calculateProduct) {
           const base = { ...product, [field]: value };
           const updates = calculateProductValues(field, base);
           const fullUpdate = { [field]: value, ...updates };
@@ -239,7 +287,7 @@ export const ProductDiscountNumberField = ({
   };
 
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canEdit = isLoaded && hasActionPermission('dealsEdit');
 
   if (!canEdit) {
     return <TextOverflowTooltip value={formatAmount(value)} />;
@@ -467,7 +515,9 @@ export const ProductDepartmentField = ({
 export const taxPercent = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'taxPercent',
   accessorKey: 'taxPercent',
-  header: () => <RecordTable.InlineHead label={t('tax-percent')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconReceiptTax} label={t('tax-percent')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -486,7 +536,7 @@ export const taxPercent = (t: TFunction): ColumnDef<DealProductData> => ({
 export const tax = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'tax',
   accessorKey: 'tax',
-  header: () => <RecordTable.InlineHead label={t('tax')} />,
+  header: () => <RecordTable.InlineHead icon={IconReceipt2} label={t('tax')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -505,7 +555,9 @@ export const tax = (t: TFunction): ColumnDef<DealProductData> => ({
 export const currency = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'currency',
   accessorKey: 'currency',
-  header: () => <RecordTable.InlineHead label={t('currency')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCurrency} label={t('currency')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -522,7 +574,7 @@ export const currency = (t: TFunction): ColumnDef<DealProductData> => ({
 export const baseUom = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uom',
   accessorKey: 'uom',
-  header: () => <RecordTable.InlineHead label={t('uom')} />,
+  header: () => <RecordTable.InlineHead icon={IconRuler} label={t('uom')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -538,7 +590,7 @@ export const baseUom = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomInfoUom = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.uom',
   accessorFn: (row) => getProductUomInfo(row).uom,
-  header: () => <RecordTable.InlineHead label={t('uom')} />,
+  header: () => <RecordTable.InlineHead icon={IconRuler} label={t('uom')} />,
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <ProductUomField product={row.original} />
@@ -550,7 +602,9 @@ export const uomInfoUom = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomRatio = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.ratio',
   accessorFn: (row) => getProductUomInfo(row).ratio,
-  header: () => <RecordTable.InlineHead label={t('ratio', 'Ratio')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconArrowsLeftRight} label={t('ratio')} />
+  ),
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip
@@ -564,7 +618,9 @@ export const uomRatio = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomInfoUnitPrice = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.unitPrice',
   accessorFn: (row) => getProductUomInfo(row).unitPrice,
-  header: () => <RecordTable.InlineHead label={t('unit-price')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('unit-price')} />
+  ),
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <ProductUomInfoNumberField product={row.original} field="unitPrice" />
@@ -576,7 +632,9 @@ export const uomInfoUnitPrice = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomInfoQuantity = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.quantity',
   accessorFn: (row) => getProductUomInfo(row).quantity,
-  header: () => <RecordTable.InlineHead label={t('quantity')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconPentagonNumber1} label={t('quantity')} />
+  ),
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <ProductUomInfoNumberField product={row.original} field="quantity" />

@@ -302,6 +302,7 @@ export const handleCallEvent = async (
       if (!sibling) {
         const candidate = await models.CallSessions.findSibling({
           inboxIntegrationId: integration.inboxId,
+          peerInboxIds: peers.map((peer) => peer.inboxId),
           customerPhone,
           excludeUniqueid: ev.uniqueid,
         });

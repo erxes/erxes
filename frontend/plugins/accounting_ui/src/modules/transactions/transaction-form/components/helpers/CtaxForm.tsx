@@ -47,9 +47,9 @@ export const CtaxForm = ({
     return mainSide === TR_SIDES.DEBIT ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
   }, [mainSide, isSameSide]);
 
-  const handleCtax = useWatch({
+  const isHandleCtax = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.handleCtax`,
+    name: `trDocs.${journalIndex}.isHandleCtax`,
   });
 
   const details = useWatch({
@@ -60,7 +60,7 @@ export const CtaxForm = ({
   const { ctax: ctaxPercent = 0, sum: sumPercent } = taxPercents;
 
   const calcedAmount = useMemo(() => {
-    if (handleCtax) {
+    if (isHandleCtax) {
       return trDoc.ctaxAmount ?? 0;
     }
     const sumAmount = details
@@ -73,7 +73,7 @@ export const CtaxForm = ({
     return (sumAmount / 100) * ctaxPercent;
   }, [
     details,
-    handleCtax,
+    isHandleCtax,
     ctaxPercent,
     sumPercent,
     isWithTax,
@@ -183,7 +183,7 @@ export const CtaxForm = ({
         <>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.handleCtax`}
+            name={`trDocs.${journalIndex}.isHandleCtax`}
             render={({ field }) => (
               <Form.Item className="flex items-center space-x-2 space-y-0 pt-5">
                 <Form.Control>
@@ -220,9 +220,9 @@ export const CtaxForm = ({
               <Form.Item>
                 <Form.Label>{t('city-tax-amount')}</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleCtax ? (field.value ?? 0) : calcedAmount}
+                  value={isHandleCtax ? (field.value ?? 0) : calcedAmount}
                   onChange={field.onChange}
-                  disabled={!handleCtax}
+                  disabled={!isHandleCtax}
                 />
                 <Form.Message />
               </Form.Item>

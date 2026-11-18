@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const projectSchema = new Schema(
   {
@@ -36,3 +37,4 @@ export const projectSchema = new Schema(
 projectSchema.index({ customerId: 1 });
 projectSchema.index({ companyId: 1 });
 
+applyDataExtensionsNamespace(projectSchema);

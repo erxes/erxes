@@ -8,6 +8,8 @@ export interface IOAuthRefreshTokenDocument extends Document {
   expiresAt: Date;
   revokedAt?: Date;
   replacedByTokenHash?: string;
+  /** `jwt`: issued by the authorization code flow, refreshes into RS256 product tokens. */
+  format?: 'jwt';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +28,7 @@ export const oauthRefreshTokenSchema = new Schema(
     expiresAt: { type: Date, label: 'Expires at', index: true },
     revokedAt: { type: Date, label: 'Revoked at', index: true },
     replacedByTokenHash: { type: String, label: 'Replaced by token hash' },
+    format: { type: String, label: 'Token format', enum: ['jwt'] },
   },
   {
     timestamps: true,

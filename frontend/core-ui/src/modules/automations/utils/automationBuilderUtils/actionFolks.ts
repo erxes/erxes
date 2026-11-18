@@ -20,6 +20,20 @@ const ERROR_POLICY_FOLKS: IAutomationsActionFolkConfig[] = [
   },
 ];
 
+export const WAIT_EVENT_MET_KEY = 'met';
+export const WAIT_EVENT_TIMED_OUT_KEY = 'timedOut';
+
+const WAIT_EVENT_TIMEOUT_FOLKS: IAutomationsActionFolkConfig[] = [
+  { key: WAIT_EVENT_MET_KEY, label: 'Met', type: 'success' },
+  { key: WAIT_EVENT_TIMED_OUT_KEY, label: 'Timed out', type: 'error' },
+];
+
+/** A wait event with a timeout has two exits instead of nextActionId. */
+export const hasWaitEventTimeout = (
+  type: string,
+  config?: Record<string, any>,
+) => type === 'waitEvent' && !!config?.timeout;
+
 /**
  * The action itself says whether a policy fits it. A deferred action reports
  * its failure long after the flow moved on, so there is nothing left to retry
@@ -32,6 +46,22 @@ export const supportsErrorPolicy = (
 export const isBranchingOnError = (config?: Record<string, any>) =>
   (config?.errorPolicy?.onError as string) === 'branch';
 
+type TErrorPolicyConfig = {
+  errorPolicy?: { retry?: { attempts?: number } };
+};
+
+/** The node's error policy in a few words, or empty when it has none. */
+export const errorPolicySummaryOf = (config?: TErrorPolicyConfig) => {
+  const attempts = Number(config?.errorPolicy?.retry?.attempts || 0);
+
+  return [
+    attempts > 0 && `retry x${attempts}`,
+    isBranchingOnError(config) && 'on error',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+};
+
 /**
  * The folks an action node actually shows. Declared folks come with the action
  * type; the success/error pair belongs to the node, because only that node's
@@ -42,7 +72,9 @@ export const resolveActionFolks = (
   config: Record<string, any> | undefined,
   actionFolks: Record<string, IAutomationsActionFolkConfig[]>,
 ): IAutomationsActionFolkConfig[] => {
-  const declared = actionFolks[type] || [];
+  const declared = hasWaitEventTimeout(type, config)
+    ? WAIT_EVENT_TIMEOUT_FOLKS
+    : actionFolks[type] || [];
 
   return isBranchingOnError(config)
     ? [...declared, ...ERROR_POLICY_FOLKS]

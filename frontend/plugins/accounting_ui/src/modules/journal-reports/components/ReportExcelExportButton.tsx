@@ -45,6 +45,7 @@ export const ReportExcelExportButton = ({
       toast({
         title: t('success'),
         description: t('report-downloaded-as-an-excel-file'),
+        variant: 'success',
       });
     } catch (error) {
       toast({

@@ -5,27 +5,24 @@ import { IconArrowBackUp, IconX } from '@tabler/icons-react';
 import { Button, Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-
-const isEmail = (value?: string) =>
-  !value || z.string().email().safeParse(value).success;
+import {
+  useLockedReplyTo,
+  useReplyToEmailRule,
+} from '../hooks/useBroadcastReplyToField';
 
 /**
  * While the From is locked to the default sender, the confirmed address picked
  * here is who the mail speaks for, so it is required and lands in fromEmail.
  */
 const LockedReplyTo = ({ canVerifySenders }: { canVerifySenders: boolean }) => {
-  const { control, setValue } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
+  const { control, rules, pickAddress } = useLockedReplyTo();
 
   return (
     <Form.Field
       name="fromEmail"
       control={control}
-      rules={{
-        required: t('reply-to-required'),
-        validate: (value?: string) => isEmail(value) || t('invalid-email'),
-      }}
+      rules={rules}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
@@ -36,15 +33,7 @@ const LockedReplyTo = ({ canVerifySenders }: { canVerifySenders: boolean }) => {
             {canVerifySenders ? (
               <SelectVerifiedSender
                 value={field.value}
-                onChange={(value, picked) => {
-                  field.onChange(value);
-
-                  if (picked?.name) {
-                    setValue('email.sender', picked.name, {
-                      shouldDirty: true,
-                    });
-                  }
-                }}
+                onChange={pickAddress(field.onChange)}
                 placeholder={t('reply-to-placeholder')}
               />
             ) : (
@@ -72,6 +61,7 @@ const OptionalReplyTo = ({
   const { control } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const { open, ask, clear, fromEmail } = useBroadcastReplyTo();
+  const validateEmail = useReplyToEmailRule();
 
   if (!open) {
     return (
@@ -98,9 +88,7 @@ const OptionalReplyTo = ({
     <Form.Field
       name="email.replyTo"
       control={control}
-      rules={{
-        validate: (value?: string) => isEmail(value) || t('invalid-email'),
-      }}
+      rules={{ validate: validateEmail }}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>{t('replyTo')}</Form.Label>
@@ -110,7 +98,7 @@ const OptionalReplyTo = ({
                 {canVerifySenders ? (
                   <SelectVerifiedSender
                     value={field.value}
-                    onChange={(value) => field.onChange(value)}
+                    onChange={field.onChange}
                     placeholder={t('reply-to-pick-placeholder')}
                     allowDomains={domains}
                   />

@@ -8,6 +8,7 @@ import { generateModels, IModels } from '~/connectionResolvers';
 import { CORE_AUTOMATION_CONSTANTS } from './constants';
 import { findObject } from './findObject';
 import { coreProductAiKnowledgeProvider } from '~/modules/products/meta/automations';
+import { updateWithDataExtensions } from '~/modules/data-extensions/automations';
 
 type TSetPropertyModel = {
   find: (selector: Record<string, unknown>) => {
@@ -134,7 +135,14 @@ export const initAutomation = (app: Express) =>
           fetchItems: async (fetchSelector) =>
             await model.find(fetchSelector).lean(),
           update: async ({ selector: updateSelector, modifier }) =>
-            await model.updateMany(updateSelector, modifier),
+            await updateWithDataExtensions({
+              models,
+              subdomain,
+              module,
+              model,
+              selector: updateSelector,
+              modifier,
+            }),
           targetType,
         });
 

@@ -77,6 +77,7 @@ jest.mock('erxes-ui', () => {
     Breadcrumb: Object.assign(Passthrough, {
       List: Passthrough,
       Item: Passthrough,
+      Separator: () => null,
     }),
     Button,
     Empty: Object.assign(Passthrough, {
@@ -87,6 +88,7 @@ jest.mock('erxes-ui', () => {
       Content: Passthrough,
     }),
     Filter: Passthrough,
+    PageContainer: Passthrough,
     NavigationMenuLinkItem: ({
       name,
       path,
@@ -165,6 +167,9 @@ jest.mock(
     TransactionsGroupForm: () => <h2>Transaction detail</h2>,
   }),
 );
+jest.mock('~/pages/TunableReportsPage', () => ({
+  TunableReportsPage: () => <h2>Tunable reports</h2>,
+}));
 jest.mock('~/pages/JournalReports', () => ({
   JournalReports: () => <h2>Journal reports</h2>,
 }));
@@ -263,7 +268,8 @@ describe('accounting routes', () => {
         header.getByRole('link', { name: back }).getAttribute('href'),
       ).toBe(list);
 
-      fireEvent.click(header.getByRole('link', { name: 'Back' }));
+      expect(header.queryByRole('link', { name: 'Back' })).toBeNull();
+      fireEvent.click(header.getByRole('link', { name: back }));
 
       expect(await screen.findByText(landing)).toBeTruthy();
       expect(screen.getByLabelText('list filters').textContent).toBe(
@@ -281,7 +287,9 @@ describe('accounting routes', () => {
 
     await screen.findByText('Transaction detail');
     fireEvent.click(
-      within(screen.getByRole('main')).getByRole('link', { name: 'Back' }),
+      within(screen.getByRole('main')).getByRole('link', {
+        name: 'Transactions',
+      }),
     );
 
     expect(await screen.findByText('Transactions list')).toBeTruthy();
@@ -305,7 +313,7 @@ describe('accounting routes', () => {
         .getAttribute('href'),
     ).toBe('/accounting/records?journal=cash');
 
-    fireEvent.click(header.getByRole('link', { name: 'Back' }));
+    fireEvent.click(header.getByRole('link', { name: 'Journal entries' }));
 
     expect(await screen.findByText('Journal entries list')).toBeTruthy();
     expect(screen.getByLabelText('list filters').textContent).toBe(
@@ -338,7 +346,7 @@ describe('accounting routes', () => {
         header.getByRole('link', { name: 'Transactions' }).getAttribute('href'),
       ).toBe('/accounting/main');
 
-      fireEvent.click(header.getByRole('link', { name: 'Back' }));
+      fireEvent.click(header.getByRole('link', { name: 'Transactions' }));
 
       expect(await screen.findByText('Transactions list')).toBeTruthy();
       expect(screen.getByLabelText('list filters').textContent).toBe('');

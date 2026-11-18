@@ -13,6 +13,8 @@ import { SETTINGS_PANEL_CONTENT_TYPES } from '@/settings/constants/settingsPanel
 import { ADJUSTMENT_PANEL_CONTENT_TYPES } from '@/adjustments/constants/adjustmentPanel';
 import { TRANSACTION_CONTENT_TYPE } from '@/transactions/constants/transactionPanel';
 import { SAFE_REMAINDER_CONTENT_TYPE } from '@/inventories/safeRemainders/constants/safeRemainderPanel';
+import { RESERVE_REM_CONTENT_TYPE } from '@/inventories/reserveRemainders/constants/reserveRemPanel';
+import { RECALC_REMAINDER_CONTENT_TYPE } from '@/inventories/remainders/constants/reCalcRemainderPanel';
 
 export const CONFIG: IUIConfig = {
   name: 'accounting',
@@ -42,6 +44,11 @@ export const CONFIG: IUIConfig = {
       name: 'journal-reports',
       icon: IconCashBanknote,
       path: 'accounting/journal-reports',
+    },
+    {
+      name: 'tunable-reports',
+      icon: IconCashBanknote,
+      path: 'accounting/tunable-reports',
     },
     {
       name: 'check-sync',
@@ -129,6 +136,7 @@ export const CONFIG: IUIConfig = {
       {
         name: 'transactions',
         icon: IconReceipt,
+        contentTypes: ['sales:deal'],
       },
     ],
     recordPanels: [
@@ -136,6 +144,8 @@ export const CONFIG: IUIConfig = {
       ...FXA_OWNER_RECORD_PANEL_CONTENT_TYPES,
       ...ADJUSTMENT_PANEL_CONTENT_TYPES,
       SAFE_REMAINDER_CONTENT_TYPE,
+      RESERVE_REM_CONTENT_TYPE,
+      RECALC_REMAINDER_CONTENT_TYPE,
       TRANSACTION_CONTENT_TYPE,
     ].map((contentType) => ({
       contentType,

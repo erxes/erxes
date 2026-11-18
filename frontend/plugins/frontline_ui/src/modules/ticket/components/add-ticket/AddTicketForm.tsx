@@ -43,6 +43,7 @@ import {
   CompaniesInline,
   CustomersInline,
   currentUserState,
+  DataExtensionCreateFields,
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
   PanelFormRow,
@@ -376,6 +377,11 @@ export const AddTicketForm = () => {
         propertiesData={propertiesData}
         missingIds={missingIds}
         onPropertyChange={setPropertyValue}
+      />
+      <DataExtensionCreateFields
+        recordType="frontline:ticket"
+        layout="stack"
+        className="pt-2"
       />
       <div className="flex min-w-0 flex-col gap-1.5 pt-2">
         <span className="text-xs font-medium text-accent-foreground">

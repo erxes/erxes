@@ -33,6 +33,7 @@ import { useCreatedContactPanelRecord } from '@/side-panel/hooks/useCreatedConta
 import { useDebounce } from 'use-debounce';
 import {
   COMPANY_BUSINESS_TYPES,
+  DataExtensionCreateFields,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
@@ -337,6 +338,11 @@ export const CompanyPanelNew = () => {
             />
           </PanelFormRow>
           <CompanyDescriptionInput />
+          <DataExtensionCreateFields
+            recordType="core:company"
+            layout="stack"
+            className="mt-3"
+          />
         </PanelFormLayout>
       </form>
     </Form>

@@ -1,3 +1,4 @@
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 import {
   PRODUCT_DURATION_TYPES,
   PRODUCT_STATUSES,
@@ -150,3 +151,6 @@ productSchema.index(
 );
 productSchema.index({ similarityId: 1 });
 productSchema.index({ similarityId: 1, code: 1 });
+
+// Data Extension values are written only through the owner contract.
+applyDataExtensionsNamespace(productSchema);

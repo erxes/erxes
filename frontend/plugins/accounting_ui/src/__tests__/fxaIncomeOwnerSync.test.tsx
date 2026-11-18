@@ -4,8 +4,22 @@ import { FxaIncomeOwnerRecordsSync } from '@/transactions/transaction-form/compo
 import type { TAddTransactionGroup } from '@/transactions/transaction-form/types/JournalForms';
 import { TrJournalEnum } from '@/transactions/types/constants';
 
-jest.mock('erxes-ui', () => ({}), { virtual: true });
-jest.mock('ui-modules', () => ({}), { virtual: true });
+jest.mock(
+  '@/transactions/transaction-form/components/forms/FxaChangeFields',
+  () => ({
+    FxaChangeLifeFields: () => null,
+    FxaChangeMethodField: () => null,
+    FxaChangeNumberField: () => null,
+  }),
+);
+
+jest.mock('erxes-ui', () => ({}));
+jest.mock(
+  '@/transactions/transaction-form/components/forms/FxaDepreciationFields',
+  () => ({ FxaDepreciationFields: () => null }),
+);
+
+jest.mock('ui-modules', () => ({}));
 
 test('owner synchronization keeps detail metadata intact without creating a root detail array', () => {
   const { result } = renderHook(() =>

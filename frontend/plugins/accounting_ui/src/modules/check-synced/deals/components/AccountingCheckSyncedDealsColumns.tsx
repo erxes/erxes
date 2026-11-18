@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import {
   Checkbox,
+  formatAmount,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -27,16 +28,24 @@ type AccountingCheckSyncedDealsColumnsOptions = {
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
 
-const stringifyAmount = (amount: unknown) => {
-  if (!amount) {
-    return '';
+const formatDealAmount = (amount: unknown) => {
+  if (typeof amount === 'number') {
+    return formatAmount(amount);
   }
 
   if (typeof amount === 'string') {
     return amount;
   }
 
-  return JSON.stringify(amount);
+  if (!amount || typeof amount !== 'object') {
+    return '';
+  }
+
+  return Object.entries(amount as Record<string, unknown>)
+    .flatMap(([currency, value]) =>
+      typeof value === 'number' ? [`${formatAmount(value)} ${currency}`] : [],
+    )
+    .join(', ');
 };
 
 export const getAccountingCheckSyncedDealsColumns = ({
@@ -73,7 +82,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
     header: () => <HeaderCell icon={IconCurrencyDollar} labelKey="amount" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={stringifyAmount(cell.getValue())} />
+        <TextOverflowTooltip value={formatDealAmount(cell.getValue())} />
       </RecordTableInlineCell>
     ),
   },

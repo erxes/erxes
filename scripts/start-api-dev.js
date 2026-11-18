@@ -7,6 +7,23 @@ const { execSync } = require('child_process');
 const { existsSync } = require('fs');
 const path = require('path');
 
+// Plugin APIs live in backend/plugins/<name>_api; a few run from
+// backend/services/<name> under the same <name>_api project name.
+const apiProjectExists = (project) => {
+  if (existsSync(path.join(__dirname, '../backend/plugins', project))) {
+    return true;
+  }
+
+  const config = path.join(
+    __dirname,
+    '../backend/services',
+    project.replace(/_api$/, ''),
+    'project.json',
+  );
+
+  return existsSync(config) && require(config).name === project;
+};
+
 let plugins = '';
 let services = '';
 let projectsCount = 2;
@@ -15,9 +32,7 @@ if (ENABLED_PLUGINS) {
   try {
     plugins = ENABLED_PLUGINS.split(',')
       .map((plugin) => `${plugin}_api`)
-      .filter((plugin) =>
-        existsSync(path.join(__dirname, '../backend/plugins', plugin)),
-      )
+      .filter(apiProjectExists)
       .join(' ');
 
     projectsCount += plugins ? plugins.split(' ').length : 0;
@@ -31,9 +46,7 @@ if (ENABLED_PLUGINS_ONLY_API) {
   try {
     const apiPlugins = ENABLED_PLUGINS_ONLY_API.split(',')
       .map((plugin) => `${plugin}_api`)
-      .filter((plugin) =>
-        existsSync(path.join(__dirname, '../backend/plugins', plugin)),
-      )
+      .filter(apiProjectExists)
       .join(' ');
 
     plugins = `${plugins} ${apiPlugins}`;

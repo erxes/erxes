@@ -1,8 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
-import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
-import { emailTemplateFormat, IEmailTemplate } from '@/emailTemplates/types';
-import { filterSuggestionItems } from '@blocknote/core';
+import { useEmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useEmailTemplateInEditor';
+import { IEmailTemplate } from '@/emailTemplates/types';
 import {
   DefaultReactSuggestionItem,
   SuggestionMenuController,
@@ -12,10 +10,7 @@ import {
   SlashMenuProps,
   SuggestionMenu,
   SuggestionMenuItem,
-  useConfirm,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { useDebounce } from 'use-debounce';
 
 interface EmailTemplateInEditorProps {
   editor: IBlockEditor;
@@ -24,51 +19,8 @@ interface EmailTemplateInEditorProps {
 export const EmailTemplateInEditor = ({
   editor,
 }: EmailTemplateInEditorProps) => {
-  const [search, setSearch] = useState('');
-  const [debouncedSearch] = useDebounce(search, 300);
-  const { confirm } = useConfirm();
-
-  const { emailTemplates: allTemplates = [], loading } = useEmailTemplates({
-    searchValue: debouncedSearch,
-  });
-
-  // Only block templates can be poured into this editor.
-  const emailTemplates = allTemplates.filter(
-    (template) => emailTemplateFormat(template) === 'blocks',
-  );
-
-  const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
-
-  // Handle template content loading
-  useEffect(() => {
-    if (emailTemplate?.content) {
-      try {
-        const blocks = JSON.parse(emailTemplate.content);
-        editor.replaceBlocks(editor.document, blocks);
-      } catch {
-        // If not JSON, treat as plain text
-        editor.replaceBlocks(editor.document, [
-          {
-            id: crypto.randomUUID(),
-            type: 'paragraph',
-            props: {
-              textColor: 'default',
-              backgroundColor: 'default',
-              textAlignment: 'left',
-            },
-            content: [
-              {
-                type: 'text',
-                text: emailTemplate.content,
-                styles: {},
-              },
-            ],
-            children: [],
-          },
-        ]);
-      }
-    }
-  }, [emailTemplate?.content, editor]);
+  const { loading, emailTemplates, getItems } =
+    useEmailTemplateInEditor(editor);
 
   return (
     <SuggestionMenuController
@@ -80,18 +32,7 @@ export const EmailTemplateInEditor = ({
           emailTemplates={emailTemplates}
         />
       )}
-      getItems={async (query) => {
-        setSearch(query);
-        return filterSuggestionItems(
-          getEmailTemplateMenuItems(
-            editor,
-            emailTemplates,
-            loadEmailTemplate,
-            confirm,
-          ),
-          query,
-        );
-      }}
+      getItems={getItems}
     />
   );
 };
@@ -135,7 +76,7 @@ function EmailTemplateMenu({
           text={item.title}
           isSelected={selectedIndex === index}
           index={index}
-          template={emailTemplates?.find((t) => t.name === item.title)}
+          template={emailTemplates?.find(({ name }) => name === item.title)}
         />
       ))}
     </SuggestionMenu>
@@ -171,30 +112,4 @@ function EmailTemplateMenuItem({
       </div>
     </SuggestionMenuItem>
   );
-}
-
-function getEmailTemplateMenuItems(
-  editor: IBlockEditor,
-  emailTemplates: IEmailTemplate[],
-  loadEmailTemplate: (id: string) => void,
-  confirm: ({
-    message,
-    options,
-  }: {
-    message: string;
-    options?: any;
-  }) => Promise<void>,
-): DefaultReactSuggestionItem[] {
-  return emailTemplates.map((template) => ({
-    title: template.name,
-    onItemClick: () => {
-      confirm({
-        message: `Are you sure you want to set this template to the email content? This will replace the current content.`,
-      }).then(() => {
-        editor.suggestionMenus.clearQuery();
-        editor.suggestionMenus.closeMenu();
-        loadEmailTemplate(template._id);
-      });
-    },
-  }));
 }

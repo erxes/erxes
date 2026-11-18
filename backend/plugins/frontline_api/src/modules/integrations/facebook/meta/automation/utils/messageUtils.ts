@@ -33,6 +33,8 @@ type TFacebookOpenThreadAdData = {
 type TFacebookAutomationTarget =
   Partial<IFacebookConversationMessageDocument> & {
     payload?: TFacebookAutomationPayload;
+    // The inbox conversation; `conversationId` is the page's own thread
+    erxesApiId?: string;
     entryType?: 'direct' | 'open_thread';
     adData?: TFacebookOpenThreadAdData;
     openThread?: {
@@ -113,7 +115,14 @@ export const triggerFacebookMessageAutomation = async (
     return;
   }
 
-  const target: TFacebookAutomationTarget = { ...conversationMessage };
+  const facebookConversation = await models.FacebookConversations.findOne(
+    { _id: conversationMessage.conversationId },
+    { erxesApiId: 1 },
+  ).lean();
+  const target: TFacebookAutomationTarget = {
+    ...conversationMessage,
+    erxesApiId: facebookConversation?.erxesApiId,
+  };
   let repeatOptions:
     | { executionId: string; actionId: string; optionalConnectId?: string }
     | undefined;

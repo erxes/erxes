@@ -65,6 +65,16 @@ for (const entry of ['index.js', 'components/button.js']) {
     );
     assert.ok(css.text.includes('--primary:'), 'The default theme is missing.');
     assert.ok(/\.dark[\s{]/.test(css.text), 'The dark theme is missing.');
+    assert.match(
+      css.text,
+      /body\s*\{[^}]*background-color:\s*var\(--color-background\)/,
+      'The page defaults (base.css) are missing.',
+    );
+    assert.match(
+      css.text,
+      /::file-selector-button\s*\{[^}]*border-color:\s*var\(--color-border\)/,
+      'The theme border colour is missing.',
+    );
     assert.ok(
       !/@(theme|utility|source|plugin)\b/.test(css.text),
       'Styles still require Tailwind processing.',
@@ -76,6 +86,15 @@ for (const entry of ['index.js', 'components/button.js']) {
     }
   });
 }
+
+test('ships the optional fonts stylesheet', async () => {
+  const manifest = JSON.parse(await readFile(join(output, 'package.json'), 'utf8'));
+  assert.equal(manifest.exports['./fonts.css'], './fonts.css');
+  assert.match(
+    await readFile(join(output, 'fonts.css'), 'utf8'),
+    /fonts\.googleapis\.com\/css2\?family=Inter/,
+  );
+});
 
 test('declarations do not depend on a consumer erxes-ui alias', async () => {
   const files = await declarationFiles(output);

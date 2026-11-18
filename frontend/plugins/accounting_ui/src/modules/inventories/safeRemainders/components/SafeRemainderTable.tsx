@@ -1,35 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
 import { IconPackageOff } from '@tabler/icons-react';
-import { RecordTable, Skeleton, Table } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddSafeRemainder } from '@/inventories/safeRemainders/components/SafeRemainderForm';
 import { safeRemainderColumns } from '@/inventories/safeRemainders/components/SafeRemainderColumns';
 import { ISafeRemainder } from '@/inventories/safeRemainders/types/SafeRemainder';
-
-const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const { t } = useTranslation('accounting');
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, (_, i) => `skeleton-row-${i}`),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {safeRemainderColumns(t).map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const SafeRemainderTable = ({
   handleFetchMore,
@@ -65,7 +40,7 @@ export const SafeRemainderTable = ({
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && <SafeRemainderInitialSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             {!isInitialLoading &&
               totalSafeRemaindersCount > safeRemaindersCount && (
                 <RecordTable.RowSkeleton

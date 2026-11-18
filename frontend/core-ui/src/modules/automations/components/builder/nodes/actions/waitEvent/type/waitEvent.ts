@@ -14,4 +14,15 @@ export type TAutomationWaitEventConfig = {
   targetTypeId?: string;
   segmentId?: string;
   webhookConfig?: TIncomingWebhookForm;
+  timeout?: TWaitEventTimeout;
+  // With a timeout the node has two exits instead of nextActionId.
+  met?: string;
+  timedOut?: string;
+};
+
+export type TWaitEventTimeoutUnit = 'minutes' | 'hours' | 'days';
+
+export type TWaitEventTimeout = {
+  value: number | string;
+  unit: TWaitEventTimeoutUnit;
 };

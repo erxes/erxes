@@ -1,4 +1,8 @@
-import { TAutomationBuiltInTemplate } from 'erxes-api-shared/core-modules';
+import {
+  TAutomationBuiltInTemplate,
+  TAutomationBuiltInTemplateRequirement,
+  TEMPLATE_CORE_REQUIREMENT_KINDS,
+} from 'erxes-api-shared/core-modules';
 
 const TASK_CREATE_ACTION = 'operation:task.tasks.create';
 const DELAY_ACTION = 'delay';
@@ -19,6 +23,22 @@ const taskDestination = (order: number) => [
     ],
   },
 ];
+
+/**
+ * What the task asks of the person, written by the organization before
+ * installing; it becomes the task's description.
+ */
+const taskInstructions = (
+  order: number,
+  label: string,
+  placeholder: string,
+): TAutomationBuiltInTemplateRequirement => ({
+  key: 'instructions',
+  kind: TEMPLATE_CORE_REQUIREMENT_KINDS.TEXT,
+  label,
+  input: { multiline: true, placeholder },
+  fills: [{ order, path: 'description' }],
+});
 
 /**
  * Flows shipped with the plugin, built from its own task action and core's
@@ -56,9 +76,13 @@ export const operationWorkflowTemplates: TAutomationBuiltInTemplate[] = [
         },
       },
     ],
-    requirements: taskDestination(2),
-    mustConfigure: [
-      { order: 2, label: 'Say what the task should ask the person to do' },
+    requirements: [
+      ...taskDestination(2),
+      taskInstructions(
+        2,
+        'Say what the task should ask the person to do',
+        'Reach out and find out whether they still need anything.',
+      ),
     ],
   },
   {
@@ -79,9 +103,13 @@ export const operationWorkflowTemplates: TAutomationBuiltInTemplate[] = [
         },
       },
     ],
-    requirements: taskDestination(1),
-    mustConfigure: [
-      { order: 1, label: 'Say what the person picking this up should do' },
+    requirements: [
+      ...taskDestination(1),
+      taskInstructions(
+        1,
+        'Say what the person picking this up should do',
+        'Call them and settle what the message could not.',
+      ),
     ],
   },
 ];
