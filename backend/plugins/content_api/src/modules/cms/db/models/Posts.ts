@@ -10,6 +10,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { htmlToText } from 'html-to-text';
 import { postSchema } from '@/cms/db/definitions/posts';
+import { ensureCmsSlugIndexes } from '@/cms/db/ensureSlugIndexes';
 import {
   createSlug,
   generateUniqueSlug,
@@ -48,6 +49,17 @@ const prepareSlug = (slug?: string | null) => {
   const slugValue = slug?.trim();
 
   return slugValue ? createSlug(slugValue) : '';
+};
+
+const MAX_SLUG_ATTEMPTS = 3;
+
+const isDuplicateSlugError = (error: unknown) => {
+  const { code, keyPattern } = (error ?? {}) as {
+    code?: number;
+    keyPattern?: Record<string, unknown>;
+  };
+
+  return code === 11000 && Boolean(keyPattern?.slug);
 };
 
 const isValidReactionType = (reaction: string): reaction is PostReactionType =>
@@ -115,10 +127,13 @@ export const loadPostClass = (models: IModels) => {
     };
 
     public static createPost = async (doc: IPost) => {
+      await ensureCmsSlugIndexes(models);
       normalizeReactionFields(doc);
 
-      if (doc.slug || doc.title) {
-        const baseSlug = prepareSlug(doc.slug || doc.title);
+      const baseSlug =
+        doc.slug || doc.title ? prepareSlug(doc.slug || doc.title) : '';
+
+      if (baseSlug) {
         doc.slug = await generateUniqueSlug(
           models.Posts,
           doc.clientPortalId,
@@ -139,10 +154,32 @@ export const loadPostClass = (models: IModels) => {
         doc.count = await this.getNextPostCount(doc.clientPortalId);
       }
 
-      return models.Posts.create(doc);
+      // Two posts created at once can pick the same free slug; the loser takes
+      // the next one instead of failing.
+      for (let attempt = 1; ; attempt++) {
+        try {
+          return await models.Posts.create(doc);
+        } catch (error) {
+          if (
+            !baseSlug ||
+            attempt >= MAX_SLUG_ATTEMPTS ||
+            !isDuplicateSlugError(error)
+          ) {
+            throw error;
+          }
+
+          doc.slug = await generateUniqueSlug(
+            models.Posts,
+            doc.clientPortalId,
+            'slug',
+            baseSlug,
+          );
+        }
+      }
     };
 
     public static updatePost = async (_id: string, doc: IPost) => {
+      await ensureCmsSlugIndexes(models);
       normalizeReactionFields(doc);
 
       const post = await models.Posts.findOne({ _id });

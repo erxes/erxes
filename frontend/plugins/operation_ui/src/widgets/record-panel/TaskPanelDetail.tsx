@@ -35,6 +35,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PanelField, TagsSelect } from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
+import { RecordNameField } from './RecordNameField';
 import { RecordTagsValue } from './RecordTagsValue';
 
 const SCOPE = 'side-panel-task';
@@ -70,6 +71,12 @@ const TaskFields = ({ task }: { task: ITaskDetail }) => {
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
+      <RecordNameField
+        scope={`${SCOPE}.${_id}.name`}
+        value={task.name}
+        placeholder={t('task-name')}
+        onSave={(name) => updateTask({ variables: { _id, name } })}
+      />
       <PanelField icon={IconCircleCheck} label={t('status')}>
         <SelectStatusTask
           variant="table"

@@ -13,14 +13,11 @@ import {
 import { AddProjectRelation } from './AddProjectRelation';
 import { ProjectRow } from '~/widgets/rows/ProjectRow';
 import { useTranslation } from 'react-i18next';
-
-// The most projects listed for one customer or company.
-const CONTACT_RECORDS_LIMIT = 50;
+import { CONTACT_PROJECT_RECORDS_LIMIT } from '~/widgets/contact/projectContactConnection';
 
 /**
  * The projects of the host's customer and company, found by the contact on
- * the projects themselves; "+" creates one for them (createProject saves the
- * contact).
+ * the projects themselves; "+" connects an existing project or creates one for them.
  */
 export const Project = ({
   contentId,
@@ -41,13 +38,19 @@ export const Project = ({
   });
   const customerProjects = useQuery(GET_PROJECTS, {
     variables: {
-      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
+      filter: {
+        customerId: contacts.customerId,
+        limit: CONTACT_PROJECT_RECORDS_LIMIT,
+      },
     },
     skip: !contacts.customerId,
   });
   const companyProjects = useQuery(GET_PROJECTS, {
     variables: {
-      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+      filter: {
+        companyId: contacts.companyId,
+        limit: CONTACT_PROJECT_RECORDS_LIMIT,
+      },
     },
     skip: !contacts.companyId,
   });
@@ -74,7 +77,7 @@ export const Project = ({
         icon={IconClipboard}
         message={t('no-projects-to-display')}
       >
-        <AddProjectRelation contacts={contacts} label="Add project" />
+        <AddProjectRelation contacts={contacts} showLabel />
       </RelationWidgetEmptyState>
     );
   }

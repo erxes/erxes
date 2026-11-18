@@ -1,3 +1,5 @@
+import { reportQueries } from '@/accounting/graphql/resolvers/queries/reports';
+import { reportMutations } from '@/accounting/graphql/resolvers/mutations/reports';
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import Account from '@/accounting/graphql/resolvers/customResolvers/account';
 import AccountPermission from '@/accounting/graphql/resolvers/customResolvers/accountPermission';
@@ -81,6 +83,7 @@ const resolvers: any = {
   Job,
 
   Mutation: {
+    ...reportMutations,
     ...MutationsAccountCategory,
     ...MutationsAccount,
     ...MutationsAccountingConfig,
@@ -103,6 +106,7 @@ const resolvers: any = {
     ...MutationsFixedAssets,
   },
   Query: {
+    ...reportQueries,
     ...QueriesAccount,
     ...QueriesAccountCategory,
     ...QueriesAccountingConfig,

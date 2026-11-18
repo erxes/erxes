@@ -1,3 +1,8 @@
+import { IReportDocument } from './modules/accounting/@types/report';
+import {
+  IReportModel,
+  loadReportClass,
+} from './modules/accounting/db/models/Reports';
 import { withAccountingDiskUse } from './utils/accountingDiskUse';
 import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
@@ -115,6 +120,7 @@ import {
   loadJobExecutionClass,
 } from './modules/inventories/db/models/JobExecutions';
 export interface IModels {
+  Reports: IReportModel;
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
@@ -155,6 +161,16 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
   const accountingEventHandlers = eventHandlers('accounting');
+
+  models.Reports = db.model<IReportDocument, IReportModel>(
+    'tunable_reports',
+    withAccountingDiskUse(
+      loadReportClass(
+        models,
+        accountingEventHandlers('accounting', 'tunable_reports'),
+      ),
+    ),
+  );
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'accountings_configs',

@@ -159,7 +159,15 @@ export const TicketDetailPage = () => {
 
   return (
     <PageContainer>
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
+      <RecordSidePanel
+        expanded
+        expandedMode="page"
+        expandable={false}
+        minimizeTo={{
+          record: { contentType: 'frontline:ticket', contentId: ticketId },
+          listPath: TICKETS_PATH,
+        }}
+      >
         <PageHeader>
           <PageHeader.Start className="flex-auto min-w-0">
             <Breadcrumb className="min-w-0">
@@ -181,11 +189,9 @@ export const TicketDetailPage = () => {
               </Breadcrumb.List>
             </Breadcrumb>
           </PageHeader.Start>
-          {ticket && (
-            <PageHeader.End>
-              <TicketDetailActions ticket={ticket} />
-            </PageHeader.End>
-          )}
+          <PageHeader.End>
+            {ticket && <TicketDetailActions ticket={ticket} />}
+          </PageHeader.End>
         </PageHeader>
         {renderBody()}
       </RecordSidePanel>

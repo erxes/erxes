@@ -167,6 +167,9 @@ jest.mock(
     TransactionsGroupForm: () => <h2>Transaction detail</h2>,
   }),
 );
+jest.mock('~/pages/TunableReportsPage', () => ({
+  TunableReportsPage: () => <h2>Tunable reports</h2>,
+}));
 jest.mock('~/pages/JournalReports', () => ({
   JournalReports: () => <h2>Journal reports</h2>,
 }));
@@ -284,7 +287,9 @@ describe('accounting routes', () => {
 
     await screen.findByText('Transaction detail');
     fireEvent.click(
-      within(screen.getByRole('main')).getByRole('link', { name: 'Transactions' }),
+      within(screen.getByRole('main')).getByRole('link', {
+        name: 'Transactions',
+      }),
     );
 
     expect(await screen.findByText('Transactions list')).toBeTruthy();

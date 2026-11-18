@@ -22,3 +22,6 @@ export const toMemberUser = (
           : undefined,
       }
     : undefined;
+
+export const isActiveChannelMember = (member: IChannelMember) =>
+  member.member?.isActive !== false;

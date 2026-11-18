@@ -1,6 +1,12 @@
 import { IPermissionConfig } from 'erxes-api-shared/core-types';
 import { TRANSACTION_PERMISSION_ACTIONS } from '../modules/accounting/utils/transactionPermissions';
 
+const REPORT_ACTIONS = {
+  read: 'readTunableReports',
+  manage: 'manageTunableReports',
+  remove: 'removeTunableReports',
+} as const;
+
 // Account actions
 const ACTIONS = {
   read: 'accountsRead',
@@ -528,6 +534,17 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'tunableReport',
+      description: 'Tunable reports',
+      scopes: [{ name: 'all', description: 'All tunable reports' }],
+      actions: Object.entries(REPORT_ACTIONS).map(([action, name]) => ({
+        name,
+        title: `${action} tunable reports`,
+        description: `${action} tunable reports`,
+        ...(action === 'read' ? { always: true } : {}),
+      })),
+    },
+    {
       name: 'jobExecution',
       description: 'Inventory job executions',
       scopes: [{ name: 'all', description: 'All job executions' }],
@@ -694,6 +711,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'accounting',
+          module: 'tunableReport',
+          actions: Object.values(REPORT_ACTIONS),
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
           module: 'jobExecution',
           actions: [...allJobExecutionActions],
           scope: 'all',
@@ -787,6 +810,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'job',
           actions: [JOB_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'tunableReport',
+          actions: [REPORT_ACTIONS.read],
           scope: 'all',
         },
         {
