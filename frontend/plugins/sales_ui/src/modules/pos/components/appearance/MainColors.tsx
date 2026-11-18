@@ -1,5 +1,7 @@
+import { IconPalette } from '@tabler/icons-react';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { Control, Controller } from 'react-hook-form';
-import { Label, ColorPicker } from 'erxes-ui';
+import { ColorPicker } from 'erxes-ui';
 import type { AppearanceFormData } from './Appearance';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
@@ -11,57 +13,48 @@ export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
   const labels = usePosSettingsLabels();
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-4">
-        <div className="space-y-2 rounded-lg border p-3">
-          <Label variant="peer" className="text-sm font-medium">
-            {labels.primary}
-          </Label>
+      <div className="flex flex-col gap-1">
+        <PosPanelRow label={labels.primary} icon={IconPalette}>
           <Controller
             name="bodyColor"
             control={control}
             render={({ field }) => (
               <ColorPicker
-                className="w-24 h-8"
+                className="h-7 w-24"
                 value={field.value}
                 onValueChange={field.onChange}
               />
             )}
           />
-        </div>
+        </PosPanelRow>
 
-        <div className="space-y-2 rounded-lg border p-3">
-          <Label variant="peer" className="text-sm font-medium">
-            {labels.secondary}
-          </Label>
+        <PosPanelRow label={labels.secondary} icon={IconPalette}>
           <Controller
             name="headerColor"
             control={control}
             render={({ field }) => (
               <ColorPicker
-                className="w-24 h-8"
+                className="h-7 w-24"
                 value={field.value}
                 onValueChange={field.onChange}
               />
             )}
           />
-        </div>
+        </PosPanelRow>
 
-        <div className="space-y-2 rounded-lg border p-3">
-          <Label variant="peer" className="text-sm font-medium">
-            {labels.third}
-          </Label>
+        <PosPanelRow label={labels.third} icon={IconPalette}>
           <Controller
             name="footerColor"
             control={control}
             render={({ field }) => (
               <ColorPicker
-                className="w-24 h-8"
+                className="h-7 w-24"
                 value={field.value}
                 onValueChange={field.onChange}
               />
             )}
           />
-        </div>
+        </PosPanelRow>
       </div>
     </div>
   );

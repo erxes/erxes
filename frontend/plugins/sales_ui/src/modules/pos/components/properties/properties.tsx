@@ -1,3 +1,4 @@
+import { PosFieldList } from '@/pos/components/pos-edit/PosFieldRow';
 import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
 import {
   AllowBranchesField,
@@ -194,21 +195,17 @@ const Properties: FC<PropertiesProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-6"
         >
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <NameField control={control} />
-            </div>
+          <PosFieldList>
+            <NameField control={control} />
             <BranchField control={control} />
             <DepartmentField control={control} />
-          </div>
+          </PosFieldList>
 
-          <div className="rounded-lg border">
-            <div className="p-4">
-              <IsOnlineField control={control} />
-            </div>
-            <div
+          <div className="space-y-1">
+            <IsOnlineField control={control} />
+            <PosFieldList
               key={isOnline ? 'online' : 'offline'}
-              className="space-y-4 border-t p-4 animate-in fade-in-0 slide-in-from-top-1 duration-200"
+              className="animate-in fade-in-0 slide-in-from-top-1 duration-200"
             >
               {isOnline ? (
                 <>
@@ -218,10 +215,10 @@ const Properties: FC<PropertiesProps> = ({
               ) : (
                 <AllowTypesField control={control} />
               )}
-            </div>
+            </PosFieldList>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 border-t pt-6 md:grid-cols-2">
+          <PosFieldList>
             <BeginNumberField control={control} />
             <MaxSkipNumberField control={control} />
             <OrderPasswordField control={control} />
@@ -230,7 +227,7 @@ const Properties: FC<PropertiesProps> = ({
               <OnServerField control={control} />
             )}
             <DescriptionField control={control} />
-          </div>
+          </PosFieldList>
         </form>
       </Form>
     </div>

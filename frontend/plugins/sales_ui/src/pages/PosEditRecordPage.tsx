@@ -32,7 +32,7 @@ export const PosEditRecordPage = () => {
   const setDraft = useSetAtom(sidePanelDraftState);
   const page = useMemo(() => getPosEditRecordPage(recordType), [recordType]);
   const listPath = page
-    ? `/sales/settings/pos/${posId}?activeTab=${page.tab}`
+    ? `/sales/settings/pos/${posId}?tab=${page.tab}`
     : `/sales/settings/pos/${posId}`;
 
   const draft = useMemo<ISidePanelDraft | null>(

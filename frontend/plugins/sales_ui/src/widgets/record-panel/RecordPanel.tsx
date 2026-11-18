@@ -27,8 +27,14 @@ import {
   PosCardConfigPanelTitle,
 } from '@/pos/components/syncCard/PosCardConfigPanel';
 import {
+  PosPanelHeaderTitle,
+  PosSettingsTabContent,
+} from '@/pos/components/pos-edit/PosSettingsPanel';
+import { POS_GENERAL_TAB } from '@/pos/constants';
+import {
   POS_CARD_CONFIG_CONTENT_TYPE,
   POS_CATEGORY_MAPPING_CONTENT_TYPE,
+  POS_CONTENT_TYPE,
   POS_COVER_CONTENT_TYPE,
   POS_CREATE_CONTENT_TYPE,
   POS_CUSTOMER_FIELD_CONTENT_TYPE,
@@ -240,6 +246,32 @@ const renderPosCoverView = (
   return null;
 };
 
+const renderPosSettingsView = (
+  posId: string,
+  view: IRecordPanelProps['view'],
+  tab?: string,
+) => {
+  if (view === 'title') {
+    return <PosPanelHeaderTitle posId={posId} />;
+  }
+
+  if (view === 'detail') {
+    return (
+      <PosSettingsTabContent posId={posId} tab={POS_GENERAL_TAB} compact />
+    );
+  }
+
+  if (view === 'tab' && tab) {
+    return <PosSettingsTabContent posId={posId} tab={tab} compact />;
+  }
+
+  if (view === 'activity') {
+    return <PosPanelActivity contentId={posId} />;
+  }
+
+  return null;
+};
+
 const POS_FORM_PANELS: Record<
   string,
   { Title: ComponentType; Form: ComponentType }
@@ -283,6 +315,10 @@ export const RecordPanel = ({
 
   if (contentType === POS_COVER_CONTENT_TYPE) {
     return renderPosCoverView(contentId, view);
+  }
+
+  if (contentType === POS_CONTENT_TYPE) {
+    return renderPosSettingsView(contentId, view, tab);
   }
 
   const formPanel = POS_FORM_PANELS[contentType];

@@ -1,5 +1,8 @@
+import { IconClock, IconLink, IconRefresh } from '@tabler/icons-react';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
+import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
 import { Control, Controller, useWatch } from 'react-hook-form';
-import { Input, Label, Select } from 'erxes-ui';
+import { Input, Select } from 'erxes-ui';
 import type { ScreenConfigFormData } from './ScreenConfig';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,8 +14,6 @@ import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 interface WaitingScreenProps {
   control: Control<ScreenConfigFormData>;
 }
-
-const FIELD_LABEL_CLASS_NAME = 'text-sm font-medium';
 
 export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
   const { t } = useTranslation('sales');
@@ -32,15 +33,12 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
         label={t('waiting-screen')}
         description={labels.waitingScreenDescription}
       >
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1">
           <Controller
             name="waitingType"
             control={control}
             render={({ field }) => (
-              <div className="min-w-0 space-y-2">
-                <Label variant="peer" className={FIELD_LABEL_CLASS_NAME}>
-                  {labels.changeType}
-                </Label>
+              <PosPanelRow label={labels.changeType} icon={IconRefresh}>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
@@ -53,18 +51,19 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                     ))}
                   </Select.Content>
                 </Select>
-              </div>
+              </PosPanelRow>
             )}
           />
           <Controller
             name="waitingValue"
             control={control}
             render={({ field }) => (
-              <div className="min-w-0 space-y-2">
-                <Label variant="peer" className={FIELD_LABEL_CLASS_NAME}>
-                  {isTime ? labels.changeTime : labels.changeCount}
-                </Label>
+              <PosPanelRow
+                label={isTime ? labels.changeTime : labels.changeCount}
+                icon={IconClock}
+              >
                 <Input
+                  className={POS_PANEL_INPUT_CLASS_NAME}
                   type="number"
                   {...field}
                   value={field.value || ''}
@@ -72,24 +71,22 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                     isTime ? t('enter-time-in-minutes') : t('enter-count')
                   }
                 />
-              </div>
+              </PosPanelRow>
             )}
           />
           <Controller
             name="waitingContentUrl"
             control={control}
             render={({ field }) => (
-              <div className="min-w-0 space-y-2 md:col-span-2">
-                <Label variant="peer" className={FIELD_LABEL_CLASS_NAME}>
-                  {labels.contentUrl}
-                </Label>
+              <PosPanelRow label={labels.contentUrl} icon={IconLink}>
                 <Input
+                  className={POS_PANEL_INPUT_CLASS_NAME}
                   type="text"
                   {...field}
                   value={field.value || ''}
                   placeholder={t('enter-content-url')}
                 />
-              </div>
+              </PosPanelRow>
             )}
           />
         </div>

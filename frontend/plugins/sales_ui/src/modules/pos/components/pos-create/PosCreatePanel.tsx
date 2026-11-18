@@ -2,8 +2,11 @@ import { usePosCreateForm } from '@/pos/components/pos-create/usePosCreateForm';
 import { IconAlignLeft, IconCashRegister } from '@tabler/icons-react';
 import { Form, Input, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
+import {
+  POS_PANEL_INPUT_CLASS_NAME,
+  POS_PANEL_TEXTAREA_CLASS_NAME,
+} from '@/pos/constants/posPanel';
+import { useOpenPosSettings } from '@/pos/hooks/useOpenPosSettings';
 import { PanelFormLayout, PanelFormRow, useSidePanel } from 'ui-modules';
 
 export const PosCreatePanelTitle = () => {
@@ -14,11 +17,11 @@ export const PosCreatePanelTitle = () => {
 
 export const PosCreatePanel = () => {
   const { t } = useTranslation('sales');
-  const navigate = useNavigate();
+  const openPos = useOpenPosSettings();
   const { back, canGoBack, close } = useSidePanel();
   const { form, onSubmit, submitting } = usePosCreateForm((posId) => {
     if (posId) {
-      navigate(`/sales/settings/pos/${posId}`);
+      openPos(posId, { replace: true });
     } else {
       close();
     }
@@ -53,7 +56,7 @@ export const PosCreatePanel = () => {
               {...form.register('description')}
               placeholder={t('pos-description-placeholder')}
               rows={3}
-              className="min-h-14 resize-none border-0 text-xs shadow-none focus-visible:shadow-none hover:bg-accent focus-visible:bg-accent"
+              className={POS_PANEL_TEXTAREA_CLASS_NAME}
             />
           </PanelFormRow>
         </PanelFormLayout>

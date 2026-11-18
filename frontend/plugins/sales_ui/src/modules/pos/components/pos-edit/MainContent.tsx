@@ -10,15 +10,12 @@ import { Properties } from '@/pos/components/properties';
 import { ScreenConfig } from '@/pos/components/screenConfig';
 import { Slots } from '@/pos/components/slots';
 import { SyncCard } from '@/pos/components/syncCard';
-import { getSteps, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import { POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import { POS_PANEL_FIELDS_CLASS_NAME } from '@/pos/constants/posPanel';
 import { IPos } from '@/pos/types/pos';
 import { cn, ScrollArea, Spinner } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  relationSettingsModuleKey,
-  useRelationSettingsModules,
-} from 'ui-modules';
 
 interface MainContentProps {
   activeStep: string;
@@ -28,13 +25,10 @@ interface MainContentProps {
   error?: Error;
   onSaveActionChange: (action: React.ReactNode | null) => void;
   saveAction?: React.ReactNode;
+  compact?: boolean;
 }
 
 const FULL_HEIGHT_TABS = new Set(['slots']);
-
-const POS_EDIT_STEP_TITLES = new Map(
-  getSteps().map((step) => [step.value, step.title] as const),
-);
 
 export const MainContent: React.FC<MainContentProps> = ({
   activeStep,
@@ -44,27 +38,9 @@ export const MainContent: React.FC<MainContentProps> = ({
   error,
   onSaveActionChange: handleSaveActionChange,
   saveAction,
+  compact = false,
 }) => {
   const { t } = useTranslation('sales');
-  const relationModules = useRelationSettingsModules();
-
-  const getTitle = () => {
-    const stepTitle = POS_EDIT_STEP_TITLES.get(activeStep);
-
-    if (stepTitle) {
-      return t(stepTitle);
-    }
-
-    const relationModule = relationModules.find(
-      (module) =>
-        `${POS_RELATION_TAB_PREFIX}${relationSettingsModuleKey(module)}` ===
-        activeStep,
-    );
-
-    return (
-      relationModule?.label || relationModule?.name || t('general-information')
-    );
-  };
 
   const renderContent = (): React.ReactNode => {
     if (posId && activeStep.startsWith(POS_RELATION_TAB_PREFIX)) {
@@ -171,33 +147,48 @@ export const MainContent: React.FC<MainContentProps> = ({
   }
 
   const fullHeight = FULL_HEIGHT_TABS.has(activeStep);
-  const columnClassName = cn('mx-auto w-full px-6', {
-    'max-w-4xl': !fullHeight,
+  const columnClassName = cn('mx-auto w-full', {
+    'max-w-3xl': !fullHeight && !compact,
+    'px-6': !compact,
+    'px-2': compact,
   });
-
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div
+      className={cn(
+        '@container flex min-h-0 flex-1 flex-col',
+        POS_PANEL_FIELDS_CLASS_NAME,
+      )}
+    >
       {fullHeight ? (
         <section
           className={cn(
             columnClassName,
-            'flex min-h-0 flex-1 flex-col pt-8 pb-6',
+            'flex min-h-0 flex-1 flex-col',
+            compact ? 'py-3' : 'py-6',
           )}
         >
-          <h2 className="mb-6 text-lg font-semibold">{getTitle()}</h2>
           <div className="min-h-0 flex-1">{renderContent()}</div>
         </section>
       ) : (
         <ScrollArea className="min-h-0 flex-1">
-          <section className={cn(columnClassName, 'pt-8 pb-10')}>
-            <h2 className="mb-8 text-lg font-semibold">{getTitle()}</h2>
+          <section
+            className={cn(
+              columnClassName,
+              compact ? 'pt-3 pb-6' : 'pt-6 pb-10',
+            )}
+          >
             {renderContent()}
           </section>
         </ScrollArea>
       )}
       {saveAction && (
         <footer className="shrink-0 border-t bg-background">
-          <div className="flex items-center justify-end gap-3 px-6 py-3">
+          <div
+            className={cn(
+              'flex items-center justify-end gap-3 py-3',
+              compact ? 'px-4' : 'px-6',
+            )}
+          >
             {saveAction}
           </div>
         </footer>

@@ -27,7 +27,11 @@ export const ProductAndCategoryMapping: React.FC<
 
   const openMapping = (mappingId?: string) => {
     const draft: CatProdMappingDraft = { posId, mappingId };
-    openNewRecord(POS_CATEGORY_MAPPING_CONTENT_TYPE, { ...draft });
+    openNewRecord(
+      POS_CATEGORY_MAPPING_CONTENT_TYPE,
+      { ...draft },
+      { stack: true },
+    );
   };
 
   const handleDelete = (mappingId: string) => {

@@ -1,7 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { IconCircleMinus, IconCirclePlus } from '@tabler/icons-react';
-import { Label } from 'erxes-ui';
+import {
+  IconCircleMinus,
+  IconCirclePlus,
+  IconFolder,
+  IconPackage,
+  IconTag,
+} from '@tabler/icons-react';
 import { SelectCategory, SelectProduct } from 'ui-modules';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { useTranslation } from 'react-i18next';
 import { useProductFilterLabels } from '@/productFilters/useProductFilterLabels';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
@@ -152,36 +158,27 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="min-w-0 space-y-4 rounded-lg border p-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <IconCirclePlus className="size-4 text-primary" />
+      <div className="space-y-4">
+        <div className="min-w-0 space-y-0.5">
+          <div className="flex h-7 items-center gap-1.5 px-2 text-xs font-medium">
+            <IconCirclePlus className="size-3.5 text-primary" />
             {labels.include}
           </div>
-          <div className="space-y-2">
-            <Label variant="peer" className="text-sm">
-              {t('product-categories')}
-            </Label>
+          <PosPanelRow label={t('product-categories')} icon={IconFolder}>
             <SelectCategory
               mode="multiple"
               value={formState.categoryIds}
               onValueChange={handleCategorySelect}
               placeholder={t('select-product-categories')}
             />
-          </div>
-          <div className="space-y-2">
-            <Label variant="peer" className="text-sm">
-              {filterLabels.tags}
-            </Label>
+          </PosPanelRow>
+          <PosPanelRow label={filterLabels.tags} icon={IconTag}>
             <ProductTagSelect
               value={formState.tagIds || []}
               onValueChange={(value) => updateField('tagIds', value)}
             />
-          </div>
-          <div className="space-y-2">
-            <Label variant="peer" className="text-sm">
-              {filterLabels.products}
-            </Label>
+          </PosPanelRow>
+          <PosPanelRow label={filterLabels.products} icon={IconPackage}>
             <SelectProduct
               mode="multiple"
               value={formState.productIds}
@@ -192,47 +189,38 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
                 )
               }
             />
-          </div>
+          </PosPanelRow>
         </div>
-        <div className="min-w-0 space-y-4 rounded-lg border p-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <IconCircleMinus className="size-4 text-destructive" />
+        <div className="min-w-0 space-y-0.5">
+          <div className="flex h-7 items-center gap-1.5 px-2 text-xs font-medium">
+            <IconCircleMinus className="size-3.5 text-destructive" />
             {labels.exclude}
           </div>
-          <div className="space-y-2">
-            <Label variant="peer" className="text-sm">
-              {t('exclude-categories')}
-            </Label>
+          <PosPanelRow label={t('exclude-categories')} icon={IconFolder}>
             <SelectCategory
               mode="multiple"
               value={formState.excludedCategoryIds}
               onValueChange={handleExcludeCategorySelect}
               placeholder={t('select-product-categories-to-exclude')}
             />
-          </div>
-          <div className="space-y-2">
-            <Label variant="peer" className="text-sm">
-              {filterLabels.excludeTags}
-            </Label>
+          </PosPanelRow>
+          <PosPanelRow label={filterLabels.excludeTags} icon={IconTag}>
             <ProductTagSelect
               value={formState.excludeTagIds || []}
               onValueChange={(value) => updateField('excludeTagIds', value)}
             />
-          </div>
-          <div className="space-y-2">
-            <Label variant="peer" className="text-sm">
-              {t('exclude-products')}
-            </Label>
+          </PosPanelRow>
+          <PosPanelRow label={t('exclude-products')} icon={IconPackage}>
             <SelectProduct
               mode="multiple"
               value={formState.excludedProductIds}
               onValueChange={handleExcludeProductsChange}
               placeholder={t('select-products-to-exclude')}
             />
-          </div>
+          </PosPanelRow>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="px-2 text-xs text-muted-foreground">
         {filterLabels.description}
       </p>
       {Object.keys(errors).length > 0 && (

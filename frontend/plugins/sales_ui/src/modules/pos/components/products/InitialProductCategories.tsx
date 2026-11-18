@@ -1,4 +1,6 @@
+import { IconFolder } from '@tabler/icons-react';
 import { Form } from 'erxes-ui';
+import { PosFieldRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { type ProductsFormData } from '@/pos/components/products/Products';
@@ -17,20 +19,14 @@ export const InitialProductCategories: React.FC<
       control={control}
       name="initialCategoryIds"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label variant="peer" className="text-sm font-medium">
-            {t('product-categories')}{' '}
-            <span className="text-destructive">*</span>
-          </Form.Label>
-          <Form.Control>
-            <SelectCategory
-              mode="multiple"
-              value={field.value}
-              onValueChange={field.onChange}
-              placeholder={t('select-initial-product-categories')}
-            />
-          </Form.Control>
-        </Form.Item>
+        <PosFieldRow label={t('product-categories')} icon={IconFolder} required>
+          <SelectCategory
+            mode="multiple"
+            value={field.value}
+            onValueChange={field.onChange}
+            placeholder={t('select-initial-product-categories')}
+          />
+        </PosFieldRow>
       )}
     />
   );

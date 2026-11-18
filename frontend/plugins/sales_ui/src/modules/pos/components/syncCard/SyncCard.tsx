@@ -35,7 +35,7 @@ const SyncCard: React.FC<SyncCardProps> = ({ posId }) => {
 
   const openConfig = (configKey?: string) => {
     const draft: CardConfigDraft = { posId, configKey };
-    openNewRecord(POS_CARD_CONFIG_CONTENT_TYPE, { ...draft });
+    openNewRecord(POS_CARD_CONFIG_CONTENT_TYPE, { ...draft }, { stack: true });
   };
 
   const handleDelete = (configId: string) => {

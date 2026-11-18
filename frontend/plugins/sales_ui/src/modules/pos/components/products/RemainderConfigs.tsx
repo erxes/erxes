@@ -1,4 +1,6 @@
+import { IconFolder } from '@tabler/icons-react';
 import { Form } from 'erxes-ui';
+import { PosFieldRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { type ProductsFormData } from '@/pos/components/products/Products';
@@ -45,22 +47,18 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
           control={control}
           name="checkExcludeCategoryIds"
           render={({ field }) => (
-            <Form.Item>
-              <Form.Label variant="peer" className="text-sm font-medium">
-                {t('exclude-categories')}
-              </Form.Label>
-              <Form.Control>
-                <SelectCategory
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  placeholder={t('select-categories-to-exclude')}
-                />
-              </Form.Control>
-              <Form.Description>
-                {labels.checkExcludeDescription}
-              </Form.Description>
-            </Form.Item>
+            <PosFieldRow
+              label={t('exclude-categories')}
+              icon={IconFolder}
+              description={labels.checkExcludeDescription}
+            >
+              <SelectCategory
+                mode="multiple"
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={t('select-categories-to-exclude')}
+              />
+            </PosFieldRow>
           )}
         />
       </PosSwitchRow>

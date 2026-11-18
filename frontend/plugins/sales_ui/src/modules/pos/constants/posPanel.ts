@@ -29,6 +29,11 @@ export const getPosCoverDetailPath = (coverId: string, pathname: string) => {
     : `/sales/pos/covers/${coverId}`;
 };
 
+export const POS_CONTENT_TYPE = 'sales:pos';
+
+export const getPosSettingsPath = (posId: string) =>
+  `/sales/settings/pos/${posId}`;
+
 export const POS_CREATE_CONTENT_TYPE = 'sales:pos.create';
 
 export const POS_CARD_CONFIG_CONTENT_TYPE = 'sales:pos.cardConfig';
@@ -82,6 +87,9 @@ export const getPosEditRecordPage = (slug: string) => {
 };
 
 export const POS_PANEL_INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} focus-visible:shadow-none hover:bg-accent focus-visible:bg-accent`;
+
+export const POS_PANEL_TEXTAREA_CLASS_NAME =
+  'min-h-14 resize-none border-0 text-xs shadow-none focus-visible:shadow-none hover:bg-accent focus-visible:bg-accent';
 
 export const POS_PANEL_FIELDS_CLASS_NAME = [
   '[&_input]:shadow-none',

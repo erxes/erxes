@@ -30,15 +30,13 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { PosEmptyState } from '@/pos/components/PosEmptyState';
+import { useOpenPosSettings } from '@/pos/hooks/useOpenPosSettings';
 import { usePosList } from '@/pos/hooks/usePosList';
 import { usePosRemove } from '@/pos/hooks/usePosRemove';
 
 type PosListItem = ReturnType<typeof usePosList>['posList'][number];
 type PosCellProps = CellContext<PosListItem, unknown>;
-
-const getPosPath = (posId: string) => `/sales/settings/pos/${posId}`;
 
 const PosHead = ({ icon, label }: { icon: Icon; label?: string }) => {
   const { t } = useTranslation('sales');
@@ -48,7 +46,7 @@ const PosHead = ({ icon, label }: { icon: Icon; label?: string }) => {
 
 const PosMoreCell = ({ row }: PosCellProps) => {
   const { t } = useTranslation('sales');
-  const navigate = useNavigate();
+  const openPos = useOpenPosSettings();
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { posRemove, loading } = usePosRemove();
@@ -88,7 +86,10 @@ const PosMoreCell = ({ row }: PosCellProps) => {
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => navigate(getPosPath(_id))}
+              onSelect={() => {
+                setOpen(false);
+                openPos(_id);
+              }}
             >
               <IconEdit /> {t('edit')}
             </Command.Item>
@@ -122,13 +123,11 @@ const PosLogoCell = ({ row }: PosCellProps) => {
 
 const PosNameCell = ({ row }: PosCellProps) => {
   const { t } = useTranslation('sales');
-  const navigate = useNavigate();
+  const openPos = useOpenPosSettings();
 
   return (
     <RecordTableInlineCell>
-      <RecordTableInlineCell.Anchor
-        onClick={() => navigate(getPosPath(row.original._id))}
-      >
+      <RecordTableInlineCell.Anchor onClick={() => openPos(row.original._id)}>
         {row.original.name || t('no-name')}
       </RecordTableInlineCell.Anchor>
     </RecordTableInlineCell>

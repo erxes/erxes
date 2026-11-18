@@ -1,3 +1,4 @@
+import { IconDiscount, IconUsers } from '@tabler/icons-react';
 import { Form, Input } from 'erxes-ui';
 import { type Control } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
@@ -6,6 +7,8 @@ import {
   PosSwitchList,
   PosSwitchRow,
 } from '@/pos/components/pos-edit/PosSwitchRow';
+import { PosFieldRow } from '@/pos/components/pos-edit/PosFieldRow';
+import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
 import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 const toIds = (value: string | string[] | null | undefined): string[] => {
@@ -25,23 +28,18 @@ export const RolePermissions = ({ control, kind }: RolePermissionsProps) => {
   const labels = usePosSettingsLabels();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Form.Field
         control={control}
         name={`${kind}Ids`}
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label variant="peer" className="text-sm font-medium">
-              {labels.members} <span className="text-destructive">*</span>
-            </Form.Label>
-            <Form.Control>
-              <SelectMember
-                value={field.value}
-                onValueChange={(value) => field.onChange(toIds(value))}
-                mode="multiple"
-              />
-            </Form.Control>
-          </Form.Item>
+          <PosFieldRow label={labels.members} icon={IconUsers} required>
+            <SelectMember
+              value={field.value}
+              onValueChange={(value) => field.onChange(toIds(value))}
+              mode="multiple"
+            />
+          </PosFieldRow>
         )}
       />
       <PosSwitchList>
@@ -77,17 +75,17 @@ export const RolePermissions = ({ control, kind }: RolePermissionsProps) => {
             control={control}
             name={`${kind}DirectDiscountLimit`}
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label variant="peer" className="text-sm font-medium">
-                  {labels.directDiscountLimit}
-                </Form.Label>
-                <Form.Control>
-                  <Input type="number" className="max-w-40" {...field} />
-                </Form.Control>
-                <Form.Description>
-                  {labels.directDiscountLimitDescription}
-                </Form.Description>
-              </Form.Item>
+              <PosFieldRow
+                label={labels.directDiscountLimit}
+                icon={IconDiscount}
+                description={labels.directDiscountLimitDescription}
+              >
+                <Input
+                  type="number"
+                  className={POS_PANEL_INPUT_CLASS_NAME}
+                  {...field}
+                />
+              </PosFieldRow>
             )}
           />
         </PosSwitchRow>

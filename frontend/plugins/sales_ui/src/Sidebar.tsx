@@ -1,7 +1,6 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { SalesSettingsNavigation } from '@/SalesSettingsNavigation';
 import { BoardsSettingsNavigation } from '@/deals/boards/components/settings/BoardsSettingsNavigation';
-import { PosSettingsTabs } from '@/pos/components/PosSettingsTabs';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
@@ -68,7 +67,6 @@ export const SalesSettingsLayout = ({ children }: { children: ReactNode }) => {
             pathPrefix="sales/settings"
           />
           <BoardsSettingsNavigation />
-          <PosSettingsTabs />
         </>
       }
     >

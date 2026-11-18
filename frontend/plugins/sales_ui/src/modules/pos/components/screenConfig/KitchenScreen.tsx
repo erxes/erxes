@@ -1,5 +1,8 @@
+import { IconClock, IconEye, IconRefresh } from '@tabler/icons-react';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
+import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
 import { Control, Controller, useWatch } from 'react-hook-form';
-import { Input, Label, Select } from 'erxes-ui';
+import { Input, Select } from 'erxes-ui';
 import type { ScreenConfigFormData } from './ScreenConfig';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,8 +14,6 @@ import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 interface KitchenScreenProps {
   control: Control<ScreenConfigFormData>;
 }
-
-const FIELD_LABEL_CLASS_NAME = 'text-sm font-medium';
 
 export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
   const { t } = useTranslation('sales');
@@ -36,15 +37,12 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
         label={t('kitchen-screen')}
         description={labels.kitchenScreenDescription}
       >
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1">
           <Controller
             name="kitchenShowType"
             control={control}
             render={({ field }) => (
-              <div className="min-w-0 space-y-2">
-                <Label variant="peer" className={FIELD_LABEL_CLASS_NAME}>
-                  {labels.showTypes}
-                </Label>
+              <PosPanelRow label={labels.showTypes} icon={IconEye}>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
@@ -57,17 +55,14 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
                     ))}
                   </Select.Content>
                 </Select>
-              </div>
+              </PosPanelRow>
             )}
           />
           <Controller
             name="kitchenType"
             control={control}
             render={({ field }) => (
-              <div className="min-w-0 space-y-2">
-                <Label variant="peer" className={FIELD_LABEL_CLASS_NAME}>
-                  {labels.statusChange}
-                </Label>
+              <PosPanelRow label={labels.statusChange} icon={IconRefresh}>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
@@ -80,7 +75,7 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
                     ))}
                   </Select.Content>
                 </Select>
-              </div>
+              </PosPanelRow>
             )}
           />
           {kitchenType === 'time' && (
@@ -88,17 +83,15 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
               name="kitchenValue"
               control={control}
               render={({ field }) => (
-                <div className="min-w-0 space-y-2">
-                  <Label variant="peer" className={FIELD_LABEL_CLASS_NAME}>
-                    {labels.timeMinute}
-                  </Label>
+                <PosPanelRow label={labels.timeMinute} icon={IconClock}>
                   <Input
+                    className={POS_PANEL_INPUT_CLASS_NAME}
                     type="number"
                     {...field}
                     value={field.value || ''}
                     placeholder={t('enter-time-in-minutes')}
                   />
-                </div>
+                </PosPanelRow>
               )}
             />
           )}

@@ -1,11 +1,21 @@
 import {
+  IconAffiliate,
   IconBrandMastercard,
   IconBrandVisa,
   IconBuilding,
   IconCashBanknote,
   IconCreditCard,
+  IconDeviceDesktop,
   IconFile,
+  IconInfoCircle,
+  IconLayoutGrid,
+  IconPackage,
+  IconPalette,
   IconPhone,
+  IconRefresh,
+  IconShieldLock,
+  IconTruckDelivery,
+  IconUserPlus,
 } from '@tabler/icons-react';
 
 export type AllowedPosType =
@@ -45,22 +55,75 @@ export const options = [
   { value: 'debtBarterAmount', label: 'Бартер данс' },
 ];
 
-// Tabs other plugins add (`relationSettingsWidgets`) are keyed under this.
 export const POS_RELATION_TAB_PREFIX = 'relation.';
 
-export const getSteps = () => [
-  { value: 'properties', title: 'general-information' },
-  { value: 'permission', title: 'permission' },
-  { value: 'customer', title: 'customer-registration' },
-  { value: 'product', title: 'product-and-service' },
-  { value: 'payments', title: 'payments' },
-  { value: 'delivery', title: 'delivery' },
-  { value: 'sync', title: 'sync-card' },
-  { value: 'slots', title: 'slots' },
-  { value: 'appearance', title: 'brand-color-and-logo' },
-  { value: 'screen', title: 'screen' },
-  { value: 'automations', title: 'pos-automations' },
-];
+export const POS_SETTINGS_TABS = [
+  {
+    value: 'properties',
+    label: 'General Information',
+    labelKey: 'general-information',
+    icon: IconInfoCircle,
+  },
+  {
+    value: 'permission',
+    label: 'Permission',
+    labelKey: 'permission',
+    icon: IconShieldLock,
+  },
+  {
+    value: 'customer',
+    label: 'Customer registration',
+    labelKey: 'customer-registration',
+    icon: IconUserPlus,
+  },
+  {
+    value: 'product',
+    label: 'Product & Service',
+    labelKey: 'product-and-service',
+    icon: IconPackage,
+  },
+  {
+    value: 'payments',
+    label: 'Payments',
+    labelKey: 'payments',
+    icon: IconCreditCard,
+  },
+  {
+    value: 'delivery',
+    label: 'Delivery',
+    labelKey: 'delivery',
+    icon: IconTruckDelivery,
+  },
+  {
+    value: 'sync',
+    label: 'Sync Card',
+    labelKey: 'sync-card',
+    icon: IconRefresh,
+  },
+  { value: 'slots', label: 'Slots', labelKey: 'slots', icon: IconLayoutGrid },
+  {
+    value: 'appearance',
+    label: 'Brand Color & Logo',
+    labelKey: 'brand-color-and-logo',
+    icon: IconPalette,
+  },
+  {
+    value: 'screen',
+    label: 'Screen',
+    labelKey: 'screen',
+    icon: IconDeviceDesktop,
+  },
+  {
+    value: 'automations',
+    label: 'Automations',
+    labelKey: 'pos-automations',
+    icon: IconAffiliate,
+  },
+] as const;
+
+export type TPosSettingsTab = (typeof POS_SETTINGS_TABS)[number]['value'];
+
+export const POS_GENERAL_TAB: TPosSettingsTab = 'properties';
 
 interface PaymentIconProps {
   iconType: string;

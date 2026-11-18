@@ -151,9 +151,11 @@ export const CustomerCreate = ({
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      openNewRecord(POS_CUSTOMER_FIELD_CONTENT_TYPE, {
-                        posId,
-                      })
+                      openNewRecord(
+                        POS_CUSTOMER_FIELD_CONTENT_TYPE,
+                        { posId },
+                        { stack: true },
+                      )
                     }
                   >
                     <IconPlus />
@@ -166,10 +168,11 @@ export const CustomerCreate = ({
                   size="sm"
                   disabled={!layout.length}
                   onClick={() =>
-                    openNewRecord(POS_CUSTOMER_LAYOUT_CONTENT_TYPE, {
-                      posId,
-                      layout,
-                    })
+                    openNewRecord(
+                      POS_CUSTOMER_LAYOUT_CONTENT_TYPE,
+                      { posId, layout },
+                      { stack: true },
+                    )
                   }
                 >
                   <IconLayoutRows />
@@ -183,12 +186,20 @@ export const CustomerCreate = ({
               name="layout"
               render={() => (
                 <Form.Item>
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-0.5 @2xl:grid-cols-3">
                     {options.map((option) => (
                       <div
                         key={option.code}
-                        className="flex gap-2 items-center px-3 py-2.5 rounded-lg border"
+                        className="flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent/50"
                       >
+                        <span className="min-w-0 flex-1 truncate text-xs font-medium">
+                          {option.name}
+                        </span>
+                        {option.isProperty && (
+                          <span className="text-xs text-muted-foreground">
+                            {t('property', 'Property')}
+                          </span>
+                        )}
                         <Switch
                           checked={placed.has(option.code)}
                           disabled={isLocked(option.code)}
@@ -196,12 +207,6 @@ export const CustomerCreate = ({
                             toggleField(option.code, checked)
                           }
                         />
-                        <span className="text-sm truncate">{option.name}</span>
-                        {option.isProperty && (
-                          <span className="ml-auto text-xs text-muted-foreground">
-                            {t('property', 'Property')}
-                          </span>
-                        )}
                       </div>
                     ))}
                   </div>

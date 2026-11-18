@@ -20,11 +20,7 @@ export const PosSwitchList = ({
 }: {
   className?: string;
   children: ReactNode;
-}) => (
-  <div className={cn('divide-y rounded-lg border bg-background', className)}>
-    {children}
-  </div>
-);
+}) => <div className={cn('flex flex-col gap-0.5', className)}>{children}</div>;
 
 export const PosSwitchRow = <T extends FieldValues>({
   control,
@@ -38,9 +34,9 @@ export const PosSwitchRow = <T extends FieldValues>({
     name={name}
     render={({ field }) => (
       <div>
-        <Form.Item className="flex items-center justify-between gap-4 space-y-0 p-4">
-          <div className="space-y-1">
-            <Form.Label variant="peer" className="text-sm font-medium">
+        <Form.Item className="flex items-center justify-between gap-4 space-y-0 rounded-md px-2 py-2 hover:bg-accent/50">
+          <div className="min-w-0 space-y-0.5">
+            <Form.Label variant="peer" className="text-xs font-medium">
               {label}
             </Form.Label>
             {description && <Form.Description>{description}</Form.Description>}
@@ -50,7 +46,7 @@ export const PosSwitchRow = <T extends FieldValues>({
           </Form.Control>
         </Form.Item>
         {!!field.value && children && (
-          <div className="space-y-4 border-t bg-muted/30 p-4 animate-in fade-in-0 slide-in-from-top-1 duration-200">
+          <div className="mx-2 mb-2 space-y-3 rounded-md bg-muted/50 p-3 animate-in fade-in-0 slide-in-from-top-1 duration-200">
             {children}
           </div>
         )}

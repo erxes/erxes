@@ -166,7 +166,7 @@ const Appearance: React.FC<AppearanceProps> = ({
     if (detailLoading) {
       return (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-4">
             {[1, 2, 3, 4, 5, 6, 7].map((i) => (
               <div key={i} className="space-y-2">
                 <div className="w-20 h-4 rounded animate-pulse bg-muted" />

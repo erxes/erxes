@@ -1,4 +1,10 @@
-import { Form, Input } from 'erxes-ui';
+import { IconPackage, IconPercentage } from '@tabler/icons-react';
+import { cn, Form, Input } from 'erxes-ui';
+import {
+  PosFieldList,
+  PosFieldRow,
+} from '@/pos/components/pos-edit/PosFieldRow';
+import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
 import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
@@ -30,16 +36,17 @@ const normalizeServiceCharge = (value: string) => {
 export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
   const { t } = useTranslation('sales');
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <PosFieldList>
       <Form.Field
         control={control}
         name="serviceCharge"
         render={({ field }) => (
-          <Form.Item className="min-w-0">
-            <Form.Label variant="peer" className="text-sm font-medium">
-              {t('service-charge-percent')}
-            </Form.Label>
-            <div className="relative">
+          <PosFieldRow
+            label={t('service-charge-percent')}
+            icon={IconPercentage}
+            asControl={false}
+          >
+            <div className="relative max-w-40">
               <Form.Control>
                 <Input
                   type="number"
@@ -47,7 +54,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
                   max={100}
                   step={0.01}
                   value={field.value}
-                  className="pr-8 w-full"
+                  className={cn(POS_PANEL_INPUT_CLASS_NAME, 'w-full pr-8')}
                   placeholder="0 - 100"
                   onChange={(event) => {
                     const nextValue = normalizeServiceCharge(
@@ -60,11 +67,11 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
                   }}
                 />
               </Form.Control>
-              <span className="absolute right-3 top-1/2 text-sm -translate-y-1/2 text-muted-foreground">
+              <span className="absolute right-3 top-1/2 text-xs -translate-y-1/2 text-muted-foreground">
                 %
               </span>
             </div>
-          </Form.Item>
+          </PosFieldRow>
         )}
       />
 
@@ -72,27 +79,22 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         control={control}
         name="serviceChargeApplicableProductId"
         render={({ field }) => (
-          <Form.Item className="min-w-0">
-            <Form.Label variant="peer" className="text-sm font-medium">
-              {t('applicable-products')}
-            </Form.Label>
-            <Form.Control>
-              <SelectProduct
-                mode="single"
-                value={field.value}
-                onValueChange={(value) => {
-                  const nextValue = Array.isArray(value)
-                    ? value.at(0) ?? ''
-                    : value ?? '';
+          <PosFieldRow label={t('applicable-products')} icon={IconPackage}>
+            <SelectProduct
+              mode="single"
+              value={field.value}
+              onValueChange={(value) => {
+                const nextValue = Array.isArray(value)
+                  ? value.at(0) ?? ''
+                  : value ?? '';
 
-                  field.onChange(nextValue);
-                }}
-                placeholder={t('select-products-to-apply-service-charge')}
-              />
-            </Form.Control>
-          </Form.Item>
+                field.onChange(nextValue);
+              }}
+              placeholder={t('select-products-to-apply-service-charge')}
+            />
+          </PosFieldRow>
         )}
       />
-    </div>
+    </PosFieldList>
   );
 };

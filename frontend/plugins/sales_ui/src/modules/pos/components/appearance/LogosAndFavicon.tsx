@@ -68,7 +68,7 @@ const ImageUploadField = ({
       control={control}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label variant="peer" className="text-sm font-medium">
+          <Form.Label variant="peer" className="text-xs font-medium">
             {t(label)}
           </Form.Label>
           <Form.Control>
@@ -164,7 +164,7 @@ export const LogosAndFavicon: React.FC<LogosAndFaviconProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-4">
         {imageFields.map((configField) => (
           <ImageUploadField
             key={configField.key}

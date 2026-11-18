@@ -1,4 +1,18 @@
 import {
+  IconAlignLeft,
+  IconBuilding,
+  IconBuildingStore,
+  IconCashRegister,
+  IconHierarchy2,
+  IconListCheck,
+  IconLock,
+  IconNumber,
+  IconPlayerSkipForward,
+  IconServer,
+  IconTag,
+  IconWorld,
+} from '@tabler/icons-react';
+import {
   Input,
   Form,
   Checkbox,
@@ -9,6 +23,11 @@ import {
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { Control } from 'react-hook-form';
 import { ALLOW_TYPES } from '@/pos/constants';
+import {
+  POS_PANEL_INPUT_CLASS_NAME,
+  POS_PANEL_TEXTAREA_CLASS_NAME,
+} from '@/pos/constants/posPanel';
+import { PosFieldRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { useTranslation } from 'react-i18next';
 
 export interface FormData {
@@ -39,12 +58,14 @@ export const NameField = ({ control }: FieldProps) => {
       control={control}
       name="name"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('name')}</Form.Label>
-          <Form.Control>
-            <Input type="text" placeholder={t('pos-name-placeholder')} {...field} />
-          </Form.Control>
-        </Form.Item>
+        <PosFieldRow label={t('name')} icon={IconCashRegister}>
+          <Input
+            type="text"
+            placeholder={t('pos-name-placeholder')}
+            className={POS_PANEL_INPUT_CLASS_NAME}
+            {...field}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -57,12 +78,14 @@ export const DescriptionField = ({ control }: FieldProps) => {
       control={control}
       name="description"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('description')}</Form.Label>
-          <Form.Control>
-            <Textarea placeholder={t('description')} {...field} />
-          </Form.Control>
-        </Form.Item>
+        <PosFieldRow label={t('description')} icon={IconAlignLeft}>
+          <Textarea
+            placeholder={t('description')}
+            rows={3}
+            className={POS_PANEL_TEXTAREA_CLASS_NAME}
+            {...field}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -75,12 +98,14 @@ export const MaxSkipNumberField = ({ control }: FieldProps) => {
       control={control}
       name="maxSkipNumber"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('max-skip-number')}</Form.Label>
-          <Form.Control>
-            <Input type="number" placeholder={t('max-skip-number')} {...field} />
-          </Form.Control>
-        </Form.Item>
+        <PosFieldRow label={t('max-skip-number')} icon={IconPlayerSkipForward}>
+          <Input
+            type="number"
+            placeholder={t('max-skip-number')}
+            className={POS_PANEL_INPUT_CLASS_NAME}
+            {...field}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -93,12 +118,14 @@ export const OrderPasswordField = ({ control }: FieldProps) => {
       control={control}
       name="orderPassword"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('order-password')}</Form.Label>
-          <Form.Control>
-            <Input type="text" placeholder={t('order-password')} {...field} />
-          </Form.Control>
-        </Form.Item>
+        <PosFieldRow label={t('order-password')} icon={IconLock}>
+          <Input
+            type="text"
+            placeholder={t('order-password')}
+            className={POS_PANEL_INPUT_CLASS_NAME}
+            {...field}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -111,17 +138,13 @@ export const BranchField = ({ control }: FieldProps) => {
       control={control}
       name="branchId"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('branch')}</Form.Label>
-          <Form.Control>
-            <SelectBranches.FormItem
-              mode="single"
-              value={field.value ?? ''}
-              onValueChange={(branch) => field.onChange(branch)}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('branch')} icon={IconBuilding}>
+          <SelectBranches.FormItem
+            mode="single"
+            value={field.value ?? ''}
+            onValueChange={(branch) => field.onChange(branch)}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -134,17 +157,13 @@ export const DepartmentField = ({ control }: FieldProps) => {
       control={control}
       name="departmentId"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('department')}</Form.Label>
-          <Form.Control>
-            <SelectDepartments.FormItem
-              mode="single"
-              value={field.value ?? ''}
-              onValueChange={(department) => field.onChange(department)}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('department')} icon={IconHierarchy2}>
+          <SelectDepartments.FormItem
+            mode="single"
+            value={field.value ?? ''}
+            onValueChange={(department) => field.onChange(department)}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -157,17 +176,13 @@ export const BrandField = ({ control }: FieldProps) => {
       control={control}
       name="brandId"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('brand')}</Form.Label>
-          <Form.Control>
-            <SelectBrand.FormItem
-              mode="single"
-              value={field.value ?? ''}
-              onValueChange={(brand) => field.onChange(brand)}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('brand')} icon={IconTag}>
+          <SelectBrand.FormItem
+            mode="single"
+            value={field.value ?? ''}
+            onValueChange={(brand) => field.onChange(brand)}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -180,15 +195,9 @@ export const OnServerField = ({ control }: FieldProps) => {
       control={control}
       name="onServer"
       render={({ field }) => (
-        <Form.Item>
-          <div className="flex items-center pt-6 space-x-2">
-            <Form.Control>
-              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-            </Form.Control>
-            <Form.Label>{t('on-server')}</Form.Label>
-          </div>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('on-server')} icon={IconServer}>
+          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+        </PosFieldRow>
       )}
     />
   );
@@ -201,9 +210,9 @@ export const IsOnlineField = ({ control }: FieldProps) => {
       control={control}
       name="isOnline"
       render={({ field }) => (
-        <Form.Item className="flex items-center justify-between gap-6 space-y-0">
-          <div className="space-y-1">
-            <Form.Label variant="peer" className="text-sm font-medium">
+        <Form.Item className="flex items-center justify-between gap-4 space-y-0 rounded-md px-2 py-2 hover:bg-accent/50">
+          <div className="min-w-0 space-y-0.5">
+            <Form.Label variant="peer" className="text-xs font-medium">
               {t('online-pos', 'Online POS')}
             </Form.Label>
             <Form.Description>
@@ -234,20 +243,17 @@ export const AllowBranchesField = ({ control }: FieldProps) => {
       control={control}
       name="allowBranchIds"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('allow-branches')}</Form.Label>
-          <Form.Description>
-            {t('allow-branches-description')}
-          </Form.Description>
-          <Form.Control>
-            <SelectBranches.FormItem
-              mode="multiple"
-              value={field.value ?? []}
-              onValueChange={(branches) => field.onChange(branches)}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow
+          label={t('allow-branches')}
+          icon={IconBuildingStore}
+          description={t('allow-branches-description')}
+        >
+          <SelectBranches.FormItem
+            mode="multiple"
+            value={field.value ?? []}
+            onValueChange={(branches) => field.onChange(branches)}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -260,13 +266,14 @@ export const PosDomainField = ({ control }: FieldProps) => {
       control={control}
       name="pdomain"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('pos-domain')}</Form.Label>
-          <Form.Control>
-            <Input type="text" placeholder={t('pos-domain')} {...field} />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('pos-domain')} icon={IconWorld}>
+          <Input
+            type="text"
+            placeholder={t('pos-domain')}
+            className={POS_PANEL_INPUT_CLASS_NAME}
+            {...field}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -279,13 +286,14 @@ export const BeginNumberField = ({ control }: FieldProps) => {
       control={control}
       name="beginNumber"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('begin-number')}</Form.Label>
-          <Form.Control>
-            <Input type="number" placeholder={t('begin-number')} {...field} />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('begin-number')} icon={IconNumber}>
+          <Input
+            type="number"
+            placeholder={t('begin-number')}
+            className={POS_PANEL_INPUT_CLASS_NAME}
+            {...field}
+          />
+        </PosFieldRow>
       )}
     />
   );
@@ -298,25 +306,21 @@ export const AllowTypesField = ({ control }: FieldProps) => {
       control={control}
       name="allowTypes"
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('allow-types')}</Form.Label>
-          <Form.Control>
-            <MultipleSelector
-              value={field.value?.map((v: string) => ({
-                value: v,
-                label: ALLOW_TYPES.find((at) => at.value === v)?.label || v,
-              }))}
-              onChange={(options) => field.onChange(options.map((o) => o.value))}
-              defaultOptions={ALLOW_TYPES.map((at) => ({
-                value: at.value,
-                label: at.label,
-              }))}
-              placeholder={t('select-allow-types')}
-              hidePlaceholderWhenSelected
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+        <PosFieldRow label={t('allow-types')} icon={IconListCheck}>
+          <MultipleSelector
+            value={field.value?.map((v: string) => ({
+              value: v,
+              label: ALLOW_TYPES.find((at) => at.value === v)?.label || v,
+            }))}
+            onChange={(options) => field.onChange(options.map((o) => o.value))}
+            defaultOptions={ALLOW_TYPES.map((at) => ({
+              value: at.value,
+              label: at.label,
+            }))}
+            placeholder={t('select-allow-types')}
+            hidePlaceholderWhenSelected
+          />
+        </PosFieldRow>
       )}
     />
   );

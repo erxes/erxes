@@ -19,6 +19,7 @@ import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
 import {
   POS_CARD_CONFIG_CONTENT_TYPE,
   POS_CATEGORY_MAPPING_CONTENT_TYPE,
+  POS_CONTENT_TYPE,
   POS_COVER_CONTENT_TYPE,
   POS_CREATE_CONTENT_TYPE,
   POS_CUSTOMER_FIELD_CONTENT_TYPE,
@@ -27,7 +28,9 @@ import {
   getPosCoverDetailPath,
   getPosEditRecordPath,
   getPosOrderDetailPath,
+  getPosSettingsPath,
 } from '@/pos/constants/posPanel';
+import { POS_GENERAL_TAB, POS_SETTINGS_TABS } from '@/pos/constants';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { DEAL_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/dealContactConnection';
 
@@ -195,6 +198,14 @@ export const CONFIG: IUIConfig = {
         contentType: POS_COVER_CONTENT_TYPE,
         properties: false,
         detailPath: getPosCoverDetailPath,
+      },
+      {
+        contentType: POS_CONTENT_TYPE,
+        properties: false,
+        detailPath: getPosSettingsPath,
+        tabs: POS_SETTINGS_TABS.filter(
+          (tab) => tab.value !== POS_GENERAL_TAB,
+        ).map((tab) => ({ ...tab, after: 'detail' as const })),
       },
       {
         contentType: POS_CREATE_CONTENT_TYPE,
