@@ -47,7 +47,7 @@ export const SyncLinkCell = ({
   renderVal,
 }: {
   row: Row<IConfig>;
-  renderVal: string;
+  renderVal?: string;
 }) => {
   const { openDetail } = useSettingsPanel(
     getSyncConfigContentType(row.original.code),

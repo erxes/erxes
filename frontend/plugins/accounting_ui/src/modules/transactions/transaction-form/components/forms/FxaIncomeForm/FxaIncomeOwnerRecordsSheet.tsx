@@ -269,9 +269,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 />
               )}
             />
-            <Label htmlFor={taxToggleId}>
-              {t('tax-calculation', { defaultValue: 'Татварын тооцоо' })}
-            </Label>
+            <Label htmlFor={taxToggleId}>{t('tax-calculation')}</Label>
           </div>
           {detail && (
             <div className="grid grid-cols-3 gap-4 mb-4">

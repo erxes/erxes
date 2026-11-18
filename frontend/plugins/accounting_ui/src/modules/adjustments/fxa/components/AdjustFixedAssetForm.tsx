@@ -25,6 +25,7 @@ export const AddAdjustFixedAsset = () => {
     <SettingsPanelAddButton
       contentType={ADJUST_FIXED_ASSET_CONTENT_TYPE}
       label={t('add-fixed-asset-adjustment')}
+      permission="manageAdjustFixedAssets"
     />
   );
 };

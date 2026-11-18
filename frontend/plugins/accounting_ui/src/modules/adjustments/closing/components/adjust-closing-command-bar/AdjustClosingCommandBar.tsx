@@ -3,7 +3,7 @@ import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, useToast } from 'erxes-ui';
 import { IAdjustClosing } from '../../types/AdjustClosing';
 import { AdjustClosingDelete } from './AdjustClosingDelete';
-import { ApolloError } from '@apollo/client';
+import { ApolloCache, ApolloError } from '@apollo/client';
 import { TagsSelect } from 'ui-modules';
 
 const intersection = (arrays: string[][]): string[] => {
@@ -19,7 +19,7 @@ const buildTagSelectOptions = (
   newSelectedTagIds: string[],
   toast: ReturnType<typeof useToast>['toast'],
 ) => ({
-  update: (cache: any) => {
+  update: (cache: ApolloCache<unknown>) => {
     adjustClosingIds.forEach((id) => {
       cache.modify({
         id: cache.identify({ __typename: 'AdjustClosing', _id: id }),

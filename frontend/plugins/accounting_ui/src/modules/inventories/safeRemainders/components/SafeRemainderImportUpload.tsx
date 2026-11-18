@@ -35,10 +35,7 @@ export const SafeRemainderImportUpload = ({
     >
       <p className="text-sm text-muted-foreground">
         {format === 'csv'
-          ? t('safe-import-upload-description', {
-              defaultValue:
-                'Загварыг бөглөөд CSV файлаа энд чирж оруулах эсвэл сонгоно уу. Дараа нь багануудыг тааруулна.',
-            })
+          ? t('safe-import-upload-description')
           : t(
               'headerless-code-count-rows-the-system-retrieves-the-recorded-total-cost',
             )}

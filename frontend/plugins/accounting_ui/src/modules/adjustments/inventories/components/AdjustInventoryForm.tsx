@@ -23,6 +23,7 @@ export const AddAdjustInventory = () => {
     <SettingsPanelAddButton
       contentType={ADJUST_INVENTORY_CONTENT_TYPE}
       label={t('add-inventory-adjustment')}
+      permission="manageAdjustInventories"
     />
   );
 };

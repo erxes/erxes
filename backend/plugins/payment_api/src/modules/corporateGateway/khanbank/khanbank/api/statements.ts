@@ -1,5 +1,62 @@
 import { formatDate } from '../utils';
+import { KhanbankStatementLine, toStatementLines } from '../types';
 import { BaseApi } from './base';
+
+// statement lines requested per page while matching, and a hard stop so a
+// misbehaving response cannot loop forever
+const STATEMENT_PAGE_SIZE = 100;
+const STATEMENT_MAX_PAGES = 50;
+
+// YYYY-MM-DD in Ulaanbaatar time, the bank's statement day
+const toUBDate = (date: Date) =>
+  date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ulaanbaatar' });
+
+// "1000 — Installment 1" / "1000-installment1" -> ["1000", "installment", "1"]
+const tokenize = (text?: string) =>
+  (text || '')
+    .toLowerCase()
+    .replace(/([a-zа-яөү])(\d)|(\d)([a-zа-яөү])/gi, '$1$3 $2$4')
+    .split(/[^a-z0-9а-яөү]+/i)
+    .filter(Boolean);
+
+// The bank appends the sender to incoming transfers, e.g.
+// "261117110740 - Deposit ХААНААС: 320000 <sender name>" (paying bank,
+// 6-digit bank code, sender). Everything from that marker on is metadata and
+// must not supply words of the invoice reference.
+const SENDER_SUFFIX = /\s*[^\s:]+:\s*\d{6}(?:\s.*)?$/u;
+
+const stripSender = (description?: string) =>
+  (description || '').replace(SENDER_SUFFIX, '');
+
+// true when `expected` appears in `words` as one unbroken run, in order;
+// a bank prefix such as "EB-" before it is allowed
+const containsSequence = (words: string[], expected: string[]) => {
+  for (let start = 0; start + expected.length <= words.length; start++) {
+    if (expected.every((word, offset) => words[start + offset] === word)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+// tranDate "2026-11-17" + time "11393704" (hhmmssss) -> Date, Ulaanbaatar time
+export const statementTime = (
+  item: KhanbankStatementLine,
+): Date | undefined => {
+  const day = item?.tranDate || item?.postDate;
+  const time = String(item?.time || '').padStart(8, '0');
+
+  if (!day) {
+    return undefined;
+  }
+
+  const date = new Date(
+    `${day}T${time.slice(0, 2)}:${time.slice(2, 4)}:${time.slice(4, 6)}+08:00`,
+  );
+
+  return isNaN(date.getTime()) ? undefined : date;
+};
 
 export class StatementsApi extends BaseApi {
   public params;
@@ -82,24 +139,118 @@ export class StatementsApi extends BaseApi {
       throw new Error(e.message);
     }
   }
-  async findTransaction({ accountNumber, amount, description, record }) {
-    const response = await this.list({
-      accountNumber,
-      record,
-    });
+  /**
+   * Every statement line from `startDate` to `endDate`, all pages.
+   */
+  async listAll(args: {
+    accountNumber: string;
+    startDate: string;
+    endDate: string;
+  }): Promise<KhanbankStatementLine[]> {
+    const lines: KhanbankStatementLine[] = [];
 
-    const statements = response.content ?? response.transactions ?? response;
+    for (let page = 1; page <= STATEMENT_MAX_PAGES; page++) {
+      const response: unknown = await this.list({
+        ...args,
+        page,
+        perPage: STATEMENT_PAGE_SIZE,
+      });
 
-    const expectedDescription = description?.trim();
+      const pageLines = toStatementLines(response);
 
-    const matchedTransaction = statements.find((item: any) => {
-      const statementDescription = item.description?.trim();
+      lines.push(...pageLines);
 
-      return (
-        Number(item.amount) === Number(amount) &&
-        statementDescription?.startsWith(expectedDescription)
-      );
-    });
-    return matchedTransaction;
+      if (pageLines.length < STATEMENT_PAGE_SIZE) {
+        return lines;
+      }
+    }
+
+    throw new Error(
+      `Khanbank statement for ${args.accountNumber} has more than ${
+        STATEMENT_PAGE_SIZE * STATEMENT_MAX_PAGES
+      } lines in range`,
+    );
+  }
+
+  /**
+   * Incoming statement lines that match an invoice: same amount, every word
+   * of the invoice description present as a whole word, and (when `since` is
+   * given) made at or after `since`. Oldest first.
+   *
+   * Words are compared lowercased and with punctuation removed, because the
+   * description that reaches the statement can lose characters such as "—".
+   * The sender text the bank appends ("ХААНААС: 320000 <sender>") is cut off
+   * first, and the invoice words must appear in order without gaps.
+   */
+  async findTransactions({
+    accountNumber,
+    amount,
+    description,
+    since,
+    record,
+  }: {
+    accountNumber: string;
+    amount: number;
+    description?: string;
+    since?: Date;
+    record?: number;
+  }): Promise<KhanbankStatementLine[]> {
+    const expected = tokenize(description);
+
+    if (!expected.length) {
+      return [];
+    }
+
+    const today = toUBDate(new Date());
+
+    const statements = record
+      ? toStatementLines(await this.list({ accountNumber, record }))
+      : await this.listAll({
+          accountNumber,
+          startDate: since ? toUBDate(since) : today,
+          endDate: today,
+        });
+
+    const withTime = statements.map((line) => ({
+      line,
+      madeAt: statementTime(line),
+    }));
+
+    return withTime
+      .filter(({ line, madeAt }) => {
+        if (line.amount !== Number(amount)) {
+          return false;
+        }
+
+        // with a cutoff, a line whose time cannot be read cannot be shown
+        // to be newer than the invoice, so it is not matched
+        if (since && (!madeAt || madeAt < since)) {
+          return false;
+        }
+
+        // the invoice words, in order and unbroken, in the part of the
+        // description before the appended sender; whole words, so
+        // "installment 1" does not match "installment 10"
+        return containsSequence(
+          tokenize(stripSender(line.description)),
+          expected,
+        );
+      })
+      .sort(
+        (a, b) => (a.madeAt?.getTime() ?? 0) - (b.madeAt?.getTime() ?? 0),
+      )
+      .map(({ line }) => line);
+  }
+
+  async findTransaction(args: {
+    accountNumber: string;
+    amount: number;
+    description?: string;
+    since?: Date;
+    record?: number;
+  }): Promise<KhanbankStatementLine | undefined> {
+    const [first] = await this.findTransactions(args);
+
+    return first;
   }
 }

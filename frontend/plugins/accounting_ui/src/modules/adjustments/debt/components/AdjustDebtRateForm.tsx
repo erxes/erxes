@@ -30,6 +30,7 @@ export const AddAdjustDebtRate = () => {
     <SettingsPanelAddButton
       contentType={ADJUST_DEBT_RATE_CONTENT_TYPE}
       label={t('Add Debt Rate Adjustment')}
+      permission="manageAdjustDebtRates"
     />
   );
 };

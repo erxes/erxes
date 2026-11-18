@@ -9,7 +9,7 @@ export const useMainUpdateConfigs = () => {
     ACCOUNTINGS_MAIN_CONFIGS_UPDATE,
   );
 
-  const updateConfigs = (configsMap: Record<string, any>) => {
+  const updateConfigs = (configsMap: Record<string, unknown>) => {
     return updateConfig({
       variables: { configsMap },
       refetchQueries: ['accountingsConfig'],

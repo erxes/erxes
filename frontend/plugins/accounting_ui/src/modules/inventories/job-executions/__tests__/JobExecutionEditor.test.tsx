@@ -9,32 +9,40 @@ import { useMutation } from '@apollo/client';
 import type { ReactElement, ReactNode } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { usePermissionCheck } from 'ui-modules';
-import { toast, useConfirm } from 'erxes-ui';
-import { SAVE_EXECUTION, UNDO_EXECUTION } from '../graphql';
+import { toast } from 'erxes-ui';
+import {
+  SAVE_EXECUTION,
+  UNDO_EXECUTION,
+} from '@/inventories/job-executions/graphql';
 import { TJobForm } from '@/settings/jobs/types/Job';
-import { JobExecutionEditor } from '../JobExecutionEditor';
-import { JobExecution } from '../types';
+import { JOB_EXECUTION_PANEL } from '@/inventories/job-executions/JobExecutionEditor';
+import { JobExecution } from '@/inventories/job-executions/types';
+
+const mockClosePanel = jest.fn();
+const mockCancelDraft = jest.fn();
+const mockRefetchQueries = jest.fn();
+const mockConfirm = jest.fn();
+let mockDetail: JobExecution | undefined;
+let mockDetailLoading = false;
+let mockDetailError: Error | undefined;
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock('@apollo/client', () => ({
   useMutation: jest.fn(),
-  useApolloClient: () => ({ refetchQueries: jest.fn().mockResolvedValue([]) }),
+  useApolloClient: () => ({ refetchQueries: mockRefetchQueries }),
 }));
 jest.mock('erxes-ui', () => {
   const { FormProvider, Controller } =
     jest.requireActual<typeof import('react-hook-form')>('react-hook-form');
   const { Fragment, createContext, useContext, cloneElement } =
     jest.requireActual<typeof import('react')>('react');
-  const SheetContext = createContext<{
+  const CollapsibleContext = createContext<{
     open: boolean;
     onOpenChange: (open: boolean) => void;
-  }>({
-    open: false,
-    onOpenChange: () => undefined,
-  });
-  const SheetRoot = ({
+  }>({ open: false, onOpenChange: () => undefined });
+  const CollapsibleRoot = ({
     children,
     open,
     onOpenChange,
@@ -43,12 +51,11 @@ jest.mock('erxes-ui', () => {
     open: boolean;
     onOpenChange: (open: boolean) => void;
   }) => (
-    <SheetContext.Provider value={{ open, onOpenChange }}>
-      {children}
-    </SheetContext.Provider>
+    <CollapsibleContext.Provider value={{ open, onOpenChange }}>
+      <div>{children}</div>
+    </CollapsibleContext.Provider>
   );
   return {
-    cn: (...classes: string[]) => classes.join(' '),
     Form: Object.assign(FormProvider, {
       Field: Controller,
       Item: 'div',
@@ -75,18 +82,6 @@ jest.mock('erxes-ui', () => {
         }
       />
     ),
-    Separator: 'hr',
-    Table: Object.assign(
-      ({ children }: { children: ReactNode }) => <table>{children}</table>,
-      {
-        Header: 'thead',
-        Body: 'tbody',
-        Row: 'tr',
-        Cell: 'td',
-        Head: 'th',
-      },
-    ),
-    RecordTable: { MoreButton: 'button' },
     Button: 'button',
     Tooltip: Object.assign(
       ({ children }: { children: ReactNode }) => children,
@@ -95,60 +90,84 @@ jest.mock('erxes-ui', () => {
         Content: () => null,
       },
     ),
-    Textarea: 'textarea',
-    Sheet: Object.assign(SheetRoot, {
+    Collapsible: Object.assign(CollapsibleRoot, {
       Trigger: ({ children }: { children: ReactElement }) => {
-        const { onOpenChange } = useContext(SheetContext);
+        const { open, onOpenChange } = useContext(CollapsibleContext);
         return cloneElement(children as ReactElement<{ onClick: () => void }>, {
-          onClick: () => onOpenChange(true),
+          onClick: () => onOpenChange(!open),
         });
       },
-      View: ({ children }: { children: ReactNode }) =>
-        useContext(SheetContext).open ? (
-          <div role="dialog">{children}</div>
+      TriggerIcon: () => null,
+      Content: ({ children }: { children: ReactNode }) =>
+        useContext(CollapsibleContext).open ? (
+          <div role="region">{children}</div>
         ) : null,
-      Content: 'div',
-      Header: 'div',
-      Title: 'h2',
-      Footer: 'div',
-      Close: ({ children }: { children: ReactNode }) => children,
     }),
-    Spinner: () => null,
+    Spinner: () => <span>loading</span>,
     toast: jest.fn(),
-    useConfirm: jest.fn(() => ({
-      confirm: jest.fn().mockResolvedValue(undefined),
-    })),
+    useConfirm: () => ({ confirm: mockConfirm }),
   };
 });
 jest.mock('ui-modules', () => ({
-  SelectBranches: { FormItem: () => null },
-  SelectDepartments: { FormItem: () => null },
+  PANEL_INPUT_CLASS_NAME: '',
+  PanelFormRow: ({
+    label,
+    error,
+    children,
+  }: {
+    label: string;
+    error?: string;
+    children: ReactNode;
+  }) => (
+    <div>
+      <span>{label}</span>
+      {children}
+      {error && <span role="alert">{error}</span>}
+    </div>
+  ),
+  SelectBranches: { InlineCell: () => null },
+  SelectDepartments: { InlineCell: () => null },
   usePermissionCheck: jest.fn(),
 }));
 jest.mock('@/settings/account/components/SelectAccount', () => ({
-  SelectAccount: {
-    FormItem: ({
-      onValueChange,
-      defaultFilter,
-    }: {
-      onValueChange: (value: string) => void;
-      defaultFilter: {
-        journals: string[];
-        status: string;
-        permissionMode: string;
-      };
-    }) => (
-      <button
-        type="button"
-        data-filter={JSON.stringify(defaultFilter)}
-        onClick={() => onValueChange('inventory-account')}
-      >
-        Choose account
-      </button>
-    ),
-  },
+  SelectAccount: ({
+    onValueChange,
+    defaultFilter,
+  }: {
+    onValueChange: (value: string) => void;
+    defaultFilter: Record<string, unknown>;
+  }) => (
+    <button
+      type="button"
+      data-filter={JSON.stringify(defaultFilter)}
+      onClick={() => onValueChange('inventory-account')}
+    >
+      Choose account
+    </button>
+  ),
 }));
-jest.mock('../SelectExecutionJob', () => ({
+jest.mock('@/settings/components/panel/SettingsPanelActions', () => ({
+  SettingsPanelAddButton: () => null,
+}));
+jest.mock('@/settings/hooks/useSettingsPanel', () => ({
+  useSettingsPanel: () => ({
+    closePanel: mockClosePanel,
+    cancelDraft: mockCancelDraft,
+  }),
+}));
+jest.mock('@/inventories/job-executions/useJobExecutionDetail', () => ({
+  useJobExecutionDetail: () => ({
+    execution: mockDetail,
+    loading: mockDetailLoading,
+    error: mockDetailError,
+  }),
+}));
+jest.mock('@/layout/components/AccountingEmptyState', () => ({
+  AccountingEmptyState: ({ error }: { error?: Error }) => (
+    <div role="status">{error ? error.message : 'no-results-found'}</div>
+  ),
+}));
+jest.mock('@/inventories/job-executions/SelectExecutionJob', () => ({
   SelectExecutionJob: ({ onChange }: { onChange: (value: object) => void }) => (
     <button
       type="button"
@@ -169,20 +188,13 @@ jest.mock('../SelectExecutionJob', () => ({
 jest.mock('@/settings/jobs/components/JobForm', () => ({
   JobForm: ({
     form,
-    header,
-    onSubmit,
     readOnly,
   }: {
     form: UseFormReturn<TJobForm>;
-    header: ReactNode;
-    onSubmit: (values: TJobForm) => void;
     readOnly: boolean;
   }) => (
     <fieldset disabled={readOnly}>
-      {header}
-      <button type="button" onClick={() => onSubmit(form.getValues())}>
-        Save actuals
-      </button>
+      <span>Job actuals</span>
       <button
         type="button"
         onClick={() => form.setValue('inputs.0.quantity', 7)}
@@ -192,123 +204,6 @@ jest.mock('@/settings/jobs/components/JobForm', () => ({
     </fieldset>
   ),
 }));
-
-test('requires execution metadata and saves copied actual arrays with separate inventory accounts', async () => {
-  const save = jest.fn();
-  jest.mocked(useMutation).mockReturnValue([save, { loading: false }] as never);
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  render(<JobExecutionEditor onSaved={jest.fn()} />);
-  const accountSelectors = screen.getAllByText('Choose account');
-  expect(accountSelectors).toHaveLength(2);
-  for (const selector of accountSelectors) {
-    expect(selector.getAttribute('data-filter')).toBe(
-      JSON.stringify({
-        journals: ['inventory'],
-        status: 'active',
-        permissionMode: 'write',
-      }),
-    );
-  }
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(save).not.toHaveBeenCalled());
-  fireEvent.click(screen.getByText('Choose card'));
-  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });
-  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '' } });
-  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3' } });
-  screen
-    .getAllByText('Choose account')
-    .forEach((button) => fireEvent.click(button));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() =>
-    expect(save).toHaveBeenCalledWith({
-      variables: {
-        _id: undefined,
-        input: expect.objectContaining({
-          inputAccountId: 'inventory-account',
-          outputAccountId: 'inventory-account',
-          jobs: [
-            expect.objectContaining({
-              jobId: 'card',
-              quantity: 3,
-              inputs: [{ productId: 'raw', uom: '', quantity: 6 }],
-              outputs: [
-                { productId: 'finished', uom: '', quantity: 3, costRatio: 1 },
-              ],
-              laborCosts: [{ name: 'Work', accountId: 'labor', amount: 30 }],
-              overheadCosts: [],
-            }),
-          ],
-        }),
-      },
-    }),
-  );
-});
-
-test('read-only users cannot submit or change execution fields', () => {
-  jest
-    .mocked(useMutation)
-    .mockReturnValue([jest.fn(), { loading: false }] as never);
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => false } as never);
-  render(<JobExecutionEditor onSaved={jest.fn()} />);
-  fireEvent.click(screen.getByLabelText('production-job 1'));
-  expect(screen.getByText('Save actuals').closest('fieldset')?.disabled).toBe(
-    true,
-  );
-});
-
-test('adds multiple jobs, scales each independently and removes only the selected row', async () => {
-  const save = jest.fn();
-  jest.mocked(useMutation).mockReturnValue([save, { loading: false }] as never);
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  render(<JobExecutionEditor onSaved={jest.fn()} />);
-  fireEvent.click(screen.getByText('Choose card'));
-  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '5' } });
-  fireEvent.click(screen.getByText('production-add-job'));
-  fireEvent.click(screen.getAllByText('Choose card')[1]);
-  fireEvent.change(screen.getAllByRole('spinbutton')[1], {
-    target: { value: '10' },
-  });
-  screen
-    .getAllByText('Choose account')
-    .forEach((button) => fireEvent.click(button));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
-  expect(save.mock.calls[0][0].variables.input.jobs).toEqual([
-    expect.objectContaining({
-      jobId: 'card',
-      quantity: 5,
-      inputs: [{ productId: 'raw', uom: '', quantity: 10 }],
-    }),
-    expect.objectContaining({
-      jobId: 'card',
-      quantity: 10,
-      inputs: [{ productId: 'raw', uom: '', quantity: 20 }],
-    }),
-  ]);
-  fireEvent.click(screen.getAllByLabelText('production-remove-job')[0]);
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
-  expect(save.mock.calls[1][0].variables.input.jobs).toEqual([
-    expect.objectContaining({
-      quantity: 10,
-      inputs: [{ productId: 'raw', uom: '', quantity: 20 }],
-    }),
-  ]);
-});
 
 const postedExecution: JobExecution = {
   _id: 'execution',
@@ -340,119 +235,12 @@ const postedExecution: JobExecution = {
   ],
 };
 
-test('posted execution actuals remain editable and save through the existing execution id', async () => {
-  const save = jest.fn();
-  jest.mocked(useMutation).mockReturnValue([save, { loading: false }] as never);
+const allowManage = (allowed = true) =>
   jest
     .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  const execution = postedExecution;
-  render(<JobExecutionEditor execution={execution} onSaved={jest.fn()} />);
-  expect(
-    screen.getByRole('button', { name: 'save & production-post' }),
-  ).toBeTruthy();
-  fireEvent.click(screen.getByLabelText('production-job 1'));
-  expect(screen.getByText('Save actuals').closest('fieldset')?.disabled).toBe(
-    false,
-  );
-  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3' } });
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save & production-post', exact: true }),
-  );
-  await waitFor(() =>
-    expect(save).toHaveBeenCalledWith({
-      variables: {
-        _id: 'execution',
-        input: expect.objectContaining({
-          date: new Date(execution.date),
-          jobs: [
-            expect.objectContaining({
-              _id: 'row',
-              jobId: 'card',
-              quantity: 3,
-              inputs: [{ productId: 'raw', uom: 'ea', quantity: 6 }],
-              outputs: [
-                { productId: 'finished', uom: 'ea', quantity: 3, costRatio: 1 },
-              ],
-            }),
-          ],
-        }),
-      },
-    }),
-  );
-});
+    .mockReturnValue({ hasActionPermission: () => allowed } as never);
 
-test('the shared date picker updates the form date and rejects an empty required date', async () => {
-  const save = jest.fn();
-  jest.mocked(useMutation).mockReturnValue([save, { loading: false }] as never);
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  render(<JobExecutionEditor onSaved={jest.fn()} />);
-  expect(document.querySelector('input[type="datetime-local"]')).toBeNull();
-  fireEvent.click(screen.getByText('Choose card'));
-  screen
-    .getAllByText('Choose account')
-    .forEach((button) => fireEvent.click(button));
-  const date = '2026-10-25T00:00:00.000Z';
-  fireEvent.change(screen.getByLabelText('date'), { target: { value: date } });
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
-  expect(save.mock.calls[0][0].variables.input.date).toEqual(new Date(date));
-  fireEvent.change(screen.getByLabelText('date'), { target: { value: '' } });
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
-});
-
-test('row details stay hidden until opened and persist after closing and reopening', async () => {
-  const save = jest.fn();
-  jest.mocked(useMutation).mockReturnValue([save, { loading: false }] as never);
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  render(<JobExecutionEditor onSaved={jest.fn()} />);
-  expect(screen.queryByText('Save actuals')).toBeNull();
-  fireEvent.click(screen.getByText('Choose card'));
-  fireEvent.click(screen.getByLabelText('production-job 1'));
-  fireEvent.click(screen.getByText('Change actual input'));
-  fireEvent.click(screen.getByText('close'));
-  await waitFor(() => expect(screen.queryByText('Save actuals')).toBeNull());
-  fireEvent.click(screen.getByLabelText('production-job 1'));
-  expect(screen.getByText('Save actuals')).toBeTruthy();
-  fireEvent.click(screen.getByText('close'));
-  await waitFor(() => expect(screen.queryByText('Save actuals')).toBeNull());
-  screen
-    .getAllByText('Choose account')
-    .forEach((button) => fireEvent.click(button));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
-  expect(save.mock.calls[0][0].variables.input.jobs[0].inputs[0].quantity).toBe(
-    7,
-  );
-});
-
-test('saving an invalid unopened job opens its details without submitting', async () => {
-  const save = jest.fn();
-  jest.mocked(useMutation).mockReturnValue([save, { loading: false }] as never);
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  render(<JobExecutionEditor onSaved={jest.fn()} />);
-  expect(screen.queryByText('Save actuals')).toBeNull();
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(screen.getByText('Save actuals')).toBeTruthy());
-  expect(save).not.toHaveBeenCalled();
-});
-
-const setupSaveActions = (execution?: JobExecution) => {
+const mockMutations = () => {
   const save = jest.fn().mockResolvedValue({
     data: {
       jobExecutionSave: {
@@ -471,194 +259,526 @@ const setupSaveActions = (execution?: JobExecution) => {
       },
     },
   });
-  const onSaved = jest.fn();
   const undo = jest.fn().mockResolvedValue({
-    data: { jobExecutionUndo: { _id: execution?._id, status: 'draft' } },
+    data: { jobExecutionUndo: { _id: 'execution', status: 'draft' } },
   });
-  jest
-    .mocked(useMutation)
-    .mockImplementation(
-      (document) =>
-        [
-          document === SAVE_EXECUTION
-            ? save
-            : document === UNDO_EXECUTION
-            ? undo
-            : post,
-          { loading: false },
-        ] as never,
-    );
-  jest
-    .mocked(usePermissionCheck)
-    .mockReturnValue({ hasActionPermission: () => true } as never);
-  render(<JobExecutionEditor execution={execution} onSaved={onSaved} />);
+  jest.mocked(useMutation).mockImplementation((document) => {
+    let mutate = post;
+    if (document === SAVE_EXECUTION) mutate = save;
+    else if (document === UNDO_EXECUTION) mutate = undo;
+    return [mutate, { loading: false }] as never;
+  });
+  return { save, post, undo };
+};
+
+const openNew = () => {
+  const { New } = JOB_EXECUTION_PANEL;
+  if (!New) throw new Error('Job execution panel has no New view');
+  render(<New contentType="accounting:jobExecution" contentId="new" />);
+};
+
+const openSaved = (contentId = 'execution') => {
+  const { Detail } = JOB_EXECUTION_PANEL;
+  render(
+    <Detail contentType="accounting:jobExecution" contentId={contentId} />,
+  );
+};
+
+const chooseCardAndAccounts = () => {
   fireEvent.click(screen.getByText('Choose card'));
   screen
     .getAllByText('Choose account')
     .forEach((button) => fireEvent.click(button));
-  return { save, post, undo, onSaved };
 };
 
-test.each([false, true])(
-  'posted edit supports draft-save and transaction-save: %s',
-  async (createTransactions) => {
-    const { save, post, undo, onSaved } = setupSaveActions(postedExecution);
+const clickButton = (name: string) =>
+  fireEvent.click(screen.getByRole('button', { name }));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockRefetchQueries.mockResolvedValue([]);
+  mockConfirm.mockResolvedValue(undefined);
+  mockDetail = postedExecution;
+  mockDetailLoading = false;
+  mockDetailError = undefined;
+  allowManage();
+});
+
+describe('new execution in the side panel', () => {
+  test('accountant fills a new execution, saves it as draft, and the panel closes with the list refreshed', async () => {
+    const { save, post } = mockMutations();
+    openNew();
+    const accountSelectors = screen.getAllByText('Choose account');
+    expect(accountSelectors).toHaveLength(2);
+    for (const selector of accountSelectors) {
+      expect(selector.getAttribute('data-filter')).toBe(
+        JSON.stringify({
+          journals: ['inventory'],
+          status: 'active',
+          permissionMode: 'write',
+        }),
+      );
+    }
+    fireEvent.click(screen.getByText('Choose card'));
+    fireEvent.change(screen.getByRole('spinbutton'), {
+      target: { value: '2' },
+    });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '' } });
+    fireEvent.change(screen.getByRole('spinbutton'), {
+      target: { value: '3' },
+    });
+    accountSelectors.forEach((button) => fireEvent.click(button));
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+    expect(save).toHaveBeenCalledWith({
+      variables: {
+        _id: undefined,
+        input: expect.objectContaining({
+          inputAccountId: 'inventory-account',
+          outputAccountId: 'inventory-account',
+          jobs: [
+            expect.objectContaining({
+              jobId: 'card',
+              quantity: 3,
+              inputs: [{ productId: 'raw', uom: '', quantity: 6 }],
+              outputs: [
+                { productId: 'finished', uom: '', quantity: 3, costRatio: 1 },
+              ],
+              laborCosts: [{ name: 'Work', accountId: 'labor', amount: 30 }],
+              overheadCosts: [],
+            }),
+          ],
+        }),
+      },
+    });
+    expect(post).not.toHaveBeenCalled();
+    expect(mockRefetchQueries).toHaveBeenCalledWith({
+      include: ['AccountingJobExecutions', 'AccountingJobExecutionDetail'],
+    });
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'production-saved',
+        variant: 'success',
+      }),
+    );
+  });
+
+  test('saving an empty execution flags both inventory accounts and keeps the panel open', async () => {
+    const { save } = mockMutations();
+    openNew();
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(2));
+    expect(
+      screen.getAllByRole('alert').map((alert) => alert.textContent),
+    ).toEqual(['production-required', 'production-required']);
+    expect(save).not.toHaveBeenCalled();
+    expect(mockClosePanel).not.toHaveBeenCalled();
+  });
+
+  test('a job row left without a card opens its details and nothing is sent', async () => {
+    const { save } = mockMutations();
+    openNew();
+    expect(screen.queryByText('Job actuals')).toBeNull();
+    screen
+      .getAllByText('Choose account')
+      .forEach((button) => fireEvent.click(button));
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(screen.getByText('Job actuals')).toBeTruthy());
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  test('the date picker updates the date and an emptied date is refused', async () => {
+    const { save } = mockMutations();
+    openNew();
+    chooseCardAndAccounts();
+    const date = '2026-10-25T00:00:00.000Z';
+    fireEvent.change(screen.getByLabelText('date'), {
+      target: { value: date },
+    });
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    expect(save.mock.calls[0][0].variables.input.date).toEqual(new Date(date));
+    fireEvent.change(screen.getByLabelText('date'), { target: { value: '' } });
+    clickButton('save-with-draft-status');
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe('production-required'),
+    );
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  test('adds two jobs, scales each one on its own and removes only the chosen row', async () => {
+    const { save } = mockMutations();
+    openNew();
+    fireEvent.click(screen.getByText('Choose card'));
+    fireEvent.change(screen.getByRole('spinbutton'), {
+      target: { value: '5' },
+    });
+    fireEvent.click(screen.getByText('production-add-job'));
+    fireEvent.click(screen.getAllByText('Choose card')[1]);
+    fireEvent.change(screen.getAllByRole('spinbutton')[1], {
+      target: { value: '10' },
+    });
+    screen
+      .getAllByText('Choose account')
+      .forEach((button) => fireEvent.click(button));
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    expect(save.mock.calls[0][0].variables.input.jobs).toEqual([
+      expect.objectContaining({
+        jobId: 'card',
+        quantity: 5,
+        inputs: [{ productId: 'raw', uom: '', quantity: 10 }],
+      }),
+      expect.objectContaining({
+        jobId: 'card',
+        quantity: 10,
+        inputs: [{ productId: 'raw', uom: '', quantity: 20 }],
+      }),
+    ]);
+    fireEvent.click(screen.getAllByLabelText('production-remove-job')[0]);
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
+    expect(save.mock.calls[1][0].variables.input.jobs).toEqual([
+      expect.objectContaining({
+        quantity: 10,
+        inputs: [{ productId: 'raw', uom: '', quantity: 20 }],
+      }),
+    ]);
+  });
+
+  test('job actuals expand inside the panel and keep their edits after collapsing', async () => {
+    const { save } = mockMutations();
+    openNew();
+    expect(screen.queryByText('Job actuals')).toBeNull();
+    fireEvent.click(screen.getByText('Choose card'));
+    fireEvent.click(screen.getByLabelText('production-job 1'));
+    fireEvent.click(screen.getByText('Change actual input'));
+    fireEvent.click(screen.getByLabelText('production-job 1'));
+    await waitFor(() => expect(screen.queryByText('Job actuals')).toBeNull());
+    fireEvent.click(screen.getByLabelText('production-job 1'));
+    expect(screen.getByText('Job actuals')).toBeTruthy();
+    screen
+      .getAllByText('Choose account')
+      .forEach((button) => fireEvent.click(button));
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    expect(
+      save.mock.calls[0][0].variables.input.jobs[0].inputs[0].quantity,
+    ).toBe(7);
+  });
+
+  test('quantity edits, Enter and incidental submits do not save until a save button is clicked', async () => {
+    const { save, post } = mockMutations();
+    openNew();
+    chooseCardAndAccounts();
+    const quantity = screen.getByRole('spinbutton');
+    const form = quantity.closest('form');
+    expect(form).not.toBeNull();
+    await act(async () => {
+      fireEvent.change(quantity, { target: { value: '5' } });
+      fireEvent.blur(quantity);
+      fireEvent.keyDown(quantity, { key: 'Enter', code: 'Enter' });
+      if (form) fireEvent.submit(form);
+    });
+    expect(save).not.toHaveBeenCalled();
+    expect(post).not.toHaveBeenCalled();
+    expect(mockClosePanel).not.toHaveBeenCalled();
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+    expect(save.mock.calls[0][0].variables.input.jobs).toEqual([
+      expect.objectContaining({ quantity: 5 }),
+    ]);
+  });
+
+  test.each([false, true])(
+    'transactions are created only when save & post is chosen: %s',
+    async (createTransactions) => {
+      const { save, post } = mockMutations();
+      openNew();
+      chooseCardAndAccounts();
+      clickButton(
+        createTransactions
+          ? 'save & production-post'
+          : 'save-with-draft-status',
+      );
+      await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+      expect(save).toHaveBeenCalledTimes(1);
+      if (createTransactions) {
+        expect(post).toHaveBeenCalledWith({
+          variables: { _id: 'saved-execution' },
+        });
+        expect(save.mock.invocationCallOrder[0]).toBeLessThan(
+          post.mock.invocationCallOrder[0],
+        );
+      } else expect(post).not.toHaveBeenCalled();
+    },
+  );
+
+  test('a failed save shows the server error and keeps the unsaved panel open', async () => {
+    const { save, post } = mockMutations();
+    save.mockRejectedValue(new Error('Save failed'));
+    openNew();
+    chooseCardAndAccounts();
+    clickButton('save & production-post');
+    await waitFor(() =>
+      expect(toast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Save failed',
+          variant: 'destructive',
+        }),
+      ),
+    );
+    expect(post).not.toHaveBeenCalled();
+    expect(mockClosePanel).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole('button', { name: 'save & production-post' }),
+    ).toBeTruthy();
+  });
+
+  test('a posting failure after a successful save closes the panel so the execution is not created twice', async () => {
+    const { save, post } = mockMutations();
+    post.mockRejectedValue(new Error('Insufficient inventory'));
+    openNew();
+    chooseCardAndAccounts();
+    clickButton('save & production-post');
+    await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'Insufficient inventory',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  test('cancel discards the draft without saving', () => {
+    const { save } = mockMutations();
+    openNew();
+    chooseCardAndAccounts();
+    clickButton('cancel');
+    expect(mockCancelDraft).toHaveBeenCalledTimes(1);
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  test('a user without manage permission sees locked fields and no save buttons', () => {
+    mockMutations();
+    allowManage(false);
+    openNew();
+    fireEvent.click(screen.getByLabelText('production-job 1'));
+    expect(screen.getByText('Job actuals').closest('fieldset')?.disabled).toBe(
+      true,
+    );
+    expect(
+      screen.queryByRole('button', { name: 'save-with-draft-status' }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'save & production-post' }),
+    ).toBeNull();
+  });
+});
+
+describe('saved execution opened from the list', () => {
+  test('opens the clicked execution with its saved job and saves edits through its id', async () => {
+    const { save } = mockMutations();
+    openSaved();
+    const quantity = screen.getByRole('spinbutton') as HTMLInputElement;
+    expect(quantity.value).toBe('2');
+    fireEvent.click(screen.getByLabelText('production-job 1'));
+    expect(screen.getByText('Job actuals').closest('fieldset')?.disabled).toBe(
+      false,
+    );
+    fireEvent.change(quantity, { target: { value: '3' } });
+    clickButton('save & production-post');
+    await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+    expect(save).toHaveBeenCalledWith({
+      variables: {
+        _id: 'execution',
+        input: expect.objectContaining({
+          date: new Date(postedExecution.date),
+          jobs: [
+            expect.objectContaining({
+              _id: 'row',
+              jobId: 'card',
+              quantity: 3,
+              inputs: [{ productId: 'raw', uom: 'ea', quantity: 6 }],
+              outputs: [
+                { productId: 'finished', uom: 'ea', quantity: 3, costRatio: 1 },
+              ],
+            }),
+          ],
+        }),
+      },
+    });
+  });
+
+  test.each([false, true])(
+    'a posted execution saved as draft is undone, saved with post is not: post=%s',
+    async (createTransactions) => {
+      const { save, post, undo } = mockMutations();
+      save.mockResolvedValue({
+        data: {
+          jobExecutionSave: {
+            _id: 'execution',
+            status: 'posted',
+            parentId: 'parent',
+          },
+        },
+      });
+      openSaved();
+      clickButton(
+        createTransactions
+          ? 'save & production-post'
+          : 'save-with-draft-status',
+      );
+      await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+      expect(post).not.toHaveBeenCalled();
+      if (createTransactions) expect(undo).not.toHaveBeenCalled();
+      else {
+        expect(undo).toHaveBeenCalledWith({ variables: { _id: 'execution' } });
+        expect(save.mock.invocationCallOrder[0]).toBeLessThan(
+          undo.mock.invocationCallOrder[0],
+        );
+      }
+    },
+  );
+
+  test('declining the undo confirmation keeps the posted execution and lets the user save again', async () => {
+    mockConfirm.mockReturnValueOnce(new Promise<void>(() => undefined));
+    const { save, post, undo } = mockMutations();
     save.mockResolvedValue({
       data: {
         jobExecutionSave: {
-          _id: postedExecution._id,
+          _id: 'execution',
           status: 'posted',
-          parentId: 'parent',
+          parentId: null,
         },
       },
     });
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: createTransactions
-          ? 'save & production-post'
-          : 'save-with-draft-status',
-        exact: true,
-      }),
-    );
-    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
-    expect(save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: expect.objectContaining({ _id: postedExecution._id }),
-      }),
-    );
+    openSaved();
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(mockConfirm).toHaveBeenCalledTimes(1));
+    expect(save).not.toHaveBeenCalled();
     expect(post).not.toHaveBeenCalled();
-    if (createTransactions) expect(undo).not.toHaveBeenCalled();
-    else {
-      expect(undo).toHaveBeenCalledWith({
-        variables: { _id: postedExecution._id },
-      });
-      expect(save.mock.invocationCallOrder[0]).toBeLessThan(
-        undo.mock.invocationCallOrder[0],
-      );
-    }
-  },
-);
-
-test('quantity edits, blur, Enter and incidental form submits do not persist until a save button is clicked', async () => {
-  const { save, post, undo, onSaved } = setupSaveActions();
-  const quantity = screen.getByRole('spinbutton');
-  const draftButton = screen.getByRole('button', {
-    name: 'save-with-draft-status',
-    exact: true,
+    expect(undo).not.toHaveBeenCalled();
+    expect(mockClosePanel).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole('button', {
+            name: 'save-with-draft-status',
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+    expect(mockConfirm).toHaveBeenCalledTimes(2);
+    expect(undo).toHaveBeenCalledWith({ variables: { _id: 'execution' } });
   });
-  const form = draftButton.closest('form');
-  expect(form).not.toBeNull();
-  await act(async () => {
-    fireEvent.change(quantity, { target: { value: '5' } });
-    fireEvent.blur(quantity);
-    fireEvent.keyDown(quantity, { key: 'Enter', code: 'Enter' });
-    if (form) fireEvent.submit(form);
-  });
-  expect(save).not.toHaveBeenCalled();
-  expect(post).not.toHaveBeenCalled();
-  expect(undo).not.toHaveBeenCalled();
-  expect(onSaved).not.toHaveBeenCalled();
-  fireEvent.click(draftButton);
-  await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
-  expect(save).toHaveBeenCalledWith(
-    expect.objectContaining({
-      variables: expect.objectContaining({
-        input: expect.objectContaining({
-          jobs: [expect.objectContaining({ quantity: 5 })],
-        }),
-      }),
-    }),
-  );
-});
 
-test('cancelling posted draft-save leaves journals and actuals untouched', async () => {
-  const confirm = jest.fn().mockRejectedValue(new Error('Cancelled'));
-  jest.mocked(useConfirm).mockReturnValueOnce({ confirm } as never);
-  const { save, post, undo } = setupSaveActions(postedExecution);
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() => expect(confirm).toHaveBeenCalled());
-  expect(save).not.toHaveBeenCalled();
-  expect(post).not.toHaveBeenCalled();
-  expect(undo).not.toHaveBeenCalled();
-});
-
-test('failed posted draft-save does not undo existing transactions', async () => {
-  const { save, undo, post, onSaved } = setupSaveActions(postedExecution);
-  save.mockRejectedValue(new Error('Actuals validation failed'));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save-with-draft-status', exact: true }),
-  );
-  await waitFor(() =>
-    expect(toast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        description: 'Actuals validation failed',
-        variant: 'destructive',
-      }),
-    ),
-  );
-  expect(undo).not.toHaveBeenCalled();
-  expect(post).not.toHaveBeenCalled();
-  expect(onSaved).not.toHaveBeenCalled();
-});
-
-test.each([false, true])(
-  'save action creates transactions only when requested: %s',
-  async (createTransactions) => {
-    const { save, post, onSaved } = setupSaveActions();
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: createTransactions
-          ? 'save & production-post'
-          : 'save-with-draft-status',
-        exact: true,
+  test('a confirmed draft-save keeps the form locked until the refreshed execution arrives', async () => {
+    let finishRefresh: () => void = () => undefined;
+    mockRefetchQueries.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishRefresh = resolve;
       }),
     );
-    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
-    expect(save).toHaveBeenCalledTimes(1);
-    if (createTransactions) {
-      expect(post).toHaveBeenCalledWith({
-        variables: { _id: 'saved-execution' },
-      });
-      expect(save.mock.invocationCallOrder[0]).toBeLessThan(
-        post.mock.invocationCallOrder[0],
-      );
-    } else expect(post).not.toHaveBeenCalled();
-  },
-);
+    const { save, undo } = mockMutations();
+    save.mockResolvedValue({
+      data: {
+        jobExecutionSave: {
+          _id: 'execution',
+          status: 'posted',
+          parentId: null,
+        },
+      },
+    });
+    openSaved();
+    clickButton('save-with-draft-status');
+    await waitFor(() => expect(undo).toHaveBeenCalled());
+    await waitFor(() => expect(mockRefetchQueries).toHaveBeenCalled());
+    expect(
+      screen
+        .getByRole('button', { name: /save-with-draft-status/ })
+        .matches(':disabled'),
+    ).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'cancel' }).matches(':disabled'),
+    ).toBe(true);
+    expect(mockClosePanel).not.toHaveBeenCalled();
+    await act(async () => finishRefresh());
+    await waitFor(() => expect(mockClosePanel).toHaveBeenCalledTimes(1));
+  });
 
-test('failed saves never create transactions or close the unsaved form', async () => {
-  const { save, post, onSaved } = setupSaveActions();
-  save.mockRejectedValue(new Error('Save failed'));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save & production-post', exact: true }),
-  );
-  await waitFor(() =>
-    expect(toast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        description: 'Save failed',
-        variant: 'destructive',
-      }),
-    ),
-  );
-  expect(post).not.toHaveBeenCalled();
-  expect(onSaved).not.toHaveBeenCalled();
-});
+  test('a rejected draft-save of a posted execution never undoes its transactions', async () => {
+    const { save, undo, post } = mockMutations();
+    save.mockRejectedValue(new Error('Actuals validation failed'));
+    openSaved();
+    clickButton('save-with-draft-status');
+    await waitFor(() =>
+      expect(toast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Actuals validation failed',
+          variant: 'destructive',
+        }),
+      ),
+    );
+    expect(undo).not.toHaveBeenCalled();
+    expect(post).not.toHaveBeenCalled();
+    expect(mockClosePanel).not.toHaveBeenCalled();
+  });
 
-test('post failure preserves the saved record and returns to the list instead of allowing duplicate creation', async () => {
-  const { save, post, onSaved } = setupSaveActions();
-  post.mockRejectedValue(new Error('Insufficient inventory'));
-  fireEvent.click(
-    screen.getByRole('button', { name: 'save & production-post', exact: true }),
-  );
-  await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
-  expect(save).toHaveBeenCalledTimes(1);
-  expect(post).toHaveBeenCalledWith({ variables: { _id: 'saved-execution' } });
-  expect(toast).toHaveBeenCalledWith(
-    expect.objectContaining({
-      description: 'Insufficient inventory',
-      variant: 'destructive',
-    }),
-  );
+  test('a failed execution opens read-only with its error and can only be closed', () => {
+    mockMutations();
+    mockDetail = {
+      ...postedExecution,
+      status: 'error',
+      error: 'Product raw has no remainder',
+    };
+    openSaved();
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Product raw has no remainder',
+    );
+    expect(
+      screen.queryByRole('button', { name: 'save-with-draft-status' }),
+    ).toBeNull();
+    expect(
+      screen
+        .getByRole('button', { name: 'production-remove-job' })
+        .matches(':disabled'),
+    ).toBe(true);
+    const expandJob = screen.getByRole('button', { name: 'production-job 1' });
+    expect(expandJob.matches(':disabled')).toBe(false);
+    fireEvent.click(expandJob);
+    expect(screen.getByRole('region')).toBeTruthy();
+    clickButton('cancel');
+    expect(mockClosePanel).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows a spinner while the execution loads', () => {
+    mockDetail = undefined;
+    mockDetailLoading = true;
+    openSaved();
+    expect(screen.getByText('loading')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'cancel' })).toBeNull();
+  });
+
+  test('an execution id that no longer exists shows the not-found state', () => {
+    mockDetail = undefined;
+    openSaved('deleted-execution');
+    expect(screen.getByRole('status').textContent).toBe('no-results-found');
+    expect(screen.queryByRole('spinbutton')).toBeNull();
+  });
+
+  test('a server error while loading is shown instead of the form', () => {
+    mockDetail = undefined;
+    mockDetailError = new Error('Job execution not found');
+    openSaved('missing-execution');
+    expect(screen.getByRole('status').textContent).toBe(
+      'Job execution not found',
+    );
+    expect(
+      screen.queryByRole('button', { name: 'save & production-post' }),
+    ).toBeNull();
+  });
 });

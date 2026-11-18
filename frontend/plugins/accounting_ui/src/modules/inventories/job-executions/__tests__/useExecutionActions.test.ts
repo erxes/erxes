@@ -69,6 +69,9 @@ test('bulk deletion undoes posted rows and removes drafts without undoing them',
   ]);
   expect(processed).toHaveBeenCalledWith(['a', 'b']);
   expect(refetchQueries).toHaveBeenCalledTimes(1);
+  expect(refetchQueries).toHaveBeenCalledWith({
+    include: ['AccountingJobExecutions', 'AccountingJobExecutionDetail'],
+  });
 });
 
 test('bulk failure stops subsequent writes and clears only completed selections', async () => {
