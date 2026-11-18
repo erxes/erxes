@@ -215,5 +215,18 @@
     "image": "Uploaded image",
     "remove": "Remove",
     "uploaded": "Image uploaded"
+  },
+  "validation": {
+    "email": "Enter an email address.",
+    "invalid": "Enter a valid value.",
+    "pattern": "Match the format asked for.",
+    "required": "Fill in this field.",
+    "too-large": "Enter {{max}} or less.",
+    "too-long_one": "Use at most {{count}} character.",
+    "too-long_other": "Use at most {{count}} characters.",
+    "too-short_one": "Use at least {{count}} character.",
+    "too-short_other": "Use at least {{count}} characters.",
+    "too-small": "Enter {{min}} or more.",
+    "url": "Enter a web address."
   }
 }
