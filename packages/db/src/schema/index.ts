@@ -56,6 +56,8 @@ export * from './rateLimits';
 
 export * from './assistant';
 
+export * from './agent';
+
 export * from './orgUnits';
 
 export * from './apiKeys';

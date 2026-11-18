@@ -4,12 +4,16 @@ packages:
 
 # Install scripts pnpm may run. esbuild's checks its platform binary; the others only print notices.
 allowBuilds:
+  '@google/genai': false
   core-js: false
   core-js-pure: false
   esbuild: true
   protobufjs: false
   tesseract.js: false
   vue-demi: false
+
+minimumReleaseAgeExclude:
+  - '@gscode1/pi-durable-postgres@0.3.0'
 
 # Vite+ runs its own Vite build and Vitest version; dependencies must resolve to the same ones.
 overrides:
@@ -22,4 +26,5 @@ overrides:
 
 patchedDependencies:
   '@dnd-kit/core@6.3.1': patches/@dnd-kit__core@6.3.1.patch
+  '@gscode1/pi-durable-postgres@0.3.0': patches/@gscode1__pi-durable-postgres@0.3.0.patch
   drizzle-zod@0.8.3: patches/drizzle-zod@0.8.3.patch
