@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import { IAdjustInventory } from '../types/AdjustInventory';
+import { Cell, CellContext, ColumnDef, Row } from '@tanstack/react-table';
+import { IAdjustInvDetail } from '@/adjustments/inventories/types/AdjustInventory';
 import { Link } from 'react-router-dom';
 import {
   RecordTable,
@@ -8,21 +8,14 @@ import {
   CurrencyFormatedDisplay,
   CurrencyCode,
 } from 'erxes-ui';
+import { BranchBadge, DepartmentBadge } from 'ui-modules';
 import { IconFile, IconMoneybag } from '@tabler/icons-react';
 
 const DescriptionCell = ({ value }: { value?: string }) => (
   <RecordTableInlineCell>{value}</RecordTableInlineCell>
 );
 
-// const DateCell = ({ getValue }: any) => {
-//   return (
-//     <RecordTableInlineCell>
-//       {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
-//     </RecordTableInlineCell>
-//   );
-// };
-
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<IAdjustInvDetail> }) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.product?.code} - ${row.original.product?.name}`}
@@ -30,7 +23,7 @@ const ProductCell = ({ row }: any) => {
   );
 };
 
-const AccountCell = ({ row }: any) => {
+const AccountCell = ({ row }: { row: Row<IAdjustInvDetail> }) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.account?.code} - ${row.original.account?.name}`}
@@ -38,23 +31,33 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
-const BranchCell = ({ row }: any) => {
+const BranchCell = ({ row }: { row: Row<IAdjustInvDetail> }) => {
+  const { branchId } = row.original;
+
   return (
     <RecordTableInlineCell>
-      {`${row.original.branch?.code} - ${row.original.branch?.title}`}
+      {branchId ? <BranchBadge branchId={branchId} renderAsPlainText /> : '-'}
     </RecordTableInlineCell>
   );
 };
 
-const DepartmentCell = ({ row }: any) => {
+const DepartmentCell = ({ row }: { row: Row<IAdjustInvDetail> }) => {
+  const { departmentId } = row.original;
+
   return (
     <RecordTableInlineCell>
-      {`${row.original.department?.code} - ${row.original.department?.title}`}
+      {departmentId ? (
+        <DepartmentBadge departmentId={departmentId} renderAsPlainText />
+      ) : (
+        '-'
+      )}
     </RecordTableInlineCell>
   );
 };
 
-const NumberCell = ({ getValue }: any) => {
+const NumberCell = ({
+  getValue,
+}: Pick<CellContext<IAdjustInvDetail, unknown>, 'getValue'>) => {
   const value = getValue() as number;
 
   return (
@@ -72,7 +75,7 @@ const NumberCell = ({ getValue }: any) => {
 const TransactionMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IAdjustInventory, unknown>;
+  cell: Cell<IAdjustInvDetail, unknown>;
 }) => {
   const { _id } = cell.row.original;
 
@@ -92,14 +95,8 @@ const transactionMoreColumn = {
 
 export const adjustDetailTableColumns = (
   t: TFunction<'accounting'>,
-): ColumnDef<IAdjustInventory>[] => [
+): ColumnDef<IAdjustInvDetail>[] => [
   transactionMoreColumn,
-  // {
-  //   id: 'date',
-  //   header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
-  //   accessorKey: 'date',
-  //   cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
-  // },
   {
     id: 'product',
     header: () => (

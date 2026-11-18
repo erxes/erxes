@@ -15,6 +15,7 @@ import { TRANSACTION_CONTENT_TYPE } from '@/transactions/constants/transactionPa
 import { SAFE_REMAINDER_CONTENT_TYPE } from '@/inventories/safeRemainders/constants/safeRemainderPanel';
 import { RESERVE_REM_CONTENT_TYPE } from '@/inventories/reserveRemainders/constants/reserveRemPanel';
 import { RECALC_REMAINDER_CONTENT_TYPE } from '@/inventories/remainders/constants/reCalcRemainderPanel';
+import { JOB_EXECUTION_CONTENT_TYPE } from '@/inventories/job-executions/jobExecutionPanel';
 
 export const CONFIG: IUIConfig = {
   name: 'accounting',
@@ -146,6 +147,7 @@ export const CONFIG: IUIConfig = {
       SAFE_REMAINDER_CONTENT_TYPE,
       RESERVE_REM_CONTENT_TYPE,
       RECALC_REMAINDER_CONTENT_TYPE,
+      JOB_EXECUTION_CONTENT_TYPE,
       TRANSACTION_CONTENT_TYPE,
     ].map((contentType) => ({
       contentType,

@@ -5,7 +5,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { Cell, ColumnDef } from '@tanstack/table-core';
+import { Cell, CellContext, ColumnDef } from '@tanstack/table-core';
 import { Link } from 'react-router-dom';
 import { IconLink, IconMoneybag, IconPercentage } from '@tabler/icons-react';
 
@@ -23,7 +23,9 @@ export type IClosingDetailEntryRow = {
   departmentId?: string;
 };
 
-const MoneyCell = ({ getValue }: any) => {
+const MoneyCell = ({
+  getValue,
+}: Pick<CellContext<IClosingDetailEntryRow, unknown>, 'getValue'>) => {
   const value = getValue() as number | undefined;
 
   return (
@@ -38,7 +40,9 @@ const MoneyCell = ({ getValue }: any) => {
   );
 };
 
-const TextCell = ({ getValue }: any) => {
+const TextCell = ({
+  getValue,
+}: Pick<CellContext<IClosingDetailEntryRow, unknown>, 'getValue'>) => {
   return (
     <RecordTableInlineCell>{String(getValue() ?? '')}</RecordTableInlineCell>
   );

@@ -5,7 +5,7 @@ import {
   IconHash,
   IconLabel,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { Cell, ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -14,18 +14,28 @@ import {
   CurrencyCode,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { IProduct } from 'ui-modules';
-import { selectedRemainderProductAtom } from '../states/productDetailStates';
+import { isJsonObject } from '@/utils/graphql';
+import { IRemainderProduct } from '@/inventories/remainders/types/productTypes';
+import { selectedRemainderProductAtom } from '@/inventories/remainders/states/productDetailStates';
+
+type TRemainderSummaryKey = 'remainder' | 'soonIn' | 'soonOut';
+
+const readRemainderValue = (remainder: unknown, key: TRemainderSummaryKey) => {
+  const value = isJsonObject(remainder) ? remainder[key] : undefined;
+  return typeof value === 'number' || typeof value === 'string'
+    ? String(value)
+    : '';
+};
 
 export const productColumns: (
   t: TFunction<'accounting'>,
-) => ColumnDef<IProduct>[] = (t) => [
-  RecordTable.checkboxColumn as ColumnDef<IProduct>,
+) => ColumnDef<IRemainderProduct>[] = (t) => [
+  RecordTable.checkboxColumn as ColumnDef<IRemainderProduct>,
   {
     id: 'code',
     accessorKey: 'code',
     header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell }) => (
       <ClickableCell cell={cell} value={cell.getValue() as string} />
     ),
     size: 120,
@@ -34,7 +44,7 @@ export const productColumns: (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell }) => (
       <ClickableCell cell={cell} value={cell.getValue() as string} />
     ),
     size: 250,
@@ -45,7 +55,7 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -60,10 +70,8 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
     ),
-    cell: ({ cell }: { cell: any }) => {
-      const code = cell.row.original?.category?.code;
-      const name = cell.row.original?.category?.name;
-      const value = [code, name].filter(Boolean).join(' - ') || '';
+    cell: ({ cell }) => {
+      const value = cell.row.original.category?.name || '';
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={value} />
@@ -81,7 +89,7 @@ export const productColumns: (
         label={t('unit-price')}
       />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <CurrencyFormatedDisplay
@@ -99,7 +107,7 @@ export const productColumns: (
     id: 'uom',
     accessorKey: 'uom',
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('uom')} />,
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -114,10 +122,10 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label={t('remainder')} />
     ),
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell }) => (
       <ClickableCell
         cell={cell}
-        value={String(cell.row.original?.remainder?.remainder ?? '')}
+        value={readRemainderValue(cell.row.original.remainder, 'remainder')}
       />
     ),
     size: 150,
@@ -128,10 +136,10 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label={t('soonIn')} />
     ),
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell }) => (
       <ClickableCell
         cell={cell}
-        value={String(cell.row.original?.remainder?.soonIn ?? '')}
+        value={readRemainderValue(cell.row.original.remainder, 'soonIn')}
       />
     ),
     size: 150,
@@ -142,25 +150,27 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label={t('soonOut')} />
     ),
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell }) => (
       <ClickableCell
         cell={cell}
-        value={String(cell.row.original?.remainder?.soonOut ?? '')}
+        value={readRemainderValue(cell.row.original.remainder, 'soonOut')}
       />
     ),
     size: 150,
   },
 ];
 
-export const useOpenRemainderSheet = (cell: any) => {
+export const useOpenRemainderSheet = (
+  cell: Cell<IRemainderProduct, unknown>,
+) => {
   const setSelected = useSetAtom(selectedRemainderProductAtom);
   return () =>
     setSelected({
-      productId: cell.row.original?._id,
-      productName: cell.row.original?.name,
-      productCode: cell.row.original?.code,
-      inventories: cell.row.original?.inventories,
-      remainder: cell.row.original?.remainder,
+      productId: cell.row.original._id,
+      productName: cell.row.original.name,
+      productCode: cell.row.original.code,
+      inventories: cell.row.original.inventories,
+      remainder: cell.row.original.remainder,
     });
 };
 
@@ -168,7 +178,7 @@ const ClickableCell = ({
   cell,
   value,
 }: {
-  cell: any;
+  cell: Cell<IRemainderProduct, unknown>;
   value: string | undefined;
 }) => {
   const open = useOpenRemainderSheet(cell);

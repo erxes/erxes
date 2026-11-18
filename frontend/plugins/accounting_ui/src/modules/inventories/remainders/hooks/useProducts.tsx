@@ -4,6 +4,7 @@ import {
 } from '@/utils/graphqlCursor';
 import { toGraphqlView } from '@/utils/graphql';
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import type { AccountingProductsRemainderMainQuery } from '~/gql/graphql';
 import {
   EnumCursorDirection,
   isUndefinedOrNull,
@@ -49,7 +50,10 @@ type ProductsQueryVariables = {
 };
 
 export const useProductsVariables = (
-  variables?: QueryHookOptions<any, ProductsQueryVariables>['variables'],
+  variables?: QueryHookOptions<
+    AccountingProductsRemainderMainQuery,
+    ProductsQueryVariables
+  >['variables'],
 ): ProductsQueryVariables => {
   const [
     {

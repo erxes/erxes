@@ -50,24 +50,18 @@ export const SafeRemainderCsvImport = ({
         disabled={disabled}
       >
         <IconDownload />
-        {t('safe-import-download-template', {
-          defaultValue: 'CSV загвар татах',
-        })}
+        {t('safe-import-download-template')}
       </Button>
       <SafeRemainderImportUpload session={session} disabled={disabled} />
       {preview ? (
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-medium">
-              {t('safe-import-match-columns', {
-                defaultValue: 'Багануудыг тааруулах',
-              })}{' '}
-              ({preview.rows.length} {t('rows')})
+              {t('safe-import-match-columns')} ({preview.rows.length}{' '}
+              {t('rows')})
             </p>
             <Button variant="ghost" disabled={disabled} onClick={resetMapping}>
-              {t('safe-import-reset-mapping', {
-                defaultValue: 'Анхны сонголт',
-              })}
+              {t('safe-import-reset-mapping')}
             </Button>
           </div>
           <div className="rounded-xl border px-3">
@@ -107,9 +101,7 @@ export const SafeRemainderCsvImport = ({
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value={IGNORE_COLUMN}>
-                        {t('safe-import-ignore-column', {
-                          defaultValue: 'Импортлохгүй',
-                        })}
+                        {t('safe-import-ignore-column')}
                       </Select.Item>
                       {fields.map((field) => (
                         <Select.Item key={field.key} value={field.key}>
@@ -129,9 +121,7 @@ export const SafeRemainderCsvImport = ({
       ) : (
         <div className="space-y-2">
           <p className="text-sm font-medium">
-            {t('safe-import-field-formats', {
-              defaultValue: 'Талбарын формат',
-            })}
+            {t('safe-import-field-formats')}
           </p>
           {fields.map((field) => (
             <div
@@ -143,17 +133,12 @@ export const SafeRemainderCsvImport = ({
                 <ImportFieldFormat field={field} />
               </div>
               {field.required && (
-                <Badge variant="warning">
-                  {t('safe-import-required', { defaultValue: 'Заавал' })}
-                </Badge>
+                <Badge variant="warning">{t('safe-import-required')}</Badge>
               )}
             </div>
           ))}
           <p className="text-xs text-muted-foreground">
-            {t('safe-import-cost-help', {
-              defaultValue:
-                'totalCost нь тоолсон нийт өртөг. Хоосон бол систем тооцно. isSale=true үед unitPrice шаардлагатай.',
-            })}
+            {t('safe-import-cost-help')}
           </p>
         </div>
       )}

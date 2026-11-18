@@ -8,7 +8,11 @@ const options = [
   { label: 'unique', value: 'unique' },
 ];
 
-export const ProductTypeFilterDropdown = ({ onOpenChange }: any) => {
+export const ProductTypeFilterDropdown = ({
+  onOpenChange,
+}: {
+  onOpenChange: (open: boolean) => void;
+}) => {
   const { t } = useTranslation('accounting');
   const [filter, setFilter] = useQueryState<string>('type');
 
