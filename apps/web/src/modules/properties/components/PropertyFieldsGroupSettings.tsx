@@ -3,7 +3,7 @@ import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconListDetails } from '@tabler/icons-react';
-import { Empty, Spinner, useSortAccessibility } from 'erxes-ui';
+import { Empty, Spinner, useSortList } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -62,9 +62,7 @@ const SortableGroups = ({
   const reorder = useReorder('groups', contentType);
   const sensors = useSortSensors();
 
-  const accessibility = useSortAccessibility(
-    (id) => groups.find((group) => group.id === id)?.name ?? String(id),
-  );
+  const sortList = useSortList((id) => groups.find((group) => group.id === id)?.name ?? String(id));
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
@@ -83,7 +81,7 @@ const SortableGroups = ({
 
   return (
     <DndContext
-      accessibility={accessibility}
+      {...sortList}
       collisionDetection={closestCenter}
       modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       onDragEnd={handleDragEnd}

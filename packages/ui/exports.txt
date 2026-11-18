@@ -256,6 +256,7 @@ value useRecordPanel
 value useScopedHotkeys
 value useSexLabels
 value useSortAccessibility
+value useSortList
 value useSortRoleDescription
 value useTagOptions
 value useToast

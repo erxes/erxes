@@ -9,7 +9,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { type ReactNode, useLayoutEffect, useMemo, useState } from 'react';
+import { type ReactNode, useId, useLayoutEffect, useMemo, useState } from 'react';
 import { cn } from '../../lib/utils';
 import { BoardCardShell } from './BoardCardShell';
 import { type BoardCardEntry, BoardCards, BoardContext, type BoardTarget } from './boardContext';
@@ -74,6 +74,8 @@ export const BoardRoot = ({
   const context = useMemo(() => ({ ordered, target, cards }), [ordered, target, cards]);
   const sensors = useBoardSensors(cards.columnOf);
   const accessibility = useBoardAccessibility(cards);
+  // dnd-kit's own ids count from 0 in each copy of it, so a plugin's list would share them.
+  const id = useId();
 
   useLayoutEffect(() => cards.setBoard(board), [cards, board]);
 
@@ -105,6 +107,7 @@ export const BoardRoot = ({
   return (
     <BoardContext value={context}>
       <DndContext
+        id={id}
         sensors={sensors}
         accessibility={accessibility}
         collisionDetection={drag.collision}

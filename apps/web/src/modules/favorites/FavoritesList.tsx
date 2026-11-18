@@ -9,7 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import type { Favorite } from '@erxes/core-contract';
 import { IconStarFilled } from '@tabler/icons-react';
-import { Button, cn, useSortAccessibility, useSortRoleDescription } from 'erxes-ui';
+import { Button, cn, useSortList, useSortRoleDescription } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -85,7 +85,7 @@ export const FavoritesList = ({ onOpen }: { onOpen: () => void }) => {
 
   const sensors = useSortSensors();
 
-  const accessibility = useSortAccessibility(
+  const sortList = useSortList(
     (id) => favorites.find((favorite) => favorite.id === id)?.label ?? String(id),
   );
 
@@ -112,7 +112,7 @@ export const FavoritesList = ({ onOpen }: { onOpen: () => void }) => {
         {t('title', 'Favorites')}
       </h2>
       <DndContext
-        accessibility={accessibility}
+        {...sortList}
         autoScroll={false}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}

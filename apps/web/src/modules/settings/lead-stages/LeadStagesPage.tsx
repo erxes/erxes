@@ -11,7 +11,7 @@ import {
   PageHeader,
   ScrollArea,
   Spinner,
-  useSortAccessibility,
+  useSortList,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -68,9 +68,7 @@ const StageList = ({
   const stageName = useStageName();
   const ids = stages.map((stage) => stage.id);
 
-  const accessibility = useSortAccessibility((id) =>
-    stageName(stages.find((stage) => stage.id === id)?.name),
-  );
+  const sortList = useSortList((id) => stageName(stages.find((stage) => stage.id === id)?.name));
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -90,7 +88,7 @@ const StageList = ({
 
   return (
     <DndContext
-      accessibility={accessibility}
+      {...sortList}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={onDragEnd}

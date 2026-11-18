@@ -12,7 +12,8 @@ The core React app (React 19 with the compiler, Rsbuild, React Query) and the Mo
   places is one exported options factory (`memberQueries` in `@erxes/core-contract/client`, which erxes-ui's `SelectMember`, `MemberInline` and `useMembersById` take).
 - Keyset lists read through `useCursorList` (`src/lib/cursorList.ts`) into `CursorRecordTable`
   (`src/components`). Record pickers are lists in erxes-ui's `EntityPicker`, empty states are
-  erxes-ui's `Empty`, sortable lists take `useSortSensors()`.
+  erxes-ui's `Empty`, sortable lists take `useSortSensors()` and spread erxes-ui's `useSortList()`
+  on their `DndContext`.
 - `vp run check` fails on any copy of 80 tokens or more in apps/web or erxes-ui (jscpd,
   `.jscpd.json`): move the shared part into one component or function.
 - One way each, enforced by lint: addresses from `paths` (`src/lib/paths.ts`), dates and numbers

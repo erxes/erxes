@@ -1,4 +1,10 @@
-import type { Announcements, ScreenReaderInstructions, UniqueIdentifier } from '@dnd-kit/core';
+import type {
+  Announcements,
+  DndContextProps,
+  ScreenReaderInstructions,
+  UniqueIdentifier,
+} from '@dnd-kit/core';
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -14,7 +20,8 @@ export const useSortRoleDescription = () =>
  * item …").
  * `nameOf` gives an item's name from its id; the id is read out without it. `pointer` for a list
  * only the mouse or touch moves (tabs and links, whose keys switch or open them): its
- * instructions say to drag, not to press Space.
+ * instructions say to drag, not to press Space. A list takes `useSortList`, which adds the id
+ * its `DndContext` needs on a page with other lists.
  */
 export const useSortAccessibility = (
   nameOf: (id: UniqueIdentifier) => string = String,
@@ -57,3 +64,18 @@ export const useSortAccessibility = (
     },
   };
 };
+
+/**
+ * The id and screen reader words a sortable list's `DndContext` takes.
+ * Spread them: `<DndContext {...useSortList(nameOf)} onDragEnd={…}>`; `nameOf` and `pointer`
+ * are `useSortAccessibility`'s. The id comes from React, which core and plugins share, so it is
+ * unique on the page. Without it each copy of dnd-kit, core's and every plugin's, numbers its
+ * instructions from `DndDescribedBy-0`, and a plugin's items read core's tab bar's instructions.
+ */
+export const useSortList = (
+  nameOf?: (id: UniqueIdentifier) => string,
+  options?: { pointer?: boolean },
+): Required<Pick<DndContextProps, 'id' | 'accessibility'>> => ({
+  id: useId(),
+  accessibility: useSortAccessibility(nameOf, options),
+});

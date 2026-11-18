@@ -8,7 +8,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical } from '@tabler/icons-react';
-import { cn, Switch, useSortAccessibility, useSortRoleDescription } from 'erxes-ui';
+import { cn, Switch, useSortList, useSortRoleDescription } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSortSensors } from '~/lib/sortSensors';
 
@@ -89,7 +89,7 @@ export const PrintBlockList = ({
   const sensors = useSortSensors();
   const ids = blocks.map((block) => block.type);
 
-  const accessibility = useSortAccessibility((id) => {
+  const sortList = useSortList((id) => {
     const block = blocks.find((item) => item.type === id);
 
     return block ? t(`block.${block.type}`, BLOCK_LABELS[block.type][0]) : String(id);
@@ -105,7 +105,7 @@ export const PrintBlockList = ({
 
   return (
     <DndContext
-      accessibility={accessibility}
+      {...sortList}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={onDragEnd}
