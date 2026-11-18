@@ -39,6 +39,7 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
   const readable = new Set<string>();
   const rejected: string[] = [];
   const transfers: (PluginTransferRequest & { path: string; idempotencyKey: unknown })[] = [];
+
   const answers: { transfer: (request: PluginTransferRequest) => unknown } = {
     transfer: () => ({}),
   };
