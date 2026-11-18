@@ -7,6 +7,7 @@ import {
   IconInfoCircleFilled,
   IconX,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import { type ToastData, toastManager } from '../hooks/use-toast';
 
@@ -17,6 +18,7 @@ const icons: Partial<Record<string, ReactElement>> = {
 };
 
 const ToastList = () => {
+  const { t } = useTranslation();
   const { toasts } = Toast.useToastManager<ToastData>();
 
   return toasts.map((item) => (
@@ -35,7 +37,7 @@ const ToastList = () => {
       </div>
       {item.data?.action}
       <Toast.Close
-        aria-label="Close"
+        aria-label={t('close', 'Close')}
         className="absolute right-1 top-1 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-hidden focus:ring-1 group-hover:opacity-100"
       >
         <IconX className="h-4 w-4" />

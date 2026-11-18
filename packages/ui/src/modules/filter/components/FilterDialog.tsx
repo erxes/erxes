@@ -34,6 +34,7 @@ export const FilterDialogStringView = ({
   label?: string;
 }) => {
   const { t } = useTranslation();
+  const { t: ui } = useTranslation('ui', { keyPrefix: 'filter' });
   const { setDialogView, setOpenDialog } = useFilterContext();
   const [query, setQuery] = useQueryState(filterKey);
   const [dialogSearch, setDialogSearch] = useState(query ?? '');
@@ -56,7 +57,9 @@ export const FilterDialogStringView = ({
       <form onSubmit={onSubmit}>
         <Dialog.Header>
           <Dialog.Title>
-            {isSearch ? t('filter.search', 'Search') : `Filter by ${label || filterKey}...`}
+            {isSearch
+              ? t('filter.search', 'Search')
+              : ui('by', 'Filter by {{field}}…', { field: label || filterKey })}
           </Dialog.Title>
         </Dialog.Header>
 
@@ -68,9 +71,11 @@ export const FilterDialogStringView = ({
           onChange={(e) => setDialogSearch(e.target.value)}
         />
         <Dialog.Footer>
-          <Dialog.Close render={<Button variant="outline" size="lg" />}>Cancel</Dialog.Close>
+          <Dialog.Close render={<Button variant="outline" size="lg" />}>
+            {ui('cancel', 'Cancel')}
+          </Dialog.Close>
           <Button size="lg" type="submit">
-            Apply
+            {ui('apply', 'Apply')}
           </Button>
         </Dialog.Footer>
       </form>

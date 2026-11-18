@@ -13,7 +13,7 @@ export const PageContainer = ({
 } & React.RefAttributes<HTMLDivElement>) => {
   return (
     <div ref={ref} className={cn('flex flex-col h-full overflow-hidden', className)} {...props}>
-      {children || 'Page'}
+      {children}
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { FileBlockWrapper, createReactBlockSpec, useUploadLoading } from '@block
 import { IconFile } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui/components/spinner';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { readImage } from 'erxes-ui/utils/core';
 
 type FileRenderProps = ReactCustomBlockRenderProps<typeof createFileBlockConfig>;
@@ -31,13 +32,14 @@ const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
 
 const CustomFileBlockContent: FC<FileRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
 
   if (loading) {
     return (
       <div className="bn-file-block-content-wrapper">
         <div className="bn-file-loading-preview flex items-center gap-2">
           <Spinner size="sm" />
-          <span className="text-sm text-muted-foreground">Uploading...</span>
+          <span className="text-sm text-muted-foreground">{t('uploading', 'Uploading…')}</span>
         </div>
       </div>
     );

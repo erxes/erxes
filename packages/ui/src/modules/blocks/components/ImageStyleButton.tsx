@@ -5,6 +5,7 @@ import {
   useSelectedBlocks,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   IMAGE_STYLE_PRESETS,
   type ImageStyle,
@@ -21,6 +22,7 @@ export const ImageStyleButton = () => {
 
   const Components = useComponentsContext();
   const portalElement = usePortalElement();
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
   const selectedBlocks = useSelectedBlocks(editor);
   const selectedBlock = selectedBlocks.find((block) => block.type === 'image');
 
@@ -42,29 +44,31 @@ export const ImageStyleButton = () => {
     editor.focus();
   };
 
-  const currentLabel =
-    IMAGE_STYLE_OPTIONS.find((option) => option.value === currentStyle)?.label || 'Image';
+  const styleName = ({ value, label }: (typeof IMAGE_STYLE_OPTIONS)[number]) =>
+    t(`image-style.${value}`, label);
+
+  const current = IMAGE_STYLE_OPTIONS.find((option) => option.value === currentStyle);
 
   return (
     <Components.Generic.Menu.Root portalElement={portalElement}>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className="bn-button"
-          label={currentLabel}
-          mainTooltip="Image Style"
+          label={current ? styleName(current) : t('image', 'Image')}
+          mainTooltip={t('image-style.label', 'Image style')}
           icon={<IconPhoto size={16} />}
         />
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown className="bn-menu-dropdown bn-drag-handle-menu">
-        {IMAGE_STYLE_OPTIONS.map(({ value, label, Icon }) => (
+        {IMAGE_STYLE_OPTIONS.map((option) => (
           <Components.Generic.Menu.Item
-            key={value}
-            checked={currentStyle === value}
-            onClick={() => handleStyleChange(value)}
+            key={option.value}
+            checked={currentStyle === option.value}
+            onClick={() => handleStyleChange(option.value)}
           >
             <div className="flex items-center gap-2 w-full">
-              <Icon size={14} />
-              {label}
+              <option.Icon size={14} />
+              {styleName(option)}
             </div>
           </Components.Generic.Menu.Item>
         ))}

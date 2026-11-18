@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { IconSearch } from '@tabler/icons-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
+import { useTranslation } from 'react-i18next';
 import { cn, mergeRefs } from '../lib/utils';
 import { Dialog } from './dialog';
 
@@ -80,6 +81,7 @@ const CommandInput = ({
   /** Sits at the end of the search row, such as the key that focuses it. */
   trailing?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'list' });
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -111,7 +113,7 @@ const CommandInput = ({
         ref={mergeRefs(inputRef, ref)}
         className={cn(commanInputVariants({ variant: 'secondary' }), className)}
         {...props}
-        placeholder={props.placeholder || 'Search'}
+        placeholder={props.placeholder || t('search', 'Search')}
       />
       {trailing && <span className="mr-2 flex shrink-0">{trailing}</span>}
     </div>

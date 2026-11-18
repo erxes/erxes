@@ -5,6 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 import { buttonVariants } from './button';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 /** The badge's classes by `variant` and `size`, to style another element. */
 export const badgeVariants = cva(
@@ -42,6 +43,28 @@ export interface BadgeProps
   onClose?: () => void;
 }
 
+/** The x that removes a badge: a button, so the keyboard reaches it and it has a name. */
+const BadgeRemove = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'badge' });
+
+  return (
+    <button
+      type="button"
+      aria-label={t('remove', 'Remove')}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+      className={cn(
+        buttonVariants({ variant: 'ghost', size: 'icon' }),
+        'size-3.5 p-0 hover:bg-transparent flex-none',
+      )}
+    >
+      <IconX />
+    </button>
+  );
+};
+
 /** A small tinted label for a status, tag or count; `onClose` adds an x. */
 export const Badge = ({
   ref,
@@ -59,18 +82,7 @@ export const Badge = ({
       {...props}
     >
       {children}
-      {onClose && (
-        <IconX
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }}
-          className={cn(
-            buttonVariants({ variant: 'ghost', size: 'icon' }),
-            'size-3.5 p-0 hover:bg-transparent flex-none',
-          )}
-        />
-      )}
+      {onClose && <BadgeRemove onClose={onClose} />}
     </div>
   );
 };

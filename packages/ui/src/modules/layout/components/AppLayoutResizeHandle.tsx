@@ -1,4 +1,5 @@
 import { type PointerEvent as ReactPointerEvent, type RefObject, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { storedFamily } from 'erxes-ui/lib/stored';
 
@@ -37,6 +38,7 @@ export const AppLayoutResizeHandle = ({
   onReset: () => void;
   onResizingChange: (resizing: boolean) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const drag = useRef<{ startX: number; startWidth: number } | null>(null);
 
   /** Ends the captured pointer drag and restores the sidebar resizing state. */
@@ -57,8 +59,8 @@ export const AppLayoutResizeHandle = ({
   return (
     <button
       type="button"
-      aria-label="Resize sidebar"
-      title="Resize sidebar"
+      aria-label={t('resize-sidebar', 'Resize sidebar')}
+      title={t('resize-sidebar', 'Resize sidebar')}
       className="group/resize absolute inset-y-0 right-0 z-30 w-2 cursor-col-resize touch-none outline-none"
       onDoubleClick={onReset}
       onKeyDown={(event) => {

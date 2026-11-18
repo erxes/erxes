@@ -1,5 +1,6 @@
 import { IconArrowsDiagonal, IconTrash } from '@tabler/icons-react';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/button';
 import type { BarcodeSize } from '../hooks/useBarcodeResize';
 import { useBarcodeResize } from '../hooks/useBarcodeResize';
@@ -14,7 +15,7 @@ type BarcodeAttributeProps = Readonly<{
   width: number;
 }>;
 
-const BarcodePreview = ({ size }: { size: BarcodeSize }) => (
+const BarcodePreview = ({ size, title }: { size: BarcodeSize; title: string }) => (
   <svg
     width="100%"
     height="100%"
@@ -23,7 +24,7 @@ const BarcodePreview = ({ size }: { size: BarcodeSize }) => (
     className="block h-(--barcode-height) w-(--barcode-width) bg-white text-black"
     style={{ '--barcode-width': `${size.width}px`, '--barcode-height': `${size.height}px` }}
   >
-    <title>Product barcode preview</title>
+    <title>{title}</title>
     <path
       stroke="currentColor"
       strokeWidth="4"
@@ -53,23 +54,24 @@ export const BarcodeAttribute = ({
   const canEdit = useBlockEditorEditable(editable);
   const barcodeRef = useRef<HTMLSpanElement>(null);
   const { size, resizeHandlers } = useBarcodeResize({ width, height, onResize });
+  const { t } = useTranslation('ui', { keyPrefix: 'barcode' });
 
   return (
     <span
       ref={barcodeRef}
       className="inline-flex flex-col items-start align-middle"
       contentEditable={false}
-      title="Barcode preview — prints the selected product’s barcode"
+      title={t('hint', 'Barcode preview: prints the selected product’s barcode')}
     >
-      <BarcodePreview size={size} />
+      <BarcodePreview size={size} title={t('preview', 'Product barcode preview')} />
       {canEdit && (
         <span className="erxes-block-controls order-first mb-1 flex gap-1 rounded bg-background p-1 text-foreground shadow-sm print:hidden">
           <Button
             type="button"
             variant="outline"
             size="icon"
-            aria-label="Resize barcode"
-            title="Drag up to increase height; drag right to increase width"
+            aria-label={t('resize', 'Resize barcode')}
+            title={t('resize-hint', 'Drag up to increase height; drag right to increase width')}
             className="touch-none cursor-nesw-resize"
             {...resizeHandlers}
           >
@@ -80,8 +82,8 @@ export const BarcodeAttribute = ({
             type="button"
             variant="outline"
             size="icon"
-            aria-label="Delete barcode"
-            title="Delete barcode"
+            aria-label={t('delete', 'Delete barcode')}
+            title={t('delete', 'Delete barcode')}
             tone="destructive"
             onClick={(event) => {
               event.preventDefault();

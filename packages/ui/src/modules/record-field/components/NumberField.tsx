@@ -2,6 +2,7 @@ import { Input } from 'erxes-ui/components/input';
 import { useFormat } from 'erxes-ui/lib/format';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
@@ -31,6 +32,7 @@ export const NumberField = ({
   ...props
 }: NumberFieldProps) => {
   const fmt = useFormat();
+  const { t } = useTranslation('ui', { keyPrefix: 'field' });
   const [isOpen, setIsOpen] = useState(false);
   const [editingValue, setEditingValue] = useState(String(value));
   // Whether the open popover's value was typed in; closing it saves only then.
@@ -102,7 +104,7 @@ export const NumberField = ({
         />
 
         <button type="submit" className="sr-only">
-          Save
+          {t('save', 'Save')}
         </button>
       </RecordTableInlineCell.Content>
     </PopoverScoped>

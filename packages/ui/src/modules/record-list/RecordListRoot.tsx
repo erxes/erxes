@@ -1,6 +1,7 @@
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 import { useId, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/button';
 import { Checkbox } from '../../components/checkbox';
 import { useMediaQuery } from '../../hooks/use-media-query';
@@ -77,6 +78,7 @@ const GroupHeader = ({
 
 /** Picks or drops every row of a group. */
 const GroupCheckbox = ({ label, ids }: { label: string; ids: string[] }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
   const { selection } = useRecordListContext();
   const hover = useHover();
   const picked = useSelectionState((current) => ids.filter((id) => current.has(id)).length);
@@ -91,7 +93,7 @@ const GroupCheckbox = ({ label, ids }: { label: string; ids: string[] }) => {
       <Checkbox
         checked={picked > 0 && picked === ids.length}
         indeterminate={picked > 0 && picked < ids.length}
-        aria-label={`Select all in ${label}`}
+        aria-label={t('select-all-in', 'Select all in {{group}}', { group: label })}
         onCheckedChange={() => selection.toggleAll(ids)}
       />
     </span>
@@ -119,6 +121,7 @@ const Row = ({
   order: string[];
   children: ReactNode;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
   const { selection } = useRecordListContext();
   const hover = useHover();
   const checked = useSelectionState((current) => current.has(id));
@@ -136,7 +139,7 @@ const Row = ({
         <Checkbox
           className="relative after:absolute after:-inset-x-2 after:-inset-y-3.5"
           checked={checked}
-          aria-label={`Select ${label}`}
+          aria-label={t('select', 'Select {{name}}', { name: label })}
           onCheckedChange={(_checked, { event }) => {
             const range = event instanceof MouseEvent && event.shiftKey;
 

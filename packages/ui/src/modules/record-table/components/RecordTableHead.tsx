@@ -5,6 +5,7 @@ import { useDndContext } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cva } from 'class-variance-authority';
+import { useTranslation } from 'react-i18next';
 
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
@@ -32,10 +33,10 @@ const recordTableHeadVariants = cva(
 
 // What the button shows for each order, and what a press does next.
 const SORT_BUTTON = {
-  none: { Icon: IconArrowsSort, label: 'Sort ascending' },
-  asc: { Icon: IconArrowUp, label: 'Sort descending' },
-  desc: { Icon: IconArrowDown, label: 'Clear sort' },
-};
+  none: { Icon: IconArrowsSort, label: 'sort-ascending', english: 'Sort ascending' },
+  asc: { Icon: IconArrowUp, label: 'sort-descending', english: 'Sort descending' },
+  desc: { Icon: IconArrowDown, label: 'clear-sort', english: 'Clear sort' },
+} as const;
 
 const ARIA_SORT = { asc: 'ascending', desc: 'descending', none: 'none' } as const;
 
@@ -57,12 +58,13 @@ const SortButton = ({
   direction: TRecordTableSort['direction'] | undefined;
   onSort: () => void;
 }) => {
-  const { Icon, label } = SORT_BUTTON[direction ?? 'none'];
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
+  const { Icon, label, english } = SORT_BUTTON[direction ?? 'none'];
 
   return (
     <button
       type="button"
-      aria-label={label}
+      aria-label={t(label, english)}
       className={cn(
         'relative z-1 ml-1 inline-flex size-5 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-ring',
         !direction && 'opacity-0 group-hover/head:opacity-100',

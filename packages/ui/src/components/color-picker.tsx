@@ -5,6 +5,7 @@ import { inputVariants } from 'erxes-ui/components/input';
 import { cn } from 'erxes-ui/lib/utils';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MaskInput } from './on-demand';
 
 const DEFAULT_COLORS = {
@@ -91,6 +92,7 @@ const ColorPickerTrigger = ({
 };
 
 const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'color' });
   const { value, onValueChange, colors } = useColorPickerContext();
 
   return (
@@ -100,7 +102,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
           <button
             key={key}
             type="button"
-            aria-label={key}
+            aria-label={t(`names.${key}`, key)}
             aria-pressed={value === color}
             className="aspect-3/2 rounded flex items-center justify-center cursor-pointer bg-(--swatch) hover:scale-105 transition-transform focus-visible:shadow-focus outline-hidden"
             style={{ '--swatch': color }}
@@ -119,7 +121,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
           >
             <input
               type="color"
-              aria-label="Custom color"
+              aria-label={t('custom', 'Custom color')}
               value={value || '#000000'}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               onChange={(e) => onValueChange?.(e.target.value)}

@@ -1,6 +1,7 @@
 import { useComponentsContext, usePortalElement } from '@blocknote/react';
 import type { ComponentProps } from '@blocknote/react';
 import { IconChevronDown } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ToolbarMenuItem } from 'erxes-ui/modules/blocks/components/toolbar/menus/ToolbarMenuItem';
 
 export const ToolbarSelect = ({
@@ -12,6 +13,8 @@ export const ToolbarSelect = ({
   const Components = useComponentsContext();
   const ambientPortalElement = usePortalElement();
   const selectedItem = items.find((item) => item.isSelected);
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
+  const label = selectedItem?.text ?? t('block-type', 'Block type');
 
   if (!Components || !items.length) {
     return null;
@@ -21,13 +24,13 @@ export const ToolbarSelect = ({
     <Components.Generic.Menu.Root portalElement={portalElement ?? ambientPortalElement}>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
-          label={selectedItem?.text ?? 'Block type'}
-          mainTooltip={selectedItem?.text ?? 'Block type'}
+          label={label}
+          mainTooltip={label}
           icon={selectedItem?.icon}
           isDisabled={isDisabled}
           className="bn-button gap-1"
         >
-          {selectedItem?.text ?? 'Block type'}
+          {label}
           <IconChevronDown size={14} />
         </Components.FormattingToolbar.Button>
       </Components.Generic.Menu.Trigger>

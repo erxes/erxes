@@ -2,17 +2,29 @@ import type { KeyboardEvent } from 'react';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import type { BarcodeSize } from './useBarcodeResize';
 import { BARCODE_DIMENSION_LIMITS } from './useBarcodeResize';
 
-const dimension = (limits: { min: number; max: number }) =>
-  z.number({ error: 'Enter a number' }).int().min(limits.min).max(limits.max);
+/** Width and height in whole pixels within their limits, with messages in the UI's language. */
+const barcodeSizeSchema = (t: TFunction<'ui', 'editor'>) => {
+  const dimension = ({ min, max }: { min: number; max: number }) => {
+    const range = t('size-range', 'Enter a whole number from {{min}} to {{max}}', { min, max });
 
-const barcodeSizeSchema = z.object({
-  width: dimension(BARCODE_DIMENSION_LIMITS.width),
-  height: dimension(BARCODE_DIMENSION_LIMITS.height),
-});
+    return z
+      .number({ error: t('size-number', 'Enter a number') })
+      .int({ error: range })
+      .min(min, { error: range })
+      .max(max, { error: range });
+  };
+
+  return z.object({
+    width: dimension(BARCODE_DIMENSION_LIMITS.width),
+    height: dimension(BARCODE_DIMENSION_LIMITS.height),
+  });
+};
 
 export const BARCODE_SIZE_PRESETS: BarcodeSize[] = [
   { width: 113, height: 78 },
@@ -31,9 +43,10 @@ export const useBarcodeSizeForm = ({
   onResize: (size: BarcodeSize) => void;
 }) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
 
   const form = useForm<BarcodeSize>({
-    resolver: zodResolver(barcodeSizeSchema),
+    resolver: zodResolver(barcodeSizeSchema(t)),
     defaultValues: size,
   });
 

@@ -1,6 +1,7 @@
 import { IconCheck, IconSettings } from '@tabler/icons-react';
 import type { KeyboardEvent } from 'react';
 import type { Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/button';
 import { Form } from '../../../components/form';
 import { Input } from '../../../components/input';
@@ -11,8 +12,8 @@ import { BARCODE_DIMENSION_LIMITS } from '../hooks/useBarcodeResize';
 import { BARCODE_SIZE_PRESETS, useBarcodeSizeForm } from '../hooks/useBarcodeSizeForm';
 
 const DIMENSIONS = [
-  { name: 'width', label: 'Width (px)' },
-  { name: 'height', label: 'Height (px)' },
+  { name: 'width', label: 'width', english: 'Width (px)' },
+  { name: 'height', label: 'height', english: 'Height (px)' },
 ] as const;
 
 const DimensionField = ({
@@ -68,6 +69,8 @@ export const BarcodeSizeSettings = ({
     handleInputKeyDown,
   } = useBarcodeSizeForm({ size, onResize });
 
+  const { t } = useTranslation('ui', { keyPrefix: 'barcode' });
+
   return (
     <Popover open={settingsOpen} onOpenChange={handleSettingsOpenChange}>
       <Popover.Trigger
@@ -76,8 +79,8 @@ export const BarcodeSizeSettings = ({
             type="button"
             variant="outline"
             size="icon"
-            aria-label="Barcode settings"
-            title="Barcode settings"
+            aria-label={t('settings', 'Barcode settings')}
+            title={t('settings', 'Barcode settings')}
           />
         }
       >
@@ -86,10 +89,10 @@ export const BarcodeSizeSettings = ({
       <Popover.Content className="w-64" onClick={(event) => event.stopPropagation()}>
         <Form {...form}>
           <div className="space-y-3">
-            <p className="text-sm font-medium">Barcode size</p>
+            <p className="text-sm font-medium">{t('size', 'Barcode size')}</p>
             <Select value={preset ? String(preset.width) : ''} onValueChange={handlePresetChange}>
-              <Select.Trigger aria-label="Barcode size preset">
-                <Select.Value placeholder="Custom size" />
+              <Select.Trigger aria-label={t('preset', 'Barcode size preset')}>
+                <Select.Value placeholder={t('custom', 'Custom size')} />
               </Select.Trigger>
               <Select.Content>
                 {BARCODE_SIZE_PRESETS.map((option) => (
@@ -99,12 +102,12 @@ export const BarcodeSizeSettings = ({
                 ))}
               </Select.Content>
             </Select>
-            {DIMENSIONS.map(({ name, label }) => (
+            {DIMENSIONS.map(({ name, label, english }) => (
               <DimensionField
                 key={name}
                 control={form.control}
                 name={name}
-                label={label}
+                label={t(label, english)}
                 onKeyDown={handleInputKeyDown}
               />
             ))}
@@ -112,8 +115,8 @@ export const BarcodeSizeSettings = ({
               <Button
                 type="button"
                 size="icon"
-                aria-label="Apply barcode size"
-                title="Apply barcode size"
+                aria-label={t('apply', 'Apply barcode size')}
+                title={t('apply', 'Apply barcode size')}
                 onClick={() => void applySize()}
               >
                 <IconCheck />
