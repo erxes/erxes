@@ -902,7 +902,9 @@
     "retried": "Retrying {{count}} events",
     "failed": "Something went wrong"
   },
+  "webhooks": { "title": "Webhooks" },
   "audit-log": {
+    "title": "Audit log",
     "verify-checkpoint-mismatch": "The log no longer matches signed checkpoint #{{position}}: entries were rewritten or removed outside erxes.",
     "verify-checkpoints": "{{count}} signed checkpoints checked. erxes signs the chain every 10 minutes with a key kept outside the database.",
     "verify-no-checkpoints": "No signed checkpoint yet: erxes signs the chain every 10 minutes.",
