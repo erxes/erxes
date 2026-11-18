@@ -196,6 +196,8 @@ export * from './pluginFields';
 
 export * from './pluginRelations';
 
+export * from './pluginTranslations';
+
 export * from './pluginReads';
 
 export * from './products';

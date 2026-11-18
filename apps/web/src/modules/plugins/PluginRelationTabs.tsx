@@ -11,12 +11,13 @@ import { usePlugins } from './usePlugins';
 const CONTACT_TYPES = ['core:customer', 'core:company'];
 
 /**
- * Whether a plugin's relation tab shows on a record of `contentType`: a customer or company, or
- * a record type its `hosts` names. Another plugin's record shows it only when named, so an
- * order doesn't list its customer's deals unless the plugin asks for that.
+ * Whether a plugin's relation tab shows on a record of `contentType`: the record types its
+ * `hosts` names (`core:customer` alone, `tasks:task`), else customers and companies. Another
+ * plugin's record shows it only when named, so an order doesn't list its customer's deals
+ * unless the plugin asks for that.
  */
 const showsOn = (tab: TRelationTab, contentType: string) =>
-  CONTACT_TYPES.includes(contentType) || (tab.hosts?.includes(contentType) ?? false);
+  (tab.hosts ?? CONTACT_TYPES).includes(contentType);
 
 /** One plugin's relation tab: its list, kept apart if it crashes. */
 const RelationTabContent = ({

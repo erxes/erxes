@@ -22,6 +22,7 @@ const CompaniesMergeDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('contact');
   const { table } = RecordTable.useRecordTable();
   const { openRecord } = useSidePanel();
   const merge = useCompaniesMerge();
@@ -30,11 +31,11 @@ const CompaniesMergeDialog = ({
     <MergeDialog
       open={open}
       onOpenChange={onOpenChange}
-      noun="companies"
+      kind="company"
       merging={merge.isPending}
       records={companies.map((company) => ({
         id: company.id,
-        title: companyTitle(company) || 'Unnamed',
+        title: companyTitle(company) || t('unnamed', 'Unnamed'),
         details: [company.primaryEmail ?? '', company.website ?? ''],
       }))}
       onMerge={(keepId) =>

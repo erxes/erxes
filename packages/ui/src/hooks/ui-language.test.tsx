@@ -29,6 +29,7 @@ beforeAll(async () => {
           sort: {
             picked: '{{item}}-г авлаа.',
             instructions: 'Зүйлийг авахын тулд Space дарна уу.',
+            'pointer-instructions': 'Хулганаар чирж зөөнө үү.',
           },
         },
       },
@@ -45,9 +46,12 @@ const inMongolian = (node: ReactNode) =>
 const names = (container: HTMLElement) =>
   Array.from(container.querySelectorAll('[aria-label]'), (node) => node.getAttribute('aria-label'));
 
-/** What a screen reader hears: the drag instructions, then picking up the item "Нэр". */
-const Spoken = () => {
-  const { announcements, screenReaderInstructions } = useSortAccessibility();
+/**
+ * What a screen reader hears: the drag instructions, then picking up the item "Нэр". `pointer`
+ * for a list only the mouse or touch moves.
+ */
+const Spoken = ({ pointer = false }: { pointer?: boolean }) => {
+  const { announcements, screenReaderInstructions } = useSortAccessibility(String, { pointer });
 
   return (
     <p>
@@ -99,5 +103,11 @@ describe("erxes-ui's controls in the app's language", () => {
     const container = inMongolian(<Spoken />);
 
     expect(container.textContent).toBe('Зүйлийг авахын тулд Space дарна уу. Нэр-г авлаа.');
+  });
+
+  it('tells a list only the mouse or touch moves to drag, not to press Space', () => {
+    const container = inMongolian(<Spoken pointer />);
+
+    expect(container.textContent).toBe('Хулганаар чирж зөөнө үү. Нэр-г авлаа.');
   });
 });

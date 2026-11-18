@@ -127,7 +127,7 @@ export const CatalogPicker = ({
   disabled,
   placeholder,
 }: PickerProps) => {
-  const { searchPlaceholder } = useCatalogLabels(kind);
+  const { searchPlaceholder, pickerLabel } = useCatalogLabels(kind);
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -164,6 +164,7 @@ export const CatalogPicker = ({
         disabled={disabled}
       />
       <Popover.Content
+        aria-label={pickerLabel}
         align="start"
         sideOffset={6}
         collisionPadding={12}

@@ -93,7 +93,7 @@ const NewWebhookForm = ({ onCreated }: { onCreated: (secret: string) => void }) 
           )}
           hidePlaceholderWhenSelected
         />
-        {error && <p className="text-sm text-destructive">{messageOf(error)}</p>}
+        {error && <p className="text-sm text-destructive-text">{messageOf(error)}</p>}
       </div>
       <Button
         className="w-full"

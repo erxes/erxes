@@ -4,14 +4,22 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { IconPlus, IconProgress } from '@tabler/icons-react';
 import { useSortSensors } from '~/lib/sortSensors';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Input, PageContainer, PageHeader, ScrollArea, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Input,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Spinner,
+  useSortAccessibility,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { paths } from '~/lib/paths';
-import { useLeadsT } from '~/modules/leads/i18n';
+import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 import { leadStagesQuery, useLeadStageMutations, useLeadStages } from '~/modules/leads/useLeads';
 import { RemoveStageDialog } from './RemoveStageDialog';
 import { KINDS, StageRow } from './StageRow';
@@ -57,7 +65,12 @@ const StageList = ({
   const client = useQueryClient();
   const { reorder } = useLeadStageMutations();
   const sensors = useSortSensors();
+  const stageName = useStageName();
   const ids = stages.map((stage) => stage.id);
+
+  const accessibility = useSortAccessibility((id) =>
+    stageName(stages.find((stage) => stage.id === id)?.name),
+  );
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -76,7 +89,12 @@ const StageList = ({
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+    <DndContext
+      accessibility={accessibility}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+    >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         {stages.map((stage) => (
           <StageRow key={stage.id} stage={stage} onRemove={() => onRemove(stage)} />
@@ -118,7 +136,7 @@ export const LeadStagesPage = () => {
             ))}
           </ul>
           {error ? (
-            <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+            <p className="py-12 text-center text-sm text-destructive-text">{messageOf(error)}</p>
           ) : loading ? (
             <Spinner area="lg" />
           ) : (

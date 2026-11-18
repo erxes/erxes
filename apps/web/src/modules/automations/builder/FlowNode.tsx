@@ -106,7 +106,7 @@ const NodeStats = ({ stats }: { stats: { succeeded: number; failed: number } }) 
       {stats.succeeded}
     </span>
     {stats.failed > 0 && (
-      <span className="flex items-center gap-1 text-destructive">
+      <span className="flex items-center gap-1 text-destructive-text">
         <IconCircleX className="size-3.5" />
         {stats.failed}
       </span>
@@ -161,7 +161,9 @@ export const Node = ({
         <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
         {detail && <span className="block truncate text-xs text-muted-foreground">{detail}</span>}
       </span>
-      {!!problems?.length && <IconAlertTriangle className="size-4 shrink-0 text-destructive" />}
+      {!!problems?.length && (
+        <IconAlertTriangle className="size-4 shrink-0 text-destructive-text" />
+      )}
     </div>
     {stats && (
       <span className="flex items-center gap-3 border-t px-3 py-1.5 text-2xs text-muted-foreground">

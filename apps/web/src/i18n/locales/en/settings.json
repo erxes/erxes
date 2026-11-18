@@ -902,7 +902,9 @@
     "retried": "Retrying {{count}} events",
     "failed": "Something went wrong"
   },
+  "webhooks": { "title": "Webhooks" },
   "audit-log": {
+    "title": "Audit log",
     "verify-checkpoint-mismatch": "The log no longer matches signed checkpoint #{{position}}: entries were rewritten or removed outside erxes.",
     "verify-checkpoints": "{{count}} signed checkpoints checked. erxes signs the chain every 10 minutes with a key kept outside the database.",
     "verify-no-checkpoints": "No signed checkpoint yet: erxes signs the chain every 10 minutes.",
@@ -1018,7 +1020,15 @@
     "collapse-all": "Collapse all",
     "select-all-in": "All of {{name}}",
     "no-match": "No permissions match",
-    "no-match-description": "Try another word or show all."
+    "no-match-description": "Try another word or show all.",
+    "builtin": {
+      "owner": {
+        "name": "Owner",
+        "description": "Everything, including plugins and the audit log's retention"
+      },
+      "admin": { "name": "Admin", "description": "Everything except owner-only actions" },
+      "member": { "name": "Member", "description": "Works with contacts and tags" }
+    }
   },
   "general": {
     "title": "General",

@@ -40,8 +40,9 @@ import {
   ContactAvatarRow,
   ContactDescriptionRow,
   ContactOwnerRow,
-  contactDescription,
+  type ContactDescription,
   NewContactForm,
+  useContactDescription,
   useFinishCreate,
 } from './NewContactForm';
 
@@ -52,7 +53,8 @@ const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean).map((ind
 
 type Translate = (key: string, defaultValue: string) => string;
 
-const companySchema = (t: Translate) =>
+/** `t` reads `contact:company.*`. */
+const companySchema = (t: Translate, description: ContactDescription) =>
   z.object({
     // Core names every company.
     primaryName: z
@@ -73,7 +75,7 @@ const companySchema = (t: Translate) =>
       .string()
       .regex(/^\d*$/, t('form.size-invalid', 'Enter a whole number of people'))
       .optional(),
-    description: contactDescription.optional(),
+    description: description.optional(),
     avatarUrl: z.string().nullable().optional(),
   });
 
@@ -240,11 +242,11 @@ const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]
  */
 export const CompanyPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { t: contactT } = useTranslation('contact');
+  const description = useContactDescription();
   const [customerIds, setCustomerIds] = useState<string[]>([]);
 
   const form = useForm<TCompanyForm>({
-    resolver: zodResolver(companySchema(contactT)),
+    resolver: zodResolver(companySchema(t, description)),
     defaultValues: { primaryName: '', code: '', industry: [] },
   });
 

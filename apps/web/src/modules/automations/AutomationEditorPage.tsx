@@ -174,12 +174,12 @@ const EditorTabBar = ({
       <span className="ml-auto text-xs text-muted-foreground">
         {t('step-count', '{{count}} steps', { count: steps })}
         {problemCount > 0 && (
-          <span className="text-destructive">
+          <span className="text-destructive-text">
             {' '}
             · {t('problem-count', '{{count}} to fix', { count: problemCount })}
           </span>
         )}
-        {statsError && <span className="text-destructive"> · {messageOf(statsError)}</span>}
+        {statsError && <span className="text-destructive-text"> · {messageOf(statsError)}</span>}
       </span>
     </div>
   );

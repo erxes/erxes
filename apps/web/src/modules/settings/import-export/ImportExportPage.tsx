@@ -95,7 +95,7 @@ const ExportRow = ({ item }: { item: Export }) => {
       <span className="min-w-0 flex-1 truncate">
         {t(`noun.${item.recordType}`, item.recordType)} · {item.format.toUpperCase()}
         {item.rowCount !== null && ` · ${fmt.number(item.rowCount)} ${t('rows', 'rows')}`}
-        {item.error && <span className="text-destructive"> · {item.error}</span>}
+        {item.error && <span className="text-destructive-text"> · {item.error}</span>}
       </span>
       <When value={item.createdAt} />
       {item.fileId && (

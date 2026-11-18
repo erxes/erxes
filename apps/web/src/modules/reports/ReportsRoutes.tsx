@@ -177,7 +177,7 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4">
-          {error && <p className="text-sm text-destructive">{messageOf(error)}</p>}
+          {error && <p className="text-sm text-destructive-text">{messageOf(error)}</p>}
           {isPending || !report ? (
             <Skeleton className="h-96" />
           ) : (

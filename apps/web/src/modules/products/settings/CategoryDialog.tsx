@@ -82,7 +82,7 @@ const CategoryForm = ({ target, onDone }: { target: CategoryDialogTarget; onDone
       <div className="space-y-1.5">
         <Label htmlFor={`${id}-name`}>
           {t('fields.name', 'Name')}
-          <span aria-hidden="true" className="text-destructive">
+          <span aria-hidden="true" className="text-destructive-text">
             {' *'}
           </span>
         </Label>
@@ -95,7 +95,7 @@ const CategoryForm = ({ target, onDone }: { target: CategoryDialogTarget; onDone
           aria-describedby={errors.name ? `${id}-name-error` : undefined}
         />
         {errors.name && (
-          <p id={`${id}-name-error`} className="text-sm text-destructive">
+          <p id={`${id}-name-error`} className="text-sm text-destructive-text">
             {errors.name}
           </p>
         )}
@@ -110,7 +110,7 @@ const CategoryForm = ({ target, onDone }: { target: CategoryDialogTarget; onDone
           exclude={editing ? categoryWithDescendants(categories, editing.id) : undefined}
         />
         {errors.parent && (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive-text">
             {errors.parent}
           </p>
         )}

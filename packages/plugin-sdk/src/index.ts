@@ -12,6 +12,12 @@
  *
  *   const customer = await core.forOrg(orgId).customers.get({ id }).catch(passCoreError('customers'));
  *
+ * Words core shows for the plugin (its title, record types' titles, activity and timeline labels)
+ * come in other languages from the manifest's `translations`, keyed by the English text; web shows
+ * the member's language, else the English:
+ *
+ *   translations: { mn: { HR: 'Хүний нөөц', Employee: 'Ажилтан', 'Leave approved': 'Чөлөө зөвшөөрөгдсөн' } }
+ *
  * Payments (scopes `payments:write`, `payments:read`; subscribe to `core.payment.*`):
  *
  *   const invoice = await core.forOrg(orgId).payments.createInvoice({

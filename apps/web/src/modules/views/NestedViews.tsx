@@ -25,7 +25,7 @@ export const NestedViews = ({
 
   if (error) {
     return (
-      <p role="alert" className={cn('px-2 text-xs text-destructive', indent && 'ml-5')}>
+      <p role="alert" className={cn('px-2 text-xs text-destructive-text', indent && 'ml-5')}>
         {messageOf(error)}
       </p>
     );

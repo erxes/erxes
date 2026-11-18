@@ -65,7 +65,7 @@ export const BackToSignIn = () => {
 /** What the server said went wrong, over the button. */
 export const ErrorLine = ({ error }: { error: Error | null }) =>
   error ? (
-    <p role="alert" className="text-center text-sm text-destructive">
+    <p role="alert" className="text-center text-sm text-destructive-text">
       {messageOf(error)}
     </p>
   ) : null;
@@ -112,7 +112,7 @@ export const AuthField = ({
         onChange={(event) => onChange(event.target.value)}
       />
       {error ? (
-        <p id={messageId} className="text-xs text-destructive">
+        <p id={messageId} className="text-xs text-destructive-text">
           {error}
         </p>
       ) : (

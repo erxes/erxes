@@ -15,6 +15,9 @@ const Broken = () => {
   throw new Error('orders exploded');
 };
 
+// A customer who isn't a candidate: the section has nothing to show.
+const NotACandidate = () => null;
+
 // The `./config` each plugin remote exposes.
 const CONFIGS: Record<string, unknown> = {
   'sales_ui/config': {
@@ -24,6 +27,7 @@ const CONFIGS: Record<string, unknown> = {
       { contentType: 'core:customer', title: 'Deals', icon: Icon, component: Deals },
       { contentType: 'core:company', title: 'Company deals', icon: Icon, component: Deals },
       { contentType: 'core:customer', title: '', icon: Icon, component: Deals },
+      { contentType: 'core:customer', title: 'Candidate', icon: Icon, component: NotACandidate },
     ],
   },
   'shop_ui/config': {
@@ -89,8 +93,11 @@ const renderSections = async (contentType: 'core:customer' | 'core:company') => 
   return container;
 };
 
+/** The headings a member sees: a hidden section's is left out. */
 const headings = (container: HTMLElement) =>
-  [...container.querySelectorAll('h3')].map((heading) => heading.textContent);
+  [...container.querySelectorAll('h3')]
+    .filter((heading) => !heading.closest('[hidden]'))
+    .map((heading) => heading.textContent);
 
 describe('plugin sections on a customer', () => {
   it('shows each allowed plugin’s well-formed sections for the record, a crash kept to its own', async () => {
@@ -102,6 +109,12 @@ describe('plugin sections on a customer', () => {
       'Shop stopped working',
     );
     expect(container.textContent).toContain('orders exploded');
+  });
+
+  it('leaves out a section with nothing to show, heading and all', async () => {
+    const container = await renderSections('core:customer');
+
+    expect(headings(container)).not.toContain('Candidate');
   });
 
   it('names a section in the member’s language, from the text the plugin added', async () => {

@@ -647,7 +647,22 @@
     "no-properties-hint": "Эхний шинж чанараа үүсгэж эхлээрэй.",
     "create-property": "Шинж чанар үүсгэх",
     "properties-not-saved": "Шинж чанарыг хадгалж чадсангүй",
-    "empty": "Хоосон"
+    "empty": "Хоосон",
+    "resize": "Хажуу самбарын өргөнийг өөрчлөх",
+    "drag-to-resize": "Чирж өргөнийг өөрчилнө үү",
+    "navigation": "Бичлэгийн навигаци",
+    "collapse": "Бичлэгийг хураах",
+    "back": "Буцах",
+    "error": "Бичлэгийг ачаалж чадсангүй",
+    "record-not-found": "Энэ бичлэг устсан байна.",
+    "record-load-error": "Самбарыг хаагаад дахин оролдоно уу.",
+    "new-record": "Шинэ {{type}}",
+    "record-types": {
+      "Customer": "Харилцагч",
+      "Company": "Компани",
+      "Product": "Бүтээгдэхүүн",
+      "Team member": "Багийн гишүүн"
+    }
   },
   "two-factor": {
     "authenticator-code": "Authenticator код",
@@ -674,8 +689,8 @@
   },
   "notifications": {
     "title": "Мэдэгдэл",
-    "title-unread_one": "Мэдэгдэл, {{count}} уншаагүй",
-    "title-unread_other": "Мэдэгдэл, {{count}} уншаагүй",
+    "title-unread_one": "Мэдэгдэл, {{shown}} уншаагүй",
+    "title-unread_other": "Мэдэгдэл, {{shown}} уншаагүй",
     "mark-all-read": "Бүгдийг уншсан болгох",
     "open-inbox": "Ирсэн мэдэгдлүүдийг нээх",
     "polling": "Шууд шинэчлэл зогссон; 30 секунд тутам шинэчилнэ",

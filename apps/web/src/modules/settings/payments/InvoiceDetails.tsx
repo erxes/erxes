@@ -155,7 +155,7 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
         </Label>
       </div>
       {mustBeManual && (
-        <p className="text-xs text-destructive">
+        <p className="text-xs text-destructive-text">
           {t(
             'refund-full-only',
             'This gateway refunds whole payments only. Refund part of it outside erxes and record it.',

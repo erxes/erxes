@@ -17,6 +17,8 @@ import {
   Form,
   Input,
   Select,
+  SexCode,
+  useSexLabels,
   useToast,
   toIsoDay,
   PanelFormRow,
@@ -37,22 +39,19 @@ import {
   ContactAvatarRow,
   ContactDescriptionRow,
   ContactOwnerRow,
-  contactDescription,
+  type ContactDescription,
   NewContactForm,
+  useContactDescription,
   useFinishCreate,
 } from './NewContactForm';
 
 // The ISO/IEC 5218 codes core stores.
-const CUSTOMER_SEX_OPTIONS = [
-  { label: 'Not known', value: '0' },
-  { label: 'Male', value: '1' },
-  { label: 'Female', value: '2' },
-  { label: 'Not applicable', value: '9' },
-];
+const SEX_CODES = [SexCode.NOT_KNOWN, SexCode.MALE, SexCode.FEMALE, SexCode.NOT_APPLICABLE];
 
 type Translate = (key: string, defaultValue: string) => string;
 
-const customerSchema = (t: Translate) =>
+/** `t` reads `contact:customer.*`. */
+const customerSchema = (t: Translate, description: ContactDescription) =>
   z
     .object({
       firstName: z.string(),
@@ -68,7 +67,7 @@ const customerSchema = (t: Translate) =>
       position: z.string(),
       sex: CustomerSex.nullable(),
       birthDate: z.date().nullable(),
-      description: contactDescription,
+      description,
       avatarUrl: z.string().nullable(),
     })
     .refine(
@@ -138,6 +137,7 @@ const TextRow = ({ code, label }: { code: TTextCode; label: string }) => {
 const SexRow = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   const { control } = useFormContext<TCustomerForm>();
+  const labels = useSexLabels();
 
   return (
     <PanelFormRow icon={IconGenderBigender} label={t('pronoun', 'Pronoun')}>
@@ -153,9 +153,9 @@ const SexRow = () => {
               <Select.Value placeholder={t('pronoun', 'Pronoun')} />
             </Select.Trigger>
             <Select.Content align="start">
-              {CUSTOMER_SEX_OPTIONS.map((option) => (
-                <Select.Item key={option.value} value={option.value} className="h-7">
-                  {option.label}
+              {SEX_CODES.map((code) => (
+                <Select.Item key={code} value={String(code)} className="h-7">
+                  {labels[code]}
                 </Select.Item>
               ))}
             </Select.Content>
@@ -248,11 +248,11 @@ const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[
 export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { t: contactT } = useTranslation('contact');
+  const description = useContactDescription();
   const [companyIds, setCompanyIds] = useState<string[]>([]);
 
   const form = useForm<TCustomerForm>({
-    resolver: zodResolver(customerSchema(contactT)),
+    resolver: zodResolver(customerSchema(t, description)),
     defaultValues: {
       firstName: '',
       middleName: '',

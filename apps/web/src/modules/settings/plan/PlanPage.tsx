@@ -50,7 +50,7 @@ const PluginRow = ({ plugin }: { plugin: Row }) => {
         </span>
       )}
       {plugin.readOnlyUntil && (
-        <span className="text-xs text-destructive">
+        <span className="text-xs text-destructive-text">
           {t('read-only-until', 'read-only until {{date}}, then off', {
             date: fmt.date(plugin.readOnlyUntil),
           })}
@@ -96,7 +96,7 @@ const SaasPlan = ({ plan }: { plan: SubscriptionInfo }) => {
         )}
       </p>
       {plan.organizationStatus !== 'active' && (
-        <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+        <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive-text">
           {t('disabled', 'This workspace is disabled on erxes.io ({{status}}).', {
             status: plan.organizationStatus,
           })}
@@ -156,7 +156,7 @@ export const PlanPage = () => {
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-3xl space-y-6 p-6">
           {error ? (
-            <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+            <p className="py-12 text-center text-sm text-destructive-text">{messageOf(error)}</p>
           ) : isLoading ? (
             <Spinner area="lg" />
           ) : !data?.saas ? (

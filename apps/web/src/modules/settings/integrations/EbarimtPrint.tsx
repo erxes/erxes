@@ -80,7 +80,7 @@ const Preview = ({ draft }: { draft: Draft }) => {
             }}
           />
         ) : preview.error ? (
-          <p className="text-sm text-destructive">{messageOf(preview.error)}</p>
+          <p className="text-sm text-destructive-text">{messageOf(preview.error)}</p>
         ) : (
           <Spinner />
         )}

@@ -99,7 +99,7 @@ const AutomationRow = ({
         {t('stat-running', '{{count}} running', { count: automation.stats.running })} ·{' '}
         {t('stat-done', '{{count}} done', { count: automation.stats.succeeded })}
         {automation.stats.failed > 0 && (
-          <span className="text-destructive">
+          <span className="text-destructive-text">
             {' '}
             · {t('stat-failed', '{{count}} failed', { count: automation.stats.failed })}
           </span>
@@ -184,7 +184,7 @@ const AutomationList = ({ automations }: { automations: Automation[] }) => {
         </InputGroup>
         <StatusSelect value={status} onChange={setStatus} />
       </div>
-      {catalog.error && <p className="text-sm text-destructive">{messageOf(catalog.error)}</p>}
+      {catalog.error && <p className="text-sm text-destructive-text">{messageOf(catalog.error)}</p>}
       {!shown.length ? (
         <Empty>
           <Empty.Description>{t('no-match', 'Nothing matches.')}</Empty.Description>

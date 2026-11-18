@@ -181,6 +181,7 @@
     "outside": "{{item}} is no longer over a place to drop it.",
     "over": "{{item}} is over {{target}}.",
     "picked": "Picked up {{item}}.",
+    "pointer-instructions": "Drag the item with the mouse, or touch and hold it, to move it.",
     "role": "sortable"
   },
   "table": {

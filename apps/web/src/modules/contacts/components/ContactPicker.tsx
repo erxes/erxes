@@ -41,7 +41,7 @@ const ContactTitle = ({ kind, id }: { kind: TContactKind; id: string }) => {
   const record = useContactRecord(kind, id);
 
   if (record.error) {
-    return <span className="truncate text-destructive">{messageOf(record.error)}</span>;
+    return <span className="truncate text-destructive-text">{messageOf(record.error)}</span>;
   }
 
   return <Combobox.Value value={record.title || id} loading={record.isPending} />;

@@ -12,19 +12,27 @@ export const useSortRoleDescription = () =>
  * What a screen reader says as a sorted item moves, in the UI's language. Pass it as
  * dnd-kit's `DndContext accessibility`; without it dnd-kit speaks English ("Picked up draggable
  * item …").
- * `nameOf` gives an item's name from its id; the id is read out without it.
+ * `nameOf` gives an item's name from its id; the id is read out without it. `pointer` for a list
+ * only the mouse or touch moves (tabs and links, whose keys switch or open them): its
+ * instructions say to drag, not to press Space.
  */
 export const useSortAccessibility = (
   nameOf: (id: UniqueIdentifier) => string = String,
+  { pointer = false }: { pointer?: boolean } = {},
 ): { announcements: Announcements; screenReaderInstructions: ScreenReaderInstructions } => {
   const { t } = useTranslation('ui', { keyPrefix: 'sort' });
 
   return {
     screenReaderInstructions: {
-      draggable: t(
-        'instructions',
-        'Press Space to pick up the item, the arrow keys to move it, Space again to drop it, or Escape to cancel.',
-      ),
+      draggable: pointer
+        ? t(
+            'pointer-instructions',
+            'Drag the item with the mouse, or touch and hold it, to move it.',
+          )
+        : t(
+            'instructions',
+            'Press Space to pick up the item, the arrow keys to move it, Space again to drop it, or Escape to cancel.',
+          ),
     },
     announcements: {
       onDragStart: ({ active }) => t('picked', 'Picked up {{item}}.', { item: nameOf(active.id) }),

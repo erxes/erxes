@@ -163,6 +163,7 @@ const InsertData = ({
         <IconBraces className="size-4" />
       </Popover.Trigger>
       <Popover.Content
+        aria-label={t('insert-data', 'Insert data')}
         align="end"
         sideOffset={6}
         collisionPadding={12}
@@ -187,10 +188,13 @@ export const TemplateInput = ({
   fields,
   subject,
   multiline,
+  label,
   placeholder,
   disabled,
   invalid,
 }: {
+  /** The field's name, for screen readers: the action's input it fills. */
+  label: string;
   value: string;
   onChange: (value: string) => void;
   /** The record's fields and earlier steps' outputs. */
@@ -224,6 +228,7 @@ export const TemplateInput = ({
   const shared = {
     ref,
     value,
+    'aria-label': label,
     placeholder,
     disabled,
     'aria-invalid': invalid ? true : undefined,

@@ -17,11 +17,14 @@ import {
 } from './useNotifications';
 
 /** "(3) erxes": the unread count in the browser tab, as Slack and Gmail do. */
+/** An unread count as the bell and the tab title show it. */
+const shownCount = (count: number) => (count > 99 ? '99+' : String(count));
+
 const useUnreadTitle = (count: number) => {
   useEffect(() => {
     const base = document.title.replace(/^\(\d+\+?\) /, '');
 
-    document.title = count ? `(${count > 99 ? '99+' : count}) ${base}` : base;
+    document.title = count ? `(${shownCount(count)}) ${base}` : base;
   }, [count]);
 };
 
@@ -39,9 +42,10 @@ const BellIndicators = ({ count }: { count: number }) => {
           title={t('polling', 'Live updates paused; refreshing every 30 seconds')}
         />
       )}
+      {/* Red text's shade, with the page's colour on it, reads at this size in both themes. */}
       {count > 0 && (
-        <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-3xs leading-none font-semibold text-destructive-foreground">
-          {count > 99 ? '99+' : count}
+        <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive-text px-1 text-3xs leading-none font-semibold text-background">
+          {shownCount(count)}
         </span>
       )}
     </>
@@ -189,9 +193,14 @@ export const NotificationsBell = () => {
               type="button"
               size="icon"
               variant="nav"
+              // The count as the badge shows it, so a member can say what they see.
               aria-label={
                 count
-                  ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
+                  ? t('title-unread', {
+                      count,
+                      shown: shownCount(count),
+                      defaultValue: 'Notifications, {{shown}} unread',
+                    })
                   : t('title', 'Notifications')
               }
               className="relative shrink-0"

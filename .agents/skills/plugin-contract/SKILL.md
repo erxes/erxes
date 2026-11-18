@@ -102,13 +102,17 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `<plugin>.<type>` while that plugin is installed, else 400 `PLUGIN_NOT_INSTALLED`), draws a
      Properties tab and their settings page at `/settings/properties/<plugin>.<type>`, which a
      plugin with settings pages links from its own settings, and the plugin keeps
-     the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on core's
-     customers and companies, and on the record types with `contacts` that their `hosts` name
+     the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on the
+     record types their `hosts` name (`core:customer`, `core:company`, a plugin type with
+     `contacts`), and on customers and companies when they name none
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
      loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
      entry. Core shows the config's words (the app's name, `title`s and `label`s) through
      `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
-     plugin's `name` and the key is the English text, which shows when no translation is there. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     plugin's `name` and the key is the English text, which shows when no translation is there.
+     The manifest's `translations` (`PluginTranslations`, `packages/contract/src/pluginTranslations.ts`)
+     add words to that namespace per language, for what core shows from the manifest (the title,
+     activity and timeline labels) as well as from the config. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own. `open`'s
      `tab` (a type's tab `value`, `detail` or `activity`; anything else opens the default) and a

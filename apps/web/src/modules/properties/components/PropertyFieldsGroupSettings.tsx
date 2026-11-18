@@ -1,9 +1,9 @@
-import type { PropertyContentType } from '@erxes/core-contract';
+import type { FieldGroup, PropertyContentType } from '@erxes/core-contract';
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconListDetails } from '@tabler/icons-react';
-import { Empty, Spinner } from 'erxes-ui';
+import { Empty, Spinner, useSortAccessibility } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -49,29 +49,22 @@ const PluginSections = ({ sections }: { sections: FieldSection[] }) =>
     />
   ));
 
-/**
- * A record type's properties: its groups (drag to reorder) with their fields, the fields each
- * plugin keeps (read-only), then Archived.
- */
-export const PropertyFieldsGroupSettings = ({
+/** The members' own groups with their fields; dragging one saves the new order. */
+const SortableGroups = ({
+  groups,
+  sections,
   contentType,
 }: {
+  groups: FieldGroup[];
+  sections: FieldSection[];
   contentType: PropertyContentType;
 }) => {
-  const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
-  const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);
-  const error = groupsError ?? fieldsError;
   const reorder = useReorder('groups', contentType);
-  const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
-  const sections = useMemo(() => groupFields(groups, fields), [groups, fields]);
-  const ungrouped = sections.find((section) => !section.group && !section.plugin)?.fields ?? [];
-  const pluginSections = sections.filter((section) => section.plugin);
-  const loading = groupsLoading || fieldsLoading;
-
-  // Selections belong to the record type on screen (the page is keyed by it).
-  useEffect(() => () => setSelectedFieldIds({}), [setSelectedFieldIds]);
-
   const sensors = useSortSensors();
+
+  const accessibility = useSortAccessibility(
+    (id) => groups.find((group) => group.id === id)?.name ?? String(id),
+  );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
@@ -89,6 +82,55 @@ export const PropertyFieldsGroupSettings = ({
   };
 
   return (
+    <DndContext
+      accessibility={accessibility}
+      collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      onDragEnd={handleDragEnd}
+      sensors={sensors}
+    >
+      <SortableContext
+        items={groups.map((group) => group.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {sections.map(
+          ({ group, fields }) =>
+            group && (
+              <PropertiesGroupSection
+                key={group.id}
+                group={group}
+                fields={fields}
+                contentType={contentType}
+              />
+            ),
+        )}
+      </SortableContext>
+    </DndContext>
+  );
+};
+
+/**
+ * A record type's properties: its groups (drag to reorder) with their fields, the fields each
+ * plugin keeps (read-only), then Archived.
+ */
+export const PropertyFieldsGroupSettings = ({
+  contentType,
+}: {
+  contentType: PropertyContentType;
+}) => {
+  const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
+  const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);
+  const error = groupsError ?? fieldsError;
+  const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
+  const sections = useMemo(() => groupFields(groups, fields), [groups, fields]);
+  const ungrouped = sections.find((section) => !section.group && !section.plugin)?.fields ?? [];
+  const pluginSections = sections.filter((section) => section.plugin);
+  const loading = groupsLoading || fieldsLoading;
+
+  // Selections belong to the record type on screen (the page is keyed by it).
+  useEffect(() => () => setSelectedFieldIds({}), [setSelectedFieldIds]);
+
+  return (
     <>
       <PropertyGroupEditSheet />
       <PropertyGroupLayoutSheet
@@ -97,36 +139,14 @@ export const PropertyFieldsGroupSettings = ({
       <PropertyArchiveDialog />
       <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
         {error ? (
-          <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+          <p className="py-12 text-center text-sm text-destructive-text">{messageOf(error)}</p>
         ) : loading ? (
           <Spinner area="lg" />
         ) : groups.length === 0 && ungrouped.length === 0 && pluginSections.length === 0 ? (
           <NoGroups />
         ) : (
           <>
-            <DndContext
-              collisionDetection={closestCenter}
-              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-              onDragEnd={handleDragEnd}
-              sensors={sensors}
-            >
-              <SortableContext
-                items={groups.map((group) => group.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {sections.map(
-                  ({ group, fields: groupFieldList }) =>
-                    group && (
-                      <PropertiesGroupSection
-                        key={group.id}
-                        group={group}
-                        fields={groupFieldList}
-                        contentType={contentType}
-                      />
-                    ),
-                )}
-              </SortableContext>
-            </DndContext>
+            <SortableGroups groups={groups} sections={sections} contentType={contentType} />
             {ungrouped.length > 0 && (
               <PropertiesUngroupedSection fields={ungrouped} contentType={contentType} />
             )}

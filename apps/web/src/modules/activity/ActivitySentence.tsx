@@ -7,6 +7,7 @@ import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
+import { usePluginText } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import {
   readCompanyLink,
@@ -92,6 +93,7 @@ const PluginRecord = ({ type, id }: { type: string; id: string }) => {
   const contentType = type.replace('.', ':');
   const { entry } = usePluginRecordType(contentType);
   const { open } = useOpenRecord();
+  const text = usePluginText();
 
   if (!entry) {
     return (
@@ -107,7 +109,7 @@ const PluginRecord = ({ type, id }: { type: string; id: string }) => {
       className="font-medium hover:underline"
       onClick={() => open({ contentType, contentId: id })}
     >
-      {entry.type.title}
+      {text(entry.plugin, entry.type.title)}
     </button>
   );
 };

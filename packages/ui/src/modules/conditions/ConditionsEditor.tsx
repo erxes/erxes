@@ -79,7 +79,12 @@ const AddButtons = ({
           <IconPlus />
           {t('add-rule', 'Add filter rule')}
         </Popover.Trigger>
-        <Popover.Content variant="flush" align="start" className="w-72">
+        <Popover.Content
+          variant="flush"
+          align="start"
+          className="w-72"
+          aria-label={t('choose-field', 'Choose a field')}
+        >
           <FieldPicker
             fields={fields}
             customPath={customPath}

@@ -191,7 +191,7 @@ export const SetupScreen = ({
         <SetupSteps steps={steps} done={setup.done} failed={Boolean(setup.error)} />
         {setup.error ? (
           <div className="flex w-full flex-col items-center gap-3 text-center">
-            <p className="text-sm text-destructive">{messageOf(setup.error)}</p>
+            <p className="text-sm text-destructive-text">{messageOf(setup.error)}</p>
             <Button variant="outline" onClick={setup.retry}>
               {t('setup-retry', 'Try again')}
             </Button>

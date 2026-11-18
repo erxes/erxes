@@ -12,7 +12,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { pluginLabel } from '~/lib/members';
+import { usePluginTitle } from '~/modules/plugins/pluginText';
 import type { TimelineKind } from './useActivities';
 
 const KINDS: { value: TimelineKind; label: string }[] = [
@@ -50,6 +50,7 @@ interface FiltersProps {
 
 const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
+  const pluginTitle = usePluginTitle();
 
   return (
     <>
@@ -89,7 +90,7 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
               <Select.Item value="core">{t('core', 'Core')}</Select.Item>
               {sources.map((name) => (
                 <Select.Item key={name} value={name}>
-                  {pluginLabel(name)}
+                  {pluginTitle(name)}
                 </Select.Item>
               ))}
             </Select.Content>

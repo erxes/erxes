@@ -224,6 +224,14 @@ describe('plugin connection (registry, installations, tokens)', () => {
     });
   });
 
+  it('gives members the words a manifest translates', async () => {
+    const translations = { mn: { HR: 'Хүний нөөц', 'Leave approved': 'Чөлөө зөвшөөрөгдсөн' } };
+
+    await (await service()).plugins.registerManifest({ title: 'HR', version: '1', translations });
+
+    expect((await hrListing())?.manifest?.translations).toEqual(translations);
+  });
+
   it('rotates the client secret with a day of overlap', async () => {
     const fresh = await rotatePluginSecret('hr');
 

@@ -1,4 +1,4 @@
-import { expect, test, unique } from './fixtures';
+import { expect, expectAccessible, test, unique } from './fixtures';
 
 test('pickers open at the top with the current value marked, and data follows the trigger', async ({
   page,
@@ -36,6 +36,9 @@ test('pickers open at the top with the current value marked, and data follows th
     'aria-current',
     'true',
   );
+  // The picker is a dialog named for what it picks.
+  await expect(page.getByRole('dialog', { name: 'Choose an event' })).toBeVisible();
+  await expectAccessible(page);
   await page.keyboard.press('Escape');
 
   // Search still looks across every category.
@@ -54,6 +57,7 @@ test('pickers open at the top with the current value marked, and data follows th
     .last()
     .click();
   await expect(page.getByText('Categories')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Choose an action' })).toBeVisible();
   await page.keyboard.press('Escape');
 
   // The data picker offers the invoice's values under its name, and no customer it isn't about.
@@ -61,4 +65,6 @@ test('pickers open at the top with the current value marked, and data follows th
   await expect(page.getByRole('group', { name: 'The invoice' })).toBeVisible();
   await expect(page.getByRole('option', { name: 'Paid amount' })).toBeVisible();
   await expect(page.getByRole('group', { name: 'The customer' })).toHaveCount(0);
+  await expect(page.getByRole('dialog', { name: 'Insert data' })).toBeVisible();
+  await expectAccessible(page);
 });

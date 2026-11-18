@@ -9,7 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import type { Favorite } from '@erxes/core-contract';
 import { IconStarFilled } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Button, cn, useSortAccessibility, useSortRoleDescription } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -32,6 +32,7 @@ const FavoriteRow = ({
 
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: favorite.id,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
 
   return (
@@ -84,6 +85,10 @@ export const FavoritesList = ({ onOpen }: { onOpen: () => void }) => {
 
   const sensors = useSortSensors();
 
+  const accessibility = useSortAccessibility(
+    (id) => favorites.find((favorite) => favorite.id === id)?.label ?? String(id),
+  );
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     // Cleared after the click the drop makes has been ignored.
     setTimeout(() => {
@@ -107,6 +112,7 @@ export const FavoritesList = ({ onOpen }: { onOpen: () => void }) => {
         {t('title', 'Favorites')}
       </h2>
       <DndContext
+        accessibility={accessibility}
         autoScroll={false}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}

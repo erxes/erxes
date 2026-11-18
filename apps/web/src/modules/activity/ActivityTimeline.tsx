@@ -60,7 +60,7 @@ const TimelineEmpty = () => {
 
 export const TimelineError = ({ error, onRetry }: { error: Error; onRetry?: () => void }) => (
   <div role="alert" className="flex flex-col items-center gap-2 p-6 text-center text-sm">
-    <p className="text-destructive">{messageOf(error)}</p>
+    <p className="text-destructive-text">{messageOf(error)}</p>
     {onRetry && (
       <Button variant="outline" size="sm" onClick={onRetry}>
         Try again

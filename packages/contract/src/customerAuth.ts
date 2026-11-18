@@ -17,6 +17,20 @@ const addressWith = <T extends AlongWith>(fields: T) =>
   ]);
 
 /**
+ * A web origin a customer app runs at (a manifest's `customerApp.origins`): `https://host[:port]`,
+ * where `{subdomain}` may stand for a whole label (the organisation's), or
+ * `http://localhost[:port]` while developing.
+ */
+export const AppOrigin = z
+  .string()
+  .trim()
+  .max(200)
+  .regex(
+    /^(https:\/\/(\{subdomain\}|[a-z0-9-]+)(\.(\{subdomain\}|[a-z0-9-]+))+|http:\/\/(localhost|127\.0\.0\.1))(:\d{1,5})?$/,
+    'an origin: https://shop.example.com, https://{subdomain}.shop.example.com or http://localhost:3000',
+  );
+
+/**
  * The organisation's subdomain, for apps that reach core at an address without
  * one (mobile apps); the subdomain in core's address wins.
  */

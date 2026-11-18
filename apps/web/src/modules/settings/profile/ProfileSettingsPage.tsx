@@ -20,9 +20,7 @@ export const ProfileSettingsPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[
-              { label: t('title', 'Profile'), to: paths.settings.profile, icon: IconUserCircle },
-            ]}
+            items={[{ label: t('_', 'Profile'), to: paths.settings.profile, icon: IconUserCircle }]}
           />
         </PageHeader.Start>
       </PageHeader>

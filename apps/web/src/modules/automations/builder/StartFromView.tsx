@@ -95,7 +95,7 @@ export const StartFromView = ({
 
   if (error)
     return (
-      <p className="text-xs text-destructive">
+      <p className="text-xs text-destructive-text">
         {t('views-failed', 'Saved views didn’t load: {{message}}', { message: messageOf(error) })}
       </p>
     );

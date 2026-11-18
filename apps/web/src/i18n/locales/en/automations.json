@@ -198,6 +198,8 @@
   "date-field": "Date",
   "on-the-day": "On the day",
   "catalog-search-events": "Search events…",
+  "catalog-pick-action": "Choose an action",
+  "catalog-pick-event": "Choose an event",
   "catalog-search-actions": "Search actions…",
   "catalog-empty": "Nothing matches",
   "catalog-recent": "Recently used",

@@ -33,7 +33,7 @@ const TestTrace = ({ result }: { result: TestResult }) => {
               <span className="font-mono text-xs text-muted-foreground">#{item.stepId}</span>
               <span>{item.outcome}</span>
             </div>
-            {item.problem && <p className="mt-1 text-xs text-destructive">{item.problem}</p>}
+            {item.problem && <p className="mt-1 text-xs text-destructive-text">{item.problem}</p>}
             {item.input !== null && item.input !== undefined && (
               <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-2xs">
                 {JSON.stringify(item.input, null, 2)}
@@ -92,7 +92,7 @@ const TestForm = ({
           {run.isPending ? <Spinner size="sm" /> : t('run-test', 'Run the test')}
         </Button>
       </div>
-      {run.isError && <p className="text-sm text-destructive">{messageOf(run.error)}</p>}
+      {run.isError && <p className="text-sm text-destructive-text">{messageOf(run.error)}</p>}
       {run.data && <TestTrace result={run.data} />}
     </>
   );

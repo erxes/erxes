@@ -62,7 +62,7 @@ const GroupFailed = ({ error }: { error: Error }) => {
   const { t } = useTranslation('common', { keyPrefix: 'search' });
 
   return (
-    <p className="px-2 py-1.5 text-xs text-destructive">
+    <p className="px-2 py-1.5 text-xs text-destructive-text">
       {t('failed', 'Could not search here')}: {messageOf(error)}
     </p>
   );

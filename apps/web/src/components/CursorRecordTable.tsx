@@ -48,7 +48,7 @@ export const CursorRecordTable = <T extends { id: string }>({
   children?: ReactNode;
 }) => {
   if (error) {
-    return <div className="m-3 text-sm text-destructive">{messageOf(error)}</div>;
+    return <div className="m-3 text-sm text-destructive-text">{messageOf(error)}</div>;
   }
 
   return (

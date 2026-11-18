@@ -137,7 +137,7 @@ export const TryKey = ({ apiKey }: { apiKey: ApiKey }) => {
           aria-label={t('search', 'Search calls')}
         />
       </InputGroup>
-      {query.error && <p className="text-sm text-destructive">{messageOf(query.error)}</p>}
+      {query.error && <p className="text-sm text-destructive-text">{messageOf(query.error)}</p>}
       {query.isPending ? (
         <Spinner className="mx-auto my-12" />
       ) : (

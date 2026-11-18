@@ -152,13 +152,19 @@ const AddFilterContent = ({ onDone }: { onDone: () => void }) => {
  * from the view bar's filter button (`F`) or the filter row's "+ Filter".
  */
 export const AddFilter = ({ from, trigger }: { from: AddFrom; trigger: ReactElement }) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
   const { adding, setAdding } = useListFilter();
   const open = adding === from;
 
   return (
     <Popover open={open} onOpenChange={(next) => setAdding(next ? from : null)}>
       <Popover.Trigger render={trigger} />
-      <Popover.Content variant="flush" align={from === 'bar' ? 'end' : 'start'} className="w-72">
+      <Popover.Content
+        variant="flush"
+        align={from === 'bar' ? 'end' : 'start'}
+        className="w-72"
+        aria-label={t('add-title', 'Add a filter')}
+      >
         {open && <AddFilterContent onDone={() => setAdding(null)} />}
       </Popover.Content>
     </Popover>

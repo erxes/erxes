@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Combobox } from '../../components/combobox';
 import { Command } from '../../components/command';
 import { Popover } from '../../components/popover';
@@ -49,23 +50,36 @@ type PartProps = {
  * popover: a chip's segments and the advanced filter's rows both use it.
  */
 const RulePart = ({
+  part,
   button,
   open,
   onOpenChange,
   className,
   children,
 }: PartProps & {
+  /** Which part it edits, which names the popup. */
+  part: 'field' | 'operator' | 'value';
   /** The popup's width. */
   className: string;
   children: ReactNode;
-}) => (
-  <Popover open={open} onOpenChange={onOpenChange}>
-    <Popover.Trigger render={button} />
-    <Popover.Content variant="flush" align="start" className={className}>
-      {children}
-    </Popover.Content>
-  </Popover>
-);
+}) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+
+  const names = {
+    field: t('field', 'Field'),
+    operator: t('operator', 'Operator'),
+    value: t('value', 'Value'),
+  };
+
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <Popover.Trigger render={button} />
+      <Popover.Content variant="flush" align="start" className={className} aria-label={names[part]}>
+        {children}
+      </Popover.Content>
+    </Popover>
+  );
+};
 
 /** The rule's field: the grouped, searchable field list. */
 export const FieldPart = ({
@@ -80,7 +94,7 @@ export const FieldPart = ({
   customPath?: boolean;
   onSelect: (field: TConditionField) => void;
 }) => (
-  <RulePart {...part} className="w-72">
+  <RulePart {...part} part="field" className="w-72">
     <FieldPicker fields={fields} value={field.path} customPath={customPath} onSelect={onSelect} />
   </RulePart>
 );
@@ -96,7 +110,7 @@ export const OperatorPart = ({
   field: TConditionField;
   onSelect: (op: TFilterOperator) => void;
 }) => (
-  <RulePart {...part} className="w-56">
+  <RulePart {...part} part="operator" className="w-56">
     <OperatorMenu rule={rule} field={field} onSelect={onSelect} />
   </RulePart>
 );
@@ -119,7 +133,7 @@ export const ValuePart = ({
   const typed = field.type === 'number' || field.type === 'text';
 
   return (
-    <RulePart {...part} className={calendar ? 'w-auto' : 'w-72'}>
+    <RulePart {...part} part="value" className={calendar ? 'w-auto' : 'w-72'}>
       <div className={cn(typed && 'p-2')}>
         <ValueEditor
           // A new operator or field starts the editor anew.

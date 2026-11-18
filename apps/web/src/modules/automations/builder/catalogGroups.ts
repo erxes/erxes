@@ -133,7 +133,13 @@ export const useCatalogLabels = (kind: string) => {
       : t('catalog-search-events', 'Search events…');
   };
 
-  return { groupName, countLabel, searchPlaceholder };
+  /** The picker's name, for screen readers. */
+  const pickerLabel =
+    kind === 'action'
+      ? t('catalog-pick-action', 'Choose an action')
+      : t('catalog-pick-event', 'Choose an event');
+
+  return { groupName, countLabel, searchPlaceholder, pickerLabel };
 };
 
 const RECENT_LIMIT = 4;

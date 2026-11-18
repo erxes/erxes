@@ -26,7 +26,7 @@ const ActorSelect = ({ value, onChange }: { value: string; onChange: (id: string
           </Select.Item>
         ))}
         {team.error && (
-          <p role="alert" className="px-2 py-1.5 text-xs text-destructive">
+          <p role="alert" className="px-2 py-1.5 text-xs text-destructive-text">
             {messageOf(team.error)}
           </p>
         )}

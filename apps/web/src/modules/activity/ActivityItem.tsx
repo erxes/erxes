@@ -35,7 +35,8 @@ import { Badge, cn, Skeleton, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChangeList, type Lookups } from '~/components/ChangeList';
-import { actorLabel, pluginLabel } from '~/lib/members';
+import { actorLabel } from '~/lib/members';
+import { usePluginText, usePluginTitle } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import type { ReactNode } from 'react';
 import { readChanges, verbOf } from './activityData';
@@ -91,7 +92,7 @@ const isNamed = (activity: Activity, lookups: Lookups) =>
   Boolean(activity.actorName) ||
   lookups.members.size > 0;
 
-/** Plugin entries: who, and the plugin's label for the type. */
+/** Plugin entries: who, and the plugin's label for the type, in the member's language. */
 const PluginMeta = ({
   activity,
   actor,
@@ -100,15 +101,20 @@ const PluginMeta = ({
   activity: Activity;
   actor: string;
   label?: string;
-}) => (
-  <>
-    {activity.actorType === 'user' && <span>{actor}</span>}
-    <Badge variant="secondary" size="sm">
-      {pluginLabel(activity.source)}
-      {label ? ` · ${label}` : ''}
-    </Badge>
-  </>
-);
+}) => {
+  const pluginTitle = usePluginTitle();
+  const text = usePluginText();
+
+  return (
+    <>
+      {activity.actorType === 'user' && <span>{actor}</span>}
+      <Badge variant="secondary" size="sm">
+        {pluginTitle(activity.source)}
+        {label ? ` · ${text(activity.source, label)}` : ''}
+      </Badge>
+    </>
+  );
+};
 
 /** Everything but notes: one line (marker, sentence, time), and details below when there are any. */
 const EventItem = ({

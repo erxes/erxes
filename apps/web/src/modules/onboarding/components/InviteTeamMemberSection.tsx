@@ -155,7 +155,7 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                 onKeyDown={onKeyDown}
                 aria-invalid={!!error}
               />
-              {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
+              {error && <p className="text-sm text-destructive-text mt-1.5">{error}</p>}
               {!error && (
                 <p className="text-sm text-muted-foreground mt-1.5">{t('separate-emails')}</p>
               )}

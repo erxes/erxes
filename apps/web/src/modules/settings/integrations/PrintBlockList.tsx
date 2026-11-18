@@ -8,7 +8,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical } from '@tabler/icons-react';
-import { cn, Switch } from 'erxes-ui';
+import { cn, Switch, useSortAccessibility, useSortRoleDescription } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSortSensors } from '~/lib/sortSensors';
 
@@ -35,6 +35,7 @@ const BlockRow = ({
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.type,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
 
   const [label, hint] = BLOCK_LABELS[block.type];
@@ -84,8 +85,15 @@ export const PrintBlockList = ({
   blocks: EbarimtPrintBlock[];
   onChange: (blocks: EbarimtPrintBlock[]) => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt.print' });
   const sensors = useSortSensors();
   const ids = blocks.map((block) => block.type);
+
+  const accessibility = useSortAccessibility((id) => {
+    const block = blocks.find((item) => item.type === id);
+
+    return block ? t(`block.${block.type}`, BLOCK_LABELS[block.type][0]) : String(id);
+  });
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -96,7 +104,12 @@ export const PrintBlockList = ({
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+    <DndContext
+      accessibility={accessibility}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+    >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         <ul className="overflow-hidden rounded-lg border">
           {blocks.map((block) => (

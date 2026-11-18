@@ -87,7 +87,7 @@ export const PropertiesArchivedSection = ({
   const total = groups.length + fields.length;
 
   if (error) {
-    return <p className="px-2 text-sm text-destructive">{messageOf(error)}</p>;
+    return <p className="px-2 text-sm text-destructive-text">{messageOf(error)}</p>;
   }
 
   if (!total) {

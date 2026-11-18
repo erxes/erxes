@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { PermissionBrowser } from './PermissionBrowser';
 import { countGranted } from './permissionSections';
+import { useRoleText } from './useRoles';
 
 /** Unsaved edits; anything not edited shows the role as saved. */
 type Draft = { name?: string; description?: string; granted?: Set<string> };
@@ -222,12 +223,14 @@ export const RoleEditor = ({
   onDirtyChange: (dirty: boolean) => void;
 }) => {
   const [draft, setDraftState] = useState<Draft>({});
-  const name = draft.name ?? role.name;
-  const description = draft.description ?? role.description ?? '';
+  // Shown in the member's language; saved as stored unless the member edits it.
+  const shown = useRoleText()(role);
+  const name = draft.name ?? shown.name;
+  const description = draft.description ?? shown.description ?? '';
   const granted = draft.granted ?? new Set(role.permissions);
   const everything = role.permissions.includes('*') || role.key === 'owner';
   const editable = canManage && role.editable;
-  const changes = changesOf(role, name, description, granted);
+  const changes = changesOf(shown, name, description, granted);
 
   const setDraft = (next: Draft) => {
     setDraftState(next);
@@ -258,7 +261,7 @@ export const RoleEditor = ({
               onChange={(change) => setDraft({ ...draft, ...change })}
             />
           ) : (
-            <RoleTitle role={role} />
+            <RoleTitle role={shown} />
           )}
           <RoleSummary role={role} catalog={catalog} granted={granted} everything={everything} />
         </div>
@@ -285,8 +288,9 @@ export const RoleEditor = ({
           onSave={() =>
             save.mutate({
               key: role.key,
-              name,
-              description: description || null,
+              name: draft.name ?? role.name,
+              description:
+                draft.description === undefined ? role.description : draft.description || null,
               permissions: [...granted],
             })
           }

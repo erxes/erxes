@@ -50,7 +50,7 @@ const FullScreenSpinner = () => (
 
 const FullScreenError = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
   <div role="alert" className="flex h-svh flex-col items-center justify-center gap-3 text-sm">
-    <p className="text-destructive">{messageOf(error)}</p>
+    <p className="text-destructive-text">{messageOf(error)}</p>
     <Button variant="outline" onClick={onRetry}>
       Try again
     </Button>

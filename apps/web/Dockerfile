@@ -1,7 +1,9 @@
 # erxes core UI, served by nginx, which also forwards /core to the API so the
 # session cookie stays first-party. Build from the repository root:
 #   docker build -f apps/web/Dockerfile -t erxes-web .
-# Runtime: CORE_API_URL (default http://api:3400).
+# Runtime: CORE_API_URL (default http://api:3400): scheme, host and port, no path. nginx looks
+# the host up itself, without resolv.conf's search domains, so in Kubernetes it is the full
+# name (http://core-api.erxes.svc.cluster.local:3400).
 FROM node:26-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
 # The root `prepare` script installs git hooks; the image has no git and never commits.
@@ -32,6 +34,8 @@ FROM nginx:1.30-alpine
 # Alpine fixes reach the package repository before the nginx image is rebuilt.
 RUN apk upgrade --no-cache
 ENV CORE_API_URL=http://api:3400
+# The image's entrypoint reads the DNS servers into NGINX_LOCAL_RESOLVERS for the template.
+ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
 COPY apps/web/deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /repo/apps/web/dist /usr/share/nginx/html
 EXPOSE 8080

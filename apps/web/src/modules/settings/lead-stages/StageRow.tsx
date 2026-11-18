@@ -2,7 +2,7 @@ import type { LeadStage, LeadStageKind } from '@erxes/core-contract';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
-import { Button, cn, Input, Select, useFormat } from 'erxes-ui';
+import { Button, cn, Input, Select, useFormat, useSortRoleDescription } from 'erxes-ui';
 import { useState } from 'react';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 import { useLeadStageMutations } from '~/modules/leads/useLeads';
@@ -44,6 +44,7 @@ export const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () =
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: stage.id,
+    attributes: { roleDescription: useSortRoleDescription() },
   });
 
   // Default names show translated; saving another name keeps it as written.

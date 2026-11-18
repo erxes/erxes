@@ -156,7 +156,7 @@ export const ExportButton = ({ recordType }: { recordType: TransferRecordType })
         <div className="space-y-4">
           <FormatPicker value={format} onChange={setFormat} />
           {columns.error ? (
-            <p className="text-sm text-destructive">{messageOf(columns.error)}</p>
+            <p className="text-sm text-destructive-text">{messageOf(columns.error)}</p>
           ) : (
             <ColumnPicker columns={exportable} selected={selected} onChange={setChosen} />
           )}

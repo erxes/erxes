@@ -73,7 +73,7 @@ const leadTile = (title: string, Body: (props: { report: LeadReport }) => React.
       >
         <div className="p-2">
           {error ? (
-            <p className="text-sm text-destructive">{messageOf(error)}</p>
+            <p className="text-sm text-destructive-text">{messageOf(error)}</p>
           ) : isPending || !report ? (
             <Skeleton className="h-24" />
           ) : (

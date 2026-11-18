@@ -638,7 +638,22 @@
     "no-properties-hint": "Get started by creating your first property.",
     "create-property": "Create property",
     "properties-not-saved": "Could not save the property",
-    "empty": "Empty"
+    "empty": "Empty",
+    "resize": "Resize side panel",
+    "drag-to-resize": "Drag to resize",
+    "navigation": "Record navigation",
+    "collapse": "Collapse record",
+    "back": "Back",
+    "error": "Unable to load record",
+    "record-not-found": "This record no longer exists.",
+    "record-load-error": "Please close the panel and try again.",
+    "new-record": "New {{type}}",
+    "record-types": {
+      "Customer": "Customer",
+      "Company": "Company",
+      "Product": "Product",
+      "Team member": "Team member"
+    }
   },
   "two-factor": {
     "authenticator-code": "Authenticator code",
