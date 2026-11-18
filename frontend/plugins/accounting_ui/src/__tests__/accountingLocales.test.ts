@@ -18,6 +18,9 @@ const sourceFiles = (dir: string): string[] =>
     return /\.tsx?$/.test(entry.name) ? [path] : [];
   });
 
+const isAccountingNamespace = (args: string) =>
+  /^(['"])accounting\1$/.test(args);
+
 const accountingKeys = () =>
   sourceFiles(pluginSource).flatMap((file) => {
     const source = readFileSync(file, 'utf8');
@@ -25,15 +28,17 @@ const accountingKeys = () =>
       ([, args]) => args.trim(),
     );
     const usesAccounting = namespaces.length
-      ? namespaces.every((args) => args === "'accounting'")
-      : source.includes("TFunction<'accounting'>");
+      ? namespaces.every(isAccountingNamespace)
+      : /TFunction<(['"])accounting\1>/.test(source);
     if (!usesAccounting) {
       return [];
     }
-    return [...source.matchAll(/\bt\(\s*'([^']+)'\s*[,)]/g)].map(([, key]) => ({
-      file: file.replace(pluginSource, 'src'),
-      key,
-    }));
+    return [...source.matchAll(/\bt\(\s*(['"])((?:(?!\1).)+)\1\s*[,)]/g)].map(
+      ([, , key]) => ({
+        file: file.replace(pluginSource, 'src'),
+        key,
+      }),
+    );
   });
 
 const translates = (locale: Record<string, string>, key: string) =>
