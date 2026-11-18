@@ -22,6 +22,10 @@ query accountingCtaxRows($status: String, $name: String, $number: String, $searc
     formulaText
     status
     percent
+    tabCount
+    isBold
+    valueSide
+    ledgerFormulas
   }
   ctaxRowsCount(
     status: $status
@@ -70,6 +74,12 @@ query accountingCtaxRowDetail($id: String!) {
     name
     number
     percent
+    formula
+    formulaText
+    tabCount
+    isBold
+    valueSide
+    ledgerFormulas
     kind
     status
   }

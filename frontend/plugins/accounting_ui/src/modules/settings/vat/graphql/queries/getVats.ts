@@ -24,6 +24,8 @@ query accountingVatRows($status: String, $name: String, $number: String, $search
     isBold
     status
     percent
+    valueSide
+    ledgerFormulas
   }
   vatRowsCount(
     status: $status
@@ -73,6 +75,10 @@ query accountingVatRowDetail($id: String!) {
     name
     number
     percent
+    formula
+    formulaText
+    valueSide
+    ledgerFormulas
     kind
     status
     tabCount

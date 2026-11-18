@@ -10,6 +10,8 @@ export const types = () => `
     isBold: Boolean
     status: String
     percent: Float
+    valueSide: String
+    ledgerFormulas: JSON
   }
 `;
 
@@ -23,6 +25,8 @@ const vatRowParams = `
   isBold: Boolean
   status: String
   percent: Float
+  valueSide: String
+  ledgerFormulas: JSON
 `;
 
 const vatRowsQueryParams = `

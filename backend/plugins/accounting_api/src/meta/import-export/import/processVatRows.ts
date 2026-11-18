@@ -1,9 +1,16 @@
+import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
+import {
+  ITaxRowLedgerFormula,
+  TaxRowValueSide,
+  taxRowLedgerFormulaSchema,
+} from '~/modules/accounting/@types/taxRow';
 import {
   IVatRow,
   VAT_ROW_STATUS,
   VatRowKinds,
 } from '~/modules/accounting/@types/vatRow';
+import { cleanTaxRowReportFields } from '~/modules/accounting/utils/taxReports/rowValidation';
 
 type ImportRow = Record<string, unknown>;
 type ImportResultRow = ImportRow & { _id?: unknown; error?: string };
@@ -36,6 +43,98 @@ const getKind = (row: ImportRow) => {
   return VatRowKinds.ALL.includes(kind) ? kind : VatRowKinds.NORMAL;
 };
 
+const hasColumn = (row: ImportRow, ...keys: string[]) =>
+  keys.some((key) => Object.prototype.hasOwnProperty.call(row, key));
+
+type CodeLookup = (code: string) => Promise<string>;
+
+// Account formulas are imported with Erkhet's account and category codes
+// (`debitAccountCode`, `creditAccountCategoryCode`, ...) or with ids.
+const CODE_FIELDS = [
+  ['debitAccountCode', 'debitAccountId', 'account'],
+  ['creditAccountCode', 'creditAccountId', 'account'],
+  ['debitAccountCategoryCode', 'debitAccountCategoryId', 'category'],
+  ['creditAccountCategoryCode', 'creditAccountCategoryId', 'category'],
+] as const;
+
+const parseLedgerFormulas = async (
+  value: string,
+  lookups: Record<'account' | 'category', CodeLookup>,
+): Promise<ITaxRowLedgerFormula[]> => {
+  if (!value) {
+    return [];
+  }
+
+  let items: unknown;
+
+  try {
+    items = JSON.parse(value);
+  } catch {
+    throw new Error('ledger formulas must be a JSON array');
+  }
+
+  if (!Array.isArray(items)) {
+    throw new Error('ledger formulas must be a JSON array');
+  }
+
+  const formulas: ITaxRowLedgerFormula[] = [];
+
+  for (const item of items) {
+    if (!item || typeof item !== 'object') {
+      throw new Error('ledger formulas must contain objects');
+    }
+
+    const source = item as Record<string, unknown>;
+    const formula: Record<string, unknown> = { ...source };
+
+    for (const [codeField, idField, lookup] of CODE_FIELDS) {
+      delete formula[codeField];
+      const code = String(source[codeField] ?? '').trim();
+
+      if (code) {
+        formula[idField] = await lookups[lookup](code);
+      }
+    }
+
+    formula._id = String(source._id ?? '').trim() || nanoid();
+
+    const parsed = taxRowLedgerFormulaSchema.safeParse(formula);
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      throw new Error(
+        `ledger formula ${formulas.length + 1} ${issue.path.join('.')}: ${
+          issue.message
+        }`,
+      );
+    }
+
+    formulas.push(parsed.data);
+  }
+
+  return formulas;
+};
+
+const createCodeLookup = (
+  find: (code: string) => Promise<{ _id: unknown } | null>,
+  label: string,
+): CodeLookup => {
+  const cache = new Map<string, string>();
+
+  return async (code) => {
+    const cached = cache.get(code);
+    if (cached) return cached;
+
+    const doc = await find(code);
+    if (!doc) {
+      throw new Error(`${label} code ${code} not found`);
+    }
+
+    const id = String(doc._id);
+    cache.set(code, id);
+    return id;
+  };
+};
+
 export const prepareVatRowDoc = (row: ImportRow): IVatRow => {
   const number = getString(row, 'number');
 
@@ -54,6 +153,12 @@ export const prepareVatRowDoc = (row: ImportRow): IVatRow => {
     isBold: getBoolean(row, 'is_b') || getBoolean(row, 'isBold'),
     status: getString(row, 'status') || VAT_ROW_STATUS.ACTIVE,
     percent: getNumber(row, 'percent'),
+    ...(hasColumn(row, 'value_side', 'valueSide')
+      ? {
+          valueSide: (getString(row, 'value_side') ||
+            getString(row, 'valueSide')) as TaxRowValueSide | '',
+        }
+      : {}),
   };
 };
 
@@ -84,13 +189,35 @@ export const processVatRows = async (
     }
   }
 
+  const lookups = {
+    account: createCodeLookup(
+      (code) => models.Accounts.findOne({ code }, { _id: 1 }).lean(),
+      'Account',
+    ),
+    category: createCodeLookup(
+      (code) => models.AccountCategories.findOne({ code }, { _id: 1 }).lean(),
+      'Account category',
+    ),
+  };
+
   for (const row of rows) {
     try {
       const doc = prepareVatRowDoc(row);
+
+      if (hasColumn(row, 'ledger_formulas', 'ledgerFormulas')) {
+        doc.ledgerFormulas = await parseLedgerFormulas(
+          getString(row, 'ledger_formulas') || getString(row, 'ledgerFormulas'),
+          lookups,
+        );
+      }
+
       const existing = existingByNumber.get(doc.number);
 
       if (existing) {
-        await models.VatRows.updateOne({ _id: existing._id }, { $set: doc });
+        await models.VatRows.updateOne(
+          { _id: existing._id },
+          { $set: cleanTaxRowReportFields(doc) },
+        );
         successRows.push({ ...row, _id: existing._id });
       } else {
         const vatRow = await models.VatRows.createVatRow(doc);
