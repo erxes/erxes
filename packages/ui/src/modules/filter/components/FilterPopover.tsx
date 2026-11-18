@@ -163,6 +163,7 @@ export const FilterCommandItem = ({
 const FilterBackButton = () => {
   const { id } = useFilterContext();
   const setView = useSetAtom(filterPopoverViewState(id));
+  const { t } = useTranslation('ui', { keyPrefix: 'filter' });
 
   return (
     <button
@@ -171,7 +172,7 @@ const FilterBackButton = () => {
       className="flex h-8 w-full items-center gap-1 border-b px-2 text-sm text-muted-foreground hover:text-foreground"
     >
       <IconChevronLeft className="size-4" />
-      Back
+      {t('back', 'Back')}
     </button>
   );
 };
@@ -224,9 +225,13 @@ export const FilterCommandInput = ({
   );
 };
 
-export const FilterSearchValueTrigger = () => (
-  <FilterItem value="searchValue" inDialog>
-    <IconSearch />
-    Search
-  </FilterItem>
-);
+export const FilterSearchValueTrigger = () => {
+  const { t } = useTranslation('ui', { keyPrefix: 'filter' });
+
+  return (
+    <FilterItem value="searchValue" inDialog>
+      <IconSearch />
+      {t('search', 'Search')}
+    </FilterItem>
+  );
+};

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { IconCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 import { Tooltip } from './tooltip';
 
@@ -11,6 +12,7 @@ interface CopyTextProps {
 
 /** Text that copies `value` to the clipboard on click and shows "Copied!". */
 export const CopyText = ({ value, children, className }: CopyTextProps) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'copy' });
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -35,13 +37,13 @@ export const CopyText = ({ value, children, className }: CopyTextProps) => {
           {copied ? (
             <span className="flex items-center gap-1 text-success">
               <IconCheck className="size-4 shrink-0" />
-              Copied!
+              {t('copied', 'Copied!')}
             </span>
           ) : (
             children
           )}
         </Tooltip.Trigger>
-        <Tooltip.Content>Click to copy</Tooltip.Content>
+        <Tooltip.Content>{t('hint', 'Click to copy')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

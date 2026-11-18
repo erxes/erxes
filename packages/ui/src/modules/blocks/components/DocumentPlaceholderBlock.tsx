@@ -2,6 +2,7 @@ import { createReactBlockSpec } from '@blocknote/react';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import { IconFileText } from '@tabler/icons-react';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const documentPlaceholderBlockConfig = {
   type: 'documentPlaceholder' as const,
@@ -10,7 +11,7 @@ const documentPlaceholderBlockConfig = {
       default: '',
     },
     documentName: {
-      default: 'Untitled document',
+      default: '',
     },
     documentCode: {
       default: '',
@@ -28,10 +29,11 @@ type DocumentPlaceholderRenderProps = ReactCustomBlockRenderProps<
 
 const DocumentPlaceholderBlockContent: FC<DocumentPlaceholderRenderProps> = ({ block }) => {
   const { documentId, documentName, documentCode, documentPreview } = block.props;
+  const { t } = useTranslation('ui', { keyPrefix: 'document' });
 
   const documentLabel = documentCode
-    ? `Document placeholder - ${documentCode}`
-    : 'Document placeholder';
+    ? t('placeholder-code', 'Document placeholder: {{code}}', { code: documentCode })
+    : t('placeholder', 'Document placeholder');
 
   return (
     <div className="my-2 rounded-md border bg-muted/30 px-3 py-2" contentEditable={false}>
@@ -41,10 +43,10 @@ const DocumentPlaceholderBlockContent: FC<DocumentPlaceholderRenderProps> = ({ b
         </div>
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-medium text-foreground">
-            {documentName || 'Untitled document'}
+            {documentName || t('untitled', 'Untitled document')}
           </div>
           <div className="truncate text-xs text-muted-foreground">
-            {documentId ? documentLabel : 'Select a document'}
+            {documentId ? documentLabel : t('select', 'Select a document')}
           </div>
           {documentPreview && (
             <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{documentPreview}</div>
@@ -80,7 +82,7 @@ export const documentPlaceholderBlock = createReactBlockSpec(documentPlaceholder
     if (element.tagName === 'DIV' && element.classList.contains('erxes-document-placeholder')) {
       return {
         documentId: element.getAttribute('data-document-id') || '',
-        documentName: element.getAttribute('data-document-name') || 'Untitled document',
+        documentName: element.getAttribute('data-document-name') || '',
         documentCode: '',
         documentPreview: '',
       };

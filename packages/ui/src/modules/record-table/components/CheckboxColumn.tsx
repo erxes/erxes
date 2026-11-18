@@ -1,5 +1,6 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import type { Row, RowData, Table } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 import {
   useRecordTable,
   useRecordTableState,
@@ -40,6 +41,7 @@ const CheckboxCell = <TData extends RowData>({
   row: Row<RecordTableFeatures, TData>;
   table: Table<RecordTableFeatures, TData>;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
   const selected = useRecordTableState((state) => Boolean(state.rowSelection[row.id]));
 
   return (
@@ -80,7 +82,7 @@ const CheckboxCell = <TData extends RowData>({
       <Checkbox
         checked={selected}
         onCheckedChange={(value) => row.toggleSelected(value)}
-        aria-label="Select row"
+        aria-label={t('select-row', 'Select row')}
       />
     </div>
   );
@@ -88,6 +90,7 @@ const CheckboxCell = <TData extends RowData>({
 
 /** Checked when every loaded row is selected, indeterminate when some are. */
 const SelectAllCheckbox = () => {
+  const { t } = useTranslation('ui', { keyPrefix: 'table' });
   const { table } = useRecordTable();
 
   const { all, some } = useRecordTableState(({ rowSelection }, current) => {
@@ -106,7 +109,7 @@ const SelectAllCheckbox = () => {
         checked={all}
         indeterminate={!all && some}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(value)}
-        aria-label="Select all rows"
+        aria-label={t('select-all-rows', 'Select all rows')}
       />
     </div>
   );

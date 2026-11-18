@@ -1,6 +1,7 @@
 import { Combobox } from '@base-ui/react/combobox';
 import { IconX } from '@tabler/icons-react';
 import { type RefObject, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from 'erxes-ui/lib/utils';
 import { useFieldControl } from './field-control';
 
@@ -38,6 +39,7 @@ const SelectorField = ({
   Pick<MultipleSelectorProps, 'hidePlaceholderWhenSelected' | 'disabled' | 'id' | 'className'> & {
     fieldRef: RefObject<HTMLDivElement | null>;
   }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'multiselect' });
   const empty = value.length === 0;
   const field = useFieldControl();
 
@@ -60,7 +62,7 @@ const SelectorField = ({
           >
             {option.label}
             <Combobox.ChipRemove
-              aria-label="Remove"
+              aria-label={t('remove', 'Remove {{name}}', { name: option.label })}
               className="absolute -inset-y-px -end-px flex size-7 items-center justify-center rounded-e-lg border border-transparent p-0 text-muted-foreground/80 outline-0 transition-colors hover:text-foreground focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70"
             >
               <IconX size={14} strokeWidth={2} aria-hidden="true" />
@@ -79,7 +81,7 @@ const SelectorField = ({
           />
         </div>
         <Combobox.Clear
-          aria-label="Clear all"
+          aria-label={t('clear-all', 'Clear all')}
           className={cn(
             'absolute end-0 top-0 flex size-9 items-center justify-center rounded-lg border border-transparent text-muted-foreground/80 transition-colors hover:text-foreground focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70',
             (disabled === true || empty) && 'hidden',
@@ -139,19 +141,24 @@ export const MultipleSelector = ({
   value = NONE,
   onChange,
   options = NONE,
-  placeholder = 'Search',
+  placeholder,
   creatable,
   emptyIndicator,
   disabled,
   ...fieldProps
 }: MultipleSelectorProps) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'multiselect' });
   const fieldRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
   const typed = query.trim();
   const choices: Choice[] = options.filter((option) => !has(value, option.value));
 
   if (creatable && typed && !has(options, typed) && !has(value, typed)) {
-    choices.push({ value: typed, label: `Create "${typed}"`, created: true });
+    choices.push({
+      value: typed,
+      label: t('create', 'Create "{{value}}"', { value: typed }),
+      created: true,
+    });
   }
 
   return (
@@ -176,7 +183,7 @@ export const MultipleSelector = ({
       <SelectorField
         fieldRef={fieldRef}
         value={value}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('search', 'Search')}
         disabled={disabled}
         {...fieldProps}
       />

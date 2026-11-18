@@ -10,6 +10,7 @@ import enContact from './locales/en/contact.json';
 import enOrganization from './locales/en/organization.json';
 import enProduct from './locales/en/product.json';
 import enSettings from './locales/en/settings.json';
+import enUi from './locales/en/ui.json';
 import enViews from './locales/en/views.json';
 
 /*
@@ -48,6 +49,8 @@ export const i18nReady = i18n
         automations: enAutomations,
         product: enProduct,
         views: enViews,
+        // erxes-ui's own controls (table, sidebar, pickers, calendar).
+        ui: enUi,
       },
     },
     partialBundledLanguages: true,
@@ -55,7 +58,7 @@ export const i18nReady = i18n
     fallbackLng: 'en',
     // Namespaces not listed here (`broadcasts`) load, in every language, when a page first uses
     // them; until then the strings' defaults in the code show.
-    ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views'],
+    ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views', 'ui'],
     defaultNS: 'common',
     fallbackNS: 'common',
     interpolation: { escapeValue: false },

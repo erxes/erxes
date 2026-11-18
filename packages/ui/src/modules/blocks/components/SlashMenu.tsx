@@ -3,7 +3,6 @@ import {
   IconH1,
   IconH2,
   IconH3,
-  IconLayoutGrid,
   IconLetterT,
   IconList,
   IconListCheck,
@@ -15,6 +14,7 @@ import {
   IconTable,
   IconVideo,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SuggestionMenu, SuggestionMenuItem } from './SuggestionMenu';
 import type { DefaultReactSuggestionItem, SuggestionMenuProps } from '@blocknote/react';
 
@@ -24,6 +24,8 @@ export const SlashMenu = ({
   loadingState,
   onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
+
   return (
     <SuggestionMenu className="max-h-72 [&>div]:max-h-popup">
       {items.map((item, index) => (
@@ -42,10 +44,14 @@ export const SlashMenu = ({
         </SuggestionMenuItem>
       ))}
       {loadingState !== 'loaded' && (
-        <output className="block p-2 text-sm text-muted-foreground">Loading commands…</output>
+        <output className="block p-2 text-sm text-muted-foreground">
+          {t('loading-commands', 'Loading commands…')}
+        </output>
       )}
       {loadingState === 'loaded' && items.length === 0 && (
-        <p className="p-2 text-sm text-muted-foreground">No commands found.</p>
+        <p className="p-2 text-sm text-muted-foreground">
+          {t('no-commands', 'No commands found.')}
+        </p>
       )}
     </SuggestionMenu>
   );
@@ -62,7 +68,6 @@ const icons = new Map([
   ['Paragraph', <IconLetterT key="paragraph" />],
   ['Table', <IconTable key="table" />],
   ['Image', <IconPhoto key="image" />],
-  ['Gallery', <IconLayoutGrid key="gallery" />],
   ['Video', <IconVideo key="video" />],
   ['Audio', <IconMicrophone key="audio" />],
   ['File', <IconFile key="file" />],

@@ -36,7 +36,7 @@ const variants = cva(
         /** Secondary actions; pressed or with its menu open it reads as foreground on accent. */
         muted:
           'text-muted-foreground hover:text-foreground aria-pressed:bg-accent aria-pressed:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
-        destructive: 'text-destructive',
+        destructive: 'text-destructive-text',
         primary: 'text-primary-text',
       },
       size: {

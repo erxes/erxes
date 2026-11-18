@@ -36,7 +36,7 @@ export const RecordChip = ({
         <Avatar.Image src={readImage(avatarUrl ?? undefined)} />
         <Avatar.Fallback>{name.charAt(0)}</Avatar.Fallback>
       </Avatar>
-      <span className={cn('truncate', failed && 'text-destructive')}>{name}</span>
+      <span className={cn('truncate', failed && 'text-destructive-text')}>{name}</span>
     </>
   );
 

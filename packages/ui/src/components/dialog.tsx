@@ -108,6 +108,7 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
+    data-save-bar
     className={cn('flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-4', className)}
     {...props}
   />

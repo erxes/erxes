@@ -3,6 +3,7 @@ import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TextFieldProps = React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
   placeholder?: string;
@@ -30,6 +31,7 @@ export const TextField = ({
   children,
   ...props
 }: TextFieldProps) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'field' });
   const [isOpen, setIsOpen] = useState(defaultOpen);
   // The draft while the editor is open; opening it starts from the saved value.
   const [editingValue, setEditingValue] = useState(value);
@@ -95,7 +97,7 @@ export const TextField = ({
           onKeyDown={handleKeyDown}
         />
         <button type="submit" className="sr-only">
-          Save
+          {t('save', 'Save')}
         </button>
       </RecordTableInlineCell.Content>
     </PopoverScoped>

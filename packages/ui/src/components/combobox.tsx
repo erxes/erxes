@@ -4,6 +4,7 @@ import { cn, mergeRefs } from '../lib/utils';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import { Popover } from './popover';
 import { Command } from './command';
+import { useTranslation } from 'react-i18next';
 import { useOnInView } from 'react-intersection-observer';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
@@ -218,6 +219,8 @@ const ComboboxFetchMore = ({
   currentLength: number;
   fetchMore: () => void;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'list' });
+
   const bottomRef = useOnInView<HTMLDivElement>((inView) => {
     if (inView) fetchMore();
   });
@@ -232,7 +235,7 @@ const ComboboxFetchMore = ({
         className="size-4 text-muted-foreground"
         containerClassName="w-auto flex-none mr-2"
       />
-      Load more...
+      {t('load-more', 'Load more…')}
     </Command.Item>
   );
 };
@@ -247,6 +250,8 @@ const ComboboxEmpty = ({
   loading?: boolean;
   error?: Pick<Error, 'message'> | null;
 }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'list' });
+
   return (
     <Command.Empty ref={ref} {...props} className={cn('py-0', className)}>
       {loading ? (
@@ -261,7 +266,9 @@ const ComboboxEmpty = ({
       ) : error ? (
         <p className="text-muted-foreground p-8 text-center">{error.message}</p>
       ) : (
-        <p className="text-muted-foreground p-8 text-center">No results found.</p>
+        <p className="text-muted-foreground p-8 text-center">
+          {t('no-results', 'No results found.')}
+        </p>
       )}
     </Command.Empty>
   );

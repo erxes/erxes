@@ -8,7 +8,7 @@ import { useCurrentPath, useFavorites } from './useFavorites';
 /** The page's own name: its header's breadcrumb, `Contacts / People`. */
 const pageTitle = () =>
   Array.from(
-    document.querySelectorAll('header nav[aria-label="breadcrumb"] li:not([role="presentation"])'),
+    document.querySelectorAll('header nav[data-slot="breadcrumb"] li:not([role="presentation"])'),
     (crumb) => crumb.textContent.trim(),
   )
     .filter(Boolean)

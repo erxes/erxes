@@ -12,6 +12,7 @@ import {
 
 import { buttonVariants } from './button';
 import { Select } from './select';
+import { useFormat } from '../lib/format';
 import { cn } from '../lib/utils';
 
 /** react-day-picker's `DayPicker` props. */
@@ -116,33 +117,41 @@ const END_MONTH = new Date(new Date().getFullYear() + 10, 11);
 const START_MONTH = new Date(1980, 6);
 
 /**
- * A month grid to pick a day or range, with month and year selects.
- * For a field, use `DatePicker`, which puts this in a popover. Years run 1980 to ten ahead.
+ * A month grid to pick a day or range, in the UI's language. It has month and year selects;
+ * for a field, use `DatePicker`, which puts this in a popover. Years run 1980 to ten ahead.
  */
-export const Calendar = ({ className, classNames, ...props }: CalendarProps) => (
-  <DayPicker
-    className={cn('p-3', className)}
-    classNames={getBaseClassNames({
-      [UI.Months]: 'relative',
-      [UI.Month]: 'space-y-4 ml-0',
-      [UI.MonthCaption]: 'flex justify-center items-center h-7',
-      [UI.PreviousMonthButton]: cn(
-        buttonVariants({ variant: 'secondary' }),
-        'absolute left-0 top-0 size-7 p-0',
-      ),
-      [UI.NextMonthButton]: cn(
-        buttonVariants({ variant: 'secondary' }),
-        'absolute right-0 top-0 size-7 p-0',
-      ),
-      [UI.Weekdays]: 'flex',
-      [UI.Weekday]: 'text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]',
-      [UI.Week]: 'flex w-full mt-2 gap-1',
-      ...classNames,
-    })}
-    captionLayout="dropdown"
-    startMonth={START_MONTH}
-    endMonth={END_MONTH}
-    components={{ DropdownNav, MonthsDropdown, YearsDropdown, Chevron }}
-    {...props}
-  />
-);
+export const Calendar = ({ className, classNames, ...props }: CalendarProps) => {
+  const fmt = useFormat();
+
+  return (
+    <DayPicker
+      locale={fmt.locale}
+      className={cn('p-3', className)}
+      classNames={getBaseClassNames({
+        [UI.Months]: 'relative',
+        [UI.Month]: 'space-y-4 ml-0',
+        // Clear of the previous and next buttons, which sit over its ends.
+        [UI.MonthCaption]: 'flex justify-center items-center h-7 px-8',
+        [UI.PreviousMonthButton]: cn(
+          buttonVariants({ variant: 'secondary' }),
+          'absolute left-0 top-0 size-7 p-0',
+        ),
+        [UI.NextMonthButton]: cn(
+          buttonVariants({ variant: 'secondary' }),
+          'absolute right-0 top-0 size-7 p-0',
+        ),
+        [UI.Weekdays]: 'flex',
+        [UI.Weekday]: 'text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]',
+        [UI.Week]: 'flex w-full mt-2 gap-1',
+        ...classNames,
+      })}
+      captionLayout="dropdown"
+      // Short month names ("Nov", "11-р сар"): the long Mongolian ones don't fit beside the year.
+      formatters={{ formatMonthDropdown: (month) => fmt.date(month, 'LLL') }}
+      startMonth={START_MONTH}
+      endMonth={END_MONTH}
+      components={{ DropdownNav, MonthsDropdown, YearsDropdown, Chevron }}
+      {...props}
+    />
+  );
+};

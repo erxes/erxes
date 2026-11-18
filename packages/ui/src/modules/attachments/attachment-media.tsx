@@ -4,6 +4,7 @@ import { Dialog } from 'erxes-ui/components/dialog';
 import { cn } from 'erxes-ui/lib/utils';
 import { readImage } from 'erxes-ui/utils/core';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCarousel } from './use-carousel';
 
 type AttachmentPreviewProps = {
@@ -13,6 +14,7 @@ type AttachmentPreviewProps = {
 
 /** Thumbnails drawn by `renderThumbnails`, each opening its image in a lightbox. */
 export const AttachmentPreview = ({ images, renderThumbnails }: AttachmentPreviewProps) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'lightbox' });
   const [open, setOpen] = useState(false);
   const carousel = useCarousel(images.length, open);
   const current = images[carousel.index];
@@ -29,19 +31,21 @@ export const AttachmentPreview = ({ images, renderThumbnails }: AttachmentPrevie
       {renderThumbnails(openAt)}
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content variant="bare" className="max-w-fit" aria-describedby={undefined}>
-          <Dialog.Title className="sr-only">{current.name || 'Image preview'}</Dialog.Title>
+          <Dialog.Title className="sr-only">
+            {current.name || t('title', 'Image preview')}
+          </Dialog.Title>
           <div className="relative p-6">
             <Button
               variant="overlay"
               size="icon"
               className="absolute top-6 -right-4 z-50"
               onClick={() => setOpen(false)}
-              aria-label="Close lightbox"
+              aria-label={t('close', 'Close preview')}
             >
               <IconX size={20} />
             </Button>
             <a
-              aria-label="Download file"
+              aria-label={t('download', 'Download file')}
               target="_blank"
               rel="noreferrer"
               href={readImage(current.url)}
@@ -57,7 +61,7 @@ export const AttachmentPreview = ({ images, renderThumbnails }: AttachmentPrevie
               size="icon"
               className="absolute -left-4 top-1/2 z-50 -translate-y-1/2"
               onClick={carousel.prev}
-              aria-label="Previous image"
+              aria-label={t('previous', 'Previous image')}
             >
               <IconChevronLeft size={24} />
             </Button>
@@ -73,7 +77,7 @@ export const AttachmentPreview = ({ images, renderThumbnails }: AttachmentPrevie
               size="icon"
               className="absolute -right-4 top-1/2 z-50 -translate-y-1/2"
               onClick={carousel.next}
-              aria-label="Next image"
+              aria-label={t('next', 'Next image')}
             >
               <IconChevronRight size={24} />
             </Button>

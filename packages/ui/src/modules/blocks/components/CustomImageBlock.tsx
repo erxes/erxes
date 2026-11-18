@@ -2,6 +2,7 @@ import { createReactBlockSpec, useResolveUrl, useUploadLoading } from '@blocknot
 import { IconPhoto } from '@tabler/icons-react';
 import type { FC, SyntheticEvent } from 'react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 import { Dialog } from 'erxes-ui/components/dialog';
@@ -50,6 +51,7 @@ const CustomImagePreview: FC<
   }
 > = ({ block, onImageLoad }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
   const [imgLoaded, setImgLoaded] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
@@ -74,7 +76,7 @@ const CustomImagePreview: FC<
           <Button
             variant="ghost"
             size="flush"
-            aria-label="Preview image"
+            aria-label={t('preview-image', 'Preview image')}
             className={cn('mx-auto w-full max-w-full', !imgLoaded && 'hidden')}
             contentEditable={false}
             onMouseDown={(event) => event.preventDefault()}
@@ -100,7 +102,7 @@ const CustomImagePreview: FC<
               aria-describedby={undefined}
             >
               <Dialog.Title className="sr-only">
-                {block.props.caption || block.props.name || 'Image preview'}
+                {block.props.caption || block.props.name || t('image-preview', 'Image preview')}
               </Dialog.Title>
               <img
                 src={src}
@@ -117,6 +119,7 @@ const CustomImagePreview: FC<
 
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
   const imageStyle = getImageStyle(props.block.props.imageStyle);
   const previewWidth = props.block.props.previewWidth;
 
@@ -177,7 +180,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
       <div className="bn-file-block-content-wrapper">
         <div className="bn-file-loading-preview flex items-center gap-2">
           <Spinner size="sm" />
-          <span className="text-sm text-muted-foreground">Uploading...</span>
+          <span className="text-sm text-muted-foreground">{t('uploading', 'Uploading…')}</span>
         </div>
       </div>
     );

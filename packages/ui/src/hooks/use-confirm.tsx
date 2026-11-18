@@ -1,5 +1,6 @@
 import { useCallback, useId, useRef, useState, type SubmitEvent, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Trans, useTranslation } from 'react-i18next';
 import { AlertDialog } from 'erxes-ui/components/alert-dialog';
 import type { ButtonProps } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
@@ -40,27 +41,34 @@ const ConfirmationField = ({
   onChange: (value: string) => void;
 }) => {
   const id = useId();
+  const { t } = useTranslation('ui', { keyPrefix: 'confirm' });
 
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="select-none" variant="peer">
         <span className="text-xs">
-          Type <span className="font-semibold">{expected}</span> in the field below to confirm.
+          <Trans
+            t={t}
+            i18nKey="type-to-confirm"
+            defaults="Type <b>{{expected}}</b> in the field below to confirm."
+            values={{ expected }}
+            components={{ b: <span className="font-semibold" /> }}
+          />
         </span>
       </Label>
       <Input
         id={id}
         ref={inputRef}
         type="text"
-        placeholder="Enter confirmation"
+        placeholder={t('placeholder', 'Enter confirmation')}
         value={value}
         aria-invalid={error}
         aria-describedby={error ? `${id}-error` : undefined}
         onChange={(event) => onChange(event.target.value)}
       />
       {error && (
-        <p id={`${id}-error`} className="text-sm font-medium text-destructive">
-          Enter {expected} to confirm
+        <p id={`${id}-error`} className="text-sm font-medium text-destructive-text">
+          {t('mismatch', 'Enter {{expected}} to confirm', { expected })}
         </p>
       )}
     </div>
@@ -68,9 +76,11 @@ const ConfirmationField = ({
 };
 
 const ConfirmDialog = ({ message, options = {}, onConfirm, onDismiss }: ConfirmDialogProps) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'confirm' });
+
   const {
-    okLabel = 'Confirm',
-    cancelLabel = 'Cancel',
+    okLabel = t('ok', 'Confirm'),
+    cancelLabel = t('cancel', 'Cancel'),
     description,
     confirmationValue,
     content,

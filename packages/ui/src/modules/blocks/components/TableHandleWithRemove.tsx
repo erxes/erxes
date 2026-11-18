@@ -11,6 +11,7 @@ import {
 } from '@blocknote/react';
 import { IconGripVertical } from '@tabler/icons-react';
 import { createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TableColorPicker } from './TableColorPicker';
 
 // TableHandle renders its menu with the handle's orientation, but types the menu as taking
@@ -21,6 +22,7 @@ const TableHandleMenuWithRemove = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
   const orientation = useContext(TableHandleOrientationContext);
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
 
   const { block, index } = useExtensionState(TableHandlesExtension, {
     selector: (state) => ({
@@ -85,13 +87,15 @@ const TableHandleMenuWithRemove = () => {
           checked={isHeader}
           onClick={toggleHeader}
         >
-          {orientation === 'row' ? 'Header row' : 'Header column'}
+          {orientation === 'row'
+            ? t('header-row', 'Header row')
+            : t('header-column', 'Header column')}
         </Components.Generic.Menu.Item>
       )}
       <TableColorPicker orientation={orientation} />
       <Components.Generic.Menu.Divider />
       <Components.Generic.Menu.Item className="bn-menu-item" onClick={deleteTable}>
-        Delete table
+        {t('delete-table', 'Delete table')}
       </Components.Generic.Menu.Item>
     </TableHandleMenu>
   );

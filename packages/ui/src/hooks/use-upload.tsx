@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { errorMessage, removeStoredFile, storeFile } from '../utils/file-storage';
 import { useToast } from './use-toast';
 
@@ -50,6 +51,7 @@ export const useUpload = () => {
   const [status, setStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('ui', { keyPrefix: 'upload' });
 
   const uploadOne = async (file: File, afterUpload: UploadOptions['afterUpload']) => {
     const fileInfo = fileInfoOf(file);
@@ -62,8 +64,8 @@ export const useUpload = () => {
     } catch (error) {
       setStatus(false);
       toast({
-        title: 'Error uploading file',
-        description: errorMessage(error, 'Upload failed'),
+        title: t('failed', 'Could not upload the file'),
+        description: errorMessage(error, t('failed-reason', 'Upload failed')),
         variant: 'destructive',
       });
     } finally {
@@ -93,7 +95,7 @@ export const useUpload = () => {
       await removeStoredFile(fileName);
       afterRemove({ status: 'ok' });
     } catch (error) {
-      afterRemove({ status: errorMessage(error, 'Delete failed') });
+      afterRemove({ status: errorMessage(error, t('delete-failed-reason', 'Delete failed')) });
     } finally {
       setIsLoading(false);
     }

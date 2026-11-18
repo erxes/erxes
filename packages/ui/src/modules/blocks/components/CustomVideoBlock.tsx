@@ -8,6 +8,7 @@ import {
 } from '@blocknote/react';
 import { IconVideo } from '@tabler/icons-react';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MediaBlockWrapper } from './MediaBlockWrapper';
 import { getCloudflareStreamBase, parseVideoEmbedUrl } from 'erxes-ui/utils/videoEmbed';
 
@@ -22,20 +23,24 @@ const getVideoEmbedSource = (url: string): string | undefined => {
   return embed?.embedUrl || (streamBase ? `${streamBase}/iframe` : undefined);
 };
 
-const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => (
-  <iframe
-    className="bn-visual-media aspect-video h-auto max-w-full border-0"
-    width="640"
-    height="360"
-    src={src}
-    title={title || 'Video'}
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowFullScreen
-    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-    referrerPolicy="strict-origin-when-cross-origin"
-    contentEditable={false}
-  />
-);
+const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => {
+  const { t } = useTranslation('ui', { keyPrefix: 'editor' });
+
+  return (
+    <iframe
+      className="bn-visual-media aspect-video h-auto max-w-full border-0"
+      width="640"
+      height="360"
+      src={src}
+      title={title || t('video', 'Video')}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+      referrerPolicy="strict-origin-when-cross-origin"
+      contentEditable={false}
+    />
+  );
+};
 
 const CustomVideoBlockContent: FC<VideoRenderProps> = (props) => {
   const src = getVideoEmbedSource(props.block.props.url);

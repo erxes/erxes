@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useSidebar } from './context';
 
 export const SidebarTrigger = ({
@@ -11,6 +12,7 @@ export const SidebarTrigger = ({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { toggleSidebar, collapseState } = useSidebar();
 
   return (
@@ -31,7 +33,7 @@ export const SidebarTrigger = ({
       ) : (
         <IconLayoutSidebarLeftCollapse />
       )}
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{t('toggle-sidebar', 'Show or hide the sidebar')}</span>
     </Button>
   );
 };

@@ -254,6 +254,8 @@ value usePreviousHotkeyScope
 value useProductOptions
 value useRecordPanel
 value useScopedHotkeys
+value useSortAccessibility
+value useSortRoleDescription
 value useTagOptions
 value useToast
 value useUpload

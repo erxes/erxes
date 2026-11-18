@@ -1,9 +1,10 @@
 import { z } from 'zod';
 
+/** A phone number as typed: 8 to 16 digits after an optional +. `PhoneInput` words each issue by its code. */
 export const phoneSchema = z.object({
   phone: z
     .string()
-    .min(8, 'Phone number must be at least 8 characters')
-    .max(16, 'Phone number must not exceed 16 characters')
-    .regex(/^\+?[\d]+$/, 'Phone number can only contain digits and + prefix'),
+    .min(8)
+    .max(16)
+    .regex(/^\+?[\d]+$/),
 });

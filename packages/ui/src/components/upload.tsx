@@ -59,6 +59,7 @@ const UploadRoot = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [isImageFocused, setIsImageFocused] = useState(false);
+  const { t } = useTranslation('ui', { keyPrefix: 'upload' });
   const url = previewUrl ?? value;
 
   const upload = useMemo(
@@ -81,7 +82,7 @@ const UploadRoot = ({
         <Dialog.Content variant="bare" className="max-w-none w-auto">
           <img
             src={readImage(url)}
-            alt="Focused view"
+            alt={t('image', 'Uploaded image')}
             className="max-h-lightbox max-w-lightbox object-contain"
           />
         </Dialog.Content>
@@ -151,6 +152,7 @@ const useUploadChosenFiles = ({
 const UploadPreview = ({ className, variant, size, ...callbacks }: UploadPreviewProps) => {
   const { url, multiple, fileInputRef, chooseFile, setIsImageFocused } = useUploadContext();
   const { isLoading, handleFileChange } = useUploadChosenFiles(callbacks);
+  const { t } = useTranslation('ui', { keyPrefix: 'upload' });
 
   return (
     <>
@@ -160,14 +162,14 @@ const UploadPreview = ({ className, variant, size, ...callbacks }: UploadPreview
           variant="outline"
           className={uploadPreviewVariants({ variant, size })}
           onClick={url ? () => setIsImageFocused(true) : chooseFile}
-          aria-label={url ? 'Change image' : 'Upload image'}
+          aria-label={url ? t('change', 'Change image') : t('choose', 'Upload image')}
         >
           {isLoading && <Spinner />}
           {!isLoading && url && (
             <img
               className="h-full w-full object-cover absolute"
               src={readImage(url)}
-              alt="Preview of uploaded"
+              alt={t('image', 'Uploaded image')}
             />
           )}
           {!isLoading && !url && (
@@ -185,7 +187,7 @@ const UploadPreview = ({ className, variant, size, ...callbacks }: UploadPreview
         />
       </div>
       <output className="sr-only" aria-live="polite">
-        {url ? 'Image uploaded and preview available' : 'No image uploaded'}
+        {url ? t('uploaded', 'Image uploaded') : t('empty', 'No image uploaded')}
       </output>
     </>
   );
@@ -220,6 +222,7 @@ const RemoveButton = ({
   const { remove } = useUpload();
   const { url, previewRef, onChange, setPreviewUrl } = useUploadContext();
   const { toast } = useToast();
+  const { t } = useTranslation('ui', { keyPrefix: 'upload' });
 
   if (!url) return <div />;
 
@@ -241,8 +244,11 @@ const RemoveButton = ({
         if (status === 'ok') return;
 
         toast({
-          title: 'Could not delete the stored file',
-          description: 'It has been removed here, but the server still holds a copy.',
+          title: t('delete-failed', 'Could not delete the stored file'),
+          description: t(
+            'delete-failed-description',
+            'It has been removed here, but the server still holds a copy.',
+          ),
           variant: 'destructive',
         });
       },
@@ -253,7 +259,7 @@ const RemoveButton = ({
     <Button ref={ref} className={cn('flex', className)} {...props} onClick={handleRemove}>
       {children ?? (
         <>
-          <IconTrash /> Remove
+          <IconTrash /> {t('remove', 'Remove')}
         </>
       )}
     </Button>

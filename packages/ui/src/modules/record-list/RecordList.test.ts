@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+import { createInstance } from 'i18next';
 import { createStore, Provider } from 'jotai';
 import { act, createElement, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { I18nextProvider } from 'react-i18next';
 import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { RecordList } from './RecordList';
 import type { RecordListGroup } from './RecordListRoot';
@@ -30,8 +32,12 @@ const groups: RecordListGroup<Task>[] = [
 
 let root: Root | undefined;
 
-beforeAll(() => {
+// The host's i18next, without locales: the labels read in their English defaults.
+const i18n = createInstance();
+
+beforeAll(async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  await i18n.init({ lng: 'en', resources: {}, interpolation: { escapeValue: false } });
 });
 
 afterEach(() => {
@@ -64,7 +70,15 @@ const picked = (container: HTMLElement) => container.querySelector('output')?.te
 
 /** A fresh store each time, so what stays folded comes from the browser's storage. */
 const show = (node: ReactNode) =>
-  act(async () => root?.render(createElement(Provider, { store: createStore() }, node)));
+  act(async () =>
+    root?.render(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(Provider, { store: createStore() }, node),
+      ),
+    ),
+  );
 
 const render = async (node: ReactNode) => {
   const container = document.createElement('div');

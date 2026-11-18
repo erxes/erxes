@@ -1,5 +1,6 @@
 import { Input } from 'erxes-ui/components/input';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FullNameFieldContext } from 'erxes-ui/modules/inputs/contexts/FullNameFieldContext';
 import { useFullNameField } from 'erxes-ui/modules/inputs/hooks/useFullNameField';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
@@ -35,15 +36,17 @@ const FullNameFieldProvider = ({
 /** The name `FullNameField` is editing, or "Unknown" when it is empty. */
 export const FullNameValue = () => {
   const { fullName } = useFullNameField();
+  const { t } = useTranslation('ui', { keyPrefix: 'name' });
 
   if (fullName.replace(/\s/g, '').length === 0)
-    return <span className="text-accent-foreground">Unknown</span>;
+    return <span className="text-accent-foreground">{t('unknown', 'Unknown')}</span>;
 
   return fullName;
 };
 
 const FullNameFieldContent = () => {
   const { firstName, lastName, setFirstName, setLastName } = useFullNameField();
+  const { t } = useTranslation('ui', { keyPrefix: 'name' });
 
   return (
     <div className="flex gap-px bg-border w-72 rounded shadow-sm">
@@ -54,7 +57,8 @@ const FullNameFieldContent = () => {
         }}
         variant="flush"
         className="focus-visible:z-10 max-w-36"
-        placeholder="First name"
+        placeholder={t('first', 'First name')}
+        aria-label={t('first', 'First name')}
       />
       <Input
         value={lastName}
@@ -63,7 +67,8 @@ const FullNameFieldContent = () => {
         }}
         variant="flush"
         className="focus-visible:z-10 max-w-36"
-        placeholder="Last name"
+        placeholder={t('last', 'Last name')}
+        aria-label={t('last', 'Last name')}
       />
     </div>
   );
