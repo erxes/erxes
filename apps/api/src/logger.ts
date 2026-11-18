@@ -1,31 +1,8 @@
 import { isSpanContextValid, SpanStatusCode, trace } from '@opentelemetry/api';
+import { LOG_REDACT } from '@erxes/plugin-sdk/logger';
 import { ORPCError } from '@orpc/server';
 import pino, { type LoggerOptions } from 'pino';
 import { config } from '~/config';
-
-/** Field names whose values never reach a log line. */
-const SECRET_FIELDS = [
-  'password',
-  'currentPassword',
-  'newPassword',
-  'passwordHash',
-  'token',
-  'accessToken',
-  'refreshToken',
-  'secret',
-  'clientSecret',
-  'secretAccessKey',
-  'apiKey',
-  'signature',
-  'tokenSealed',
-  // Payment gateway credentials (`GATEWAY_SECRETS` in the contract).
-  'terminalKey',
-  'checksumKey',
-  'accountId',
-  'appPassword',
-  'secretKey',
-  'privateKey',
-];
 
 /**
  * JSON lines on stdout. With tracing on (src/instrumentation.ts) each line
@@ -40,13 +17,8 @@ export const loggerOptions: LoggerOptions = {
 
     return span && isSpanContextValid(span) ? { trace_id: span.traceId, span_id: span.spanId } : {};
   },
-  redact: [
-    'req.headers.authorization',
-    'req.headers.cookie',
-    'res.headers["set-cookie"]',
-    // At the top of a line and one level down (`{ input: { password } }`).
-    ...SECRET_FIELDS.flatMap((field) => [field, `*.${field}`]),
-  ],
+  // Shared with plugins' loggers.
+  redact: LOG_REDACT,
   hooks: {
     // oRPC's logging plugin logs every error a procedure throws. A 4xx is an
     // answer to the caller, not a failure: it goes out at info with its code.
