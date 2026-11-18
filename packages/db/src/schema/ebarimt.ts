@@ -6,13 +6,15 @@ import {
   foreignKey,
   index,
   jsonb,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import type { EBARIMT_TAX_TYPES } from '../enums';
+import type { EBARIMT_PRINT_BLOCKS, EBARIMT_TAX_TYPES } from '../enums';
 import {
   EBARIMT_BUYER_TYPES,
+  EBARIMT_PAPER_SIZES,
   EBARIMT_RECEIPT_KINDS,
   EBARIMT_RECEIPT_STATUSES,
   EBARIMT_STATUSES,
@@ -140,5 +142,46 @@ export const ebarimtReceipts = pgTable(
       foreignColumns: [table.orgId, table.id],
       name: 'core_ebarimt_receipts_previous_fkey',
     }),
+  ],
+);
+
+/** One part of a printed receipt, in its place; `visible: false` leaves it off. */
+export interface EbarimtPrintBlock {
+  type: (typeof EBARIMT_PRINT_BLOCKS)[number];
+  visible: boolean;
+}
+
+/**
+ * How a plugin's receipts print: the paper, the parts in order and the
+ * header and footer text. None: core's default for that plugin.
+ */
+export const ebarimtPrintTemplates = pgTable(
+  'ebarimt_print_templates',
+  {
+    orgId: orgIdColumn(),
+    /** A plugin eBarimt issues receipts for (`core` for core's own). */
+    plugin: text().notNull(),
+    paperSize: text({ enum: EBARIMT_PAPER_SIZES }).default('80mm').notNull(),
+    blocks: jsonb().$type<EbarimtPrintBlock[]>().default([]).notNull(),
+    headerText: text().default('').notNull(),
+    footerText: text().default('').notNull(),
+    updatedBy: text(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.orgId, table.plugin],
+      name: 'core_ebarimt_print_templates_pkey',
+    }),
+    check(
+      'core_ebarimt_print_templates_paper_size_check',
+      inList(table.paperSize, EBARIMT_PAPER_SIZES),
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_ebarimt_print_templates_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

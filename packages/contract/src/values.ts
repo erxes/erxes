@@ -11,6 +11,8 @@ import {
   BROADCAST_STATUSES,
   CUSTOMER_SEXES,
   CUSTOMER_STATES,
+  EBARIMT_PAPER_SIZES,
+  EBARIMT_PRINT_BLOCKS,
   EBARIMT_RECEIPT_STATUSES,
   EBARIMT_TAX_TYPES,
   FIELD_TYPES,
@@ -357,6 +359,16 @@ export const EbarimtTaxType = z.enum(EBARIMT_TAX_TYPES);
 export type EbarimtTaxType = z.infer<typeof EbarimtTaxType>;
 
 export const EbarimtReceiptStatus = z.enum(EBARIMT_RECEIPT_STATUSES);
+
+/** A part of a printed receipt, in its default order. */
+export const EbarimtPrintBlockType = z.enum(EBARIMT_PRINT_BLOCKS);
+
+export type EbarimtPrintBlockType = z.infer<typeof EbarimtPrintBlockType>;
+
+/** The paper a receipt prints on: a 58 or 80 mm roll, or A4. */
+export const EbarimtPaperSize = z.enum(EBARIMT_PAPER_SIZES);
+
+export type EbarimtPaperSize = z.infer<typeof EbarimtPaperSize>;
 
 // ─── Notifications ──────────────────────────────────────────────────────────
 

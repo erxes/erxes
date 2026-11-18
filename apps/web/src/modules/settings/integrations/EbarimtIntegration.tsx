@@ -10,6 +10,7 @@ import { useCan } from '~/modules/auth/session';
 import type { Integration } from './catalog';
 import { EbarimtActivity } from './EbarimtActivity';
 import { EbarimtForm } from './EbarimtForm';
+import { EbarimtPrint } from './EbarimtPrint';
 import {
   HowItWorks,
   IntegrationLayout,
@@ -95,6 +96,7 @@ const HOW_IT_WORKS = [
   ['refunds', 'A partial refund replaces the receipt; a full refund returns it.'],
   ['rules', 'Rules tax chosen products and categories VAT-free, at 0%, or leave them off.'],
   ['own', 'Plugins that send their own receipts are left out.'],
+  ['print', 'Each plugin prints its receipts with its own template, set up under Print.'],
 ] as const;
 
 const Overview = ({
@@ -185,6 +187,9 @@ const EbarimtPage = ({
         </div>
       ),
     },
+    ...(saved
+      ? [{ value: 'print', label: t('tab.print', 'Print'), content: <EbarimtPrint /> }]
+      : []),
     ...(saved && canPayments
       ? [{ value: 'activity', label: t('tab.activity', 'Activity'), content: <EbarimtActivity /> }]
       : []),

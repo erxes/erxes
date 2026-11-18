@@ -219,6 +219,7 @@ value memberName
 value oneOf
 value pluginFetch
 value pluginJson
+value printHtml
 value productTitle
 value readImage
 value setFileStorage

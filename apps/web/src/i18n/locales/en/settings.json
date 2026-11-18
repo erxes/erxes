@@ -1314,7 +1314,8 @@
     "tab": {
       "overview": "Overview",
       "settings": "Settings",
-      "activity": "Activity"
+      "activity": "Activity",
+      "print": "Print"
     },
     "name": {
       "ebarimt": "eBarimt",
@@ -1392,6 +1393,55 @@
         "VAT_FREE": "VAT-free",
         "VAT_ZERO": "0% VAT",
         "NOT_SEND": "Left off the receipt"
+      },
+      "how-print": "Each plugin prints its receipts with its own template, set up under Print.",
+      "print": {
+        "preview": "Preview",
+        "test-print": "Test print",
+        "roll": "{{size}} roll",
+        "paper": "Paper",
+        "paper-hint": "The width of your receipt printer’s roll, or A4.",
+        "parts": "Parts",
+        "parts-hint": "Drag to set the order. Switch a part off to leave it out. The bill, QR code and lottery number are what the tax office asks for.",
+        "texts": "Your text",
+        "texts-hint": "Printed where the header and footer parts are.",
+        "header": "Header",
+        "footer": "Footer",
+        "header-placeholder": "Welcome!",
+        "footer-placeholder": "Thank you, come again.",
+        "reset": "Use the default",
+        "discard": "Discard changes",
+        "save": "Save template",
+        "saved": "Template saved",
+        "was-reset": "Back to the default template",
+        "template-for": "Template for",
+        "default": "default",
+        "no-plugins": "Pick the plugins eBarimt issues receipts for in Settings. Each one gets its own template here.",
+        "intro": "Each plugin prints its receipts with its own template. Plugins show a Print button on issued receipts.",
+        "reorder": "Move {{name}}",
+        "show": "Print {{name}}",
+        "block": {
+          "merchant": "Business",
+          "header": "Header text",
+          "bill": "Bill",
+          "buyer": "Buyer",
+          "lines": "Items",
+          "totals": "Totals",
+          "qr": "QR code",
+          "lottery": "Lottery number",
+          "footer": "Footer text"
+        },
+        "block-hint": {
+          "merchant": "Company name, TIN, branch and POS",
+          "header": "Your text above the receipt",
+          "bill": "Bill number (DDTD) and date",
+          "buyer": "The company or the person’s consumer number",
+          "lines": "Each item with its quantity, price and amount",
+          "totals": "Total, VAT and city tax",
+          "qr": "For the buyer to scan into the eBarimt app",
+          "lottery": "For receipts to a person",
+          "footer": "Your text below the receipt"
+        }
       }
     },
     "email": {

@@ -262,6 +262,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `localTimeZone()` The browser's time zone ("Asia/Ulaanbaatar"), when it says.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
+- `printHtml(html)` Prints a whole HTML page through the browser's print dialog.
 - `readImage(value)` The address to show a stored file at.
 - `SexCode` A person's sex as an ISO/IEC 5218 code.
 - `stored({ key, schema, initial, session })` An atom kept in browser storage under `key`.
