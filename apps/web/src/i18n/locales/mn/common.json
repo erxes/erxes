@@ -695,8 +695,8 @@
   },
   "notifications": {
     "title": "Мэдэгдэл",
-    "title-unread_one": "Мэдэгдэл, {{count}} уншаагүй",
-    "title-unread_other": "Мэдэгдэл, {{count}} уншаагүй",
+    "title-unread_one": "Мэдэгдэл, {{shown}} уншаагүй",
+    "title-unread_other": "Мэдэгдэл, {{shown}} уншаагүй",
     "mark-all-read": "Бүгдийг уншсан болгох",
     "open-inbox": "Ирсэн мэдэгдлүүдийг нээх",
     "polling": "Шууд шинэчлэл зогссон; 30 секунд тутам шинэчилнэ",
