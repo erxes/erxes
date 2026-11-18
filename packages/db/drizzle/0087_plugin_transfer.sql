@@ -1,0 +1,4 @@
+ALTER TABLE "core_exports" DROP CONSTRAINT "core_exports_record_type_check";--> statement-breakpoint
+ALTER TABLE "core_imports" DROP CONSTRAINT "core_imports_record_type_check";--> statement-breakpoint
+ALTER TABLE "core_exports" ADD CONSTRAINT "core_exports_record_type_check" CHECK ("core_exports"."record_type" IN ('customer', 'lead', 'company') OR "core_exports"."record_type" ~ '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$');--> statement-breakpoint
+ALTER TABLE "core_imports" ADD CONSTRAINT "core_imports_record_type_check" CHECK ("core_imports"."record_type" IN ('customer', 'lead', 'company') OR "core_imports"."record_type" ~ '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$');

@@ -4,6 +4,7 @@ import {
   PluginAccess,
   PluginJobDelivery,
   PluginTier,
+  PluginTransferRequest,
   RecordAccessCheck,
 } from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
@@ -409,4 +410,37 @@ export const verifyCoreAccessCheck = async (
   if (check.orgId !== claims.org) throw new Error('the check does not match the token');
 
   return check;
+};
+
+const TransferClaims = z.object({ sha: z.string(), transfer: z.string(), org: z.string() });
+
+/**
+ * Verifies a request core POSTed to `<api.url>/transfer/export` or `/transfer/import` for a
+ * record type the manifest's `transfer` declares, and returns it: the token is core's, for this
+ * plugin, unexpired, and signs this exact body (pass the raw body text). Throws if anything is off.
+ * `kind: 'export'` asks for up to `limit` rows after `cursor`: answer `{ rows, cursor }`, rows
+ * keyed by column, cursor null on the last page. `kind: 'import'` sends a batch of `rows`:
+ * answer `{ rows: [{ rowNumber, action, recordId?, error? }] }`, and with `dryRun` change
+ * nothing. Answer as `userId` may see and change. A retried batch carries the same
+ * `requestId` (the `Idempotency-Key` header): write it once.
+ */
+export const verifyCoreTransfer = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: VerifyOptions,
+): Promise<PluginTransferRequest> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(token, options, 'erxes-core-transfer+jwt', TransferClaims);
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  const request = PluginTransferRequest.parse(JSON.parse(rawBody));
+
+  if (request.requestId !== claims.transfer || request.orgId !== claims.org)
+    throw new Error('the request does not match the token');
+
+  return request;
 };

@@ -54,10 +54,10 @@ export const VIEW_RECORD_TYPES = [
 ] as const;
 
 /**
- * A plugin's list a view can belong to: its record type, `<plugin>:<record>` (`sales:deal`).
- * Core only stores these views; the plugin's own API applies their filter.
+ * A plugin's list, `<plugin>:<record>` (`sales:deal`): views belong to it, imports and exports
+ * carry its records. Core only stores these; the plugin's own API answers for them.
  */
-export const PLUGIN_VIEW_TYPE = '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$';
+export const PLUGIN_LIST_TYPE = '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$';
 
 export const ACTIVITY_TARGETS = ['customer', 'company'] as const;
 

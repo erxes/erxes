@@ -610,6 +610,13 @@
       "when": 1794987928737,
       "tag": "0086_ebarimt_print_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1795011198000,
+      "tag": "0087_plugin_transfer",
+      "breakpoints": true
     }
   ]
 }

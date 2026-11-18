@@ -19,6 +19,9 @@ export type PluginRecordType = `${string}.${string}`;
  */
 export type PropertyContentType = FieldContentType | PluginRecordType;
 
+/** A plugin's list, `<plugin>:<record>` (`PLUGIN_LIST_TYPE`): views belong to it, imports and exports carry it. */
+export type PluginListType = `${string}:${string}`;
+
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
 export type CustomValue = string | number | boolean | string[];
 

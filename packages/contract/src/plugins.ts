@@ -19,6 +19,7 @@ import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
+import { PluginTransfers } from './pluginTransfer';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
 import { PluginTranslations } from './pluginTranslations';
@@ -209,6 +210,8 @@ export const PluginManifest = z.object({
   jobs: PluginJobs.optional(),
   /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
   fields: PluginFields.optional(),
+  /** Its records members import and export through core (`PluginTransfers`): core asks `<api.url>/transfer/*` for the rows. */
+  transfer: PluginTransfers.optional(),
   /**
    * Its records that belong to customers or companies (`PluginRelations`): their lists filter
    * by them ("has more than 3 won deals"), through a view the plugin keeps.

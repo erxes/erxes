@@ -2838,6 +2838,16 @@
     }
   },
   "transfer": {
+    "types": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/transfer/types"
+        }
+      }
+    },
     "columns": {
       "~orpc": {
         "errorMap": {},

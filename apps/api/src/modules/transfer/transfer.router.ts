@@ -11,14 +11,20 @@ import {
   undoImport,
   updateImport,
 } from '~/modules/transfer/imports.service';
+import { assertSeesColumns, transferTypes } from '~/modules/transfer/pluginTransfer';
 import { scoped } from '~/orpc';
 
 export const transferRouter = {
-  columns: scoped.transfer.columns.handler(async ({ input }) => ({
-    data: (await transferColumns(db(), input.recordType)).map(
-      ({ aliases, fieldType, ...column }) => column,
-    ),
-  })),
+  types: scoped.transfer.types.handler(() => transferTypes(db())),
+  columns: scoped.transfer.columns.handler(async ({ input }) => {
+    await assertSeesColumns(db(), input.recordType);
+
+    return {
+      data: (await transferColumns(db(), input.recordType)).map(
+        ({ aliases, fieldType, ...column }) => column,
+      ),
+    };
+  }),
   imports: scoped.transfer.imports.handler(({ input }) => listImports(db(), input)),
   import: scoped.transfer.import.handler(({ input }) => getImport(db(), input.id)),
   createImport: scoped.transfer.createImport.handler(({ input }) => createImport(db(), input)),

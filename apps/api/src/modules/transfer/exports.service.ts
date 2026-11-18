@@ -11,7 +11,7 @@ import {
   system,
   withOrg,
 } from '@erxes/core-db';
-import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
+import { and, asc, eq, getTableColumns, gt, inArray, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { memberOf } from '~/http/auth';
 import { fail } from '~/http/errors';
@@ -26,8 +26,16 @@ import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { storeServerFile } from '~/modules/files/files.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
-import { transferColumns } from './columns';
+import { customCell, transferColumns } from './columns';
 import { type Cell, type ExportRecord, exportFile, pageCells } from './exportCells';
+import {
+  assertCanTransfer,
+  type CoreRecordType,
+  exportPage,
+  isCoreType,
+  pluginTransfer,
+  transferableTypes,
+} from './pluginTransfer';
 
 const log = logger.child({ component: 'exports' });
 
@@ -37,7 +45,11 @@ type ExportRow = typeof exports.$inferSelect;
 const MAX_EXPORT_ROWS = 100_000;
 const PAGE = 1000;
 
-export const listExports = (client: Db, query: CursorQuery) =>
+/** Rows per request to a plugin's `/transfer/export`. */
+const PLUGIN_PAGE = 500;
+
+/** Exports of the record types the member may export, newest first. */
+export const listExports = async (client: Db, query: CursorQuery) =>
   keysetPage(
     client,
     {
@@ -45,7 +57,7 @@ export const listExports = (client: Db, query: CursorQuery) =>
       id: exports.id,
       createdAt: exports.createdAt,
     },
-    undefined,
+    inArray(exports.recordType, await transferableTypes(client, 'export')),
     query,
     (where, orderBy, limit) =>
       client
@@ -57,7 +69,7 @@ export const listExports = (client: Db, query: CursorQuery) =>
   );
 
 /** The list's conditions, exactly as the list shows them (leads are customers in the lead state). */
-const whereOf = (client: Db, recordType: TransferRecordType, query: ExportQuery) => {
+const whereOf = (client: Db, recordType: CoreRecordType, query: ExportQuery) => {
   const common = {
     search: query.search,
     tagIds: query.tagIds,
@@ -74,8 +86,9 @@ const whereOf = (client: Db, recordType: TransferRecordType, query: ExportQuery)
 };
 
 /**
- * Pages through the list (by id, so nothing is missed or repeated), writes the
- * file to storage outside any scope, then marks the export done and tells the member.
+ * Pages through the list (by id, so nothing is missed or repeated), or asks the
+ * plugin page by page outside any scope, writes the file to storage outside any
+ * scope, then marks the export done and tells the member.
  */
 export const exportRunJob = defineJob({
   queue: 'export.run',
@@ -83,11 +96,19 @@ export const exportRunJob = defineJob({
   retry: { attempts: 3 },
   payload: z.object({ exportId: z.string() }),
   async handle(job) {
-    const built = await prepareExport(job.orgId, job.payload.exportId);
+    const running = await runningExport(job.orgId, job.payload.exportId);
 
-    if (!built) return;
+    if (!running) return;
 
-    const stored = await runAs(built.member, () => storeServerFile(job.orgId, built.file));
+    const { member, row, header } = running;
+    const { recordType } = row;
+
+    const body = isCoreType(recordType)
+      ? await withOrg(job.orgId, (tx) => runAs(member, () => collectRows(tx, row, recordType)))
+      : await pluginRows(job.orgId, row);
+
+    const built = await fileOf(row, header, body);
+    const stored = await runAs(member, () => storeServerFile(job.orgId, built.file));
 
     await withOrg(job.orgId, (tx) => finishExport(tx, built, stored.id));
   },
@@ -109,6 +130,8 @@ export const createExport = async (
     query: ExportQuery;
   },
 ) => {
+  await assertCanTransfer(client, input.recordType, 'export');
+
   const available = await transferColumns(client, input.recordType);
 
   const unknown = input.columns.find(
@@ -117,8 +140,8 @@ export const createExport = async (
 
   if (unknown) throw fail('INVALID_COLUMNS', `Unknown column: ${unknown}`);
 
-  // A filter that doesn't fit is refused now, not in the background.
-  await whereOf(client, input.recordType, input.query);
+  // A filter that doesn't fit is refused now, not in the background; a plugin applies its own.
+  if (isCoreType(input.recordType)) await whereOf(client, input.recordType, input.query);
 
   const row = oneRow(
     await client
@@ -138,9 +161,11 @@ export const createExport = async (
     orgId: row.orgId,
     payload: { exportId: row.id },
   });
-  // Contacts leaving erxes: always in the audit log.
+  // Records leaving erxes: always in the audit log.
   await recordAudit(client, {
-    action: 'contacts.exported',
+    action: isCoreType(input.recordType)
+      ? 'contacts.exported'
+      : `${input.recordType.replace(':', '.')}.exported`,
     targetType: 'export',
     targetId: row.id,
     targetLabel: input.recordType,
@@ -171,11 +196,11 @@ const exporter = async (tx: Db, row: ExportRow) => {
 /** One page of the list's records after `last` (by id). */
 const pageOf = async (
   tx: Db,
-  row: ExportRow,
+  recordType: CoreRecordType,
   where: SQL | undefined,
   last: string,
 ): Promise<ExportRecord[]> => {
-  if (row.recordType === 'company') {
+  if (recordType === 'company') {
     return tx
       .select({
         ...getTableColumns(companies),
@@ -202,19 +227,19 @@ const pageOf = async (
  * Every row of the export's list: up to `MAX_EXPORT_ROWS`, and one page past
  * it when there are more, so the caller can tell the list was cut.
  */
-const collectRows = async (tx: Db, row: ExportRow) => {
-  const where = await whereOf(tx, row.recordType, row.query);
+const collectRows = async (tx: Db, row: ExportRow, recordType: CoreRecordType) => {
+  const where = await whereOf(tx, recordType, row.query);
   const body: Cell[][] = [];
   let last = '';
 
   // Page after page until a short one, or one page past the limit.
   await repeatWhile(MAX_EXPORT_ROWS / PAGE + 1, async () => {
-    const page = await pageOf(tx, row, where, last);
+    const page = await pageOf(tx, recordType, where, last);
     const end = page.at(-1);
 
     if (!end) return false;
 
-    body.push(...(await pageCells(tx, row.recordType, page, row.columns)));
+    body.push(...(await pageCells(tx, recordType, page, row.columns)));
     last = end.id;
 
     return page.length === PAGE && body.length <= MAX_EXPORT_ROWS;
@@ -223,14 +248,46 @@ const collectRows = async (tx: Db, row: ExportRow) => {
   return body;
 };
 
-/** The export's file in memory: its rows read in one scope, written to storage after it. */
-const buildExport = async (tx: Db, row: ExportRow) => {
-  const columns = await transferColumns(tx, row.recordType);
-  const header = row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key);
-  const body = await collectRows(tx, row);
+/**
+ * A plugin's records, page by page as its API answers them, outside any scope:
+ * up to `MAX_EXPORT_ROWS`, and one page past it when there are more.
+ */
+const pluginRows = async (orgId: string, row: ExportRow) => {
+  const spec = await withOrg(orgId, (tx) => pluginTransfer(tx, row.recordType));
+  const body: Cell[][] = [];
+  let cursor: string | null = null;
+
+  await repeatWhile(MAX_EXPORT_ROWS / PLUGIN_PAGE + 1, async () => {
+    const page = await exportPage(spec, {
+      orgId,
+      userId: row.createdBy,
+      columns: row.columns,
+      query: row.query,
+      cursor,
+      limit: PLUGIN_PAGE,
+    });
+
+    body.push(
+      ...page.rows
+        .slice(0, PLUGIN_PAGE)
+        .map((record) => row.columns.map((key) => customCell(record[key]))),
+    );
+    cursor = page.cursor;
+
+    return cursor !== null && page.rows.length > 0 && body.length <= MAX_EXPORT_ROWS;
+  });
+
+  return body;
+};
+
+/** The export's file in memory, written to storage after it. */
+const fileOf = async (row: ExportRow, header: string[], body: Cell[][]) => {
   const rows = body.slice(0, MAX_EXPORT_ROWS);
   const stamp = new Date().toISOString().slice(0, 10);
-  const plural = { company: 'companies', lead: 'leads', customer: 'customers' }[row.recordType];
+
+  const plural = isCoreType(row.recordType)
+    ? { company: 'companies', lead: 'leads', customer: 'customers' }[row.recordType]
+    : row.recordType.replace(':', '-');
 
   return {
     row,
@@ -247,11 +304,8 @@ const buildExport = async (tx: Db, row: ExportRow) => {
   };
 };
 
-/**
- * The running export, its file and the member who asked, or null when it is
- * no longer running. The list's conditions are the member's (`me`).
- */
-const prepareExport = (orgId: string, exportId: string) =>
+/** The running export, the member who asked and the file's header; null when it is no longer running. */
+const runningExport = (orgId: string, exportId: string) =>
   withOrg(orgId, async (tx) => {
     const [row] = await tx.select().from(exports).where(eq(exports.id, exportId)).limit(1);
 
@@ -259,10 +313,18 @@ const prepareExport = (orgId: string, exportId: string) =>
 
     const member = await exporter(tx, row);
 
-    return member ? { member, ...(await runAs(member, () => buildExport(tx, row))) } : null;
+    if (!member) return null;
+
+    const columns = await transferColumns(tx, row.recordType);
+
+    return {
+      member,
+      row,
+      header: row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key),
+    };
   });
 
-type BuiltExport = Awaited<ReturnType<typeof buildExport>>;
+type BuiltExport = Awaited<ReturnType<typeof fileOf>>;
 
 /** Marks the export done with its stored file and tells the member who asked. */
 const finishExport = async (tx: Db, built: BuiltExport, fileId: string) => {

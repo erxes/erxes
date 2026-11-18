@@ -21,7 +21,7 @@ import {
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
   ORG_UNIT_KINDS,
-  PLUGIN_VIEW_TYPE,
+  PLUGIN_LIST_TYPE,
   PRODUCT_KINDS,
   SEARCH_RECORD_TYPES,
   SUPPRESSION_REASONS,
@@ -264,10 +264,10 @@ export const SearchType = z.enum(SEARCH_RECORD_TYPES);
 
 export type SearchType = z.infer<typeof SearchType>;
 
-/** A plugin's record type, `<plugin>:<record>` (`sales:deal`). */
-export const PluginViewType = z
+/** A plugin's list, `<plugin>:<record>` (`sales:deal`): views belong to it, imports and exports carry its records. */
+export const PluginListType = z
   .templateLiteral([z.string(), ':', z.string()])
-  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
+  .refine((type) => new RegExp(PLUGIN_LIST_TYPE).test(type), 'Expected <plugin>:<record>');
 
 /**
  * What a plugin's search route (`search[].path` in its manifest) answers:
@@ -280,7 +280,7 @@ export const PluginSearchHit = z.object({
   id: z.string().trim().min(1).max(100),
   title: z.string().trim().min(1).max(200),
   subtitle: z.string().trim().max(300).nullish(),
-  recordType: PluginViewType.optional(),
+  recordType: PluginListType.optional(),
   path: z
     .string()
     .regex(/^\/[^\s]*$/, 'a path like /sales/deals/1')

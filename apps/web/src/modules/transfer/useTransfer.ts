@@ -1,9 +1,39 @@
-import type { Import, TransferRecordType } from '@erxes/core-contract';
+import type { Import, TransferRecordType, TransferType } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
+import { usePluginText } from '~/modules/plugins/pluginText';
 
 /** Still working in the background: poll until it settles. */
 const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];
+
+/** The record types the member may import or export: core's, and installed plugins'. */
+export const useTransferTypes = () =>
+  useQuery(
+    orpc.transfer.types.queryOptions({
+      staleTime: 60_000,
+      select: ({ data }) => data,
+    }),
+  );
+
+/** The record type, if the member may import or export it. */
+export const useTransferType = (recordType: TransferRecordType) =>
+  useTransferTypes().data?.find((type) => type.recordType === recordType);
+
+/** What a record type's records are called, in the member's language. */
+export const useTransferLabel = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const pluginText = usePluginText();
+  const types = useTransferTypes().data;
+
+  return (recordType: TransferRecordType) => {
+    const type: TransferType | undefined = types?.find((item) => item.recordType === recordType);
+
+    if (type?.plugin) return pluginText(type.plugin, type.label);
+
+    return t(`noun.${recordType}`, type?.label ?? recordType);
+  };
+};
 
 /** The columns a record type imports and exports. */
 export const useTransferColumns = (recordType: TransferRecordType) =>
