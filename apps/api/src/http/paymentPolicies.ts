@@ -34,4 +34,5 @@ export const PAYMENT_ACCESS = {
   'ebarimt.resetPrintTemplate': needs('integrations.manage'),
   'ebarimt.previewPrint': needs('integrations.manage'),
   'ebarimt.printReceipt': { member: 'payments.manage', plugin: 'payments:read' },
+  'ebarimt.emailReceipt': { member: 'payments.manage', plugin: 'payments:write' },
 } as const;

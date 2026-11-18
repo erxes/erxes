@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
+import { loggedEmails } from '~/modules/email/email';
 import { useTestDatabase } from './db';
 import { usePosApi } from './posApi';
 import { settle } from './settle';
@@ -152,5 +153,32 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
       status: 409,
       code: 'RECEIPT_NOT_PRINTABLE',
     });
+  });
+
+  it('emails an issued receipt with its QR code as an image', async () => {
+    await t.owner().ebarimt.saveSettings(settings());
+
+    const { receipt } = await paidReceipt();
+
+    await expect(
+      t.hr().ebarimt.emailReceipt({ id: receipt.id, to: 'not an address' }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      t.other().ebarimt.emailReceipt({ id: receipt.id, to: 'buyer@example.mn' }),
+    ).rejects.toMatchObject({ status: 404 });
+
+    expect(await t.hr().ebarimt.emailReceipt({ id: receipt.id, to: 'buyer@example.mn' })).toEqual({
+      ok: true,
+    });
+    await settle();
+
+    const sent = loggedEmails.findLast((email) => email.to === 'buyer@example.mn');
+
+    expect(sent?.subject).toContain(receipt.billId ?? 'no bill');
+    expect(sent?.text).toContain('Tea <hot>');
+    expect(sent?.text).toContain(`Сугалаа: ${receipt.lottery ?? ''}`);
+    expect(sent?.attachments).toEqual([
+      expect.objectContaining({ cid: 'ebarimt-qr', filename: 'ebarimt-qr.png' }),
+    ]);
   });
 });

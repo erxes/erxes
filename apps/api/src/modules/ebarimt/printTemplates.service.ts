@@ -170,10 +170,11 @@ export const previewPrint = async (
 };
 
 /**
- * An issued receipt as a page to print, with its plugin's template. A plugin
- * prints only its own invoices' receipts. 404, 409 RECEIPT_NOT_PRINTABLE.
+ * An issued receipt still in force, with its plugin's template and what it
+ * prints. A plugin reaches only its own invoices' receipts. 404, 409
+ * RECEIPT_NOT_PRINTABLE, 409 EBARIMT_NOT_SET_UP.
  */
-export const printReceipt = async (client: Db, id: string) => {
+export const printableReceipt = async (client: Db, id: string) => {
   const [receipt] = await client
     .select({ receipt: ebarimtReceipts, source: paymentInvoices.source })
     .from(ebarimtReceipts)
@@ -211,6 +212,13 @@ export const printReceipt = async (client: Db, id: string) => {
     totalVat: toTugrik(row.totalVat),
     totalCityTax: toTugrik(row.totalCityTax),
   };
+
+  return { receipt: row, template, data };
+};
+
+/** An issued receipt as a page to print, with its plugin's template. */
+export const printReceipt = async (client: Db, id: string) => {
+  const { template, data } = await printableReceipt(client, id);
 
   return { paperSize: template.paperSize, html: await renderReceipt(template, data) };
 };

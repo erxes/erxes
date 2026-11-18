@@ -100,4 +100,13 @@ export const ebarimtPrintContract = {
     })
     .input(z.object({ id: Id }))
     .output(PrintedReceipt),
+  emailReceipt: base
+    .route({
+      method: 'POST',
+      path: '/ebarimt/receipts/{id}/email',
+      summary:
+        'Email an issued receipt as its plugin’s template prints it, with its QR code; a plugin emails its own invoices’ only. 409 RECEIPT_NOT_PRINTABLE for a failed, pending, returned or replaced one',
+    })
+    .input(z.object({ id: Id, to: z.email().max(254) }))
+    .output(z.object({ ok: z.literal(true) })),
 };

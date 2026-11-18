@@ -2,6 +2,15 @@ import { z } from 'zod';
 
 const Button = z.object({ label: z.string(), link: z.string() });
 
+/** An image the email's HTML shows by its content id (`<img src="cid:…">`), base64 PNG. */
+export const InlineImage = z.object({
+  cid: z.string().regex(/^[\w.-]{1,60}$/),
+  filename: z.string().max(100),
+  base64: z.base64().max(200_000),
+});
+
+export type InlineImage = z.infer<typeof InlineImage>;
+
 /** Emails core sends: the template and its data, as queued in an `email.send` job. */
 export const EmailPayload = z.discriminatedUnion('template', [
   z.object({
@@ -63,6 +72,7 @@ export const EmailPayload = z.discriminatedUnion('template', [
     replyTo: z.string().optional(),
     fromName: z.string().optional(),
     data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
+    attachments: z.array(InlineImage).max(5).optional(),
   }),
   /** A plain message (automations, plugins): a subject and text. */
   z.object({

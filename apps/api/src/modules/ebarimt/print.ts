@@ -132,10 +132,8 @@ const totals = (data: PrintData) =>
       : '',
   ].join('');
 
-const qr = async (data: PrintData) =>
-  data.qrData
-    ? `<div class="qr">${await QRCode.toString(data.qrData, { type: 'svg', margin: 0 })}</div>`
-    : '';
+const qrSvg = async (qrData: string) =>
+  `<div class="qr">${await QRCode.toString(qrData, { type: 'svg', margin: 0 })}</div>`;
 
 const lottery = (data: PrintData) =>
   data.lottery ? `<div class="lottery">Сугалаа: ${escape(data.lottery)}</div>` : '';
@@ -167,14 +165,32 @@ const css = (paper: Template['paperSize']) => {
     '.num{text-align:right;white-space:nowrap}',
     '.muted{color:#444;font-size:.9em}',
     '.qr{display:flex;justify-content:center;padding:4px 0}',
-    '.qr svg{width:60%;height:auto}',
+    '.qr svg,.qr img{width:60%;max-width:160px;height:auto}',
     '.lottery{text-align:center;font-weight:700;font-size:1.1em}',
   ].join('');
 };
 
+/** The QR code's content id in an email, whose PNG goes along as an attachment. */
+export const QR_CID = 'ebarimt-qr';
+
+/** The QR code as a PNG, for email: mail apps show no inline SVG. */
+export const qrPng = (qrData: string) =>
+  QRCode.toBuffer(qrData, { type: 'png', margin: 1, width: 320 });
+
+/** `print`: the QR code drawn in the page; `email`: an image the email attaches. */
+type Medium = 'print' | 'email';
+
+const qrFor = (data: PrintData, medium: Medium) => {
+  if (!data.qrData) return '';
+
+  return medium === 'email'
+    ? `<div class="qr"><img src="cid:${QR_CID}" width="160" height="160" alt="QR"></div>`
+    : qrSvg(data.qrData);
+};
+
 const BLOCKS: Record<
   EbarimtPrintBlock['type'],
-  (data: PrintData, template: Template) => string | Promise<string>
+  (data: PrintData, template: Template, medium: Medium) => string | Promise<string>
 > = {
   merchant,
   header: (_, template) => text(template.headerText),
@@ -182,18 +198,22 @@ const BLOCKS: Record<
   buyer,
   lines,
   totals,
-  qr,
+  qr: (data, _, medium) => qrFor(data, medium),
   lottery,
   footer: (_, template) => text(template.footerText),
 };
 
 /** The receipt as a whole HTML page for its paper, its parts in the template's order. */
-export const renderReceipt = async (template: Template, data: PrintData) => {
+export const renderReceipt = async (
+  template: Template,
+  data: PrintData,
+  medium: Medium = 'print',
+) => {
   const visible = allBlocks(template.blocks).filter((block) => block.visible);
 
   const parts = await Promise.all(
     visible.map(async (block) => {
-      const html = await BLOCKS[block.type](data, template);
+      const html = await BLOCKS[block.type](data, template, medium);
 
       return html ? `<section data-block="${block.type}">${html}</section>` : '';
     }),

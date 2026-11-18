@@ -2293,6 +2293,16 @@
           "path": "/ebarimt/receipts/{id}/print"
         }
       }
+    },
+    "emailReceipt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/receipts/{id}/email"
+        }
+      }
     }
   },
   "plugins": {

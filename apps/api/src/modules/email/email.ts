@@ -3,7 +3,7 @@ import { createTransport, type Transporter } from 'nodemailer';
 import { config } from '~/config';
 import { logger } from '~/logger';
 import { defineJob } from '~/modules/jobs/jobs';
-import { EmailPayload, renderEmail } from './templates';
+import { EmailPayload, type InlineImage, renderEmail } from './templates';
 import { orgTransport } from './transport';
 
 const log = logger.child({ component: 'email' });
@@ -19,7 +19,18 @@ interface Message {
   html: string;
   text: string;
   headers?: Record<string, string>;
+  attachments?: InlineImage[];
 }
+
+/** Nodemailer's attachment for an image the HTML shows by its content id. */
+const inlineImages = (images: InlineImage[] | undefined) =>
+  images?.map(({ cid, filename, base64 }) => ({
+    cid,
+    filename,
+    content: Buffer.from(base64, 'base64'),
+    contentType: 'image/png',
+    contentDisposition: 'inline' as const,
+  }));
 
 /** Sent emails while `EMAIL_DRIVER=log` (development, tests). */
 export const loggedEmails: Omit<Message, 'html'>[] = [];
@@ -67,12 +78,13 @@ export const deliverEmail = async (message: Message, orgId?: string) => {
   const own = orgId ? await orgTransport(orgId) : null;
 
   if (own) {
-    const { fromName, ...mail } = message;
+    const { fromName, attachments, ...mail } = message;
     const name = fromName ?? own.settings.fromName;
 
     await own.transport.sendMail({
       from: name ? { name, address: own.settings.fromEmail } : own.settings.fromEmail,
       ...mail,
+      attachments: inlineImages(attachments),
     });
 
     return;
@@ -87,6 +99,7 @@ export const deliverEmail = async (message: Message, orgId?: string) => {
       subject: message.subject,
       text: message.text,
       headers: message.headers,
+      attachments: message.attachments,
     });
 
     if (loggedEmails.length > 100) loggedEmails.shift();
@@ -102,9 +115,13 @@ export const deliverEmail = async (message: Message, orgId?: string) => {
 
   transporter ??= createTransport(config.email.smtpUrl);
 
-  const { fromName, ...mail } = message;
+  const { fromName, attachments, ...mail } = message;
 
-  await transporter.sendMail({ from: fromWith(fromName), ...mail });
+  await transporter.sendMail({
+    from: fromWith(fromName),
+    ...mail,
+    attachments: inlineImages(attachments),
+  });
 };
 
 /** A link into the scope's organisation (`withOrg`) in erxes: `APP_URL`, with its subdomain. */
@@ -133,6 +150,7 @@ export const emailJob = defineJob({
         to: payload.to,
         replyTo: payload.template === 'message' || rendered ? payload.replyTo : undefined,
         fromName: rendered ? payload.fromName : undefined,
+        attachments: rendered ? payload.attachments : undefined,
         ...renderEmail(payload),
       },
       job.orgId,

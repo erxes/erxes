@@ -8,6 +8,7 @@ import {
   resetPrintTemplate,
   savePrintTemplate,
 } from '~/modules/ebarimt/printTemplates.service';
+import { emailReceipt } from '~/modules/ebarimt/receiptEmail.service';
 import { listReceipts, requestSync, setBuyer } from '~/modules/ebarimt/receipts.service';
 import {
   getSettings,
@@ -38,4 +39,5 @@ export const ebarimtRouter = {
   ),
   previewPrint: scoped.ebarimt.previewPrint.handler(({ input }) => previewPrint(db(), input)),
   printReceipt: scoped.ebarimt.printReceipt.handler(({ input }) => printReceipt(db(), input.id)),
+  emailReceipt: scoped.ebarimt.emailReceipt.handler(({ input }) => emailReceipt(db(), input)),
 };
