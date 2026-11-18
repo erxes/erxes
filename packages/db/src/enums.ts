@@ -154,6 +154,20 @@ export const RELATIVE_DATE_UNITS = ['days', 'weeks', 'months'] as const;
 /** Formats a text field's values must have. */
 export const FIELD_VALIDATIONS = ['number', 'email', 'date'] as const;
 
+/** How a field's `logic` rule compares another field's value. */
+export const FIELD_LOGIC_OPERATORS = [
+  'is',
+  'isNot',
+  'contains',
+  'greaterThan',
+  'lessThan',
+  'hasValue',
+  'isEmpty',
+] as const;
+
+/** What a field's `logic` does when its rules match: show the field, or hide it. */
+export const FIELD_LOGIC_ACTIONS = ['show', 'hide'] as const;
+
 export const CONDITION_OPERATORS = [
   'eq',
   'neq',

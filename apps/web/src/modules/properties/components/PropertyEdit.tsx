@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { propertyPaths } from '~/lib/paths';
-import { hasOptions } from '../fieldTypes';
+import { fieldInputOf } from '../propertySchema';
 import { useAllFields } from '../useFields';
 import { useEditProperty } from '../usePropertyMutations';
 import { PropertyForm } from './PropertyForm';
@@ -66,24 +66,14 @@ export const PropertyEdit = ({ contentType }: { contentType: PropertyContentType
         type: field.type,
         validation: field.validation,
         isVisible: field.isVisible,
+        isRequired: field.isRequired,
+        isVisibleToCreate: field.isVisibleToCreate,
+        logic: field.logic ?? undefined,
         options: field.options.map((value) => ({ value })),
       }}
       onSubmit={(data) =>
         mutate(
-          {
-            id: field.id,
-            label: data.name,
-            type: data.type,
-            ...(hasOptions(data.type)
-              ? { options: (data.options ?? []).map((option) => option.value) }
-              : {}),
-            groupId: data.groupId,
-            code: data.code,
-            description: data.description || null,
-            icon: data.icon || null,
-            validation: data.validation ?? null,
-            isVisible: data.isVisible,
-          },
+          { id: field.id, ...fieldInputOf(data) },
           {
             onSuccess: () => {
               toast({ title: t('property-updated', 'Property updated'), variant: 'success' });

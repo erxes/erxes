@@ -160,6 +160,8 @@ export * from './favorites';
 
 export * from './fieldGroups';
 
+export * from './fieldLogic';
+
 export * from './fields';
 
 export * from './files';

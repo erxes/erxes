@@ -2,6 +2,7 @@ import {
   type AppliesTo,
   type CustomValue,
   groupApplies,
+  logicShows,
   type PropertyContentType,
 } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
@@ -41,7 +42,8 @@ const EmptyProperties = ({ contentType }: { contentType: PropertyContentType }) 
 /**
  * A record's custom field values: one collapsible card per field group, in
  * group order, each value edited in place, then one per plugin with the values
- * it keeps (read-only). `onSave` gets the changed field.
+ * it keeps (read-only). A field its logic hides is left out, and a required one is marked.
+ * `onSave` gets the changed field.
  */
 export const CustomFieldSections = ({
   contentType,
@@ -93,20 +95,32 @@ export const CustomFieldSections = ({
             </div>
             <Collapsible.Panel>
               <div className="flex flex-col gap-1 rounded-lg bg-background p-3 shadow-sm">
-                {fields.map((field) => (
-                  <PanelField
-                    key={field.id}
-                    icon={FIELD_TYPES_OBJECT[field.type].icon}
-                    label={field.label}
-                  >
-                    <CustomFieldCell
-                      field={field}
-                      scope={`${scope}.${field.id}`}
-                      value={values[field.id]}
-                      onSave={(value) => onSave({ [field.id]: value })}
-                    />
-                  </PanelField>
-                ))}
+                {fields
+                  .filter((field) => logicShows(field.logic, values))
+                  .map((field) => (
+                    <PanelField
+                      key={field.id}
+                      icon={FIELD_TYPES_OBJECT[field.type].icon}
+                      label={
+                        field.isRequired ? (
+                          <>
+                            {field.label}
+                            <span aria-hidden="true"> *</span>
+                            <span className="sr-only">{t('required', 'required')}</span>
+                          </>
+                        ) : (
+                          field.label
+                        )
+                      }
+                    >
+                      <CustomFieldCell
+                        field={field}
+                        scope={`${scope}.${field.id}`}
+                        value={values[field.id]}
+                        onSave={(value) => onSave({ [field.id]: value })}
+                      />
+                    </PanelField>
+                  ))}
               </div>
             </Collapsible.Panel>
           </div>

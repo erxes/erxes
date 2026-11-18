@@ -1,4 +1,4 @@
-import { FieldType, FieldValidation } from '@erxes/core-contract';
+import { FieldLogic, FieldType, FieldValidation } from '@erxes/core-contract';
 import { z } from 'zod';
 import { hasOptions } from './fieldTypes';
 
@@ -40,6 +40,15 @@ export const propertySchema = z
     type: FieldType,
     validation: FieldValidation.nullable().optional(),
     isVisible: z.boolean().default(true),
+    isRequired: z.boolean().default(false),
+    isVisibleToCreate: z.boolean().default(true),
+    // Edited as a list that may be empty; a property without rules saves no logic.
+    logic: z
+      .object({
+        action: FieldLogic.shape.action,
+        rules: z.array(FieldLogic.shape.rules.element).max(10),
+      })
+      .default({ action: 'show', rules: [] }),
     options: z
       .array(z.object({ value: z.string().trim().min(1, 'Label is required').max(200) }))
       .optional()
@@ -73,3 +82,19 @@ export type IPropertyGroupValues = z.output<typeof propertyGroupSchema>;
 export type IPropertyForm = z.input<typeof propertySchema>;
 
 export type IPropertyValues = z.output<typeof propertySchema>;
+
+/** The form's values as `fields.create` and `fields.update` take them. */
+export const fieldInputOf = (data: IPropertyValues) => ({
+  label: data.name,
+  type: data.type,
+  ...(hasOptions(data.type) ? { options: (data.options ?? []).map((option) => option.value) } : {}),
+  groupId: data.groupId,
+  code: data.code,
+  description: data.description || null,
+  icon: data.icon || null,
+  validation: data.validation ?? null,
+  isVisible: data.isVisible,
+  isRequired: data.isRequired,
+  isVisibleToCreate: data.isVisibleToCreate,
+  logic: data.logic.rules.length ? data.logic : null,
+});

@@ -5,6 +5,7 @@ import { wholeList } from '~/lib/keyset';
 import { fail } from '~/http/errors';
 import { oneRow, setOrders } from '~/lib/rows';
 import {
+  assertPluginReads,
   assertPropertyType,
   fieldsOfGroup,
   findGroup,
@@ -18,6 +19,8 @@ export const listFieldGroups = async (
   client: Db,
   input: { contentType: PropertyContentType; archived?: boolean },
 ) => {
+  assertPluginReads(input.contentType);
+
   const rows = await wholeList((limit) =>
     client
       .select()

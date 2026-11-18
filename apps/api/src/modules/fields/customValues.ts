@@ -1,4 +1,4 @@
-import { type AppliesTo, groupApplies } from '@erxes/core-contract';
+import { type AppliesTo, logicShows, groupApplies } from '@erxes/core-contract';
 import {
   caller,
   type PluginRecordType,
@@ -8,7 +8,7 @@ import {
   fieldGroups,
   fields,
 } from '@erxes/core-db';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull, or } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMemberField, type FieldRow } from './fieldRows';
@@ -95,22 +95,56 @@ export const checkValue = (field: FieldRow, value: CustomValue): CustomValue => 
 export const isEmpty = (value: CustomValue) =>
   value === '' || (Array.isArray(value) && !value.length);
 
+type Definition = {
+  field: FieldRow;
+  groupArchivedAt: Date | null;
+  groupAppliesTo: AppliesTo | null;
+};
+
+/**
+ * Refuses values that leave a required field empty while it shows on the record: one the patch
+ * clears, or, on `create`, one the create form asks for (`isVisibleToCreate`) and isn't given.
+ */
+const assertRequired = (
+  definitions: Definition[],
+  values: Record<string, CustomValue>,
+  patch: Record<string, CustomValue | null>,
+  { appliesTo, create }: { appliesTo: AppliesTo; create: boolean },
+) => {
+  for (const { field, groupArchivedAt, groupAppliesTo } of definitions) {
+    const asked = create ? field.isVisibleToCreate : field.id in patch;
+
+    if (
+      field.isRequired &&
+      asked &&
+      !field.plugin &&
+      !field.archivedAt &&
+      !groupArchivedAt &&
+      (!groupAppliesTo || groupApplies(groupAppliesTo, appliesTo)) &&
+      logicShows(field.logic, values) &&
+      values[field.id] === undefined
+    )
+      throw invalid(field, 'required');
+  }
+};
+
 /**
  * Applies a custom field patch to a record's values: each key must be a field
  * of `contentType` in the organisation; empty values (`null`, `''`, `[]`) clear it.
  * Archived fields (or fields of an archived group) can only be cleared, as can those of a group
- * that doesn't apply to the record (`appliesTo`: what the record is in).
+ * that doesn't apply to the record (`appliesTo`: what the record is in). A required field that
+ * shows can't be cleared, and `create` needs each one its create form asks for.
  */
 export const applyCustomFields = async (
   client: Db,
   contentType: PropertyContentType,
   current: Record<string, CustomValue>,
   patch: Record<string, CustomValue | null> | undefined,
-  appliesTo: AppliesTo = {},
+  { appliesTo = {}, create = false }: { appliesTo?: AppliesTo; create?: boolean } = {},
 ) => {
   const ids = Object.keys(patch ?? {});
 
-  if (!patch || !ids.length) {
+  if (!create && (!patch || !ids.length)) {
     return current;
   }
 
@@ -122,14 +156,20 @@ export const applyCustomFields = async (
     })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(and(eq(fields.contentType, contentType), inArray(fields.id, ids)))
+    // The patched fields, and every live one a required rule or a logic rule may name.
+    .where(
+      and(
+        eq(fields.contentType, contentType),
+        or(inArray(fields.id, ids), isNull(fields.archivedAt)),
+      ),
+    )
     // A field can't change type or go away while a value is being checked against it.
     .for('share', { of: fields });
 
   const byId = new Map(definitions.map((row) => [row.field.id, row]));
   const next = { ...current };
 
-  for (const [id, value] of Object.entries(patch)) {
+  for (const [id, value] of Object.entries(patch ?? {})) {
     const definition = byId.get(id);
 
     if (!definition) {
@@ -164,6 +204,8 @@ export const applyCustomFields = async (
     }
   }
 
+  assertRequired(definitions, next, patch ?? {}, { appliesTo, create });
+
   return next;
 };
 
@@ -178,6 +220,7 @@ export const checkPluginValues = async (
     current: Record<string, CustomValue>;
     patch: Record<string, CustomValue | null>;
     appliesTo: AppliesTo;
+    create: boolean;
   },
 ) => {
   const { plugin } = caller('plugin');
@@ -186,12 +229,9 @@ export const checkPluginValues = async (
     throw fail('NOT_ALLOWED', 'A plugin checks values of its own record types only');
 
   return {
-    values: await applyCustomFields(
-      client,
-      input.contentType,
-      input.current,
-      input.patch,
-      input.appliesTo,
-    ),
+    values: await applyCustomFields(client, input.contentType, input.current, input.patch, {
+      appliesTo: input.appliesTo,
+      create: input.create,
+    }),
   };
 };

@@ -1,5 +1,6 @@
 import { isCoreFieldType } from '@erxes/core-contract';
 import {
+  caller,
   type PropertyContentType,
   type Db,
   fieldGroups,
@@ -52,6 +53,25 @@ export const selectFields = (client: Db) =>
     })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId));
+
+/**
+ * Plugins read product fields and groups (with `products:read`) to show product values, and
+ * their own record types', whose values they keep; contacts' stay members'.
+ */
+export const assertPluginReads = (contentType: PropertyContentType) => {
+  const who = caller();
+
+  if (who.type !== 'plugin' || contentType.startsWith(`${who.plugin}.`)) return;
+
+  if (contentType !== 'product')
+    throw fail('NOT_ALLOWED', 'Plugins read product fields and their own record types only');
+
+  if (!who.scopes.includes('products:read'))
+    throw fail(
+      'SCOPE_REQUIRED',
+      "This needs the products:read scope, which this installation hasn't granted",
+    );
+};
 
 /** A plugin's field: only that plugin changes it or writes its values (403 `PLUGIN_FIELD`). */
 export const assertMemberField = (field: Pick<FieldRow, 'id' | 'label' | 'plugin'>) => {
