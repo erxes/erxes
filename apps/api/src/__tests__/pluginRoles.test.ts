@@ -279,6 +279,26 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     await asPlugin((client) => client.query(`select core_enable_tenant_rls('${table}')`));
     expect(await problems()).toEqual([]);
 
+    // A materialized view has no row level security: whatever it cached, every organisation sees.
+    const cache = table.replace(/contacts$/, 'cache');
+
+    await asPlugin((client) =>
+      client.query(`create materialized view ${cache} as select * from ${table}`),
+    );
+    expect(await problems()).toEqual([
+      `${cache}: a materialized view shows every organisation the rows it cached: use a table with row level security`,
+    ]);
+    await asPlugin((client) => client.query(`drop materialized view ${cache}`));
+
+    // A plugin's function named like a built-in never runs as core.
+    await asPlugin(async (client) => {
+      await client.query(`create function public.format(text, text) returns text language plpgsql
+        as $$ begin raise exception 'core ran the plugin''s format'; end $$`);
+      expect(await schemaFor(client, orgA)).toBe(schema);
+    });
+    expect(await problems()).toEqual([]);
+    await asPlugin((client) => client.query('drop function public.format(text, text)'));
+
     // A version that no longer asks for the scope gets no schema, though it was granted.
     await adminDb().execute(
       sql`update core_plugins set manifest = '{"scopes": []}' where name = 'testhr'`,

@@ -5,10 +5,14 @@
 -- and owns the tables in it. Callers quote the name, since org ids are mixed case.
 --
 --   SELECT core_plugin_org_schema('<org id>');
+--
+-- Plugin roles may create functions in public, and a `public.format(text, text)` would win over
+-- the variadic built-in and run as core. So the search path is pg_catalog alone, and core's
+-- own objects are named with their schema.
 CREATE OR REPLACE FUNCTION core_plugin_org_schema(p_org_id text) RETURNS text
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, pg_temp AS $$
 DECLARE
-  v_plugin text := core_plugin_caller();
+  v_plugin text := public.core_plugin_caller();
   v_schema text;
 BEGIN
   IF v_plugin IS NULL THEN
@@ -18,7 +22,7 @@ BEGIN
     RAISE EXCEPTION 'core_plugin_org_schema: invalid organisation id %', p_org_id;
   END IF;
   IF NOT EXISTS (
-    SELECT 1 FROM core_plugin_installations i JOIN core_plugins p ON p.name = i.plugin
+    SELECT 1 FROM public.core_plugin_installations i JOIN public.core_plugins p ON p.name = i.plugin
     WHERE i.org_id = p_org_id AND i.plugin = v_plugin AND i.status = 'active' AND p.status = 'active'
       AND 'records:extend' = ANY (i.granted_scopes)
       -- Still asked for: a manifest without it dropped it; no manifest yet asks for every scope.
@@ -50,16 +54,19 @@ END $$;
 -- The tenancy guard also checks the tables a plugin keeps in its organisation schemas: row
 -- level security forced with the tenant policy, as on its tables in public, so a query sent to
 -- the wrong organisation's schema still sees no rows. Only tables in public need the plugin's
--- name as their prefix; an organisation schema already carries it.
+-- name as their prefix; an organisation schema already carries it. A materialized view can't
+-- have row level security, so it would show every organisation the rows it cached: refused.
+-- It runs with pg_catalog alone on its search path, so a plugin's function can't stand in for
+-- a built-in it calls.
 CREATE OR REPLACE FUNCTION core_plugin_tenancy_problems(p_plugin text DEFAULT NULL) RETURNS SETOF text
-LANGUAGE sql STABLE AS $$
+LANGUAGE sql STABLE SET search_path = pg_catalog, pg_temp AS $$
   WITH owned AS (
-    SELECT c.oid, n.nspname, c.relname, c.relrowsecurity, c.relforcerowsecurity,
+    SELECT c.oid, n.nspname, c.relname, c.relkind, c.relrowsecurity, c.relforcerowsecurity,
       substring(r.rolname from '^erxes_plugin_([a-z_][a-z0-9_]*)$') AS plugin
     FROM pg_class c
     JOIN pg_namespace n ON n.oid = c.relnamespace
     JOIN pg_roles r ON r.oid = c.relowner
-    WHERE c.relkind IN ('r', 'p', 'f')
+    WHERE c.relkind IN ('r', 'p', 'f', 'm')
       AND r.rolname ~ '^erxes_plugin_[a-z_][a-z0-9_]*$'
   ),
   plugin_tables AS (
@@ -73,7 +80,8 @@ LANGUAGE sql STABLE AS $$
         SELECT 1 FROM pg_policies p
         WHERE p.schemaname = t.nspname AND p.tablename = t.relname AND p.policyname = 'tenant'
           AND p.permissive = 'PERMISSIVE' AND p.cmd = 'ALL'
-          AND p.qual ~ '^core_tenant_visible\([a-z_][a-z0-9_]*\)$' AND p.with_check = p.qual
+          -- Shown with its schema, since public is not on this function's search path.
+          AND p.qual ~ '^public\.core_tenant_visible\([a-z_][a-z0-9_]*\)$' AND p.with_check = p.qual
       ) AS has_tenant_policy
     FROM plugin_tables t
     WHERE (p_plugin IS NULL OR t.plugin = p_plugin)
@@ -82,11 +90,14 @@ LANGUAGE sql STABLE AS $$
   SELECT format('%s: %s', shown, concat_ws(', ',
     CASE WHEN nspname = 'public' AND left(relname, length(plugin) + 1) <> plugin || '_'
       THEN format('owned by plugin %s, so its name must start with %s_', plugin, plugin) END,
-    CASE WHEN NOT relrowsecurity THEN 'row level security is off' END,
-    CASE WHEN NOT relforcerowsecurity THEN 'row level security is not forced' END,
-    CASE WHEN NOT has_tenant_policy THEN 'no tenant policy: run SELECT core_enable_tenant_rls(''' || shown || ''')' END))
+    CASE WHEN relkind = 'm'
+      THEN 'a materialized view shows every organisation the rows it cached: use a table with row level security' END,
+    CASE WHEN relkind <> 'm' AND NOT relrowsecurity THEN 'row level security is off' END,
+    CASE WHEN relkind <> 'm' AND NOT relforcerowsecurity THEN 'row level security is not forced' END,
+    CASE WHEN relkind <> 'm' AND NOT has_tenant_policy THEN 'no tenant policy: run SELECT core_enable_tenant_rls(''' || shown || ''')' END))
   FROM checked
   WHERE (nspname = 'public' AND left(relname, length(plugin) + 1) <> plugin || '_')
+    OR relkind = 'm'
     OR NOT (relrowsecurity AND relforcerowsecurity AND has_tenant_policy)
   UNION ALL
   SELECT format('%s: permissive policy %s is not the tenant check, so it lets more rows through', c.shown, p.policyname)
