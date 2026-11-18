@@ -24,6 +24,7 @@ export {
   assistantThreads,
   apiKeys,
   orgUnitMembers,
+  orgUnitTombstones,
   orgUnitTypes,
   orgUnits,
   automationRuns,

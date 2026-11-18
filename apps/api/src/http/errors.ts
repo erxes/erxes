@@ -114,13 +114,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     field: 'message.id',
     message: 'This message is already in the thread',
   },
-  core_org_units_org_kind_code_key: {
+  core_org_units_org_code_key: { field: 'code', message: 'Another unit has this code' },
+  core_org_unit_types_org_code_key: {
     field: 'code',
-    message: 'Another unit of this kind has this code',
-  },
-  core_org_unit_types_org_kind_code_key: {
-    field: 'code',
-    message: 'Another unit type of this kind has this code',
+    message: 'Another unit type has this code',
   },
 };
 

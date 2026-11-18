@@ -528,8 +528,8 @@
       "contacts": "Which contacts",
       "scope-all": "All",
       "scope-own": "Only mine",
-      "scope-units": "In branches or departments",
-      "units-placeholder": "Choose branches or departments",
+      "scope-units": "In units of the structure",
+      "units-placeholder": "Choose units",
       "tags": "Only with these tags",
       "tags-placeholder": "Any tag",
       "ips": "Only from these addresses",
@@ -992,8 +992,8 @@
       "payments-write": "Create invoices and refunds",
       "products-read": "Read the product catalog",
       "products-write": "Create and edit products",
-      "units-read": "Read branches and departments",
-      "units-write": "Change branches and departments, and who is in them",
+      "units-read": "Read the organisation's structure",
+      "units-write": "Change the organisation's structure, and who is in each unit",
       "users-read": "Read team members",
       "views-read": "Use the team's shared views as segments"
     }

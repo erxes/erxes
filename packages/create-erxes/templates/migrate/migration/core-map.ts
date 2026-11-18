@@ -29,7 +29,7 @@ const drop = (note: string): Equivalent => ({ kind: 'drop', to: '', note });
  */
 export const OWN_TEAMS = contract(
   'units.list',
-  "units:read; a read-only copy in <plugin>_teams and <plugin>_team_members, refreshed on core.unit.* events, for the plugin's own visibility queries. Old units go to core once with units.import (units:write), keeping their ids",
+  "units:read; a read-only copy in <plugin>_teams and <plugin>_team_members, paged from units.list and refreshed on core.unit.* events, for the plugin's own visibility queries. Old units go to core once with units.import (units:write), keeping their ids, old branches with core's Branch type and old departments with its Department type (unitTypes.list)",
 );
 
 /** A field holding old unit ids or switches: `departmentIds`, `branchId`, `isCheckBranch`. */

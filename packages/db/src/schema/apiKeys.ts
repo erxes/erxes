@@ -46,7 +46,7 @@ export const apiKeys = pgTable(
     actions: jsonb().$type<ApiKeyActions>().default({}).notNull(),
     /** Only contacts the maker owns. */
     ownRecords: boolean().default(false).notNull(),
-    /** Only contacts owned by members of these branches or departments, or units under them. */
+    /** Only contacts owned by members of these units, or units under them. */
     unitIds: text()
       .array()
       .default(sql`'{}'::text[]`)

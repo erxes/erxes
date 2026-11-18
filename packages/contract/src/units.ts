@@ -1,224 +1,210 @@
-import { orgUnitTypes, orgUnits } from '@erxes/core-db/schema';
+import { orgUnits } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, LIST_MAX, listOf } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate, LIST_MAX, QueryBoolean } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { UnitKind } from './values';
 
-/** Members of one unit, or one member's units of a kind, set at once. */
+export const UNIT_MAX = 50_000;
+
+export const UNIT_DEPTH_MAX = 32;
+
+export const UNIT_CHILDREN_MAX = 200;
+
+export const UNIT_SEARCH_MAX = 50;
+
+/** Members of one unit, or one member's units, set at once. */
 const MemberIds = z.array(Id).max(5000);
 
-/** A kind of branch or department the organisation uses, and where units of it may sit. */
-export const UnitType = createSelectSchema(orgUnitTypes, {
+const UnitRow = createSelectSchema(orgUnits, {
   id: Id,
-  allowedParentTypeIds: z.array(Id),
   sortOrder: () => z.int(),
   createdAt: isoDate,
   updatedAt: isoDate,
 }).pick({
   id: true,
-  kind: true,
+  /** One of the organisation's unit types; null only for the organisation's own unit. */
+  typeId: true,
   name: true,
   code: true,
+
+  parentId: true,
+  /** `/<top id>/…/<own id>/`: the units under this one have paths that start with it. */
+  path: true,
+  supervisorId: true,
   description: true,
-  color: true,
-  icon: true,
-  /** Units of it may sit at the top of their tree. */
-  canBeRoot: true,
-  /** The types of its kind its units may sit under; empty for any. */
-  allowedParentTypeIds: true,
-  /** Inactive types stay on their units but aren't given to others. */
+  address: true,
+  phone: true,
+  email: true,
+
   isActive: true,
-  /** The first active type of a kind is the one a unit gets when none is named. */
+
   sortOrder: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export type UnitType = z.infer<typeof UnitType>;
-
-const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
-  name: (name) => name.trim().min(1).max(100),
-  code: (code) => code.trim().min(1).max(50),
-  description: (text) => text.trim().max(2000),
-  color: (color) => color.regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb'),
-  icon: (icon) => icon.regex(/^Icon[A-Za-z0-9]+$/, 'a Tabler icon name').max(60),
-  allowedParentTypeIds: () => z.array(Id).max(50),
-  sortOrder: () => z.int().min(0).max(10_000),
-}).pick({
-  name: true,
-  code: true,
-  description: true,
-  color: true,
-  icon: true,
-  canBeRoot: true,
-  allowedParentTypeIds: true,
-  isActive: true,
-  sortOrder: true,
-});
-
-/** A unit type a plugin brings from its own tables or old erxes, with its id. */
-const ImportedUnitType = UnitTypeFields.required({ name: true }).extend({ id: Id, kind: UnitKind });
-
-export const Unit = createSelectSchema(orgUnits, {
-  id: Id,
-  createdAt: isoDate,
-  updatedAt: isoDate,
-})
-  .pick({
-    id: true,
-    kind: true,
-    /** One of the organisation's unit types, of the unit's kind. */
-    typeId: true,
-    name: true,
-    code: true,
-    parentId: true,
-    /** `/<root id>/…/<own id>/`: the units under this one have paths that start with it. */
-    path: true,
-    supervisorId: true,
-    description: true,
-    address: true,
-    phone: true,
-    email: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({ memberIds: z.array(Id) });
+export const Unit = UnitRow.extend({ memberIds: z.array(Id) });
 
 export type Unit = z.infer<typeof Unit>;
+
+export const UnitNode = UnitRow.extend({
+  childCount: z.int(),
+
+  memberCount: z.int(),
+
+  subtreeMemberCount: z.int(),
+});
+
+export type UnitNode = z.infer<typeof UnitNode>;
+
+export const UnitDetail = Unit.extend({
+  childCount: z.int(),
+
+  descendantCount: z.int(),
+  subtreeMemberCount: z.int(),
+});
+
+export type UnitDetail = z.infer<typeof UnitDetail>;
+
+export const UnitHit = UnitNode.extend({ ancestorNames: z.array(z.string()) });
+
+export type UnitHit = z.infer<typeof UnitHit>;
 
 const UnitFields = createUpdateSchema(orgUnits, {
   name: (name) => name.trim().min(1).max(200),
   code: (code) => code.trim().min(1).max(50),
   typeId: Id.optional(),
-  parentId: Id.nullish(),
   supervisorId: Id.nullish(),
   description: (text) => text.trim().max(2000),
   address: (text) => text.trim().max(500),
   phone: (text) => text.trim().max(50),
   email: (text) => text.trim().max(200),
+  sortOrder: () => z.int().min(0).max(1_000_000),
 })
   .pick({
     typeId: true,
     name: true,
     code: true,
-    parentId: true,
     supervisorId: true,
     description: true,
     address: true,
     phone: true,
     email: true,
+    isActive: true,
+    sortOrder: true,
   })
   .extend({ memberIds: MemberIds.optional() });
 
+const ParentId = Id.nullish();
+
 /** A unit a plugin brings from its own tables or old erxes, with its id. */
 const ImportedUnit = UnitFields.required({ name: true }).extend({
-  id: Id,
-  kind: UnitKind,
+  id: Id.regex(/^[^/]+$/, 'a unit id has no "/": paths are made of ids'),
+  parentId: ParentId,
   memberIds: MemberIds.default([]),
 });
 
-const { INVALID_REFERENCE, LAST_UNIT_TYPE, TAKEN, UNIT_LIMIT, UNIT_TYPE_IN_USE } = ERRORS;
+const { INVALID_REFERENCE, ROOT_UNIT, TAKEN, UNIT_LIMIT, UNIT_NOT_EMPTY } = ERRORS;
 
-const base = oc.errors({ ...COMMON_ERRORS, INVALID_REFERENCE, TAKEN, UNIT_LIMIT });
-
-const typeBase = oc.errors({
+const base = oc.errors({
   ...COMMON_ERRORS,
   INVALID_REFERENCE,
   TAKEN,
-  LAST_UNIT_TYPE,
-  UNIT_TYPE_IN_USE,
+  UNIT_LIMIT,
+  ROOT_UNIT,
+  UNIT_NOT_EMPTY,
 });
 
-/**
- * The types of branch and department an organisation uses. Every organisation starts with a
- * Branch and a Department type and keeps an active one of each kind. Changes send
- * `core.unit.type_created`, `core.unit.type_updated` and `core.unit.type_deleted` (`entityType`
- * `unit_type`), so a `core.unit.*` subscription gets them too.
- */
-export const unitTypesContract = {
-  list: typeBase
-    .route({ method: 'GET', path: '/unit-types', summary: 'Unit types, by kind and order' })
-    .input(z.object({ kind: UnitKind.optional() }))
-    .output(listOf(UnitType)),
-  create: typeBase
-    .route({
-      method: 'POST',
-      path: '/unit-types',
-      successStatus: 201,
-      summary:
-        '409 TAKEN when the code is taken for its kind. 400 INVALID_REFERENCE when an allowed parent type is of another kind',
-    })
-    .input(UnitTypeFields.required({ name: true }).extend({ kind: UnitKind }))
-    .output(UnitType),
-  update: typeBase
-    .route({
-      method: 'PATCH',
-      path: '/unit-types/{id}',
-      summary:
-        'Its rules apply to units added or moved from now on. 409 LAST_UNIT_TYPE when its kind would have no active type',
-    })
-    .input(
-      UnitTypeFields.extend({ id: Id }).refine(
-        (value) => Object.keys(value).some((key) => key !== 'id'),
-        'nothing to update',
-      ),
-    )
-    .output(UnitType),
-  remove: typeBase
-    .route({
-      method: 'DELETE',
-      path: '/unit-types/{id}',
-      summary:
-        "409 UNIT_TYPE_IN_USE while units have it, 409 LAST_UNIT_TYPE for its kind's last active type",
-    })
-    .input(z.object({ id: Id }))
-    .output(z.object({ ok: z.literal(true) })),
-  import: typeBase
-    .route({
-      method: 'POST',
-      path: '/unit-types/import',
-      summary:
-        "Bring a plugin's unit types in, keeping their ids. One whose id is taken, or of the same kind with the same code (or name when it has no code), merges into that one: `ids` maps each given id to the type it is now",
-    })
-    .input(z.object({ types: z.array(ImportedUnitType).min(1).max(200) }))
-    .output(z.object({ ids: z.record(Id, Id) })),
-};
+const IncludeInactive = QueryBoolean.optional();
 
 /**
- * Branches (where members work) and departments (what they do): two trees, shared by every
- * plugin. Plugins read with `units:read` and keep a copy, refreshed from `core.unit.created`,
- * `core.unit.updated` and `core.unit.deleted` (the event's `entityId` is the unit).
+ * The organisation's structure: one tree, shared by every plugin. Its top is the organisation's
+ * own unit (`units.root`: no parent, no type), which is there from the start and can't be moved,
+ * deleted or turned off (409 ROOT_UNIT). Plugins read with `units:read` and keep a copy,
+ * refreshed from `core.unit.created`, `core.unit.updated` and `core.unit.deleted` (the event's
+ * `entityId` is the unit, `payload.changed` the fields). A move sends one `core.unit.updated`
+ * for the moved unit with `payload.subtree` true: the paths of every unit under it changed, so
+ * read them again. A unit's id is never given to another unit.
  */
 export const unitsContract = {
   list: base
     .route({
       method: 'GET',
       path: '/units',
-      summary: 'Branches or departments with their members, by path (parents first)',
+      summary:
+        "Every unit with its members, newest first, by pages: what a plugin's copy reads. Inactive units and units of hidden types are among them",
     })
-    .input(z.object({ kind: UnitKind.optional(), userId: Id.optional() }))
-    .output(listOf(Unit)),
+    .input(CursorQuery.extend({ userId: Id.optional(), typeId: Id.optional() }))
+    .output(cursorPageOf(Unit)),
+  root: base
+    .route({ method: 'GET', path: '/units/root', summary: "The organisation's own unit" })
+    .input(z.object({}))
+    .output(UnitDetail),
+  search: base
+    .route({
+      method: 'GET',
+      path: '/units/search',
+      summary: `Units by name or code, names that start with the words first, at most ${UNIT_SEARCH_MAX}. Units of hidden types and the units under them are left out, and inactive ones unless asked for`,
+    })
+    .input(
+      z.object({
+        q: z.string().trim().min(1).max(100),
+        limit: z.coerce.number().int().min(1).max(UNIT_SEARCH_MAX).default(20),
+        includeInactive: IncludeInactive,
+      }),
+    )
+    .output(z.object({ data: z.array(UnitHit).max(UNIT_SEARCH_MAX) })),
   get: base
     .route({ method: 'GET', path: '/units/{id}' })
     .input(z.object({ id: Id }))
-    .output(Unit),
+    .output(UnitDetail),
+  children: base
+    .route({
+      method: 'GET',
+      path: '/units/{id}/children',
+      summary: `The units right under one, by their order then name, ${UNIT_CHILDREN_MAX} at most at once; \`nextCursor\` asks for the rest. Units of hidden types are left out, and inactive ones unless asked for`,
+    })
+    .input(
+      z.object({
+        id: Id,
+        cursor: Id.optional(),
+        limit: z.coerce.number().int().min(1).max(UNIT_CHILDREN_MAX).default(50),
+        includeInactive: IncludeInactive,
+      }),
+    )
+    .output(
+      z.object({
+        data: z.array(UnitNode).max(UNIT_CHILDREN_MAX),
+
+        nextCursor: Id.nullable(),
+
+        totalCount: z.int(),
+      }),
+    ),
+  ancestors: base
+    .route({
+      method: 'GET',
+      path: '/units/{id}/ancestors',
+      summary: "The units above one, from the organisation's own down to its parent",
+    })
+    .input(z.object({ id: Id, includeInactive: IncludeInactive }))
+    .output(z.object({ data: z.array(UnitNode).max(UNIT_DEPTH_MAX) })),
   create: base
     .route({
       method: 'POST',
       path: '/units',
       successStatus: 201,
-      summary: `Add a branch or department. 409 TAKEN when the code is taken for its kind, 409 UNIT_LIMIT past ${LIST_MAX} units. 400 INVALID_REFERENCE when the parent is of another kind, or the supervisor or a member isn't on the team`,
+      summary: `Add a unit under \`parentId\`, or right under the organisation. 409 TAKEN when the code is taken, 409 UNIT_LIMIT past ${UNIT_MAX} units. 400 INVALID_REFERENCE when its type can't sit there, the tree would be deeper than ${UNIT_DEPTH_MAX}, or the supervisor or a member isn't on the team`,
     })
-    .input(UnitFields.required({ name: true }).extend({ kind: UnitKind }))
+    .input(UnitFields.required({ name: true }).extend({ parentId: ParentId }))
     .output(Unit),
   update: base
     .route({
       method: 'PATCH',
       path: '/units/{id}',
       summary:
-        'Change a unit; `memberIds` replaces who is in it. 400 INVALID_REFERENCE when the parent is the unit, one under it or of another kind',
+        "Change a unit; `memberIds` replaces who is in it, `isActive` false turns it off. Its place changes with `units.move`. 409 ROOT_UNIT when the organisation's own unit would get a type or go inactive",
     })
     .input(
       UnitFields.extend({ id: Id }).refine(
@@ -227,11 +213,30 @@ export const unitsContract = {
       ),
     )
     .output(Unit),
+  move: base
+    .route({
+      method: 'POST',
+      path: '/units/{id}/move',
+      summary:
+        "Move a unit, with every unit under it, under `parentId` (null: right under the organisation). It changes who can reach what is under it, so the audit entry keeps the old and the new parent. 400 INVALID_REFERENCE when the parent is the unit or one under it, or its type can't sit there",
+    })
+    .input(z.object({ id: Id, parentId: Id.nullable() }))
+    .output(Unit),
+  reorder: base
+    .route({
+      method: 'PUT',
+      path: '/units/{id}/order',
+      summary:
+        "Put units right under this one in the given order; those not named keep their place after them. Sends one `core.unit.updated` for this unit with `changed: ['childOrder']`: read its children again. 400 INVALID_REFERENCE when one is not right under it",
+    })
+    .input(z.object({ id: Id, unitIds: z.array(Id).min(1).max(UNIT_CHILDREN_MAX) }))
+    .output(z.object({ ok: z.literal(true) })),
   remove: base
     .route({
       method: 'DELETE',
       path: '/units/{id}',
-      summary: 'Delete a unit; the units under it move up to its parent',
+      summary:
+        'Delete a unit nothing is in. 409 UNIT_NOT_EMPTY while units sit under it, members are in it or API keys name it: turn it off instead (`isActive` false)',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -239,16 +244,16 @@ export const unitsContract = {
     .route({
       method: 'PUT',
       path: '/units/members/{userId}',
-      summary: "Set a member's branches or departments (the units of `kind` they are in)",
+      summary: "Set a member's units: in exactly these, out of every other",
     })
-    .input(z.object({ userId: Id, kind: UnitKind, unitIds: z.array(Id).max(100) }))
+    .input(z.object({ userId: Id, unitIds: z.array(Id).max(100) }))
     .output(z.object({ unitIds: z.array(Id) })),
   import: base
     .route({
       method: 'POST',
       path: '/units/import',
       summary:
-        "Bring a plugin's or old erxes' units in, keeping their ids. A unit whose id is taken, or of the same kind with the same code (or name and parent when it has no code), merges into that one: `ids` maps each given id to the unit it is now. Members not on the team are skipped",
+        "Bring a plugin's or old erxes' units in, keeping their ids. A unit whose id is taken, or with the same code (or name and parent when it has no code), merges into that one: `ids` maps each given id to the unit it is now. A unit without a parent here goes right under the organisation. Members not on the team are skipped. 409 TAKEN for the id of a deleted unit",
     })
     .input(z.object({ units: z.array(ImportedUnit).min(1).max(LIST_MAX) }))
     .output(z.object({ ids: z.record(Id, Id), skippedMembers: z.int() })),

@@ -228,7 +228,7 @@ if (usesTeams) {
   add(
     '(plugin)',
     'Tables',
-    `\`${TEAMS}\` and \`${TEAM_MEMBERS}\`: a read-only copy of core's units (drafts in migration/schema-draft.ts). scripts/import-mongo.ts fills it from old core's \`departments\`, \`branches\` and the members' \`departmentIds\` and \`branchIds\`; push it to core once with \`units.import\`, then refresh it on \`core.unit.*\` events (scopes \`units:read\`, \`units:write\`; subscription \`core.unit.*\`)`,
+    `\`${TEAMS}\` and \`${TEAM_MEMBERS}\`: a read-only copy of core's units (drafts in migration/schema-draft.ts). scripts/import-mongo.ts fills it from old core's \`departments\`, \`branches\` and the members' \`departmentIds\` and \`branchIds\`; push it to core once with \`units.import\` (core has one tree and one code per unit: give old branches its Branch type and old departments its Department type, from \`unitTypes.list\`, and change the code of a branch and a department that share one, or the import merges them), then refresh it on \`core.unit.*\` events (scopes \`units:read\`, \`units:write\`; subscription \`core.unit.*\`)`,
     OWN_TEAMS.kind,
   );
 }

@@ -1,248 +1,149 @@
-import type { Unit } from '@erxes/core-contract';
-import { UnitKind } from '@erxes/core-contract/values';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconHierarchy2, IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  PageContainer,
-  PageHeader,
-  PageSubHeader,
-  ScrollArea,
-  ToggleGroup,
-} from 'erxes-ui';
-import { useQueryState } from 'nuqs';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Button, DisplayMenu, PageContainer, PageHeader, Spinner } from 'erxes-ui';
+import { type ReactNode, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
-import { EmptyKind, NoMatch, TreeSkeleton, TreeTools } from './StructureTools';
-import { UnitSheet } from './UnitSheet';
-import { UnitTree } from './UnitTree';
-import { UnitTypes } from './UnitTypes';
-import { childCounts, useUnits, useUnitTypes, visibleRows } from './useUnits';
+import {
+  STRUCTURE_DISPLAY_LIST,
+  useSelectedUnit,
+  useStructureDisplays,
+  useWorkspace,
+  WorkspaceProvider,
+} from './context';
+import { OrgList } from './OrgList';
+import { OrgSearch } from './OrgSearch';
+import { PageMenu } from './PageMenu';
+import { UnitPanel } from './UnitPanel';
+import { useUnitTree } from './useUnitTree';
 
-/** Branches or departments, from `?kind=`; branches when it names neither. */
-const useKindParam = (): [UnitKind, (kind: UnitKind) => void] => {
-  const [value, setValue] = useQueryState('kind');
-  const parsed = UnitKind.safeParse(value);
+const OrgChart = lazyNamed(() => import('./OrgChart'), 'OrgChart');
 
-  return [
-    parsed.success ? parsed.data : 'branch',
-    (kind) => void setValue(kind === 'branch' ? null : kind),
-  ];
-};
-
-/** How the page words branches or departments. */
-const useWords = (kind: UnitKind) => {
+/** Floating top left: search, then add under the selected unit, else under the organisation. */
+const Toolbar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-
-  return kind === 'branch'
-    ? {
-        add: t('add-branch', 'Add branch'),
-        empty: t('no-branches-title', 'No branches yet'),
-        emptyHint: t(
-          'no-branches',
-          'Branches are where your team works: a head office, stores, warehouses.',
-        ),
-        search: t('search-branches', 'Search branches'),
-      }
-    : {
-        add: t('add-department', 'Add department'),
-        empty: t('no-departments-title', 'No departments yet'),
-        emptyHint: t(
-          'no-departments',
-          'Departments are what your team does: sales, finance, support.',
-        ),
-        search: t('search-departments', 'Search departments'),
-      };
-};
-
-/** Which sheet is open: a unit to edit, or a new one under `parentId`. A new key remounts it. */
-type SheetTarget = { unit: Unit | null; parentId: string | null; key: number };
-
-const KindPanel = ({
-  kind,
-  canChange,
-  onOpen,
-}: {
-  kind: UnitKind;
-  canChange: boolean;
-  onOpen: (unit: Unit | null, parentId: string | null) => void;
-}) => {
-  const words = useWords(kind);
-  const query = useUnits(kind);
-  const typeQuery = useUnitTypes(kind);
-  const [search, setSearch] = useState('');
-  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
-  const units = query.data?.data ?? [];
-  const types = typeQuery.data?.data ?? [];
-  const parents = [...childCounts(units).keys()];
-  const rows = visibleRows(units, collapsed, search);
-
-  const toggle = (id: string) =>
-    setCollapsed((current) => {
-      const next = new Set(current);
-
-      if (!next.delete(id)) next.add(id);
-
-      return next;
-    });
+  const { selectedId, index, startDraft, canManage } = useWorkspace();
+  const selected = selectedId ? index.byId.get(selectedId) : undefined;
+  const parent = selected?.isActive ? selected : index.root;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <QueryState query={typeQuery}>
-          {() => <UnitTypes kind={kind} types={types} canChange={canChange} />}
-        </QueryState>
-        {units.length > 0 && (
-          <TreeTools
-            search={search}
-            onSearch={setSearch}
-            placeholder={words.search}
-            folded={collapsed.size > 0}
-            onFold={parents.length ? (fold) => setCollapsed(new Set(fold ? parents : [])) : null}
-          />
-        )}
-      </div>
-      <QueryState
-        query={query}
-        loading={<TreeSkeleton />}
-        isEmpty={(data) => !data.data.length}
-        empty={
-          <EmptyKind
-            kind={kind}
-            title={words.empty}
-            hint={words.emptyHint}
-            add={canChange ? words.add : null}
-            onAdd={() => onOpen(null, null)}
-          />
-        }
-      >
-        {() =>
-          rows.length ? (
-            <UnitTree
-              kind={kind}
-              rows={rows}
-              units={units}
-              types={types}
-              collapsed={collapsed}
-              searching={Boolean(search.trim())}
-              canChange={canChange}
-              onToggle={toggle}
-              onEdit={(unit) => onOpen(unit, unit.parentId)}
-              onAddUnder={(unit) => onOpen(null, unit.id)}
-            />
-          ) : (
-            <NoMatch search={search} />
-          )
-        }
-      </QueryState>
+    <div className="absolute top-3 left-3 z-10 flex flex-wrap items-start gap-2">
+      <OrgSearch />
+      {canManage && (
+        <Button onClick={() => startDraft(parent)}>
+          <IconPlus />
+          {parent === index.root ? t('add-unit', 'Add unit') : t('add-subunit', 'Add subunit')}
+        </Button>
+      )}
     </div>
   );
 };
 
-/** Branches or departments, each with how many there are. */
-const KindSwitch = ({ kind, onChange }: { kind: UnitKind; onChange: (kind: UnitKind) => void }) => {
+/** A page of subunits that failed to load, with a retry. */
+const LoadFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { failed, retry } = useWorkspace();
 
-  const counts = {
-    branch: useUnits('branch').data?.data.length,
-    department: useUnits('department').data?.data.length,
-  };
-
-  const labels = { branch: t('branches', 'Branches'), department: t('departments', 'Departments') };
+  if (!failed) return null;
 
   return (
-    <ToggleGroup
-      variant="outline"
-      size="sm"
-      value={[kind]}
-      onValueChange={([next]) => {
-        const picked = UnitKind.safeParse(next);
-
-        if (picked.success) onChange(picked.data);
-      }}
+    <div
+      role="alert"
+      className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm shadow-lg"
     >
-      {UnitKind.options.map((one) => (
-        <ToggleGroup.Item key={one} value={one}>
-          {labels[one]}
-          {counts[one] !== undefined && (
-            <span className="text-muted-foreground tabular-nums">{counts[one]}</span>
-          )}
-        </ToggleGroup.Item>
-      ))}
-    </ToggleGroup>
+      <span className="text-destructive-text">{messageOf(failed)}</span>
+      <Button variant="outline" size="sm" onClick={retry}>
+        {t('retry', 'Try again')}
+      </Button>
+    </div>
+  );
+};
+
+const Header = ({ children }: { children?: ReactNode }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const displays = useStructureDisplays();
+
+  return (
+    <PageHeader>
+      <PageHeader.Start>
+        <AppBreadcrumb
+          items={[
+            { label: t('title', 'Structure'), to: paths.settings.structure, icon: IconHierarchy2 },
+          ]}
+        />
+      </PageHeader.Start>
+      <PageHeader.End>
+        <DisplayMenu list={STRUCTURE_DISPLAY_LIST} displays={displays} />
+        {children}
+      </PageHeader.End>
+    </PageHeader>
+  );
+};
+
+const Workspace = () => {
+  const { view, selectedId } = useWorkspace();
+
+  return (
+    <div className="relative flex min-h-0 flex-1 overflow-hidden">
+      {view === 'list' ? (
+        <OrgList />
+      ) : (
+        <Suspense fallback={<Spinner area="lg" />}>
+          <OrgChart />
+        </Suspense>
+      )}
+      <Toolbar />
+      <LoadFailed />
+      {selectedId && <UnitPanel unitId={selectedId} />}
+    </div>
   );
 };
 
 /**
- * Settings › Structure: the organisation's branches (where people work) and departments (what
- * they do), shared by every plugin.
+ * Settings › Structure: the organisation as one tree, its own unit at the top, as a chart or an
+ * indented list. Units load as they are opened, so a structure of thousands stays quick. Search
+ * finds units and people, units are added in place, and the selected unit opens beside the tree.
  */
 export const StructurePage = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const canChange = useCan()('structure.manage');
-  const [kind, setKind] = useKindParam();
-  const words = useWords(kind);
+  const can = useCan();
+  const [selectedId] = useSelectedUnit();
+  const tree = useUnitTree(selectedId);
+  const types = useQuery(orpc.unitTypes.list.queryOptions({ input: {} }));
+  const { index } = tree;
 
-  const units = useUnits(kind);
-  const types = useUnitTypes(kind);
-  const [sheet, setSheet] = useState<SheetTarget | null>(null);
-  const [open, setOpen] = useState(false);
-
-  const openSheet = (unit: Unit | null, parentId: string | null) => {
-    setSheet((current) => ({ unit, parentId, key: (current?.key ?? 0) + 1 }));
-    setOpen(true);
-  };
+  if (!index || !types.data)
+    return (
+      <PageContainer>
+        <Header />
+        <QueryState query={tree.rootQuery} className="flex-1">
+          {() => (
+            <QueryState query={types} className="flex-1">
+              {() => null}
+            </QueryState>
+          )}
+        </QueryState>
+      </PageContainer>
+    );
 
   return (
     <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <AppBreadcrumb
-            items={[
-              {
-                label: t('title', 'Structure'),
-                to: paths.settings.structure,
-                icon: IconHierarchy2,
-              },
-            ]}
-          />
-        </PageHeader.Start>
-        {canChange && (
-          <PageHeader.End>
-            <Button onClick={() => openSheet(null, null)}>
-              <IconPlus />
-              {words.add}
-            </Button>
-          </PageHeader.End>
-        )}
-      </PageHeader>
-      <PageSubHeader className="items-center">
-        <KindSwitch kind={kind} onChange={setKind} />
-        <span className="hidden text-sm text-muted-foreground md:block">
-          {t(
-            'page-hint',
-            'Shared by every plugin. Supervisors see the records of the units they lead.',
-          )}
-        </span>
-      </PageSubHeader>
-      <ScrollArea className="flex-1">
-        <KindPanel key={kind} kind={kind} canChange={canChange} onOpen={openSheet} />
-      </ScrollArea>
-      {sheet && (
-        <UnitSheet
-          key={sheet.key}
-          kind={kind}
-          unit={sheet.unit}
-          parentId={sheet.parentId}
-          units={units.data?.data ?? []}
-          types={types.data?.data ?? []}
-          open={open}
-          onOpenChange={setOpen}
-        />
-      )}
+      <WorkspaceProvider
+        tree={tree}
+        index={index}
+        types={types.data.data}
+        canManage={can('structure.manage')}
+        canSeeTeam={can('team.view')}
+      >
+        <Header>
+          <PageMenu />
+        </Header>
+        <Workspace />
+      </WorkspaceProvider>
     </PageContainer>
   );
 };

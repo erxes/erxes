@@ -30,7 +30,7 @@ export const searchContract = {
       method: 'GET',
       path: '/search',
       summary:
-        'Records matching every word of `q`, the first `limit` of each type the member may see: people and companies with contacts.view, team members with team.view, products, branches and departments',
+        'Records matching every word of `q`, the first `limit` of each type the member may see: people and companies with contacts.view, team members with team.view, products, and the units of the structure that are on',
     })
     .input(
       z.object({

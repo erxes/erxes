@@ -26,7 +26,7 @@ describe('global search', { timeout: 120_000 }, () => {
       code: 'OP-1',
     });
 
-    const unit = await owner.units.create({ kind: 'branch', name: 'Orchid branch' });
+    const unit = await owner.units.create({ name: 'Orchid branch' });
 
     await t.other().companies.create({ primaryName: 'Orchid Globex' });
 

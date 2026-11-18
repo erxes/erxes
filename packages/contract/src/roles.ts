@@ -44,7 +44,7 @@ export const CORE_PERMISSIONS = [
   {
     action: 'structure.manage',
     group: 'Team',
-    label: 'Add, change and remove branches and departments, and who is in them',
+    label: "Change the organisation's structure: its units, where they sit and who is in them",
   },
   {
     action: 'settings.manage',

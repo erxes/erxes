@@ -20,6 +20,7 @@ import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { syncPluginUnitTypes } from '~/modules/units/pluginUnitTypes';
 import { accessOf, type EntitlementRow, NOT_IN_PLAN } from './access';
 import { askPlatform, type PlatformEntitlements } from './platform';
 
@@ -107,6 +108,7 @@ const reconcilePlugins = async (tx: Db, row: EntitlementRow, now = new Date()) =
 
   await inOrder(toInstall, async (plugin) => {
     await syncPluginFields(tx, plugin.name, plugin.manifest?.fields);
+    await syncPluginUnitTypes(tx, plugin.name, plugin.manifest?.unitTypes);
     await grantDefaultPermissions(tx, plugin.name, plugin.manifest?.permissionSets);
   });
 

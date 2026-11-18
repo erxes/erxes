@@ -69,6 +69,9 @@ export const paths = {
     teamMember: (userId: string) => `/settings/team-members/${id(userId)}`,
     roles: '/settings/roles',
     structure: '/settings/structure',
+    /** The structure page on one unit: selected, with the units above it open. */
+    structureUnit: (unitId: string) => `/settings/structure?unit=${id(unitId)}`,
+    unitTypes: '/settings/structure/types',
     fileUpload: '/settings/file-upload',
     plugins: '/settings/plugins',
     plan: '/settings/plan',

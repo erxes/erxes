@@ -1,8 +1,16 @@
 import { db } from '@erxes/core-db';
 import { audited, recordOf, scoped } from '~/orpc';
-import { findUnit, unitRows } from './unitRows';
+import { findUnitDetail, rootUnit, unitPage } from './unitRows';
+import { searchUnits, unitAncestors, unitChildren } from './unitTree';
 import { importUnits } from './units.import';
-import { assignUnits, createUnit, removeUnit, updateUnit } from './units.service';
+import {
+  assignUnits,
+  createUnit,
+  moveUnit,
+  removeUnit,
+  reorderUnits,
+  updateUnit,
+} from './units.service';
 import {
   createUnitType,
   importUnitTypes,
@@ -13,8 +21,16 @@ import {
 
 /** Members with `structure.manage` and plugins with `units:write` change them; each write is audited. */
 export const unitsRouter = {
-  list: scoped.units.list.handler(async ({ input }) => ({ data: await unitRows(db(), input) })),
-  get: scoped.units.get.handler(({ input }) => findUnit(db(), input.id)),
+  list: scoped.units.list.handler(({ input }) => unitPage(db(), input)),
+  root: scoped.units.root.handler(() => rootUnit(db())),
+  search: scoped.units.search.handler(async ({ input }) => ({
+    data: await searchUnits(db(), input),
+  })),
+  get: scoped.units.get.handler(({ input }) => findUnitDetail(db(), input.id)),
+  children: scoped.units.children.handler(({ input }) => unitChildren(db(), input)),
+  ancestors: scoped.units.ancestors.handler(async ({ input }) => ({
+    data: await unitAncestors(db(), input),
+  })),
   create: scoped.units.create.handler(({ input }) =>
     audited(
       (tx) => createUnit(tx, input),
@@ -27,6 +43,30 @@ export const unitsRouter = {
       (unit) => ({ ...recordOf('unit', 'updated', id, unit), metadata: changes }),
     ),
   ),
+  move: scoped.units.move.handler(({ input }) =>
+    audited(
+      (tx) => moveUnit(tx, input.id, input.parentId),
+      ({ unit, moved }) =>
+        moved
+          ? [
+              {
+                ...recordOf('unit', 'moved', unit.id, unit),
+                changes: { parentId: [moved.from, moved.to] },
+                metadata: { units: moved.units, members: moved.members },
+              },
+            ]
+          : [],
+    ).then(({ unit }) => unit),
+  ),
+  reorder: scoped.units.reorder.handler(({ input }) =>
+    audited(
+      (tx) => reorderUnits(tx, input.id, input.unitIds),
+      () => ({
+        ...recordOf('unit', 'reordered', input.id),
+        metadata: { unitIds: input.unitIds },
+      }),
+    ).then(() => ({ ok: true as const })),
+  ),
   remove: scoped.units.remove.handler(({ input }) =>
     audited(
       async (tx) => removeUnit(tx, input.id),
@@ -38,7 +78,7 @@ export const unitsRouter = {
       (tx) => assignUnits(tx, input),
       () => ({
         ...recordOf('user', 'units_assigned', input.userId),
-        metadata: { kind: input.kind, unitIds: input.unitIds },
+        metadata: { unitIds: input.unitIds },
       }),
     ),
   ),
@@ -54,11 +94,9 @@ export const unitsRouter = {
   ),
 };
 
-/** The types of branch and department: written like units, by the same members and plugins. */
+/** Unit types: written like units, by the same members and plugins. */
 export const unitTypesRouter = {
-  list: scoped.unitTypes.list.handler(async ({ input }) => ({
-    data: await unitTypeRows(db(), input),
-  })),
+  list: scoped.unitTypes.list.handler(async () => ({ data: await unitTypeRows(db()) })),
   create: scoped.unitTypes.create.handler(({ input }) =>
     audited(
       (tx) => createUnitType(tx, input),

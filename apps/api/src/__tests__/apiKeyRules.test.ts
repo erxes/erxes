@@ -20,11 +20,11 @@ describe('API key rules', () => {
   /** A North and a South branch; the member is in North, the owner in South, one customer each. */
   beforeAll(async () => {
     const owner = t.owner();
-    const north = await owner.units.create({ kind: 'branch', name: 'North' });
-    const south = await owner.units.create({ kind: 'branch', name: 'South' });
+    const north = await owner.units.create({ name: 'North' });
+    const south = await owner.units.create({ name: 'South' });
 
-    await owner.units.assign({ userId: t.ids.member, kind: 'branch', unitIds: [north.id] });
-    await owner.units.assign({ userId: t.ids.owner, kind: 'branch', unitIds: [south.id] });
+    await owner.units.assign({ userId: t.ids.member, unitIds: [north.id] });
+    await owner.units.assign({ userId: t.ids.owner, unitIds: [south.id] });
 
     const northCustomer = await owner.customers.create({
       firstName: 'Nora',

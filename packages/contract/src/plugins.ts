@@ -26,6 +26,7 @@ import { PluginTranslations } from './pluginTranslations';
 import { PluginApiDocs } from './pluginApiDocs';
 import { PluginSearchSource } from './search';
 import { PluginRead, pluginReadsContract } from './pluginReads';
+import { PluginUnitTypes } from './unitTypes';
 import { PluginName } from './values';
 
 export { PLUGIN_SCOPES };
@@ -210,6 +211,8 @@ export const PluginManifest = z.object({
   jobs: PluginJobs.optional(),
   /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
   fields: PluginFields.optional(),
+
+  unitTypes: PluginUnitTypes.optional(),
   /** Its records members import and export through core (`PluginTransfers`): core asks `<api.url>/transfer/*` for the rows. */
   transfer: PluginTransfers.optional(),
   /**

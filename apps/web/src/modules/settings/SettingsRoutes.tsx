@@ -45,6 +45,7 @@ const AssistantAppearancePage = lazyNamed(
 
 // Fetched on first visit: few members open these, so they stay out of settings' chunk.
 const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
+const UnitTypesPage = lazyNamed(() => import('./structure/UnitTypesPage'), 'UnitTypesPage');
 
 const ApiReferencePage = lazyNamed(
   () => import('./developer/ApiReferencePage'),
@@ -95,6 +96,7 @@ export const SettingsRoutes = () => (
       <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
       <Route path="structure" element={<StructurePage />} />
+      <Route path="structure/types" element={<UnitTypesPage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />

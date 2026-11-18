@@ -78,6 +78,17 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      a plugin lists the shared views (`views.list`) and asks which records one matches now
      (`views.matches`). The field shape, the codes `PLUGIN_FIELD` and `VIEW_NOT_SHARED`, and
      "a personal view never matches" are the contract;
+   - the structure (`packages/contract/src/units.ts`, `packages/contract/src/unitTypes.ts`,
+     `apps/api/src/modules/units`): one tree under the organisation's own unit (`units.root`),
+     read a level at a time (`units.children`, `units.ancestors`, `units.search`) or by pages
+     for a copy (`units.list`). The manifest's `unitTypes` (`PluginUnitTypes`: `code`, `name`,
+     `color`, `icon`, `canBeRoot`, `parents`) become unit types of each organisation that has
+     the plugin, with `plugin` set (`syncPluginUnitTypes`): only the manifest changes them (403
+     `PLUGIN_UNIT_TYPE`), one it drops goes inactive, and while the plugin is off there they
+     are `hidden`. A unit's `path`, the `core.unit.*` events with `payload.changed`, a move's
+     single `core.unit.updated` with `payload.subtree`, "a unit that is named is turned off,
+     never deleted" (409 `UNIT_NOT_EMPTY`), "a deleted unit's id is never reused" and 409
+     `ROOT_UNIT` are the contract;
    - relations (`packages/contract/src/pluginRelations.ts`, `apps/api/src/modules/views/relationFilter.ts`):
      the manifest's `relations` name a view `<plugin>_*` its role owns and grants to
      `erxes_core_reader`, with `record_id` and a column per field. Contact lists get

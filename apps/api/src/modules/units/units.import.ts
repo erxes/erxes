@@ -1,27 +1,34 @@
-import type { UnitKind } from '@erxes/core-contract';
-import { actorOf, caller, type Db, orgUnitMembers, orgUnits } from '@erxes/core-db';
+import { UNIT_DEPTH_MAX } from '@erxes/core-contract';
+import {
+  actorOf,
+  caller,
+  type Db,
+  orgUnitMembers,
+  orgUnits,
+  orgUnitTombstones,
+} from '@erxes/core-db';
+import { inArray } from 'drizzle-orm';
 import { fail } from '~/http/errors';
-import { assertRoom, publishUnitEvents, teamMembers } from './unitRows';
+import { assertRoom, depthOf, publishUnitEvents, teamMembers } from './unitRows';
 import type { UnitFields } from './units.service';
 import { unitTypeRows } from './unitTypes.service';
 
 export type ImportedUnit = Omit<UnitFields, 'memberIds'> & {
   id: string;
-  kind: UnitKind;
   name: string;
+  parentId?: string | null;
   memberIds: string[];
 };
 
 interface Known {
   id: string;
-  kind: UnitKind;
   name: string;
   code: string | null;
   parentId: string | null;
   path: string;
 }
 
-const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? null;
+const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
 
 /** Parents before the units under them; a parent outside the batch counts as placed. */
 const parentsFirst = (units: ImportedUnit[]) => {
@@ -47,32 +54,47 @@ const parentsFirst = (units: ImportedUnit[]) => {
   return ordered;
 };
 
-/** The unit an imported one is: same id, or same kind and code, or same kind, name and parent. */
-const sameUnit = (known: Known[], unit: ImportedUnit, parentId: string | null) =>
-  known.find((other) => other.id === unit.id) ??
-  known.find(
-    (other) =>
-      other.kind === unit.kind &&
-      (unit.code
-        ? lower(other.code) === lower(unit.code)
-        : lower(other.name) === lower(unit.name) && other.parentId === parentId),
-  );
+const named = (name: string, parentId: string | null) => `${parentId ?? ''} ${lower(name)}`;
+
+const indexOf = (known: Known[]) => {
+  const byId = new Map<string, Known>();
+  const byCode = new Map<string, Known>();
+  const byName = new Map<string, Known>();
+
+  const add = (unit: Known) => {
+    byId.set(unit.id, unit);
+    byName.set(named(unit.name, unit.parentId), unit);
+
+    if (unit.code) byCode.set(lower(unit.code), unit);
+  };
+
+  known.forEach(add);
+
+  return {
+    byId,
+    /** The unit an imported one is: same id, or same code, or same name and parent. */
+    same: (unit: ImportedUnit, parentId: string) =>
+      byId.get(unit.id) ??
+      (unit.code ? byCode.get(lower(unit.code)) : byName.get(named(unit.name, parentId))),
+    add,
+  };
+};
 
 /** Where each imported unit goes: an existing unit, or a new row under its (mapped) parent. */
 const plan = (known: Known[], units: ImportedUnit[]) => {
+  const top = known.find((unit) => unit.parentId === null);
+
+  if (!top) throw new Error('The organisation has no top unit');
+
+  const index = indexOf(known);
   const ids: Record<string, string> = {};
   const inserts: (Known & ImportedUnit)[] = [];
 
   for (const unit of parentsFirst(units)) {
     const mapped = unit.parentId ? (ids[unit.parentId] ?? unit.parentId) : null;
-    const parent = known.find((other) => other.id === mapped && other.kind === unit.kind);
-    const match = sameUnit(known, unit, parent?.id ?? null);
 
-    if (match && match.kind !== unit.kind) {
-      throw fail('INVALID_REFERENCE', `${unit.id} is a ${match.kind}, not a ${unit.kind}`, {
-        field: 'units',
-      });
-    }
+    const parent = (mapped ? index.byId.get(mapped) : undefined) ?? top;
+    const match = index.same(unit, parent.id);
 
     if (match) {
       ids[unit.id] = match.id;
@@ -81,17 +103,39 @@ const plan = (known: Known[], units: ImportedUnit[]) => {
 
     const row = {
       ...unit,
-      parentId: parent?.id ?? null,
-      path: `${parent?.path ?? '/'}${unit.id}/`,
+      parentId: parent.id,
+      path: `${parent.path}${unit.id}/`,
       code: unit.code ?? null,
     };
 
+    if (depthOf(row.path) > UNIT_DEPTH_MAX) {
+      throw fail('INVALID_REFERENCE', `The structure goes at most ${UNIT_DEPTH_MAX} units deep`, {
+        field: 'parentId',
+      });
+    }
+
     inserts.push(row);
-    known.push(row);
+    index.add(row);
     ids[unit.id] = unit.id;
   }
 
   return { ids, inserts };
+};
+
+const assertNeverDeleted = async (client: Db, ids: string[]) => {
+  if (!ids.length) return;
+
+  const [gone] = await client
+    .select({ id: orgUnitTombstones.id })
+    .from(orgUnitTombstones)
+    .where(inArray(orgUnitTombstones.id, ids))
+    .limit(1);
+
+  if (gone) {
+    throw fail('TAKEN', `${gone.id} was a unit that is deleted; its id can't be used again`, {
+      field: 'id',
+    });
+  }
 };
 
 /**
@@ -103,7 +147,6 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
   const known: Known[] = await client
     .select({
       id: orgUnits.id,
-      kind: orgUnits.kind,
       name: orgUnits.name,
       code: orgUnits.code,
       parentId: orgUnits.parentId,
@@ -111,7 +154,13 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
     })
     .from(orgUnits);
 
+  const here = new Set(known.map((unit) => unit.id));
   const { ids, inserts } = plan(known, units);
+
+  await assertNeverDeleted(
+    client,
+    inserts.map((row) => row.id),
+  );
 
   const team = await teamMembers(
     client,
@@ -123,13 +172,13 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
   const createdBy = actorOf(caller()).actorId;
   const types = await unitTypeRows(client);
 
-  // A unit keeps the type it names when that is one of its kind; others get the kind's default.
-  const typeFor = (kind: UnitKind, typeId: string | undefined) => {
-    const named = types.find((type) => type.id === typeId && type.kind === kind);
-    const fallback = types.find((type) => type.kind === kind && type.isActive);
-    const type = named ?? fallback;
+  // A unit keeps the type it names when that is a type here; others get the first active one.
+  const typeFor = (typeId: string | undefined) => {
+    const type =
+      types.find((candidate) => candidate.id === typeId) ??
+      types.find((candidate) => candidate.isActive && !candidate.plugin);
 
-    if (!type) throw fail('INVALID_REFERENCE', `No active ${kind} type`, { field: 'typeId' });
+    if (!type) throw fail('INVALID_REFERENCE', 'No active unit type', { field: 'typeId' });
 
     return type.id;
   };
@@ -139,7 +188,7 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
     await client.insert(orgUnits).values(
       inserts.map(({ memberIds: _members, supervisorId, ...row }) => ({
         ...row,
-        typeId: typeFor(row.kind, row.typeId),
+        typeId: typeFor(row.typeId),
         supervisorId: supervisorId && team.has(supervisorId) ? supervisorId : null,
         createdBy,
       })),
@@ -160,19 +209,13 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
         .returning({ unitId: orgUnitMembers.unitId })
     : [];
 
-  const createdIds = new Set(inserts.map((row) => row.id));
-  const kindOf = new Map(known.map((unit) => [unit.id, unit.kind]));
-  const grown = [...new Set(added.map((row) => row.unitId))].filter((id) => !createdIds.has(id));
+  const grown = [...new Set(added.map((row) => row.unitId))].filter((id) => here.has(id));
 
   await publishUnitEvents(client, 'created', inserts);
   await publishUnitEvents(
     client,
     'updated',
-    grown.flatMap((id) => {
-      const kind = kindOf.get(id);
-
-      return kind ? [{ id, kind, changed: ['memberIds'] }] : [];
-    }),
+    grown.map((id) => ({ id, changed: ['memberIds'] })),
   );
 
   return { ids, skippedMembers: memberships.length - kept.length };

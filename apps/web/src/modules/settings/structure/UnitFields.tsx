@@ -1,133 +1,163 @@
-import { memberQueries } from '@erxes/core-contract/client';
-import { Input, Label, LookupPicker, SelectMember, useMemberOptions } from 'erxes-ui';
-import { type ReactNode, useId } from 'react';
+import type { UnitDetail } from '@erxes/core-contract';
+import { memberQueries, orpc } from '@erxes/core-contract/client';
+import {
+  IconAddressBook,
+  IconAlignLeft,
+  IconCategory,
+  IconHash,
+  IconMail,
+  IconPhone,
+  IconToggleLeft,
+  IconUserStar,
+} from '@tabler/icons-react';
+import { useMutation } from '@tanstack/react-query';
+import {
+  PanelField,
+  PanelSection,
+  PopoverScoped,
+  RecordTableInlineCell,
+  SelectMember,
+  Switch,
+  TextField,
+} from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Draft } from './UnitSheet';
+import { useWorkspace } from './context';
+import { TypeIcon } from './TypeIcon';
+import { TypeOptions } from './TypeOptions';
+import { allowedChildTypes } from './unitTree';
+import { useStructureHandlers } from './useStructureHandlers';
 
-/** A group of fields under a small heading, ruled off from the one above. */
-export const Section = ({ title, children }: { title: string; children: ReactNode }) => (
-  <section className="flex flex-col gap-3 border-t pt-4 first:border-t-0 first:pt-0">
-    <h3 className="text-sm font-semibold">{title}</h3>
-    {children}
-  </section>
-);
+type Patch = Omit<Parameters<ReturnType<typeof useSaveUnit>['mutate']>[0], 'id'>;
 
-export const Field = ({
-  id,
-  label,
-  required,
-  error,
-  children,
+export const useSaveUnit = () =>
+  useMutation(orpc.units.update.mutationOptions(useStructureHandlers()));
+
+/** The unit's type, from those allowed under its parent; its own stays listed. */
+const TypeRow = ({
+  unit,
+  disabled,
+  update,
 }: {
-  id: string;
-  label: string;
-  required?: boolean;
-  error?: string | null;
-  children: ReactNode;
-}) => (
-  <div className="flex min-w-0 flex-col gap-1.5">
-    <Label htmlFor={id}>
-      {label}
-      {required && <span className="text-destructive-text"> *</span>}
-    </Label>
-    {children}
-    {error && <p className="text-xs text-destructive-text">{error}</p>}
-  </div>
-);
-
-/** A text field that keeps `null` for empty. */
-export const TextField = ({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = 'text',
-}: {
-  label: string;
-  value: string | null;
-  onChange: (value: string | null) => void;
-  placeholder?: string;
-  type?: 'text' | 'email' | 'tel';
+  unit: UnitDetail;
+  disabled: boolean;
+  update: (patch: Patch) => void;
 }) => {
-  const id = useId();
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { index, types, typesById } = useWorkspace();
+  const [open, setOpen] = useState(false);
+  const parent = unit.parentId ? index.byId.get(unit.parentId) : undefined;
+  const own = unit.typeId ? typesById.get(unit.typeId) : undefined;
+  const allowed = allowedChildTypes(types, parent);
+  const options = own && !allowed.includes(own) ? [own, ...allowed] : allowed;
 
   return (
-    <Field id={id} label={label}>
-      <Input
-        id={id}
-        type={type}
-        value={value ?? ''}
-        placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value || null)}
-      />
-    </Field>
+    <PanelField icon={IconCategory} label={t('type', 'Type')}>
+      <PopoverScoped scope={`structure-unit.${unit.id}.type`} open={open} onOpenChange={setOpen}>
+        <RecordTableInlineCell.Trigger variant="field" disabled={disabled}>
+          <TypeIcon type={own} size="sm" />
+          <span className="truncate">{own?.name}</span>
+        </RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Content>
+          <TypeOptions
+            types={options}
+            onPick={(type) => {
+              if (type.id !== unit.typeId) update({ typeId: type.id });
+              setOpen(false);
+            }}
+          />
+        </RecordTableInlineCell.Content>
+      </PopoverScoped>
+    </PanelField>
   );
 };
 
-type FieldsProps = { draft: Draft; set: (changes: Partial<Draft>) => void };
-
-/** Who leads the unit and who is in it. */
-export const PeopleFields = ({ draft, set }: FieldsProps) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const memberOptions = useMemberOptions(memberQueries, true, draft.memberIds);
-  const ids = { supervisor: useId(), members: useId() };
-
-  return (
-    <Section title={t('people', 'People')}>
-      <Field id={ids.supervisor} label={t('supervisor', 'Supervisor')}>
-        <SelectMember.Field
-          id={ids.supervisor}
-          value={draft.supervisorId}
-          onValueChange={(supervisorId) => set({ supervisorId })}
-          members={memberQueries}
-          noneLabel={t('no-supervisor', 'No supervisor')}
-          placeholder={t('no-supervisor', 'No supervisor')}
-        />
-      </Field>
-      <Field id={ids.members} label={t('members', 'Members')}>
-        <LookupPicker
-          lookup={memberOptions}
-          multiple
-          value={draft.memberIds}
-          onValueChange={(memberIds) => set({ memberIds })}
-          placeholder={t('pick-members', 'Choose team members')}
-        />
-      </Field>
-      <p className="text-xs text-muted-foreground">
-        {t(
-          'supervisor-hint',
-          'The supervisor sees the records of this unit and the units under it.',
-        )}
-      </p>
-    </Section>
-  );
-};
-
-/** A branch's address, phone and email. */
-export const ContactFields = ({ draft, set }: FieldsProps) => {
+/** How to reach the unit and what it does, each edited in place. */
+const TextRows = ({
+  unit,
+  disabled,
+  update,
+}: {
+  unit: UnitDetail;
+  disabled: boolean;
+  update: (patch: Patch) => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
 
-  return (
-    <Section title={t('contact', 'Contact')}>
+  const rows = [
+    { name: 'code', icon: IconHash, label: t('code', 'Code'), value: unit.code },
+    { name: 'email', icon: IconMail, label: t('email', 'Email'), value: unit.email },
+    { name: 'phone', icon: IconPhone, label: t('phone', 'Phone'), value: unit.phone },
+    { name: 'address', icon: IconAddressBook, label: t('address', 'Address'), value: unit.address },
+    {
+      name: 'description',
+      icon: IconAlignLeft,
+      label: t('about', 'About'),
+      value: unit.description,
+    },
+  ] as const;
+
+  return rows.map((row) => (
+    <PanelField key={row.name} icon={row.icon} label={row.label}>
       <TextField
-        label={t('address', 'Address')}
-        value={draft.address}
-        onChange={(address) => set({ address })}
+        variant="field"
+        scope={`structure-unit.${unit.id}.${row.name}`}
+        value={row.value ?? ''}
+        placeholder={row.label}
+        disabled={disabled}
+        onSave={(next) => {
+          const trimmed = next.trim();
+
+          if (trimmed !== (row.value ?? '')) update({ [row.name]: trimmed || null });
+        }}
       />
-      <div className="grid grid-cols-2 gap-3">
-        <TextField
-          label={t('phone', 'Phone')}
-          type="tel"
-          value={draft.phone}
-          onChange={(phone) => set({ phone })}
-        />
-        <TextField
-          label={t('email', 'Email')}
-          type="email"
-          value={draft.email}
-          onChange={(email) => set({ email })}
-        />
-      </div>
-    </Section>
+    </PanelField>
+  ));
+};
+
+/**
+ * The unit's fields, edited in place by members who manage the structure. The organisation's own
+ * unit has no type and is always active.
+ */
+export const UnitFields = ({ unit }: { unit: UnitDetail }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { canManage, canSeeTeam } = useWorkspace();
+  const save = useSaveUnit();
+  const disabled = !canManage;
+  const isRoot = !unit.parentId;
+  const update = (patch: Patch) => save.mutate({ id: unit.id, ...patch });
+
+  return (
+    <PanelSection title={t('details', 'Details')}>
+      {canSeeTeam && (
+        <PanelField icon={IconUserStar} label={t('supervisor', 'Supervisor')}>
+          <SelectMember.InlineCell
+            variant="field"
+            scope={`structure-unit.${unit.id}.supervisor`}
+            value={unit.supervisorId}
+            members={memberQueries}
+            noneLabel={t('no-supervisor', 'No supervisor')}
+            placeholder={t('no-supervisor', 'No supervisor')}
+            onValueChange={(supervisorId) => {
+              if (canManage) update({ supervisorId });
+            }}
+          />
+        </PanelField>
+      )}
+      {!isRoot && <TypeRow unit={unit} disabled={disabled} update={update} />}
+      <TextRows unit={unit} disabled={disabled} update={update} />
+      {!isRoot && (
+        <PanelField icon={IconToggleLeft} label={t('active', 'Active')} cell={false}>
+          <span className="flex h-7 items-center px-2">
+            <Switch
+              checked={unit.isActive}
+              disabled={disabled || save.isPending}
+              aria-label={t('unit-active', 'Unit is active')}
+              onCheckedChange={(isActive) => update({ isActive })}
+            />
+          </span>
+        </PanelField>
+      )}
+    </PanelSection>
   );
 };
