@@ -21,6 +21,7 @@ export default defineConfig({
       '@orpc/openapi-client',
       '@orpc/tanstack-query',
       'country-to-currency',
+      'dataloader',
       'drizzle-orm',
       'drizzle-zod',
       'zod',

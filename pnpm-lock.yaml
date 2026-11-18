@@ -452,6 +452,9 @@ importers:
       country-to-currency:
         specifier: ^3.0.2
         version: 3.0.2
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
       drizzle-orm:
         specifier: 0.45.4
         version: 0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(pg@8.23.1)
@@ -5434,6 +5437,9 @@ packages:
 
   data-urls@1.1.0:
     resolution: {integrity: sha512-YTWYI9se1P55u58gL5GkQHW4P6VJBJ5iBT+B5a7i2Tjadhv52paJG0qHX4A0OR6/t52odI64KP2YvFpkDOi3eQ==}
+
+  dataloader@2.2.3:
+    resolution: {integrity: sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==}
 
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
@@ -13088,6 +13094,8 @@ snapshots:
       whatwg-mimetype: 2.3.0
       whatwg-url: 7.1.0
     optional: true
+
+  dataloader@2.2.3: {}
 
   date-fns@4.1.0: {}
 
