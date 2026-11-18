@@ -1,6 +1,34 @@
 import { formatDate } from '../utils';
 import { BaseApi } from './base';
 
+// YYYY-MM-DD in Ulaanbaatar time, the bank's statement day
+const toUBDate = (date: Date) =>
+  date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ulaanbaatar' });
+
+// "1000 — Installment 1" / "1000-installment1" -> ["1000", "installment", "1"]
+const tokenize = (text?: string) =>
+  (text || '')
+    .toLowerCase()
+    .replace(/([a-zа-яөү])(\d)|(\d)([a-zа-яөү])/gi, '$1$3 $2$4')
+    .split(/[^a-z0-9а-яөү]+/i)
+    .filter(Boolean);
+
+// tranDate "2026-11-17" + time "11393704" (hhmmssss) -> Date, Ulaanbaatar time
+const statementTime = (item: any): Date | undefined => {
+  const day = item?.tranDate || item?.postDate;
+  const time = String(item?.time || '').padStart(8, '0');
+
+  if (!day) {
+    return undefined;
+  }
+
+  const date = new Date(
+    `${day}T${time.slice(0, 2)}:${time.slice(2, 4)}:${time.slice(4, 6)}+08:00`,
+  );
+
+  return isNaN(date.getTime()) ? undefined : date;
+};
+
 export class StatementsApi extends BaseApi {
   public params;
 
@@ -82,24 +110,84 @@ export class StatementsApi extends BaseApi {
       throw new Error(e.message);
     }
   }
-  async findTransaction({ accountNumber, amount, description, record }) {
-    const response = await this.list({
-      accountNumber,
-      record,
-    });
+  /**
+   * Incoming statement lines that match an invoice: same amount, every word
+   * of the invoice description present as a whole word, and (when `since` is
+   * given) made after `since`. Oldest first.
+   *
+   * Words are compared lowercased and with punctuation removed, because the
+   * bank drops characters such as "—" and appends text like
+   * "ХААНААС: 320000 <sender>" to the description.
+   */
+  async findTransactions({
+    accountNumber,
+    amount,
+    description,
+    since,
+    record,
+  }: {
+    accountNumber: string;
+    amount: number;
+    description?: string;
+    since?: Date;
+    record?: number;
+  }) {
+    const today = toUBDate(new Date());
 
-    const statements = response.content ?? response.transactions ?? response;
+    const response = record
+      ? await this.list({ accountNumber, record })
+      : await this.list({
+          accountNumber,
+          startDate: since ? toUBDate(since) : today,
+          endDate: today,
+        });
 
-    const expectedDescription = description?.trim();
+    const statements: any[] =
+      response?.content ??
+      response?.transactions ??
+      (Array.isArray(response) ? response : []);
 
-    const matchedTransaction = statements.find((item: any) => {
-      const statementDescription = item.description?.trim();
+    const expected = tokenize(description);
 
-      return (
-        Number(item.amount) === Number(amount) &&
-        statementDescription?.startsWith(expectedDescription)
+    if (!expected.length) {
+      return [];
+    }
+
+    return statements
+      .filter((item: any) => {
+        if (Number(item.amount) !== Number(amount)) {
+          return false;
+        }
+
+        if (since) {
+          const madeAt = statementTime(item);
+
+          if (madeAt && madeAt < since) {
+            return false;
+          }
+        }
+
+        const words = new Set(tokenize(item.description));
+
+        // whole words, so "installment 1" does not match "installment 10"
+        return expected.every((word) => words.has(word));
+      })
+      .sort(
+        (a: any, b: any) =>
+          (statementTime(a)?.getTime() || 0) -
+          (statementTime(b)?.getTime() || 0),
       );
-    });
-    return matchedTransaction;
+  }
+
+  async findTransaction(args: {
+    accountNumber: string;
+    amount: number;
+    description?: string;
+    since?: Date;
+    record?: number;
+  }) {
+    const [first] = await this.findTransactions(args);
+
+    return first;
   }
 }

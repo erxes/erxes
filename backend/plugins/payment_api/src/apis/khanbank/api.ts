@@ -52,20 +52,54 @@ export class KhanbankAPI {
   async checkInvoice(transaction: ITransactionDocument) {
     const khanbank = await this.getKhanbank();
 
-    const matchedTransaction =
-      await khanbank.statements.findTransaction({
-        accountNumber: this.config.accountNumber,
-        amount: transaction.amount,
-        description: transaction.description,
-        record: transaction.response?.lastRecord || 0,
-      });
+    // a payment cannot be older than its invoice; a few minutes of slack
+    // covers clock differences between erxes and the bank
+    const since = new Date(
+      new Date(transaction.createdAt).getTime() - 5 * 60 * 1000,
+    );
 
-    if (matchedTransaction) {
-      transaction.response = matchedTransaction;
-      return PAYMENT_STATUS.PAID;
+    const candidates = await khanbank.statements.findTransactions({
+      accountNumber: this.config.accountNumber,
+      amount: transaction.amount,
+      description: transaction.description,
+      since,
+    });
+
+    if (!candidates.length) {
+      return PAYMENT_STATUS.PENDING;
     }
 
-    return PAYMENT_STATUS.PENDING;
+    // one bank payment pays one invoice: skip statement lines another
+    // transaction has already been matched to
+    const used = await this.models.Transactions.find(
+      {
+        _id: { $ne: transaction._id },
+        paymentId: transaction.paymentId,
+        'response.matched.record': {
+          $in: candidates.map((item: any) => item.record),
+        },
+      },
+      { 'response.matched.record': 1 },
+    ).lean();
+
+    const usedRecords = new Set(
+      used.map((item: any) => item.response?.matched?.record),
+    );
+
+    const matchedTransaction = candidates.find(
+      (item: any) => !usedRecords.has(item.record),
+    );
+
+    if (!matchedTransaction) {
+      return PAYMENT_STATUS.PENDING;
+    }
+
+    transaction.response = {
+      ...transaction.response,
+      matched: matchedTransaction,
+    };
+
+    return PAYMENT_STATUS.PAID;
   }
 
   async manualCheck(transaction: ITransactionDocument) {
