@@ -22,6 +22,7 @@ import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
+import { recordTypesContract } from './recordTypes';
 import { rolesContract } from './roles';
 import { searchContract } from './search';
 import { tagsContract } from './tags';
@@ -62,6 +63,7 @@ export type CoreContract = {
   plugins: typeof pluginsContract;
   productCategories: typeof productCategoriesContract;
   products: typeof productsContract;
+  recordTypes: typeof recordTypesContract;
   roles: typeof rolesContract;
   saas: typeof saasContract;
   search: typeof searchContract;
@@ -104,6 +106,7 @@ export const coreContract: CoreContract = {
   plugins: pluginsContract,
   productCategories: productCategoriesContract,
   products: productsContract,
+  recordTypes: recordTypesContract,
   roles: rolesContract,
   saas: saasContract,
   search: searchContract,
@@ -203,6 +206,8 @@ export * from './pluginReads';
 export * from './products';
 
 export * from './records';
+
+export * from './recordTypes';
 
 export * from './roles';
 

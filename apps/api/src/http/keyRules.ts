@@ -53,6 +53,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   plugins: 'plugins',
   productCategories: 'products',
   products: 'products',
+  recordTypes: { lookup: true, writes: 'settings' },
   roles: 'team',
   saas: 'settings',
   search: { lookup: true, writes: 'settings' },

@@ -44,6 +44,10 @@ const problems = async () =>
 const idFrom = async (client: Client, statement: string, params: string[]) =>
   (await client.query<{ id: string | null }>(statement, params)).rows[0]?.id;
 
+/** The schema core_plugin_org_schema made for the plugin and organisation. */
+const schemaFor = (client: Client, org: string) =>
+  idFrom(client, 'select core_plugin_org_schema($1) as id', [org]);
+
 /** Whether the testpw plugin's role may sign in, and its stored password hash. */
 const login = async () =>
   (
@@ -237,6 +241,64 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     });
 
     expect(await problems()).toEqual([]);
+  });
+
+  it('gets a schema per organisation only with records:extend, and keeps its tables there tenant-checked', async () => {
+    await asPlugin(async (client) => {
+      expect(await fails(client, 'create schema testhr_mine')).toMatch(/permission denied/);
+      expect(await fails(client, 'select core_plugin_org_schema($1)', [orgA])).toMatch(
+        /not installed with records:extend/,
+      );
+    });
+
+    await adminDb().execute(
+      sql`update core_plugin_installations set granted_scopes = array['records:extend'] where plugin = 'testhr'`,
+    );
+
+    const schema = `testhr_${orgA}`;
+    // Quoted as Postgres shows it: org ids are mixed case.
+    const table = `${/^[a-z0-9_]+$/.test(schema) ? schema : `"${schema}"`}.contacts`;
+
+    await asPlugin(async (client) => {
+      expect(await schemaFor(client, orgA)).toBe(schema);
+      // Again: the same schema.
+      expect(await schemaFor(client, orgA)).toBe(schema);
+      expect(await fails(client, 'select core_plugin_org_schema($1)', [orgB])).toMatch(
+        /not installed with records:extend/,
+      );
+      expect(await fails(client, 'select core_plugin_org_schema($1)', ['x; drop'])).toMatch(
+        /invalid organisation id/,
+      );
+      await client.query(`create table ${table} (id text primary key, org_id text not null)`);
+    });
+
+    expect(await problems()).toEqual([
+      `${table}: row level security is off, row level security is not forced, no tenant policy: run SELECT core_enable_tenant_rls('${table}')`,
+    ]);
+
+    await asPlugin((client) => client.query(`select core_enable_tenant_rls('${table}')`));
+    expect(await problems()).toEqual([]);
+
+    // A version that no longer asks for the scope gets no schema, though it was granted.
+    await adminDb().execute(
+      sql`update core_plugins set manifest = '{"scopes": []}' where name = 'testhr'`,
+    );
+    await asPlugin(async (client) => {
+      expect(await fails(client, 'select core_plugin_org_schema($1)', [orgA])).toMatch(
+        /not installed with records:extend/,
+      );
+    });
+
+    // Core's own roles can't call it as a plugin.
+    const refusal = await adminDb()
+      .execute(sql`select core_plugin_org_schema(${orgA})`)
+      .then(
+        () => '',
+        (error: unknown) =>
+          error instanceof Error && error.cause instanceof Error ? error.cause.message : '',
+      );
+
+    expect(refusal).toMatch(/only a plugin/);
   });
 
   it('grants again without a password and leaves the login and its password as they were', async () => {

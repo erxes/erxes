@@ -15,10 +15,13 @@ import {
   noteVersions,
   reactions,
   trash,
+  withOrg,
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { keysetPage } from '~/lib/keyset';
+import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 
 const TRASH_DAYS = 30;
@@ -152,6 +155,14 @@ export const listTrash = async (client: Db, query: CursorQuery & { type?: Conten
   );
 };
 
+/** `core.<type>.purged`: what others keep about the record (Data Extensions' fields) can go too. */
+const purgedEvents = (rows: { recordType: ContentType; recordId: string }[]) =>
+  rows.map((row) => ({
+    type: `core.${row.recordType}.purged`,
+    subjectType: row.recordType,
+    subjectId: row.recordId,
+  }));
+
 /** Gone for good now (privacy requests). Owners only. */
 export const purgeFromTrash = async (client: Db, ids: string[]) => {
   const removed = await client
@@ -160,6 +171,7 @@ export const purgeFromTrash = async (client: Db, ids: string[]) => {
     .returning({ recordType: trash.recordType, recordId: trash.recordId, label: trash.label });
 
   if (removed.length) {
+    await publishCoreEvents(client, purgedEvents(removed));
     await recordAudit(
       client,
       removed.map((row) => ({
@@ -174,9 +186,21 @@ export const purgeFromTrash = async (client: Db, ids: string[]) => {
   return { purged: removed.length };
 };
 
-/** Housekeeping (system scope): what has been in the bin 30 days goes. */
+/** Housekeeping (system scope): what has been in the bin 30 days goes, each organisation told. */
 export const purgeExpiredTrash = async (client: Db) => {
-  const result = await client.delete(trash).where(lt(trash.purgeAt, sql`now()`));
+  const removed = await client
+    .delete(trash)
+    .where(lt(trash.purgeAt, sql`now()`))
+    .returning({ orgId: trash.orgId, recordType: trash.recordType, recordId: trash.recordId });
 
-  return result.rowCount ?? 0;
+  const byOrg = removed.reduce(
+    (groups, row) => groups.set(row.orgId, [...(groups.get(row.orgId) ?? []), row]),
+    new Map<string, typeof removed>(),
+  );
+
+  await inOrder(byOrg, ([orgId, rows]) =>
+    withOrg(orgId, (tx) => publishCoreEvents(tx, purgedEvents(rows))),
+  );
+
+  return removed.length;
 };

@@ -5,6 +5,7 @@ import {
   PluginJobDelivery,
   PluginTier,
   RecordAccessCheck,
+  RecordRight,
 } from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
@@ -32,7 +33,23 @@ export interface PluginMember {
   access: PluginAccess;
   /** `member.canChange()`: false while read-only. */
   canChange(): boolean;
+  /**
+   * What the member may do with each record type's records (`core.customer`: `update`), in the
+   * session of a plugin granted `records:extend`. A type it can't read is left out.
+   */
+  records?: Partial<Record<string, RecordRight>>;
 }
+
+/** `canRecord(member, 'hr.employee', 'update')`: `read` also holds where it may update. */
+export const canRecord = (
+  member: Pick<PluginMember, 'records'>,
+  type: string,
+  right: RecordRight,
+) => {
+  const held = member.records?.[type];
+
+  return held === 'update' || (right === 'read' && held === 'read');
+};
 
 /**
  * A member signed into a plugin's own app with "Sign in with erxes". Access
@@ -121,6 +138,7 @@ const member = (claims: {
   permissions: string[];
   tier: PluginMember['tier'];
   access: PluginMember['access'];
+  records?: PluginMember['records'];
 }): PluginMember => ({
   userId: claims.sub,
   orgId: claims.org,
@@ -130,6 +148,7 @@ const member = (claims: {
   tier: claims.tier,
   access: claims.access,
   canChange: () => claims.access === 'full' || claims.access === 'warning',
+  records: claims.records,
 });
 
 const SessionClaims = z.object({
@@ -137,6 +156,7 @@ const SessionClaims = z.object({
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
+  records: z.partialRecord(z.string(), RecordRight).optional(),
   // Core signs both (self-hosted: `pro` and `full`); null means no plan.
   tier: Tier,
   access: PluginAccess,

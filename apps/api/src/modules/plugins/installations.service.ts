@@ -9,6 +9,7 @@ import { decidePluginKey } from '~/http/keyRules';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { listRecordTypes, recordRights } from '~/modules/recordTypes/recordTypes.service';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
@@ -182,8 +183,16 @@ export const pluginSession = async (name: string) => {
     .map((permission) => permission.action)
     .filter((action) => can(me, action));
 
+  // Data Extensions guards fields on every record type, so it gets what the member may do with each.
+  // Granted and still asked for, as in its tokens: a later version may have dropped the scope.
+  const extendsRecords = [plugin.grantedScopes, requestedScopes(plugin)].every((scopes) =>
+    scopes.includes('records:extend'),
+  );
+
+  const records = extendsRecords ? recordRights(me, await listRecordTypes(db())) : undefined;
+
   const token = await signJwt(
-    { org: orgId, role: me.role, permissions, tier: tierOf(plan, name), access },
+    { org: orgId, role: me.role, permissions, records, tier: tierOf(plan, name), access },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,

@@ -24,6 +24,12 @@ const CONFIGS: Record<string, unknown> = {
       { name: 'mentions', title: 'Mentions', icon: Icon, component: List },
     ],
   },
+  'fields_ui/config': {
+    name: 'fields',
+    path: 'fields',
+    // Data Extensions' fields: every record type.
+    relationTabs: [{ name: 'fields', title: 'Fields', icon: Icon, hosts: ['*'], component: List }],
+  },
 };
 
 vi.mock('@module-federation/enhanced/runtime', () => ({
@@ -36,7 +42,10 @@ let usePluginRelationTabs: typeof UseTabs;
 
 beforeAll(async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
-  vi.stubEnv('PUBLIC_PLUGINS', 'content_ui@http://plugins.test/content_ui.js');
+  vi.stubEnv(
+    'PUBLIC_PLUGINS',
+    'content_ui@http://plugins.test/content_ui.js,fields_ui@http://plugins.test/fields_ui.js',
+  );
   // No core here: the registry fails and the local plugin still loads.
   vi.stubGlobal('fetch', async () => Promise.reject(new Error('offline')));
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -85,11 +94,12 @@ const tabsOn = async (contentType: string) => {
 
 describe('a plugin’s relation tabs', () => {
   it.each([
-    ['core:customer', 'Posts, Mentions'],
-    ['core:company', 'Feeds, Mentions'],
-    ['tasks:task', 'Task posts'],
+    ['core:customer', 'Posts, Mentions, Fields'],
+    ['core:company', 'Feeds, Mentions, Fields'],
+    ['tasks:task', 'Task posts, Fields'],
+    ['sales:deal', 'Fields'],
   ])(
-    'show on %s only where they name it, or on contacts when they name nothing',
+    'show on %s only where they name it (or every type with *), or on contacts when they name nothing',
     async (type, tabs) => {
       expect(await tabsOn(type)).toBe(tabs);
     },

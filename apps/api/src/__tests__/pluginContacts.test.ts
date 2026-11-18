@@ -1,6 +1,9 @@
+import { trash, withSystem } from '@erxes/core-db';
+import { eq, sql } from 'drizzle-orm';
 import { describe, expect, it, onTestFinished } from 'vite-plus/test';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
-import { useTestDatabase } from './db';
+import { purgeExpiredTrash } from '~/modules/trash/trash.service';
+import { adminDb, useTestDatabase } from './db';
 import { pluginApi } from './pluginApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
@@ -52,7 +55,7 @@ describe('contacts and members for plugins', () => {
     expect((await t.other().customers.list({ search: 'bold' })).data).toEqual([]);
   });
 
-  it('tells a plugin that keeps contacts when a customer or company is deleted', async () => {
+  it('tells a plugin that keeps contacts when a customer or company is deleted, then purged', async () => {
     const api = await pluginApi(t.url(''), 'tms');
 
     onTestFinished(api.close);
@@ -74,7 +77,12 @@ describe('contacts and members for plugins', () => {
       version: '1',
       api: { url: api.url },
       scopes: ['customers:read'],
-      subscriptions: ['core.customer.deleted', 'core.company.deleted'],
+      subscriptions: [
+        'core.customer.deleted',
+        'core.company.deleted',
+        'core.customer.purged',
+        'core.company.purged',
+      ],
     });
     await token(t.ids.org);
 
@@ -93,6 +101,27 @@ describe('contacts and members for plugins', () => {
       ]),
     );
     expect(api.subjects).toHaveLength(2);
+
+    // Gone for good: purged by the owner, or after its 30 days in the bin.
+    const [binnedCustomer, binnedCompany] = (await owner.trash.list({})).data.toSorted((a, b) =>
+      a.recordType.localeCompare(b.recordType),
+    );
+
+    await owner.trash.purge({ ids: [binnedCustomer?.id ?? ''] });
+    await adminDb()
+      .update(trash)
+      .set({ purgeAt: sql`now() - interval '1 minute'` })
+      .where(eq(trash.id, binnedCompany?.id ?? ''));
+    expect(await withSystem('test: expired bin', (tx) => purgeExpiredTrash(tx))).toBe(1);
+    await settle();
+
+    expect(api.subjects.slice(2)).toEqual(
+      expect.arrayContaining([
+        { type: 'core.customer.purged', subjectType: 'customer', subjectId: customer.id },
+        { type: 'core.company.purged', subjectType: 'company', subjectId: company.id },
+      ]),
+    );
+    expect(api.subjects).toHaveLength(4);
   });
 
   it('reads team members', async () => {
