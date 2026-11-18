@@ -21,7 +21,10 @@ const trimDisplayName = (name: string) =>
   name
     .split(',')
     .map((part) => part.trim())
-    .filter((part) => part && !/^\d{5,}$/.test(part) && !/^Монгол/.test(part))
+    .filter(
+      (part) =>
+        part && !/^\d{5,}$/.test(part) && !part.startsWith('Монгол'),
+    )
     .join(', ')
     .slice(0, 500);
 
@@ -71,18 +74,21 @@ const findPlace = async (
   return place ? { lat: Number(place.lat), lng: Number(place.lon) } : null;
 };
 
-/** Looks an address up on OpenStreetMap, limited to Mongolia. */
+/**
+ * Looks an address up on OpenStreetMap, limited to Mongolia. `search`
+ * resolves to the place it moved the pin to, or null.
+ */
 export const usePapaAddressSearch = (
   onFound: (place: LatLngLiteral) => void,
 ) => {
   const { t, i18n } = useTranslation('sales');
   const [searching, setSearching] = useState(false);
 
-  const search = async (address: string) => {
+  const search = async (address: string): Promise<LatLngLiteral | null> => {
     const query = address.trim();
 
     if (!query) {
-      return;
+      return null;
     }
 
     setSearching(true);
@@ -110,7 +116,7 @@ export const usePapaAddressSearch = (
 
         if (place) {
           onFound(place);
-          return;
+          return place;
         }
       }
 
@@ -129,6 +135,8 @@ export const usePapaAddressSearch = (
     } finally {
       setSearching(false);
     }
+
+    return null;
   };
 
   return { search, searching };

@@ -16,7 +16,15 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Alert, Badge, Button, CopyText, Spinner, useConfirm } from 'erxes-ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  CopyText,
+  ScrollArea,
+  Spinner,
+  useConfirm,
+} from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PanelField } from 'ui-modules';
@@ -190,260 +198,264 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
       ),
     }).then(() => papa.cancel());
 
+  // The record panel gives the tab a fixed height; scroll inside it like the
+  // Detail and Payments tabs do.
   return (
-    <div className="flex flex-col gap-4 p-4">
-      {delivery && (
-        <div className="space-y-1">
-          <div className="flex items-center justify-between gap-2 pb-1">
-            <div className="flex items-center gap-2">
-              <IconTruckDelivery className="size-4 text-muted-foreground" />
-              <Badge variant="secondary">
-                {t(
-                  `papa-status-${delivery.status.toLowerCase()}`,
-                  delivery.status,
+    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+      <div className="flex flex-col gap-4 p-4">
+        {delivery && (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-2 pb-1">
+              <div className="flex items-center gap-2">
+                <IconTruckDelivery className="size-4 text-muted-foreground" />
+                <Badge variant="secondary">
+                  {t(
+                    `papa-status-${delivery.status.toLowerCase()}`,
+                    delivery.status,
+                  )}
+                </Badge>
+                {delivery.code && (
+                  <CopyText
+                    value={delivery.code}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {delivery.code}
+                  </CopyText>
                 )}
-              </Badge>
-              {delivery.code && (
-                <CopyText
-                  value={delivery.code}
-                  className="text-xs text-muted-foreground hover:text-foreground"
+              </div>
+              {delivery.papaOrderId && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={busy}
+                  onClick={() => papa.refresh()}
                 >
-                  {delivery.code}
-                </CopyText>
+                  <IconRefresh />
+                  {t('refresh', 'Refresh')}
+                </Button>
               )}
             </div>
-            {delivery.papaOrderId && (
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={busy}
-                onClick={() => papa.refresh()}
+
+            {delivery.error && (
+              <Alert variant="destructive">
+                <IconAlertTriangle />
+                <Alert.Description>{delivery.error}</Alert.Description>
+              </Alert>
+            )}
+
+            <PanelField
+              icon={IconCash}
+              label={t('papa-price', 'Delivery price')}
+              cell={false}
+            >
+              <PosPanelText>
+                {formatAmount(delivery.price)}
+                {delivery.distance ? ` · ${delivery.distance} km` : ''}
+                {delivery.duration ? ` · ${delivery.duration} min` : ''}
+              </PosPanelText>
+            </PanelField>
+            {showFee && (
+              <PanelField
+                icon={IconReceipt}
+                label={t('papa-fee-status', 'Papa fee')}
+                cell={false}
               >
-                <IconRefresh />
-                {t('refresh', 'Refresh')}
-              </Button>
+                <PosPanelText>
+                  {feeUnpaid
+                    ? `${t('papa-fee-unpaid', 'Unpaid')} · ${formatAmount(
+                        delivery.unpaidAmount ?? delivery.price,
+                      )}`
+                    : t('papa-fee-paid', 'Paid')}
+                </PosPanelText>
+              </PanelField>
+            )}
+            <PanelField icon={IconMapPin} label={t('address')} cell={false}>
+              <PosPanelText>{delivery.toAddress || '-'}</PosPanelText>
+            </PanelField>
+            {delivery.pincode && (
+              <PanelField
+                icon={IconKey}
+                label={t('papa-start-code', 'Pickup code (give to driver)')}
+                cell={false}
+              >
+                <CopyText
+                  value={delivery.pincode}
+                  className="px-2 font-mono text-sm"
+                >
+                  {delivery.pincode}
+                </CopyText>
+              </PanelField>
+            )}
+            {delivery.papaOrderId && (
+              <PanelField
+                icon={IconHash}
+                label={t('papa-order-id', 'Papa order id')}
+                cell={false}
+              >
+                <CopyText
+                  value={delivery.papaOrderId}
+                  className="px-2 font-mono text-xs break-all"
+                >
+                  {delivery.papaOrderId}
+                </CopyText>
+              </PanelField>
+            )}
+            {delivery.shippingId && (
+              <PanelField
+                icon={IconHash}
+                label={t('papa-shipping-id', 'Papa shipping id')}
+                cell={false}
+              >
+                <CopyText
+                  value={delivery.shippingId}
+                  className="px-2 font-mono text-xs break-all"
+                >
+                  {delivery.shippingId}
+                </CopyText>
+              </PanelField>
+            )}
+            {delivery.endPincode && (
+              <PanelField
+                icon={IconHash}
+                label={t('papa-end-code', 'Delivery code (for receiver)')}
+                cell={false}
+              >
+                <CopyText
+                  value={delivery.endPincode}
+                  className="px-2 font-mono text-sm"
+                >
+                  {delivery.endPincode}
+                </CopyText>
+              </PanelField>
+            )}
+            {delivery.driver && (
+              <PanelField
+                icon={IconUser}
+                label={t('papa-driver', 'Driver')}
+                cell={false}
+              >
+                <PosPanelText>
+                  {personName(delivery)}
+                  {delivery.driver.phone ? ` · ${delivery.driver.phone}` : ''}
+                </PosPanelText>
+              </PanelField>
+            )}
+            {delivery.car && (
+              <PanelField
+                icon={IconCar}
+                label={t('papa-vehicle', 'Vehicle')}
+                cell={false}
+              >
+                <PosPanelText>
+                  {[delivery.car.type, delivery.car.plate, delivery.car.capacity]
+                    .filter(Boolean)
+                    .join(' · ') || '-'}
+                </PosPanelText>
+              </PanelField>
+            )}
+            {delivery.updatedAt && (
+              <p className="px-2 text-xs text-muted-foreground">
+                {t('papa-updated', 'Updated')}{' '}
+                {dayjs(delivery.updatedAt).format('YYYY-MM-DD HH:mm')}
+              </p>
             )}
           </div>
+        )}
 
-          {delivery.error && (
-            <Alert variant="destructive">
-              <IconAlertTriangle />
-              <Alert.Description>{delivery.error}</Alert.Description>
-            </Alert>
-          )}
+        {delivery?.hasPhotoProof && delivery.status !== 'END' && (
+          <section className="space-y-2">
+            <h4 className="flex items-center gap-2 text-sm font-medium">
+              <IconPhoto className="size-4" />
+              {t('papa-photo-proof', 'Driver’s delivery photo')}
+            </h4>
+            <PapaPhotoProof
+              orderId={orderId}
+              busy={busy}
+              onApprove={() => papa.approvePhoto()}
+            />
+          </section>
+        )}
 
-          <PanelField
-            icon={IconCash}
-            label={t('papa-price', 'Delivery price')}
-            cell={false}
-          >
-            <PosPanelText>
-              {formatAmount(delivery.price)}
-              {delivery.distance ? ` · ${delivery.distance} km` : ''}
-              {delivery.duration ? ` · ${delivery.duration} min` : ''}
-            </PosPanelText>
-          </PanelField>
-          {showFee && (
-            <PanelField
-              icon={IconReceipt}
-              label={t('papa-fee-status', 'Papa fee')}
-              cell={false}
-            >
-              <PosPanelText>
-                {feeUnpaid
-                  ? `${t('papa-fee-unpaid', 'Unpaid')} · ${formatAmount(
-                      delivery.unpaidAmount ?? delivery.price,
-                    )}`
-                  : t('papa-fee-paid', 'Paid')}
-              </PosPanelText>
-            </PanelField>
-          )}
-          <PanelField icon={IconMapPin} label={t('address')} cell={false}>
-            <PosPanelText>{delivery.toAddress || '-'}</PosPanelText>
-          </PanelField>
-          {delivery.pincode && (
-            <PanelField
-              icon={IconKey}
-              label={t('papa-start-code', 'Pickup code (give to driver)')}
-              cell={false}
-            >
-              <CopyText
-                value={delivery.pincode}
-                className="px-2 font-mono text-sm"
-              >
-                {delivery.pincode}
-              </CopyText>
-            </PanelField>
-          )}
-          {delivery.papaOrderId && (
-            <PanelField
-              icon={IconHash}
-              label={t('papa-order-id', 'Papa order id')}
-              cell={false}
-            >
-              <CopyText
-                value={delivery.papaOrderId}
-                className="px-2 font-mono text-xs break-all"
-              >
-                {delivery.papaOrderId}
-              </CopyText>
-            </PanelField>
-          )}
-          {delivery.shippingId && (
-            <PanelField
-              icon={IconHash}
-              label={t('papa-shipping-id', 'Papa shipping id')}
-              cell={false}
-            >
-              <CopyText
-                value={delivery.shippingId}
-                className="px-2 font-mono text-xs break-all"
-              >
-                {delivery.shippingId}
-              </CopyText>
-            </PanelField>
-          )}
-          {delivery.endPincode && (
-            <PanelField
-              icon={IconHash}
-              label={t('papa-end-code', 'Delivery code (for receiver)')}
-              cell={false}
-            >
-              <CopyText
-                value={delivery.endPincode}
-                className="px-2 font-mono text-sm"
-              >
-                {delivery.endPincode}
-              </CopyText>
-            </PanelField>
-          )}
-          {delivery.driver && (
-            <PanelField
-              icon={IconUser}
-              label={t('papa-driver', 'Driver')}
-              cell={false}
-            >
-              <PosPanelText>
-                {personName(delivery)}
-                {delivery.driver.phone ? ` · ${delivery.driver.phone}` : ''}
-              </PosPanelText>
-            </PanelField>
-          )}
-          {delivery.car && (
-            <PanelField
-              icon={IconCar}
-              label={t('papa-vehicle', 'Vehicle')}
-              cell={false}
-            >
-              <PosPanelText>
-                {[delivery.car.type, delivery.car.plate, delivery.car.capacity]
-                  .filter(Boolean)
-                  .join(' · ') || '-'}
-              </PosPanelText>
-            </PanelField>
-          )}
-          {delivery.updatedAt && (
-            <p className="px-2 text-xs text-muted-foreground">
-              {t('papa-updated', 'Updated')}{' '}
-              {dayjs(delivery.updatedAt).format('YYYY-MM-DD HH:mm')}
+        {canSend && (
+          <section className="space-y-2">
+            <h4 className="text-sm font-medium">
+              {t('papa-step-send', 'Send to Papa')}
+            </h4>
+            <PapaWalletBalance amount={delivery?.price} />
+            <PapaDeliverySendForm
+              defaults={defaults}
+              busy={busy}
+              retry={status === 'FAILED'}
+              onSubmit={(values) =>
+                papa.send({
+                  receiverPhone: values.receiverPhone,
+                  description: values.description || undefined,
+                  receiverPays: values.receiverPays,
+                })
+              }
+            />
+          </section>
+        )}
+
+        {canQuote && !failedWithOrder && (
+          <section className="space-y-2">
+            <h4 className="text-sm font-medium">
+              {delivery
+                ? t('papa-step-requote', 'Change address and get a new price')
+                : t('papa-step-quote', 'Delivery address')}
+            </h4>
+            <PapaDeliveryQuoteForm
+              key={delivery?.quoteId || 'new'}
+              defaults={defaults}
+              previous={delivery}
+              busy={busy}
+              onSubmit={(values) => papa.quote(values)}
+            />
+          </section>
+        )}
+
+        {feeUnpaid && (
+          <section className="space-y-2">
+            <h4 className="text-sm font-medium">
+              {t('papa-fee-unpaid-title', 'Papa fee is unpaid')}
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              {t(
+                'papa-fee-unpaid-help',
+                'Papa could not take the delivery fee from your Papa wallet when this delivery ended. Top up the wallet in the Papa Business app or business.papa.mn, then pay it here.',
+              )}
             </p>
-          )}
-        </div>
-      )}
+            <PapaWalletBalance amount={delivery?.unpaidAmount ?? delivery?.price} />
+            <Button disabled={busy} onClick={onPayFromWallet} className="w-full">
+              <IconWallet />
+              {t('papa-fee-pay-wallet', 'Pay Papa fee from wallet')}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={onPaidOutside}
+              className="w-full"
+            >
+              <IconCash />
+              {t('papa-fee-paid-outside-action', 'Paid outside Papa (cash or transfer)')}
+            </Button>
+          </section>
+        )}
 
-      {delivery?.hasPhotoProof && delivery.status !== 'END' && (
-        <section className="space-y-2">
-          <h4 className="flex items-center gap-2 text-sm font-medium">
-            <IconPhoto className="size-4" />
-            {t('papa-photo-proof', 'Driver’s delivery photo')}
-          </h4>
-          <PapaPhotoProof
-            orderId={orderId}
-            busy={busy}
-            onApprove={() => papa.approvePhoto()}
-          />
-        </section>
-      )}
-
-      {canSend && (
-        <section className="space-y-2">
-          <h4 className="text-sm font-medium">
-            {t('papa-step-send', 'Send to Papa')}
-          </h4>
-          <PapaWalletBalance amount={delivery?.price} />
-          <PapaDeliverySendForm
-            defaults={defaults}
-            busy={busy}
-            retry={status === 'FAILED'}
-            onSubmit={(values) =>
-              papa.send({
-                receiverPhone: values.receiverPhone,
-                description: values.description || undefined,
-                receiverPays: values.receiverPays,
-              })
-            }
-          />
-        </section>
-      )}
-
-      {canQuote && !failedWithOrder && (
-        <section className="space-y-2">
-          <h4 className="text-sm font-medium">
-            {delivery
-              ? t('papa-step-requote', 'Change address and get a new price')
-              : t('papa-step-quote', 'Delivery address')}
-          </h4>
-          <PapaDeliveryQuoteForm
-            key={delivery?.quoteId || 'new'}
-            defaults={defaults}
-            previous={delivery}
-            busy={busy}
-            onSubmit={(values) => papa.quote(values)}
-          />
-        </section>
-      )}
-
-      {feeUnpaid && (
-        <section className="space-y-2">
-          <h4 className="text-sm font-medium">
-            {t('papa-fee-unpaid-title', 'Papa fee is unpaid')}
-          </h4>
-          <p className="text-xs text-muted-foreground">
-            {t(
-              'papa-fee-unpaid-help',
-              'Papa could not take the delivery fee from your Papa wallet when this delivery ended. Top up the wallet in the Papa Business app or business.papa.mn, then pay it here.',
-            )}
-          </p>
-          <PapaWalletBalance amount={delivery?.unpaidAmount ?? delivery?.price} />
-          <Button disabled={busy} onClick={onPayFromWallet} className="w-full">
-            <IconWallet />
-            {t('papa-fee-pay-wallet', 'Pay Papa fee from wallet')}
+        {canMarkDelivered && (
+          <Button disabled={busy} onClick={onMarkDelivered}>
+            <IconCircleCheck />
+            {t('papa-mark-delivered', 'Mark as delivered')}
           </Button>
-          <Button
-            variant="outline"
-            disabled={busy}
-            onClick={onPaidOutside}
-            className="w-full"
-          >
-            <IconCash />
-            {t('papa-fee-paid-outside-action', 'Paid outside Papa (cash or transfer)')}
+        )}
+
+        {canCancel && (
+          <Button variant="outline" disabled={busy} onClick={onCancel}>
+            <IconX />
+            {t('papa-cancel', 'Cancel delivery')}
           </Button>
-        </section>
-      )}
-
-      {canMarkDelivered && (
-        <Button disabled={busy} onClick={onMarkDelivered}>
-          <IconCircleCheck />
-          {t('papa-mark-delivered', 'Mark as delivered')}
-        </Button>
-      )}
-
-      {canCancel && (
-        <Button variant="outline" disabled={busy} onClick={onCancel}>
-          <IconX />
-          {t('papa-cancel', 'Cancel delivery')}
-        </Button>
-      )}
-    </div>
+        )}
+      </div>
+    </ScrollArea>
   );
 };

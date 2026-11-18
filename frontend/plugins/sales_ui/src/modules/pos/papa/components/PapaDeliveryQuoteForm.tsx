@@ -107,6 +107,43 @@ export const PapaDeliveryQuoteForm = ({
 
   const { search, searching } = usePapaAddressSearch(setPosition);
 
+  // A typed or pasted address with no pin is looked up by itself when the
+  // field is left, and again before quoting if that lookup is still running.
+  // Each address is asked once: Nominatim allows one request per second.
+  const addressLookup = useRef<{
+    address: string;
+    found: Promise<boolean>;
+  } | null>(null);
+
+  const fillFromAddress = useCallback((): Promise<boolean> => {
+    if (
+      toPosition(form.getValues('toLatitude'), form.getValues('toLongitude'))
+    ) {
+      return Promise.resolve(true);
+    }
+
+    const address = form.getValues('toAddress').trim();
+
+    if (!address) {
+      return Promise.resolve(false);
+    }
+
+    if (addressLookup.current?.address !== address) {
+      addressLookup.current = {
+        address,
+        found: search(address).then(Boolean),
+      };
+    }
+
+    return addressLookup.current.found;
+  }, [form, search]);
+
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await fillFromAddress();
+    await form.handleSubmit(onSubmit)();
+  };
+
   // A map pick fills an empty (or map-filled) address with what
   // OpenStreetMap knows there: one request per click or drag, as Nominatim
   // requires; a slower answer for an older pick is ignored.
@@ -161,7 +198,9 @@ export const PapaDeliveryQuoteForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={(event) => {
+          void submit(event);
+        }}
         className="space-y-3"
         noValidate
       >
@@ -204,7 +243,13 @@ export const PapaDeliveryQuoteForm = ({
                 </Button>
               </div>
               <Form.Control>
-                <Input {...field} />
+                <Input
+                  {...field}
+                  onBlur={() => {
+                    field.onBlur();
+                    void fillFromAddress();
+                  }}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
