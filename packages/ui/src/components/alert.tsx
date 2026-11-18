@@ -12,7 +12,7 @@ const alertVariants = cva(
         warning:
           'text-warning border-warning/50 [&>svg]:text-current data-[slot=alert-description]:*:text-warning/90',
         destructive:
-          'text-destructive [&>svg]:text-current data-[slot=alert-description]:*:text-destructive/90',
+          'text-destructive-text [&>svg]:text-current data-[slot=alert-description]:*:text-destructive-text',
       },
     },
     defaultVariants: {

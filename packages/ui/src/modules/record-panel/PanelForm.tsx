@@ -65,7 +65,7 @@ export const PanelFormRow = ({
         <PanelLabel tooltip={label}>
           {label}
           {required && (
-            <span aria-hidden="true" className="text-destructive">
+            <span aria-hidden="true" className="text-destructive-text">
               {' *'}
             </span>
           )}
@@ -88,7 +88,7 @@ export const PanelFormRow = ({
         </span>
       )}
       {error ? (
-        <span id={messageId} role="alert" className="col-start-2 text-xs text-destructive">
+        <span id={messageId} role="alert" className="col-start-2 text-xs text-destructive-text">
           {error}
         </span>
       ) : (

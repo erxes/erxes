@@ -19,7 +19,7 @@ export const badgeVariants = cva(
         ghost: 'hover:bg-accent border-none hover:shadow-xs',
         success: 'bg-success/10 text-(--success-text) border-success/10',
         warning: 'bg-warning/10 text-(--warning-text) border-warning/10',
-        destructive: 'bg-destructive/10 text-(--destructive-text) border-destructive/10',
+        destructive: 'bg-destructive/10 text-destructive-text border-destructive/10',
         info: 'bg-info/10 text-(--info-text) border-info/10',
       },
       size: {

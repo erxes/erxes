@@ -178,7 +178,7 @@ const commandItemVariants = cva(
     variants: {
       variant: {
         default: '',
-        destructive: 'text-destructive',
+        destructive: 'text-destructive-text',
         /** A card in a grid of choices; checked, it is outlined and tinted primary. */
         tile: 'h-auto gap-2.5 rounded-md border border-transparent py-2',
       },

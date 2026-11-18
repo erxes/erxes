@@ -59,7 +59,7 @@ const ConfirmationField = ({
         onChange={(event) => onChange(event.target.value)}
       />
       {error && (
-        <p id={`${id}-error`} className="text-sm font-medium text-destructive">
+        <p id={`${id}-error`} className="text-sm font-medium text-destructive-text">
           Enter {expected} to confirm
         </p>
       )}

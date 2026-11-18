@@ -33,7 +33,7 @@ export const FormSection = ({
         <h2
           className={cn(
             'text-base font-semibold',
-            variant === 'destructive' && 'text-(--destructive-text)',
+            variant === 'destructive' && 'text-destructive-text',
           )}
         >
           {title}

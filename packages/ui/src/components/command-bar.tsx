@@ -21,6 +21,7 @@ const Root = ({
 }: CommandBarProps) => {
   // Where the bar opens from. The page opens it, so it is an anchor, not a trigger.
   const anchor = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation('ui');
 
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange} defaultOpen={defaultOpen}>
@@ -35,6 +36,7 @@ const Root = ({
         >
           <PopoverPrimitive.Popup
             initialFocus={!disableAutoFocus}
+            aria-label={t('selection-actions', 'Actions for the selected records')}
             className="data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
           >
             {children}
