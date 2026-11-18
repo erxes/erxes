@@ -11,7 +11,7 @@ test('an admin turns on code mode and sees what a program may do', async ({ page
 
   await expect(toggle).toBeVisible();
   await expect(
-    page.getByText('Changes that need approval are refused inside a program'),
+    page.getByText('Only search and call the API, as the member who asked and within their role.'),
   ).toBeVisible();
   await expectAccessible(page);
 
