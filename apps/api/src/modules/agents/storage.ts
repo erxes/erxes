@@ -60,6 +60,7 @@ class AgentDatabase implements PostgresDatabase {
   constructor(
     private readonly orgId: string,
     private readonly storageKey: string,
+    private readonly readOnly: boolean,
   ) {}
 
   private enqueue<T>(operation: () => Promise<T>) {
@@ -132,6 +133,8 @@ class AgentDatabase implements PostgresDatabase {
   }
 
   private write<T>(callback: (tx: PostgresExecutor) => Promise<T>) {
+    if (this.readOnly) return Promise.reject(new Error(`${this.storageKey} is open read-only`));
+
     return this.enqueue(() => this.inTransaction('read committed', true, callback));
   }
 
@@ -162,6 +165,9 @@ class AgentDatabase implements PostgresDatabase {
   );
 
   acquireOwnership() {
+    // A read-only storage takes no lease: it reads what the server running it committed.
+    if (this.readOnly) return Promise.resolve();
+
     return this.enqueue(async () => {
       const taken = await this.inTransaction('read committed', false, async (tx) => {
         // A new storage's counters: pi's ids and commit sequence start here.
@@ -185,7 +191,7 @@ class AgentDatabase implements PostgresDatabase {
   private async release() {
     await this.tail;
 
-    if (this.failure) return;
+    if (this.failure || this.readOnly) return;
 
     try {
       await this.inTransaction('read committed', false, (tx) =>
@@ -209,7 +215,8 @@ class AgentDatabase implements PostgresDatabase {
 
 /**
  * Opens one agent conversation's storage for this server, such as `assistant:<threadId>`. Throws
- * `StorageBusy` while another server runs it.
+ * `StorageBusy` while another server runs it. `readOnly` takes no lease, for a server that only shows
+ * a conversation another one runs; its writes reject.
  */
-export const openAgentStorage = (orgId: string, storageKey: string) =>
-  PostgresStorage.open(new AgentDatabase(orgId, storageKey));
+export const openAgentStorage = (orgId: string, storageKey: string, { readOnly = false } = {}) =>
+  PostgresStorage.open(new AgentDatabase(orgId, storageKey, readOnly));
