@@ -11,7 +11,7 @@ test.each([
   ['VAT', vatRowQueries.vatRowsCount],
   ['CTAX', ctaxRowQueries.ctaxRowsCount],
 ] as const)(
-  '%s search preserves the combined name/number conditions with a literal regex',
+  '%s search matches the name or the number with a literal regex',
   async (_name, query) => {
     const find = jest.fn(() => ({
       countDocuments: jest.fn().mockResolvedValue(0),
@@ -28,8 +28,7 @@ test.each([
     expect(escapeRegExp).toHaveBeenCalledWith('.[');
     expect(find).toHaveBeenCalledWith({
       status: expect.objectContaining({ $nin: expect.any(Array) }),
-      name: /\.\[/i,
-      number: /\.\[/i,
+      $or: [{ name: /\.\[/i }, { number: /\.\[/i }],
     });
   },
 );

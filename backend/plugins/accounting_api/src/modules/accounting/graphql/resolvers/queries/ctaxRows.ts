@@ -25,8 +25,7 @@ const generateFilterCat = ({
 
   if (searchValue) {
     const regex = new RegExp(escapeRegExp(searchValue), 'i');
-    filter.name = regex;
-    filter.number = regex;
+    filter.$or = [{ name: regex }, { number: regex }];
   }
 
   return filter;
