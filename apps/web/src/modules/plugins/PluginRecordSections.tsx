@@ -1,8 +1,32 @@
 import { PanelSection, Spinner, type TContactContentType, type TRecordSection } from 'erxes-ui';
-import { Suspense } from 'react';
+import { type RefObject, Suspense, useLayoutEffect, useRef } from 'react';
 import { PluginBoundary } from './PluginBoundary';
 import { usePluginText } from './pluginText';
 import { usePlugins } from './usePlugins';
+
+/**
+ * Hides the section around `body` while the plugin draws nothing in it (a customer who isn't a
+ * candidate), so no heading stands over an empty space; it shows again once the plugin draws.
+ */
+const useHiddenWhileEmpty = (body: RefObject<HTMLElement | null>) =>
+  useLayoutEffect(() => {
+    const content = body.current;
+    const section = content?.closest('section');
+
+    if (!content || !section) return undefined;
+
+    const update = () => {
+      section.hidden = !content.hasChildNodes();
+    };
+
+    update();
+
+    const observer = new MutationObserver(update);
+
+    observer.observe(content, { childList: true });
+
+    return () => observer.disconnect();
+  }, [body]);
 
 /** One plugin's section: its heading, then what it draws, kept apart if it crashes. */
 const PluginRecordSection = ({
@@ -18,14 +42,19 @@ const PluginRecordSection = ({
 }) => {
   const Content = section.component;
   const text = usePluginText();
+  const body = useRef<HTMLDivElement>(null);
+
+  useHiddenWhileEmpty(body);
 
   return (
     <PanelSection title={text(plugin, section.title)} icon={section.icon}>
-      <PluginBoundary name={plugin} compact resetKey={contentId}>
-        <Suspense fallback={<Spinner size="sm" />}>
-          <Content contentType={contentType} contentId={contentId} />
-        </Suspense>
-      </PluginBoundary>
+      <div ref={body} className="contents">
+        <PluginBoundary name={plugin} compact resetKey={contentId}>
+          <Suspense fallback={<Spinner size="sm" />}>
+            <Content contentType={contentType} contentId={contentId} />
+          </Suspense>
+        </PluginBoundary>
+      </div>
     </PanelSection>
   );
 };
