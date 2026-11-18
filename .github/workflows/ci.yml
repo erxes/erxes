@@ -180,6 +180,8 @@ jobs:
           exit "$status"
       - name: Smoke test
         run: deploy/smoke.sh http://localhost:8081
+      - name: The web image reaches a recreated API at its new address
+        run: deploy/web-proxy-test.sh "$WEB_IMAGE"
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:

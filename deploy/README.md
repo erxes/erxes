@@ -2,13 +2,13 @@
 
 CI (`.github/workflows/ci.yml`) runs on every pull request and every push to `postgre`. The first three jobs run side by side:
 
-| Job         | What it checks                                                                                                                                                                                                                                                                                                    |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| static      | `vp run check`, `pnpm check:generated` (migrations, `routes.json` and the cn tables), applied migrations unchanged, the lint plugin tests, no critical advisories (`pnpm audit --prod`), that `docker-compose.yml` publishes no Postgres port to the host, then `pnpm build`                                      |
-| integration | every test on Postgres 18, split over two runners (API test files in parallel, each on its own database as a role without BYPASSRLS)                                                                                                                                                                              |
-| images      | builds `erxes-api` and `erxes-web` once, fails on HIGH or CRITICAL vulnerabilities that have a fix (Trivy), starts two copies of this folder's stack, runs `smoke.sh` on one and the daily flows (`e2e/`, Chromium with axe) on the other. Only branch runs write the layer cache; pull requests read `postgre`'s |
-| Check       | passes only when every job above passed; the one to require in branch protection                                                                                                                                                                                                                                  |
-| push        | on `postgre` only, after Check: pushes both images to GHCR and Docker Hub (`erxes/core-api`, `erxes/core-web`) as `sha-<12 chars>` and `postgre`                                                                                                                                                                  |
+| Job         | What it checks                                                                                                                                                                                                                                                                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| static      | `vp run check`, `pnpm check:generated` (migrations, `routes.json` and the cn tables), applied migrations unchanged, the lint plugin tests, no critical advisories (`pnpm audit --prod`), that `docker-compose.yml` publishes no Postgres port to the host, then `pnpm build`                                                                            |
+| integration | every test on Postgres 18, split over two runners (API test files in parallel, each on its own database as a role without BYPASSRLS)                                                                                                                                                                                                                    |
+| images      | builds `erxes-api` and `erxes-web` once, fails on HIGH or CRITICAL vulnerabilities that have a fix (Trivy), starts two copies of this folder's stack, runs `smoke.sh` on one, `web-proxy-test.sh` on the web image and the daily flows (`e2e/`, Chromium with axe) on the other. Only branch runs write the layer cache; pull requests read `postgre`'s |
+| Check       | passes only when every job above passed; the one to require in branch protection                                                                                                                                                                                                                                                                        |
+| push        | on `postgre` only, after Check: pushes both images to GHCR and Docker Hub (`erxes/core-api`, `erxes/core-web`) as `sha-<12 chars>` and `postgre`                                                                                                                                                                                                        |
 
 CodeQL (`codeql.yml`) scans weekly and on changes. `deploy.yml` deploys after a
 green CI run on `postgre` (or by hand with an image tag) once the `production`
@@ -27,7 +27,10 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
   and grants `erxes_app` (the API's role, no BYPASSRLS) core's tables and the right to
   act as `erxes_core_system`, the BYPASSRLS role background jobs run as.
 - Put TLS in front of the `ui` container (port 8080); it serves the UI and
-  forwards `/core` to the API, live updates included.
+  forwards `/core` to the API, live updates included. It looks the API's address up
+  every 10 s, so a recreated `api` container needs no `ui` restart. `CORE_API_URL` is
+  scheme, host and port with no path; in Kubernetes the host is the full service name
+  (`core-api.erxes.svc.cluster.local`), as nginx doesn't use resolv.conf's search domains.
 - Plugin database roles: `docker compose … run --rm migrate node dist/plugin-role.js <plugin>`.
   It sets a new password and prints it once. When the logins and their passwords are made
   elsewhere (Ansible, a secret store), `node dist/plugin-role.js <plugin>... --keep-password`
