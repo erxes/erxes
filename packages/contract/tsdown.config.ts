@@ -8,6 +8,10 @@ import { defineConfig } from 'tsdown';
 // build copies those table modules into dist, code and types. A plugin installs
 // only this package, never `@erxes/core-db`. `onlyImport` fails the build when
 // dist imports anything outside `dependencies`.
+//
+// The assistant's watch events are pi-durable's view and Chord's ops. The contract
+// imports only their types, so both are optional peers: a plugin that never watches
+// the assistant doesn't install pi, and sees those two types as `any`.
 export default defineConfig({
   entry: ['src/*.ts'],
   platform: 'neutral',

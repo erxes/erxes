@@ -41,6 +41,7 @@
     "./eventTypes": "./src/eventTypes.ts",
     "./favorites": "./src/favorites.ts",
     "./fieldGroups": "./src/fieldGroups.ts",
+    "./fieldLogic": "./src/fieldLogic.ts",
     "./fields": "./src/fields.ts",
     "./fieldShared": "./src/fieldShared.ts",
     "./files": "./src/files.ts",
@@ -107,6 +108,7 @@
       "./eventTypes": "./dist/eventTypes.js",
       "./favorites": "./dist/favorites.js",
       "./fieldGroups": "./dist/fieldGroups.js",
+      "./fieldLogic": "./dist/fieldLogic.js",
       "./fields": "./dist/fields.js",
       "./fieldShared": "./dist/fieldShared.js",
       "./files": "./dist/files.js",
@@ -153,8 +155,6 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@earendil-works/chord": "1.5.2",
-    "@earendil-works/pi-durable": "1.5.2",
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
@@ -166,6 +166,20 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@earendil-works/chord": "1.5.2",
+    "@earendil-works/pi-durable": "1.5.2",
     "@erxes/core-db": "workspace:^"
+  },
+  "peerDependencies": {
+    "@earendil-works/chord": "1.5.2",
+    "@earendil-works/pi-durable": "1.5.2"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/chord": {
+      "optional": true
+    },
+    "@earendil-works/pi-durable": {
+      "optional": true
+    }
   }
 }
