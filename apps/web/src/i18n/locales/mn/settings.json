@@ -1309,7 +1309,8 @@
     "category": {
       "payments": "Төлбөр",
       "tax": "Татварын баримт",
-      "email": "Имэйл"
+      "email": "Имэйл",
+      "messaging": "Мессеж"
     },
     "section": {
       "connected": "Холбогдсон",

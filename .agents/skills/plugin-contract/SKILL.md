@@ -90,11 +90,19 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
-     `relationTabs`, `settings`, `dashboardWidgets`, `floatingWidget`), and its first module
+     `relationTabs`, `settings`, `integrations`, `dashboardWidgets`, `floatingWidget`), and its first module
      renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are the
      plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
      once, to its first page, else to its Properties, in "Plugin settings"
-     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `dashboardWidgets`
+     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `integrations`
+     (`TPluginIntegration`: `key`, `name`, `summary`, `icon`, `category` from erxes-ui's
+     `INTEGRATION_CATEGORIES`, `countries`, `permission`, `tabs` of `{ value, label, component }`)
+     are tiles in core's Settings › Integrations next to core's own, for members with
+     `integrations.manage` and the tile's `permission` (one the manifest declares). Its page is
+     `/settings/integrations/<name>.<key>`: core draws the header and tabs (`?tab=<value>`), each
+     tab's `lazy` component its content (`apps/web/src/modules/settings/integrations/catalog.ts`).
+     A tile has no connected state, and renaming its key or a tab's value breaks links to it.
+     `dashboardWidgets`
      (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
      draws as the tile's body under its title) join core's home dashboard catalog under the
      plugin's name; a placed tile is saved as `<name>:<widget name>`
@@ -118,7 +126,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      record types their `hosts` name (`core:customer`, `core:company`, a plugin type with
      `contacts`), and on customers and companies when they name none
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
-     loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
+     loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`), as it does `integrations`, and drops a malformed
      entry. Core shows the config's words (the app's name, `title`s and `label`s) through
      `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
      plugin's `name` and the key is the English text, which shows when no translation is there.

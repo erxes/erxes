@@ -1,6 +1,7 @@
 import type {
   TDashboardWidget,
   TPanelRecordType,
+  TPluginIntegration,
   TPluginSettingsPage,
   TRecordSection,
   TRelationTab,
@@ -28,6 +29,8 @@ export interface LoadedPluginConfig extends PluginConfig {
   relationTabs: TRelationTab[];
   /** The well-formed ones of the plugin's settings pages; core's settings link the first. */
   settings: TPluginSettingsPage[];
+  /** The well-formed ones of the plugin's tiles in Settings › Integrations. */
+  integrations: TPluginIntegration[];
   /** The well-formed ones of the plugin's tiles for the home dashboard. */
   dashboardWidgets: TDashboardWidget[];
 }

@@ -336,10 +336,14 @@ export { SexCode } from './types/SexCode';
 
 export {
   DASHBOARD_WIDGET_PREVIEWS,
+  INTEGRATION_CATEGORIES,
   type IUIConfig,
   type TDashboardWidget,
   type TDashboardWidgetPreview,
+  type TIntegrationCategory,
+  type TIntegrationTab,
   type TPanelRecordType,
+  type TPluginIntegration,
   type TPluginSettingsPage,
   type TPropertyLimit,
   type TPropertyValue,

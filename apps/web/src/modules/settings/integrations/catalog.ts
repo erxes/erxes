@@ -1,19 +1,17 @@
 import { type Icon, IconCreditCard, IconMail, IconReceiptTax } from '@tabler/icons-react';
+import type { TIntegrationCategory, TIntegrationTab, TPluginIntegration } from 'erxes-ui';
 import { paths } from '~/lib/paths';
-
-/** What an integration is for: the catalog's filters, in this order. */
-export const INTEGRATION_CATEGORIES = ['email', 'payments', 'tax'] as const;
-
-export type IntegrationCategory = (typeof INTEGRATION_CATEGORIES)[number];
+import { useCan } from '~/modules/auth/session';
+import { usePlugins } from '~/modules/plugins/usePlugins';
 
 interface Base {
   key: string;
-  /** Translated as `name.<key>`. */
+  /** Translated as `name.<key>`, a plugin's in its namespace. */
   name: string;
-  /** One line on its tile, translated as `catalog.<key>`. */
+  /** One line on its tile, translated as `catalog.<key>`, a plugin's in its namespace. */
   summary: string;
   icon: Icon;
-  category: IntegrationCategory;
+  category: TIntegrationCategory;
   /** The countries it serves; empty: any. Others list it under other regions. */
   countries: readonly string[];
 }
@@ -22,14 +20,17 @@ interface Base {
  * The outside services core connects to for an organisation. An integration
  * set up here has its page (`IntegrationPage`, by kind); one that has its own
  * settings page elsewhere (payment gateways on Settings › Payments) links there,
- * so each is connected in one place. A new one adds an entry here.
+ * so each is connected in one place. A new one adds an entry here. A plugin's
+ * come from its `./config` (`integrations`), keyed `<plugin>.<key>`, with
+ * core's header over the plugin's tabs.
  */
 export type Integration =
   | (Base & { kind: 'email' })
   | (Base & { kind: 'ebarimt' })
-  | (Base & { kind: 'gateways'; to: string });
+  | (Base & { kind: 'gateways'; to: string })
+  | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] });
 
-export const INTEGRATIONS: Integration[] = [
+const INTEGRATIONS: Integration[] = [
   {
     kind: 'email',
     key: 'email',
@@ -60,6 +61,41 @@ export const INTEGRATIONS: Integration[] = [
     to: paths.settings.payments,
   },
 ];
+
+/** A plugin's tile as the catalog lists it, keyed by the plugin's name and its key. */
+const pluginIntegration = (
+  plugin: string,
+  { key, countries = [], ...tile }: TPluginIntegration,
+): Integration => ({
+  ...tile,
+  kind: 'plugin',
+  key: `${plugin.toLowerCase()}.${key}`,
+  plugin,
+  countries,
+});
+
+/**
+ * Core's integrations, then the installed plugins', that the member may open:
+ * gateways need payments.manage, a plugin's the permission it names.
+ * `loading` until the plugin UIs have loaded.
+ */
+export const useIntegrations = () => {
+  const { plugins, loading } = usePlugins();
+  const can = useCan();
+
+  const integrations = [
+    ...INTEGRATIONS,
+    ...plugins.flatMap(({ config }) =>
+      config.integrations.map((tile) => pluginIntegration(config.name, tile)),
+    ),
+  ].filter((integration) => {
+    if (integration.kind === 'gateways') return can('payments.manage');
+
+    return integration.kind !== 'plugin' || can(integration.permission);
+  });
+
+  return { integrations, loading };
+};
 
 /** Where its tile goes: its own page, or the settings page it has elsewhere. */
 export const integrationPath = (integration: Integration) =>

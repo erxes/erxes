@@ -1,9 +1,11 @@
 import type { Icon as TablerIcon } from '@tabler/icons-react';
 import {
   DASHBOARD_WIDGET_PREVIEWS,
+  INTEGRATION_CATEGORIES,
   type TContactContentType,
   type TDashboardWidget,
   type TPanelRecordType,
+  type TPluginIntegration,
   type TPluginSettingsPage,
   type TPropertyLimit,
   type TRecordContacts,
@@ -16,7 +18,7 @@ import {
   type TRelationTab,
   type TRelationTabProps,
 } from 'erxes-ui';
-import { PluginRecordType } from '@erxes/core-contract';
+import { Country, PluginRecordType } from '@erxes/core-contract';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ComponentType, ElementType } from 'react';
 import { z } from 'zod';
@@ -48,6 +50,7 @@ const Config = z.object({
   recordTypes: z.unknown().optional(),
   relationTabs: z.unknown().optional(),
   settings: z.unknown().optional(),
+  integrations: z.unknown().optional(),
   dashboardWidgets: z.unknown().optional(),
   floatingWidget: z.unknown().optional(),
 });
@@ -101,6 +104,19 @@ const DashboardWidget = z.object({
   size: z.object({ w: z.int().positive(), h: z.int().positive() }).optional(),
   component: component<object>(),
 }) satisfies z.ZodType<TDashboardWidget>;
+
+const Integration = z.object({
+  key: z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'is not lowercase letters, digits and dashes'),
+  name: z.string().min(1),
+  summary: z.string().min(1),
+  icon: TabIcon,
+  category: z.enum(INTEGRATION_CATEGORIES),
+  countries: z.array(Country).optional(),
+  permission: z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'is not a permission'),
+  tabs: z
+    .array(z.object({ value: z.string().min(1), label: z.string().min(1), component: component() }))
+    .min(1),
+}) satisfies z.ZodType<TPluginIntegration>;
 
 /** The address a `detailPath` gives a sample id, if it gives one. */
 const samplePath = (detailPath: (id: string) => unknown) => {
@@ -201,8 +217,9 @@ const validEntries = <T>(
 };
 
 /**
- * A plugin's `CONFIG`, with only its well-formed sections, record types, relation tabs and
- * settings pages, dashboard widgets and floating widget; null when it has no name or path.
+ * A plugin's `CONFIG`, with only its well-formed sections, record types, relation tabs,
+ * settings pages, integrations, dashboard widgets and floating widget; null when it has no name
+ * or path.
  */
 export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginConfig | null => {
   const config = Config.safeParse(value);
@@ -214,6 +231,7 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
     recordTypes,
     relationTabs,
     settings,
+    integrations,
     dashboardWidgets,
     floatingWidget,
     ...rest
@@ -241,6 +259,7 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
     ),
     relationTabs: validEntries(remote, 'relationTabs', relationTabs, RelationTab),
     settings: validEntries(remote, 'settings', settings, settingsPageSchema(rest.path)),
+    integrations: validEntries(remote, 'integrations', integrations, Integration),
     dashboardWidgets: validEntries(remote, 'dashboardWidgets', dashboardWidgets, DashboardWidget),
     floatingWidget: widget.success ? widget.data : undefined,
   };

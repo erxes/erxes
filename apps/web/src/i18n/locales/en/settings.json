@@ -1324,7 +1324,8 @@
     "category": {
       "payments": "Payments",
       "tax": "Tax receipts",
-      "email": "Email"
+      "email": "Email",
+      "messaging": "Messaging"
     },
     "section": {
       "connected": "Connected",
