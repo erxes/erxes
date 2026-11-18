@@ -114,7 +114,10 @@ const sections = [
   ],
   ['Components', ['components/']],
   ['Plugin runtime', ['types/UIConfig', 'utils/plugin-', 'utils/file-storage', 'utils/getPlugin']],
-  ['Hooks and helpers', ['hooks/', 'lib/', 'utils/', 'state/', 'types/', 'modules/hotkey/']],
+  [
+    'Hooks and helpers',
+    ['hooks/', 'lib/', 'utils/', 'state/', 'types/', 'constants/', 'modules/hotkey/'],
+  ],
 ] as const;
 
 const sectionOf = (file: string) => {

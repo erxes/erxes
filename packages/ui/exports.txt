@@ -254,6 +254,7 @@ value usePreviousHotkeyScope
 value useProductOptions
 value useRecordPanel
 value useScopedHotkeys
+value useSexLabels
 value useSortAccessibility
 value useSortRoleDescription
 value useTagOptions

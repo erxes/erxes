@@ -282,6 +282,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
+- `useSexLabels()` Each sex code's label in the UI's language.
 - `useSortAccessibility(nameOf, { pointer })` What a screen reader says as a sorted item moves, in the UI's language.
 - `useSortRoleDescription()` What a screen reader calls a sortable item, in the UI's language.
 - `useToast()` `{ toast }` as a hook; calling `toast` directly does the same.
