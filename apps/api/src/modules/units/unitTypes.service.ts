@@ -5,7 +5,7 @@ import { unique } from '~/lib/contacts';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { typeHidden } from './unitRows';
+import { lower, typeHidden } from './unitRows';
 
 type StoredType = typeof orgUnitTypes.$inferSelect;
 
@@ -29,13 +29,15 @@ const DEFAULT_TYPES = [
   { name: 'Department', code: 'department', color: '#6366f1', icon: 'IconSitemap', sortOrder: 1 },
 ] as const;
 
-export const seedStructure = async (tx: Db, orgId: string) => {
+/** The default unit types, and the organisation's own unit, named as the organisation is. */
+export const seedStructure = async (tx: Db, organization: { id: string; name: string }) => {
   const id = newId();
+  const orgId = organization.id;
 
   await tx
     .insert(orgUnitTypes)
     .values(DEFAULT_TYPES.map((type) => ({ ...type, id: newId(), orgId })));
-  await tx.insert(orgUnits).values({ id, orgId, name: 'Organization', path: `/${id}/` });
+  await tx.insert(orgUnits).values({ id, orgId, name: organization.name, path: `/${id}/` });
 };
 
 const typeColumns = {
@@ -265,8 +267,6 @@ export const removeUnitType = async (client: Db, id: string) => {
 };
 
 export type ImportedUnitType = UnitTypeFields & { id: string; name: string };
-
-const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? null;
 
 /** The organisation's own type an imported one is: same id, or same code, or same name. */
 const sameType = (known: UnitTypeRow[], type: ImportedUnitType) =>

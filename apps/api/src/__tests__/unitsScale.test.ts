@@ -81,7 +81,7 @@ describe('units at chain scale', { timeout: 300_000 }, () => {
     const root = await owner.units.root({});
 
     expect((await owner.units.search({ q: 'store 0007-0420' })).data).toMatchObject([
-      { id: 'store-0007-0420', ancestorNames: ['Organization', 'Region 0007'] },
+      { id: 'store-0007-0420', ancestorNames: ['Acme', 'Region 0007'] },
     ]);
     expect((await owner.units.search({ q: 'S00190001' })).data.map((unit) => unit.id)).toEqual([
       'store-0019-0001',

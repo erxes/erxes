@@ -55,10 +55,10 @@ const RowFacts = ({ unit }: { unit: UnitRowProps['unit'] }) => {
 
 const UnitRow = ({ unit, depth, expanded }: UnitRowProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { typesById, selectedId, select, setOpen, loading } = useWorkspace();
+  const { typeOf, selectedId, select, setOpen, loading } = useWorkspace();
   const selected = selectedId === unit.id;
   const hasChildren = unit.childCount > 0;
-  const cssVariables: Record<`--${string}`, string> = { '--indent': indentOf(depth) };
+  const type = typeOf(unit.typeId);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return;
@@ -77,7 +77,6 @@ const UnitRow = ({ unit, depth, expanded }: UnitRowProps) => {
       aria-level={depth + 1}
       aria-selected={selected}
       aria-expanded={hasChildren ? expanded : undefined}
-      style={cssVariables}
       className={cn(
         'flex h-9 cursor-pointer items-center gap-2 rounded-md pr-3 pl-(--indent) text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring',
         selected && 'bg-primary/10 text-primary-text hover:bg-primary/10',
@@ -114,14 +113,10 @@ const UnitRow = ({ unit, depth, expanded }: UnitRowProps) => {
       ) : (
         <span className="size-6 shrink-0" />
       )}
-      <TypeIcon type={unit.typeId ? typesById.get(unit.typeId) : undefined} size="sm" />
+      <TypeIcon type={type} size="sm" />
       <span className="min-w-0 flex-1 truncate">
         {unit.name}
-        {unit.typeId && (
-          <span className="ml-2 text-xs text-muted-foreground">
-            {typesById.get(unit.typeId)?.name}
-          </span>
-        )}
+        {type && <span className="ml-2 text-xs text-muted-foreground">{type.name}</span>}
       </span>
       {!unit.isActive && <Badge variant="secondary">{t('inactive', 'Inactive')}</Badge>}
       <RowFacts unit={unit} />
@@ -129,13 +124,12 @@ const UnitRow = ({ unit, depth, expanded }: UnitRowProps) => {
   );
 };
 
-const MoreRow = ({ parentId, depth, left }: Extract<TreeRow, { kind: 'more' }>) => {
+const MoreRow = ({ parentId, left }: Extract<TreeRow, { kind: 'more' }>) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { loadMore } = useWorkspace();
-  const cssVariables: Record<`--${string}`, string> = { '--indent': indentOf(depth) };
 
   return (
-    <div role="none" className="flex h-9 items-center pl-(--indent)" style={cssVariables}>
+    <div role="none" className="flex h-9 items-center pl-(--indent)">
       <Button variant="ghost" size="sm" tone="muted" onClick={() => loadMore(parentId)}>
         {t('show-more', 'Show more ({{count}} left)', { count: left })}
       </Button>
@@ -143,19 +137,18 @@ const MoreRow = ({ parentId, depth, left }: Extract<TreeRow, { kind: 'more' }>) 
   );
 };
 
-const DraftRow = ({ parentId, depth }: Extract<TreeRow, { kind: 'draft' }>) => {
-  const cssVariables: Record<`--${string}`, string> = { '--indent': indentOf(depth) };
+const DraftRow = ({ parentId }: Extract<TreeRow, { kind: 'draft' }>) => (
+  <div role="none" className="h-22 max-w-sm py-1 pl-(--indent)">
+    <DraftInput parentId={parentId} />
+  </div>
+);
 
-  return (
-    <div role="none" className="h-22 max-w-sm py-1 pl-(--indent)" style={cssVariables}>
-      <DraftInput parentId={parentId} />
-    </div>
-  );
-};
-
-/** One row of the list at its place in the scrolled height. */
+/** One row of the list at its place in the scrolled height, indented by its depth. */
 const Placed = ({ top, row }: { top: number; row: TreeRow }) => {
-  const cssVariables: Record<`--${string}`, string> = { '--row-top': `${top}px` };
+  const cssVariables: Record<`--${string}`, string> = {
+    '--row-top': `${top}px`,
+    '--indent': indentOf(row.depth),
+  };
 
   return (
     <div role="none" style={cssVariables} className="absolute inset-x-0 top-(--row-top) pb-0.5">

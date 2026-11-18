@@ -1,4 +1,3 @@
-import { UNIT_DEPTH_MAX } from '@erxes/core-contract';
 import {
   actorOf,
   apiKeys,
@@ -14,6 +13,7 @@ import { and, eq, inArray, notInArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import {
+  assertDepth,
   assertRoom,
   assertTeam,
   depthOf,
@@ -56,12 +56,6 @@ const parentOf = async (client: Db, parentId: string | null | undefined) => {
   if (!parent) throw badParent('No such unit');
 
   return parent;
-};
-
-const assertDepth = (depth: number) => {
-  if (depth > UNIT_DEPTH_MAX) {
-    throw badParent(`The structure goes at most ${UNIT_DEPTH_MAX} units deep`);
-  }
 };
 
 const assertPeople = async (client: Db, fields: UnitFields) => {

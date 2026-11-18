@@ -16,7 +16,7 @@ import { useAtomValue } from 'jotai';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DraftCard, MoreCard, UnitCard } from './ChartCards';
-import { ANIMATION, FIT_VIEW, useChartFocus } from './chartFocus';
+import { ANIMATION, FIRST_FIT, useChartFocus } from './chartFocus';
 import { layoutChart, STACK_INDENT, V_GAP } from './chartLayout';
 import { useWorkspace } from './context';
 
@@ -160,7 +160,7 @@ const Chart = () => {
       colorMode={theme}
       minZoom={0.1}
       onInit={(instance) => {
-        void instance.fitView(FIT_VIEW);
+        void instance.fitView(FIRST_FIT);
         setReady(true);
       }}
       nodesDraggable={false}

@@ -36,22 +36,25 @@ const Stat = ({ label, value }: { label: string; value: number }) => (
   </div>
 );
 
-/** Members here directly, with every unit under it, and how many units sit under it. */
+/**
+ * Members here directly, members with every unit under it, and how many units sit under it at
+ * every level, which the Subunits section, one level down, does not repeat.
+ */
 export const UnitStats = ({ unit }: { unit: UnitDetail }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
 
   return (
     <div className="grid grid-cols-3 gap-2">
-      <Stat label={t('direct', 'Direct')} value={unit.memberIds.length} />
-      <Stat label={t('with-subunits', 'With subunits')} value={unit.subtreeMemberCount} />
-      <Stat label={t('subunits', 'Subunits')} value={unit.descendantCount} />
+      <Stat label={t('members-here', 'Members here')} value={unit.memberIds.length} />
+      <Stat label={t('members-in-all', 'Members in all')} value={unit.subtreeMemberCount} />
+      <Stat label={t('units-under', 'Units under it')} value={unit.descendantCount} />
     </div>
   );
 };
 
 /** A subunit; a click selects it and brings it in sight. */
 const SubunitButton = ({ unit }: { unit: UnitNode }) => {
-  const { typesById, select } = useWorkspace();
+  const { typeOf, select } = useWorkspace();
 
   return (
     <button
@@ -59,7 +62,7 @@ const SubunitButton = ({ unit }: { unit: UnitNode }) => {
       className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md px-1 text-left text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring/70"
       onClick={() => select(unit.id, unit)}
     >
-      <TypeIcon type={unit.typeId ? typesById.get(unit.typeId) : undefined} size="sm" />
+      <TypeIcon type={typeOf(unit.typeId)} size="sm" />
       <span className={cn('min-w-0 flex-1 truncate', !unit.isActive && 'text-muted-foreground')}>
         {unit.name}
       </span>

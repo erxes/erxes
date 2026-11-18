@@ -23,7 +23,8 @@ export const useStructureDisplays = () => {
 type Workspace = Omit<UnitTree, 'index'> & {
   index: TreeIndex;
   types: UnitType[];
-  typesById: Map<string, UnitType>;
+  /** A unit's type; none for the organisation's own unit. */
+  typeOf: (typeId: string | null) => UnitType | undefined;
   view: 'chart' | 'list';
   selectedId: string | null;
   /** Selects a unit (null: none); `reveal` also opens the units above it and brings it in sight. */
@@ -81,12 +82,14 @@ export const WorkspaceProvider = ({
   const [draftParentId, setDraftParentId] = useState<string | null>(null);
   const [fitRequest, setFitRequest] = useState(0);
 
-  const workspace = useMemo(
-    (): Workspace => ({
+  const workspace = useMemo((): Workspace => {
+    const typesById = new Map(types.map((type) => [type.id, type]));
+
+    return {
       ...tree,
       index,
       types,
-      typesById: new Map(types.map((type) => [type.id, type])),
+      typeOf: (typeId) => (typeId ? typesById.get(typeId) : undefined),
       isOpen: (unit) => unit.id === draftParentId || tree.isOpen(unit),
       view: display === 'list' ? 'list' : 'chart',
       selectedId,
@@ -110,21 +113,20 @@ export const WorkspaceProvider = ({
       requestFit: () => setFitRequest((count) => count + 1),
       canManage,
       canSeeTeam,
-    }),
-    [
-      tree,
-      index,
-      types,
-      display,
-      selectedId,
-      setSelectedId,
-      focusId,
-      draftParentId,
-      fitRequest,
-      canManage,
-      canSeeTeam,
-    ],
-  );
+    };
+  }, [
+    tree,
+    index,
+    types,
+    display,
+    selectedId,
+    setSelectedId,
+    focusId,
+    draftParentId,
+    fitRequest,
+    canManage,
+    canSeeTeam,
+  ]);
 
   return <WorkspaceContext value={workspace}>{children}</WorkspaceContext>;
 };

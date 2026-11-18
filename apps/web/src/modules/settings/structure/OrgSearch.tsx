@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import { useWorkspace } from './context';
 import { TypeIcon } from './TypeIcon';
+import { UnitPath } from './UnitPath';
 
 const UNIT_LIMIT = 8;
 const PEOPLE_LIMIT = 6;
@@ -39,7 +40,7 @@ const UnitResults = ({
   onPick: (hit: UnitHit) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { typesById } = useWorkspace();
+  const { typeOf } = useWorkspace();
 
   if (error) return <Failed error={error} />;
 
@@ -54,14 +55,10 @@ const UnitResults = ({
       className="h-auto min-h-9 w-full justify-start"
       onClick={() => onPick(hit)}
     >
-      <TypeIcon type={hit.typeId ? typesById.get(hit.typeId) : undefined} size="sm" />
+      <TypeIcon type={typeOf(hit.typeId)} size="sm" />
       <span className="min-w-0 flex-1 text-left font-normal">
         <span className="block truncate">{hit.name}</span>
-        {hit.ancestorNames.length > 0 && (
-          <span className="block truncate text-xs text-muted-foreground">
-            {hit.ancestorNames.join(' › ')}
-          </span>
-        )}
+        <UnitPath names={hit.ancestorNames} />
       </span>
       {hit.code && (
         <span className="shrink-0 font-mono text-xs text-muted-foreground">{hit.code}</span>
@@ -172,7 +169,7 @@ export const OrgSearch = () => {
     : t('search-units', 'Search units');
 
   return (
-    <div className="flex w-72 flex-col gap-1 sm:w-80">
+    <div className="flex min-w-0 flex-1 flex-col gap-1 sm:w-80 sm:flex-none">
       <InputGroup>
         <InputGroup.Addon>
           <IconSearch className="size-4" />

@@ -15,7 +15,7 @@ describe('units', { timeout: 120_000 }, () => {
     const root = await owner.units.root({});
 
     expect(root).toMatchObject({
-      name: 'Organization',
+      name: 'Acme',
       parentId: null,
       typeId: null,
       path: `/${root.id}/`,
@@ -76,9 +76,7 @@ describe('units', { timeout: 120_000 }, () => {
 
     await expect(t.member().units.create({ name: 'X' })).rejects.toMatchObject({ status: 403 });
 
-    expect((await t.other().units.list({})).data.map((unit) => unit.name)).toEqual([
-      'Organization',
-    ]);
+    expect((await t.other().units.list({})).data.map((unit) => unit.name)).toEqual(['Globex']);
     await expect(t.other().units.get({ id: zaisan.id })).rejects.toMatchObject({ status: 404 });
     await expect(t.other().units.children({ id: root.id })).rejects.toMatchObject({ status: 404 });
   });

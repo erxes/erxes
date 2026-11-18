@@ -1,4 +1,4 @@
-import { type CursorQuery, UNIT_MAX } from '@erxes/core-contract';
+import { type CursorQuery, UNIT_DEPTH_MAX, UNIT_MAX } from '@erxes/core-contract';
 import {
   type Db,
   orgUnitMembers,
@@ -141,6 +141,18 @@ export const rootUnit = async (client: Db) => {
 };
 
 export const depthOf = (path: string) => path.split('/').length - 2;
+
+/** 400 when a unit would sit deeper than the structure allows. */
+export const assertDepth = (depth: number) => {
+  if (depth > UNIT_DEPTH_MAX) {
+    throw fail('INVALID_REFERENCE', `The structure goes at most ${UNIT_DEPTH_MAX} units deep`, {
+      field: 'parentId',
+    });
+  }
+};
+
+/** A code or name as matching compares it: trimmed, any case. */
+export const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
 
 export const lockTree = (client: Db) => lockKeys(client, [`units:${requestOrgId()}`]);
 

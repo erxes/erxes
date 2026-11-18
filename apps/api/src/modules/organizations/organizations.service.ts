@@ -65,7 +65,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
 
   await seedRoles(tx, organization.id);
   await seedLeadStages(tx, organization.id);
-  await seedStructure(tx, organization.id);
+  await seedStructure(tx, organization);
 
   const owner = oneRow(
     await tx

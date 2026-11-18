@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { IconsProvider } from 'erxes-ui';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
@@ -46,6 +47,13 @@ const AssistantAppearancePage = lazyNamed(
 // Fetched on first visit: few members open these, so they stay out of settings' chunk.
 const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
 const UnitTypesPage = lazyNamed(() => import('./structure/UnitTypesPage'), 'UnitTypesPage');
+
+/** Unit types draw their icon by name, so the structure pages load the icon set. */
+const StructureIcons = () => (
+  <IconsProvider>
+    <Outlet />
+  </IconsProvider>
+);
 
 const ApiReferencePage = lazyNamed(
   () => import('./developer/ApiReferencePage'),
@@ -95,8 +103,10 @@ export const SettingsRoutes = () => (
       <Route path="api-keys/:id" element={<KeyEditorPage />} />
       <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
-      <Route path="structure" element={<StructurePage />} />
-      <Route path="structure/types" element={<UnitTypesPage />} />
+      <Route element={<StructureIcons />}>
+        <Route path="structure" element={<StructurePage />} />
+        <Route path="structure/types" element={<UnitTypesPage />} />
+      </Route>
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />

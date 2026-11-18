@@ -37,12 +37,15 @@ export const MoveBar = ({ unit, onDone }: { unit: UnitDetail; onDone: () => void
       options: {
         description: t(
           'move-confirm-hint',
-          '{{units}} units and {{members}} members move with it. Who can reach their records may change, since supervisors see the units under theirs.',
-          { units: unit.descendantCount + 1, members: unit.subtreeMemberCount },
+          '{{units}} and {{members}} move with it. Who can reach their records may change, since supervisors see the units under theirs.',
+          {
+            units: t('moving-units', '{{count}} units', { count: unit.descendantCount + 1 }),
+            members: t('moving-members', '{{count}} members', { count: unit.subtreeMemberCount }),
+          },
         ),
         okLabel: t('move', 'Move'),
       },
-    }).then(() => move.mutate({ id: unit.id, parentId: parent.parentId ? parent.id : null }));
+    }).then(() => move.mutate({ id: unit.id, parentId: parent.id }));
   };
 
   return (

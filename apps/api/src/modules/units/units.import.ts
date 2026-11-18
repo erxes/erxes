@@ -1,4 +1,3 @@
-import { UNIT_DEPTH_MAX } from '@erxes/core-contract';
 import {
   actorOf,
   caller,
@@ -9,7 +8,14 @@ import {
 } from '@erxes/core-db';
 import { inArray } from 'drizzle-orm';
 import { fail } from '~/http/errors';
-import { assertRoom, depthOf, publishUnitEvents, teamMembers } from './unitRows';
+import {
+  assertDepth,
+  assertRoom,
+  depthOf,
+  lower,
+  publishUnitEvents,
+  teamMembers,
+} from './unitRows';
 import type { UnitFields } from './units.service';
 import { unitTypeRows } from './unitTypes.service';
 
@@ -27,8 +33,6 @@ interface Known {
   parentId: string | null;
   path: string;
 }
-
-const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
 
 /** Parents before the units under them; a parent outside the batch counts as placed. */
 const parentsFirst = (units: ImportedUnit[]) => {
@@ -108,12 +112,7 @@ const plan = (known: Known[], units: ImportedUnit[]) => {
       code: unit.code ?? null,
     };
 
-    if (depthOf(row.path) > UNIT_DEPTH_MAX) {
-      throw fail('INVALID_REFERENCE', `The structure goes at most ${UNIT_DEPTH_MAX} units deep`, {
-        field: 'parentId',
-      });
-    }
-
+    assertDepth(depthOf(row.path));
     inserts.push(row);
     index.add(row);
     ids[unit.id] = unit.id;

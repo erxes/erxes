@@ -62,11 +62,11 @@ DO $$ BEGIN
   UPDATE core_org_units SET sort_order = 1 WHERE kind = 'department' AND parent_id IS NULL;
 
   WITH top AS MATERIALIZED (
-    SELECT substr(md5(random()::text || o.id), 1, 17) AS id, o.id AS org_id
+    SELECT substr(md5(random()::text || o.id), 1, 17) AS id, o.id AS org_id, o.name
     FROM core_organizations o
   )
   INSERT INTO core_org_units (id, org_id, name, path)
-  SELECT top.id, top.org_id, 'Organization', '/' || top.id || '/' FROM top;
+  SELECT top.id, top.org_id, top.name, '/' || top.id || '/' FROM top;
 
   UPDATE core_org_units u SET path = '/' || top.id || u.path
   FROM core_org_units top

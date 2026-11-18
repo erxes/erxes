@@ -7,8 +7,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconGripVertical } from '@tabler/icons-react';
-import { Button, cn, useSortList, useSortRoleDescription } from 'erxes-ui';
+import { cn, DragHandle, useSortList, useSortRoleDescription } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSortSensors } from '~/lib/sortSensors';
@@ -45,17 +44,11 @@ export const SortableRow = ({
       className={cn('sortable flex items-center gap-2', isDragging && 'z-10 opacity-40', className)}
     >
       {sortable && (
-        <Button
-          variant="ghost"
-          size="icon"
-          tone="muted"
-          className="size-6 shrink-0 cursor-grab"
+        <DragHandle
           aria-label={t('drag-named', 'Drag {{name}}', { name })}
           {...attributes}
           {...listeners}
-        >
-          <IconGripVertical />
-        </Button>
+        />
       )}
       {children}
     </li>

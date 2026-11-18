@@ -57,10 +57,11 @@ export const buildIndex = (
   }
 
   for (const pin of pins) {
-    const list = pin.parentId ? (children.get(pin.parentId) ?? []) : null;
+    if (!pin.parentId) continue;
 
-    if (pin.parentId && list && !list.some((unit) => unit.id === pin.id))
-      children.set(pin.parentId, [...list, pin]);
+    const list = children.get(pin.parentId) ?? [];
+
+    if (!list.some((unit) => unit.id === pin.id)) children.set(pin.parentId, [...list, pin]);
   }
 
   const byId = new Map([[root.id, root]]);

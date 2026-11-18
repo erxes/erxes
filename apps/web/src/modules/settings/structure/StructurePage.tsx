@@ -24,7 +24,10 @@ import { useUnitTree } from './useUnitTree';
 
 const OrgChart = lazyNamed(() => import('./OrgChart'), 'OrgChart');
 
-/** Floating top left: search, then add under the selected unit, else under the organisation. */
+/**
+ * Floating top left: search, then add under the selected unit, else under the organisation.
+ * On a phone the search takes the row's width, so the two stay on one line above the tree.
+ */
 const Toolbar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { selectedId, index, startDraft, canManage } = useWorkspace();
@@ -32,10 +35,10 @@ const Toolbar = () => {
   const parent = selected?.isActive ? selected : index.root;
 
   return (
-    <div className="absolute top-3 left-3 z-10 flex flex-wrap items-start gap-2">
+    <div className="absolute top-3 right-3 left-3 z-10 flex items-start gap-2 sm:right-auto">
       <OrgSearch />
       {canManage && (
-        <Button onClick={() => startDraft(parent)}>
+        <Button className="shrink-0" onClick={() => startDraft(parent)}>
           <IconPlus />
           {parent === index.root ? t('add-unit', 'Add unit') : t('add-subunit', 'Add subunit')}
         </Button>
