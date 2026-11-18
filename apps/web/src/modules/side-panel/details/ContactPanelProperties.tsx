@@ -9,7 +9,7 @@ export const CustomerPanelProperties = ({ customerId }: { customerId: string }) 
   const edit = useCustomerEdit();
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <ScrollArea className="flex-1 min-h-0" fitWidth>
       <div className="p-3">
         <CustomFieldSections
           contentType="customer"
@@ -28,7 +28,7 @@ export const CompanyPanelProperties = ({ companyId }: { companyId: string }) => 
   const edit = useCompanyEdit();
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <ScrollArea className="flex-1 min-h-0" fitWidth>
       <div className="p-3">
         <CustomFieldSections
           contentType="company"

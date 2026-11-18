@@ -85,7 +85,8 @@ export const SidebarContent = ({
         'flex min-h-0 flex-1 flex-col gap-2 group-data-[collapsible=icon]:overflow-hidden',
         className,
       )}
-      viewportClassName={cn('min-w-0 [&>div]:block! [&>div]:min-w-0', viewportClassName)}
+      viewportClassName={cn('min-w-0', viewportClassName)}
+      fitWidth
       {...props}
     />
   );

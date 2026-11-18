@@ -15,7 +15,7 @@ export const ProductPanelProperties = ({ product }: { product: Product }) => {
   const edit = useProductEdit();
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <ScrollArea className="flex-1 min-h-0" fitWidth>
       <ProductFieldset>
         <div className="p-3">
           <CustomFieldSections

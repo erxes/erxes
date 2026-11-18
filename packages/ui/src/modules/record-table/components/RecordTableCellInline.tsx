@@ -3,6 +3,7 @@ import { Button, buttonVariants } from 'erxes-ui/components/button';
 import { Popover, type PopoverContentProps } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { use } from 'react';
 import type React from 'react';
 import { CellColumnHead, useCellLabel } from './RecordTableCell';
 
@@ -58,9 +59,13 @@ const RecordTableCellTrigger = ({
   );
 };
 
+/** The editor popover, named by the row label or column head that names its trigger. */
 const RecordTableCellContent = ({ className, ...props }: PopoverContentProps) => {
+  const head = use(CellColumnHead);
+
   return (
     <Popover.Content
+      aria-labelledby={head}
       align="start"
       sideOffset={-32}
       disableTransition

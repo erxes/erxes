@@ -16,7 +16,7 @@ import { ContactEmails, ContactPhones } from '~/modules/contacts/components/Cont
 export const ContactDetailScroll = ({ children }: { children: ReactNode }) => (
   // Radix sizes its content as a table, which lets wide values push past the
   // panel; a block lets each value shrink and truncate instead.
-  <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+  <ScrollArea className="flex-1 min-h-0" fitWidth>
     {children}
   </ScrollArea>
 );

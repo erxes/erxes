@@ -105,6 +105,7 @@ value ContactRelationInput
 value ContextMenu
 value CopyText
 value DASHBOARD_WIDGET_PREVIEWS
+value DateField
 value DateInput
 value DatePicker
 value Dialog
