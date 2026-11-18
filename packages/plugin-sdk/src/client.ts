@@ -1,6 +1,6 @@
 import { CORE_API_PREFIX, type coreContract, type PluginManifest } from '@erxes/core-contract';
 import { coreRoutes } from '@erxes/core-contract/routes';
-import { createORPCClient } from '@orpc/client';
+import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { z } from 'zod';
@@ -30,6 +30,38 @@ export class CoreTokenError extends Error {
     super(message);
   }
 }
+
+/**
+ * For `.catch()` on a core call in a plugin procedure:
+ * `core.forOrg(orgId).customers.get({ id }).catch(passCoreError('customers'))`.
+ * Core's answer to the request (a 4xx: `INVALID_INPUT` with its issues' paths, `NOT_FOUND`,
+ * `TAKEN` with its `field`) goes on to the plugin's caller with its status, code and data.
+ * Core not answering, a 5xx, or core refusing the plugin's own token throws 503
+ * `SERVICE_UNAVAILABLE`, naming `what` could not be reached.
+ */
+export const passCoreError =
+  (what: string) =>
+  (error: unknown): never => {
+    if (
+      error instanceof ORPCError &&
+      error.status >= 400 &&
+      error.status < 500 &&
+      error.status !== 401
+    ) {
+      throw new ORPCError(error.code, {
+        status: error.status,
+        message: error.message,
+        data: error.data,
+        cause: error,
+      });
+    }
+
+    throw new ORPCError('SERVICE_UNAVAILABLE', {
+      status: 503,
+      message: `erxes ${what} could not be reached. Try again shortly.`,
+      cause: error,
+    });
+  };
 
 /** `POST /plugins/token`'s answer: a token, or an error's code and message. */
 const TokenAnswer = z.object({
