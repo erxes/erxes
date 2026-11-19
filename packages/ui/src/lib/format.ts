@@ -10,11 +10,28 @@ import { useTranslation } from 'react-i18next';
  */
 
 /**
+ * react-day-picker's English, with each day button named "Monday, November 30, 2026". Its own
+ * "November 30th" lacks the "30" the button shows, which is what voice control users say.
+ */
+const en: typeof enUS = {
+  ...enUS,
+  labels: {
+    ...enUS.labels,
+    labelDayButton: (date, modifiers) => {
+      const label = format(date, 'EEEE, MMMM d, y', { locale: enUS });
+      const named = modifiers.today ? `Today, ${label}` : label;
+
+      return modifiers.selected ? `${named}, selected` : named;
+    },
+  },
+};
+
+/**
  * The UI's languages, each with its own name and date-fns locale. The locales are
  * react-day-picker's, date-fns's own plus the calendar's labels ("Go to the Next Month").
  */
 export const LANGUAGES = [
-  { code: 'en', label: 'English', dates: enUS },
+  { code: 'en', label: 'English', dates: en },
   { code: 'mn', label: 'Монгол', dates: mn },
 ] as const;
 

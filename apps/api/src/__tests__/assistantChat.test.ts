@@ -2,19 +2,16 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
 import { fakeModel } from './fakeModel';
-import { postChat, textOf, threadIdOf, userMessage } from './assistantChat';
+import { chat, follow, liveText, messagesOf, textOf, userMessage } from './assistantChat';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0002';
 
-describe('assistant chat (POST /core/v1/assistant/chat)', () => {
+describe('assistant chat (send and watch)', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
   let model: Awaited<ReturnType<typeof fakeModel>>;
-
-  const chat = async (body: Record<string, unknown>, user = t.ids.owner, org = t.ids.org) =>
-    postChat(t.url('/core/v1/assistant/chat'), await t.token(user, org), body);
 
   beforeAll(async () => {
     model = await fakeModel(KEY);
@@ -25,67 +22,53 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
 
   afterAll(() => model.close());
 
-  it('streams a reply, saves the conversation and titles it', async () => {
+  it('runs a reply, keeps the conversation and titles it', async () => {
     model.script(() => ({ text: 'Hello there, how can I help?' }));
 
-    const reply = await chat({
+    const { threadId, view } = await chat(t.owner(), {
       message: userMessage('Plan the spring sales campaign for our wholesale customers'),
       model: 'kimi-k3',
     });
 
-    expect(reply.status).toBe(200);
-    expect(textOf(reply.chunks)).toBe('Hello there, how can I help?');
-
-    const threadId = threadIdOf(reply.chunks);
+    expect(textOf(view)).toBe('Hello there, how can I help?');
+    expect(
+      messagesOf(view)
+        .filter((message) => message.role !== 'system')
+        .map((message) => message.role),
+    ).toEqual(['user', 'assistant']);
+    expect(view.entries.find((entry) => entry.kind === 'assistant.user')?.data).toEqual([
+      { type: 'text', text: 'Plan the spring sales campaign for our wholesale customers' },
+    ]);
 
     await vi.waitFor(
       async () => {
-        const thread = await t.owner().assistant.thread({ id: threadId });
-
-        expect(thread).toMatchObject({
+        await expect(t.owner().assistant.thread({ id: threadId })).resolves.toMatchObject({
           title: 'Plan the spring sales campaign for',
-          running: false,
         });
-        expect(thread.messages.map((row) => row.role)).toEqual(['user', 'assistant']);
-        expect(thread.messages[1]?.parts).toContainEqual(
-          expect.objectContaining({ type: 'text', text: 'Hello there, how can I help?' }),
-        );
       },
       { timeout: 5000, interval: 100 },
     );
 
     expect(model.chats().at(-1)?.messages.at(-1)).toMatchObject({
       role: 'user',
-      content: 'Plan the spring sales campaign for our wholesale customers',
+      content: [
+        { type: 'text', text: 'Plan the spring sales campaign for our wholesale customers' },
+      ],
     });
   });
 
-  it('carries on and saves the reply when the browser leaves mid-answer', async () => {
+  it('carries on when the watcher leaves mid-answer', async () => {
     model.script(() => ({ text: 'one two three four five six seven eight', delayMs: 60 }));
 
-    const first = await postChat(
-      t.url('/core/v1/assistant/chat'),
-      await t.token(),
-      { message: userMessage('Count'), model: 'kimi-k3' },
-      { stopAfter: (chunk) => chunk.type === 'text-delta' },
-    );
+    const { threadId } = await t
+      .owner()
+      .assistant.send({ message: userMessage('Count'), model: 'kimi-k3' });
 
-    const threadId = threadIdOf(first.chunks);
+    await follow(t.owner(), threadId, (view) => liveText(view).length > 0);
 
-    await vi.waitFor(
-      async () => {
-        const thread = await t.owner().assistant.thread({ id: threadId });
+    const view = await follow(t.owner(), threadId);
 
-        expect(thread.running).toBe(false);
-        expect(thread.messages[1]?.parts).toContainEqual(
-          expect.objectContaining({
-            type: 'text',
-            text: 'one two three four five six seven eight',
-          }),
-        );
-      },
-      { timeout: 8000, interval: 100 },
-    );
+    expect(textOf(view)).toBe('one two three four five six seven eight');
   });
 
   it('stops a reply on request and keeps what it wrote so far', async () => {
@@ -93,47 +76,35 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
 
     model.script(() => ({ text: words, delayMs: 50 }));
 
-    const first = await postChat(
-      t.url('/core/v1/assistant/chat'),
-      await t.token(),
-      { message: userMessage('Write a long list'), model: 'kimi-k3' },
-      { stopAfter: (chunk) => chunk.type === 'text-delta' },
-    );
+    const { threadId } = await t
+      .owner()
+      .assistant.send({ message: userMessage('Write a long list'), model: 'kimi-k3' });
 
-    const threadId = threadIdOf(first.chunks);
+    await follow(t.owner(), threadId, (view) => liveText(view).length > 0);
 
-    await expect(t.owner().assistant.stopThread({ id: threadId })).resolves.toEqual({
-      stopped: true,
-    });
+    await expect(t.owner().assistant.stopThread({ id: threadId })).resolves.toEqual({ ok: true });
 
-    await vi.waitFor(
-      async () => {
-        const thread = await t.owner().assistant.thread({ id: threadId });
-        const part = thread.messages[1]?.parts.find((item) => item.type === 'text');
-        const text = String(part?.text);
+    const view = await follow(t.owner(), threadId);
 
-        expect(thread.running).toBe(false);
-        expect(text).toMatch(/^word0/);
-        expect(words.startsWith(text)).toBe(true);
-        expect(text.length).toBeLessThan(words.length);
-      },
-      { timeout: 5000, interval: 100 },
-    );
-
-    await expect(t.owner().assistant.stopThread({ id: threadId })).resolves.toEqual({
-      stopped: false,
-    });
+    expect(textOf(view)).toMatch(/^word0/);
+    expect(words.startsWith(textOf(view))).toBe(true);
+    expect(textOf(view).length).toBeLessThan(words.length);
   });
 
   it('continues an existing thread and refuses other members on it', async () => {
     model.script(() => ({ text: 'First answer' }));
 
-    const first = await chat({ message: userMessage('First'), model: 'kimi-k3' });
-    const threadId = threadIdOf(first.chunks);
+    const { threadId } = await chat(t.owner(), { message: userMessage('First'), model: 'kimi-k3' });
 
     model.script(() => ({ text: 'Second answer' }));
-    await chat({ threadId, message: userMessage('Second'), model: 'kimi-k3' });
 
+    const { view } = await chat(t.owner(), {
+      threadId,
+      message: userMessage('Second'),
+      model: 'kimi-k3',
+    });
+
+    expect(textOf(view)).toBe('Second answer');
     expect(
       model
         .chats()
@@ -141,17 +112,15 @@ describe('assistant chat (POST /core/v1/assistant/chat)', () => {
         ?.messages.filter((row) => row.role !== 'system'),
     ).toHaveLength(3);
 
-    const taken = await chat(
-      { threadId, message: userMessage('Mine now'), model: 'kimi-k3' },
-      t.ids.member,
-    );
-
-    expect(taken).toMatchObject({ status: 404, error: { code: 'NOT_FOUND' } });
+    await expect(
+      t.member().assistant.send({ threadId, message: userMessage('Mine now'), model: 'kimi-k3' }),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(follow(t.member(), threadId)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
   it('asks for a key before chatting', async () => {
-    const reply = await chat({ message: userMessage('Hi') }, t.ids.otherOwner, t.ids.otherOrg);
-
-    expect(reply).toMatchObject({ status: 400, error: { code: 'ASSISTANT_NO_CONNECTION' } });
+    await expect(t.other().assistant.send({ message: userMessage('Hi') })).rejects.toMatchObject({
+      code: 'ASSISTANT_NO_CONNECTION',
+    });
   });
 });

@@ -18,7 +18,7 @@ import { useComposerMentions } from './useComposerMentions';
 import type { ModelRunState } from './useModelRun';
 import { usePagePicker } from './usePagePicker';
 
-export type ComposerBlock = 'no-key' | 'approval' | 'question' | 'running' | null;
+export type ComposerBlock = 'no-key' | 'question' | null;
 
 const usePlaceholder = (block: ComposerBlock) => {
   const { t } = useTranslation('assistant');
@@ -26,12 +26,8 @@ const usePlaceholder = (block: ComposerBlock) => {
   switch (block) {
     case 'no-key':
       return t('composer.no-key', 'Add a provider key to start');
-    case 'approval':
-      return t('composer.approval', 'Approve or decline the change above first');
     case 'question':
       return t('composer.question', 'Answer the questions above first');
-    case 'running':
-      return t('composer.running', 'A reply is still being written');
     case null:
       return t('composer.placeholder', 'Ask anything, @ to mention a record');
   }
@@ -143,7 +139,7 @@ const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
   };
 };
 
-export const composerKey = (
+const composerKey = (
   event: React.KeyboardEvent<HTMLTextAreaElement>,
   stop: (() => void) | null,
   send: () => void,

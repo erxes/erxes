@@ -241,8 +241,6 @@ export const ERRORS = {
   ASSISTANT_NO_CONNECTION: { status: 400 },
   ASSISTANT_KEY_UNREADABLE: { status: 400 },
   ASSISTANT_BUSY: { status: 409 },
-  ASSISTANT_STALE: { status: 409 },
-  ASSISTANT_NOTHING_TO_CONTINUE: { status: 400 },
 
   // Import and export.
   UNSUPPORTED_FILE: { status: 400 },

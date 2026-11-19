@@ -123,11 +123,12 @@ export const MemberPanelDetail = ({ user }: { user: User }) => {
   const readOnly = !permissions?.canEdit;
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <ScrollArea className="flex-1 min-h-0" fitWidth>
       <div className="flex flex-col gap-2 p-3">
         <MemberContactFields user={user} />
         <PanelField icon={IconCalendar} label={t('birthday')}>
           <MemberDateField
+            scope="birth-date"
             icon={IconCalendar}
             value={user.birthDate}
             disabled={readOnly}
@@ -136,6 +137,7 @@ export const MemberPanelDetail = ({ user }: { user: User }) => {
         </PanelField>
         <PanelField icon={IconCalendarPlus} label={t('joined-date')}>
           <MemberDateField
+            scope="joined-date"
             icon={IconCalendarPlus}
             value={user.workStartedDate}
             disabled={readOnly}

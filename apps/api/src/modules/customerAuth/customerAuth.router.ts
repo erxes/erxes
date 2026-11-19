@@ -1,5 +1,5 @@
 import { subdomainFromHost } from '~/modules/auth/auth.service';
-import { unscoped, type CoreContext } from '~/orpc';
+import { httpOf, unscoped, type CoreContext } from '~/orpc';
 import type { AppRequest } from './customerApps';
 import {
   confirmAddLogin,
@@ -17,10 +17,11 @@ import {
   updateMyProfile,
 } from './customerAuth.service';
 
-const appRequest = ({ req }: CoreContext): AppRequest => ({
-  subdomain: subdomainFromHost(req.get('host')),
-  origin: req.get('origin'),
-});
+const appRequest = (context: CoreContext): AppRequest => {
+  const { req } = httpOf(context);
+
+  return { subdomain: subdomainFromHost(req.get('host')), origin: req.get('origin') };
+};
 
 export const customerAuthRouter = {
   sendCode: unscoped.customerAuth.sendCode.handler(({ input, context }) =>

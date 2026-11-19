@@ -12,7 +12,6 @@
     "perf": "tsx e2e/perf/measure.ts"
   },
   "dependencies": {
-    "@ai-sdk/react": "4.0.176",
     "@blocknote/core": "0.57.0",
     "@blocknote/react": "0.57.0",
     "@blocknote/shadcn": "0.57.0",
@@ -20,6 +19,7 @@
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
     "@dnd-kit/utilities": "3.2.2",
+    "@earendil-works/chord": "1.5.2",
     "@erxes/core-contract": "workspace:*",
     "@hookform/resolvers": "7.0.6",
     "@module-federation/enhanced": "2.9.3",
@@ -30,7 +30,6 @@
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-query": "^5.62.0",
     "@xyflow/react": "12.12.1",
-    "ai": "7.0.172",
     "csv-parse": "^7.0.3",
     "date-fns": "4.1.0",
     "docx": "9.15.3",

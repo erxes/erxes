@@ -61,7 +61,7 @@ export const PluginRecordProperties = ({
   );
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <ScrollArea className="flex-1 min-h-0" fitWidth>
       <div className="p-3">
         <QueryState query={query}>
           {(data) =>

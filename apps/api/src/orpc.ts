@@ -4,18 +4,27 @@ import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { enforceAccess } from '~/http/access';
-import { fromDatabase } from '~/http/errors';
+import { fail, fromDatabase } from '~/http/errors';
+import { logger } from '~/logger';
 import { type AuditInput, recordAudit } from '~/modules/audit/audit.service';
 
 /**
  * What the handler passes in: the Express request (host, cookies), the
- * response (cookies) and the request's logger for oRPC's logging plugin. The
- * caller is in scope (`caller()` from `@erxes/core-db`), not in the context.
+ * response (cookies) and the request's logger for oRPC's logging plugin. An
+ * agent's tool call has no request. The caller is in scope (`caller()` from
+ * `@erxes/core-db`), not in the context.
  */
 export interface CoreContext extends LoggerContext {
-  req: Request;
-  res: Response;
+  req?: Request;
+  res?: Response;
 }
+
+/** The request and response of a procedure that works on the browser's session or host. */
+export const httpOf = ({ req, res }: CoreContext) => {
+  if (!req || !res) throw fail('NOT_ALLOWED', 'This needs a request from a browser or app');
+
+  return { req, res };
+};
 
 /**
  * Every procedure first passes the access map (`~/http/access`): the caller
@@ -31,7 +40,7 @@ export const unscoped = implement(coreContract)
     await enforceAccess(path.join('.'));
 
     try {
-      return await next({ context: { log: getLogger(context) ?? context.req.log } });
+      return await next({ context: { log: getLogger(context) ?? context.req?.log ?? logger } });
     } catch (error) {
       throw fromDatabase(error);
     }

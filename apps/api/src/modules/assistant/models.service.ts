@@ -1,6 +1,6 @@
+import { completeSimple } from '@earendil-works/pi-ai/compat';
 import type { AssistantProvider } from '@erxes/core-contract';
 import { requestOrgId, withOrg } from '@erxes/core-db';
-import { streamText } from 'ai';
 import { notFound } from '~/http/errors';
 import { findConnection, listConnections, openKey } from './connections.service';
 import {
@@ -9,12 +9,12 @@ import {
   hasFixedCatalog,
   isUsableModel,
 } from './modelCatalog';
-import { modelDisplayName, modelThinking, shortAnswer } from './modelThinking';
+import { modelDisplayName, modelThinking } from './modelThinking';
 import { fetchProviderModels } from './providerModels';
 import {
-  createModel,
   DEFAULT_MODELS,
   describeProviderError,
+  modelOf,
   providerLabel,
   unreadableKey,
 } from './providers';
@@ -56,24 +56,21 @@ export const listModels = async () => {
   };
 };
 
-const ACCEPTED = new Set(['text-delta', 'reasoning-delta', 'finish-step', 'finish']);
-
 const probe = async (provider: AssistantProvider, model: string, apiKey: string) => {
-  const result = streamText({
-    model: createModel(provider, model, apiKey),
-    prompt: 'Reply with OK.',
-    maxRetries: 0,
-    abortSignal: AbortSignal.timeout(20_000),
-    ...shortAnswer(provider, 16),
-  });
+  const found = modelOf(provider, model);
 
-  for await (const part of result.stream) {
-    if (part.type === 'error') return describeProviderError(provider, model, part.error, apiKey);
+  if (!found)
+    return `"${model}" is not a model the assistant knows for ${providerLabel(provider)}.`;
 
-    if (ACCEPTED.has(part.type)) return null;
-  }
+  const answer = await completeSimple(
+    found,
+    { messages: [{ role: 'user', content: 'Reply with OK.', timestamp: Date.now() }] },
+    { apiKey, maxTokens: 16, signal: AbortSignal.timeout(20_000) },
+  );
 
-  return `${providerLabel(provider)} sent no response while checking "${model}". Try again.`;
+  return answer.stopReason === 'error' || answer.stopReason === 'aborted'
+    ? describeProviderError(provider, model, answer.errorMessage, apiKey)
+    : null;
 };
 
 export const verifyModel = async (provider: AssistantProvider, model: string) => {
@@ -95,7 +92,12 @@ export const verifyModel = async (provider: AssistantProvider, model: string) =>
 
   return answer(
     await probe(provider, model, apiKey).catch((error: unknown) =>
-      describeProviderError(provider, model, error, apiKey),
+      describeProviderError(
+        provider,
+        model,
+        error instanceof Error ? error.message : undefined,
+        apiKey,
+      ),
     ),
   );
 };

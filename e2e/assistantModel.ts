@@ -292,8 +292,6 @@ export const script = (request: ChatRequest): Reply => {
 
   if (turn.asked.startsWith('Explain what I selected')) return explainSelection(turn);
 
-  if (turn.asked.startsWith('Say goodbye')) return { text: 'Goodbye! Talk soon.' };
-
   if (turn.refs.length && (turn.asked.includes('@') || turn.asked.includes('this')))
     return aboutRecords([...new Set(turn.refs)]);
 

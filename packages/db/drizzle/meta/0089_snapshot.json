@@ -1,5 +1,5 @@
 {
-  "id": "acef60c5-58f2-4f91-97ac-b4af28774a4b",
+  "id": "322fb1d9-da86-4ec2-b075-a37b63a37b14",
   "prevId": "d79aba67-a136-4a7c-b024-f84ea3af15d4",
   "version": "7",
   "dialect": "postgresql",
@@ -10502,6 +10502,1178 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.core_agent_conversations": {
+      "name": "core_agent_conversations",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_conversation_id": {
+          "name": "owner_conversation_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_task_id": {
+          "name": "owner_task_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "record": {
+          "name": "record",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "core_agent_conversations_owner_conversation_idx": {
+          "name": "core_agent_conversations_owner_conversation_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "owner_conversation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_conversations_owner_task_idx": {
+          "name": "core_agent_conversations_owner_task_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "owner_task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agent_conversations_org_id_fkey": {
+          "name": "core_agent_conversations_org_id_fkey",
+          "tableFrom": "core_agent_conversations",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_conversations_pkey": {
+          "name": "core_agent_conversations_pkey",
+          "columns": [
+            "storage_key",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.core_agent_document_revisions": {
+      "name": "core_agent_document_revisions",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "document_id": {
+          "name": "document_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seq": {
+          "name": "seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "core_agent_document_revisions_kind_idx": {
+          "name": "core_agent_document_revisions_kind_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "document_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "seq",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agent_document_revisions_org_id_fkey": {
+          "name": "core_agent_document_revisions_org_id_fkey",
+          "tableFrom": "core_agent_document_revisions",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_document_revisions_pkey": {
+          "name": "core_agent_document_revisions_pkey",
+          "columns": [
+            "storage_key",
+            "document_id",
+            "seq"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agent_document_revisions_kind_check": {
+          "name": "core_agent_document_revisions_kind_check",
+          "value": "\"core_agent_document_revisions\".\"kind\" IN ('base', 'delta')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_agent_documents": {
+      "name": "core_agent_documents",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "family": {
+          "name": "family",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key_value": {
+          "name": "key_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope_kind": {
+          "name": "scope_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "retired_at": {
+          "name": "retired_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "record": {
+          "name": "record",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "core_agent_documents_address_idx": {
+          "name": "core_agent_documents_address_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scope_kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "family",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "retired_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_documents_scope_idx": {
+          "name": "core_agent_documents_scope_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scope_kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_documents_scope_kind_idx": {
+          "name": "core_agent_documents_scope_kind_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scope_kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agent_documents_org_id_fkey": {
+          "name": "core_agent_documents_org_id_fkey",
+          "tableFrom": "core_agent_documents",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_documents_pkey": {
+          "name": "core_agent_documents_pkey",
+          "columns": [
+            "storage_key",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agent_documents_family_check": {
+          "name": "core_agent_documents_family_check",
+          "value": "\"core_agent_documents\".\"family\" IN (0, 1)"
+        },
+        "core_agent_documents_scope_check": {
+          "name": "core_agent_documents_scope_check",
+          "value": "\"core_agent_documents\".\"scope_kind\" IN ('session', 'conversation', 'task')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_agent_durable_metadata": {
+      "name": "core_agent_durable_metadata",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "singleton": {
+          "name": "singleton",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "next_id": {
+          "name": "next_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "next_seq": {
+          "name": "next_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lease_owner": {
+          "name": "lease_owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lease_until": {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_agent_durable_metadata_org_id_fkey": {
+          "name": "core_agent_durable_metadata_org_id_fkey",
+          "tableFrom": "core_agent_durable_metadata",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_durable_metadata_pkey": {
+          "name": "core_agent_durable_metadata_pkey",
+          "columns": [
+            "storage_key",
+            "singleton"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agent_durable_metadata_singleton_check": {
+          "name": "core_agent_durable_metadata_singleton_check",
+          "value": "\"core_agent_durable_metadata\".\"singleton\" = 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_agent_entries": {
+      "name": "core_agent_entries",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conversation_id": {
+          "name": "conversation_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "head": {
+          "name": "head",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "commit_seq": {
+          "name": "commit_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record": {
+          "name": "record",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "core_agent_entries_conversation_idx": {
+          "name": "core_agent_entries_conversation_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "conversation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_entries_head_idx": {
+          "name": "core_agent_entries_head_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "conversation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_agent_entries\".\"head\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agent_entries_org_id_fkey": {
+          "name": "core_agent_entries_org_id_fkey",
+          "tableFrom": "core_agent_entries",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_entries_pkey": {
+          "name": "core_agent_entries_pkey",
+          "columns": [
+            "storage_key",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.core_agent_record_ids": {
+      "name": "core_agent_record_ids",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_type": {
+          "name": "record_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_agent_record_ids_org_id_fkey": {
+          "name": "core_agent_record_ids_org_id_fkey",
+          "tableFrom": "core_agent_record_ids",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_record_ids_pkey": {
+          "name": "core_agent_record_ids_pkey",
+          "columns": [
+            "storage_key",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agent_record_ids_type_check": {
+          "name": "core_agent_record_ids_type_check",
+          "value": "\"core_agent_record_ids\".\"record_type\" IN ('conversation', 'entry', 'task', 'submission', 'document')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_agent_submissions": {
+      "name": "core_agent_submissions",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conversation_id": {
+          "name": "conversation_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record": {
+          "name": "record",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "core_agent_submissions_request_idx": {
+          "name": "core_agent_submissions_request_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "conversation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "request_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_submissions_conversation_idx": {
+          "name": "core_agent_submissions_conversation_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "conversation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_submissions_status_idx": {
+          "name": "core_agent_submissions_status_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agent_submissions_org_id_fkey": {
+          "name": "core_agent_submissions_org_id_fkey",
+          "tableFrom": "core_agent_submissions",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_submissions_pkey": {
+          "name": "core_agent_submissions_pkey",
+          "columns": [
+            "storage_key",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agent_submissions_status_check": {
+          "name": "core_agent_submissions_status_check",
+          "value": "\"core_agent_submissions\".\"status\" IN ('queued', 'placed', 'done', 'unanswered')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_agent_tasks": {
+      "name": "core_agent_tasks",
+      "schema": "",
+      "columns": {
+        "storage_key": {
+          "name": "storage_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "current_setting('pi.storage_key')"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conversation_id": {
+          "name": "conversation_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "abort_requested": {
+          "name": "abort_requested",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "background": {
+          "name": "background",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record": {
+          "name": "record",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "core_agent_tasks_status_idx": {
+          "name": "core_agent_tasks_status_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_tasks_conversation_idx": {
+          "name": "core_agent_tasks_conversation_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "conversation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_tasks_kind_idx": {
+          "name": "core_agent_tasks_kind_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_tasks_abort_requested_idx": {
+          "name": "core_agent_tasks_abort_requested_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "abort_requested",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_agent_tasks_background_idx": {
+          "name": "core_agent_tasks_background_idx",
+          "columns": [
+            {
+              "expression": "storage_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "background",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agent_tasks_org_id_fkey": {
+          "name": "core_agent_tasks_org_id_fkey",
+          "tableFrom": "core_agent_tasks",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_tasks_pkey": {
+          "name": "core_agent_tasks_pkey",
+          "columns": [
+            "storage_key",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agent_tasks_status_check": {
+          "name": "core_agent_tasks_status_check",
+          "value": "\"core_agent_tasks\".\"status\" IN ('pending', 'running', 'waiting', 'sleeping', 'completing', 'terminal')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.core_org_unit_members": {
       "name": "core_org_unit_members",
       "schema": "",
@@ -10611,61 +11783,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.core_org_unit_tombstones": {
-      "name": "core_org_unit_tombstones",
-      "schema": "",
-      "columns": {
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "core_org_unit_tombstones_org_id_fkey": {
-          "name": "core_org_unit_tombstones_org_id_fkey",
-          "tableFrom": "core_org_unit_tombstones",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "core_org_unit_tombstones_pkey": {
-          "name": "core_org_unit_tombstones_pkey",
-          "columns": [
-            "org_id",
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.core_org_unit_types": {
       "name": "core_org_unit_types",
       "schema": "",
@@ -10682,6 +11799,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -10742,12 +11865,6 @@
           "notNull": true,
           "default": 0
         },
-        "plugin": {
-          "name": "plugin",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -10764,8 +11881,8 @@
         }
       },
       "indexes": {
-        "core_org_unit_types_org_id_id_key": {
-          "name": "core_org_unit_types_org_id_id_key",
+        "core_org_unit_types_org_id_kind_key": {
+          "name": "core_org_unit_types_org_id_kind_key",
           "columns": [
             {
               "expression": "org_id",
@@ -10778,6 +11895,12 @@
               "isExpression": false,
               "asc": true,
               "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": true,
@@ -10785,11 +11908,17 @@
           "method": "btree",
           "with": {}
         },
-        "core_org_unit_types_org_code_key": {
-          "name": "core_org_unit_types_org_code_key",
+        "core_org_unit_types_org_kind_code_key": {
+          "name": "core_org_unit_types_org_kind_code_key",
           "columns": [
             {
               "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -10802,13 +11931,13 @@
             }
           ],
           "isUnique": true,
-          "where": "\"core_org_unit_types\".\"code\" IS NOT NULL AND \"core_org_unit_types\".\"plugin\" IS NULL",
+          "where": "\"core_org_unit_types\".\"code\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
         },
-        "core_org_unit_types_org_plugin_code_key": {
-          "name": "core_org_unit_types_org_plugin_code_key",
+        "core_org_unit_types_org_kind_order_idx": {
+          "name": "core_org_unit_types_org_kind_order_idx",
           "columns": [
             {
               "expression": "org_id",
@@ -10817,29 +11946,7 @@
               "nulls": "last"
             },
             {
-              "expression": "plugin",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "code",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_org_unit_types\".\"plugin\" IS NOT NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_org_unit_types_org_order_idx": {
-          "name": "core_org_unit_types_org_order_idx",
-          "columns": [
-            {
-              "expression": "org_id",
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -10876,9 +11983,9 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
-        "core_org_unit_types_plugin_code_check": {
-          "name": "core_org_unit_types_plugin_code_check",
-          "value": "\"core_org_unit_types\".\"plugin\" IS NULL OR \"core_org_unit_types\".\"code\" IS NOT NULL"
+        "core_org_unit_types_kind_check": {
+          "name": "core_org_unit_types_kind_check",
+          "value": "\"core_org_unit_types\".\"kind\" IN ('branch', 'department')"
         }
       },
       "isRLSEnabled": false
@@ -10900,11 +12007,17 @@
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
         },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "type_id": {
           "name": "type_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -10960,20 +12073,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "sort_order": {
-          "name": "sort_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
         "created_by": {
           "name": "created_by",
           "type": "text",
@@ -10996,8 +12095,8 @@
         }
       },
       "indexes": {
-        "core_org_units_org_id_id_key": {
-          "name": "core_org_units_org_id_id_key",
+        "core_org_units_org_id_kind_key": {
+          "name": "core_org_units_org_id_kind_key",
           "columns": [
             {
               "expression": "org_id",
@@ -11010,6 +12109,12 @@
               "isExpression": false,
               "asc": true,
               "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": true,
@@ -11017,11 +12122,17 @@
           "method": "btree",
           "with": {}
         },
-        "core_org_units_org_code_key": {
-          "name": "core_org_units_org_code_key",
+        "core_org_units_org_kind_code_key": {
+          "name": "core_org_units_org_kind_code_key",
           "columns": [
             {
               "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -11039,27 +12150,17 @@
           "method": "btree",
           "with": {}
         },
-        "core_org_units_org_root_key": {
-          "name": "core_org_units_org_root_key",
+        "core_org_units_org_kind_path_idx": {
+          "name": "core_org_units_org_kind_path_idx",
           "columns": [
             {
               "expression": "org_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_org_units\".\"parent_id\" IS NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_org_units_org_path_idx": {
-          "name": "core_org_units_org_path_idx",
-          "columns": [
+            },
             {
-              "expression": "org_id",
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -11070,45 +12171,6 @@
               "asc": true,
               "nulls": "last",
               "opclass": "text_pattern_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_org_units_org_parent_order_idx": {
-          "name": "core_org_units_org_parent_order_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "parent_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "sort_order",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -11174,11 +12236,13 @@
           "tableTo": "core_org_units",
           "columnsFrom": [
             "org_id",
-            "parent_id"
+            "parent_id",
+            "kind"
           ],
           "columnsTo": [
             "org_id",
-            "id"
+            "id",
+            "kind"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -11189,11 +12253,13 @@
           "tableTo": "core_org_unit_types",
           "columnsFrom": [
             "org_id",
-            "type_id"
+            "type_id",
+            "kind"
           ],
           "columnsTo": [
             "org_id",
-            "id"
+            "id",
+            "kind"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -11216,17 +12282,13 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
+        "core_org_units_kind_check": {
+          "name": "core_org_units_kind_check",
+          "value": "\"core_org_units\".\"kind\" IN ('branch', 'department')"
+        },
         "core_org_units_path_check": {
           "name": "core_org_units_path_check",
           "value": "\"core_org_units\".\"path\" LIKE '%/' || \"core_org_units\".\"id\" || '/'"
-        },
-        "core_org_units_id_check": {
-          "name": "core_org_units_id_check",
-          "value": "position('/' in \"core_org_units\".\"id\") = 0"
-        },
-        "core_org_units_root_check": {
-          "name": "core_org_units_root_check",
-          "value": "(\"core_org_units\".\"parent_id\" IS NULL) = (\"core_org_units\".\"type_id\" IS NULL)"
         }
       },
       "isRLSEnabled": false

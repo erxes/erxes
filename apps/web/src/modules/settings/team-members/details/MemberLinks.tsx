@@ -22,7 +22,7 @@ export const MemberLinks = ({ user }: { user: User }) => {
   const permissions = useMemberPermissions(user);
 
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <ScrollArea className="flex-1 min-h-0" fitWidth>
       <div className="flex flex-col gap-2 p-3">
         {USER_LINK_FIELDS.map((field) => {
           const value = user.links[field.name] ?? '';

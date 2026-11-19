@@ -28,11 +28,6 @@ const AssistantKeysPage = lazyNamed(
   'AssistantKeysPage',
 );
 
-const AssistantApprovalsPage = lazyNamed(
-  () => import('./assistant/AssistantApprovalsPage'),
-  'AssistantApprovalsPage',
-);
-
 const AssistantCodeModePage = lazyNamed(
   () => import('./assistant/AssistantCodeModePage'),
   'AssistantCodeModePage',
@@ -107,7 +102,6 @@ export const SettingsRoutes = () => (
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
       <Route path="assistant" element={<AssistantKeysPage />} />
-      <Route path="assistant-approvals" element={<AssistantApprovalsPage />} />
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="properties/*" element={<PluginPropertiesSettings />} />

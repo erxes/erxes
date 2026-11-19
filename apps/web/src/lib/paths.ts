@@ -82,7 +82,6 @@ export const paths = {
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',
-    assistantApprovals: '/settings/assistant-approvals',
     assistantCodeMode: '/settings/assistant-code-mode',
     apiReference: '/settings/api-reference',
     /** One API's reference: core's `member` or `customer`, or a plugin's name and audience. */
