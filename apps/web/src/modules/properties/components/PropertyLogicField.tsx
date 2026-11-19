@@ -83,6 +83,8 @@ const RuleRow = ({
         <Input
           className="w-40"
           aria-label={t('logic-value', 'Value')}
+          // FieldLogic's limit: a longer value would fail the save with nowhere to show why.
+          maxLength={200}
           value={rule.value ?? ''}
           onChange={(event) => onChange({ ...rule, value: event.target.value })}
         />
