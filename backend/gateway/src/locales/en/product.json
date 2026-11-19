@@ -471,15 +471,21 @@
   "bulk": {
     "tags": "Tags",
     "change-category": "Change category",
-    "no-movable-products": "Deleted products cannot be moved to another category",
     "confirm-change-category_one": "Move the {{count}} selected product to this category? Its current category will be replaced.",
     "confirm-change-category_other": "Move the {{count}} selected products to this category? Their current categories will be replaced.",
     "category-change-failed_one": "{{count}} product could not be moved",
     "category-change-failed_other": "{{count}} products could not be moved",
-    "deleted-skipped_one": "{{count}} deleted product was skipped",
-    "deleted-skipped_other": "{{count}} deleted products were skipped",
     "category-changed_one": "{{count}} product moved to the new category",
-    "category-changed_other": "{{count}} products moved to the new category"
+    "category-changed_other": "{{count}} products moved to the new category",
+    "deleted-will-restore_one": "{{count}} deleted product will be restored.",
+    "deleted-will-restore_other": "{{count}} deleted products will be restored.",
+    "deleted-restored_one": "{{count}} deleted product restored",
+    "deleted-restored_other": "{{count}} deleted products restored",
+    "restored_one": "{{count}} product restored",
+    "restored_other": "{{count}} products restored",
+    "restore-failed_one": "{{count}} product could not be restored",
+    "restore-failed_other": "{{count}} products could not be restored",
+    "restore-change-category-hint": "If the category was removed, restore it by changing its category."
   },
   "bundle-rules": {
     "edit": "Edit",

@@ -1,4 +1,3 @@
-import { ApolloError } from '@apollo/client';
 import { IconRestore } from '@tabler/icons-react';
 import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useCallback, type ReactNode } from 'react';
@@ -30,26 +29,40 @@ export const ProductsRestore = ({
       await confirm({
         message: t('confirm-restore-selected', { count: productIds.length }),
       });
-
-      await restoreProducts(productIds, {
-        onCompleted: () => {
-          table.setRowSelection({});
-          toast({
-            title: t('products-restored'),
-            variant: 'success',
-          });
-        },
-        onError: (e: ApolloError) => {
-          toast({
-            title: t('error'),
-            description: e.message,
-            variant: 'destructive',
-          });
-        },
-      });
     } catch {
-      // User cancelled the confirmation
+      return;
     }
+
+    const { restoredCount, failedIds, errorMessage } = await restoreProducts(
+      productIds,
+    );
+
+    table.setRowSelection(
+      Object.fromEntries(failedIds.map((_id) => [_id, true])),
+    );
+
+    if (!failedIds.length) {
+      toast({
+        title: t('products-restored'),
+        variant: 'success',
+      });
+      return;
+    }
+
+    toast({
+      title: restoredCount
+        ? t('bulk.restored', { count: restoredCount })
+        : t('error'),
+      description: [
+        errorMessage
+          ? `${t('bulk.restore-failed', {
+              count: failedIds.length,
+            })}: ${errorMessage}.`
+          : `${t('bulk.restore-failed', { count: failedIds.length })}.`,
+        t('bulk.restore-change-category-hint'),
+      ].join(' '),
+      variant: 'destructive',
+    });
   }, [disabled, confirm, productIds, restoreProducts, toast, table, t]);
 
   if (children) {

@@ -1,5 +1,14 @@
-import { ApolloError, useApolloClient, useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { productsMutations, productsQueries } from '@/products/graphql';
+
+export type RestoreProductsResult = {
+  restoredCount: number;
+  failedIds: string[];
+  errorMessage?: string;
+};
+
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 export const useRestoreProducts = () => {
   const client = useApolloClient();
@@ -9,27 +18,32 @@ export const useRestoreProducts = () => {
 
   const restoreProducts = async (
     productIds: string[],
-    callbacks?: {
-      onCompleted?: () => void;
-      onError?: (error: ApolloError) => void;
-    },
-  ) => {
-    try {
+  ): Promise<RestoreProductsResult> => {
+    const results = await Promise.allSettled(
+      productIds.map((_id) => _restoreProduct({ variables: { _id } })),
+    );
 
-      await Promise.all(
-        productIds.map((_id) => _restoreProduct({ variables: { _id } })),
-      );
+    const failedIds: string[] = [];
+    let errorMessage: string | undefined;
 
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        failedIds.push(productIds[index]);
+        errorMessage ??= getErrorMessage(result.reason);
+      }
+    });
+
+    const restoredCount = productIds.length - failedIds.length;
+
+    if (restoredCount > 0) {
       client.cache.evict({ fieldName: 'productsMain' });
       client.cache.gc();
       await client.refetchQueries({
         include: [productsQueries.productsMain],
       });
-
-      callbacks?.onCompleted?.();
-    } catch (error) {
-      callbacks?.onError?.(error as ApolloError);
     }
+
+    return { restoredCount, failedIds, errorMessage };
   };
 
   return { restoreProducts, loading };
