@@ -156,7 +156,13 @@ const renderInlineContent = (content: any[], config?: TBlocksToHtmlConfig): stri
       if (type === 'attribute') {
         const value = item.props?.value || item.props?.name || '';
 
-        return value ? `{{ ${value} }}` : '';
+        if (!value) return '';
+
+        const placeholder = `{{ ${value} }}`;
+        const cssStyle = stylesToCss({ fontSize: item.props?.fontSize }, config);
+        return cssStyle
+          ? `<span style="${cssStyle}">${placeholder}</span>`
+          : placeholder;
       }
 
       const escapedText = escapeHtml(text || '')

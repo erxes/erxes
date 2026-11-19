@@ -1,14 +1,16 @@
 import { useComponentsContext } from '@blocknote/react';
 import { IconTextSize } from '@tabler/icons-react';
 import { useFontSize } from 'erxes-ui/modules/blocks/hooks/toolbar/useFontSize';
+import { useBlockEditorEditable } from 'erxes-ui/modules/blocks/hooks/useBlockEditorEditable';
 
 const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72];
 
 export const FontSizeButton = () => {
   const Components = useComponentsContext();
+  const editable = useBlockEditorEditable(true);
   const { currentSize, isFileBlock, handleSizeChange } = useFontSize();
 
-  if (!Components || isFileBlock) {
+  if (!Components || !editable || isFileBlock) {
     return null;
   }
 
