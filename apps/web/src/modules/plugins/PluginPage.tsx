@@ -1,7 +1,7 @@
 import { Spinner } from 'erxes-ui';
 import { useQuery } from '@tanstack/react-query';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
-import { PluginBoundary, PluginFailure } from './PluginBoundary';
+import { PluginBoundary, PluginError } from './PluginBoundary';
 import { loadedPluginComponent, loadPluginComponent } from './remotes';
 import type { LoadedPlugin } from './types';
 
@@ -28,9 +28,10 @@ export const PluginPage = ({ plugin }: { plugin: LoadedPlugin | undefined }) => 
 
   if (page.error && !page.isFetching) {
     return (
-      <PluginFailure
+      <PluginError
+        name={plugin.config.name}
         title={`${plugin.config.name} is not available`}
-        message={page.error.message}
+        error={page.error}
         onRetry={() => void page.refetch()}
       />
     );
