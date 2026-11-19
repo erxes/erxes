@@ -9,9 +9,10 @@ import {
 import { SupportGrantListStatus } from '@/auth/db/models/SupportAccess';
 import { validatePermissionGroupIds } from '@/organization/team-member/graphql/mutations';
 
-// A support user is never an owner, so it cannot approve or extend its own access
+// A support user is never an owner, so it cannot approve or extend its own access. A full access
+// support user acts as an owner everywhere else, but not here.
 const assertOwner = (user?: IUserDocument) => {
-  if (!user?.isOwner) {
+  if (!user?.isOwner || user.supportFullAccess) {
     throw new ExpectedError(
       'Only the owner manages support access',
       'FORBIDDEN',

@@ -56,6 +56,7 @@ export interface IAuthIdentityModel extends Model<IAuthIdentityDocument> {
   activateSupportUser(
     userId: string,
     permissionGroupIds: string[],
+    fullAccess: boolean,
   ): Promise<void>;
 }
 
@@ -570,11 +571,19 @@ export const loadAuthIdentityClass = (models: IModels, subdomain: string) => {
     public static async activateSupportUser(
       userId: string,
       permissionGroupIds: string[],
+      fullAccess: boolean,
     ) {
       await models.Users.updateOne(
         { _id: userId },
         // Onboarding edits the profile, which a support account can't; it would trap the visit there
-        { $set: { isActive: true, isOnboarded: true, permissionGroupIds } },
+        {
+          $set: {
+            isActive: true,
+            isOnboarded: true,
+            permissionGroupIds,
+            supportFullAccess: fullAccess,
+          },
+        },
       );
       await clearGroupActionsCache({ userId });
     }

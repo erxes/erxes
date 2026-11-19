@@ -60,6 +60,7 @@ export interface IUser {
   registrationToken?: string;
   registrationTokenExpires?: Date;
   isOwner?: boolean;
+  supportFullAccess?: boolean;
   email?: string;
   getNotificationByEmail?: boolean;
   appearance?: IUserAppearance;

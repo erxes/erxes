@@ -184,6 +184,7 @@ export const types = `
     reason: String!
     status: AuthSupportGrantStatus!
     autoApproved: Boolean!
+    fullAccess: Boolean
     permissionGroupIds: [String!]!
     decidedBy: String
     decidedAt: Date

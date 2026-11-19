@@ -29,6 +29,7 @@ import {
   SESSION_COOKIE,
   verifySession,
 } from '../util/session';
+import { withSupportFullAccess } from '../util/supportAccess';
 
 let disposable: Disposable | undefined;
 
@@ -85,12 +86,12 @@ async function extractSubscriptionUser(request: any, subdomain: string) {
 
     const models = await generateModels(subdomain);
 
-    return (
-      (await models.Users.findOne(
-        { _id: userId, isActive: { $ne: false } },
-        { _id: 1, isOwner: 1 },
-      ).lean()) || undefined
-    );
+    const user = await models.Users.findOne(
+      { _id: userId, isActive: { $ne: false } },
+      { _id: 1, isOwner: 1, supportFullAccess: 1 },
+    ).lean();
+
+    return user ? withSupportFullAccess(user) : undefined;
   } catch {
     return undefined;
   }
