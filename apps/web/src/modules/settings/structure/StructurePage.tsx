@@ -20,7 +20,6 @@ import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import {
   STRUCTURE_DISPLAY_LIST,
-  useSelectedUnit,
   useStructureDisplays,
   useWorkspace,
   WorkspaceProvider,
@@ -28,7 +27,9 @@ import {
 import { OrgList } from './OrgList';
 import { OrgSearch } from './OrgSearch';
 import { PageMenu } from './PageMenu';
+import { UnitBulkBar } from './UnitBulkBar';
 import { UnitPanel } from './UnitPanel';
+import { useSelectedUnit } from './useSelection';
 import { useUnitTree } from './useUnitTree';
 
 const OrgChart = lazyNamed(() => import('./OrgChart'), 'OrgChart');
@@ -75,7 +76,6 @@ const LoadFailed = () => {
 
 const Header = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const displays = useStructureDisplays();
 
   return (
     <PageHeader>
@@ -86,10 +86,7 @@ const Header = ({ children }: { children?: ReactNode }) => {
           ]}
         />
       </PageHeader.Start>
-      <PageHeader.End>
-        <DisplayMenu list={STRUCTURE_DISPLAY_LIST} displays={displays} />
-        {children}
-      </PageHeader.End>
+      <PageHeader.End>{children}</PageHeader.End>
     </PageHeader>
   );
 };
@@ -97,11 +94,18 @@ const Header = ({ children }: { children?: ReactNode }) => {
 /** Search on the left; how big the organisation is on the right. */
 const SearchBar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { index } = useWorkspace();
+  const { index, canManage } = useWorkspace();
+  const displays = useStructureDisplays();
 
   return (
     <PageSubHeader className="items-center">
+      <DisplayMenu list={STRUCTURE_DISPLAY_LIST} displays={displays} variant="switch" />
       <OrgSearch />
+      {canManage && (
+        <span className="hidden text-xs text-muted-foreground lg:block">
+          {t('pick-hint', 'Hold Shift and click to select several')}
+        </span>
+      )}
       <span className="ml-auto hidden text-xs text-muted-foreground tabular-nums sm:block">
         {t('people-in-all', 'People in the organisation: {{count}}', {
           count: index.root.subtreeMemberCount,
@@ -197,6 +201,7 @@ export const StructurePage = () => {
         </Header>
         <SearchBar />
         <Workspace />
+        <UnitBulkBar />
       </WorkspaceProvider>
     </PageContainer>
   );

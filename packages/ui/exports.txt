@@ -120,6 +120,7 @@ value EntityPicker
 value EnumCursorDirection
 value Filter
 value Form
+value Frame
 value FullNameField
 value FullNameValue
 value HoverCard

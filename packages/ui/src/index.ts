@@ -59,6 +59,8 @@ export { useFieldControl } from './components/field-control';
 
 export { Form } from './components/form';
 
+export { Frame } from './components/frame';
+
 export { HoverCard } from './components/hover-card';
 
 export { IconTip } from './components/icon-tip';

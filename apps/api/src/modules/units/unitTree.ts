@@ -9,8 +9,12 @@ import { listed, nodeColumns, pathSteps, reachable } from './unitRows';
 
 const above = alias(orgUnits, 'above_unit');
 
-const place = sql`(${orgUnits.sortOrder}, ${orgUnits.name}, ${orgUnits.id})`;
-const inPlace = [asc(orgUnits.sortOrder), asc(orgUnits.name), asc(orgUnits.id)];
+/**
+ * A unit's place among the units beside it: its order, and for units given the same order the
+ * one added first. Never its name, so renaming a unit moves nothing.
+ */
+const place = sql`(${orgUnits.sortOrder}, ${orgUnits.createdAt}, ${orgUnits.id})`;
+const inPlace = [asc(orgUnits.sortOrder), asc(orgUnits.createdAt), asc(orgUnits.id)];
 
 const pathOf = async (client: Db, id: string) => {
   const [unit] = await client
@@ -50,7 +54,7 @@ export const unitChildren = async (
         query.cursor
           ? gt(
               place,
-              sql`(select ${orgUnits.sortOrder}, ${orgUnits.name}, ${orgUnits.id} from ${orgUnits} where ${orgUnits.id} = ${query.cursor})`,
+              sql`(select ${orgUnits.sortOrder}, ${orgUnits.createdAt}, ${orgUnits.id} from ${orgUnits} where ${orgUnits.id} = ${query.cursor})`,
             )
           : undefined,
       ),

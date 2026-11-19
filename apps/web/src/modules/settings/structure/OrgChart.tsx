@@ -1,10 +1,7 @@
+import type { UnitNode } from '@erxes/core-contract';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import {
   Background,
-  BaseEdge,
-  type Edge,
-  type EdgeProps,
-  getSmoothStepPath,
   Panel,
   ReactFlow,
   ReactFlowProvider,
@@ -15,87 +12,15 @@ import { Button, themeState, Tooltip } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { type ReactNode, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DraftCard, MoreCard, UnitCard } from './ChartCards';
+import { DraftCard, HeadCard, MoreCard, UnitFrame } from './ChartCards';
 import { ANIMATION, useChartFocus } from './chartFocus';
-import { CARD_WIDTH, layoutChart, STACK_INDENT, V_GAP } from './chartLayout';
+import { layoutChart } from './chartLayout';
+import { ChartOutline } from './ChartOutline';
 import { useWorkspace } from './context';
-
-const CORNER = 8;
+import { useOpenUnits } from './useOpenUnits';
 
 /** How far under the chart's top edge the organisation's own card starts. */
 const TOP_SPACE = 48;
-
-type Point = { x: number; y: number };
-
-const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
-
-const towards = (from: Point, to: Point, length: number): Point => {
-  const total = distance(from, to) || 1;
-
-  return {
-    x: from.x + ((to.x - from.x) * length) / total,
-    y: from.y + ((to.y - from.y) * length) / total,
-  };
-};
-
-/** A polyline with rounded corners. */
-const roundedPath = (points: Point[]) =>
-  points.reduce((path, point, i) => {
-    const previous = points[i - 1];
-    const next = points[i + 1];
-
-    if (!previous) return `M ${point.x} ${point.y}`;
-
-    if (!next) return `${path} L ${point.x} ${point.y}`;
-
-    const radius = Math.min(CORNER, distance(previous, point) / 2, distance(point, next) / 2);
-    const start = towards(point, previous, radius);
-    const end = towards(point, next, radius);
-
-    return `${path} L ${start.x} ${start.y} Q ${point.x} ${point.y} ${end.x} ${end.y}`;
-  }, '');
-
-/** Elbow connectors; stacked children hang off one vertical trunk. */
-const OrgEdge = ({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  sourcePosition,
-  targetPosition,
-  data,
-}: EdgeProps<Edge<{ stacked: boolean }, 'org'>>) => {
-  if (!data?.stacked) {
-    const [path] = getSmoothStepPath({
-      sourceX,
-      sourceY,
-      sourcePosition,
-      targetX,
-      targetY,
-      targetPosition,
-      borderRadius: CORNER,
-    });
-
-    return <BaseEdge id={id} path={path} />;
-  }
-
-  const busY = sourceY + V_GAP / 2;
-  const trunkX = targetX - STACK_INDENT / 2;
-
-  return (
-    <BaseEdge
-      id={id}
-      path={roundedPath([
-        { x: sourceX, y: sourceY },
-        { x: sourceX, y: busY },
-        { x: trunkX, y: busY },
-        { x: trunkX, y: targetY },
-        { x: targetX, y: targetY },
-      ])}
-    />
-  );
-};
 
 const ControlButton = ({
   label,
@@ -140,17 +65,47 @@ const ZoomControls = () => {
   );
 };
 
-const NODE_TYPES = { card: UnitCard, more: MoreCard, draft: DraftCard };
-const EDGE_TYPES = { org: OrgEdge };
+const NODE_TYPES = { head: HeadCard, frame: UnitFrame, more: MoreCard, draft: DraftCard };
 
+/**
+ * The chart on its canvas. A unit draws open once what it shows has loaded, so it opens at its
+ * full size in one go.
+ */
 const Chart = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const theme = useAtomValue(themeState);
-  const { index, isOpen, draftParentId, select, selectedId, closeDraft } = useWorkspace();
+
+  const {
+    index,
+    isOpen,
+    loading,
+    showsAllPeople,
+    draftParentId,
+    select,
+    selectedId,
+    closeDraft,
+    picked,
+    canSeeTeam,
+  } = useWorkspace();
+
   const [ready, setReady] = useState(false);
   const frame = useRef<HTMLDivElement>(null);
-  const { nodes, edges } = layoutChart(index, isOpen, draftParentId);
-  const top = nodes.find(({ id }) => id === index.root.id);
+
+  const open = useOpenUnits(canSeeTeam);
+
+  const { nodes, edges } = layoutChart({
+    index,
+    isOpen: (unit: UnitNode) =>
+      isOpen(unit) && !loading.has(unit.id) && (!canSeeTeam || open.has(unit.id)),
+    people: canSeeTeam
+      ? (unit: UnitNode) =>
+          (open.get(unit.id)?.memberIds ?? []).filter((id) => id !== unit.supervisorId)
+      : null,
+    showsAllPeople,
+    draftParentId,
+  });
+
+  const [top] = nodes;
 
   useChartFocus(nodes, ready);
 
@@ -162,12 +117,13 @@ const Chart = () => {
       nodes={nodes}
       edges={edges}
       nodeTypes={NODE_TYPES}
-      edgeTypes={EDGE_TYPES}
       colorMode={theme}
       minZoom={0.1}
       onInit={(instance) => {
         void instance.setViewport({
-          x: (frame.current?.clientWidth ?? 0) / 2 - ((top?.position.x ?? 0) + CARD_WIDTH / 2),
+          x:
+            (frame.current?.clientWidth ?? 0) / 2 -
+            ((top?.position.x ?? 0) + (top?.width ?? 0) / 2),
           y: TOP_SPACE - (top?.position.y ?? 0),
           zoom: 1,
         });
@@ -179,20 +135,26 @@ const Chart = () => {
       edgesFocusable={false}
       elementsSelectable={false}
       deleteKeyCode={null}
+      selectionKeyCode={null}
+      multiSelectionKeyCode={null}
       onPaneClick={() => {
         if (draftParentId) closeDraft();
-        else if (selectedId) select(null);
+        else if (selectedId || picked.size) select(null);
       }}
       onlyRenderVisibleElements
       proOptions={{ hideAttribution: true }}
     >
       <Background gap={16} />
+      <ChartOutline />
       <ZoomControls />
     </ReactFlow>
   );
 };
 
-/** The structure as an org chart: the organisation at the top, each open unit's subunits under it. */
+/**
+ * The structure as an org chart of people: the organisation at the top, each unit as the person
+ * who leads it over a frame with its people, and the units under it below.
+ */
 export const OrgChart = () => (
   <div className="size-full">
     <ReactFlowProvider>

@@ -1,3 +1,4 @@
+import { MemberStatusBadge } from '../MemberStatusBadge';
 import type { User } from '@erxes/core-contract';
 import {
   IconAlignLeft,
@@ -90,22 +91,6 @@ const NameCell = ({ user }: { user: User }) => {
   );
 };
 
-/** Invitation status: verified once the member can sign in; deactivated members and those who
- * don't sign in say so. */
-const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
-  <RecordTableInlineCell>
-    {user.status === 'disabled' ? (
-      <Badge variant="secondary">{t('deactivated', 'Deactivated')}</Badge>
-    ) : !user.canSignIn ? (
-      <Badge variant="muted">{t('no-sign-in', 'No sign-in')}</Badge>
-    ) : (
-      <Badge variant={user.status === 'invited' ? 'destructive' : 'success'}>
-        {user.status === 'invited' ? t('not-verified') : t('verified', 'Verified')}
-      </Badge>
-    )}
-  </RecordTableInlineCell>
-);
-
 export const teamMemberColumns = (t: TFunction): RecordTableColumnDef<User>[] => [
   teamMemberMoreColumn,
   RecordTable.checkboxColumnOf<User>(),
@@ -150,6 +135,10 @@ export const teamMemberColumns = (t: TFunction): RecordTableColumnDef<User>[] =>
     id: 'status',
     accessorKey: 'status',
     header: () => <RecordTable.InlineHead icon={IconMailCheck} label={t('invitation-status')} />,
-    cell: ({ cell }) => <InvitationStatusCell user={cell.row.original} t={t} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <MemberStatusBadge user={cell.row.original} />
+      </RecordTableInlineCell>
+    ),
   },
 ];

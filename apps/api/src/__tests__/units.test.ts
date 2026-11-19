@@ -58,8 +58,8 @@ describe('units', { timeout: 120_000 }, () => {
 
     const top = await t.member().units.children({ id: root.id });
 
-    expect(top.data.map((unit) => unit.name)).toEqual(['Finance', 'Ulaanbaatar']);
-    expect(top.data[1]).toMatchObject({ childCount: 1, memberCount: 0, subtreeMemberCount: 2 });
+    expect(top.data.map((unit) => unit.name)).toEqual(['Ulaanbaatar', 'Finance']);
+    expect(top.data[0]).toMatchObject({ childCount: 1, memberCount: 0, subtreeMemberCount: 2 });
     expect(top).toMatchObject({ totalCount: 2, nextCursor: null });
     expect((await t.member().units.ancestors({ id: zaisan.id })).data.map((u) => u.id)).toEqual([
       root.id,
@@ -173,37 +173,42 @@ describe('units', { timeout: 120_000 }, () => {
     ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'id' } });
   });
 
-  it('leaves inactive units and what is under them out unless asked, and orders by hand', async () => {
+  it('leaves inactive units out unless asked, and keeps units in the order they were added or put in by hand', async () => {
     const owner = t.owner();
     const region = await owner.units.create({ name: 'Region West' });
-    const names = ['Cedar', 'Aspen', 'Birch'];
 
-    const [cedar, aspen, birch] = await Promise.all(
-      names.map((name) => owner.units.create({ name: `${name} store`, parentId: region.id })),
-    );
+    const add = (name: string) =>
+      owner.units.create({ name: `${name} store`, parentId: region.id });
+
+    const cedar = await add('Cedar');
+    const aspen = await add('Aspen');
+    const birch = await add('Birch');
 
     const under = async (includeInactive?: boolean) =>
       (await owner.units.children({ id: region.id, includeInactive })).data.map((u) => u.name);
 
-    expect(await under()).toEqual(['Aspen store', 'Birch store', 'Cedar store']);
+    expect(await under()).toEqual(['Cedar store', 'Aspen store', 'Birch store']);
 
-    await owner.units.reorder({ id: region.id, unitIds: [cedar?.id ?? '', aspen?.id ?? ''] });
-    await owner.units.create({ name: 'Alder store', parentId: region.id });
-    expect(await under()).toEqual(['Cedar store', 'Aspen store', 'Birch store', 'Alder store']);
+    await owner.units.reorder({ id: region.id, unitIds: [birch.id, cedar.id] });
+    await add('Alder');
+    expect(await under()).toEqual(['Birch store', 'Cedar store', 'Aspen store', 'Alder store']);
+
+    await owner.units.update({ id: aspen.id, name: 'Zelkova store' });
+    expect(await under()).toEqual(['Birch store', 'Cedar store', 'Zelkova store', 'Alder store']);
     await expect(
       owner.units.reorder({ id: region.id, unitIds: [region.id] }),
     ).rejects.toMatchObject({ status: 400, data: { field: 'unitIds' } });
 
     const first = await owner.units.children({ id: region.id, limit: 3 });
 
-    expect(first).toMatchObject({ totalCount: 4, nextCursor: birch?.id });
+    expect(first).toMatchObject({ totalCount: 4, nextCursor: aspen.id });
     expect(
       (await owner.units.children({ id: region.id, limit: 3, cursor: first.nextCursor ?? '' }))
         .data,
     ).toMatchObject([{ name: 'Alder store' }]);
 
-    await owner.units.update({ id: birch?.id ?? '', isActive: false });
-    expect(await under()).toEqual(['Cedar store', 'Aspen store', 'Alder store']);
+    await owner.units.update({ id: birch.id, isActive: false });
+    expect(await under()).toEqual(['Cedar store', 'Zelkova store', 'Alder store']);
     expect(await under(true)).toContain('Birch store');
 
     await owner.units.update({ id: region.id, isActive: false });
@@ -211,7 +216,7 @@ describe('units', { timeout: 120_000 }, () => {
     expect((await owner.units.search({ q: 'cedar', includeInactive: true })).data).toMatchObject([
       { name: 'Cedar store', ancestorNames: [expect.any(String), 'Region West'] },
     ]);
-    expect(await owner.units.get({ id: cedar?.id ?? '' })).toMatchObject({ isActive: true });
+    expect(await owner.units.get({ id: cedar.id })).toMatchObject({ isActive: true });
   });
 
   it("sets a member's units and lets plugins import theirs, merging what is already here", async () => {

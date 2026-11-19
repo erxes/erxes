@@ -90,7 +90,7 @@ CREATE UNIQUE INDEX "core_org_units_org_id_id_key" ON "core_org_units" USING btr
 CREATE UNIQUE INDEX "core_org_units_org_code_key" ON "core_org_units" USING btree ("org_id",lower("code")) WHERE "core_org_units"."code" IS NOT NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "core_org_units_org_root_key" ON "core_org_units" USING btree ("org_id") WHERE "core_org_units"."parent_id" IS NULL;--> statement-breakpoint
 CREATE INDEX "core_org_units_org_path_idx" ON "core_org_units" USING btree ("org_id","path" text_pattern_ops);--> statement-breakpoint
-CREATE INDEX "core_org_units_org_parent_order_idx" ON "core_org_units" USING btree ("org_id","parent_id","sort_order","name","id");--> statement-breakpoint
+CREATE INDEX "core_org_units_org_parent_order_idx" ON "core_org_units" USING btree ("org_id","parent_id","sort_order","created_at","id");--> statement-breakpoint
 ALTER TABLE "core_org_units" ADD CONSTRAINT "core_org_units_parent_fkey" FOREIGN KEY ("org_id","parent_id") REFERENCES "public"."core_org_units"("org_id","id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core_org_units" ADD CONSTRAINT "core_org_units_type_fkey" FOREIGN KEY ("org_id","type_id") REFERENCES "public"."core_org_unit_types"("org_id","id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core_org_unit_types" ADD CONSTRAINT "core_org_unit_types_plugin_code_check" CHECK ("core_org_unit_types"."plugin" IS NULL OR "core_org_unit_types"."code" IS NOT NULL);--> statement-breakpoint

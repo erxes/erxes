@@ -17,7 +17,7 @@ const treeRowVariants = cva(
   'group/tree-row flex h-9 items-center gap-2 rounded-md pr-2 pl-(--tree-indent) text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring',
   {
     variants: {
-      interactive: { true: 'cursor-pointer hover:bg-accent' },
+      interactive: { true: 'cursor-pointer select-none hover:bg-accent' },
       selected: { true: 'bg-primary/10 text-primary-text hover:bg-primary/10' },
       muted: { true: 'text-muted-foreground' },
     },
@@ -44,7 +44,8 @@ type TreeRowProps = Omit<React.ComponentProps<'div'>, 'onSelect'> & {
   /** Its children are still loading. */
   loading?: boolean;
   selected?: boolean;
-  onSelect?: () => void;
+  /** A click, Enter or Space; the event says whether Shift or Ctrl was held, to pick several. */
+  onSelect?: (event: React.MouseEvent | React.KeyboardEvent) => void;
   /** Dimmed, such as a unit that is turned off. */
   muted?: boolean;
 };
@@ -68,8 +69,8 @@ const TreeRow = ({
     if (event.target !== event.currentTarget) return;
 
     const actions = new Map<string, (() => void) | undefined>([
-      ['Enter', onSelect],
-      [' ', onSelect],
+      ['Enter', onSelect && (() => onSelect(event))],
+      [' ', onSelect && (() => onSelect(event))],
       ['ArrowRight', expanded === false ? () => onExpandedChange?.(true) : undefined],
       ['ArrowLeft', expanded ? () => onExpandedChange?.(false) : undefined],
       ['ArrowDown', () => focusBy(event.currentTarget, 1)],
@@ -167,7 +168,8 @@ const TreeHeader = ({ className, children, ...props }: React.ComponentProps<'div
  * Rows indented under their parents, which open and close.
  * An org structure, or categories.
  * `<Tree.Row depth expanded onExpandedChange selected onSelect>` is one item; the arrow keys move
- * between rows and open or close them, Enter selects. `Tree.Line` holds what sits among the
+ * between rows and open or close them, Enter selects. `onSelect` gets the event, so a tree can
+ * pick several rows with Shift or Ctrl held. `Tree.Line` holds what sits among the
  * rows without being one, and `Tree.Header` names the columns. Draw only the rows that are open.
  */
 export const Tree = Object.assign(TreeRoot, {

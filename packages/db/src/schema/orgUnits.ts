@@ -127,7 +127,7 @@ export const orgUnits = pgTable(
       table.orgId,
       table.parentId,
       table.sortOrder,
-      table.name,
+      table.createdAt,
       table.id,
     ),
     index('core_org_units_supervisor_idx')

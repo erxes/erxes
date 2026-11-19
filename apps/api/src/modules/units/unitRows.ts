@@ -144,6 +144,16 @@ export const depthOf = (path: string) => path.split('/').length - 2;
 
 export const lockTree = (client: Db) => lockKeys(client, [`units:${requestOrgId()}`]);
 
+/** The place after the last unit under `parentId`: where a unit that joins them goes, so it comes last. */
+export const placeAfterLast = async (client: Db, parentId: string) => {
+  const [row] = await client
+    .select({ next: sql<number | null>`max(${orgUnits.sortOrder}) + 1` })
+    .from(orgUnits)
+    .where(eq(orgUnits.parentId, parentId));
+
+  return row?.next ?? 0;
+};
+
 /** Units are added one batch at a time per organisation, so two at once can't pass the limit. */
 export const assertRoom = async (client: Db, adding: number) => {
   await lockTree(client);

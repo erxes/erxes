@@ -41,6 +41,8 @@ export const badgeVariants = cva(
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
   onClose?: () => void;
+  /** A status: a pill with a dot in the badge's colour before its text. */
+  dot?: boolean;
 }
 
 /** The x that removes a badge: a button, so the keyboard reaches it and it has a name. */
@@ -65,7 +67,10 @@ const BadgeRemove = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-/** A small tinted label for a status, tag or count; `onClose` adds an x. */
+/**
+ * A small tinted label for a status, tag or count; `onClose` adds an x.
+ * `dot` makes it a status pill: "Active", "Disabled".
+ */
 export const Badge = ({
   ref,
   className,
@@ -73,14 +78,21 @@ export const Badge = ({
   size,
   children,
   onClose,
+  dot,
   ...props
 }: BadgeProps & React.RefAttributes<HTMLDivElement>) => {
   return (
     <div
       ref={ref}
-      className={cn(badgeVariants({ variant, size }), onClose && 'pr-1', className)}
+      className={cn(
+        badgeVariants({ variant, size }),
+        onClose && 'pr-1',
+        dot && 'rounded-full',
+        className,
+      )}
       {...props}
     >
+      {dot && <span aria-hidden className="size-1.5 flex-none rounded-full bg-current" />}
       {children}
       {onClose && <BadgeRemove onClose={onClose} />}
     </div>

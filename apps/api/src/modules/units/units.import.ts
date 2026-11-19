@@ -122,6 +122,30 @@ const plan = (known: Known[], units: ImportedUnit[]) => {
   return { ids, inserts };
 };
 
+/**
+ * Each new unit's place under its parent: the one it names, else after the units already there
+ * (`known`), in the order the units were given.
+ */
+const placed = <T extends { parentId: string | null; sortOrder?: number }>(
+  known: { parentId: string | null; sortOrder: number }[],
+  inserts: T[],
+) => {
+  const next = new Map<string, number>();
+
+  const take = (parentId: string | null, sortOrder: number) =>
+    next.set(parentId ?? '', Math.max(next.get(parentId ?? '') ?? 0, sortOrder + 1));
+
+  for (const unit of known) take(unit.parentId, unit.sortOrder);
+
+  return inserts.map((row) => {
+    const sortOrder = row.sortOrder ?? next.get(row.parentId ?? '') ?? 0;
+
+    take(row.parentId, sortOrder);
+
+    return { ...row, sortOrder };
+  });
+};
+
 const assertNeverDeleted = async (client: Db, ids: string[]) => {
   if (!ids.length) return;
 
@@ -144,13 +168,14 @@ const assertNeverDeleted = async (client: Db, ids: string[]) => {
  * members are added to that one. Members and supervisors not on the team are dropped.
  */
 export const importUnits = async (client: Db, units: ImportedUnit[]) => {
-  const known: Known[] = await client
+  const known = await client
     .select({
       id: orgUnits.id,
       name: orgUnits.name,
       code: orgUnits.code,
       parentId: orgUnits.parentId,
       path: orgUnits.path,
+      sortOrder: orgUnits.sortOrder,
     })
     .from(orgUnits);
 
@@ -186,7 +211,7 @@ export const importUnits = async (client: Db, units: ImportedUnit[]) => {
   // One statement, parents first: its foreign keys are checked once every row is in.
   if (inserts.length) {
     await client.insert(orgUnits).values(
-      inserts.map(({ memberIds: _members, supervisorId, ...row }) => ({
+      placed(known, inserts).map(({ memberIds: _members, supervisorId, ...row }) => ({
         ...row,
         typeId: typeFor(row.typeId),
         supervisorId: supervisorId && team.has(supervisorId) ? supervisorId : null,

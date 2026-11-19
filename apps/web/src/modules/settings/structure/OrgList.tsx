@@ -73,7 +73,10 @@ const RowCells = ({ unit }: { unit: UnitRowProps['unit'] }) => {
 
 const UnitRow = ({ unit, depth, expanded }: UnitRowProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { typesById, selectedId, select, setOpen, loading, startDraft, canManage } = useWorkspace();
+
+  const { typesById, selectedId, clickUnit, setOpen, loading, startDraft, canManage, picked } =
+    useWorkspace();
+
   const hasChildren = unit.childCount > 0;
 
   return (
@@ -90,9 +93,9 @@ const UnitRow = ({ unit, depth, expanded }: UnitRowProps) => {
             })
       }
       loading={expanded && loading.has(unit.id)}
-      selected={selectedId === unit.id}
+      selected={selectedId === unit.id || picked.has(unit.id)}
       muted={!unit.isActive}
-      onSelect={() => select(unit.id)}
+      onSelect={(event) => clickUnit(unit, event)}
     >
       <TypeIcon type={unit.typeId ? typesById.get(unit.typeId) : undefined} size="sm" />
       <span className="flex min-w-0 flex-1 items-center gap-2">
@@ -202,6 +205,7 @@ export const OrgList = () => {
         <Tree
           ref={list}
           aria-label={t('tree-label', 'Organisation structure')}
+          aria-multiselectable
           style={cssVariables}
           className="relative h-(--tree-height)"
         >

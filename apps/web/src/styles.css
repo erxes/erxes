@@ -23,7 +23,8 @@
 @utility org-flow {
   --xy-background-color: var(--color-background);
   --xy-background-pattern-dots-color: var(--color-border);
-  --xy-edge-stroke: var(--color-muted-foreground);
+  --xy-edge-stroke: var(--color-primary);
+  --xy-edge-stroke-width: 1.5;
   --xy-attribution-background-color: transparent;
 }
 

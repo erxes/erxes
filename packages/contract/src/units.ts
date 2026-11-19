@@ -163,7 +163,7 @@ export const unitsContract = {
     .route({
       method: 'GET',
       path: '/units/{id}/children',
-      summary: `The units right under one, by their order then name, ${UNIT_CHILDREN_MAX} at most at once; \`nextCursor\` asks for the rest. Units of hidden types are left out, and inactive ones unless asked for`,
+      summary: `The units right under one in their order, a new or moved one last, ${UNIT_CHILDREN_MAX} at most at once; \`nextCursor\` asks for the rest. Units of hidden types are left out, and inactive ones unless asked for`,
     })
     .input(
       z.object({

@@ -20,6 +20,7 @@ import {
   findUnit,
   findUnitDetail,
   lockTree,
+  placeAfterLast,
   publishUnitEvents,
   setMembers,
   type UnitRow,
@@ -69,15 +70,6 @@ const assertPeople = async (client: Db, fields: UnitFields) => {
   await assertTeam(client, 'memberIds', fields.memberIds ?? []);
 };
 
-const lastPlace = async (client: Db, parentId: string) => {
-  const [row] = await client
-    .select({ last: sql<number>`coalesce(max(${orgUnits.sortOrder}), 0)` })
-    .from(orgUnits)
-    .where(eq(orgUnits.parentId, parentId));
-
-  return row?.last ? row.last + 1 : 0;
-};
-
 export const createUnit = async (
   client: Db,
   { memberIds = [], parentId, ...fields }: UnitFields & { name: string; parentId?: string | null },
@@ -98,7 +90,7 @@ export const createUnit = async (
     typeId: type.id,
     parentId: parent.id,
     path: `${parent.path}${id}/`,
-    sortOrder: fields.sortOrder ?? (await lastPlace(client, parent.id)),
+    sortOrder: fields.sortOrder ?? (await placeAfterLast(client, parent.id)),
     createdBy: actorOf(caller()).actorId,
   });
   await setMembers(client, id, memberIds);
@@ -176,7 +168,7 @@ export const moveUnit = async (client: Db, id: string, parentId: string | null) 
   assertPlacement(await findType(client, before.typeId), parent.typeId);
 
   const to = `${parent.path}${id}/`;
-  const sortOrder = await lastPlace(client, parent.id);
+  const sortOrder = await placeAfterLast(client, parent.id);
 
   await client
     .update(orgUnits)

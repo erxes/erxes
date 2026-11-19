@@ -112,6 +112,8 @@ export const useUnitTree = (selectedId: string | null) => {
   return {
     rootQuery,
     index,
+    /** The units whose subunits show, the organisation's own first. */
+    openIds,
     loading,
     failed: failed?.error ?? null,
     retry: () => void failed?.refetch(),

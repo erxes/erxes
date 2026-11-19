@@ -1,68 +1,90 @@
 import { useReactFlow, useStore } from '@xyflow/react';
 import { useEffect, useRef } from 'react';
-import { CARD_HEIGHT, CARD_WIDTH, type ChartNode, draftNodeId } from './chartLayout';
+import { type ChartNode, draftNodeId } from './chartLayout';
 import { useWorkspace } from './context';
 
 export const ANIMATION = { duration: 300 };
 const FIT_VIEW = { padding: 0.2, maxZoom: 1 };
 
+/** The zoom a card is brought to when the view is zoomed out too far to read it. */
+const READABLE_ZOOM = 0.9;
+
+type View = { x: number; y: number; zoom: number };
+
+/** Whether the whole card shows in a pane of this size at this view. */
+const inSight = (node: ChartNode, view: View, pane: { width: number; height: number }) => {
+  const left = node.position.x * view.zoom + view.x;
+  const top = node.position.y * view.zoom + view.y;
+
+  return (
+    left >= 0 &&
+    top >= 0 &&
+    left + node.width * view.zoom <= pane.width &&
+    top + node.height * view.zoom <= pane.height
+  );
+};
+
 /**
- * Pans to the focused unit (a search pick, a path click, the new-unit card) once it is drawn,
- * brings a newly selected card into view when it sits off screen, and fits
- * the chart when the page menu asks. Panning by hand never snaps back.
+ * Moves the view only when it has to. A unit picked from search or the path is centred once it
+ * is drawn. A newly selected card, and the new-unit card, are brought in only when they sit off
+ * screen, at the zoom the view already has: a card in sight leaves the view where it is. The chart
+ * fits the screen when the page menu asks, and panning by hand never snaps back.
  */
 export const useChartFocus = (nodes: ChartNode[], ready: boolean) => {
   const { selectedId, focusId, clearFocus, draftParentId, fitRequest } = useWorkspace();
   const { getViewport, setCenter, fitView } = useReactFlow();
-  const paneWidth = useStore((state) => state.width);
-  const paneHeight = useStore((state) => state.height);
-  const latest = useRef({ nodes, paneWidth, paneHeight, clearFocus });
+  const width = useStore((state) => state.width);
+  const height = useStore((state) => state.height);
+  const latest = useRef({ nodes, width, height, clearFocus });
 
   useEffect(() => {
-    latest.current = { nodes, paneWidth, paneHeight, clearFocus };
+    latest.current = { nodes, width, height, clearFocus };
   });
 
-  const center = useRef((node: ChartNode, zoom: number) => {
-    void setCenter(node.position.x + CARD_WIDTH / 2, node.position.y + CARD_HEIGHT / 2, {
-      zoom,
+  /** Centres a drawn card, at `zoom` or the view's own; `onlyIfHidden` leaves one in sight alone. */
+  const show = useRef((id: string | null, onlyIfHidden: boolean, zoom?: number) => {
+    const current = latest.current;
+    const node = current.nodes.find((drawn) => drawn.id === id);
+    const view = getViewport();
+
+    if (!node || !current.width || (onlyIfHidden && inSight(node, view, current))) return false;
+
+    void setCenter(node.position.x + node.width / 2, node.position.y + node.height / 2, {
+      zoom: zoom ?? view.zoom,
       ...ANIMATION,
     });
+
+    return true;
   });
+
+  /** Where a card is drawn, so an effect runs again once it is drawn or has moved. */
+  const placeOf = (id: string | null) => {
+    const node = nodes.find((drawn) => drawn.id === id);
+
+    return node ? `${node.position.x},${node.position.y}` : null;
+  };
 
   useEffect(() => {
     if (ready && fitRequest) void fitView({ ...FIT_VIEW, ...ANIMATION });
   }, [ready, fitRequest, fitView]);
 
   useEffect(() => {
-    const current = latest.current;
-    const node = current.nodes.find(({ id }) => id === selectedId);
+    if (ready) show.current(selectedId, true);
+  }, [ready, selectedId]);
 
-    if (!ready || !node || !current.paneWidth) return;
-
-    const { x, y, zoom } = getViewport();
-    const left = node.position.x * zoom + x;
-    const top = node.position.y * zoom + y;
-
-    const inSight =
-      left >= 0 &&
-      top >= 0 &&
-      left + CARD_WIDTH * zoom <= current.paneWidth &&
-      top + CARD_HEIGHT * zoom <= current.paneHeight;
-
-    if (!inSight) center.current(node, zoom);
-  }, [ready, selectedId, getViewport]);
-
-  const target = focusId ?? (draftParentId ? draftNodeId(draftParentId) : null);
-  const targetNode = nodes.find(({ id }) => id === target);
-  const targetAt = targetNode ? `${targetNode.position.x},${targetNode.position.y}` : null;
+  const focusedAt = placeOf(focusId);
 
   useEffect(() => {
-    const node = latest.current.nodes.find(({ id }) => id === target);
+    if (!ready || !focusedAt) return;
 
-    if (!ready || !node || !targetAt || !latest.current.paneWidth) return;
+    if (show.current(focusId, false, Math.max(getViewport().zoom, READABLE_ZOOM)))
+      latest.current.clearFocus();
+  }, [ready, focusId, focusedAt, getViewport]);
 
-    center.current(node, Math.max(getViewport().zoom, 0.9));
+  const draftId = draftParentId ? draftNodeId(draftParentId) : null;
+  const draftAt = placeOf(draftId);
 
-    if (focusId) latest.current.clearFocus();
-  }, [ready, focusId, target, targetAt, getViewport]);
+  useEffect(() => {
+    if (ready && draftAt) show.current(draftId, true);
+  }, [ready, draftId, draftAt]);
 };
