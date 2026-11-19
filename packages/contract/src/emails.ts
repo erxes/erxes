@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { emailSendersContract } from './emailSenders';
 import { emailSettingsContract } from './emailSettings';
 import { COMMON_ERRORS } from './errors';
 
@@ -36,4 +37,5 @@ export const emailsContract = {
     .input(EmailMessage)
     .output(z.object({ queued: z.int() })),
   ...emailSettingsContract,
+  ...emailSendersContract,
 };

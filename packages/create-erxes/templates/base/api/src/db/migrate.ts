@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { db } from './client.ts';
 
 /** Our own tracking table: core and other plugins in the same database keep theirs. */
-export const MIGRATIONS_TABLE = '__drizzle_migrations___id__';
+const MIGRATIONS_TABLE = '__drizzle_migrations___id__';
 
 const migrationsTable = sql`${sql.identifier('public')}.${sql.identifier(MIGRATIONS_TABLE)}`;
 

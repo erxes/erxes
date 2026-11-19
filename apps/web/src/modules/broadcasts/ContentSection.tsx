@@ -1,7 +1,8 @@
 import type { BroadcastPlaceholder } from '@erxes/core-contract';
-import { Input, Textarea } from 'erxes-ui';
+import { Input, Label, Textarea } from 'erxes-ui';
 import { lazy, Suspense, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SenderSelect } from '~/components/SenderSelect';
 import { fieldToken } from './body-editor/fields';
 import { LabelRow } from './PlaceholderMenu';
 import type { BroadcastDraft } from './useBroadcastDraft';
@@ -92,6 +93,7 @@ interface SectionProps {
 /** An email's subject, preview text and sender. */
 const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
   const { t } = useTranslation('broadcasts');
+  const fromId = useId();
 
   return (
     <>
@@ -116,13 +118,22 @@ const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
           label={t('from-name', 'From name')}
           value={draft.fromName}
           onChange={(fromName) => onChange({ fromName })}
-          hint={t('from-name-hint', "The address stays the deployment's sender.")}
+          hint={t('from-name-hint', 'Empty: the sender’s name.')}
         />
+        <div className="space-y-1.5">
+          <Label htmlFor={fromId}>{t('from-email', 'From')}</Label>
+          <SenderSelect
+            id={fromId}
+            value={draft.fromEmail}
+            onChange={(fromEmail) => onChange({ fromEmail })}
+          />
+        </div>
         <TextField
           label={t('reply-to', 'Replies go to')}
           value={draft.replyTo}
           onChange={(replyTo) => onChange({ replyTo })}
           placeholder="team@example.com"
+          hint={t('reply-to-hint', 'Empty: replies go to the From address.')}
         />
       </div>
     </>
