@@ -14,11 +14,14 @@ import { importCustomers } from './customers';
 import { importFavorites } from './favorites';
 import { importFields } from './fields';
 import { importFieldValues } from './fieldValues';
+import { importGateways } from './gateways';
+import { importInvoices } from './invoices';
 import { reportLeftOut } from './leftOut';
 import { importNotes, importPluginNotes } from './notes';
 import { importNotifications } from './notifications';
 import { importPluginActivities } from './pluginActivities';
 import { importProducts } from './products';
+import { importReceipts } from './receipts';
 import type { Run } from './run';
 import { importSegments } from './segments';
 import { v1Source } from './sources';
@@ -27,6 +30,7 @@ import { importSuppressions } from './suppressions';
 import { importTags } from './tags';
 import { importUnits } from './units';
 import { importUsers } from './users';
+import { importWebhooks } from './webhooks';
 
 export interface Step {
   name: string;
@@ -156,6 +160,27 @@ export const STEPS: Step[] = [
     name: 'files',
     collections: ['files', 'file_versions', 'filemanager_files'],
     run: importStoredFiles,
+  },
+  {
+    name: 'payments',
+    collections: [
+      'payment_methods',
+      'payments',
+      'golomt_bank_configs',
+      'payment_configs',
+      'payment_invoices',
+      'invoices',
+      'payment_transactions',
+      'put_responses',
+      'webhooks',
+      'erxes_office.webhooks',
+    ],
+    run: async (run) => {
+      await importGateways(run);
+      await importInvoices(run);
+      await importReceipts(run);
+      await importWebhooks(run);
+    },
   },
   {
     name: 'inventory',

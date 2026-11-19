@@ -52,10 +52,6 @@ const RULES: [RegExp, string][] = [
     "per-type notification switches: core's notification groups are different; members set them again",
   ],
   [
-    /^webhooks$/,
-    'webhooks: core seals each signing secret with the server key, so members add them again',
-  ],
-  [
     /^(apps|clients|app_tokens)$/,
     'API apps and clients with their secrets: made again as API keys',
   ],
@@ -76,18 +72,6 @@ const RULES: [RegExp, string][] = [
   [
     /^(automations$|automations_executions|automations_notes|automation_workflow_templates|automations_waiting)/,
     'automations: each uses a plugin trigger or action (Facebook, inbox, Sales, POS, AI agent) or is archived or a template; members build them again in core automations, with their runs and notes',
-  ],
-  [
-    /^(payment_methods|payments|golomt_bank_configs)$/,
-    'payment gateways: core seals gateway keys with the server key, so members add gateways again',
-  ],
-  [
-    /^(invoices|payment_invoices|payment_transactions)$/,
-    'invoices and transactions: a core invoice needs its core gateway, which members add again',
-  ],
-  [
-    /^put_responses$/,
-    'eBarimt receipts of old invoices, deals and POS orders: a core receipt needs its core invoice',
   ],
   [
     /^(ebarimt_product_rules|vat_rows|ctax_rows)$/,
