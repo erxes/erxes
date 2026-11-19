@@ -515,6 +515,24 @@ export const EBARIMT_PRINT_BLOCKS = [
 /** The receipt printer's paper: 58 mm or 80 mm rolls, or A4. */
 export const EBARIMT_PAPER_SIZES = ['58mm', '80mm', 'a4'] as const;
 
+// ─── Custom integrations ────────────────────────────────────────────────────
+
+export const INTEGRATION_PROGRAM_KINDS = ['action', 'incoming'] as const;
+
+export const INTEGRATION_FIELD_TYPES = [
+  'text',
+  'longtext',
+  'number',
+  'boolean',
+  'date',
+  'select',
+  'json',
+] as const;
+
+export const INTEGRATION_REQUEST_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
+
+export const INTEGRATION_SIGNATURE_ENCODINGS = ['hex', 'base64'] as const;
+
 // ─── Email sending ──────────────────────────────────────────────────────────
 
 /** How an organisation sends its emails, when not through the server's (`EMAIL_SMTP_URL`). */
