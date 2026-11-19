@@ -12,6 +12,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type ContactScope, isLimited, type Lifetime } from './keyDraft';
 import type { DraftProps } from './keyParts';
+import { UnitMultiPicker } from '~/modules/settings/structure/UnitPicker';
 import { useKeyLookups } from './useKeyLookups';
 
 const NEVER = 'never';
@@ -21,15 +22,15 @@ const SCOPES = ['all', 'own', 'units'] as const satisfies readonly ContactScope[
 const lifetimeOf = (value: string): Lifetime =>
   API_KEY_LIFETIMES.find((days) => String(days) === value) ?? null;
 
-/** Which contacts a regular key sees: all, the maker's, a branch's or department's; with tags. */
+/** Which contacts a regular key sees: all, the maker's, or those of some units; with tags. */
 const ContactLimits = ({ draft, onChange }: DraftProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys.form' });
-  const { units, tags } = useKeyLookups();
+  const { tags } = useKeyLookups();
 
   const labels: Record<ContactScope, string> = {
     all: t('scope-all', 'All'),
     own: t('scope-own', 'Only mine'),
-    units: t('scope-units', 'In branches or departments'),
+    units: t('scope-units', 'In units of the structure'),
   };
 
   return (
@@ -52,13 +53,11 @@ const ContactLimits = ({ draft, onChange }: DraftProps) => {
           ))}
         </ChoiceboxGroup>
         {draft.scope === 'units' && (
-          <LookupPicker
-            multiple
+          <UnitMultiPicker
             className="w-full"
-            lookup={units}
             value={draft.unitIds}
-            onValueChange={(unitIds) => onChange({ ...draft, unitIds })}
-            placeholder={t('units-placeholder', 'Choose branches or departments')}
+            onChange={(unitIds) => onChange({ ...draft, unitIds })}
+            placeholder={t('units-placeholder', 'Choose units')}
           />
         )}
       </div>

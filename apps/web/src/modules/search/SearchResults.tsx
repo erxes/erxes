@@ -29,7 +29,7 @@ const CORE_TYPES: Record<SearchType, { label: string; icon: Icon; contentType?: 
   company: { label: 'Companies', icon: IconBuilding, contentType: 'core:company' },
   product: { label: 'Products', icon: IconPackage, contentType: 'core:product' },
   member: { label: 'Team members', icon: IconUserCircle, contentType: 'core:user' },
-  unit: { label: 'Branches and departments', icon: IconHierarchy2 },
+  unit: { label: 'Structure', icon: IconHierarchy2 },
 };
 
 const HitItem = ({
@@ -86,7 +86,7 @@ const CoreGroups = ({ hits, onDone }: { hits: SearchHit[]; onDone: () => void })
     const { contentType } = CORE_TYPES[hit.type];
 
     if (contentType) openRecord({ contentType, contentId: hit.id });
-    else void navigate(paths.settings.structure);
+    else void navigate(paths.settings.structureUnit(hit.id));
 
     onDone();
   };

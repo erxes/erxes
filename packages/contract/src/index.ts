@@ -27,7 +27,8 @@ import { rolesContract } from './roles';
 import { searchContract } from './search';
 import { tagsContract } from './tags';
 import { trashContract } from './trash';
-import { unitTypesContract, unitsContract } from './units';
+import { unitTypesContract } from './unitTypes';
+import { unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
 import { saasContract } from './saas';
@@ -222,6 +223,8 @@ export * from './search';
 export * from './tags';
 
 export * from './units';
+
+export * from './unitTypes';
 
 export * from './timelines';
 

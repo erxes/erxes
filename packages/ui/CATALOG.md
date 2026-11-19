@@ -34,7 +34,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `Board.{Column, Card, Skeleton}` Cards in columns, such as leads by stage, to drag to another column.
 - `type BoardMove` A dropped card: its old and new column, and the card it now sits above.
-- `<DisplayMenu list displays>` The Display menu in a list's filter bar: table, board, list or its own.
+- `<DisplayMenu list displays variant>` The Display menu in a list's filter bar: table, board, list or its own.
 - `EnumCursorDirection` Which way a cursor-paged table loads more rows: forward or backward.
 - `Filter.{Trigger, Popover, Item, CommandItem, View, …}` Parts of a filter popover and bar, for a page without saved views.
 - `<ListFilter recordType>` A list's filter: a view bar button, and a chip row while it filters.
@@ -152,8 +152,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Avatar.{Image, Fallback}` A person's picture, round or square, falling back to their initials.
 - `type AvatarProps` A `span`'s props plus `corners`, `ring` and `size`.
 - `<BackgroundGradientAnimation containerClassName>` Slowly moving colour blobs behind `children`, as a backdrop.
-- `<Badge variant size onClose>` A small tinted label for a status, tag or count; `onClose` adds an x.
-- `type BadgeProps { onClose }` Div props plus `variant`, `size` and `onClose`, which adds a remove x.
+- `<Badge variant size onClose dot>` A small tinted label for a status, tag or count; `onClose` adds an x.
+- `type BadgeProps { onClose, dot }` Div props plus `variant`, `size` and `onClose`, which adds a remove x.
 - `badgeVariants` The badge's classes by `variant` and `size`, to style another element.
 - `Breadcrumb.{List, Item, Link, Page, Separator, …}` The trail of links to the current page, on the left of a `PageHeader`.
 - `<Button variant tone size>` A button in the theme's variants, tones and sizes; native by default.
@@ -182,6 +182,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `DropdownMenu.{Trigger, Group, Sub, SubTrigger, SubContent, …}` A menu of actions that opens from a button, such as a row's "more" menu.
 - `Empty.{Header, Title, Description, Content, Media}` A list's or page's empty state: icon, title, a line and an action.
 - `Form.{Control, Description, Field, Item, Label, …}` react-hook-form's provider with field, label, control and error parts.
+- `Frame.{Label}` A dashed box with a name tab, around things that belong together.
 - `HoverCard.{Trigger, Content}` A preview card that opens when the pointer rests on a link, after 700ms.
 - `<IconTip label hotkey>` The hover label of an icon-only button, with its shortcut if it has one.
 - `InfoCard.{Content}` A tinted dashboard tile: a caps title, an info tip and a content box.
@@ -214,6 +215,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<Toggle variant size>` A button that stays pressed or not, such as bold in a toolbar.
 - `ToggleGroup.{Item}` A row of toggle buttons where one or several stay pressed.
 - `Tooltip.{Provider, Trigger, Content}` A short label that shows on hover or focus of its trigger.
+- `Tree.{Row, Line, Header}` Rows indented under their parents, which open and close.
 - `Upload` An image upload: a preview tile, an upload button and a remove button.
 - `useFieldControl()` A form row's label, error and state for its control.
 

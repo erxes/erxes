@@ -88,6 +88,20 @@ const companyLoader = loaderById(
   (id) => client.companies.get({ id }),
 );
 
+const memberLoader = loaderById(
+  (ids) => client.users.list({ ids, limit: 100 }),
+  (id) => client.users.get({ id }),
+);
+
+/**
+ * One team member by id, with their role and status. It is cached under the query the member's
+ * panel reads, and the members one page asks for load together in one request.
+ */
+export const memberQuery = (id: string) => ({
+  ...orpc.users.get.queryOptions({ input: { id }, staleTime: 60_000 }),
+  queryFn: () => memberLoader.load(id),
+});
+
 /**
  * Where erxes-ui's `ContactLink` reads a customer or company:
  * `<ContactLink contentType="core:customer" contentId={id} contacts={contactQueries} />`.

@@ -30,6 +30,7 @@ export {
   IconBrandX,
   IconBriefcase,
   IconBuildingSkyscraper,
+  IconBuildingStore,
   IconCalendar,
   IconCalendarDue,
   IconCalendarEvent,

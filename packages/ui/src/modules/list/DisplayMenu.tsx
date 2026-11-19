@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { Button } from '../../components/button';
 import { IconTip } from '../../components/icon-tip';
 import { Popover } from '../../components/popover';
+import { ToggleGroup } from '../../components/toggle-group';
 import { storedFamily } from '../../lib/stored';
 import { cn } from '../../lib/utils';
 
@@ -77,16 +78,48 @@ const BUILT_IN = {
  * It offers table or board, or the `displays` the list offers, such as
  * `['list', 'board', 'table']`, or the list's own (`TListDisplayOption`) among them:
  * `[{ key: 'cards', label, icon }, 'table']`. `useListDisplay(list, displays)` reads the choice.
+ * `variant="switch"` shows the displays as buttons that stay in sight, for a page with two.
  */
 export const DisplayMenu = <const K extends string = never>({
   list,
   displays = TABLE_AND_BOARD,
+  variant = 'menu',
 }: {
   list: string;
   displays?: ListDisplays<K>;
+  variant?: 'menu' | 'switch';
 }) => {
   const [current, setDisplay] = useListDisplay(list, displays);
   const { t } = useTranslation('views', { keyPrefix: 'display' });
+
+  const options = displays.map((display) =>
+    typeof display === 'string'
+      ? {
+          value: display,
+          label: t(display, BUILT_IN[display].fallback),
+          icon: BUILT_IN[display].icon,
+        }
+      : { value: display.key, label: display.label, icon: display.icon },
+  );
+
+  if (variant === 'switch')
+    return (
+      <ToggleGroup
+        variant="outline"
+        size="icon"
+        aria-label={t('view', 'View')}
+        value={[current]}
+        onValueChange={([next]) => {
+          if (next) setDisplay(next);
+        }}
+      >
+        {options.map(({ value, label, icon: DisplayIcon }) => (
+          <ToggleGroup.Item key={value} value={value} aria-label={label} title={label}>
+            <DisplayIcon />
+          </ToggleGroup.Item>
+        ))}
+      </ToggleGroup>
+    );
 
   return (
     <Popover>
@@ -102,30 +135,21 @@ export const DisplayMenu = <const K extends string = never>({
       <Popover.Content align="end" className={displays.length > 2 ? 'w-80' : 'w-64'}>
         <p className="mb-2 text-xs font-medium text-muted-foreground">{t('view', 'View')}</p>
         <div className={cn('grid gap-2', displays.length > 2 ? 'grid-cols-3' : 'grid-cols-2')}>
-          {displays.map((display) => {
-            const value = keyOf(display);
-
-            const { label, icon: DisplayIcon } =
-              typeof display === 'string'
-                ? { label: t(display, BUILT_IN[display].fallback), icon: BUILT_IN[display].icon }
-                : display;
-
-            return (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={current === value}
-                onClick={() => setDisplay(value)}
-                className={cn(
-                  'flex flex-col items-center gap-1.5 rounded-lg border p-3 text-sm text-muted-foreground transition-colors hover:bg-accent',
-                  current === value && 'border-primary bg-primary/5 font-medium text-foreground',
-                )}
-              >
-                <DisplayIcon className="size-5" />
-                <span className="text-center">{label}</span>
-              </button>
-            );
-          })}
+          {options.map(({ value, label, icon: DisplayIcon }) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={current === value}
+              onClick={() => setDisplay(value)}
+              className={cn(
+                'flex flex-col items-center gap-1.5 rounded-lg border p-3 text-sm text-muted-foreground transition-colors hover:bg-accent',
+                current === value && 'border-primary bg-primary/5 font-medium text-foreground',
+              )}
+            >
+              <DisplayIcon className="size-5" />
+              <span className="text-center">{label}</span>
+            </button>
+          ))}
         </div>
       </Popover.Content>
     </Popover>

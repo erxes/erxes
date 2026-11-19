@@ -35,7 +35,7 @@ export const KeyKindCell = ({ kind }: { kind: ApiKey['kind'] }) => {
 export const KeyAccessCell = ({ apiKey }: { apiKey: ApiKey }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys' });
   const sentence = useKeySentence();
-  const { nameOf } = useKeyLookups();
+  const { nameOf } = useKeyLookups(apiKey.unitIds);
   const { titled } = useKeyPlugins();
 
   const text =

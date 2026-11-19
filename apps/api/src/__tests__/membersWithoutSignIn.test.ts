@@ -25,7 +25,7 @@ describe('team members who do not sign in', { timeout: 120_000 }, () => {
     expect((await workspaceUsage(t.ids.org)).usage.teamMembers).toBe(seats);
 
     // They are team members everywhere else: a unit takes them, the list filters them.
-    const depot = await owner.units.create({ kind: 'branch', name: 'Depot', memberIds: [bold.id] });
+    const depot = await owner.units.create({ name: 'Depot', memberIds: [bold.id] });
 
     expect(depot.memberIds).toEqual([bold.id]);
     expect((await owner.users.list({ canSignIn: false })).data.map((user) => user.id)).toEqual([

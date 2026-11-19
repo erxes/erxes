@@ -208,11 +208,18 @@ export const ACCESS = {
   'tags.update': needs('tags.manage'),
   'tags.remove': needs('tags.delete'),
 
-  // Branches and departments: every member reads them (pickers); plugins keep a copy.
+  // The structure: every member reads it (pickers); plugins keep a copy. A move changes who
+  // reaches what is under the unit, so it needs the same right as every other change.
   'units.list': { member: 'any', plugin: 'units:read' },
+  'units.root': { member: 'any', plugin: 'units:read' },
+  'units.search': { member: 'any', plugin: 'units:read' },
   'units.get': { member: 'any', plugin: 'units:read' },
+  'units.children': { member: 'any', plugin: 'units:read' },
+  'units.ancestors': { member: 'any', plugin: 'units:read' },
   'units.create': { member: 'structure.manage', plugin: 'units:write' },
   'units.update': { member: 'structure.manage', plugin: 'units:write' },
+  'units.move': { member: 'structure.manage', plugin: 'units:write' },
+  'units.reorder': { member: 'structure.manage', plugin: 'units:write' },
   'units.remove': { member: 'structure.manage', plugin: 'units:write' },
   'units.assign': { member: 'structure.manage', plugin: 'units:write' },
   'units.import': { plugin: 'units:write' },

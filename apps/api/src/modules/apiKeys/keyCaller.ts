@@ -4,12 +4,12 @@ import {
   type Caller,
   type Db,
   orgUnitMembers,
-  orgUnits,
   type RowLimits,
   roles,
   users,
 } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { textArray } from '@erxes/plugin-sdk/filter';
+import { and, eq, sql } from 'drizzle-orm';
 import { BlockList, isIP } from 'node:net';
 import { areaPermissions, type KeyDecision } from '~/http/keyRules';
 
@@ -41,19 +41,10 @@ const ipAllowed = (ranges: readonly string[], ip: string | null) => {
 
 /** Members of the units or any unit under them. */
 const unitMembers = async (client: Db, unitIds: readonly string[]) => {
-  const tree = sql`(
-    with recursive tree as (
-      select id from ${orgUnits} where ${inArray(orgUnits.id, [...unitIds])}
-      union all
-      select u.id from ${orgUnits} u join tree on u.parent_id = tree.id
-    )
-    select id from tree
-  )`;
-
   const rows = await client
     .selectDistinct({ userId: orgUnitMembers.userId })
     .from(orgUnitMembers)
-    .where(sql`${orgUnitMembers.unitId} in ${tree}`);
+    .where(sql`${orgUnitMembers.unitId} in (select core_units_under(${textArray([...unitIds])}))`);
 
   return rows.map((row) => row.userId);
 };

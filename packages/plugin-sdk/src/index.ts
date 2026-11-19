@@ -46,15 +46,20 @@
  *
  *   const worker = await core.forOrg(orgId).users.add({ fullName, employeeId, phone });
  *
- * Branches and departments (scopes `units:read`, `units:write`; subscribe to `core.unit.*`): core's,
- * shared by plugins. Keep a read-only copy for your own visibility queries and refresh it whenever
- * a `core.unit.*` event arrives (the event names the unit in `entityId`); bring your old units in
+ * The organisation's structure (scopes `units:read`, `units:write`; subscribe to `core.unit.*`):
+ * core's, one tree shared by plugins, under the organisation's own unit (`units.root`, the only
+ * unit without a parent or a type). Keep a read-only copy for your own visibility queries: page
+ * `units.list` (inactive units and hidden ones included) and refresh a unit whenever a
+ * `core.unit.*` event names it in `entityId`; an update with `payload.subtree` true is a move, so
+ * read every unit under it again (their `path` starts with its `path`). Bring your old units in
  * once with `units.import`, which keeps their ids and answers where each one went. Each unit has a
- * `typeId`, one of the organisation's `unitTypes` of its kind (Branch and Department to start);
- * bring your own types first with `unitTypes.import` and name them on the units you import.
+ * `typeId`, one of the organisation's `unitTypes` (Branch and Department to start). A type your
+ * code relies on goes in the manifest's `unitTypes` (`{ code: 'team', name: 'Team' }`): every
+ * organisation with your plugin gets it, and members can't change or delete it; find it in
+ * `unitTypes.list` by `plugin` and `code`. Types that are only data come with `unitTypes.import`.
  *
- *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
- *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
+ *   const page = await core.forOrg(orgId).units.list({ limit: 100 });    // by pages, with memberIds
+ *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, name, parentId, memberIds }] });
  *
  * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.

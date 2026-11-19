@@ -14,7 +14,7 @@ const DAY = 86_400_000;
 /** The sentence for what the form holds now. */
 const useDraftSentence = (draft: KeyDraft, saved?: ApiKey) => {
   const sentence = useKeySentence();
-  const { nameOf } = useKeyLookups();
+  const { nameOf } = useKeyLookups(draft.unitIds);
   const { titled } = useKeyPlugins();
   const [now] = useState(() => Date.now());
 

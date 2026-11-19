@@ -1,12 +1,21 @@
 import type { SearchHit, SearchType } from '@erxes/core-contract';
-import { companies, customers, type Db, orgUnits, products, users } from '@erxes/core-db';
-import { and, desc, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
+import {
+  companies,
+  customers,
+  type Db,
+  orgUnits,
+  orgUnitTypes,
+  products,
+  users,
+} from '@erxes/core-db';
+import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
-import { matchEveryWord } from '~/lib/search';
 import { inOrder } from '~/lib/sequence';
 import { companyListWhere } from '~/modules/companies/companyList';
 import { customerListWhere } from '~/modules/customers/customerList';
 import { productSearch } from '~/modules/products/productList';
+import { reachable } from '~/modules/units/unitRows';
+import { bestMatchFirst, unitsMatching } from '~/modules/units/unitTree';
 import { userSearch } from '~/modules/users/users.service';
 
 /** The first non-empty of the values, as SQL text. */
@@ -80,24 +89,24 @@ const memberHits: Finder = (client, q, limit) =>
     .orderBy(desc(users.createdAt))
     .limit(limit);
 
-const unitHits: Finder = (client, q, limit) =>
-  client
+const unitHits: Finder = (client, q, limit) => {
+  const matched = unitsMatching(client, q);
+
+  return client
     .select({
       type: sql<SearchType>`'unit'`,
       id: orgUnits.id,
       title: orgUnits.name,
       subtitle: sql<
         string | null
-      >`concat_ws(' · ', case ${orgUnits.kind} when 'branch' then 'Branch' else 'Department' end, ${orgUnits.code})`,
+      >`concat_ws(' · ', (select ${orgUnitTypes.name} from ${orgUnitTypes} where ${orgUnitTypes.id} = ${orgUnits.typeId}), ${orgUnits.code})`,
     })
-    .from(orgUnits)
-    .where(
-      matchEveryWord(q, (pattern) =>
-        or(ilike(orgUnits.name, pattern), ilike(orgUnits.code, pattern)),
-      ),
-    )
-    .orderBy(orgUnits.name)
+    .from(matched)
+    .innerJoin(orgUnits, eq(orgUnits.id, matched.id))
+    .where(reachable(false))
+    .orderBy(...bestMatchFirst(matched))
     .limit(limit);
+};
 
 /** What each type searches, and the permission a member needs to see it (none: every member). */
 const FINDERS: Record<SearchType, { find: Finder; needs?: string }> = {

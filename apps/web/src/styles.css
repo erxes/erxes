@@ -1,6 +1,7 @@
 /* One Tailwind build for the whole app: erxes-ui's source styles (theme, page
    defaults, component styles, its own utilities), plus the utilities this app's code uses. */
 @import '../../../packages/ui/src/styles.css';
+@import '@xyflow/react/dist/style.css' layer(utilities);
 @source './';
 @source '../node_modules/streamdown/dist/*.js';
 
@@ -16,6 +17,15 @@
 @utility dot-grid {
   background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
   background-size: 18px 18px;
+}
+
+/* The structure chart (React Flow) in the theme's colours. */
+@utility org-flow {
+  --xy-background-color: var(--color-background);
+  --xy-background-pattern-dots-color: var(--color-border);
+  --xy-edge-stroke: var(--color-primary);
+  --xy-edge-stroke-width: 1.5;
+  --xy-attribution-background-color: transparent;
 }
 
 /* Scales an element and its layout by --zoom, as the automation canvas's zoom buttons do. */

@@ -10,6 +10,7 @@ import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { syncPluginUnitTypes } from '~/modules/units/pluginUnitTypes';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
@@ -107,6 +108,7 @@ export const installPlugin = async (name: string) => {
   );
 
   await syncPluginFields(tx, name, row.manifest?.fields);
+  await syncPluginUnitTypes(tx, name, row.manifest?.unitTypes);
 
   if (before?.status !== 'active')
     await grantDefaultPermissions(tx, name, row.manifest?.permissionSets);

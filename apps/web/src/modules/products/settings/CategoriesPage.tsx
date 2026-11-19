@@ -14,6 +14,7 @@ import {
   PageContainer,
   PageHeader,
   ScrollArea,
+  Tree,
   useConfirm,
   useToast,
 } from 'erxes-ui';
@@ -80,14 +81,9 @@ const CategoryRow = ({
   const { category } = node;
 
   return (
-    <li className="flex h-10 items-center gap-2 px-3 text-sm hover:bg-muted/50">
-      <span
-        className="flex min-w-0 flex-1 items-center gap-2 pl-(--indent)"
-        style={{ '--indent': `${node.depth * 1.25}rem` }}
-      >
-        <IconFolder className="size-4 shrink-0 text-muted-foreground" />
-        <span className="truncate">{category.name}</span>
-      </span>
+    <Tree.Row depth={node.depth}>
+      <IconFolder className="size-4 shrink-0 text-muted-foreground" />
+      <span className="min-w-0 flex-1 truncate">{category.name}</span>
       {manage && (
         <DropdownMenu>
           <DropdownMenu.Trigger
@@ -114,7 +110,7 @@ const CategoryRow = ({
           </DropdownMenu.Content>
         </DropdownMenu>
       )}
-    </li>
+    </Tree.Row>
   );
 };
 
@@ -170,16 +166,18 @@ export const CategoriesPage = () => {
           }
         >
           {() => (
-            <ul className="m-3 divide-y rounded-lg border">
-              {tree.map((node) => (
-                <CategoryRow
-                  key={node.category.id}
-                  node={node}
-                  manage={manage}
-                  onOpen={setTarget}
-                />
-              ))}
-            </ul>
+            <div className="m-3 rounded-lg border p-1">
+              <Tree aria-label={t('settings.categories', 'Categories')}>
+                {tree.map((node) => (
+                  <CategoryRow
+                    key={node.category.id}
+                    node={node}
+                    manage={manage}
+                    onOpen={setTarget}
+                  />
+                ))}
+              </Tree>
+            </div>
           )}
         </QueryState>
       </ScrollArea>

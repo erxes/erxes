@@ -59,6 +59,8 @@ export { useFieldControl } from './components/field-control';
 
 export { Form } from './components/form';
 
+export { Frame } from './components/frame';
+
 export { HoverCard } from './components/hover-card';
 
 export { IconTip } from './components/icon-tip';
@@ -104,6 +106,8 @@ export { Table } from './components/table';
 export { TabButton, Tabs } from './components/tabs';
 
 export { TextOverflowTooltip } from './components/text-overflow';
+
+export { Tree } from './components/tree';
 
 export { Textarea } from './components/textarea';
 

@@ -121,12 +121,21 @@ export const ERRORS = {
   TAG_LIMIT: { status: 409 },
   /** A member keeps at most FAVORITES_MAX favorites. */
   FAVORITE_LIMIT: { status: 409 },
-  // Branches and departments: at most LIST_MAX per organisation, read whole.
+  // The structure: at most UNIT_MAX units per organisation.
   UNIT_LIMIT: { status: 409 },
+
+  ROOT_UNIT: { status: 409 },
+
+  UNIT_NOT_EMPTY: {
+    status: 409,
+    data: z.object({ children: z.int(), members: z.int(), keys: z.int() }),
+  },
   /** Units still have the type: move them to another first. */
   UNIT_TYPE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
-  /** Each kind keeps at least one active type. */
+  /** The organisation keeps at least one active unit type of its own. */
   LAST_UNIT_TYPE: { status: 409 },
+
+  PLUGIN_UNIT_TYPE: { status: 403, data: z.object({ typeId: z.string(), plugin: z.string() }) },
   INVALID_FIELD: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },

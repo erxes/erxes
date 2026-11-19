@@ -120,6 +120,7 @@ value EntityPicker
 value EnumCursorDirection
 value Filter
 value Form
+value Frame
 value FullNameField
 value FullNameValue
 value HoverCard
@@ -199,6 +200,7 @@ value Toaster
 value Toggle
 value ToggleGroup
 value Tooltip
+value Tree
 value Upload
 value ViewBar
 value addPluginStyles

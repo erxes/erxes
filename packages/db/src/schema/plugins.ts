@@ -116,6 +116,16 @@ export interface StoredPluginManifest {
     /** `false`: a column and sort key only, not in list filters. */
     filterable?: boolean;
   }[];
+
+  unitTypes?: {
+    code: string;
+    name: string;
+    description?: string;
+    color?: string;
+    icon?: string;
+    canBeRoot?: boolean;
+    parents?: string[];
+  }[];
   /**
    * Its records that belong to customers or companies, read from its view `view` (`record_id`
    * and a column per field), so their lists filter by them.

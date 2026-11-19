@@ -29,7 +29,7 @@ const paymentConcerns = (plugin: string, payload: unknown) => {
 /**
  * May this plugin see this event? Payment events: its own invoices and those
  * with a line for it (`payments:read`); customers and companies:
- * `customers:read`; products: `products:read`; branches and departments:
+ * `customers:read`; products: `products:read`; the structure's units:
  * `units:read`; an agent's (`core.agent.*`): the plugin it belongs to; anything else from core or
  * other plugins: `events:read`.
  */

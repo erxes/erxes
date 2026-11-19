@@ -59,7 +59,7 @@ export const users = pgTable(
     /**
      * Signs in to erxes. Off for people the organisation keeps on its team without an
      * account (workers who only use a plugin's own app, such as HR's): they count for
-     * branches, departments and records, not for seats.
+     * units and records, not for seats.
      */
     canSignIn: boolean().default(true).notNull(),
     username: text(),

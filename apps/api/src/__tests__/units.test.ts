@@ -10,12 +10,21 @@ describe('units', { timeout: 120_000 }, () => {
 
   const t = useTwoOrgs();
 
-  it('keeps branches and departments as two trees that only their organisation sees', async () => {
+  it("keeps one tree under the organisation's own unit, which only its organisation sees", async () => {
     const owner = t.owner();
-    const ub = await owner.units.create({ kind: 'branch', name: 'Ulaanbaatar', code: 'UB' });
+    const root = await owner.units.root({});
+
+    expect(root).toMatchObject({
+      name: 'Organization',
+      parentId: null,
+      typeId: null,
+      path: `/${root.id}/`,
+      isActive: true,
+    });
+
+    const ub = await owner.units.create({ name: 'Ulaanbaatar', code: 'UB' });
 
     const zaisan = await owner.units.create({
-      kind: 'branch',
       name: 'Zaisan',
       parentId: ub.id,
       supervisorId: t.ids.member,
@@ -23,32 +32,22 @@ describe('units', { timeout: 120_000 }, () => {
       address: 'Zaisan street 1',
     });
 
-    const finance = await owner.units.create({ kind: 'department', name: 'Finance' });
+    const finance = await owner.units.create({ name: 'Finance' });
 
+    expect(ub).toMatchObject({ parentId: root.id, path: `/${root.id}/${ub.id}/` });
     expect(zaisan).toMatchObject({
-      kind: 'branch',
       parentId: ub.id,
-      path: `/${ub.id}/${zaisan.id}/`,
+      path: `/${root.id}/${ub.id}/${zaisan.id}/`,
       supervisorId: t.ids.member,
       memberIds: [t.ids.member, t.ids.owner].toSorted(),
     });
 
-    // A department never sits under a branch, and codes are unique per kind.
-    await expect(
-      owner.units.create({ kind: 'department', name: 'Sales', parentId: ub.id }),
-    ).rejects.toMatchObject({
-      status: 400,
-      code: 'INVALID_REFERENCE',
-      data: { field: 'parentId' },
+    await expect(owner.units.create({ name: 'Again', code: 'ub' })).rejects.toMatchObject({
+      status: 409,
+      code: 'TAKEN',
+      data: { field: 'code' },
     });
-    await expect(
-      owner.units.create({ kind: 'branch', name: 'Again', code: 'ub' }),
-    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'code' } });
-    expect((await owner.units.create({ kind: 'department', name: 'Ops', code: 'UB' })).code).toBe(
-      'UB',
-    );
 
-    // Members come from the team only.
     await expect(
       owner.units.update({ id: finance.id, memberIds: [t.ids.otherOwner] }),
     ).rejects.toMatchObject({
@@ -57,211 +56,225 @@ describe('units', { timeout: 120_000 }, () => {
       data: { field: 'memberIds' },
     });
 
-    // Every member reads them, by kind or by who is in them; only managers change them.
-    expect((await t.member().units.list({ kind: 'branch' })).data.map((u) => u.name)).toEqual([
-      'Ulaanbaatar',
-      'Zaisan',
+    const top = await t.member().units.children({ id: root.id });
+
+    expect(top.data.map((unit) => unit.name)).toEqual(['Ulaanbaatar', 'Finance']);
+    expect(top.data[0]).toMatchObject({ childCount: 1, memberCount: 0, subtreeMemberCount: 2 });
+    expect(top).toMatchObject({ totalCount: 2, nextCursor: null });
+    expect((await t.member().units.ancestors({ id: zaisan.id })).data.map((u) => u.id)).toEqual([
+      root.id,
+      ub.id,
     ]);
     expect((await t.member().units.list({ userId: t.ids.member })).data.map((u) => u.id)).toEqual([
       zaisan.id,
     ]);
-    await expect(t.member().units.create({ kind: 'branch', name: 'X' })).rejects.toMatchObject({
-      status: 403,
+    expect(await t.member().units.get({ id: ub.id })).toMatchObject({
+      childCount: 1,
+      descendantCount: 1,
+      subtreeMemberCount: 2,
     });
 
-    // The other organisation sees none of it.
-    expect((await t.other().units.list({})).data).toEqual([]);
+    await expect(t.member().units.create({ name: 'X' })).rejects.toMatchObject({ status: 403 });
+
+    expect((await t.other().units.list({})).data.map((unit) => unit.name)).toEqual([
+      'Organization',
+    ]);
     await expect(t.other().units.get({ id: zaisan.id })).rejects.toMatchObject({ status: 404 });
+    await expect(t.other().units.children({ id: root.id })).rejects.toMatchObject({ status: 404 });
   });
 
-  it('moves subtrees, refuses cycles and lifts children when a unit goes', async () => {
+  it("keeps the organisation's own unit where it is", async () => {
     const owner = t.owner();
-    const top = await owner.units.create({ kind: 'department', name: 'Top' });
-    const mid = await owner.units.create({ kind: 'department', name: 'Mid', parentId: top.id });
-    const leaf = await owner.units.create({ kind: 'department', name: 'Leaf', parentId: mid.id });
-    const other = await owner.units.create({ kind: 'department', name: 'Other' });
+    const root = await owner.units.root({});
+    const hq = await owner.units.create({ name: 'Head office' });
+    const refused = { status: 409, code: 'ROOT_UNIT' };
 
-    await expect(owner.units.update({ id: top.id, parentId: leaf.id })).rejects.toMatchObject({
-      status: 400,
-      code: 'INVALID_REFERENCE',
-    });
-
-    await owner.units.update({ id: mid.id, parentId: other.id });
-    expect((await owner.units.get({ id: leaf.id })).path).toBe(
-      `/${other.id}/${mid.id}/${leaf.id}/`,
+    await expect(owner.units.move({ id: root.id, parentId: hq.id })).rejects.toMatchObject(refused);
+    await expect(owner.units.remove({ id: root.id })).rejects.toMatchObject(refused);
+    await expect(owner.units.update({ id: root.id, isActive: false })).rejects.toMatchObject(
+      refused,
     );
-
-    await owner.units.remove({ id: mid.id });
-    expect(await owner.units.get({ id: leaf.id })).toMatchObject({
-      parentId: other.id,
-      path: `/${other.id}/${leaf.id}/`,
-    });
-
-    const events = await owner.events.list({ type: 'core.unit.*' });
-
-    const about = (id: string) =>
-      events.data.filter((event) => event.entityId === id).map((event) => event.type);
-
-    expect(about(mid.id)).toEqual(
-      expect.arrayContaining(['core.unit.created', 'core.unit.updated', 'core.unit.deleted']),
-    );
-    // Units whose path changed are announced too, so plugin copies stay right.
-    expect(about(leaf.id).filter((type) => type === 'core.unit.updated')).toHaveLength(2);
-  });
-
-  it("sets a member's branches and lets plugins import theirs, merging what is already here", async () => {
-    const owner = t.owner();
-    const north = await owner.units.create({ kind: 'branch', name: 'North', code: 'N' });
-    const south = await owner.units.create({ kind: 'branch', name: 'South' });
+    await expect(
+      owner.units.update({ id: root.id, typeId: hq.typeId ?? '' }),
+    ).rejects.toMatchObject(refused);
 
     expect(
-      await owner.units.assign({ userId: t.ids.member, kind: 'branch', unitIds: [north.id] }),
-    ).toEqual({ unitIds: [north.id] });
-    await owner.units.assign({ userId: t.ids.member, kind: 'branch', unitIds: [south.id] });
-    expect((await owner.units.get({ id: north.id })).memberIds).not.toContain(t.ids.member);
+      await owner.units.update({ id: root.id, name: 'Acme', supervisorId: t.ids.owner }),
+    ).toMatchObject({ name: 'Acme', supervisorId: t.ids.owner, parentId: null });
+  });
+
+  it('moves a subtree as one audited change, refuses loops and deletes only empty units', async () => {
+    const owner = t.owner();
+    const root = await owner.units.root({});
+    const top = await owner.units.create({ name: 'Top' });
+    const mid = await owner.units.create({ name: 'Mid', parentId: top.id });
+
+    const leaf = await owner.units.create({
+      name: 'Leaf',
+      parentId: mid.id,
+      memberIds: [t.ids.member],
+    });
+
+    const other = await owner.units.create({ name: 'Other' });
+
+    await expect(owner.units.move({ id: top.id, parentId: leaf.id })).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_REFERENCE',
+      data: { field: 'parentId' },
+    });
+
+    await owner.units.move({ id: mid.id, parentId: other.id });
+    expect((await owner.units.get({ id: leaf.id })).path).toBe(
+      `/${root.id}/${other.id}/${mid.id}/${leaf.id}/`,
+    );
+
+    const { data: moves } = await owner.audit.list({ action: 'unit.moved', targetId: mid.id });
+
+    expect(moves).toHaveLength(1);
+    expect(moves[0]).toMatchObject({
+      changes: { parentId: [top.id, other.id] },
+      metadata: { units: 2, members: 1 },
+    });
+
+    const events = await owner.events.list({ type: 'core.unit.updated' });
+    const about = (id: string) => events.data.filter((event) => event.entityId === id);
+
+    expect(about(mid.id).map((event) => event.payload)).toEqual([
+      { changed: ['parentId', 'path', 'sortOrder'], subtree: true },
+    ]);
+    expect(about(leaf.id)).toEqual([]);
+
     await expect(
-      owner.units.assign({ userId: t.ids.member, kind: 'department', unitIds: [north.id] }),
+      t.hr().units.import({ units: [{ id: `${top.id}/inside`, name: 'Forged', memberIds: [] }] }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
+
+    expect(await owner.units.move({ id: mid.id, parentId: null })).toMatchObject({
+      parentId: root.id,
+      path: `/${root.id}/${mid.id}/`,
+    });
+
+    await expect(owner.units.remove({ id: mid.id })).rejects.toMatchObject({
+      status: 409,
+      code: 'UNIT_NOT_EMPTY',
+      data: { children: 1, members: 0, keys: 0 },
+    });
+    await expect(owner.units.remove({ id: leaf.id })).rejects.toMatchObject({
+      code: 'UNIT_NOT_EMPTY',
+      data: { children: 0, members: 1, keys: 0 },
+    });
+
+    await owner.units.update({ id: leaf.id, memberIds: [] });
+    await owner.units.remove({ id: leaf.id });
+    await expect(owner.units.get({ id: leaf.id })).rejects.toMatchObject({ status: 404 });
+    expect((await owner.units.get({ id: mid.id })).childCount).toBe(0);
+
+    await expect(
+      t.hr().units.import({ units: [{ id: leaf.id, name: 'Back again', memberIds: [] }] }),
+    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'id' } });
+  });
+
+  it('leaves inactive units out unless asked, and keeps units in the order they were added or put in by hand', async () => {
+    const owner = t.owner();
+    const region = await owner.units.create({ name: 'Region West' });
+
+    const add = (name: string) =>
+      owner.units.create({ name: `${name} store`, parentId: region.id });
+
+    const cedar = await add('Cedar');
+    const aspen = await add('Aspen');
+    const birch = await add('Birch');
+
+    const under = async (includeInactive?: boolean) =>
+      (await owner.units.children({ id: region.id, includeInactive })).data.map((u) => u.name);
+
+    expect(await under()).toEqual(['Cedar store', 'Aspen store', 'Birch store']);
+
+    await owner.units.reorder({ id: region.id, unitIds: [birch.id, cedar.id] });
+    await add('Alder');
+    expect(await under()).toEqual(['Birch store', 'Cedar store', 'Aspen store', 'Alder store']);
+
+    await owner.units.update({ id: aspen.id, name: 'Zelkova store' });
+    expect(await under()).toEqual(['Birch store', 'Cedar store', 'Zelkova store', 'Alder store']);
+    await expect(
+      owner.units.reorder({ id: region.id, unitIds: [region.id] }),
     ).rejects.toMatchObject({ status: 400, data: { field: 'unitIds' } });
 
-    // A plugin brings its own: by code, by name and parent, or new with its old id.
+    const first = await owner.units.children({ id: region.id, limit: 3 });
+
+    expect(first).toMatchObject({ totalCount: 4, nextCursor: aspen.id });
+    expect(
+      (await owner.units.children({ id: region.id, limit: 3, cursor: first.nextCursor ?? '' }))
+        .data,
+    ).toMatchObject([{ name: 'Alder store' }]);
+
+    await owner.units.update({ id: birch.id, isActive: false });
+    expect(await under()).toEqual(['Cedar store', 'Zelkova store', 'Alder store']);
+    expect(await under(true)).toContain('Birch store');
+
+    await owner.units.update({ id: region.id, isActive: false });
+    expect((await owner.units.search({ q: 'store' })).data).toEqual([]);
+    expect((await owner.units.search({ q: 'cedar', includeInactive: true })).data).toMatchObject([
+      { name: 'Cedar store', ancestorNames: [expect.any(String), 'Region West'] },
+    ]);
+    expect(await owner.units.get({ id: cedar.id })).toMatchObject({ isActive: true });
+  });
+
+  it("sets a member's units and lets plugins import theirs, merging what is already here", async () => {
+    const owner = t.owner();
+    const root = await owner.units.root({});
+    const north = await owner.units.create({ name: 'North', code: 'N' });
+    const south = await owner.units.create({ name: 'South' });
+
+    expect(await owner.units.assign({ userId: t.ids.disabled, unitIds: [north.id] })).toEqual({
+      unitIds: [north.id],
+    });
+    await owner.units.assign({ userId: t.ids.disabled, unitIds: [south.id] });
+    expect((await owner.units.get({ id: north.id })).memberIds).not.toContain(t.ids.disabled);
+    await expect(
+      owner.units.assign({ userId: t.ids.disabled, unitIds: ['nowhere'] }),
+    ).rejects.toMatchObject({ status: 400, data: { field: 'unitIds' } });
+
     const imported = await t.hr().units.import({
       units: [
-        { id: 'old-north', kind: 'branch', name: 'Northern', code: 'n', memberIds: [t.ids.owner] },
-        { id: 'old-south', kind: 'branch', name: 'south', memberIds: ['gone-user'] },
+        { id: 'old-north', name: 'Northern', code: 'n', memberIds: [t.ids.owner] },
+        { id: 'old-south', name: 'south', memberIds: ['gone-user'] },
         {
           id: 'old-east',
-          kind: 'branch',
           name: 'East',
           parentId: 'old-north',
           supervisorId: t.ids.member,
           memberIds: [t.ids.member],
         },
+        { id: 'old-lost', name: 'Lost', parentId: 'no-such-unit', memberIds: [] },
       ],
     });
 
     expect(imported).toEqual({
-      ids: { 'old-north': north.id, 'old-south': south.id, 'old-east': 'old-east' },
+      ids: {
+        'old-north': north.id,
+        'old-south': south.id,
+        'old-east': 'old-east',
+        'old-lost': 'old-lost',
+      },
       skippedMembers: 1,
     });
     expect(await owner.units.get({ id: 'old-east' })).toMatchObject({
       parentId: north.id,
-      path: `/${north.id}/old-east/`,
+      path: `/${root.id}/${north.id}/old-east/`,
       supervisorId: t.ids.member,
       memberIds: [t.ids.member],
     });
+
+    expect((await owner.units.get({ id: 'old-lost' })).parentId).toBe(root.id);
     expect((await owner.units.get({ id: north.id })).memberIds).toEqual([t.ids.owner]);
 
-    // Importing again changes nothing.
     expect(
-      (
-        await t.hr().units.import({
-          units: [{ id: 'old-east', kind: 'branch', name: 'East', memberIds: [] }],
-        })
-      ).ids,
+      (await t.hr().units.import({ units: [{ id: 'old-east', name: 'East', memberIds: [] }] })).ids,
     ).toEqual({ 'old-east': 'old-east' });
-    // Only plugins import.
+
     await expect(
-      owner.units.import({ units: [{ id: 'x', kind: 'branch', name: 'X', memberIds: [] }] }),
+      owner.units.import({ units: [{ id: 'x', name: 'X', memberIds: [] }] }),
     ).rejects.toMatchObject({ status: 403 });
-  });
-
-  it('gives units types of their kind, whose rules say where they may sit', async () => {
-    const owner = t.owner();
-    const { data: defaults } = await owner.unitTypes.list({});
-
-    // Every organisation starts with one type per kind, and a unit gets its kind's.
-    expect(defaults.map(({ kind, name, code }) => ({ kind, name, code }))).toEqual([
-      { kind: 'branch', name: 'Branch', code: 'branch' },
-      { kind: 'department', name: 'Department', code: 'department' },
-    ]);
-    expect((await t.other().unitTypes.list({ kind: 'branch' })).data).toHaveLength(1);
-
-    const department = defaults[1]?.id ?? '';
-    const finance = await owner.units.create({ kind: 'department', name: 'Finance' });
-
-    expect(finance.typeId).toBe(department);
-
-    // A Team sits only under a Department, never at the top.
-    const team = await owner.unitTypes.create({
-      kind: 'department',
-      name: 'Team',
-      code: 'team',
-      canBeRoot: false,
-      allowedParentTypeIds: [department],
-    });
-
-    await expect(
-      owner.units.create({ kind: 'department', name: 'Loose', typeId: team.id }),
-    ).rejects.toMatchObject({ status: 400, data: { field: 'typeId' } });
-
-    const payroll = await owner.units.create({
-      kind: 'department',
-      name: 'Payroll',
-      typeId: team.id,
-      parentId: finance.id,
-    });
-
-    // A branch type is not a department's, and a type's code is unique for its kind.
-    await expect(
-      owner.units.create({ kind: 'branch', name: 'Depot', typeId: team.id }),
-    ).rejects.toMatchObject({ status: 400, data: { field: 'typeId' } });
-    await expect(
-      owner.unitTypes.create({ kind: 'department', name: 'Squad', code: 'TEAM' }),
-    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'code' } });
-
-    // Finance can't become a Team (it is at the top), nor Payroll move to the top.
-    await expect(owner.units.update({ id: finance.id, typeId: team.id })).rejects.toMatchObject({
-      status: 400,
-      data: { field: 'typeId' },
-    });
-    await expect(owner.units.update({ id: payroll.id, parentId: null })).rejects.toMatchObject({
-      status: 400,
-      data: { field: 'typeId' },
-    });
-
-    // A used type stays, and so does a kind's last active one.
-    await expect(owner.unitTypes.remove({ id: team.id })).rejects.toMatchObject({
-      status: 409,
-      code: 'UNIT_TYPE_IN_USE',
-      data: { count: 1 },
-    });
-    await expect(
-      owner.unitTypes.update({ id: defaults[0]?.id ?? '', isActive: false }),
-    ).rejects.toMatchObject({ status: 409, code: 'LAST_UNIT_TYPE' });
-
-    await owner.units.update({ id: payroll.id, typeId: department });
-    await owner.unitTypes.remove({ id: team.id });
-
-    // A plugin brings its types: by id, by code, or new with its old id.
-    const imported = await t.hr().unitTypes.import({
-      types: [
-        { id: 'hr-dept', kind: 'department', name: 'Dept', code: 'DEPARTMENT' },
-        {
-          id: 'hr-office',
-          kind: 'department',
-          name: 'Office',
-          canBeRoot: false,
-          allowedParentTypeIds: ['hr-dept', 'unknown'],
-        },
-      ],
-    });
-
-    expect(imported.ids).toEqual({ 'hr-dept': department, 'hr-office': 'hr-office' });
-    expect(
-      (await owner.unitTypes.list({ kind: 'department' })).data.find(
-        (type) => type.id === 'hr-office',
-      ),
-    ).toMatchObject({ canBeRoot: false, allowedParentTypeIds: [department] });
-
-    // Imported units keep a type of their kind, or get their kind's first.
-    await t.hr().units.import({
-      units: [
-        { id: 'hr-a', kind: 'department', name: 'A', typeId: 'hr-office', memberIds: [] },
-        { id: 'hr-b', kind: 'branch', name: 'B', typeId: 'hr-office', memberIds: [] },
-      ],
-    });
-    expect((await owner.units.get({ id: 'hr-a' })).typeId).toBe('hr-office');
-    expect((await owner.units.get({ id: 'hr-b' })).typeId).toBe(defaults[0]?.id);
   });
 
   it('sends core.unit.* to plugins that may read units', async () => {
@@ -290,13 +303,10 @@ describe('units', { timeout: 120_000 }, () => {
     });
     await token(t.ids.org);
 
-    await t.owner().units.create({ kind: 'branch', name: 'Depot' });
+    await t.owner().units.create({ name: 'Depot' });
 
     await settle();
 
-    expect(api.received).toContainEqual({
-      type: 'core.unit.created',
-      payload: { kind: 'branch', changed: [] },
-    });
+    expect(api.received).toContainEqual({ type: 'core.unit.created', payload: { changed: [] } });
   });
 });

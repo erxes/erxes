@@ -29,6 +29,7 @@
     "@scalar/api-reference": "1.77.0",
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-query": "^5.62.0",
+    "@xyflow/react": "12.12.1",
     "csv-parse": "^7.0.3",
     "date-fns": "4.1.0",
     "docx": "9.15.3",

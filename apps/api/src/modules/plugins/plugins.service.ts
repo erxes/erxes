@@ -26,6 +26,7 @@ import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { syncPluginUnitTypes } from '~/modules/units/pluginUnitTypes';
 import { checkManifest } from './manifestChecks';
 import { manifestWarnings } from './manifestWarnings';
 import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
@@ -178,6 +179,7 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
   await withOrg(orgId, (scoped) =>
     inOrder(rows, async (row) => {
       await syncPluginFields(scoped, row.name, row.manifest?.fields);
+      await syncPluginUnitTypes(scoped, row.name, row.manifest?.unitTypes);
       await grantDefaultPermissions(scoped, row.name, row.manifest?.permissionSets);
     }),
   );
@@ -282,8 +284,9 @@ export const registerManifest = async (manifest: PluginManifest) => {
       .where(eq(plugins.name, plugin));
     await schedulePluginJobs(tx, plugin, manifest.jobs);
     await approveNewScopes(tx, plugin, manifest);
-    // Every organisation that has it gets the manifest's fields, and what its sets newly give.
+    // Every organisation that has it gets the manifest's fields and unit types, and what its sets newly give.
     await syncPluginFields(tx, plugin, manifest.fields);
+    await syncPluginUnitTypes(tx, plugin, manifest.unitTypes);
     await grantDefaultPermissions(
       tx,
       plugin,

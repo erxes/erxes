@@ -20,7 +20,6 @@ import {
   INVOICE_STATUSES,
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
-  ORG_UNIT_KINDS,
   PLUGIN_LIST_TYPE,
   PRODUCT_KINDS,
   SEARCH_RECORD_TYPES,
@@ -131,7 +130,7 @@ export const API_KEY_AREA_INFO = {
   },
   team: {
     label: 'Team and roles',
-    covers: 'Members, invitations, roles, branches and departments',
+    covers: "Members, invitations, roles and the organisation's structure",
     read: ['team.view'],
     write: ['team.invite', 'team.manage', 'roles.manage', 'structure.manage'],
   },
@@ -252,11 +251,6 @@ export const ContactState = z.enum(CUSTOMER_STATES);
 export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
-
-/** Where a member works (`branch`) or what they do (`department`). */
-export const UnitKind = z.enum(ORG_UNIT_KINDS);
-
-export type UnitKind = z.infer<typeof UnitKind>;
 
 /** What global search finds in core, in the order its groups show. */
 export const SearchType = z.enum(SEARCH_RECORD_TYPES);

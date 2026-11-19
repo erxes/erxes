@@ -2744,6 +2744,26 @@
         }
       }
     },
+    "root": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/root"
+        }
+      }
+    },
+    "search": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/search"
+        }
+      }
+    },
     "get": {
       "~orpc": {
         "errorMap": {},
@@ -2751,6 +2771,26 @@
         "route": {
           "method": "GET",
           "path": "/units/{id}"
+        }
+      }
+    },
+    "children": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/{id}/children"
+        }
+      }
+    },
+    "ancestors": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/{id}/ancestors"
         }
       }
     },
@@ -2771,6 +2811,26 @@
         "route": {
           "method": "PATCH",
           "path": "/units/{id}"
+        }
+      }
+    },
+    "move": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/units/{id}/move"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/units/{id}/order"
         }
       }
     },
