@@ -194,6 +194,21 @@ describe('flow model', () => {
     expect(problems.get('n')).toBeUndefined();
     expect(problems.get('e')).toEqual(['Add a condition']);
   });
+
+  it('tells an action the trigger cannot feed apart from one whose plugin is gone', () => {
+    const problems = flowProblems(
+      [...flow, { id: 'x', type: 'action', action: 'gone.thing.do', input: {} }],
+      [],
+      actions,
+    );
+
+    expect(problems.get('a')).toEqual([
+      '“Assign an owner” needs a customer or company, and this trigger is not about one',
+    ]);
+    expect(problems.get('x')).toEqual([
+      'This action is not available (its plugin may be uninstalled)',
+    ]);
+  });
 });
 
 describe('action inputs', () => {

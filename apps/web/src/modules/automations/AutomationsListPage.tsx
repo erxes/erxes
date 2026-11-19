@@ -22,6 +22,7 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
+import { DescribeAutomation } from './AskAssistant';
 import { catalogQuery } from './automationQueries';
 import { countSteps } from './builder/flowChecks';
 import { describeTrigger } from './builder/flowText';
@@ -263,6 +264,7 @@ export const AutomationsListPage = () => {
         <PageHeader.End>
           {canManage && (
             <>
+              <DescribeAutomation />
               <Button
                 variant="outline"
                 disabled={create.isPending}

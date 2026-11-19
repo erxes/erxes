@@ -22,7 +22,7 @@ test('pickers open at the top with the current value marked, and data follows th
   await page.goto(`/automations/${automation.id}`);
 
   // The event picker opens at the categories, not inside Payments, with the event marked.
-  await page.getByRole('button', { name: /^Trigger Invoice paid/i }).click();
+  await page.getByRole('button', { name: /^When Invoice paid/i }).click();
   await page
     .getByRole('button', { name: /Invoice paid/ })
     .last()
@@ -51,7 +51,7 @@ test('pickers open at the top with the current value marked, and data follows th
   await page.keyboard.press('Escape');
 
   // The action picker opens at the top too.
-  await page.getByRole('button', { name: /^Action Notify team members/i }).click();
+  await page.getByRole('button', { name: /^Do this Notify team members/i }).click();
   await page
     .getByRole('button', { name: /Notify team members/ })
     .last()

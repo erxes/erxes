@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
+import { AskAssistantBar } from './AskAssistant';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
 import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
@@ -90,7 +91,10 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
     [catalog.actions, hasSubject, subject],
   );
 
-  const problems = useMemo(() => flowProblems(definition.steps, actions), [definition, actions]);
+  const problems = useMemo(
+    () => flowProblems(definition.steps, actions, catalog.actions),
+    [definition, actions, catalog.actions],
+  );
 
   const builder = useMemo(() => {
     const events = catalog.triggers.filter((item) => item.subject);
@@ -108,8 +112,9 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
         stepOutputFields(definition.steps, stepId, { events, actions, trigger: started }),
       trigger: started,
       hasSubject,
+      knownActions: catalog.actions,
     };
-  }, [catalog.triggers, stats.data, definition, actions, hasSubject]);
+  }, [catalog.triggers, catalog.actions, stats.data, definition, actions, hasSubject]);
 
   return { stats, subject, hasSubject, fields, fieldsError, actions, problems, builder };
 };
@@ -268,16 +273,19 @@ const AutomationEditor = ({
         />
         <Tabs.Content value="build" className="mt-0 flex min-h-0 flex-1">
           <BuilderContext.Provider value={built.builder}>
-            <BuildCanvas
-              built={built}
-              catalog={catalog}
-              draft={draft}
-              editable={editable}
-              selected={selected}
-              onSelect={setSelected}
-              zoom={zoom}
-              onZoom={setZoom}
-            />
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+              <BuildCanvas
+                built={built}
+                catalog={catalog}
+                draft={draft}
+                editable={editable}
+                selected={selected}
+                onSelect={setSelected}
+                zoom={zoom}
+                onZoom={setZoom}
+              />
+              {editable && <AskAssistantBar disabled={draft.dirty} />}
+            </div>
             <AutomationInspector
               automation={automation}
               draft={draft}
