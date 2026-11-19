@@ -31,5 +31,5 @@ export const PluginAssistant = z
       .default([]),
   })
   .describe(
-    'What the plugin adds to the assistant: skills. Its procedures come from its member API document (api.docs): the assistant calls each route as <plugin>:<operationId> with the member’s session token, and a route that is not a GET follows the approval mode.',
+    'What the plugin adds to the assistant: skills. Its procedures come from its member API document (api.docs): the assistant calls each route as <plugin>:<operationId> with the member’s session token, so the plugin’s own checks apply. After a call to a route that is not a GET, web reads the page’s data again: declare a read as a GET.',
   );

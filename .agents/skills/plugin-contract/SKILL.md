@@ -58,9 +58,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      The assistant offers the routes of the `member` document in the manifest's `api.docs`
      (`apps/api/src/modules/assistant/tools/pluginDocument.ts`): core reads `<api.url><path>`,
      names each route `<plugin>:<operationId>` and calls it under the document's server, on
-     `api.url`'s origin, with the member's session token. A route that is not a GET follows
-     the approval mode, and one whose input or answer names a credential is never offered. A
-     route's `operationId`, method and path are the contract;
+     `api.url`'s origin, with the member's session token and no step in between. After a call
+     to a route that is not a GET, web reads the page's data again, and a route whose input
+     or answer names a credential is never offered. A route's `operationId`, method and path
+     are the contract;
    - import and export (`packages/contract/src/pluginTransfer.ts`,
      `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
      types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and
