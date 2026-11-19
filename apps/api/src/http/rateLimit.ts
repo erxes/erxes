@@ -5,15 +5,10 @@ import { RateLimiterPostgres, RateLimiterRes } from 'rate-limiter-flexible';
 import { fail } from '~/http/errors';
 
 /**
- * A fixed-window limit per key, counted in `core_rate_limits`, so every
- * replica shares one count: a first line against floods from one address.
- * (Per-account sign-in lockout is in the database too.)
+ * A fixed-window count per key in `core_rate_limits`, so every replica shares one count. Counts
+ * one for `key` and resolves to null, or to the seconds until the window ends when `max` is used up.
  */
-const rateLimit = (options: {
-  windowSeconds: number;
-  max: number;
-  key: (req: Request) => string | null;
-}) => {
+export const fixedWindow = (options: { windowSeconds: number; max: number }) => {
   const pool = getPool();
 
   const limiter = new RateLimiterPostgres({
@@ -30,18 +25,38 @@ const rateLimit = (options: {
     duration: options.windowSeconds,
   });
 
+  return async (key: string) => {
+    try {
+      await limiter.consume(key);
+
+      return null;
+    } catch (rejection) {
+      if (!(rejection instanceof RateLimiterRes)) throw rejection;
+
+      return Math.ceil(rejection.msBeforeNext / 1000);
+    }
+  };
+};
+
+/**
+ * A fixed-window limit per key, a first line against floods from one address.
+ * (Per-account sign-in lockout is in the database too.)
+ */
+const rateLimit = (options: {
+  windowSeconds: number;
+  max: number;
+  key: (req: Request) => string | null;
+}) => {
+  const count = fixedWindow(options);
+
   return async (req: Request, res: Response, next: NextFunction) => {
     const key = options.key(req);
 
     if (!key) return next();
 
-    try {
-      await limiter.consume(key);
-    } catch (rejection) {
-      if (!(rejection instanceof RateLimiterRes)) throw rejection;
+    const retryAfter = await count(key);
 
-      const retryAfter = Math.ceil(rejection.msBeforeNext / 1000);
-
+    if (retryAfter !== null) {
       res.set('Retry-After', String(retryAfter));
       throw fail('TOO_MANY_REQUESTS', `Too many attempts: try again in ${retryAfter} seconds`);
     }
