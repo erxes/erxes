@@ -7,7 +7,10 @@ import {
 import { reportValues, sortReportValues } from '@/tunable-reports/values';
 import { ReportValues } from '@/tunable-reports/schema';
 import { useReportTranslation } from '@/tunable-reports/locales';
-import { reportColumnWidths } from '@/tunable-reports/reportLayout';
+import {
+  reportColumnWidths,
+  reportRowIndent,
+} from '@/tunable-reports/reportLayout';
 import {
   ReportOrganization,
   reportTextHasToken,
@@ -125,7 +128,7 @@ export const ReportPaper = ({
                                   className="shrink-0 whitespace-pre"
                                 >
                                   {' '.repeat(
-                                    Math.max(0, row.tabCount || 0) * 4,
+                                    reportRowIndent(row.tabCount) * 4,
                                   )}
                                 </span>
                                 <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">

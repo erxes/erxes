@@ -1,5 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { ReportPaper } from '../ReportPreview';
+import { buildReportWorkbook } from '../exportReportExcel';
+import { defaultReportRunSettings } from '../runReport';
 import { newColumn, newReport } from '../values';
 import { reportRow } from './reportTestKit';
 import { ReportValues } from '../schema';
@@ -157,4 +159,27 @@ test('amount columns keep their share as a report grows from four to twelve colu
   expect(
     number + name + months.reduce((sum, width) => sum + width, 0),
   ).toBeCloseTo(100);
+});
+
+test('a mistyped indent of a billion levels still opens the preview and the Excel sheet', () => {
+  const report = balanceSheet(['Эцсийн үлдэгдэл']);
+  report.sections[0].rows[1].tabCount = 1_000_000_000;
+  render(<ReportPaper values={report} />);
+  const indent = screen
+    .getByText('Дансны авлага')
+    .closest('td')
+    ?.querySelector('[aria-hidden="true"]');
+  expect(indent?.textContent).toHaveLength(80);
+  const sheet = buildReportWorkbook({
+    values: report,
+    cells: [],
+    settings: defaultReportRunSettings(),
+    labels: { number: '№', name: 'Үзүүлэлт' },
+  }).worksheets[0];
+  let excelIndent: number | undefined;
+  sheet.eachRow((sheetRow) => {
+    if (sheetRow.getCell(2).value === 'Дансны авлага')
+      excelIndent = sheetRow.getCell(2).alignment.indent;
+  });
+  expect(excelIndent).toBe(40);
 });

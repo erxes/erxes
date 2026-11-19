@@ -4,6 +4,7 @@ const MIN_VALUES_WIDTH = 40;
 const MAX_VALUES_WIDTH = 74;
 const VALUE_COLUMN_WIDTH = 12;
 const WIDE_REPORT_COLUMNS = 4;
+const MAX_INDENT_LEVELS = 20;
 
 export interface ReportColumnWidths {
   number: number;
@@ -22,3 +23,6 @@ export const reportColumnWidths = (columnCount: number): ReportColumnWidths => {
   );
   return { number, name: 100 - number - values, value: values / columnCount };
 };
+
+export const reportRowIndent = (tabCount?: number | null): number =>
+  Math.min(Math.max(0, Math.floor(tabCount || 0)), MAX_INDENT_LEVELS);

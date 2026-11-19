@@ -35,6 +35,7 @@ export const TunableReportPrintPage = () => {
     },
     skip: !id || !settings.success,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
   const result = data?.accountingTunableReportGenerate;
   const report = result?.report;

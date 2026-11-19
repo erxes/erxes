@@ -241,3 +241,18 @@ test('running the same period again asks the server for fresh amounts instead of
   fireEvent.click(button('first half of 2025'));
   expect(refetch).toHaveBeenCalledTimes(1);
 });
+
+test('while the same period is being generated again the previous amounts stay on screen but cannot be exported or printed', () => {
+  mockQuery.mockReturnValue({ ...generated, loading: true });
+  render(<Page search={params} />);
+  expect(mockQuery).toHaveBeenCalledWith(
+    REPORT_GENERATE,
+    expect.objectContaining({ notifyOnNetworkStatusChange: true }),
+  );
+  expect(screen.getByLabelText('generated cells').textContent).toContain(
+    '"value":0',
+  );
+  expect(button(/excel/).disabled).toBe(true);
+  expect(button('print').disabled).toBe(true);
+  expect(button('run').disabled).toBe(false);
+});

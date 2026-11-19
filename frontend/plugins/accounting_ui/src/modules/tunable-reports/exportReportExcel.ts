@@ -6,6 +6,7 @@ import {
 } from '@/journal-reports/utils/exportJournalReportExcel';
 import { ReportValues } from '@/tunable-reports/schema';
 import { ReportRunSettings } from '@/tunable-reports/runReport';
+import { reportRowIndent } from '@/tunable-reports/reportLayout';
 import {
   ReportOrganization,
   reportHtmlLines,
@@ -33,7 +34,6 @@ const NAME_COLUMN_WIDTH = 56;
 const VALUE_COLUMN_WIDTH = 20;
 const FONT_SIZE = 11;
 const LINE_HEIGHT = 15;
-const MAX_INDENT = 250;
 const BORDER: Partial<ExcelJS.Borders> = {
   top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
   left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -157,7 +157,7 @@ export const buildReportWorkbook = ({
       nameCell.alignment = {
         wrapText: true,
         vertical: 'top',
-        indent: Math.min(Math.max(0, row.tabCount || 0) * 2, MAX_INDENT),
+        indent: reportRowIndent(row.tabCount) * 2,
       };
       const valueCells = section.columns.map((column, index) => {
         const cell = worksheet.getCell(line, index + 3);
