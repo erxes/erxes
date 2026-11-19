@@ -39,7 +39,10 @@ interface Known {
   byPhone: Map<string, string>;
 }
 
-/** The core customers the portal users could be: by id, email or phone. */
+/**
+ * The core customers the portal users could be: by id, email or phone. When customers share an
+ * address, the oldest one is the match, so every run picks the same customer.
+ */
 const knownCustomers = async (run: Run, users: PortalUser[]): Promise<Known> => {
   const ids = users.flatMap((user) =>
     user.erxesCustomerId ? [resolve('customer', user.erxesCustomerId)] : [],
@@ -50,10 +53,12 @@ const knownCustomers = async (run: Run, users: PortalUser[]): Promise<Known> => 
 
   const { rows } = await run.pg.query<{ id: string; emails: string[]; phones: string[] }>(
     `SELECT id, emails, phones FROM core_customers
-      WHERE ${MINE} AND (id = ANY($1::text[]) OR emails && $2::text[] OR phones && $3::text[])`,
+      WHERE ${MINE} AND (id = ANY($1::text[]) OR emails && $2::text[] OR phones && $3::text[])
+      ORDER BY created_at DESC, id DESC`,
     [ids, emails, phones],
   );
 
+  // Newest first, so the oldest customer's entry is set last and wins.
   return {
     ids: new Set(rows.map((row) => row.id)),
     byEmail: new Map(rows.flatMap((row) => row.emails.map((value) => [value, row.id]))),
