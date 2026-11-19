@@ -24,8 +24,11 @@ export const propertyGroupSchema = z
     name: z.string().trim().min(1, 'Group name is required').max(100),
     code: z.string().trim().max(100).regex(CODE, 'Only letters, digits, _ . -').optional(),
     description: z.string().max(1000).optional(),
-    /** The ids a plugin type's group is limited to, by the plugin's limit keys. */
-    appliesTo: z.record(z.string(), z.array(z.string())).default({}),
+    /**
+     * The ids a plugin type's group is limited to, by the plugin's limit keys. A limit left at
+     * "All" is registered with no value: empty, so the group shows on every record.
+     */
+    appliesTo: z.record(z.string(), z.array(z.string()).default([])).default({}),
   })
   .transform((data) => ({ ...data, code: data.code?.trim() || codeOf(data.name) }))
   .refine(hasCode, CODE_REQUIRED);
@@ -42,13 +45,13 @@ export const propertySchema = z
     isVisible: z.boolean().default(true),
     isRequired: z.boolean().default(false),
     isVisibleToCreate: z.boolean().default(true),
-    // Edited as a list that may be empty; a property without rules saves no logic.
-    logic: z
-      .object({
-        action: FieldLogic.shape.action,
-        rules: z.array(FieldLogic.shape.rules.element).max(10),
-      })
-      .default({ action: 'show', rules: [] }),
+    // Edited as a list that may be empty; a property without rules saves no logic. The form
+    // starts with both keys: its rules list fills in `logic` as `{ rules }`, so a schema default
+    // would never apply and the missing action would block the save.
+    logic: z.object({
+      action: FieldLogic.shape.action,
+      rules: z.array(FieldLogic.shape.rules.element).max(10),
+    }),
     options: z
       .array(z.object({ value: z.string().trim().min(1, 'Label is required').max(200) }))
       .optional()

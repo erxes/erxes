@@ -396,6 +396,7 @@
     "no-groups-found": "Талбарын бүлэг олдсонгүй",
     "edit": "Засах",
     "reorder-group": "Бүлгийн эрэмбэ солих",
+    "group-actions": "{{name}} бүлгийн үйлдлүүд",
     "delete": "Устгах",
     "cancel": "Цуцлах",
     "create": "Үүсгэх",

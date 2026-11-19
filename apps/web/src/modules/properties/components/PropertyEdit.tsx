@@ -68,7 +68,7 @@ export const PropertyEdit = ({ contentType }: { contentType: PropertyContentType
         isVisible: field.isVisible,
         isRequired: field.isRequired,
         isVisibleToCreate: field.isVisibleToCreate,
-        logic: field.logic ?? undefined,
+        logic: field.logic ?? { action: 'show', rules: [] },
         options: field.options.map((value) => ({ value })),
       }}
       onSubmit={(data) =>

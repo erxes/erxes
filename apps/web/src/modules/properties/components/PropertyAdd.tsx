@@ -36,6 +36,7 @@ export const PropertyAdd = ({ contentType }: { contentType: PropertyContentType 
         isVisible: true,
         isRequired: false,
         isVisibleToCreate: true,
+        logic: { action: 'show', rules: [] },
         options: [],
       }}
       onSubmit={(data) =>
