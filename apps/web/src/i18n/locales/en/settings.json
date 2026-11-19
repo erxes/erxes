@@ -405,6 +405,7 @@
     "no-groups-found": "No field groups found",
     "edit": "Edit",
     "reorder-group": "Reorder group",
+    "group-actions": "Actions for {{name}}",
     "delete": "Delete",
     "cancel": "Cancel",
     "create": "Create",

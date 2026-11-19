@@ -116,8 +116,8 @@ export const PropertyLogicField = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const rules = useFieldArray({ control: form.control, name: 'logic.rules' });
-  const watched = useWatch({ control: form.control, name: 'logic.rules' }) ?? [];
-  const action = useWatch({ control: form.control, name: 'logic.action' }) ?? 'show';
+  const watched = useWatch({ control: form.control, name: 'logic.rules' });
+  const action = useWatch({ control: form.control, name: 'logic.action' });
   const others = useAllFields(contentType).fields.filter((field) => field.id !== fieldId);
   const [first] = others;
 
