@@ -55,6 +55,18 @@ export const inputVariants = cva(
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement> &
   Except<VariantProps<typeof inputVariants>, 'type'>;
 
+const PICKER_TYPES = new Set(['date', 'datetime-local', 'month', 'week', 'time']);
+
+/**
+ * Opens a date or time input's picker on a click anywhere in it: Chrome opens it only from the
+ * small icon at its end. A read-only field shows none.
+ */
+export const openNativePicker = (event: React.MouseEvent<HTMLInputElement>) => {
+  const input = event.currentTarget;
+
+  if (PICKER_TYPES.has(input.type) && !input.readOnly) input.showPicker();
+};
+
 const InputMain = ({
   ref,
   className,
@@ -62,6 +74,7 @@ const InputMain = ({
   variant,
   text,
   onInvalid,
+  onClick,
   ...props
 }: InputProps & React.RefAttributes<HTMLInputElement>) => {
   const field = useFieldControl();
@@ -71,6 +84,10 @@ const InputMain = ({
     <input
       {...field}
       onInvalid={handleInvalid}
+      onClick={(event) => {
+        openNativePicker(event);
+        onClick?.(event);
+      }}
       type={type}
       autoComplete="off"
       className={cn(

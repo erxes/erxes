@@ -1,16 +1,20 @@
 import { Input } from '@base-ui/react/input';
 import { useValidationMessage } from '../hooks/use-validation-message';
 import { useFieldControl } from './field-control';
-import { inputVariants } from './input';
+import { inputVariants, openNativePicker } from './input';
 import { cn } from 'erxes-ui/lib/utils';
 
 type DateTimeInputProps = Omit<Input.Props, 'type' | 'className'> & { className?: string };
 
-/** The browser's date or time input, named by its form row, its messages in the UI's language. */
+/**
+ * The browser's date or time input, named by its form row, its messages in the UI's language.
+ * A click anywhere in it opens the browser's picker.
+ */
 const NativeInput = ({
   type,
   className,
   onInvalid,
+  onClick,
   ...props
 }: DateTimeInputProps & { type: 'date' | 'time' }) => {
   const field = useFieldControl();
@@ -20,6 +24,10 @@ const NativeInput = ({
     <Input
       {...field}
       onInvalid={handleInvalid}
+      onClick={(event) => {
+        openNativePicker(event);
+        onClick?.(event);
+      }}
       type={type}
       className={cn(inputVariants(), className)}
       {...props}

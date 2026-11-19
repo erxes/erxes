@@ -13,7 +13,8 @@ type DateDraftOptions = {
   bounds: { minBound?: Date; maxBound?: Date };
   calendarDisabled: Matcher[];
   clearable: boolean;
-  onOpen?: () => void;
+  /** Opens the calendar: from the keyboard it takes focus, from a click the caret stays. */
+  onOpen?: (fromKeyboard: boolean) => void;
 };
 
 /** The text being typed (null while not editing, so the text follows the value) and its handlers. */
@@ -63,7 +64,7 @@ const useDateDraft = ({
       setDraft(toIsoDay(typed));
       onChange(typed);
     } else if (opensPopover) {
-      onOpen?.();
+      onOpen?.(true);
     }
   };
 
@@ -112,11 +113,13 @@ export const DateTextInput = ({
   const { singleDate } = options;
   const inputText = draft ?? (singleDate ? fmt.date(singleDate) : '');
 
+  // The input spans the whole field under the icon, so a click anywhere but the clear button opens
+  // the calendar.
   return (
     <div
       aria-disabled={isDisabled}
       className={cn(
-        'flex h-7 w-full items-center gap-1 rounded-sm bg-background px-3 text-sm text-foreground shadow-xs transition focus-within:shadow-focus',
+        'relative flex h-7 w-full items-center rounded-sm bg-background text-sm text-foreground shadow-xs transition focus-within:shadow-focus',
         isDisabled && 'cursor-not-allowed opacity-50',
         className,
       )}
@@ -132,8 +135,9 @@ export const DateTextInput = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        onClick={() => options.onOpen?.(false)}
         autoComplete="off"
-        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed"
+        className="h-full w-full min-w-0 flex-1 bg-transparent py-0 pr-8 pl-3 placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed"
       />
       {options.clearable && !isDisabled && inputText ? (
         <button
@@ -145,12 +149,12 @@ export const DateTextInput = ({
             setDraft('');
             onClear();
           }}
-          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground opacity-50 hover:bg-accent hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-hidden focus-visible:shadow-focus"
+          className="absolute right-2.5 flex size-5 items-center justify-center rounded-sm text-muted-foreground opacity-50 hover:bg-accent hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-hidden focus-visible:shadow-focus"
         >
           <IconX className="size-4" />
         </button>
       ) : (
-        <IconCalendar className="size-4 shrink-0 text-muted-foreground opacity-50" />
+        <IconCalendar className="pointer-events-none absolute right-3 size-4 text-muted-foreground opacity-50" />
       )}
     </div>
   );
