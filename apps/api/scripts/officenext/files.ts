@@ -24,10 +24,10 @@ export const attachments = field((value) =>
 /** The file id an old URL or key gets. */
 export const fileIdOf = (key: string) => `f${sha256(key).slice(0, 20)}`;
 
-/** Writes the attachments as ready files; returns their ids in the same order. */
+/** Writes the attachments as ready files, counted under `name`; returns their ids in order. */
 export const saveFiles = async (
   run: Run,
-  collection: string,
+  name: string,
   files: { attachment: Attachment; actorId: string | null; at: Date }[],
 ) => {
   const unique = new Map(files.map((file) => [file.attachment.url ?? '', file]));
@@ -35,7 +35,7 @@ export const saveFiles = async (
   unique.delete('');
 
   await insert(run, {
-    collection: `${collection} (files)`,
+    collection: name,
     table: 'core_files',
     columns: [
       'id',

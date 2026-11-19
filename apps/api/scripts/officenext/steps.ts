@@ -5,10 +5,13 @@
  */
 import { importActivityLogs } from './activityLogs';
 import { importAuditLogs } from './auditLogs';
+import { importBroadcastRecipients } from './broadcastRecipients';
+import { importBroadcasts } from './broadcasts';
 import { importClientPortalUsers } from './clientPortal';
 import { importCompanies } from './companies';
 import { importConformities, importRelations } from './conformities';
 import { importCustomers } from './customers';
+import { importFavorites } from './favorites';
 import { importFields } from './fields';
 import { importFieldValues } from './fieldValues';
 import { reportLeftOut } from './leftOut';
@@ -17,6 +20,8 @@ import { importNotifications } from './notifications';
 import { importProducts } from './products';
 import type { Run } from './run';
 import { importSegments } from './segments';
+import { importStoredFiles } from './storedFiles';
+import { importSuppressions } from './suppressions';
 import { importTags } from './tags';
 import { importUnits } from './units';
 import { importUsers } from './users';
@@ -72,6 +77,28 @@ export const STEPS: Step[] = [
   { name: 'field values', collections: ['field values'], run: importFieldValues },
   { name: 'segments', collections: ['segments'], run: importSegments },
   { name: 'notifications', collections: ['notifications'], run: importNotifications },
+  {
+    name: 'broadcasts',
+    collections: [
+      'broadcast_engage_messages',
+      'engage_messages',
+      'erxes_office_engages.engage_messages',
+      'broadcast_recipients',
+      'broadcast_delivery_reports',
+      'erxes_office_engages.delivery_reports',
+    ],
+    run: async (run) => {
+      await importBroadcasts(run);
+      await importBroadcastRecipients(run);
+    },
+  },
+  { name: 'favorites', collections: ['favorites'], run: importFavorites },
+  { name: 'suppressions', collections: ['email_addresses'], run: importSuppressions },
+  {
+    name: 'files',
+    collections: ['files', 'file_versions', 'filemanager_files'],
+    run: importStoredFiles,
+  },
   {
     name: 'inventory',
     collections: [],

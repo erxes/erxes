@@ -42,12 +42,19 @@ const RULES: [RegExp, string][] = [
     'email templates: core has no template library (broadcasts and automations keep their own body)',
   ],
   [/^email_deliveries$/, 'delivery log of sent emails: core logs its own sends'],
+  [
+    /^(broadcast_traces|broadcast_stats|broadcast_runs|broadcast_engage_sms_requests|engage_logs|engage_stats|emails|email_ramps)$/,
+    "campaign send logs, counts and sending pace: core counts a broadcast's recipients itself",
+  ],
   [/^email_senders$/, 'sender addresses with provider credentials: members set up email again'],
   [
     /^(notification_configurations|notification_configs|notification_settings|user_notification_settings)$/,
     "per-type notification switches: core's notification groups are different; members set them again",
   ],
-  [/^webhooks$/, 'webhooks: core needs a new signing secret, so members add them again'],
+  [
+    /^webhooks$/,
+    'webhooks: core seals each signing secret with the server key, so members add them again',
+  ],
   [
     /^(apps|clients|app_tokens)$/,
     'API apps and clients with their secrets: made again as API keys',
@@ -65,6 +72,26 @@ const RULES: [RegExp, string][] = [
   [
     /^(mastra_|agents?_|automations_ai|automations_knowledge|automations_memories|ai_|assistant_orgs|hermes_|opencode_|erxes_agent)/,
     'plugin:agent (not in this migration)',
+  ],
+  [
+    /^(automations$|automations_executions|automations_notes|automation_workflow_templates|automations_waiting)/,
+    'automations: each uses a plugin trigger or action (Facebook, inbox, Sales, POS, AI agent) or is archived or a template; members build them again in core automations, with their runs and notes',
+  ],
+  [
+    /^(payment_methods|payments|golomt_bank_configs)$/,
+    'payment gateways: core seals gateway keys with the server key, so members add gateways again',
+  ],
+  [
+    /^(invoices|payment_invoices|payment_transactions)$/,
+    'invoices and transactions: a core invoice needs its core gateway, which members add again',
+  ],
+  [
+    /^put_responses$/,
+    'eBarimt receipts of old invoices, deals and POS orders: a core receipt needs its core invoice',
+  ],
+  [
+    /^(ebarimt_product_rules|vat_rows|ctax_rows)$/,
+    'eBarimt tax rules and VAT report rows: core eBarimt settings need the merchant registration, which members enter again',
   ],
   [/^(chats?$|chat_|chat-)/, 'team chat: no plugin in the new stack'],
   [/^(block_)/, 'real estate (block): no plugin in the new stack'],

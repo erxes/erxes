@@ -197,7 +197,7 @@ const writeProducts = async (run: Run, products: Product[], taken: Taken) => {
     })),
   );
 
-  await saveFiles(run, 'products', images);
+  await saveFiles(run, 'products (files)', images);
 
   const built = products.map((product) => {
     const code = uniqueCode(taken, product);

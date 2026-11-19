@@ -4,7 +4,7 @@
  * at the end; with it, each batch commits on its own. A batch that Postgres refuses is retried
  * row by row, so one bad row is skipped and listed, never the whole batch or the run.
  */
-import type { Collection, Db, Document, Filter } from 'mongodb';
+import type { AbstractCursor, Collection, Db, Document, Filter } from 'mongodb';
 import type { Client } from 'pg';
 import { z } from 'zod';
 import { inOrder, repeatWhile } from '~/lib/sequence';
@@ -133,26 +133,25 @@ export const insert = async (run: Run, rows: Rows) => {
   return copied;
 };
 
-/**
- * Reads `collection` in batches of BATCH and hands each to `handle`, in its own unit. The
- * documents count as seen under `name` (the collection's own name by default).
- */
-export const eachBatch = async (
-  run: Run,
-  collection: Collection,
-  handle: (documents: Document[]) => Promise<void>,
-  filter: Filter<Document> = {},
-  name = collection.collectionName,
-) => {
-  const cursor = collection.find(filter, { batchSize: BATCH, limit: run.limit });
+const Grouped = z.object({ grouped: z.number() });
 
+/** How many source documents a batch stands for: its size, or the sum of its groups' `grouped`. */
+const sizeOf = (documents: Document[]) =>
+  documents.reduce((sum, document) => sum + (Grouped.safeParse(document).data?.grouped ?? 1), 0);
+
+const eachOf = async (
+  run: Run,
+  cursor: AbstractCursor<Document>,
+  handle: (documents: Document[]) => Promise<void>,
+  name: string,
+) => {
   try {
     await repeatWhile(ROUNDS, async () => {
       if (!(await cursor.hasNext())) return false;
 
       const documents = cursor.readBufferedDocuments(BATCH);
 
-      run.report.seen(name, documents.length);
+      run.report.seen(name, sizeOf(documents));
       await unit(run, () => handle(documents));
 
       return true;
@@ -161,6 +160,39 @@ export const eachBatch = async (
     await cursor.close();
   }
 };
+
+/**
+ * Reads `collection` in batches of BATCH and hands each to `handle`, in its own unit. The
+ * documents count as seen under `name` (the collection's own name by default).
+ */
+export const eachBatch = (
+  run: Run,
+  collection: Collection,
+  handle: (documents: Document[]) => Promise<void>,
+  filter: Filter<Document> = {},
+  name = collection.collectionName,
+) => eachOf(run, collection.find(filter, { batchSize: BATCH, limit: run.limit }), handle, name);
+
+/**
+ * `eachBatch` over an aggregation (`stages` get the run's limit first). A group with a `grouped`
+ * count stands for that many documents seen.
+ */
+export const eachGroup = (
+  run: Run,
+  collection: Collection,
+  stages: Document[],
+  handle: (documents: Document[]) => Promise<void>,
+  name = collection.collectionName,
+) =>
+  eachOf(
+    run,
+    collection.aggregate([...(run.limit ? [{ $limit: run.limit }] : []), ...stages], {
+      allowDiskUse: true,
+      batchSize: BATCH,
+    }),
+    handle,
+    name,
+  );
 
 /** Every document of a small collection (configs, users), read at once. */
 export const readAll = (run: Run, name: string, filter: Filter<Document> = {}) =>
