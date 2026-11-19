@@ -18,7 +18,8 @@ type Member = Extract<Caller, { type: 'user' }>;
 export interface ToolScope {
   member: Member;
   orgId: string;
-  threadId: string;
+  /** The assistant thread its references belong to; an automation step has none. */
+  threadId: string | null;
   codeMode: boolean;
   plugins: InstalledPlugin[];
 }
@@ -105,11 +106,11 @@ export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_
 const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) => {
   const identities = identitiesIn(schema, result);
 
-  if (identities.length === 0) return bounded(result);
+  const { threadId } = scope;
 
-  const issued = await withOrg(scope.orgId, (tx) =>
-    issueReferences(tx, scope.threadId, identities),
-  );
+  if (identities.length === 0 || threadId === null) return bounded(result);
+
+  const issued = await withOrg(scope.orgId, (tx) => issueReferences(tx, threadId, identities));
 
   return bounded(
     result,

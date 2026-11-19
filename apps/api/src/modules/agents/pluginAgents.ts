@@ -41,7 +41,7 @@ const agentCallToken = (plugin: string, name: string, scope: AgentScope) =>
   );
 
 /** What the model said in an answer entry, its text parts joined. */
-const answerText = (entry: EntryRecord | undefined) =>
+export const answerText = (entry: EntryRecord | undefined) =>
   (entry?.model ?? [])
     .flatMap((message) => (message.role === 'assistant' ? message.content : []))
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
