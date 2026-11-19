@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parseBody } from '~/modules/automations/actions/context';
 import { defineJob } from '~/modules/jobs/jobs';
 import { INTEGRATION_NAMESPACE, integrationType } from './actions';
+import { healEvents } from './contract';
 import { findLoadedProgram, type LoadedProgram } from './programs.service';
 import { runIntegrationProgram } from './sandbox';
 
@@ -37,16 +38,9 @@ const publish = async (
   { integration, program }: LoadedProgram,
   published: z.infer<typeof Published>[],
 ) => {
-  const undeclared = published.find(
-    (item) => !program.events.some((event) => event.key === item.event),
-  );
-
-  if (undeclared) {
-    throw new Error(`${program.label} publishes ${undeclared.event}, which it does not declare`);
-  }
-
   if (!published.length) return;
 
+  await healEvents(client, program, published);
   await client
     .insert(events)
     .values(

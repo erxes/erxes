@@ -3,7 +3,7 @@ import { IconChevronRight, IconCode, IconSparkles } from '@tabler/icons-react';
 import { Button, Empty, useFormat } from 'erxes-ui';
 import { parseAsString, useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
-import { useAskAssistant } from '~/modules/automations/AskAssistant';
+import { useAskAssistant } from '~/modules/assistant/useAskAssistant';
 import { CustomProgram, KindBadge, programTypes } from './CustomProgram';
 
 const NoPrograms = ({ record }: { record: CustomRecord }) => {

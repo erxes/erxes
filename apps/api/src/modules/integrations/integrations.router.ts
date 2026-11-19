@@ -1,5 +1,6 @@
 import { db, requestOrgId, withOrg } from '@erxes/core-db';
 import { audited, recordOf, scoped, unscoped } from '~/orpc';
+import { runAction } from './actions';
 import { runIncoming } from './incoming';
 import {
   createIntegration,
@@ -16,7 +17,6 @@ import {
   restoreProgram,
   saveProgram,
 } from './programs.service';
-import { runIntegrationProgram } from './sandbox';
 
 const SAMPLE_CALL = { method: 'POST', headers: {}, query: {}, rawBody: '' };
 
@@ -88,6 +88,9 @@ export const integrationsRouter = {
 
     return loaded.program.kind === 'incoming'
       ? runIncoming(loaded, input.incoming ?? SAMPLE_CALL)
-      : runIntegrationProgram(loaded, { input: input.input, idempotencyKey: `test:${input.id}` });
+      : runAction(requestOrgId(), loaded, {
+          input: input.input,
+          idempotencyKey: `test:${input.id}`,
+        });
   }),
 };

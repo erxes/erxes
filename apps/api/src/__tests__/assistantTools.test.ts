@@ -100,11 +100,17 @@ describe('assistant tools', () => {
     );
     await ask('Add a ping action to Boat');
 
-    expect(await t.owner().integrations.get({ id: integration.id })).toMatchObject({
+    const detail = await t.owner().integrations.get({ id: integration.id });
+
+    expect(detail).toMatchObject({
       hosts: ['api.boat.test'],
       sealedNames: [],
       programs: [expect.objectContaining({ key: 'ping', version: 1 })],
     });
+
+    model.script(callThen('integrations.testProgram', { id: detail.programs[0]?.id }));
+    await ask('Ping Boat now');
+    expect(model.lastToolResult()).toContain('"pong":true');
   });
 
   it("refuses what the member's role can't do, and doesn't offer it", async () => {

@@ -1,7 +1,8 @@
 import { type ActionInfo, type EventTypeInfo, LIST_MAX } from '@erxes/core-contract';
-import { type Db, integrationPrograms, integrations } from '@erxes/core-db';
+import { type Db, integrationPrograms, integrations, withOrg } from '@erxes/core-db';
 import { and, asc, eq } from 'drizzle-orm';
 import { type CallContext, idempotencyKey } from '~/modules/automations/actions/context';
+import { healedOutputs, saveOutputs } from './contract';
 import type { LoadedProgram } from './programs.service';
 import { runIntegrationProgram } from './sandbox';
 
@@ -66,8 +67,22 @@ export const integrationForAction = async (client: Db, type: string): Promise<Lo
   return loaded;
 };
 
+export const runAction = async (
+  orgId: string,
+  loaded: LoadedProgram,
+  globals: { input: Record<string, unknown>; idempotencyKey: string },
+) => {
+  const run = await runIntegrationProgram(loaded, globals);
+
+  const outputs = run.ok ? healedOutputs(loaded.program, run.result) : null;
+
+  if (outputs) await withOrg(orgId, (tx) => saveOutputs(tx, loaded.program.id, outputs));
+
+  return run;
+};
+
 export const runIntegrationAction = async (ctx: CallContext, loaded: LoadedProgram) => {
-  const run = await runIntegrationProgram(loaded, {
+  const run = await runAction(ctx.orgId, loaded, {
     input: ctx.input,
     idempotencyKey: idempotencyKey(ctx),
   });

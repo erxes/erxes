@@ -271,6 +271,62 @@ describe('custom integrations', { timeout: 120_000 }, () => {
     ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
   });
 
+  it('offers the declared outputs at once, then corrects them from what a run really answered', async () => {
+    const outputsOf = async () =>
+      (await t.owner().automations.catalog({})).actions.find(
+        (action) => action.type === 'integrations.boat.healed',
+      )?.outputs;
+
+    const program = await t.owner().integrations.saveProgram({
+      integrationId,
+      kind: 'action',
+      key: 'healed',
+      label: 'Healed',
+      outputs: [{ key: 'id', label: 'Boat', type: 'number' }],
+      code: 'return { id: "boat_1", crewSize: 4, owner: { name: "Bold" } };',
+    });
+
+    expect(await outputsOf()).toEqual([{ key: 'id', label: 'Boat', type: 'number' }]);
+
+    await t.owner().integrations.testProgram({ id: program.id });
+
+    expect(await outputsOf()).toEqual([
+      { key: 'id', label: 'Boat', type: 'text' },
+      { key: 'crewSize', label: 'Crew size', type: 'number' },
+    ]);
+  });
+
+  it('adds an event the code publishes without declaring it, with what it carried', async () => {
+    const program = await t.owner().integrations.saveProgram({
+      integrationId,
+      kind: 'incoming',
+      key: 'undeclared',
+      label: 'Undeclared',
+      code: 'return { event: "boat_sunk", payload: { boatId: incoming.body.id, depth: incoming.body.depth } };',
+    });
+
+    const sent = await fetch(t.url(new URL(program.address ?? '').pathname), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: 'boat_9', depth: 12 }),
+    });
+
+    expect(sent.status).toBe(200);
+    await settle();
+
+    const { triggers } = await t.owner().automations.catalog({});
+
+    expect(
+      triggers.find((trigger) => trigger.type === 'integrations.boat.boat_sunk'),
+    ).toMatchObject({
+      label: 'Boat sunk',
+      fields: [
+        { key: 'boatId', label: 'Boat id', type: 'text' },
+        { key: 'depth', label: 'Depth', type: 'number' },
+      ],
+    });
+  });
+
   it('answers 409 TAKEN for a key another integration holds', async () => {
     await expect(
       t.owner().integrations.create({ key: 'boat', name: 'Second boat', hosts: [host] }),
