@@ -17,6 +17,7 @@ export const PRINT_DOCUMENTS = {
   [TrJournalEnum.RECEIVABLE]: PrintInvoiceDocument,
   [TrJournalEnum.PAYABLE]: TransactionDocument,
   [TrJournalEnum.EXCHANGE_DIFF]: '',
+  [TrJournalEnum.CLOSING]: TransactionDocument,
 
   [TrJournalEnum.INV_INCOME]: PrintInvIncomeDocument,
   [TrJournalEnum.INV_OUT]: PrintInvOutDocument,

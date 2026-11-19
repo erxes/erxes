@@ -47,7 +47,8 @@ describe('tax row formulas', () => {
     expect(expandTaxFormulaRanges('10 * (3541..3543)')).toBe(
       '10 * (({3541} + {3542} + {3543}))',
     );
-    expect(evaluateTaxFormula('2 * 1..3', (ref) => Number(ref))).toBe(12);    expect(expandTaxFormulaRanges('{1} + 5 .. 6 - 7..7')).toBe(
+    expect(evaluateTaxFormula('2 * 1..3', (ref) => Number(ref))).toBe(12);
+    expect(expandTaxFormulaRanges('{1} + 5 .. 6 - 7..7')).toBe(
       '{1} + ({5} + {6}) - ({7})',
     );
     expect(expandTaxFormulaRanges('1...3 + a..b')).toBe('1...3 + a..b');

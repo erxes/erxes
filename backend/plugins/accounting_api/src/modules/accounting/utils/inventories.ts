@@ -328,11 +328,13 @@ export const detailsClear = async (
     });
   }
 
-  if (!(
-    date &&
-    ((adjustInventory.beginDate && adjustInventory.beginDate < date) ||
-      (adjustInventory.successDate && adjustInventory.successDate > date))
-  )) {
+  if (
+    !(
+      date &&
+      ((adjustInventory.beginDate && adjustInventory.beginDate < date) ||
+        (adjustInventory.successDate && adjustInventory.successDate > date))
+    )
+  ) {
     throw new Error('wrong date');
   }
 
@@ -641,7 +643,9 @@ export const getInventoryShortageError = async (
     )}`,
     `Department: ${label(
       department,
-      departmentId && departmentId !== '_' ? 'Unknown department' : 'Unassigned',
+      departmentId && departmentId !== '_'
+        ? 'Unknown department'
+        : 'Unassigned',
     )}`,
     `Available: ${params.remainder}`,
     `Required: ${params.required}`,

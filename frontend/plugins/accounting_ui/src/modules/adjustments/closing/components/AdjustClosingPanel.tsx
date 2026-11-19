@@ -50,7 +50,6 @@ const AdjustClosingEditForm = ({
 }) => {
   const { closePanel } = useSettingsPanel(ADJUST_CLOSING_CONTENT_TYPE);
   const { adjustClosingEdit, loading } = useAdjustClosingEdit();
-  const entry = adjustClosing.details?.[0]?.entries?.[0];
   const form = useForm<TAdjustClosingForm>({
     resolver: zodResolver(adjustClosingSchema),
     defaultValues: {
@@ -63,11 +62,7 @@ const AdjustClosingEditForm = ({
       integrateAccountId: adjustClosing.integrateAccountId ?? undefined,
       periodGLAccountId: adjustClosing.periodGLAccountId ?? undefined,
       earningAccountId: adjustClosing.earningAccountId ?? undefined,
-      accountId: entry?.accountId ?? undefined,
-      balance: entry?.balance ?? undefined,
-      percent: entry?.percent ?? undefined,
-      mainAccTrId: entry?.mainAccTrId ?? undefined,
-      integrateTrId: entry?.integrateTrId ?? undefined,
+      taxPayableAccountId: adjustClosing.taxPayableAccountId ?? undefined,
     },
   });
 

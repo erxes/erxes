@@ -24,3 +24,11 @@ export const ADJUST_CLOSING_STATUSES = [
   'complete',
   'publish',
 ] as const;
+
+export const ADJ_CLOSING_STATUSES = {
+  DRAFT: 'draft',
+  PROCESS: 'process',
+  WARNING: 'warning',
+  COMPLETE: 'complete',
+  PUBLISH: 'publish',
+} as const;

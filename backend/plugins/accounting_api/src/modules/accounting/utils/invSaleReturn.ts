@@ -37,7 +37,8 @@ class InvSaleReturnOutCostTrs {
   }
 
   public async checkValidation() {
-    const { saleOutAccountId, saleCostAccountId } = this.trDoc.followInfos || {};
+    const { saleOutAccountId, saleCostAccountId } =
+      this.trDoc.followInfos || {};
     if (!saleOutAccountId || !saleCostAccountId) {
       throw new Error('Must fill sale Out Account and Cost Account');
     }

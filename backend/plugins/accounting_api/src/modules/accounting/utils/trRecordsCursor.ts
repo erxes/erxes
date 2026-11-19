@@ -243,9 +243,7 @@ export const paginateTrRecords = async ({
       hasNextPage: direction === 'forward' ? hasMore : hasCursor,
       hasPreviousPage: direction === 'backward' ? hasMore : hasCursor,
       startCursor: list.length ? encodeRecordCursor(list[0]) : null,
-      endCursor: list.length
-        ? encodeRecordCursor(list[list.length - 1])
-        : null,
+      endCursor: list.length ? encodeRecordCursor(list[list.length - 1]) : null,
     },
   };
 };

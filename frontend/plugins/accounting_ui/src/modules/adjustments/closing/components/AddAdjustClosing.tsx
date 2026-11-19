@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
-import { DatePicker, Form, Input } from 'erxes-ui';
+import { DatePicker, Form } from 'erxes-ui';
 import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import {
   AdjustDateField,
@@ -14,20 +14,14 @@ import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPane
 import { SETTINGS_PANEL_CELL_CLASS_NAME } from '@/settings/constants/settingsPanel';
 
 const ACCOUNT_FIELDS = [
-  { name: 'integrateAccountId', label: 'Integrate account' },
-  { name: 'periodGLAccountId', label: 'Period GL account' },
-  { name: 'earningAccountId', label: 'Earning account' },
-  { name: 'taxPayableAccountId', label: 'Tax payable account' },
-] as const;
-
-const ENTRY_NUMBER_FIELDS = [
-  { name: 'balance', label: 'Balance' },
-  { name: 'percent', label: 'Percent' },
-] as const;
-
-const ENTRY_ACCOUNT_FIELDS = [
-  { name: 'mainAccTrId', label: 'Main Transaction' },
-  { name: 'integrateTrId', label: 'Integrate Transaction' },
+  { name: 'integrateAccountId', label: 'Integrate account', journal: 'main' },
+  { name: 'periodGLAccountId', label: 'Period GL account', journal: 'main' },
+  { name: 'earningAccountId', label: 'Earning account', journal: 'main' },
+  {
+    name: 'taxPayableAccountId',
+    label: 'Tax payable account',
+    journal: 'debt',
+  },
 ] as const;
 
 export const AddAdjustClosing = () => {
@@ -80,7 +74,7 @@ export const AdjustClosingForm = ({
           )}
         />
       )}
-      {ACCOUNT_FIELDS.map(({ name, label }) => (
+      {ACCOUNT_FIELDS.map(({ name, label, journal }) => (
         <Form.Field
           key={name}
           control={form.control}
@@ -94,6 +88,7 @@ export const AdjustClosingForm = ({
               <SelectAccount
                 value={field.value ?? undefined}
                 onValueChange={field.onChange}
+                defaultFilter={{ journal }}
                 variant="ghost"
                 hideChevron
                 className={SETTINGS_PANEL_CELL_CLASS_NAME}
@@ -103,61 +98,6 @@ export const AdjustClosingForm = ({
         />
       ))}
       <AdjustDescriptionField control={form.control} />
-      {!isNew && (
-        <>
-          <Form.Field
-            control={form.control}
-            name="accountId"
-            render={({ field }) => (
-              <PanelFormRow label={t('account')}>
-                <SelectAccount
-                  value={field.value ?? undefined}
-                  onValueChange={field.onChange}
-                  variant="ghost"
-                  hideChevron
-                  className={SETTINGS_PANEL_CELL_CLASS_NAME}
-                />
-              </PanelFormRow>
-            )}
-          />
-          {ENTRY_NUMBER_FIELDS.map(({ name, label }) => (
-            <Form.Field
-              key={name}
-              control={form.control}
-              name={name}
-              render={({ field }) => (
-                <PanelFormRow label={t(label)}>
-                  <Input
-                    type="number"
-                    placeholder={t(label)}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    className={PANEL_INPUT_CLASS_NAME}
-                  />
-                </PanelFormRow>
-              )}
-            />
-          ))}
-          {ENTRY_ACCOUNT_FIELDS.map(({ name, label }) => (
-            <Form.Field
-              key={name}
-              control={form.control}
-              name={name}
-              render={({ field }) => (
-                <PanelFormRow label={t(label)}>
-                  <SelectAccount
-                    value={field.value ?? undefined}
-                    onValueChange={field.onChange}
-                    variant="ghost"
-                    hideChevron
-                    className={SETTINGS_PANEL_CELL_CLASS_NAME}
-                  />
-                </PanelFormRow>
-              )}
-            />
-          ))}
-        </>
-      )}
     </SettingsPanelDraftForm>
   );
 };

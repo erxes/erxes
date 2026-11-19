@@ -25,7 +25,7 @@ const makeModels = (transactions: Record<string, unknown>[] = []) =>
       find: jest.fn().mockReturnValue(queryResult(transactions)),
       updateOne: jest.fn().mockResolvedValue(undefined),
     },
-  }) as unknown as IModels;
+  } as unknown as IModels);
 
 describe('getInventoryOutAdjustment', () => {
   const details = {

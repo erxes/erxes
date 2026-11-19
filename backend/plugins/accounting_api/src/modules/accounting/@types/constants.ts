@@ -158,6 +158,7 @@ export const JOURNALS = {
   FXA_SALE_COST: 'fxaSaleCost',
   FXA_MOVE: 'fxaMove',
   FXA_MOVE_IN: 'fxaMoveIn',
+  CLOSING: 'closing',
   // INV_IN_RETURN: 'invInReturn',
   // INV_CONVERT: 'invConvert',
   TAX: 'tax',
@@ -196,6 +197,7 @@ export const JOURNALS = {
     'fxaMoveIn',
     'expense',
     'exchangeDiff',
+    'closing',
   ],
   ALL_REAL_INV: [
     // yag urtug uldegdeld nuluuluh journal ni

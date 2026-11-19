@@ -16,6 +16,7 @@ export enum TrJournalEnum {
   RECEIVABLE = 'receivable',
   PAYABLE = 'payable',
   EXCHANGE_DIFF = 'exchangeDiff',
+  CLOSING = 'closing',
   TAX = 'tax',
 
   INV_INCOME = 'invIncome',
@@ -57,6 +58,7 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.RECEIVABLE]: 'accounts-receivable',
   [TrJournalEnum.PAYABLE]: 'accounts-payable',
   [TrJournalEnum.EXCHANGE_DIFF]: 'exchange-rate-difference',
+  [TrJournalEnum.CLOSING]: 'closing',
 
   [TrJournalEnum.INV_INCOME]: 'inventory-receipt',
   [TrJournalEnum.INV_OUT]: 'inventory-issue',
@@ -188,6 +190,7 @@ export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
       TrJournalEnum.MAIN,
       TrJournalEnum.TAX,
       TrJournalEnum.EXCHANGE_DIFF,
+      TrJournalEnum.CLOSING,
     ],
   },
   {

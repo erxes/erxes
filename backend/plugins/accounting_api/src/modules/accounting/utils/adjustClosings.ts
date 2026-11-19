@@ -6,6 +6,7 @@ import {
   IAdjustClosingDetail,
 } from '../@types/adjustClosingEntry';
 import {
+  ACCOUNT_JOURNALS,
   ACCOUNT_KINDS,
   JOURNALS,
   TR_SIDES,
@@ -113,14 +114,56 @@ const getFirstTempTransactionDate = async (
   return transaction?.date ? getPureDate(transaction.date) : undefined;
 };
 
-const getPreviousClosing = (models: IModels, adjust: IAdjustClosing) =>
+const getPreviousClosing = (
+  models: IModels,
+  endDate: Date,
+  excludeId?: string,
+) =>
   models.AdjustClosings.findOne({
-    _id: { $ne: adjust._id },
+    ...(excludeId ? { _id: { $ne: excludeId } } : {}),
     status: { $in: ['complete', 'publish'] },
-    date: { $lt: getPureDate(adjust.date) },
+    date: { $lt: endDate },
   })
     .sort({ date: -1 })
     .lean();
+
+/**
+ * The day after the previous closing; without one, the earliest transaction
+ * date on any temporary account up to the closing date.
+ */
+const resolveBeginDate = async (
+  models: IModels,
+  endDate: Date,
+  accountIds: string[],
+  excludeId?: string,
+) => {
+  const previousClosing = await getPreviousClosing(models, endDate, excludeId);
+
+  if (previousClosing?.date) {
+    return getNextDate(previousClosing.date);
+  }
+
+  return getFirstTempTransactionDate(models, accountIds, endDate);
+};
+
+export const getAdjustClosingBeginDate = async (
+  models: IModels,
+  date: Date,
+  excludeId?: string,
+) => {
+  const { accounts } = await getTempAccounts(models);
+
+  if (!accounts.length) {
+    return undefined;
+  }
+
+  return resolveBeginDate(
+    models,
+    getPureDate(date),
+    accounts.map((account) => account._id),
+    excludeId,
+  );
+};
 
 const checkLaterClosing = async (models: IModels, adjust: IAdjustClosing) => {
   const laterClosing = await models.AdjustClosings.findOne({
@@ -141,10 +184,12 @@ const getClosingPeriod = async (
   await checkLaterClosing(models, adjust);
 
   const endDate = getPureDate(adjust.date);
-  const previousClosing = await getPreviousClosing(models, adjust);
-  const beginDate = previousClosing?.date
-    ? getNextDate(previousClosing.date)
-    : await getFirstTempTransactionDate(models, accountIds, endDate);
+  const beginDate = await resolveBeginDate(
+    models,
+    endDate,
+    accountIds,
+    adjust._id,
+  );
 
   if (!beginDate) {
     throw new Error(
@@ -307,8 +352,10 @@ const makeDetail = (
 const pushTransaction = (
   docs: ITransaction[],
   base: Omit<ITransaction, 'details' | 'side' | 'journal'>,
+  ptrId: string,
   side: string,
   details: ITrDetail[],
+  journal: string = JOURNALS.CLOSING,
 ) => {
   if (!details.length) {
     return;
@@ -316,16 +363,25 @@ const pushTransaction = (
 
   docs.push({
     ...base,
-    journal: JOURNALS.MAIN,
+    ptrId,
+    journal,
     status: TR_STATUSES.COMPLETE,
     side,
     details,
   });
 };
 
+/**
+ * Every balanced posting gets its own ptrId: per branch/department, temporary
+ * accounts against the integration account, then the integration account
+ * against period gain/loss; then tax payable; then retained earnings.
+ * Postings use the closing journal, except the tax payable side, which is a
+ * payable transaction when that account belongs to the debt journal.
+ */
 const buildTransactionDocs = (
   adjust: IAdjustClosing,
   details: IAdjustClosingDetail[],
+  taxPayableJournal: string,
 ): TTransactionBuildResult => {
   const docs: ITransaction[] = [];
   const base = {
@@ -340,11 +396,16 @@ const buildTransactionDocs = (
   for (const detail of details) {
     const debitTempDetails: ITrDetail[] = [];
     const creditTempDetails: ITrDetail[] = [];
-    const debitIntegrateDetails: ITrDetail[] = [];
-    const creditIntegrateDetails: ITrDetail[] = [];
-    const debitPeriodDetails: ITrDetail[] = [];
-    const creditPeriodDetails: ITrDetail[] = [];
+    const debitTempIntegrateDetails: ITrDetail[] = [];
+    const creditTempIntegrateDetails: ITrDetail[] = [];
     let groupBalance = 0;
+    // Branch/department-level postings carry the group on the transaction
+    // itself; tax and retained earnings are posted once, without a group.
+    const groupBase = {
+      ...base,
+      branchId: detail.branchId,
+      departmentId: detail.departmentId,
+    };
 
     for (const entry of detail.entries) {
       const amount = Math.abs(entry.balance);
@@ -356,77 +417,110 @@ const buildTransactionDocs = (
 
       if (entry.balance > 0) {
         creditTempDetails.push(makeDetail(entry.accountId, amount, detail));
-        debitIntegrateDetails.push(
+        debitTempIntegrateDetails.push(
           makeDetail(adjust.integrateAccountId, amount, detail),
         );
       }
 
       if (entry.balance < 0) {
         debitTempDetails.push(makeDetail(entry.accountId, amount, detail));
-        creditIntegrateDetails.push(
+        creditTempIntegrateDetails.push(
           makeDetail(adjust.integrateAccountId, amount, detail),
         );
       }
     }
 
+    const tempPtrId = nanoid();
+    pushTransaction(
+      docs,
+      groupBase,
+      tempPtrId,
+      TR_SIDES.DEBIT,
+      debitTempDetails,
+    );
+    pushTransaction(
+      docs,
+      groupBase,
+      tempPtrId,
+      TR_SIDES.CREDIT,
+      creditTempDetails,
+    );
+    pushTransaction(
+      docs,
+      groupBase,
+      tempPtrId,
+      TR_SIDES.DEBIT,
+      debitTempIntegrateDetails,
+    );
+    pushTransaction(
+      docs,
+      groupBase,
+      tempPtrId,
+      TR_SIDES.CREDIT,
+      creditTempIntegrateDetails,
+    );
+
+    const integratePtrId = nanoid();
+    const groupAmount = Math.abs(groupBalance);
+
     if (groupBalance > 0) {
-      creditIntegrateDetails.push(
-        makeDetail(adjust.integrateAccountId, groupBalance, detail),
-      );
-      debitPeriodDetails.push(
-        makeDetail(adjust.periodGLAccountId, groupBalance, detail),
-      );
+      pushTransaction(docs, groupBase, integratePtrId, TR_SIDES.CREDIT, [
+        makeDetail(adjust.integrateAccountId, groupAmount, detail),
+      ]);
+      pushTransaction(docs, groupBase, integratePtrId, TR_SIDES.DEBIT, [
+        makeDetail(adjust.periodGLAccountId, groupAmount, detail),
+      ]);
     }
 
     if (groupBalance < 0) {
-      const amount = Math.abs(groupBalance);
-      debitIntegrateDetails.push(
-        makeDetail(adjust.integrateAccountId, amount, detail),
-      );
-      creditPeriodDetails.push(
-        makeDetail(adjust.periodGLAccountId, amount, detail),
-      );
+      pushTransaction(docs, groupBase, integratePtrId, TR_SIDES.DEBIT, [
+        makeDetail(adjust.integrateAccountId, groupAmount, detail),
+      ]);
+      pushTransaction(docs, groupBase, integratePtrId, TR_SIDES.CREDIT, [
+        makeDetail(adjust.periodGLAccountId, groupAmount, detail),
+      ]);
     }
 
     periodBalance = fixNum(periodBalance + groupBalance, MONEY_PRECISION);
-
-    pushTransaction(docs, base, TR_SIDES.DEBIT, debitTempDetails);
-    pushTransaction(docs, base, TR_SIDES.CREDIT, creditTempDetails);
-    pushTransaction(docs, base, TR_SIDES.DEBIT, debitIntegrateDetails);
-    pushTransaction(docs, base, TR_SIDES.CREDIT, creditIntegrateDetails);
-    pushTransaction(docs, base, TR_SIDES.DEBIT, debitPeriodDetails);
-    pushTransaction(docs, base, TR_SIDES.CREDIT, creditPeriodDetails);
   }
 
   const taxAmount =
     taxableResult < 0 ? fixNum(Math.abs(taxableResult), MONEY_PRECISION) : 0;
 
   if (taxAmount > 0) {
+    const taxPtrId = nanoid();
     periodBalance = fixNum(periodBalance + taxAmount, MONEY_PRECISION);
-    pushTransaction(docs, base, TR_SIDES.DEBIT, [
+    pushTransaction(docs, base, taxPtrId, TR_SIDES.DEBIT, [
       makeDetail(adjust.periodGLAccountId, taxAmount, {}),
     ]);
-    pushTransaction(docs, base, TR_SIDES.CREDIT, [
-      makeDetail(adjust.taxPayableAccountId, taxAmount, {}),
-    ]);
+    pushTransaction(
+      docs,
+      base,
+      taxPtrId,
+      TR_SIDES.CREDIT,
+      [makeDetail(adjust.taxPayableAccountId, taxAmount, {})],
+      taxPayableJournal,
+    );
   }
 
+  const earningPtrId = nanoid();
+  const periodAmount = Math.abs(periodBalance);
+
   if (periodBalance > 0) {
-    pushTransaction(docs, base, TR_SIDES.CREDIT, [
-      makeDetail(adjust.periodGLAccountId, periodBalance, {}),
+    pushTransaction(docs, base, earningPtrId, TR_SIDES.CREDIT, [
+      makeDetail(adjust.periodGLAccountId, periodAmount, {}),
     ]);
-    pushTransaction(docs, base, TR_SIDES.DEBIT, [
-      makeDetail(adjust.earningAccountId, periodBalance, {}),
+    pushTransaction(docs, base, earningPtrId, TR_SIDES.DEBIT, [
+      makeDetail(adjust.earningAccountId, periodAmount, {}),
     ]);
   }
 
   if (periodBalance < 0) {
-    const amount = Math.abs(periodBalance);
-    pushTransaction(docs, base, TR_SIDES.DEBIT, [
-      makeDetail(adjust.periodGLAccountId, amount, {}),
+    pushTransaction(docs, base, earningPtrId, TR_SIDES.DEBIT, [
+      makeDetail(adjust.periodGLAccountId, periodAmount, {}),
     ]);
-    pushTransaction(docs, base, TR_SIDES.CREDIT, [
-      makeDetail(adjust.earningAccountId, amount, {}),
+    pushTransaction(docs, base, earningPtrId, TR_SIDES.CREDIT, [
+      makeDetail(adjust.earningAccountId, periodAmount, {}),
     ]);
   }
 
@@ -463,7 +557,7 @@ const buildClosingResult = async (models: IModels, adjust: IAdjustClosing) => {
   };
 };
 
-const removeClosingTransactions = async (
+export const removeClosingTransactions = async (
   models: IModels,
   adjust: IAdjustClosing,
 ) => {
@@ -489,6 +583,7 @@ export const calculateAdjustClosing = async (
   userId: string,
   adjust: IAdjustClosing,
 ) => {
+  await models.AdjustClosings.checkAdjustClosingEditable(adjust._id || '');
   await removeClosingTransactions(models, adjust);
 
   try {
@@ -537,6 +632,8 @@ export const runAdjustClosingTransactions = async (
   userId: string,
   adjust: IAdjustClosing,
 ) => {
+  await models.AdjustClosings.checkAdjustClosingEditable(adjust._id || '');
+
   const details = adjust.details?.length
     ? adjust.details
     : (await buildClosingResult(models, adjust)).details;
@@ -547,9 +644,21 @@ export const runAdjustClosingTransactions = async (
 
   await removeClosingTransactions(models, adjust);
 
-  const result = buildTransactionDocs(adjust, details);
+  const taxPayableAccount = await models.Accounts.findOne(
+    { _id: adjust.taxPayableAccountId },
+    { journal: 1 },
+  ).lean();
+  const result = buildTransactionDocs(
+    adjust,
+    details,
+    taxPayableAccount?.journal === ACCOUNT_JOURNALS.DEBT
+      ? JOURNALS.PAYABLE
+      : JOURNALS.CLOSING,
+  );
   const transactions = result.docs.length
-    ? await models.Transactions.createPTransaction(result.docs, userId)
+    ? await models.Transactions.createPTransaction(result.docs, userId, {
+        preservePtrIds: true,
+      })
     : [];
   const parentId = transactions[0]?.parentId || '';
 

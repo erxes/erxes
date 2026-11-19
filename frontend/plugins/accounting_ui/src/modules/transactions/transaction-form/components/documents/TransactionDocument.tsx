@@ -22,6 +22,7 @@ const INVENTORY_JOURNALS = new Set<TrJournalEnum>([
 // Document title shown for each journal type.
 const DOCUMENT_TITLES: Partial<Record<TrJournalEnum, string>> = {
   [TrJournalEnum.MAIN]: 'general-journal-voucher',
+  [TrJournalEnum.CLOSING]: 'general-journal-voucher',
   [TrJournalEnum.CASH]: 'cash-voucher-label',
   [TrJournalEnum.BANK]: 'payment-order',
   [TrJournalEnum.RECEIVABLE]: 'receivable-voucher',

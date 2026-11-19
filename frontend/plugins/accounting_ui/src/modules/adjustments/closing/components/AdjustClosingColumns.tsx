@@ -72,14 +72,11 @@ const AccountInlineCell = ({
   );
 };
 
-const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IAdjustClosing>;
-
 export const adjustClosingTableColumns: (
   t: TFunction<'accounting'>,
 ) => ColumnDef<IAdjustClosing>[] = (t) => {
   return [
     AdjustClosingMoreColumn,
-    checkBoxColumn,
     {
       id: 'status',
       accessorKey: 'status',

@@ -77,18 +77,24 @@ const adjustClosingEntryMutations = {
   ) {
     await checkPermission('cancelAdjustClosings');
 
-    const closing = await models.AdjustClosings.getAdjustClosing({
-      _id: adjustId,
-    });
+    return models.AdjustClosings.cancelAdjustClosing(
+      adjustId,
+      user?._id || '',
+    );
+  },
 
-    if (closing.status !== 'publish') {
-      throw new Error('Only published Adjust Closing can be cancelled');
-    }
+  async adjustClosingClearTransactions(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageAdjustClosings');
+    await checkPermission('manageMainTransactions');
 
-    return models.AdjustClosings.updateAdjustClosing(adjustId, {
-      status: 'complete',
-      modifiedBy: user?._id || '',
-    });
+    return models.AdjustClosings.clearAdjustClosingTransactions(
+      _id,
+      user?._id || '',
+    );
   },
 
   async adjustClosingCalculate(
