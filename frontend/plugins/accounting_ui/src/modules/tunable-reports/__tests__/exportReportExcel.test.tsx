@@ -271,3 +271,22 @@ test('the Excel button explains an empty report and keeps technical errors out o
     ),
   );
 });
+
+test('an address pasted from a word processor keeps its line breaks in Excel even when the break tags carry attributes', () => {
+  const report = incomeStatement();
+  report.header =
+    '<p>Улаанбаатар хот<br class="Apple-interchange-newline">Сүхбаатар дүүрэг<BR clear="all" />1-р хороо<br>Энхтайвны өргөн чөлөө 15</p>';
+  const sheet = buildReportWorkbook({
+    values: report,
+    cells,
+    settings,
+    labels,
+  }).worksheets[0];
+  expect(sheetRows(sheet).slice(0, 5)).toEqual([
+    ['Орлогын тайлан / 2026'],
+    ['Улаанбаатар хот'],
+    ['Сүхбаатар дүүрэг'],
+    ['1-р хороо'],
+    ['Энхтайвны өргөн чөлөө 15'],
+  ]);
+});

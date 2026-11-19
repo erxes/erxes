@@ -83,7 +83,7 @@ export const reportHtmlLines = (
   context: ReportTextContext,
 ): string[] => {
   const html = sanitizeReportHtml(value, context)
-    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<br\b[^>]*>/gi, '\n')
     .replace(/<\/(?:p|div|tr|li|h[1-6])>/gi, '$&\n')
     .replace(/<\/t[dh]>/gi, '$& ');
   const text =
