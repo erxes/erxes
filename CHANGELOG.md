@@ -1,4 +1,27 @@
+# Changelog
 
+## [3.4.24](https://github.com/erxes/erxes/compare/3.4.23...3.4.24) (2026-11-19)
+
+
+### Bug Fixes
+
+* **accounting:** hide adjustment add buttons from users without the create permission and align module icons with the sidebar ([#10775](https://github.com/erxes/erxes/issues/10775)) ([fc25abe](https://github.com/erxes/erxes/commit/fc25abe040d6e697f1cfb3bac3ea8c5cd3d5d746))
+* **accounting:** move job executions to the side panel, add missing translations, remove any types and dead route files ([#10686](https://github.com/erxes/erxes/issues/10686)) ([34235f1](https://github.com/erxes/erxes/commit/34235f1848108978853ab4af4bd96007c0293f4a))
+* **accounting:** number filter ([c8dd572](https://github.com/erxes/erxes/commit/c8dd572262ae9c16233ef760cb48e6671404d21e))
+* **accounting:** paginate rate adjustments, wire adjustment filters, fix closing detail actions, translate closing errors ([#10599](https://github.com/erxes/erxes/issues/10599)) ([1a4d318](https://github.com/erxes/erxes/commit/1a4d3189da76a076417965eec510583abcbc5e30))
+* **accounting:** query upgrade ([c62da0c](https://github.com/erxes/erxes/commit/c62da0cbfeea1859c84589fbf6e7b542789ca6fa))
+* **auth:** trusted support visits act as the workspace owner ([#10823](https://github.com/erxes/erxes/issues/10823)) ([33bd9f6](https://github.com/erxes/erxes/commit/33bd9f699534e30759759236bf3f236383ada4cd))
+* **documents:** support font sizes on text attributes ([#10815](https://github.com/erxes/erxes/issues/10815)) ([62772e6](https://github.com/erxes/erxes/commit/62772e6da6526a5aed4e0145aa3826ec19b2f7c8))
+* **operation:** update default status assignment and enhance task name dis… ([#10439](https://github.com/erxes/erxes/issues/10439)) ([95eee48](https://github.com/erxes/erxes/commit/95eee484d71af731e9f1014d73a61d589a609ae8))
+* **payment:** match Khanbank transfers reliably and once per invoice ([#10778](https://github.com/erxes/erxes/issues/10778)) ([96f6608](https://github.com/erxes/erxes/commit/96f6608857bc0f835afad015d797f013e58662f3))
+* **saas-migrations:** connect by _id directly and make appsumo scripts opt-in ([1a83188](https://github.com/erxes/erxes/commit/1a831882de0dcf04e888b9b5a5875f5e3000b3c6))
+
+
+### Features
+
+* **accounting:** tax report ([#10800](https://github.com/erxes/erxes/issues/10800)) ([ede92e9](https://github.com/erxes/erxes/commit/ede92e9c93f769c5f8be36c7b3a0e4bd7c454c63))
+* **accounting:** tunable reports copy paste ([#10783](https://github.com/erxes/erxes/issues/10783)) ([7741e49](https://github.com/erxes/erxes/commit/7741e49c645a899bbeb69d2bb898f61ceb1e3e07))
+* **sales:** rework POS settings to the 3.0 layout ([#10690](https://github.com/erxes/erxes/issues/10690)) ([b751a3c](https://github.com/erxes/erxes/commit/b751a3c4b0f20a47d83a1b9cbdb76b795bd785b3))
 
 ## [3.4.23](https://github.com/erxes/erxes/compare/3.4.22...3.4.23) (2026-11-17)
 
@@ -69,7 +92,7 @@
 
 * resizable details column on record pages ([#10426](https://github.com/erxes/erxes/issues/10426)) ([15412c6](https://github.com/erxes/erxes/commit/15412c64b7fa854501fdf678818c48d843f302e8))
 
-# Changelog
+
 
 ## [3.4.20](https://github.com/erxes/erxes/compare/3.4.19...3.4.20) (2026-11-12)
 
