@@ -102,7 +102,10 @@ const statement = (rows: Rows, count: number) => {
   return `INSERT INTO ${rows.table} (${rows.columns.map((name) => `"${name}"`).join(', ')}) VALUES ${values.join(', ')} ${rows.conflict ?? 'ON CONFLICT DO NOTHING'}`;
 };
 
-/** Inserts the rows and counts them as copied; refused ones are skipped with the reason. */
+/**
+ * Inserts the rows and counts them as copied; refused ones are skipped with the reason, and rows
+ * an earlier run wrote as already in core.
+ */
 export const insert = async (run: Run, rows: Rows) => {
   if (!rows.rows.length) return 0;
 
@@ -113,6 +116,7 @@ export const insert = async (run: Run, rows: Rows) => {
   });
 
   let copied = whole.result;
+  let refused = 0;
 
   if (whole.error) {
     await inOrder(rows.rows, async (row, index) => {
@@ -124,9 +128,16 @@ export const insert = async (run: Run, rows: Rows) => {
 
       copied += one.result;
 
-      if (one.error) run.report.skip(rows.collection, reasonOf(one.error), rows.keys[index]);
+      if (one.error) {
+        refused += 1;
+        run.report.skip(rows.collection, reasonOf(one.error), rows.keys[index]);
+      }
     });
   }
+
+  const there = rows.rows.length - copied - refused;
+
+  if (there) run.report.skip(rows.collection, 'already in core (an earlier run)', '', there);
 
   run.report.copied(rows.collection, copied);
 

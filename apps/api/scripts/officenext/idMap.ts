@@ -68,6 +68,7 @@ export const remember = async (
     columns: ['kind', 'old_id', 'new_id'],
     rows: fresh.map(([old, id]) => [kind, old, id]),
     keys: fresh.map(([old]) => old),
-    conflict: 'ON CONFLICT (kind, old_id) DO UPDATE SET new_id = excluded.new_id',
+    conflict:
+      'ON CONFLICT (kind, old_id) DO UPDATE SET new_id = excluded.new_id WHERE id_map.new_id IS DISTINCT FROM excluded.new_id',
   });
 };
