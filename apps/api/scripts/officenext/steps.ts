@@ -1,0 +1,69 @@
+/**
+ * The import's steps in order. Each names the source collections it reads, so `--only` can
+ * pick it, and the inventory step can tell which collections are covered. A name without a
+ * database (`users`) is in `erxes`; others name theirs (`erxes_logs.logs`).
+ */
+import { importCompanies } from './companies';
+import { importCustomers } from './customers';
+import { importFields } from './fields';
+import { importFieldValues } from './fieldValues';
+import { reportLeftOut } from './leftOut';
+import { importProducts } from './products';
+import type { Run } from './run';
+import { importTags } from './tags';
+import { importUnits } from './units';
+import { importUsers } from './users';
+
+export interface Step {
+  name: string;
+  collections: string[];
+  run: (run: Run) => Promise<void>;
+}
+
+export const STEPS: Step[] = [
+  {
+    name: 'team',
+    collections: [
+      'users',
+      'roles',
+      'permissions',
+      'user_groups',
+      'branches',
+      'departments',
+      'units',
+      'structures',
+    ],
+    run: async (run) => {
+      const users = await importUsers(run);
+
+      await importUnits(run, users);
+    },
+  },
+  { name: 'tags', collections: ['tags', 'brands'], run: importTags },
+  { name: 'customers', collections: ['customers'], run: importCustomers },
+  { name: 'companies', collections: ['companies'], run: importCompanies },
+  {
+    name: 'products',
+    collections: ['products', 'product_categories', 'uoms'],
+    run: importProducts,
+  },
+  {
+    name: 'fields',
+    collections: ['properties_groups', 'fields_groups', 'properties_fields', 'fields'],
+    run: importFields,
+  },
+  { name: 'field values', collections: ['field values'], run: importFieldValues },
+  {
+    name: 'inventory',
+    collections: [],
+    run: (run) =>
+      reportLeftOut(
+        run,
+        new Set(
+          STEPS.flatMap((step) =>
+            step.collections.map((name) => (name.includes('.') ? name : `erxes.${name}`)),
+          ),
+        ),
+      ),
+  },
+];
