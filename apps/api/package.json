@@ -42,6 +42,7 @@
     "@orpc/contract": "1.16.2",
     "@orpc/experimental-pino": "1.16.2",
     "@orpc/openapi": "1.16.2",
+    "@orpc/openapi-client": "1.16.2",
     "@orpc/otel": "1.16.2",
     "@orpc/server": "1.16.2",
     "@orpc/zod": "1.16.2",
@@ -70,7 +71,6 @@
   },
   "devDependencies": {
     "@erxes/plugin-sdk": "workspace:*",
-    "@orpc/openapi-client": "1.16.2",
     "@types/express": "^5.0.6",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.11.10",

@@ -133,7 +133,8 @@
  *
  * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
  * the RPC handler. The manifest's `api.docs` lists one document per audience (`member`, and
- * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them:
+ * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them.
+ * The assistant calls the `member` document's routes with the member's session token:
  *
  *   api: { url: `${publicUrl}/api`, docs: [{ audience: 'member', path: '/openapi/member.json' }] },
  *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));

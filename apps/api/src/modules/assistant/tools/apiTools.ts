@@ -9,7 +9,8 @@ import type { InstalledPlugin } from '../plugins';
 import { identitiesIn } from '../records';
 import { issueReferences } from '../references.service';
 import { type ApiProcedure, apiCatalog } from './apiCatalog';
-import { callPluginProcedure, type PluginProcedure, pluginProcedures } from './pluginOperations';
+import { type PluginProcedure, pluginProcedures } from './pluginDocument';
+import { callPluginProcedure } from './pluginOperations';
 import { bounded, describeError, refusal } from './results';
 
 type Member = Extract<Caller, { type: 'user' }>;
@@ -20,13 +21,7 @@ export interface ToolScope {
   threadId: string;
   codeMode: boolean;
   plugins: InstalledPlugin[];
-  pluginProcedures: PluginProcedure[];
 }
-
-export const toolScope = (scope: Omit<ToolScope, 'pluginProcedures'>): ToolScope => ({
-  ...scope,
-  pluginProcedures: pluginProcedures(scope.plugins),
-});
 
 export const SEARCH_LIMIT = 8;
 
@@ -80,16 +75,17 @@ type Entry = ApiProcedure | PluginProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
 
-const findEntry = (scope: ToolScope, name: string): Entry | undefined =>
-  apiCatalog().get(name) ?? scope.pluginProcedures.find((entry) => entry.name === name);
+const findEntry = async (scope: ToolScope, name: string): Promise<Entry | undefined> =>
+  apiCatalog().get(name) ??
+  (await pluginProcedures(scope.plugins)).find((entry) => entry.name === name);
 
 const mayCall = (scope: ToolScope, entry: Entry) =>
   !entry.denied && (isPluginEntry(entry) || memberMayCall(entry.name, scope.member));
 
-export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
+export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
   const tokens = tokensOf(query);
 
-  const found = [...apiCatalog().values(), ...scope.pluginProcedures]
+  const found = [...apiCatalog().values(), ...(await pluginProcedures(scope.plugins))]
     .filter((entry) => mayCall(scope, entry))
     .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
     .filter(({ score }) => score > 0)
@@ -138,7 +134,7 @@ export const callProcedure = async (
   name: string,
   input: Record<string, unknown> = {},
 ) => {
-  const entry = findEntry(scope, name);
+  const entry = await findEntry(scope, name);
 
   if (!entry) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}; use searchApi`);
 

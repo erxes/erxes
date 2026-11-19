@@ -294,7 +294,6 @@ export const TokenResponse = z.object({
  * plugin reading another's (`pluginReadsContract`), and live signals to plugin UIs.
  */
 const {
-  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -309,7 +308,6 @@ const {
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -343,7 +341,7 @@ export const pluginsContract = {
       method: 'PUT',
       path: '/plugins/manifest',
       summary:
-        "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills and operations. 400 INVALID_SCHEDULE when a job's cron doesn't parse, 400 API_REQUIRED when it declares assistant operations without api",
+        "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills. 400 INVALID_SCHEDULE when a job's cron doesn't parse",
     })
     .input(PluginManifest)
     .output(
