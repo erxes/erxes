@@ -1,17 +1,16 @@
-import type { AssistantApprovalMode } from '@erxes/core-contract';
 import { type Caller, enterScope, withOrg } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
-import { tool } from 'ai';
 import { z } from 'zod';
 import { memberMayCall } from '~/http/access';
 import { memberOf } from '~/http/auth';
-import type { CoreContext } from '~/orpc';
+import { agentTool } from '~/modules/agents/tool';
 import { coreRouter } from '~/router';
 import type { InstalledPlugin } from '../plugins';
 import { identitiesIn } from '../records';
 import { issueReferences } from '../references.service';
-import { type ApiProcedure, apiCatalog, needsApproval } from './apiCatalog';
-import { callPluginProcedure, type PluginProcedure, pluginProcedures } from './pluginOperations';
+import { type ApiProcedure, apiCatalog } from './apiCatalog';
+import { type PluginProcedure, pluginProcedures } from './pluginDocument';
+import { callPluginProcedure } from './pluginOperations';
 import { bounded, describeError, refusal } from './results';
 
 type Member = Extract<Caller, { type: 'user' }>;
@@ -19,18 +18,11 @@ type Member = Extract<Caller, { type: 'user' }>;
 export interface ToolScope {
   member: Member;
   orgId: string;
-  threadId: string;
-  context: CoreContext;
-  approvalMode: AssistantApprovalMode;
+  /** The assistant thread its references belong to; an automation step has none. */
+  threadId: string | null;
   codeMode: boolean;
   plugins: InstalledPlugin[];
-  pluginProcedures: PluginProcedure[];
 }
-
-export const toolScope = (scope: Omit<ToolScope, 'pluginProcedures'>): ToolScope => ({
-  ...scope,
-  pluginProcedures: pluginProcedures(scope.plugins),
-});
 
 export const SEARCH_LIMIT = 8;
 
@@ -51,7 +43,7 @@ export const CallApiInput = z.object({
     .trim()
     .optional()
     .describe(
-      'What this call does, in a few plain words the member reads in the chat and on an approval, e.g. "Find customers with a .mn email" or "Tag 3 customers VIP". Always give it.',
+      'What this call does, in a few plain words the member reads in the chat, e.g. "Find customers with a .mn email" or "Tag 3 customers VIP". Always give it.',
     ),
 });
 
@@ -84,16 +76,17 @@ type Entry = ApiProcedure | PluginProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
 
-const findEntry = (scope: ToolScope, name: string): Entry | undefined =>
-  apiCatalog().get(name) ?? scope.pluginProcedures.find((entry) => entry.name === name);
+const findEntry = async (scope: ToolScope, name: string): Promise<Entry | undefined> =>
+  apiCatalog().get(name) ??
+  (await pluginProcedures(scope.plugins)).find((entry) => entry.name === name);
 
 const mayCall = (scope: ToolScope, entry: Entry) =>
   !entry.denied && (isPluginEntry(entry) || memberMayCall(entry.name, scope.member));
 
-export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
+export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
   const tokens = tokensOf(query);
 
-  const found = [...apiCatalog().values(), ...scope.pluginProcedures]
+  const found = [...apiCatalog().values(), ...(await pluginProcedures(scope.plugins))]
     .filter((entry) => mayCall(scope, entry))
     .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
     .filter(({ score }) => score > 0)
@@ -104,7 +97,6 @@ export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT)
       method: procedure.method,
       path: procedure.path,
       summary: procedure.summary,
-      needsApproval: needsApproval(procedure, scope.approvalMode),
       input: procedure.input,
     }));
 
@@ -114,11 +106,11 @@ export const searchApi = (scope: ToolScope, query: string, limit = SEARCH_LIMIT)
 const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) => {
   const identities = identitiesIn(schema, result);
 
-  if (identities.length === 0) return bounded(result);
+  const { threadId } = scope;
 
-  const issued = await withOrg(scope.orgId, (tx) =>
-    issueReferences(tx, scope.threadId, identities),
-  );
+  if (identities.length === 0 || threadId === null) return bounded(result);
+
+  const issued = await withOrg(scope.orgId, (tx) => issueReferences(tx, threadId, identities));
 
   return bounded(
     result,
@@ -132,7 +124,7 @@ const runCore = async (scope: ToolScope, name: string, input: Record<string, unk
 
   if (!isProcedure(procedure)) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}`);
 
-  return call(procedure, input, { context: scope.context, path }).then(
+  return call(procedure, input, { context: {}, path }).then(
     (result) => withReferences(scope, procedure['~orpc'].outputSchema, result),
     describeError,
   );
@@ -143,7 +135,7 @@ export const callProcedure = async (
   name: string,
   input: Record<string, unknown> = {},
 ) => {
-  const entry = findEntry(scope, name);
+  const entry = await findEntry(scope, name);
 
   if (!entry) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}; use searchApi`);
 
@@ -168,28 +160,22 @@ export const callProcedure = async (
   return result.ok ? { ...result, changed: entry.changes } : result;
 };
 
-export const approvalFor = (scope: ToolScope, input: CallApiInput) => {
-  const entry = findEntry(scope, input.procedure);
-
-  if (!entry || !mayCall(scope, entry)) return 'not-applicable';
-
-  return needsApproval(entry, scope.approvalMode) ? 'user-approval' : 'not-applicable';
-};
-
-export const apiTools = (scope: ToolScope) => ({
-  searchApi: tool({
+export const apiTools = (scope: ToolScope) => [
+  agentTool({
+    name: 'searchApi',
     description:
       'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary and input JSON schema.',
-    inputSchema: z.object({
+    input: z.object({
       query: z.string().trim().min(1).max(200),
       limit: z.int().min(1).max(SEARCH_MAX).optional(),
     }),
     execute: ({ query, limit }) => searchApi(scope, query, limit),
   }),
-  callApi: tool({
+  agentTool({
+    name: 'callApi',
     description:
       'Run one erxes API procedure as the signed-in member, with their permissions. Pass the procedure name from searchApi and one input object.',
-    inputSchema: CallApiInput,
+    input: CallApiInput,
     execute: ({ procedure, input }) => callProcedure(scope, procedure, input),
   }),
-});
+];

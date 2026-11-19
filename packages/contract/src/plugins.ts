@@ -15,10 +15,12 @@ import { ActionFields, DataField } from './automationRuns';
 import { AppOrigin } from './customerAuth';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
+import { PluginTransfers } from './pluginTransfer';
 import { PluginObjects } from './recordTypes';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
@@ -212,6 +214,8 @@ export const PluginManifest = z.object({
   jobs: PluginJobs.optional(),
   /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
   fields: PluginFields.optional(),
+  /** Its records members import and export through core (`PluginTransfers`): core asks `<api.url>/transfer/*` for the rows. */
+  transfer: PluginTransfers.optional(),
   /**
    * Its records that belong to customers or companies (`PluginRelations`): their lists filter
    * by them ("has more than 3 won deals"), through a view the plugin keeps.
@@ -238,6 +242,7 @@ export const PluginManifest = z.object({
     .max(500)
     .optional(),
   assistant: PluginAssistant.optional(),
+  agents: PluginAgents.optional(),
 });
 
 export type PluginManifest = z.infer<typeof PluginManifest>;
@@ -294,7 +299,6 @@ export const TokenResponse = z.object({
  * plugin reading another's (`pluginReadsContract`), and live signals to plugin UIs.
  */
 const {
-  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -309,7 +313,6 @@ const {
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  API_REQUIRED,
   CROSS_SITE,
   DUPLICATE_PERMISSION_SET,
   INVALID_CLIENT,
@@ -343,7 +346,7 @@ export const pluginsContract = {
       method: 'PUT',
       path: '/plugins/manifest',
       summary:
-        "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills and operations. 400 INVALID_SCHEDULE when a job's cron doesn't parse, 400 API_REQUIRED when it declares assistant operations without api",
+        "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills. 400 INVALID_SCHEDULE when a job's cron doesn't parse",
     })
     .input(PluginManifest)
     .output(

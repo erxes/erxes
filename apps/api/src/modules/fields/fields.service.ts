@@ -1,12 +1,5 @@
-import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
-import {
-  caller,
-  type PropertyContentType,
-  type Db,
-  fieldGroups,
-  fields,
-  newId,
-} from '@erxes/core-db';
+import { FIELD_TYPE_FAMILIES, type FieldLogic } from '@erxes/core-contract';
+import { type Db, type PropertyContentType, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
@@ -15,6 +8,7 @@ import { lockRows } from '~/lib/locks';
 import { oneRow, setOrders } from '~/lib/rows';
 import {
   assertMemberField,
+  assertPluginReads,
   assertPropertyType,
   type FieldRow,
   type FieldType,
@@ -70,25 +64,6 @@ const checkGroup = async (
   }
 };
 
-/**
- * Plugins read product fields (with `products:read`) to show product values, and their own
- * record types' fields, whose values they keep; contacts' fields stay members'.
- */
-const assertPluginReads = (contentType: PropertyContentType) => {
-  const who = caller();
-
-  if (who.type !== 'plugin' || contentType.startsWith(`${who.plugin}.`)) return;
-
-  if (contentType !== 'product')
-    throw fail('NOT_ALLOWED', 'Plugins read product fields and their own record types only');
-
-  if (!who.scopes.includes('products:read'))
-    throw fail(
-      'SCOPE_REQUIRED',
-      "This needs the products:read scope, which this installation hasn't granted",
-    );
-};
-
 export const listFields = async (
   client: Db,
   input: { contentType: PropertyContentType; groupId?: string; archived?: boolean },
@@ -136,6 +111,32 @@ export const fieldUsage = async (client: Db, input: { ids?: string[]; groupId?: 
   return { records, options, removable: records === 0 };
 };
 
+/** Each logic rule names another field of the same record type. */
+const checkLogic = async (
+  client: Db,
+  contentType: PropertyContentType,
+  id: string | null,
+  logic: FieldLogic | null | undefined,
+) => {
+  if (!logic) return;
+
+  const ids = unique(logic.rules.map((rule) => rule.fieldId));
+
+  const found =
+    id && ids.includes(id)
+      ? []
+      : await client
+          .select({ id: fields.id })
+          .from(fields)
+          .where(and(eq(fields.contentType, contentType), inArray(fields.id, ids)));
+
+  if (found.length !== ids.length) {
+    const message = `Logic rules name other ${contentType} fields`;
+
+    throw fail('INVALID_INPUT', message, { issues: [{ path: ['logic', 'rules'], message }] });
+  }
+};
+
 export const createField = async (
   client: Db,
   input: {
@@ -149,10 +150,14 @@ export const createField = async (
     icon?: string | null;
     validation?: FieldValidation | null;
     isVisible?: boolean;
+    isRequired?: boolean;
+    isVisibleToCreate?: boolean;
+    logic?: FieldLogic | null;
   },
 ) => {
   await assertPropertyType(client, input.contentType);
   await checkGroup(client, input.contentType, input.groupId);
+  await checkLogic(client, input.contentType, null, input.logic);
 
   const order = await nextOrder(client, fields, input.contentType);
 
@@ -171,6 +176,9 @@ export const createField = async (
         validation: TEXT_TYPES.includes(input.type) ? (input.validation ?? null) : null,
         options: hasOptions(input.type) ? unique(input.options ?? []) : [],
         isVisible: input.isVisible ?? true,
+        isRequired: input.isRequired ?? false,
+        isVisibleToCreate: input.isVisibleToCreate ?? true,
+        logic: input.logic ?? null,
         order,
       })
       .returning(),
@@ -190,6 +198,9 @@ interface FieldChanges {
   icon?: string | null;
   validation?: FieldValidation | null;
   isVisible?: boolean;
+  isRequired?: boolean;
+  isVisibleToCreate?: boolean;
+  logic?: FieldLogic | null;
 }
 
 /** The type, options and validation a field ends up with; a type change must keep stored values readable. */
@@ -233,6 +244,8 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
   if (input.groupId !== undefined && input.groupId !== field.groupId) {
     await checkGroup(client, field.contentType, input.groupId);
   }
+
+  await checkLogic(client, field.contentType, field.id, input.logic);
 
   const row = oneRow(
     await client

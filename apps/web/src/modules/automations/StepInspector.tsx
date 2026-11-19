@@ -114,12 +114,12 @@ export const StepInspector = ({
   onSelect: (selection: Selection) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { events, stats, outputsBefore } = useContext(BuilderContext);
+  const { events, stats, outputsBefore, knownActions } = useContext(BuilderContext);
   const { fields } = useAutomationFields(subject);
   const counts = stats.get(step.id);
 
   const { title } = describeStep(step, {
-    actions,
+    actions: knownActions,
     events,
     fields: [...fields, ...outputsBefore(step.id)],
   });

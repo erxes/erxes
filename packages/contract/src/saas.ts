@@ -26,7 +26,7 @@ export const OrganizationStatus = z.enum(ORGANIZATION_STATUSES);
  * erxes.io → core: create (or rename, or enable/disable) an organisation's
  * workspace. `PUT /core/v1/saas/organizations/{id}` with
  * `Authorization: Bearer <SAAS_PLATFORM_TOKEN>`. Plugins and tiers are not
- * sent: core reads them from erxes.io's entitlement API.
+ * sent: core reads them from the organisation's Stripe customer.
  */
 export const SaasWorkspace = z.object({
   organization: OrganizationRegion.extend({
@@ -41,6 +41,13 @@ export const SaasWorkspace = z.object({
     })
     .optional(),
   status: OrganizationStatus.optional(),
+  /** The organisation's Stripe customer, where core reads its plugins and bundles. */
+  stripeCustomerId: z
+    .string()
+    .trim()
+    .regex(/^cus_[A-Za-z0-9]+$/)
+    .max(255)
+    .optional(),
 });
 
 export type SaasWorkspace = z.infer<typeof SaasWorkspace>;
@@ -81,6 +88,12 @@ export const PluginPlan = z.object({
   status: EntitlementStatus.nullable(),
   access: PluginAccess,
   readOnlyUntil: z.iso.datetime().nullable(),
+  /**
+   * The bundle codes the organisation has live on Stripe, one per bundle bought
+   * (`business-school-10-people` twice when bought twice). Gifted bundles are not on
+   * Stripe, so they are not here. Empty on self-hosted.
+   */
+  bundles: z.array(z.string()),
 });
 
 export type PluginPlan = z.infer<typeof PluginPlan>;

@@ -13,6 +13,7 @@ import { fieldGroupsQuery, useFieldGroups } from '../useFields';
 import { useCanManageFields } from '../usePropertyMutations';
 import type { PropertyFormApi } from './propertyFormApi';
 import { AddPropertyGroup } from './PropertyGroupAdd';
+import { PropertyLogicField } from './PropertyLogicField';
 import { PropertyOptionsField } from './PropertyOptionsField';
 import { PropertyTypeField, PropertyValidationField } from './PropertyTypeFields';
 
@@ -157,23 +158,45 @@ const PropertyBasics = ({ form }: { form: PropertyFormApi }) => {
   );
 };
 
-const PropertyVisibleField = ({ form }: { form: PropertyFormApi }) => {
+/** One on or off setting of the property, as a labelled switch. */
+const PropertySwitchField = ({
+  form,
+  name,
+  label,
+}: {
+  form: PropertyFormApi;
+  name: 'isVisible' | 'isRequired' | 'isVisibleToCreate';
+  label: string;
+}) => (
+  <Form.Field
+    control={form.control}
+    name={name}
+    render={({ field }) => (
+      <Form.Item orientation="horizontal" className="flex-auto">
+        <Form.Label>{label}</Form.Label>
+        <Form.Control>
+          <Switch checked={field.value} onCheckedChange={field.onChange} />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
+
+/** Where the property shows, and whether a record needs it. */
+const PropertySwitches = ({ form }: { form: PropertyFormApi }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
 
   return (
-    <Form.Field
-      control={form.control}
-      name="isVisible"
-      render={({ field }) => (
-        <Form.Item orientation="horizontal" className="flex-auto">
-          <Form.Label>{t('visible', 'Visible')}</Form.Label>
-          <Form.Control>
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
+    <>
+      <PropertySwitchField form={form} name="isVisible" label={t('visible', 'Visible')} />
+      <PropertySwitchField
+        form={form}
+        name="isVisibleToCreate"
+        label={t('visible-to-create', 'Visible to create')}
+      />
+      <PropertySwitchField form={form} name="isRequired" label={t('required', 'Required')} />
+    </>
   );
 };
 
@@ -262,9 +285,10 @@ export const PropertyForm = ({
             allowedTypes={allowedTypes}
             hint={isEdit ? { usage, failed: !!usageFailed } : undefined}
           />
-          <PropertyVisibleField form={form} />
+          <PropertySwitches form={form} />
           <PropertyValidationField form={form} />
           <PropertyOptionsField form={form} heldCount={(value) => optionCounts[value] ?? 0} />
+          <PropertyLogicField form={form} contentType={contentType} fieldId={fieldId} />
         </div>
         <PropertyFormFooter loading={loading} isEdit={isEdit} onCancel={onCancel} />
       </form>

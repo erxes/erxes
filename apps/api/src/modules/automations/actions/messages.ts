@@ -80,6 +80,21 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         placeholder: 'Welcome, {{subject.firstName}}',
       },
       { key: 'body', label: 'Message', type: 'longtext', required: true },
+      {
+        key: 'fromEmail',
+        label: 'From',
+        type: 'email_sender',
+        required: false,
+        description: 'Leave empty to send from your sending address',
+      },
+      {
+        key: 'replyTo',
+        label: 'Reply to',
+        type: 'text',
+        required: false,
+        placeholder: 'team@example.com',
+        description: 'Leave empty for replies to go to the From address',
+      },
     ],
     outputs: [{ key: 'sent', label: 'Emails sent', type: 'number' }],
     // Queues the emails in the step's transaction; the email job sends them.
@@ -100,10 +115,20 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         body: (text(ctx.input.body) ?? '').slice(0, 20_000),
       };
 
+      const fromEmail = text(ctx.input.fromEmail)?.trim() || undefined;
+      const replyTo = text(ctx.input.replyTo)?.trim();
+
       await sendEmail(
         ctx.tx,
         ctx.orgId,
-        recipients.map((address) => ({ to: address, template: 'message', data })),
+        recipients.map((address) => ({
+          to: address,
+          template: 'message',
+          fromEmail,
+          // Data can fill it in, so a value that isn't an address by then is left out.
+          replyTo: replyTo && EMAIL.test(replyTo) ? replyTo : undefined,
+          data,
+        })),
       );
 
       return { sent: recipients.length, to: recipients };

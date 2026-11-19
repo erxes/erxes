@@ -1,67 +1,29 @@
-import type { UIMessage } from 'ai';
 import { describe, expect, it } from 'vite-plus/test';
-import { chatRequestBody } from '../chatRequest';
 import { threadMarkdown } from '../exportMarkdown';
-import { modelToRun } from '../modelChoice';
+import { modelToRun, sendRequest } from '../modelChoice';
+import { transcriptOf } from '../transcriptRows';
 
-const user = (id: string, text: string): UIMessage => ({
-  id,
-  role: 'user',
-  parts: [{ type: 'text', text }],
-});
-
-describe('chatRequestBody', () => {
-  it('sends only the newest message with the thread and the model that will run', () => {
-    const body = chatRequestBody({
-      messages: [user('u1', 'First'), user('u2', 'Second')],
+describe('sendRequest', () => {
+  it('sends the message with the thread and the model that will run', () => {
+    const body = sendRequest({
       threadId: 'thread-1',
+      parts: [{ type: 'text', text: 'Second' }],
       run: { provider: 'kimi', model: 'kimi-k3', thinkingLevel: 'low' },
     });
 
     expect(body).toEqual({
       threadId: 'thread-1',
-      message: { id: 'u2', role: 'user', parts: [{ type: 'text', text: 'Second' }] },
+      message: { parts: [{ type: 'text', text: 'Second' }] },
       provider: 'kimi',
       model: 'kimi-k3',
       thinkingLevel: 'low',
     });
   });
 
-  it('asks the server to replace the question when it is edited or asked again', () => {
-    const messages = [user('u1', 'First'), user('u2', 'Second, reworded')];
-    const edited = chatRequestBody({ messages, threadId: 't', run: null, messageId: 'u2' });
-
-    const again = chatRequestBody({
-      messages,
-      threadId: 't',
-      run: null,
-      trigger: 'regenerate-message',
-    });
-
-    expect(edited).toMatchObject({ edit: true, message: { id: 'u2' } });
-    expect(again).toMatchObject({ edit: true, message: { id: 'u2' } });
-  });
-
-  it('sends a new question or an approval follow-up without replacing anything', () => {
-    const reply: UIMessage = { id: 'a1', role: 'assistant', parts: [] };
-    const asked = chatRequestBody({ messages: [user('u1', 'Hi')], threadId: 't', run: null });
-
-    const followUp = chatRequestBody({
-      messages: [user('u1', 'Hi'), reply],
-      threadId: 't',
-      run: null,
-      trigger: 'submit-message',
-      messageId: 'a1',
-    });
-
-    expect(asked).not.toHaveProperty('edit');
-    expect(followUp).not.toHaveProperty('edit');
-  });
-
   it('leaves out what is not chosen yet, so the server uses its defaults', () => {
-    expect(chatRequestBody({ messages: [user('u1', 'Hi')], run: null })).toEqual({
-      message: { id: 'u1', role: 'user', parts: [{ type: 'text', text: 'Hi' }] },
-    });
+    expect(
+      sendRequest({ threadId: null, parts: [{ type: 'text', text: 'Hi' }], run: null }),
+    ).toEqual({ message: { parts: [{ type: 'text', text: 'Hi' }] } });
   });
 });
 
@@ -169,36 +131,52 @@ describe('modelToRun', () => {
   });
 });
 
+type Fields = Record<string, unknown>;
+
+// Entry ids are numbers, as pi stores them.
+const member = (id: number, ...parts: Fields[]) => ({ id, kind: 'assistant.user', data: parts });
+
+const said = (id: number, ...content: Fields[]) => ({
+  id,
+  kind: 'pi.assistant',
+  model: [{ role: 'assistant', content, stopReason: 'stop' }],
+});
+
+const call = (id: string, name: string, args: Fields = {}) => ({
+  type: 'toolCall',
+  id,
+  name,
+  arguments: args,
+});
+
+const result = (toolCallId: string, value: Fields) => ({
+  id: 100,
+  kind: 'pi.toolResult',
+  model: [
+    {
+      role: 'toolResult',
+      toolCallId,
+      toolName: 'tool',
+      content: [{ type: 'text', text: JSON.stringify(value) }],
+      isError: false,
+    },
+  ],
+});
+
+const exported = (title: string, entries: Fields[]) =>
+  threadMarkdown(title, transcriptOf({ entries, docs: {} }).messages, 'https://acme.erxes.io');
+
 describe('threadMarkdown', () => {
-  it('writes the conversation as Markdown, with answered questions and without tool calls', () => {
-    const markdown = threadMarkdown(
-      'Top customers',
-      [
-        user('u1', 'Who are our top customers?'),
-        {
-          id: 'a1',
-          role: 'assistant',
-          parts: [
-            {
-              type: 'tool-ask_user',
-              toolCallId: 'q',
-              state: 'output-available',
-              input: { questions: [{ question: 'Which period?' }] },
-              output: { answers: ['This quarter'] },
-            },
-            {
-              type: 'tool-callApi',
-              toolCallId: 'c',
-              state: 'output-available',
-              input: { procedure: 'customers.list', input: {} },
-              output: { ok: true },
-            },
-            { type: 'text', text: '| Name |\n| --- |\n| Ada |', state: 'done' },
-          ],
-        },
-      ],
-      'https://acme.erxes.io',
-    );
+  it('writes the conversation as Markdown, with the answers given and without tool calls', () => {
+    const markdown = exported('Top customers', [
+      member(1, { type: 'text', text: 'Who are our top customers?' }),
+      said(2, call('q', 'ask_user', { questions: [{ question: 'Which period?' }] })),
+      result('q', { asked: true }),
+      member(3, { type: 'text', text: 'Which period?: This quarter' }),
+      said(4, call('c', 'callApi', { procedure: 'customers.list', input: {} })),
+      result('c', { ok: true }),
+      said(5, { type: 'text', text: '| Name |\n| --- |\n| Ada |' }),
+    ]);
 
     expect(markdown).toBe(
       [
@@ -208,10 +186,11 @@ describe('threadMarkdown', () => {
         '',
         'Who are our top customers?',
         '',
-        '## Assistant',
+        '## You',
         '',
-        '> Which period?',
-        '> This quarter',
+        'Which period?: This quarter',
+        '',
+        '## Assistant',
         '',
         '| Name |\n| --- |\n| Ada |',
         '',
@@ -220,58 +199,32 @@ describe('threadMarkdown', () => {
   });
 
   it('lists attachments as links and writes each artifact into the export', () => {
-    const markdown = threadMarkdown(
-      'Q3 review',
-      [
+    const markdown = exported('Q3 review', [
+      member(
+        1,
+        { type: 'text', text: 'Compare with this quote' },
         {
-          id: 'u1',
-          role: 'user',
-          parts: [
-            { type: 'text', text: 'Compare with this quote' },
-            {
-              type: 'data-files',
-              data: {
-                files: [
-                  { id: 'f1', name: 'quote.pdf', contentType: 'application/pdf', size: 125_000 },
-                ],
-              },
-            },
-          ],
+          type: 'data-files',
+          data: {
+            files: [{ id: 'f1', name: 'quote.pdf', contentType: 'application/pdf', size: 125_000 }],
+          },
         },
-        {
-          id: 'a1',
-          role: 'assistant',
-          parts: [
-            {
-              type: 'tool-createArtifact',
-              toolCallId: 'c1',
-              state: 'output-available',
-              input: {},
-              output: {
-                format: 'csv',
-                title: 'Top customers',
-                filename: 'Top-customers.csv',
-                content: 'Customer,Deals\n"Altai, LLC",3',
-              },
-            },
-            {
-              type: 'tool-createArtifact',
-              toolCallId: 'c2',
-              state: 'output-available',
-              input: {},
-              output: {
-                format: 'html',
-                title: 'Sales report',
-                filename: 'Sales-report.html',
-                content: '<p class="scope">Q3</p>',
-              },
-            },
-            { type: 'text', text: 'Here they are.', state: 'done' },
-          ],
-        },
-      ],
-      'https://acme.erxes.io',
-    );
+      ),
+      said(2, call('c1', 'createArtifact'), call('c2', 'createArtifact')),
+      result('c1', {
+        format: 'csv',
+        title: 'Top customers',
+        filename: 'Top-customers.csv',
+        content: 'Customer,Deals\n"Altai, LLC",3',
+      }),
+      result('c2', {
+        format: 'html',
+        title: 'Sales report',
+        filename: 'Sales-report.html',
+        content: '<p class="scope">Q3</p>',
+      }),
+      said(4, { type: 'text', text: 'Here they are.' }),
+    ]);
 
     expect(markdown).toContain(
       '- [quote.pdf](https://acme.erxes.io/core/v1/files/f1/download) (PDF · 122 KB)',

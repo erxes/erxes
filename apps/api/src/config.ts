@@ -23,6 +23,7 @@ const SECRETS = [
   'EMAIL_SMTP_URL',
   'SAAS_PLATFORM_TOKEN',
   'SAAS_JWT_TOKEN_SECRET',
+  'SAAS_STRIPE_SECRET_KEY',
   'S3_ACCESS_KEY_ID',
   'S3_SECRET_ACCESS_KEY',
 ] as const;
@@ -145,6 +146,7 @@ const Env = z
     SAAS_JWT_TOKEN_SECRET: text,
     SAAS_GRACE_DAYS: positive(7),
     SAAS_BILLING_URL: text,
+    SAAS_STRIPE_SECRET_KEY: text,
 
     FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
     FILES_LOCAL_DIR: text,
@@ -165,6 +167,9 @@ const Env = z
 
     MASS_DELETE_ALERT: positive(100),
     MASS_DELETE_LIMIT: positive(500),
+
+    AGENT_MAX_TURNS: optional(z.coerce.number().int().positive()).transform((value) => value ?? 30),
+    AGENT_RUNS_PER_MINUTE: positive(60),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
@@ -190,11 +195,10 @@ const Env = z
     }
   })
   .superRefine((env, ctx) => {
-    if (env.SAAS && (env.SAAS_PLATFORM_TOKEN?.length ?? 0) < 32) {
+    if (env.SAAS && ((env.SAAS_PLATFORM_TOKEN?.length ?? 0) < 32 || !env.SAAS_STRIPE_SECRET_KEY)) {
       ctx.addIssue({
         code: 'custom',
-        message:
-          "SAAS=true needs SAAS_PLATFORM_TOKEN (at least 32 characters; erxes.io's PLATFORM_API_TOKEN)",
+        message: 'SAAS=true needs SAAS_PLATFORM_TOKEN (≥ 32 characters) and SAAS_STRIPE_SECRET_KEY',
       });
     }
 
@@ -352,16 +356,18 @@ export const config = {
     taxpayerUrl: env.EBARIMT_TAXPAYER_URL,
   },
   /**
-   * SaaS (erxes.io): core reads each organisation's plugins and tiers from
-   * erxes.io's entitlement API and enforces them. Off: self-hosted, every
-   * plugin at its top tier, nothing to check.
+   * SaaS (erxes.io): core reads each organisation's plugins, tiers and
+   * bundles from its Stripe customer and enforces them. Off: self-hosted,
+   * every plugin at its top tier, nothing to check.
    */
   saas: {
     enabled: env.SAAS ?? false,
-    /** erxes.io, whose `/api/platform/organizations/plugins?subdomain=` answers what each organisation has. */
+    /** erxes.io, where a refused sign-in link goes back to. */
     platformUrl: env.SAAS_PLATFORM_URL,
-    /** Bearer token both ways: core → erxes.io (PLATFORM_API_TOKEN there), erxes.io → core's /saas/*. */
+    /** erxes.io → core's /saas/* (PLATFORM_API_TOKEN there). */
     platformToken: env.SAAS_PLATFORM_TOKEN,
+    /** Reads erxes.io's Stripe account: customers, subscriptions, products. */
+    stripe: { key: env.SAAS_STRIPE_SECRET_KEY, url: 'https://api.stripe.com/v1' },
     /** erxes.io's sign-in hand-off key (its SAAS_JWT_TOKEN_SECRET, HS256). */
     handoffSecret: env.SAAS_JWT_TOKEN_SECRET,
     /** Days a plugin that left the plan stays read-only before it is turned off. */
@@ -422,5 +428,11 @@ export const config = {
     alertAt: env.MASS_DELETE_ALERT,
     /** … and before they are stopped: members refused, plugins suspended. Owners aren't limited. */
     stopAt: env.MASS_DELETE_LIMIT,
+  },
+  agents: {
+    /** Tool rounds one run may take; the round that reaches it ends the run with `turn_limit`. */
+    maxTurns: env.AGENT_MAX_TURNS,
+    /** Runs one organisation may start a minute, counted across every server. */
+    runsPerMinute: env.AGENT_RUNS_PER_MINUTE,
   },
 };

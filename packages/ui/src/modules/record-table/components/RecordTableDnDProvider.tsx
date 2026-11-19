@@ -11,7 +11,7 @@ import {
 import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
 import type { ColumnOrderState, OnChangeFn } from '@tanstack/react-table';
-import { useSortAccessibility } from 'erxes-ui/hooks/use-sort-accessibility';
+import { useSortList } from 'erxes-ui/hooks/use-sort-accessibility';
 
 interface RecordTableDnDProviderProps {
   children: React.ReactNode;
@@ -38,7 +38,7 @@ export const RecordTableDnDProvider = ({
     useSensor(KeyboardSensor, {}),
   );
 
-  const accessibility = useSortAccessibility();
+  const sortList = useSortList();
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -55,7 +55,7 @@ export const RecordTableDnDProvider = ({
 
   return (
     <DndContext
-      accessibility={accessibility}
+      {...sortList}
       collisionDetection={closestCenter}
       modifiers={[restrictToHorizontalAxis, restrictToFirstScrollableAncestor]}
       onDragEnd={handleDragEnd}

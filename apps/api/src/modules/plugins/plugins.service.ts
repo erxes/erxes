@@ -1,4 +1,9 @@
-import { PLUGIN_SCOPES, type PluginManifest, pluginReadScope } from '@erxes/core-contract';
+import {
+  CORE_PERMISSION_AREAS,
+  PLUGIN_SCOPES,
+  type PluginManifest,
+  pluginReadScope,
+} from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -21,7 +26,7 @@ import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
-import { checkManifest, reservedName } from './manifestRules';
+import { checkManifest } from './manifestChecks';
 import { manifestWarnings } from './manifestWarnings';
 import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
 
@@ -135,6 +140,9 @@ const storeSecret = (name: string, hash: string) =>
       })
       .where(eq(plugins.name, name));
   });
+
+/** A plugin named after a core area would declare core's permissions as its own. */
+const reservedName = (name: string) => CORE_PERMISSION_AREAS.has(name);
 
 /** Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at startup. */
 export const syncPluginSecrets = async () => {
@@ -253,6 +261,11 @@ export const issuePluginToken = async (input: {
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (manifest: PluginManifest) => {
   const { plugin } = caller('plugin');
+
+  // A row registered before the name was reserved still can't claim core's permissions.
+  if (reservedName(plugin)) {
+    throw fail('NAMESPACE_REQUIRED', `"${plugin}" is a core area: rename the plugin`);
+  }
 
   checkManifest(plugin, manifest);
 

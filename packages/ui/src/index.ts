@@ -127,7 +127,11 @@ export { usePageHotkey } from './hooks/use-page-hotkey';
 
 export { useFocusFirstField } from './hooks/use-focus-first-field';
 
-export { useSortAccessibility, useSortRoleDescription } from './hooks/use-sort-accessibility';
+export {
+  useSortAccessibility,
+  useSortList,
+  useSortRoleDescription,
+} from './hooks/use-sort-accessibility';
 
 export { toast, useToast } from './hooks/use-toast';
 
@@ -214,6 +218,8 @@ export {
   type ProductSearchQueries,
   productTitle,
 } from './modules/records/products';
+
+export { DateField } from './modules/record-field/components/DateField';
 
 export { NumberField } from './modules/record-field/components/NumberField';
 
@@ -332,10 +338,14 @@ export { SexCode } from './types/SexCode';
 
 export {
   DASHBOARD_WIDGET_PREVIEWS,
+  INTEGRATION_CATEGORIES,
   type IUIConfig,
   type TDashboardWidget,
   type TDashboardWidgetPreview,
+  type TIntegrationCategory,
+  type TIntegrationTab,
   type TPanelRecordType,
+  type TPluginIntegration,
   type TPluginSettingsPage,
   type TPropertyLimit,
   type TPropertyValue,

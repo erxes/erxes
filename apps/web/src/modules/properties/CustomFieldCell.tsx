@@ -4,13 +4,13 @@ import {
   Badge,
   Checkbox,
   Command,
+  DateField,
   PopoverScoped,
   RecordTableInlineCell,
   TextField,
   useFormat,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { DateInlineCell } from '~/components/inlineCells';
 
 const OptionsCell = ({
   field,
@@ -138,7 +138,7 @@ export const CustomFieldCell = ({
       );
     case 'date':
       return (
-        <DateInlineCell
+        <DateField
           scope={scope}
           value={typeof value === 'string' ? value : null}
           onSave={(next) => onSave(next)}

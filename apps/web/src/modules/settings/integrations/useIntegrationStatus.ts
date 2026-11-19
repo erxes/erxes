@@ -15,7 +15,8 @@ export interface IntegrationStatus {
 /**
  * Each integration's state (`statusOf`), from four queries for the whole
  * catalog. Null while it loads, when its query failed (`error`), or when the
- * member may not see it (gateways and receipts need payments.manage).
+ * member may not see it (gateways and receipts need payments.manage). A
+ * plugin's tile has none: core can't tell whether a plugin is set up.
  */
 export const useIntegrationStatus = () => {
   const canPayments = useCan()('payments.manage');
@@ -56,7 +57,7 @@ export const useIntegrationStatus = () => {
       return count ? { state: 'attention', count } : { state: 'connected' };
     }
 
-    if (!gateways.data) return null;
+    if (integration.kind === 'plugin' || !gateways.data) return null;
 
     const all = gateways.data.data;
 

@@ -107,6 +107,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 ## Fields and pickers
 
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
+- `<DateField value placeholder scope onSave variant>` A day in a table cell or panel row, edited in a popover with a calendar.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.
@@ -223,7 +224,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type FileStorageAdapter { upload, remove }` Where erxes-ui's upload hooks and components send files.
 - `getPluginAssetsUrl(pluginName, url)` A file's URL in a plugin UI's deployed `assets` folder.
 - `getPluginRuntime()` The host's plugin runtime, or null outside erxes.
-- `type IUIConfig { name, path, icon, settings, recordSections, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
+- `INTEGRATION_CATEGORIES` Every integration category, in Settings › Integrations' order.
+- `type IUIConfig { name, path, icon, settings, integrations, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
 - `pluginFetch(plugin, path, init)` `fetch` against a plugin's API as the signed-in member.
 - `pluginJson(plugin, path, schema, init)` JSON in, JSON out, checked against `schema`.
 - `type PluginLiveMessage` A message on core's live stream: a plugin's changed topics, or resync.
@@ -233,7 +235,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setPluginRuntime(next)` Sets the plugin runtime; web calls it at startup and plugins don't.
 - `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
+- `type TIntegrationCategory` An integration's category in Settings › Integrations.
+- `type TIntegrationTab { value, label, component }` A tab on a plugin integration's page.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
+- `type TPluginIntegration { key, name, summary, icon, category, … }` A plugin's tile in core's Settings › Integrations, next to core's own.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
 - `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.
@@ -243,7 +248,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.
 - `type TRecordSectionProps { contentType, contentId }` What a record section is given: the customer or company it shows on.
 - `type TRecordSlotProps` What each slot of a plugin record is given: the record.
-- `type TRecordTab { value, label, icon, after, component }` A plugin record type's own tab, after core's Detail or Activity tab.
+- `type TRecordTab { value, label, icon, after, expandedOnly, … }` A plugin record type's own tab, after core's Detail or Activity tab.
 - `type TRelationTab { name, title, icon, hosts, component }` A plugin's tab on other records' panels, listing its own records.
 - `type TRelationTabProps` Props of a relation tab: the record it shows on, and its contacts.
 - `useLiveSignal(plugin, topics, onSignal)` Runs `onSignal` when a plugin says one of `topics` changed, to refetch.
@@ -284,6 +289,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
 - `useSexLabels()` Each sex code's label in the UI's language.
 - `useSortAccessibility(nameOf, { pointer })` What a screen reader says as a sorted item moves, in the UI's language.
+- `useSortList(nameOf, options)` The id and screen reader words a sortable list's `DndContext` takes.
 - `useSortRoleDescription()` What a screen reader calls a sortable item, in the UI's language.
 - `useToast()` `{ toast }` as a hook; calling `toast` directly does the same.
 - `useUpload()` Uploads files to the host's file storage, one request per file.

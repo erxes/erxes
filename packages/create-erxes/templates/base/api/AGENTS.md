@@ -81,6 +81,18 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   build in core. Store its id; `views.list({ recordType })` lists the shared
   ones and `views.matches({ viewId, recordIds })` says which records it
   matches now (scope `views:read`, up to 500 ids).
+- Members import the plugin's records from CSV or Excel and export them through
+  core's import and export, at Contacts › Settings › Import & export
+  (`/contacts/settings/import-export`). Declare each record type in the
+  manifest's `transfer` (`type: '__id__:<record>'`, `label`, `columns`, and
+  `exportPermission` and `importPermission` from its `permissions`). Core keeps
+  the file, the mapping, the check and the jobs, and asks the API: POST
+  `/api/transfer/export` wants up to `limit` rows after `cursor`, answered
+  `{ rows, cursor }` (rows keyed by column, cursor null on the last page);
+  POST `/api/transfer/import` sends `rows` of `{ rowNumber, values }`, answered
+  `{ rows: [{ rowNumber, action, recordId?, error? }] }`, changing nothing when
+  `dryRun`. Check each with `verifyCoreTransfer` and answer as its `userId` may
+  see and change. A retried batch keeps its `requestId`: write it once.
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without
   BYPASSRLS, so row-level security is real in tests.

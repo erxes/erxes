@@ -71,6 +71,7 @@ const sendCopy = async (claimed: Claimed, row: Claimed['rows'][number]): Promise
           headers: copy.headers,
           fromName: broadcast.fromName ?? undefined,
           replyTo: broadcast.replyTo ?? undefined,
+          sender: claimed.sender,
         },
         broadcast.orgId,
       );

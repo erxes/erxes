@@ -179,6 +179,8 @@ export const ERRORS = {
   BROADCAST_INCOMPLETE: { status: 400, data: z.object({ missing: z.array(z.string()) }) },
   UNKNOWN_PLACEHOLDER: { status: 400, data: z.object({ placeholders: z.array(z.string()) }) },
   NO_RECIPIENTS: { status: 409 },
+  // A broadcast names a sender that isn't confirmed (or isn't the organisation's).
+  SENDER_NOT_CONFIRMED: { status: 400 },
 
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).
@@ -213,8 +215,6 @@ export const ERRORS = {
   BUILTIN_ROLE: { status: 403 },
   ROLE_IN_USE: { status: 409 },
 
-  API_REQUIRED: { status: 400 },
-
   ASSISTANT_INVALID_MESSAGE: { status: 400, data: InvalidInput.optional() },
   ASSISTANT_MENTION_UNAVAILABLE: {
     status: 400,
@@ -237,8 +237,6 @@ export const ERRORS = {
   ASSISTANT_NO_CONNECTION: { status: 400 },
   ASSISTANT_KEY_UNREADABLE: { status: 400 },
   ASSISTANT_BUSY: { status: 409 },
-  ASSISTANT_STALE: { status: 409 },
-  ASSISTANT_NOTHING_TO_CONTINUE: { status: 400 },
 
   // Import and export.
   UNSUPPORTED_FILE: { status: 400 },

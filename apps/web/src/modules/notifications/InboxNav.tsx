@@ -3,7 +3,7 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconInbox } from '@tabler/icons-react';
-import { cn, useSortAccessibility } from 'erxes-ui';
+import { cn, useSortList } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -98,7 +98,7 @@ export const InboxNav = ({
   const dragging = useRef(false);
   const plugins = inboxes.filter((inbox) => inbox.source !== CORE_INBOX).map((i) => i.source);
 
-  const accessibility = useSortAccessibility(
+  const sortList = useSortList(
     (id) => inboxes.find((inbox) => inbox.source === id)?.label ?? String(id),
     { pointer: true },
   );
@@ -121,7 +121,7 @@ export const InboxNav = ({
         {t('inboxes', 'Inboxes')}
       </p>
       <DndContext
-        accessibility={accessibility}
+        {...sortList}
         autoScroll={false}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}

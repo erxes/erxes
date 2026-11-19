@@ -131,6 +131,38 @@
       }
     }
   },
+  "agents": {
+    "submit": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/agents/{agent}/conversations/{key}/messages"
+        }
+      }
+    },
+    "models": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/agents/models"
+        }
+      }
+    },
+    "setModel": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/agents/{agent}/model"
+        }
+      }
+    }
+  },
   "assistant": {
     "connections": {
       "~orpc": {
@@ -209,6 +241,26 @@
         "route": {
           "method": "GET",
           "path": "/assistant/threads/{id}"
+        }
+      }
+    },
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/assistant/send"
+        }
+      }
+    },
+    "watch": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/assistant/threads/{id}/watch"
         }
       }
     },
@@ -1763,6 +1815,46 @@
           "path": "/email/settings/test"
         }
       }
+    },
+    "senders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/senders"
+        }
+      }
+    },
+    "addSender": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/senders"
+        }
+      }
+    },
+    "resendConfirmation": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/senders/{id}/resend"
+        }
+      }
+    },
+    "removeSender": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/email/senders/{id}"
+        }
+      }
     }
   },
   "events": {
@@ -3098,6 +3190,16 @@
     }
   },
   "transfer": {
+    "types": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/transfer/types"
+        }
+      }
+    },
     "columns": {
       "~orpc": {
         "errorMap": {},

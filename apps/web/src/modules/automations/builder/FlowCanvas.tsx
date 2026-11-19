@@ -78,11 +78,11 @@ const Arms = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
 /** One step's card: its kind (or plugin), what it does, problems and recent runs. */
 const StepNode = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
   const { t } = useTranslation('automations');
-  const { events, stats, outputsBefore } = useContext(BuilderContext);
+  const { events, stats, outputsBefore, knownActions } = useContext(BuilderContext);
   const { stages } = useLeadStages();
 
   const { title, detail } = describeStep(step, {
-    actions: flow.actions,
+    actions: knownActions,
     events,
     fields: [...flow.fields, ...outputsBefore(step.id)],
     stages,
@@ -92,11 +92,9 @@ const StepNode = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => 
     step.type === 'action' ? flow.actions.find((item) => item.type === step.action) : undefined;
 
   const kind =
-    step.type !== 'action'
-      ? t(`step-type.${step.type}`, STEP_TITLES[step.type])
-      : action && action.source !== 'core'
-        ? action.source
-        : t('step-type.action', 'Action');
+    step.type === 'action'
+      ? t('step-kind-action', 'Do this')
+      : t(`step-type.${step.type}`, STEP_TITLES[step.type]);
 
   return (
     <Node
@@ -230,7 +228,7 @@ export const FlowCanvas = ({
         >
           <div className="flex flex-col items-center">
             <Node
-              kind={t('trigger-kind', 'Trigger')}
+              kind={t('trigger-kind', 'When')}
               icon={TRIGGER_ICONS[trigger.kind]}
               tone={LOOK.trigger.tone}
               title={trigger.title}

@@ -10,7 +10,7 @@ import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
-import { accessOf, tierOf } from '~/modules/saas/access';
+import { accessOf, planOfPlugin } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { installedPlugin } from './installedPlugin';
@@ -169,7 +169,7 @@ export const pluginSession = async (name: string) => {
 
   if (!plugin) throw fail('NOT_INSTALLED', `${name} is not installed in this organisation`);
 
-  // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
+  // SaaS: the plugin's tier and bundles here (gate Plus/Pro features) and whether it may change anything.
   const plan = await entitlementsOf(orgId);
   const planAccess = accessOf(plan, name);
 
@@ -183,7 +183,7 @@ export const pluginSession = async (name: string) => {
     .filter((action) => can(me, action));
 
   const token = await signJwt(
-    { org: orgId, role: me.role, permissions, tier: tierOf(plan, name), access },
+    { org: orgId, role: me.role, permissions, ...planOfPlugin(plan, name), access },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,

@@ -1,4 +1,4 @@
-import { PluginViewType } from '@erxes/core-contract';
+import { PluginListType } from '@erxes/core-contract';
 import { IconLayoutList } from '@tabler/icons-react';
 import { TabButton, type TPluginListType, type TViewTabsProps } from 'erxes-ui';
 import { useEffect } from 'react';
@@ -6,7 +6,7 @@ import { ViewChanges } from './ViewControls';
 import { ViewTabs } from './ViewTabs';
 
 /** Whether core keeps views of a plugin's list. A type it refuses is the plugin's bug. */
-const keepsViews = (recordType: TPluginListType) => PluginViewType.safeParse(recordType).success;
+const keepsViews = (recordType: TPluginListType) => PluginListType.safeParse(recordType).success;
 
 /**
  * A plugin list's saved views as tabs. A record type core can't store leaves the list with

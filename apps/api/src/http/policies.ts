@@ -26,6 +26,10 @@ export const ACCESS = {
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
+  // A plugin sends to its own agents only (agents.router).
+  'agents.submit': { plugin: 'installed' },
+  'agents.models': needs('assistant.chat'),
+  'agents.setModel': needs('assistant.manage'),
   ...ASSISTANT_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,
@@ -62,17 +66,20 @@ export const ACCESS = {
   'auth.invitation': PUBLIC,
   'auth.acceptInvitation': PUBLIC,
   'auth.me': MEMBER,
-  'transfer.columns': needs('contacts.view'),
-  'transfer.imports': needs('contacts.import'),
-  'transfer.import': needs('contacts.import'),
-  'transfer.createImport': needs('contacts.import'),
-  'transfer.updateImport': needs('contacts.import'),
-  'transfer.checkImport': needs('contacts.import'),
-  'transfer.startImport': needs('contacts.import'),
-  'transfer.undoImport': needs('contacts.import'),
-  'transfer.importRows': needs('contacts.import'),
-  'transfer.exports': needs('contacts.export'),
-  'transfer.createExport': needs('contacts.export'),
+  // Transfer checks per record type: contacts.import and contacts.export for core's,
+  // the manifest's exportPermission and importPermission for a plugin's.
+  'transfer.types': MEMBER,
+  'transfer.columns': MEMBER,
+  'transfer.imports': MEMBER,
+  'transfer.import': MEMBER,
+  'transfer.createImport': MEMBER,
+  'transfer.updateImport': MEMBER,
+  'transfer.checkImport': MEMBER,
+  'transfer.startImport': MEMBER,
+  'transfer.undoImport': MEMBER,
+  'transfer.importRows': MEMBER,
+  'transfer.exports': MEMBER,
+  'transfer.createExport': MEMBER,
   // Views check per list: contacts.view for contact lists; every member sees products.
   // Plugins see shared views only, and test records against them (segments).
   'favorites.list': MEMBER,
@@ -132,6 +139,11 @@ export const ACCESS = {
   'emails.saveSettings': needs('integrations.manage'),
   'emails.removeSettings': needs('integrations.manage'),
   'emails.sendTest': needs('integrations.manage'),
+  // Broadcast and automation editors pick from them.
+  'emails.senders': MEMBER,
+  'emails.addSender': needs('integrations.manage'),
+  'emails.resendConfirmation': needs('integrations.manage'),
+  'emails.removeSender': needs('integrations.manage'),
 
   'events.publish': { plugin: 'events:write' },
   'events.list': needs('events.view'),
@@ -171,7 +183,8 @@ export const ACCESS = {
   'dataValues.lookup': { member: 'any', plugin: 'installed' },
   'dataValues.update': { member: 'any', plugin: 'installed' },
 
-  'fieldGroups.list': MEMBER,
+  // Plugins read product groups (with products:read) and their own record types' (the service checks).
+  'fieldGroups.list': { member: 'any', plugin: 'installed' },
   'fieldGroups.create': needs('properties.manage'),
   'fieldGroups.update': needs('properties.manage'),
   'fieldGroups.reorder': needs('properties.manage'),

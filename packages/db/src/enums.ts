@@ -54,10 +54,10 @@ export const VIEW_RECORD_TYPES = [
 ] as const;
 
 /**
- * A plugin's list a view can belong to: its record type, `<plugin>:<record>` (`sales:deal`).
- * Core only stores these views; the plugin's own API applies their filter.
+ * A plugin's list, `<plugin>:<record>` (`sales:deal`): views belong to it, imports and exports
+ * carry its records. Core only stores these; the plugin's own API answers for them.
  */
-export const PLUGIN_VIEW_TYPE = '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$';
+export const PLUGIN_LIST_TYPE = '^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$';
 
 export const ACTIVITY_TARGETS = ['customer', 'company'] as const;
 
@@ -153,6 +153,20 @@ export const RELATIVE_DATE_UNITS = ['days', 'weeks', 'months'] as const;
 
 /** Formats a text field's values must have. */
 export const FIELD_VALIDATIONS = ['number', 'email', 'date'] as const;
+
+/** How a field's `logic` rule compares another field's value. */
+export const FIELD_LOGIC_OPERATORS = [
+  'is',
+  'isNot',
+  'contains',
+  'greaterThan',
+  'lessThan',
+  'hasValue',
+  'isEmpty',
+] as const;
+
+/** What a field's `logic` does when its rules match: show the field, or hide it. */
+export const FIELD_LOGIC_ACTIONS = ['show', 'hide'] as const;
 
 export const CONDITION_OPERATORS = [
   'eq',
@@ -405,6 +419,7 @@ export const ACTION_FIELD_TYPES = [
   'custom_field',
   'lead_stage',
   'recipients',
+  'email_sender',
   'plugin_record',
 ] as const;
 

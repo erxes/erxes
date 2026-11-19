@@ -12,6 +12,7 @@ import {
 import { and, eq, getTableColumns, ilike, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { containsPattern, keysetPage } from '~/lib/keyset';
+import { assertConfirmedSender } from '~/modules/email/addressing';
 import { type Audience, audienceWhere, estimateAudience } from './audience';
 import { assertPlaceholders, type PlaceholderValues } from './placeholders';
 
@@ -90,10 +91,12 @@ export const createBroadcast = async (
       name: string;
       channel: BroadcastRow['channel'];
       fromName?: string | null;
+      fromEmail?: string | null;
       replyTo?: string | null;
     },
 ) => {
   await assertWritable(client, input, input);
+  await assertConfirmedSender(client, input.fromEmail);
 
   const id = newId();
 
@@ -141,9 +144,18 @@ export const updateBroadcast = async (
   client: Db,
   id: string,
   changes: Content &
-    Audience & { name?: string; fromName?: string | null; replyTo?: string | null },
+    Audience & {
+      name?: string;
+      fromName?: string | null;
+      fromEmail?: string | null;
+      replyTo?: string | null;
+    },
 ) => {
   const current = await getBroadcast(client, id);
+
+  // Checked when it changes: a sender removed since still lets the rest be edited.
+  if (changes.fromEmail !== current.fromEmail)
+    await assertConfirmedSender(client, changes.fromEmail);
 
   await assertWritable(
     client,
@@ -199,6 +211,7 @@ export const duplicateBroadcast = async (client: Db, id: string) => {
     preheader: source.preheader,
     body: source.body,
     fromName: source.fromName,
+    fromEmail: source.fromEmail,
     replyTo: source.replyTo,
     createdBy: callerUserId(),
   });

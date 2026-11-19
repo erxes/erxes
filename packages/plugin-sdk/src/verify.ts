@@ -4,6 +4,7 @@ import {
   PluginAccess,
   PluginJobDelivery,
   PluginTier,
+  PluginTransferRequest,
   RecordAccessCheck,
 } from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
@@ -32,12 +33,19 @@ export interface PluginMember {
   access: PluginAccess;
   /** `member.canChange()`: false while read-only. */
   canChange(): boolean;
+  /** As `saas.pluginPlan`'s `saas`: false on self-hosted installations. */
+  saas: boolean;
+  /**
+   * As `saas.pluginPlan`'s `bundles`: the bundle codes the organisation has
+   * live on Stripe, one per bundle bought. Empty on self-hosted.
+   */
+  bundles: string[];
 }
 
 /**
  * A member signed into a plugin's own app with "Sign in with erxes". Access
- * tokens carry no plan, so `tier` is null and `access` is `off`: ask core
- * (`saas.pluginPlan`) before gating on them.
+ * tokens carry no plan, so `tier` is null, `access` is `off`, `saas` is false
+ * and `bundles` is empty: ask core (`saas.pluginPlan`) before gating on them.
  */
 export interface ErxesSignIn extends PluginMember {
   scope: string[];
@@ -121,6 +129,8 @@ const member = (claims: {
   permissions: string[];
   tier: PluginMember['tier'];
   access: PluginMember['access'];
+  saas: boolean;
+  bundles: string[];
 }): PluginMember => ({
   userId: claims.sub,
   orgId: claims.org,
@@ -130,16 +140,25 @@ const member = (claims: {
   tier: claims.tier,
   access: claims.access,
   canChange: () => claims.access === 'full' || claims.access === 'warning',
+  saas: claims.saas,
+  bundles: claims.bundles,
 });
+
+/** The plan core signs into session and plugin-call tokens (self-hosted: `pro`, `full`, no bundles). */
+const PlanClaims = {
+  // Null means no plan.
+  tier: Tier,
+  access: PluginAccess,
+  saas: z.boolean(),
+  bundles: z.array(z.string()),
+};
 
 const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
-  // Core signs both (self-hosted: `pro` and `full`); null means no plan.
-  tier: Tier,
-  access: PluginAccess,
+  ...PlanClaims,
 });
 
 /**
@@ -166,8 +185,7 @@ const PluginCallClaims = z.object({
   org: z.string().min(1),
   plugin: z.string().min(1),
   permissions: z.array(z.string()),
-  tier: Tier,
-  access: PluginAccess,
+  ...PlanClaims,
 });
 
 /**
@@ -215,6 +233,27 @@ const CallClaims = z
 export const verifyCoreCall = (token: string, options: VerifyOptions): Promise<CoreCall> =>
   verifyCoreToken(token, options, 'erxes-core-call+jwt', CallClaims);
 
+/** Who is calling a plugin's procedure as an agent's tool: core, running one of its conversations. */
+export interface AgentCall {
+  orgId: string;
+  /** The plugin's agent, `<plugin>.<name>` from its manifest's `agents`. */
+  agent: string;
+  /** The conversation's key, as the plugin sent it to `agents.submit`. */
+  key: string;
+}
+
+const AgentCallClaims = z
+  .object({ org: z.string().min(1), agent: z.string().min(1), key: z.string().min(1) })
+  .transform((claims): AgentCall => ({ orgId: claims.org, agent: claims.agent, key: claims.key }));
+
+/**
+ * Verifies the token core sends when one of the plugin's agents calls its tool
+ * (`<api.url>/rpc/<procedure>`): issued by core, for this plugin, unexpired (5 minutes). The
+ * call acts for the plugin, not for a member.
+ */
+export const verifyAgentCall = (token: string, options: VerifyOptions): Promise<AgentCall> =>
+  verifyCoreToken(token, options, 'erxes-agent-call+jwt', AgentCallClaims);
+
 const AccessTokenClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
@@ -224,6 +263,8 @@ const AccessTokenClaims = z.object({
   // no access: ask core (`saas.pluginPlan`) when the plan matters.
   tier: Tier.default(null),
   access: PluginAccess.default('off'),
+  saas: z.boolean().default(false),
+  bundles: z.array(z.string()).default([]),
   scope: z.string().transform((scope) => scope.split(' ')),
 });
 
@@ -409,4 +450,37 @@ export const verifyCoreAccessCheck = async (
   if (check.orgId !== claims.org) throw new Error('the check does not match the token');
 
   return check;
+};
+
+const TransferClaims = z.object({ sha: z.string(), transfer: z.string(), org: z.string() });
+
+/**
+ * Verifies a request core POSTed to `<api.url>/transfer/export` or `/transfer/import` for a
+ * record type the manifest's `transfer` declares, and returns it: the token is core's, for this
+ * plugin, unexpired, and signs this exact body (pass the raw body text). Throws if anything is off.
+ * `kind: 'export'` asks for up to `limit` rows after `cursor`: answer `{ rows, cursor }`, rows
+ * keyed by column, cursor null on the last page. `kind: 'import'` sends a batch of `rows`:
+ * answer `{ rows: [{ rowNumber, action, recordId?, error? }] }`, and with `dryRun` change
+ * nothing. Answer as `userId` may see and change. A retried batch carries the same
+ * `requestId` (the `Idempotency-Key` header): write it once.
+ */
+export const verifyCoreTransfer = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: VerifyOptions,
+): Promise<PluginTransferRequest> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(token, options, 'erxes-core-transfer+jwt', TransferClaims);
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  const request = PluginTransferRequest.parse(JSON.parse(rawBody));
+
+  if (request.requestId !== claims.transfer || request.orgId !== claims.org)
+    throw new Error('the request does not match the token');
+
+  return request;
 };

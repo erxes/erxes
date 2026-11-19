@@ -1,14 +1,11 @@
 // @vitest-environment happy-dom
-import type { UIMessage } from 'ai';
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { i18n, i18nReady } from '~/i18n';
 import { StepsGroup } from '../Steps';
-import { transcriptRows } from '../transcriptRows';
-
-type Part = UIMessage['parts'][number];
+import { transcriptOf } from '../transcriptRows';
 
 let root: Root | null = null;
 
@@ -24,29 +21,63 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-const search = (id: string, query: string): Part => ({
-  type: 'tool-searchApi',
-  toolCallId: id,
-  state: 'output-available',
-  input: { query },
+interface Call {
+  id: string;
+  name: string;
+  args: Record<string, unknown>;
+  output: Record<string, unknown>;
+}
+
+const search = (id: string, query: string): Call => ({
+  id,
+  name: 'searchApi',
+  args: { query },
   output: { procedures: [] },
 });
 
-const call = (id: string, title: string) => ({
-  type: 'tool-callApi' as const,
-  toolCallId: id,
-  state: 'output-available' as const,
-  input: { procedure: 'customers.update', input: { id: 'c1' }, title },
+const call = (id: string, title: string): Call => ({
+  id,
+  name: 'callApi',
+  args: { procedure: 'customers.update', input: { id: 'c1' }, title },
   output: { ok: true, result: {} },
 });
 
-const approved = (id: string, title: string): Part => ({
-  ...call(id, title),
-  approval: { id: `a-${id}`, approved: true },
-});
+const entriesOf = (calls: Call[]) => [
+  { id: 1, kind: 'assistant.user', data: [{ type: 'text', text: 'Tag Anna VIP' }] },
+  {
+    id: 2,
+    kind: 'pi.assistant',
+    model: [
+      {
+        role: 'assistant',
+        content: calls.map(({ id, name, args }) => ({
+          type: 'toolCall',
+          id,
+          name,
+          arguments: args,
+        })),
+        stopReason: 'toolUse',
+      },
+    ],
+  },
+  ...calls.map(({ id, name, output }) => ({
+    id: 100,
+    kind: 'pi.toolResult',
+    model: [
+      {
+        role: 'toolResult',
+        toolCallId: id,
+        toolName: name,
+        content: [{ type: 'text', text: JSON.stringify(output) }],
+        isError: false,
+      },
+    ],
+  })),
+];
 
-const render = (parts: Part[], live = false) => {
-  const row = transcriptRows(parts).find((item) => item.kind === 'steps');
+const render = (calls: Call[], live = false) => {
+  const reply = transcriptOf({ entries: entriesOf(calls), docs: {} }).messages.at(-1);
+  const row = reply?.role === 'assistant' ? reply.rows.find((item) => item.kind === 'steps') : null;
 
   if (row?.kind !== 'steps') throw new Error('no steps row');
 
@@ -78,7 +109,7 @@ describe('the steps a reply took', () => {
       search('s2', '+customers.update'),
       search('s3', 'tags list search'),
       call('c1', 'Find the VIP tag'),
-      approved('c2', 'Tag Anna Keller VIP'),
+      call('c2', 'Tag Anna Keller VIP'),
     ]);
 
     view.open('5 steps');
@@ -89,7 +120,6 @@ describe('the steps a reply took', () => {
     expect(text).toContain('3 searches');
     expect(text).toContain('Find the VIP tag');
     expect(text).toContain('Tag Anna Keller VIP');
-    expect(text).toContain('Approved');
     expect(text).not.toContain('+customers.update');
 
     view.open('Looked up how to do it');

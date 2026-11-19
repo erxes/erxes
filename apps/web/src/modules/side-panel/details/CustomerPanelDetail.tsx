@@ -7,15 +7,12 @@ import {
   IconHash,
 } from '@tabler/icons-react';
 import {
-  DatePicker,
-  Popover,
+  DateField,
   PopoverScoped,
   RecordTableInlineCell,
   SexDisplay,
   SexField,
   Spinner,
-  toIsoDay,
-  useFormat,
   PanelField,
   PanelFieldTrigger,
   PanelSection,
@@ -23,7 +20,6 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { parseISO } from 'date-fns';
 import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
@@ -41,9 +37,6 @@ import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
 
 const SCOPE = 'side-panel-customer';
-
-/** A stored `yyyy-MM-dd` as that local day. */
-const parseYmd = (value: string | null) => (value ? parseISO(value) : undefined);
 
 type TTextCode = 'code' | 'position' | 'department';
 
@@ -103,49 +96,22 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
   );
 };
 
-/** Saves a changed birth date when the date picker closes. */
+/** The birth date, saved as soon as a day is picked or typed. */
 const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
-  const fmt = useFormat();
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState(() => parseYmd(customer.birthDate));
-  const [savedDate, setSavedDate] = useState(customer.birthDate);
-
-  // A date saved elsewhere replaces the one being picked.
-  if (savedDate !== customer.birthDate) {
-    setSavedDate(customer.birthDate);
-    setDate(parseYmd(customer.birthDate));
-  }
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-
-        if (!next && date && toIsoDay(date) !== customer.birthDate) {
-          edit.mutate({ id: customer.id, birthDate: toIsoDay(date) });
-        }
-      }}
+    <DateField
+      scope={`${SCOPE}.birth-date`}
+      value={customer.birthDate}
+      placeholder="YYYY/MM/DD"
+      variant="field"
+      onSave={(birthDate) => edit.mutate({ id: customer.id, birthDate })}
     >
-      <PanelFieldTrigger>
-        {date ? (
-          fmt.date(date)
-        ) : (
-          <span className="flex items-center gap-1.5 text-muted-foreground">
-            <IconCalendar className="size-3.5" aria-hidden="true" />
-            YYYY/MM/DD
-          </span>
-        )}
-      </PanelFieldTrigger>
-      <RecordTableInlineCell.Content className="w-auto">
-        <DatePicker
-          defaultMonth={date}
-          value={date}
-          onChange={(next) => setDate(next instanceof Date ? next : undefined)}
-        />
-      </RecordTableInlineCell.Content>
-    </Popover>
+      {!customer.birthDate && (
+        <IconCalendar className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      )}
+    </DateField>
   );
 };
 

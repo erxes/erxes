@@ -133,7 +133,6 @@
     "contacts-settings": "Харилцагчийн тохиргоо",
     "assistant": "Туслах",
     "assistant-keys": "Түлхүүрүүд",
-    "assistant-approvals": "Зөвшөөрөл",
     "assistant-code-mode": "Код горим",
     "assistant-appearance": "Төрх",
     "integrations": "Холболтууд"
@@ -645,6 +644,7 @@
     "former": "Хуучин",
     "no-properties": "Шинж чанар алга",
     "no-properties-hint": "Эхний шинж чанараа үүсгэж эхлээрэй.",
+    "required": "заавал",
     "create-property": "Шинж чанар үүсгэх",
     "properties-not-saved": "Шинж чанарыг хадгалж чадсангүй",
     "empty": "Хоосон",
@@ -884,6 +884,13 @@
   },
   "query-state": {
     "retry": "Дахин оролдох"
+  },
+  "sender-select": {
+    "default": "Таны илгээх хаяг",
+    "failed": "Илгээгчдийг ачаалж чадсангүй.",
+    "hint": "Зөвхөн баталгаажсан илгээгчид харагдана.",
+    "manage": "Илгээгчдийг удирдах",
+    "unconfirmed": "{{email}} (баталгаажаагүй)"
   },
   "region": {
     "country": "Улс",

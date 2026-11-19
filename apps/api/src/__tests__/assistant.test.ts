@@ -20,8 +20,12 @@ describe('assistant connections, models and settings', () => {
 
   afterAll(() => model.close());
 
-  it('keeps provider keys sealed and never returns them', async () => {
-    const saved = await t.member().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+  it("keeps the organisation's provider keys sealed, and only admins change them", async () => {
+    await expect(
+      t.member().assistant.saveConnection({ provider: 'kimi', apiKey: KEY }),
+    ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
+
+    const saved = await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
 
     expect(saved).toMatchObject({ provider: 'kimi', hasKey: true, isDefault: true });
     expect(JSON.stringify(saved)).not.toContain(KEY);
@@ -36,7 +40,7 @@ describe('assistant connections, models and settings', () => {
     expect(stored).toHaveLength(1);
     expect(stored[0]?.sealedKey).not.toContain(KEY);
 
-    expect((await t.owner().assistant.connections({})).data).toEqual([]);
+    expect((await t.other().assistant.connections({})).data).toEqual([]);
   });
 
   it('moves the default provider and forgets removed keys', async () => {
@@ -102,28 +106,20 @@ describe('assistant connections, models and settings', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  it('lets admins choose when the assistant asks, and members only read it', async () => {
-    expect(await t.member().assistant.settings({})).toEqual({
-      approvalMode: 'writes',
-      codeMode: false,
+  it('lets admins turn on code mode for their organisation, and members only read it', async () => {
+    expect(await t.member().assistant.settings({})).toEqual({ codeMode: false });
+
+    await expect(t.member().assistant.updateSettings({ codeMode: true })).rejects.toMatchObject({
+      status: 403,
+      code: 'NOT_ALLOWED',
     });
 
-    await expect(
-      t.member().assistant.updateSettings({ approvalMode: 'destructive' }),
-    ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
+    await t.owner().assistant.updateSettings({ codeMode: true });
 
-    await t.owner().assistant.updateSettings({ approvalMode: 'destructive' });
+    expect(await t.member().assistant.settings({})).toEqual({ codeMode: true });
+    expect(await t.other().assistant.settings({})).toEqual({ codeMode: false });
 
-    expect(await t.member().assistant.settings({})).toEqual({
-      approvalMode: 'destructive',
-      codeMode: false,
-    });
-    expect(await t.other().assistant.settings({})).toEqual({
-      approvalMode: 'writes',
-      codeMode: false,
-    });
-
-    await t.owner().assistant.updateSettings({ approvalMode: 'writes' });
+    await t.owner().assistant.updateSettings({ codeMode: false });
   });
 
   it('refuses members whose role does not include the assistant', async () => {

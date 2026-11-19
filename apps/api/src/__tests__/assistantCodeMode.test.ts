@@ -1,12 +1,15 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
-import { postChat, userMessage } from './assistantChat';
+import { chat, follow, resultsOf, userMessage } from './assistantChat';
 import { useTestDatabase } from './db';
 import { fakeModel, inSteps } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0011';
+
+/** Longer than a program may run, so a run that hits the time limit still settles. */
+const PROGRAM_TIMEOUT_MS = 25_000;
 
 describe('assistant code mode', () => {
   useTestDatabase();
@@ -14,13 +17,12 @@ describe('assistant code mode', () => {
   const t = useTwoOrgs();
   let model: Awaited<ReturnType<typeof fakeModel>>;
 
+  const work = { model: 'kimi-k3', message: userMessage('Work it out') };
+
   const runCode = async (code: string) => {
     model.script(inSteps({ tool: 'runCode', input: { code } }, { text: 'Done.' }));
 
-    await postChat(t.url('/core/v1/assistant/chat'), await t.token(), {
-      model: 'kimi-k3',
-      message: userMessage('Work it out'),
-    });
+    await chat(t.owner(), work, undefined, PROGRAM_TIMEOUT_MS);
 
     return model.lastToolResult();
   };
@@ -38,21 +40,17 @@ describe('assistant code mode', () => {
   it('is off until an admin turns it on', async () => {
     model.script(() => ({ text: 'Hello' }));
 
-    await postChat(t.url('/core/v1/assistant/chat'), await t.token(), {
-      model: 'kimi-k3',
-      message: userMessage('Hi'),
-    });
+    await chat(t.owner(), { model: 'kimi-k3', message: userMessage('Hi') });
 
-    expect(await t.owner().assistant.settings({})).toMatchObject({ codeMode: false });
+    expect(await t.owner().assistant.settings({})).toEqual({ codeMode: false });
     expect(offeredTools()).toContain('callApi');
     expect(offeredTools()).not.toContain('runCode');
     await expect(t.member().assistant.updateSettings({ codeMode: true })).rejects.toMatchObject({
       status: 403,
     });
 
-    expect(await t.owner().assistant.updateSettings({ codeMode: true })).toMatchObject({
+    expect(await t.owner().assistant.updateSettings({ codeMode: true })).toEqual({
       codeMode: true,
-      approvalMode: 'writes',
     });
   });
 
@@ -72,16 +70,16 @@ describe('assistant code mode', () => {
     expect(offeredTools()).toContain('runCode');
   });
 
-  it('refuses a change that needs approval and leaves it for the chat', async () => {
+  it('makes a change from a program as the member', async () => {
     const result = await runCode(`
       return await callApi('tags.create', { type: 'customer', name: 'From code' });
     `);
 
-    expect(result).toContain('APPROVAL_REQUIRED');
+    expect(result).toContain('"changed":true');
 
     const tags = await t.owner().tags.list({ type: 'customer' });
 
-    expect(tags.data.map((tag) => tag.name)).not.toContain('From code');
+    expect(tags.data.map((tag) => tag.name)).toContain('From code');
   });
 
   it('stops a program at its time limit', async () => {
@@ -93,21 +91,24 @@ describe('assistant code mode', () => {
   });
 
   it('keeps answering other requests while a program runs', async () => {
-    const started = Date.now();
-    let finished = false;
+    model.script(
+      inSteps({ tool: 'runCode', input: { code: 'while (true) {}' } }, { text: 'Done.' }),
+    );
 
-    const running = runCode('while (true) {}').finally(() => {
-      finished = true;
-    });
+    const { threadId } = await t.owner().assistant.send(work);
 
     await sleep(1000);
 
+    const started = Date.now();
     const tags = await t.owner().tags.list({ type: 'customer' });
 
-    expect(Date.now() - started).toBeLessThan(3000);
-    expect(finished).toBe(false);
+    expect(Date.now() - started).toBeLessThan(2000);
     expect(tags.data.map((tag) => tag.name)).toContain('Wholesale');
-    expect(await running).toContain('TIMEOUT');
+    expect(resultsOf(await follow(t.owner(), threadId, () => true), 'runCode')).toEqual([]);
+
+    const view = await follow(t.owner(), threadId, undefined, PROGRAM_TIMEOUT_MS);
+
+    expect(JSON.stringify(resultsOf(view, 'runCode'))).toContain('TIMEOUT');
   });
 
   it('stops a program at its memory limit and cuts long output', async () => {

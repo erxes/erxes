@@ -47,6 +47,8 @@ export const Broadcast = createSelectSchema(broadcasts, {
     /** Markdown for email, text for SMS; `{{ firstName | there }}` fills in each customer's value. */
     body: true,
     fromName: true,
+    /** Email: a confirmed sender's address it goes out as; null: the organisation's sending address. */
+    fromEmail: true,
     replyTo: true,
     scheduledAt: true,
     startedAt: true,
@@ -75,6 +77,7 @@ const BroadcastFields = createUpdateSchema(broadcasts, {
       .max(80)
       .regex(/^[^<>"\r\n]*$/, 'no quotes, brackets or line breaks')
       .nullable(),
+  fromEmail: () => EmailAddress.nullable(),
   replyTo: () => EmailAddress.nullable(),
 }).pick({
   name: true,
@@ -84,6 +87,7 @@ const BroadcastFields = createUpdateSchema(broadcasts, {
   preheader: true,
   body: true,
   fromName: true,
+  fromEmail: true,
   replyTo: true,
 });
 
@@ -145,8 +149,14 @@ export const BroadcastRendered = z.object({
   text: z.string(),
 });
 
-const { BROADCAST_STATUS, BROADCAST_INCOMPLETE, UNKNOWN_PLACEHOLDER, NO_RECIPIENTS, INVALID_TYPE } =
-  ERRORS;
+const {
+  BROADCAST_STATUS,
+  BROADCAST_INCOMPLETE,
+  UNKNOWN_PLACEHOLDER,
+  NO_RECIPIENTS,
+  INVALID_TYPE,
+  SENDER_NOT_CONFIRMED,
+} = ERRORS;
 
 const base = oc.errors({
   ...COMMON_ERRORS,
@@ -155,6 +165,7 @@ const base = oc.errors({
   UNKNOWN_PLACEHOLDER,
   NO_RECIPIENTS,
   INVALID_TYPE,
+  SENDER_NOT_CONFIRMED,
 });
 
 const ById = z.object({ id: Id });
@@ -178,7 +189,7 @@ export const broadcastsContract = {
       path: '/broadcasts',
       successStatus: 201,
       summary:
-        'Write a broadcast (a draft). 400 UNKNOWN_PLACEHOLDER for a `{{ … }}` erxes can’t fill',
+        'Write a broadcast (a draft). 400 UNKNOWN_PLACEHOLDER for a `{{ … }}` erxes can’t fill, 400 SENDER_NOT_CONFIRMED for a sender that isn’t confirmed',
     })
     .input(BroadcastCreate)
     .output(Broadcast),
@@ -186,7 +197,8 @@ export const broadcastsContract = {
     .route({
       method: 'PATCH',
       path: '/broadcasts/{id}',
-      summary: 'Change a draft or scheduled broadcast; 409 BROADCAST_STATUS once it has started',
+      summary:
+        'Change a draft or scheduled broadcast; 409 BROADCAST_STATUS once it has started, 400 SENDER_NOT_CONFIRMED for a sender that isn’t confirmed',
     })
     .input(BroadcastUpdate)
     .output(Broadcast),

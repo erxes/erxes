@@ -1,6 +1,6 @@
 import type { CursorQuery, TransferRecordType } from '@erxes/core-contract';
 import { caller, type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
-import { and, asc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
@@ -9,6 +9,8 @@ import { readyFile } from '~/modules/files/files.service';
 import { transferColumns } from './columns';
 import { importCheckJob, importRunJob, importUndoJob, stepKey } from './importJobs';
 import { importParseJob } from './importParse';
+import { pluginImportCheckJob, pluginImportRunJob } from './pluginImport';
+import { assertCanTransfer, isCoreType, transferableTypes } from './pluginTransfer';
 import {
   type Action,
   EMPTY,
@@ -22,7 +24,8 @@ import {
 
 const defaults = (recordType: TransferRecordType): ImportOptions => ({
   mode: 'create',
-  matchBy: recordType === 'company' ? 'name' : 'email',
+  // A plugin finds existing records its own way; `matchBy` is core's.
+  matchBy: recordType === 'company' ? 'name' : isCoreType(recordType) ? 'email' : 'id',
   createMissing: true,
   runAutomations: false,
 });
@@ -35,7 +38,7 @@ export const listImports = async (client: Db, query: CursorQuery) =>
       id: imports.id,
       createdAt: imports.createdAt,
     },
-    undefined,
+    inArray(imports.recordType, await transferableTypes(client, 'import')),
     query,
     (where, orderBy, limit) =>
       selectImports(client)
@@ -44,13 +47,28 @@ export const listImports = async (client: Db, query: CursorQuery) =>
         .limit(limit),
   );
 
-export const getImport = shownImport;
+/** The import, if the member may import its record type. */
+const importFor = async (client: Db, id: string, lock = false) => {
+  const row = await importOrThrow(client, id, lock);
+
+  await assertCanTransfer(client, row.recordType, 'import');
+
+  return row;
+};
+
+export const getImport = async (client: Db, id: string) => {
+  await importFor(client, id);
+
+  return shownImport(client, id);
+};
 
 /** Starts an import from an uploaded file: it is read in the background, then columns are suggested. */
 export const createImport = async (
   client: Db,
   input: { recordType: TransferRecordType; fileId: string },
 ) => {
+  await assertCanTransfer(client, input.recordType, 'import');
+
   const file = await readyFile(client, input.fileId);
 
   if (!/\.(csv|txt|tsv|xlsx)$/i.test(file.name))
@@ -97,7 +115,7 @@ export const updateImport = async (
   id: string,
   input: { mapping?: Record<string, string>; options?: Partial<ImportOptions> },
 ) => {
-  const row = await importOrThrow(client, id, true);
+  const row = await importFor(client, id, true);
 
   if (!['mapping', 'checked'].includes(row.status))
     throw fail('IMPORT_LOCKED', `The import is ${row.status}`);
@@ -135,7 +153,7 @@ export const updateImport = async (
 };
 
 const begin = async (client: Db, id: string, status: 'checking' | 'running') => {
-  const row = await importOrThrow(client, id, true);
+  const row = await importFor(client, id, true);
 
   if (row.status !== 'mapping' && row.status !== 'checked')
     throw fail('IMPORT_LOCKED', `The import is ${row.status}`);
@@ -150,7 +168,11 @@ const begin = async (client: Db, id: string, status: 'checking' | 'running') => 
       .returning(),
   );
 
-  const job = status === 'checking' ? importCheckJob : importRunJob;
+  const jobs = isCoreType(row.recordType)
+    ? { checking: importCheckJob, running: importRunJob }
+    : { checking: pluginImportCheckJob, running: pluginImportRunJob };
+
+  const job = jobs[status];
   // A fresh key each start (a check can be run again after changes).
   const after = `0:${newId()}`;
 
@@ -169,7 +191,7 @@ export const startImport = (client: Db, id: string) => begin(client, id, 'runnin
 
 /** Removes the records it created (to the recycle bin), within 30 days; what it updated stays. */
 export const undoImport = async (client: Db, id: string) => {
-  const row = await importOrThrow(client, id, true);
+  const row = await importFor(client, id, true);
 
   if (!undoable(row))
     throw fail('NOT_UNDOABLE', `Only imports that created records, in the last ${UNDO_DAYS} days`);
@@ -202,7 +224,7 @@ export const listImportRows = async (
   id: string,
   input: { action?: Action; limit: number },
 ) => {
-  await importOrThrow(client, id);
+  await importFor(client, id);
 
   const rows = await client
     .select()

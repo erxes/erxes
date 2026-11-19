@@ -1,11 +1,17 @@
 import { ActionField, type ActionInfo } from '@erxes/core-contract';
+import { AGENT_ACTIONS } from './agent';
 import type { CoreAction } from './context';
 import { LEAD_ACTIONS } from './leads';
 import { MESSAGE_ACTIONS } from './messages';
 import type { ActionPlugin } from './plugin';
 import { RECORD_ACTIONS } from './records';
 
-const CORE_ACTIONS: CoreAction[] = [...RECORD_ACTIONS, ...MESSAGE_ACTIONS, ...LEAD_ACTIONS];
+const CORE_ACTIONS: CoreAction[] = [
+  ...RECORD_ACTIONS,
+  ...MESSAGE_ACTIONS,
+  ...LEAD_ACTIONS,
+  ...AGENT_ACTIONS,
+];
 
 export const coreAction = (type: string) => CORE_ACTIONS.find((action) => action.type === type);
 

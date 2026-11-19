@@ -1,20 +1,21 @@
-import { ASSISTANT_MESSAGE_ROLES, ASSISTANT_THINKING_KINDS } from '@erxes/core-db/assistantEnums';
+import type { Op } from '@earendil-works/chord/delta';
+import type { ConversationView } from '@earendil-works/pi-durable';
+import { ASSISTANT_THINKING_KINDS } from '@erxes/core-db/assistantEnums';
 import {
   assistantAppearances,
   assistantConnections,
-  assistantMessages,
   assistantSettings,
   assistantThreads,
 } from '@erxes/core-db/schema';
-import { oc } from '@orpc/contract';
+import { eventIterator, oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf, QueryBoolean } from './common';
-import { COMMON_ERRORS } from './errors';
+import { COMMON_ERRORS, ERRORS } from './errors';
 import { AssistantRecordType, ReferenceHandle } from './records';
-import { AssistantApprovalMode, AssistantProvider, AssistantThinkingLevel } from './values';
+import { AssistantProvider, AssistantThinkingLevel } from './values';
 
-const AssistantModelId = z
+export const AssistantModelId = z
   .string()
   .trim()
   .regex(/^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$/, 'a model id such as gpt-6-luna');
@@ -53,9 +54,7 @@ export const AssistantThread = createSelectSchema(assistantThreads, {
   id: Id,
   createdAt: isoDate,
   updatedAt: isoDate,
-})
-  .pick({ id: true, title: true, pinned: true, createdAt: true, updatedAt: true })
-  .extend({ running: z.boolean() });
+}).pick({ id: true, title: true, pinned: true, createdAt: true, updatedAt: true });
 
 export type AssistantThread = z.infer<typeof AssistantThread>;
 
@@ -63,15 +62,7 @@ export const AssistantMessagePart = z.looseObject({ type: z.string() });
 
 export type AssistantMessagePart = z.infer<typeof AssistantMessagePart>;
 
-export const AssistantMessage = createSelectSchema(assistantMessages, {
-  parts: () => z.array(AssistantMessagePart),
-  createdAt: isoDate,
-}).pick({ id: true, role: true, parts: true, createdAt: true });
-
-export const AssistantSettings = createSelectSchema(assistantSettings).pick({
-  approvalMode: true,
-  codeMode: true,
-});
+export const AssistantSettings = createSelectSchema(assistantSettings).pick({ codeMode: true });
 
 export const AssistantAppearance = createSelectSchema(assistantAppearances).pick({
   body: true,
@@ -81,26 +72,22 @@ export const AssistantAppearance = createSelectSchema(assistantAppearances).pick
 
 export type AssistantAppearance = z.infer<typeof AssistantAppearance>;
 
-export const AssistantChatRequest = z
-  .object({
-    threadId: Id.optional(),
-    message: z.object({
-      id: z.string().regex(/^[\w-]{1,64}$/),
-      role: z.enum(ASSISTANT_MESSAGE_ROLES),
-      parts: z.array(AssistantMessagePart).min(1).max(200),
-    }),
-    edit: z.boolean().optional(),
-    provider: AssistantProvider.optional(),
-    model: AssistantModelId.optional(),
-    thinkingLevel: AssistantThinkingLevel.optional(),
-  })
-  .refine(
-    (request) =>
-      !request.edit || (request.threadId !== undefined && request.message.role === 'user'),
-    { message: 'an edit replaces a user message in an existing thread', path: ['edit'] },
-  );
+export const AssistantSendRequest = z.object({
+  threadId: Id.optional(),
+  message: z.object({ parts: z.array(AssistantMessagePart).min(1).max(200) }),
+  provider: AssistantProvider.optional(),
+  model: AssistantModelId.optional(),
+  thinkingLevel: AssistantThinkingLevel.optional(),
+});
 
-export type AssistantChatRequest = z.infer<typeof AssistantChatRequest>;
+export type AssistantSendRequest = z.infer<typeof AssistantSendRequest>;
+
+/** A conversation as the panel follows it: the whole view, then the changes of each commit. */
+export type AssistantWatchEvent = { value: ConversationView } | { ops: readonly Op[] };
+
+export const AssistantWatchEvent = z.custom<AssistantWatchEvent>(
+  (event) => typeof event === 'object' && event !== null && ('value' in event || 'ops' in event),
+);
 
 const ProviderInput = z.object({ provider: AssistantProvider });
 
@@ -118,12 +105,40 @@ export type AssistantRecord = z.infer<typeof AssistantRecord>;
 
 const base = oc.errors(COMMON_ERRORS);
 
+const {
+  ASSISTANT_BUSY,
+  ASSISTANT_FILE_BUSY,
+  ASSISTANT_FILE_TOO_LARGE,
+  ASSISTANT_FILE_TYPE_NOT_SUPPORTED,
+  ASSISTANT_FILE_UNAVAILABLE,
+  ASSISTANT_FILE_UNREADABLE,
+  ASSISTANT_INVALID_MESSAGE,
+  ASSISTANT_KEY_UNREADABLE,
+  ASSISTANT_MENTION_UNAVAILABLE,
+  ASSISTANT_NO_CONNECTION,
+} = ERRORS;
+
+/** What sending a message answers with besides the common errors. */
+const sending = base.errors({
+  ASSISTANT_BUSY,
+  ASSISTANT_FILE_BUSY,
+  ASSISTANT_FILE_TOO_LARGE,
+  ASSISTANT_FILE_TYPE_NOT_SUPPORTED,
+  ASSISTANT_FILE_UNAVAILABLE,
+  ASSISTANT_FILE_UNREADABLE,
+  ASSISTANT_INVALID_MESSAGE,
+  ASSISTANT_KEY_UNREADABLE,
+  ASSISTANT_MENTION_UNAVAILABLE,
+  ASSISTANT_NO_CONNECTION,
+});
+
 export const assistantContract = {
   connections: base
     .route({
       method: 'GET',
       path: '/assistant/connections',
-      summary: "The signed-in member's model provider keys; keys are never returned",
+      summary:
+        "The organisation's model provider keys, which every agent uses; keys are never returned",
     })
     .output(listOf(AssistantConnection)),
   saveConnection: base
@@ -131,7 +146,7 @@ export const assistantContract = {
       method: 'PUT',
       path: '/assistant/connections/{provider}',
       summary:
-        'Save or replace the key for a provider; the first saved provider becomes the default',
+        "Save or replace the organisation's key for a provider; the first saved provider becomes the default",
     })
     .input(ProviderInput.extend({ apiKey: z.string().trim().min(8).max(500) }))
     .output(AssistantConnection),
@@ -186,13 +201,27 @@ export const assistantContract = {
     .input(CursorQuery.extend({ pinned: QueryBoolean.optional() }))
     .output(cursorPageOf(AssistantThread)),
   thread: base
+    .route({ method: 'GET', path: '/assistant/threads/{id}', summary: 'A conversation' })
+    .input(z.object({ id: Id }))
+    .output(AssistantThread),
+  send: sending
+    .route({
+      method: 'POST',
+      path: '/assistant/send',
+      summary:
+        'Send the member a message in a conversation, starting one without a threadId. The reply runs on the server; follow it with watch',
+    })
+    .input(AssistantSendRequest)
+    .output(z.object({ threadId: Id })),
+  watch: base
     .route({
       method: 'GET',
-      path: '/assistant/threads/{id}',
-      summary: 'A conversation with its messages',
+      path: '/assistant/threads/{id}/watch',
+      summary:
+        "The conversation's view, then the changes of each commit, while this server runs it. A server that does not run it sends the view and ends; watch again a moment later",
     })
     .input(z.object({ id: Id }))
-    .output(AssistantThread.extend({ messages: z.array(AssistantMessage) })),
+    .output(eventIterator(AssistantWatchEvent)),
   updateThread: base
     .route({
       method: 'PATCH',
@@ -219,7 +248,7 @@ export const assistantContract = {
       summary: 'Stop the reply being written in a conversation; what it wrote so far stays',
     })
     .input(z.object({ id: Id }))
-    .output(z.object({ stopped: z.boolean() })),
+    .output(z.object({ ok: z.literal(true) })),
   removeThread: base
     .route({ method: 'DELETE', path: '/assistant/threads/{id}', summary: 'Delete a conversation' })
     .input(z.object({ id: Id }))
@@ -253,20 +282,9 @@ export const assistantContract = {
     .route({
       method: 'PATCH',
       path: '/assistant/settings',
-      summary:
-        'When the assistant asks before acting (`writes`: before every change, `destructive`: before deletes, merges, archives, publishes and sends), and whether it may run code in a sandbox to compute over API results',
+      summary: 'Whether the assistant may run code in a sandbox to compute over API results',
     })
-    .input(
-      z
-        .object({
-          approvalMode: AssistantApprovalMode.optional(),
-          codeMode: z.boolean().optional(),
-        })
-        .refine(
-          (value) => value.approvalMode !== undefined || value.codeMode !== undefined,
-          'nothing to update',
-        ),
-    )
+    .input(z.object({ codeMode: z.boolean() }))
     .output(AssistantSettings),
   appearance: base
     .route({

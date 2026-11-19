@@ -1,14 +1,6 @@
 import { IconCopy } from '@tabler/icons-react';
-import { isTextUIPart, type UIMessage } from 'ai';
 import { Button, IconTip, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-export const textOf = (message: UIMessage) =>
-  message.parts
-    .filter(isTextUIPart)
-    .map((part) => part.text)
-    .join('\n\n')
-    .trim();
 
 export const CopyButton = ({ text }: { text: string }) => {
   const { t } = useTranslation('assistant');

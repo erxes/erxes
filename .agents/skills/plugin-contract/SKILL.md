@@ -25,8 +25,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `{ orgId, userId, type, id }` to `/timelines/access` (checked by `verifyCoreAccessCheck`),
      and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
-     plugin's API: events to `/events`, actions to `/automations/actions/<type>`, and jobs to
-     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`).
+     plugin's API: events to `/events`, actions to `/automations/actions/<type>`, jobs to
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`), and
+     transfer requests to `/transfer/export` and `/transfer/import` (below).
      An action field `{ type: 'plugin_record', recordType, dependsOn?, multiple? }` (`ActionField` in
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
@@ -46,14 +47,33 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      as `reads:<permission>`), and `plugins.callToken` (`apps/api/src/modules/plugins/pluginCalls.ts`)
      issues a 5-minute token, typ `erxes-plugin-call+jwt`, `aud` the plugin read, `sub`
      `plugin:<caller>`, claims `org`, `plugin`, `permissions` (approved and declared by the plugin
-     read), `tier` and `access`, while both are installed there. The SDK's `fetchPlugin` sends it
+     read), `tier`, `access`, `saas` and `bundles` (as `saas.pluginPlan` answers them, also in
+     member session tokens), while both are installed there. The SDK's `fetchPlugin` sends it
      to `<api.url><path>`, and `verifyPluginCall` gives the plugin read a `PluginMember` with
      `userId` `plugin:<caller>`. The scope prefix, the typ, the claims and the codes
      `READ_NOT_APPROVED`, `PLUGIN_NOT_INSTALLED` and `PLUGIN_UNREACHABLE` are the contract.
      The manifest's `search` (`PluginSearchSource`: `label`, `path`) adds groups to global search:
      web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
      expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
-     `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`;
+     `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`.
+     The assistant offers the routes of the `member` document in the manifest's `api.docs`
+     (`apps/api/src/modules/assistant/tools/pluginDocument.ts`): core reads `<api.url><path>`,
+     names each route `<plugin>:<operationId>` and calls it under the document's server, on
+     `api.url`'s origin, with the member's session token and no step in between. After a call
+     to a route that is not a GET, web reads the page's data again, and a route whose input
+     or answer names a credential is never offered. A route's `operationId`, method and path
+     are the contract;
+   - import and export (`packages/contract/src/pluginTransfer.ts`,
+     `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
+     types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and
+     `importPermission` from its own `permissions`. Core's transfer runs them like customers:
+     `transfer.types` lists them for members who hold a permission while the plugin is installed
+     and active, and the file, the mapping, the check, the jobs and the history stay core's
+     (Contacts › Settings › Import & export). Core POSTs `PluginExportRequest` (a page after
+     `cursor`, answered `PluginExportPage`) and `PluginImportRequest` (a batch of rows, `dryRun`
+     for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
+     token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
+     be undone. The shapes, the token `typ` and the two paths are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set
@@ -78,11 +98,19 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
-     `relationTabs`, `settings`, `dashboardWidgets`, `floatingWidget`), and its first module
+     `relationTabs`, `settings`, `integrations`, `dashboardWidgets`, `floatingWidget`), and its first module
      renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are the
      plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
      once, to its first page, else to its Properties, in "Plugin settings"
-     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `dashboardWidgets`
+     (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `integrations`
+     (`TPluginIntegration`: `key`, `name`, `summary`, `icon`, `category` from erxes-ui's
+     `INTEGRATION_CATEGORIES`, `countries`, `permission`, `tabs` of `{ value, label, component }`)
+     are tiles in core's Settings › Integrations next to core's own, for members with
+     `integrations.manage` and the tile's `permission` (one the manifest declares). Its page is
+     `/settings/integrations/<name>.<key>`: core draws the header and tabs (`?tab=<value>`), each
+     tab's `lazy` component its content (`apps/web/src/modules/settings/integrations/catalog.ts`).
+     A tile has no connected state, and renaming its key or a tab's value breaks links to it.
+     `dashboardWidgets`
      (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
      draws as the tile's body under its title) join core's home dashboard catalog under the
      plugin's name; a placed tile is saved as `<name>:<widget name>`
@@ -106,7 +134,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      record types their `hosts` name (`core:customer`, `core:company`, a plugin type with
      `contacts`), and on customers and companies when they name none
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
-     loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`) and drops a malformed
+     loads the config (`apps/web/src/modules/plugins/pluginConfig.ts`), as it does `integrations`, and drops a malformed
      entry. Core shows the config's words (the app's name, `title`s and `label`s) through
      `usePluginText` (`apps/web/src/modules/plugins/pluginText.ts`): the i18n namespace is the
      plugin's `name` and the key is the English text, which shows when no translation is there.

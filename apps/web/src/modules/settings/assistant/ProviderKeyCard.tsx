@@ -101,7 +101,7 @@ const KeyActions = ({
           variant="secondary"
           onClick={() =>
             void confirm({
-              message: t('remove-confirm', 'Remove your {{provider}} key?', {
+              message: t('remove-confirm', "Remove the organisation's {{provider}} key?", {
                 provider: PROVIDER_LABELS[provider],
               }),
               options: { okLabel: t('remove', 'Remove key'), variants: { ok: 'destructive' } },
@@ -136,10 +136,12 @@ export const ProviderKeyCard = ({
   provider,
   connection,
   entry,
+  canManage,
 }: {
   provider: AssistantProvider;
   connection: AssistantConnection | undefined;
   entry: AssistantProviderModels | undefined;
+  canManage: boolean;
 }) => {
   const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
   const headingId = useId();
@@ -154,8 +156,8 @@ export const ProviderKeyCard = ({
         {connection?.isDefault && <Badge>{t('default', 'Default')}</Badge>}
       </div>
       {connection && entry?.error && <p className="text-sm text-destructive-text">{entry.error}</p>}
-      <KeyForm provider={provider} saved={Boolean(connection)} />
-      {connection && <KeyActions connection={connection} entry={entry} />}
+      {canManage && <KeyForm provider={provider} saved={Boolean(connection)} />}
+      {canManage && connection && <KeyActions connection={connection} entry={entry} />}
     </section>
   );
 };

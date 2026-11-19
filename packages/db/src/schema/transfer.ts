@@ -5,6 +5,7 @@ import {
   type IMPORT_MODES,
   IMPORT_ROW_ACTIONS,
   IMPORT_STATUSES,
+  PLUGIN_LIST_TYPE,
   TRANSFER_RECORD_TYPES,
 } from '../enums';
 import {
@@ -18,8 +19,8 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
-import { type ConditionGroup, createdAt, updatedAt } from './common';
+import { inList, inListOrMatch, orgIdColumn, pgTable } from '../table';
+import { type ConditionGroup, createdAt, type PluginListType, updatedAt } from './common';
 import { organizations } from './organizations';
 
 /** What an export reproduces: the list's filters as the member saw them. */
@@ -31,6 +32,9 @@ export interface ExportQuery {
 }
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
+
+/** Customers, leads, companies, or a plugin's records (`<plugin>:<record>`, its manifest's `transfer`). */
+export type TransferRecordType = (typeof TRANSFER_RECORD_TYPES)[number] | PluginListType;
 
 export interface ImportOptions {
   /** `create`: new records only (existing ones skipped); `update`: existing only; `upsert`: both. */
@@ -63,7 +67,7 @@ export const imports = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    recordType: text({ enum: TRANSFER_RECORD_TYPES }).notNull(),
+    recordType: text().$type<TransferRecordType>().notNull(),
     fileId: text().notNull(),
     fileName: text().notNull(),
     status: text({ enum: IMPORT_STATUSES }).default('parsing').notNull(),
@@ -86,7 +90,10 @@ export const imports = pgTable(
   (table) => [
     index('core_imports_org_created_idx').on(table.orgId, table.createdAt.desc()),
     uniqueIndex('core_imports_org_id_id_key').on(table.orgId, table.id),
-    check('core_imports_record_type_check', inList(table.recordType, TRANSFER_RECORD_TYPES)),
+    check(
+      'core_imports_record_type_check',
+      inListOrMatch(table.recordType, TRANSFER_RECORD_TYPES, PLUGIN_LIST_TYPE),
+    ),
     check('core_imports_status_check', inList(table.status, IMPORT_STATUSES)),
     foreignKey({
       columns: [table.orgId],
@@ -127,7 +134,7 @@ export const exports = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    recordType: text({ enum: TRANSFER_RECORD_TYPES }).notNull(),
+    recordType: text().$type<TransferRecordType>().notNull(),
     format: text({ enum: EXPORT_FORMATS }).notNull(),
     /** The list query: `filter` (condition group), `search`, `tagIds`, `ownerId`. */
     query: jsonb().$type<ExportQuery>().default({}).notNull(),
@@ -142,7 +149,10 @@ export const exports = pgTable(
   },
   (table) => [
     index('core_exports_org_created_idx').on(table.orgId, table.createdAt.desc()),
-    check('core_exports_record_type_check', inList(table.recordType, TRANSFER_RECORD_TYPES)),
+    check(
+      'core_exports_record_type_check',
+      inListOrMatch(table.recordType, TRANSFER_RECORD_TYPES, PLUGIN_LIST_TYPE),
+    ),
     check('core_exports_format_check', inList(table.format, EXPORT_FORMATS)),
     check('core_exports_status_check', inList(table.status, EXPORT_STATUSES)),
     foreignKey({

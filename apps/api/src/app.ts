@@ -9,10 +9,12 @@ import { apiReference } from '~/http/apiReference';
 import { authenticate } from '~/http/auth';
 import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
-import { assistantChatRouter } from '~/modules/assistant/assistant.http';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
+import { registerAgent } from '~/modules/agents/host';
+import { assistantAgent } from '~/modules/assistant/agent';
+import { automationAgent } from '~/modules/agents/automationAgent';
 import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
@@ -21,6 +23,7 @@ import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
+import { senderLinksRouter } from '~/modules/email/senders.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -89,6 +92,9 @@ const requestLogger = (log: Logger) =>
 export const createApp = (log: Logger = logger): Express => {
   const app = express();
   const limit = createRateLimits();
+
+  registerAgent(assistantAgent);
+  registerAgent(automationAgent);
 
   app.disable('x-powered-by');
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
@@ -168,6 +174,9 @@ export const createApp = (log: Logger = logger): Express => {
   // A broadcast's own links: unsubscribe, open pixel, tracked clicks (signed per recipient).
   app.use('/core/v1', broadcastLinksRouter);
 
+  // The link that confirms a new email sender (signed per sender).
+  app.use('/core/v1', senderLinksRouter);
+
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', limit.token, oauthRouter);
   app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
@@ -180,7 +189,6 @@ export const createApp = (log: Logger = logger): Express => {
     streamRouter,
     downloadRouter,
     auditExportRouter,
-    assistantChatRouter,
     coreApi,
   );
 

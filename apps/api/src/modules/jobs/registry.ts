@@ -14,6 +14,7 @@ import { smsJob } from '~/modules/sms/sms';
 import { exportRunJob } from '~/modules/transfer/exports.service';
 import { importCheckJob, importRunJob, importUndoJob } from '~/modules/transfer/importJobs';
 import { importParseJob } from '~/modules/transfer/importParse';
+import { pluginImportCheckJob, pluginImportRunJob } from '~/modules/transfer/pluginImport';
 import { deliverJob } from '~/modules/webhooks/webhookDelivery';
 
 /** Every queue core runs: its jobs, the event consumers and the schedules. */
@@ -34,6 +35,8 @@ export const JOBS = [
   importCheckJob,
   importRunJob,
   importUndoJob,
+  pluginImportCheckJob,
+  pluginImportRunJob,
   exportRunJob,
   exampleDataJob,
   ...BROADCAST_JOBS,

@@ -614,8 +614,64 @@
     {
       "idx": 87,
       "version": "7",
-      "when": 1795008790850,
-      "tag": "0087_data_extensions",
+      "when": 1795011198000,
+      "tag": "0087_plugin_transfer",
+      "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1795016311694,
+      "tag": "0088_field_required_logic",
+      "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1795023306990,
+      "tag": "0089_agent_storage",
+      "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1795023346384,
+      "tag": "0090_assistant_on_agents",
+      "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1795054839296,
+      "tag": "0091_org_provider_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1795055292625,
+      "tag": "0092_agent_models",
+      "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1795095644181,
+      "tag": "0093_saas_stripe",
+      "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1795106753541,
+      "tag": "0094_email_senders",
+      "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1795121869733,
+      "tag": "0095_data_extensions",
       "breakpoints": true
     }
   ]

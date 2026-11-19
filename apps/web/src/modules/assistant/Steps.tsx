@@ -1,14 +1,12 @@
 import {
   IconAlertTriangle,
-  IconBan,
   IconBrain,
   IconCheck,
-  IconClock,
   IconLoader2,
   IconSearch,
   type Icon,
 } from '@tabler/icons-react';
-import { Badge, Button, Collapsible, cn } from 'erxes-ui';
+import { Button, Collapsible, cn } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,25 +15,11 @@ import type { Step, StepStatus } from './transcriptRows';
 
 const STATUS_ICONS: Record<StepStatus, Icon> = {
   running: IconLoader2,
-  waiting: IconClock,
   done: IconCheck,
   failed: IconAlertTriangle,
-  declined: IconBan,
 };
-
-const Named = z.object({ name: z.string() });
 
 const Titled = z.object({ title: z.string() });
-
-const fileStepLabel = (step: Step, t: TFunction<'assistant'>) => {
-  const name = Named.safeParse(step.output).data?.name;
-
-  if (step.status === 'done' && name) return t('step.read-file', 'Read {{name}}', { name });
-
-  return step.status === 'failed'
-    ? t('step.read-file-failed', 'Could not read an attachment')
-    : t('step.reading-file', 'Reading an attachment');
-};
 
 const artifactStepLabel = (step: Step, t: TFunction<'assistant'>) => {
   const title = Titled.safeParse(step.input).data?.title ?? '';
@@ -53,8 +37,6 @@ const searchLabel = (running: boolean, t: TFunction<'assistant'>) =>
 const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
   if (step.tool === 'searchApi') return searchLabel(step.status === 'running', t);
 
-  if (step.tool === 'readAttachment') return fileStepLabel(step, t);
-
   if (step.tool === 'createArtifact') return artifactStepLabel(step, t);
 
   if (step.tool === 'loadSkill') {
@@ -66,27 +48,17 @@ const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
   if (step.tool === 'runCode') {
     return {
       running: t('step.code-running', 'Running a program'),
-      waiting: t('step.code-running', 'Running a program'),
       done: t('step.code-done', 'Ran a program'),
       failed: t('step.code-failed', 'The program failed'),
-      declined: t('step.code-failed', 'The program failed'),
     }[step.status];
   }
 
   const name = step.title ?? step.name;
 
-  const labels: Record<StepStatus, string> = {
-    running: name,
-    waiting: t('step.waiting', 'Waiting for your approval: {{name}}', { name }),
-    done: name,
-    failed: t('step.failed', 'Could not: {{name}}', { name }),
-    declined: t('step.declined', 'You declined: {{name}}', { name }),
-  };
-
-  return labels[step.status];
+  return step.status === 'failed' ? t('step.failed', 'Could not: {{name}}', { name }) : name;
 };
 
-export const Json = ({ value, className }: { value: unknown; className?: string }) => (
+const Json = ({ value, className }: { value: unknown; className?: string }) => (
   <pre
     className={cn(
       'max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap',
@@ -104,13 +76,7 @@ const LabeledJson = ({ label, value }: { label: string; value: unknown }) => (
   </div>
 );
 
-export const FoldTrigger = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-}) => (
+const FoldTrigger = ({ className, children }: { className?: string; children: ReactNode }) => (
   <Collapsible.Trigger
     render={<Button variant="ghost" size="sm" tone="muted" className={className} />}
   >
@@ -143,11 +109,6 @@ const StepRow = ({ step }: { step: Step }) => {
           >
             {stepLabel(step, t)}
           </span>
-          {step.approved && (
-            <Badge variant="success" size="sm">
-              {t('step.approved', 'Approved')}
-            </Badge>
-          )}
         </FoldTrigger>
         <Collapsible.Panel>
           <div className="flex flex-col gap-2 py-1 pl-8">
@@ -240,7 +201,7 @@ const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
 export const StepsGroup = ({ steps: given, live }: { steps: Step[]; live: boolean }) => {
   const { t } = useTranslation('assistant');
   const steps = stoppedUnlessLive(given, live, t('step.stopped', 'Stopped'));
-  const current = steps.findLast((step) => step.status === 'running' || step.status === 'waiting');
+  const current = steps.findLast((step) => step.status === 'running');
   const active = current !== undefined || live;
   const failed = steps.filter((step) => step.status === 'failed').length;
   const [open, setOpen] = useState<boolean | null>(null);

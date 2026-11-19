@@ -3,7 +3,8 @@ import { PLUGIN_API_AUDIENCES } from './values';
 
 /**
  * A plugin's OpenAPI documents (the manifest's `api.docs`): one per audience, each a path
- * under `api.url` (`/openapi/member.json`). Settings › Developer › API reference shows them.
+ * under `api.url` (`/openapi/member.json`). Settings › Developer › API reference shows them,
+ * and the assistant finds and calls the routes of the `member` one.
  */
 export const PluginApiDocs = z
   .array(

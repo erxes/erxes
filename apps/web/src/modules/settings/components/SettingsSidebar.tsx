@@ -14,7 +14,6 @@ import {
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
-  IconShieldQuestion,
   IconCode,
   IconKey,
   IconTrash,
@@ -196,11 +195,6 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
       : []),
     ...(can('assistant.manage')
       ? [
-          {
-            name: t('assistant-approvals', 'Approvals'),
-            to: paths.settings.assistantApprovals,
-            icon: IconShieldQuestion,
-          },
           {
             name: t('assistant-code-mode', 'Code mode'),
             to: paths.settings.assistantCodeMode,

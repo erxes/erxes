@@ -16,8 +16,8 @@ import {
   accessOf,
   type EntitlementRow,
   organizationDisabled,
+  planOfPlugin,
   readOnlyUntil,
-  tierOf,
 } from './access';
 import { entitlementsOf, manageUrl, rememberSubdomain } from './entitlements';
 
@@ -92,7 +92,7 @@ const pluginRows = async (client: Db) => {
   };
 };
 
-/** The member's plan: asks erxes.io first if needed, then reads in a short scope. */
+/** The member's plan: reads Stripe first if needed, then reads in a short scope. */
 export const subscriptionInfo = async (): Promise<SubscriptionInfo> => {
   const orgId = requestOrgId();
   const row = await entitlementsOf(orgId);
@@ -163,8 +163,7 @@ export const pluginPlan = async (): Promise<PluginPlan> => {
   const access = accessOf(row, plugin);
 
   return {
-    saas: config.saas.enabled,
-    tier: tierOf(row, plugin),
+    ...planOfPlugin(row, plugin),
     status: entry?.status ?? null,
     access,
     readOnlyUntil:

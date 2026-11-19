@@ -1,8 +1,17 @@
-import { boolean, check, foreignKey, integer, text } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  check,
+  foreignKey,
+  integer,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { EMAIL_PROVIDERS } from '../enums';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { users } from './users';
 
 /**
  * How the organisation sends its emails (old erxes' Settings › Mail config):
@@ -37,5 +46,39 @@ export const emailSettings = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_email_settings_org_id_fkey',
     }).onDelete('cascade'),
+  ],
+);
+
+/**
+ * Addresses broadcasts and automations may send as (old erxes' Mail config ›
+ * Senders). One is usable once someone opened the link emailed to it, which
+ * shows the organisation reads that mailbox.
+ */
+export const emailSenders = pgTable(
+  'email_senders',
+  {
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    /** Lower case. */
+    email: text().notNull(),
+    name: text().notNull(),
+    /** When the link emailed to the address was opened; null: waiting for it. */
+    confirmedAt: timestamp({ withTimezone: true, mode: 'date' }),
+    createdBy: text(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    uniqueIndex('core_email_senders_org_email_key').on(table.orgId, table.email),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_email_senders_org_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'core_email_senders_created_by_fkey',
+    }).onDelete('set null'),
   ],
 );

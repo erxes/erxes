@@ -20,7 +20,6 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
-import type { UIMessage } from 'ai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +27,8 @@ import { messageOf, orpc } from '@erxes/core-contract/client';
 import { saveFile } from '~/lib/files';
 import { threadMarkdown } from './exportMarkdown';
 import { paths } from '~/lib/paths';
-import { type StoredThread, threadKey, threadTitle, useThread } from './useThread';
+import { type TranscriptMessage, transcriptOf } from './transcriptRows';
+import { conversationOptions, threadTitle, useThread } from './useThread';
 
 const useThreadMutations = (onDeleted: (threadId: string) => void) => {
   const client = useQueryClient();
@@ -38,7 +38,7 @@ const useThreadMutations = (onDeleted: (threadId: string) => void) => {
   const refresh = (id: string) =>
     Promise.all([
       client.invalidateQueries({ queryKey: orpc.assistant.threads.key() }),
-      client.invalidateQueries({ queryKey: threadKey(id) }),
+      client.invalidateQueries({ queryKey: orpc.assistant.thread.key({ input: { id } }) }),
     ]);
 
   return {
@@ -107,7 +107,7 @@ const RenameDialog = ({
   );
 };
 
-const exportThread = (messages: UIMessage[], title: string) =>
+const exportThread = (messages: TranscriptMessage[], title: string) =>
   saveFile(
     new Blob([threadMarkdown(title, messages, window.location.origin)], {
       type: 'text/markdown',
@@ -122,7 +122,7 @@ const ThreadMenu = ({
   onCloseTab,
   onDelete,
 }: {
-  thread: StoredThread | undefined;
+  thread: AssistantThread | undefined;
   onRename: () => void;
   onPin: () => void;
   onCloseTab: () => void;
@@ -130,7 +130,13 @@ const ThreadMenu = ({
 }) => {
   const { t } = useTranslation('assistant');
   const navigate = useNavigate();
-  const messages = thread?.messages ?? null;
+  const client = useQueryClient();
+
+  const exportMessages = (id: string) => {
+    const view = client.getQueryData(conversationOptions(id).queryKey);
+
+    return view ? transcriptOf(view).messages : null;
+  };
 
   return (
     <DropdownMenu.Content align="end" className="min-w-48">
@@ -145,8 +151,9 @@ const ThreadMenu = ({
             {thread.pinned ? t('unpin', 'Unpin') : t('pin', 'Pin')}
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            disabled={messages === null}
             onClick={() => {
+              const messages = exportMessages(thread.id);
+
               if (messages) exportThread(messages, threadTitle(thread, t));
             }}
           >

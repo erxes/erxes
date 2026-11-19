@@ -4,10 +4,7 @@ import { expect, expectAccessible, test, unique } from './fixtures';
 
 test.beforeEach(connectFakeModel);
 
-test('a member saves a key, asks for a change, approves it and sees the result', async ({
-  page,
-  api,
-}) => {
+test('a member saves a key, asks for a change and sees the result', async ({ page, api }) => {
   const name = `Ada ${unique()}`;
 
   await page.goto('/settings/assistant');
@@ -29,14 +26,6 @@ test('a member saves a key, asks for a change, approves it and sees the result',
 
   await panel.getByRole('textbox', { name: 'Message' }).fill(`Add a customer named ${name}`);
   await panel.getByRole('button', { name: 'Send', exact: true }).click();
-
-  const approval = panel.getByRole('group', { name: 'Approve this change?' });
-
-  await expect(approval).toBeVisible();
-  await expect(panel.getByRole('status')).toHaveText('The assistant needs your approval');
-  await expectAccessible(page);
-
-  await approval.getByRole('button', { name: 'Approve' }).click();
   await expect(panel.getByText(`Added ${name} as a customer.`)).toBeVisible();
   await expect(panel.getByRole('button', { name: '1 step' })).toBeVisible();
   await expectAccessible(page);
@@ -166,37 +155,6 @@ test('a member mentions a record with @, opens it from the chat, and sends the o
   await expect(context).toBeVisible();
   await panel.getByRole('button', { name: "Don't send this page" }).click();
   await expect(context).toBeHidden();
-});
-
-test('a member edits the newest question, sees the note, and asks again', async ({ page }) => {
-  const suffix = unique();
-  const panel = await openAssistant(page);
-
-  await ask(panel, `Hello there ${suffix}`);
-  await expect(panel.getByText('Hello! How can I help?')).toBeVisible();
-
-  await panel.getByText(`Hello there ${suffix}`).hover();
-  await panel.getByRole('button', { name: 'Edit', exact: true }).click();
-
-  const edit = panel.getByRole('form', { name: 'Edit your message' });
-
-  await expect(edit).toContainText('Changes the assistant already made in your workspace stay.');
-  await expectAccessible(page);
-
-  await edit.getByRole('textbox', { name: 'Message' }).fill(`Say goodbye ${suffix}`);
-  await edit.getByRole('button', { name: 'Send' }).click();
-  await expect(panel.getByText('Goodbye! Talk soon.')).toBeVisible();
-  await expect(panel.getByText(`Hello there ${suffix}`)).toBeHidden();
-  await expect(panel.getByText('Hello! How can I help?')).toBeHidden();
-
-  await panel.getByRole('button', { name: 'Ask again' }).click();
-  await expect(panel.getByRole('button', { name: 'Ask again' })).toBeVisible();
-  await expect(panel.getByText('Goodbye! Talk soon.')).toHaveCount(1);
-
-  await page.reload();
-  await expect(panel.getByText(`Say goodbye ${suffix}`)).toBeVisible();
-  await expect(panel.getByText('Goodbye! Talk soon.')).toHaveCount(1);
-  await expect(panel.getByText(`Hello there ${suffix}`)).toBeHidden();
 });
 
 test('the assistant reads a skill before it plans an automation, and says so', async ({ page }) => {

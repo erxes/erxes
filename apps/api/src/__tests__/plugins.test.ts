@@ -284,6 +284,8 @@ describe('plugin connection (registry, installations, tokens)', () => {
       permissions: [],
       tier: 'pro',
       access: 'full',
+      saas: true,
+      bundles: [],
     };
 
     for (const claims of [{ tier: 'enterprise' }, { access: 'admin' }, { tier: undefined }]) {

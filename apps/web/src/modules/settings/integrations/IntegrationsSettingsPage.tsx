@@ -1,6 +1,15 @@
 import { IconPlugConnected, IconSearch } from '@tabler/icons-react';
 import { messageOf } from '@erxes/core-contract/client';
-import { Button, InputGroup, PageContainer, PageHeader, ScrollArea, ToggleGroup } from 'erxes-ui';
+import {
+  Button,
+  INTEGRATION_CATEGORIES,
+  InputGroup,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  type TIntegrationCategory,
+  ToggleGroup,
+} from 'erxes-ui';
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,14 +19,7 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
 import { useCan, useSession } from '~/modules/auth/session';
-import {
-  type Integration,
-  INTEGRATION_CATEGORIES,
-  INTEGRATIONS,
-  type IntegrationCategory,
-  integrationPath,
-  servesCountry,
-} from './catalog';
+import { type Integration, integrationPath, servesCountry, useIntegrations } from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
@@ -28,9 +30,10 @@ import { type IntegrationStatus, useIntegrationStatus } from './useIntegrationSt
 const useCategoryLabel = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.category' });
 
-  return (category: IntegrationCategory) =>
+  return (category: TIntegrationCategory) =>
     ({
       email: t('email', 'Email'),
+      messaging: t('messaging', 'Messaging'),
       payments: t('payments', 'Payments'),
       tax: t('tax', 'Tax receipts'),
     })[category];
@@ -120,8 +123,8 @@ const Filters = ({
   onChange,
 }: {
   search: string;
-  category: IntegrationCategory | null;
-  onChange: (next: { q?: string | null; category?: IntegrationCategory | null }) => void;
+  category: TIntegrationCategory | null;
+  onChange: (next: { q?: string | null; category?: TIntegrationCategory | null }) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const categoryLabel = useCategoryLabel();
@@ -161,12 +164,12 @@ const Filters = ({
 };
 
 /** The catalog cut by the search and category, then into connected, local and other regions. */
-const useSections = (search: string, category: IntegrationCategory | null) => {
+const useSections = (search: string, category: TIntegrationCategory | null) => {
   const { country } = useSession().organization;
   const { statusOf, error, refetch } = useIntegrationStatus();
   const categoryLabel = useCategoryLabel();
   const textOf = useIntegrationText();
-  const canPayments = useCan()('payments.manage');
+  const { integrations } = useIntegrations();
   const needle = search.trim().toLocaleLowerCase();
 
   const matches = (integration: Integration) => {
@@ -177,12 +180,8 @@ const useSections = (search: string, category: IntegrationCategory | null) => {
     );
   };
 
-  // Gateways are managed on Settings › Payments: only those who may open it see the tile.
-  const shown = INTEGRATIONS.filter(
-    (integration) =>
-      (integration.kind !== 'gateways' || canPayments) &&
-      (!category || integration.category === category) &&
-      matches(integration),
+  const shown = integrations.filter(
+    (integration) => (!category || integration.category === category) && matches(integration),
   );
 
   const isSetUp = (integration: Integration) =>

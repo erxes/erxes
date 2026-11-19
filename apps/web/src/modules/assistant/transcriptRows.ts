@@ -1,18 +1,19 @@
-import { AssistantArtifact, AssistantQuestionMode } from '@erxes/core-contract';
 import {
-  type DynamicToolUIPart,
-  getToolName,
-  isReasoningUIPart,
-  isTextUIPart,
-  isToolUIPart,
-  type ToolUIPart,
-  type UIMessage,
-} from 'ai';
+  AssistantArtifact,
+  type AssistantMessagePart,
+  AssistantQuestionComponent,
+  AssistantQuestionMode,
+} from '@erxes/core-contract';
 import { z } from 'zod';
 
-type Part = UIMessage['parts'][number];
+/** The entry kind the server writes for a member's message; its `data` is the parts as sent. */
+const MEMBER_ENTRY = 'assistant.user';
 
-type ToolPart = ToolUIPart | DynamicToolUIPart;
+/**
+ * A member message's parts. The contract's `AssistantMessagePart` has this shape, but its module
+ * builds schemas from tables, which stay out of the browser bundle.
+ */
+const MemberParts = z.array(z.looseObject({ type: z.string() }));
 
 const CallApiInput = z.object({
   procedure: z.string(),
@@ -29,6 +30,8 @@ const LoadSkillInput = z.object({ name: z.string() });
 
 const Refusal = z.object({ ok: z.literal(false), message: z.string() });
 
+const ChangedRecords = z.object({ changed: z.literal(true) });
+
 const Question = z.object({
   question: z.string(),
   options: z
@@ -36,24 +39,78 @@ const Question = z.object({
     .optional()
     .transform((options) => options ?? []),
   selectionMode: AssistantQuestionMode.optional(),
+  component: AssistantQuestionComponent.optional(),
 });
 
 const AskUserInput = z.object({ questions: z.array(Question).min(1) });
 
-const AskUserOutput = z.object({
-  answers: z.array(z.union([z.string(), z.array(z.string())])),
-});
-
 export type Question = z.infer<typeof Question>;
 
-export type StepStatus = 'running' | 'waiting' | 'done' | 'failed' | 'declined';
+const TextPart = z.object({ type: z.literal('text'), text: z.string() });
+
+const Content = z.discriminatedUnion('type', [
+  TextPart,
+  z.object({ type: z.literal('thinking'), thinking: z.string() }),
+  z.object({
+    type: z.literal('toolCall'),
+    id: z.string(),
+    name: z.string(),
+    arguments: z.unknown(),
+  }),
+]);
+
+type Content = z.infer<typeof Content>;
+
+type ToolCall = Extract<Content, { type: 'toolCall' }>;
+
+const known = (parts: unknown[]) => parts.flatMap((part) => Content.safeParse(part).data ?? []);
+
+/** A pi-ai assistant message: what the model said, thought and called, in order. */
+const AssistantMessage = z.object({
+  role: z.literal('assistant'),
+  content: z.array(z.unknown()).transform(known),
+});
+
+const ToolResult = z.object({
+  role: z.literal('toolResult'),
+  toolCallId: z.string(),
+  content: z.array(z.looseObject({ type: z.string() })),
+  isError: z.boolean(),
+});
+
+type ToolResult = z.infer<typeof ToolResult>;
+
+const ModelMessage = z.discriminatedUnion('role', [AssistantMessage, ToolResult]);
+
+const Entry = z.object({
+  id: z.number().transform(String),
+  kind: z.string(),
+  model: z.array(z.unknown()).optional(),
+  data: z.unknown().optional(),
+});
+
+/** `pi.live`: `run` while a reply is being written, and the message the model streams now. */
+const Live = z.object({
+  run: z.looseObject({}).optional(),
+  generation: z.object({ message: z.unknown().optional() }).optional(),
+  runFailure: z.object({ reason: z.string(), detail: z.string().optional() }).optional(),
+});
+
+type RunFailure = NonNullable<z.infer<typeof Live>['runFailure']>;
+
+/** What the panel says about a run that ended without an answer; `turn_limit`'s detail is `N turns`. */
+const failureText = ({ reason, detail }: RunFailure) =>
+  reason === 'turn_limit'
+    ? `Stopped after ${detail ?? 'too many turns'}, the most one reply may take. Send a message to go on.`
+    : (detail ?? reason);
+
+export type StepStatus = 'running' | 'done' | 'failed';
 
 export interface Step {
   key: string;
   tool: string;
   name: string;
   title: string | null;
-  approved: boolean | null;
   query: string | null;
   status: StepStatus;
   input: unknown;
@@ -65,185 +122,256 @@ export type TranscriptRow =
   | { kind: 'text'; key: string; text: string; streaming: boolean }
   | { kind: 'thinking'; key: string; text: string; streaming: boolean }
   | { kind: 'steps'; key: string; steps: Step[] }
-  | {
-      kind: 'approval';
-      key: string;
-      approvalId: string;
-      procedure: string;
-      title: string | null;
-      input: Record<string, unknown>;
-    }
-  | { kind: 'question'; key: string; toolCallId: string; questions: Question[] }
-  | { kind: 'artifact'; key: string; artifact: AssistantArtifact }
-  | { kind: 'answered'; key: string; answers: { question: string; answer: string }[] };
+  | { kind: 'question'; key: string; questions: Question[] }
+  | { kind: 'artifact'; key: string; artifact: AssistantArtifact };
 
-const statusOf = (part: ToolPart): StepStatus => {
-  switch (part.state) {
-    case 'input-streaming':
-    case 'input-available':
-      return 'running';
-    case 'approval-requested':
-    case 'approval-responded':
-      return 'waiting';
-    case 'output-error':
-      return 'failed';
-    case 'output-denied':
-      return 'declined';
-    case 'output-available':
-      return Refusal.safeParse(part.output).success ? 'failed' : 'done';
+export type TranscriptMessage =
+  | { role: 'user'; key: string; parts: AssistantMessagePart[] }
+  | { role: 'assistant'; key: string; rows: TranscriptRow[] };
+
+/** What a conversation view needs to have; the server's `ConversationView` is one. */
+export interface ViewLike {
+  entries: readonly unknown[];
+  docs: Readonly<Record<string, unknown>>;
+}
+
+const parseJson = (text: string): unknown => {
+  try {
+    const value: unknown = JSON.parse(text);
+
+    return value;
+  } catch {
+    return text;
   }
 };
 
-const errorOf = (part: ToolPart) => {
-  if (part.state === 'output-error') return part.errorText;
+const resultText = (result: ToolResult) =>
+  result.content.flatMap((part) => TextPart.safeParse(part).data?.text ?? []).join('\n');
 
-  if (part.state === 'output-available')
-    return Refusal.safeParse(part.output).data?.message ?? null;
+const statusOf = (result: ToolResult | undefined, output: unknown): StepStatus => {
+  if (!result) return 'running';
 
-  return null;
+  return result.isError || Refusal.safeParse(output).success ? 'failed' : 'done';
 };
 
-const stepOf = (part: ToolPart): Step => {
-  const tool = getToolName(part);
-  const call = tool === 'callApi' ? CallApiInput.safeParse(part.input).data : undefined;
-  const skill = tool === 'loadSkill' ? LoadSkillInput.safeParse(part.input).data : undefined;
+const errorOf = (result: ToolResult | undefined, output: unknown) => {
+  const refused = Refusal.safeParse(output).data?.message;
+
+  if (refused) return refused;
+
+  return result?.isError ? resultText(result) : null;
+};
+
+const stepOf = (call: ToolCall, result: ToolResult | undefined): Step => {
+  const tool = call.name;
+  const api = tool === 'callApi' ? CallApiInput.safeParse(call.arguments).data : undefined;
+  const skill = tool === 'loadSkill' ? LoadSkillInput.safeParse(call.arguments).data : undefined;
+  const output = result ? parseJson(resultText(result)) : null;
 
   return {
-    key: part.toolCallId,
+    key: call.id,
     tool,
-    name: call?.procedure ?? skill?.name ?? tool,
-    title: call?.title || null,
-    approved: part.approval?.approved ?? null,
-    query: tool === 'searchApi' ? (SearchApiInput.safeParse(part.input).data?.query ?? null) : null,
-    status: statusOf(part),
-    input: call?.input ?? part.input,
-    output: part.state === 'output-available' ? part.output : null,
-    error: errorOf(part),
+    name: api?.procedure ?? skill?.name ?? tool,
+    title: api?.title || null,
+    query:
+      tool === 'searchApi' ? (SearchApiInput.safeParse(call.arguments).data?.query ?? null) : null,
+    status: statusOf(result, output),
+    input: api?.input ?? call.arguments,
+    output: result?.isError ? null : output,
+    error: errorOf(result, output),
   };
 };
 
-const answerText = (answer: string | string[] | undefined) =>
-  Array.isArray(answer) ? answer.join(', ') : (answer ?? '');
+interface ReplyPart {
+  part: Content;
+  key: string;
+  streaming: boolean;
+}
 
-const questionRow = (part: ToolPart): TranscriptRow | null => {
-  const asked = AskUserInput.safeParse(part.input).data;
+interface Context {
+  results: Map<string, ToolResult>;
+  latest: boolean;
+}
 
-  if (!asked) return null;
+const rowOfCall = (call: ToolCall, { results, latest }: Context): TranscriptRow | Step | null => {
+  if (call.name === 'ask_user') {
+    const asked = AskUserInput.safeParse(call.arguments).data;
 
-  if (part.state === 'output-available') {
-    const answers = AskUserOutput.safeParse(part.output).data?.answers ?? [];
-
-    return {
-      kind: 'answered',
-      key: part.toolCallId,
-      answers: asked.questions.map((question, index) => ({
-        question: question.question,
-        answer: answerText(answers[index]),
-      })),
-    };
+    return latest && asked ? { kind: 'question', key: call.id, questions: asked.questions } : null;
   }
 
-  if (part.state !== 'input-available') return null;
+  const step = stepOf(call, results.get(call.id));
 
-  return { kind: 'question', key: part.toolCallId, toolCallId: part.toolCallId, ...asked };
-};
+  if (call.name === 'createArtifact') {
+    const artifact = AssistantArtifact.safeParse(step.output).data;
 
-const approvalRow = (part: ToolPart): TranscriptRow | null => {
-  if (part.state !== 'approval-requested') return null;
-
-  const call = CallApiInput.safeParse(part.input).data;
-
-  return {
-    kind: 'approval',
-    key: part.toolCallId,
-    approvalId: part.approval.id,
-    procedure: call?.procedure ?? getToolName(part),
-    title: call?.title || null,
-    input: call?.input ?? {},
-  };
-};
-
-export const artifactOf = (part: ToolPart) =>
-  part.state === 'output-available' ? AssistantArtifact.safeParse(part.output).data : undefined;
-
-const artifactRow = (part: ToolPart): TranscriptRow | null => {
-  const artifact = artifactOf(part);
-
-  return artifact ? { kind: 'artifact', key: part.toolCallId, artifact } : null;
-};
-
-const rowOfTool = (part: ToolPart): TranscriptRow | Step | null => {
-  if (getToolName(part) === 'ask_user') return questionRow(part);
-
-  if (getToolName(part) === 'createArtifact') return artifactRow(part) ?? stepOf(part);
-
-  return approvalRow(part) ?? stepOf(part);
-};
-
-const rowOf = (part: Part, index: number): TranscriptRow | Step | null => {
-  if (isTextUIPart(part)) {
-    return part.text.trim()
-      ? {
-          kind: 'text',
-          key: `text-${index}`,
-          text: part.text,
-          streaming: part.state === 'streaming',
-        }
-      : null;
+    if (artifact) return { kind: 'artifact', key: call.id, artifact };
   }
 
-  if (isReasoningUIPart(part)) {
-    return part.text.trim()
-      ? {
-          kind: 'thinking',
-          key: `thinking-${index}`,
-          text: part.text,
-          streaming: part.state === 'streaming',
-        }
-      : null;
+  return step;
+};
+
+const rowOf = (
+  { part, key, streaming }: ReplyPart,
+  context: Context,
+): TranscriptRow | Step | null => {
+  if (part.type === 'toolCall') return rowOfCall(part, context);
+
+  if (part.type === 'text') {
+    return part.text.trim() ? { kind: 'text', key, text: part.text, streaming } : null;
   }
 
-  return isToolUIPart(part) ? rowOfTool(part) : null;
+  return part.thinking.trim() ? { kind: 'thinking', key, text: part.thinking, streaming } : null;
 };
 
 const isStep = (row: TranscriptRow | Step): row is Step => !('kind' in row);
 
-export const transcriptRows = (parts: UIMessage['parts']) => {
+const rowsOf = (parts: ReplyPart[], context: Context) => {
   const rows: TranscriptRow[] = [];
+  let thought: Extract<TranscriptRow, { kind: 'thinking' }> | undefined;
 
-  parts.forEach((part, index) => {
-    const row = rowOf(part, index);
+  for (const part of parts) {
+    const row = rowOf(part, context);
 
-    if (!row) return;
+    if (!row) continue;
+
+    if (!isStep(row) && row.kind === 'thinking' && thought) {
+      thought.text = `${thought.text}\n\n${row.text}`;
+      thought.streaming = row.streaming;
+
+      continue;
+    }
+
+    if (!isStep(row) && row.kind === 'thinking') thought = row;
 
     const last = rows.at(-1);
 
     if (!isStep(row)) rows.push(row);
     else if (last?.kind === 'steps') last.steps.push(row);
     else rows.push({ kind: 'steps', key: `steps-${row.key}`, steps: [row] });
-  });
+  }
 
   return rows;
 };
 
-export const pendingAction = (message: UIMessage | undefined): 'approval' | 'question' | null => {
-  if (message?.role !== 'assistant') return null;
+type Item =
+  | { role: 'user'; key: string; parts: AssistantMessagePart[] }
+  | { role: 'assistant'; key: string; messages: { content: Content[]; streaming: boolean }[] };
 
-  const tools = message.parts.filter(isToolUIPart);
+const replyParts = (key: string, messages: { content: Content[]; streaming: boolean }[]) =>
+  messages
+    .flatMap(({ content, streaming }) =>
+      content.map((part, at) => ({ part, streaming: streaming && at === content.length - 1 })),
+    )
+    .map((part, index) => ({ ...part, key: `${key}-${index}` }));
 
-  if (tools.some((part) => part.state === 'approval-requested')) return 'approval';
+const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
+  const items: Item[] = [];
+  const results = new Map<string, ToolResult>();
 
-  if (tools.some((part) => getToolName(part) === 'ask_user' && part.state === 'input-available')) {
-    return 'question';
+  const reply = () => {
+    const last = items.at(-1);
+
+    if (last?.role === 'assistant') return last;
+
+    const next: Item = { role: 'assistant', key: `reply-${last?.key ?? 'start'}`, messages: [] };
+
+    items.push(next);
+
+    return next;
+  };
+
+  for (const raw of view.entries) {
+    const entry = Entry.safeParse(raw).data;
+
+    if (entry?.kind === MEMBER_ENTRY) {
+      const parts = MemberParts.safeParse(entry.data).data ?? [];
+
+      items.push({ role: 'user', key: entry.id, parts });
+    } else {
+      for (const message of entry?.model ?? []) {
+        const parsed = ModelMessage.safeParse(message).data;
+
+        if (parsed?.role === 'assistant') {
+          reply().messages.push({ content: parsed.content, streaming: false });
+        } else if (parsed) {
+          results.set(parsed.toolCallId, parsed);
+        }
+      }
+    }
   }
 
-  return null;
+  if (streamed) reply().messages.push({ content: streamed, streaming: true });
+
+  return { items, results };
 };
 
-export const answeredQuestions = (part: Part) => {
-  if (!isToolUIPart(part) || getToolName(part) !== 'ask_user') return null;
+const changedRecords = (message: TranscriptMessage | undefined) =>
+  message?.role === 'assistant' &&
+  message.rows.some(
+    (row) =>
+      row.kind === 'steps' &&
+      row.steps.some(
+        (step) => step.tool === 'callApi' && ChangedRecords.safeParse(step.output).success,
+      ),
+  );
 
-  const row = questionRow(part);
+/**
+ * A conversation view as the panel draws it: the member's messages, and one reply for each run of
+ * assistant and tool messages between them, with the message being streamed now at the end. A
+ * reply with nothing to show, such as questions the next member message answered, is left out.
+ */
+export const transcriptOf = (view: ViewLike) => {
+  const live = Live.safeParse(view.docs['pi.live'] ?? {}).data;
+  const running = live?.run !== undefined;
 
-  return row?.kind === 'answered' ? row.answers : null;
+  const streamed = running
+    ? AssistantMessage.safeParse(live?.generation?.message).data?.content
+    : undefined;
+
+  const { items, results } = itemsOf(view, streamed);
+
+  const messages = items.flatMap((item, index): TranscriptMessage[] => {
+    if (item.role === 'user') return [item];
+
+    const context = { results, latest: index === items.length - 1 };
+    const rows = rowsOf(replyParts(item.key, item.messages), context);
+
+    return rows.length ? [{ role: 'assistant', key: item.key, rows }] : [];
+  });
+
+  const last = messages.at(-1);
+  const failure = running ? undefined : live?.runFailure;
+
+  return {
+    messages,
+    running,
+    pending:
+      last?.role === 'assistant' && last.rows.some((row) => row.kind === 'question')
+        ? ('question' as const)
+        : null,
+    changed: changedRecords(last),
+    failure: failure && failure.reason !== 'aborted' ? failureText(failure) : null,
+  };
 };
+
+export const userText = (parts: AssistantMessagePart[]) =>
+  parts
+    .flatMap((part) => TextPart.safeParse(part).data?.text ?? [])
+    .join('\n\n')
+    .trim();
+
+export const replyText = (rows: TranscriptRow[]) =>
+  rows
+    .flatMap((row) => (row.kind === 'text' ? [row.text] : []))
+    .join('\n\n')
+    .trim();
+
+const answerText = (answer: string | string[] | undefined) =>
+  Array.isArray(answer) ? answer.join(', ') : (answer ?? '');
+
+/** The message that answers the assistant's questions: one `question: answer` line each. */
+export const answerMessage = (questions: Question[], answers: (string | string[])[]) =>
+  questions
+    .map((question, index) => `${question.question}: ${answerText(answers[index])}`)
+    .join('\n');

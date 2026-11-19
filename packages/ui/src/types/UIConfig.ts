@@ -75,6 +75,8 @@ export type TRecordTab = {
   label: string;
   icon: Icon;
   after?: 'detail' | 'activity';
+  /** Show this tab only when the record is expanded. */
+  expandedOnly?: boolean;
   component: React.ComponentType<TRecordSlotProps>;
 };
 
@@ -206,11 +208,49 @@ export type TPluginSettingsPage = {
   icon?: React.ElementType;
 };
 
+/** Every integration category, in Settings › Integrations' order. */
+export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
+
+/** An integration's category in Settings › Integrations. */
+export type TIntegrationCategory = (typeof INTEGRATION_CATEGORIES)[number];
+
+/** A tab on a plugin integration's page. Its `value` is the address key (`?tab=`). */
+export type TIntegrationTab = {
+  /** Unique on the page, e.g. `overview`: a link or reload opens the tab it names. */
+  value: string;
+  label: string;
+  /** Drawn under core's tabs; a `lazy` one loads when its tab first shows. */
+  component: React.ComponentType;
+};
+
+/**
+ * A plugin's tile in core's Settings › Integrations, next to core's own.
+ * Its page is `/settings/integrations/<plugin name>.<key>`: core draws the header (mark, name,
+ * summary, where it works) and the tabs, and the plugin each tab's content. Shown to members
+ * with `integrations.manage` and its `permission` while the plugin is installed and active.
+ * It carries no connected state.
+ */
+export type TPluginIntegration = {
+  /** Unique within the plugin, e.g. `meta`: lowercase letters, digits and dashes. */
+  key: string;
+  name: string;
+  /** One line on its tile and under its name. */
+  summary: string;
+  icon: Icon;
+  category: TIntegrationCategory;
+  /** The ISO 3166 countries it serves (`MN`); none: any. Others list it under other regions. */
+  countries?: string[];
+  /** The permission a member needs to see and open it, e.g. `frontline.integrations.manage`. */
+  permission: string;
+  /** Its page's tabs, Overview first. */
+  tabs: TIntegrationTab[];
+};
+
 /**
  * A plugin UI's `CONFIG`, exported from its `./config` remote.
  * web reads `name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,
- * `relationTabs`, `settings`, `dashboardWidgets` and `floatingWidget`; its first module renders
- * under `/<path>/*`. The other fields come from erxes 3.x and web ignores them.
+ * `relationTabs`, `settings`, `integrations`, `dashboardWidgets` and `floatingWidget`; its first
+ * module renders under `/<path>/*`. The other fields come from erxes 3.x and web ignores them.
  */
 export type IUIConfig = {
   name: string;
@@ -218,6 +258,8 @@ export type IUIConfig = {
   icon?: React.ElementType;
   /** The plugin's settings pages; core's settings link the first for members who may use the plugin. */
   settings?: TPluginSettingsPage[];
+  /** Tiles in core's Settings › Integrations, for members with the permission each names. */
+  integrations?: TPluginIntegration[];
   /** Sections on core's customer and company detail, shown to members who may use the plugin. */
   recordSections?: TRecordSection[];
   /** The plugin's records core's side panel opens, for members who may use the plugin. */

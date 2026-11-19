@@ -21,17 +21,17 @@ import {
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
   ORG_UNIT_KINDS,
-  PLUGIN_VIEW_TYPE,
+  PLUGIN_LIST_TYPE,
   PRODUCT_KINDS,
   SEARCH_RECORD_TYPES,
   SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
 import {
-  ASSISTANT_APPROVAL_MODES,
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
   ASSISTANT_AVATAR_EXPRESSIONS,
   ASSISTANT_PROVIDERS,
+  ASSISTANT_QUESTION_COMPONENTS,
   ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
 } from '@erxes/core-db/assistantEnums';
@@ -264,10 +264,10 @@ export const SearchType = z.enum(SEARCH_RECORD_TYPES);
 
 export type SearchType = z.infer<typeof SearchType>;
 
-/** A plugin's record type, `<plugin>:<record>` (`sales:deal`). */
-export const PluginViewType = z
+/** A plugin's list, `<plugin>:<record>` (`sales:deal`): views belong to it, imports and exports carry its records. */
+export const PluginListType = z
   .templateLiteral([z.string(), ':', z.string()])
-  .refine((type) => new RegExp(PLUGIN_VIEW_TYPE).test(type), 'Expected <plugin>:<record>');
+  .refine((type) => new RegExp(PLUGIN_LIST_TYPE).test(type), 'Expected <plugin>:<record>');
 
 /**
  * What a plugin's search route (`search[].path` in its manifest) answers:
@@ -280,7 +280,7 @@ export const PluginSearchHit = z.object({
   id: z.string().trim().min(1).max(100),
   title: z.string().trim().min(1).max(200),
   subtitle: z.string().trim().max(300).nullish(),
-  recordType: PluginViewType.optional(),
+  recordType: PluginListType.optional(),
   path: z
     .string()
     .regex(/^\/[^\s]*$/, 'a path like /sales/deals/1')
@@ -397,11 +397,11 @@ export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
 
 export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
 
-export const AssistantApprovalMode = z.enum(ASSISTANT_APPROVAL_MODES);
-
-export type AssistantApprovalMode = z.infer<typeof AssistantApprovalMode>;
-
 export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
+
+export const AssistantQuestionComponent = z.enum(ASSISTANT_QUESTION_COMPONENTS);
+
+export type AssistantQuestionComponent = z.infer<typeof AssistantQuestionComponent>;
 
 export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
 

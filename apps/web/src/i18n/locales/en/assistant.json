@@ -1,19 +1,10 @@
 {
   "title": "Assistant",
-  "approval": {
-    "title": "Approve this change?",
-    "description": "The assistant wants to run",
-    "details": "What it will send",
-    "approve": "Approve",
-    "decline": "Decline"
-  },
   "composer": {
     "label": "Message",
     "placeholder": "Ask anything, @ to mention a record",
     "no-key": "Add a provider key to start",
-    "approval": "Approve or decline the change above first",
     "question": "Answer the questions above first",
-    "running": "A reply is still being written",
     "send": "Send",
     "stop": "Stop"
   },
@@ -40,13 +31,12 @@
   "reload": "Reload conversation",
   "retry": "Try again",
   "failed": "The reply stopped",
-  "needs-approval": "The assistant needs your approval",
   "needs-answer": "The assistant needs your answer",
   "gone": "This conversation was deleted.",
   "close-tab-short": "Close tab",
   "working": "Working on it…",
-  "running-elsewhere": "Writing a reply… it appears here when done.",
-  "no-key": "Add an API key for a model provider to start. Keys are saved for your account only.",
+  "no-key": "Add an API key for a model provider to start. Everyone in the organisation uses it.",
+  "no-key-ask": "Ask an admin to add a model provider key to start.",
   "add-key": "Add a key",
   "empty": {
     "title": "How can I help?",
@@ -107,7 +97,8 @@
     "own-placeholder": "Or write your own answer",
     "answer-placeholder": "Your answer",
     "send": "Send answers",
-    "answered": "You answered"
+    "member-placeholder": "Choose a team member…",
+    "date-placeholder": "Choose a date"
   },
   "steps_one": "{{count}} step",
   "steps_other": "{{count}} steps",
@@ -119,14 +110,9 @@
     "search-any": "What it can do",
     "search-count_one": "{{count}} search",
     "search-count_other": "{{count}} searches",
-    "waiting": "Waiting for your approval: {{name}}",
     "failed": "Could not: {{name}}",
-    "declined": "You declined: {{name}}",
     "input": "Sent",
     "output": "Returned",
-    "read-file": "Read {{name}}",
-    "read-file-failed": "Could not read an attachment",
-    "reading-file": "Reading an attachment",
     "artifact": "Creating “{{title}}”",
     "artifact-failed": "Could not create “{{title}}”",
     "skill": "Read the {{name}} skill",
@@ -134,7 +120,6 @@
     "code-running": "Running a program",
     "code-done": "Ran a program",
     "code-failed": "The program failed",
-    "approved": "Approved",
     "stopped": "Stopped"
   },
   "attach": {
@@ -156,14 +141,6 @@
     "snapshot": "Snapshot",
     "untitled": "Part of the page",
     "failed": "Could not select that part of the page"
-  },
-  "edit": {
-    "start": "Edit",
-    "label": "Edit your message",
-    "text": "Message",
-    "note": "Sending replaces this message and the replies after it. Changes the assistant already made in your workspace stay.",
-    "cancel": "Cancel",
-    "send": "Send"
   },
   "artifact": {
     "html": "Report",
@@ -195,10 +172,9 @@
   "copy": "Copy",
   "copied": "Copied",
   "copy-failed": "Could not copy",
-  "regenerate": "Ask again",
   "settings": {
     "title": "Assistant provider keys",
-    "keys-intro": "The assistant runs on your own key. Only you can use it, and the assistant can do only what your role allows.",
+    "keys-intro": "Every agent in the organisation runs on these keys. Only admins can change them, and the assistant still does only what each member's role allows.",
     "key-label": "{{provider}} API key",
     "key-paste": "Paste key",
     "key-replace": "Paste a new key to replace it",
@@ -212,15 +188,7 @@
     "testing": "Testing…",
     "works": "Works with {{model}}",
     "remove": "Remove key",
-    "remove-confirm": "Remove your {{provider}} key?",
-    "approvals-title": "Assistant approvals",
-    "approvals-intro": "This applies to every member. The assistant always acts as the member who asked, within their role.",
-    "approval-legend": "When should the assistant ask first?",
-    "approval-writes": "Before every change",
-    "approval-writes-description": "The assistant asks before it creates, edits or deletes anything.",
-    "approval-destructive": "Before risky changes only",
-    "approval-destructive-description": "It asks before deleting, merging, archiving, publishing or sending. Other edits go ahead.",
-    "approval-saved": "Saved",
+    "remove-confirm": "Remove the organisation's {{provider}} key?",
     "code-mode-title": "Assistant code mode",
     "code-mode-intro": "This applies to every member. Off by default.",
     "code-mode-label": "Let the assistant run code",
@@ -229,7 +197,6 @@
     "code-mode-off": "Code mode is off",
     "code-mode-limits": "What a program can do",
     "code-mode-fact-api": "Only search and call the API, as the member who asked and within their role.",
-    "code-mode-fact-approval": "Changes that need approval are refused inside a program: the assistant asks for them in the chat.",
     "code-mode-fact-time": "It stops after 10 seconds or 50 API calls, and returns at most 20,000 characters.",
     "code-mode-fact-sandbox": "It runs in an isolated JavaScript sandbox on this server, with 32 MB of memory and no network, files or timers."
   },

@@ -1,3 +1,4 @@
+import type { FIELD_LOGIC_ACTIONS, FIELD_LOGIC_OPERATORS } from '../enums';
 import { FIELD_CONTENT_TYPES, FIELD_TYPES, FIELD_VALIDATIONS, PLUGIN_RECORD_TYPE } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
@@ -12,14 +13,25 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
+import { inList, inListOrMatch, orgIdColumn, pgTable } from '../table';
 import { createdAt, type PropertyContentType, updatedAt } from './common';
 import { organizations } from './organizations';
 import { plugins } from './plugins';
 
+/** A field shown or hidden by other fields' values, each rule naming a field of the same type. */
+export type FieldLogic = {
+  action: (typeof FIELD_LOGIC_ACTIONS)[number];
+  rules: {
+    fieldId: string;
+    operator: (typeof FIELD_LOGIC_OPERATORS)[number];
+    /** What `is`, `isNot`, `contains`, `greaterThan` and `lessThan` compare with. */
+    value: string | null;
+  }[];
+};
+
 /** One of core's records (`FIELD_CONTENT_TYPES`) or a plugin's, `<plugin>.<type>`. */
 const propertyContentType = (column: AnyPgColumn) =>
-  sql`${inList(column, FIELD_CONTENT_TYPES)} OR ${column} ~ ${sql.raw(`'${PLUGIN_RECORD_TYPE}'`)}`;
+  inListOrMatch(column, FIELD_CONTENT_TYPES, PLUGIN_RECORD_TYPE);
 
 /**
  * Groups that properties of a record type are organised in (old erxes field
@@ -89,6 +101,12 @@ export const fields = pgTable(
       .notNull(),
     /** Shown where records show (table columns, record panel). */
     isVisible: boolean().default(true).notNull(),
+    /** A record can't be made without a value, nor have it cleared, while the field shows. */
+    isRequired: boolean().default(false).notNull(),
+    /** Asked for on the form that makes a record, not only on the record once made. */
+    isVisibleToCreate: boolean().default(true).notNull(),
+    /** Shows or hides the field by other fields' values: every rule must match. Null: always shown. */
+    logic: jsonb().$type<FieldLogic>(),
     /** Listed in list filters; a plugin's rollup a relation filters by better is a column only. */
     filterable: boolean().default(true).notNull(),
     order: integer().default(0).notNull(),

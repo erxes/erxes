@@ -88,7 +88,8 @@
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });
  *   if (member.tier === 'free' && employees >= 20) throw new Error('Upgrade to Plus for more employees');
  *   if (!member.canChange()) throw new Error('HR is read-only: buy it again on erxes.io');
- *   // server-side jobs: await core.forOrg(orgId).saas.pluginPlan() → { tier, access }
+ *   // member.bundles: the bundle codes live on Stripe, one per bundle bought (self-hosted: [])
+ *   // server-side jobs: await core.forOrg(orgId).saas.pluginPlan() → { saas, tier, access, bundles }
  *
  * Jobs (plugins on core's database): declare them in the manifest, queue them in the
  * plugin's own transaction, and serve each at `<api.url>/jobs/<name>`. Core retries
@@ -133,7 +134,8 @@
  *
  * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
  * the RPC handler. The manifest's `api.docs` lists one document per audience (`member`, and
- * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them:
+ * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them.
+ * The assistant calls the `member` document's routes with the member's session token:
  *
  *   api: { url: `${publicUrl}/api`, docs: [{ audience: 'member', path: '/openapi/member.json' }] },
  *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
@@ -154,6 +156,22 @@
  *   const options = { coreUrl, plugin: 'sales' };
  *   const member = await verifyPluginSession(token, options).catch(() => verifyPluginCall(token, options));
  *   // a call: userId 'plugin:accounting', plugin 'accounting', role 'plugin', can() only the approved permissions
+ *
+ * Import and export of the plugin's records (Contacts › Settings › Import & export): core keeps
+ * the file, the mapping, the check, the jobs and the progress; the plugin answers pages. Each
+ * permission must be one of the manifest's `permissions`.
+ *
+ *   transfer: [{ type: 'frontline:ticket', label: 'tickets',
+ *     exportPermission: 'frontline.ticket.export', importPermission: 'frontline.ticket.import',
+ *     columns: [{ key: 'name', label: 'Name', aliases: ['title'] },
+ *               { key: 'createdAt', label: 'Created', importable: false }] }],
+ *   app.post('/api/transfer/:kind', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const request = await verifyCoreTransfer(req.headers.authorization, req.body, { coreUrl, plugin: 'frontline' });
+ *     if (request.kind === 'export')     // { rows: [{ name, createdAt }], cursor: null on the last page }
+ *       return res.json(await tickets.page(request.userId, request.query, request.cursor, request.limit));
+ *     // { rows: [{ rowNumber, action: 'create' | 'update' | 'skip' | 'error', recordId?, error? }] }
+ *     res.json(await tickets.importRows(request.userId, request.rows, request.mode, request.dryRun));
+ *   });
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can

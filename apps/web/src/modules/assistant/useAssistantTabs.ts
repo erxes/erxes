@@ -6,7 +6,6 @@ import {
   blankTab,
   newChatAction,
 } from './assistantState';
-import { dropSession } from './chatSession';
 
 export const useAssistantTabs = () => {
   const [tabs, setTabs] = useAtom(assistantTabsState);
@@ -45,7 +44,6 @@ export const useAssistantTabs = () => {
     const rest = tabs.filter((tab) => tab.key !== key);
     const next = rest.length > 0 ? rest : [blankTab()];
 
-    dropSession(key);
     setTabs(next);
 
     if (active?.key === key) setActiveKey((next[Math.max(0, index - 1)] ?? next[0])?.key ?? null);

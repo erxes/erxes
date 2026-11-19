@@ -12,11 +12,25 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 
-/** A contact's Detail tab scrolling under the panel header. */
-export const ContactDetailScroll = ({ children }: { children: ReactNode }) => (
-  // Radix sizes its content as a table, which lets wide values push past the
-  // panel; a block lets each value shrink and truncate instead.
-  <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+/**
+ * A record's Detail tab scrolling under the panel header. `fill` makes the content at least as
+ * tall as the tab, so a form in it keeps its Save bar at the bottom.
+ */
+export const ContactDetailScroll = ({
+  fill,
+  children,
+}: {
+  fill?: boolean;
+  children: ReactNode;
+}) => (
+  <ScrollArea
+    className="flex-1 min-h-0"
+    fitWidth
+    // A flex item would not shrink under a wide value without `min-w-0`.
+    viewportClassName={
+      fill ? '[&>div]:flex [&>div]:min-h-full [&>div]:flex-col [&>div>*]:min-w-0' : undefined
+    }
+  >
     {children}
   </ScrollArea>
 );

@@ -405,6 +405,7 @@
     "no-groups-found": "No field groups found",
     "edit": "Edit",
     "reorder-group": "Reorder group",
+    "group-actions": "Actions for {{name}}",
     "delete": "Delete",
     "cancel": "Cancel",
     "create": "Create",
@@ -430,6 +431,22 @@
     "select-property": "Select property",
     "show-in-card": "Show in card",
     "show-this-field": "Show this field",
+    "hide-this-field": "Hide this field",
+    "visible-to-create": "Visible to create",
+    "logic": "Logic",
+    "logic-action": "When every rule matches",
+    "logic-operator": "Comparison",
+    "logic-value": "Value",
+    "logic-is": "is",
+    "logic-is-not": "is not",
+    "logic-contains": "contains",
+    "logic-greater-than": "is greater than",
+    "logic-less-than": "is less than",
+    "logic-has-value": "has a value",
+    "logic-is-empty": "is empty",
+    "logic-add-rule": "Add rule",
+    "logic-remove-rule": "Remove rule",
+    "logic-hint": "Show or hide this property by other properties' values. Without rules it always shows.",
     "code-hint": "Leave empty to make one from the name."
   },
   "system-logs": {
@@ -1308,7 +1325,8 @@
     "category": {
       "payments": "Payments",
       "tax": "Tax receipts",
-      "email": "Email"
+      "email": "Email",
+      "messaging": "Messaging"
     },
     "section": {
       "connected": "Connected",
@@ -1325,7 +1343,8 @@
       "overview": "Overview",
       "settings": "Settings",
       "activity": "Activity",
-      "print": "Print"
+      "print": "Print",
+      "senders": "Senders"
     },
     "name": {
       "ebarimt": "eBarimt",
@@ -1507,9 +1526,39 @@
       "set-up-hint": "Emails go out from erxes’s address. Set up your own server or account to send from yours.",
       "how": "How it works",
       "how-all": "Invitations, password resets, notifications, automations and broadcasts all use it.",
-      "how-from": "A broadcast’s own sender name replaces the from name; the address stays.",
+      "how-senders": "Broadcasts and automations can send as a confirmed sender instead (the Senders tab).",
       "how-verify": "SendGrid and Amazon SES only send from addresses or domains you verified with them.",
-      "how-none": "Without it, emails go out from erxes’s address."
+      "how-none": "Without it, emails go out from erxes’s address.",
+      "senders": {
+        "add": "Add sender",
+        "add-title": "Add a sender",
+        "add-description": "We email the address a link. It can be picked once someone opens the link.",
+        "name": "Name people see",
+        "name-placeholder": "Sales team",
+        "email": "Address",
+        "name-required": "Enter the name people see",
+        "email-required": "Enter the address",
+        "invalid-email": "Enter a valid email address.",
+        "taken": "This address is a sender already.",
+        "add-failed": "Could not add the sender",
+        "cancel": "Cancel",
+        "send-link": "Send confirmation link",
+        "added": "Confirmation link sent to {{email}}",
+        "added-description": "The sender can be picked once the link is opened.",
+        "confirmed": "Confirmed",
+        "waiting": "Waiting for the link",
+        "as-from": "Emails come from this address.",
+        "as-reply-to": "Emails come from your sending address under this name; replies come here.",
+        "resend": "Send the link again",
+        "resent": "Confirmation link sent again",
+        "remove": "Remove",
+        "remove-confirm": "Remove {{email}}? Broadcasts and automations using it send from your sending address.",
+        "failed": "Something went wrong",
+        "empty": "No senders yet",
+        "empty-description": "Add addresses like sales@ or support@ that broadcasts and automations can send as.",
+        "how-own": "A sender on {{domain}} is the From. Any other sender gets the replies, and the email comes from {{address}} under its name.",
+        "how-server": "Emails come from erxes’s address under the sender’s name, and replies go to the sender. Set up your own sending to send from your domain."
+      }
     }
   }
 }

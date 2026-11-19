@@ -121,7 +121,8 @@ export const encrypt = (key: Buffer, plain: string) => {
 export const decrypt = (key: Buffer, sealed: string) => {
   const [version, iv, tag, data] = sealed.split('.');
 
-  if (version !== 'v1' || !iv || !tag || !data) throw new Error('not a sealed secret');
+  // An empty secret seals to an empty ciphertext; the tag still proves it.
+  if (version !== 'v1' || !iv || !tag || data === undefined) throw new Error('not a sealed secret');
 
   const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64url'));
 

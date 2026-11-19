@@ -124,7 +124,6 @@
     "contacts-settings": "Contacts settings",
     "assistant": "Assistant",
     "assistant-keys": "Provider keys",
-    "assistant-approvals": "Approvals",
     "assistant-code-mode": "Code mode",
     "assistant-appearance": "Appearance",
     "integrations": "Integrations"
@@ -636,6 +635,7 @@
     "former": "Former",
     "no-properties": "No properties found",
     "no-properties-hint": "Get started by creating your first property.",
+    "required": "required",
     "create-property": "Create property",
     "properties-not-saved": "Could not save the property",
     "empty": "Empty",
@@ -787,6 +787,13 @@
   },
   "query-state": {
     "retry": "Try again"
+  },
+  "sender-select": {
+    "default": "Your sending address",
+    "failed": "Could not load the senders.",
+    "hint": "Only confirmed senders are listed.",
+    "manage": "Manage senders",
+    "unconfirmed": "{{email}} (not confirmed)"
   },
   "region": {
     "country": "Country",

@@ -1,6 +1,6 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.1.0-v2.28",
+  "version": "0.1.0-v2.31",
   "private": false,
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
@@ -18,6 +18,7 @@
     ".": "./src/index.ts",
     "./activities": "./src/activities.ts",
     "./activityEntries": "./src/activityEntries.ts",
+    "./agents": "./src/agents.ts",
     "./apiKeys": "./src/apiKeys.ts",
     "./assistant": "./src/assistant.ts",
     "./assistantParts": "./src/assistantParts.ts",
@@ -39,12 +40,14 @@
     "./ebarimt": "./src/ebarimt.ts",
     "./ebarimtPrint": "./src/ebarimtPrint.ts",
     "./emails": "./src/emails.ts",
+    "./emailSenders": "./src/emailSenders.ts",
     "./emailSettings": "./src/emailSettings.ts",
     "./errors": "./src/errors.ts",
     "./events": "./src/events.ts",
     "./eventTypes": "./src/eventTypes.ts",
     "./favorites": "./src/favorites.ts",
     "./fieldGroups": "./src/fieldGroups.ts",
+    "./fieldLogic": "./src/fieldLogic.ts",
     "./fields": "./src/fields.ts",
     "./fieldShared": "./src/fieldShared.ts",
     "./files": "./src/files.ts",
@@ -63,6 +66,7 @@
     "./pluginReads": "./src/pluginReads.ts",
     "./pluginRelations": "./src/pluginRelations.ts",
     "./plugins": "./src/plugins.ts",
+    "./pluginTransfer": "./src/pluginTransfer.ts",
     "./pluginTranslations": "./src/pluginTranslations.ts",
     "./products": "./src/products.ts",
     "./records": "./src/records.ts",
@@ -88,6 +92,7 @@
       ".": "./dist/index.js",
       "./activities": "./dist/activities.js",
       "./activityEntries": "./dist/activityEntries.js",
+      "./agents": "./dist/agents.js",
       "./apiKeys": "./dist/apiKeys.js",
       "./assistant": "./dist/assistant.js",
       "./assistantParts": "./dist/assistantParts.js",
@@ -109,12 +114,14 @@
       "./ebarimt": "./dist/ebarimt.js",
       "./ebarimtPrint": "./dist/ebarimtPrint.js",
       "./emails": "./dist/emails.js",
+      "./emailSenders": "./dist/emailSenders.js",
       "./emailSettings": "./dist/emailSettings.js",
       "./errors": "./dist/errors.js",
       "./events": "./dist/events.js",
       "./eventTypes": "./dist/eventTypes.js",
       "./favorites": "./dist/favorites.js",
       "./fieldGroups": "./dist/fieldGroups.js",
+      "./fieldLogic": "./dist/fieldLogic.js",
       "./fields": "./dist/fields.js",
       "./fieldShared": "./dist/fieldShared.js",
       "./files": "./dist/files.js",
@@ -133,6 +140,7 @@
       "./pluginReads": "./dist/pluginReads.js",
       "./pluginRelations": "./dist/pluginRelations.js",
       "./plugins": "./dist/plugins.js",
+      "./pluginTransfer": "./dist/pluginTransfer.js",
       "./pluginTranslations": "./dist/pluginTranslations.js",
       "./products": "./dist/products.js",
       "./records": "./dist/records.js",
@@ -172,6 +180,20 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@earendil-works/chord": "1.5.2",
+    "@earendil-works/pi-durable": "1.5.2",
     "@erxes/core-db": "workspace:^"
+  },
+  "peerDependencies": {
+    "@earendil-works/chord": "1.5.2",
+    "@earendil-works/pi-durable": "1.5.2"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/chord": {
+      "optional": true
+    },
+    "@earendil-works/pi-durable": {
+      "optional": true
+    }
   }
 }

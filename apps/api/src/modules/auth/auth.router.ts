@@ -20,34 +20,36 @@ import {
 } from '~/modules/auth/account.service';
 import { getSession, markOnboarded, signIn, recordSignedIn } from '~/modules/auth/auth.service';
 import { runSetup, setupRequired } from '~/modules/setup/setup.service';
-import { scoped, unscoped, type CoreContext } from '~/orpc';
+import { httpOf, scoped, unscoped, type CoreContext } from '~/orpc';
 
 /** Signs the member in on this browser (HttpOnly session cookie). */
 const startSession = async (context: CoreContext, userId: string, orgId: string) => {
   const sessionVersion = await withOrg(orgId, () => sessionVersionOf(userId));
 
-  await startBrowserSession(context.req, context.res, { userId, orgId, sessionVersion });
+  const { req, res } = httpOf(context);
+
+  await startBrowserSession(req, res, { userId, orgId, sessionVersion });
 };
 
-const endSession = (context: CoreContext) =>
-  context.res.clearCookie(SESSION_COOKIE, {
-    ...sessionCookieOptions(context.req),
-    maxAge: undefined,
-  });
+const endSession = (context: CoreContext) => {
+  const { req, res } = httpOf(context);
+
+  res.clearCookie(SESSION_COOKIE, { ...sessionCookieOptions(req), maxAge: undefined });
+};
 
 export const authRouter = {
   setupStatus: unscoped.auth.setupStatus.handler(async () => ({
     required: await withSystem('setup status', (tx) => setupRequired(tx)),
   })),
   setup: unscoped.auth.setup.handler(async ({ input, context }) => {
-    const { organization, owner } = await runSetup(input, context.req.get('host'));
+    const { organization, owner } = await runSetup(input, httpOf(context).req.get('host'));
 
     await startSession(context, owner.id, organization.id);
 
     return getSession(organization.id, owner.id);
   }),
   signIn: unscoped.auth.signIn.handler(async ({ input, context }) => {
-    const result = await signIn(input, context.req.get('host'));
+    const result = await signIn(input, httpOf(context).req.get('host'));
 
     // Two-factor: no session until the second step.
     if ('challenge' in result) return result;
@@ -70,7 +72,7 @@ export const authRouter = {
     const result = await enableTwoFactor(db(), input.code);
 
     // Other sessions ended; this browser stays signed in.
-    if (!context.req.headers.authorization)
+    if (!httpOf(context).req.headers.authorization)
       await startSession(context, caller('user').userId, requestOrgId());
 
     return result;
@@ -82,7 +84,7 @@ export const authRouter = {
     regenerateRecoveryCodes(db(), input.password),
   ),
   signOut: unscoped.auth.signOut.handler(async ({ context }) => {
-    const session = await sessionClaims(context.req);
+    const session = await sessionClaims(httpOf(context).req);
 
     const member = session && (await memberOf(session.orgId, session.userId));
 
@@ -108,7 +110,7 @@ export const authRouter = {
     const result = await changeOwnPassword(input);
 
     // Other sessions ended; this browser stays signed in (bearer callers get a fresh token next sign-in).
-    if (!context.req.headers.authorization)
+    if (!httpOf(context).req.headers.authorization)
       await startSession(context, caller('user').userId, requestOrgId());
 
     return result;

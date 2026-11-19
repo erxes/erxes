@@ -1,4 +1,5 @@
 import { activitiesContract } from './activities';
+import { agentsContract } from './agents';
 import { assistantContract } from './assistant';
 import { apiKeysContract } from './apiKeys';
 import { automationsContract } from './automations';
@@ -40,6 +41,7 @@ import { leadsContract } from './leads';
 /** The whole core API's type, each module by name, so its declaration stays small. */
 export type CoreContract = {
   activities: typeof activitiesContract;
+  agents: typeof agentsContract;
   assistant: typeof assistantContract;
   apiKeys: typeof apiKeysContract;
   automations: typeof automationsContract;
@@ -87,6 +89,7 @@ export type CoreContract = {
 /** The whole core API. Core implements it; plugins call it with a typed client. */
 export const coreContract: CoreContract = {
   activities: activitiesContract,
+  agents: agentsContract,
   assistant: assistantContract,
   apiKeys: apiKeysContract,
   automations: automationsContract,
@@ -132,6 +135,8 @@ export const coreContract: CoreContract = {
 };
 
 export * from './activities';
+
+export * from './agents';
 
 export * from './assistant';
 
@@ -181,6 +186,8 @@ export * from './favorites';
 
 export * from './fieldGroups';
 
+export * from './fieldLogic';
+
 export * from './fields';
 
 export * from './recordTypes';
@@ -209,6 +216,8 @@ export * from './ebarimtPrint';
 
 export * from './emailSettings';
 
+export * from './emailSenders';
+
 export * from './pluginJobs';
 
 export * from './plugins';
@@ -222,6 +231,8 @@ export * from './pluginRelations';
 export * from './pluginTranslations';
 
 export * from './pluginReads';
+
+export * from './pluginTransfer';
 
 export * from './products';
 

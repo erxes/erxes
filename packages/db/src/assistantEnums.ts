@@ -2,8 +2,6 @@
 
 export const ASSISTANT_PROVIDERS = ['openai', 'grok', 'kimi', 'kimi-code'] as const;
 
-export const ASSISTANT_APPROVAL_MODES = ['writes', 'destructive'] as const;
-
 export const ASSISTANT_THINKING_LEVELS = [
   'off',
   'minimal',
@@ -16,9 +14,15 @@ export const ASSISTANT_THINKING_LEVELS = [
 
 export const ASSISTANT_THINKING_KINDS = ['effort', 'toggle', 'budget', 'fixed', 'none'] as const;
 
-export const ASSISTANT_MESSAGE_ROLES = ['user', 'assistant'] as const;
-
 export const ASSISTANT_QUESTION_MODES = ['single_select', 'multi_select'] as const;
+
+export const ASSISTANT_QUESTION_COMPONENTS = [
+  'text',
+  'long_text',
+  'number',
+  'date',
+  'member',
+] as const;
 
 export const ASSISTANT_RECORD_TYPES = [
   'customer',

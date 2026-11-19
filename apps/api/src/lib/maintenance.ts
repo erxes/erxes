@@ -2,6 +2,7 @@ import { withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { logger } from '~/logger';
+import { recoverAgents } from '~/modules/agents/recovery';
 import { pruneAudit } from '~/modules/audit/audit.service';
 import { signAuditCheckpoints } from '~/modules/audit/checkpoints';
 import { pruneRunDetails } from '~/modules/automations/runs.service';
@@ -87,6 +88,8 @@ export const MAINTENANCE = [
   defineSchedule({ queue: 'files.purge', cron: '* * * * *', run: purgeDeletedFiles }),
   // Scheduled and date automations.
   defineSchedule({ queue: 'automations.tick', cron: '* * * * *', run: tickAutomations }),
+  // Agent runs a restart or a crash cut off go on here, once their lease runs out.
+  defineSchedule({ queue: 'agents.recover', cron: '* * * * *', run: recoverAgents }),
   // Signed audit checkpoints: tampering is caught back to the last one.
   defineSchedule({
     queue: 'audit.checkpoints',

@@ -16,9 +16,9 @@ export * as schema from './schema';
 
 export {
   activities,
+  agentModels,
   assistantAppearances,
   assistantConnections,
-  assistantMessages,
   assistantReferences,
   assistantSettings,
   assistantThreads,
@@ -76,6 +76,7 @@ export {
   ebarimtSettings,
   ebarimtReceipts,
   ebarimtPrintTemplates,
+  emailSenders,
   emailSettings,
   pluginInstallations,
   productCategories,
@@ -97,7 +98,6 @@ export {
 
 export type {
   ActorType,
-  AssistantMessagePart,
   BroadcastChannel,
   BroadcastRecipientStatus,
   BroadcastStatus,
@@ -115,6 +115,7 @@ export type {
   ContentType,
   CustomerLoginKind,
   FieldContentType,
+  PluginListType,
   PluginRecordType,
   PropertyContentType,
   CustomValue,

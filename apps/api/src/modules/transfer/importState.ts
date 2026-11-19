@@ -1,7 +1,9 @@
 import { type Db, type ImportCounts, importRows, imports } from '@erxes/core-db';
-import { eq, getTableColumns, sql } from 'drizzle-orm';
+import { TRANSFER_RECORD_TYPES } from '@erxes/core-db/enums';
+import { eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { memberOf } from '~/http/auth';
 import { notFound } from '~/http/errors';
+import { isCoreType } from './pluginTransfer';
 
 export type ImportRow = typeof imports.$inferSelect;
 
@@ -18,7 +20,9 @@ export const UNDO_DAYS = 30;
 
 export const EMPTY: ImportCounts = { rows: 0, create: 0, update: 0, skip: 0, error: 0 };
 
+/** Core removes what it created; a plugin's records are the plugin's to remove. */
 export const undoable = (row: ImportRow) =>
+  isCoreType(row.recordType) &&
   row.status === 'done' &&
   !!row.finishedAt &&
   Date.now() - row.finishedAt.getTime() < UNDO_DAYS * 86_400_000 &&
@@ -40,7 +44,8 @@ export const selectImports = (client: Db) => {
       sample: sql<string[][]>`coalesce(
         (select json_agg(${first.cells} order by ${first.rowNumber}) from ${first}),
         '[]'::json)`,
-      undoable: sql<boolean>`(${imports.status} = 'done'
+      undoable: sql<boolean>`(${inArray(imports.recordType, [...TRANSFER_RECORD_TYPES])}
+        and ${imports.status} = 'done'
         and ${imports.finishedAt} > now() - make_interval(days => ${UNDO_DAYS})
         and (${imports.counts} ->> 'create')::int > 0)`,
     })

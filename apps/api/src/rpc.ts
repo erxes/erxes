@@ -19,7 +19,7 @@ const handler = new OpenAPIHandler(coreRouter, {
     // info (the hook in src/logger.ts).
     new LoggingHandlerPlugin({
       logger,
-      generateId: ({ context }) => (typeof context.req.id === 'string' ? context.req.id : ''),
+      generateId: ({ context }) => (typeof context.req?.id === 'string' ? context.req.id : ''),
     }),
   ],
   clientInterceptors: [

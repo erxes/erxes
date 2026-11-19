@@ -1,12 +1,11 @@
-import { PLUGIN_VIEW_TYPE, type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '../enums';
-import { sql } from 'drizzle-orm';
+import { PLUGIN_LIST_TYPE, type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '../enums';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
-import { type ConditionGroup, createdAt, updatedAt } from './common';
+import { inListOrMatch, orgIdColumn, pgTable } from '../table';
+import { type ConditionGroup, createdAt, type PluginListType, updatedAt } from './common';
 import { organizations } from './organizations';
 
-/** A core list (`VIEW_RECORD_TYPES`) or a plugin's record type, `<plugin>:<record>`. */
-export type ViewListType = (typeof VIEW_RECORD_TYPES)[number] | `${string}:${string}`;
+/** A core list (`VIEW_RECORD_TYPES`) or a plugin's, `<plugin>:<record>`. */
+export type ViewListType = (typeof VIEW_RECORD_TYPES)[number] | PluginListType;
 
 export interface ViewSort {
   field: string;
@@ -23,7 +22,7 @@ export const views = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    /** One of core's lists, or a plugin's record type (`PLUGIN_VIEW_TYPE`). */
+    /** One of core's lists, or a plugin's (`PLUGIN_LIST_TYPE`). */
     recordType: text().$type<ViewListType>().notNull(),
     name: text().notNull(),
     filter: jsonb().$type<ConditionGroup>(),
@@ -40,7 +39,7 @@ export const views = pgTable(
     index('core_views_org_type_idx').on(table.orgId, table.recordType),
     check(
       'core_views_record_type_check',
-      sql`${inList(table.recordType, VIEW_RECORD_TYPES)} OR ${table.recordType} ~ ${sql.raw(`'${PLUGIN_VIEW_TYPE}'`)}`,
+      inListOrMatch(table.recordType, VIEW_RECORD_TYPES, PLUGIN_LIST_TYPE),
     ),
     foreignKey({
       columns: [table.orgId],
