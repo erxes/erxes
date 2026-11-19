@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { CONTENT_TYPES } from './fields';
 import { resolve } from './idMap';
 import { eachBatch, existing, idSet, insert, type Run } from './run';
+import { mainSource } from './sources';
 import { createdOf, idOf, optionalId, readOr, record, text, when } from './values';
 
 const NoteDocument = record({
@@ -239,9 +240,9 @@ const noteBatch = async (
   });
 };
 
-/** Internal notes of `db` (the main database by default). */
-export const importNotes = async (run: Run, db: Db = run.mongo) => {
-  const name = db === run.mongo ? 'internal_notes' : `${db.databaseName}.internal_notes`;
+/** Internal notes of `source`: `erxes`'s, or those only the v1 copy has. */
+export const importNotes = async (run: Run, source = mainSource(run, 'internal_notes')) => {
+  const { db, name } = source;
   const members = await idSet(run, 'core_users');
 
   run.report.of(name, 'core_activities, core_notes');
@@ -249,9 +250,9 @@ export const importNotes = async (run: Run, db: Db = run.mongo) => {
 
   await eachBatch(
     run,
-    db.collection('internal_notes'),
+    db.collection(source.collection),
     (documents) => noteBatch(run, db, name, members, documents),
-    {},
+    source.filter,
     name,
   );
 };

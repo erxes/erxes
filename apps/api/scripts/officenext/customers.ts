@@ -4,6 +4,7 @@
  * another customer already has as primary stays in the customer's list but not as primary, since
  * core keeps one customer per primary email and phone.
  */
+import type { Document } from 'mongodb';
 import type { z } from 'zod';
 import {
   emailsOf,
@@ -18,6 +19,7 @@ import {
   tagLinks,
 } from './contacts';
 import { eachBatch, insert, MINE, type Run } from './run';
+import { mainSource } from './sources';
 import {
   amount,
   createdOf,
@@ -203,6 +205,7 @@ const takenBy = async (run: Run, customers: CustomerDocument[]): Promise<Taken> 
 
 const writeBatch = async (
   run: Run,
+  name: string,
   found: Lookups,
   customers: CustomerDocument[],
   merged: Map<string, string[]>,
@@ -213,26 +216,18 @@ const writeBatch = async (
     const result = customerRow(customer, found, taken, merged.get(customer.id) ?? []);
 
     if (result.demotedEmail)
-      run.report.note(
-        'customers',
-        'primary email taken by another customer; kept in emails',
-        customer.id,
-      );
+      run.report.note(name, 'primary email taken by another customer; kept in emails', customer.id);
 
     if (result.demotedPhone)
-      run.report.note(
-        'customers',
-        'primary phone taken by another customer; kept in phones',
-        customer.id,
-      );
+      run.report.note(name, 'primary phone taken by another customer; kept in phones', customer.id);
 
-    if (result.unknownSex) run.report.note('customers', 'sex not 0/1/2/9; left empty', customer.id);
+    if (result.unknownSex) run.report.note(name, 'sex not 0/1/2/9; left empty', customer.id);
 
     return result.row;
   });
 
   await insert(run, {
-    collection: 'customers',
+    collection: name,
     table: 'core_customers',
     columns: COLUMNS,
     rows: built,
@@ -242,7 +237,7 @@ const writeBatch = async (
     run,
     found,
     {
-      collection: 'customers',
+      collection: name,
       table: 'core_customer_tags',
       column: 'customer_id',
       type: 'customer',
@@ -251,19 +246,21 @@ const writeBatch = async (
   );
 };
 
-export const importCustomers = async (run: Run) => {
-  const collection = run.mongo.collection('customers');
+/** Customers of `source`: `erxes`'s, or those only the v1 copy has. */
+export const importCustomers = async (run: Run, source = mainSource(run, 'customers')) => {
+  const { name } = source;
+  const collection = source.db.collection(source.collection);
   const survivors = await survivorsOf(collection);
   const merged = mergedInto(survivors);
   const found = await lookups(run);
 
-  run.report.of('customers', 'core_customers');
+  run.report.of(name, 'core_customers');
 
-  await eachBatch(run, collection, async (documents) => {
+  const handle = async (documents: Document[]) => {
     const parsed = documents.flatMap((doc) => {
       const customer = readOr(CustomerDocument, doc);
 
-      if (!customer) run.report.skip('customers', 'unreadable _id', idOf(doc));
+      if (!customer) run.report.skip(name, 'unreadable _id', idOf(doc));
 
       return customer ? [customer] : [];
     });
@@ -271,13 +268,15 @@ export const importCustomers = async (run: Run) => {
     const known = parsed.filter((customer) => {
       if (stateOf(customer.state)) return true;
 
-      run.report.skip('customers', `unknown state ${customer.state ?? ''}`, customer.id);
+      run.report.skip(name, `unknown state ${customer.state ?? ''}`, customer.id);
 
       return false;
     });
 
-    const live = await keepLive(run, 'customers', 'customer', known, survivors);
+    const live = await keepLive(run, name, 'customer', known, survivors);
 
-    await writeBatch(run, found, live, merged);
-  });
+    await writeBatch(run, name, found, live, merged);
+  };
+
+  await eachBatch(run, collection, handle, source.filter, name);
 };

@@ -3,6 +3,7 @@
  * name already used gets its code or the end of its id after the name; a company without a name
  * takes its first other name, email, website or id. Parent companies have no column.
  */
+import type { Document } from 'mongodb';
 import type { z } from 'zod';
 import {
   emailsOf,
@@ -17,6 +18,7 @@ import {
   tagLinks,
 } from './contacts';
 import { eachBatch, insert, MINE, type Run } from './run';
+import { mainSource } from './sources';
 import {
   amount,
   createdOf,
@@ -159,8 +161,10 @@ const COLUMNS = [
   'source_details',
 ];
 
-export const importCompanies = async (run: Run) => {
-  const collection = run.mongo.collection('companies');
+/** Companies of `source`: `erxes`'s, or those only the v1 copy has. */
+export const importCompanies = async (run: Run, source = mainSource(run, 'companies')) => {
+  const label = source.name;
+  const collection = source.db.collection(source.collection);
   const survivors = await survivorsOf(collection);
   const merged = mergedInto(survivors);
   const found = await lookups(run);
@@ -171,37 +175,33 @@ export const importCompanies = async (run: Run) => {
 
   const taken = new Map(rows.map((row) => [row.name, row.id]));
 
-  run.report.of('companies', 'core_companies');
+  run.report.of(label, 'core_companies');
 
-  await eachBatch(run, collection, async (documents) => {
+  const handle = async (documents: Document[]) => {
     const parsed = documents.flatMap((doc) => {
       const company = readOr(CompanyDocument, doc);
 
-      if (!company) run.report.skip('companies', 'unreadable _id', idOf(doc));
+      if (!company) run.report.skip(label, 'unreadable _id', idOf(doc));
 
       return company ? [company] : [];
     });
 
-    const live = await keepLive(run, 'companies', 'company', parsed, survivors);
+    const live = await keepLive(run, label, 'company', parsed, survivors);
 
     const built = live.map((company) => {
       const name = uniqueName(taken, company);
 
       if (name !== company.primaryName)
-        run.report.note('companies', 'name missing or taken; made unique', company.id);
+        run.report.note(label, 'name missing or taken; made unique', company.id);
 
       if (company.parentCompanyId)
-        run.report.note(
-          'companies',
-          'parent company kept in source_details (no column)',
-          company.id,
-        );
+        run.report.note(label, 'parent company kept in source_details (no column)', company.id);
 
       return companyRow(company, found, name, merged.get(company.id) ?? []);
     });
 
     await insert(run, {
-      collection: 'companies',
+      collection: label,
       table: 'core_companies',
       columns: COLUMNS,
       rows: built,
@@ -210,13 +210,10 @@ export const importCompanies = async (run: Run) => {
     await tagLinks(
       run,
       found,
-      {
-        collection: 'companies',
-        table: 'core_company_tags',
-        column: 'company_id',
-        type: 'company',
-      },
+      { collection: label, table: 'core_company_tags', column: 'company_id', type: 'company' },
       live,
     );
-  });
+  };
+
+  await eachBatch(run, collection, handle, source.filter, label);
 };

@@ -55,6 +55,12 @@ export const keepLive = async <T extends { id: string; status: string | null }>(
   const merged: [string, string][] = [];
 
   const live = docs.filter((doc) => {
+    if (resolve(kind, doc.id) !== doc.id) {
+      run.report.skip(collection, 'merged into a record already imported', doc.id);
+
+      return false;
+    }
+
     if (doc.status?.toLowerCase() !== 'deleted') return true;
 
     const into = survivors.get(doc.id);

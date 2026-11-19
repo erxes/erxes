@@ -12,6 +12,7 @@ import { classicSummary, laterSummary, type Names, ownerOf, targetOf } from './a
 import { auditRowOf, redact, writeAudit } from './auditLogs';
 import { resolve } from './idMap';
 import { eachBatch, existing, insert, readAll, type Run } from './run';
+import { mainSource } from './sources';
 import { createdOf, idOf, readOr, record, text, when } from './values';
 
 const Entry = record({
@@ -230,18 +231,18 @@ const namesOf = async (run: Run, db: Db): Promise<Names> => {
   };
 };
 
-/** Activity logs of `db` (the main database by default). */
-export const importActivityLogs = async (run: Run, db: Db = run.mongo) => {
-  const name = db === run.mongo ? 'activity_logs' : `${db.databaseName}.activity_logs`;
+/** Activity logs of `source`: `erxes`'s, or those only the v1 copy has. */
+export const importActivityLogs = async (run: Run, source = mainSource(run, 'activity_logs')) => {
+  const { db, name } = source;
   const names = await namesOf(run, db);
   const members = new Set(names.members.keys());
 
   run.report.of(name, 'core_activities');
   await eachBatch(
     run,
-    db.collection('activity_logs'),
+    db.collection(source.collection),
     (documents) => batchOf(run, db, name, { names, members }, documents),
-    {},
+    source.filter,
     name,
   );
 };

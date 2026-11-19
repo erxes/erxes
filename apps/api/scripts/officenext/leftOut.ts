@@ -150,11 +150,15 @@ const DATABASES: Record<string, string | null> = {
   undefined_logs: 'logs a misconfigured service wrote: no organisation to give them to',
 };
 
+/** The v1 copy's core collections the import doesn't read: `erxes` has their current copy. */
+const V1_REST =
+  'old v1 copy: only its customers, companies, notes, links, fields and logs that erxes lacks are read; erxes has the current rest';
+
 /** Why `name` (in database `db`) stays out. */
 export const reasonOf = (db: string, name: string) =>
   DATABASES[db] ??
   RULES.find(([pattern]) => pattern.test(name))?.[1] ??
-  'no core table or plugin known for it';
+  (db === 'erxes_office' ? V1_REST : 'no core table or plugin known for it');
 
 /** Lists every collection on the server that no step covered. `covered` holds `db.name`s. */
 export const reportLeftOut = async (run: Run, covered: Set<string>) => {

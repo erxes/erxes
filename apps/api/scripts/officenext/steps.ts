@@ -20,6 +20,7 @@ import { importNotifications } from './notifications';
 import { importProducts } from './products';
 import type { Run } from './run';
 import { importSegments } from './segments';
+import { v1Source } from './sources';
 import { importStoredFiles } from './storedFiles';
 import { importSuppressions } from './suppressions';
 import { importTags } from './tags';
@@ -52,13 +53,52 @@ export const STEPS: Step[] = [
     },
   },
   { name: 'tags', collections: ['tags', 'brands'], run: importTags },
-  { name: 'customers', collections: ['customers'], run: importCustomers },
-  { name: 'companies', collections: ['companies'], run: importCompanies },
-  { name: 'conformities', collections: ['conformities'], run: (run) => importConformities(run) },
+  {
+    name: 'customers',
+    collections: ['customers', 'erxes_office.customers'],
+    run: async (run) => {
+      await importCustomers(run);
+      await importCustomers(run, await v1Source(run, 'customers'));
+    },
+  },
+  {
+    name: 'companies',
+    collections: ['companies', 'erxes_office.companies'],
+    run: async (run) => {
+      await importCompanies(run);
+      await importCompanies(run, await v1Source(run, 'companies'));
+    },
+  },
+  {
+    name: 'conformities',
+    collections: ['conformities', 'erxes_office.conformities'],
+    run: async (run) => {
+      await importConformities(run);
+      await importConformities(run, await v1Source(run, 'conformities'));
+    },
+  },
   { name: 'relations', collections: ['relations'], run: importRelations },
-  { name: 'notes', collections: ['internal_notes'], run: (run) => importNotes(run) },
-  { name: 'activity', collections: ['activity_logs'], run: (run) => importActivityLogs(run) },
-  { name: 'audit', collections: ['logs', 'erxes_logs.logs'], run: importAuditLogs },
+  {
+    name: 'notes',
+    collections: ['internal_notes', 'erxes_office.internal_notes'],
+    run: async (run) => {
+      await importNotes(run);
+      await importNotes(run, await v1Source(run, 'internal_notes'));
+    },
+  },
+  {
+    name: 'activity',
+    collections: ['activity_logs', 'erxes_office.activity_logs'],
+    run: async (run) => {
+      await importActivityLogs(run);
+      await importActivityLogs(run, await v1Source(run, 'activity_logs'));
+    },
+  },
+  {
+    name: 'audit',
+    collections: ['logs', 'erxes_office.logs', 'erxes_logs.logs'],
+    run: importAuditLogs,
+  },
   {
     name: 'client portal users',
     collections: ['client_portal_users'],
@@ -71,7 +111,14 @@ export const STEPS: Step[] = [
   },
   {
     name: 'fields',
-    collections: ['properties_groups', 'fields_groups', 'properties_fields', 'fields'],
+    collections: [
+      'properties_groups',
+      'fields_groups',
+      'erxes_office.fields_groups',
+      'properties_fields',
+      'fields',
+      'erxes_office.fields',
+    ],
     run: importFields,
   },
   { name: 'field values', collections: ['field values'], run: importFieldValues },

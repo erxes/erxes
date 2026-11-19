@@ -9,7 +9,9 @@ import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { resolve } from './idMap';
 import { FieldDocument, uniqueIn } from './fields';
-import { eachBatch, insert, MINE, readAll, type Run, unit } from './run';
+import { fieldDocs } from './fieldSources';
+import { eachBatch, insert, MINE, type Run, unit } from './run';
+import { mainSource, v1Source } from './sources';
 import { field, idOf, plain, readOr } from './values';
 
 type Value = { text: string } | { number: number } | { date: string };
@@ -88,7 +90,7 @@ const metaOf = async (run: Run, contentType: string) => {
   const types = new Map(rows.map((row) => [row.id, row.type]));
   const metas = new Map<string, Meta>();
 
-  for (const raw of await readAll(run, 'properties_fields')) {
+  for (const { raw } of await fieldDocs(run)) {
     const doc = readOr(FieldDocument, raw);
     const id = doc && resolve('field', doc.id);
     const type = id && types.get(id);
@@ -211,13 +213,25 @@ export const rowsOfRecord = (
   return { rows: [...rows, ...trackedRows], missing };
 };
 
+/** Each target's sources: `erxes`'s records, and for contacts the v1 copy's that `erxes` lacks. */
+const sourcesOf = async (run: Run) =>
+  [
+    ...TARGETS.map((target) => ({ target, source: mainSource(run, target.collection) })),
+    ...(await Promise.all(
+      TARGETS.filter((target) => target.contentType !== 'product').map(async (target) => ({
+        target,
+        source: await v1Source(run, target.collection),
+      })),
+    )),
+  ] as const;
+
 /** Field values of customers, companies and products. */
 export const importFieldValues = async (run: Run) => {
-  await inOrder(TARGETS, async (target) => {
-    const collection = run.mongo.collection(target.collection);
+  await inOrder(await sourcesOf(run), async ({ target, source }) => {
+    const collection = source.db.collection(source.collection);
     const metas = await metaOf(run, target.contentType);
     const tracked = await unit(run, () => trackedFields(run, collection, target.contentType));
-    const name = `${target.collection} (field values)`;
+    const name = `${source.name} (field values)`;
 
     run.report.of(name, target.table);
 
@@ -255,6 +269,7 @@ export const importFieldValues = async (run: Run) => {
         });
       },
       {
+        ...source.filter,
         // Merged-away contacts gave their values to the record they went into.
         ...(target.contentType === 'product' ? {} : { status: { $nin: ['deleted', 'Deleted'] } }),
         $or: [

@@ -2,13 +2,15 @@
  * Custom field groups and fields of every old record type → `core_field_groups` and
  * `core_fields`, keeping their ids. Plugin record types use the plugin's timeline type
  * (`operation.task`), so plugin importers find their fields by the old id. `properties_*` is
- * 3.4's copy; `fields_groups` holds older groups it didn't copy. Form fields (no content type)
+ * 3.4's copy; `fields_groups` and `fields` hold older ones it didn't copy, and the v1 copy adds
+ * its own (`fieldSources.ts`). Form fields (no content type)
  * are Frontline's forms. Labels and group codes are unique per record type, so a repeat gets a
  * number. Every field gets an id map row (kind `field`), its id unchanged.
  */
 import { z } from 'zod';
+import { fieldDocs, groupDocs } from './fieldSources';
 import { remember } from './idMap';
-import { insert, MINE, readAll, type Run, unit } from './run';
+import { insert, MINE, type Run, unit } from './run';
 import { inOrder } from '~/lib/sequence';
 import { createdOf, field, flag, idOf, optionalId, readOr, record, text, when } from './values';
 
@@ -137,16 +139,8 @@ export const uniqueIn = (taken: Set<string>, scope: string, wanted: string) => {
   return candidate;
 };
 
-const readGroups = async (run: Run) => {
-  const current = await readAll(run, 'properties_groups');
-  const copied = new Set(current.map(idOf));
-  const older = (await readAll(run, 'fields_groups')).filter((doc) => !copied.has(idOf(doc)));
-
-  return [
-    ...current.map((doc) => ({ collection: 'properties_groups', doc: readOr(Group, doc) })),
-    ...older.map((doc) => ({ collection: 'fields_groups', doc: readOr(Group, doc) })),
-  ];
-};
+const readGroups = async (run: Run) =>
+  (await groupDocs(run)).map(({ name, raw }) => ({ collection: name, doc: readOr(Group, raw) }));
 
 /** Field groups; returns the ids that exist afterwards. */
 const importGroups = async (run: Run) => {
@@ -198,7 +192,7 @@ const importGroups = async (run: Run) => {
   });
 
   await unit(run, () =>
-    inOrder(['properties_groups', 'fields_groups'], (collection) => {
+    inOrder(new Set(groups.map((group) => group.collection)), (collection) => {
       const from = built.filter((each) => each.collection === collection);
 
       return insert(run, {
@@ -276,27 +270,25 @@ const FIELD_COLUMNS = [
 
 /** Old fields that core keeps, with their record type and core type. */
 const readFields = async (run: Run) =>
-  (await readAll(run, 'properties_fields')).flatMap((raw) => {
-    run.report.seen('properties_fields');
+  (await fieldDocs(run)).flatMap(({ name, raw }) => {
+    run.report.of(name, 'core_fields');
+    run.report.seen(name);
 
     const doc = readOr(FieldDocument, raw);
     const contentType = doc && CONTENT_TYPES[doc.contentType ?? ''];
     const type = doc && FIELD_TYPES[doc.type ?? ''];
 
-    if (!doc) run.report.skip('properties_fields', 'unreadable _id', idOf(raw));
+    if (!doc) run.report.skip(name, 'unreadable _id', idOf(raw));
     else if (!doc.contentType)
-      run.report.skip('properties_fields', 'form field: plugin:frontline (forms)', doc.id);
+      run.report.skip(name, 'form field: plugin:frontline (forms)', doc.id);
     else if (!contentType)
-      run.report.skip('properties_fields', `no place for content type ${doc.contentType}`, doc.id);
-    else if (!type)
-      run.report.skip('properties_fields', `no core type for ${doc.type ?? '?'}`, doc.id);
+      run.report.skip(name, `no place for content type ${doc.contentType}`, doc.id);
+    else if (!type) run.report.skip(name, `no core type for ${doc.type ?? '?'}`, doc.id);
 
-    return doc && contentType && type ? [{ doc, contentType, type }] : [];
+    return doc && contentType && type ? [{ name, doc, contentType, type }] : [];
   });
 
 const importFieldRows = async (run: Run) => {
-  run.report.of('properties_fields', 'core_fields');
-
   const fields = await readFields(run);
   const mine = new Set(fields.map(({ doc }) => doc.id));
 
@@ -318,36 +310,35 @@ const importFieldRows = async (run: Run) => {
     ),
   );
 
-  const built = fields.map(({ doc, contentType, type }) => {
+  const built = fields.map(({ name, doc, contentType, type }) => {
     const row = fieldRow(doc, contentType, type, taken, groups);
 
-    if (row[2] !== (doc.text ?? doc.name ?? doc.code ?? doc.id)) {
-      run.report.note(
-        'properties_fields',
-        'label used twice for the record type; numbered',
-        doc.id,
+    if (row[2] !== (doc.text ?? doc.name ?? doc.code ?? doc.id))
+      run.report.note(name, 'label used twice for the record type; numbered', doc.id);
+
+    return { name, id: doc.id, row };
+  });
+
+  await unit(run, () =>
+    inOrder(new Set(built.map((each) => each.name)), async (name) => {
+      const from = built.filter((each) => each.name === name);
+
+      await insert(run, {
+        collection: name,
+        table: 'core_fields',
+        columns: FIELD_COLUMNS,
+        rows: from.map((each) => each.row),
+        keys: from.map((each) => each.id),
+      });
+      await remember(
+        run,
+        name,
+        'field',
+        from.map((each) => [each.id, each.id]),
+        true,
       );
-    }
-
-    return row;
-  });
-
-  await unit(run, async () => {
-    await insert(run, {
-      collection: 'properties_fields',
-      table: 'core_fields',
-      columns: FIELD_COLUMNS,
-      rows: built,
-      keys: fields.map(({ doc }) => doc.id),
-    });
-    await remember(
-      run,
-      'properties_fields',
-      'field',
-      fields.map(({ doc }) => [doc.id, doc.id]),
-      true,
-    );
-  });
+    }),
+  );
 };
 
 /** Field groups, then fields. */

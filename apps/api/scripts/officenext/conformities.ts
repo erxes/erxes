@@ -5,10 +5,10 @@
  * or ticket are the plugins' to import; they are counted here by plugin. Later old erxes kept
  * the same links in `relations` (two `entities` each), read the same way.
  */
-import type { Db } from 'mongodb';
 import { z } from 'zod';
 import { resolve } from './idMap';
 import { eachBatch, existing, insert, type Run } from './run';
+import { mainSource } from './sources';
 import { idOf, readOr, text } from './values';
 
 const Conformity = z.object({ mainType: text, mainTypeId: text, relType: text, relTypeId: text });
@@ -106,16 +106,16 @@ const linkBatch = async (run: Run, name: string, links: Conformity[]) => {
   if (unique.size > copied) run.report.note(name, LINKED, '', unique.size - copied);
 };
 
-/** Customer ↔ company pairs of `db`'s conformities; the other pairs are counted by plugin. */
-export const importConformities = async (run: Run, db: Db = run.mongo) => {
-  const name = db === run.mongo ? 'conformities' : `${db.databaseName}.conformities`;
-  const collection = db.collection('conformities');
+/** Customer ↔ company pairs of `source`'s conformities; the other pairs are counted by plugin. */
+export const importConformities = async (run: Run, source = mainSource(run, 'conformities')) => {
+  const { name } = source;
+  const collection = source.db.collection(source.collection);
 
   run.report.of(name, 'core_customer_companies');
 
   const others = await collection
     .aggregate([
-      { $match: { $nor: CONTACT_PAIRS.$or } },
+      { $match: { $and: [{ $nor: CONTACT_PAIRS.$or }, source.filter] } },
       { $group: { _id: { mainType: '$mainType', relType: '$relType' }, count: { $sum: 1 } } },
       { $project: { _id: 0, mainType: '$_id.mainType', relType: '$_id.relType', count: 1 } },
     ])
@@ -139,7 +139,7 @@ export const importConformities = async (run: Run, db: Db = run.mongo) => {
         name,
         documents.flatMap((raw) => readOr(Conformity, raw) ?? []),
       ),
-    CONTACT_PAIRS,
+    { $and: [CONTACT_PAIRS, source.filter] },
     name,
   );
 };

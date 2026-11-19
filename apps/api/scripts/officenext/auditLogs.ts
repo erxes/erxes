@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { targetOf } from './activityKinds';
 import { resolve } from './idMap';
 import { eachBatch, idSet, insert, type Run } from './run';
+import { mainSource, type Source, v1Source } from './sources';
 import { createdOf, idOf, readOr, record, text, when } from './values';
 
 const SECRET = /pass(word)?|token|secret|api_?key|access_?key|private_?key|credential|salt|otp/i;
@@ -218,20 +219,28 @@ export const changeAudit = (change: NonNullable<ReturnType<typeof Change.parse>>
   };
 };
 
-/** `logs` and `erxes_logs.logs`, each entry an audit row. */
+const readLog = (raw: Document) => {
+  const log = readOr(Log, raw);
+
+  return log && { id: log.id, old: logAudit(log) };
+};
+
+/** `logs`, the v1 copy's `logs` that `erxes` lacks, and `erxes_logs.logs`: each an audit row. */
 export const importAuditLogs = async (run: Run) => {
   const members = await idSet(run, 'core_users');
 
   const pass = (
-    name: string,
+    source: Source,
     prefix: string,
     read: (raw: Document) => { id: string; old: OldAudit } | null,
   ) => {
+    const { name } = source;
+
     run.report.of(name, 'core_audit_logs');
 
     return eachBatch(
       run,
-      name === 'logs' ? run.mongo.collection('logs') : run.other('erxes_logs').collection('logs'),
+      source.db.collection(source.collection),
       (documents) =>
         writeAudit(
           run,
@@ -244,17 +253,17 @@ export const importAuditLogs = async (run: Run) => {
             return entry ? [auditRowOf(`${prefix}${entry.id}`, entry.old, members)] : [];
           }),
         ),
-      {},
+      source.filter,
       name,
     );
   };
 
-  await pass('logs', 'l_', (raw) => {
-    const log = readOr(Log, raw);
+  await pass(mainSource(run, 'logs'), 'l_', readLog);
+  await pass(await v1Source(run, 'logs'), 'l_', readLog);
 
-    return log && { id: log.id, old: logAudit(log) };
-  });
-  await pass('erxes_logs.logs', 'x_', (raw) => {
+  const changes = { db: run.other('erxes_logs'), collection: 'logs', filter: {} };
+
+  await pass({ ...changes, name: 'erxes_logs.logs' }, 'x_', (raw) => {
     const change = readOr(Change, raw);
 
     return change && { id: change.id, old: changeAudit(change) };
