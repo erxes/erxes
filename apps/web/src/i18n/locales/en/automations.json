@@ -318,5 +318,6 @@
   "event-data-use-customer": "You can already use the customer’s details.",
   "event-data-use-company": "You can already use the company’s details.",
   "event-data-check": "Check again",
-  "event-data-still-none": "Nothing has arrived yet."
+  "event-data-still-none": "Nothing has arrived yet.",
+  "event-data-waiting-short": "Nothing yet. Its data shows up here after the next “{{event}}”."
 }

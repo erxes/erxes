@@ -7,7 +7,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { Button, Command, InputGroup, Popover } from 'erxes-ui';
-import { type ReactNode, useContext, useRef, useState } from 'react';
+import { type ComponentType, type ReactNode, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext, type StartingEvent } from './BuilderContext';
 import { EventDataHint } from './EventDataHint';
@@ -17,6 +17,29 @@ import type { FieldInfo } from './useAutomationFields';
 /** "Order" reads "order" in "The order"; "POS order" keeps its capitals. */
 const inSentence = (noun: string) =>
   /^[A-Z][a-z]/.test(noun) ? noun.charAt(0).toLowerCase() + noun.slice(1) : noun;
+
+/** One value to insert: what it is, in a row large enough to scan and tap. */
+const DataRow = ({
+  icon: Icon,
+  label,
+  path,
+  note,
+  onPick,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  path: string;
+  note?: string;
+  onPick: (path: string) => void;
+}) => (
+  <Command.Item value={`${label} ${path}`} onSelect={() => onPick(path)} variant="tile">
+    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+      <Icon className="size-3.5" />
+    </span>
+    <span className="min-w-0 flex-1 truncate">{label}</span>
+    {note && <span className="shrink-0 text-3xs text-muted-foreground">{note}</span>}
+  </Command.Item>
+);
 
 /** The trigger's own values, under what it is about ("The order"), or why there are none. */
 const TriggerGroup = ({
@@ -45,18 +68,17 @@ const TriggerGroup = ({
     <Command.Group heading={heading}>
       {fields.length ? (
         fields.map((field) => (
-          <Command.Item
+          <DataRow
             key={field.path}
-            value={`${field.label} ${field.path}`}
-            onSelect={() => onPick(field.path)}
-          >
-            <IconBolt className="text-muted-foreground" />
-            <span className="truncate">{field.label}</span>
-          </Command.Item>
+            icon={IconBolt}
+            label={field.label}
+            path={field.path}
+            onPick={onPick}
+          />
         ))
       ) : (
         <div className="px-2 py-1.5">
-          <EventDataHint event={trigger} subject={hasSubject ? subject : null} />
+          <EventDataHint event={trigger} subject={hasSubject ? subject : null} compact />
         </div>
       )}
     </Command.Group>
@@ -91,7 +113,7 @@ const DataPicker = ({
   return (
     <Command loop>
       <Command.Input placeholder={t('insert-data-search', 'Search data…')} />
-      <Command.List className="max-h-72">
+      <Command.List className="max-h-80">
         <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
         <TriggerGroup
           trigger={trigger}
@@ -109,39 +131,41 @@ const DataPicker = ({
             }
           >
             {record.map((field) => (
-              <Command.Item
+              <DataRow
                 key={field.path}
-                value={`${field.label} ${field.path}`}
-                onSelect={() => onPick(field.path)}
-              >
-                <RecordIcon className="text-muted-foreground" />
-                <span className="truncate">{field.label}</span>
-                {field.path.startsWith('subject.customFields.') && (
-                  <span className="ml-auto shrink-0 text-3xs text-muted-foreground">
-                    {t('custom', 'Custom')}
-                  </span>
-                )}
-              </Command.Item>
+                icon={RecordIcon}
+                label={field.label}
+                path={field.path}
+                note={
+                  field.path.startsWith('subject.customFields.') ? t('custom', 'Custom') : undefined
+                }
+                onPick={onPick}
+              />
             ))}
           </Command.Group>
         )}
         {steps.length > 0 && (
           <Command.Group heading={t('earlier-steps', 'Earlier steps')}>
             {steps.map((field) => (
-              <Command.Item
+              <DataRow
                 key={field.path}
-                value={`${field.label} ${field.path}`}
-                onSelect={() => onPick(field.path)}
-              >
-                <IconRoute className="text-muted-foreground" />
-                <span className="truncate">{field.label}</span>
-              </Command.Item>
+                icon={IconRoute}
+                label={field.label}
+                path={field.path}
+                onPick={onPick}
+              />
             ))}
           </Command.Group>
         )}
         <Command.Group heading={t('other-data', 'Other')}>
-          <Command.Item value="now current time date" onSelect={() => onPick('now | date')}>
-            <IconClock className="text-muted-foreground" />
+          <Command.Item
+            value="now current time date"
+            onSelect={() => onPick('now | date')}
+            variant="tile"
+          >
+            <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+              <IconClock className="size-3.5" />
+            </span>
             {t('today-date', "Today's date")}
           </Command.Item>
         </Command.Group>
@@ -177,7 +201,7 @@ const InsertData = ({
         sideOffset={6}
         collisionPadding={12}
         variant="flush"
-        className="w-72"
+        className="w-80"
       >
         {children}
       </Popover.Content>

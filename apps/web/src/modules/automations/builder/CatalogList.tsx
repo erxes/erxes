@@ -1,21 +1,35 @@
-import { IconCheck, IconClockHour4 } from '@tabler/icons-react';
+import { IconCheck, IconClockHour4, type TablerIcon } from '@tabler/icons-react';
 import { cn, Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { type CatalogItem, type GroupEntry, groupOf, useCatalogLabels } from './catalogGroups';
+import {
+  catalogIcon,
+  type CatalogItem,
+  type GroupEntry,
+  groupOf,
+  useCatalogLabels,
+} from './catalogGroups';
+
+const IconTile = ({ icon: Icon, selected }: { icon: TablerIcon; selected: boolean }) => (
+  <span
+    className={cn(
+      'flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground',
+      selected && 'bg-primary/10 text-primary-text',
+    )}
+  >
+    <Icon className="size-4" />
+  </span>
+);
 
 const Row = ({
   item,
   selected,
   onSelect,
   keyPrefix = '',
-  showIcon = false,
 }: {
   item: CatalogItem;
   selected: boolean;
   onSelect: () => void;
   keyPrefix?: string;
-  /** Recently used mixes areas: each row shows its own. */
-  showIcon?: boolean;
 }) => {
   const group = groupOf(item);
 
@@ -24,21 +38,19 @@ const Row = ({
       value={`${keyPrefix}${item.type}`}
       keywords={[item.label, item.description ?? '', group.label, item.source]}
       onSelect={onSelect}
+      variant="tile"
       checked={selected}
-      className="h-auto items-start"
     >
-      {showIcon && (
-        <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-          <group.icon className="size-3.5" />
-        </span>
-      )}
+      <IconTile icon={catalogIcon(item)} selected={selected} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm">{item.label}</span>
+        <span className="block truncate text-sm font-medium">{item.label}</span>
         {item.description && (
-          <span className="block truncate text-xs text-muted-foreground">{item.description}</span>
+          <span className="line-clamp-2 block text-xs text-muted-foreground">
+            {item.description}
+          </span>
         )}
       </span>
-      {selected && <IconCheck className="mt-1 size-4 shrink-0 text-primary-text" />}
+      {selected && <IconCheck className="size-4 shrink-0 text-primary-text" />}
     </Command.Item>
   );
 };
@@ -51,15 +63,18 @@ const Rows = ({
   items: CatalogItem[];
   value: string | undefined;
   onChoose: (type: string) => void;
-}) =>
-  items.map((item) => (
-    <Row
-      key={item.type}
-      item={item}
-      selected={item.type === value}
-      onSelect={() => onChoose(item.type)}
-    />
-  ));
+}) => (
+  <div className="flex flex-col gap-1">
+    {items.map((item) => (
+      <Row
+        key={item.type}
+        item={item}
+        selected={item.type === value}
+        onSelect={() => onChoose(item.type)}
+      />
+    ))}
+  </div>
+);
 
 /** Matches, grouped by area: everywhere, or within the open category. */
 const SearchResults = ({
@@ -121,16 +136,17 @@ const Categories = ({
             </span>
           }
         >
-          {recentItems.map((item) => (
-            <Row
-              key={`recent:${item.type}`}
-              keyPrefix="recent:"
-              showIcon
-              item={item}
-              selected={item.type === selected?.type}
-              onSelect={() => onChoose(item.type)}
-            />
-          ))}
+          <div className="flex flex-col gap-1">
+            {recentItems.map((item) => (
+              <Row
+                key={`recent:${item.type}`}
+                keyPrefix="recent:"
+                item={item}
+                selected={item.type === selected?.type}
+                onSelect={() => onChoose(item.type)}
+              />
+            ))}
+          </div>
         </Command.Group>
       )}
       <Command.Group heading={t('catalog-categories', 'Categories')}>
@@ -191,7 +207,7 @@ export const CatalogList = ({
   const { t } = useTranslation('automations');
 
   return (
-    <Command.List className="max-h-80 min-h-0 flex-1">
+    <Command.List className="max-h-96 min-h-0 flex-1">
       <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
       {searching && (
         <SearchResults
