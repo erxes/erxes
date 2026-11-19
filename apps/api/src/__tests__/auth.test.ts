@@ -1,4 +1,4 @@
-import { users } from '@erxes/core-db';
+import { rateLimits, users } from '@erxes/core-db';
 import type { ORPCError } from '@orpc/client';
 import { hash } from 'bcryptjs';
 import { eq } from 'drizzle-orm';
@@ -189,6 +189,8 @@ describe('sign-in (/core/v1/auth)', () => {
       expect(
         await failure(server.browser().api.auth.signIn({ email, password: LEGACY_PASSWORD })),
       ).toBeNull();
+      // These sign-ins don't count against the rest of the file's 20 a minute.
+      await adminDb().delete(rateLimits);
     },
   );
 
