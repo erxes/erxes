@@ -172,6 +172,17 @@ export const readAll = (run: Run, name: string, filter: Filter<Document> = {}) =
  */
 export const MINE = "org_id = current_setting('app.org_id')";
 
+/** Which of `ids` the organisation has rows for in `table`. */
+export const existing = async (run: Run, table: string, ids: string[]) =>
+  new Set(
+    (
+      await run.pg.query<{ id: string }>(
+        `SELECT id FROM ${table} WHERE ${MINE} AND id = ANY($1::text[])`,
+        [ids],
+      )
+    ).rows.map((row) => row.id),
+  );
+
 /** The ids of a table's rows in the organisation, as a set (the members, the tags). */
 export const idSet = async (run: Run, table: string) =>
   new Set(

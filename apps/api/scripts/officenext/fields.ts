@@ -13,7 +13,7 @@ import { inOrder } from '~/lib/sequence';
 import { createdOf, field, flag, idOf, optionalId, readOr, record, text, when } from './values';
 
 /** Old content types → core's record types. */
-const CONTENT_TYPES: Record<string, string> = {
+export const CONTENT_TYPES: Record<string, string> = {
   'core:customer': 'customer',
   'contacts:customer': 'customer',
   'core:lead': 'customer',

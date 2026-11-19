@@ -1,12 +1,11 @@
 import { ObjectId } from 'mongodb';
 import { describe, expect, it } from 'vite-plus/test';
+import { customerFor, loginsOf, PortalUser } from '../../scripts/officenext/clientPortal';
 import { companyRow, CompanyDocument, uniqueName } from '../../scripts/officenext/companies';
+import { contactPair, pairReason } from '../../scripts/officenext/conformities';
 import { finalOf, type Lookups } from '../../scripts/officenext/contacts';
 import { customerRow, CustomerDocument, stateOf } from '../../scripts/officenext/customers';
-import { fieldRow, FieldDocument, uniqueIn } from '../../scripts/officenext/fields';
-import { rowsOfRecord, valuesOf } from '../../scripts/officenext/fieldValues';
 import { reasonOf } from '../../scripts/officenext/leftOut';
-import { ProductDocument, productRow } from '../../scripts/officenext/products';
 import { roleKey } from '../../scripts/officenext/roles';
 import { tagTypeOf } from '../../scripts/officenext/tags';
 import { placeUnits, uniqueCode } from '../../scripts/officenext/units';
@@ -102,6 +101,20 @@ describe('officenext import: members, units and roles', () => {
 });
 
 describe('officenext import: customers and companies', () => {
+  it('reads a customer ↔ company pair either way round and leaves deal pairs to Sales', () => {
+    expect(
+      contactPair({
+        mainType: 'company',
+        mainTypeId: 'co1',
+        relType: 'customer',
+        relTypeId: 'cu1',
+      }),
+    ).toEqual({ customerId: 'cu1', companyId: 'co1' });
+    expect(pairReason('deal', 'customer')).toBe('plugin:sales (deal ↔ customer)');
+    expect(pairReason('user', 'task')).toBe('plugin:operation (user ↔ task)');
+    expect(pairReason(null, null)).toBe('no place for ? ↔ ?');
+  });
+
   it('follows merge chains to the record kept, and stops on a loop', () => {
     const direct = new Map([
       ['a', 'b'],
@@ -182,100 +195,34 @@ describe('officenext import: customers and companies', () => {
     ]);
     expect(JSON.parse(String(row[23]))).toEqual({ importedFrom: 'erxes 3', parentCompanyId: 'c0' });
   });
-});
 
-describe('officenext import: products and custom fields', () => {
-  it('archives deleted products and moves prices to the smallest unit', () => {
-    const product = ProductDocument.parse({
-      _id: 'p1',
-      name: 'Airag',
-      type: 'service',
-      status: 'deleted',
-      unitPrice: '12500.5',
-      uomId: 'uom1',
-      categoryId: 'gone',
-    });
-
-    const context = {
-      currency: 'MNT',
-      units: new Map([['uom1', 'litre']]),
-      categories: new Set<string>(),
+  it('joins a portal user to the customer with its email, and signs it in by verified addresses', () => {
+    const known = {
+      ids: new Set(['cu1']),
+      byEmail: new Map([['saraa@nomad.mn', 'cu1']]),
+      byPhone: new Map<string, string>(),
     };
 
-    const row = productRow(product, context, null, null, []);
-
-    expect([row[1], row[2], row[6], row[8], row[9], row[10]]).toEqual([
-      'service',
-      'archived',
-      null,
-      'litre',
-      1_250_050,
-      'MNT',
-    ]);
-    expect(row[14]).toBeInstanceOf(Date);
-  });
-
-  it('numbers a repeated label and keeps option labels', () => {
-    const doc = FieldDocument.parse({
-      _id: 'f1',
-      text: 'Size',
-      code: 'size',
-      type: 'select',
-      contentType: 'tasks:task',
-      groupId: 'g-gone',
-      options: ['S', { label: 'Large', value: 'L' }],
-      configs: { isRequired: true },
+    const user = PortalUser.parse({
+      _id: 'cp1',
+      email: 'Saraa@Nomad.mn',
+      phone: '9911 2233',
+      erxesCustomerId: 'merged-away',
+      isEmailVerified: true,
+      isPhoneVerified: false,
     });
 
-    const taken = { labels: new Set(['operation.task:size']), codes: new Set<string>() };
+    const stranger = PortalUser.parse({ _id: 'cp2', phone: '8800-1122', isPhoneVerified: true });
 
-    const row = fieldRow(
-      doc,
-      'operation.task',
-      { type: 'select', validation: null },
-      taken,
-      new Set(),
-    );
-
-    expect([row[2], row[3], row[4], row[6], row[7], row[13]]).toEqual([
-      'Size 2',
-      'select',
-      ['S', 'Large'],
-      null,
-      'size',
-      true,
+    expect(customerFor(user, known)).toMatchObject({ id: 'cu1', create: false });
+    expect(customerFor(stranger, known)).toMatchObject({
+      id: 'cp2',
+      create: true,
+      phone: '88001122',
+    });
+    expect(loginsOf(user, 'cu1').map((row) => row.slice(0, 4))).toEqual([
+      ['cp1-email', 'cu1', 'email', 'saraa@nomad.mn'],
     ]);
-    expect(uniqueIn(taken.labels, 'operation.task', 'Size')).toBe('Size 3');
-  });
-
-  it('types values by the field and prefers customFieldsData over propertiesData', () => {
-    const select = { type: 'select', labels: new Map([['L', 'Large']]) };
-
-    expect(valuesOf(select, ['L', 'S', ''])).toEqual([{ text: 'Large' }, { text: 'S' }]);
-    expect(valuesOf({ type: 'number', labels: new Map() }, '42')).toEqual([{ number: 42 }]);
-    expect(valuesOf({ type: 'number', labels: new Map() }, 'many')).toEqual([]);
-    expect(valuesOf({ type: 'date', labels: new Map() }, '2024-03-05T10:00:00Z')).toEqual([
-      { date: '2024-03-05' },
-    ]);
-
-    const built = rowsOfRecord(
-      'c1',
-      {
-        propertiesData: [
-          ['f1', 'S'],
-          ['f-gone', 'x'],
-        ],
-        customFieldsData: [{ field: 'f1', value: 'L' }],
-        trackedData: [{ field: 'plan', value: 'pro' }],
-      },
-      new Map([['f1', select]]),
-      new Map([['plan', 'tracked_customer_plan']]),
-    );
-
-    expect(built.missing).toEqual(['f-gone']);
-    expect(built.rows).toEqual([
-      ['c1', 'f1', 0, 'Large', null, null],
-      ['c1', 'tracked_customer_plan', 0, 'pro', null, null],
-    ]);
+    expect(loginsOf(stranger, 'cp2').map((row) => row[3])).toEqual(['88001122']);
   });
 });

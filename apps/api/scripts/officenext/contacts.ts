@@ -4,6 +4,7 @@
  * deleted record becomes an id map entry to the record it went into, not a row.
  */
 import type { Collection } from 'mongodb';
+import { normalizeEmail, normalizePhone, unique } from '~/lib/contacts';
 import { remember, resolve, type IdKind } from './idMap';
 import { idSet, insert, MINE, type Run } from './run';
 import { brandTagId, type TagType } from './tags';
@@ -165,27 +166,15 @@ export const tagLinks = async (
   });
 };
 
-/** Lower-cased emails, primary first, no repeats. */
-export const emailsOf = (primary: string | null, all: string[]) => [
-  ...new Set(
-    [primary, ...all].flatMap((value) => {
-      const lower = value?.trim().toLowerCase() ?? '';
+/** Emails as core keeps them, primary first, no repeats; text with no `@` is dropped. */
+export const emailsOf = (primary: string | null, all: string[]) =>
+  unique([primary, ...all].map((value) => value && normalizeEmail(value))).filter((value) =>
+    value.includes('@'),
+  );
 
-      return lower.includes('@') ? [lower] : [];
-    }),
-  ),
-];
-
-/** Phones without spaces, brackets and dashes, primary first, no repeats. */
-export const phonesOf = (primary: string | null, all: string[]) => [
-  ...new Set(
-    [primary, ...all].flatMap((value) => {
-      const clean = value?.replaceAll(/[\s()\-.]/g, '') ?? '';
-
-      return clean ? [clean] : [];
-    }),
-  ),
-];
+/** Phones as core keeps them (no spaces, brackets or dashes), primary first, no repeats. */
+export const phonesOf = (primary: string | null, all: string[]) =>
+  unique([primary, ...all].map((value) => value && normalizePhone(value)));
 
 /** Each old record's merged ids: everything its survivor map sends to it. */
 export const mergedInto = (survivors: Map<string, string>) => {

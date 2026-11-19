@@ -3,11 +3,16 @@
  * pick it, and the inventory step can tell which collections are covered. A name without a
  * database (`users`) is in `erxes`; others name theirs (`erxes_logs.logs`).
  */
+import { importActivityLogs } from './activityLogs';
+import { importAuditLogs } from './auditLogs';
+import { importClientPortalUsers } from './clientPortal';
 import { importCompanies } from './companies';
+import { importConformities } from './conformities';
 import { importCustomers } from './customers';
 import { importFields } from './fields';
 import { importFieldValues } from './fieldValues';
 import { reportLeftOut } from './leftOut';
+import { importNotes } from './notes';
 import { importProducts } from './products';
 import type { Run } from './run';
 import { importTags } from './tags';
@@ -42,6 +47,15 @@ export const STEPS: Step[] = [
   { name: 'tags', collections: ['tags', 'brands'], run: importTags },
   { name: 'customers', collections: ['customers'], run: importCustomers },
   { name: 'companies', collections: ['companies'], run: importCompanies },
+  { name: 'conformities', collections: ['conformities'], run: (run) => importConformities(run) },
+  { name: 'notes', collections: ['internal_notes'], run: (run) => importNotes(run) },
+  { name: 'activity', collections: ['activity_logs'], run: (run) => importActivityLogs(run) },
+  { name: 'audit', collections: ['logs', 'erxes_logs.logs'], run: importAuditLogs },
+  {
+    name: 'client portal users',
+    collections: ['client_portal_users'],
+    run: importClientPortalUsers,
+  },
   {
     name: 'products',
     collections: ['products', 'product_categories', 'uoms'],
