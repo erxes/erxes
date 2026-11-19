@@ -35,7 +35,8 @@
   "gone": "This conversation was deleted.",
   "close-tab-short": "Close tab",
   "working": "Working on it…",
-  "no-key": "Add an API key for a model provider to start. Keys are saved for your account only.",
+  "no-key": "Add an API key for a model provider to start. Everyone in the organisation uses it.",
+  "no-key-ask": "Ask an admin to add a model provider key to start.",
   "add-key": "Add a key",
   "empty": {
     "title": "How can I help?",
@@ -171,7 +172,7 @@
   "copy-failed": "Could not copy",
   "settings": {
     "title": "Assistant provider keys",
-    "keys-intro": "The assistant runs on your own key. Only you can use it, and the assistant can do only what your role allows.",
+    "keys-intro": "Every agent in the organisation runs on these keys. Only admins can change them, and the assistant still does only what each member's role allows.",
     "key-label": "{{provider}} API key",
     "key-paste": "Paste key",
     "key-replace": "Paste a new key to replace it",
@@ -185,7 +186,7 @@
     "testing": "Testing…",
     "works": "Works with {{model}}",
     "remove": "Remove key",
-    "remove-confirm": "Remove your {{provider}} key?",
+    "remove-confirm": "Remove the organisation's {{provider}} key?",
     "code-mode-title": "Assistant code mode",
     "code-mode-intro": "This applies to every member. Off by default.",
     "code-mode-label": "Let the assistant run code",

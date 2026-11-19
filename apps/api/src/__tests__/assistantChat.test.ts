@@ -17,7 +17,6 @@ describe('assistant chat (send and watch)', () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
     await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await t.member().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
   });
 
   afterAll(() => model.close());

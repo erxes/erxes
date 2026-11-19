@@ -13,7 +13,9 @@ import { ProviderKeyCard } from './ProviderKeyCard';
 
 export const AssistantKeysPage = () => {
   const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
-  const canChat = useCan()('assistant.chat');
+  const can = useCan();
+  const canChat = can('assistant.chat');
+  const canManage = can('assistant.manage');
 
   const connections = useQuery(
     orpc.assistant.connections.queryOptions({ input: canChat ? undefined : skipToken }),
@@ -46,7 +48,7 @@ export const AssistantKeysPage = () => {
           <p className="text-sm text-muted-foreground">
             {t(
               'keys-intro',
-              'The assistant runs on your own key. Only you can use it, and the assistant can do only what your role allows.',
+              "Every agent in the organisation runs on these keys. Only admins can change them, and the assistant still does only what each member's role allows.",
             )}
           </p>
           <QueryState query={connections}>
@@ -57,6 +59,7 @@ export const AssistantKeysPage = () => {
                   provider={provider}
                   connection={data.find((row) => row.provider === provider)}
                   entry={catalog.data?.data.find((row) => row.provider === provider)}
+                  canManage={canManage}
                 />
               ))
             }

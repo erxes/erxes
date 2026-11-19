@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { AssistantAvatar } from './AssistantAvatar';
 import { paths } from '~/lib/paths';
+import { useCan } from '~/modules/auth/session';
 
 const GENERAL = [
   ['suggestion.new-customers', 'Which customers were added this week?'],
@@ -30,23 +31,30 @@ const ABOUT_RECORD: Record<AssistantRecordType, (readonly [string, string])[]> =
 
 export const KeyNotice = () => {
   const { t } = useTranslation('assistant');
+  const canManage = useCan()('assistant.manage');
 
   return (
     <div className="flex items-start gap-3 rounded-lg border bg-muted p-3 text-left text-sm">
       <IconKey aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
       <div className="flex flex-col gap-2">
-        <p>
-          {t(
-            'no-key',
-            'Add an API key for a model provider to start. Keys are saved for your account only.',
-          )}
-        </p>
-        <Link
-          to={paths.settings.assistant}
-          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'self-start')}
-        >
-          {t('add-key', 'Add a key')}
-        </Link>
+        {canManage ? (
+          <>
+            <p>
+              {t(
+                'no-key',
+                'Add an API key for a model provider to start. Everyone in the organisation uses it.',
+              )}
+            </p>
+            <Link
+              to={paths.settings.assistant}
+              className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'self-start')}
+            >
+              {t('add-key', 'Add a key')}
+            </Link>
+          </>
+        ) : (
+          <p>{t('no-key-ask', 'Ask an admin to add a model provider key to start.')}</p>
+        )}
       </div>
     </div>
   );
