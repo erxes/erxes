@@ -10,6 +10,7 @@ import { Button, Command, InputGroup, Popover } from 'erxes-ui';
 import { type ReactNode, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext, type StartingEvent } from './BuilderContext';
+import { EventDataHint } from './EventDataHint';
 import { readableTemplate } from './flowText';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -22,11 +23,13 @@ const TriggerGroup = ({
   trigger,
   fields,
   hasSubject,
+  subject,
   onPick,
 }: {
   trigger: StartingEvent | undefined;
   fields: FieldInfo[];
   hasSubject: boolean;
+  subject: 'customer' | 'company';
   onPick: (path: string) => void;
 }) => {
   const { t } = useTranslation('automations');
@@ -52,9 +55,9 @@ const TriggerGroup = ({
           </Command.Item>
         ))
       ) : (
-        <p className="px-2 py-1.5 text-xs text-muted-foreground">
-          {t('trigger-no-data', 'No data shared yet')}
-        </p>
+        <div className="px-2 py-1.5">
+          <EventDataHint event={trigger} subject={hasSubject ? subject : null} />
+        </div>
       )}
     </Command.Group>
   );
@@ -90,7 +93,13 @@ const DataPicker = ({
       <Command.Input placeholder={t('insert-data-search', 'Search data…')} />
       <Command.List className="max-h-72">
         <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
-        <TriggerGroup trigger={trigger} fields={own} hasSubject={hasSubject} onPick={onPick} />
+        <TriggerGroup
+          trigger={trigger}
+          fields={own}
+          hasSubject={hasSubject}
+          subject={subject}
+          onPick={onPick}
+        />
         {record.length > 0 && (
           <Command.Group
             heading={

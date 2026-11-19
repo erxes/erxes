@@ -113,8 +113,13 @@ export const automationsContract = {
             subject: z.enum(CONTENT_TYPES).nullable(),
             /** The record it is about, as its plugin names it (`Order`). */
             record: z.string().nullable(),
-            /** Its payload's values later steps can insert (`{{event.payload.<key>}}`). */
+            /**
+             * Its payload's values later steps can insert (`{{event.payload.<key>}}`): what its
+             * publisher lists, then what its events have carried in this organisation.
+             */
             fields: z.array(DataField),
+            /** One has happened here since core began remembering what plugins' events carry. */
+            seen: z.boolean(),
           }),
         ),
         actions: z.array(ActionInfo),
