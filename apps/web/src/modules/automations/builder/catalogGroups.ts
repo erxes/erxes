@@ -6,6 +6,7 @@ import {
   IconMail,
   IconNote,
   IconPuzzle,
+  IconSparkles,
   IconUser,
   IconWebhook,
   type TablerIcon,
@@ -44,6 +45,7 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
   note: { label: 'Timeline', icon: IconNote, order: 5 },
   webhook: { label: 'Integrations', icon: IconWebhook, order: 6 },
   http: { label: 'Integrations', icon: IconWebhook, order: 6 },
+  agent: { label: 'AI agents', icon: IconSparkles, order: 7 },
 };
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {
