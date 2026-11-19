@@ -1,7 +1,8 @@
 import type { Integration as CustomRecord } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
+import { INTEGRATION_NAMESPACE } from '@erxes/core-contract/integrationValues';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, CopyText, Input, Label, Spinner, useConfirm, useToast } from 'erxes-ui';
+import { Button, CopyText, Input, Label, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ import type { Integration } from './catalog';
 import { CustomKeys } from './CustomKeys';
 import { CustomPrograms } from './CustomPrograms';
 import { useIntegrationsSaved } from './customMutation';
+import { DangerSection } from './DangerSection';
 import { FormSection } from './FormSection';
 import {
   HowItWorks,
@@ -65,7 +67,6 @@ const DetailsForm = ({ record }: { record: CustomRecord }) => {
 
 const RemoveIntegration = ({ record }: { record: CustomRecord }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
-  const { confirm } = useConfirm();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -88,24 +89,15 @@ const RemoveIntegration = ({ record }: { record: CustomRecord }) => {
   );
 
   return (
-    <section className="flex flex-wrap items-center gap-4 rounded-lg border border-destructive/30 p-4">
-      <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-sm font-medium">{t('remove-title', 'Delete this integration')}</h3>
-        <p className="text-xs text-muted-foreground">{message}</p>
-      </div>
-      <Button
-        variant="destructive"
-        disabled={remove.isPending}
-        onClick={() =>
-          void confirm({
-            message: t('remove-confirm', 'Delete {{name}}?', { name: record.name }),
-            options: { description: message },
-          }).then(() => remove.mutate({ id: record.id }))
-        }
-      >
-        {remove.isPending ? <Spinner size="sm" /> : t('remove', 'Delete')}
-      </Button>
-    </section>
+    <DangerSection
+      title={t('remove-title', 'Delete this integration')}
+      description={message}
+      confirmMessage={t('remove-confirm', 'Delete {{name}}?', { name: record.name })}
+      confirmDescription={message}
+      label={t('remove', 'Delete')}
+      pending={remove.isPending}
+      onConfirm={() => remove.mutate({ id: record.id })}
+    />
   );
 };
 
@@ -121,7 +113,7 @@ const HOW_IT_WORKS = [
 
 const Overview = ({ record }: { record: CustomRecord }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
-  const prefix = `integrations.${record.key}`;
+  const prefix = `${INTEGRATION_NAMESPACE}.${record.key}`;
 
   return (
     <div className="space-y-6">
@@ -181,7 +173,7 @@ export const CustomIntegration = ({
             {
               value: 'programs',
               label: t('tab.programs', 'Programs'),
-              content: <CustomPrograms record={record} programs={record.programs} />,
+              content: <CustomPrograms record={record} />,
             },
           ]}
         />

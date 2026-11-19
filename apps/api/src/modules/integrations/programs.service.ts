@@ -59,13 +59,14 @@ const findProgram = async (client: Db, id: string) => {
   return row;
 };
 
-export const findLoadedProgram = async (client: Db, id: string) => {
-  const [loaded] = await client
+export const loadedPrograms = (client: Db) =>
+  client
     .select({ integration: integrations, program: integrationPrograms })
     .from(integrationPrograms)
-    .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId))
-    .where(eq(integrationPrograms.id, id))
-    .limit(1);
+    .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId));
+
+export const findLoadedProgram = async (client: Db, id: string) => {
+  const [loaded] = await loadedPrograms(client).where(eq(integrationPrograms.id, id)).limit(1);
 
   return loaded ?? null;
 };

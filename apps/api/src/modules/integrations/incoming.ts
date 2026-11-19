@@ -1,28 +1,23 @@
-import { actorOf, caller, type Db, events, newId, withOrg } from '@erxes/core-db';
+import {
+  DedupeKey,
+  EventInput,
+  INTEGRATION_NAMESPACE,
+  IntegrationIncomingCall,
+  integrationType,
+} from '@erxes/core-contract';
+import { type Db, withOrg } from '@erxes/core-db';
 import { z } from 'zod';
 import { parseBody } from '~/modules/automations/actions/context';
+import { publishEventsFrom } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
-import { INTEGRATION_NAMESPACE, integrationType } from './actions';
 import { healEvents } from './contract';
 import { findLoadedProgram, type LoadedProgram } from './programs.service';
 import { runIntegrationProgram } from './sandbox';
 
-export const IncomingCall = z.object({
-  method: z.string(),
-  headers: z.record(z.string(), z.string()),
-  query: z.record(z.string(), z.string()),
-  rawBody: z.string(),
-});
-
-export type IncomingCall = z.infer<typeof IncomingCall>;
-
 const Published = z.object({
   event: z.string(),
-  payload: z
-    .record(z.string(), z.unknown())
-    .refine((value) => JSON.stringify(value).length <= 32_000, 'at most 32 KB')
-    .default({}),
-  dedupeKey: z.string().min(1).max(200).optional(),
+  payload: EventInput.shape.payload,
+  dedupeKey: DedupeKey.optional(),
 });
 
 const IncomingResult = z
@@ -30,7 +25,7 @@ const IncomingResult = z
   .nullish()
   .transform((value) => (Array.isArray(value) ? value : value ? [value] : []));
 
-export const runIncoming = (loaded: LoadedProgram, call: IncomingCall) =>
+export const runIncoming = (loaded: LoadedProgram, call: IntegrationIncomingCall) =>
   runIntegrationProgram(loaded, { incoming: { ...call, body: parseBody(call.rawBody) } });
 
 const publish = async (
@@ -38,27 +33,21 @@ const publish = async (
   { integration, program }: LoadedProgram,
   published: z.infer<typeof Published>[],
 ) => {
-  if (!published.length) return;
-
   await healEvents(client, program, published);
-  await client
-    .insert(events)
-    .values(
-      published.map((item) => ({
-        id: newId(),
-        source: INTEGRATION_NAMESPACE,
-        type: integrationType(integration.key, item.event),
-        ...actorOf(caller()),
-        payload: item.payload,
-        dedupeKey: item.dedupeKey ? `${program.id}:${item.dedupeKey}` : null,
-      })),
-    )
-    .onConflictDoNothing();
+  await publishEventsFrom(
+    client,
+    INTEGRATION_NAMESPACE,
+    published.map((item) => ({
+      type: integrationType(integration.key, item.event),
+      payload: item.payload,
+      dedupeKey: item.dedupeKey ? `${program.id}:${item.dedupeKey}` : null,
+    })),
+  );
 };
 
 export const incomingJob = defineJob({
   queue: 'integration.incoming',
-  payload: IncomingCall.extend({ programId: z.string() }),
+  payload: IntegrationIncomingCall.extend({ programId: z.string() }),
   timeoutSeconds: 60,
   retry: { attempts: 5 },
   async handle(job) {
@@ -73,6 +62,6 @@ export const incomingJob = defineJob({
 
     const published = IncomingResult.parse(run.result);
 
-    await withOrg(job.orgId, (tx) => publish(tx, loaded, published));
+    if (published.length) await withOrg(job.orgId, (tx) => publish(tx, loaded, published));
   },
 });

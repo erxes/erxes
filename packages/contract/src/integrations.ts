@@ -1,8 +1,4 @@
-import {
-  AUTOMATION_FIELD_TYPES,
-  INTEGRATION_FIELD_TYPES,
-  INTEGRATION_PROGRAM_KINDS,
-} from '@erxes/core-db/enums';
+import { INTEGRATION_FIELD_TYPES, INTEGRATION_PROGRAM_KINDS } from '@erxes/core-db/enums';
 import {
   integrationPrograms,
   integrationProgramVersions,
@@ -11,9 +7,15 @@ import {
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { DataField } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { IntegrationHost, IntegrationKey } from './integrationValues';
+import {
+  INTEGRATION_FIELD_MAX,
+  IntegrationDataKey,
+  IntegrationHosts,
+  IntegrationKey,
+} from './integrationValues';
 
 export const INTEGRATION_PROGRAM_MAX = 50;
 
@@ -21,18 +23,12 @@ export const INTEGRATION_VERSION_WINDOW = 50;
 
 export const INTEGRATION_CODE_MAX = 20_000;
 
-const Key = IntegrationKey;
+const INCOMING_BODY_MAX = 256 * 1024;
 
-const DataKey = z
-  .string()
-  .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter');
+const Label = DataField.shape.label;
 
-const Label = z.string().trim().min(1).max(100);
-
-const Hosts = z.array(IntegrationHost).min(1).max(10);
-
-export const IntegrationField = z.object({
-  key: DataKey,
+const IntegrationField = z.object({
+  key: IntegrationDataKey,
   label: Label,
   type: z.enum(INTEGRATION_FIELD_TYPES),
   required: z.boolean().default(false),
@@ -43,32 +39,26 @@ export const IntegrationField = z.object({
   description: z.string().trim().max(300).optional(),
 });
 
-export type IntegrationField = z.infer<typeof IntegrationField>;
+export const IntegrationDataField = DataField.omit({ recordType: true });
 
-export const IntegrationDataField = z.object({
-  key: DataKey,
+const IntegrationEvent = z.object({
+  key: IntegrationKey,
   label: Label,
-  type: z.enum(AUTOMATION_FIELD_TYPES),
-});
-
-export const IntegrationEvent = z.object({
-  key: Key,
-  label: Label,
-  fields: z.array(IntegrationDataField).max(50),
+  fields: z.array(IntegrationDataField).max(INTEGRATION_FIELD_MAX),
 });
 
 const ProgramDefinition = z.object({
   label: Label,
   description: z.string().trim().max(300).nullable(),
-  fields: z.array(IntegrationField).max(50),
-  outputs: z.array(IntegrationDataField).max(50),
-  events: z.array(IntegrationEvent).max(50),
+  fields: z.array(IntegrationField).max(INTEGRATION_FIELD_MAX),
+  outputs: z.array(IntegrationDataField).max(INTEGRATION_FIELD_MAX),
+  events: z.array(IntegrationEvent).max(INTEGRATION_FIELD_MAX),
   code: z.string().min(1).max(INTEGRATION_CODE_MAX),
 });
 
 export const Integration = createSelectSchema(integrations, {
   id: Id,
-  hosts: () => Hosts,
+  hosts: () => IntegrationHosts,
   sealedNames: () => z.array(z.string()),
   createdAt: isoDate,
   updatedAt: isoDate,
@@ -117,18 +107,22 @@ export const IntegrationDetail = Integration.extend({
   programs: z.array(IntegrationProgram).max(INTEGRATION_PROGRAM_MAX),
 });
 
+export type IntegrationDetail = z.infer<typeof IntegrationDetail>;
+
 export const IntegrationProgramVersion = createSelectSchema(integrationProgramVersions, {
   version: () => z.int(),
   definition: () => ProgramDefinition,
   createdAt: isoDate,
 }).pick({ version: true, definition: true, createdBy: true, createdAt: true });
 
-const Incoming = z.object({
+export const IntegrationIncomingCall = z.object({
   method: z.string().max(10).default('POST'),
   headers: z.record(z.string(), z.string()).default({}),
   query: z.record(z.string(), z.string()).default({}),
-  rawBody: z.string().max(256_000).default(''),
+  rawBody: z.string().max(INCOMING_BODY_MAX).default(''),
 });
+
+export type IntegrationIncomingCall = z.infer<typeof IntegrationIncomingCall>;
 
 export const IntegrationProgramRun = z.discriminatedUnion('ok', [
   z.object({
@@ -176,7 +170,7 @@ export const integrationsContract = {
       summary:
         'Add a custom integration: its key, name and the hosts its programs may call. 409 TAKEN when the key is taken',
     })
-    .input(z.object({ key: Key, name: Label, hosts: Hosts }))
+    .input(z.object({ key: IntegrationKey, name: Label, hosts: IntegrationHosts }))
     .output(Integration),
   update: base
     .route({
@@ -186,7 +180,7 @@ export const integrationsContract = {
     })
     .input(
       z
-        .object({ id: Id, name: Label.optional(), hosts: Hosts.optional() })
+        .object({ id: Id, name: Label.optional(), hosts: IntegrationHosts.optional() })
         .refine((value) => Object.keys(value).some((key) => key !== 'id'), 'nothing to update'),
     )
     .output(Integration),
@@ -200,7 +194,7 @@ export const integrationsContract = {
     .input(
       z.object({
         id: Id,
-        secrets: z.record(DataKey, z.string().min(1).max(4000).nullable()),
+        secrets: z.record(IntegrationDataKey, z.string().min(1).max(4000).nullable()),
       }),
     )
     .output(Integration),
@@ -219,16 +213,14 @@ export const integrationsContract = {
       summary: `Add or replace a program by kind and key; it is live at once and the version before is kept. 400 LIMIT_EXCEEDED past ${INTEGRATION_PROGRAM_MAX} programs`,
     })
     .input(
-      z.object({
+      ProgramDefinition.extend({
         integrationId: Id,
         kind: z.enum(INTEGRATION_PROGRAM_KINDS),
-        key: Key,
-        label: Label,
-        description: z.string().trim().max(300).nullable().default(null),
-        fields: z.array(IntegrationField).max(50).default([]),
-        outputs: z.array(IntegrationDataField).max(50).default([]),
-        events: z.array(IntegrationEvent).max(50).default([]),
-        code: z.string().min(1).max(INTEGRATION_CODE_MAX),
+        key: IntegrationKey,
+        description: ProgramDefinition.shape.description.default(null),
+        fields: ProgramDefinition.shape.fields.default([]),
+        outputs: ProgramDefinition.shape.outputs.default([]),
+        events: ProgramDefinition.shape.events.default([]),
       }),
     )
     .output(IntegrationProgram),
@@ -267,7 +259,7 @@ export const integrationsContract = {
       z.object({
         id: Id,
         input: z.record(z.string(), z.unknown()).default({}),
-        incoming: Incoming.optional(),
+        incoming: IntegrationIncomingCall.prefault({}),
       }),
     )
     .output(IntegrationProgramRun),

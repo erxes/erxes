@@ -1,4 +1,4 @@
-import { IntegrationHost, IntegrationKey } from '@erxes/core-contract/integrationValues';
+import { IntegrationHosts, IntegrationKey } from '@erxes/core-contract/integrationValues';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,8 +11,6 @@ import { customIntegrationKey } from './catalog';
 
 const isKey = (value: string) => IntegrationKey.safeParse(value).success;
 
-const MAX_HOSTS = 10;
-
 const keyFromName = (name: string) =>
   name
     .toLowerCase()
@@ -21,12 +19,20 @@ const keyFromName = (name: string) =>
     .replace(/_+$/, '')
     .slice(0, 40);
 
-export const hostsProblem = (hosts: string[]) => {
-  if (!hosts.length) return 'none';
+type HostsProblem = { code: 'none' } | { code: 'many'; max: number } | { code: 'invalid' };
 
-  if (hosts.length > MAX_HOSTS) return 'many';
+export const hostsProblem = (hosts: string[]): HostsProblem | null => {
+  const parsed = IntegrationHosts.safeParse(hosts);
 
-  return hosts.some((host) => !IntegrationHost.safeParse(host).success) ? 'invalid' : null;
+  if (parsed.success) return null;
+
+  const issue = parsed.error.issues.find((each) => each.path.length === 0);
+
+  if (issue?.code === 'too_small') return { code: 'none' };
+
+  if (issue?.code === 'too_big') return { code: 'many', max: Number(issue.maximum) };
+
+  return { code: 'invalid' };
 };
 
 export const HostsField = ({
@@ -40,11 +46,12 @@ export const HostsField = ({
   const id = useId();
   const problem = hostsProblem(hosts);
 
-  const message = {
-    none: null,
-    many: t('hosts-many', 'At most {{count}} hosts.', { count: MAX_HOSTS }),
-    invalid: t('hosts-invalid', 'Each host is a name like api.example.com, without https://.'),
-  };
+  const message =
+    problem?.code === 'many'
+      ? t('hosts-many', 'At most {{count}} hosts.', { count: problem.max })
+      : problem?.code === 'invalid'
+        ? t('hosts-invalid', 'Each host is a name like api.example.com, without https://.')
+        : null;
 
   return (
     <div className="space-y-1.5">
@@ -55,8 +62,8 @@ export const HostsField = ({
         onValueChange={onChange}
         placeholder={t('hosts-placeholder', 'api.example.com')}
       />
-      {problem && message[problem] ? (
-        <p className="text-xs text-destructive-text">{message[problem]}</p>
+      {message ? (
+        <p className="text-xs text-destructive-text">{message}</p>
       ) : (
         <p className="text-xs text-muted-foreground">
           {t('hosts-hint', 'Programs may call only these hosts. Press Enter after each one.')}
@@ -114,7 +121,6 @@ const NewForm = ({ onDone }: { onDone: () => void }) => {
   const [name, setName] = useState('');
   const [key, setKey] = useState<string | null>(null);
   const [hosts, setHosts] = useState<string[]>([]);
-  const [taken, setTaken] = useState(false);
   const shownKey = key ?? keyFromName(name);
 
   const create = useMutation(
@@ -129,11 +135,7 @@ const NewForm = ({ onDone }: { onDone: () => void }) => {
         });
       },
       onError: (error) => {
-        if (isApiError(error, 'TAKEN')) {
-          setTaken(true);
-
-          return;
-        }
+        if (isApiError(error, 'TAKEN')) return;
 
         toast({
           variant: 'destructive',
@@ -144,6 +146,7 @@ const NewForm = ({ onDone }: { onDone: () => void }) => {
     }),
   );
 
+  const taken = isApiError(create.error, 'TAKEN');
   const ready = name.trim() && isKey(shownKey) && !hostsProblem(hosts);
 
   return (
@@ -168,7 +171,7 @@ const NewForm = ({ onDone }: { onDone: () => void }) => {
         value={shownKey}
         taken={taken}
         onChange={(next) => {
-          setTaken(false);
+          create.reset();
           setKey(next);
         }}
       />

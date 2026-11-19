@@ -1,3 +1,4 @@
+import { isIntegrationType } from '@erxes/core-contract/integrationValues';
 import { IconCheck, IconClockHour4 } from '@tabler/icons-react';
 import { cn, Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -111,7 +112,7 @@ const Categories = ({
   const selectedKey = selected ? groupOf(selected).key : null;
 
   const sourceKind = (items: CatalogItem[]) =>
-    items.some((item) => item.type.startsWith('integrations.'))
+    items.some((item) => isIntegrationType(item.type))
       ? t('catalog-integration', 'Integration')
       : t('catalog-plugin', 'Plugin');
 

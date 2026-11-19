@@ -6,16 +6,13 @@ import {
   runAs,
   withOrg,
 } from '@erxes/core-db';
+import { isIntegrationType } from '@erxes/core-contract';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { defineJob } from '~/modules/jobs/jobs';
 import { coreAction } from './actions/catalog';
 import type { CallContext } from './actions/context';
-import {
-  integrationForAction,
-  isIntegrationType,
-  runIntegrationAction,
-} from '~/modules/integrations/actions';
+import { integrationForAction, runIntegrationAction } from '~/modules/integrations/actions';
 import { pluginForAction, runPluginAction } from './actions/plugin';
 import { automationChecker } from './conditionCheck';
 import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';

@@ -1,21 +1,28 @@
-import { type ActionInfo, type EventTypeInfo, LIST_MAX } from '@erxes/core-contract';
+import {
+  type ActionInfo,
+  type EventTypeInfo,
+  integrationType,
+  LIST_MAX,
+} from '@erxes/core-contract';
 import { type Db, integrationPrograms, integrations, withOrg } from '@erxes/core-db';
 import { and, asc, eq } from 'drizzle-orm';
 import { type CallContext, idempotencyKey } from '~/modules/automations/actions/context';
 import { healedOutputs, saveOutputs } from './contract';
-import type { LoadedProgram } from './programs.service';
+import { type LoadedProgram, loadedPrograms } from './programs.service';
 import { runIntegrationProgram } from './sandbox';
 
-export const INTEGRATION_NAMESPACE = 'integrations';
-
-export const isIntegrationType = (type: string) => type.startsWith(`${INTEGRATION_NAMESPACE}.`);
-
-export const integrationType = (integrationKey: string, key: string) =>
-  `${INTEGRATION_NAMESPACE}.${integrationKey}.${key}`;
-
-const programsOfKind = (client: Db, kind: 'action' | 'incoming') =>
+const catalogOf = (client: Db, kind: 'action' | 'incoming') =>
   client
-    .select({ integration: integrations, program: integrationPrograms })
+    .select({
+      integrationKey: integrations.key,
+      source: integrations.name,
+      key: integrationPrograms.key,
+      label: integrationPrograms.label,
+      description: integrationPrograms.description,
+      fields: integrationPrograms.fields,
+      outputs: integrationPrograms.outputs,
+      events: integrationPrograms.events,
+    })
     .from(integrationPrograms)
     .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId))
     .where(eq(integrationPrograms.kind, kind))
@@ -23,36 +30,33 @@ const programsOfKind = (client: Db, kind: 'action' | 'incoming') =>
     .limit(LIST_MAX);
 
 export const integrationActions = async (client: Db): Promise<ActionInfo[]> =>
-  (await programsOfKind(client, 'action')).map(({ integration, program }) => ({
-    type: integrationType(integration.key, program.key),
+  (await catalogOf(client, 'action')).map((program) => ({
+    type: integrationType(program.integrationKey, program.key),
     label: program.label,
     description: program.description,
-    source: integration.name,
+    source: program.source,
     subject: null,
     fields: program.fields,
     outputs: program.outputs,
   }));
 
 export const integrationEventTypes = async (client: Db): Promise<EventTypeInfo[]> =>
-  (await programsOfKind(client, 'incoming')).flatMap(({ integration, program }) =>
+  (await catalogOf(client, 'incoming')).flatMap((program) =>
     program.events.map((event) => ({
-      type: integrationType(integration.key, event.key),
+      type: integrationType(program.integrationKey, event.key),
       label: event.label,
       description: null,
-      source: integration.name,
+      source: program.source,
       subject: null,
       record: null,
       fields: event.fields,
     })),
   );
 
-export const integrationForAction = async (client: Db, type: string): Promise<LoadedProgram> => {
+export const integrationForAction = async (client: Db, type: string) => {
   const [, integrationKey = '', key = ''] = type.split('.');
 
-  const [loaded] = await client
-    .select({ integration: integrations, program: integrationPrograms })
-    .from(integrationPrograms)
-    .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId))
+  const [loaded] = await loadedPrograms(client)
     .where(
       and(
         eq(integrations.key, integrationKey),
@@ -73,7 +77,6 @@ export const runAction = async (
   globals: { input: Record<string, unknown>; idempotencyKey: string },
 ) => {
   const run = await runIntegrationProgram(loaded, globals);
-
   const outputs = run.ok ? healedOutputs(loaded.program, run.result) : null;
 
   if (outputs) await withOrg(orgId, (tx) => saveOutputs(tx, loaded.program.id, outputs));

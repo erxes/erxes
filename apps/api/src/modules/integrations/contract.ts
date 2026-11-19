@@ -1,4 +1,4 @@
-import { IntegrationDataField, IntegrationKey } from '@erxes/core-contract';
+import { INTEGRATION_FIELD_MAX, IntegrationDataField, IntegrationKey } from '@erxes/core-contract';
 import { type Db, integrationPrograms } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import type { LoadedProgram } from './programs.service';
@@ -9,14 +9,14 @@ type Field = Program['outputs'][number];
 
 type Kind = 'text' | 'number' | 'boolean' | 'list';
 
-const FIELD_MAX = 50;
-
 const FITS: Record<Kind, readonly Field['type'][]> = {
   text: ['text', 'date', 'member', 'select'],
-  number: ['number'],
-  boolean: ['boolean'],
+  number: ['number', 'text'],
+  boolean: ['boolean', 'text'],
   list: ['list', 'tags'],
 };
+
+const widened = (kind: Kind): Kind => (kind === 'list' ? 'list' : 'text');
 
 const kindOf = (value: unknown): Kind | null => {
   if (typeof value === 'string') return 'text';
@@ -44,14 +44,14 @@ const carriedBy = (real: Record<string, unknown>) =>
     return kind ? [{ key, kind }] : [];
   });
 
-const healedFields = (declared: Field[], real: Record<string, unknown>) => {
+const healedFields = (declared: Field[], real: Record<string, unknown>): Field[] => {
   const carried = carriedBy(real);
   const kinds = new Map(carried.map(({ key, kind }) => [key, kind]));
 
   const corrected = declared.map((field) => {
     const kind = kinds.get(field.key);
 
-    return kind && !FITS[kind].includes(field.type) ? { ...field, type: kind } : field;
+    return kind && !FITS[kind].includes(field.type) ? { ...field, type: widened(kind) } : field;
   });
 
   const listed = new Set(declared.map((field) => field.key));
@@ -60,7 +60,7 @@ const healedFields = (declared: Field[], real: Record<string, unknown>) => {
     .filter(({ key }) => !listed.has(key))
     .map(({ key, kind }) => ({ key, label: labelOf(key), type: kind }));
 
-  return [...corrected, ...added].slice(0, FIELD_MAX);
+  return [...corrected, ...added].slice(0, INTEGRATION_FIELD_MAX);
 };
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -100,7 +100,7 @@ export const healEvents = async (
     });
   }
 
-  const events = [...byKey.values()].slice(0, FIELD_MAX);
+  const events = [...byKey.values()].slice(0, INTEGRATION_FIELD_MAX);
 
   if (same(events, program.events)) return;
 

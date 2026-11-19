@@ -1,10 +1,12 @@
 import type { EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Spinner, useConfirm, useToast } from 'erxes-ui';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import type { Integration } from './catalog';
+import { useIntegrationsSaved } from './customMutation';
+import { DangerSection } from './DangerSection';
 import { EmailForm, PROVIDER_NAMES } from './EmailForm';
 import { EmailSenders } from './EmailSenders';
 import {
@@ -46,40 +48,24 @@ const SendTest = () => {
 /** Back to the server's sending, after asking: the danger zone at the end of the settings. */
 const RemoveEmail = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
-  const client = useQueryClient();
 
   const remove = useMutation(
-    orpc.emails.removeSettings.mutationOptions({
-      onSuccess: () => client.invalidateQueries({ queryKey: orpc.emails.key() }),
-      onError: (error) =>
-        toast({
-          variant: 'destructive',
-          title: t('save-failed', 'Could not save'),
-          description: messageOf(error),
-        }),
-    }),
+    orpc.emails.removeSettings.mutationOptions(
+      useIntegrationsSaved(t('save-failed', 'Could not save'), undefined, orpc.emails.key()),
+    ),
   );
 
   const message = t('remove-description', 'Emails go out from erxes’s address again.');
 
   return (
-    <section className="flex flex-wrap items-center gap-4 rounded-lg border border-destructive/30 p-4">
-      <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-sm font-medium">
-          {t('remove-title', 'Stop sending from your address')}
-        </h3>
-        <p className="text-xs text-muted-foreground">{message}</p>
-      </div>
-      <Button
-        variant="destructive"
-        disabled={remove.isPending}
-        onClick={() => void confirm({ message }).then(() => remove.mutate({}))}
-      >
-        {remove.isPending ? <Spinner size="sm" /> : t('remove', 'Remove')}
-      </Button>
-    </section>
+    <DangerSection
+      title={t('remove-title', 'Stop sending from your address')}
+      description={message}
+      confirmMessage={message}
+      label={t('remove', 'Remove')}
+      pending={remove.isPending}
+      onConfirm={() => remove.mutate({})}
+    />
   );
 };
 

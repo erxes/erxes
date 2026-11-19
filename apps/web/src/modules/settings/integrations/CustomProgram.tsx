@@ -1,18 +1,20 @@
 import type { Integration as CustomRecord, IntegrationProgram } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
+import { integrationType } from '@erxes/core-contract/integrationValues';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Badge, Button, CopyText, Spinner, useConfirm, useFormat, useToast } from 'erxes-ui';
+import { Badge, Button, CopyText, useFormat, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useIntegrationsSaved } from './customMutation';
 import { CustomProgramTest } from './CustomProgramTest';
 import { CustomProgramVersions } from './CustomProgramVersions';
+import { DangerSection } from './DangerSection';
 import { OverviewSection } from './IntegrationLayout';
 
 export const programTypes = (record: CustomRecord, program: IntegrationProgram) =>
   program.kind === 'action'
-    ? [`integrations.${record.key}.${program.key}`]
-    : program.events.map((event) => `integrations.${record.key}.${event.key}`);
+    ? [integrationType(record.key, program.key)]
+    : program.events.map((event) => integrationType(record.key, event.key));
 
 export const KindBadge = ({ kind }: { kind: IntegrationProgram['kind'] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
@@ -24,9 +26,9 @@ export const KindBadge = ({ kind }: { kind: IntegrationProgram['kind'] }) => {
   );
 };
 
-type DataField = { key: string; label: string; type: string; required?: boolean };
+type ProgramField = IntegrationProgram['fields'][number] | IntegrationProgram['outputs'][number];
 
-const Fields = ({ title, fields }: { title: string; fields: DataField[] }) => {
+const Fields = ({ title, fields }: { title: string; fields: ProgramField[] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
 
   return (
@@ -38,7 +40,7 @@ const Fields = ({ title, fields }: { title: string; fields: DataField[] }) => {
               <span className="font-medium">{field.label}</span>
               <code className="font-mono text-xs text-muted-foreground">{field.key}</code>
               <span className="ml-auto text-xs text-muted-foreground">
-                {field.required
+                {'required' in field && field.required
                   ? t('required-type', '{{type}}, required', { type: field.type })
                   : field.type}
               </span>
@@ -71,7 +73,7 @@ const ProgramDetails = ({
     return (
       <>
         <OverviewSection title={t('type', 'Type')}>
-          <Copyable value={`integrations.${record.key}.${program.key}`} />
+          <Copyable value={integrationType(record.key, program.key)} />
         </OverviewSection>
         <Fields title={t('fields', 'Fields')} fields={program.fields} />
         <Fields title={t('outputs', 'Outputs')} fields={program.outputs} />
@@ -92,7 +94,7 @@ const ProgramDetails = ({
           key={event.key}
           title={t('event', 'Event: {{label}} ({{type}})', {
             label: event.label,
-            type: `integrations.${record.key}.${event.key}`,
+            type: integrationType(record.key, event.key),
           })}
           fields={event.fields}
         />
@@ -109,7 +111,6 @@ const RemoveProgram = ({
   onRemoved: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
-  const { confirm } = useConfirm();
   const { toast } = useToast();
 
   const remove = useMutation(
@@ -131,24 +132,15 @@ const RemoveProgram = ({
   );
 
   return (
-    <section className="flex flex-wrap items-center gap-4 rounded-lg border border-destructive/30 p-4">
-      <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-sm font-medium">{t('program-remove-title', 'Delete this program')}</h3>
-        <p className="text-xs text-muted-foreground">{message}</p>
-      </div>
-      <Button
-        variant="destructive"
-        disabled={remove.isPending}
-        onClick={() =>
-          void confirm({
-            message: t('remove-confirm', 'Delete {{name}}?', { name: program.label }),
-            options: { description: message },
-          }).then(() => remove.mutate({ id: program.id }))
-        }
-      >
-        {remove.isPending ? <Spinner size="sm" /> : t('remove', 'Delete')}
-      </Button>
-    </section>
+    <DangerSection
+      title={t('program-remove-title', 'Delete this program')}
+      description={message}
+      confirmMessage={t('remove-confirm', 'Delete {{name}}?', { name: program.label })}
+      confirmDescription={message}
+      label={t('remove', 'Delete')}
+      pending={remove.isPending}
+      onConfirm={() => remove.mutate({ id: program.id })}
+    />
   );
 };
 

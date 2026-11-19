@@ -1,4 +1,9 @@
-import type { Integration as CustomRecord, IntegrationProgram } from '@erxes/core-contract';
+import type {
+  Integration as CustomRecord,
+  IntegrationDetail,
+  IntegrationProgram,
+} from '@erxes/core-contract';
+import { INTEGRATION_NAMESPACE } from '@erxes/core-contract/integrationValues';
 import { IconChevronRight, IconCode, IconSparkles } from '@tabler/icons-react';
 import { Button, Empty, useFormat } from 'erxes-ui';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -29,7 +34,9 @@ const NoPrograms = ({ record }: { record: CustomRecord }) => {
           <Button
             variant="outline"
             onClick={() =>
-              ask(`Add an action to the ${record.name} integration (integrations.${record.key}).`)
+              ask(
+                `Add an action to the ${record.name} integration (${INTEGRATION_NAMESPACE}.${record.key}).`,
+              )
             }
           >
             <IconSparkles />
@@ -81,14 +88,9 @@ const ProgramRow = ({
   );
 };
 
-export const CustomPrograms = ({
-  record,
-  programs,
-}: {
-  record: CustomRecord;
-  programs: IntegrationProgram[];
-}) => {
+export const CustomPrograms = ({ record }: { record: IntegrationDetail }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+  const { programs } = record;
   const [programId, setProgramId] = useQueryState('program', parseAsString);
   const open = programs.find((program) => program.id === programId);
 

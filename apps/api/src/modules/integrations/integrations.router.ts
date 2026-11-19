@@ -18,8 +18,6 @@ import {
   saveProgram,
 } from './programs.service';
 
-const SAMPLE_CALL = { method: 'POST', headers: {}, query: {}, rawBody: '' };
-
 export const integrationsRouter = {
   list: scoped.integrations.list.handler(() => listIntegrations(db())),
   get: scoped.integrations.get.handler(({ input }) => getIntegration(db(), input.id)),
@@ -87,7 +85,7 @@ export const integrationsRouter = {
     const loaded = await withOrg(requestOrgId(), (tx) => loadProgram(tx, input.id));
 
     return loaded.program.kind === 'incoming'
-      ? runIncoming(loaded, input.incoming ?? SAMPLE_CALL)
+      ? runIncoming(loaded, input.incoming)
       : runAction(requestOrgId(), loaded, {
           input: input.input,
           idempotencyKey: `test:${input.id}`,

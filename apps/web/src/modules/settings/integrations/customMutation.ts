@@ -13,7 +13,8 @@ export const useIntegrationsSaved = (
   return {
     onSuccess: () => {
       onSaved?.();
-      void client.invalidateQueries({ queryKey });
+
+      return client.invalidateQueries({ queryKey });
     },
     onError: (error: Error) =>
       toast({ variant: 'destructive', title: failedTitle, description: messageOf(error) }),

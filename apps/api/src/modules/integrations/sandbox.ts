@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { hmacSha256Bytes, safeEqual } from '~/lib/crypto';
 import { OutboundError, requestOutbound } from '~/lib/outbound';
 import { runProgram } from '~/modules/assistant/codeMode';
+import { workerGate } from '~/modules/assistant/workers';
 import { parseBody } from '~/modules/automations/actions/context';
 import { sealedValuesOf } from './integrations.service';
 import type { LoadedProgram } from './programs.service';
@@ -11,6 +12,10 @@ import type { LoadedProgram } from './programs.service';
 const REQUEST_TIMEOUT_MS = 8000;
 
 const ANSWER_MAX_BYTES = 512 * 1024;
+
+const RUNS_AT_ONCE = 4;
+
+const RUNS_WAITING = 16;
 
 const PLACEHOLDER = /\{\{\s*secret\.([A-Za-z][A-Za-z0-9_]*)\s*\}\}/g;
 
@@ -35,13 +40,7 @@ class DoorError extends Error {}
 
 type Integration = LoadedProgram['integration'];
 
-const argumentOf = <S extends z.ZodType>(schema: S, [json = '{}']: string[]) => {
-  const parsed = schema.safeParse(JSON.parse(json));
-
-  if (!parsed.success) throw new DoorError(z.prettifyError(parsed.error));
-
-  return parsed.data;
-};
+const gate = workerGate(RUNS_AT_ONCE, RUNS_WAITING);
 
 const sealedOf = (integration: Integration) => {
   const sealed = sealedValuesOf(integration);
@@ -90,8 +89,11 @@ const addressOf = (
   return url;
 };
 
-const request = async (integration: Integration, sealed: Sealed, args: string[]) => {
-  const options = argumentOf(RequestOptions, args);
+const request = async (
+  integration: Integration,
+  sealed: Sealed,
+  options: z.output<typeof RequestOptions>,
+) => {
   const url = addressOf(integration, sealed, options.url, options.query);
   const sendsJson = options.body !== undefined && typeof options.body !== 'string';
 
@@ -125,42 +127,40 @@ const request = async (integration: Integration, sealed: Sealed, args: string[])
   };
 };
 
-const verify = (sealed: Sealed, args: string[]) => {
-  const options = argumentOf(VerifyOptions, args);
-  const given = Buffer.from(options.signature.replace(/^sha256=/, ''), options.encoding);
+const door =
+  <S extends z.ZodType>(schema: S, open: (options: z.output<S>) => unknown) =>
+  async ([json = '{}']: string[]) => {
+    const parsed = schema.safeParse(JSON.parse(json));
 
-  return safeEqual(given, hmacSha256Bytes(sealed.valueOf(options.name), options.payload));
-};
+    if (!parsed.success) return { ok: false as const, message: z.prettifyError(parsed.error) };
 
-const equals = (sealed: Sealed, args: string[]) => {
-  const options = argumentOf(EqualsOptions, args);
+    try {
+      return { ok: true as const, value: await open(parsed.data) };
+    } catch (error) {
+      if (error instanceof DoorError || error instanceof OutboundError) {
+        return { ok: false as const, message: error.message };
+      }
 
-  return safeEqual(options.value, sealed.valueOf(options.name));
-};
+      if (error instanceof Error && 'code' in error) {
+        return { ok: false as const, message: `The request failed: ${String(error.code)}` };
+      }
 
-const door = (open: (args: string[]) => unknown) => async (args: string[]) => {
-  try {
-    return { ok: true as const, value: await open(args) };
-  } catch (error) {
-    if (error instanceof DoorError || error instanceof OutboundError) {
-      return { ok: false as const, message: error.message };
+      throw error;
     }
-
-    if (error instanceof Error && 'code' in error) {
-      return { ok: false as const, message: `The request failed: ${String(error.code)}` };
-    }
-
-    throw error;
-  }
-};
+  };
 
 const doors = ({ integration }: LoadedProgram) => {
   const sealed = sealedOf(integration);
 
   return {
-    request: door((args) => request(integration, sealed, args)),
-    verify: door((args) => verify(sealed, args)),
-    equals: door((args) => equals(sealed, args)),
+    request: door(RequestOptions, (options) => request(integration, sealed, options)),
+    verify: door(VerifyOptions, ({ signature, payload, name, encoding }) =>
+      safeEqual(
+        Buffer.from(signature.replace(/^sha256=/, ''), encoding),
+        hmacSha256Bytes(sealed.valueOf(name), payload),
+      ),
+    ),
+    equals: door(EqualsOptions, ({ value, name }) => safeEqual(value, sealed.valueOf(name))),
   };
 };
 
@@ -187,15 +187,14 @@ export const runIntegrationProgram = async (
   loaded: LoadedProgram,
   globals: Record<string, unknown>,
 ): Promise<IntegrationProgramRun> => {
-  const outcome = await runProgram({
-    code: loaded.program.code,
-    prelude: preludeOf(globals),
-    host: doors(loaded),
-  });
+  const outcome = await runProgram(
+    { code: loaded.program.code, prelude: preludeOf(globals), host: doors(loaded) },
+    gate,
+  );
 
   if (!outcome.ok) return { ok: false, code: outcome.code, message: outcome.message };
 
-  if ('truncated' in outcome && outcome.truncated) {
+  if (outcome.truncated) {
     return { ok: false, code: 'OUTPUT_TOO_LARGE', message: 'The program returned too much' };
   }
 

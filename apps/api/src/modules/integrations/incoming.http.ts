@@ -25,30 +25,33 @@ const receive: RequestHandler = async (req, res) => {
 
   if (!safeEqual(sig, incomingSignature(id))) throw fail('INVALID_SIGNATURE', 'Invalid signature');
 
-  const [owner] = await withSystem('integration incoming lookup', (tx) =>
-    tx
+  const { cookie: _cookie, ...headers } = firstValues(req.headers);
+
+  const payload = {
+    programId: id,
+    method: req.method,
+    headers,
+    query: firstValues(req.query),
+    rawBody: Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '',
+  };
+
+  const queued = await withSystem('integration incoming call', async (tx) => {
+    const [owner] = await tx
       .select({ orgId: integrationPrograms.orgId })
       .from(integrationPrograms)
       .where(and(eq(integrationPrograms.id, id), eq(integrationPrograms.kind, 'incoming')))
-      .limit(1),
-  );
+      .limit(1);
 
-  if (!owner) throw notFound('Program');
+    if (!owner) return false;
 
-  const { cookie: _cookie, ...headers } = firstValues(req.headers);
+    await withOrg(owner.orgId, (scoped) =>
+      incomingJob.enqueue(scoped, { orgId: owner.orgId, payload }),
+    );
 
-  await withOrg(owner.orgId, (tx) =>
-    incomingJob.enqueue(tx, {
-      orgId: owner.orgId,
-      payload: {
-        programId: id,
-        method: req.method,
-        headers,
-        query: firstValues(req.query),
-        rawBody: Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '',
-      },
-    }),
-  );
+    return true;
+  });
+
+  if (!queued) throw notFound('Program');
 
   res.status(200).json({ ok: true });
 };

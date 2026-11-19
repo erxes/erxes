@@ -129,8 +129,11 @@ const resultOf = (end: WorkerEnd<ProgramResult>) => {
   return end.ended === 'out-of-memory' ? OUT_OF_MEMORY : FAILED;
 };
 
-export const runProgram = async ({ code, prelude, host }: Program) => {
-  const granted = await gate.acquire(AbortSignal.timeout(CODE_LIMITS.timeMs));
+export const runProgram = async (
+  { code, prelude, host }: Program,
+  runs: ReturnType<typeof workerGate> = gate,
+) => {
+  const granted = await runs.acquire(AbortSignal.timeout(CODE_LIMITS.timeMs));
 
   if (granted !== 'granted') return BUSY;
 
@@ -147,7 +150,7 @@ export const runProgram = async ({ code, prelude, host }: Program) => {
     'codeMode.worker',
     { data: job, heapMb: WORKER_HEAP_MB, signal: AbortSignal.timeout(CODE_LIMITS.timeMs) },
     conversation(host),
-  ).finally(gate.release);
+  ).finally(runs.release);
 
   return resultOf(end);
 };

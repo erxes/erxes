@@ -92,15 +92,7 @@ export const CustomProgramTest = ({ program }: { program: IntegrationProgram }) 
 
   const run = () => {
     if (incoming && parsedHeaders.success) {
-      test.mutate({
-        id: program.id,
-        incoming: {
-          method: 'POST',
-          headers: parsedHeaders.data,
-          query: {},
-          rawBody: body,
-        },
-      });
+      test.mutate({ id: program.id, incoming: { headers: parsedHeaders.data, rawBody: body } });
     } else if (!incoming && parsedInput.success) {
       test.mutate({ id: program.id, input: parsedInput.data });
     }

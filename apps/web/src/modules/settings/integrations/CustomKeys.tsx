@@ -1,5 +1,6 @@
 import type { Integration as CustomRecord } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
+import { IntegrationDataKey } from '@erxes/core-contract/integrationValues';
 import { IconKey } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Empty, Input, Label, Spinner, useConfirm, useToast } from 'erxes-ui';
@@ -7,8 +8,6 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIntegrationsSaved } from './customMutation';
 import { FormSection } from './FormSection';
-
-const NAME = /^[A-Za-z][A-Za-z0-9_]{0,59}$/;
 
 const KeyForm = ({
   record,
@@ -36,7 +35,7 @@ const KeyForm = ({
     ),
   );
 
-  const nameValid = NAME.test(name);
+  const nameValid = IntegrationDataKey.safeParse(name).success;
 
   return (
     <form
