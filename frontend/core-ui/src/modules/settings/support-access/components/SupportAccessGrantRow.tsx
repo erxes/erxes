@@ -48,6 +48,9 @@ export const SupportAccessGrantRow = ({
           {grant.autoApproved && (
             <Badge variant="secondary">{t('auto-approved')}</Badge>
           )}
+          {grant.fullAccess && (
+            <Badge variant="secondary">{t('full-access')}</Badge>
+          )}
         </div>
         <p className="text-sm">{grant.reason}</p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">

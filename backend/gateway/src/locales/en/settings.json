@@ -1262,6 +1262,7 @@
     "ends": "Ends",
     "ended": "Ended",
     "auto-approved": "Allowed by policy",
+    "full-access": "Full access",
     "visits_one": "{{count}} visit",
     "visits_other": "{{count}} visits",
     "status-pending": "Waiting",
