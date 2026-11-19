@@ -1,5 +1,15 @@
-import { ApolloError, useApolloClient, useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { productsMutations, productsQueries } from '@/products/graphql';
+
+export type RestoreProductsResult = {
+  restoredIds: string[];
+  failedIds: string[];
+  errorMessage?: string;
+  refreshFailed: boolean;
+};
+
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 export const useRestoreProducts = () => {
   const client = useApolloClient();
@@ -9,27 +19,38 @@ export const useRestoreProducts = () => {
 
   const restoreProducts = async (
     productIds: string[],
-    callbacks?: {
-      onCompleted?: () => void;
-      onError?: (error: ApolloError) => void;
-    },
-  ) => {
+  ): Promise<RestoreProductsResult> => {
+    const results = await Promise.allSettled(
+      productIds.map((_id) => _restoreProduct({ variables: { _id } })),
+    );
+
+    const restoredIds: string[] = [];
+    const failedIds: string[] = [];
+    let errorMessage: string | undefined;
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        restoredIds.push(productIds[index]);
+        return;
+      }
+
+      failedIds.push(productIds[index]);
+      errorMessage ??= getErrorMessage(result.reason);
+    });
+
+    let refreshFailed = false;
+
     try {
-
-      await Promise.all(
-        productIds.map((_id) => _restoreProduct({ variables: { _id } })),
-      );
-
       client.cache.evict({ fieldName: 'productsMain' });
       client.cache.gc();
       await client.refetchQueries({
         include: [productsQueries.productsMain],
       });
-
-      callbacks?.onCompleted?.();
-    } catch (error) {
-      callbacks?.onError?.(error as ApolloError);
+    } catch {
+      refreshFailed = true;
     }
+
+    return { restoredIds, failedIds, errorMessage, refreshFailed };
   };
 
   return { restoreProducts, loading };
