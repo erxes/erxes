@@ -94,15 +94,15 @@ const extractTableRows = (table: HTMLTableElement): ExtractedRow[] => {
   return rows;
 };
 
-const sanitizeSheetName = (value: string) =>
+export const sanitizeSheetName = (value: string) =>
   (value.replace(/[\\/*?:[\]]/g, ' ').trim() || 'Report').slice(0, 31);
 
-const sanitizeFileName = (value: string) =>
+export const sanitizeFileName = (value: string) =>
   (value.replace(/[\\/:*?"<>|]/g, '-').trim() || 'accounting-report')
     .replace(/\s+/g, '-')
     .toLowerCase();
 
-const downloadWorkbook = async (
+export const downloadWorkbook = async (
   workbook: ExcelJS.Workbook,
   fileName: string,
 ) => {

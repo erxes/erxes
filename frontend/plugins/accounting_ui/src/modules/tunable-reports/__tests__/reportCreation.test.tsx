@@ -10,7 +10,12 @@ jest.mock('react-router', () => {
   Object.assign(globalThis, { TextDecoder, TextEncoder });
   return jest.requireActual('react-router');
 });
-const mockReports: { _id: string; name: string; code: string }[] = [];
+const mockReports: {
+  _id: string;
+  name: string;
+  code: string;
+  status?: string;
+}[] = [];
 jest.mock('@apollo/client', () => ({
   useQuery: () => ({
     data: {
@@ -64,6 +69,21 @@ jest.mock('@/tunable-reports/SortableTable', () => ({
 }));
 jest.mock('@/tunable-reports/ReportSettingsSheet', () => ({
   ReportSettingsSheet: () => null,
+}));
+jest.mock('@/tunable-reports/ReportPreviewSheet', () => ({
+  ReportPreviewSheet: ({
+    open,
+    onOpenChange,
+  }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+  }) =>
+    open ? (
+      <div role="dialog">
+        draft preview
+        <button onClick={() => onOpenChange(false)}>close preview</button>
+      </div>
+    ) : null,
 }));
 jest.mock('@/tunable-reports/ReportIdentityField', () => ({
   ReportIdentityField: () => null,
@@ -153,5 +173,36 @@ test('reports render as cards and Generate opens the selected report sheet', () 
   expect(screen.getByText('Balance report')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'run' }));
   expect(screen.getByRole('dialog').textContent).toBe('Balance report');
+  mockReports.length = 0;
+});
+
+test('Preview opens from the editor for a report that was never saved and closes again', () => {
+  render(
+    <MemoryRouter>
+      <ReportEditor />
+    </MemoryRouter>,
+  );
+  expect(screen.queryByRole('dialog')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'preview' }));
+  expect(screen.getByRole('dialog').textContent).toContain('draft preview');
+  fireEvent.click(screen.getByRole('button', { name: 'close preview' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+test('only archived reports carry the archived mark in the list', () => {
+  mockReports.push(
+    { _id: 'a', code: 'СТ1', name: 'Санхүүгийн байдал', status: 'active' },
+    { _id: 'b', code: 'ТТ-02', name: 'ААНОАТ 2024', status: 'archived' },
+  );
+  render(
+    <MemoryRouter>
+      <TunableReportsPage />
+    </MemoryRouter>,
+  );
+  const card = (name: string) =>
+    screen.getByText(name).parentElement?.parentElement as HTMLElement;
+  expect(within(card('ААНОАТ 2024')).getByText('archived')).toBeTruthy();
+  expect(within(card('Санхүүгийн байдал')).queryByText('archived')).toBeNull();
+  expect(screen.getAllByText('archived')).toHaveLength(1);
   mockReports.length = 0;
 });

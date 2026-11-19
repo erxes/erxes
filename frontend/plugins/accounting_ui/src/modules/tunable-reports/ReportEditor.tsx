@@ -1,12 +1,13 @@
 import { ReportIdentityField } from '@/tunable-reports/ReportIdentityField';
 import { TextareaSetting } from '@/tunable-reports/fields';
 import { ReportSettingsSheet } from '@/tunable-reports/ReportSettingsSheet';
+import { ReportPreviewSheet } from '@/tunable-reports/ReportPreviewSheet';
 import { ReactNode, useId, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useBeforeUnload } from 'react-router-dom';
 import { Button, Form, Spinner, useConfirm } from 'erxes-ui';
-import { IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconEye, IconPlus, IconSettings } from '@tabler/icons-react';
 import { AccountingTunableReportFieldsFragment } from '~/gql/graphql';
 import { reportFormSchema, ReportValues } from '@/tunable-reports/schema';
 import {
@@ -51,6 +52,7 @@ export const ReportEditor = ({
   });
   const sections = useFieldArray({ control: form.control, name: 'sections' });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   useBeforeUnload((event) => {
     if (form.formState.isDirty) {
       event.preventDefault();
@@ -157,14 +159,24 @@ export const ReportEditor = ({
               <ReportIdentityField form={form} />
             </fieldset>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setSettingsOpen(true)}
-          >
-            <IconSettings />
-            {t('reportSettings')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPreviewOpen(true)}
+            >
+              <IconEye />
+              {t('preview')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <IconSettings />
+              {t('reportSettings')}
+            </Button>
+          </div>
         </div>
         <fieldset
           disabled={!canEdit || actions.saving || actions.removing}
@@ -223,6 +235,13 @@ export const ReportEditor = ({
               : undefined
           }
         />
+        {previewOpen && (
+          <ReportPreviewSheet
+            form={form}
+            open={previewOpen}
+            onOpenChange={setPreviewOpen}
+          />
+        )}
       </form>
     </Form>
   );
