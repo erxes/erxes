@@ -30,8 +30,32 @@ const RULES: [RegExp, string][] = [
     'channel integrations: plugin:frontline (members connect channels again)',
   ],
   [
-    /^(calls_|call_records|cloudflare_calls|imap_|mail_|dailyco|comment|posts_|events$|schedule_pages|accounts$|configs$)/,
+    /^(calls_|call_records|cloudflare_calls|imap_|mail_|dailyco|comment|posts_|events$|schedule_pages)/,
     'channel integrations: plugin:frontline (members connect channels again)',
+  ],
+  [
+    /^configs$/,
+    'service settings and credentials (members enter them again); currency already MNT; core has no time zone setting',
+  ],
+  [
+    /^(email_templates|automation_email_templates)$/,
+    'email templates: core has no template library (broadcasts and automations keep their own body)',
+  ],
+  [/^email_deliveries$/, 'delivery log of sent emails: core logs its own sends'],
+  [/^email_senders$/, 'sender addresses with provider credentials: members set up email again'],
+  [
+    /^(notification_configurations|notification_configs|notification_settings|user_notification_settings)$/,
+    "per-type notification switches: core's notification groups are different; members set them again",
+  ],
+  [/^webhooks$/, 'webhooks: core needs a new signing secret, so members add them again'],
+  [
+    /^(apps|clients|app_tokens)$/,
+    'API apps and clients with their secrets: made again as API keys',
+  ],
+  [/^emojis$/, 'reactions on employee feed and knowledge base posts: no plugin in this migration'],
+  [
+    /^(files_folders|file_shares|files_usages|filemanager_folders|filemanager_logs)$/,
+    'file folders, shares and logs: core files have no folders',
   ],
   [/^(cms_|webbuilder_|web_|web_builders|content_cms)/, 'plugin:content (not in this migration)'],
   [
@@ -49,7 +73,7 @@ const RULES: [RegExp, string][] = [
   [/^(loan_)/, 'loans: no plugin in the new stack'],
   [/^(exm|forum_|communication_)/, 'employee and community feeds: no plugin in this migration'],
   [
-    /^(accounting|account_categories|adjust_|safe_remainder|inventories_|fxa_|fixed_asset|asset|syncerkhet)/,
+    /^(accounting|accounts$|account_categories|adjust_|safe_remainder|inventories_|fxa_|fixed_asset|asset|syncerkhet)/,
     'accounting and inventory: no plugin in this migration',
   ],
   [

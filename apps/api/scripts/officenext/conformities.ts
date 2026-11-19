@@ -2,13 +2,14 @@
  * `conformities` linked any two records. The customer ↔ company pairs (nearly all 4M) become
  * `core_customer_companies`, through the id map, so a pair of merged records lands on the record
  * kept. Pairs whose customer or company isn't in core are skipped. Pairs that touch a deal, task
- * or ticket are the plugins' to import; they are counted here by plugin.
+ * or ticket are the plugins' to import; they are counted here by plugin. Later old erxes kept
+ * the same links in `relations` (two `entities` each), read the same way.
  */
-import type { Db, Document } from 'mongodb';
+import type { Db } from 'mongodb';
 import { z } from 'zod';
 import { resolve } from './idMap';
 import { eachBatch, existing, insert, type Run } from './run';
-import { readOr, text } from './values';
+import { idOf, readOr, text } from './values';
 
 const Conformity = z.object({ mainType: text, mainTypeId: text, relType: text, relTypeId: text });
 
@@ -26,15 +27,24 @@ const CONTACT_PAIRS = {
   ],
 };
 
-/** Old record types → the plugin that takes their pairs. */
+/** Old record types, or the plugin part of `plugin:type`, → the plugin that takes them. */
 const PLUGIN_OF: Record<string, string> = {
   deal: 'sales',
-  'sales:deal': 'sales',
+  sales: 'sales',
   purchase: 'sales',
   task: 'operation',
+  tasks: 'operation',
+  operation: 'operation',
   ticket: 'frontline',
+  tickets: 'frontline',
   form_submission: 'frontline',
+  frontline: 'frontline',
+  inbox: 'frontline',
+  visitor: 'frontline',
 };
+
+/** The plugin that owns an old record type (`tasks:task`, `deal`), or undefined. */
+export const pluginOf = (type: string | null) => PLUGIN_OF[type?.split(':')[0] ?? ''];
 
 /** The customer and company of a contact pair, through the id map; null for other pairs. */
 export const contactPair = (link: Conformity) => {
@@ -48,17 +58,16 @@ export const contactPair = (link: Conformity) => {
 
 /** Why a pair that isn't customer ↔ company stays out. */
 export const pairReason = (mainType: string | null, relType: string | null) => {
-  const plugin = [mainType, relType].map((type) => PLUGIN_OF[type ?? '']).find(Boolean);
+  const plugin = [mainType, relType].map(pluginOf).find(Boolean);
 
   return plugin
     ? `plugin:${plugin} (${mainType} ↔ ${relType})`
     : `no place for ${mainType ?? '?'} ↔ ${relType ?? '?'}`;
 };
 
-const linkBatch = async (run: Run, name: string, documents: Document[]) => {
-  const pairs = documents.flatMap((raw) => {
-    const link = readOr(Conformity, raw);
-    const pair = link && contactPair(link);
+const linkBatch = async (run: Run, name: string, links: Conformity[]) => {
+  const pairs = links.flatMap((link) => {
+    const pair = contactPair(link);
 
     return pair ? [pair] : [];
   });
@@ -124,8 +133,59 @@ export const importConformities = async (run: Run, db: Db = run.mongo) => {
   await eachBatch(
     run,
     collection,
-    (documents) => linkBatch(run, name, documents),
+    (documents) =>
+      linkBatch(
+        run,
+        name,
+        documents.flatMap((raw) => readOr(Conformity, raw) ?? []),
+      ),
     CONTACT_PAIRS,
     name,
   );
+};
+
+const Relation = z.object({
+  entities: z.array(z.object({ contentType: text, contentId: text })),
+});
+
+const bare = (type: string | null) => (type?.startsWith('core:') ? type.slice(5) : type);
+
+/** A later `relations` entry (two records) as a conformity; `core:` types lose their prefix. */
+export const relationLink = (raw: unknown): Conformity | null => {
+  const parsed = Relation.safeParse(raw);
+  const [main, rel] = parsed.success ? parsed.data.entities : [];
+
+  return main && rel && parsed.success && parsed.data.entities.length === 2
+    ? {
+        mainType: bare(main.contentType),
+        mainTypeId: main.contentId,
+        relType: bare(rel.contentType),
+        relTypeId: rel.contentId,
+      }
+    : null;
+};
+
+const isContactPair = (link: Conformity) =>
+  (link.mainType === 'customer' && link.relType === 'company') ||
+  (link.mainType === 'company' && link.relType === 'customer');
+
+/** Customer ↔ company pairs of `relations`; the other pairs are counted by plugin. */
+export const importRelations = async (run: Run) => {
+  const name = 'relations';
+
+  run.report.of(name, 'core_customer_companies');
+
+  await eachBatch(run, run.mongo.collection(name), (documents) => {
+    const links = documents.flatMap((raw) => {
+      const link = relationLink(raw);
+
+      if (!link) run.report.skip(name, 'not a pair of two records', idOf(raw));
+      else if (!isContactPair(link))
+        run.report.skip(name, pairReason(link.mainType, link.relType), idOf(raw));
+
+      return link && isContactPair(link) ? [link] : [];
+    });
+
+    return linkBatch(run, name, links);
+  });
 };

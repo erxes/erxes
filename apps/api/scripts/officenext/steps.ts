@@ -7,14 +7,16 @@ import { importActivityLogs } from './activityLogs';
 import { importAuditLogs } from './auditLogs';
 import { importClientPortalUsers } from './clientPortal';
 import { importCompanies } from './companies';
-import { importConformities } from './conformities';
+import { importConformities, importRelations } from './conformities';
 import { importCustomers } from './customers';
 import { importFields } from './fields';
 import { importFieldValues } from './fieldValues';
 import { reportLeftOut } from './leftOut';
 import { importNotes } from './notes';
+import { importNotifications } from './notifications';
 import { importProducts } from './products';
 import type { Run } from './run';
+import { importSegments } from './segments';
 import { importTags } from './tags';
 import { importUnits } from './units';
 import { importUsers } from './users';
@@ -48,6 +50,7 @@ export const STEPS: Step[] = [
   { name: 'customers', collections: ['customers'], run: importCustomers },
   { name: 'companies', collections: ['companies'], run: importCompanies },
   { name: 'conformities', collections: ['conformities'], run: (run) => importConformities(run) },
+  { name: 'relations', collections: ['relations'], run: importRelations },
   { name: 'notes', collections: ['internal_notes'], run: (run) => importNotes(run) },
   { name: 'activity', collections: ['activity_logs'], run: (run) => importActivityLogs(run) },
   { name: 'audit', collections: ['logs', 'erxes_logs.logs'], run: importAuditLogs },
@@ -67,6 +70,8 @@ export const STEPS: Step[] = [
     run: importFields,
   },
   { name: 'field values', collections: ['field values'], run: importFieldValues },
+  { name: 'segments', collections: ['segments'], run: importSegments },
+  { name: 'notifications', collections: ['notifications'], run: importNotifications },
   {
     name: 'inventory',
     collections: [],

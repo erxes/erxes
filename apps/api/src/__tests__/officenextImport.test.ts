@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { describe, expect, it } from 'vite-plus/test';
 import { customerFor, loginsOf, PortalUser } from '../../scripts/officenext/clientPortal';
 import { companyRow, CompanyDocument, uniqueName } from '../../scripts/officenext/companies';
-import { contactPair, pairReason } from '../../scripts/officenext/conformities';
+import { contactPair, pairReason, relationLink } from '../../scripts/officenext/conformities';
 import { finalOf, type Lookups } from '../../scripts/officenext/contacts';
 import { customerRow, CustomerDocument, stateOf } from '../../scripts/officenext/customers';
 import { reasonOf } from '../../scripts/officenext/leftOut';
@@ -113,6 +113,24 @@ describe('officenext import: customers and companies', () => {
     expect(pairReason('deal', 'customer')).toBe('plugin:sales (deal ↔ customer)');
     expect(pairReason('user', 'task')).toBe('plugin:operation (user ↔ task)');
     expect(pairReason(null, null)).toBe('no place for ? ↔ ?');
+    expect(pairReason('operation:project', 'customer')).toBe(
+      'plugin:operation (operation:project ↔ customer)',
+    );
+  });
+
+  it('reads a later two-record relation as a pair, and nothing else', () => {
+    expect(
+      relationLink({
+        entities: [
+          { contentType: 'core:customer', contentId: 'cu1' },
+          { contentType: 'core:company', contentId: 'co1' },
+        ],
+      }),
+    ).toEqual({ mainType: 'customer', mainTypeId: 'cu1', relType: 'company', relTypeId: 'co1' });
+    expect(relationLink({ entities: [{ contentType: 'core:customer', contentId: 'cu1' }] })).toBe(
+      null,
+    );
+    expect(relationLink({ entities: 'broken' })).toBe(null);
   });
 
   it('follows merge chains to the record kept, and stops on a loop', () => {
