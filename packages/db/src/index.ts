@@ -76,6 +76,7 @@ export {
   ebarimtSettings,
   ebarimtReceipts,
   ebarimtPrintTemplates,
+  emailSenders,
   emailSettings,
   pluginInstallations,
   productCategories,
