@@ -485,7 +485,8 @@
     "restored_other": "{{count}} products restored",
     "restore-failed_one": "{{count}} product could not be restored",
     "restore-failed_other": "{{count}} products could not be restored",
-    "restore-change-category-hint": "If the category was removed, restore it by changing its category."
+    "restore-change-category-hint": "If the category was removed, restore it by changing its category.",
+    "refresh-failed": "The product list could not be refreshed. Reload the page to see the latest changes."
   },
   "bundle-rules": {
     "edit": "Edit",

@@ -2,9 +2,10 @@ import { useApolloClient, useMutation } from '@apollo/client';
 import { productsMutations, productsQueries } from '@/products/graphql';
 
 export type RestoreProductsResult = {
-  restoredCount: number;
+  restoredIds: string[];
   failedIds: string[];
   errorMessage?: string;
+  refreshFailed: boolean;
 };
 
 const getErrorMessage = (error: unknown): string =>
@@ -23,27 +24,33 @@ export const useRestoreProducts = () => {
       productIds.map((_id) => _restoreProduct({ variables: { _id } })),
     );
 
+    const restoredIds: string[] = [];
     const failedIds: string[] = [];
     let errorMessage: string | undefined;
 
     results.forEach((result, index) => {
-      if (result.status === 'rejected') {
-        failedIds.push(productIds[index]);
-        errorMessage ??= getErrorMessage(result.reason);
+      if (result.status === 'fulfilled') {
+        restoredIds.push(productIds[index]);
+        return;
       }
+
+      failedIds.push(productIds[index]);
+      errorMessage ??= getErrorMessage(result.reason);
     });
 
-    const restoredCount = productIds.length - failedIds.length;
+    let refreshFailed = false;
 
-    if (restoredCount > 0) {
+    try {
       client.cache.evict({ fieldName: 'productsMain' });
       client.cache.gc();
       await client.refetchQueries({
         include: [productsQueries.productsMain],
       });
+    } catch {
+      refreshFailed = true;
     }
 
-    return { restoredCount, failedIds, errorMessage };
+    return { restoredIds, failedIds, errorMessage, refreshFailed };
   };
 
   return { restoreProducts, loading };

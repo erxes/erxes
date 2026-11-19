@@ -3,6 +3,7 @@ import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useCallback, type ReactNode } from 'react';
 import { Can } from 'ui-modules';
 import { useRestoreProducts } from '@/products/product-detail/hooks/useRestoreProduct';
+import { omitRowSelection } from '@/products/utils/rowSelection';
 import { useTranslation } from 'react-i18next';
 
 export const ProductsRestore = ({
@@ -33,34 +34,37 @@ export const ProductsRestore = ({
       return;
     }
 
-    const { restoredCount, failedIds, errorMessage } = await restoreProducts(
-      productIds,
-    );
+    const { restoredIds, failedIds, errorMessage, refreshFailed } =
+      await restoreProducts(productIds);
 
-    table.setRowSelection(
-      Object.fromEntries(failedIds.map((_id) => [_id, true])),
-    );
+    table.setRowSelection(omitRowSelection(restoredIds));
+
+    const refreshNote = refreshFailed ? t('bulk.refresh-failed') : undefined;
 
     if (!failedIds.length) {
       toast({
         title: t('products-restored'),
-        variant: 'success',
+        description: refreshNote,
+        variant: refreshFailed ? 'destructive' : 'success',
       });
       return;
     }
 
+    const failedNote = `${t('bulk.restore-failed', {
+      count: failedIds.length,
+    })}${errorMessage ? `: ${errorMessage}` : ''}.`;
+
     toast({
-      title: restoredCount
-        ? t('bulk.restored', { count: restoredCount })
+      title: restoredIds.length
+        ? t('bulk.restored', { count: restoredIds.length })
         : t('error'),
       description: [
-        errorMessage
-          ? `${t('bulk.restore-failed', {
-              count: failedIds.length,
-            })}: ${errorMessage}.`
-          : `${t('bulk.restore-failed', { count: failedIds.length })}.`,
+        failedNote,
         t('bulk.restore-change-category-hint'),
-      ].join(' '),
+        refreshNote,
+      ]
+        .filter(Boolean)
+        .join(' '),
       variant: 'destructive',
     });
   }, [disabled, confirm, productIds, restoreProducts, toast, table, t]);

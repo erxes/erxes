@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { IProduct, SelectCategory } from 'ui-modules';
 
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
+import { omitRowSelection } from '@/products/utils/rowSelection';
 
 export const ProductsChangeCategoryTrigger = ({
   setCurrentContent,
@@ -80,32 +81,46 @@ export const ProductsChangeCategoryContent = ({
         ),
       );
 
-      const failedSelection: Record<string, boolean> = {};
+      const movedIds: string[] = [];
       let restoredCount = 0;
 
       results.forEach((result, index) => {
         const product = products[index];
 
         if (result.status === 'rejected') {
-          failedSelection[product._id] = true;
           return;
         }
+
+        movedIds.push(product._id);
 
         if (product.status === 'deleted') {
           restoredCount += 1;
         }
       });
 
-      const failedCount = Object.keys(failedSelection).length;
-      const movedCount = results.length - failedCount;
+      const failedCount = results.length - movedIds.length;
 
-      if (movedCount === 0) {
+      table.setRowSelection(omitRowSelection(movedIds));
+
+      let refreshFailed = false;
+
+      try {
+        await client.refetchQueries({ include: ['ProductsMain'] });
+      } catch {
+        refreshFailed = true;
+      }
+
+      const failedNote = t('bulk.category-change-failed', {
+        count: failedCount,
+        defaultValue_one: '{{count}} product could not be moved',
+        defaultValue_other: '{{count}} products could not be moved',
+      });
+      const refreshNote = refreshFailed ? t('bulk.refresh-failed') : undefined;
+
+      if (!movedIds.length) {
         toast({
-          title: t('bulk.category-change-failed', {
-            count: failedCount,
-            defaultValue_one: '{{count}} product could not be moved',
-            defaultValue_other: '{{count}} products could not be moved',
-          }),
+          title: failedNote,
+          description: refreshNote,
           variant: 'destructive',
         });
         return;
@@ -114,26 +129,19 @@ export const ProductsChangeCategoryContent = ({
       const notes = [
         restoredCount > 0 &&
           t('bulk.deleted-restored', { count: restoredCount }),
-        failedCount > 0 &&
-          t('bulk.category-change-failed', {
-            count: failedCount,
-            defaultValue_one: '{{count}} product could not be moved',
-            defaultValue_other: '{{count}} products could not be moved',
-          }),
+        failedCount > 0 && failedNote,
+        refreshNote,
       ].filter(Boolean) as string[];
 
       toast({
         title: t('bulk.category-changed', {
-          count: movedCount,
+          count: movedIds.length,
           defaultValue_one: '{{count}} product moved to the new category',
           defaultValue_other: '{{count}} products moved to the new category',
         }),
         description: notes.length ? notes.join(' · ') : undefined,
-        variant: failedCount ? 'destructive' : 'success',
+        variant: failedCount || refreshFailed ? 'destructive' : 'success',
       });
-
-      table.setRowSelection(failedSelection);
-      await client.refetchQueries({ include: ['ProductsMain'] });
     } finally {
       setLoading(false);
     }
