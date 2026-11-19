@@ -40,6 +40,8 @@ const DealActions = () => {
 const Terms = ({ contentId }: TRecordSlotProps) =>
   createElement('p', null, `Terms of ${contentId}`);
 
+const termsTab = { value: 'terms', label: 'Terms', icon: Icon, component: Terms };
+
 const Broken = () => {
   throw new Error('deal exploded');
 };
@@ -99,13 +101,13 @@ const CONFIGS: Record<string, unknown> = {
     name: 'sales',
     path: 'sales',
     recordTypes: [
-      { ...deal, contentType: 'sales:deal' },
+      { ...deal, contentType: 'sales:deal', tabs: [{ ...termsTab, expandedOnly: true }] },
       { ...deal, contentType: 'sales:broken', Detail: Broken },
       {
         ...deal,
         contentType: 'sales:contract',
         detailPath: (id: string) => `/sales/contracts/${id}`,
-        tabs: [{ value: 'terms', label: 'Terms', icon: Icon, component: Terms }],
+        tabs: [termsTab],
       },
       // Not the plugin's own type, and a page outside the plugin's: both left out.
       { ...deal, contentType: 'shop:order' },
@@ -164,15 +166,8 @@ const Address = () => {
 };
 
 /** URL query state through the router, as web's `App` sets it up. */
-const QueryState = ({ children }: { children?: ReactNode }) => {
-  // The adapter's type takes its children as a prop.
-  const props: Parameters<typeof NuqsAdapter>[0] = {
-    defaultOptions: { shallow: false, history: 'push' },
-    children,
-  };
-
-  return createElement(NuqsAdapter, props);
-};
+const QueryState = (props: { children: ReactNode }) =>
+  createElement(NuqsAdapter, { defaultOptions: { shallow: false, history: 'push' }, ...props });
 
 /** A plugin's list: it opens a draft deal in a stage, and a contract on a tab. */
 const DealsList = () => {
@@ -288,6 +283,8 @@ describe('a plugin record in core’s side panel', () => {
 
     await vi.waitFor(() => expect(address(container)).toBe('/sales/deals/d1'));
     await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+    expect(tabNames(container)).toContain('Terms');
+    expect(panel(container)).toContain('Terms of d1');
     const crumbs = container.querySelectorAll('nav a[href="/sales"], nav a[href="/sales/deals"]');
     expect([...crumbs].map((a) => a.textContent).join(' › ')).toBe('Sales › Deal');
   });

@@ -81,6 +81,7 @@ const RecordTab = z.object({
   value: z.string().min(1),
   label: z.string().min(1),
   icon: TabIcon,
+  expandedOnly: z.boolean().optional(),
   after: z
     .custom<TRecordTab['after']>((value) => value === 'detail' || value === 'activity')
     .optional(),
