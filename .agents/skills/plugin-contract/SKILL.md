@@ -123,7 +123,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
      expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
      relation tabs and `activity` for core's timeline
-     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). A type's `properties`
+     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). A tab with `expandedOnly` shows only
+     on the expanded page. A type's `properties`
      (`TRecordProperties`: `type` as `<name>.<thing>`, `values(id)` query options, `save(id, patch)`)
      give it custom fields: core keeps their definitions (`fields.*` and `fieldGroups.*` take
      `<plugin>.<type>` while that plugin is installed, else 400 `PLUGIN_NOT_INSTALLED`), draws a

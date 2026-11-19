@@ -24,6 +24,7 @@ import { propertiesOf } from './pluginProperties';
 import { PluginRecordProperties } from './PluginRecordProperties';
 import { usePluginRelationTabs } from './PluginRelationTabs';
 import { pluginName, usePluginText } from './pluginText';
+import { tabsShown } from './recordTabs';
 import { usePluginRecordType } from './usePluginRecordType';
 
 const DETAIL_TAB = 'detail';
@@ -61,7 +62,7 @@ const useRecordContacts = (type: TPanelRecordType, contentId: string) => {
 /**
  * Detail, the type's own tabs, Properties (when it has `properties`), every allowed plugin's
  * relation tabs, then Activity: the order a customer's tabs have. A type's tab
- * `after: 'activity'` goes last.
+ * `after: 'activity'` goes last, and an `expandedOnly` one shows only on the record's own page.
  */
 const useRecordTabs = (
   plugin: string,
@@ -72,7 +73,7 @@ const useRecordTabs = (
   const contacts = useRecordContacts(type, record.contentId);
   const relationTabs = usePluginRelationTabs({ ...record, contacts });
   const text = usePluginText();
-  const own = type.tabs ?? [];
+  const own = tabsShown(type.tabs, usePanelExpanded());
   const properties = propertiesOf(plugin, type);
 
   const ownTab = (tab: TRecordTab): IRecordSidePanelTab => ({

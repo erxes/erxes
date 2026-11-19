@@ -75,6 +75,8 @@ export type TRecordTab = {
   label: string;
   icon: Icon;
   after?: 'detail' | 'activity';
+  /** Only on the record's own page; the side panel leaves the tab out. */
+  expandedOnly?: boolean;
   component: React.ComponentType<TRecordSlotProps>;
 };
 
