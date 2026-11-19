@@ -76,6 +76,7 @@ export const paths = {
     payments: '/settings/payments',
     integrations: '/settings/integrations',
     integration: (key: string) => `/settings/integrations/${id(key)}`,
+    emailSenders: '/settings/integrations/email?tab=senders',
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',

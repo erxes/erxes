@@ -196,6 +196,8 @@ export * from './ebarimtPrint';
 
 export * from './emailSettings';
 
+export * from './emailSenders';
+
 export * from './pluginJobs';
 
 export * from './plugins';

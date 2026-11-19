@@ -1567,6 +1567,46 @@
           "path": "/email/settings/test"
         }
       }
+    },
+    "senders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/senders"
+        }
+      }
+    },
+    "addSender": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/senders"
+        }
+      }
+    },
+    "resendConfirmation": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/senders/{id}/resend"
+        }
+      }
+    },
+    "removeSender": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/email/senders/{id}"
+        }
+      }
     }
   },
   "events": {

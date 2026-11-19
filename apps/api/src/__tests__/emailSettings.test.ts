@@ -1,69 +1,14 @@
-import { createServer, type Server } from 'node:net';
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { sesSmtpPassword } from '~/modules/email/transport';
 import { useTestDatabase } from './db';
+import { useSmtp } from './smtp.fixture';
 import { useTwoOrgs } from './support';
-
-interface Received {
-  from: string;
-  to: string[];
-  data: string;
-}
-
-/** Just enough SMTP to take mail (no TLS, no sign-in): what each message said. */
-const startSmtp = async () => {
-  const received: Received[] = [];
-
-  const server = createServer((socket) => {
-    let mail: Received = { from: '', to: [], data: '' };
-    let inData = false;
-
-    socket.write('220 test ESMTP\r\n');
-    socket.on('data', (chunk) => {
-      for (const line of chunk.toString().split('\r\n').filter(Boolean)) {
-        if (inData) {
-          if (line === '.') {
-            inData = false;
-            received.push(mail);
-            mail = { from: '', to: [], data: '' };
-            socket.write('250 queued\r\n');
-          } else mail.data += `${line}\n`;
-        } else if (/^EHLO/i.test(line)) socket.write('250 test\r\n');
-        else if (/^MAIL FROM:/i.test(line)) {
-          mail.from = line.slice(10);
-          socket.write('250 ok\r\n');
-        } else if (/^RCPT TO:/i.test(line)) {
-          mail.to.push(line.slice(8));
-          socket.write('250 ok\r\n');
-        } else if (/^DATA/i.test(line)) {
-          inData = true;
-          socket.write('354 go on\r\n');
-        } else if (/^QUIT/i.test(line)) socket.end('221 bye\r\n');
-        else socket.write('250 ok\r\n');
-      }
-    });
-  });
-
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-
-  const address = server.address();
-
-  return { server, received, port: typeof address === 'object' && address ? address.port : 0 };
-};
 
 describe('email sending settings', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
-  let smtp: { server: Server; received: Received[]; port: number };
-
-  beforeAll(async () => {
-    smtp = await startSmtp();
-  });
-
-  afterAll(() => {
-    smtp.server.close();
-  });
+  const smtp = useSmtp();
 
   const ownServer = (secret?: string) => ({
     provider: 'smtp' as const,
@@ -123,6 +68,17 @@ describe('email sending settings', () => {
     await t.owner().emails.removeSettings({});
     expect(await t.owner().emails.settings({})).toBeNull();
     expect(await t.owner().emails.sendTest({})).toEqual({ ok: true, error: null });
+  });
+
+  it('sends through a server that takes mail without signing in', async () => {
+    await t.owner().emails.removeSettings({});
+    await t.owner().emails.saveSettings({ ...ownServer(), username: '' });
+
+    expect(await t.owner().emails.sendTest({ to: 'open@example.com' })).toEqual({
+      ok: true,
+      error: null,
+    });
+    expect(smtp.received.slice(-1)[0]?.to.join()).toContain('open@example.com');
   });
 
   it('says why a test failed, and refuses a server core may not reach in production', async () => {

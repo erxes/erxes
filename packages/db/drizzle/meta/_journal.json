@@ -663,8 +663,15 @@
     {
       "idx": 94,
       "version": "7",
-      "when": 1795108909462,
-      "tag": "0094_integrations",
+      "when": 1795106753541,
+      "tag": "0094_email_senders",
+      "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1795111718347,
+      "tag": "0095_integrations",
       "breakpoints": true
     }
   ]
