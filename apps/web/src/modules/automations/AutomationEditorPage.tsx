@@ -8,7 +8,6 @@ import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { AskAssistantBar } from './AskAssistant';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
 import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
@@ -273,19 +272,16 @@ const AutomationEditor = ({
         />
         <Tabs.Content value="build" className="mt-0 flex min-h-0 flex-1">
           <BuilderContext.Provider value={built.builder}>
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-              <BuildCanvas
-                built={built}
-                catalog={catalog}
-                draft={draft}
-                editable={editable}
-                selected={selected}
-                onSelect={setSelected}
-                zoom={zoom}
-                onZoom={setZoom}
-              />
-              {editable && <AskAssistantBar disabled={draft.dirty} />}
-            </div>
+            <BuildCanvas
+              built={built}
+              catalog={catalog}
+              draft={draft}
+              editable={editable}
+              selected={selected}
+              onSelect={setSelected}
+              zoom={zoom}
+              onZoom={setZoom}
+            />
             <AutomationInspector
               automation={automation}
               draft={draft}
