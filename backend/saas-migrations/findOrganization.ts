@@ -4,7 +4,7 @@ export type Organization = { _id: string | ObjectId; subdomain?: string };
 
 const OBJECT_ID_PATTERN = /^[0-9a-f]{24}$/i;
 
-const findRegisteredOrganization = async (
+export const findRegisteredOrganization = async (
   coreDb: Db,
   subdomainOrId: string | undefined,
 ): Promise<Organization | null> => {
@@ -44,23 +44,27 @@ export const findOrganization = async (
   coreDb: Db,
   subdomainOrId: string | undefined,
 ): Promise<Organization | null> => {
-  const organization = await findRegisteredOrganization(coreDb, subdomainOrId);
+  if (!subdomainOrId) {
+    return null;
+  }
 
-  if (organization || !subdomainOrId) {
-    return organization;
+  if (!OBJECT_ID_PATTERN.test(subdomainOrId)) {
+    return coreDb
+      .collection<Organization>('organizations')
+      .findOne(
+        { subdomain: subdomainOrId },
+        { projection: { _id: 1, subdomain: 1 } },
+      );
   }
 
   const databaseName = `erxes_${subdomainOrId}`;
 
-  if (
-    !OBJECT_ID_PATTERN.test(subdomainOrId) ||
-    !(await databaseExists(coreDb, databaseName))
-  ) {
-    return null;
+  if (!(await databaseExists(coreDb, databaseName))) {
+    console.warn(`Database ${databaseName} does not exist yet.`);
   }
 
-  console.warn(
-    `Organization "${subdomainOrId}" is not in ${coreDb.databaseName}.organizations; using its existing database ${databaseName}.`,
+  console.log(
+    `Using database ${databaseName} directly for "${subdomainOrId}".`,
   );
 
   return { _id: subdomainOrId };

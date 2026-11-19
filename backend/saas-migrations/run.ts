@@ -30,6 +30,8 @@ const DOMAIN_ORDER = ['appsumo', 'core'];
 
 const NESTED_SCRIPTS = ['core/products/migrateProducts.ts'];
 
+const OPT_IN_DOMAIN = 'appsumo';
+
 type Target = { domain: string; file: string; abs: string; rel: string };
 
 function discover(): Target[] {
@@ -84,7 +86,11 @@ function main(): void {
   const filters = args.filter((a) => !a.startsWith('--'));
 
   const all = discover();
-  const targets = all.filter((t) => matches(t, filters));
+  const includeAppsumo = args.includes('--appsumo') || filters.length > 0;
+  const targets = all.filter(
+    (t) =>
+      matches(t, filters) && (t.domain !== OPT_IN_DOMAIN || includeAppsumo),
+  );
 
   if (filters.length && targets.length === 0) {
     console.error(`No migrations matched: ${filters.join(', ')}`);

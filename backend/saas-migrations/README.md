@@ -77,16 +77,13 @@ organization's `_id` instead of its subdomain, and the two can be mixed:
 { source: '66f1a2b3c4d5e6f7a8b9c0d1', target: 'esight' },
 ```
 
-Scripts resolve the value through [`findOrganization.ts`](findOrganization.ts),
-which matches `organizations.subdomain` or `organizations._id` (string or
-ObjectId). It fails when the value is one organization's subdomain and a
-different organization's `_id`. `--org=` matches the value exactly as written
-in `ORG_PAIRS`.
-
-An organization missing from `organizations` (source or target) can still be
-used by `_id`: when the value is a 24-character ObjectId and the
-`erxes_<_id>` database exists, the scripts connect to that database directly
-and print a warning.
+Scripts resolve the value through [`findOrganization.ts`](findOrganization.ts).
+A 24-character ObjectId is used as the database directly (`erxes_<_id>`)
+without looking it up in `organizations`; a warning is printed when that
+database does not exist yet. Any other value is matched against
+`organizations.subdomain`. `appsumo/commands/restoreOwner.ts` needs the
+organization record itself, so it still looks the target up in
+`organizations`. `--org=` matches the value exactly as written in `ORG_PAIRS`.
 
 Two scripts outside the runners still take subdomains only:
 `content/knowledgebase` and `core/searchTokens/backfillCustomerSearchTokens.ts`.
@@ -125,16 +122,18 @@ npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
 AppSumo customers (a redeemed `promo_codes` entry of type `appsumo` whose
 `usedBy` is their subdomain, or `plan: 'lifetime'`) were removed from
 `organizations` and live in `organizations_held`; their databases are still
-`erxes_<_id>`. `appsumo/migrateOrganization.ts` runs first for every pair and
-creates the target organization, so a pair is the held organization's `_id` (or
-subdomain) and the subdomain to create:
+`erxes_<_id>`. The `appsumo` scripts are opt-in: they run only with
+`--appsumo` or when named as a filter. With `--appsumo`,
+`appsumo/migrateOrganization.ts` runs first for every pair and creates the
+target organization, so a pair is the held organization's `_id` (or subdomain)
+and the subdomain to create:
 
 ```ts
 { source: '5f8bcfc86c2488e0e6687c1d', target: '026000' },
 ```
 
 ```bash
-[APPSUMO_OWNER_ID=<user _id>] [APPSUMO_RUN_ID=<id>] tsx backend/saas-migrations/run.ts
+[APPSUMO_OWNER_ID=<user _id>] [APPSUMO_RUN_ID=<id>] tsx backend/saas-migrations/run.ts --appsumo
 ```
 
 The organization has the shape of a freshly provisioned next organization

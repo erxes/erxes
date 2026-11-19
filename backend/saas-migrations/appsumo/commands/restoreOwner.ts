@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Db, Document, MongoClient, ObjectId } from 'mongodb';
-import { findOrganization } from '../../findOrganization';
+import { findRegisteredOrganization } from '../../findOrganization';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -135,7 +135,7 @@ async function main() {
 
     if (isDryRun) console.log('** DRY RUN — no data will be written **');
 
-    const targetRef = await findOrganization(coreDb, targetSubdomain);
+    const targetRef = await findRegisteredOrganization(coreDb, targetSubdomain);
 
     if (!targetRef) {
       throw new Error(
