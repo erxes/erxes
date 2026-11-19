@@ -11,7 +11,7 @@ import { z } from 'zod';
 const isStaleBuildError = (error: unknown): boolean =>
   error instanceof Error &&
   (error.name === 'ChunkLoadError' ||
-    /^Loading (CSS )?chunk \S+ failed/.test(error.message) ||
+    /Loading (CSS )?chunk \S+ failed/.test(error.message) ||
     isStaleBuildError(error.cause));
 
 /** At most one reload a minute, so a file that is really missing can't reload the tab forever. */

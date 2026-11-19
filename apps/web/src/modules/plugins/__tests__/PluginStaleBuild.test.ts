@@ -106,6 +106,10 @@ describe('a plugin part that fails', () => {
   it.each([
     ['its name', staleChunk('Script error.')],
     [
+      'its message, as a script',
+      new Error('Loading chunk vendors-node_modules_dayjs failed.\n(https://x.test/v.js)'),
+    ],
+    [
       'its message, as a style file',
       new Error('Loading CSS chunk 7 failed.\n(https://x.test/7.css)'),
     ],
