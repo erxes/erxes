@@ -107,10 +107,18 @@ const createPaymentSchema = (selectedKind: string) => {
 
   // Create dynamic fields schema
   const dynamicFields: Record<string, z.ZodType> = {};
+  // Fields that are required unless another field has a given value
+  const conditionalFields: PaymentField[] = [];
 
   (payment.fields as PaymentField[]).forEach((field) => {
     if (field.optional) {
       dynamicFields[field.key] = z.string().optional();
+      return;
+    }
+
+    if (field.optionalWhen) {
+      dynamicFields[field.key] = z.string().optional();
+      conditionalFields.push(field);
       return;
     }
 
@@ -177,7 +185,33 @@ const createPaymentSchema = (selectedKind: string) => {
     return corporateGolomtSchema;
   }
 
-  return baseSchema.extend(dynamicFields);
+  const schema = baseSchema.extend(dynamicFields);
+
+  if (!conditionalFields.length) {
+    return schema;
+  }
+
+  return schema.superRefine((values, ctx) => {
+    const data = values as Record<string, unknown>;
+
+    conditionalFields.forEach((field) => {
+      const when = field.optionalWhen;
+
+      if (!when || data[when.key] === when.value) {
+        return;
+      }
+
+      const value = data[field.key];
+
+      if (typeof value !== 'string' || !value.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: [field.key],
+          message: `${field.label} is required`,
+        });
+      }
+    });
+  });
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
@@ -248,6 +282,19 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
 
   // Watch for kind changes to update schema
   const watchedKind = watch('kind');
+
+  // Current values, to show "*" only on fields that are required right now
+  const currentValues = watch() as Record<string, unknown>;
+
+  const isFieldRequired = (field: PaymentField) => {
+    if (field.optional) {
+      return false;
+    }
+
+    const when = field.optionalWhen;
+
+    return !(when && currentValues[when.key] === when.value);
+  };
 
   React.useEffect(() => {
     if (watchedKind !== selectedKind) {
@@ -521,7 +568,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                     <Form.Item>
                       <Form.Label>
                         {t(fieldConfig.label)}
-                        {fieldConfig.optional ? '' : ' *'}
+                        {isFieldRequired(fieldConfig) ? ' *' : ''}
                       </Form.Label>
                       <Form.Control>
                         {fieldConfig.options ? (

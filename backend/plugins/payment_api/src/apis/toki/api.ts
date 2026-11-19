@@ -26,6 +26,85 @@ const STAGING_MERCHANT_ID = '61adea785b8283f5752485b3';
 // The customer token from the callback stays valid until Toki issues a new one
 const MINI_PROGRAM_TTL = 7 * 24 * 60 * 60;
 
+// ---- Untrusted input and provider replies ----
+
+// Callback bodies come from outside, so every field is unknown until checked
+export type TokiCallbackData = {
+  // mini-program callback (per Toki's doc)
+  orderID?: unknown;
+  transactionID?: unknown;
+  status?: unknown;
+  statusCode?: unknown;
+  transRequestId?: unknown;
+  token?: unknown;
+  amount?: unknown;
+  // QR notification / success-failure redirect
+  traceOrderId?: unknown;
+  orderId?: unknown;
+  transactionId?: unknown;
+  merchantId?: unknown;
+};
+
+type TokiReply<T> = {
+  code?: number;
+  statusCode?: number;
+  message?: string;
+  error?: { message?: string };
+  data?: T;
+};
+
+type TokiTokenData = { accessToken?: unknown };
+type TokiQrData = { requestId?: unknown; transactionId?: unknown };
+type TokiQrStatusData = { status?: unknown };
+type TokiMiniProgramStatusData = {
+  status?: unknown;
+  orderId?: unknown;
+  orderID?: unknown;
+  amount?: unknown;
+  merchantId?: unknown;
+};
+
+// What the shop page passes to Toki's buy() inside the Toki app
+export type TokiMiniProgramData = {
+  merchantId: string;
+  amount: number;
+  orderId: string;
+  description: string;
+  callbackUrl: string;
+};
+
+// Saved as transaction.response and read by the payment widget
+export type TokiInvoiceResult = {
+  miniProgram: TokiMiniProgramData;
+  requestId?: string;
+  transactionId?: string;
+  qrData?: string;
+  qrError?: string;
+};
+
+// A non-empty string or number from untrusted input, as a string
+const asText = (value: unknown): string | undefined => {
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return undefined;
+};
+
+// A finite number from untrusted input ("5" and 5 both work)
+const asAmount = (value: unknown): number | undefined => {
+  const n = typeof value === 'string' ? Number(value) : value;
+  return typeof n === 'number' && Number.isFinite(n) ? n : undefined;
+};
+
+const errorMessage = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+// Parses a provider reply; null when the body is not JSON
+const readReply = async <T>(response: {
+  json: () => Promise<unknown>;
+}): Promise<TokiReply<T> | null> => {
+  const body = await response.json().catch(() => null);
+  return body && typeof body === 'object' ? (body as TokiReply<T>) : null;
+};
+
 // The customer's token is kept in Redis, not in transaction.response,
 // because transaction.response is readable through GraphQL.
 const miniProgramKey = (transactionId: string) => `toki_mp_${transactionId}`;
@@ -39,7 +118,14 @@ const getMiniProgramPayment = async (
   if (!raw) return null;
 
   try {
-    return JSON.parse(raw);
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    const { transRequestId, token } = parsed as Record<string, unknown>;
+    const id = asText(transRequestId);
+    const tok = asText(token);
+
+    return id && tok ? { transRequestId: id, token: tok } : null;
   } catch {
     return null;
   }
@@ -89,6 +175,25 @@ const claimMiniProgramPayment = async (
   }
 };
 
+// The one place a verified mini-program payment is settled, used by both
+// Toki's callback and status polling: claim the Toki payment for this
+// transaction, then record it on the transaction so the binding outlives the
+// Redis claim. Call only after Toki has confirmed the payment as paid.
+const settleMiniProgramPayment = async (
+  models: IModels,
+  transactionId: string,
+  payment: MiniProgramPayment,
+) => {
+  await claimMiniProgramPayment(models, transactionId, payment.transRequestId);
+
+  await models.Transactions.updateOne(
+    { _id: transactionId },
+    { $set: { 'response.tokiTransRequestId': payment.transRequestId } },
+  );
+
+  await rememberMiniProgramPayment(transactionId, payment, true);
+};
+
 const markPaid = async (
   models: IModels,
   transaction: ITransactionDocument,
@@ -113,10 +218,23 @@ const getTokiTransaction = async (models: IModels, _id: string) => {
   return { transaction, payment };
 };
 
+// QR statuses after which the payment can no longer succeed
+const QR_TERMINAL_STATUSES: string[] = [
+  PAYMENT_STATUS.CANCELLED,
+  PAYMENT_STATUS.FAILED,
+  PAYMENT_STATUS.EXPIRED,
+];
+
 // Mini-program callback, per Toki's doc:
 // { orderID, transactionID, status, statusCode, transRequestId, token, amount }
-const miniProgramCallback = async (models: IModels, data: any) => {
-  const { orderID, transRequestId, token, amount } = data;
+const miniProgramCallback = async (
+  models: IModels,
+  data: TokiCallbackData,
+) => {
+  const orderID = asText(data.orderID);
+  const transRequestId = asText(data.transRequestId);
+  const token = asText(data.token);
+  const amount = asAmount(data.amount);
 
   if (!orderID) {
     throw new Error('orderID is required');
@@ -128,7 +246,7 @@ const miniProgramCallback = async (models: IModels, data: any) => {
     return transaction;
   }
 
-  if (amount === undefined || Number(amount) !== Number(transaction.amount)) {
+  if (amount === undefined || amount !== Number(transaction.amount)) {
     throw new Error('Amount mismatch');
   }
 
@@ -136,38 +254,39 @@ const miniProgramCallback = async (models: IModels, data: any) => {
     throw new Error('transRequestId and token are required');
   }
 
-  const supplied: MiniProgramPayment = {
-    transRequestId: String(transRequestId),
-    token: String(token),
-  };
+  const supplied: MiniProgramPayment = { transRequestId, token };
 
   const transactionId = String(transaction._id);
 
-  // A Toki payment already used for another order is rejected here
-  await claimMiniProgramPayment(models, transactionId, supplied.transRequestId);
-
   // Source of truth: Toki must say the payment is COMPLETED. If Toki's reply
   // names an order, amount or merchant, they must match this transaction.
-  const status = await new TokiAPI(payment.config).checkMiniProgramPayment(
-    transaction,
-    supplied,
-  );
+  const status = await new TokiAPI(
+    payment.config,
+    undefined,
+    models,
+  ).checkMiniProgramPayment(transaction, supplied);
 
   if (status !== PAYMENT_STATUS.PAID) {
+    // Unverified: kept for later polling, never replaces a stored payment,
+    // and claims nothing
     await rememberMiniProgramPayment(transactionId, supplied, false);
     return transaction;
   }
 
-  await rememberMiniProgramPayment(transactionId, supplied, true);
+  // Rejects a Toki payment that was already used for another order
+  await settleMiniProgramPayment(models, transactionId, supplied);
 
-  return markPaid(models, transaction, {
-    'response.tokiTransRequestId': supplied.transRequestId,
-  });
+  return markPaid(models, transaction);
 };
 
 // QR flow: Toki's notification or the success/failure redirect
-const qrCallback = async (models: IModels, data: any) => {
-  const id = data.traceOrderId || data.orderId || data.transactionId;
+const qrCallback = async (models: IModels, data: TokiCallbackData) => {
+  const id =
+    asText(data.traceOrderId) ||
+    asText(data.orderId) ||
+    asText(data.transactionId);
+  const merchantId = asText(data.merchantId);
+  const amount = asAmount(data.amount);
 
   if (!id) {
     throw new Error('transaction id is required');
@@ -176,39 +295,57 @@ const qrCallback = async (models: IModels, data: any) => {
   const { transaction, payment } = await getTokiTransaction(models, id);
 
   if (
-    data.merchantId &&
+    merchantId &&
     payment.config.tokiMerchantId &&
-    data.merchantId !== payment.config.tokiMerchantId
+    merchantId !== payment.config.tokiMerchantId
   ) {
     throw new Error('Merchant ID mismatch');
   }
 
   if (
     data.amount !== undefined &&
-    Number(data.amount) !== Number(transaction.amount)
+    amount !== Number(transaction.amount)
   ) {
     throw new Error('Amount mismatch');
   }
 
-  const status = await new TokiAPI(payment.config).checkInvoice(transaction);
+  const status = await new TokiAPI(
+    payment.config,
+    undefined,
+    models,
+  ).checkInvoice(transaction);
 
-  if (status !== PAYMENT_STATUS.PAID) {
-    return transaction;
+  if (status === PAYMENT_STATUS.PAID) {
+    return markPaid(models, transaction);
   }
 
-  return markPaid(models, transaction);
+  // Cancelled, failed or expired at Toki: record it, so the customer sees the
+  // outcome instead of a payment that stays pending. Never downgrades a paid one.
+  if (QR_TERMINAL_STATUSES.includes(status)) {
+    await models.Transactions.updateOne(
+      { _id: transaction._id, status: PAYMENT_STATUS.PENDING },
+      { $set: { status, updatedAt: new Date() } },
+    );
+
+    return models.Transactions.getTransaction({ _id: transaction._id });
+  }
+
+  return transaction;
 };
 
-export const tokiCallbackHandler = async (models: IModels, data: any) => {
+export const tokiCallbackHandler = async (
+  models: IModels,
+  data: TokiCallbackData,
+) => {
   try {
-    if (data.orderID || data.transRequestId) {
+    if (asText(data.orderID) || asText(data.transRequestId)) {
       return await miniProgramCallback(models, data);
     }
 
     return await qrCallback(models, data);
   } catch (e) {
     console.error('[TOKI][CALLBACK] Error', e);
-    throw new Error(`Toki callback failed: ${e.message}`);
+    throw new Error(`Toki callback failed: ${errorMessage(e)}`);
   }
 };
 
@@ -226,9 +363,13 @@ export class TokiAPI extends BaseAPI {
   private username?: string;
   private password?: string;
   private domain?: string;
+  // Needed to settle mini-program payments found by status polling
+  private models?: IModels;
 
-  constructor(config: ITokiConfig, domain?: string) {
+  constructor(config: ITokiConfig, domain?: string, models?: IModels) {
     super(config);
+
+    this.models = models;
 
     this.environment =
       config.tokiEnvironment === 'staging' ? 'staging' : 'production';
@@ -300,28 +441,29 @@ export class TokiAPI extends BaseAPI {
       },
     });
 
-    const res: any = await response.json().catch(() => ({}));
+    const res = await readReply<TokiTokenData>(response);
+    const accessToken = asText(res?.data?.accessToken);
 
-    if (response.status !== 200 || res.error || !res.data?.accessToken) {
+    if (response.status !== 200 || res?.error || !accessToken) {
       console.error('[TOKI][AUTH] Login failed', {
         status: response.status,
         merchantId: this.merchantId,
         username: this.username,
-        error: res.error?.message,
+        error: res?.error?.message,
       });
 
       throw new Error(
         `Toki login failed (HTTP ${response.status}): ${
-          res.error?.message || 'unknown error'
+          res?.error?.message || 'unknown error'
         }`,
       );
     }
 
     // The token lasts 14 days; refresh hourly to be safe
-    await redis.set(cacheKey, res.data.accessToken, 'EX', 3600);
+    await redis.set(cacheKey, accessToken, 'EX', 3600);
 
     return {
-      Authorization: `Bearer ${res.data.accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     };
   }
@@ -331,7 +473,7 @@ export class TokiAPI extends BaseAPI {
     const description = transaction.description || 'Payment';
 
     // What the shop page passes to Toki's buy() inside the Toki app
-    const result: any = {
+    const result: TokiInvoiceResult = {
       miniProgram: {
         merchantId: this.merchantId,
         amount: transaction.amount,
@@ -352,7 +494,7 @@ export class TokiAPI extends BaseAPI {
       );
     } catch (e) {
       console.error('[TOKI][CREATE QR] Error', e);
-      result.qrError = e.message;
+      result.qrError = errorMessage(e);
     }
 
     return result;
@@ -379,7 +521,7 @@ export class TokiAPI extends BaseAPI {
       },
     });
 
-    const res: any = await response.json().catch(() => null);
+    const res = await readReply<TokiQrData>(response);
 
     if (!res) {
       throw new Error(`Toki returned a non-JSON response (HTTP ${response.status})`);
@@ -391,14 +533,16 @@ export class TokiAPI extends BaseAPI {
       );
     }
 
-    if (!res.data?.requestId) {
+    const requestId = asText(res.data?.requestId);
+
+    if (!requestId) {
       throw new Error('Toki QR response has no requestId');
     }
 
     return {
-      requestId: res.data.requestId,
-      transactionId: res.data.transactionId,
-      qrData: await QRCode.toDataURL(res.data.requestId),
+      requestId,
+      transactionId: asText(res.data?.transactionId),
+      qrData: await QRCode.toDataURL(requestId),
     };
   }
 
@@ -421,7 +565,7 @@ export class TokiAPI extends BaseAPI {
       },
     });
 
-    const res: any = await response.json().catch(() => null);
+    const res = await readReply<TokiMiniProgramStatusData>(response);
 
     if (!res || res.statusCode !== 200) {
       throw new Error(
@@ -430,7 +574,7 @@ export class TokiAPI extends BaseAPI {
       );
     }
 
-    const data = res.data || {};
+    const data: TokiMiniProgramStatusData = res.data || {};
 
     if (data.status !== 'COMPLETED') {
       return PAYMENT_STATUS.PENDING;
@@ -439,23 +583,26 @@ export class TokiAPI extends BaseAPI {
     // Toki's documented reply is only { status }. If it does name the order,
     // amount or merchant, they must match this transaction.
     const providerOrderId = data.orderId ?? data.orderID;
-    const providerAmount = data.amount;
+    const providerMerchantId = asText(data.merchantId);
 
     if (
       providerOrderId !== undefined &&
-      String(providerOrderId) !== String(transaction._id)
+      asText(providerOrderId) !== String(transaction._id)
     ) {
       throw new Error('Toki payment belongs to another order');
     }
 
     if (
-      providerAmount !== undefined &&
-      Number(providerAmount) !== Number(transaction.amount)
+      data.amount !== undefined &&
+      asAmount(data.amount) !== Number(transaction.amount)
     ) {
       throw new Error('Toki payment amount does not match');
     }
 
-    if (data.merchantId !== undefined && data.merchantId !== this.merchantId) {
+    if (
+      data.merchantId !== undefined &&
+      providerMerchantId !== this.merchantId
+    ) {
       throw new Error('Toki payment merchant does not match');
     }
 
@@ -470,7 +617,7 @@ export class TokiAPI extends BaseAPI {
       headers: await this.getHeaders(),
     });
 
-    const res: any = await response.json().catch(() => null);
+    const res = await readReply<TokiQrStatusData>(response);
 
     if (!res || res.error || res.code !== 200) {
       throw new Error(
@@ -485,7 +632,7 @@ export class TokiAPI extends BaseAPI {
       case 'CANCELLED':
         return PAYMENT_STATUS.CANCELLED;
       case 'EXPIRED':
-        return PAYMENT_STATUS.FAILED;
+        return PAYMENT_STATUS.EXPIRED;
       default:
         return PAYMENT_STATUS.PENDING;
     }
@@ -494,9 +641,27 @@ export class TokiAPI extends BaseAPI {
   private async check(transaction: ITransactionDocument) {
     try {
       // Paid inside the Toki app: Toki's callback stored these
-      const miniProgram = await getMiniProgramPayment(String(transaction._id));
+      const transactionId = String(transaction._id);
+      const miniProgram = await getMiniProgramPayment(transactionId);
       if (miniProgram) {
-        return await this.checkMiniProgramPayment(transaction, miniProgram);
+        const status = await this.checkMiniProgramPayment(
+          transaction,
+          miniProgram,
+        );
+
+        if (status !== PAYMENT_STATUS.PAID) {
+          return status;
+        }
+
+        // Without models the payment cannot be claimed, so it is not paid yet
+        if (!this.models) {
+          console.warn('[TOKI][CHECK] No models; cannot settle', transactionId);
+          return PAYMENT_STATUS.PENDING;
+        }
+
+        await settleMiniProgramPayment(this.models, transactionId, miniProgram);
+
+        return PAYMENT_STATUS.PAID;
       }
 
       const requestId = transaction.response?.requestId;
@@ -508,7 +673,7 @@ export class TokiAPI extends BaseAPI {
       return PAYMENT_STATUS.PENDING;
     } catch (e) {
       console.error('[TOKI][CHECK] Error', e);
-      throw new Error(e.message);
+      throw new Error(errorMessage(e));
     }
   }
 
@@ -537,7 +702,7 @@ export class TokiAPI extends BaseAPI {
         headers: await this.getHeaders(),
       });
 
-      const res: any = await response.json().catch(() => null);
+      const res = await readReply<unknown>(response);
 
       if (!res || res.error || res.code !== 200) {
         throw new Error(res?.error?.message || 'Failed to cancel Toki QR');
@@ -546,7 +711,7 @@ export class TokiAPI extends BaseAPI {
       return res.data;
     } catch (e) {
       console.error('[TOKI][CANCEL] Error', e);
-      return { error: e.message };
+      return { error: errorMessage(e) };
     }
   }
 }

@@ -18,7 +18,7 @@ import KhanbankForm from './payments/KhanbankForm';
 import GolomtForm from './payments/GolomtForm';
 import TdbCGWForm from './payments/TdbCGWForm';
 import PocketForm from './payments/PocketForm';
-import TokiForm from './payments/TokiForm';
+import { TokiForm } from './payments/TokiForm';
 
 const Content = () => {
   const isMobile = useIsMobile();

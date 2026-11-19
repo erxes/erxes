@@ -7,6 +7,7 @@ type Props = {
     apiDomain: string;
     newTransaction: Transaction;
     transactionLoading?: boolean;
+    transactionError?: string | null;
     checkInvoiceLoading?: boolean;
     requestNewTransaction: (paymentId: string, details?: any) => void;
     checkInvoiceHandler: (id: string) => void;

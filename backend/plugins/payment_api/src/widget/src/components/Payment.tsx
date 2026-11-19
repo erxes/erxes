@@ -11,6 +11,7 @@ type Props = {
   requestNewTransaction: any;
   checkInvoiceHandler: any;
   transactionLoading: any;
+  transactionError: string | null;
   checkInvoiceLoading: any;
 };
 

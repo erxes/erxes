@@ -121,9 +121,14 @@ const MiniProgram = ({ data }: { data: MiniProgramData }) => {
   );
 };
 
-const TokiForm = () => {
-  const { transactionLoading, apiResponse, paymentId, requestNewTransaction } =
-    usePayment();
+export const TokiForm = () => {
+  const {
+    transactionLoading,
+    transactionError,
+    apiResponse,
+    paymentId,
+    requestNewTransaction,
+  } = usePayment();
 
   if (transactionLoading) {
     return (
@@ -167,8 +172,9 @@ const TokiForm = () => {
           </button>
         </>
       )}
+      {transactionError && (
+        <p className="mt-2 text-xs text-red-600">{transactionError}</p>
+      )}
     </div>
   );
 };
-
-export default TokiForm;

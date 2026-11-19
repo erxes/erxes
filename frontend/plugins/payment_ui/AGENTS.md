@@ -75,6 +75,10 @@
   record table never needs a manual refresh.
 - Jotai atom in `src/modules/payment/states/invoiceCounts.ts` for invoice counts only.
 - Forms use React Hook Form + Zod (`zodResolver`); the schema is selected by payment `kind`.
+  Generic kinds build it from `PAYMENT_KINDS[kind].fields` (`PaymentField`): `optional`
+  fields are not required, `options` render a select, and `optionalWhen: { key, value }`
+  makes a field required unless another field has that value (checked in `superRefine`;
+  the "*" follows the current value).
 
 ## Local Invariants
 
@@ -98,6 +102,9 @@
   empty cell while permissions load.
 - `invoiceEdit` returns the edited `Invoice` with `_id`, so Apollo's normalized cache refreshes
   the row; do not add a refetch for it.
+- Toki settings: Merchant ID is required unless Environment is Staging (then Toki's test
+  merchant is used). QR username and password are optional: both empty means mini program
+  only, and `payment_api`'s `authorize` rejects saving just one of them.
 - The payment settings sheet closes only after the `paymentAdd` / `paymentEdit` mutation
   resolves. `PaymentForm`'s `onSubmit` is `async` and awaits the mutation, so a failure keeps
   the sheet open with the entered values and reports the error through a `destructive` toast.

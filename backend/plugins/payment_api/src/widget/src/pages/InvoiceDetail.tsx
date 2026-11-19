@@ -20,6 +20,10 @@ const InvoiceDetail = () => {
     useMutation(CHECK_INVOICE);
 
   const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
+  // Shown next to retry actions when creating a new transaction fails
+  const [transactionError, setTransactionError] = React.useState<string | null>(
+    null,
+  );
 
   const invoiceSubscription = useSubscription(INVOICE_SUBSCRIPTION, {
     variables: { invoiceId: id },
@@ -121,6 +125,8 @@ const InvoiceDetail = () => {
   }
 
   const requestNewTransaction = (paymentId: string, details?: any) => {
+    setTransactionError(null);
+
     addTransaction({
       variables: {
         input: {
@@ -130,9 +136,15 @@ const InvoiceDetail = () => {
           amount: invoiceDetail.amount,
         },
       },
-    }).then(() => {
-      invoiceDetailQuery.refetch();
-    });
+    })
+      .then(() => {
+        invoiceDetailQuery.refetch();
+      })
+      .catch((e: unknown) => {
+        setTransactionError(
+          e instanceof Error ? e.message : 'Could not start the payment',
+        );
+      });
   };
 
   const checkInvoiceHandler = (id: string) => {
@@ -198,6 +210,7 @@ const InvoiceDetail = () => {
     requestNewTransaction,
     checkInvoiceHandler,
     transactionLoading: addTransactionResponse.loading,
+    transactionError,
     checkInvoiceLoading,
   };
 

@@ -9,6 +9,8 @@ export type PaymentField = {
   optional?: boolean;
   // Renders a select instead of a text input
   options?: { value: string; label: string }[];
+  // Required, except when another field has this value
+  optionalWhen?: { key: string; value: string };
 };
 
 export const PAYMENT_KINDS = {
@@ -226,7 +228,8 @@ export const PAYMENT_KINDS = {
       {
         key: 'tokiMerchantId',
         label: 'merchant-id',
-        validation: { type: 'minLength', value: 1 },
+        // On staging, an empty merchant ID uses Toki's test merchant
+        optionalWhen: { key: 'tokiEnvironment', value: 'staging' },
       },
       {
         key: 'tokiEnvironment',
