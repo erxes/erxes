@@ -4,6 +4,7 @@ import type ExcelJS from 'exceljs';
 import { buildReportWorkbook, exportReportExcel } from '../exportReportExcel';
 import { ReportExcelButton } from '../ReportExcelButton';
 import { newColumn, newReport } from '../values';
+import { reportRow } from './reportTestKit';
 import { ReportValues } from '../schema';
 import { ReportRunSettings } from '../runReport';
 
@@ -29,25 +30,6 @@ jest.mock('erxes-ui', () => ({
   ),
 }));
 
-const row = (
-  _id: string,
-  name: string,
-  extra: Partial<ReportValues['sections'][number]['rows'][number]> = {},
-): ReportValues['sections'][number]['rows'][number] => ({
-  _id,
-  name,
-  code: '',
-  number: _id,
-  order: 0,
-  isActive: true,
-  kind: 'formula',
-  valueSide: 'call_value',
-  isBold: false,
-  isItalic: false,
-  isUnderline: false,
-  tabCount: 0,
-  ...extra,
-});
 const incomeStatement = (): ReportValues => {
   const report = newReport('Орлогын тайлан / 2026');
   report.code = 'СТ2';
@@ -65,10 +47,10 @@ const incomeStatement = (): ReportValues => {
     { ...newColumn('Нуусан'), _id: 'off', isActive: false },
   ];
   section.rows = [
-    row('1', 'Борлуулалтын орлого'),
-    row('1.1', 'Аяллын орлого', { tabCount: 2, isItalic: true }),
-    row('2', 'Нийт ашиг', { isBold: true, isUnderline: true }),
-    row('9', 'Ашиглахгүй мөр', { isActive: false }),
+    reportRow('1', 'Борлуулалтын орлого'),
+    reportRow('1.1', 'Аяллын орлого', { tabCount: 2, isItalic: true }),
+    reportRow('2', 'Нийт ашиг', { isBold: true, isUnderline: true }),
+    reportRow('9', 'Ашиглахгүй мөр', { isActive: false }),
   ];
   return report;
 };

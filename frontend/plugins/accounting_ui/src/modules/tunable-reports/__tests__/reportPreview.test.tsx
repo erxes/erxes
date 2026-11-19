@@ -1,48 +1,21 @@
 import { render, screen, within } from '@testing-library/react';
 import { ReportPaper } from '../ReportPreview';
 import { newColumn, newReport } from '../values';
+import { reportRow } from './reportTestKit';
 import { ReportValues } from '../schema';
 
 jest.mock('../locales', () => ({
   useReportTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock('erxes-ui', () => {
-  const react = jest.requireActual<typeof import('react')>('react');
-  const element = (tag: 'table' | 'thead' | 'tbody' | 'tr' | 'th' | 'td') =>
-    react.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
-      (props, ref) => react.createElement(tag, { ...props, ref }),
-    );
+  const kit =
+    jest.requireActual<typeof import('./reportTestKit')>('./reportTestKit');
   return {
     cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
-    Table: Object.assign(element('table'), {
-      Header: element('thead'),
-      Body: element('tbody'),
-      Row: element('tr'),
-      Head: element('th'),
-      Cell: element('td'),
-    }),
+    Table: kit.tableMock,
   };
 });
 
-const row = (
-  _id: string,
-  name: string,
-  extra: Partial<ReportValues['sections'][number]['rows'][number]> = {},
-): ReportValues['sections'][number]['rows'][number] => ({
-  _id,
-  name,
-  code: '',
-  number: _id,
-  order: 0,
-  isActive: true,
-  kind: 'formula',
-  valueSide: 'call_value',
-  isBold: false,
-  isItalic: false,
-  isUnderline: false,
-  tabCount: 0,
-  ...extra,
-});
 const balanceSheet = (columnNames: string[]): ReportValues => {
   const report = newReport('Санхүүгийн байдлын тайлан');
   const section = report.sections[0];
@@ -52,9 +25,9 @@ const balanceSheet = (columnNames: string[]): ReportValues => {
     _id: `c${index + 1}`,
   }));
   section.rows = [
-    row('1', 'Мөнгө ба түүнтэй адилтгах хөрөнгө'),
-    row('2', 'Дансны авлага', { tabCount: 1 }),
-    row('3', 'Нийт хөрөнгө', { isBold: true }),
+    reportRow('1', 'Мөнгө ба түүнтэй адилтгах хөрөнгө'),
+    reportRow('2', 'Дансны авлага', { tabCount: 1 }),
+    reportRow('3', 'Нийт хөрөнгө', { isBold: true }),
   ];
   return report;
 };

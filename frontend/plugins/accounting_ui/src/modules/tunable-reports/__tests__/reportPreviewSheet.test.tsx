@@ -1,8 +1,9 @@
-import { ComponentProps, ReactNode } from 'react';
+import { ComponentProps } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import { ReportPreviewSheet } from '../ReportPreviewSheet';
 import { newColumn, newReport } from '../values';
+import { reportRow } from './reportTestKit';
 import { ReportValues } from '../schema';
 
 const mockClose = jest.fn();
@@ -14,14 +15,8 @@ jest.mock('@/journal-reports/hooks/useJournalReportOrganizationName', () => ({
   useJournalReportOrganizationName: () => mockOrganization(),
 }));
 jest.mock('erxes-ui', () => {
-  const react = jest.requireActual<typeof import('react')>('react');
-  const plain = ({ children }: { children?: ReactNode }) => (
-    <div>{children}</div>
-  );
-  const element = (tag: 'table' | 'thead' | 'tbody' | 'tr' | 'th' | 'td') =>
-    react.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
-      (props, ref) => react.createElement(tag, { ...props, ref }),
-    );
+  const kit =
+    jest.requireActual<typeof import('./reportTestKit')>('./reportTestKit');
   return {
     cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
     Button: ({ children, onClick }: ComponentProps<'button'>) => (
@@ -29,26 +24,8 @@ jest.mock('erxes-ui', () => {
         {children}
       </button>
     ),
-    Table: Object.assign(element('table'), {
-      Header: element('thead'),
-      Body: element('tbody'),
-      Row: element('tr'),
-      Head: element('th'),
-      Cell: element('td'),
-    }),
-    Sheet: Object.assign(
-      ({ open, children }: { open: boolean; children: ReactNode }) =>
-        open ? <div role="dialog">{children}</div> : null,
-      {
-        View: plain,
-        Header: plain,
-        Content: plain,
-        Description: plain,
-        Footer: plain,
-        Title: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
-        Close: () => null,
-      },
-    ),
+    Table: kit.tableMock,
+    Sheet: kit.sheetMock,
   };
 });
 
@@ -57,20 +34,7 @@ const draft = (): ReportValues => {
   report.header = '<p>{name}, утас {phone1}</p>';
   report.sections[0].columns = [{ ...newColumn('Тайлант үе'), _id: 'c' }];
   report.sections[0].rows = [
-    {
-      _id: 'r',
-      name: 'Үндсэн үйл ажиллагааны мөнгөн гүйлгээ',
-      code: '',
-      number: '1',
-      order: 0,
-      isActive: true,
-      kind: 'formula',
-      valueSide: 'call_value',
-      isBold: false,
-      isItalic: false,
-      isUnderline: false,
-      tabCount: 0,
-    },
+    { ...reportRow('r', 'Үндсэн үйл ажиллагааны мөнгөн гүйлгээ'), number: '1' },
   ];
   return report;
 };

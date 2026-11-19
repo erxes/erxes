@@ -32,13 +32,12 @@ jest.mock('../fields', () => ({
 }));
 jest.mock('erxes-ui', () => {
   const react = jest.requireActual<typeof import('react')>('react');
+  const kit =
+    jest.requireActual<typeof import('./reportTestKit')>('./reportTestKit');
   const hookForm =
     jest.requireActual<typeof import('react-hook-form')>('react-hook-form');
   const dates = jest.requireActual<typeof import('date-fns')>('date-fns');
   const FieldName = react.createContext('');
-  const plain = ({ children }: { children?: ReactNode }) => (
-    <div>{children}</div>
-  );
   const Message = () => {
     const name = react.useContext(FieldName);
     const { errors } = hookForm.useFormState();
@@ -86,19 +85,7 @@ jest.mock('erxes-ui', () => {
       Control: ({ children }: { children?: ReactNode }) => children,
       Message,
     }),
-    Sheet: Object.assign(
-      ({ open, children }: { open: boolean; children: ReactNode }) =>
-        open ? <div role="dialog">{children}</div> : null,
-      {
-        View: plain,
-        Header: plain,
-        Content: plain,
-        Description: plain,
-        Footer: plain,
-        Title: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
-        Close: () => null,
-      },
-    ),
+    Sheet: kit.sheetMock,
   };
 });
 
