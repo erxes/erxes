@@ -2,6 +2,7 @@ import {
   IconAlertTriangle,
   IconArrowsSplit,
   IconBolt,
+  IconChevronRight,
   IconCircleCheck,
   IconCircleX,
   IconClock,
@@ -30,55 +31,79 @@ export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string }
   stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground' },
 };
 
-const ADD_CHOICES: { type: StepType; hint: string }[] = [
-  { type: 'action', hint: 'Do something: email, tag, assign, call a plugin' },
+interface Choice {
+  type: StepType;
+  hint: string;
+}
+
+const MAIN_CHOICES: Choice[] = [
+  { type: 'action', hint: 'Send an email, add a tag, create a task' },
   { type: 'delay', hint: 'Pause for minutes, hours or days' },
+  { type: 'branch', hint: 'Go one way or another, by conditions' },
+];
+
+const MORE_CHOICES: Choice[] = [
   { type: 'wait_for', hint: 'Until something happens to the record' },
-  { type: 'branch', hint: 'Yes or no, by conditions' },
   { type: 'switch', hint: 'One of several paths' },
   { type: 'split', hint: 'Test two versions (A/B)' },
   { type: 'stop', hint: 'End the run' },
 ];
 
-/** The "+" between nodes: a menu of step kinds to insert there. */
+const ChoiceItem = ({ type, hint, onAdd }: Choice & { onAdd: (type: StepType) => void }) => {
+  const { t } = useTranslation('automations');
+  const Icon = LOOK[type].icon;
+
+  return (
+    <DropdownMenu.Item onClick={() => onAdd(type)}>
+      <span className="flex items-start gap-3 py-2">
+        <span
+          className={cn(
+            'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md',
+            LOOK[type].tone,
+          )}
+        >
+          <Icon className="size-4" />
+        </span>
+        <span>
+          <span className="block text-sm font-medium">
+            {t(`step-type.${type}`, STEP_TITLES[type])}
+          </span>
+          <span className="block text-xs text-muted-foreground">
+            {t(`step-hint.${type}`, hint)}
+          </span>
+        </span>
+      </span>
+    </DropdownMenu.Item>
+  );
+};
+
 const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
   const { t } = useTranslation('automations');
 
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger
-        aria-label={t('add-step', 'Add step')}
+        aria-label={t('add-step', 'Add a step')}
         render={<Button variant="insert" size="icon" className="relative z-10 size-6" />}
       >
         <IconPlus className="size-3.5" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="center" className="w-72">
-        {ADD_CHOICES.map(({ type, hint }) => {
-          const Icon = LOOK[type].icon;
-
-          return (
-            <DropdownMenu.Item key={type} onClick={() => onAdd(type)}>
-              <span className="flex items-start gap-3 py-2">
-                <span
-                  className={cn(
-                    'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md',
-                    LOOK[type].tone,
-                  )}
-                >
-                  <Icon className="size-4" />
-                </span>
-                <span>
-                  <span className="block text-sm font-medium">
-                    {t(`step-type.${type}`, STEP_TITLES[type])}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {t(`step-hint.${type}`, hint)}
-                  </span>
-                </span>
-              </span>
-            </DropdownMenu.Item>
-          );
-        })}
+        {MAIN_CHOICES.map((choice) => (
+          <ChoiceItem key={choice.type} {...choice} onAdd={onAdd} />
+        ))}
+        <DropdownMenu.Separator />
+        <DropdownMenu.Sub>
+          <DropdownMenu.SubTrigger>
+            {t('add-step-more', 'More')}
+            <IconChevronRight className="ml-auto" />
+          </DropdownMenu.SubTrigger>
+          <DropdownMenu.SubContent className="w-72" sideOffset={8}>
+            {MORE_CHOICES.map((choice) => (
+              <ChoiceItem key={choice.type} {...choice} onAdd={onAdd} />
+            ))}
+          </DropdownMenu.SubContent>
+        </DropdownMenu.Sub>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

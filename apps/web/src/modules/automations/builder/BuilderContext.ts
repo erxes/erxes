@@ -1,4 +1,4 @@
-import type { DataField } from '@erxes/core-contract';
+import type { ActionInfo, DataField } from '@erxes/core-contract';
 import { createContext } from 'react';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -27,10 +27,12 @@ export const BuilderContext = createContext<{
   trigger: StartingEvent | undefined;
   /** Whether runs are about a customer or company, whose fields steps can then use. */
   hasSubject: boolean;
+  knownActions: ActionInfo[];
 }>({
   events: [],
   stats: new Map(),
   outputsBefore: () => [],
   trigger: undefined,
   hasSubject: false,
+  knownActions: [],
 });
