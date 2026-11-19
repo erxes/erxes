@@ -12,7 +12,14 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
+import {
+  inList,
+  orgIdColumn,
+  pgTable,
+  recordOwnerIdColumn,
+  unitIdsColumn,
+  visibleToColumn,
+} from '../table';
 import { createdAt, updatedAt } from './common';
 import { customers } from './customers';
 import { leadStages } from './leadStages';
@@ -50,7 +57,10 @@ export const companies = pgTable(
     businessType: text(),
     code: text(),
     description: text(),
-    ownerId: text(),
+    ownerId: recordOwnerIdColumn(),
+    /** The units it is in (`core_org_units`): a member sees it when their reach holds one. */
+    unitIds: unitIdsColumn(),
+    visibleTo: visibleToColumn(),
     leadStageId: text(),
     leadStageChangedAt: timestamp({ withTimezone: true, mode: 'date' }),
     disqualifyReason: text(),
@@ -101,6 +111,9 @@ export const companies = pgTable(
     }).onDelete('set null'),
     check('core_companies_state_check', inList(table.state, CUSTOMER_STATES)),
     index('core_companies_org_owner_idx').on(table.orgId, table.ownerId),
+    // Row level security reads it: a small unit's records in a large table.
+    index('core_companies_visible_to_idx').using('gin', table.visibleTo),
+    check('core_companies_unit_ids_check', sql`cardinality(${table.unitIds}) > 0`),
     index('core_companies_org_industry_idx').on(table.orgId, sql`lower(${table.industry})`),
     index('core_companies_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),
     index('core_companies_primary_name_trgm_idx').using(

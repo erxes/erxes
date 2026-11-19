@@ -5,7 +5,7 @@ import { notFound } from '~/http/errors';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 
-export type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & {
+export type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText' | 'visibleTo'> & {
   tagIds: string[];
   customFields: Record<string, CustomValue>;
 };
@@ -14,7 +14,8 @@ export const inOrg = (id: string) => eq(customers.id, id);
 
 /** Customers with their tag ids and custom field values. */
 export const selectCustomers = (client: Db) => {
-  const { searchText: _searchText, ...columns } = getTableColumns(customers);
+  // `visibleTo` is the database's own (row level security): it never leaves it.
+  const { searchText: _searchText, visibleTo: _visibleTo, ...columns } = getTableColumns(customers);
 
   return client
     .select({

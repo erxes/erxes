@@ -1,7 +1,8 @@
 import { type Db, users } from '@erxes/core-db';
-import { inArray } from 'drizzle-orm';
+import { and, inArray } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
+import { userInReach } from '~/modules/reach/reach';
 
 /** 400 INVALID_TYPE unless the type is namespaced by the calling plugin. */
 export const assertPluginNamespace = (plugin: string, type: string) => {
@@ -10,13 +11,19 @@ export const assertPluginNamespace = (plugin: string, type: string) => {
   }
 };
 
-/** Whether every given user is a team member of the organisation (one query; empty ids are skipped). */
+/**
+ * Whether every given user is a team member of the organisation the caller reaches (one query;
+ * empty ids are skipped).
+ */
 const allMembers = async (client: Db, userIds: (string | null | undefined)[]) => {
   const wanted = unique(userIds);
 
   if (!wanted.length) return true;
 
-  const rows = await client.select({ id: users.id }).from(users).where(inArray(users.id, wanted));
+  const rows = await client
+    .select({ id: users.id })
+    .from(users)
+    .where(and(inArray(users.id, wanted), userInReach(users.id)));
 
   return rows.length === wanted.length;
 };
@@ -28,9 +35,16 @@ export const assertMembers = async (client: Db, userIds: (string | null | undefi
   }
 };
 
-/** 400 INVALID_OWNER unless a record's new owner is a team member of the organisation. */
-export const assertOwner = async (client: Db, ownerId: string | null | undefined) => {
-  if (!(await allMembers(client, [ownerId]))) {
+/**
+ * 400 INVALID_OWNER unless a record's new owner is a team member of the organisation the
+ * caller reaches. The owner it already has (`current`) stays whoever they are.
+ */
+export const assertOwner = async (
+  client: Db,
+  ownerId: string | null | undefined,
+  current?: string | null,
+) => {
+  if (ownerId !== current && !(await allMembers(client, [ownerId]))) {
     throw fail('INVALID_OWNER', 'The owner is not a team member of this organisation');
   }
 };

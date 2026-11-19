@@ -12,6 +12,7 @@ import {
   EmailAddress,
   Id,
   IdList,
+  RecordUnitIds,
   PhoneNumber,
   cursorPageOf,
   ImageAddress,
@@ -47,6 +48,8 @@ export const Company = createSelectSchema(companies, {
     code: true,
     description: true,
     ownerId: true,
+    /** The units it is in; some may be outside the caller's reach, and `units.get` hides those. */
+    unitIds: true,
     ...LIFECYCLE_COLUMNS,
     createdAt: true,
     updatedAt: true,
@@ -107,6 +110,12 @@ export const CompanyFields = createUpdateSchema(companies, {
     ...LIFECYCLE_INPUT_COLUMNS,
   })
   .extend({
+    /**
+     * Replaces its units. Left out on create: the creating member's units, else the
+     * organisation's own. A member who reaches less than the organisation replaces only the
+     * units they reach; the others stay.
+     */
+    unitIds: RecordUnitIds.optional(),
     tagIds: z.array(Id).max(50).optional(),
     /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
     customFields: CustomFieldsPatch.optional(),
@@ -170,6 +179,8 @@ export const companiesContract = {
         /** Leads in this stage. */
         leadStageId: Id.optional(),
         ownerId: Id.optional(),
+        /** Companies in this unit or a unit under it. */
+        unitId: Id.optional(),
         tagIds: IdList.optional(),
         /** Companies of this customer. */
         customerId: Id.optional(),

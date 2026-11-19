@@ -81,6 +81,8 @@ const pluginBatchJob = (queue: 'import.plugin.check' | 'import.plugin.run', dry:
       const result = await importBatch(batch.spec, stepKey(imp.id, queue, payload.after), {
         orgId,
         userId: imp.createdBy,
+        reach: batch.member.reach.level,
+        unitIds: [...batch.member.reach.unitIds],
         importId: imp.id,
         dryRun: dry,
         mode: imp.options.mode,

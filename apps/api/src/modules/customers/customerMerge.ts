@@ -98,6 +98,8 @@ const mergedColumns = (keep: CustomerRow, others: CustomerRow[]) => {
       ...others.map((other) => other.id),
       ...others.flatMap((other) => other.mergedIds),
     ]),
+    // Whoever saw one of them sees the one that is kept.
+    unitIds: unique([...keep.unitIds, ...others.flatMap((other) => other.unitIds)]),
     updatedAt: sql`now()`,
   };
 };

@@ -1,4 +1,4 @@
-import { type CursorQuery, UNIT_MAX } from '@erxes/core-contract';
+import { type CursorQuery, UNIT_DEPTH_MAX, UNIT_MAX } from '@erxes/core-contract';
 import {
   type Db,
   orgUnitMembers,
@@ -15,17 +15,11 @@ import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { unitInReach, unitShown, userInReach } from '~/modules/reach/reach';
+import { within } from './unitPaths';
 
 const other = alias(orgUnits, 'other_unit');
 const type = alias(orgUnitTypes, 'unit_type');
-
-const CHARACTER_AFTER_SLASH = sql.raw("'0'");
-
-const firstPathAfterSubtree = (path: PgColumn | string) =>
-  sql`(left(${path}, -1) || ${CHARACTER_AFTER_SLASH})`;
-
-export const within = (inner: PgColumn, outer: PgColumn | string) =>
-  sql`(${inner} ~>=~ ${outer} and ${inner} ~<~ ${firstPathAfterSubtree(outer)})`;
 
 export const typeHidden = (plugin: PgColumn) => sql<boolean>`(${plugin} is not null and not exists (
   select 1 from ${pluginInstallations}
@@ -46,51 +40,65 @@ export const reachable = (includeInactive: boolean) =>
     join ${orgUnits} ${other} on ${other.id} = step.id
     where not (${listed(other, includeInactive)}))`;
 
-const memberIds = sql<string[]>`coalesce((
+/**
+ * The columns below are built for the caller. A member whose role reaches less than the
+ * organisation is shown the units they reach and, by name, the units above those: a unit's
+ * people and counts are those of the units they reach, so a unit above theirs has none.
+ */
+const memberIds = () =>
+  sql<string[]>`coalesce((
   select array_agg(${orgUnitMembers.userId} order by ${orgUnitMembers.userId} collate "C")
-  from ${orgUnitMembers} where ${orgUnitMembers.unitId} = ${orgUnits.id}
+  from ${orgUnitMembers}
+  where ${and(eq(orgUnitMembers.unitId, orgUnits.id), unitInReach(orgUnits))}
 ), '{}')`.as('member_ids');
 
-const memberCount = sql<number>`(
-  select count(*)::int from ${orgUnitMembers} where ${orgUnitMembers.unitId} = ${orgUnits.id}
+const memberCount = () =>
+  sql<number>`(
+  select count(*)::int from ${orgUnitMembers}
+  where ${and(eq(orgUnitMembers.unitId, orgUnits.id), unitInReach(orgUnits))}
 )`.as('member_count');
 
-const subtreeMemberCount = sql<number>`(
+const subtreeMemberCount = () =>
+  sql<number>`(
   select count(distinct ${orgUnitMembers.userId})::int
   from ${orgUnitMembers} join ${orgUnits} ${other} on ${other.id} = ${orgUnitMembers.unitId}
-  where ${within(other.path, orgUnits.path)}
+  where ${and(within(other.path, orgUnits.path), unitInReach(other))}
 )`.as('subtree_member_count');
 
 const childCount = (shown: SQL | undefined) =>
   sql<number>`(
     select count(*)::int from ${orgUnits} ${other}
-    where ${and(eq(other.parentId, orgUnits.id), shown)}
+    where ${and(eq(other.parentId, orgUnits.id), shown, unitShown(other))}
   )`.as('child_count');
 
 /** A unit's row with who is in it. */
-const unitColumns = { ...getTableColumns(orgUnits), memberIds };
+const unitColumns = () => ({ ...getTableColumns(orgUnits), memberIds: memberIds() });
 
 export const nodeColumns = (includeInactive: boolean) => ({
   ...getTableColumns(orgUnits),
   childCount: childCount(listed(other, includeInactive)),
-  memberCount,
-  subtreeMemberCount,
+  memberCount: memberCount(),
+  subtreeMemberCount: subtreeMemberCount(),
 });
 
-const detailColumns = {
-  ...unitColumns,
+const detailColumns = () => ({
+  ...unitColumns(),
   childCount: childCount(undefined),
   descendantCount: sql<number>`(
     select count(*)::int - 1 from ${orgUnits} ${other}
-    where ${within(other.path, orgUnits.path)}
+    where ${and(within(other.path, orgUnits.path), unitShown(other))}
   )`.as('descendant_count'),
-  subtreeMemberCount,
-};
+  subtreeMemberCount: subtreeMemberCount(),
+});
 
 export type UnitRow = typeof orgUnits.$inferSelect & { memberIds: string[] };
 
+/** The unit, when the caller is shown it: 404 otherwise. */
 export const findUnit = async (client: Db, id: string): Promise<UnitRow> => {
-  const [row] = await client.select(unitColumns).from(orgUnits).where(eq(orgUnits.id, id));
+  const [row] = await client
+    .select(unitColumns())
+    .from(orgUnits)
+    .where(and(eq(orgUnits.id, id), unitShown(orgUnits)));
 
   if (!row) throw notFound('Unit');
 
@@ -106,15 +114,16 @@ export const unitPage = (client: Db, query: CursorQuery & { userId?: string; typ
     client,
     { table: orgUnits, id: orgUnits.id, createdAt: orgUnits.createdAt },
     and(
+      unitShown(orgUnits),
       query.typeId ? eq(orgUnits.typeId, query.typeId) : undefined,
       query.userId
-        ? sql`exists (select 1 from ${orgUnitMembers} where ${orgUnitMembers.unitId} = ${orgUnits.id} and ${orgUnitMembers.userId} = ${query.userId})`
+        ? sql`exists (select 1 from ${orgUnitMembers} where ${and(eq(orgUnitMembers.unitId, orgUnits.id), eq(orgUnitMembers.userId, query.userId), unitInReach(orgUnits))})`
         : undefined,
     ),
     query,
     (where, orderBy, limit): Promise<UnitRow[]> =>
       client
-        .select(unitColumns)
+        .select(unitColumns())
         .from(orgUnits)
         .where(where)
         .orderBy(...orderBy)
@@ -122,16 +131,20 @@ export const unitPage = (client: Db, query: CursorQuery & { userId?: string; typ
   );
 
 export const findUnitDetail = async (client: Db, id: string) => {
-  const [row] = await client.select(detailColumns).from(orgUnits).where(eq(orgUnits.id, id));
+  const [row] = await client
+    .select(detailColumns())
+    .from(orgUnits)
+    .where(and(eq(orgUnits.id, id), unitShown(orgUnits)));
 
   if (!row) throw notFound('Unit');
 
   return row;
 };
 
+/** The organisation's own unit: everyone is shown it, since every unit sits under it. */
 export const rootUnit = async (client: Db) => {
   const [row] = await client
-    .select(detailColumns)
+    .select(detailColumns())
     .from(orgUnits)
     .where(sql`${orgUnits.parentId} is null`);
 
@@ -141,6 +154,18 @@ export const rootUnit = async (client: Db) => {
 };
 
 export const depthOf = (path: string) => path.split('/').length - 2;
+
+/** 400 when a unit would sit deeper than the structure allows. */
+export const assertDepth = (depth: number) => {
+  if (depth > UNIT_DEPTH_MAX) {
+    throw fail('INVALID_REFERENCE', `The structure goes at most ${UNIT_DEPTH_MAX} units deep`, {
+      field: 'parentId',
+    });
+  }
+};
+
+/** A code or name as matching compares it: trimmed, any case. */
+export const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
 
 export const lockTree = (client: Db) => lockKeys(client, [`units:${requestOrgId()}`]);
 
@@ -156,13 +181,19 @@ export const assertRoom = async (client: Db, adding: number) => {
   }
 };
 
-/** The given users that are on this organisation's team (row level security hides the rest). */
+/**
+ * The given users that are on this organisation's team (row level security hides the rest) and
+ * within the caller's reach.
+ */
 export const teamMembers = async (client: Db, userIds: (string | null | undefined)[]) => {
   const wanted = unique(userIds);
 
   if (!wanted.length) return new Set<string>();
 
-  const rows = await client.select({ id: users.id }).from(users).where(inArray(users.id, wanted));
+  const rows = await client
+    .select({ id: users.id })
+    .from(users)
+    .where(and(inArray(users.id, wanted), userInReach(users.id)));
 
   return new Set(rows.map((row) => row.id));
 };

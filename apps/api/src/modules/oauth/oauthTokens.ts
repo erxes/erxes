@@ -3,6 +3,7 @@ import {
   newId,
   oauthRefreshTokens,
   organizations,
+  orgUnitMembers,
   plugins,
   roles,
   users,
@@ -10,6 +11,7 @@ import {
 import { and, eq, sql } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { sha256 } from '~/lib/crypto';
+import { permissionsWithinReach } from '~/modules/reach/reach';
 import { signJwt } from '~/lib/signing';
 import { newSecret } from './oauthClients';
 
@@ -31,7 +33,11 @@ const memberOf = async (tx: Db, issued: Issued) => {
     .select({
       user: users,
       organization: organizations,
-      permissions: roles.permissions,
+      permissions: permissionsWithinReach,
+      reach: roles.reach,
+      unitIds: sql<string[]>`coalesce((
+        select array_agg(${orgUnitMembers.unitId} order by ${orgUnitMembers.unitId})
+        from ${orgUnitMembers} where ${orgUnitMembers.userId} = ${users.id}), '{}')`,
       manifest: plugins.manifest,
     })
     .from(users)
@@ -47,7 +53,11 @@ const memberOf = async (tx: Db, issued: Issued) => {
 type Member = NonNullable<Awaited<ReturnType<typeof memberOf>>>;
 
 const accessToken = (issued: Issued, member: Member) => {
-  const actor = { role: member.user.role, permissions: member.permissions };
+  const actor = {
+    role: member.user.role,
+    permissions: member.permissions,
+    reach: { level: member.reach },
+  };
 
   const permissions = (member.manifest?.permissions ?? [])
     .map((item) => item.action)
@@ -60,6 +70,8 @@ const accessToken = (issued: Issued, member: Member) => {
       client_id: issued.clientId,
       role: member.user.role,
       permissions,
+      reach: member.reach,
+      units: member.unitIds,
     },
     {
       typ: 'at+jwt',

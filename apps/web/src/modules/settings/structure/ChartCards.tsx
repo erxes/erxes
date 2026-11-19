@@ -68,9 +68,9 @@ const ToggleButton = ({ data }: { data: CardData }) => {
 /** A unit on the chart: its type, name, supervisor and headcount. A click selects it. */
 export const UnitCard = ({ data }: NodeProps<Node<CardData, 'card'>>) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { typesById, selectedId, select, startDraft, canManage, canSeeTeam } = useWorkspace();
+  const { typeOf, selectedId, select, startDraft, canManage, canSeeTeam } = useWorkspace();
   const { unit } = data;
-  const type = unit.typeId ? typesById.get(unit.typeId) : undefined;
+  const type = typeOf(unit.typeId);
   const selected = selectedId === unit.id;
 
   return (
@@ -123,7 +123,11 @@ export const UnitCard = ({ data }: NodeProps<Node<CardData, 'card'>>) => {
             <span className="truncate">{t('no-supervisor', 'No supervisor')}</span>
           )}
         </span>
-        {type && <span className="shrink-0 truncate rounded-full border px-1.5">{type.name}</span>}
+        {type && (
+          <Badge variant="secondary" size="sm" className="shrink-0">
+            {type.name}
+          </Badge>
+        )}
         <span
           className="flex shrink-0 items-center gap-1 tabular-nums"
           title={t('headcount', '{{direct}} here, {{all}} with subunits', {

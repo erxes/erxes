@@ -1,45 +1,111 @@
 import { sql } from 'drizzle-orm';
 import { rootDb } from './client';
 import type { Transaction } from './types';
-import {
-  type Caller,
-  currentScope,
-  openScope,
-  type RowLimits,
-  scopeStorage,
-  system,
-} from './scope';
-
-const limitList = (ids: readonly string[] | null) => (ids === null ? '' : ids.join(',') || '-');
-
-const rowLimitsOf = (who: Caller) => (who.type === 'user' ? who.key?.rows : undefined);
-
-const NO_LIMITS: RowLimits = { owners: null, tags: null };
+import { type Caller, currentScope, openScope, type Reach, scopeStorage, system } from './scope';
 
 /**
- * A key's row limits (`RowLimits`) for the transaction: row level security on contacts reads
- * them. Empty settings mean no limit; `-` matches no id.
+ * The settings the database reads about a caller (drizzle/0090_reach.sql). Row level security
+ * limits their rows by a member's reach, then by an API key's own limits inside it. A record
+ * they make without naming its units or owner starts in `app.units`, owned by `app.owner`.
  */
-const applyRowLimits = async (tx: Transaction, rows: RowLimits | undefined) => {
-  if (!rows) return;
+const LIMIT_SETTINGS = [
+  'app.reach',
+  'app.key',
+  'app.key_owners',
+  'app.key_units',
+  'app.key_tags',
+  'app.units',
+  'app.owner',
+] as const;
 
-  await tx.execute(
-    sql`select set_config('app.key_owners', ${limitList(rows.owners)}, true), set_config('app.key_tags', ${limitList(rows.tags)}, true)`,
-  );
+type Limits = Record<(typeof LIMIT_SETTINGS)[number], string>;
+
+/**
+ * A setting's list as a Postgres array of a row's `visible_to` keys (`o:<owner>`, `e:<unit>`,
+ * `u:<unit>`) or of plain ids; '' for no limit, while `{}` matches no row.
+ */
+const limitList = (ids: readonly string[] | null, prefix = '') =>
+  ids === null
+    ? ''
+    : `{${ids.map((id) => `"${prefix}${id.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`).join(',')}}`;
+
+/** A member's reach as the keys a row must have one of. */
+const reachKeys = (userId: string, { level, unitIds }: Reach) => {
+  switch (level) {
+    case 'organization':
+      return '';
+    case 'subtree':
+      return limitList(unitIds, 'u:');
+    case 'unit':
+      return limitList(unitIds, 'e:');
+    case 'own':
+      return limitList([userId], 'o:');
+  }
 };
 
-/** Runs `fn` in a savepoint that sees only the rows `rows` leaves (checking what a key would see). */
-export const withRowLimits = <T>(rows: RowLimits, fn: (tx: Transaction) => Promise<T>) => {
-  const current = openScope();
+/**
+ * The rows a caller is limited to. A member with `own` reach sees the records they own, with
+ * `unit` those in their units, with `subtree` those in a unit under them too; a regular or
+ * management key adds its own limits inside that. Plugins, customers and core itself have none.
+ * What a member makes starts in their units (a key's own, when it is limited to some), and is
+ * theirs when they reach only their own records.
+ */
+const limitsOf = (who: Caller): Limits => {
+  const member = who.type === 'user' ? who : undefined;
+  const rows = member?.key?.rows;
+  const units = rows?.units ?? member?.reach.unitIds ?? [];
 
-  if (!current) throw new Error('withRowLimits() needs a withOrg scope');
+  return {
+    'app.reach': member ? reachKeys(member.userId, member.reach) : '',
+    'app.key': rows ? 'on' : '',
+    'app.key_owners': limitList(rows?.owners ?? null, 'o:'),
+    'app.key_units': limitList(rows?.units ?? null, 'u:'),
+    'app.key_tags': limitList(rows?.tags ?? null),
+    'app.units': units.length ? limitList(units) : '',
+    'app.owner': member?.reach.level === 'own' ? member.userId : '',
+  };
+};
+
+const NO_LIMITS = limitsOf(system('no limits'));
+
+const sameLimits = (one: Limits, other: Limits) =>
+  LIMIT_SETTINGS.every((name) => one[name] === other[name]);
+
+/** Sets the limits for the transaction; they go with it, or with the savepoint that set them. */
+const applyLimits = (tx: Transaction, limits: Limits) =>
+  tx.execute(
+    sql`select ${sql.join(
+      LIMIT_SETTINGS.map((name) => sql`set_config(${name}, ${limits[name]}, true)`),
+      sql`, `,
+    )}`,
+  );
+
+/**
+ * Runs `fn` as `who`, in the current organisation and transaction: a sign-in acting for the
+ * member it found, an automation or an import for the member who started it, core recording
+ * what it did on its own inside a member's request. The rows `who` is limited to come along:
+ * when they differ from the scope's, `fn` runs in a savepoint that sees `who`'s rows, so a job
+ * never reads more than its member and core's own work is not held to the member's reach.
+ */
+export const runAs = async <T>(who: Caller, fn: () => T | Promise<T>): Promise<T> => {
+  const current = currentScope();
+  const scope = { caller: who, orgId: current?.orgId ?? null, tx: current?.tx ?? null };
+
+  // Outside a transaction `withOrg` sets them when it opens one. Across organisations the
+  // system role bypasses row level security.
+  if (!current?.tx || !current.orgId) return scopeStorage.run(scope, fn);
+
+  const limits = limitsOf(who);
+  const before = limitsOf(current.caller);
+
+  if (sameLimits(limits, before)) return scopeStorage.run(scope, fn);
 
   return current.tx.transaction(async (sp) => {
-    await applyRowLimits(sp, rows);
+    await applyLimits(sp, limits);
 
-    const result = await fn(sp);
+    const result = await scopeStorage.run({ ...scope, tx: sp }, fn);
 
-    await applyRowLimits(sp, rowLimitsOf(current.caller) ?? NO_LIMITS);
+    await applyLimits(sp, before);
 
     return result;
   });
@@ -86,14 +152,16 @@ export const withOrg = async <T>(
       // an error the savepoint's rollback undoes both settings.
       await sp.execute(sql`reset role`);
       await sp.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
-      const rows = rowLimitsOf(current.caller);
+      const limits = limitsOf(current.caller);
+      const limited = !sameLimits(limits, NO_LIMITS);
 
-      await applyRowLimits(sp, rows);
+      if (limited) await applyLimits(sp, limits);
 
       const result = await scopeStorage.run({ ...current, tx: sp, orgId }, () => fn(sp));
 
       await sp.execute(sql`select set_config('app.org_id', '', true)`);
-      await applyRowLimits(sp, rows && NO_LIMITS);
+
+      if (limited) await applyLimits(sp, NO_LIMITS);
       await sp.execute(sql`set local role erxes_core_system`);
 
       return result;
@@ -104,7 +172,10 @@ export const withOrg = async <T>(
 
   return rootDb().transaction(async (tx) => {
     await tx.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
-    await applyRowLimits(tx, rowLimitsOf(who));
+    const limits = limitsOf(who);
+
+    // A new transaction has none set.
+    if (!sameLimits(limits, NO_LIMITS)) await applyLimits(tx, limits);
 
     return scopeStorage.run({ caller: who, tx, orgId }, () => fn(tx));
   });

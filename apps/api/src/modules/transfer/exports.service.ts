@@ -7,6 +7,7 @@ import {
   type Db,
   exports,
   newId,
+  type Reach,
   runAs,
   system,
   withOrg,
@@ -26,6 +27,7 @@ import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { storeServerFile } from '~/modules/files/files.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
+import { madeByCaller } from '~/modules/reach/reach';
 import { customCell, transferColumns } from './columns';
 import { type Cell, type ExportRecord, exportFile, pageCells } from './exportCells';
 import {
@@ -57,7 +59,10 @@ export const listExports = async (client: Db, query: CursorQuery) =>
       id: exports.id,
       createdAt: exports.createdAt,
     },
-    inArray(exports.recordType, await transferableTypes(client, 'export')),
+    and(
+      inArray(exports.recordType, await transferableTypes(client, 'export')),
+      madeByCaller(exports.createdBy),
+    ),
     query,
     (where, orderBy, limit) =>
       client
@@ -105,7 +110,7 @@ export const exportRunJob = defineJob({
 
     const body = isCoreType(recordType)
       ? await withOrg(job.orgId, (tx) => runAs(member, () => collectRows(tx, row, recordType)))
-      : await pluginRows(job.orgId, row);
+      : await pluginRows(job.orgId, row, member.reach);
 
     const built = await fileOf(row, header, body);
     const stored = await runAs(member, () => storeServerFile(job.orgId, built.file));
@@ -252,7 +257,7 @@ const collectRows = async (tx: Db, row: ExportRow, recordType: CoreRecordType) =
  * A plugin's records, page by page as its API answers them, outside any scope:
  * up to `MAX_EXPORT_ROWS`, and one page past it when there are more.
  */
-const pluginRows = async (orgId: string, row: ExportRow) => {
+const pluginRows = async (orgId: string, row: ExportRow, reach: Reach) => {
   const spec = await withOrg(orgId, (tx) => pluginTransfer(tx, row.recordType));
   const body: Cell[][] = [];
   let cursor: string | null = null;
@@ -261,6 +266,8 @@ const pluginRows = async (orgId: string, row: ExportRow) => {
     const page = await exportPage(spec, {
       orgId,
       userId: row.createdBy,
+      reach: reach.level,
+      unitIds: [...reach.unitIds],
       columns: row.columns,
       query: row.query,
       cursor,

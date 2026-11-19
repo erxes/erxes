@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable, unitIdsColumn, visibleToColumn } from '../table';
 import type { CustomValue } from './common';
 import { organizations } from './organizations';
 
@@ -48,6 +48,10 @@ export const trash = pgTable(
     recordId: text().notNull(),
     /** Its name at deletion, for the bin's list. */
     label: text(),
+    /** Its owner and units at deletion: the bin shows it to the members who saw the record. */
+    ownerId: text(),
+    unitIds: unitIdsColumn(),
+    visibleTo: visibleToColumn(),
     /** The row, its tags and links, and its timeline entries. */
     snapshot: jsonb().$type<TrashSnapshot>().notNull(),
     deletedByType: text({ enum: ACTOR_TYPES }).notNull(),
@@ -59,6 +63,7 @@ export const trash = pgTable(
     uniqueIndex('core_trash_record_key').on(table.orgId, table.recordType, table.recordId),
     index('core_trash_org_idx').on(table.orgId, table.deletedAt.desc()),
     index('core_trash_purge_idx').on(table.purgeAt),
+    index('core_trash_visible_to_idx').using('gin', table.visibleTo),
     check('core_trash_record_type_check', inList(table.recordType, CONTENT_TYPES)),
     foreignKey({
       columns: [table.orgId],

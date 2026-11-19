@@ -103,11 +103,14 @@ export const PermissionBrowser = ({
   catalog,
   granted,
   editable,
+  blocked,
   onChange,
 }: {
   catalog: PermissionInfo[];
   granted: Set<string>;
   editable: boolean;
+  /** The actions the role's reach keeps it from holding (`outsideReach`). */
+  blocked: Set<string>;
   onChange: Toggle;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
@@ -167,6 +170,7 @@ export const PermissionBrowser = ({
             open={open.has(section.source)}
             granted={granted}
             editable={editable}
+            blocked={blocked}
             onOpenChange={(next) => toggleOne(section.source, next)}
             onChange={onChange}
           />

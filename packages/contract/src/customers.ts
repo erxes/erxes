@@ -14,6 +14,7 @@ import {
   EmailAddress,
   Id,
   IdList,
+  RecordUnitIds,
   PhoneNumber,
   cursorPageOf,
   ImageAddress,
@@ -56,6 +57,8 @@ export const Customer = createSelectSchema(customers, {
     description: true,
     /** Team member responsible for the customer. */
     ownerId: true,
+    /** The units it is in; some may be outside the caller's reach, and `units.get` hides those. */
+    unitIds: true,
     ...LIFECYCLE_COLUMNS,
     createdAt: true,
     updatedAt: true,
@@ -105,6 +108,12 @@ export const CustomerFields = createUpdateSchema(customers, {
     ...LIFECYCLE_INPUT_COLUMNS,
   })
   .extend({
+    /**
+     * Replaces its units. Left out on create: the creating member's units, else the
+     * organisation's own. A member who reaches less than the organisation replaces only the
+     * units they reach; the others stay.
+     */
+    unitIds: RecordUnitIds.optional(),
     /** Replaces the tags (customer tags only). */
     tagIds: z.array(Id).max(50).optional(),
     /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
@@ -209,6 +218,8 @@ export const customersContract = {
         search: z.string().trim().max(100).optional(),
         state: CustomerState.optional(),
         ownerId: Id.optional(),
+        /** Customers in this unit or a unit under it. */
+        unitId: Id.optional(),
         /** Customers with any of these tags. */
         tagIds: IdList.optional(),
         /** Customers of this company. */
@@ -236,6 +247,8 @@ export const customersContract = {
           firstName: z.string().trim().max(100).optional(),
           lastName: z.string().trim().max(100).optional(),
           state: z.enum(CUSTOMER_STATES).optional(),
+          /** The unit this happens at (a store's till): the customer, found or new, is put in it too. */
+          unitId: Id.optional(),
           /** For a new one: where they came from (default: the plugin, or `manual`). */
           source: CustomerFields.shape.source,
           sourceDetails: CustomerFields.shape.sourceDetails,

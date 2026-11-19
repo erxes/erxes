@@ -12,7 +12,16 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   is what members get on install, and owners change it from there.
 - `src/server.ts` verifies the session token, or another plugin's call token
   (`verifyPluginCall`), on `/api/rpc/*` and `/api/v1/*` and hands procedures
-  `context.member` (`PluginMember`: `orgId`, `userId`, `can()`, `canChange()`).
+  `context.member` (`PluginMember`: `orgId`, `userId`, `can()`, `canChange()`,
+  `reach`, `unitIds`).
+- A member's role reaches the whole organisation, their units and the units
+  under them, their units only, or what they own (`member.reach`). A record
+  that belongs to part of the structure stores `unitId` and the unit's `path`
+  (from your copy of `units.list`), and every list and read of it adds
+  `withinReach(member, { unitId, unitPath, ownerId })` from
+  `@erxes/plugin-sdk/filter`. Mark a permission `followsReach: true` in the
+  manifest only when everything it reads and changes is filtered that way:
+  roles that reach less than the organisation can hold no other.
   A plugin call's `userId` is `plugin:<name>` and its permissions are the reads
   the owner approved, so `reads(...)` serves it unchanged.
 - To read another plugin's API, name it in the manifest's `pluginReads`
@@ -92,7 +101,7 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   POST `/api/transfer/import` sends `rows` of `{ rowNumber, values }`, answered
   `{ rows: [{ rowNumber, action, recordId?, error? }] }`, changing nothing when
   `dryRun`. Check each with `verifyCoreTransfer` and answer as its `userId` may
-  see and change. A retried batch keeps its `requestId`: write it once.
+  see and change, within its `reach` and `unitIds`. A retried batch keeps its `requestId`: write it once.
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without
   BYPASSRLS, so row-level security is real in tests.

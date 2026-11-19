@@ -168,6 +168,12 @@
   "type-customer": "Customer",
   "type-company": "Company",
   "email": "Email",
+  "units": {
+    "label": "Units",
+    "choose": "Choose units",
+    "elsewhere_one": "And {{count}} more outside your reach",
+    "elsewhere_other": "And {{count}} more outside your reach"
+  },
   "transfer": {
     "upload-failed": "Could not start the import",
     "import": "Import",

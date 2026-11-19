@@ -1,21 +1,11 @@
-import { OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
-import {
-  type apiKeys,
-  type Caller,
-  type Db,
-  orgUnitMembers,
-  type RowLimits,
-  roles,
-  users,
-} from '@erxes/core-db';
-import { textArray } from '@erxes/plugin-sdk/filter';
-import { and, eq, sql } from 'drizzle-orm';
+import { type apiKeys, type Caller, type Db, type RowLimits, roles, users } from '@erxes/core-db';
+import { and, eq } from 'drizzle-orm';
 import { BlockList, isIP } from 'node:net';
+import { can } from '~/http/access';
 import { areaPermissions, type KeyDecision } from '~/http/keyRules';
+import { permissionsWithinReach, unitIdsOf } from '~/modules/reach/reach';
 
 type KeyRow = typeof apiKeys.$inferSelect;
-
-const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
 /** Does the address fall in one of the ranges (`10.0.0.0/8`, `2001:db8::/32`, `203.0.113.7`)? */
 const ipAllowed = (ranges: readonly string[], ip: string | null) => {
@@ -39,33 +29,19 @@ const ipAllowed = (ranges: readonly string[], ip: string | null) => {
   return list.check(address, family === 6 ? 'ipv6' : 'ipv4');
 };
 
-/** Members of the units or any unit under them. */
-const unitMembers = async (client: Db, unitIds: readonly string[]) => {
-  const rows = await client
-    .selectDistinct({ userId: orgUnitMembers.userId })
-    .from(orgUnitMembers)
-    .where(sql`${orgUnitMembers.unitId} in (select core_units_under(${textArray([...unitIds])}))`);
+/**
+ * The contacts a key sees inside its maker's reach: the maker's own, those in its units or a
+ * unit under them, those with its tags. A management key sees none.
+ */
+const rowLimitsOf = (key: KeyRow): RowLimits => {
+  if (key.kind === 'management') return { owners: [], units: null, tags: [] };
 
-  return rows.map((row) => row.userId);
+  return {
+    owners: key.ownRecords ? [key.userId] : null,
+    units: key.unitIds.length ? key.unitIds : null,
+    tags: key.tagIds.length ? key.tagIds : null,
+  };
 };
-
-/** The contacts a key sees: the maker's own, its units' members', with its tags. */
-const rowLimitsOf = async (client: Db, key: KeyRow): Promise<RowLimits> => {
-  if (key.kind === 'management') return { owners: [], tags: [] };
-
-  const fromUnits = key.unitIds.length ? await unitMembers(client, key.unitIds) : null;
-  const own = key.ownRecords ? [key.userId] : null;
-
-  const owners = own && fromUnits ? own.filter((id) => fromUnits.includes(id)) : (own ?? fromUnits);
-
-  return { owners, tags: key.tagIds.length ? key.tagIds : null };
-};
-
-/** What the maker's role still allows: owners everything, `*` all but owner-only actions. */
-const roleAllows = (role: string, permissions: readonly string[]) => (action: string) =>
-  role === 'owner' ||
-  permissions.includes(action) ||
-  (permissions.includes('*') && !OWNER_ONLY.has(action));
 
 const refused = (rule: string, reason: string): { denied: KeyDecision } => ({
   denied: { allowed: false, rule, reason },
@@ -76,7 +52,7 @@ const refused = (rule: string, reason: string): { denied: KeyDecision } => ({
  * from an address it doesn't allow, or its maker's role is gone. It is the organisation's,
  * so it outlives its maker's sign-in, but holds only the permissions its maker had when it
  * was made that the maker's role has now and its areas bring; it sees the contacts its
- * limits leave (row level security).
+ * maker reaches now that its limits leave (row level security).
  */
 export const keyCaller = async (
   client: Db,
@@ -94,16 +70,19 @@ export const keyCaller = async (
     return refused('ip', `This key doesn't allow calls from ${ip ?? 'an unknown address'}`);
   }
 
-  const [maker] = await client
-    .select({ role: users.role, permissions: roles.permissions })
+  const [row] = await client
+    .select({ role: users.role, permissions: permissionsWithinReach, level: roles.reach })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .where(eq(users.id, key.userId))
     .limit(1);
 
-  if (!maker) return refused('role', "Its maker's role was removed");
+  if (!row) return refused('role', "Its maker's role was removed");
 
-  const allows = roleAllows(maker.role, maker.permissions);
+  // The key is the organisation's, but it never reaches further than its maker does now.
+  const reach = { level: row.level, unitIds: await unitIdsOf(client, key.userId) };
+  const maker = { role: row.role, permissions: row.permissions, reach };
+  const allows = (action: string) => can(maker, action);
   const opened = new Set<string>(areaPermissions(key.areas, key.actions));
 
   const inOpenedPlugin = (action: string) => {
@@ -124,6 +103,7 @@ export const keyCaller = async (
       userId: key.userId,
       role: 'api_key',
       permissions,
+      reach,
       apiKeyId: key.id,
       key: {
         id: key.id,
@@ -131,7 +111,7 @@ export const keyCaller = async (
         areas: key.areas,
         plugins: key.pluginAccess,
         actions: key.actions,
-        rows: await rowLimitsOf(client, key),
+        rows: rowLimitsOf(key),
       },
     },
   };

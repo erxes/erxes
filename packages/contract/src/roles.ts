@@ -5,44 +5,71 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { listOf } from './common';
-import { RoleKey } from './values';
+import { RoleKey, RoleReach } from './values';
 
 /**
  * What a member may do, as actions (`contacts.delete`). Roles are named sets
  * of them. Plugins add theirs through their manifest (`hr.leave.approve`).
- * `ownerOnly` actions belong to owners and can't be given to another role.
+ * `ownerOnly` actions belong to owners and can't be given to another role. `reach` actions
+ * follow a role's reach: what they read and change stays inside it, so a role that reaches less
+ * than the organisation can hold them. Every other action works across the organisation
+ * (settings, the audit log, tags), so only a role that reaches all of it holds them.
  */
 export const CORE_PERMISSIONS = [
-  { action: 'contacts.view', group: 'Contacts', label: 'See customers and companies' },
-  { action: 'contacts.create', group: 'Contacts', label: 'Add customers and companies' },
+  { action: 'contacts.view', reach: true, group: 'Contacts', label: 'See customers and companies' },
+  {
+    action: 'contacts.create',
+    reach: true,
+    group: 'Contacts',
+    label: 'Add customers and companies',
+  },
   {
     action: 'contacts.edit',
+    reach: true,
     group: 'Contacts',
     label: 'Edit, tag and link customers and companies',
   },
-  { action: 'contacts.delete', group: 'Contacts', label: 'Delete customers and companies' },
-  { action: 'contacts.merge', group: 'Contacts', label: 'Merge duplicates' },
+  {
+    action: 'contacts.delete',
+    reach: true,
+    group: 'Contacts',
+    label: 'Delete customers and companies',
+  },
+  { action: 'contacts.merge', reach: true, group: 'Contacts', label: 'Merge duplicates' },
   {
     action: 'contacts.import',
+    reach: true,
     group: 'Contacts',
     label: 'Import customers and companies from files',
   },
-  { action: 'contacts.export', group: 'Contacts', label: 'Export lists to CSV or Excel' },
-  { action: 'notes.moderate', group: 'Contacts', label: "Edit and delete other people's notes" },
+  {
+    action: 'contacts.export',
+    reach: true,
+    group: 'Contacts',
+    label: 'Export lists to CSV or Excel',
+  },
+  {
+    action: 'notes.moderate',
+    reach: true,
+    group: 'Contacts',
+    label: "Edit and delete other people's notes",
+  },
   { action: 'tags.manage', group: 'Tags', label: 'Create and rename tags' },
   { action: 'tags.delete', group: 'Tags', label: 'Delete tags' },
   { action: 'properties.manage', group: 'Properties', label: 'Manage custom fields and groups' },
   { action: 'files.moderate', group: 'Files', label: "Delete other people's files" },
-  { action: 'team.view', group: 'Team', label: 'See team members' },
-  { action: 'team.invite', group: 'Team', label: 'Invite team members' },
+  { action: 'team.view', reach: true, group: 'Team', label: 'See team members' },
+  { action: 'team.invite', reach: true, group: 'Team', label: 'Invite team members' },
   {
     action: 'team.manage',
+    reach: true,
     group: 'Team',
     label: 'Edit members, change roles, reset passwords, disable',
   },
   { action: 'roles.manage', group: 'Team', label: 'Create and edit roles' },
   {
     action: 'structure.manage',
+    reach: true,
     group: 'Team',
     label: "Change the organisation's structure: its units, where they sit and who is in them",
   },
@@ -60,6 +87,7 @@ export const CORE_PERMISSIONS = [
   { action: 'webhooks.manage', group: 'Integrations', label: 'Manage webhooks' },
   {
     action: 'api_keys.create',
+    reach: true,
     group: 'Integrations',
     label: 'Create API keys that act as themselves',
   },
@@ -84,7 +112,7 @@ export const CORE_PERMISSIONS = [
     group: 'Products',
     label: 'Add, edit and archive products and categories',
   },
-  { action: 'assistant.chat', group: 'Assistant', label: 'Chat with the assistant' },
+  { action: 'assistant.chat', reach: true, group: 'Assistant', label: 'Chat with the assistant' },
   {
     action: 'assistant.manage',
     group: 'Assistant',
@@ -140,6 +168,7 @@ export const CORE_PERMISSIONS = [
   group: string;
   label: string;
   ownerOnly?: boolean;
+  reach?: boolean;
 }[];
 
 export type CorePermission = (typeof CORE_PERMISSIONS)[number]['action'];
@@ -157,6 +186,11 @@ export const OWNER_ONLY_PERMISSIONS: readonly string[] = CORE_PERMISSIONS.filter
   (permission) => 'ownerOnly' in permission && permission.ownerOnly,
 ).map((permission) => permission.action);
 
+/** Core's actions that follow a role's reach; a plugin marks its own with `followsReach`. */
+export const REACH_PERMISSIONS: readonly string[] = CORE_PERMISSIONS.filter(
+  (permission) => 'reach' in permission && permission.reach,
+).map((permission) => permission.action);
+
 /** `contacts.delete`, `hr.leave.approve`, or `*` (everything grantable). */
 export const PermissionAction = z
   .string()
@@ -164,7 +198,18 @@ export const PermissionAction = z
   .regex(/^(\*|[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)$/, 'an action like contacts.delete');
 
 export const Role = createSelectSchema(roles)
-  .pick({ key: true, name: true, description: true, permissions: true, builtin: true })
+  .pick({
+    key: true,
+    name: true,
+    description: true,
+    permissions: true,
+    /**
+     * Where the permissions hold: `organization`, `subtree` (the member's units and every unit
+     * under them), `unit` (their units alone) or `own` (the records they own).
+     */
+    reach: true,
+    builtin: true,
+  })
   .extend({
     /** Owner and Admin are fixed; Member and custom roles can be edited. */
     editable: z.boolean(),
@@ -181,6 +226,8 @@ export const PermissionInfo = z.object({
   /** `core` or the plugin that brings it. */
   source: z.string(),
   ownerOnly: z.boolean(),
+  /** A role that reaches less than the organisation can hold it. */
+  followsReach: z.boolean(),
 });
 
 export type PermissionInfo = z.infer<typeof PermissionInfo>;
@@ -215,7 +262,8 @@ const RoleFields = createUpdateSchema(roles, {
   name: (name) => name.trim().min(1).max(60),
   description: (value) => value.trim().max(300),
   permissions: () => z.array(PermissionAction).max(1000),
-}).pick({ name: true, description: true, permissions: true });
+  reach: () => RoleReach,
+}).pick({ name: true, description: true, permissions: true, reach: true });
 
 const {
   BEYOND_OWN_PERMISSIONS,
@@ -226,6 +274,7 @@ const {
   ROLE_IN_USE,
   ROLE_NOT_FOUND,
   UNKNOWN_PERMISSION,
+  WHOLE_ORGANIZATION_ONLY,
 } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
@@ -239,6 +288,7 @@ const base = oc.errors({
   ROLE_IN_USE,
   ROLE_NOT_FOUND,
   UNKNOWN_PERMISSION,
+  WHOLE_ORGANIZATION_ONLY,
 });
 
 export const rolesContract = {
@@ -268,7 +318,8 @@ export const rolesContract = {
       method: 'POST',
       path: '/roles',
       successStatus: 201,
-      summary: 'Create a role (roles.manage)',
+      summary:
+        'Create a role (roles.manage). 400 WHOLE_ORGANIZATION_ONLY when its reach is less than the organisation and it holds an action that works across it; 403 BEYOND_OWN_PERMISSIONS when it reaches further than yours',
     })
     .input(RoleFields.required({ name: true, permissions: true }))
     .output(Role),

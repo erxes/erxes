@@ -10,7 +10,15 @@
  * Never point it at a database you care about: it creates and drops its own.
  */
 import { CursorQuery } from '@erxes/core-contract';
-import { type Caller, closeDb, configureDb, runAs, runMigrations, withOrg } from '@erxes/core-db';
+import {
+  type Caller,
+  closeDb,
+  configureDb,
+  runAs,
+  runMigrations,
+  WHOLE_ORGANIZATION,
+  withOrg,
+} from '@erxes/core-db';
 import { appendFileSync } from 'node:fs';
 import { Client } from 'pg';
 import { randomToken } from '~/lib/crypto';
@@ -146,7 +154,13 @@ const prepare = async (url: string): Promise<Bench> => {
 
   return {
     orgId: org.organization.id,
-    owner: { type: 'user', userId: org.owner.id, role: 'owner', permissions: ['*'] },
+    owner: {
+      type: 'user',
+      userId: org.owner.id,
+      role: 'owner',
+      permissions: ['*'],
+      reach: WHOLE_ORGANIZATION,
+    },
   };
 };
 

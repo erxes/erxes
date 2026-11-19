@@ -122,7 +122,7 @@ const useRemoveUnit = (unit: UnitDetail) => {
         options: {
           description: t(
             'not-empty-hint',
-            'Subunits: {{children}}. Members: {{members}}. API keys that name it: {{keys}}. Turn it off instead: it leaves the chart, and records keep it.',
+            'Subunits: {{children}}. Members: {{members}}. Customers and companies: {{records}}. API keys that name it: {{keys}}. Turn it off instead: it leaves the chart, and records keep it.',
             error.data,
           ),
           okLabel: t('turn-off', 'Turn it off'),
@@ -193,9 +193,9 @@ const UnitMenu = ({ unit, onMove }: { unit: UnitDetail; onMove: () => void }) =>
 
 const Body = ({ unit }: { unit: UnitDetail }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { select, canManage, typesById } = useWorkspace();
+  const { select, canManage, typeOf } = useWorkspace();
   const [moving, setMoving] = useState(false);
-  const type = unit.typeId ? typesById.get(unit.typeId) : undefined;
+  const type = typeOf(unit.typeId);
 
   return (
     <>
@@ -216,9 +216,9 @@ const Body = ({ unit }: { unit: UnitDetail }) => {
           <TypeIcon type={type} size="lg" />
           <Title key={unit.name} unit={unit} editable={canManage} />
           {type && (
-            <span className="shrink-0 rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+            <Badge variant="secondary" className="shrink-0">
               {type.name}
-            </span>
+            </Badge>
           )}
           {!unit.isActive && <Badge variant="warning">{t('inactive', 'Inactive')}</Badge>}
         </div>

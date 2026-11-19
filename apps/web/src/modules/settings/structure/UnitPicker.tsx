@@ -5,7 +5,8 @@ import { cn, Combobox, EntityPicker, Popover } from 'erxes-ui';
 import { type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
-import { nodeOf } from './unitTree';
+import { nodeOf, PAGE_SIZE } from './unitTree';
+import { UnitPath } from './UnitPath';
 
 type Choice = { unit: UnitNode; path: string[] };
 
@@ -28,7 +29,11 @@ const useChoices = (search: string, withRoot: boolean) => {
 
   const top = useQuery(
     orpc.units.children.queryOptions({
-      input: !search && root.data ? { id: root.data.id, limit: 50 } : skipToken,
+      // The tree's first page of the top level, so the two share one request.
+      input:
+        !search && root.data
+          ? { id: root.data.id, limit: PAGE_SIZE, includeInactive: false }
+          : skipToken,
     }),
   );
 
@@ -82,12 +87,12 @@ const UnitChoices = ({
   const { choices, pending, error } = useChoices(term, withRoot);
   const shown = choices.filter((choice) => !exclude?.(choice.unit));
 
+  /** The row clicked: the one added, else the one taken out. A single pick drops the old one. */
   const change = (ids: string[]) => {
-    const clicked = shown.find(
-      ({ unit }) => ids.includes(unit.id) !== value.includes(unit.id),
-    )?.unit;
+    const clickedId =
+      ids.find((id) => !value.includes(id)) ?? value.find((id) => !ids.includes(id));
 
-    onValueChange(ids, clicked);
+    onValueChange(ids, shown.find(({ unit }) => unit.id === clickedId)?.unit);
   };
 
   return (
@@ -98,11 +103,7 @@ const UnitChoices = ({
       renderItem={(choice) => (
         <span className="flex min-w-0 flex-col">
           <span className="truncate">{choice.unit.name}</span>
-          {choice.path.length > 0 && (
-            <span className="truncate text-xs text-muted-foreground">
-              {choice.path.join(' › ')}
-            </span>
-          )}
+          <UnitPath names={choice.path} />
         </span>
       )}
       value={value}

@@ -18,6 +18,7 @@ import {
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
+  ROLE_REACHES,
   LIVE_MODES,
   NOTIFICATION_DELIVERIES,
   PLUGIN_LIST_TYPE,
@@ -209,6 +210,14 @@ export const RoleKey = z
   .regex(/^(owner|admin|member|r_[A-Za-z0-9]{6,40})$/, 'a role');
 
 export type RoleKey = z.infer<typeof RoleKey>;
+
+/**
+ * How far a role reaches, widest first: `organization` (everything), `subtree` (the member's
+ * units and every unit under them), `unit` (their units alone), `own` (the records they own).
+ */
+export const RoleReach = z.enum(ROLE_REACHES);
+
+export type RoleReach = z.infer<typeof RoleReach>;
 
 /** A role an invitation can give: any but owner, which goes to a member who has joined. */
 export const InviteRole = RoleKey.refine(

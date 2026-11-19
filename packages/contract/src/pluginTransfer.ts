@@ -1,7 +1,7 @@
 import { IMPORT_MODES, IMPORT_ROW_ACTIONS } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import { ExportQuery } from './transfer';
-import { PluginListType } from './values';
+import { PluginListType, RoleReach } from './values';
 
 /** A column of a plugin's records: what an import can fill and an export writes. */
 const PluginTransferColumn = z.object({
@@ -53,6 +53,9 @@ const Request = z.object({
   orgId: z.string(),
   /** The member who asked: answer with what they may see and change. */
   userId: z.string(),
+  /** How far the member's role reaches, and the units they are in: answer within it (`withinReach`). */
+  reach: RoleReach,
+  unitIds: z.array(z.string()),
   /** A type the manifest's `transfer` declares (`frontline:ticket`). */
   type: PluginListType,
 });

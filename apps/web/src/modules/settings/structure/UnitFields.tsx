@@ -44,10 +44,10 @@ const TypeRow = ({
   update: (patch: Patch) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { index, types, typesById } = useWorkspace();
+  const { index, types, typeOf } = useWorkspace();
   const [open, setOpen] = useState(false);
   const parent = unit.parentId ? index.byId.get(unit.parentId) : undefined;
-  const own = unit.typeId ? typesById.get(unit.typeId) : undefined;
+  const own = typeOf(unit.typeId);
   const allowed = allowedChildTypes(types, parent);
   const options = own && !allowed.includes(own) ? [own, ...allowed] : allowed;
 

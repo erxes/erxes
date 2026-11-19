@@ -2,13 +2,15 @@ import {
   type Caller,
   db,
   enterScope,
+  NO_REACH,
+  orgUnitMembers,
   pluginInstallations,
   plugins,
   roles,
   users,
   withOrg,
 } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { decodeProtectedHeader } from 'jose';
 import { z } from 'zod';
@@ -22,6 +24,7 @@ import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
 import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
+import { permissionsWithinReach } from '~/modules/reach/reach';
 
 declare global {
   namespace Express {
@@ -77,8 +80,9 @@ const isCrossSiteWrite = (req: Request) => {
 
 /**
  * The member a token names, if still active at the token's session version,
- * with their role's permissions. Role and status are read on every request,
- * so a disabled member or a role change applies at once.
+ * with their role's permissions and reach. Role, status and units are read on
+ * every request, so a disabled member, a role change or a move to another unit
+ * applies at once.
  */
 export const memberOf = async (orgId: string, userId: string, sessionVersion?: number) => {
   const [user] = await withOrg(orgId, (tx) =>
@@ -89,7 +93,11 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
         status: users.status,
         canSignIn: users.canSignIn,
         sessionVersion: users.sessionVersion,
-        permissions: roles.permissions,
+        permissions: permissionsWithinReach,
+        reach: roles.reach,
+        unitIds: sql<string[]>`coalesce((
+          select array_agg(${orgUnitMembers.unitId} order by ${orgUnitMembers.unitId})
+          from ${orgUnitMembers} where ${orgUnitMembers.userId} = ${users.id}), '{}')`,
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
@@ -108,6 +116,7 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
     userId: user.id,
     role: user.role,
     permissions: user.permissions,
+    reach: { level: user.reach, unitIds: user.unitIds },
   } satisfies Caller;
 };
 
@@ -135,7 +144,13 @@ type ApiKeyRow = NonNullable<Awaited<ReturnType<typeof apiKeyOfToken>>>;
 
 /** Refuses the key's call and records why, as its maker. */
 const refuseKey = async (key: ApiKeyRow, decision: KeyDecision) => {
-  const maker: Caller = { type: 'user', userId: key.userId, role: 'api_key', permissions: [] };
+  const maker: Caller = {
+    type: 'user',
+    userId: key.userId,
+    role: 'api_key',
+    permissions: [],
+    reach: NO_REACH,
+  };
 
   await enterScope(maker, key.orgId, () => recordKeyDenial(key.id, null, decision));
 

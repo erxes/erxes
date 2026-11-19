@@ -133,6 +133,12 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         group: z.string().trim().max(60).optional(),
+        /**
+         * The plugin keeps what this action reads and changes inside the member's reach (the
+         * session token's `reach`), so a role that reaches less than the organisation can hold
+         * it. Left out, only roles that reach the whole organisation get the action.
+         */
+        followsReach: z.boolean().optional(),
       }),
     )
     .max(500)

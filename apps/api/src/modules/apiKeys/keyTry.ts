@@ -1,5 +1,5 @@
 import { coreContract } from '@erxes/core-contract';
-import { companies, customers, type Db, withRowLimits } from '@erxes/core-db';
+import { type Caller, companies, customers, type Db, db, runAs } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { eq } from 'drizzle-orm';
 import { can, decideKeyCall } from '~/http/access';
@@ -73,16 +73,12 @@ const contactVisible = async (client: Db, id: string) => {
 };
 
 /** Why the contact stops a call the key's rules allow; null when it doesn't. */
-const contactDenial = async (
-  client: Db,
-  rows: Parameters<typeof withRowLimits>[0],
-  recordId: string | undefined,
-) => {
+const contactDenial = async (client: Db, key: Caller, recordId: string | undefined) => {
   if (!recordId) return null;
 
   if (!(await contactVisible(client, recordId))) return deny('rows', 'No contact has this id');
 
-  return (await withRowLimits(rows, (tx) => contactVisible(tx, recordId)))
+  return (await runAs(key, () => contactVisible(db(), recordId)))
     ? null
     : deny('rows', "This contact is outside the key's limits, so the key can't see it");
 };
@@ -115,7 +111,7 @@ const decider = async (client: Db, input: Input): Promise<(path: string) => KeyD
 
   if (!rules) return () => deny('never', 'Not a key');
 
-  const contact = await contactDenial(client, rules.rows, input.recordId);
+  const contact = await contactDenial(client, caller, input.recordId);
 
   return (path) => {
     const decision = decideKeyCall({ ...caller, key: rules }, path);

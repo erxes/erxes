@@ -9,6 +9,7 @@ import { matchEveryWord } from '~/lib/search';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
+import { userInReach } from '~/modules/reach/reach';
 import { assertAssignable, assertNotAbove } from '~/modules/roles/roles.service';
 import { profileChanges, type UserChanges } from './userProfile';
 import { assertTeamManager, findUser, lockTeam, otherActiveOwners, type UserRow } from './userRows';
@@ -39,7 +40,7 @@ export const listUsers = async (
     ids?: string[];
   },
 ) => {
-  const filters: (SQL | undefined)[] = [];
+  const filters: (SQL | undefined)[] = [userInReach(users.id)];
 
   if (query.canSignIn !== undefined) {
     filters.push(eq(users.canSignIn, query.canSignIn));

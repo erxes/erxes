@@ -1,16 +1,18 @@
-import type { PermissionInfo, Role } from '@erxes/core-contract';
-import { IconLock, IconTrash } from '@tabler/icons-react';
+import type { PermissionInfo, Role, RoleReach } from '@erxes/core-contract';
+import { IconLock } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Input, Textarea, useConfirm, useToast } from 'erxes-ui';
+import { Input, Textarea, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { PermissionBrowser } from './PermissionBrowser';
-import { countGranted } from './permissionSections';
+import { countGranted, outsideReach } from './permissionSections';
+import { DeleteRole, SaveBar } from './RoleActions';
+import { RoleReachField } from './RoleReachField';
 import { useRoleText } from './useRoles';
 
 /** Unsaved edits; anything not edited shows the role as saved. */
-type Draft = { name?: string; description?: string; granted?: Set<string> };
+type Draft = { name?: string; description?: string; reach?: RoleReach; granted?: Set<string> };
 
 const useRoleMutations = (role: Role, onSaved: () => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
@@ -108,78 +110,23 @@ const RoleNameFields = ({
   );
 };
 
-const DeleteRole = ({ role, onRemove }: { role: Role; onRemove: () => void }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'roles' });
-  const { confirm } = useConfirm();
-
-  const inUse = role.members > 0;
-
-  const label = inUse
-    ? t('delete-in-use', 'Give its {{count}} members another role before deleting it', {
-        count: role.members,
-      })
-    : t('delete', 'Delete');
-
-  return (
-    <Button
-      variant="ghost"
-      tone="muted"
-      size="icon"
-      disabled={inUse}
-      aria-label={label}
-      title={label}
-      onClick={() =>
-        void confirm({
-          message: t('delete-confirm', 'Delete the role “{{name}}”?', { name: role.name }),
-          options: { okLabel: t('delete', 'Delete'), variants: { ok: 'destructive' } },
-        }).then(onRemove)
-      }
-    >
-      <IconTrash />
-    </Button>
-  );
-};
-
-/** Pinned under the list while the role has unsaved edits. */
-const SaveBar = ({
-  changes,
-  saving,
-  canSave,
-  onDiscard,
-  onSave,
-}: {
-  changes: number;
-  saving: boolean;
-  canSave: boolean;
-  onDiscard: () => void;
-  onSave: () => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'roles' });
-
-  return (
-    <div className="sticky bottom-0 z-10 -mx-6 -mb-6 flex items-center gap-3 border-t bg-background/95 px-6 py-3 backdrop-blur">
-      <span className="flex-1 text-sm text-muted-foreground">
-        {t('unsaved', '{{count}} unsaved changes', { count: changes })}
-      </span>
-      <Button variant="ghost" disabled={saving} onClick={onDiscard}>
-        {t('discard', 'Discard')}
-      </Button>
-      <Button disabled={!canSave} onClick={onSave}>
-        {t('save', 'Save')}
-      </Button>
-    </div>
-  );
-};
-
 /** How many permissions and fields differ from the saved role. */
-const changesOf = (role: Role, name: string, description: string, granted: Set<string>) => {
+const changesOf = (
+  role: Role,
+  edited: { name: string; description: string; reach: RoleReach; granted: Set<string> },
+) => {
   const saved = new Set(role.permissions);
 
   const toggled =
-    [...granted].filter((action) => !saved.has(action)).length +
-    role.permissions.filter((action) => !granted.has(action)).length;
+    [...edited.granted].filter((action) => !saved.has(action)).length +
+    role.permissions.filter((action) => !edited.granted.has(action)).length;
 
-  return toggled + Number(name !== role.name) + Number((description || null) !== role.description);
+  return (
+    toggled +
+    Number(edited.name !== role.name) +
+    Number((edited.description || null) !== role.description) +
+    Number(edited.reach !== role.reach)
+  );
 };
 
 const RoleSummary = ({
@@ -210,34 +157,25 @@ const RoleSummary = ({
   );
 };
 
-/** One role: name, description and its permissions, by source and area. */
-export const RoleEditor = ({
-  role,
-  catalog,
-  canManage,
-  onDirtyChange,
-}: {
-  role: Role;
-  catalog: PermissionInfo[];
-  canManage: boolean;
-  onDirtyChange: (dirty: boolean) => void;
-}) => {
+/**
+ * The role as it is being edited: its saved values under the unsaved edits, and the ways to
+ * change them. `shown` is the role in the member's language.
+ */
+const useRoleDraft = (
+  shown: Role,
+  catalog: PermissionInfo[],
+  onDirtyChange: (dirty: boolean) => void,
+) => {
   const [draft, setDraftState] = useState<Draft>({});
-  // Shown in the member's language; saved as stored unless the member edits it.
-  const shown = useRoleText()(role);
   const name = draft.name ?? shown.name;
   const description = draft.description ?? shown.description ?? '';
-  const granted = draft.granted ?? new Set(role.permissions);
-  const everything = role.permissions.includes('*') || role.key === 'owner';
-  const editable = canManage && role.editable;
-  const changes = changesOf(shown, name, description, granted);
+  const reach = draft.reach ?? shown.reach;
+  const granted = draft.granted ?? new Set(shown.permissions);
 
   const setDraft = (next: Draft) => {
     setDraftState(next);
     onDirtyChange(Object.keys(next).length > 0);
   };
-
-  const { save, removeRole } = useRoleMutations(role, () => setDraft({}));
 
   const toggle = (actions: string[], on: boolean) => {
     const next = new Set(granted);
@@ -249,6 +187,52 @@ export const RoleEditor = ({
 
     setDraft({ ...draft, granted: next });
   };
+
+  /** A narrower reach takes out the actions that work across the whole organisation. */
+  const setReach = (next: RoleReach) => {
+    const blocked = outsideReach(catalog, next);
+
+    setDraft({
+      ...draft,
+      reach: next,
+      granted: new Set([...granted].filter((action) => !blocked.has(action))),
+    });
+  };
+
+  return {
+    draft,
+    name,
+    description,
+    reach,
+    granted,
+    changes: changesOf(shown, { name, description, reach, granted }),
+    setDraft,
+    toggle,
+    setReach,
+  };
+};
+
+/** One role: name, description, reach and its permissions, by source and area. */
+export const RoleEditor = ({
+  role,
+  catalog,
+  canManage,
+  onDirtyChange,
+}: {
+  role: Role;
+  catalog: PermissionInfo[];
+  canManage: boolean;
+  onDirtyChange: (dirty: boolean) => void;
+}) => {
+  // Shown in the member's language; saved as stored unless the member edits it.
+  const shown = useRoleText()(role);
+
+  const { draft, name, description, reach, granted, changes, setDraft, toggle, setReach } =
+    useRoleDraft(shown, catalog, onDirtyChange);
+
+  const everything = role.permissions.includes('*') || role.key === 'owner';
+  const editable = canManage && role.editable;
+  const { save, removeRole } = useRoleMutations(role, () => setDraft({}));
 
   return (
     <div className="space-y-5 pb-6">
@@ -271,12 +255,16 @@ export const RoleEditor = ({
       {everything ? (
         <EverythingNote owner={role.key === 'owner'} />
       ) : (
-        <PermissionBrowser
-          catalog={catalog}
-          granted={granted}
-          editable={editable}
-          onChange={toggle}
-        />
+        <>
+          <RoleReachField value={reach} editable={editable} onChange={setReach} />
+          <PermissionBrowser
+            catalog={catalog}
+            granted={granted}
+            editable={editable}
+            blocked={outsideReach(catalog, reach)}
+            onChange={toggle}
+          />
+        </>
       )}
 
       {editable && changes > 0 && (
@@ -292,6 +280,7 @@ export const RoleEditor = ({
               description:
                 draft.description === undefined ? role.description : draft.description || null,
               permissions: [...granted],
+              reach,
             })
           }
         />

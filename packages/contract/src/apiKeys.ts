@@ -73,7 +73,7 @@ const KeyRules = createUpdateSchema(apiKeys, { name: (name) => name.trim().min(1
     actions: ApiKeyActions.default({}),
     /** Regular keys: only contacts the maker owns. */
     ownRecords: z.boolean().default(false),
-    /** Regular keys: only contacts owned by members of these units or units under them. */
+    /** Regular keys: only contacts in these units or units under them, each within the maker's reach. */
     unitIds: z.array(Id).max(50).default([]),
     /** Regular keys: only contacts with one of these tags. */
     tagIds: z.array(Id).max(50).default([]),

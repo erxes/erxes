@@ -6,9 +6,14 @@ import { countGranted, type PermissionGroup, type PermissionSection } from './pe
 /** Adds (`on`) or takes out the actions from the role being edited. */
 export type Toggle = (actions: string[], on: boolean) => void;
 
-/** The actions an editor may tick: owner-only ones stay with owners. */
-const toggleable = (permissions: PermissionInfo[]) =>
-  permissions.filter((permission) => !permission.ownerOnly).map((permission) => permission.action);
+/**
+ * The actions an editor may tick: owner-only ones stay with owners, and those outside the role's
+ * reach (`blocked`) with roles that reach the whole organisation.
+ */
+const toggleable = (permissions: PermissionInfo[], blocked: Set<string>) =>
+  permissions
+    .filter((permission) => !permission.ownerOnly && !blocked.has(permission.action))
+    .map((permission) => permission.action);
 
 /** A select-all box over the actions: ticked, unticked or partly. */
 const AllBox = ({
@@ -52,15 +57,18 @@ const PermissionRow = ({
   permission,
   granted,
   editable,
+  outside,
   onChange,
 }: {
   permission: PermissionInfo;
   granted: Set<string>;
   editable: boolean;
+  /** The role's reach is less than the organisation, which this action works across. */
+  outside: boolean;
   onChange: Toggle;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
-  const locked = !editable || permission.ownerOnly;
+  const locked = !editable || permission.ownerOnly || outside;
 
   return (
     <label
@@ -81,6 +89,9 @@ const PermissionRow = ({
           {permission.ownerOnly && (
             <Badge variant="secondary">{t('owner-only', 'Owner only')}</Badge>
           )}
+          {outside && (
+            <Badge variant="secondary">{t('reach.whole-only', 'Whole organisation only')}</Badge>
+          )}
         </span>
         {permission.description && (
           <span className="block text-xs text-muted-foreground">{permission.description}</span>
@@ -97,11 +108,13 @@ const GroupBlock = ({
   group,
   granted,
   editable,
+  blocked,
   onChange,
 }: {
   group: PermissionGroup;
   granted: Set<string>;
   editable: boolean;
+  blocked: Set<string>;
   onChange: Toggle;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
@@ -111,7 +124,7 @@ const GroupBlock = ({
     <section className="py-2">
       <div className="flex items-center gap-2.5 px-2 pb-1">
         <AllBox
-          actions={toggleable(group.permissions)}
+          actions={toggleable(group.permissions, blocked)}
           granted={granted}
           editable={editable}
           label={t('select-all-in', 'All of {{name}}', { name: group.name })}
@@ -129,6 +142,7 @@ const GroupBlock = ({
             permission={permission}
             granted={granted}
             editable={editable}
+            outside={blocked.has(permission.action)}
             onChange={onChange}
           />
         ))}
@@ -137,16 +151,21 @@ const GroupBlock = ({
   );
 };
 
-/** A plugin's ready-made bundles as chips: one adds or takes out all of its permissions. */
+/**
+ * A plugin's ready-made bundles as chips: one adds or takes out all of its permissions the role's
+ * reach allows.
+ */
 const SetChips = ({
   sets,
   granted,
   editable,
+  blocked,
   onChange,
 }: {
   sets: PermissionSet[];
   granted: Set<string>;
   editable: boolean;
+  blocked: Set<string>;
   onChange: Toggle;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
@@ -155,7 +174,8 @@ const SetChips = ({
     <div className="flex flex-wrap items-center gap-1.5 border-t px-4 py-2.5">
       <span className="mr-1 text-xs text-muted-foreground">{t('sets', 'Ready-made sets')}</span>
       {sets.map((set) => {
-        const on = set.permissions.every((action) => granted.has(action));
+        const usable = set.permissions.filter((action) => !blocked.has(action));
+        const on = usable.length > 0 && usable.every((action) => granted.has(action));
 
         return (
           <Button
@@ -163,12 +183,11 @@ const SetChips = ({
             size="sm"
             variant={on ? 'secondary' : 'outline'}
             aria-pressed={on}
-            disabled={!editable}
+            disabled={!editable || usable.length === 0}
             title={
-              set.description ??
-              t('set-count', '{{count}} permissions', { count: set.permissions.length })
+              set.description ?? t('set-count', '{{count}} permissions', { count: usable.length })
             }
-            onClick={() => onChange(set.permissions, !on)}
+            onClick={() => onChange(usable, !on)}
           >
             <Checkbox checked={on} tabIndex={-1} aria-hidden className="pointer-events-none" />
             {set.label}
@@ -184,6 +203,7 @@ export const SectionCard = ({
   open,
   granted,
   editable,
+  blocked,
   onOpenChange,
   onChange,
 }: {
@@ -191,6 +211,8 @@ export const SectionCard = ({
   open: boolean;
   granted: Set<string>;
   editable: boolean;
+  /** The actions the role's reach keeps it from holding. */
+  blocked: Set<string>;
   onOpenChange: (open: boolean) => void;
   onChange: Toggle;
 }) => {
@@ -202,7 +224,7 @@ export const SectionCard = ({
       <Collapsible open={open} onOpenChange={onOpenChange} className="group">
         <div className="flex items-center gap-2.5 px-3 py-2">
           <AllBox
-            actions={toggleable(visible)}
+            actions={toggleable(visible, blocked)}
             granted={granted}
             editable={editable}
             label={t('select-all-in', 'All of {{name}}', { name: section.title })}
@@ -227,6 +249,7 @@ export const SectionCard = ({
               sets={section.sets}
               granted={granted}
               editable={editable}
+              blocked={blocked}
               onChange={onChange}
             />
           )}
@@ -237,6 +260,7 @@ export const SectionCard = ({
                 group={group}
                 granted={granted}
                 editable={editable}
+                blocked={blocked}
                 onChange={onChange}
               />
             ))}

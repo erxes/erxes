@@ -6,7 +6,10 @@ import { useWorkspace } from './context';
 /** How much of the chart's width the unit panel covers, with its margin. */
 const PANEL_SPACE = 464;
 export const ANIMATION = { duration: 300 };
-export const FIT_VIEW = { padding: 0.2, maxZoom: 1 };
+const FIT_VIEW = { padding: 0.2, maxZoom: 1 };
+
+/** The first fit stops where cards still read; a wide top level is panned, not shrunk. */
+export const FIRST_FIT = { ...FIT_VIEW, minZoom: 0.8 };
 
 /**
  * Pans to the focused unit (a search pick, a path click, the new-unit card) once it is drawn,

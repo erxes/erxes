@@ -19,6 +19,40 @@ export const orgIdColumn = () =>
     .notNull()
     .default(sql`nullif(current_setting('app.org_id', true), '')`);
 
+/**
+ * The units a record is in: at least one. An insert that names none puts it where its maker
+ * sits: the calling member's units (an API key's own, when it is limited to some), which
+ * `core_new_record_unit_ids()` reads from the scope as `orgIdColumn` does, so every way a
+ * record is made follows it. A table with it also has `recordOwnerIdColumn()`,
+ * `visibleToColumn()` and the `core_set_visible_to` trigger, which puts a record nobody placed
+ * in the organisation's own unit and refuses a unit that doesn't exist.
+ */
+export const unitIdsColumn = () =>
+  text()
+    .array()
+    .default(sql`core_new_record_unit_ids()`)
+    .notNull();
+
+/**
+ * The team member responsible for a record. An insert that names none leaves it empty, except
+ * for a member whose role reaches only their own records: what they make is theirs
+ * (`core_new_record_owner_id()`).
+ */
+export const recordOwnerIdColumn = () => text().default(sql`core_new_record_owner_id()`);
+
+/**
+ * Whose reach holds a record, kept by the `core_set_visible_to` trigger from the row's owner
+ * and units: `*` (the organisation), `o:<owner>`, `e:<unit>` for each of its units and
+ * `u:<unit>` for those and every unit above them. Row level security shows the record when one
+ * of them is among the caller's (`core_reach` policy, drizzle/0090_reach.sql), and a GIN index
+ * on it finds a small unit's records in a large table. Never written by hand, never in the API.
+ */
+export const visibleToColumn = () =>
+  text()
+    .array()
+    .default(sql`'{}'::text[]`)
+    .notNull();
+
 const literal = (value: string | number) =>
   typeof value === 'number' ? String(value) : `'${value.replaceAll("'", "''")}'`;
 

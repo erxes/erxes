@@ -5,6 +5,7 @@ import { alias } from 'drizzle-orm/pg-core';
 import { fail, notFound } from '~/http/errors';
 import { containsPattern } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
+import { unitInReach, unitShown } from '~/modules/reach/reach';
 import { listed, nodeColumns, pathSteps, reachable } from './unitRows';
 
 const above = alias(orgUnits, 'above_unit');
@@ -16,7 +17,7 @@ const pathOf = async (client: Db, id: string) => {
   const [unit] = await client
     .select({ path: orgUnits.path })
     .from(orgUnits)
-    .where(eq(orgUnits.id, id));
+    .where(and(eq(orgUnits.id, id), unitShown(orgUnits)));
 
   if (!unit) throw notFound('Unit');
 
@@ -30,7 +31,12 @@ export const unitChildren = async (
   await pathOf(client, query.id);
 
   const includeInactive = query.includeInactive ?? false;
-  const under = and(eq(orgUnits.parentId, query.id), listed(orgUnits, includeInactive));
+
+  const under = and(
+    eq(orgUnits.parentId, query.id),
+    listed(orgUnits, includeInactive),
+    unitShown(orgUnits),
+  );
 
   if (query.cursor) {
     const [anchor] = await client
@@ -95,8 +101,12 @@ export const unitsMatching = (client: Db, q: string) => {
     })
     .from(orgUnits)
     .where(
-      matchEveryWord(q, (pattern) =>
-        or(ilike(orgUnits.name, pattern), ilike(orgUnits.code, pattern)),
+      and(
+        matchEveryWord(q, (pattern) =>
+          or(ilike(orgUnits.name, pattern), ilike(orgUnits.code, pattern)),
+        ),
+        // A search finds what the caller can pick: the units they reach, not the ones above.
+        unitInReach(orgUnits),
       ),
     )
     .orderBy(desc(nameStartsWithQuery), asc(depth), asc(orgUnits.name))

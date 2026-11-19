@@ -191,10 +191,21 @@ export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
 /** The built-in roles every organisation has. */
 export const USER_ROLES = ['owner', 'admin', 'member'] as const;
 
+/** Owner and Admin are fixed: their meaning is "everything, everywhere". */
+export const FIXED_ROLES = ['owner', 'admin'] as const;
+
 /** Built-in roles a plugin's permission set can be given to by default; Owner and Admin have everything. */
 export const DEFAULT_GRANT_ROLES = ['member'] as const;
 
 export type DefaultGrantRole = (typeof DEFAULT_GRANT_ROLES)[number];
+
+/**
+ * How far a role reaches, widest first: the whole organisation, the member's units with every
+ * unit under them, the member's units alone, or only the records the member owns.
+ */
+export const ROLE_REACHES = ['organization', 'subtree', 'unit', 'own'] as const;
+
+export type RoleReach = (typeof ROLE_REACHES)[number];
 
 export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
 

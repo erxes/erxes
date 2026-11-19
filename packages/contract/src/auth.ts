@@ -2,8 +2,8 @@ import { LANGUAGES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { z } from 'zod';
-import { isoDate } from './common';
-import { NewPassword } from './values';
+import { Id, isoDate } from './common';
+import { NewPassword, RoleReach } from './values';
 import { Organization, OrganizationRegion } from './organizations';
 import { User } from './users';
 
@@ -12,6 +12,9 @@ export const Session = z.object({
   organization: Organization,
   /** What the member may do (actions); owners have every one. */
   permissions: z.array(z.string()),
+  /** Where: their role's reach, and the units they are in. */
+  reach: RoleReach,
+  unitIds: z.array(Id),
   /** False until the member sets one: a SaaS owner arrives signed in from erxes.io without one. */
   hasPassword: z.boolean(),
 });

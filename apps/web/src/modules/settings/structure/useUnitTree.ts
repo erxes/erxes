@@ -2,7 +2,7 @@ import type { UnitNode } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { skipToken, useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ancestorIds, buildIndex, type ChildPage, nodeOf, PAGE_SIZE } from './unitTree';
+import { ancestorIds, buildIndex, type ChildPage, isWithin, nodeOf, PAGE_SIZE } from './unitTree';
 
 type PageRequest = { id: string; cursor: string | undefined };
 
@@ -103,7 +103,7 @@ export const useUnitTree = (selectedId: string | null) => {
       for (const id of toggled.keys()) {
         const known = index?.byId.get(id);
 
-        if (known && id !== unit.id && known.path.startsWith(unit.path)) next.delete(id);
+        if (known && id !== unit.id && isWithin(known, unit)) next.delete(id);
       }
 
     setToggled(next.set(unit.id, open));

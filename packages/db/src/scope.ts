@@ -1,14 +1,36 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import type { RoleReach } from './enums';
 import type { ActorType, ApiKeyActions, ApiKeyAreas, ApiKeyPlugins } from './schema';
 import type { Transaction } from './types';
 
 /**
- * Which contacts a caller sees and writes, on top of its organisation: those owned by one of
- * `owners`, those with one of `tags`; null for no limit. Row level security applies it
- * (`app.key_owners`, `app.key_tags`, drizzle/0080_api_key_rules.sql), so every query obeys it.
+ * How far a member reaches: their role's `reach` and the units they are in. `organization`
+ * limits nothing; `subtree` is their units and every unit under them, `unit` their units alone,
+ * `own` the records they own. Row level security applies it to records (drizzle/0090_reach.sql)
+ * and `apps/api/src/modules/reach` to the team and the structure.
+ */
+export interface Reach {
+  level: RoleReach;
+  unitIds: readonly string[];
+}
+
+/** No limit: owners, admins and every role that reaches the whole organisation. */
+export const WHOLE_ORGANIZATION: Reach = { level: 'organization', unitIds: [] };
+
+/**
+ * The records a member owns and nothing else: for a member who acts before their role is read
+ * (a sign-in flow recording what it did for them).
+ */
+export const NO_REACH: Reach = { level: 'own', unitIds: [] };
+
+/**
+ * Which contacts an API key sees and writes, inside its maker's reach: those owned by one of
+ * `owners`, those in one of `units` or a unit under them, those with one of `tags`; null for
+ * no limit. Row level security applies it (drizzle/0090_reach.sql), so every query obeys it.
  */
 export interface RowLimits {
   owners: readonly string[] | null;
+  units: readonly string[] | null;
   tags: readonly string[] | null;
 }
 
@@ -35,6 +57,8 @@ export type Caller =
       userId: string;
       role: string;
       permissions: readonly string[];
+      /** Where the role's permissions hold. */
+      reach: Reach;
       /** Set when the member called with one of their API keys, not a session. */
       apiKeyId?: string;
       /** Set for a regular or management key: what it may do, besides `permissions`. */
@@ -84,20 +108,6 @@ export function caller(type?: Caller['type']) {
 
   return current;
 }
-
-/**
- * Runs `fn` as `who`, in the current organisation and transaction: a sign-in
- * acting for the member it found, an automation for the member who turned it
- * on, core recording what it did on its own inside a member's request.
- */
-export const runAs = <T>(who: Caller, fn: () => T): T => {
-  const current = currentScope();
-
-  return scopeStorage.run(
-    { caller: who, orgId: current?.orgId ?? null, tx: current?.tx ?? null },
-    fn,
-  );
-};
 
 /** Core acting on its own (`runAs(system('…'), fn)`). */
 export const system = (reason: string): Caller => ({ type: 'system', reason });
