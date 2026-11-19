@@ -1,3 +1,17 @@
+
+
+## [3.4.25](https://github.com/erxes/erxes/compare/3.4.24...3.4.25) (2026-11-19)
+
+
+### Bug Fixes
+
+* **products:** restore deleted products through bulk category change ([#10827](https://github.com/erxes/erxes/issues/10827)) ([2adce1f](https://github.com/erxes/erxes/commit/2adce1f2376aba78bf1b65b993923120daa39ec3))
+
+
+### Features
+
+* **frontline:** print form submissions from the inbox message menu ([d774380](https://github.com/erxes/erxes/commit/d77438049e06d0ddfb89d34e63c09d471f84fc4a))
+
 # Changelog
 
 ## [3.4.24](https://github.com/erxes/erxes/compare/3.4.23...3.4.24) (2026-11-19)
