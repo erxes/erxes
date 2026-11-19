@@ -3,6 +3,12 @@ import { useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
+/** A payload of `count` answers, keyed `q<number>` from `from` on. */
+const answers = (from: number, count: number) =>
+  Object.fromEntries(
+    Array.from({ length: count }, (_, at) => [`q${String(from + at).padStart(3, '0')}`, 'yes']),
+  );
+
 /** A trigger's data that core remembers from the events themselves. */
 describe('automation data learned from events', () => {
   useTestDatabase();
@@ -85,9 +91,43 @@ describe('automation data learned from events', () => {
       events: [{ type: 'hr.chat.received', payload: { content: 'Again', conversationId: 'c1' } }],
     });
     await settle();
+    await t.hr().events.publish({
+      events: [{ type: 'hr.chat.received', payload: { content: 'More', reply_to_id: 'm1' } }],
+    });
+    await settle();
 
     expect(
       (await triggerOf(t.owner(), 'hr.chat.received'))?.fields.map((field) => field.label),
-    ).toEqual(['Content', 'Labels', 'Unread', 'Urgent', 'Conversation id']);
+    ).toEqual(['Content', 'Labels', 'Unread', 'Urgent', 'Conversation id', 'Reply to id']);
+  });
+
+  it('stops at fifty keys for one event, however many its payloads bring', async () => {
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '3.1.0',
+      scopes: ['events:write'],
+      events: [{ type: 'hr.survey.answered', label: 'Survey answered' }],
+    });
+
+    await t.hr().events.publish({
+      events: [{ type: 'hr.survey.answered', payload: answers(1, 40) }],
+    });
+    await settle();
+    await t.hr().events.publish({
+      events: [{ type: 'hr.survey.answered', payload: answers(41, 40) }],
+    });
+    await settle();
+    await t.hr().events.publish({
+      events: [{ type: 'hr.survey.answered', payload: answers(200, 5) }],
+    });
+    await settle();
+
+    const keys = (await triggerOf(t.owner(), 'hr.survey.answered'))?.fields.map(
+      (field) => field.key,
+    );
+
+    expect(keys).toHaveLength(50);
+    expect(keys?.at(0)).toBe('q001');
+    expect(keys?.at(-1)).toBe('q050');
   });
 });

@@ -47,11 +47,8 @@ export const automationCatalog = async (client: Db) => {
 
       return {
         ...trigger,
-        fields: [
-          ...trigger.fields,
-          ...(found?.fields ?? []).filter((field) => !listed.has(field.key)),
-        ],
-        seen: found?.seen ?? false,
+        fields: [...trigger.fields, ...(found ?? []).filter((field) => !listed.has(field.key))],
+        seen: found !== undefined,
       };
     }),
     actions: actionCatalog(installed),

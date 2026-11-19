@@ -14,11 +14,6 @@ const SEEN = '';
 
 const MAX_KEYS = 50;
 
-const MAX_REMEMBERED = 5000;
-
-/** What this server already read as stored, by organisation and type, so most events write nothing. */
-const stored = new Map<string, Set<string>>();
-
 const kindOf = (value: unknown): Kind | null => {
   if (typeof value === 'string') return 'text';
 
@@ -37,76 +32,60 @@ const carriedBy = (payload: Record<string, unknown>) =>
     return kind ? [{ key, kind }] : [];
   });
 
-const storedKeys = async (tx: Db, type: string) => {
-  const rows = await tx
-    .select({ key: eventData.key })
-    .from(eventData)
-    .where(eq(eventData.type, type));
-
-  return new Set(rows.map((row) => row.key));
-};
-
 /**
  * Remembers what a plugin's event carries, the first time each key shows up, so automations can
- * use it without the plugin listing it. Core's own events list theirs (`CORE_EVENT_TYPES`).
+ * use it without the plugin listing it: at most `MAX_KEYS` keys a type. Core's own events list
+ * theirs (`CORE_EVENT_TYPES`).
  */
 export const rememberEventData = async (tx: Db, event: EventRow) => {
   if (event.source === 'core') return;
 
-  const id = `${event.orgId}\n${event.type}`;
-  const known = stored.get(id) ?? (await storedKeys(tx, event.type));
+  const rows = await tx
+    .select({ key: eventData.key })
+    .from(eventData)
+    .where(eq(eventData.type, event.type));
+
+  const known = new Set(rows.map((row) => row.key));
 
   const fresh = [{ key: SEEN, kind: 'seen' as const }, ...carriedBy(event.payload)]
     .filter((item) => !known.has(item.key))
     .slice(0, Math.max(0, MAX_KEYS + 1 - known.size));
 
-  if (fresh.length === 0) {
-    if (stored.size >= MAX_REMEMBERED) stored.clear();
-
-    stored.set(id, known);
-
-    return;
-  }
+  if (fresh.length === 0) return;
 
   await tx
     .insert(eventData)
     .values(fresh.map((item) => ({ type: event.type, ...item })))
     .onConflictDoNothing();
-
-  // Read again next time: these rows exist only once this job commits.
-  stored.delete(id);
 };
 
 const labelOf = (key: string) => {
   const words = key
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/_+/g, ' ')
+    .replaceAll('_', ' ')
     .toLowerCase();
 
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
-export interface LearnedEventData {
-  seen: boolean;
-  fields: DataField[];
-}
-
-/** What each event type has carried in this organisation, by type. */
+/**
+ * What each event type that happened in this organisation has carried, by type: a type with no
+ * entry has not happened since core began remembering.
+ */
 export const learnedEventData = async (client: Db) => {
   const rows = await client
     .select({ type: eventData.type, key: eventData.key, kind: eventData.kind })
     .from(eventData)
     .orderBy(asc(eventData.type), asc(eventData.createdAt), asc(eventData.key));
 
-  const learned = new Map<string, LearnedEventData>();
+  const learned = new Map<string, DataField[]>();
 
   for (const row of rows) {
-    const entry = learned.get(row.type) ?? { seen: false, fields: [] };
+    const fields = learned.get(row.type) ?? [];
 
-    if (row.kind === 'seen') entry.seen = true;
-    else entry.fields.push({ key: row.key, label: labelOf(row.key), type: row.kind });
+    if (row.kind !== 'seen') fields.push({ key: row.key, label: labelOf(row.key), type: row.kind });
 
-    learned.set(row.type, entry);
+    learned.set(row.type, fields);
   }
 
   return learned;
