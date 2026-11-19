@@ -110,6 +110,11 @@ const Categories = ({
   const { groupName, countLabel } = useCatalogLabels(kind);
   const selectedKey = selected ? groupOf(selected).key : null;
 
+  const sourceKind = (items: CatalogItem[]) =>
+    items.some((item) => item.type.startsWith('integrations.'))
+      ? t('catalog-integration', 'Integration')
+      : t('catalog-plugin', 'Plugin');
+
   return (
     <>
       {recentItems.length > 0 && (
@@ -154,7 +159,7 @@ const Categories = ({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{groupName(group)}</span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
+                  {group.source !== 'core' ? `${sourceKind(items)} · ` : ''}
                   {countLabel(items.length)}
                 </span>
               </span>

@@ -10,7 +10,7 @@ import {
 } from '~/modules/assistant/assistantState';
 import { useCan } from '~/modules/auth/session';
 
-const useAskAssistant = () => {
+export const useAskAssistant = () => {
   const allowed = useCan()('assistant.chat');
   const setAsk = useSetAtom(assistantAskState);
   const setOpen = useSetAtom(assistantOpenState);

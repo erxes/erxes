@@ -1,0 +1,121 @@
+import type { Integration as CustomRecord, IntegrationProgram } from '@erxes/core-contract';
+import { IconChevronRight, IconCode, IconSparkles } from '@tabler/icons-react';
+import { Button, Empty, useFormat } from 'erxes-ui';
+import { parseAsString, useQueryState } from 'nuqs';
+import { useTranslation } from 'react-i18next';
+import { useAskAssistant } from '~/modules/automations/AskAssistant';
+import { CustomProgram, KindBadge, programTypes } from './CustomProgram';
+
+const NoPrograms = ({ record }: { record: CustomRecord }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+  const ask = useAskAssistant();
+
+  return (
+    <Empty variant="outline">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconCode />
+        </Empty.Media>
+        <Empty.Title>{t('programs-empty', 'No programs yet')}</Empty.Title>
+        <Empty.Description>
+          {t(
+            'programs-empty-description',
+            'Ask the assistant to add an action. It writes the code; you test it here.',
+          )}
+        </Empty.Description>
+      </Empty.Header>
+      {ask && (
+        <Empty.Content>
+          <Button
+            variant="outline"
+            onClick={() =>
+              ask(`Add an action to the ${record.name} integration (integrations.${record.key}).`)
+            }
+          >
+            <IconSparkles />
+            {t('ask-assistant', 'Ask the assistant')}
+          </Button>
+        </Empty.Content>
+      )}
+    </Empty>
+  );
+};
+
+const ProgramRow = ({
+  record,
+  program,
+  onOpen,
+}: {
+  record: CustomRecord;
+  program: IntegrationProgram;
+  onOpen: () => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+  const fmt = useFormat();
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        <span className="min-w-0 flex-1 space-y-1">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">{program.label}</span>
+            <KindBadge kind={program.kind} />
+          </span>
+          <span className="block truncate font-mono text-xs text-muted-foreground">
+            {programTypes(record, program).join(', ') || t('no-events', 'No events')}
+          </span>
+        </span>
+        <span className="shrink-0 text-right text-xs text-muted-foreground">
+          <span className="block">
+            {t('version', 'Version {{version}}', { version: program.version })}
+          </span>
+          <span className="block">{fmt.relative(program.updatedAt)}</span>
+        </span>
+        <IconChevronRight className="size-4 shrink-0 text-muted-foreground" />
+      </button>
+    </li>
+  );
+};
+
+export const CustomPrograms = ({
+  record,
+  programs,
+}: {
+  record: CustomRecord;
+  programs: IntegrationProgram[];
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+  const [programId, setProgramId] = useQueryState('program', parseAsString);
+  const open = programs.find((program) => program.id === programId);
+
+  if (open) {
+    return <CustomProgram record={record} program={open} onClose={() => void setProgramId(null)} />;
+  }
+
+  if (!programs.length) return <NoPrograms record={record} />;
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {t(
+          'programs-intro',
+          'The assistant writes these. Actions are automation steps; incoming programs start automations from the service.',
+        )}
+      </p>
+      <ul className="divide-y rounded-lg border">
+        {programs.map((program) => (
+          <ProgramRow
+            key={program.id}
+            record={record}
+            program={program}
+            onOpen={() => void setProgramId(program.id)}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+};
