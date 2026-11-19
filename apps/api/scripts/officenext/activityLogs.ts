@@ -12,7 +12,7 @@ import { classicSummary, laterSummary, type Names, ownerOf, targetOf } from './a
 import { auditRowOf, redact, writeAudit } from './auditLogs';
 import { resolve } from './idMap';
 import { eachBatch, existing, insert, readAll, type Run } from './run';
-import { mainSource } from './sources';
+import { mainSource, stillThere } from './sources';
 import { createdOf, idOf, readOr, record, text, when } from './values';
 
 const Entry = record({
@@ -33,12 +33,14 @@ const Entry = record({
 type Entry = NonNullable<ReturnType<typeof Entry.parse>>;
 
 /** Old collections that hold each plugin record type, to tell whether a record still exists. */
-const SOURCES: Record<string, string> = {
-  'sales.deal': 'deals',
-  'operation.task': 'tasks',
-  'frontline.ticket': 'tickets',
-  'frontline.conversation': 'conversations',
-};
+const SOURCES: [string, string][] = [
+  ['sales.deal', 'deals'],
+  ['operation.task', 'tasks'],
+  ['operation.task', 'operation_tasks'],
+  ['frontline.ticket', 'tickets'],
+  ['frontline.ticket', 'frontline_tickets'],
+  ['frontline.conversation', 'conversations'],
+];
 
 /** The entry read the same whichever way old erxes wrote it. */
 export const readEntry = (entry: Entry, names: Names) => {
@@ -72,13 +74,8 @@ const placed = async (run: Run, db: Db, entries: Read[]) => {
     );
 
   const plugin = await Promise.all(
-    Object.entries(SOURCES).map(async ([type, collection]) =>
-      (
-        await db
-          .collection<{ _id: string }>(collection)
-          .find({ _id: { $in: ids(type) } }, { projection: { _id: 1 } })
-          .toArray()
-      ).map((doc) => `${type}:${idOf(doc)}`),
+    SOURCES.map(async ([type, collection]) =>
+      [...(await stillThere(db, collection, ids(type)))].map((id) => `${type}:${id}`),
     ),
   );
 

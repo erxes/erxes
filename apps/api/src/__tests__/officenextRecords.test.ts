@@ -19,12 +19,12 @@ describe('officenext import: notes', () => {
     expect(noteTarget('core:lead')).toEqual({
       targetType: 'customer',
       source: 'core',
-      collection: null,
+      collections: [],
     });
     expect(noteTarget('tasks:task')).toEqual({
       targetType: 'operation.task',
       source: 'operation',
-      collection: 'tasks',
+      collections: ['tasks', 'operation_tasks'],
     });
     expect(noteTarget('products:product')).toBeNull();
     expect(noteTarget('core:user')).toBeNull();

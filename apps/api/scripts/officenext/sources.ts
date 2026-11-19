@@ -20,7 +20,7 @@ export interface Source {
 const V1 = 'erxes_office';
 
 /** An old `_id` as stored: text, or an ObjectId. */
-const OldId = z.union([z.string(), z.instanceof(ObjectId)]);
+export const OldId = z.union([z.string(), z.instanceof(ObjectId)]);
 const CHUNK = 1000;
 
 /** A collection of `erxes`, whole. */
@@ -71,6 +71,23 @@ const readV1 = async (run: Run, collection: string, alsoIn: string[]): Promise<S
   const filter: Filter<Document> = Object.fromEntries([['_id', { $in: fresh }]]);
 
   return { db, collection, name, filter };
+};
+
+/**
+ * Which of `ids` (as text) still have a document in `db`'s `collection`. Newer plugins stored
+ * ObjectIds, so a 24-character hex id is looked up both ways.
+ */
+export const stillThere = async (db: Db, collection: string, ids: string[]) => {
+  const forms = ids.flatMap((id) =>
+    ObjectId.isValid(id) && id.length === 24 ? [id, new ObjectId(id)] : [id],
+  );
+
+  const found = await db
+    .collection<{ _id: string | ObjectId }>(collection)
+    .find({ _id: { $in: forms } }, { projection: { _id: 1 } })
+    .toArray();
+
+  return new Set(found.map(idOf));
 };
 
 const v1Sources = new WeakMap<Run, Map<string, Promise<Source>>>();

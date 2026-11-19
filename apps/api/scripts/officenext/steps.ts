@@ -15,8 +15,9 @@ import { importFavorites } from './favorites';
 import { importFields } from './fields';
 import { importFieldValues } from './fieldValues';
 import { reportLeftOut } from './leftOut';
-import { importNotes } from './notes';
+import { importNotes, importPluginNotes } from './notes';
 import { importNotifications } from './notifications';
+import { importPluginActivities } from './pluginActivities';
 import { importProducts } from './products';
 import type { Run } from './run';
 import { importSegments } from './segments';
@@ -85,6 +86,16 @@ export const STEPS: Step[] = [
       await importNotes(run);
       await importNotes(run, await v1Source(run, 'internal_notes'));
     },
+  },
+  {
+    name: 'plugin notes',
+    collections: ['operation_notes', 'frontline_tickets_notes'],
+    run: importPluginNotes,
+  },
+  {
+    name: 'plugin activity',
+    collections: ['operation_activities', 'frontline_ticket_activities'],
+    run: importPluginActivities,
   },
   {
     name: 'activity',

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { readEntry } from '../../scripts/officenext/activityLogs';
 import { changeAudit, changesOf, logAudit, redact } from '../../scripts/officenext/auditLogs';
+import { sentenceOf, typeOf } from '../../scripts/officenext/pluginActivities';
 
 const names = {
   members: new Map([['u1', 'Bat Dorj']]),
@@ -141,5 +142,16 @@ describe('officenext import: audit logs', () => {
     });
 
     expect(old.changes).toEqual({ password: '[redacted]', position: [null, 'Sales'] });
+  });
+});
+
+describe('officenext import: plugin activity', () => {
+  it('words a module change the way old erxes showed it', () => {
+    expect(sentenceOf('CHANGED', 'STATUS')).toBe('Changed status');
+    expect(sentenceOf('CREATED', 'START_DATE')).toBe('Set start date');
+    expect(sentenceOf('ACCEPTED', 'TRIAGE_ACCEPTANCE')).toBe('Accepted from triage');
+    expect(typeOf('operation.task', 'CHANGED', 'ESTIMATE_POINT')).toBe(
+      'operation.task.estimate_point_changed',
+    );
   });
 });

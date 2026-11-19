@@ -12,13 +12,14 @@ import { z } from 'zod';
 import { CONTENT_TYPES } from './fields';
 import { resolve } from './idMap';
 import { eachBatch, existing, idSet, insert, type Run } from './run';
-import { mainSource } from './sources';
-import { createdOf, idOf, optionalId, readOr, record, text, when } from './values';
+import { mainSource, OldId, type Source, stillThere } from './sources';
+import { createdOf, idOf, ids, optionalId, readOr, record, text, when } from './values';
 
 const NoteDocument = record({
   contentType: text,
   contentTypeId: optionalId,
   createdUserId: optionalId,
+  mentions: ids,
   content: z.unknown().optional(),
   createdAt: when,
   updatedAt: when,
@@ -26,13 +27,13 @@ const NoteDocument = record({
 
 type NoteDocument = NonNullable<ReturnType<typeof NoteDocument.parse>>;
 
-/** Plugin record types → the plugin and the old collection that holds its records. */
-const PLUGIN_RECORDS: Record<string, { plugin: string; collection: string }> = {
-  'sales.deal': { plugin: 'sales', collection: 'deals' },
-  'operation.task': { plugin: 'operation', collection: 'tasks' },
-  'operation.project': { plugin: 'operation', collection: 'operation_projects' },
-  'frontline.ticket': { plugin: 'frontline', collection: 'tickets' },
-  'frontline.conversation': { plugin: 'frontline', collection: 'conversations' },
+/** Plugin record types → the plugin and the old collections that hold its records. */
+const PLUGIN_RECORDS: Record<string, { plugin: string; collections: string[] }> = {
+  'sales.deal': { plugin: 'sales', collections: ['deals'] },
+  'operation.task': { plugin: 'operation', collections: ['tasks', 'operation_tasks'] },
+  'operation.project': { plugin: 'operation', collections: ['operation_projects'] },
+  'frontline.ticket': { plugin: 'frontline', collections: ['tickets', 'frontline_tickets'] },
+  'frontline.conversation': { plugin: 'frontline', collections: ['conversations'] },
 };
 
 const CORE_TARGETS = new Set(['customer', 'company']);
@@ -67,11 +68,11 @@ export const noteTarget = (contentType: string | null) => {
 
   if (!targetType) return null;
 
-  if (CORE_TARGETS.has(targetType)) return { targetType, source: 'core', collection: null };
+  if (CORE_TARGETS.has(targetType)) return { targetType, source: 'core', collections: [] };
 
   const plugin = PLUGIN_RECORDS[targetType];
 
-  return plugin ? { targetType, source: plugin.plugin, collection: plugin.collection } : null;
+  return plugin ? { targetType, source: plugin.plugin, collections: plugin.collections } : null;
 };
 
 /** The old record ids, per plugin collection, that still exist in old erxes. */
@@ -81,23 +82,17 @@ const pluginRecords = async (db: Db, notes: NoteDocument[]) => {
   for (const note of notes) {
     const target = noteTarget(note.contentType);
 
-    if (target?.collection && note.contentTypeId) {
-      wanted.set(target.collection, [...(wanted.get(target.collection) ?? []), note.contentTypeId]);
+    for (const collection of target?.collections ?? []) {
+      if (note.contentTypeId)
+        wanted.set(collection, [...(wanted.get(collection) ?? []), note.contentTypeId]);
     }
   }
 
   const found = await Promise.all(
-    [...wanted].map(async ([collection, ids]) =>
-      (
-        await db
-          .collection<{ _id: string }>(collection)
-          .find({ _id: { $in: ids } }, { projection: { _id: 1 } })
-          .toArray()
-      ).map(idOf),
-    ),
+    [...wanted].map(([collection, recordIds]) => stillThere(db, collection, recordIds)),
   );
 
-  return new Set(found.flat());
+  return new Set(found.flatMap((there) => [...there]));
 };
 
 interface Context {
@@ -232,7 +227,7 @@ const noteBatch = async (
     rows: kept.map(({ note, body }) => [
       note.id,
       body,
-      mentionsOf(note.content)
+      [...new Set([...mentionsOf(note.content), ...note.mentions])]
         .map((id) => resolve('user', id))
         .filter((id) => members.has(id)),
     ]),
@@ -240,8 +235,15 @@ const noteBatch = async (
   });
 };
 
-/** Internal notes of `source`: `erxes`'s, or those only the v1 copy has. */
-export const importNotes = async (run: Run, source = mainSource(run, 'internal_notes')) => {
+/**
+ * Internal notes of `source`: `erxes`'s, those only the v1 copy has, or a plugin's own notes,
+ * which `asNote` turns into an internal note (its record type and the record's id).
+ */
+export const importNotes = async (
+  run: Run,
+  source = mainSource(run, 'internal_notes'),
+  asNote = (raw: Document) => raw,
+) => {
   const { db, name } = source;
   const members = await idSet(run, 'core_users');
 
@@ -251,8 +253,64 @@ export const importNotes = async (run: Run, source = mainSource(run, 'internal_n
   await eachBatch(
     run,
     db.collection(source.collection),
-    (documents) => noteBatch(run, db, name, members, documents),
+    (documents) => noteBatch(run, db, name, members, documents.map(asNote)),
     source.filter,
     name,
   );
+};
+
+const PluginNote = record({ contentId: optionalId, createdBy: optionalId });
+
+/** A plugin's note as an internal note on its record. */
+const onRecord = (contentType: string) => (raw: Document) => {
+  const note = readOr(PluginNote, raw);
+
+  return { ...raw, contentType, contentTypeId: note?.contentId, createdUserId: note?.createdBy };
+};
+
+/** The `contentId`s, as stored, of Operation notes on a project that still exists. */
+const onProjects = async (source: Source) => {
+  const stored = (await source.db.collection(source.collection).distinct('contentId')).flatMap(
+    (id: unknown) => OldId.safeParse(id).data ?? [],
+  );
+
+  const projects = await stillThere(
+    source.db,
+    'operation_projects',
+    stored.map((id) => idOf({ _id: id })),
+  );
+
+  return stored.filter((id) => projects.has(idOf({ _id: id })));
+};
+
+/**
+ * Notes Operation and Frontline kept themselves: on tasks and projects, and a ticket's internal
+ * ones.
+ */
+export const importPluginNotes = async (run: Run) => {
+  const operation = mainSource(run, 'operation_notes');
+  const tickets = mainSource(run, 'frontline_tickets_notes');
+  const projects = await onProjects(operation);
+
+  const comments = await tickets.db
+    .collection(tickets.collection)
+    .countDocuments({ isInternal: { $ne: true } });
+
+  await importNotes(
+    run,
+    { ...operation, filter: { contentId: { $in: projects } } },
+    onRecord('operation:project'),
+  );
+  await importNotes(
+    run,
+    { ...operation, filter: { contentId: { $nin: projects } } },
+    onRecord('operation:task'),
+  );
+  await importNotes(
+    run,
+    { ...tickets, filter: { isInternal: true } },
+    onRecord('frontline:ticket'),
+  );
+  run.report.seen(tickets.name, comments);
+  run.report.skip(tickets.name, 'ticket comment: plugin:frontline', '', comments);
 };
