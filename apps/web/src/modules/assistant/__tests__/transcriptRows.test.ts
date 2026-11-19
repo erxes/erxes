@@ -215,6 +215,21 @@ describe('transcriptOf', () => {
     expect(changedBy({ ok: true, changed: true, result: {} })).toBe(true);
     expect(changedBy({ ok: true, result: {} })).toBe(false);
   });
+
+  it('shows a reply that thought several times as one thought and one steps row', () => {
+    const rows = replyRows([
+      member(1, 'Build it'),
+      said(2, { type: 'thinking', thinking: 'First.' }, call('c1', 'searchApi', { query: 'a' })),
+      result('c1', { procedures: [] }),
+      said(4, { type: 'thinking', thinking: 'Second.' }, call('c2', 'searchApi', { query: 'b' })),
+      result('c2', { procedures: [] }),
+      said(6, { type: 'thinking', thinking: 'Third.' }, { type: 'text', text: 'Done.' }),
+    ]);
+
+    expect(rows.map((row) => row.kind)).toEqual(['thinking', 'steps', 'text']);
+    expect(rows[0]).toMatchObject({ text: 'First.\n\nSecond.\n\nThird.', streaming: false });
+    expect(rows[1]).toMatchObject({ steps: [{ key: 'c1' }, { key: 'c2' }] });
+  });
 });
 
 describe('questions the assistant asks', () => {

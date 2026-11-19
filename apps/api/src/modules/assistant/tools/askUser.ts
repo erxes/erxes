@@ -1,4 +1,7 @@
-import { ASSISTANT_QUESTION_MODES } from '@erxes/core-db/assistantEnums';
+import {
+  ASSISTANT_QUESTION_COMPONENTS,
+  ASSISTANT_QUESTION_MODES,
+} from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 import { agentTool } from '~/modules/agents/tool';
 
@@ -20,6 +23,12 @@ const Question = z.object({
     .enum(ASSISTANT_QUESTION_MODES)
     .optional()
     .describe('multi_select for choices that combine; single_select for exclusive alternatives'),
+  component: z
+    .enum(ASSISTANT_QUESTION_COMPONENTS)
+    .optional()
+    .describe(
+      'What the member answers with when there are no options: text (default), long_text, number, date, or member. Use member whenever the answer is a workspace member: they pick from the team (several with multi_select) and the answer carries each name with its member id.',
+    ),
 });
 
 export const askUser = agentTool({

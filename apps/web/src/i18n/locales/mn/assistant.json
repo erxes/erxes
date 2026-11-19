@@ -96,7 +96,9 @@
     "own": "Өөрийн хариулт",
     "own-placeholder": "Эсвэл өөрөө хариулт бичнэ үү",
     "answer-placeholder": "Таны хариулт",
-    "send": "Хариулт илгээх"
+    "send": "Хариулт илгээх",
+    "member-placeholder": "Багийн гишүүн сонгох…",
+    "date-placeholder": "Огноо сонгох"
   },
   "steps_one": "{{count}} алхам",
   "steps_other": "{{count}} алхам",
