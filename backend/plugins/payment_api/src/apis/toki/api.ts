@@ -349,6 +349,28 @@ export const tokiCallbackHandler = async (
   }
 };
 
+/**
+ * Settings rules shared by add (`authorize`) and edit (`paymentEdit`):
+ * a merchant ID is required unless the environment is staging, and the QR
+ * username and password are set together or not at all.
+ */
+export const validateTokiConfig = (config: {
+  tokiMerchantId?: unknown;
+  tokiEnvironment?: unknown;
+  tokiUsername?: unknown;
+  tokiPassword?: unknown;
+}) => {
+  if (!asText(config.tokiMerchantId) && config.tokiEnvironment !== 'staging') {
+    throw new Error('Merchant ID is required');
+  }
+
+  if (!!asText(config.tokiUsername) !== !!asText(config.tokiPassword)) {
+    throw new Error(
+      'Fill in both username and password for Toki QR, or leave both empty',
+    );
+  }
+};
+
 export interface ITokiConfig {
   tokiMerchantId: string;
   tokiEnvironment?: 'production' | 'staging';
@@ -365,11 +387,14 @@ export class TokiAPI extends BaseAPI {
   private domain?: string;
   // Needed to settle mini-program payments found by status polling
   private models?: IModels;
+  // The settings as saved, for validation in authorize()
+  private settings: ITokiConfig;
 
   constructor(config: ITokiConfig, domain?: string, models?: IModels) {
     super(config);
 
     this.models = models;
+    this.settings = config;
 
     this.environment =
       config.tokiEnvironment === 'staging' ? 'staging' : 'production';
@@ -392,15 +417,7 @@ export class TokiAPI extends BaseAPI {
 
   // Runs when the payment method is saved
   async authorize() {
-    if (!this.merchantId) {
-      throw new Error('Merchant ID is required');
-    }
-
-    if (!!this.username !== !!this.password) {
-      throw new Error(
-        'Fill in both username and password for Toki QR, or leave both empty',
-      );
-    }
+    validateTokiConfig(this.settings);
 
     if (!this.hasQrCredentials) {
       return { success: true, message: 'Mini program only' };

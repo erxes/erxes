@@ -124,11 +124,14 @@ const MiniProgram = ({ data }: { data: MiniProgramData }) => {
 export const TokiForm = () => {
   const {
     transactionLoading,
-    transactionError,
+    transactionErrors,
     apiResponse,
     paymentId,
     requestNewTransaction,
   } = usePayment();
+
+  // Only this payment method's own failed retry
+  const transactionError = transactionErrors?.[paymentId];
 
   if (transactionLoading) {
     return (

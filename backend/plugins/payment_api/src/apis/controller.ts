@@ -3,7 +3,6 @@ import {
   getSubdomain,
   graphqlPubsub,
   isEnabled,
-  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 
 import {
@@ -25,10 +24,7 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
-import {
-  claimTransactionCallback,
-  releaseTransactionCallback,
-} from '~/utils/transactionCallback';
+import { sendTransactionCallbackOnce } from '~/utils/transactionCallback';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -161,34 +157,27 @@ export const callbackHandler = async (req, res) => {
 
       redis.updateInvoiceStatus(transaction._id, 'paid');
 
-      // Hand a paid transaction to the owning plugin only once, even when the
-      // provider retries its callback
-      if (
-        invoice.contentType &&
-        (await claimTransactionCallback(String(transaction._id)))
-      ) {
+      if (invoice.contentType) {
         const [pluginName, moduleName, collectionType] = splitType(
           invoice.contentType,
         );
 
         if (await isEnabled(pluginName)) {
           try {
-            await sendWorkerMessage({
+            // At most once per transaction, even when the provider retries
+            await sendTransactionCallbackOnce({
               subdomain,
               pluginName,
-              queueName: 'payments',
-              jobName: 'transactionCallback',
+              transactionId: String(transaction._id),
               data: {
                 ...transaction.toObject(),
                 moduleName,
                 collectionType,
                 apiResponse: 'success',
               },
-              defaultValue: null,
             });
           } catch (e) {
             console.error('Error: ', e);
-            await releaseTransactionCallback(String(transaction._id));
           }
         }
       }

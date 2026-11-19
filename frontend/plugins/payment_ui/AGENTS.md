@@ -104,7 +104,9 @@
   the row; do not add a refetch for it.
 - Toki settings: Merchant ID is required unless Environment is Staging (then Toki's test
   merchant is used). QR username and password are optional: both empty means mini program
-  only, and `payment_api`'s `authorize` rejects saving just one of them.
+  only. `payment_api` enforces the same rules with `validateTokiConfig` on both add
+  (`authorize`) and edit (`paymentEdit`, before saving, so a rejected edit keeps the old
+  config).
 - The payment settings sheet closes only after the `paymentAdd` / `paymentEdit` mutation
   resolves. `PaymentForm`'s `onSubmit` is `async` and awaits the mutation, so a failure keeps
   the sheet open with the entered values and reports the error through a `destructive` toast.

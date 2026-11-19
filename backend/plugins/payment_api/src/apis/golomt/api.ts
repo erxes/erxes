@@ -11,13 +11,9 @@ import {
   graphqlPubsub,
   isEnabled,
   random,
-  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
-import {
-  claimTransactionCallback,
-  releaseTransactionCallback,
-} from '~/utils/transactionCallback';
+import { sendTransactionCallbackOnce } from '~/utils/transactionCallback';
 
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
@@ -195,16 +191,12 @@ const sendTransactionCallback = async (
       return;
     }
 
-    // The callback route may already have handed this transaction off
-    if (!(await claimTransactionCallback(String(transaction._id)))) {
-      return;
-    }
-
-    await sendWorkerMessage({
+    // At most once per transaction; the callback route may already have
+    // handed it off
+    await sendTransactionCallbackOnce({
       subdomain,
       pluginName,
-      queueName: 'payments',
-      jobName: 'transactionCallback',
+      transactionId: String(transaction._id),
       data: {
         ...transaction.toObject(),
         status: PAYMENT_STATUS.PAID,
@@ -212,14 +204,12 @@ const sendTransactionCallback = async (
         collectionType,
         apiResponse: 'success',
       },
-      defaultValue: null,
     });
   } catch (e) {
     console.error(
       `[golomt notification] transactionCallback for transaction ${transaction._id} failed`,
       e,
     );
-    await releaseTransactionCallback(String(transaction._id)).catch(() => null);
   }
 };
 

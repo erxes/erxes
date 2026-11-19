@@ -185,10 +185,14 @@
   not cached at all when that is not positive; token errors surface the
   bank's `code`/`message`.
 - `transactionCallback` goes to the owning plugin at most once per
-  transaction: the sender must win `claimTransactionCallback`
-  (`payment:transactionCallback:<id>`, `SET NX`) and release it if sending
-  fails. Both the callback route and the Golomt notification use it, because
-  providers retry callbacks.
+  transaction, only through `sendTransactionCallbackOnce`
+  (`utils/transactionCallback.ts`), called after the plugin is resolved and
+  `isEnabled`. It takes a 60-second lease (`payment:transactionCallback:<id>`,
+  `SET NX`), queues the job with `sendWorkerQueue(...).add` (not
+  `sendWorkerMessage`, whose timeout can fire after the job was accepted),
+  then marks the key `done` for 30 days. If `add` fails it deletes only its
+  own lease; a crashed request's lease simply expires. Both the callback
+  route and the Golomt notification use it, because providers retry.
 - A Toki mini-program payment is paid only after Toki's `transaction-status`
   says `COMPLETED`. The callback `amount` is required and must equal the
   transaction amount, and any order, amount or merchant in Toki's reply must

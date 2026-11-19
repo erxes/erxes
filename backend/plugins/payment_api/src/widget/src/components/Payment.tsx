@@ -11,7 +11,7 @@ type Props = {
   requestNewTransaction: any;
   checkInvoiceHandler: any;
   transactionLoading: any;
-  transactionError: string | null;
+  transactionErrors: Record<string, string>;
   checkInvoiceLoading: any;
 };
 
@@ -50,7 +50,13 @@ const Payment = (props: Props) => {
         (t) => t.paymentId === payment._id && t.status === 'pending',
       );
 
-      if (pendingTransaction?.paymentKind === 'minupay') {
+      if (
+        pendingTransaction?.response?.error ||
+        pendingTransaction?.response?.qrError
+      ) {
+        // the provider rejected this attempt: start a fresh one
+        props.requestNewTransaction(payment._id);
+      } else if (pendingTransaction?.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
       } else if (pendingTransaction?.paymentKind === 'golomt') {
         // request new transaction for golomt if the transaction is older than 7 minutes
@@ -62,12 +68,6 @@ const Payment = (props: Props) => {
         if (!isWithinPastSevenMinutes) {
           props.requestNewTransaction(payment._id);
         }
-      } else if (
-        pendingTransaction?.response?.error ||
-        pendingTransaction?.response?.qrError
-      ) {
-        // the provider rejected this attempt: start a fresh one
-        props.requestNewTransaction(payment._id);
       } else if (pendingTransaction) {
         setCurrentTransaction(pendingTransaction);
       } else {

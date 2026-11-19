@@ -20,10 +20,25 @@ const InvoiceDetail = () => {
     useMutation(CHECK_INVOICE);
 
   const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
-  // Shown next to retry actions when creating a new transaction fails
-  const [transactionError, setTransactionError] = React.useState<string | null>(
-    null,
-  );
+  // Failed new-transaction requests, by payment method id, so one method's
+  // error never shows under another (including late failures)
+  const [transactionErrors, setTransactionErrors] = React.useState<
+    Record<string, string>
+  >({});
+
+  const setTransactionError = (paymentId: string, message?: string) => {
+    setTransactionErrors((errors) => {
+      const next = { ...errors };
+
+      if (message) {
+        next[paymentId] = message;
+      } else {
+        delete next[paymentId];
+      }
+
+      return next;
+    });
+  };
 
   const invoiceSubscription = useSubscription(INVOICE_SUBSCRIPTION, {
     variables: { invoiceId: id },
@@ -125,7 +140,7 @@ const InvoiceDetail = () => {
   }
 
   const requestNewTransaction = (paymentId: string, details?: any) => {
-    setTransactionError(null);
+    setTransactionError(paymentId);
 
     addTransaction({
       variables: {
@@ -142,6 +157,7 @@ const InvoiceDetail = () => {
       })
       .catch((e: unknown) => {
         setTransactionError(
+          paymentId,
           e instanceof Error ? e.message : 'Could not start the payment',
         );
       });
@@ -210,7 +226,7 @@ const InvoiceDetail = () => {
     requestNewTransaction,
     checkInvoiceHandler,
     transactionLoading: addTransactionResponse.loading,
-    transactionError,
+    transactionErrors,
     checkInvoiceLoading,
   };
 
