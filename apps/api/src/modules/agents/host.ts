@@ -13,6 +13,7 @@ import { type Db, schema } from '@erxes/core-db';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
 import type { Agent, AgentScope } from './agent';
+import { isPluginAgent, pluginAgent } from './pluginAgents';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -35,8 +36,9 @@ export const registerAgent = (agent: Agent) => {
   agents.set(agent.name, agent);
 };
 
+/** A registered agent, or a plugin's (`frontline.bot`), whose setup reads its manifest. */
 export const agentNamed = (name: string) => {
-  const agent = agents.get(name);
+  const agent = agents.get(name) ?? (isPluginAgent(name) ? pluginAgent(name) : undefined);
 
   if (!agent) throw new Error(`No agent is named ${name}`);
 

@@ -15,7 +15,7 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { AssistantRecordType, ReferenceHandle } from './records';
 import { AssistantProvider, AssistantThinkingLevel } from './values';
 
-const AssistantModelId = z
+export const AssistantModelId = z
   .string()
   .trim()
   .regex(/^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$/, 'a model id such as gpt-6-luna');

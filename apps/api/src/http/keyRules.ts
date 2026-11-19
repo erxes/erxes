@@ -24,6 +24,7 @@ type GroupRule = ApiKeyArea | { lookup: true; writes: ApiKeyArea } | null;
 
 const GROUP_RULES: Record<Group, GroupRule> = {
   activities: 'contacts',
+  agents: null,
   assistant: null,
   apiKeys: 'keys',
   automations: 'automations',

@@ -131,6 +131,38 @@
       }
     }
   },
+  "agents": {
+    "submit": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/agents/{agent}/conversations/{key}/messages"
+        }
+      }
+    },
+    "models": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/agents/models"
+        }
+      }
+    },
+    "setModel": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/agents/{agent}/model"
+        }
+      }
+    }
+  },
   "assistant": {
     "connections": {
       "~orpc": {

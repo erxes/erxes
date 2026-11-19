@@ -1,9 +1,11 @@
 import type { PluginManifest } from '@erxes/core-contract';
+import { events } from '@erxes/core-db';
+import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import type { z } from 'zod';
 import { config } from '~/config';
 import { callsTo, chat, resultsOf, userMessage } from './assistantChat';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
 import { pluginRest } from './pluginRest';
 import { type CoreClient, useTwoOrgs } from './support';
@@ -12,6 +14,11 @@ const KEY = 'fake-kimi-key-for-tests-0010';
 
 const SKILL_TEXT =
   '# Leave balances\n\nRead days left with hr:leave.balances; show them per employee.';
+
+const AGENT_INSTRUCTIONS = 'You answer questions about leave for the HR team.';
+
+const finished = () =>
+  adminDb().select().from(events).where(eq(events.type, 'core.agent.finished'));
 
 const manifestFor = (apiUrl: string) =>
   ({
@@ -33,6 +40,14 @@ const manifestFor = (apiUrl: string) =>
         },
       ],
     },
+    agents: [
+      {
+        name: 'helper',
+        description: 'Answers questions about leave',
+        instructions: AGENT_INSTRUCTIONS,
+        tools: ['leave.balances'],
+      },
+    ],
   }) satisfies z.input<typeof PluginManifest>;
 
 describe('assistant plugin contributions', () => {
@@ -197,6 +212,35 @@ describe('assistant plugin contributions', () => {
 
     expect(model.lastToolResult()).toContain('INVALID_INPUT');
     expect(hr.calls.length).toBe(before);
+  });
+
+  it("runs the plugin's agent on the organisation's key: its tools call the plugin as the agent, and the answer comes back as an event", async () => {
+    model.script(
+      inSteps({ tool: 'leave_balances', input: {} }, { text: 'Bat-Erdene has 12 days.' }),
+    );
+
+    const before = hr.calls.length;
+
+    await t
+      .hr()
+      .agents.submit({ agent: 'hr.helper', key: 'chat-1', text: 'Leave for Bat-Erdene?' });
+
+    await expect.poll(async () => (await finished()).length, { timeout: 10_000 }).toBe(1);
+
+    expect((await finished())[0]?.payload).toEqual({
+      agent: 'hr.helper',
+      key: 'chat-1',
+      answer: 'Bat-Erdene has 12 days.',
+    });
+    expect(hr.calls.slice(before)).toEqual([
+      { procedure: 'leave.balances', userId: 'agent:hr.helper', orgId: t.ids.org, input: {} },
+    ]);
+    expect(systemOf(model.chats().at(-1) ?? { model: '', messages: [] })).toContain(
+      AGENT_INSTRUCTIONS,
+    );
+    await expect(
+      t.hr().agents.submit({ agent: 'hr.nobody', key: 'chat-1', text: 'Hello' }),
+    ).rejects.toMatchObject({ status: 404 });
   });
 
   it('keeps a plugin route that takes a credential denied whatever a skill says', async () => {

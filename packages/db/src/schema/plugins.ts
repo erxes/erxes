@@ -155,6 +155,8 @@ export interface StoredPluginManifest {
   assistant?: {
     skills: { name: string; description: string; instructions: string }[];
   };
+  /** Agents core runs for it, as `<plugin>.<name>`; `tools` are operationIds of its member API document. */
+  agents?: { name: string; description: string; instructions: string; tools: string[] }[];
 }
 
 /**

@@ -16,8 +16,8 @@ import {
 } from '~/modules/agents/host';
 import { StorageBusy } from '~/modules/agents/storage';
 import { readContents } from './attachments';
-import { findConnection, openKey } from './connections.service';
-import { DEFAULT_MODELS, modelOf, unreadableKey } from './providers';
+import { usableKey } from './connections.service';
+import { DEFAULT_MODELS, modelOf } from './providers';
 import { findThread, removeThread } from './threads.service';
 import { modelInput, readTurnContext, withTurnContext } from './turnContext';
 
@@ -43,23 +43,6 @@ const createThread = async (client: Db) => {
   if (!row) throw new Error('The new thread was not returned');
 
   return row;
-};
-
-const usableKey = async (client: Db, provider: AssistantProvider | undefined) => {
-  const connection = await findConnection(client, provider);
-
-  if (!connection) {
-    throw fail(
-      'ASSISTANT_NO_CONNECTION',
-      'An admin has to add a model provider key in Settings to use the assistant',
-    );
-  }
-
-  const apiKey = openKey(connection.sealedKey);
-
-  if (apiKey === null) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
-
-  return { provider: connection.provider, apiKey };
 };
 
 const cleanTitle = (text: string) =>
