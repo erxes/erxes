@@ -260,7 +260,30 @@
     "storage-local": "This server’s disk",
     "storage-local-description": "Files are kept on the erxes server. For many or large files, ask your administrator to use cloud storage.",
     "storage-s3": "S3-compatible storage",
-    "storage-s3-description": "Files go straight from the browser to the bucket (AWS S3, Cloudflare R2, MinIO …). erxes only keeps their details."
+    "storage-s3-description": "Files go straight from the browser to the bucket (AWS S3, Cloudflare R2, MinIO …). erxes only keeps their details.",
+    "bucket": {
+      "title": "Storage",
+      "description": "Keep new uploads in your own S3-compatible bucket: AWS S3, Cloudflare R2 or MinIO. Files stored before stay where they are.",
+      "current": "New uploads go to the bucket {{bucket}}.",
+      "current-local": "New uploads are kept on this server’s disk.",
+      "endpoint": "S3 API address",
+      "name": "Bucket",
+      "region": "Region",
+      "key": "Access key ID",
+      "secret": "Secret access key",
+      "path-style": "Path-style addresses (MinIO and most self-hosted stores)",
+      "cors": "Browsers upload straight to the bucket, so its CORS rules must allow PUT from {{origin}}.",
+      "secret-kept": "Leave the secret empty to keep the saved one.",
+      "save": "Test and save",
+      "remove": "Keep new uploads on this server",
+      "saved": "New uploads go to the bucket",
+      "removed": "New uploads stay on this server",
+      "endpoint-invalid": "Enter an address starting with https://",
+      "region-invalid": "Enter a region, such as auto or us-east-1",
+      "name-invalid": "3 to 63 lowercase letters, digits, dots or hyphens",
+      "key-required": "Enter the access key ID",
+      "secret-required": "Enter the secret access key"
+    }
   },
   "tags": {
     "_": "Tags",

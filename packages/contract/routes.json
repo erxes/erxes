@@ -1915,6 +1915,26 @@
           "path": "/settings/files"
         }
       }
+    },
+    "saveBucket": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/settings/files/bucket"
+        }
+      }
+    },
+    "removeBucket": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/settings/files/bucket"
+        }
+      }
     }
   },
   "leads": {

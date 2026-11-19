@@ -78,6 +78,7 @@ export {
   ebarimtPrintTemplates,
   emailSenders,
   emailSettings,
+  fileBuckets,
   pluginInstallations,
   productCategories,
   products,

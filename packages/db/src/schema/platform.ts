@@ -8,6 +8,7 @@ import {
 import { sql } from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   check,
   foreignKey,
   index,
@@ -74,6 +75,37 @@ export const files = pgTable(
       .on(table.updatedAt)
       .where(sql`${table.status} = 'deleting'`),
     check('core_files_size_check', sql`${table.size} >= 0`),
+  ],
+);
+
+/**
+ * The organisation's own S3-compatible bucket (AWS S3, Cloudflare R2, MinIO),
+ * set in Settings › File upload on a self-hosted server that keeps files on
+ * its disk. New uploads go there; files stored before stay where they are.
+ */
+export const fileBuckets = pgTable(
+  'file_buckets',
+  {
+    orgId: orgIdColumn().primaryKey(),
+    /** The S3 API address, for example `https://<account>.r2.cloudflarestorage.com`. */
+    endpoint: text().notNull(),
+    region: text().notNull(),
+    bucket: text().notNull(),
+    /** Addresses the bucket as `<endpoint>/<bucket>` (MinIO) rather than `<bucket>.<endpoint>`. */
+    forcePathStyle: boolean().notNull(),
+    accessKeyId: text().notNull(),
+    /** The secret access key, sealed (`lib/secrets`); never sent out. */
+    secretSealed: text().notNull(),
+    updatedBy: text(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_file_buckets_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 

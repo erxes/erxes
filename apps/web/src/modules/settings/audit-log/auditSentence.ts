@@ -43,6 +43,24 @@ const refundAmount = (metadata: Record<string, unknown>, language: string) =>
 
 const humanize = (text: string) => text.replace(/[_.]/g, ' ');
 
+/** Changes to the organisation's settings (`settings.*`). */
+const settingSentence = (action: string, label: string, changes: Changes | null) => {
+  switch (action) {
+    case 'settings.files_changed':
+      return 'changed the file upload settings';
+    case 'settings.files_bucket_set':
+      return `set new uploads to go to the bucket ${label}`;
+    case 'settings.files_bucket_removed':
+      return `set new uploads to go to the server again, instead of the bucket ${label}`;
+    case 'settings.audit_retention_changed':
+      return changes?.retentionDays
+        ? `changed audit retention from ${value(changes.retentionDays[0])} to ${value(changes.retentionDays[1])} days`
+        : 'changed audit retention';
+  }
+
+  return null;
+};
+
 /**
  * One readable sentence for an entry ("changed Bold's role from Member to
  * Admin"); the actor's name is shown next to it. Plugin actions read from
@@ -53,6 +71,9 @@ export const auditSentence = (entry: AuditEntry, language: string): string => {
   const changes = entry.changes;
   const metadata = entry.metadata ?? {};
   const [record = '', verb = ''] = entry.action.split('.');
+  const setting = settingSentence(entry.action, label, changes);
+
+  if (setting) return setting;
 
   switch (entry.action) {
     case 'auth.signed_in':
@@ -96,12 +117,6 @@ export const auditSentence = (entry: AuditEntry, language: string): string => {
       return `deactivated ${label}`;
     case 'user.enabled':
       return `reactivated ${label}`;
-    case 'settings.files_changed':
-      return 'changed the file upload settings';
-    case 'settings.audit_retention_changed':
-      return changes?.retentionDays
-        ? `changed audit retention from ${value(changes.retentionDays[0])} to ${value(changes.retentionDays[1])} days`
-        : 'changed audit retention';
     case 'audit.exported':
       return `exported the audit log (${value(metadata.rows)} entries, ${textOf(metadata.format ?? 'csv').toUpperCase()})`;
     case 'file.uploaded':

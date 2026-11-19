@@ -331,10 +331,16 @@ export const FILE_STATUSES = ['pending', 'ready', 'deleting'] as const;
 export const FILE_STORAGES = ['local', 's3', 'cloudflare'] as const;
 
 /**
- * Where one file's bytes are: a server storage, or Cloudflare Images and
- * Stream, where core moves images and videos uploaded to R2 (CLOUDFLARE_USE_CDN).
+ * Where one file's bytes are: a server storage, the organisation's own bucket
+ * (`core_file_buckets`), or Cloudflare Images and Stream, where core moves
+ * images and videos uploaded to R2 (CLOUDFLARE_USE_CDN).
  */
-export const FILE_STORES = [...FILE_STORAGES, 'cloudflare_images', 'cloudflare_stream'] as const;
+export const FILE_STORES = [
+  ...FILE_STORAGES,
+  'bucket',
+  'cloudflare_images',
+  'cloudflare_stream',
+] as const;
 
 /** What a signed local-storage link allows. */
 export const FILE_GRANT_OPS = ['put', 'get'] as const;
