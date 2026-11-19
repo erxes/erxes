@@ -69,6 +69,12 @@ const nodeCrypto = ['node:crypto', 'crypto'].map((name) => ({
     'Use apps/api/src/lib/crypto.ts (safeEqual, sha256, hmacSha256, randomToken), or add the helper there.',
 }));
 
+// Old erxes' password hashes; only verifyPassword checks them.
+const bcrypt = {
+  name: 'bcryptjs',
+  message: 'Use verifyPassword from apps/api/src/lib/crypto.ts.',
+};
+
 // Packages are shared with plugins and never reach into an app.
 const noApps = {
   group: ['@erxes/api', '@erxes/api/*', '@erxes/web', '@erxes/web/*', '**/apps/**'],
@@ -193,7 +199,10 @@ export const restrictedOverrides = [
     // pg-boss schedules.
     files: ['apps/api/**'],
     rules: {
-      'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
+      'no-restricted-imports': [
+        'error',
+        { paths: [routerBuilder, ...decided, ...nodeCrypto, bcrypt] },
+      ],
       'no-restricted-properties': ['error', oneTransaction],
       'no-restricted-globals': ['error', noTimers],
     },
@@ -206,6 +215,13 @@ export const restrictedOverrides = [
   {
     files: ['apps/api/src/lib/crypto.ts'],
     rules: { 'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }] },
+  },
+  {
+    // Tests make old erxes' hashes to sign in with.
+    files: ['apps/api/src/__tests__/**'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
+    },
   },
   {
     // The one place that implements the contract; feature routers import its builders.
