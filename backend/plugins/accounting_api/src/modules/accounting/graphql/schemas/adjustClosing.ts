@@ -122,6 +122,8 @@ adjustClosingEdit(
 
   adjustClosingDoTransaction(_id: String!): AdjustClosing
 
+  adjustClosingClearTransactions(_id: String!): AdjustClosing
+
   adjustClosingPublish(adjustId: String!): AdjustClosing
 
   adjustClosingCancel(adjustId: String!): AdjustClosing

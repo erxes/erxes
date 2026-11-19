@@ -386,7 +386,9 @@ const buildBalanceByDay = (
 
     if (invalidBalance) {
       throw new DebtRateValidationError(
-        `${validateDebtBalance(invalidBalance, accountById)} Date: ${currentDate.toISOString().slice(0, 10)}, Account: ${invalidBalance.accountId}`,
+        `${validateDebtBalance(invalidBalance, accountById)} Date: ${currentDate
+          .toISOString()
+          .slice(0, 10)}, Account: ${invalidBalance.accountId}`,
         currentDate,
         beginDate,
       );

@@ -286,6 +286,75 @@ describe('trusted staff', () => {
     expect(grant).toMatchObject({ status: 'approved', autoApproved: true });
   });
 
+  it('get full access, which the support user carries until access ends', async () => {
+    await models.SupportGrants.enter(staff({ trusted: true }));
+    const grant = await models.SupportGrants.findOne({});
+
+    expect(grant?.fullAccess).toBe(true);
+    await expect(supportUser()).resolves.toMatchObject({
+      isActive: true,
+      supportFullAccess: true,
+    });
+    expect((await supportUser())?.isOwner).toBeFalsy();
+
+    await models.SupportGrants.revoke(String(grant?._id), 'owner1');
+
+    await expect(supportUser()).resolves.toMatchObject({
+      isActive: false,
+      supportFullAccess: false,
+    });
+  });
+
+  it('get full access even with a narrower grant the owner approved', async () => {
+    const pending = await pendingGrant();
+
+    await models.SupportGrants.approve(
+      pending._id,
+      { hours: 4, permissionGroupIds: ['sales:admin'] },
+      'owner1',
+    );
+    await models.SupportGrants.enter(staff({ trusted: true }));
+
+    await expect(
+      models.SupportGrants.findOne({ fullAccess: true }),
+    ).resolves.toMatchObject({ status: 'approved' });
+    await expect(supportUser()).resolves.toMatchObject({
+      supportFullAccess: true,
+    });
+  });
+
+  it('leave untrusted visits on the groups they were given', async () => {
+    await models.SupportGrants.savePolicy({
+      mode: 'allow',
+      allowUntil: new Date(Date.now() + HOUR_SECS * 1000),
+      permissionGroupIds: [],
+    });
+
+    await models.SupportGrants.enter(staff());
+
+    await expect(models.SupportGrants.findOne({})).resolves.toMatchObject({
+      fullAccess: false,
+    });
+    await expect(supportUser()).resolves.toMatchObject({
+      supportFullAccess: false,
+    });
+  });
+
+  it('see only their own visit while acting as an owner', async () => {
+    await models.SupportGrants.enter(staff({ trusted: true }));
+    await models.SupportGrants.enter(
+      staff({ staffId: 'staff_other', name: 'Other', trusted: true }),
+    );
+    const user = await supportUser();
+
+    const active = await models.SupportGrants.activeFor({
+      ...user,
+      isOwner: true,
+    } as never);
+
+    expect(active.map((grant) => grant.userId)).toEqual([user?._id]);
+  });
+
   it('stay out when off', async () => {
     await models.SupportGrants.savePolicy({
       mode: 'off',

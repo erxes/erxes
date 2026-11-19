@@ -4,11 +4,20 @@ import {
   IAdjustClosingDocument,
 } from '../../@types/adjustClosingEntry';
 import { IModels } from '~/connectionResolvers';
-import { adjustClosingSchema } from '../definitions/adjustClosingEntry';
+import {
+  ADJ_CLOSING_STATUSES,
+  adjustClosingSchema,
+} from '../definitions/adjustClosingEntry';
+import {
+  getAdjustClosingBeginDate,
+  removeClosingTransactions,
+} from '../../utils/adjustClosings';
 
-export interface IAdjustClosingEntryModel extends Model<IAdjustClosingDocument> {
+export interface IAdjustClosingEntryModel
+  extends Model<IAdjustClosingDocument> {
   getAdjustClosing(selector: any): Promise<IAdjustClosingDocument>;
   createAdjustClosing(doc: IAdjustClosing): Promise<IAdjustClosingDocument>;
+  checkAdjustClosingEditable(_id: string): Promise<IAdjustClosingDocument>;
   updateAdjustClosing(
     _id: string,
     doc: Partial<IAdjustClosing> & {
@@ -19,7 +28,21 @@ export interface IAdjustClosingEntryModel extends Model<IAdjustClosingDocument> 
   ): Promise<IAdjustClosingDocument>;
   removeAdjustClosing(_id: string): Promise<string>;
   publishAdjustClosing(_id: string): Promise<IAdjustClosingDocument>;
+  cancelAdjustClosing(
+    _id: string,
+    userId: string,
+  ): Promise<IAdjustClosingDocument>;
+  clearAdjustClosingTransactions(
+    _id: string,
+    userId: string,
+  ): Promise<IAdjustClosingDocument>;
 }
+
+const getPureDate = (date: Date) => {
+  const pureDate = new Date(date);
+  pureDate.setHours(0, 0, 0, 0);
+  return pureDate;
+};
 
 export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
   class AdjustClosing {
@@ -29,8 +52,9 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
      */
 
     public static async getAdjustClosing(selector: any) {
-      const adjustClosing =
-        await models.AdjustClosings.findOne(selector).lean();
+      const adjustClosing = await models.AdjustClosings.findOne(
+        selector,
+      ).lean();
 
       if (!adjustClosing) {
         throw new Error('Adjust Closing not found');
@@ -40,28 +64,60 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Create Adjust Closing
+     * Create Adjust Closing. Every existing closing must be published and
+     * dated before the new one; the begin date is derived, never supplied.
      */
     public static async createAdjustClosing(doc: IAdjustClosing) {
-      const lastEntry = await models.AdjustClosings.findOne({})
-        .sort({ date: -1 })
-        .lean();
-
       const closingDate = doc?.date ? new Date(doc.date) : new Date();
 
-      if (
-        lastEntry &&
-        !['complete', 'publish'].includes(lastEntry.status || '')
-      ) {
+      const unpublished = await models.AdjustClosings.findOne({
+        status: { $ne: ADJ_CLOSING_STATUSES.PUBLISH },
+      }).lean();
+
+      if (unpublished) {
         throw new Error('Previous Adjust Closing is not published yet');
       }
+
+      const laterClosing = await models.AdjustClosings.findOne({
+        date: { $gte: getPureDate(closingDate) },
+      }).lean();
+
+      if (laterClosing) {
+        throw new Error('A later closing adjustment already exists.');
+      }
+
+      const beginDate = await getAdjustClosingBeginDate(models, closingDate);
 
       return models.AdjustClosings.create({
         ...doc,
         date: closingDate,
-        status: 'draft',
+        beginDate,
+        status: ADJ_CLOSING_STATUSES.DRAFT,
         createdAt: new Date(),
       });
+    }
+
+    /**
+     * Only the latest unpublished closing may be edited, recalculated, run,
+     * or removed.
+     */
+    public static async checkAdjustClosingEditable(_id: string) {
+      const current = await models.AdjustClosings.getAdjustClosing({ _id });
+
+      if (current.status === ADJ_CLOSING_STATUSES.PUBLISH) {
+        throw new Error('Published Adjust Closing cannot be edited');
+      }
+
+      const laterClosing = await models.AdjustClosings.findOne({
+        _id: { $ne: _id },
+        date: { $gt: current.date },
+      }).lean();
+
+      if (laterClosing) {
+        throw new Error('Only the latest Adjust Closing can be edited');
+      }
+
+      return current;
     }
 
     /**
@@ -75,21 +131,7 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
         percent?: number;
       },
     ) {
-      const lastEntry = await models.AdjustClosings.findOne({})
-        .sort({ createdAt: -1 })
-        .lean();
-
-      if (!lastEntry) {
-        throw new Error('No Adjust Closing found');
-      }
-
-      if (lastEntry._id.toString() !== _id) {
-        throw new Error('Only the latest Adjust Closing can be edited');
-      }
-
-      if (lastEntry.status === 'publish') {
-        throw new Error('Published Adjust Closing cannot be edited');
-      }
+      await models.AdjustClosings.checkAdjustClosingEditable(_id);
 
       const { detailId, entryId, percent, ...setDoc } = doc;
 
@@ -126,64 +168,119 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
      * Remove Adjust Closings
      */
     public static async removeAdjustClosing(_id: string) {
-      const lastEntry = await models.AdjustClosings.findOne({})
-        .sort({ createdAt: -1 })
-        .lean();
+      const current = await models.AdjustClosings.getAdjustClosing({ _id });
 
-      if (!lastEntry) {
-        throw new Error('No Adjust Closing found');
+      if (current.status === ADJ_CLOSING_STATUSES.PUBLISH) {
+        throw new Error('Published Adjust Closing cannot be removed');
       }
 
-      if (lastEntry._id.toString() !== _id) {
+      const laterClosing = await models.AdjustClosings.findOne({
+        _id: { $ne: _id },
+        date: { $gt: current.date },
+      }).lean();
+
+      if (laterClosing) {
         throw new Error('Only the latest Adjust Closing can be removed');
       }
 
-      const parentIds = [
-        lastEntry.closePeriodTrId,
-        lastEntry.earningTrId,
-        lastEntry.taxPayableTrId,
-      ].filter((parentId): parentId is string => Boolean(parentId));
-
-      for (const parentId of parentIds) {
-        const oldTransaction = await models.Transactions.findOne({
-          parentId,
-        }).lean();
-
-        if (oldTransaction) {
-          await models.Transactions.removePTransaction({ parentId });
-        }
-      }
-
+      await removeClosingTransactions(models, current);
       await models.AdjustClosings.deleteOne({ _id });
       return 'success delete';
     }
+
     /**
-     * Publish Adjust Closing
+     * Publish Adjust Closing. Every earlier closing must already be published.
      */
-
     public static async publishAdjustClosing(_id: string) {
-      const lastPublished = await models.AdjustClosings.findOne({
-        status: 'complete',
-      })
-        .sort({ createdAt: -1 })
-        .lean();
+      const current = await models.AdjustClosings.getAdjustClosing({ _id });
 
-      const current = await models.AdjustClosings.findById(_id).lean();
-
-      if (!current?.createdAt) {
-        throw new Error('Adjust Closing not found or missing createdAt');
+      if (current.status !== ADJ_CLOSING_STATUSES.COMPLETE) {
+        throw new Error('Only completed Adjust Closing can be published');
       }
 
-      if (lastPublished && current.createdAt < lastPublished.createdAt!) {
+      const earlierUnpublished = await models.AdjustClosings.findOne({
+        _id: { $ne: _id },
+        date: { $lt: current.date },
+        status: { $ne: ADJ_CLOSING_STATUSES.PUBLISH },
+      }).lean();
+
+      if (earlierUnpublished) {
         throw new Error('Adjust Closing must be published in order');
       }
 
       await models.AdjustClosings.updateOne(
         { _id },
-        { $set: { status: 'publish', updatedAt: new Date() } },
+        {
+          $set: { status: ADJ_CLOSING_STATUSES.PUBLISH, updatedAt: new Date() },
+        },
       );
 
       return models.AdjustClosings.getAdjustClosing({ _id });
+    }
+
+    /**
+     * Reopen a published closing. Blocked while any later closing is
+     * published.
+     */
+    public static async cancelAdjustClosing(_id: string, userId: string) {
+      const current = await models.AdjustClosings.getAdjustClosing({ _id });
+
+      if (current.status !== ADJ_CLOSING_STATUSES.PUBLISH) {
+        throw new Error('Only published Adjust Closing can be cancelled');
+      }
+
+      const laterPublished = await models.AdjustClosings.findOne({
+        _id: { $ne: _id },
+        date: { $gt: current.date },
+        status: ADJ_CLOSING_STATUSES.PUBLISH,
+      }).lean();
+
+      if (laterPublished) {
+        throw new Error('A later closing adjustment already exists.');
+      }
+
+      await models.AdjustClosings.updateOne(
+        { _id },
+        {
+          $set: {
+            status: ADJ_CLOSING_STATUSES.COMPLETE,
+            modifiedBy: userId,
+            updatedAt: new Date(),
+          },
+        },
+      );
+
+      return models.AdjustClosings.getAdjustClosing({ _id });
+    }
+
+    /**
+     * Remove the transactions generated by a completed closing and return it
+     * to `process`, keeping its calculated details.
+     */
+    public static async clearAdjustClosingTransactions(
+      _id: string,
+      userId: string,
+    ) {
+      const current = await models.AdjustClosings.checkAdjustClosingEditable(
+        _id,
+      );
+
+      if (current.status !== ADJ_CLOSING_STATUSES.COMPLETE) {
+        throw new Error(
+          'Only completed Adjust Closing transactions can be cleared',
+        );
+      }
+
+      await removeClosingTransactions(models, current);
+
+      return models.AdjustClosings.updateAdjustClosing(_id, {
+        status: 'process',
+        closePeriodTrId: '',
+        earningTrId: '',
+        taxPayableTrId: '',
+        taxImpactValue: 0,
+        modifiedBy: userId,
+      });
     }
   }
   adjustClosingSchema.loadClass(AdjustClosing);

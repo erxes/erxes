@@ -28,6 +28,9 @@ const findReusableTransaction = (models: IModels, input: any) =>
     // only reuse transactions the provider actually accepted
     response: { $exists: true, $ne: {} },
     'response.error': { $exists: false },
+    // Toki keeps its mini-program data even when QR creation failed; a failed
+    // QR must not be handed back, so the next attempt creates it again
+    'response.qrError': { $exists: false },
   }).sort({ createdAt: -1 });
 
 const addTransaction = async (

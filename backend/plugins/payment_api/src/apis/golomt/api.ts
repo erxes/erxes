@@ -11,9 +11,9 @@ import {
   graphqlPubsub,
   isEnabled,
   random,
-  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
+import { sendTransactionCallbackOnce } from '~/utils/transactionCallback';
 
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
@@ -191,11 +191,12 @@ const sendTransactionCallback = async (
       return;
     }
 
-    await sendWorkerMessage({
+    // At most once per transaction; the callback route may already have
+    // handed it off
+    await sendTransactionCallbackOnce({
       subdomain,
       pluginName,
-      queueName: 'payments',
-      jobName: 'transactionCallback',
+      transactionId: String(transaction._id),
       data: {
         ...transaction.toObject(),
         status: PAYMENT_STATUS.PAID,
@@ -203,7 +204,6 @@ const sendTransactionCallback = async (
         collectionType,
         apiResponse: 'success',
       },
-      defaultValue: null,
     });
   } catch (e) {
     console.error(

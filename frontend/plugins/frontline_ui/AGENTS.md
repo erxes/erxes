@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-17`
+- **Last synchronized:** `2026-11-19`
 
 ## Scope
 
@@ -1002,6 +1002,7 @@ owns the setup form and connection actions.
 | Surveys data              | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                                                           |
 | Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                                                     |
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                                                          |
+| Form print action         | `src/modules/inbox/conversation-messages/components/{FormPrintFrame,FormPrintView}.tsx`                                                       | **Print** in a form message's `...` menu: `FormPrintView` (erxes-ui + Tailwind) is portalled into a hidden iframe that clones the host stylesheets, then the browser print dialog opens; no Documents template, no HTML strings |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                                                     |
 | Cursor list adapter       | `src/modules/shared/utils/cursorList.ts`                                                                                                          | `toCursorPageInfo`, `compactList`, `mergeCursorList` for cursor lists typed from the schema                                                                                  |
 | JSON narrowing            | `src/modules/shared/utils/isRecord.ts`                                                                                                            | `isRecord` type guard for `JSON` outputs that stay untyped                                                                                                                   |

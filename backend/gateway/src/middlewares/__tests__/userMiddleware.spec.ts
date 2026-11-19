@@ -31,6 +31,7 @@ const mockQueueAdd = jest.fn(async () => undefined);
 interface IMockUser {
   _id: string;
   isActive?: boolean;
+  supportFullAccess?: boolean;
 }
 
 const mockUsers: Record<string, IMockUser[]> = {};
@@ -142,6 +143,32 @@ describe('staff session', () => {
     expect(req.user?._id).toBe('u1');
     expect(req.headers.user).toBeTruthy();
     expect(next).toHaveBeenCalled();
+  });
+
+  it('forwards a support user on a full access grant as an owner', async () => {
+    mockUsers.acme.push({ _id: 'support1', supportFullAccess: true });
+    const sid = newSid();
+    putSession('acme', sid, { userId: 'support1', method: 'support' });
+
+    const { req } = await run({ cookies: { 'erxes-sid': sid } });
+    const forwarded = JSON.parse(
+      Buffer.from(String(req.headers.user), 'base64').toString('utf8'),
+    );
+
+    expect(forwarded).toMatchObject({
+      _id: 'support1',
+      isOwner: true,
+      supportFullAccess: true,
+    });
+  });
+
+  it('forwards anyone else with their own owner flag', async () => {
+    const sid = newSid();
+    putSession('acme', sid);
+
+    const { req } = await run({ cookies: { 'erxes-sid': sid } });
+
+    expect(req.user?.isOwner).toBeUndefined();
   });
 
   it('rejects a guessed sid', async () => {

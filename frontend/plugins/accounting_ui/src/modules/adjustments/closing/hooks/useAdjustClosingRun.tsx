@@ -9,6 +9,7 @@ import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_DETAIL_QUERY } from '../graphql/adjustClosingDetail';
 import {
   ADJUST_CLOSING_CALCULATE,
+  ADJUST_CLOSING_CLEAR_TRANSACTIONS,
   ADJUST_CLOSING_DO_TRANSACTION,
 } from '../graphql/adjustClosingRun';
 
@@ -26,6 +27,10 @@ export const useAdjustClosingRun = (
   );
   const [_runMutation, { loading }] = useMutation(
     ADJUST_CLOSING_DO_TRANSACTION,
+    options,
+  );
+  const [_clearMutation, { loading: clearLoading }] = useMutation(
+    ADJUST_CLOSING_CLEAR_TRANSACTIONS,
     options,
   );
 
@@ -81,5 +86,22 @@ export const useAdjustClosingRun = (
     );
   };
 
-  return { calculateAdjust, calculateLoading, runAdjust, loading };
+  const clearTransactions = (
+    callOptions?: GraphqlMutationOptions<
+      typeof ADJUST_CLOSING_CLEAR_TRANSACTIONS
+    >,
+  ) => {
+    return _clearMutation(
+      makeOptions(callOptions, 'Closing transactions cleared successfully'),
+    );
+  };
+
+  return {
+    calculateAdjust,
+    calculateLoading,
+    runAdjust,
+    loading,
+    clearTransactions,
+    clearLoading,
+  };
 };

@@ -5,16 +5,18 @@ import {
   IconDots,
   IconPin,
   IconPinnedOff,
+  IconPrinter,
   IconShare3,
 } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import { IntegrationType } from '@/types/Integration';
 import { ForwardMessageDialog } from '@/inbox/conversation-messages/components/ForwardMessageDialog';
+import { FormPrintFrame } from '@/inbox/conversation-messages/components/FormPrintFrame';
 import {
   INLINE_ACTION_KINDS,
   NATIVE_REPLY_KINDS,
@@ -42,6 +44,7 @@ export const MessageActions = ({
   const setReply = useSetAtom(messageReplyState);
   const facebookReplyWindowExpired = useContext(FacebookReplyWindowContext);
   const [forwardOpen, setForwardOpen] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
     CONVERSATION_MESSAGE_PIN,
     {
@@ -92,6 +95,8 @@ export const MessageActions = ({
     });
     onReply?.();
   };
+
+  const stopPrinting = useCallback(() => setPrinting(false), []);
 
   const togglePin = async () => {
     if (!providerMessageId) return;
@@ -175,6 +180,16 @@ export const MessageActions = ({
                   </DropdownMenu.Item>
                 )}
                 <MessageCopyActions inline={false} />
+                {Boolean(message.formWidgetData) && (
+                  <DropdownMenu.Item
+                    className="rounded-lg"
+                    disabled={printing}
+                    onClick={() => setPrinting(true)}
+                  >
+                    <IconPrinter className="size-4" />
+                    {t('print', 'Print')}
+                  </DropdownMenu.Item>
+                )}
                 {isDiscord && (
                   <DropdownMenu.Item
                     className="rounded-lg"
@@ -200,6 +215,7 @@ export const MessageActions = ({
           onOpenChange={setForwardOpen}
         />
       )}
+      {printing && <FormPrintFrame message={message} onDone={stopPrinting} />}
     </Tooltip.Provider>
   );
 };

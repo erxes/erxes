@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { PAYMENT_KINDS } from '~/modules/payment/constants';
+import { PAYMENT_KINDS, PaymentField } from '~/modules/payment/constants';
 import { usePaymentAdd } from '~/modules/payment/hooks/usePaymentAdd';
 import { usePaymentEdit } from '~/modules/payment/hooks/usePaymentEdit';
 import { IPayment, IPaymentDocument } from '~/modules/payment/types/Payment';
@@ -107,8 +107,21 @@ const createPaymentSchema = (selectedKind: string) => {
 
   // Create dynamic fields schema
   const dynamicFields: Record<string, z.ZodType> = {};
+  // Fields that are required unless another field has a given value
+  const conditionalFields: PaymentField[] = [];
 
-  payment.fields.forEach((field) => {
+  (payment.fields as PaymentField[]).forEach((field) => {
+    if (field.optional) {
+      dynamicFields[field.key] = z.string().optional();
+      return;
+    }
+
+    if (field.optionalWhen) {
+      dynamicFields[field.key] = z.string().optional();
+      conditionalFields.push(field);
+      return;
+    }
+
     let fieldSchema: z.ZodType;
 
     switch (field.type) {
@@ -121,8 +134,8 @@ const createPaymentSchema = (selectedKind: string) => {
         fieldSchema = z
           .string()
           .min(
-            field.validation.value,
-            `${field.label} must be at least ${field.validation.value} characters`,
+            field.validation?.value ?? 1,
+            `${field.label} must be at least ${field.validation?.value ?? 1} characters`,
           );
         break;
       default:
@@ -172,7 +185,33 @@ const createPaymentSchema = (selectedKind: string) => {
     return corporateGolomtSchema;
   }
 
-  return baseSchema.extend(dynamicFields);
+  const schema = baseSchema.extend(dynamicFields);
+
+  if (!conditionalFields.length) {
+    return schema;
+  }
+
+  return schema.superRefine((values, ctx) => {
+    const data = values as Record<string, unknown>;
+
+    conditionalFields.forEach((field) => {
+      const when = field.optionalWhen;
+
+      if (!when || data[when.key] === when.value) {
+        return;
+      }
+
+      const value = data[field.key];
+
+      if (typeof value !== 'string' || !value.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: [field.key],
+          message: `${field.label} is required`,
+        });
+      }
+    });
+  });
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
@@ -243,6 +282,19 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
 
   // Watch for kind changes to update schema
   const watchedKind = watch('kind');
+
+  // Current values, to show "*" only on fields that are required right now
+  const currentValues = watch() as Record<string, unknown>;
+
+  const isFieldRequired = (field: PaymentField) => {
+    if (field.optional) {
+      return false;
+    }
+
+    const when = field.optionalWhen;
+
+    return !(when && currentValues[when.key] === when.value);
+  };
 
   React.useEffect(() => {
     if (watchedKind !== selectedKind) {
@@ -507,25 +559,57 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
               />
 
               {/* Dynamic Payment-Specific Fields */}
-              {currentPaymentKind?.fields.map((fieldConfig) => (
+              {(currentPaymentKind?.fields as PaymentField[] | undefined)?.map((fieldConfig) => (
                 <Form.Field
                   key={fieldConfig.key}
                   name={fieldConfig.key as any}
                   control={form.control}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t(fieldConfig.label)} *</Form.Label>
+                      <Form.Label>
+                        {t(fieldConfig.label)}
+                        {isFieldRequired(fieldConfig) ? ' *' : ''}
+                      </Form.Label>
                       <Form.Control>
-                        <Input
-                          {...field}
-                          type={fieldConfig.type || 'text'}
-                          placeholder={`Enter ${t(
-                            fieldConfig.label,
-                          ).toLowerCase()}`}
-                          autoComplete={
-                            fieldConfig.type === 'password' ? '' : 'off'
-                          }
-                        />
+                        {fieldConfig.options ? (
+                          <Select
+                            value={field.value || undefined}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger>
+                              <Select.Value
+                                placeholder={`Select ${t(
+                                  fieldConfig.label,
+                                ).toLowerCase()}`}
+                              />
+                            </Select.Trigger>
+                            <Select.Content className="p-0 border" align="start">
+                              <Select.Group>
+                                {fieldConfig.options.map((option) => (
+                                  <Select.Item
+                                    key={option.value}
+                                    value={option.value}
+                                    className="h-7 text-xs"
+                                  >
+                                    {option.label}
+                                  </Select.Item>
+                                ))}
+                              </Select.Group>
+                            </Select.Content>
+                          </Select>
+                        ) : (
+                          <Input
+                            {...field}
+                            value={field.value ?? ''}
+                            type={fieldConfig.type || 'text'}
+                            placeholder={`Enter ${t(
+                              fieldConfig.label,
+                            ).toLowerCase()}`}
+                            autoComplete={
+                              fieldConfig.type === 'password' ? '' : 'off'
+                            }
+                          />
+                        )}
                       </Form.Control>
                     </Form.Item>
                   )}

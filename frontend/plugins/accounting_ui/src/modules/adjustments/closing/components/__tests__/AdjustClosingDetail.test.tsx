@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AdjustClosingDetail } from '@/adjustments/closing/components/AdjustClosingDetail';
 
 const mockEnglishLabels: Record<string, string> = {
@@ -19,6 +19,9 @@ const mockClosing: { current: Record<string, unknown> } = { current: {} };
 const mockCalculate = jest.fn();
 const mockRun = jest.fn();
 const mockPublish = jest.fn();
+const mockCancel = jest.fn();
+const mockClear = jest.fn();
+const mockConfirm = jest.fn(() => Promise.resolve());
 
 jest.mock('@/adjustments/closing/hooks/useAdjustClosingDetail', () => ({
   useAdjustClosingDetail: () => ({
@@ -38,19 +41,28 @@ jest.mock('@/adjustments/closing/hooks/useAdjustClosingRun', () => ({
     calculateLoading: false,
     runAdjust: mockRun,
     loading: false,
+    clearTransactions: mockClear,
+    clearLoading: false,
   }),
 }));
 jest.mock('@/adjustments/closing/hooks/useAdjustClosingPublish', () => ({
-  useAdjustClosingPublish: () => ({ publishAdjust: mockPublish }),
+  useAdjustClosingPublish: () => ({
+    publishAdjust: mockPublish,
+    loading: false,
+  }),
 }));
 jest.mock('@/adjustments/closing/hooks/useAdjustClosingCancel', () => ({
-  useAdjustClosingCancel: () => ({ cancelAdjust: jest.fn() }),
+  useAdjustClosingCancel: () => ({ cancelAdjust: mockCancel, loading: false }),
 }));
 jest.mock('@/adjustments/closing/hooks/useAdjustClosingRemove', () => ({
   useAdjustClosingEntryRemove: () => ({
     removeAdjust: jest.fn(),
     loading: false,
   }),
+}));
+const mockOpenDetail = jest.fn();
+jest.mock('@/settings/hooks/useSettingsPanel', () => ({
+  useSettingsPanel: () => ({ openDetail: mockOpenDetail }),
 }));
 jest.mock('@/adjustments/closing/hooks/useAdjustClosingEdit', () => ({
   useAdjustClosingEdit: () => ({ adjustClosingEdit: jest.fn() }),
@@ -109,7 +121,7 @@ jest.mock(
         Trigger: wrap,
         Content: wrap,
       }),
-      useConfirm: () => ({ confirm: jest.fn() }),
+      useConfirm: () => ({ confirm: mockConfirm }),
     };
   },
   { virtual: true },
@@ -154,10 +166,18 @@ describe('closing entry detail actions', () => {
     openClosing('process', 'Account 0020 has no balance');
 
     expect(screen.queryByRole('button', { name: 'do-transaction' })).toBeNull();
-    expect(
-      screen.getByRole<HTMLButtonElement>('button', { name: 'Calculate' })
-        .disabled,
-    ).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'recalc' }));
+
+    expect(mockCalculate).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'delete' })).toBeTruthy();
+  });
+
+  it('lets the accountant recalculate or delete a warning closing', () => {
+    openClosing('warning');
+
+    expect(screen.getByRole('button', { name: 'recalc' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'delete' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'do-transaction' })).toBeNull();
   });
 
   it('lets the accountant publish a completed closing labelled "Completed"', () => {
@@ -166,5 +186,32 @@ describe('closing entry detail actions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'PUBLISH' }));
 
     expect(mockPublish).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'delete' })).toBeNull();
+  });
+
+  it('clears the transactions of a completed closing after confirmation', async () => {
+    openClosing('complete');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear transactions' }));
+
+    expect(mockConfirm).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mockClear).toHaveBeenCalledTimes(1));
+  });
+
+  it('unpublishes a published closing and offers no other action', () => {
+    openClosing('publish');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Unpublish' }));
+
+    expect(mockCancel).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+  });
+
+  it('opens the edit panel from the detail for an unpublished closing', () => {
+    openClosing('complete');
+
+    fireEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+    expect(mockOpenDetail).toHaveBeenCalledWith('closing-2026-11');
   });
 });

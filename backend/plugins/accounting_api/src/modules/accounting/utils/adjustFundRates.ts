@@ -312,7 +312,9 @@ const buildBalanceByDay = (
 
     if (negativeBalance) {
       throw new FundRateValidationError(
-        `Fund currency balance cannot be negative before adjustment. Date: ${currentDate.toISOString().slice(0, 10)}, Account: ${negativeBalance.accountId}`,
+        `Fund currency balance cannot be negative before adjustment. Date: ${currentDate
+          .toISOString()
+          .slice(0, 10)}, Account: ${negativeBalance.accountId}`,
         currentDate,
         beginDate,
       );

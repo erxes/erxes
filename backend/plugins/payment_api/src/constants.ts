@@ -140,6 +140,11 @@ export const PAYMENTS = {
     title: 'Toki',
     kind: 'toki',
     apiUrl: 'https://ms-api.toki.mn',
+    // Mini-program API (Toki's doc writes these with http://)
+    miniProgramUrl: {
+      production: 'https://apps.toki.mn',
+      staging: 'https://staging-apps.toki.mn',
+    },
     actions: {
       getToken: 'third-party-service/v1/auth/token',
       invoice: 'third-party-service/v1/payment-request/merchant-qr',
