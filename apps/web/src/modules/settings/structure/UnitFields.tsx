@@ -72,6 +72,36 @@ const TypeRow = ({
   );
 };
 
+/** The unit's short code, edited in place. */
+const CodeRow = ({
+  unit,
+  disabled,
+  update,
+}: {
+  unit: UnitDetail;
+  disabled: boolean;
+  update: (patch: Patch) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+
+  return (
+    <PanelField icon={IconHash} label={t('code', 'Code')}>
+      <TextField
+        variant="field"
+        scope={`structure-unit.${unit.id}.code`}
+        value={unit.code ?? ''}
+        placeholder={t('code', 'Code')}
+        disabled={disabled}
+        onSave={(next) => {
+          const trimmed = next.trim();
+
+          if (trimmed !== (unit.code ?? '')) update({ code: trimmed || null });
+        }}
+      />
+    </PanelField>
+  );
+};
+
 /** How to reach the unit and what it does, each edited in place. */
 const TextRows = ({
   unit,
@@ -85,7 +115,6 @@ const TextRows = ({
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
 
   const rows = [
-    { name: 'code', icon: IconHash, label: t('code', 'Code'), value: unit.code },
     { name: 'email', icon: IconMail, label: t('email', 'Email'), value: unit.email },
     { name: 'phone', icon: IconPhone, label: t('phone', 'Phone'), value: unit.phone },
     { name: 'address', icon: IconAddressBook, label: t('address', 'Address'), value: unit.address },
@@ -116,8 +145,8 @@ const TextRows = ({
 };
 
 /**
- * The unit's fields, edited in place by members who manage the structure. The organisation's own
- * unit has no type and is always active.
+ * The unit's fields, edited in place by members who manage the structure: what it is, then how
+ * to reach it. The organisation's own unit has no type and is always active.
  */
 export const UnitFields = ({ unit }: { unit: UnitDetail }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
@@ -128,36 +157,41 @@ export const UnitFields = ({ unit }: { unit: UnitDetail }) => {
   const update = (patch: Patch) => save.mutate({ id: unit.id, ...patch });
 
   return (
-    <PanelSection title={t('details', 'Details')}>
-      {canSeeTeam && (
-        <PanelField icon={IconUserStar} label={t('supervisor', 'Supervisor')}>
-          <SelectMember.InlineCell
-            variant="field"
-            scope={`structure-unit.${unit.id}.supervisor`}
-            value={unit.supervisorId}
-            members={memberQueries}
-            noneLabel={t('no-supervisor', 'No supervisor')}
-            placeholder={t('no-supervisor', 'No supervisor')}
-            onValueChange={(supervisorId) => {
-              if (canManage) update({ supervisorId });
-            }}
-          />
-        </PanelField>
-      )}
-      {!isRoot && <TypeRow unit={unit} disabled={disabled} update={update} />}
-      <TextRows unit={unit} disabled={disabled} update={update} />
-      {!isRoot && (
-        <PanelField icon={IconToggleLeft} label={t('active', 'Active')} cell={false}>
-          <span className="flex h-7 items-center px-2">
-            <Switch
-              checked={unit.isActive}
-              disabled={disabled || save.isPending}
-              aria-label={t('unit-active', 'Unit is active')}
-              onCheckedChange={(isActive) => update({ isActive })}
+    <>
+      <PanelSection title={t('unit', 'Unit')}>
+        {canSeeTeam && (
+          <PanelField icon={IconUserStar} label={t('supervisor', 'Supervisor')}>
+            <SelectMember.InlineCell
+              variant="field"
+              scope={`structure-unit.${unit.id}.supervisor`}
+              value={unit.supervisorId}
+              members={memberQueries}
+              noneLabel={t('no-supervisor', 'No supervisor')}
+              placeholder={t('no-supervisor', 'No supervisor')}
+              onValueChange={(supervisorId) => {
+                if (canManage) update({ supervisorId });
+              }}
             />
-          </span>
-        </PanelField>
-      )}
-    </PanelSection>
+          </PanelField>
+        )}
+        {!isRoot && <TypeRow unit={unit} disabled={disabled} update={update} />}
+        <CodeRow unit={unit} disabled={disabled} update={update} />
+        {!isRoot && (
+          <PanelField icon={IconToggleLeft} label={t('active', 'Active')} cell={false}>
+            <span className="flex h-7 items-center px-2">
+              <Switch
+                checked={unit.isActive}
+                disabled={disabled || save.isPending}
+                aria-label={t('unit-active', 'Unit is active')}
+                onCheckedChange={(isActive) => update({ isActive })}
+              />
+            </span>
+          </PanelField>
+        )}
+      </PanelSection>
+      <PanelSection title={t('contact', 'Contact')}>
+        <TextRows unit={unit} disabled={disabled} update={update} />
+      </PanelSection>
+    </>
   );
 };

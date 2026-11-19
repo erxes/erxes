@@ -105,6 +105,8 @@ export { TabButton, Tabs } from './components/tabs';
 
 export { TextOverflowTooltip } from './components/text-overflow';
 
+export { Tree } from './components/tree';
+
 export { Textarea } from './components/textarea';
 
 export { Toaster } from './components/toaster';

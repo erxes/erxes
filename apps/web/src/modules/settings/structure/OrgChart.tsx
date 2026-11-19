@@ -13,14 +13,17 @@ import {
 } from '@xyflow/react';
 import { Button, themeState, Tooltip } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DraftCard, MoreCard, UnitCard } from './ChartCards';
-import { ANIMATION, FIT_VIEW, useChartFocus } from './chartFocus';
-import { layoutChart, STACK_INDENT, V_GAP } from './chartLayout';
+import { ANIMATION, useChartFocus } from './chartFocus';
+import { CARD_WIDTH, layoutChart, STACK_INDENT, V_GAP } from './chartLayout';
 import { useWorkspace } from './context';
 
 const CORNER = 8;
+
+/** How far under the chart's top edge the organisation's own card starts. */
+const TOP_SPACE = 48;
 
 type Point = { x: number; y: number };
 
@@ -145,12 +148,15 @@ const Chart = () => {
   const theme = useAtomValue(themeState);
   const { index, isOpen, draftParentId, select, selectedId, closeDraft } = useWorkspace();
   const [ready, setReady] = useState(false);
+  const frame = useRef<HTMLDivElement>(null);
   const { nodes, edges } = layoutChart(index, isOpen, draftParentId);
+  const top = nodes.find(({ id }) => id === index.root.id);
 
   useChartFocus(nodes, ready);
 
   return (
     <ReactFlow
+      ref={frame}
       className="org-flow"
       aria-label={t('chart-label', 'Organisation chart')}
       nodes={nodes}
@@ -160,7 +166,11 @@ const Chart = () => {
       colorMode={theme}
       minZoom={0.1}
       onInit={(instance) => {
-        void instance.fitView(FIT_VIEW);
+        void instance.setViewport({
+          x: (frame.current?.clientWidth ?? 0) / 2 - ((top?.position.x ?? 0) + CARD_WIDTH / 2),
+          y: TOP_SPACE - (top?.position.y ?? 0),
+          zoom: 1,
+        });
         setReady(true);
       }}
       nodesDraggable={false}

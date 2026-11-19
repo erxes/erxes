@@ -172,7 +172,7 @@ export const OrgSearch = () => {
     : t('search-units', 'Search units');
 
   return (
-    <div className="flex w-72 flex-col gap-1 sm:w-80">
+    <div className="relative w-72 sm:w-80">
       <InputGroup>
         <InputGroup.Addon>
           <IconSearch className="size-4" />
@@ -199,7 +199,7 @@ export const OrgSearch = () => {
         )}
       </InputGroup>
       {open && (
-        <div className="flex max-h-96 flex-col overflow-y-auto rounded-lg border bg-background p-1 shadow-lg">
+        <div className="absolute inset-x-0 top-full z-30 mt-1 flex max-h-96 flex-col overflow-y-auto rounded-lg border bg-popover p-1 shadow-lg">
           <SectionLabel>{t('units', 'Units')}</SectionLabel>
           <UnitResults
             hits={units.data?.data ?? []}

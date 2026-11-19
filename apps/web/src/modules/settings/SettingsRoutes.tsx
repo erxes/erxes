@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { IconsProvider } from 'erxes-ui';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
@@ -90,8 +91,16 @@ export const SettingsRoutes = () => (
       <Route path="api-keys/:id" element={<KeyEditorPage />} />
       <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
-      <Route path="structure" element={<StructurePage />} />
-      <Route path="structure/types" element={<UnitTypesPage />} />
+      <Route
+        element={
+          <IconsProvider>
+            <Outlet />
+          </IconsProvider>
+        }
+      >
+        <Route path="structure" element={<StructurePage />} />
+        <Route path="structure/types" element={<UnitTypesPage />} />
+      </Route>
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />

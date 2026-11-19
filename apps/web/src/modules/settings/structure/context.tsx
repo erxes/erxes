@@ -10,13 +10,13 @@ import type { UnitTree } from './useUnitTree';
 /** Where the Display menu keeps the structure's view. */
 export const STRUCTURE_DISPLAY_LIST = 'core-structure';
 
-/** The chart, then the indented list, for the Display menu. */
+/** The tree with its columns, then the chart, for the Display menu. */
 export const useStructureDisplays = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
 
   return [
+    { key: 'list', label: t('view-tree', 'Tree'), icon: IconListTree },
     { key: 'chart', label: t('view-chart', 'Chart'), icon: IconHierarchy2 },
-    { key: 'list', label: t('view-list', 'List'), icon: IconListTree },
   ] as const;
 };
 
@@ -57,7 +57,7 @@ export const useWorkspace = () => {
 export const useSelectedUnit = () => useQueryState('unit', { history: 'replace' });
 
 /**
- * The chart's and the list's shared state: what is open and loaded, the selected unit, the unit
+ * The tree's and the chart's shared state: what is open and loaded, the selected unit, the unit
  * being added in place, and the view picked in the Display menu.
  */
 export const WorkspaceProvider = ({
@@ -88,7 +88,7 @@ export const WorkspaceProvider = ({
       types,
       typesById: new Map(types.map((type) => [type.id, type])),
       isOpen: (unit) => unit.id === draftParentId || tree.isOpen(unit),
-      view: display === 'list' ? 'list' : 'chart',
+      view: display === 'chart' ? 'chart' : 'list',
       selectedId,
       select: (id, reveal) => {
         void setSelectedId(id);

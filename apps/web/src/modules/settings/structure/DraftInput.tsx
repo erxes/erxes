@@ -2,7 +2,7 @@ import type { UnitType } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { IconChevronDown } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Input, Popover } from 'erxes-ui';
+import { Button, cn, InputGroup, Popover } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkspace } from './context';
@@ -15,12 +15,10 @@ import { useStructureHandlers } from './useStructureHandlers';
 const TypePicker = ({
   types,
   value,
-  disabled,
   onChange,
 }: {
   types: UnitType[];
   value: string | undefined;
-  disabled: boolean;
   onChange: (typeId: string) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
@@ -32,10 +30,9 @@ const TypePicker = ({
       <Popover.Trigger
         render={
           <Button
-            variant="secondary"
+            variant="ghost"
             size="xs"
-            disabled={disabled}
-            className="max-w-28 shrink-0"
+            className="max-w-32 shrink-0"
             aria-label={t('type-of-new-unit', 'Type of the new unit')}
           />
         }
@@ -58,12 +55,13 @@ const TypePicker = ({
 };
 
 /**
- * The "new unit" card in the chart or the list: pick a type, type a name, Enter adds it, Escape
- * leaves. Only types allowed under the parent are offered.
+ * A new unit typed where it will sit, in the tree or on the chart: pick a type, type a name,
+ * Enter adds it and leaves the line ready for the next one, Escape leaves. Only types allowed
+ * under the parent are offered. `stacked` puts the hint under the box, for the chart's card.
  */
-export const DraftInput = ({ parentId }: { parentId: string }) => {
+export const DraftInput = ({ parentId, stacked }: { parentId: string; stacked?: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const { index, types, closeDraft, select } = useWorkspace();
+  const { index, types, closeDraft } = useWorkspace();
   const [name, setName] = useState('');
   const [picked, setPicked] = useState<string>();
   const [error, setError] = useState<string>();
@@ -78,27 +76,22 @@ export const DraftInput = ({ parentId }: { parentId: string }) => {
     ? picked
     : defaultChildType(index.children.get(parentId) ?? [], allowed, parent?.typeId ?? null);
 
-  const create = useMutation(
-    orpc.units.create.mutationOptions(
-      useStructureHandlers((unit) => {
-        closeDraft();
-        select(unit.id, unit);
-      }),
-    ),
-  );
+  const create = useMutation(orpc.units.create.mutationOptions(useStructureHandlers()));
 
   const submit = () => {
     const value = name.trim();
+
+    if (create.isPending) return;
 
     if (!value) return setError(t('name-the-unit', 'Name the unit'));
 
     if (!typeId) return setError(t('no-type-fits', 'No unit type fits here.'));
 
-    create.mutate({ name: value, typeId, parentId });
+    create.mutate({ name: value, typeId, parentId }, { onSuccess: () => setName('') });
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
       event.preventDefault();
       submit();
     }
@@ -111,39 +104,39 @@ export const DraftInput = ({ parentId }: { parentId: string }) => {
   };
 
   return (
-    <div className="flex size-full flex-col justify-center gap-1 rounded-lg border border-dashed border-primary bg-background px-2.5 py-2 shadow-sm">
-      <div className="flex items-center gap-1.5">
-        <TypePicker
-          types={allowed}
-          value={typeId}
-          disabled={create.isPending}
-          onChange={(next) => {
-            setPicked(next);
-            setError(undefined);
-          }}
-        />
-        <Input
+    <div className={cn('flex min-w-0 flex-1 gap-2', stacked ? 'flex-col' : 'items-center')}>
+      <InputGroup className={stacked ? undefined : 'max-w-md'}>
+        <InputGroup.Addon>
+          <TypePicker
+            types={allowed}
+            value={typeId}
+            onChange={(next) => {
+              setPicked(next);
+              setError(undefined);
+              input.current?.focus();
+            }}
+          />
+        </InputGroup.Addon>
+        <InputGroup.Input
           ref={input}
           value={name}
-          disabled={create.isPending}
           maxLength={200}
           placeholder={t('unit-name', 'Unit name')}
           aria-label={t('new-unit-name', 'New unit name')}
           aria-invalid={Boolean(error)}
-          className="h-7 min-w-0 flex-1"
           onChange={(event) => {
             setName(event.currentTarget.value);
             setError(undefined);
           }}
           onKeyDown={onKeyDown}
         />
-      </div>
+      </InputGroup>
       <span
-        className={
-          error
-            ? 'truncate text-xs text-destructive-text'
-            : 'truncate text-xs text-muted-foreground'
-        }
+        role={error ? 'alert' : undefined}
+        className={cn(
+          'truncate text-xs',
+          error ? 'text-destructive-text' : 'text-muted-foreground',
+        )}
       >
         {error ?? t('draft-hint', 'Enter to add · Esc to cancel')}
       </span>

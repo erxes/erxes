@@ -9,8 +9,18 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Badge, Button, DropdownMenu, Skeleton, useConfirm, usePageHotkey } from 'erxes-ui';
-import { Fragment, type KeyboardEvent, useState } from 'react';
+import {
+  Badge,
+  Button,
+  DropdownMenu,
+  ScrollArea,
+  Skeleton,
+  Tabs,
+  TextField,
+  useConfirm,
+  usePageHotkey,
+} from 'erxes-ui';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useWorkspace } from './context';
@@ -19,7 +29,7 @@ import { nodeOf } from './unitTree';
 import { UnitFields, useSaveUnit } from './UnitFields';
 import { MoveBar } from './UnitMove';
 import { UnitPeople } from './UnitPeople';
-import { Subunits, UnitStats } from './UnitSubunits';
+import { Subunits } from './UnitSubunits';
 import { useStructureHandlers } from './useStructureHandlers';
 
 /** The units above this one; a click selects and brings it in sight. */
@@ -51,45 +61,6 @@ const PathCrumbs = ({ unit }: { unit: UnitDetail }) => {
         </Fragment>
       ))}
     </nav>
-  );
-};
-
-/** The unit's name, renamed in place: Enter or leaving saves, Escape puts it back. */
-const Title = ({ unit, editable }: { unit: UnitDetail; editable: boolean }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const save = useSaveUnit();
-  const [value, setValue] = useState(unit.name);
-
-  if (!editable)
-    return <h2 className="min-w-0 flex-1 truncate px-1.5 text-lg font-semibold">{unit.name}</h2>;
-
-  const commit = () => {
-    const name = value.trim();
-
-    if (name && name !== unit.name) save.mutate({ id: unit.id, name });
-    else setValue(unit.name);
-  };
-
-  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && !event.nativeEvent.isComposing) event.currentTarget.blur();
-
-    if (event.key === 'Escape') {
-      event.stopPropagation();
-      setValue(unit.name);
-      event.currentTarget.blur();
-    }
-  };
-
-  return (
-    <input
-      value={value}
-      aria-label={t('unit-name', 'Unit name')}
-      maxLength={200}
-      className="h-9 min-w-0 flex-1 rounded-md bg-transparent px-1.5 text-lg font-semibold outline-none hover:bg-accent focus:bg-background focus-visible:ring-2 focus-visible:ring-ring"
-      onChange={(event) => setValue(event.currentTarget.value)}
-      onBlur={commit}
-      onKeyDown={onKeyDown}
-    />
   );
 };
 
@@ -191,55 +162,120 @@ const UnitMenu = ({ unit, onMove }: { unit: UnitDetail; onMove: () => void }) =>
   );
 };
 
-const Body = ({ unit }: { unit: UnitDetail }) => {
+/** Where the unit sits, then its icon, its name (renamed in place) and its type. */
+const Heading = ({ unit, onMove }: { unit: UnitDetail; onMove: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { select, canManage, typesById } = useWorkspace();
-  const [moving, setMoving] = useState(false);
+  const save = useSaveUnit();
   const type = unit.typeId ? typesById.get(unit.typeId) : undefined;
 
   return (
+    <div className="flex flex-none flex-col gap-1 px-3 pt-2 pb-3">
+      <div className="flex min-h-7 items-center gap-1">
+        <PathCrumbs unit={unit} />
+        {canManage && <UnitMenu unit={unit} onMove={onMove} />}
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('close', 'Close')}
+          onClick={() => select(null)}
+        >
+          <IconX />
+        </Button>
+      </div>
+      <div className="flex min-w-0 items-center gap-2">
+        <TypeIcon type={type} size="lg" />
+        <div className="min-w-0 flex-1">
+          <TextField
+            variant="title"
+            scope={`structure-unit.${unit.id}.name`}
+            value={unit.name}
+            placeholder={t('unit-name', 'Unit name')}
+            disabled={!canManage}
+            onSave={(next) => {
+              const name = next.trim();
+
+              if (name && name !== unit.name) save.mutate({ id: unit.id, name });
+            }}
+          />
+        </div>
+        {type && <Badge variant="secondary">{type.name}</Badge>}
+        {!unit.isActive && <Badge variant="warning">{t('inactive', 'Inactive')}</Badge>}
+      </div>
+    </div>
+  );
+};
+
+export type UnitTab = 'details' | 'people' | 'subunits';
+
+const isUnitTab = (value: unknown): value is UnitTab =>
+  value === 'details' || value === 'people' || value === 'subunits';
+
+const Body = ({
+  unit,
+  tab,
+  onTab,
+}: {
+  unit: UnitDetail;
+  tab: UnitTab;
+  onTab: (tab: UnitTab) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const [moving, setMoving] = useState(false);
+
+  return (
     <>
-      <div className="flex flex-col gap-1 border-b px-3 pt-2 pb-3">
-        <div className="flex min-h-7 items-center gap-1">
-          <PathCrumbs unit={unit} />
-          {canManage && <UnitMenu unit={unit} onMove={() => setMoving(true)} />}
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={t('close', 'Close')}
-            onClick={() => select(null)}
-          >
-            <IconX />
-          </Button>
+      <Heading unit={unit} onMove={() => setMoving(true)} />
+      {moving && (
+        <div className="flex-none px-3 pb-3">
+          <MoveBar unit={unit} onDone={() => setMoving(false)} />
         </div>
-        <div className="flex min-w-0 items-center gap-2">
-          <TypeIcon type={type} size="lg" />
-          <Title key={unit.name} unit={unit} editable={canManage} />
-          {type && (
-            <span className="shrink-0 rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
-              {type.name}
-            </span>
-          )}
-          {!unit.isActive && <Badge variant="warning">{t('inactive', 'Inactive')}</Badge>}
+      )}
+      <Tabs
+        value={tab}
+        onValueChange={(next) => {
+          if (isUnitTab(next)) onTab(next);
+        }}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <div className="flex-none border-b px-3">
+          <Tabs.List variant="flush" className="h-9">
+            <Tabs.Trigger value="details">{t('details', 'Details')}</Tabs.Trigger>
+            <Tabs.Trigger value="people">
+              {t('people', 'People')}
+              <Badge variant="muted" size="sm">
+                {unit.memberIds.length}
+              </Badge>
+            </Tabs.Trigger>
+            <Tabs.Trigger value="subunits">
+              {t('subunits', 'Subunits')}
+              <Badge variant="muted" size="sm">
+                {unit.childCount}
+              </Badge>
+            </Tabs.Trigger>
+          </Tabs.List>
         </div>
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
-        {moving && <MoveBar unit={unit} onDone={() => setMoving(false)} />}
-        <UnitStats unit={unit} />
-        <div className="-mx-4">
-          <UnitFields unit={unit} />
-        </div>
-        <Subunits unit={unit} />
-        <UnitPeople unit={unit} />
-      </div>
+        <ScrollArea className="min-h-0 flex-1">
+          <Tabs.Content value="details">
+            <UnitFields unit={unit} />
+          </Tabs.Content>
+          <Tabs.Content value="people">
+            <UnitPeople unit={unit} />
+          </Tabs.Content>
+          <Tabs.Content value="subunits">
+            <Subunits unit={unit} />
+          </Tabs.Content>
+        </ScrollArea>
+      </Tabs>
     </>
   );
 };
 
-/** The selected unit beside the chart or the list, which stay usable behind it. */
+/** The selected unit beside the tree or the chart; its tab stays as the selection moves. */
 export const UnitPanel = ({ unitId }: { unitId: string }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { select } = useWorkspace();
+  const [tab, setTab] = useState<UnitTab>('details');
   const unit = useQuery(orpc.units.get.queryOptions({ input: { id: unitId } }));
 
   usePageHotkey('Escape', () => select(null));
@@ -247,19 +283,19 @@ export const UnitPanel = ({ unitId }: { unitId: string }) => {
   return (
     <aside
       aria-label={t('unit-details', 'Unit details')}
-      className="absolute inset-y-2 right-2 left-2 z-20 flex flex-col overflow-hidden rounded-md border bg-background shadow-lg sm:left-auto sm:w-md"
+      className="flex size-full flex-col overflow-hidden bg-background"
     >
       <QueryState
         query={unit}
         loading={
           <div className="flex flex-col gap-3 p-4" aria-busy="true">
             <Skeleton className="h-8 w-2/3" />
-            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-9 w-full" />
             <Skeleton className="h-40 w-full" />
           </div>
         }
       >
-        {(data) => <Body key={data.id} unit={data} />}
+        {(data) => <Body key={data.id} unit={data} tab={tab} onTab={setTab} />}
       </QueryState>
     </aside>
   );

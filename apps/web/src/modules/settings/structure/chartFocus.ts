@@ -3,14 +3,12 @@ import { useEffect, useRef } from 'react';
 import { CARD_HEIGHT, CARD_WIDTH, type ChartNode, draftNodeId } from './chartLayout';
 import { useWorkspace } from './context';
 
-/** How much of the chart's width the unit panel covers, with its margin. */
-const PANEL_SPACE = 464;
 export const ANIMATION = { duration: 300 };
-export const FIT_VIEW = { padding: 0.2, maxZoom: 1 };
+const FIT_VIEW = { padding: 0.2, maxZoom: 1 };
 
 /**
  * Pans to the focused unit (a search pick, a path click, the new-unit card) once it is drawn,
- * brings a newly selected card into view when it sits under the panel or off screen, and fits
+ * brings a newly selected card into view when it sits off screen, and fits
  * the chart when the page menu asks. Panning by hand never snaps back.
  */
 export const useChartFocus = (nodes: ChartNode[], ready: boolean) => {
@@ -18,21 +16,17 @@ export const useChartFocus = (nodes: ChartNode[], ready: boolean) => {
   const { getViewport, setCenter, fitView } = useReactFlow();
   const paneWidth = useStore((state) => state.width);
   const paneHeight = useStore((state) => state.height);
-  const visibleWidth = selectedId ? paneWidth - PANEL_SPACE : paneWidth;
-  const latest = useRef({ nodes, paneWidth, paneHeight, visibleWidth, clearFocus });
+  const latest = useRef({ nodes, paneWidth, paneHeight, clearFocus });
 
   useEffect(() => {
-    latest.current = { nodes, paneWidth, paneHeight, visibleWidth, clearFocus };
+    latest.current = { nodes, paneWidth, paneHeight, clearFocus };
   });
 
   const center = useRef((node: ChartNode, zoom: number) => {
-    const current = latest.current;
-
-    void setCenter(
-      node.position.x + CARD_WIDTH / 2 + (current.paneWidth - current.visibleWidth) / 2 / zoom,
-      node.position.y + CARD_HEIGHT / 2,
-      { zoom, ...ANIMATION },
-    );
+    void setCenter(node.position.x + CARD_WIDTH / 2, node.position.y + CARD_HEIGHT / 2, {
+      zoom,
+      ...ANIMATION,
+    });
   });
 
   useEffect(() => {
@@ -52,7 +46,7 @@ export const useChartFocus = (nodes: ChartNode[], ready: boolean) => {
     const inSight =
       left >= 0 &&
       top >= 0 &&
-      left + CARD_WIDTH * zoom <= current.visibleWidth &&
+      left + CARD_WIDTH * zoom <= current.paneWidth &&
       top + CARD_HEIGHT * zoom <= current.paneHeight;
 
     if (!inSight) center.current(node, zoom);

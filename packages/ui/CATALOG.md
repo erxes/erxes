@@ -214,6 +214,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<Toggle variant size>` A button that stays pressed or not, such as bold in a toolbar.
 - `ToggleGroup.{Item}` A row of toggle buttons where one or several stay pressed.
 - `Tooltip.{Provider, Trigger, Content}` A short label that shows on hover or focus of its trigger.
+- `Tree.{Row, Line, Header}` Rows indented under their parents, which open and close.
 - `Upload` An image upload: a preview tile, an upload button and a remove button.
 - `useFieldControl()` A form row's label, error and state for its control.
 
