@@ -12,8 +12,8 @@ import { applyWorkspace, platformAuthorized, workspaceUsage } from './workspace'
 /**
  * erxes.io's door into core (`/core/v1/saas/*`), only with SAAS=true. Calls
  * from erxes.io carry `Authorization: Bearer <SAAS_PLATFORM_TOKEN>`:
- * - `PUT /organizations/:id`: create, rename, enable or disable a workspace;
- * - `POST /organizations/:id/refresh`: read its plugins from erxes.io now (after a purchase);
+ * - `PUT /organizations/:id`: create, rename, enable or disable a workspace, or name its Stripe customer;
+ * - `POST /organizations/:id/refresh`: read its plugins from Stripe now (after a purchase);
  * - `GET /organizations/:id`: the workspace and its usage.
  * And the members' sign-in hand-off: `GET /login?token=` (also at erxes.io's
  * `/gateway/pl:core/core-login`).
@@ -53,7 +53,12 @@ saasRouter.post('/organizations/:id/refresh', async (req, res) => {
 
   if (!row) throw fail('NOT_FOUND', 'No such workspace');
 
-  res.json({ organizationStatus: row.orgStatus, plugins: row.plugins, lapsed: row.lapsed });
+  res.json({
+    organizationStatus: row.orgStatus,
+    plugins: row.plugins,
+    bundles: row.bundles,
+    lapsed: row.lapsed,
+  });
 });
 
 saasRouter.get('/organizations/:id', async (req, res) => {

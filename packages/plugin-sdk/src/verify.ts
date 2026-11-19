@@ -33,12 +33,19 @@ export interface PluginMember {
   access: PluginAccess;
   /** `member.canChange()`: false while read-only. */
   canChange(): boolean;
+  /** As `saas.pluginPlan`'s `saas`: false on self-hosted installations. */
+  saas: boolean;
+  /**
+   * As `saas.pluginPlan`'s `bundles`: the bundle codes the organisation has
+   * live on Stripe, one per bundle bought. Empty on self-hosted.
+   */
+  bundles: string[];
 }
 
 /**
  * A member signed into a plugin's own app with "Sign in with erxes". Access
- * tokens carry no plan, so `tier` is null and `access` is `off`: ask core
- * (`saas.pluginPlan`) before gating on them.
+ * tokens carry no plan, so `tier` is null, `access` is `off`, `saas` is false
+ * and `bundles` is empty: ask core (`saas.pluginPlan`) before gating on them.
  */
 export interface ErxesSignIn extends PluginMember {
   scope: string[];
@@ -122,6 +129,8 @@ const member = (claims: {
   permissions: string[];
   tier: PluginMember['tier'];
   access: PluginMember['access'];
+  saas: boolean;
+  bundles: string[];
 }): PluginMember => ({
   userId: claims.sub,
   orgId: claims.org,
@@ -131,16 +140,25 @@ const member = (claims: {
   tier: claims.tier,
   access: claims.access,
   canChange: () => claims.access === 'full' || claims.access === 'warning',
+  saas: claims.saas,
+  bundles: claims.bundles,
 });
+
+/** The plan core signs into session and plugin-call tokens (self-hosted: `pro`, `full`, no bundles). */
+const PlanClaims = {
+  // Null means no plan.
+  tier: Tier,
+  access: PluginAccess,
+  saas: z.boolean(),
+  bundles: z.array(z.string()),
+};
 
 const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
-  // Core signs both (self-hosted: `pro` and `full`); null means no plan.
-  tier: Tier,
-  access: PluginAccess,
+  ...PlanClaims,
 });
 
 /**
@@ -167,8 +185,7 @@ const PluginCallClaims = z.object({
   org: z.string().min(1),
   plugin: z.string().min(1),
   permissions: z.array(z.string()),
-  tier: Tier,
-  access: PluginAccess,
+  ...PlanClaims,
 });
 
 /**
@@ -246,6 +263,8 @@ const AccessTokenClaims = z.object({
   // no access: ask core (`saas.pluginPlan`) when the plan matters.
   tier: Tier.default(null),
   access: PluginAccess.default('off'),
+  saas: z.boolean().default(false),
+  bundles: z.array(z.string()).default([]),
   scope: z.string().transform((scope) => scope.split(' ')),
 });
 
