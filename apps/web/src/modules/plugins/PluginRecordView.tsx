@@ -67,12 +67,13 @@ const useRecordTabs = (
   plugin: string,
   type: TPanelRecordType,
   record: TRecordSlotProps,
+  expanded: boolean,
 ): IRecordSidePanelTab[] => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const contacts = useRecordContacts(type, record.contentId);
   const relationTabs = usePluginRelationTabs({ ...record, contacts });
   const text = usePluginText();
-  const own = type.tabs ?? [];
+  const own = type.tabs?.filter((tab) => expanded || !tab.expandedOnly) ?? [];
   const properties = propertiesOf(plugin, type);
 
   const ownTab = (tab: TRecordTab): IRecordSidePanelTab => ({
@@ -194,7 +195,7 @@ const PluginRecordPanel = ({
 }) => {
   const expanded = usePanelExpanded();
   const { tab: selected, setTab } = useSidePanel();
-  const tabs = useRecordTabs(plugin, type, record);
+  const tabs = useRecordTabs(plugin, type, record, expanded);
   const title = <Slot plugin={plugin} component={type.Title} record={record} />;
   const actions = type.Actions && <Slot plugin={plugin} component={type.Actions} record={record} />;
   const tab = selected && tabs.some((entry) => entry.value === selected) ? selected : DETAIL_TAB;

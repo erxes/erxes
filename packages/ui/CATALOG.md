@@ -248,7 +248,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.
 - `type TRecordSectionProps { contentType, contentId }` What a record section is given: the customer or company it shows on.
 - `type TRecordSlotProps` What each slot of a plugin record is given: the record.
-- `type TRecordTab { value, label, icon, after, component }` A plugin record type's own tab, after core's Detail or Activity tab.
+- `type TRecordTab { value, label, icon, after, expandedOnly, … }` A plugin record type's own tab, after core's Detail or Activity tab.
 - `type TRelationTab { name, title, icon, hosts, component }` A plugin's tab on other records' panels, listing its own records.
 - `type TRelationTabProps` Props of a relation tab: the record it shows on, and its contacts.
 - `useLiveSignal(plugin, topics, onSignal)` Runs `onSignal` when a plugin says one of `topics` changed, to refetch.
