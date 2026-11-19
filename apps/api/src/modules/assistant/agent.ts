@@ -11,7 +11,7 @@ import { installedPlugins } from './plugins';
 import { modelsFor } from './providers';
 import { getSettings } from './settings.service';
 import { loadSkill, skillsFor } from './skills/skills';
-import { apiTools, toolScope } from './tools/apiTools';
+import { apiTools, type ToolScope } from './tools/apiTools';
 import { askUser } from './tools/askUser';
 import { createArtifact } from './tools/createArtifact';
 import { runCode } from './tools/runCode';
@@ -48,13 +48,13 @@ export const assistantAgent: Agent = {
         const { data } = await listConnections(tx);
         const skills = skillsFor(plugins);
 
-        const tools = toolScope({
+        const tools: ToolScope = {
           member,
           orgId: scope.orgId,
           threadId: scope.key,
           codeMode,
           plugins,
-        });
+        };
 
         const keys = data.flatMap(({ provider, sealedKey }) => {
           const apiKey = openKey(sealedKey);

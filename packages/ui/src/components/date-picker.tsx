@@ -103,15 +103,35 @@ const PickerPopover = ({
 }) => {
   // The wrapper is the anchor: the single-date text input opens the popover itself and takes no ref.
   const anchorRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  const isInside = (node: unknown) =>
+    node instanceof Node &&
+    [anchorRef, popupRef].some((ref) => ref.current?.contains(node) === true);
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      <div ref={anchorRef} className="relative inline-block w-full">
+    <Popover
+      open={open}
+      onOpenChange={(next, details) => {
+        // A press on the typed date belongs to it: it keeps the calendar open, or clears the date.
+        if (!next && details.reason === 'outside-press' && isInside(details.event.target)) return;
+        onOpenChange(next);
+      }}
+    >
+      <div
+        ref={anchorRef}
+        className="relative inline-block w-full"
+        // Tabbing from the typed date to another field closes the calendar its click opened.
+        onBlur={(e) => {
+          if (open && e.relatedTarget && !isInside(e.relatedTarget)) onOpenChange(false);
+        }}
+      >
         {trigger}
       </div>
       <Popover.Content
         align="start"
         anchor={anchorRef}
+        ref={popupRef}
         variant="flush"
         {...contentProps}
         className={cn('w-auto', contentProps?.className)}
@@ -176,6 +196,8 @@ const useDatePicker = ({
   withPresent: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // A click on the typed date opens the calendar beside the caret; a key moves focus into it.
+  const [focusCalendar, setFocusCalendar] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const normalizedValue = normalizeValue(value, mode);
   const bounds = getDateBounds(withPresent, minDate, maxDate);
@@ -184,6 +206,11 @@ const useDatePicker = ({
   return {
     isOpen,
     setIsOpen,
+    focusCalendar,
+    openFromInput: (fromKeyboard: boolean) => {
+      setFocusCalendar(fromKeyboard);
+      setIsOpen(true);
+    },
     inputRef,
     normalizedValue,
     bounds,
@@ -207,7 +234,8 @@ const useDatePicker = ({
 
 /**
  * A date field with a calendar popover, for one day, several or a range.
- * `mode` picks which; `inline` shows the calendar without the popover. Its `aria-label`, or
+ * `mode` picks which; `inline` shows the calendar without the popover. A click on the field, Enter
+ * or Space opens the calendar. Its `aria-label`, or
  * the label of the form row it's in, names the text input or the button that opens it; the
  * button's name goes on with the dates it shows.
  */
@@ -231,14 +259,17 @@ export const DatePicker = (props: DatePickerProps) => {
       control={o.control.input}
       inputRef={picker.inputRef}
       onClear={picker.handleClear}
-      onOpen={o.inline ? undefined : () => setIsOpen(true)}
+      onOpen={o.inline ? undefined : picker.openFromInput}
     />
   );
 
   const showClear = o.clearable && !isDisabled && hasValue && o.mode !== 'single';
+  const anchor = getAnchorDate(normalizedValue);
 
   const calendar = (
     <PickerCalendar
+      // A day typed while the calendar is open turns it to that day's month.
+      key={o.mode === 'single' && anchor ? `${anchor.getFullYear()}-${anchor.getMonth()}` : 'month'}
       {...calendarProps}
       mode={o.mode}
       value={normalizedValue}
@@ -280,7 +311,11 @@ export const DatePicker = (props: DatePickerProps) => {
           />
         )
       }
-      contentProps={o.popoverContentProps}
+      contentProps={
+        picker.focusCalendar
+          ? o.popoverContentProps
+          : { ...o.popoverContentProps, initialFocus: false }
+      }
     >
       {calendar}
     </PickerPopover>

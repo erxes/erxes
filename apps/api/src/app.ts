@@ -14,6 +14,7 @@ import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { registerAgent } from '~/modules/agents/host';
 import { assistantAgent } from '~/modules/assistant/agent';
+import { automationAgent } from '~/modules/agents/automationAgent';
 import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
@@ -92,6 +93,7 @@ export const createApp = (log: Logger = logger): Express => {
   const limit = createRateLimits();
 
   registerAgent(assistantAgent);
+  registerAgent(automationAgent);
 
   app.disable('x-powered-by');
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');

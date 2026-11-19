@@ -1,18 +1,25 @@
 import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import type { Op } from '@earendil-works/chord/delta';
 import {
+  type AgentChange,
+  configure,
   type ConversationId,
   type ConversationView,
   createRegistry,
   Harness,
+  type InputSubmissionDraft,
   ROOT_CONVERSATION_ID,
 } from '@earendil-works/pi-durable';
 import { Repeater } from '@repeaterjs/repeater';
 import { eq, sql } from 'drizzle-orm';
 import { type Db, schema } from '@erxes/core-db';
+import { config } from '~/config';
+import { fail } from '~/http/errors';
+import { fixedWindow } from '~/http/rateLimit';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
 import type { Agent, AgentScope } from './agent';
+import { isPluginAgent, pluginAgent } from './pluginAgents';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -35,8 +42,12 @@ export const registerAgent = (agent: Agent) => {
   agents.set(agent.name, agent);
 };
 
+/** A registered agent, or a plugin's (`frontline.bot`), whose setup reads its manifest. */
+export const agentByName = (name: string) =>
+  agents.get(name) ?? (isPluginAgent(name) ? pluginAgent(name) : undefined);
+
 export const agentNamed = (name: string) => {
-  const agent = agents.get(name);
+  const agent = agentByName(name);
 
   if (!agent) throw new Error(`No agent is named ${name}`);
 
@@ -62,6 +73,9 @@ const open = async (agent: Agent, scope: AgentScope, readOnly: boolean) => {
         registry,
         readOnly,
         ...(setup.settings ? { settings: setup.settings } : {}),
+        // Every conversation, subagents' too, caps a run's tool rounds; an agent's own `maxTurns` wins.
+        conversationCreated: (tx, conversation) =>
+          configure(tx, conversation.id, { maxTurns: config.agents.maxTurns }),
         onReport: (report) =>
           log.warn(
             { err: report.error, kind: report.kind, storageKey },
@@ -95,7 +109,9 @@ const closeWhenIdle = (storageKey: string, entry: Running) => {
 
     if (entry.holds > 0) return;
 
-    if (wake.active || wake.at !== undefined) closeWhenIdle(storageKey, entry);
+    // A sleep due later than the next check closes too: the recovery sweep opens it when it is due.
+    if (wake.active || (wake.at !== undefined && wake.at < Date.now() + IDLE_MS))
+      closeWhenIdle(storageKey, entry);
     else void close(storageKey, entry);
   }, IDLE_MS);
   entry.idle.unref();
@@ -158,6 +174,43 @@ export const withHarness = async <T>(
   } finally {
     held.release();
   }
+};
+
+let runCount: ReturnType<typeof fixedWindow> | undefined;
+
+/** Counts a run against the organisation's runs a minute across every server; 429 past the limit. */
+export const countRun = async (orgId: string) => {
+  runCount ??= fixedWindow({ windowSeconds: 60, max: config.agents.runsPerMinute });
+
+  const retryAfter = await runCount(`agent-runs:${orgId}`);
+
+  if (retryAfter !== null) {
+    throw fail(
+      'TOO_MANY_REQUESTS',
+      `The organisation started too many agent runs: try again in ${retryAfter} seconds`,
+    );
+  }
+};
+
+/**
+ * Starts a run in the root conversation: counts it (`countRun`), applies `change` to its agent,
+ * then submits `input`. Rejects with `StorageBusy` while another server runs the conversation.
+ */
+export const startRun = async (
+  agent: Agent,
+  scope: AgentScope,
+  input: InputSubmissionDraft,
+  change?: AgentChange,
+) => {
+  await countRun(scope.orgId);
+
+  return withHarness(agent, scope, async (harness) => {
+    const root = await harness.root(BACKGROUND_CONTEXT);
+
+    if (change) await root.configure(change, BACKGROUND_CONTEXT);
+
+    return root.submit(input, BACKGROUND_CONTEXT);
+  });
 };
 
 /** Reads a conversation another server runs: a read-only Harness over what it committed. */

@@ -1,5 +1,5 @@
 {
-  "id": "91124fa2-2ea6-40b7-8612-ca7cdc160e59",
+  "id": "8e0ffad9-a383-4790-8ac1-12e181513dc3",
   "prevId": "448ed1cd-66fd-4d77-af3b-623e963b7eb0",
   "version": "7",
   "dialect": "postgresql",
@@ -9948,12 +9948,6 @@
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "provider": {
           "name": "provider",
           "type": "text",
@@ -9989,17 +9983,11 @@
         }
       },
       "indexes": {
-        "core_assistant_connections_user_provider_key": {
-          "name": "core_assistant_connections_user_provider_key",
+        "core_assistant_connections_provider_key": {
+          "name": "core_assistant_connections_provider_key",
           "columns": [
             {
               "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "user_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -10016,17 +10004,11 @@
           "method": "btree",
           "with": {}
         },
-        "core_assistant_connections_user_default_key": {
-          "name": "core_assistant_connections_user_default_key",
+        "core_assistant_connections_default_key": {
+          "name": "core_assistant_connections_default_key",
           "columns": [
             {
               "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "user_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -11618,61 +11600,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.core_org_unit_tombstones": {
-      "name": "core_org_unit_tombstones",
-      "schema": "",
-      "columns": {
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "core_org_unit_tombstones_org_id_fkey": {
-          "name": "core_org_unit_tombstones_org_id_fkey",
-          "tableFrom": "core_org_unit_tombstones",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "core_org_unit_tombstones_pkey": {
-          "name": "core_org_unit_tombstones_pkey",
-          "columns": [
-            "org_id",
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.core_org_unit_types": {
       "name": "core_org_unit_types",
       "schema": "",
@@ -11689,6 +11616,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -11749,12 +11682,6 @@
           "notNull": true,
           "default": 0
         },
-        "plugin": {
-          "name": "plugin",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -11771,8 +11698,8 @@
         }
       },
       "indexes": {
-        "core_org_unit_types_org_id_id_key": {
-          "name": "core_org_unit_types_org_id_id_key",
+        "core_org_unit_types_org_id_kind_key": {
+          "name": "core_org_unit_types_org_id_kind_key",
           "columns": [
             {
               "expression": "org_id",
@@ -11785,6 +11712,12 @@
               "isExpression": false,
               "asc": true,
               "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": true,
@@ -11792,11 +11725,17 @@
           "method": "btree",
           "with": {}
         },
-        "core_org_unit_types_org_code_key": {
-          "name": "core_org_unit_types_org_code_key",
+        "core_org_unit_types_org_kind_code_key": {
+          "name": "core_org_unit_types_org_kind_code_key",
           "columns": [
             {
               "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -11809,13 +11748,13 @@
             }
           ],
           "isUnique": true,
-          "where": "\"core_org_unit_types\".\"code\" IS NOT NULL AND \"core_org_unit_types\".\"plugin\" IS NULL",
+          "where": "\"core_org_unit_types\".\"code\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
         },
-        "core_org_unit_types_org_plugin_code_key": {
-          "name": "core_org_unit_types_org_plugin_code_key",
+        "core_org_unit_types_org_kind_order_idx": {
+          "name": "core_org_unit_types_org_kind_order_idx",
           "columns": [
             {
               "expression": "org_id",
@@ -11824,29 +11763,7 @@
               "nulls": "last"
             },
             {
-              "expression": "plugin",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "code",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_org_unit_types\".\"plugin\" IS NOT NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_org_unit_types_org_order_idx": {
-          "name": "core_org_unit_types_org_order_idx",
-          "columns": [
-            {
-              "expression": "org_id",
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -11883,9 +11800,9 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
-        "core_org_unit_types_plugin_code_check": {
-          "name": "core_org_unit_types_plugin_code_check",
-          "value": "\"core_org_unit_types\".\"plugin\" IS NULL OR \"core_org_unit_types\".\"code\" IS NOT NULL"
+        "core_org_unit_types_kind_check": {
+          "name": "core_org_unit_types_kind_check",
+          "value": "\"core_org_unit_types\".\"kind\" IN ('branch', 'department')"
         }
       },
       "isRLSEnabled": false
@@ -11907,11 +11824,17 @@
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
         },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "type_id": {
           "name": "type_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -11967,20 +11890,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "sort_order": {
-          "name": "sort_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
         "created_by": {
           "name": "created_by",
           "type": "text",
@@ -12003,8 +11912,8 @@
         }
       },
       "indexes": {
-        "core_org_units_org_id_id_key": {
-          "name": "core_org_units_org_id_id_key",
+        "core_org_units_org_id_kind_key": {
+          "name": "core_org_units_org_id_kind_key",
           "columns": [
             {
               "expression": "org_id",
@@ -12017,6 +11926,12 @@
               "isExpression": false,
               "asc": true,
               "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": true,
@@ -12024,11 +11939,17 @@
           "method": "btree",
           "with": {}
         },
-        "core_org_units_org_code_key": {
-          "name": "core_org_units_org_code_key",
+        "core_org_units_org_kind_code_key": {
+          "name": "core_org_units_org_kind_code_key",
           "columns": [
             {
               "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -12046,27 +11967,17 @@
           "method": "btree",
           "with": {}
         },
-        "core_org_units_org_root_key": {
-          "name": "core_org_units_org_root_key",
+        "core_org_units_org_kind_path_idx": {
+          "name": "core_org_units_org_kind_path_idx",
           "columns": [
             {
               "expression": "org_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_org_units\".\"parent_id\" IS NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_org_units_org_path_idx": {
-          "name": "core_org_units_org_path_idx",
-          "columns": [
+            },
             {
-              "expression": "org_id",
+              "expression": "kind",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -12077,45 +11988,6 @@
               "asc": true,
               "nulls": "last",
               "opclass": "text_pattern_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_org_units_org_parent_order_idx": {
-          "name": "core_org_units_org_parent_order_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "parent_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "sort_order",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -12181,11 +12053,13 @@
           "tableTo": "core_org_units",
           "columnsFrom": [
             "org_id",
-            "parent_id"
+            "parent_id",
+            "kind"
           ],
           "columnsTo": [
             "org_id",
-            "id"
+            "id",
+            "kind"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -12196,11 +12070,13 @@
           "tableTo": "core_org_unit_types",
           "columnsFrom": [
             "org_id",
-            "type_id"
+            "type_id",
+            "kind"
           ],
           "columnsTo": [
             "org_id",
-            "id"
+            "id",
+            "kind"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -12223,17 +12099,13 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
+        "core_org_units_kind_check": {
+          "name": "core_org_units_kind_check",
+          "value": "\"core_org_units\".\"kind\" IN ('branch', 'department')"
+        },
         "core_org_units_path_check": {
           "name": "core_org_units_path_check",
           "value": "\"core_org_units\".\"path\" LIKE '%/' || \"core_org_units\".\"id\" || '/'"
-        },
-        "core_org_units_id_check": {
-          "name": "core_org_units_id_check",
-          "value": "position('/' in \"core_org_units\".\"id\") = 0"
-        },
-        "core_org_units_root_check": {
-          "name": "core_org_units_root_check",
-          "value": "(\"core_org_units\".\"parent_id\" IS NULL) = (\"core_org_units\".\"type_id\" IS NULL)"
         }
       },
       "isRLSEnabled": false

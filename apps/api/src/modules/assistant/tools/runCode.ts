@@ -34,9 +34,7 @@ export const runCode = (scope: ToolScope) =>
 
       return runProgram(code, {
         searchApi: ([query = '', limit = '']) =>
-          Promise.resolve(
-            searchApi(scope, query, Math.min(Number(limit) || SEARCH_LIMIT, SEARCH_MAX)),
-          ),
+          searchApi(scope, query, Math.min(Number(limit) || SEARCH_LIMIT, SEARCH_MAX)),
         callApi: (args) => callFromProgram(scope, args),
       });
     },

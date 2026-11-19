@@ -217,8 +217,6 @@ export const ERRORS = {
   BUILTIN_ROLE: { status: 403 },
   ROLE_IN_USE: { status: 409 },
 
-  API_REQUIRED: { status: 400 },
-
   ASSISTANT_INVALID_MESSAGE: { status: 400, data: InvalidInput.optional() },
   ASSISTANT_MENTION_UNAVAILABLE: {
     status: 400,

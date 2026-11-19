@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { computeAccessibleName } from 'dom-accessibility-api';
 import { createInstance } from 'i18next';
-import { act, type ReactNode } from 'react';
+import { act, type ReactNode, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
@@ -9,8 +9,9 @@ import { describe, expect, it, vi } from 'vite-plus/test';
 import { setupDomRender } from '../lib/render-in-dom';
 import { PanelFormRow } from '../modules/record-panel/PanelForm';
 import { DatePicker } from './date-picker';
-import { TimeField } from './date-time-input';
+import { DateInput, TimeField } from './date-time-input';
 import { Form } from './form';
+import { Input } from './input';
 
 const render = setupDomRender();
 
@@ -45,11 +46,29 @@ const text = (ids: string | null | undefined) =>
     .map((id) => document.getElementById(id)?.textContent)
     .join(' ');
 
+/** Lets an opened popover finish moving focus, which it does a frame later. */
+const settle = () =>
+  act(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 50);
+      }),
+  );
+
 /** What a screen reader calls an element. */
 const nameOf = (element: Element | null | undefined) =>
   element ? computeAccessibleName(element) : undefined;
 
 /** A date row of a form, as a settings page writes one. */
+/** A single-date picker that keeps the day it's given. */
+const Birthday = () => {
+  const [day, setDay] = useState<Date>();
+
+  return (
+    <DatePicker value={day} onChange={(next) => setDay(next instanceof Date ? next : undefined)} />
+  );
+};
+
 const BirthdayForm = () => {
   const form = useForm({ defaultValues: { birthday: '' } });
 
@@ -196,6 +215,92 @@ describe('DatePicker', () => {
     const button = range.querySelector('button');
 
     expect(nameOf(button)).toBe(`Period ${button?.textContent ?? ''}`);
+  });
+
+  it('opens the calendar on a click in the typed date, keeps the caret there, and stays open on another click', async () => {
+    const container = inLanguage('en', <DatePicker onChange={() => undefined} />);
+    const input = container.querySelector('input');
+
+    act(() => {
+      input?.focus();
+      input?.click();
+    });
+    await settle();
+
+    expect(document.querySelector('[data-day]')).not.toBeNull();
+    expect(document.activeElement).toBe(input);
+
+    act(() => {
+      input?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      input?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      input?.click();
+    });
+    await settle();
+
+    expect(document.querySelector('[data-day]')).not.toBeNull();
+  });
+
+  it("turns the open calendar to a typed day's month", async () => {
+    const container = inLanguage('en', <Birthday />);
+    const input = container.querySelector('input');
+
+    act(() => {
+      input?.focus();
+      input?.click();
+    });
+    await settle();
+
+    act(() => {
+      if (!input) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(
+        input,
+        '2024-03-01',
+      );
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    expect(document.querySelector('[data-day="2024-03-15"]')).not.toBeNull();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('moves focus into the calendar when Enter opens it', async () => {
+    const container = inLanguage('en', <DatePicker onChange={() => undefined} />);
+    const input = container.querySelector('input');
+
+    act(() => {
+      input?.focus();
+      input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+    await settle();
+
+    expect(document.querySelector('[data-day]')).not.toBeNull();
+    expect(document.activeElement).not.toBe(input);
+  });
+
+  it("opens the browser's picker on a click anywhere in a date or time field, unless it is read-only", () => {
+    const showPicker = vi.fn<() => void>();
+
+    Object.defineProperty(HTMLInputElement.prototype, 'showPicker', {
+      value: showPicker,
+      configurable: true,
+    });
+
+    const container = inLanguage(
+      'en',
+      <>
+        <DateInput />
+        <TimeField />
+        <Input type="datetime-local" />
+        <Input type="date" readOnly />
+        <Input />
+      </>,
+    );
+
+    act(() => {
+      for (const input of container.querySelectorAll('input')) input.click();
+    });
+
+    expect(showPicker).toHaveBeenCalledTimes(3);
   });
 
   it('shows its placeholder and a count of days in the UI language', () => {

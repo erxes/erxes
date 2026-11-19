@@ -165,6 +165,9 @@ const Env = z
 
     MASS_DELETE_ALERT: positive(100),
     MASS_DELETE_LIMIT: positive(500),
+
+    AGENT_MAX_TURNS: optional(z.coerce.number().int().positive()).transform((value) => value ?? 30),
+    AGENT_RUNS_PER_MINUTE: positive(60),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
@@ -422,5 +425,11 @@ export const config = {
     alertAt: env.MASS_DELETE_ALERT,
     /** … and before they are stopped: members refused, plugins suspended. Owners aren't limited. */
     stopAt: env.MASS_DELETE_LIMIT,
+  },
+  agents: {
+    /** Tool rounds one run may take; the round that reaches it ends the run with `turn_limit`. */
+    maxTurns: env.AGENT_MAX_TURNS,
+    /** Runs one organisation may start a minute, counted across every server. */
+    runsPerMinute: env.AGENT_RUNS_PER_MINUTE,
   },
 };

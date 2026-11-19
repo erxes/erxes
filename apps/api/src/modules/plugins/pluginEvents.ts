@@ -30,7 +30,7 @@ const paymentConcerns = (plugin: string, payload: unknown) => {
  * May this plugin see this event? Payment events: its own invoices and those
  * with a line for it (`payments:read`); customers and companies:
  * `customers:read`; products: `products:read`; the structure's units:
- * `units:read`; anything else from core or
+ * `units:read`; an agent's (`core.agent.*`): the plugin it belongs to; anything else from core or
  * other plugins: `events:read`.
  */
 const pluginMaySee = (
@@ -39,6 +39,13 @@ const pluginMaySee = (
   event: Pick<EventRow, 'type' | 'source' | 'payload'>,
 ) => {
   if (event.source === plugin) return false;
+
+  // An agent's runs go to the plugin that declared it only.
+  if (event.type.startsWith('core.agent.')) {
+    const parsed = z.object({ agent: z.string() }).safeParse(event.payload);
+
+    return parsed.success && parsed.data.agent.startsWith(`${plugin}.`);
+  }
 
   if (event.type.startsWith('core.payment.')) {
     return scopes.includes('payments:read') && paymentConcerns(plugin, event.payload);

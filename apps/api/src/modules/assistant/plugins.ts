@@ -7,8 +7,9 @@ export const installedPlugins = async (client: Db) => {
   return rows.map(({ name, manifest }) => ({
     name,
     apiUrl: manifest?.api?.url ?? null,
+    memberDoc: manifest?.api?.docs?.find((doc) => doc.audience === 'member')?.path ?? null,
     skills: manifest?.assistant?.skills ?? [],
-    operations: manifest?.assistant?.operations ?? [],
+    agents: manifest?.agents ?? [],
   }));
 };
 

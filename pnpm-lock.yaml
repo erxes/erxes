@@ -163,6 +163,9 @@ importers:
       '@orpc/openapi':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)(ws@8.22.2)
+      '@orpc/openapi-client':
+        specifier: 1.16.2
+        version: 1.16.2(@opentelemetry/api@1.10.0)
       '@orpc/otel':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)(@opentelemetry/instrumentation@0.301.1(@opentelemetry/api@1.10.0))
@@ -242,9 +245,6 @@ importers:
       '@erxes/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/plugin-sdk
-      '@orpc/openapi-client':
-        specifier: 1.16.2
-        version: 1.16.2(@opentelemetry/api@1.10.0)
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
