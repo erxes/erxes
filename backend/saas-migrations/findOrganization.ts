@@ -4,7 +4,7 @@ export type Organization = { _id: string | ObjectId; subdomain?: string };
 
 const OBJECT_ID_PATTERN = /^[0-9a-f]{24}$/i;
 
-export const findOrganization = async (
+const findRegisteredOrganization = async (
   coreDb: Db,
   subdomainOrId: string | undefined,
 ): Promise<Organization | null> => {
@@ -40,11 +40,11 @@ const databaseExists = async (coreDb: Db, name: string): Promise<boolean> => {
   return databases.some((database) => database.name === name);
 };
 
-export const findSourceOrganization = async (
+export const findOrganization = async (
   coreDb: Db,
   subdomainOrId: string | undefined,
 ): Promise<Organization | null> => {
-  const organization = await findOrganization(coreDb, subdomainOrId);
+  const organization = await findRegisteredOrganization(coreDb, subdomainOrId);
 
   if (organization || !subdomainOrId) {
     return organization;
@@ -60,8 +60,10 @@ export const findSourceOrganization = async (
   }
 
   console.warn(
-    `Organization "${subdomainOrId}" is not in ${coreDb.databaseName}.organizations; reading its existing database ${databaseName}.`,
+    `Organization "${subdomainOrId}" is not in ${coreDb.databaseName}.organizations; using its existing database ${databaseName}.`,
   );
 
   return { _id: subdomainOrId };
 };
+
+export const findSourceOrganization = findOrganization;

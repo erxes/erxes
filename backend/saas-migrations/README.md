@@ -83,10 +83,10 @@ ObjectId). It fails when the value is one organization's subdomain and a
 different organization's `_id`. `--org=` matches the value exactly as written
 in `ORG_PAIRS`.
 
-A source organization whose record was deleted from `organizations` can still
-be migrated by `_id`: when the value is a 24-character ObjectId and the
-`erxes_<_id>` database exists, the source → target scripts read that database
-and print a warning. The target must always be a registered organization.
+An organization missing from `organizations` (source or target) can still be
+used by `_id`: when the value is a 24-character ObjectId and the
+`erxes_<_id>` database exists, the scripts connect to that database directly
+and print a warning.
 
 Two scripts outside the runners still take subdomains only:
 `content/knowledgebase` and `core/searchTokens/backfillCustomerSearchTokens.ts`.

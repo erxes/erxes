@@ -51,7 +51,7 @@ export const getTargetDbs = async (
   }
 
   return organizations.map((organization) => ({
-    label: `${organization.subdomain} (erxes_${organization._id})`,
+    label: `${organization.subdomain || organization._id} (erxes_${organization._id})`,
     db: client.db(`erxes_${organization._id}`),
   }));
 };
