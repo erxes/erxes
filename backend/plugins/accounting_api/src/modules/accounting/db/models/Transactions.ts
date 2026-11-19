@@ -4,11 +4,12 @@ import moment from 'moment';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
+import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove, commonRemoveValidation } from '../../utils/commonRemove';
 import { commonSave, commonSaveValidation } from '../../utils/commonSave';
 import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
+import { resolveTrStatusWorkflow } from '../../utils/trStatusWorkflow';
 import { transactionSchema } from '../definitions/transaction';
 import {
   generateTrStatusActivityLog,
@@ -72,16 +73,11 @@ const normalizeParentWorkflowDocs = (
     return docs;
   }
 
-  const status = firstDoc.status;
-  const isReturned = status === TR_STATUSES.RETURNED;
-  const mentionOwnerId = isReturned
-    ? userId
-    : firstDoc.mentionOwnerId || oldTr?.mentionOwnerId;
-  let mentionUserIds = firstDoc.mentionUserIds || oldTr?.mentionUserIds || [];
-
-  if (isReturned) {
-    mentionUserIds = oldTr?.mentionOwnerId ? [oldTr.mentionOwnerId] : [];
-  }
+  const { status, mentionOwnerId, mentionUserIds } = resolveTrStatusWorkflow({
+    next: firstDoc,
+    old: oldTr,
+    userId,
+  });
 
   return docs.map((doc) => ({
     ...doc,

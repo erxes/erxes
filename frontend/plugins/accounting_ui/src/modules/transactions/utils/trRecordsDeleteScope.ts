@@ -1,4 +1,4 @@
-import { TR_STATUS_GROUPS } from '@/transactions/types/constants';
+import { TR_POSTED_STATUSES } from '@/transactions/types/constants';
 
 type TrRecordRef = {
   parentId?: string | null;
@@ -29,9 +29,6 @@ export type TrRecordsDeleteScope = {
   lineCount: number;
   hasPublished: boolean;
 };
-
-const PUBLISHED_STATUSES =
-  TR_STATUS_GROUPS.find((group) => group.label === 'PUBLISHED')?.values ?? [];
 
 export const getTrRecordsParents = <T extends TrRecordRef>(records: T[]) => {
   const parents = new Map<string, T & { parentId: string }>();
@@ -72,7 +69,7 @@ export const buildTrRecordsDeleteScope = (
     transactions,
     lineCount: transactions.reduce((sum, tr) => sum + tr.lineCount, 0),
     hasPublished: removedTrs.some((tr) =>
-      PUBLISHED_STATUSES.includes(tr.status ?? ''),
+      TR_POSTED_STATUSES.includes(tr.status ?? ''),
     ),
   };
 };

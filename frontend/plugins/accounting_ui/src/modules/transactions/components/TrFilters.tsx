@@ -21,7 +21,14 @@ import {
   FilterBarAuthors,
   FilterPopoverAuthorItems,
 } from '@/settings/account/components/filters/AuthorFilters';
-import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  useFilterContext,
+  useFilterQueryState,
+  useMultiQueryState,
+} from 'erxes-ui';
 import {
   IconCalendar,
   IconCoins,
@@ -32,13 +39,56 @@ import {
   IconNumber,
   IconSearch,
   IconToggleRightFilled,
+  IconUserCheck,
 } from '@tabler/icons-react';
-import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import {
+  currentUserState,
+  SelectBranches,
+  SelectDepartments,
+  SelectMember,
+} from 'ui-modules';
 
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 import { useTranslation } from 'react-i18next';
+import { TR_STATUSES } from '../types/constants';
+
+// Requests waiting on the current user: approvals mentioned to them and
+// returned questions sent back to them.
+const AWAITING_MY_ACTION_STATUSES = [TR_STATUSES.MENTIONED, TR_STATUSES.RETURNED];
+
+const AwaitingMyActionItem = () => {
+  const { t } = useTranslation('accounting');
+  const currentUser = useAtomValue(currentUserState);
+  const { sessionKey } = useFilterContext();
+  const [, setMentionUserId] = useFilterQueryState<string | null>(
+    'mentionUserId',
+    sessionKey,
+  );
+  const [, setStatuses] = useFilterQueryState<string[] | null>(
+    'statuses',
+    sessionKey,
+  );
+
+  if (!currentUser?._id) {
+    return null;
+  }
+
+  return (
+    <Filter.CommandItem
+      value="awaitingMyAction"
+      onSelect={() => {
+        setMentionUserId(currentUser._id);
+        setStatuses(AWAITING_MY_ACTION_STATUSES);
+      }}
+    >
+      <IconUserCheck />
+      {t('awaiting-my-action')}
+    </Filter.CommandItem>
+  );
+};
 
 const TransactionsFilterMenu = () => {
   const { t } = useTranslation('accounting');
@@ -51,6 +101,7 @@ const TransactionsFilterMenu = () => {
         className="bg-background"
       />
       <Command.List className="p-1">
+        <AwaitingMyActionItem />
         <Filter.Item value="searchValue" inDialog>
           <IconSearch />
           {t('search')}

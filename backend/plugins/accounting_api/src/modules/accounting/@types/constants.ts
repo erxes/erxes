@@ -54,6 +54,21 @@ export const TR_SIDES = {
   ALL: ['dt', 'ct'],
 };
 
+// Status tier decides the accounting effect, never the transaction date:
+// conversation statuses are omitted, business statuses reserve (soon), and
+// posted statuses are real. `ongoing` is posted but still open for additions
+// and settlement, so a ptr difference is expected; `complete` is closed.
+const CONVERSATION_STATUSES = [
+  'plan',
+  'draft',
+  'mentioned',
+  'approved',
+  'rejeced',
+  'returned',
+];
+const BUSINESS_STATUSES = ['progress', 'assigned', 'confirmed'];
+const POSTED_STATUSES = ['ongoing', 'complete'];
+
 export const TR_STATUSES = {
   // future level
   PLAN: 'plan',
@@ -68,30 +83,18 @@ export const TR_STATUSES = {
   ASSIGNED: 'assigned',
   CONFIRMED: 'confirmed',
   CANELLED: 'canelled',
+  // posted level
+  ONGOING: 'ongoing',
   COMPLETE: 'complete',
 
   ALL: [
-    'plan',
-    'draft',
-    'mentioned',
-    'approved',
-    'rejeced',
-    'returned',
-    'progress',
-    'assigned',
-    'confirmed',
+    ...CONVERSATION_STATUSES,
+    ...BUSINESS_STATUSES,
     'canelled',
-    'complete',
+    ...POSTED_STATUSES,
   ],
-  ACTIVE: ['progress', 'assigned', 'confirmed', 'canelled', 'complete'],
-  CONVERSATION: [
-    'draft',
-    'mentioned',
-    'approved',
-    'rejeced',
-    'returned',
-    'plan',
-  ],
+  ACTIVE: POSTED_STATUSES,
+  CONVERSATION: CONVERSATION_STATUSES,
 };
 
 export const TR_INVENTORY_STATUS_TYPES = {
@@ -99,21 +102,9 @@ export const TR_INVENTORY_STATUS_TYPES = {
   SOON: 'soon',
   REAL: 'real',
 
-  OMIT_STATUSES: [TR_STATUSES.PLAN],
-  SOON_STATUSES: [
-    TR_STATUSES.DRAFT,
-    TR_STATUSES.MENTIONED,
-    TR_STATUSES.APPROVED,
-    TR_STATUSES.REJECED,
-    TR_STATUSES.RETURNED,
-  ],
-  REAL_STATUSES: [
-    TR_STATUSES.PROGRESS,
-    TR_STATUSES.ASSIGNED,
-    TR_STATUSES.CONFIRMED,
-    TR_STATUSES.CANELLED,
-    TR_STATUSES.COMPLETE,
-  ],
+  OMIT_STATUSES: [...CONVERSATION_STATUSES, TR_STATUSES.CANELLED],
+  SOON_STATUSES: BUSINESS_STATUSES,
+  REAL_STATUSES: POSTED_STATUSES,
 };
 
 export const PTR_STATUSES = {

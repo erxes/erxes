@@ -10,7 +10,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { currentUserState, IUser, SelectMember } from 'ui-modules';
 import {
@@ -32,7 +32,9 @@ import { cleanTrDocs, isHiddenTransaction } from './utils';
 import {
   getAvailableTrStatusOptions,
   getNextMentionFields,
+  TTrWorkflowFields,
 } from '../utils/statusWorkflow';
+import { TrWorkflowActions } from './TrWorkflowActions';
 
 // Memoize form fields to prevent unnecessary re-renders
 const FormFields = memo(
@@ -130,7 +132,10 @@ const FormFields = memo(
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
-                  <Select.Content>
+                  {/* The grouped status list is taller than the menu; Radix
+                      scroll buttons mount mid-scroll and shift the list, so
+                      hide them and keep native scrolling within the screen. */}
+                  <Select.Content className="max-h-[min(24rem,var(--radix-select-content-available-height))] [&>[aria-hidden=true]]:hidden">
                     {statusGroups.map((group, groupIndex) => (
                       <Select.Group key={group.label}>
                         {group.label && (
@@ -222,6 +227,8 @@ export const TransactionsGroupForm = () => {
   const { createTransaction, loading: createLoading } = useTransactionsCreate();
   const { updateTransaction, loading: updateLoading } = useTransactionsUpdate();
 
+  // The status select already applies the mention changes for `returned`,
+  // so submit the form's mention fields as they are.
   const onSubmit = (data: TAddTransactionGroup) => {
     if (error) {
       return;
@@ -230,16 +237,7 @@ export const TransactionsGroupForm = () => {
       return;
     }
 
-    // transactionGroup get
-    const trDocs = cleanTrDocs({
-      ...data,
-      ...getNextMentionFields({
-        currentUserId: currentUser._id,
-        nextStatus: data.status,
-        mentionOwnerId: data.mentionOwnerId,
-        mentionUserIds: data.mentionUserIds,
-      }),
-    });
+    const trDocs = cleanTrDocs(data);
 
     if (parentId) {
       updateTransaction({
@@ -252,6 +250,16 @@ export const TransactionsGroupForm = () => {
     }
   };
 
+  const savedTr = activeTrs?.[0];
+  const savedWorkflow = useMemo(
+    () => ({
+      status: savedTr?.status ?? undefined,
+      mentionOwnerId: savedTr?.mentionOwnerId ?? undefined,
+      mentionUserIds: savedTr?.mentionUserIds ?? [],
+    }),
+    [savedTr?.status, savedTr?.mentionOwnerId, savedTr?.mentionUserIds],
+  );
+
   const onError = (errors: FieldErrors<TAddTransactionGroup>) => {
     const trDocErrors = errors.trDocs;
 
@@ -259,6 +267,14 @@ export const TransactionsGroupForm = () => {
       setActiveJournal(trDocErrors.findIndex((tab) => !!tab).toString());
     }
   };
+
+  // Workflow actions save the current form with the action's status and
+  // mention fields without touching the form, so a failed save loses nothing.
+  const onWorkflowAction = (fields: TTrWorkflowFields) =>
+    form.handleSubmit(
+      (data) => onSubmit({ ...data, ...fields }),
+      onError,
+    )();
 
   useEffect(() => {
     if (parentId && activeTrs && !activeTrs.length) {
@@ -327,6 +343,14 @@ export const TransactionsGroupForm = () => {
               errorMessage={error?.message}
               form={form}
               saving={createLoading || updateLoading}
+              workflowActions={
+                <TrWorkflowActions
+                  currentUserId={currentUser._id}
+                  saved={parentId ? savedWorkflow : {}}
+                  disabled={!!error || createLoading || updateLoading}
+                  onAction={onWorkflowAction}
+                />
+              }
             />
           </div>
         </div>

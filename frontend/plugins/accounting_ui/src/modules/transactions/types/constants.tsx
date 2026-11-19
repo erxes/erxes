@@ -286,6 +286,8 @@ export const TR_STATUSES = {
   ASSIGNED: 'assigned',
   CONFIRMED: 'confirmed',
   CANELLED: 'canelled',
+  // posted level
+  ONGOING: 'ongoing',
   COMPLETE: 'complete',
 
   ALL: [
@@ -299,6 +301,7 @@ export const TR_STATUSES = {
     'assigned',
     'confirmed',
     'canelled',
+    'ongoing',
     'complete',
   ],
 };
@@ -317,7 +320,8 @@ export const TR_STATUS_LABELS: Record<string, string> = {
   assigned: 'assigned',
   confirmed: 'approved-label',
   canelled: 'cancelled',
-
+  // posted level
+  ongoing: 'ongoing',
   complete: 'complete',
 };
 
@@ -326,15 +330,20 @@ export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
   label: TR_STATUS_LABELS[status] || status,
 }));
 
+// Status tier decides the accounting effect: POSTED is real, BUSINESS
+// reserves (soon, except cancelled), DRAFTED and plan are omitted.
 export const TR_STATUS_GROUPS = [
   {
-    label: 'PUBLISHED',
+    label: 'POSTED',
+    values: [TR_STATUSES.ONGOING, TR_STATUSES.COMPLETE],
+  },
+  {
+    label: 'BUSINESS',
     values: [
       TR_STATUSES.PROGRESS,
       TR_STATUSES.ASSIGNED,
       TR_STATUSES.CONFIRMED,
       TR_STATUSES.CANELLED,
-      TR_STATUSES.COMPLETE,
     ],
   },
   {
@@ -352,3 +361,5 @@ export const TR_STATUS_GROUPS = [
     values: [TR_STATUSES.PLAN],
   },
 ];
+
+export const TR_POSTED_STATUSES = [TR_STATUSES.ONGOING, TR_STATUSES.COMPLETE];

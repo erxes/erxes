@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-18`
+- **Last synchronized:** `2026-11-19`
 
 ## Scope
 
@@ -24,6 +24,9 @@
 
 ## Current Capabilities
 
+- Transaction status tier, not date, decides the accounting effect. `@types/constants.ts` derives every list from one tier table: conversation statuses (`plan`, `draft`, `mentioned`, `approved`, `rejeced`, `returned`) and `canelled` are inventory `omit`; business statuses (`progress`, `assigned`, `confirmed`) are `soon`; posted `ongoing` and `complete` are `real` and are also `TR_STATUSES.ACTIVE` for ledgers, reports, closings and rate adjustments. `ongoing` is real but open for additions/settlement, so a ptr `diff` is expected; `complete` with ptr `diff` indicates an error.
+- `utils/trStatusWorkflow.ts` resolves parent status/mention fields on every parent create/update: requesting approval (`mentioned`) needs at least one `mentionUserIds` approver; from `mentioned`, only a listed approver may set `approved`, `rejeced` or `returned`; an approver changing the approver list while staying `mentioned` (approve and forward) becomes `mentionOwnerId`; `returned` reverses the request once (owner = responder, approvers = previous owner). Business/posted transitions rely on journal permissions. Each status/mention change is recorded through `generateTrStatusActivityLog`, which is the workflow history.
+- `POST /migration/transaction-status-tiers` (`routes/statusTierMigration.ts`, `userId` required, optional `dryRun`) moves legacy `progress`/`assigned`/`confirmed` rows to `ongoing` so they stay real, and reports the `canelled` count; cancelled rows are now omitted and need `reCalcRemainders` afterwards.
 - Sync rule configs (`syncDeal`, `syncDealReturn`, `syncDealMovement`, `syncOrder`) are validated in `Configs.createConfig`, `updateConfig`, and `updateSingleByCode` through `modules/accounting/utils/syncConfigValidation.ts`. Every rule needs a non-blank `title` and `subId` (stage id, or POS id for orders). Deal and order rules also need `saleAccountId`, `saleOutAccountId`, and `saleCostAccountId`, plus `vatRowId`/`ctaxRowId` while `hasVat`/`hasCtax` is on. Movement rules need `sourceAccountId` and `destinationAccountId`. A failed check throws `Sync rule is missing required fields: …`. The by-code path always rejects sync codes because they need a `subId`. Rule lookup uses a `Map`, so inherited object keys such as `constructor` are treated as ordinary codes. Other config codes are not validated.
 - Transaction create/edit/remove checks the latest posted closing first, once per validation; it locks every journal through 23:59:59.999 on its date and stops further lookups on rejection. Open dates then check only the journal-specific adjustment using the same end-of-day cutoff before any writes. Editing validates both the saved and submitted dates; posting/undo excludes only its own adjustment and still respects later periods.
 

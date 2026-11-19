@@ -18,10 +18,10 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TR_SIDES, TR_STATUS_GROUPS } from '../../types/constants';
+import { TR_POSTED_STATUSES, TR_SIDES } from '../../types/constants';
 import { getTransactionReturnPath } from '../../utils/transactionNavigation';
 import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
 import { followTrDocsState } from '../states/trStates';
@@ -63,17 +63,16 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
   return [sumDebit, sumCredit];
 };
 
-const DRAFTED_STATUSES =
-  TR_STATUS_GROUPS.find(({ label }) => label === 'DRAFTED')?.values || [];
-
 export const Summary = ({
   errorMessage,
   form,
   saving,
+  workflowActions,
 }: {
   errorMessage?: string;
   form: ITransactionGroupForm;
   saving?: boolean;
+  workflowActions?: ReactNode;
 }) => {
   const { t } = useTranslation('accounting');
   const [showMore, setShowMore] = useState(false);
@@ -90,7 +89,8 @@ export const Summary = ({
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
   const diffAmount = fixNum(sumCredit - sumDebit, 4);
   const hasHiddenTransaction = (trDocs || []).some(isHiddenTransaction);
-  const isDraftedStatus = DRAFTED_STATUSES.includes(status || '');
+  // Anything not posted has no real accounting effect yet.
+  const isDraftedStatus = !TR_POSTED_STATUSES.includes(status || '');
   const SubmitIcon = isDraftedStatus ? IconFilePencil : IconGavel;
 
   const saveDisabledReason =
@@ -223,6 +223,7 @@ export const Summary = ({
           </>
         )}
       </div>
+      {workflowActions}
       {saveDisabledReason ? (
         <Tooltip>
           <Tooltip.Trigger asChild>
