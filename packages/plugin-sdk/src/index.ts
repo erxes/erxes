@@ -88,7 +88,8 @@
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });
  *   if (member.tier === 'free' && employees >= 20) throw new Error('Upgrade to Plus for more employees');
  *   if (!member.canChange()) throw new Error('HR is read-only: buy it again on erxes.io');
- *   // server-side jobs: await core.forOrg(orgId).saas.pluginPlan() → { tier, access }
+ *   // member.bundles: the bundle codes live on Stripe, one per bundle bought (self-hosted: [])
+ *   // server-side jobs: await core.forOrg(orgId).saas.pluginPlan() → { saas, tier, access, bundles }
  *
  * Jobs (plugins on core's database): declare them in the manifest, queue them in the
  * plugin's own transaction, and serve each at `<api.url>/jobs/<name>`. Core retries

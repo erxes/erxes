@@ -58,16 +58,20 @@ const upsertOrganization = async (tx: Transaction, orgId: string, input: SaasWor
   return !org;
 };
 
-/** Creates the workspace (organisation and owner) the first time; renames, enables or disables it after. Then reads its plugins. */
+/**
+ * Creates the workspace (organisation and owner) the first time; renames, enables or disables it,
+ * or changes its Stripe customer, after. Then reads its plugins from Stripe.
+ */
 export const applyWorkspace = async (orgId: string, input: SaasWorkspace) => {
   const created = await withSystem('saas: workspace', async (tx) => {
     const isNew = await upsertOrganization(tx, orgId, input);
+    const set = { orgStatus: input.status, stripeCustomerId: input.stripeCustomerId };
 
-    if (input.status) {
+    if (input.status || input.stripeCustomerId) {
       await tx
         .insert(entitlements)
-        .values({ orgId, orgStatus: input.status, fetchedAt: new Date(0) })
-        .onConflictDoUpdate({ target: entitlements.orgId, set: { orgStatus: input.status } });
+        .values({ orgId, ...set, fetchedAt: new Date(0) })
+        .onConflictDoUpdate({ target: entitlements.orgId, set });
     }
 
     return isNew;
@@ -81,6 +85,7 @@ export const applyWorkspace = async (orgId: string, input: SaasWorkspace) => {
     created,
     organizationStatus: row?.orgStatus ?? input.status ?? 'active',
     plugins: row?.plugins ?? [],
+    bundles: row?.bundles ?? [],
   };
 };
 

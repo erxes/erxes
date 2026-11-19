@@ -47,7 +47,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      as `reads:<permission>`), and `plugins.callToken` (`apps/api/src/modules/plugins/pluginCalls.ts`)
      issues a 5-minute token, typ `erxes-plugin-call+jwt`, `aud` the plugin read, `sub`
      `plugin:<caller>`, claims `org`, `plugin`, `permissions` (approved and declared by the plugin
-     read), `tier` and `access`, while both are installed there. The SDK's `fetchPlugin` sends it
+     read), `tier`, `access`, `saas` and `bundles` (as `saas.pluginPlan` answers them, also in
+     member session tokens), while both are installed there. The SDK's `fetchPlugin` sends it
      to `<api.url><path>`, and `verifyPluginCall` gives the plugin read a `PluginMember` with
      `userId` `plugin:<caller>`. The scope prefix, the typ, the claims and the codes
      `READ_NOT_APPROVED`, `PLUGIN_NOT_INSTALLED` and `PLUGIN_UNREACHABLE` are the contract.

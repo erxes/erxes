@@ -6,7 +6,7 @@ import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
-/** One plugin the organisation has on erxes.io: its tier and billing status (`canceling` ends at `endsAt`). */
+/** One plugin the organisation has on Stripe: its tier and billing status (`canceling` ends at `endsAt`). */
 export interface EntitledPlugin {
   code: string;
   tier: (typeof PLUGIN_TIERS)[number];
@@ -15,12 +15,11 @@ export interface EntitledPlugin {
 }
 
 /**
- * What erxes.io (the SaaS profile: organisations, marketplace, Stripe)
- * last said an organisation has — read from its entitlement API
- * (`GET /api/platform/organizations/plugins?subdomain=`) and kept here, so
- * an erxes.io outage never locks anyone out. One subscription per
- * organisation on erxes.io; here, each plugin's tier and status.
- * Only on SaaS deployments (`SAAS=true`).
+ * What the organisation's Stripe customer (on erxes.io's Stripe account)
+ * last said it has, kept here so a Stripe outage never locks anyone out:
+ * each plugin's tier and status, and the bundles it pays for. erxes.io names
+ * the customer and the organisation's status when it creates or changes the
+ * workspace. Only on SaaS deployments (`SAAS=true`).
  */
 export const entitlements = pgTable(
   'entitlements',
@@ -28,7 +27,11 @@ export const entitlements = pgTable(
     orgId: text().primaryKey(),
     /** erxes.io's organisation status: `inactive` / `suspended` keep everyone out. */
     orgStatus: text({ enum: ORGANIZATION_STATUSES }).default('active').notNull(),
+    /** The organisation's Stripe customer (`cus_…`), from erxes.io. Without one it has no plugins. */
+    stripeCustomerId: text(),
     plugins: jsonb().$type<EntitledPlugin[]>().default([]).notNull(),
+    /** One code per live bundle item (`business-school-10-people`); a bundle bought twice is listed twice. */
+    bundles: jsonb().$type<string[]>().default([]).notNull(),
     /** Plugins that left the plan, and when: read-only for the grace period, then turned off. */
     lapsed: jsonb().$type<Record<string, string>>().default({}).notNull(),
     fetchedAt: timestamptz().notNull(),

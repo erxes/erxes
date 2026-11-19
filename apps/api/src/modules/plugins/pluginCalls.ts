@@ -3,7 +3,7 @@ import { caller, db, pluginInstallations, plugins, requestOrgId } from '@erxes/c
 import { and, eq, inArray } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
-import { accessOf, tierOf } from '~/modules/saas/access';
+import { accessOf, planOfPlugin } from '~/modules/saas/access';
 import { entitlementsOf } from '~/modules/saas/entitlements';
 
 /** JOSE `typ` of a token for one plugin reading another plugin's API (`verifyPluginCall`). */
@@ -82,7 +82,7 @@ export const pluginCallToken = async (name: string) => {
   if (access === 'off') throw fail('NOT_IN_PLAN', `${name} is not in this organisation's plan`);
 
   const token = await signJwt(
-    { org: orgId, plugin: from, permissions, tier: tierOf(plan, name), access },
+    { org: orgId, plugin: from, permissions, ...planOfPlugin(plan, name), access },
     {
       typ: PLUGIN_CALL_TYP,
       audience: name,
