@@ -1,10 +1,11 @@
 import type { AssistantProvider } from '@erxes/core-contract';
 import { assistantConnections, type Db, newId, requestOrgId } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
-import { notFound } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
 import { seal, unseal } from '~/lib/secrets';
+import { unreadableKey } from './providers';
 
 type ConnectionRow = typeof assistantConnections.$inferSelect;
 
@@ -99,4 +100,22 @@ export const findConnection = async (client: Db, provider?: AssistantProvider) =
   const rows = await orgRows(client);
 
   return provider ? rows.find((row) => row.provider === provider) : effectiveDefault(rows);
+};
+
+/** The organisation's key for `provider`, or its default one, opened; fails when there is none. */
+export const usableKey = async (client: Db, provider?: AssistantProvider) => {
+  const connection = await findConnection(client, provider);
+
+  if (!connection) {
+    throw fail(
+      'ASSISTANT_NO_CONNECTION',
+      'An admin has to add a model provider key in Settings to use the assistant',
+    );
+  }
+
+  const apiKey = openKey(connection.sealedKey);
+
+  if (apiKey === null) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
+
+  return { provider: connection.provider, apiKey };
 };

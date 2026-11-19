@@ -12,7 +12,9 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import { ASSISTANT_PROVIDERS } from '../assistantEnums';
 import { inList, orgIdColumn, pgTable } from '../table';
+import { updatedAt } from './common';
 import { organizations } from './organizations';
 
 /**
@@ -274,5 +276,22 @@ export const agentDocumentRevisions = pgTable(
     ),
     check('core_agent_document_revisions_kind_check', inList(table.kind, AGENT_REVISION_KINDS)),
     ...owned('document_revisions', table),
+  ],
+);
+
+/** The provider and model an organisation chose for an agent (`frontline.bot`); others use the default. */
+export const agentModels = pgTable(
+  'agent_models',
+  {
+    orgId: orgIdColumn(),
+    agent: text().notNull(),
+    provider: text({ enum: ASSISTANT_PROVIDERS }).notNull(),
+    model: text().notNull(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.agent], name: 'core_agent_models_pkey' }),
+    check('core_agent_models_provider_check', inList(table.provider, ASSISTANT_PROVIDERS)),
+    ...owned('models', table),
   ],
 );

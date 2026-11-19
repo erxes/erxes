@@ -1,4 +1,4 @@
-import { bearerOf, type PluginMember, verifyPluginSession } from '@erxes/plugin-sdk';
+import { bearerOf, verifyAgentCall, verifyPluginSession } from '@erxes/plugin-sdk';
 import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
 import { oc } from '@orpc/contract';
 import { once } from 'node:events';
@@ -71,6 +71,13 @@ const routeOf = (method: string, path: string, query: URLSearchParams, body: unk
 const send = (res: ServerResponse, status: number, json: unknown) =>
   res.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify(json));
 
+/** Who calls: a member with their permissions, or one of the plugin's agents (`agent:hr.helper`). */
+interface Caller {
+  userId: string;
+  orgId: string;
+  mayView: boolean;
+}
+
 export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
   const calls: Call[] = [];
   const server = createServer().listen(0);
@@ -92,12 +99,20 @@ export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
     prefix: '/v1',
   });
 
-  const answerAs = (
-    member: PluginMember,
-    req: IncomingMessage,
-    res: ServerResponse,
-    raw: string,
-  ) => {
+  const options = { coreUrl, plugin };
+
+  const callerOf = (token: string) =>
+    verifyPluginSession(token, options).then(
+      (member): Caller => ({ ...member, mayView: member.can('hr.leave.view') }),
+      () =>
+        verifyAgentCall(token, options).then((agent): Caller => ({
+          userId: `agent:${agent.agent}`,
+          orgId: agent.orgId,
+          mayView: true,
+        })),
+    );
+
+  const answerAs = (member: Caller, req: IncomingMessage, res: ServerResponse, raw: string) => {
     const { pathname, searchParams } = new URL(req.url ?? '/', url);
     const body: unknown = raw ? JSON.parse(raw) : {};
     const route = routeOf(req.method ?? 'GET', pathname, searchParams, body);
@@ -111,7 +126,7 @@ export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
       input: route.input,
     });
 
-    if (!member.can('hr.leave.view')) {
+    if (!member.mayView) {
       return send(res, 403, {
         defined: false,
         code: 'FORBIDDEN',
@@ -129,9 +144,7 @@ export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
     const raw = await text(req);
     const token = bearerOf(req.headers.authorization);
 
-    const member = token
-      ? await verifyPluginSession(token, { coreUrl, plugin }).catch(() => null)
-      : null;
+    const member = token ? await callerOf(token).catch(() => null) : null;
 
     return member ? answerAs(member, req, res, raw) : res.writeHead(401).end();
   };

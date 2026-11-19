@@ -26,6 +26,10 @@ export const ACCESS = {
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
+  // A plugin sends to its own agents only (agents.router).
+  'agents.submit': { plugin: 'installed' },
+  'agents.models': needs('assistant.chat'),
+  'agents.setModel': needs('assistant.manage'),
   ...ASSISTANT_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,

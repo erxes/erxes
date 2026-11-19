@@ -9,6 +9,7 @@ export const installedPlugins = async (client: Db) => {
     apiUrl: manifest?.api?.url ?? null,
     memberDoc: manifest?.api?.docs?.find((doc) => doc.audience === 'member')?.path ?? null,
     skills: manifest?.assistant?.skills ?? [],
+    agents: manifest?.agents ?? [],
   }));
 };
 
