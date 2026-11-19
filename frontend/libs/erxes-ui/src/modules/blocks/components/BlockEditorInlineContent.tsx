@@ -1,4 +1,5 @@
 import { createReactInlineContentSpec } from '@blocknote/react';
+import type { Node } from '@tiptap/pm/model';
 import { BarcodeAttribute } from './BarcodeAttribute';
 
 export const Mention = createReactInlineContentSpec(
@@ -23,7 +24,7 @@ export const Mention = createReactInlineContentSpec(
   },
 );
 
-export const Attribute = createReactInlineContentSpec(
+const attributeSpec = createReactInlineContentSpec(
   {
     type: 'attribute',
     propSchema: {
@@ -38,6 +39,9 @@ export const Attribute = createReactInlineContentSpec(
       },
       height: {
         default: 50,
+      },
+      fontSize: {
+        default: '',
       },
     },
     content: 'none',
@@ -76,9 +80,35 @@ export const Attribute = createReactInlineContentSpec(
           }
         />
       ) : (
-        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
+        <span
+          className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center"
+          style={{
+            fontSize: props.inlineContent.props.fontSize || undefined,
+            lineHeight: props.inlineContent.props.fontSize
+              ? 'normal'
+              : undefined,
+          }}
+        >
           {props.inlineContent.props.name}
         </span>
       ),
   },
 );
+
+export const Attribute = {
+  ...attributeSpec,
+  implementation: {
+    ...attributeSpec.implementation,
+    node: attributeSpec.implementation.node.extend({
+      addOptions: () => attributeSpec.implementation.node.options,
+      extendNodeSchema(extension) {
+        if (extension.name !== attributeSpec.config.type) return {};
+
+        return {
+          leafText: (node: Node) =>
+            node.attrs.value === 'barcode' ? '' : node.attrs.name || '\uFFFC',
+        };
+      },
+    }),
+  },
+};
