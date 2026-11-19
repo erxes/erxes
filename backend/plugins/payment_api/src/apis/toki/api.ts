@@ -45,10 +45,58 @@ const getMiniProgramPayment = async (
   }
 };
 
-const markPaid = async (models: IModels, transaction: ITransactionDocument) => {
+// Remembers the Toki payment so check() can poll it later. An unverified
+// callback never replaces one that is already stored; a verified one does.
+const rememberMiniProgramPayment = async (
+  transactionId: string,
+  payment: MiniProgramPayment,
+  verified: boolean,
+) => {
+  const key = miniProgramKey(transactionId);
+  const value = JSON.stringify(payment);
+
+  if (verified) {
+    await redis.set(key, value, 'EX', MINI_PROGRAM_TTL);
+  } else {
+    await redis.set(key, value, 'EX', MINI_PROGRAM_TTL, 'NX');
+  }
+};
+
+// How long a claimed Toki payment stays locked in Redis; the paid transaction
+// keeps the id permanently (response.tokiTransRequestId) after that.
+const CLAIM_TTL = 365 * 24 * 60 * 60;
+
+// One Toki payment (transRequestId) may settle only one erxes transaction.
+// Toki's status check does not say which order a payment was for, so without
+// this the same completed payment could be replayed against other orders.
+const claimMiniProgramPayment = async (
+  models: IModels,
+  transactionId: string,
+  transRequestId: string,
+) => {
+  const claimKey = `toki_mp_claim_${transRequestId}`;
+
+  await redis.set(claimKey, transactionId, 'EX', CLAIM_TTL, 'NX');
+  const owner = await redis.get(claimKey);
+
+  const settledElsewhere = await models.Transactions.findOne({
+    _id: { $ne: transactionId },
+    'response.tokiTransRequestId': transRequestId,
+  });
+
+  if ((owner && owner !== transactionId) || settledElsewhere) {
+    throw new Error('This Toki payment was already used for another order');
+  }
+};
+
+const markPaid = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+  extra: Record<string, unknown> = {},
+) => {
   await models.Transactions.updateOne(
     { _id: transaction._id },
-    { status: PAYMENT_STATUS.PAID, updatedAt: new Date() },
+    { $set: { status: PAYMENT_STATUS.PAID, updatedAt: new Date(), ...extra } },
   );
 
   return models.Transactions.getTransaction({ _id: transaction._id });
@@ -76,7 +124,11 @@ const miniProgramCallback = async (models: IModels, data: any) => {
 
   const { transaction, payment } = await getTokiTransaction(models, orderID);
 
-  if (amount !== undefined && Number(amount) !== Number(transaction.amount)) {
+  if (transaction.status === PAYMENT_STATUS.PAID) {
+    return transaction;
+  }
+
+  if (amount === undefined || Number(amount) !== Number(transaction.amount)) {
     throw new Error('Amount mismatch');
   }
 
@@ -84,21 +136,33 @@ const miniProgramCallback = async (models: IModels, data: any) => {
     throw new Error('transRequestId and token are required');
   }
 
-  await redis.set(
-    miniProgramKey(String(transaction._id)),
-    JSON.stringify({ transRequestId, token }),
-    'EX',
-    MINI_PROGRAM_TTL,
+  const supplied: MiniProgramPayment = {
+    transRequestId: String(transRequestId),
+    token: String(token),
+  };
+
+  const transactionId = String(transaction._id);
+
+  // A Toki payment already used for another order is rejected here
+  await claimMiniProgramPayment(models, transactionId, supplied.transRequestId);
+
+  // Source of truth: Toki must say the payment is COMPLETED. If Toki's reply
+  // names an order, amount or merchant, they must match this transaction.
+  const status = await new TokiAPI(payment.config).checkMiniProgramPayment(
+    transaction,
+    supplied,
   );
 
-  // Source of truth: ask Toki, never trust the callback body alone
-  const status = await new TokiAPI(payment.config).checkInvoice(transaction);
-
   if (status !== PAYMENT_STATUS.PAID) {
+    await rememberMiniProgramPayment(transactionId, supplied, false);
     return transaction;
   }
 
-  return markPaid(models, transaction);
+  await rememberMiniProgramPayment(transactionId, supplied, true);
+
+  return markPaid(models, transaction, {
+    'response.tokiTransRequestId': supplied.transRequestId,
+  });
 };
 
 // QR flow: Toki's notification or the success/failure redirect
@@ -338,7 +402,11 @@ export class TokiAPI extends BaseAPI {
     };
   }
 
-  private async checkMiniProgram({ transRequestId, token }: MiniProgramPayment) {
+  // Paid only when Toki confirms COMPLETED for this order id and amount
+  async checkMiniProgramPayment(
+    transaction: ITransactionDocument,
+    { transRequestId, token }: MiniProgramPayment,
+  ) {
     const baseUrl = PAYMENTS.toki.miniProgramUrl[this.environment];
     const url = `${baseUrl}/jump/v1/shoppy/transaction-status?transRequestId=${encodeURIComponent(
       transRequestId,
@@ -362,9 +430,36 @@ export class TokiAPI extends BaseAPI {
       );
     }
 
-    return res.data?.status === 'COMPLETED'
-      ? PAYMENT_STATUS.PAID
-      : PAYMENT_STATUS.PENDING;
+    const data = res.data || {};
+
+    if (data.status !== 'COMPLETED') {
+      return PAYMENT_STATUS.PENDING;
+    }
+
+    // Toki's documented reply is only { status }. If it does name the order,
+    // amount or merchant, they must match this transaction.
+    const providerOrderId = data.orderId ?? data.orderID;
+    const providerAmount = data.amount;
+
+    if (
+      providerOrderId !== undefined &&
+      String(providerOrderId) !== String(transaction._id)
+    ) {
+      throw new Error('Toki payment belongs to another order');
+    }
+
+    if (
+      providerAmount !== undefined &&
+      Number(providerAmount) !== Number(transaction.amount)
+    ) {
+      throw new Error('Toki payment amount does not match');
+    }
+
+    if (data.merchantId !== undefined && data.merchantId !== this.merchantId) {
+      throw new Error('Toki payment merchant does not match');
+    }
+
+    return PAYMENT_STATUS.PAID;
   }
 
   private async checkQr(requestId: string) {
@@ -401,7 +496,7 @@ export class TokiAPI extends BaseAPI {
       // Paid inside the Toki app: Toki's callback stored these
       const miniProgram = await getMiniProgramPayment(String(transaction._id));
       if (miniProgram) {
-        return await this.checkMiniProgram(miniProgram);
+        return await this.checkMiniProgramPayment(transaction, miniProgram);
       }
 
       const requestId = transaction.response?.requestId;

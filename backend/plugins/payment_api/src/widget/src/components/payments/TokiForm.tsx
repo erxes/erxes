@@ -122,7 +122,8 @@ const MiniProgram = ({ data }: { data: MiniProgramData }) => {
 };
 
 const TokiForm = () => {
-  const { transactionLoading, apiResponse } = usePayment();
+  const { transactionLoading, apiResponse, paymentId, requestNewTransaction } =
+    usePayment();
 
   if (transactionLoading) {
     return (
@@ -155,7 +156,16 @@ const TokiForm = () => {
       Toki-оор төлөх боломжтой зөвхөн Toki апп доторх дэлгүүрээс. Toki аппаа
       нээж, дэлгүүрээс дахин оролдоно уу.
       {qrError && (
-        <p className="mt-2 text-xs text-red-600">QR: {String(qrError)}</p>
+        <>
+          <p className="mt-2 text-xs text-red-600">QR: {String(qrError)}</p>
+          <button
+            type="button"
+            onClick={() => requestNewTransaction(paymentId)}
+            className="mt-3 rounded-md border px-4 py-2 text-xs font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </>
       )}
     </div>
   );

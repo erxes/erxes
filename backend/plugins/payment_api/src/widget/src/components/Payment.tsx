@@ -61,6 +61,12 @@ const Payment = (props: Props) => {
         if (!isWithinPastSevenMinutes) {
           props.requestNewTransaction(payment._id);
         }
+      } else if (
+        pendingTransaction?.response?.error ||
+        pendingTransaction?.response?.qrError
+      ) {
+        // the provider rejected this attempt: start a fresh one
+        props.requestNewTransaction(payment._id);
       } else if (pendingTransaction) {
         setCurrentTransaction(pendingTransaction);
       } else {
