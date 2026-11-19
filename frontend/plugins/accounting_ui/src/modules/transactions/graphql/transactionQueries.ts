@@ -1,5 +1,464 @@
 import { gql } from '~/gql';
 
+export const TRANSACTION_LIST_FIELDS = gql(`
+fragment AccountingTransactionListFields on AccCommonTransaction {
+  _id
+  ptrId
+  parentId
+  number
+  ptrNumber
+  ptrStatus
+  createdAt
+  updatedAt
+  date
+  description
+  status
+  mentionOwnerId
+  mentionUserIds
+  journal
+  side
+  relAccounts
+  originId
+  originType
+  originSubId
+  followInfos
+  branchId
+  departmentId
+  customerType
+  customerId
+  assignedUserIds
+  branch {
+    _id
+    code
+    title
+  }
+  department {
+    _id
+    code
+    title
+  }
+  details {
+    _id
+    accountId
+    transactionId
+    branchId
+    departmentId
+    branch {
+      _id
+      code
+      title
+    }
+    department {
+      _id
+      code
+      title
+    }
+    originId
+    originType
+    originSubId
+    followInfos
+    amount
+    currencyAmount
+    customRate
+    assignedUserId
+    productId
+    fixedAssetId
+    count
+    unitPrice
+    weight
+    excludeVat
+    excludeCtax
+    account {
+      _id
+      code
+      name
+      currency
+      kind
+      journal
+      extra {
+        bank
+        bankAccount
+      }
+    }
+  }
+  shortDetail {
+    _id
+    accountId
+    transactionId
+    branchId
+    departmentId
+    branch {
+      _id
+      code
+      title
+    }
+    department {
+      _id
+      code
+      title
+    }
+    originId
+    originType
+    originSubId
+    followInfos
+    amount
+    currencyAmount
+    customRate
+    assignedUserId
+    productId
+    fixedAssetId
+    count
+    unitPrice
+    weight
+    excludeVat
+    excludeCtax
+    account {
+      _id
+      code
+      name
+      currency
+      extra {
+        bank
+        bankAccount
+      }
+    }
+  }
+  sumDt
+  sumCt
+  createdBy
+  modifiedBy
+  followTrs {
+    _id
+    ptrId
+    parentId
+    number
+    ptrStatus
+    details {
+      _id
+      accountId
+      transactionId
+      branchId
+      departmentId
+      branch {
+        _id
+        code
+        title
+      }
+      department {
+        _id
+        code
+        title
+      }
+      originId
+      originType
+      originSubId
+      followInfos
+      amount
+      currencyAmount
+      customRate
+      assignedUserId
+      productId
+      fixedAssetId
+      count
+      unitPrice
+      weight
+      excludeVat
+      excludeCtax
+    }
+    shortDetail {
+      _id
+      accountId
+      transactionId
+      branchId
+      departmentId
+      branch {
+        _id
+        code
+        title
+      }
+      department {
+        _id
+        code
+        title
+      }
+      originId
+      originType
+      originSubId
+      followInfos
+      amount
+      currencyAmount
+      customRate
+      assignedUserId
+      productId
+      fixedAssetId
+      count
+      unitPrice
+      weight
+      excludeVat
+      excludeCtax
+    }
+    sumDt
+    sumCt
+  }
+  hasVat
+  vatRowId
+  afterVat
+  isHandleVat
+  vatAmount
+  vatRow {
+    _id
+    number
+    name
+    percent
+  }
+  hasCtax
+  ctaxRowId
+  isHandleCtax
+  ctaxAmount
+  ctaxRow {
+    _id
+    number
+    name
+    percent
+  }
+  extraData
+  contentType
+  contentId
+  permission
+  ptrInfo
+}
+`);
+
+export const TR_RECORD_LIST_FIELDS = gql(`
+fragment AccountingTrRecordListFields on AccCommonTrRecord {
+  _id
+  ptrId
+  parentId
+  number
+  ptrNumber
+  ptrStatus
+  createdAt
+  updatedAt
+  date
+  description
+  status
+  mentionOwnerId
+  mentionUserIds
+  journal
+  side
+  relAccounts
+  originId
+  originType
+  originSubId
+  followInfos
+  branchId
+  departmentId
+  customerType
+  customerId
+  assignedUserIds
+  branch {
+    _id
+    code
+    title
+  }
+  department {
+    _id
+    code
+    title
+  }
+  details {
+    _id
+    accountId
+    transactionId
+    branchId
+    departmentId
+    branch {
+      _id
+      code
+      title
+    }
+    department {
+      _id
+      code
+      title
+    }
+    originId
+    originType
+    originSubId
+    followInfos
+    amount
+    currencyAmount
+    customRate
+    assignedUserId
+    productId
+    fixedAssetId
+    count
+    unitPrice
+    weight
+    excludeVat
+    excludeCtax
+    account {
+      _id
+      code
+      name
+      currency
+      kind
+      journal
+      extra {
+        bank
+        bankAccount
+      }
+    }
+  }
+  shortDetail {
+    _id
+    accountId
+    transactionId
+    branchId
+    departmentId
+    branch {
+      _id
+      code
+      title
+    }
+    department {
+      _id
+      code
+      title
+    }
+    originId
+    originType
+    originSubId
+    followInfos
+    amount
+    currencyAmount
+    customRate
+    assignedUserId
+    productId
+    fixedAssetId
+    count
+    unitPrice
+    weight
+    excludeVat
+    excludeCtax
+    account {
+      _id
+      code
+      name
+      currency
+      extra {
+        bank
+        bankAccount
+      }
+    }
+  }
+  sumDt
+  sumCt
+  createdBy
+  modifiedBy
+  followTrs {
+    _id
+    ptrId
+    parentId
+    number
+    ptrStatus
+    details {
+      _id
+      accountId
+      transactionId
+      branchId
+      departmentId
+      branch {
+        _id
+        code
+        title
+      }
+      department {
+        _id
+        code
+        title
+      }
+      originId
+      originType
+      originSubId
+      followInfos
+      amount
+      currencyAmount
+      customRate
+      assignedUserId
+      productId
+      fixedAssetId
+      count
+      unitPrice
+      weight
+      excludeVat
+      excludeCtax
+    }
+    shortDetail {
+      _id
+      accountId
+      transactionId
+      branchId
+      departmentId
+      branch {
+        _id
+        code
+        title
+      }
+      department {
+        _id
+        code
+        title
+      }
+      originId
+      originType
+      originSubId
+      followInfos
+      amount
+      currencyAmount
+      customRate
+      assignedUserId
+      productId
+      fixedAssetId
+      count
+      unitPrice
+      weight
+      excludeVat
+      excludeCtax
+    }
+    sumDt
+    sumCt
+  }
+  hasVat
+  vatRowId
+  afterVat
+  isHandleVat
+  vatAmount
+  vatRow {
+    _id
+    number
+    name
+    percent
+  }
+  hasCtax
+  ctaxRowId
+  isHandleCtax
+  ctaxAmount
+  ctaxRow {
+    _id
+    number
+    name
+    percent
+  }
+  extraData
+  contentType
+  contentId
+  permission
+  trId
+  detailInd
+}
+`);
+
 export const TRANSACTIONS_QUERY = gql(`
 query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: String, $mentionOwnerId: String, $mentionUserId: String, $searchValue: String, $number: String, $customerType: String, $customerId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountSearchValue: String, $accountBrand: String, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $statuses: [String], $createdUserId: String, $modifiedUserId: String, $startDate: Date, $endDate: Date, $startUpdatedDate: Date, $endUpdatedDate: Date, $startCreatedDate: Date, $endCreatedDate: Date, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
   accTransactionsMain(
@@ -46,230 +505,7 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
     limit: $limit
   ) {
     list {
-      _id
-      ptrId
-      parentId
-      number
-      ptrNumber
-      ptrStatus
-      createdAt
-      updatedAt
-      date
-      description
-      status
-      mentionOwnerId
-      mentionUserIds
-      journal
-      side
-      relAccounts
-      originId
-      originType
-      originSubId
-      followInfos
-      branchId
-      departmentId
-      customerType
-      customerId
-      assignedUserIds
-      branch {
-        _id
-        code
-        title
-      }
-      department {
-        _id
-        code
-        title
-      }
-      details {
-        _id
-        accountId
-        transactionId
-        branchId
-        departmentId
-        branch {
-          _id
-          code
-          title
-        }
-        department {
-          _id
-          code
-          title
-        }
-        originId
-        originType
-        originSubId
-        followInfos
-        amount
-        currencyAmount
-        customRate
-        assignedUserId
-        productId
-        fixedAssetId
-        count
-        unitPrice
-        weight
-        excludeVat
-        excludeCtax
-        account {
-          _id
-          code
-          name
-          currency
-          kind
-          journal
-          extra {
-            bank
-            bankAccount
-          }
-        }
-      }
-      shortDetail {
-        _id
-        accountId
-        transactionId
-        branchId
-        departmentId
-        branch {
-          _id
-          code
-          title
-        }
-        department {
-          _id
-          code
-          title
-        }
-        originId
-        originType
-        originSubId
-        followInfos
-        amount
-        currencyAmount
-        customRate
-        assignedUserId
-        productId
-        fixedAssetId
-        count
-        unitPrice
-        weight
-        excludeVat
-        excludeCtax
-        account {
-          _id
-          code
-          name
-          currency
-          extra {
-            bank
-            bankAccount
-          }
-        }
-      }
-      sumDt
-      sumCt
-      createdBy
-      modifiedBy
-      followTrs {
-        _id
-        ptrId
-        parentId
-        number
-        ptrStatus
-        details {
-          _id
-          accountId
-          transactionId
-          branchId
-          departmentId
-          branch {
-            _id
-            code
-            title
-          }
-          department {
-            _id
-            code
-            title
-          }
-          originId
-          originType
-          originSubId
-          followInfos
-          amount
-          currencyAmount
-          customRate
-          assignedUserId
-          productId
-          fixedAssetId
-          count
-          unitPrice
-          weight
-          excludeVat
-          excludeCtax
-        }
-        shortDetail {
-          _id
-          accountId
-          transactionId
-          branchId
-          departmentId
-          branch {
-            _id
-            code
-            title
-          }
-          department {
-            _id
-            code
-            title
-          }
-          originId
-          originType
-          originSubId
-          followInfos
-          amount
-          currencyAmount
-          customRate
-          assignedUserId
-          productId
-          fixedAssetId
-          count
-          unitPrice
-          weight
-          excludeVat
-          excludeCtax
-        }
-        sumDt
-        sumCt
-      }
-      hasVat
-      vatRowId
-      afterVat
-      isHandleVat
-      vatAmount
-      vatRow {
-        _id
-        number
-        name
-        percent
-      }
-      hasCtax
-      ctaxRowId
-      isHandleCtax
-      ctaxAmount
-      ctaxRow {
-        _id
-        number
-        name
-        percent
-      }
-      extraData
-      contentType
-      contentId
-      permission
-      ptrInfo
+      ...AccountingTransactionListFields
     }
     totalCount
     pageInfo {
@@ -330,231 +566,7 @@ query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: Stri
     limit: $limit
   ) {
     list {
-      _id
-      ptrId
-      parentId
-      number
-      ptrNumber
-      ptrStatus
-      createdAt
-      updatedAt
-      date
-      description
-      status
-      mentionOwnerId
-      mentionUserIds
-      journal
-      side
-      relAccounts
-      originId
-      originType
-      originSubId
-      followInfos
-      branchId
-      departmentId
-      customerType
-      customerId
-      assignedUserIds
-      branch {
-        _id
-        code
-        title
-      }
-      department {
-        _id
-        code
-        title
-      }
-      details {
-        _id
-        accountId
-        transactionId
-        branchId
-        departmentId
-        branch {
-          _id
-          code
-          title
-        }
-        department {
-          _id
-          code
-          title
-        }
-        originId
-        originType
-        originSubId
-        followInfos
-        amount
-        currencyAmount
-        customRate
-        assignedUserId
-        productId
-        fixedAssetId
-        count
-        unitPrice
-        weight
-        excludeVat
-        excludeCtax
-        account {
-          _id
-          code
-          name
-          currency
-          kind
-          journal
-          extra {
-            bank
-            bankAccount
-          }
-        }
-      }
-      shortDetail {
-        _id
-        accountId
-        transactionId
-        branchId
-        departmentId
-        branch {
-          _id
-          code
-          title
-        }
-        department {
-          _id
-          code
-          title
-        }
-        originId
-        originType
-        originSubId
-        followInfos
-        amount
-        currencyAmount
-        customRate
-        assignedUserId
-        productId
-        fixedAssetId
-        count
-        unitPrice
-        weight
-        excludeVat
-        excludeCtax
-        account {
-          _id
-          code
-          name
-          currency
-          extra {
-            bank
-            bankAccount
-          }
-        }
-      }
-      sumDt
-      sumCt
-      createdBy
-      modifiedBy
-      followTrs {
-        _id
-        ptrId
-        parentId
-        number
-        ptrStatus
-        details {
-          _id
-          accountId
-          transactionId
-          branchId
-          departmentId
-          branch {
-            _id
-            code
-            title
-          }
-          department {
-            _id
-            code
-            title
-          }
-          originId
-          originType
-          originSubId
-          followInfos
-          amount
-          currencyAmount
-          customRate
-          assignedUserId
-          productId
-          fixedAssetId
-          count
-          unitPrice
-          weight
-          excludeVat
-          excludeCtax
-        }
-        shortDetail {
-          _id
-          accountId
-          transactionId
-          branchId
-          departmentId
-          branch {
-            _id
-            code
-            title
-          }
-          department {
-            _id
-            code
-            title
-          }
-          originId
-          originType
-          originSubId
-          followInfos
-          amount
-          currencyAmount
-          customRate
-          assignedUserId
-          productId
-          fixedAssetId
-          count
-          unitPrice
-          weight
-          excludeVat
-          excludeCtax
-        }
-        sumDt
-        sumCt
-      }
-      hasVat
-      vatRowId
-      afterVat
-      isHandleVat
-      vatAmount
-      vatRow {
-        _id
-        number
-        name
-        percent
-      }
-      hasCtax
-      ctaxRowId
-      isHandleCtax
-      ctaxAmount
-      ctaxRow {
-        _id
-        number
-        name
-        percent
-      }
-      extraData
-      contentType
-      contentId
-      permission
-      trId
-      detailInd
+      ...AccountingTrRecordListFields
     }
     totalCount
     totalCount

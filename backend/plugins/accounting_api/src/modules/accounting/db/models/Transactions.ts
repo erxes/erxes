@@ -741,7 +741,7 @@ export const loadTransactionClass = (
           transaction: transactions[0],
           oldTransaction: oldTrs[0],
           transactions,
-          oldTransactions: oldTrs,
+          oldTransactions: oldGroupTrs,
         });
       } catch (e) {
         errMsg = e.message;

@@ -279,7 +279,7 @@ const applyDefaultStructureFilter = async ({
   }
 };
 
-const applyReadTransactionJournalFilter = async (
+export const applyReadTransactionJournalFilter = async (
   filter: Record<string, unknown>,
   user: IUserDocument,
   checkPermission: (action: string) => Promise<void>,
@@ -574,6 +574,59 @@ export const generateFilter = async (
   return filter;
 };
 
+export type TTransactionListContext = Pick<
+  IContext,
+  'models' | 'user' | 'subdomain' | 'checkPermission'
+>;
+
+export type TTransactionListParams = IQueryParams & ICursorPaginateParams;
+
+export type TTrRecordListParams = IRecordsParams & ICursorPaginateParams;
+
+export const queryTransactionsMain = async (
+  { models, user, subdomain, checkPermission }: TTransactionListContext,
+  params: TTransactionListParams,
+) => {
+  const filter = await generateFilter(subdomain, models, params, user);
+  await applyReadTransactionJournalFilter(filter, user, checkPermission);
+
+  params.orderBy ??= { ptrNumber: -1 };
+  params.orderBy = {
+    ...params.orderBy,
+    ptrId: params.orderBy?.ptrNumber ?? 1,
+  };
+
+  return await cursorPaginate({
+    model: models.Transactions,
+    params,
+    query: filter,
+  });
+};
+
+export const queryTrRecordsMain = async (
+  { models, user, subdomain, checkPermission }: TTransactionListContext,
+  params: TTrRecordListParams,
+) => {
+  const filter = await generateFilter(subdomain, models, params, user);
+  await applyReadTransactionJournalFilter(filter, user, checkPermission);
+  const { ids, excludeIds } = params;
+  const limit = params.limit ?? 20;
+
+  if (limit < 1 || limit > 100) {
+    throw new Error('Limit must be between 1 and 100');
+  }
+
+  const showAllIds = !!ids?.length && !excludeIds && ids.length > limit;
+
+  return await paginateTrRecords({
+    model: models.Transactions,
+    filter,
+    limit: showAllIds ? ids.length : limit,
+    cursor: showAllIds ? '' : params.cursor,
+    direction: params.direction,
+  });
+};
+
 const transactionCommon = {
   accOddTransactions(): null {
     return null;
@@ -646,23 +699,9 @@ const transactionCommon = {
   async accTransactionsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user, subdomain, checkPermission }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(subdomain, models, params, user);
-    await applyReadTransactionJournalFilter(filter, user, checkPermission);
-
-    // Set default orderBy
-    params.orderBy ??= { ptrNumber: -1 };
-    params.orderBy = {
-      ...params.orderBy,
-      ptrId: params.orderBy?.ptrNumber ?? 1,
-    };
-
-    return await cursorPaginate({
-      model: models.Transactions,
-      params,
-      query: filter,
-    });
+    return await queryTransactionsMain(context, params);
   },
 
   async accTransactions(
@@ -756,26 +795,9 @@ const transactionCommon = {
   async accTrRecordsMain(
     _root,
     params: IRecordsParams & ICursorPaginateParams,
-    { models, user, subdomain, checkPermission }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(subdomain, models, params, user);
-    await applyReadTransactionJournalFilter(filter, user, checkPermission);
-    const { ids, excludeIds } = params;
-    const limit = params.limit ?? 20;
-
-    if (limit < 1 || limit > 100) {
-      throw new Error('Limit must be between 1 and 100');
-    }
-
-    const showAllIds = !!ids?.length && !excludeIds && ids.length > limit;
-
-    return await paginateTrRecords({
-      model: models.Transactions,
-      filter,
-      limit: showAllIds ? ids.length : limit,
-      cursor: showAllIds ? '' : params.cursor,
-      direction: params.direction,
-    });
+    return await queryTrRecordsMain(context, params);
   },
 
   async accTrRecords(

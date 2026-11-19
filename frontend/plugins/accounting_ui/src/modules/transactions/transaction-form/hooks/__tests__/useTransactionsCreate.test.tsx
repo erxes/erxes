@@ -4,12 +4,10 @@ import { act, renderHook } from '@testing-library/react';
 import { GraphQLError } from 'graphql';
 import { ACC_TRANSACTIONS_CREATE } from '@/transactions/transaction-form/graphql/mutations/accTransactionsCreate';
 import { useTransactionsCreate } from '@/transactions/transaction-form/hooks/useTransactionsCreate';
-import { TRANSACTIONS_QUERY } from '@/transactions/graphql/transactionQueries';
 
 const mockToast = jest.fn();
 const mockNavigate = jest.fn();
 let mockSearch = '';
-const listVariables = { limit: 20, orderBy: { date: 1 }, cursor: '' };
 
 jest.mock('erxes-ui', () => ({ toast: (args: unknown) => mockToast(args) }), {
   virtual: true,
@@ -20,9 +18,6 @@ jest.mock('react-i18next', () => ({
 jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
   useSearchParams: () => [new URLSearchParams(mockSearch)],
-}));
-jest.mock('@/transactions/hooks/useTransactionVars', () => ({
-  useTransactionsVariables: () => listVariables,
 }));
 
 const generalJournalDocs = [
@@ -50,11 +45,6 @@ const createMock = (result: Record<string, unknown>) => ({
   result,
 });
 
-const receiptsRefetchMock = {
-  request: { query: TRANSACTIONS_QUERY, variables: listVariables },
-  result: { data: { accTransactionsMain: null } },
-};
-
 const cacheWithJournalEntries = () => {
   const cache = new InMemoryCache({ addTypename: false });
   cache.restore({
@@ -78,11 +68,7 @@ const renderCreate = (
 ) =>
   renderHook(() => useTransactionsCreate(), {
     wrapper: ({ children }) => (
-      <MockedProvider
-        cache={cache}
-        mocks={[...mocks, receiptsRefetchMock]}
-        addTypename={false}
-      >
+      <MockedProvider cache={cache} mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
     ),
@@ -95,7 +81,7 @@ describe('adding a General journal transaction', () => {
     mockSearch = '';
   });
 
-  it('drops every cached Journal Entries list so the page loads the new lines without a refresh', async () => {
+  it('confirms the save right away and keeps cached Journal Entries for the live update', async () => {
     const cache = cacheWithJournalEntries();
     expect(cachedJournalEntryKeys(cache)).toHaveLength(2);
 
@@ -113,7 +99,7 @@ describe('adding a General journal transaction', () => {
       });
     });
 
-    expect(cachedJournalEntryKeys(cache)).toHaveLength(0);
+    expect(cachedJournalEntryKeys(cache)).toHaveLength(2);
     expect(mockNavigate).toHaveBeenCalledWith(
       '/accounting/transaction/edit?parentId=parent-new',
     );

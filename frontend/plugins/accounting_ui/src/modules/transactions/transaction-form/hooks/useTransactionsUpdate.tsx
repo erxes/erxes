@@ -4,17 +4,11 @@ import { useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_UPDATE } from '../graphql/mutations/accTransactionsUpdate';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  TRANSACTIONS_QUERY,
-  TR_RECORDS_QUERY,
-} from '../../graphql/transactionQueries';
-import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
 export const useTransactionsUpdate = (
   options?: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_UPDATE>,
 ) => {
   const { t } = useTranslation('accounting');
-  const variables = useTransactionsVariables();
   const [_updateTransaction, { loading }] = useMutation(
     ACC_TRANSACTIONS_UPDATE,
     options,
@@ -40,22 +34,6 @@ export const useTransactionsUpdate = (
           variant: 'success',
         });
         options?.onCompleted?.(data);
-      },
-      refetchQueries: [
-        {
-          query: TRANSACTIONS_QUERY,
-          variables,
-        },
-        {
-          query: TR_RECORDS_QUERY,
-          variables,
-        },
-      ],
-      awaitRefetchQueries: true,
-      update: (cache, result, updateOptions) => {
-        options?.update?.(cache, result, updateOptions);
-        cache.evict({ fieldName: 'accTrRecordsMain' });
-        cache.gc();
       },
     });
   };
