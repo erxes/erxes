@@ -11,7 +11,7 @@ export const IntegrationKey = z
 
 export const IntegrationDataKey = z
   .string()
-  .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter');
+  .regex(/^[A-Za-z]\w{0,59}$/, 'letters, digits and _, starting with a letter');
 
 export const IntegrationHost = z
   .string()
