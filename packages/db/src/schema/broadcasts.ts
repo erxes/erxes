@@ -57,8 +57,10 @@ export const broadcasts = pgTable(
     preheader: text(),
     /** Markdown for email, plain text for SMS, with placeholders. */
     body: text().default('').notNull(),
-    /** Email only: the sender's name shown with erxes's sending address. */
+    /** Email only: the name shown with the address it comes from. */
     fromName: text(),
+    /** Email only: a confirmed sender's address it goes out as; null: the sending address. */
+    fromEmail: text(),
     replyTo: text(),
     scheduledAt: timestamptz(),
     startedAt: timestamptz(),

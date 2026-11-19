@@ -7,7 +7,15 @@ import { useBroadcastHandlers } from './broadcastQueries';
 /** What the editor changes: the audience and the content. */
 export type BroadcastDraft = Pick<
   Broadcast,
-  'name' | 'viewId' | 'filter' | 'subject' | 'preheader' | 'body' | 'fromName' | 'replyTo'
+  | 'name'
+  | 'viewId'
+  | 'filter'
+  | 'subject'
+  | 'preheader'
+  | 'body'
+  | 'fromName'
+  | 'fromEmail'
+  | 'replyTo'
 >;
 
 const draftOf = ({
@@ -18,6 +26,7 @@ const draftOf = ({
   preheader,
   body,
   fromName,
+  fromEmail,
   replyTo,
 }: Broadcast): BroadcastDraft => ({
   name,
@@ -27,6 +36,7 @@ const draftOf = ({
   preheader,
   body,
   fromName,
+  fromEmail,
   replyTo,
 });
 

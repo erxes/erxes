@@ -54,7 +54,8 @@ describe('broadcasts', { timeout: 300_000 }, () => {
     const [bat] = emailsTo('bat@news.mn');
     const [anon] = emailsTo('anon@news.mn');
 
-    expect(bat).toMatchObject({ subject: 'Hello Bat', fromName: 'Acme', replyTo: 'hello@acme.mn' });
+    expect(bat).toMatchObject({ subject: 'Hello Bat', replyTo: 'hello@acme.mn' });
+    expect(bat?.from).toMatch(/^Acme </);
     expect(anon?.subject).toBe('Hello friend');
     expect(anon?.text).toContain('Hi **there**');
     expect(emailsTo('dorj@news.mn')).toEqual([]);

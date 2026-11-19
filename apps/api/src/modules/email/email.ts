@@ -1,8 +1,9 @@
-import { type Db, organizations } from '@erxes/core-db';
+import { type Db, organizations, withOrg } from '@erxes/core-db';
 import { createTransport, type Transporter } from 'nodemailer';
 import { config } from '~/config';
 import { logger } from '~/logger';
 import { defineJob } from '~/modules/jobs/jobs';
+import { addressing, confirmedSender, parseFrom, type Sender } from './addressing';
 import { EmailPayload, type InlineImage, renderEmail } from './templates';
 import { orgTransport } from './transport';
 
@@ -15,6 +16,8 @@ interface Message {
   replyTo?: string;
   /** The sender's name, shown with the sending address (the organisation's, else `EMAIL_FROM`). */
   fromName?: string;
+  /** A confirmed sender it goes out as (see `addressing`). */
+  sender?: Sender | null;
   subject: string;
   html: string;
   text: string;
@@ -32,8 +35,11 @@ const inlineImages = (images: InlineImage[] | undefined) =>
     contentDisposition: 'inline' as const,
   }));
 
+/** An email as it went out: its From and Reply-To worked out, without the HTML. */
+type Sent = Omit<Message, 'html' | 'fromName' | 'sender'> & { from: string };
+
 /** Sent emails while `EMAIL_DRIVER=log` (development, tests). */
-export const loggedEmails: Omit<Message, 'html'>[] = [];
+export const loggedEmails: Sent[] = [];
 
 /** What an SMTP server answers when it refuses a message (nodemailer's error fields). */
 class SmtpRefusal extends Error {
@@ -59,14 +65,8 @@ const logRefusal = (to: string) => {
   if (domain === 'busy.invalid') throw new SmtpRefusal('421 4.7.0 Try again later', 421);
 };
 
-/** `EMAIL_FROM`'s address under another name. */
-const fromWith = (name: string | undefined) => {
-  if (!name) return config.email.from;
-
-  const address = /<([^>]+)>/.exec(config.email.from)?.[1] ?? config.email.from;
-
-  return { name, address };
-};
+const shownFrom = (from: ReturnType<typeof addressing>['from']) =>
+  typeof from === 'string' ? from : `${from.name} <${from.address}>`;
 
 /**
  * Sends one email now, or throws the server's refusal (nodemailer's
@@ -76,31 +76,24 @@ const fromWith = (name: string | undefined) => {
  */
 export const deliverEmail = async (message: Message, orgId?: string) => {
   const own = orgId ? await orgTransport(orgId) : null;
+  const { fromName, sender, attachments, ...mail } = message;
+
+  const sending = own
+    ? { name: own.settings.fromName, address: own.settings.fromEmail }
+    : parseFrom(config.email.from);
+
+  const { from, replyTo } = addressing(sending, { fromName, replyTo: mail.replyTo, sender });
+  const outgoing = { ...mail, from, replyTo, attachments: inlineImages(attachments) };
 
   if (own) {
-    const { fromName, attachments, ...mail } = message;
-    const name = fromName ?? own.settings.fromName;
-
-    await own.transport.sendMail({
-      from: name ? { name, address: own.settings.fromEmail } : own.settings.fromEmail,
-      ...mail,
-      attachments: inlineImages(attachments),
-    });
+    await own.transport.sendMail(outgoing);
 
     return;
   }
 
   if (config.email.driver === 'log') {
     logRefusal(message.to);
-    loggedEmails.push({
-      to: message.to,
-      replyTo: message.replyTo,
-      fromName: message.fromName,
-      subject: message.subject,
-      text: message.text,
-      headers: message.headers,
-      attachments: message.attachments,
-    });
+    loggedEmails.push({ ...mail, from: shownFrom(from), replyTo, attachments });
 
     if (loggedEmails.length > 100) loggedEmails.shift();
     log.info(
@@ -115,13 +108,7 @@ export const deliverEmail = async (message: Message, orgId?: string) => {
 
   transporter ??= createTransport(config.email.smtpUrl);
 
-  const { fromName, attachments, ...mail } = message;
-
-  await transporter.sendMail({
-    from: fromWith(fromName),
-    ...mail,
-    attachments: inlineImages(attachments),
-  });
+  await transporter.sendMail(outgoing);
 };
 
 /** A link into the scope's organisation (`withOrg`) in erxes: `APP_URL`, with its subdomain. */
@@ -141,19 +128,27 @@ export const emailJob = defineJob({
   concurrency: 5,
   payload: EmailPayload,
   async handle(job) {
-    const { payload } = job;
+    const { payload, orgId } = job;
 
     const rendered = payload.template === 'rendered';
+    const own = payload.template === 'message' || rendered ? payload : null;
+
+    // Read when it goes out: a sender removed since sends from the sending address.
+    const fromEmail = own?.fromEmail;
+
+    const sender =
+      fromEmail && orgId ? await withOrg(orgId, (tx) => confirmedSender(tx, fromEmail)) : null;
 
     await deliverEmail(
       {
         to: payload.to,
-        replyTo: payload.template === 'message' || rendered ? payload.replyTo : undefined,
+        replyTo: own?.replyTo,
         fromName: rendered ? payload.fromName : undefined,
+        sender,
         attachments: rendered ? payload.attachments : undefined,
         ...renderEmail(payload),
       },
-      job.orgId,
+      orgId,
     );
   },
 });

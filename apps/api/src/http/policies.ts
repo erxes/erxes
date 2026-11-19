@@ -139,6 +139,11 @@ export const ACCESS = {
   'emails.saveSettings': needs('integrations.manage'),
   'emails.removeSettings': needs('integrations.manage'),
   'emails.sendTest': needs('integrations.manage'),
+  // Broadcast and automation editors pick from them.
+  'emails.senders': MEMBER,
+  'emails.addSender': needs('integrations.manage'),
+  'emails.resendConfirmation': needs('integrations.manage'),
+  'emails.removeSender': needs('integrations.manage'),
 
   'events.publish': { plugin: 'events:write' },
   'events.list': needs('events.view'),

@@ -83,6 +83,7 @@ export const testBroadcast = async (client: Db, id: string, to: string[]) => {
         template: 'rendered' as const,
         replyTo: broadcast.replyTo ?? undefined,
         fromName: broadcast.fromName ?? undefined,
+        fromEmail: broadcast.fromEmail ?? undefined,
         data: { subject: `[Test] ${copy.subject ?? ''}`, html: copy.html ?? '', text: copy.text },
       })),
     );

@@ -174,6 +174,8 @@ export const ERRORS = {
   BROADCAST_INCOMPLETE: { status: 400, data: z.object({ missing: z.array(z.string()) }) },
   UNKNOWN_PLACEHOLDER: { status: 400, data: z.object({ placeholders: z.array(z.string()) }) },
   NO_RECIPIENTS: { status: 409 },
+  // A broadcast names a sender that isn't confirmed (or isn't the organisation's).
+  SENDER_NOT_CONFIRMED: { status: 400 },
 
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).

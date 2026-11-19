@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import type { Integration } from './catalog';
 import { EmailForm, PROVIDER_NAMES } from './EmailForm';
+import { EmailSenders } from './EmailSenders';
 import {
   HowItWorks,
   IntegrationLayout,
@@ -84,7 +85,10 @@ const RemoveEmail = () => {
 
 const HOW_IT_WORKS = [
   ['all', 'Invitations, password resets, notifications, automations and broadcasts all use it.'],
-  ['from', 'A broadcast’s own sender name replaces the from name; the address stays.'],
+  [
+    'senders',
+    'Broadcasts and automations can send as a confirmed sender instead (the Senders tab).',
+  ],
   ['verify', 'SendGrid and Amazon SES only send from addresses or domains you verified with them.'],
   ['none', 'Without it, emails go out from erxes’s address.'],
 ] as const;
@@ -157,6 +161,11 @@ const EmailPage = ({
           {saved && <RemoveEmail />}
         </div>
       ),
+    },
+    {
+      value: 'senders',
+      label: t('tab.senders', 'Senders'),
+      content: <EmailSenders saved={saved} />,
     },
   ];
 
