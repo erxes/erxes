@@ -161,7 +161,7 @@ test('amount columns keep their share as a report grows from four to twelve colu
   ).toBeCloseTo(100);
 });
 
-test('a mistyped indent of a billion levels still opens the preview and the Excel sheet', () => {
+test('a mistyped indent of a billion levels still opens the preview and keeps the row name inside its Excel column', () => {
   const report = balanceSheet(['Эцсийн үлдэгдэл']);
   report.sections[0].rows[1].tabCount = 1_000_000_000;
   render(<ReportPaper values={report} />);
@@ -181,5 +181,5 @@ test('a mistyped indent of a billion levels still opens the preview and the Exce
     if (sheetRow.getCell(2).value === 'Дансны авлага')
       excelIndent = sheetRow.getCell(2).alignment.indent;
   });
-  expect(excelIndent).toBe(40);
+  expect(excelIndent).toBe(12);
 });

@@ -34,6 +34,7 @@ const NAME_COLUMN_WIDTH = 56;
 const VALUE_COLUMN_WIDTH = 20;
 const FONT_SIZE = 11;
 const LINE_HEIGHT = 15;
+const MAX_NAME_INDENT = 12;
 const BORDER: Partial<ExcelJS.Borders> = {
   top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
   left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -157,7 +158,7 @@ export const buildReportWorkbook = ({
       nameCell.alignment = {
         wrapText: true,
         vertical: 'top',
-        indent: reportRowIndent(row.tabCount) * 2,
+        indent: Math.min(reportRowIndent(row.tabCount) * 2, MAX_NAME_INDENT),
       };
       const valueCells = section.columns.map((column, index) => {
         const cell = worksheet.getCell(line, index + 3);
