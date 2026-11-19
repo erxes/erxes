@@ -11,9 +11,14 @@ export interface ReportTextContext {
   organization?: ReportOrganization;
 }
 
-const FROM_DATE_TOKENS = ['begin_date', 'from_date', 'from-date', 'fromDate'];
-const TO_DATE_TOKENS = ['end_date', 'to_date', 'to-date', 'toDate'];
-const ORGANIZATION_TOKENS = [
+const FROM_DATE_TOKENS = new Set([
+  'begin_date',
+  'from_date',
+  'from-date',
+  'fromDate',
+]);
+const TO_DATE_TOKENS = new Set(['end_date', 'to_date', 'to-date', 'toDate']);
+const ORGANIZATION_TOKENS = new Set([
   'name',
   'certificate_number',
   'country',
@@ -31,7 +36,7 @@ const ORGANIZATION_TOKENS = [
   'header_company_info',
   'sub_companies_count',
   'investment_percent',
-];
+]);
 const TOKEN_PATTERN = /\{([A-Za-z0-9_-]+)\}/g;
 const ESCAPES: Record<string, string> = {
   '&': '&amp;',
@@ -56,9 +61,9 @@ export const fillReportPlaceholders = (
     email: organization?.email,
   };
   return value.replace(TOKEN_PATTERN, (token, name: string) => {
-    if (FROM_DATE_TOKENS.includes(name)) return fromDate ?? token;
-    if (TO_DATE_TOKENS.includes(name)) return toDate ?? token;
-    if (organization && ORGANIZATION_TOKENS.includes(name))
+    if (FROM_DATE_TOKENS.has(name)) return fromDate ?? token;
+    if (TO_DATE_TOKENS.has(name)) return toDate ?? token;
+    if (organization && ORGANIZATION_TOKENS.has(name))
       return escapeHtml(organizationValues[name]?.trim() ?? '');
     return token;
   });
