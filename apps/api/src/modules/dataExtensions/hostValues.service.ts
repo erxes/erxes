@@ -5,6 +5,7 @@ import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { assertRecordRight, findRecordType } from '~/modules/recordTypes/recordTypes.service';
 import { columnParam } from './codec';
+import { computedFor } from './computed';
 import { alias, customKeyOf, ensureTable, fieldsOf, qualified, tableOf } from './definitions';
 import { valueColumns, valuesOf } from './recordQueries';
 import { assertRecordsExist } from './references';
@@ -59,12 +60,14 @@ export const lookupValues = async (
     }));
   }
 
-  const columns = valueColumns(fields, sides, T, sql`${IDS}.id`);
+  const id = sql`${IDS}.id`;
+  const computed = await computedFor(client, input.recordType, fields, T, id);
+  const columns = valueColumns(fields, sides, T, id, computed.values);
 
   const { rows } = await client.execute(
     sql`select ${IDS}.id as record_id, ${T}.updated_by, ${T}.updated_at${columns.length ? sql`, ${sql.join(columns, sql`, `)}` : sql``}
       from unnest(${textArray(ids)}) as ${IDS}(id)
-      left join ${qualified(table)} ${T} on ${T}.record_id = ${IDS}.id`,
+      left join ${qualified(table)} ${T} on ${T}.record_id = ${IDS}.id${computed.join}`,
   );
 
   return rows.map((row) => ({

@@ -35,7 +35,11 @@ import { searchRouter } from '~/modules/search/search.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
 import { unitTypesRouter, unitsRouter } from '~/modules/units/units.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
-import { dataFieldsRouter, dataObjectsRouter } from '~/modules/dataExtensions/dataModel.router';
+import {
+  dataFieldsRouter,
+  dataObjectsRouter,
+  dataPluginsRouter,
+} from '~/modules/dataExtensions/dataModel.router';
 import { dataRecordsRouter, dataValuesRouter } from '~/modules/dataExtensions/dataRecords.router';
 import { recordTypesRouter } from '~/modules/recordTypes/recordTypes.router';
 import { unscoped } from '~/orpc';
@@ -83,6 +87,7 @@ export const coreRouter = unscoped.router({
   fieldGroups: fieldGroupsRouter,
   recordTypes: recordTypesRouter,
   dataObjects: dataObjectsRouter,
+  dataPlugins: dataPluginsRouter,
   dataFields: dataFieldsRouter,
   dataRecords: dataRecordsRouter,
   dataValues: dataValuesRouter,

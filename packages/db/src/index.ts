@@ -93,6 +93,7 @@ export {
   webhooks,
   dataFields,
   dataObjects,
+  dataPlugins,
   dataTables,
 } from './schema';
 
@@ -123,4 +124,5 @@ export type {
   DataFieldOption,
   DataFieldRelation,
   DataFieldSettings,
+  DataResultType,
 } from './schema';

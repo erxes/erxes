@@ -1330,6 +1330,16 @@
         }
       }
     },
+    "preview": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/preview"
+        }
+      }
+    },
     "reorder": {
       "~orpc": {
         "errorMap": {},
@@ -1439,6 +1449,38 @@
         "route": {
           "method": "DELETE",
           "path": "/data-objects/{key}"
+        }
+      }
+    }
+  },
+  "dataPlugins": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-plugins"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-plugins/{plugin}/connect"
+        }
+      }
+    },
+    "disconnect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-plugins/{plugin}/disconnect"
         }
       }
     }

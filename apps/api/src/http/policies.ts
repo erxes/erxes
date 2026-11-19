@@ -161,11 +161,16 @@ export const ACCESS = {
   'dataObjects.restore': needs('properties.manage'),
   'dataObjects.remove': needs('properties.manage'),
 
+  'dataPlugins.list': MEMBER,
+  'dataPlugins.connect': needs('properties.manage'),
+  'dataPlugins.disconnect': needs('properties.manage'),
+
   // Plugins read the fields of their own record types, whose values they show (the service checks).
   'dataFields.list': { member: 'any', plugin: 'installed' },
   'dataFields.create': needs('properties.manage'),
   'dataFields.relate': needs('properties.manage'),
   'dataFields.update': needs('properties.manage'),
+  'dataFields.preview': needs('properties.manage'),
   'dataFields.reorder': needs('properties.manage'),
   'dataFields.archive': needs('properties.manage'),
   'dataFields.restore': needs('properties.manage'),

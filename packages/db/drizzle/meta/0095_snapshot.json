@@ -1,5 +1,5 @@
 {
-  "id": "38ebdf0f-769b-4b25-a904-0523e6db04f0",
+  "id": "0f947833-df06-42c5-9c03-12490f711dfc",
   "prevId": "631f4c8d-54fe-4b6a-8a43-da70e9414701",
   "version": "7",
   "dialect": "postgresql",
@@ -11794,7 +11794,7 @@
       "checkConstraints": {
         "core_data_fields_type_check": {
           "name": "core_data_fields_type_check",
-          "value": "\"core_data_fields\".\"type\" IN ('text', 'longText', 'number', 'percent', 'currency', 'rating', 'boolean', 'date', 'dateTime', 'select', 'multiSelect', 'email', 'phone', 'url', 'emails', 'phones', 'links', 'fullName', 'address', 'member', 'files', 'relation', 'json')"
+          "value": "\"core_data_fields\".\"type\" IN ('text', 'longText', 'number', 'percent', 'currency', 'rating', 'boolean', 'date', 'dateTime', 'select', 'multiSelect', 'email', 'phone', 'url', 'emails', 'phones', 'links', 'fullName', 'address', 'member', 'files', 'relation', 'json', 'autoNumber', 'formula', 'rollup')"
         },
         "core_data_fields_status_check": {
           "name": "core_data_fields_status_check",
@@ -11931,6 +11931,67 @@
           "value": "\"core_data_objects\".\"status\" IN ('active', 'archived')"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.core_data_plugins": {
+      "name": "core_data_plugins",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "plugin": {
+          "name": "plugin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "connected_by": {
+          "name": "connected_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "connected_at": {
+          "name": "connected_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_data_plugins_org_id_fkey": {
+          "name": "core_data_plugins_org_id_fkey",
+          "tableFrom": "core_data_plugins",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_data_plugins_pkey": {
+          "name": "core_data_plugins_pkey",
+          "columns": [
+            "org_id",
+            "plugin"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.core_data_tables": {

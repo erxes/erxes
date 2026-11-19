@@ -4,7 +4,8 @@ import { textArray } from '@erxes/plugin-sdk/filter';
 import { eq, sql } from 'drizzle-orm';
 import { fail, pgCode } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { columnsOf } from './columns';
+import { columnsOf, isComputed } from './columns';
+import { assertUnread, checkComputed } from './computedRules';
 import { changeSchema, setUnique } from './ddl';
 import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
 import { assertFieldDefinition } from './fieldRules';
@@ -103,6 +104,13 @@ export const updateField = async (
 
   if (field.type !== 'relation') assertFieldDefinition(next);
 
+  if (changes.key && changes.key !== field.key) await assertUnread(client, [id], field.label);
+
+  const settings =
+    changes.settings && isComputed(next.type)
+      ? await checkComputed(client, field.recordType, { ...next, id })
+      : changes.settings;
+
   if (changes.options) await clearDropped(client, field, changes.options);
 
   await syncUnique(client, field, Boolean(next.settings.unique));
@@ -110,7 +118,7 @@ export const updateField = async (
   return oneRow(
     await client
       .update(dataFields)
-      .set({ ...changes, updatedAt: sql`now()` })
+      .set({ ...changes, settings, updatedAt: sql`now()` })
       .where(eq(dataFields.id, id))
       .returning(),
   );

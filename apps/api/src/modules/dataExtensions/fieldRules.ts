@@ -9,6 +9,7 @@ import {
 import { count, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { listRecordTypes } from '~/modules/recordTypes/recordTypes.service';
+import { isComputed } from './columns';
 import { customKeyOf, FIELDS_MAX, activeObject } from './definitions';
 import { UNIQUE_TYPES } from './unique';
 
@@ -26,6 +27,24 @@ const invalid = (path: string, message: string) =>
 /** Throws 400 INVALID_INPUT when options or settings don't suit the type. */
 export const assertFieldDefinition = (field: FieldDefinition) => {
   const choosing = field.type === 'select' || field.type === 'multiSelect';
+
+  if (field.type === 'formula' && !field.settings.formula) {
+    throw invalid('settings.formula', 'A formula field needs its formula');
+  }
+
+  if (field.type === 'rollup' && !field.settings.rollup) {
+    throw invalid('settings.rollup', 'A rollup field needs its relation and how it sums up');
+  }
+
+  const given = field.type === 'autoNumber' || isComputed(field.type);
+  const { required, unique } = field.settings;
+
+  if (given && (required || unique || field.settings.defaultValue !== undefined)) {
+    throw invalid(
+      'settings',
+      'erxes gives this field’s values: it takes no required, unique or default',
+    );
+  }
 
   if (choosing && !field.options.length) throw invalid('options', 'A select needs options');
 

@@ -10,7 +10,7 @@ import type { FieldColumn } from './columns';
 
 /**
  * Changes to an organisation's Data Extensions tables, through the `core_data_*` functions
- * (drizzle/0087_data_extensions.sql), in the request's transaction: with the definitions written
+ * (drizzle/0095_data_extensions.sql), in the request's transaction: with the definitions written
  * beside them, they are saved together or not at all. One after another, since inside a request
  * `client` is its transaction, a single connection.
  */

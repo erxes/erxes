@@ -16,7 +16,25 @@ import {
   setObjectStatus,
   updateObject,
 } from './objects.service';
+import { previewComputed } from './computedRules';
+import { connectPlugin, disconnectPlugin, listDataPlugins } from './dataPlugins.service';
 import { createRelation } from './relations.service';
+
+export const dataPluginsRouter = {
+  list: scoped.dataPlugins.list.handler(() => listDataPlugins(db())),
+  connect: scoped.dataPlugins.connect.handler(({ input }) =>
+    audited(
+      (tx) => connectPlugin(tx, input.plugin),
+      (plugin) => recordOf('data_plugin', 'connected', plugin.plugin, { label: plugin.title }),
+    ),
+  ),
+  disconnect: scoped.dataPlugins.disconnect.handler(({ input }) =>
+    audited(
+      (tx) => disconnectPlugin(tx, input.plugin),
+      (plugin) => recordOf('data_plugin', 'disconnected', plugin.plugin, { label: plugin.title }),
+    ),
+  ),
+};
 
 const objectEntry = (action: string, object: { id: string; pluralLabel: string }) =>
   recordOf('data_object', action, object.id, { label: object.pluralLabel });
@@ -81,6 +99,7 @@ export const dataFieldsRouter = {
       (field) => ({ ...recordOf('data_field', 'updated', field.id, field), metadata: input }),
     ),
   ),
+  preview: scoped.dataFields.preview.handler(({ input }) => previewComputed(db(), input)),
   reorder: scoped.dataFields.reorder.handler(({ input }) =>
     reorderFields(db(), input.recordType, input.ids),
   ),

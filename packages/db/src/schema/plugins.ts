@@ -105,7 +105,10 @@ export interface StoredPluginManifest {
     retry?: { attempts: number; delay: number; maxDelay: number };
   }[];
   timelines?: { type: string; label: string; permission?: string; recordAccess?: boolean }[];
-  /** Its record types Data Extensions may add fields to, with the permissions over their records. */
+  /**
+   * Its record types Data Extensions may add fields to, with the permissions over their
+   * records, and the view (and its columns) their own fields are read from.
+   */
   objects?: {
     type: string;
     label: string;
@@ -113,6 +116,8 @@ export interface StoredPluginManifest {
     icon?: string;
     permission?: string;
     updatePermission?: string;
+    view?: string;
+    fields?: Omit<StoredPluginRelation['fields'][number], 'measures'>[];
   }[];
   /** Fields it keeps on customers or companies: core stores them as custom fields, the plugin their values. */
   fields?: {

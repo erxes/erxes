@@ -38,6 +38,8 @@ export const columnParam = ({ type }: FieldColumn, value: unknown): SQL => {
       return sql`${z.number().parse(value)}::numeric`;
     case 'smallint':
       return sql`${z.int().parse(value)}::smallint`;
+    case 'bigint':
+      return sql`${z.int().parse(value)}::bigint`;
     case 'boolean':
       return sql`${z.boolean().parse(value)}::boolean`;
     case 'date':

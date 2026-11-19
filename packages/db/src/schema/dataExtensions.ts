@@ -6,6 +6,8 @@ import {
   type DATA_EXTENSION_OPTION_COLORS,
   type DATA_EXTENSION_RELATION_KINDS,
   type DATA_EXTENSION_RELATION_SIDES,
+  type DATA_EXTENSION_RESULT_TYPES,
+  type DATA_EXTENSION_ROLLUP_OPS,
   type DATA_EXTENSION_VISIBLE_OPERATORS,
 } from '../dataExtensionEnums';
 import {
@@ -26,7 +28,7 @@ import { organizations } from './organizations';
  * Data Extensions' definitions: the objects and fields an organisation adds at runtime. The
  * records and values live in the organisation's own schema, `data_<org id>`, a table per
  * object or record type and a column per field, which `core_data_*` functions create
- * (drizzle/0087_data_extensions.sql).
+ * (drizzle/0095_data_extensions.sql).
  */
 
 /** One choice of a select field: `value` is stored on records, `label` shown. */
@@ -71,7 +73,26 @@ export interface DataFieldSettings {
     operator: (typeof DATA_EXTENSION_VISIBLE_OPERATORS)[number];
     value?: DataJson;
   };
+  /** A formula field's expression (`{amount} * 1.1`); `result` is what the API found it gives. */
+  formula?: { expression: string; result?: DataResultType };
+  /**
+   * A rollup field: the relation (its key) whose linked records it sums up, how, over which of
+   * their fields, and `where`, a formula over them that picks the ones it counts.
+   */
+  rollup?: {
+    relation: string;
+    op: (typeof DATA_EXTENSION_ROLLUP_OPS)[number];
+    field?: string;
+    where?: string;
+    result?: DataResultType;
+  };
+  /** An auto number's text before the number (`PRJ-`), and the digits it pads to. */
+  prefix?: string;
+  digits?: number;
 }
+
+/** What a formula or rollup gives. */
+export type DataResultType = (typeof DATA_EXTENSION_RESULT_TYPES)[number];
 
 /** A custom object: a record type of the organisation's own, `custom.<key>`. */
 export const dataObjects = pgTable(
@@ -170,5 +191,27 @@ export const dataFields = pgTable(
     }).onDelete('cascade'),
     check('core_data_fields_type_check', inList(table.type, DATA_EXTENSION_FIELD_TYPES)),
     check('core_data_fields_status_check', inList(table.status, DATA_EXTENSION_STATUSES)),
+  ],
+);
+
+/**
+ * A plugin connected to Data Extensions here: its manifest `objects` take fields, and formulas
+ * and rollups read their own fields through the plugin's views.
+ */
+export const dataPlugins = pgTable(
+  'data_plugins',
+  {
+    orgId: orgIdColumn(),
+    plugin: text().notNull(),
+    connectedBy: text(),
+    connectedAt: createdAt(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.plugin], name: 'core_data_plugins_pkey' }),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_data_plugins_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

@@ -42,6 +42,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   customerNotifications: null,
   dataFields: { lookup: true, writes: 'settings' },
   dataObjects: { lookup: true, writes: 'settings' },
+  dataPlugins: { lookup: true, writes: 'settings' },
   // Records and values follow their record type's rights, which a key's areas don't map.
   dataRecords: null,
   dataValues: null,

@@ -155,6 +155,11 @@ const typedValue = (rules: DataExtensionValueRules): z.ZodType => {
       return relationValue(rules);
     case 'json':
       return JsonValue;
+    // Given by the API (the next number) or computed as records are read: never written.
+    case 'autoNumber':
+    case 'formula':
+    case 'rollup':
+      return z.never();
   }
 };
 

@@ -7,7 +7,7 @@ import type { DataFieldRelation, DataFieldSettings } from '@erxes/core-db';
 
 /**
  * Where Data Extensions keeps things in an organisation's schema. The `core_data_*` functions
- * (drizzle/0087_data_extensions.sql) accept these names, so the rules here and there agree.
+ * (drizzle/0095_data_extensions.sql) accept these names, so the rules here and there agree.
  */
 
 type ColumnType = (typeof DATA_EXTENSION_COLUMN_TYPES)[number];
@@ -39,7 +39,8 @@ const SYSTEM_COLUMNS: ReadonlySet<string> = new Set([
   'target_id',
 ]);
 
-const snake = (name: string) =>
+/** A key in snake case: `dueDate` → `due_date`. */
+export const snake = (name: string) =>
   name
     .replaceAll(/([a-z0-9])([A-Z])/g, '$1_$2')
     .toLowerCase()
@@ -109,7 +110,11 @@ const SCALAR: Partial<Record<FieldType, ColumnType>> = {
   multiSelect: 'text[]',
   files: 'jsonb',
   json: 'jsonb',
+  autoNumber: 'bigint',
 };
+
+/** Types computed as records are read: they keep no column. */
+export const isComputed = (type: FieldType) => type === 'formula' || type === 'rollup';
 
 const COMPOSITE: Partial<Record<FieldType, [string, string, ColumnType][]>> = {
   currency: [
@@ -166,7 +171,7 @@ export const columnsOf = (field: {
 }): FieldColumn[] => {
   const { type, column, relation, settings } = field;
 
-  if (!column) return [];
+  if (!column || isComputed(type)) return [];
 
   if (type === 'relation') {
     return relation && holdsLink(relation) ? one(linkColumn(column), 'text') : [];

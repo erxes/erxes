@@ -1,7 +1,10 @@
+import { DATA_EXTENSION_NATIVE_TYPES } from '@erxes/core-db/dataExtensionEnums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { listOf, PluginRecordType } from './common';
 import { COMMON_ERRORS } from './errors';
+import { PLUGIN_RELATION_FIELDS_MAX, PluginRelationField } from './pluginRelations';
+import { CORE_NATIVE_FIELDS } from './recordNativeFields';
 
 /**
  * One of a manifest's `objects`: a record type of the plugin's that members may add fields to
@@ -21,9 +24,41 @@ export const PluginObject = z.object({
   permission: z.string().optional(),
   /** A permission action of the plugin that changes its records (`hr.employee.edit`). */
   updatePermission: z.string().optional(),
+  /**
+   * A view of the plugin's (`<plugin>_*`, owned by its role and granted to erxes_core_reader)
+   * with a row per record: `id` and a column per field of `fields`. Data Extensions reads
+   * the records' own values there, for formulas, rollups and lookups:
+   *
+   *   CREATE VIEW sales_deal_fields AS SELECT d.org_id, d.id, d.name, d.amount, d.closed_at FROM sales_deals d;
+   *   GRANT SELECT ON sales_deal_fields TO erxes_core_reader;
+   */
+  view: z
+    .string()
+    .regex(/^[a-z][a-z0-9_]{0,62}$/, 'a view of the plugin: <plugin>_<name>')
+    .optional(),
+  /** The view's columns members may use: `amount` a number, `stage` a select. */
+  fields: z
+    .array(PluginRelationField)
+    .max(PLUGIN_RELATION_FIELDS_MAX)
+    .refine((list) => new Set(list.map((field) => field.key)).size === list.length, 'each key once')
+    .optional(),
 });
 
 export type PluginObject = z.infer<typeof PluginObject>;
+
+/**
+ * A field a record type has of its own (a customer's `firstName`, a deal's `amount`), which
+ * formulas and rollups read by `key`. `member` and `product` hold ids.
+ */
+export const RecordNativeField = z.object({
+  key: z.string(),
+  label: z.string(),
+  type: z.enum(DATA_EXTENSION_NATIVE_TYPES),
+  /** A select's choices. */
+  options: z.array(z.string()),
+});
+
+export type RecordNativeField = z.infer<typeof RecordNativeField>;
 
 /** A manifest's `objects`, each type once. */
 export const PluginObjects = z
@@ -49,6 +84,8 @@ export const RecordType = z.object({
   permission: z.string().nullable(),
   /** What changes them; null: every member. */
   updatePermission: z.string().nullable(),
+  /** Its own fields, which formulas and rollups read: core's columns, a plugin's view. */
+  nativeFields: z.array(RecordNativeField),
 });
 
 export type RecordType = z.infer<typeof RecordType>;
@@ -91,7 +128,7 @@ export const CORE_RECORD_TYPES: readonly RecordType[] = [
     permission: 'team.view',
     updatePermission: 'team.manage',
   },
-];
+].map((type) => ({ ...type, nativeFields: [...(CORE_NATIVE_FIELDS[type.type] ?? [])] }));
 
 /** The record types of core, of the plugins installed here and of custom objects. */
 export const recordTypesContract = {

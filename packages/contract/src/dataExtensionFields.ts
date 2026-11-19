@@ -4,6 +4,8 @@ import {
   DATA_EXTENSION_OPTION_COLORS,
   DATA_EXTENSION_RELATION_KINDS,
   DATA_EXTENSION_RELATION_SIDES,
+  DATA_EXTENSION_RESULT_TYPES,
+  DATA_EXTENSION_ROLLUP_OPS,
   DATA_EXTENSION_STATUSES,
   DATA_EXTENSION_VISIBLE_OPERATORS,
 } from '@erxes/core-db/dataExtensionEnums';
@@ -102,6 +104,40 @@ const VisibleWhen = z.object({
   value: z.json().optional(),
 });
 
+export const DataExtensionResultType = z.enum(DATA_EXTENSION_RESULT_TYPES);
+
+export type DataExtensionResultType = z.infer<typeof DataExtensionResultType>;
+
+/** A formula's text: `{amount} * 1.1`, `IF({stage} == "won", {amount}, 0)`. */
+export const DataExtensionExpression = z.string().trim().min(1).max(1000);
+
+/** A field a formula or rollup names: a field's key, or a record type's own field (`closed_at`). */
+const FieldName = z
+  .string()
+  .regex(/^[a-zA-Z][a-zA-Z0-9_]{0,59}$/, 'a field key, or a record type’s own field');
+
+/**
+ * A formula field. `{key}` reads a field of the record (its own, a plugin's or core's, or
+ * another computed one); `{relation.key}` reads through a relation to one record. `result` is
+ * what the API found the formula gives; it ignores what a write sends.
+ */
+export const DataExtensionFormula = z.object({
+  expression: DataExtensionExpression,
+  result: DataExtensionResultType.optional(),
+});
+
+/**
+ * A rollup field: sums up the records `relation` links (`count`, or `sum` of their `field`),
+ * only those `where` (a formula over them) is true of.
+ */
+export const DataExtensionRollup = z.object({
+  relation: DataExtensionFieldKey,
+  op: z.enum(DATA_EXTENSION_ROLLUP_OPS),
+  field: FieldName.optional(),
+  where: DataExtensionExpression.optional(),
+  result: DataExtensionResultType.optional(),
+});
+
 /** How a field behaves. The API checks every setting on each write, so no client skips one. */
 export const DataExtensionFieldSettings = z.object({
   /** A value can't be cleared once set, and create forms ask for it. */
@@ -134,6 +170,17 @@ export const DataExtensionFieldSettings = z.object({
   /** Only members who manage the data model may change the value. */
   readOnly: z.boolean().optional(),
   visibleWhen: VisibleWhen.optional(),
+  formula: DataExtensionFormula.optional(),
+  rollup: DataExtensionRollup.optional(),
+  /** An auto number's text before the number: `PRJ-` gives PRJ-0042. */
+  prefix: z
+    .string()
+    .trim()
+    .max(12)
+    .regex(/^[^{}"\\]*$/, 'no braces, quotes or backslashes')
+    .optional(),
+  /** Digits an auto number pads to with zeros. */
+  digits: z.int().min(1).max(10).optional(),
 });
 
 export type DataExtensionFieldSettings = z.infer<typeof DataExtensionFieldSettings>;
