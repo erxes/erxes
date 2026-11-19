@@ -137,7 +137,8 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/connections',
-      summary: "The signed-in member's model provider keys; keys are never returned",
+      summary:
+        "The organisation's model provider keys, which every agent uses; keys are never returned",
     })
     .output(listOf(AssistantConnection)),
   saveConnection: base
@@ -145,7 +146,7 @@ export const assistantContract = {
       method: 'PUT',
       path: '/assistant/connections/{provider}',
       summary:
-        'Save or replace the key for a provider; the first saved provider becomes the default',
+        "Save or replace the organisation's key for a provider; the first saved provider becomes the default",
     })
     .input(ProviderInput.extend({ apiKey: z.string().trim().min(8).max(500) }))
     .output(AssistantConnection),

@@ -49,7 +49,10 @@ const usableKey = async (client: Db, provider: AssistantProvider | undefined) =>
   const connection = await findConnection(client, provider);
 
   if (!connection) {
-    throw fail('ASSISTANT_NO_CONNECTION', 'Add a model provider key to use the assistant');
+    throw fail(
+      'ASSISTANT_NO_CONNECTION',
+      'An admin has to add a model provider key in Settings to use the assistant',
+    );
   }
 
   const apiKey = openKey(connection.sealedKey);

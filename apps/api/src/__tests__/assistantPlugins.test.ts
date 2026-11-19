@@ -54,7 +54,6 @@ describe('assistant plugin contributions', () => {
     await t.other().plugins.uninstall({ name: 'hr' });
 
     await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await t.member().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
     await t.other().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
   });
 

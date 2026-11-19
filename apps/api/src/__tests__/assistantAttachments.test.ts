@@ -118,7 +118,6 @@ describe('assistant attachments and page selections', () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
     await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await t.member().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
     await t.other().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
   });
 

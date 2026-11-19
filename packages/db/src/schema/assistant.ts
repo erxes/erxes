@@ -19,12 +19,12 @@ import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
+/** The organisation's model provider keys, one per provider, which every agent uses. */
 export const assistantConnections = pgTable(
   'assistant_connections',
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    userId: text().notNull(),
     provider: text({ enum: ASSISTANT_PROVIDERS }).notNull(),
     sealedKey: text().notNull(),
     isDefault: boolean().default(false).notNull(),
@@ -32,13 +32,9 @@ export const assistantConnections = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
-    uniqueIndex('core_assistant_connections_user_provider_key').on(
-      table.orgId,
-      table.userId,
-      table.provider,
-    ),
-    uniqueIndex('core_assistant_connections_user_default_key')
-      .on(table.orgId, table.userId)
+    uniqueIndex('core_assistant_connections_provider_key').on(table.orgId, table.provider),
+    uniqueIndex('core_assistant_connections_default_key')
+      .on(table.orgId)
       .where(sql`${table.isDefault}`),
     check('core_assistant_connections_provider_check', inList(table.provider, ASSISTANT_PROVIDERS)),
     foreignKey({
