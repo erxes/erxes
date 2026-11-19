@@ -5,7 +5,7 @@ import { config } from '~/config';
 
 /*
  * An organisation's plugins come from its Stripe customer, as erxes 3.x core
- * reads them for erxes.io's organisations (`gpStatus: 'new'`):
+ * reads them:
  * - every item on its subscriptions while they are active, trialing or past
  *   due. A removed item drops to quantity 0 but counts until its `ends_at`
  *   metadata (the period end erxes.io stamps on it);
