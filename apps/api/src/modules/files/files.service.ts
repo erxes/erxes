@@ -20,8 +20,9 @@ import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { assertStreamable, queueCloudflareMove } from './cloudflareMove';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
-import { canShowInline, storage } from './storage';
+import { canShowInline, storage, storageOf } from './storage';
 import { logger } from '~/logger';
 import { guardDeletions } from '~/lib/deletionGuard';
 
@@ -61,6 +62,7 @@ export const createUpload = async (
   input: { name: string; contentType: string; size: number },
 ) => {
   assertUploadAllowed(await fileSettingsOf(client), input);
+  assertStreamable(input);
 
   const id = newId();
   // The upload link writes here; the file's own key is only written by core, after checking.
@@ -79,6 +81,7 @@ export const createUpload = async (
       .values({
         id,
         key,
+        storage: config.files.driver,
         name: input.name,
         contentType: input.contentType,
         size: input.size,
@@ -172,6 +175,8 @@ export const completeUpload = async (client: Db, id: string) => {
     metadata: { contentType: row.contentType, size: row.size },
   });
 
+  await queueCloudflareMove(client, ready);
+
   return ready;
 };
 
@@ -189,7 +194,7 @@ export const getFile = async (client: Db, id: string) => {
 };
 
 export const downloadUrlOf = (row: FileRow, forceDownload: boolean) =>
-  storage().downloadUrl(row.key, {
+  storageOf(row.storage).downloadUrl(row.key, {
     name: row.name,
     contentType: row.contentType,
     inline: !forceDownload && canShowInline(row.contentType),
@@ -294,7 +299,7 @@ export const removeFile = async (client: Db, id: string) => {
 export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   const rows = await withSystem('files: deletions to purge', (tx) =>
     tx
-      .select({ id: files.id, key: files.key })
+      .select({ id: files.id, key: files.key, storage: files.storage })
       .from(files)
       .where(
         and(
@@ -310,7 +315,7 @@ export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   // One object at a time: the store never gets 500 deletes at once.
   await inOrder(rows, async (row) => {
     try {
-      await storage().remove(row.key);
+      await storageOf(row.storage).remove(row.key);
       removed.push(row.id);
     } catch (error) {
       log.error({ key: row.key, err: error }, 'could not delete stored file; will retry');
@@ -370,6 +375,7 @@ export const storeServerFile = async (
         .values({
           id,
           key,
+          storage: config.files.driver,
           name: input.name,
           contentType: input.contentType,
           size: input.body.length,
@@ -388,5 +394,5 @@ export const storeServerFile = async (
 export const readFileBytes = async (orgId: string, id: string) => {
   const row = await withOrg(orgId, (tx) => readyFile(tx, id));
 
-  return { row, body: await storage().read(row.key) };
+  return { row, body: await storageOf(row.storage).read(row.key) };
 };

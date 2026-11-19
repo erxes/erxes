@@ -11,6 +11,7 @@ import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
+import { legacyFilesRouter } from '~/modules/files/legacyFiles.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { registerAgent } from '~/modules/agents/host';
 import { assistantAgent } from '~/modules/assistant/agent';
@@ -125,6 +126,9 @@ export const createApp = (log: Logger = logger): Express => {
   // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).
   app.use('/core/v1/saas', limit.token, saasRouter);
   app.get('/gateway/pl\\:core/core-login', limit.token, saasLogin);
+
+  // erxes 3.x file links (`<api>/read-file?key=`), at its path and core's: no sign-in, as in 3.x.
+  app.use(['/core/v1', '/gateway'], legacyFilesRouter);
 
   // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
   app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));

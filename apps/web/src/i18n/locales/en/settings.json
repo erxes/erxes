@@ -254,6 +254,8 @@
     "saved": "Upload settings saved",
     "save-failed": "Could not save",
     "read-only": "Only owners and admins can change these settings.",
+    "storage-cloudflare": "Cloudflare",
+    "storage-cloudflare-description": "Files go straight from the browser to an R2 bucket. When Images and Stream are on, images and videos move there after upload.",
     "storage-config": "Storage and its keys are set in the server configuration, not here, so secrets never reach the browser.",
     "storage-local": "This server’s disk",
     "storage-local-description": "Files are kept on the erxes server. For many or large files, ask your administrator to use cloud storage.",
