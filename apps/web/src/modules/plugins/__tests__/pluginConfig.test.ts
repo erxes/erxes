@@ -3,39 +3,45 @@ import { parsePluginConfig } from '../pluginConfig';
 
 const slot = () => null;
 
-it('preserves tab visibility and rejects a record that supplies a non-boolean flag', () => {
-  const tab = { value: 'orders', label: 'Orders', icon: slot, component: slot };
+const tab = { value: 'orders', label: 'Orders', icon: slot, component: slot };
 
-  const tabs = [
+const service = {
+  contentType: 'pms:service',
+  title: 'Service',
+  icon: slot,
+  detailPath: (id: string) => `/pms/services/${id}`,
+  Title: slot,
+  Detail: slot,
+  tabs: [
     tab,
-    { ...tab, value: 'notes', expandedOnly: false },
-    { ...tab, value: 'description', expandedOnly: true },
-  ];
+    { ...tab, value: 'notes', after: 'activity', expandedOnly: false },
+    { ...tab, value: 'description', after: 'detail', expandedOnly: true },
+  ],
+};
 
-  const service = {
-    contentType: 'pms:service',
-    title: 'Service',
-    icon: slot,
-    detailPath: (id: string) => `/pms/services/${id}`,
-    Title: slot,
-    Detail: slot,
-    tabs,
-  };
+const parseRecords = (recordTypes: unknown[]) =>
+  parsePluginConfig('pms_ui', { name: 'pms', path: 'pms', recordTypes })?.recordTypes;
 
+it('preserves each tab’s visibility and placement', () => {
+  expect(parseRecords([service])).toEqual([service]);
+});
+
+it.each([
+  ['a non-boolean visibility flag', { expandedOnly: 'false' }],
+  ['an unknown placement', { after: 'notes' }],
+  ['an empty value', { value: '' }],
+  ['an empty label', { label: '' }],
+  ['a missing icon', { icon: null }],
+  ['a string in place of a component', { component: 'orders' }],
+])('skips only the record whose tab has %s', (_case, invalidFields) => {
   using errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
   const invalid = {
     ...service,
     contentType: 'pms:invalid',
-    tabs: [{ ...tab, expandedOnly: 'false' }],
+    tabs: [{ ...tab, ...invalidFields }],
   };
 
-  const config = parsePluginConfig('pms_ui', {
-    name: 'pms',
-    path: 'pms',
-    recordTypes: [invalid, service],
-  });
-
-  expect(config?.recordTypes).toEqual([service]);
+  expect(parseRecords([invalid, service])).toEqual([service]);
   expect(errors).toHaveBeenCalledOnce();
 });
