@@ -13,11 +13,17 @@ export const emptyRequired = (input: Record<string, unknown>, action: ActionInfo
 /** What an empty required input says, under the input and on the canvas card. */
 export const fillIn = (field: ActionField) => `Fill in ${field.label.toLowerCase()}`;
 
+const NEEDS = {
+  customer: 'a customer',
+  company: 'a company',
+  any: 'a customer or company',
+} as const;
+
 const missingAction = (type: string, known: ActionInfo[]) => {
   const elsewhere = known.find((item) => item.type === type);
 
-  return elsewhere
-    ? `“${elsewhere.label}” needs a customer or company, and this trigger is not about one`
+  return elsewhere?.subject
+    ? `“${elsewhere.label}” needs ${NEEDS[elsewhere.subject]}, and this trigger is not about one`
     : 'This action is not available (its plugin may be uninstalled)';
 };
 

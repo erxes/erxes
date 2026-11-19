@@ -61,6 +61,16 @@ const actions: ActionInfo[] = [
   },
 ];
 
+const needing = (type: string, label: string, subject: ActionInfo['subject']): ActionInfo => ({
+  type,
+  label,
+  description: null,
+  source: 'core',
+  subject,
+  fields: [],
+  outputs: [],
+});
+
 const events = [{ type: 'core.customer.updated', label: 'Customer updated' }];
 
 describe('flow model', () => {
@@ -197,15 +207,25 @@ describe('flow model', () => {
 
   it('tells an action the trigger cannot feed apart from one whose plugin is gone', () => {
     const problems = flowProblems(
-      [...flow, { id: 'x', type: 'action', action: 'gone.thing.do', input: {} }],
+      [
+        { id: 'note', type: 'action', action: 'core.note.add', input: {} },
+        { id: 'tag', type: 'action', action: 'core.company.tag', input: {} },
+        { id: 'gone', type: 'action', action: 'gone.thing.do', input: {} },
+      ],
       [],
-      actions,
+      [
+        needing('core.note.add', 'Add a note', 'any'),
+        needing('core.company.tag', 'Tag the company', 'company'),
+      ],
     );
 
-    expect(problems.get('a')).toEqual([
-      '“Assign an owner” needs a customer or company, and this trigger is not about one',
+    expect(problems.get('note')).toEqual([
+      '“Add a note” needs a customer or company, and this trigger is not about one',
     ]);
-    expect(problems.get('x')).toEqual([
+    expect(problems.get('tag')).toEqual([
+      '“Tag the company” needs a company, and this trigger is not about one',
+    ]);
+    expect(problems.get('gone')).toEqual([
       'This action is not available (its plugin may be uninstalled)',
     ]);
   });
