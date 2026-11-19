@@ -41,6 +41,10 @@ export const callbackHandler = async (req, res) => {
 
   const data = { ...body, ...query };
 
+  // Toki's mini-program callback is server-to-server and expects JSON back
+  const isTokiMiniProgram =
+    kind === PAYMENTS.toki.kind && !!(data.orderID || data.transRequestId);
+
   try {
     switch (kind) {
       case PAYMENTS.socialpay.kind:
@@ -185,12 +189,16 @@ export const callbackHandler = async (req, res) => {
         }
       }
 
-      if (invoice.redirectUri) {
+      if (invoice.redirectUri && !isTokiMiniProgram) {
         return res.redirect(invoice.redirectUri);
       }
     }
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(400).send(error?.message || String(error));
+  }
+
+  if (isTokiMiniProgram) {
+    return res.status(200).json({ status: 'success' });
   }
 
   return res.status(200).send('OK');

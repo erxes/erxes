@@ -18,6 +18,7 @@ import KhanbankForm from './payments/KhanbankForm';
 import GolomtForm from './payments/GolomtForm';
 import TdbCGWForm from './payments/TdbCGWForm';
 import PocketForm from './payments/PocketForm';
+import TokiForm from './payments/TokiForm';
 
 const Content = () => {
   const isMobile = useIsMobile();
@@ -45,6 +46,8 @@ const Content = () => {
         return <TdbCGWForm />;
       case 'pocket':
         return <PocketForm />;
+      case 'toki':
+        return <TokiForm />;
       default:
         return (
           <>

@@ -1,5 +1,16 @@
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 
+export type PaymentField = {
+  key: string;
+  label: string;
+  type?: string;
+  validation?: { type: string; value: number };
+  // Not required; shown without "*"
+  optional?: boolean;
+  // Renders a select instead of a text input
+  options?: { value: string; label: string }[];
+};
+
 export const PAYMENT_KINDS = {
   [PaymentKind.QPAY]: {
     name: 'Qpay',
@@ -218,15 +229,25 @@ export const PAYMENT_KINDS = {
         validation: { type: 'minLength', value: 1 },
       },
       {
+        key: 'tokiEnvironment',
+        label: 'environment',
+        optional: true,
+        options: [
+          { value: 'production', label: 'Production' },
+          { value: 'staging', label: 'Staging' },
+        ],
+      },
+      // QR only. Leave both empty to use the mini program (Toki app) only.
+      {
         key: 'tokiUsername',
-        label: 'username',
-        validation: { type: 'minLength', value: 1 },
+        label: 'QR username',
+        optional: true,
       },
       {
         key: 'tokiPassword',
-        label: 'password',
+        label: 'QR password',
         type: 'password',
-        validation: { type: 'minLength', value: 1 },
+        optional: true,
       },
     ],
   },
