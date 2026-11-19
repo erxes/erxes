@@ -74,7 +74,7 @@ class ErxesPayment {
         this.api = new KhanbankAPI(payment.config, models!);
         break;
       case 'toki':
-        this.api = new TokiAPI(payment.config, this.domain);
+        this.api = new TokiAPI(payment.config, this.domain, models);
         break;
       case 'tdb':
         this.api = new TDBAPI(payment.config, this.domain);

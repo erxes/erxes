@@ -5,6 +5,7 @@ import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
 import { PocketAPI } from '~/apis/pocket/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
+import { validateTokiConfig } from '~/apis/toki/api';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 function resolveDomain(subdomain: string) {
@@ -179,6 +180,11 @@ const mutations = {
       } catch (e: any) {
         throw new Error(extractErrorMessage(e));
       }
+    }
+
+    // Checked before saving, so a bad edit leaves the stored config as it is
+    if (kind === PAYMENTS.toki.kind) {
+      validateTokiConfig(config || {});
     }
 
     const doc: any = {

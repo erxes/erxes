@@ -3,7 +3,6 @@ import {
   getSubdomain,
   graphqlPubsub,
   isEnabled,
-  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 
 import {
@@ -25,6 +24,7 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
+import { sendTransactionCallbackOnce } from '~/utils/transactionCallback';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -40,6 +40,10 @@ export const callbackHandler = async (req, res) => {
   let transaction: ITransactionDocument;
 
   const data = { ...body, ...query };
+
+  // Toki's mini-program callback is server-to-server and expects JSON back
+  const isTokiMiniProgram =
+    kind === PAYMENTS.toki.kind && !!(data.orderID || data.transRequestId);
 
   try {
     switch (kind) {
@@ -79,8 +83,15 @@ export const callbackHandler = async (req, res) => {
       default:
         return res.status(400).send('Invalid kind');
     }
+    // Providers that redirect the customer here after a failed payment:
+    // show the failed page instead of a bare error. (Toki mini-program
+    // callbacks are server-to-server, so they are left out.)
+    const redirectsOnFailure =
+      transaction.paymentKind === PAYMENTS.tdb.kind ||
+      (transaction.paymentKind === PAYMENTS.toki.kind && !isTokiMiniProgram);
+
     if (
-      transaction.paymentKind === PAYMENTS.tdb.kind &&
+      redirectsOnFailure &&
       [
         PAYMENT_STATUS.CANCELLED,
         PAYMENT_STATUS.FAILED,
@@ -90,7 +101,7 @@ export const callbackHandler = async (req, res) => {
       try {
         await models.Invoices.checkInvoice(transaction.invoiceId, subdomain);
       } catch (error) {
-        console.error('[CALLBACK] Failed to update TDB invoice status', {
+        console.error('[CALLBACK] Failed to update invoice status', {
           invoiceId: transaction.invoiceId,
           transactionId: transaction._id,
           error,
@@ -153,18 +164,17 @@ export const callbackHandler = async (req, res) => {
 
         if (await isEnabled(pluginName)) {
           try {
-            await sendWorkerMessage({
+            // At most once per transaction, even when the provider retries
+            await sendTransactionCallbackOnce({
               subdomain,
               pluginName,
-              queueName: 'payments',
-              jobName: 'transactionCallback',
+              transactionId: String(transaction._id),
               data: {
                 ...transaction.toObject(),
                 moduleName,
                 collectionType,
                 apiResponse: 'success',
               },
-              defaultValue: null,
             });
           } catch (e) {
             console.error('Error: ', e);
@@ -185,12 +195,16 @@ export const callbackHandler = async (req, res) => {
         }
       }
 
-      if (invoice.redirectUri) {
+      if (invoice.redirectUri && !isTokiMiniProgram) {
         return res.redirect(invoice.redirectUri);
       }
     }
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(400).send(error?.message || String(error));
+  }
+
+  if (isTokiMiniProgram) {
+    return res.status(200).json({ status: 'success' });
   }
 
   return res.status(200).send('OK');
