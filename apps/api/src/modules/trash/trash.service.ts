@@ -107,6 +107,9 @@ export const moveToTrash = async (tx: Db, type: ContentType, ids: string[]) => {
         recordType: type,
         recordId: row.id,
         label: labelOf(type, row),
+        // The bin shows it to whoever saw the record.
+        ownerId: row.ownerId,
+        unitIds: row.unitIds,
         snapshot: { row, ...companions(row.id) },
         deletedByType: by.actorType,
         deletedBy: by.actorId,
@@ -116,6 +119,8 @@ export const moveToTrash = async (tx: Db, type: ContentType, ids: string[]) => {
     .onConflictDoUpdate({
       target: [trash.orgId, trash.recordType, trash.recordId],
       set: {
+        ownerId: sql`excluded.owner_id`,
+        unitIds: sql`excluded.unit_ids`,
         snapshot: sql`excluded.snapshot`,
         deletedAt: sql`now()`,
         purgeAt: sql`excluded.purge_at`,

@@ -1,12 +1,6 @@
 import { db } from '@erxes/core-db';
-import {
-  createRole,
-  listRoles,
-  permissionCatalog,
-  permissionSets,
-  removeRole,
-  updateRole,
-} from '~/modules/roles/roles.service';
+import { permissionCatalog, permissionSets } from '~/modules/roles/permissionCatalog';
+import { createRole, listRoles, removeRole, updateRole } from '~/modules/roles/roles.service';
 import { scoped } from '~/orpc';
 
 export const rolesRouter = {

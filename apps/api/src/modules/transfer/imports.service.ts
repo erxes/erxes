@@ -1,11 +1,12 @@
 import type { CursorQuery, TransferRecordType } from '@erxes/core-contract';
 import { caller, type Db, type ImportOptions, importRows, imports, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
-import { fail } from '~/http/errors';
+import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { readyFile } from '~/modules/files/files.service';
+import { limitedReach, madeByCaller } from '~/modules/reach/reach';
 import { transferColumns } from './columns';
 import { importCheckJob, importRunJob, importUndoJob, stepKey } from './importJobs';
 import { importParseJob } from './importParse';
@@ -38,7 +39,10 @@ export const listImports = async (client: Db, query: CursorQuery) =>
       id: imports.id,
       createdAt: imports.createdAt,
     },
-    inArray(imports.recordType, await transferableTypes(client, 'import')),
+    and(
+      inArray(imports.recordType, await transferableTypes(client, 'import')),
+      madeByCaller(imports.createdBy),
+    ),
     query,
     (where, orderBy, limit) =>
       selectImports(client)
@@ -47,9 +51,15 @@ export const listImports = async (client: Db, query: CursorQuery) =>
         .limit(limit),
   );
 
-/** The import, if the member may import its record type. */
+/**
+ * The import, if the member may import its record type; a member whose role reaches less than
+ * the organisation, only one they started.
+ */
 const importFor = async (client: Db, id: string, lock = false) => {
   const row = await importOrThrow(client, id, lock);
+  const reach = limitedReach();
+
+  if (reach && row.createdBy !== reach.userId) throw notFound('Import');
 
   await assertCanTransfer(client, row.recordType, 'import');
 

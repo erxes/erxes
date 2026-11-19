@@ -1,16 +1,11 @@
-import {
-  CORE_PERMISSIONS,
-  OWNER_ONLY_PERMISSIONS,
-  type PermissionInfo,
-  type PermissionSet,
-} from '@erxes/core-contract';
+import { OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
 import {
   caller,
   type Db,
   db,
+  FIXED_ROLES,
   newId,
-  pluginInstallations,
-  plugins,
+  type RoleReach,
   roles,
   users,
 } from '@erxes/core-db';
@@ -20,6 +15,8 @@ import { can } from '~/http/access';
 import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { reachesFurther } from '~/modules/reach/reach';
+import { assertWithinReach, permissionCatalog } from './permissionCatalog';
 
 /** The roles every organisation starts with. */
 const BUILTIN_ROLES = [
@@ -50,9 +47,7 @@ const BUILTIN_ROLES = [
   },
 ] as const;
 
-/** Owner and Admin are fixed: their meaning is "everything". */
-const FIXED_ROLES = ['owner', 'admin'];
-const FIXED = new Set(FIXED_ROLES);
+const FIXED = new Set<string>(FIXED_ROLES);
 
 export const seedRoles = (tx: Db, orgId: string) =>
   tx
@@ -72,68 +67,13 @@ const selectRoles = (client: Db) =>
   client
     .select({
       ...getTableColumns(roles),
-      editable: sql<boolean>`${notInArray(roles.key, FIXED_ROLES)}`,
+      editable: sql<boolean>`${notInArray(roles.key, [...FIXED_ROLES])}`,
       members: client.$count(users, and(eq(users.role, roles.key), ne(users.status, 'disabled'))),
     })
     .from(roles);
 
 const roleWithMembers = async (client: Db, key: string) =>
   oneRow(await selectRoles(client).where(eq(roles.key, key)).limit(1));
-
-/** The manifests of the plugins this organisation has on. */
-const installedManifests = (client: Db) =>
-  client
-    .select({ name: plugins.name, manifest: plugins.manifest })
-    .from(plugins)
-    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
-
-/** The installed plugins' ready-made bundles of their permissions. */
-export const permissionSets = async (client: Db): Promise<PermissionSet[]> =>
-  (await installedManifests(client)).flatMap((plugin) =>
-    (plugin.manifest?.permissionSets ?? []).map((set) => ({
-      source: plugin.name,
-      key: set.key,
-      label: set.label,
-      description: set.description ?? null,
-      permissions: set.permissions,
-    })),
-  );
-
-/** Every action a role can hold: core's, and the installed plugins' (from their manifests). */
-export const permissionCatalog = async (client: Db): Promise<PermissionInfo[]> => {
-  const installed = await installedManifests(client);
-
-  return [
-    ...CORE_PERMISSIONS.map((permission) => ({
-      action: permission.action,
-      group: permission.group,
-      label: permission.label,
-      description: null,
-      source: 'core',
-      ownerOnly: 'ownerOnly' in permission && permission.ownerOnly,
-    })),
-    ...installed.flatMap((plugin) =>
-      (plugin.manifest?.permissions ?? []).map((permission) => ({
-        action: permission.action,
-        group: permission.group ?? plugin.manifest?.title ?? plugin.name,
-        label: permission.label,
-        description: permission.description ?? null,
-        source: plugin.name,
-        ownerOnly: false,
-      })),
-    ),
-  ];
-};
-
-/** What the member may do, spelled out (owners and `*`: every known action they may hold). */
-export const effectivePermissions = async (client: Db, member: Parameters<typeof can>[0]) => {
-  const catalog = await permissionCatalog(client);
-
-  return catalog
-    .filter((permission) => can(member, permission.action))
-    .map((permission) => permission.action);
-};
 
 export const listRoles = async (client: Db) => ({
   data: await wholeList((limit) =>
@@ -150,11 +90,14 @@ const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
 /**
  * A role's permissions must be known actions (or `*`), never owner-only, and
- * — so nobody hands out more than they have — all within the editor's own.
+ * — so nobody hands out more than they have — all within the editor's own. A
+ * role that reaches less than the organisation holds only actions that follow
+ * its reach: `*` and the ones that work across the organisation are refused.
  */
-const checkPermissions = async (client: Db, permissions: string[]) => {
+const checkPermissions = async (client: Db, permissions: string[], reach: RoleReach) => {
   const me = caller('user');
-  const known = new Set((await permissionCatalog(client)).map((permission) => permission.action));
+  const catalog = await permissionCatalog(client);
+  const known = new Set(catalog.map((permission) => permission.action));
 
   const unknown = permissions.filter((action) => action !== '*' && !known.has(action));
 
@@ -163,6 +106,8 @@ const checkPermissions = async (client: Db, permissions: string[]) => {
       permissions: unknown,
     });
   }
+
+  assertWithinReach(catalog, permissions, reach);
 
   const ownerOnly = permissions.filter((action) => OWNER_ONLY.has(action));
 
@@ -193,12 +138,16 @@ const roleOrThrow = async (client: Db, key: string) => {
   return row;
 };
 
-/** A role that can do something `me` can't (owners are never outdone). */
-const widerThanMe = (me: ReturnType<typeof caller<'user'>>, row: { permissions: string[] }) =>
+/** A role that can do something `me` can't, or reaches further (owners are never outdone). */
+const widerThanMe = (
+  me: ReturnType<typeof caller<'user'>>,
+  row: { permissions: string[]; reach: RoleReach },
+) =>
   me.role !== 'owner' &&
-  (row.permissions.includes('*')
-    ? !me.permissions.includes('*')
-    : row.permissions.some((action) => !can(me, action)));
+  (reachesFurther(row.reach, me.reach.level) ||
+    (row.permissions.includes('*')
+      ? !me.permissions.includes('*')
+      : row.permissions.some((action) => !can(me, action))));
 
 /**
  * Acting on another member (password, email, sign-in, role, status): their
@@ -251,10 +200,12 @@ export const createRole = async (input: {
   name: string;
   description?: string | null;
   permissions: string[];
+  reach?: RoleReach;
 }) => {
   const tx = db();
+  const reach = input.reach ?? 'organization';
 
-  const permissions = await checkPermissions(tx, input.permissions);
+  const permissions = await checkPermissions(tx, input.permissions, reach);
 
   const row = oneRow(
     await tx
@@ -264,6 +215,7 @@ export const createRole = async (input: {
         name: input.name,
         description: input.description ?? null,
         permissions,
+        reach,
       })
       .returning(),
   );
@@ -273,7 +225,7 @@ export const createRole = async (input: {
     targetType: 'role',
     targetId: row.key,
     targetLabel: row.name,
-    metadata: { permissions },
+    metadata: { permissions, reach },
   });
 
   return roleWithMembers(tx, row.key);
@@ -281,7 +233,12 @@ export const createRole = async (input: {
 
 export const updateRole = async (
   key: string,
-  input: { name?: string; description?: string | null; permissions?: string[] },
+  input: {
+    name?: string;
+    description?: string | null;
+    permissions?: string[];
+    reach?: RoleReach;
+  },
 ) => {
   const tx = db();
 
@@ -290,8 +247,14 @@ export const updateRole = async (
   }
 
   const before = await roleOrThrow(tx, key);
+  const reach = input.reach ?? before.reach;
 
-  const permissions = input.permissions ? await checkPermissions(tx, input.permissions) : undefined;
+  const permissions = input.permissions
+    ? await checkPermissions(tx, input.permissions, reach)
+    : undefined;
+
+  // A narrower reach is checked against what the role already holds too.
+  if (!permissions) assertWithinReach(await permissionCatalog(tx), before.permissions, reach);
 
   const row = oneRow(
     await tx
@@ -300,6 +263,7 @@ export const updateRole = async (
         name: input.name,
         description: input.description,
         permissions,
+        reach,
         updatedAt: sql`now()`,
       })
       .where(eq(roles.key, key))
@@ -316,6 +280,7 @@ export const updateRole = async (
         ? { name: [before.name, input.name] }
         : {}),
       ...(permissions ? { permissions: [before.permissions, permissions] } : {}),
+      ...(reach === before.reach ? {} : { reach: [before.reach, reach] }),
     },
   });
 

@@ -1,6 +1,15 @@
 import type { TIMELINE_KINDS } from '@erxes/core-db/enums';
 import type { CursorQuery } from '@erxes/core-contract';
-import { activities, caller, customerCompanies, type Db, notes, reactions } from '@erxes/core-db';
+import {
+  activities,
+  caller,
+  companies,
+  customerCompanies,
+  customers,
+  type Db,
+  notes,
+  reactions,
+} from '@erxes/core-db';
 import { and, eq, ilike, inArray, isNotNull, ne, not, or, type SQL, sql } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
@@ -8,6 +17,7 @@ import { allOf, anyOf } from '~/lib/conditions';
 import { assertMembers } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
 import { installedPlugins } from '~/modules/plugins/installedPlugin';
+import { seesSomeContacts } from '~/modules/reach/reach';
 import { entryById, selectEntries } from './activities.service';
 import { assertTimelineAccess } from './timelineAccess';
 
@@ -125,7 +135,19 @@ const readableTimelines = async (client: Db) => {
   return [...(can(who, 'contacts.view') ? ['customer', 'company'] : []), ...pluginTypes];
 };
 
-/** What a team member did, across the timelines the caller may read, newest first. */
+/**
+ * Entries on the customers and companies the caller sees (row level security decides which);
+ * a plugin's records are the plugin's to guard.
+ */
+const onVisibleContact = sql`(case ${activities.targetType}
+  when 'customer' then exists (select 1 from ${customers} where ${customers.id} = ${activities.targetId})
+  when 'company' then exists (select 1 from ${companies} where ${companies.id} = ${activities.targetId})
+  else true end)`;
+
+/**
+ * What a team member the caller reaches did, across the timelines the caller may read, newest
+ * first.
+ */
 export const listMemberActivities = async (
   client: Db,
   { actorId, ...query }: TimelineFilters & { actorId: string },
@@ -144,6 +166,7 @@ export const listMemberActivities = async (
         eq(activities.actorType, 'user'),
         eq(activities.actorId, actorId),
         inArray(activities.targetType, targetTypes),
+        ...(seesSomeContacts() ? [onVisibleContact] : []),
       ),
     },
     timelineFilters(client, query),

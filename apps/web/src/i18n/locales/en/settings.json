@@ -839,7 +839,7 @@
     "active": "Active",
     "unit-active": "Unit is active",
     "move-confirm": "Move {{name}} under {{parent}}?",
-    "move-confirm-hint": "{{units}} and {{members}} move with it. Who can reach their records may change, since supervisors see the units under theirs.",
+    "move-confirm-hint": "{{units}} and {{members}} move with it. Who reaches their records changes with it, since a role can reach the units under the ones its members are in.",
     "moving-units_one": "{{count}} unit",
     "moving-units_other": "{{count}} units",
     "moving-members_one": "{{count}} member",
@@ -850,7 +850,7 @@
     "path": "Path",
     "delete-confirm": "Delete {{name}}?",
     "not-empty": "{{name}} still holds something",
-    "not-empty-hint": "Subunits: {{children}}. Members: {{members}}. API keys that name it: {{keys}}. Turn it off instead: it leaves the chart, and records keep it.",
+    "not-empty-hint": "Subunits: {{children}}. Members: {{members}}. Customers and companies: {{records}}. API keys that name it: {{keys}}. Turn it off instead: it leaves the chart, and records keep it.",
     "turn-off": "Turn it off",
     "unit-actions": "Unit actions",
     "delete-blocked": "It has subunits or members. Move them first, or turn it off instead.",
@@ -1128,6 +1128,19 @@
     "select-all-in": "All of {{name}}",
     "no-match": "No permissions match",
     "no-match-description": "Try another word or show all.",
+    "reach": {
+      "title": "Reach",
+      "description": "Where members with this role see and change records, the team and the structure.",
+      "organization": "The whole organisation",
+      "organization-hint": "Every unit, and what the organisation shares.",
+      "subtree": "Their units and the units under them",
+      "subtree-hint": "A district manager: the district and each store in it.",
+      "unit": "Their units only",
+      "unit-hint": "A store manager: their store, not the store beside it.",
+      "own": "Only what they own",
+      "own-hint": "A sales rep: the customers and companies they own.",
+      "whole-only": "Whole organisation only"
+    },
     "builtin": {
       "owner": {
         "name": "Owner",

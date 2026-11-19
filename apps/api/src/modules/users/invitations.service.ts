@@ -6,6 +6,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
 import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
+import { placeWithCaller } from '~/modules/units/units.service';
 import { splitFullName } from './userProfile';
 import type { UserRow } from './userRows';
 
@@ -55,6 +56,7 @@ export const inviteUser = async (client: Db, input: InviteInput) => {
 
   const inserted = oneRow(await client.insert(users).values(values).returning());
 
+  await placeWithCaller(client, [inserted.id]);
   await announceInvites(client, [inserted]);
 
   return inserted;
@@ -97,6 +99,10 @@ export const inviteUsers = async (entries: InviteInput[]) => {
 
   const rows = await tx.insert(users).values(values).returning();
 
+  await placeWithCaller(
+    tx,
+    rows.map((row) => row.id),
+  );
   await announceInvites(tx, rows);
 
   return { data: rows };

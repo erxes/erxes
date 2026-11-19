@@ -10,7 +10,7 @@ import { useStructureHandlers } from './useStructureHandlers';
 
 /**
  * Moves the unit, with everything under it, under another unit. It asks first, with how many
- * units and members move, since who can reach their records follows the tree.
+ * units and members move, since who reaches their records follows the tree (a role's reach).
  */
 export const MoveBar = ({ unit, onDone }: { unit: UnitDetail; onDone: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
@@ -37,7 +37,7 @@ export const MoveBar = ({ unit, onDone }: { unit: UnitDetail; onDone: () => void
       options: {
         description: t(
           'move-confirm-hint',
-          '{{units}} and {{members}} move with it. Who can reach their records may change, since supervisors see the units under theirs.',
+          '{{units}} and {{members}} move with it. Who reaches their records changes with it, since a role can reach the units under the ones its members are in.',
           {
             units: t('moving-units', '{{count}} units', { count: unit.descendantCount + 1 }),
             members: t('moving-members', '{{count}} members', { count: unit.subtreeMemberCount }),

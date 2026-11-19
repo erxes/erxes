@@ -1,4 +1,4 @@
-import { newId, notifications, runAs, users, withOrg } from '@erxes/core-db';
+import { newId, notifications, runAs, users, WHOLE_ORGANIZATION, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
@@ -119,7 +119,13 @@ describe('concurrent writes', () => {
   });
 
   it('collapses concurrent edit notifications without losing a change', async () => {
-    const owner = { type: 'user' as const, userId: ownerA, role: 'owner', permissions: ['*'] };
+    const owner = {
+      type: 'user' as const,
+      userId: ownerA,
+      role: 'owner',
+      permissions: ['*'],
+      reach: WHOLE_ORGANIZATION,
+    };
 
     const send = (field: string) =>
       runAs(owner, () =>

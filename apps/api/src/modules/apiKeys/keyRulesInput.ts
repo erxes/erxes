@@ -15,6 +15,7 @@ import { can } from '~/http/access';
 import { fail } from '~/http/errors';
 import { AREA_PERMISSIONS, areaCalls, callPermission, kindOf } from '~/http/keyRules';
 import { installedPlugin } from '../plugins/installedPlugin';
+import { assertUnitsInReach } from '../reach/reach';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
@@ -210,6 +211,8 @@ const checkKeyRules = async (client: Db, me: Member, input: KeyRulesInput) => {
   }
 
   if (await missing(client, orgUnits, input.unitIds)) throw invalid('unitIds', 'Unit not found');
+
+  await assertUnitsInReach(client, input.unitIds);
 
   if (await missing(client, tags, input.tagIds)) throw invalid('tagIds', 'Tag not found');
 };

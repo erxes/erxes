@@ -66,6 +66,13 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
      token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
      be undone. The shapes, the token `typ` and the two paths are the contract;
+   - a member's reach (decision 48; `apps/api/src/modules/reach/reach.ts`): session and access
+     tokens carry `reach` and `units`, which `verifyPluginSession` and `verifyErxesAccessToken` give
+     as `PluginMember.reach` and `unitIds` (a token without them reaches the organisation), and
+     transfer requests carry `reach` and `unitIds`. A manifest permission with `followsReach`
+     can be held by a role that reaches less than the organisation; the plugin then filters with
+     `withinReach` (`packages/plugin-sdk/src/filter.ts`). The claim names, the four reach values
+     and `followsReach` are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set

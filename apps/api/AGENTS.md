@@ -16,6 +16,14 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `db()`. Core acting on its own inside someone's request (a notice to the member, an alert to the
   owners) runs that part in `runAs(system('why'), fn)`; a job acting for a member (an import, an
   automation) runs in `runAs(member, fn)`, with the member from `memberOf`.
+- A member's role has a reach (decision 48): the organisation, their units and the units under
+  them, their units only, or what they own. Customers, companies and the recycle bin obey it in the
+  database (`core_reach`), so their queries filter nothing. The team and the structure obey it
+  through `src/modules/reach/reach.ts`: put `userInReach`, `unitInReach` or `unitShown` in the
+  query, and check a unit a write names with `assertUnitsInReach`. A new record type members own
+  takes `unitIdsColumn()` and `visibleToColumn()` and the policy (see the schema-change skill). A
+  new permission follows reach only when everything it reads and changes does (`reach: true` in
+  `PERMISSIONS`); otherwise only roles that reach the organisation can hold it.
 - Handlers are built from `src/orpc.ts`: `scoped` runs the handler inside `withOrg` for the
   caller's organisation, `unscoped` opens no transaction (public and customer procedures, and those
   that call out; their services open a short `withOrg(requestOrgId(), ...)`).

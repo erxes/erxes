@@ -73,7 +73,14 @@ export interface StoredPluginManifest {
   scopes: string[];
   /** Other plugins' APIs it reads, with their permissions: each waits for the owner's approval. */
   pluginReads?: { plugin: string; permissions: string[]; reason: string }[];
-  permissions?: { action: string; label: string; description?: string; group?: string }[];
+  permissions?: {
+    action: string;
+    label: string;
+    description?: string;
+    group?: string;
+    /** The plugin keeps the action inside a member's reach, so a role that reaches less can hold it. */
+    followsReach?: boolean;
+  }[];
   /** Ready-made bundles of its permissions, added to a role in one click. */
   permissionSets?: {
     key: string;

@@ -12,6 +12,8 @@ const clientAs = (orgId: string, permissions: string[] = Object.values(PERMISSIO
     role: 'member',
     permissions,
     can: (action) => permissions.includes(action),
+    reach: 'organization',
+    unitIds: [],
     tier: 'pro',
     access: 'full',
     canChange: () => true,

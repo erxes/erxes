@@ -180,12 +180,24 @@ export const pluginSession = async (name: string) => {
   const access = me.key?.plugins[name] === 'read' ? 'read_only' : planAccess;
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
+  // A role that reaches less than the organisation holds only the actions the plugin keeps
+  // inside a member's reach (`followsReach`); the reach and the member's units go with them.
+  const { level, unitIds } = me.reach;
+
   const permissions = (plugin.manifest?.permissions ?? [])
     .map((permission) => permission.action)
     .filter((action) => can(me, action));
 
   const token = await signJwt(
-    { org: orgId, role: me.role, permissions, tier: tierOf(plan, name), access },
+    {
+      org: orgId,
+      role: me.role,
+      permissions,
+      reach: level,
+      units: unitIds,
+      tier: tierOf(plan, name),
+      access,
+    },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,

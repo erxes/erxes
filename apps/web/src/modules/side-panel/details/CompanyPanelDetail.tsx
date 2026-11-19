@@ -16,6 +16,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
+import { ContactUnitsField } from '~/modules/contacts/components/ContactUnitsField';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
 import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
@@ -118,6 +119,10 @@ const CompanyFields = ({ company }: { company: Company }) => {
           scope={`${SCOPE}.owner`}
           ownerId={company.ownerId}
           onChange={(ownerId) => edit.mutate({ id: company.id, ownerId })}
+        />
+        <ContactUnitsField
+          unitIds={company.unitIds}
+          onChange={(unitIds) => edit.mutate({ id: company.id, unitIds })}
         />
         <CompanyTextRow company={company} code="code" label={t('field.code', 'Code')} />
         <LeadStageField recordType="company" record={company} />

@@ -205,7 +205,8 @@ export interface KeyDecision {
   reason: string;
 }
 
-const isLimited = (rows: KeyRules['rows']) => rows.owners !== null || rows.tags !== null;
+const isLimited = (rows: KeyRules['rows']) =>
+  rows.owners !== null || rows.units !== null || rows.tags !== null;
 
 /**
  * May the key take a token for a plugin's API (`plugins.session`)? A regular key without

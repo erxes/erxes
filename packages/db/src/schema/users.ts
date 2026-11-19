@@ -1,4 +1,4 @@
-import { type NOTIFICATION_DELIVERIES, USER_STATUSES } from '../enums';
+import { FIXED_ROLES, type NOTIFICATION_DELIVERIES, ROLE_REACHES, USER_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -20,7 +20,9 @@ import { organizations } from './organizations';
  * Roles of an organisation: named sets of permissions (`contacts.delete`,
  * `hr.leave.approve`). Built in: `owner` (everything, including owner-only
  * actions), `admin` (`*`: everything but owner-only) and `member` (editable).
- * Custom roles have keys `r_<id>`.
+ * Custom roles have keys `r_<id>`. A role says what its members do; `reach` says where: in
+ * the whole organisation, in their units and the units under them, in their units alone, or
+ * on their own records.
  */
 export const roles = pgTable(
   'roles',
@@ -34,12 +36,20 @@ export const roles = pgTable(
       .array()
       .default(sql`'{}'::text[]`)
       .notNull(),
+    /** How far its members see and change records, people and units. Owner and Admin: all. */
+    reach: text({ enum: ROLE_REACHES }).default('organization').notNull(),
     builtin: boolean().default(false).notNull(),
     createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.orgId, table.key], name: 'core_roles_pkey' }),
+    check('core_roles_reach_check', inList(table.reach, ROLE_REACHES)),
+    // Owner and Admin mean "everything", everywhere.
+    check(
+      'core_roles_fixed_reach_check',
+      sql`NOT (${inList(table.key, FIXED_ROLES)}) OR ${table.reach} = 'organization'`,
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

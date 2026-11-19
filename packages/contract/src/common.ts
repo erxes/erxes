@@ -9,6 +9,16 @@ import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);
 
+/** The most units one record is in. */
+export const RECORD_UNITS_MAX = 20;
+
+/**
+ * The units a record is in (`core_org_units` ids), at least one. A member whose role reaches
+ * less than the organisation sees the record when their reach holds one of them, and puts it
+ * only in units they reach (403 OUTSIDE_REACH). 400 INVALID_REFERENCE for a unit that isn't there.
+ */
+export const RecordUnitIds = z.array(Id).min(1).max(RECORD_UNITS_MAX);
+
 /**
  * A timestamp column in an output schema: the handler returns the row's `Date`,
  * the client gets an ISO string. Give it to `createSelectSchema` as a

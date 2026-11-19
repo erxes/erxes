@@ -96,7 +96,7 @@ export const orgUnits = pgTable(
      * `core_units_under` reads subtrees from it.
      */
     path: text().notNull(),
-    /** A member who leads the unit; plugins let them see its records and those under it. */
+    /** A member who leads the unit, for the chart. It gives no access: a role's `reach` does. */
     supervisorId: text(),
     description: text(),
     // Contact details, as branches had in old erxes.

@@ -122,7 +122,7 @@ const useRemoveUnit = (unit: UnitDetail) => {
         options: {
           description: t(
             'not-empty-hint',
-            'Subunits: {{children}}. Members: {{members}}. API keys that name it: {{keys}}. Turn it off instead: it leaves the chart, and records keep it.',
+            'Subunits: {{children}}. Members: {{members}}. Customers and companies: {{records}}. API keys that name it: {{keys}}. Turn it off instead: it leaves the chart, and records keep it.',
             error.data,
           ),
           okLabel: t('turn-off', 'Turn it off'),

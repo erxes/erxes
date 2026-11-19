@@ -21,6 +21,7 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
+import { unitsAfterChange, unitsForNew } from '~/modules/reach/reach';
 import { contactColumns, scalarFields } from './customerColumns';
 import { assertCompany } from './customerLinks';
 import { findCustomer, inOrg } from './customerRows';
@@ -34,6 +35,7 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, 'customer', input.tagIds ?? []);
+  const unitIds = await unitsForNew(client, input.unitIds);
 
   const customFields = await applyCustomFields(client, 'customer', {}, input.customFields);
 
@@ -48,6 +50,7 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
         .insert(customers)
         .values({
           ...scalarFields(input),
+          unitIds,
           id: newId(),
           state: input.state ?? 'customer',
           primaryEmail: email.primary,
@@ -77,9 +80,11 @@ export const updateCustomer = async (client: Db, id: string, input: CustomerInpu
 
   const current = await findCustomer(client, id);
 
-  await assertOwner(client, input.ownerId);
+  await assertOwner(client, input.ownerId, current.ownerId);
 
   const changes = contactColumns(current, input);
+
+  const unitIds = input.unitIds && (await unitsAfterChange(client, current.unitIds, input.unitIds));
 
   const tagIds =
     input.tagIds === undefined ? undefined : await checkTagIds(client, 'customer', input.tagIds);
@@ -94,7 +99,7 @@ export const updateCustomer = async (client: Db, id: string, input: CustomerInpu
   await savepoint(async (tx) => {
     const updated = await tx
       .update(customers)
-      .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
+      .set({ ...scalarFields(input), ...changes, ...lead.set, unitIds, updatedAt: sql`now()` })
       .where(inOrg(id))
       .returning({ id: customers.id });
 

@@ -104,6 +104,9 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   },
   core_customers_owner_id_fkey: { field: 'ownerId', message: 'The owner is not a team member' },
   core_companies_owner_id_fkey: { field: 'ownerId', message: 'The owner is not a team member' },
+  // Raised by `core_set_visible_to` (drizzle/0090_reach.sql), as a foreign key would be.
+  core_customers_unit_ids_fkey: { field: 'unitIds', message: 'No such unit' },
+  core_companies_unit_ids_fkey: { field: 'unitIds', message: 'No such unit' },
   core_customers_lead_stage_id_fkey: { field: 'leadStageId', message: 'No such lead stage' },
   core_companies_lead_stage_id_fkey: { field: 'leadStageId', message: 'No such lead stage' },
   core_fields_group_id_fkey: { field: 'groupId', message: 'No such field group' },
@@ -129,13 +132,18 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
 export const fromDatabase = (error: unknown) => {
   const pg = databaseError(error);
 
-  // Row level security refused a key's new row: its contact limits (core_api_key_rows).
+  // Row level security refused a row the write would leave outside the caller's limits
+  // (`core_reach`): a key's contact limits, or the reach of a member's role.
   const who = caller();
 
   if (pg?.code === '42501' && who.type === 'user' && who.key) {
     return fail('KEY_NOT_ALLOWED', "This key can't write a contact outside its limits", {
       rule: 'rows',
     });
+  }
+
+  if (pg?.code === '42501' && who.type === 'user' && who.reach.level !== 'organization') {
+    return fail('OUTSIDE_REACH', 'This would put the record outside your reach');
   }
 
   const known = pg?.constraint ? CONSTRAINTS[pg.constraint] : undefined;

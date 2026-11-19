@@ -81,6 +81,44 @@ export const textArray = (values: string[]) =>
 /** A LIKE pattern's text, where `%`, `_` and `\` match themselves. */
 export const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
+/** What `withinReach` reads of a member: `PluginMember` has it. */
+export interface MemberReach {
+  userId: string;
+  reach: 'organization' | 'subtree' | 'unit' | 'own';
+  unitIds: string[];
+}
+
+/**
+ * The condition that keeps a plugin's rows inside a member's reach, or undefined for a member
+ * who reaches the whole organisation. A row names the unit it belongs to and the member who
+ * owns it:
+ *
+ *   .where(and(filters, withinReach(member, {
+ *     unitId: tickets.unitId,
+ *     unitPath: sql`(select path from ${units} where ${units.id} = ${tickets.unitId})`,
+ *     ownerId: tickets.assigneeId,
+ *   })))
+ *
+ * `unitPath` is the unit's `path` in the plugin's copy of the structure (`/<top>/…/<id>/`):
+ * a unit is under another when its path holds that unit's id. A manifest permission marked
+ * `followsReach` promises every read and change behind it carries this condition.
+ */
+export const withinReach = (
+  member: MemberReach,
+  row: { unitId: SQL | Column; unitPath: SQL | Column; ownerId: SQL | Column },
+): SQL | undefined => {
+  switch (member.reach) {
+    case 'organization':
+      return undefined;
+    case 'subtree':
+      return sql`${row.unitPath} like any(${textArray(member.unitIds.map((id) => `%/${escapeLike(id)}/%`))})`;
+    case 'unit':
+      return sql`${row.unitId} = any(${textArray(member.unitIds)})`;
+    case 'own':
+      return sql`${row.ownerId} = ${member.userId}`;
+  }
+};
+
 export const text = (value: unknown) => {
   if (typeof value !== 'string' && typeof value !== 'number')
     throw invalidFilter('A text value is needed');

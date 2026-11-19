@@ -6,6 +6,7 @@ import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { linkColumns, linkOrder } from '~/modules/customers/customerLinks';
+import { inUnit } from '~/modules/reach/reach';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { findCompany, selectCompanies } from './companyRows';
@@ -15,6 +16,8 @@ interface CompanyQuery {
   state?: (typeof CUSTOMER_STATES)[number];
   leadStageId?: string;
   ownerId?: string;
+  /** In this unit or a unit under it. */
+  unitId?: string;
   tagIds?: string[];
   customerId?: string;
   ids?: string[];
@@ -58,6 +61,7 @@ export const companyListWhere = async (client: Db, query: CompanyQuery) => {
     query.state ? eq(companies.state, query.state) : undefined,
     query.leadStageId ? eq(companies.leadStageId, query.leadStageId) : undefined,
     query.ownerId ? eq(companies.ownerId, query.ownerId) : undefined,
+    query.unitId ? inUnit(companies.visibleTo, query.unitId) : undefined,
     query.tagIds?.length ? hasAnyTag('company', companies.id, query.tagIds) : undefined,
     query.customerId ? linkedTo(client, query.customerId) : undefined,
     query.ids ? inArray(companies.id, query.ids.length ? query.ids : ['']) : undefined,

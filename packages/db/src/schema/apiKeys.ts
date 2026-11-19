@@ -25,7 +25,7 @@ export type ApiKeyActions = Record<string, string[]>;
  * The organisation's API keys, for scripts and other systems. `userId` is the member
  * who made it. A `member` key acts as that member with their role now. A `regular` or
  * `management` key works by its rules: the areas it opens, the contacts it sees (the
- * maker's own, those of members in `unitIds`, those with one of `tagIds`), the addresses
+ * maker's own, those in `unitIds` or a unit under them, those with one of `tagIds`), the addresses
  * it may call from, and never more than `permissions`, the maker's when it was made, and
  * what the maker's role allows now, even after the maker stops signing in. The key reads `erxes_<id>.<secret>`; only the secret's
  * SHA-256 is stored.
@@ -46,7 +46,7 @@ export const apiKeys = pgTable(
     actions: jsonb().$type<ApiKeyActions>().default({}).notNull(),
     /** Only contacts the maker owns. */
     ownRecords: boolean().default(false).notNull(),
-    /** Only contacts owned by members of these units, or units under them. */
+    /** Only contacts in these units, or units under them. */
     unitIds: text()
       .array()
       .default(sql`'{}'::text[]`)

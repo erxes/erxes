@@ -6,6 +6,7 @@ import {
   PluginTier,
   PluginTransferRequest,
   RecordAccessCheck,
+  RoleReach,
 } from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
@@ -20,6 +21,16 @@ export interface PluginMember {
   permissions: string[];
   /** `member.can('hr.leave.approve')` */
   can(action: string): boolean;
+  /**
+   * How far the member's role reaches: `organization` (everything), `subtree` (their units
+   * and every unit under them), `unit` (their units alone) or `own` (what they own). A member
+   * who reaches less than the organisation holds only the actions the manifest marks
+   * `followsReach`, and each of those must keep what it reads and changes inside the reach:
+   * `withinReach(member, …)` from `@erxes/plugin-sdk/filter` is that condition.
+   */
+  reach: RoleReach;
+  /** The units the member is in: where their reach is measured from. */
+  unitIds: string[];
   /**
    * The plugin's tier in this organisation on erxes.io (`free`, `plus`,
    * `pro`): gate paid features with it. Self-hosted: `pro`.
@@ -120,6 +131,8 @@ const member = (claims: {
   org: string;
   role: string;
   permissions: string[];
+  reach?: RoleReach;
+  units?: string[];
   tier: PluginMember['tier'];
   access: PluginMember['access'];
 }): PluginMember => ({
@@ -128,16 +141,25 @@ const member = (claims: {
   role: claims.role,
   permissions: claims.permissions,
   can: (action) => claims.role === 'owner' || claims.permissions.includes(action),
+  reach: claims.reach ?? 'organization',
+  unitIds: claims.units ?? [],
   tier: claims.tier,
   access: claims.access,
   canChange: () => claims.access === 'full' || claims.access === 'warning',
 });
+
+// A core from before roles had a reach signs neither: every role reached the organisation.
+const ReachClaims = {
+  reach: RoleReach.optional(),
+  units: z.array(z.string()).optional(),
+};
 
 const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
+  ...ReachClaims,
   // Core signs both (self-hosted: `pro` and `full`); null means no plan.
   tier: Tier,
   access: PluginAccess,
@@ -221,6 +243,7 @@ const AccessTokenClaims = z.object({
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
+  ...ReachClaims,
   // Core doesn't sign these into access tokens, so they read as no plan and
   // no access: ask core (`saas.pluginPlan`) when the plan matters.
   tier: Tier.default(null),

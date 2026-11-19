@@ -3,6 +3,7 @@ import { and, count, eq, ne } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { lockOrganization } from '~/lib/locks';
+import { permissionsWithinReach, unitIdsOf, userInReach } from '~/modules/reach/reach';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -31,7 +32,12 @@ export const lockTeam = async <T>(tx: Db, fn: () => Promise<T>) => {
   const me = caller('user');
 
   const [row] = await tx
-    .select({ role: users.role, status: users.status, permissions: roles.permissions })
+    .select({
+      role: users.role,
+      status: users.status,
+      permissions: permissionsWithinReach,
+      level: roles.reach,
+    })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .where(eq(users.id, me.userId))
@@ -41,11 +47,18 @@ export const lockTeam = async <T>(tx: Db, fn: () => Promise<T>) => {
     throw fail('UNAUTHORIZED', 'Sign in to continue');
   }
 
-  return runAs({ ...me, role: row.role, permissions: row.permissions }, fn);
+  const reach = { level: row.level, unitIds: await unitIdsOf(tx, me.userId) };
+
+  return runAs({ ...me, role: row.role, permissions: row.permissions, reach }, fn);
 };
 
+/** The team member, when within the caller's reach: 404 otherwise. */
 export const findUser = async (client: Db, id: string, lock = false) => {
-  const query = client.select().from(users).where(eq(users.id, id)).limit(1);
+  const query = client
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), userInReach(users.id)))
+    .limit(1);
 
   const [row] = lock ? await query.for('update') : await query;
 

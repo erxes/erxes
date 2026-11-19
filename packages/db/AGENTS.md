@@ -19,7 +19,8 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
   rolls back only `fn` when it throws, for errors the caller handles.
 - `src/scope.ts` holds the scope a request or job runs in: its `Caller` (a member, plugin,
   customer or `system`), its organisation and its transaction. `caller()` reads who is calling
-  (`system` outside a request), `runAs(who, fn)` acts as someone else in the same transaction, and
+  (`system` outside a request), `runAs(who, fn)` acts as someone else in the same transaction
+  (await it: it applies their reach and key limits to the rows they see until `fn` returns), and
   `actorOf(caller)` gives the `actor_type`/`actor_id` a record of the change stores.
 - A table with an organisation's data has `org_id` with a cascading foreign key to
   `core_organizations`, indexes that lead with `org_id`, and row level security in its migration:

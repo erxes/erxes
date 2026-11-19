@@ -15,6 +15,9 @@ export const ERRORS = {
   // Who may call (http/access.ts) and the organisation's standing.
   UNAUTHORIZED: { status: 401 },
   NOT_ALLOWED: { status: 403, data: z.object({ permission: z.string() }).optional() },
+  // The member's role reaches less than the organisation, and the write would leave its reach:
+  // a record put in a unit or given an owner they don't reach.
+  OUTSIDE_REACH: { status: 403 },
   // An API key's rules refuse the call; `rule` names the one that decided.
   KEY_NOT_ALLOWED: { status: 403, data: z.object({ rule: z.string() }) },
   PLUGIN_ONLY: { status: 403 },
@@ -128,7 +131,7 @@ export const ERRORS = {
 
   UNIT_NOT_EMPTY: {
     status: 409,
-    data: z.object({ children: z.int(), members: z.int(), keys: z.int() }),
+    data: z.object({ children: z.int(), members: z.int(), keys: z.int(), records: z.int() }),
   },
   /** Units still have the type: move them to another first. */
   UNIT_TYPE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
@@ -212,6 +215,8 @@ export const ERRORS = {
   DUPLICATE_PERMISSION_SET: { status: 400 },
   OWNER_ONLY_PERMISSION: { status: 400, data: Permissions },
   BEYOND_OWN_PERMISSIONS: { status: 403, data: Permissions.optional() },
+  /** These work across the whole organisation: a role that reaches less can't hold them. */
+  WHOLE_ORGANIZATION_ONLY: { status: 400, data: Permissions },
   ROLE_NOT_FOUND: { status: 404 },
   FIXED_ROLE: { status: 403 },
   BUILTIN_ROLE: { status: 403 },
@@ -258,6 +263,7 @@ export type ErrorCode = keyof typeof ERRORS;
 const {
   UNAUTHORIZED,
   NOT_ALLOWED,
+  OUTSIDE_REACH,
   KEY_NOT_ALLOWED,
   PLUGIN_ONLY,
   MEMBERS_ONLY,
@@ -281,6 +287,7 @@ const {
 export const COMMON_ERRORS = {
   UNAUTHORIZED,
   NOT_ALLOWED,
+  OUTSIDE_REACH,
   KEY_NOT_ALLOWED,
   PLUGIN_ONLY,
   MEMBERS_ONLY,

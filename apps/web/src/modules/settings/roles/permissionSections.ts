@@ -1,4 +1,4 @@
-import type { PermissionInfo, PermissionSet } from '@erxes/core-contract';
+import type { PermissionInfo, PermissionSet, RoleReach } from '@erxes/core-contract';
 
 /** One area inside a source (`Contacts`, `Tickets`) and its permissions. */
 export type PermissionGroup = { name: string; permissions: PermissionInfo[] };
@@ -85,6 +85,19 @@ export const filterSections = (
     return groups.length || sets.length ? [{ ...section, groups, sets }] : [];
   });
 };
+
+/**
+ * The actions a role with this reach can't hold: those that work across the whole organisation
+ * (settings, the audit log, tags), for a role that reaches less than all of it.
+ */
+export const outsideReach = (catalog: PermissionInfo[], reach: RoleReach) =>
+  new Set(
+    reach === 'organization'
+      ? []
+      : catalog
+          .filter((permission) => !permission.followsReach)
+          .map((permission) => permission.action),
+  );
 
 /** How many of the actions the role has. */
 export const countGranted = (actions: string[], granted: Set<string>) =>

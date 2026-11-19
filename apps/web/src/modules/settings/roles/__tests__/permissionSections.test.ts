@@ -1,6 +1,6 @@
 import type { PermissionInfo } from '@erxes/core-contract';
 import { describe, expect, it } from 'vite-plus/test';
-import { filterSections, sectionsOf } from '../permissionSections';
+import { filterSections, outsideReach, sectionsOf } from '../permissionSections';
 
 const permission = (action: string, group: string, source = 'core'): PermissionInfo => ({
   action,
@@ -9,6 +9,7 @@ const permission = (action: string, group: string, source = 'core'): PermissionI
   description: null,
   source,
   ownerOnly: false,
+  followsReach: false,
 });
 
 const catalog = [
@@ -73,5 +74,26 @@ describe('filterSections', () => {
     expect(filterSections(sections, '', 'granted', granted).every((s) => !s.sets.length)).toBe(
       true,
     );
+  });
+});
+
+describe('outsideReach', () => {
+  const mixed = [
+    { ...permission('contacts.view', 'Contacts'), followsReach: true },
+    permission('settings.manage', 'Settings'),
+    { ...permission('tickets.view', 'Tickets', 'frontline'), followsReach: true },
+    permission('tickets.settings', 'Tickets', 'frontline'),
+  ];
+
+  it('blocks nothing for a role that reaches the whole organisation', () => {
+    expect(outsideReach(mixed, 'organization').size).toBe(0);
+  });
+
+  it('blocks the actions that work across the organisation for a role that reaches less', () => {
+    const blocked = ['settings.manage', 'tickets.settings'];
+
+    expect([...outsideReach(mixed, 'subtree')]).toEqual(blocked);
+    expect([...outsideReach(mixed, 'unit')]).toEqual(blocked);
+    expect([...outsideReach(mixed, 'own')]).toEqual(blocked);
   });
 });

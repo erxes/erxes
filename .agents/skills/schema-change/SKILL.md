@@ -21,7 +21,11 @@ foreign key to `organizations` and a check constraint.
    row level security appended to the same migration, as `drizzle/0020_auth_tokens.sql` does:
    `ENABLE ROW LEVEL SECURITY`, `FORCE ROW LEVEL SECURITY` and `CREATE POLICY core_tenant ... USING
    (core_tenant_visible(org_id)) WITH CHECK (core_tenant_visible(org_id))`. A table without `org_id`
-   goes into the list in `tools/check-rls.sql` with the reason. Only new migrations change:
+   goes into the list in `tools/check-rls.sql` with the reason. A table of records that belong to
+   part of the structure (customers, companies) also takes `unitIds: unitIdsColumn()` and
+   `visibleTo: visibleToColumn()` with a GIN index on `visible_to`, the `core_set_visible_to`
+   trigger and a restrictive `core_reach` policy, as `drizzle/0090_reach.sql` gives customers, so a
+   role's reach holds for it in every query. Only new migrations change:
    `db:check-applied` fails CI on an edited one. Never run `drizzle-kit push`.
 5. Run `vp run check`. The contract builds its schemas from the tables, so a renamed or retyped
    column fails the type check where the contract, the services and web still use the old one;

@@ -14,6 +14,7 @@ import { inOrder } from '~/lib/sequence';
 import { companyListWhere } from '~/modules/companies/companyList';
 import { customerListWhere } from '~/modules/customers/customerList';
 import { productSearch } from '~/modules/products/productList';
+import { userInReach } from '~/modules/reach/reach';
 import { reachable } from '~/modules/units/unitRows';
 import { bestMatchFirst, unitsMatching } from '~/modules/units/unitTree';
 import { userSearch } from '~/modules/users/users.service';
@@ -85,7 +86,7 @@ const memberHits: Finder = (client, q, limit) =>
       subtitle: users.email,
     })
     .from(users)
-    .where(userSearch(q))
+    .where(and(userSearch(q), userInReach(users.id)))
     .orderBy(desc(users.createdAt))
     .limit(limit);
 

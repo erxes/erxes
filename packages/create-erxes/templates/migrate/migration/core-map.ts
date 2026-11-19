@@ -209,7 +209,7 @@ export const HELPERS: Record<string, Equivalent> = {
 export const REGISTRATIONS: Record<string, Equivalent> = {
   permission: sdk(
     'manifest.permissions',
-    '<plugin>.<record>.<verb>; own/team/all reach stays in the plugin',
+    '<plugin>.<record>.<verb>; own/team/all becomes the role’s reach: mark the permission followsReach and filter with withinReach(member, …)',
   ),
   notification: sdk('manifest.notificationKinds'),
   'automation trigger': sdk('manifest.events', 'published with core_publish_event()'),

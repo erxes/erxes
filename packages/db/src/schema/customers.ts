@@ -11,7 +11,14 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, orgIdColumn, pgTable } from '../table';
+import {
+  inList,
+  orgIdColumn,
+  pgTable,
+  recordOwnerIdColumn,
+  unitIdsColumn,
+  visibleToColumn,
+} from '../table';
 import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';
@@ -49,7 +56,10 @@ export const customers = pgTable(
     department: text(),
     code: text(),
     description: text(),
-    ownerId: text(),
+    ownerId: recordOwnerIdColumn(),
+    /** The units it is in (`core_org_units`): a member sees it when their reach holds one. */
+    unitIds: unitIdsColumn(),
+    visibleTo: visibleToColumn(),
     /** Where a lead stands (its organisation's lead stages); kept after conversion for reports. */
     leadStageId: text(),
     leadStageChangedAt: timestamp({ withTimezone: true, mode: 'date' }),
@@ -104,6 +114,9 @@ export const customers = pgTable(
       .on(table.orgId, table.birthMonthDay)
       .where(sql`${table.birthMonthDay} IS NOT NULL`),
     index('core_customers_org_owner_idx').on(table.orgId, table.ownerId),
+    // Row level security reads it: a small unit's records in a large table.
+    index('core_customers_visible_to_idx').using('gin', table.visibleTo),
+    check('core_customers_unit_ids_check', sql`cardinality(${table.unitIds}) > 0`),
     index('core_customers_org_lead_stage_idx').on(
       table.orgId,
       table.leadStageId,

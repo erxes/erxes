@@ -1,4 +1,10 @@
-import { coreContract, CORE_API_PREFIX, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
+import {
+  coreContract,
+  CORE_API_PREFIX,
+  CORE_PERMISSIONS,
+  OWNER_ONLY_PERMISSIONS,
+  REACH_PERMISSIONS,
+} from '@erxes/core-contract';
 import { caller, type Caller, type KeyRules, scopedOrgId, withOrgDetached } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -11,19 +17,36 @@ const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 
 type Member = Extract<Caller, { type: 'user' }>;
 
+/** Core's actions that work across the whole organisation: not for a role that reaches less. */
+const WHOLE_ORGANIZATION_ONLY = new Set<string>(
+  CORE_PERMISSIONS.map((permission) => permission.action).filter(
+    (action) => !REACH_PERMISSIONS.includes(action),
+  ),
+);
+
 /**
  * May the member do `action`? Owners may do everything; `*` grants every
- * action except owner-only ones; otherwise the role must list it. The router
- * checks a procedure's permission (`ACCESS`); services call this only for
- * rules that depend on the record (an author's own note, a shared view).
+ * action except owner-only ones; otherwise the role must list it. A role that
+ * reaches less than the organisation holds only what it lists, and none of the
+ * actions that work across all of it (roles refuse those when saved; this holds
+ * whatever a role's row says). The router checks a procedure's permission
+ * (`ACCESS`); services call this only for rules that depend on the record (an
+ * author's own note, a shared view).
  */
-export const can = (member: Pick<Member, 'role' | 'permissions' | 'key'>, action: string) => {
+export const can = (
+  member: Pick<Member, 'role' | 'permissions' | 'key'> & { reach: Pick<Member['reach'], 'level'> },
+  action: string,
+) => {
   // A key's permissions are spelled out (keyCaller): no role, no `*`.
   if (member.key) return member.permissions.includes(action);
 
   if (member.role === 'owner') return true;
 
   if (OWNER_ONLY.has(action)) return false;
+
+  if (member.reach.level !== 'organization') {
+    return member.permissions.includes(action) && !WHOLE_ORGANIZATION_ONLY.has(action);
+  }
 
   return member.permissions.includes('*') || member.permissions.includes(action);
 };
@@ -116,7 +139,7 @@ export const recordKeyDenial = (keyId: string, path: string | null, decision: Ke
  * key" both ask it.
  */
 export const decideKeyCall = (
-  member: Pick<Member, 'role' | 'permissions'> & { key: KeyRules },
+  member: Pick<Member, 'role' | 'permissions' | 'reach'> & { key: KeyRules },
   path: string,
 ): KeyDecision => {
   const decision = decideKey(member.key, path);

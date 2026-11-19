@@ -11,7 +11,8 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { effectivePermissions } from '~/modules/roles/roles.service';
+import { permissionsWithinReach, unitIdsOf } from '~/modules/reach/reach';
+import { effectivePermissions } from '~/modules/roles/permissionCatalog';
 import { assertNotLockedOut, twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
@@ -178,7 +179,8 @@ export const getSession = async (orgId: string, userId: string) =>
       .select({
         user: users,
         organization: organizations,
-        permissions: roles.permissions,
+        permissions: permissionsWithinReach,
+        reach: roles.reach,
         hasPassword: sql<boolean>`${users.passwordHash} is not null`,
       })
       .from(users)
@@ -198,7 +200,11 @@ export const getSession = async (orgId: string, userId: string) =>
       permissions: await effectivePermissions(tx, {
         role: row.user.role,
         permissions: row.permissions,
+        reach: { level: row.reach },
       }),
+      // And where: how far their role reaches, from the units they are in.
+      reach: row.reach,
+      unitIds: await unitIdsOf(tx, userId),
       hasPassword: row.hasPassword,
     };
   });

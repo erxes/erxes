@@ -5,6 +5,7 @@ import { unique } from '~/lib/contacts';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { assertWholeOrganization } from '~/modules/reach/reach';
 import { lower, typeHidden } from './unitRows';
 
 type StoredType = typeof orgUnitTypes.$inferSelect;
@@ -190,6 +191,8 @@ export const createUnitType = async (
   client: Db,
   { allowedParentTypeIds, ...fields }: UnitTypeFields & { name: string },
 ) => {
+  assertWholeOrganization('Unit types');
+
   const parents = await assertParentTypes(client, allowedParentTypeIds);
 
   const row = oneRow(
@@ -205,6 +208,8 @@ export const createUnitType = async (
 };
 
 export const updateUnitType = async (client: Db, id: string, fields: UnitTypeFields) => {
+  assertWholeOrganization('Unit types');
+
   const type = await findType(client, id);
 
   assertOwn(type);
@@ -230,6 +235,8 @@ export const updateUnitType = async (client: Db, id: string, fields: UnitTypeFie
 
 /** Deletes an unused type and drops it from the others' allowed parents. */
 export const removeUnitType = async (client: Db, id: string) => {
+  assertWholeOrganization('Unit types');
+
   const type = await findType(client, id);
 
   assertOwn(type);

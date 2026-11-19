@@ -12,6 +12,7 @@ const role = (key: string, name: string, description: string | null): Role => ({
   name,
   description,
   permissions: [],
+  reach: 'organization',
   builtin: !key.startsWith('r_'),
   editable: key !== 'owner' && key !== 'admin',
   members: 1,

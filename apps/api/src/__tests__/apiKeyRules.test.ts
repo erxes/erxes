@@ -17,7 +17,10 @@ describe('API key rules', () => {
   const t = useTwoOrgs();
   const ids = { north: '', south: '', northCustomer: '', southCustomer: '', role: '' };
 
-  /** A North and a South branch; the member is in North, the owner in South, one customer each. */
+  /**
+   * A North and a South branch; the member is in North, the owner in South, one customer each:
+   * the owner puts Nora in North, and Sam starts where the owner sits.
+   */
   beforeAll(async () => {
     const owner = t.owner();
     const north = await owner.units.create({ name: 'North' });
@@ -29,6 +32,7 @@ describe('API key rules', () => {
     const northCustomer = await owner.customers.create({
       firstName: 'Nora',
       ownerId: t.ids.member,
+      unitIds: [north.id],
     });
 
     const southCustomer = await owner.customers.create({ firstName: 'Sam', ownerId: t.ids.owner });
@@ -148,9 +152,10 @@ describe('API key rules', () => {
       (await client.search.global({ q: 'Sam' })).data.filter((hit) => hit.type === 'customer'),
     ).toEqual([]);
 
-    // A contact it writes stays in its branch.
+    // A contact it writes starts in its branch, and can't be put in another.
+    expect((await client.customers.create({ firstName: 'In' })).unitIds).toEqual([ids.north]);
     await expect(
-      client.customers.create({ firstName: 'Out', ownerId: t.ids.owner }),
+      client.customers.create({ firstName: 'Out', unitIds: [ids.south] }),
     ).rejects.toMatchObject({ code: 'KEY_NOT_ALLOWED', data: { rule: 'rows' } });
 
     expect(

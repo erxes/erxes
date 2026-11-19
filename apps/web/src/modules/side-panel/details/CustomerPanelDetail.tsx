@@ -25,6 +25,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseISO } from 'date-fns';
 import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
+import { ContactUnitsField } from '~/modules/contacts/components/ContactUnitsField';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
@@ -203,6 +204,10 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             scope={`${SCOPE}.owner`}
             ownerId={customer.ownerId}
             onChange={(ownerId) => edit.mutate({ id: customer.id, ownerId })}
+          />
+          <ContactUnitsField
+            unitIds={customer.unitIds}
+            onChange={(unitIds) => edit.mutate({ id: customer.id, unitIds })}
           />
           <CustomerTextRow customer={customer} code="code" label={addT('code', 'Code')} />
           <LeadStageField recordType="customer" record={customer} />

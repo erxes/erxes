@@ -168,6 +168,11 @@
   "type-customer": "Харилцагч",
   "type-company": "Компани",
   "email": "И-мэйл",
+  "units": {
+    "label": "Нэгжүүд",
+    "choose": "Нэгж сонгох",
+    "elsewhere": "Таны хүрээнээс гадуур өөр {{count}} нэгж"
+  },
   "transfer": {
     "upload-failed": "Импорт эхлүүлж чадсангүй",
     "import": "Импорт",

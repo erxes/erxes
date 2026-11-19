@@ -4,6 +4,7 @@ import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
+import { inUnit } from '~/modules/reach/reach';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { type CustomerRow, selectCustomers } from './customerRows';
@@ -12,6 +13,8 @@ interface CustomerQuery {
   search?: string;
   state?: CustomerRow['state'];
   ownerId?: string;
+  /** In this unit or a unit under it. */
+  unitId?: string;
   tagIds?: string[];
   companyId?: string;
   leadStageId?: string;
@@ -45,6 +48,7 @@ export const customerListWhere = async (client: Db, query: CustomerQuery) => {
     await compileRecordFilter(client, query.state === 'lead' ? 'lead' : 'customer', query.filter),
     query.state ? eq(customers.state, query.state) : undefined,
     query.ownerId ? eq(customers.ownerId, query.ownerId) : undefined,
+    query.unitId ? inUnit(customers.visibleTo, query.unitId) : undefined,
     query.leadStageId ? eq(customers.leadStageId, query.leadStageId) : undefined,
     query.tagIds?.length ? hasAnyTag('customer', customers.id, query.tagIds) : undefined,
     query.companyId ? linkedTo(client, query.companyId) : undefined,

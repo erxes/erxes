@@ -1,4 +1,4 @@
-import { auditLogs, type Caller, caller, db, users } from '@erxes/core-db';
+import { auditLogs, type Caller, caller, db, NO_REACH, users } from '@erxes/core-db';
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -6,14 +6,15 @@ import { hashPassword, verifyPassword } from '~/lib/crypto';
 
 /**
  * The member a sign-in flow found, as the caller of what it records for them
- * (`runAs(asMember(user), ...)`). They hold no permissions until the session
- * they get at the end of the flow.
+ * (`runAs(asMember(user), ...)`). They hold no permissions and reach only
+ * their own records until the session they get at the end of the flow.
  */
 export const asMember = (user: { id: string; role: string }): Caller => ({
   type: 'user',
   userId: user.id,
   role: user.role,
   permissions: [],
+  reach: NO_REACH,
 });
 
 /**

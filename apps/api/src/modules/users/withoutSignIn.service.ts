@@ -6,6 +6,7 @@ import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
+import { placeWithCaller } from '~/modules/units/units.service';
 import { profileChanges, type UserChanges } from './userProfile';
 import { findUser, type UserRow } from './userRows';
 
@@ -40,6 +41,7 @@ export const addMember = async (
       .returning(),
   );
 
+  await placeWithCaller(client, [row.id]);
   await recordAudit(client, {
     action: 'user.added',
     targetType: 'user',

@@ -26,6 +26,7 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
+import { unitsAfterChange, unitsForNew } from '~/modules/reach/reach';
 import { type CompanyRow, findCompany, inOrg } from './companyRows';
 
 export const getCompany = (client: Db, id: string) => findCompany(client, id, true);
@@ -67,6 +68,7 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
   if (!primaryName) throw nameRequired();
 
   const tagIds = await checkTagIds(client, 'company', input.tagIds ?? []);
+  const unitIds = await unitsForNew(client, input.unitIds);
 
   const customFields = await applyCustomFields(client, 'company', {}, input.customFields);
 
@@ -81,6 +83,7 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
         .insert(companies)
         .values({
           ...scalarFields(input),
+          unitIds,
           id: newId(),
           primaryName,
           names: name.list,
@@ -155,7 +158,9 @@ export const updateCompany = async (client: Db, id: string, input: CompanyInput)
 
   const current = await findCompany(client, id);
 
-  await assertOwner(client, input.ownerId);
+  await assertOwner(client, input.ownerId, current.ownerId);
+
+  const unitIds = input.unitIds && (await unitsAfterChange(client, current.unitIds, input.unitIds));
 
   const tagIds =
     input.tagIds === undefined ? undefined : await checkTagIds(client, 'company', input.tagIds);
@@ -172,7 +177,7 @@ export const updateCompany = async (client: Db, id: string, input: CompanyInput)
   await savepoint(async (tx) => {
     const updated = await tx
       .update(companies)
-      .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
+      .set({ ...scalarFields(input), ...changes, ...lead.set, unitIds, updatedAt: sql`now()` })
       .where(inOrg(id))
       .returning({ id: companies.id });
 
