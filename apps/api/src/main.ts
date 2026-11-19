@@ -6,6 +6,7 @@ import { config } from '~/config';
 import { startDraining } from '~/lib/lifecycle';
 import { loadSigningKeys } from '~/lib/signing';
 import { closeAgents } from '~/modules/agents/host';
+import { recoverAgents } from '~/modules/agents/recovery';
 import { startJobs, stopJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { liveHub } from '~/modules/live/hub';
@@ -53,6 +54,11 @@ const start = async () => {
   });
 
   liveHub.start();
+
+  // createApp registered the agents: what this server ran before a restart goes on now.
+  recoverAgents().catch((error: unknown) => {
+    log.error({ err: error }, 'could not resume unfinished agent runs');
+  });
 
   server.keepAliveTimeout = 120_000;
   server.headersTimeout = 121_000;

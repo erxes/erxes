@@ -94,6 +94,14 @@ const Live = z.object({
   runFailure: z.object({ reason: z.string(), detail: z.string().optional() }).optional(),
 });
 
+type RunFailure = NonNullable<z.infer<typeof Live>['runFailure']>;
+
+/** What the panel says about a run that ended without an answer; `turn_limit`'s detail is `N turns`. */
+const failureText = ({ reason, detail }: RunFailure) =>
+  reason === 'turn_limit'
+    ? `Stopped after ${detail ?? 'too many turns'}, the most one reply may take. Send a message to go on.`
+    : (detail ?? reason);
+
 export type StepStatus = 'running' | 'done' | 'failed';
 
 export interface Step {
@@ -331,7 +339,7 @@ export const transcriptOf = (view: ViewLike) => {
         ? ('question' as const)
         : null,
     changed: changedRecords(last),
-    failure: failure && failure.reason !== 'aborted' ? (failure.detail ?? failure.reason) : null,
+    failure: failure && failure.reason !== 'aborted' ? failureText(failure) : null,
   };
 };
 
