@@ -54,7 +54,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      The manifest's `search` (`PluginSearchSource`: `label`, `path`) adds groups to global search:
      web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
      expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
-     `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`;
+     `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`.
+     The assistant offers the routes of the `member` document in the manifest's `api.docs`
+     (`apps/api/src/modules/assistant/tools/pluginDocument.ts`): core reads `<api.url><path>`,
+     names each route `<plugin>:<operationId>` and calls it under the document's server, on
+     `api.url`'s origin, with the member's session token and no step in between. After a call
+     to a route that is not a GET, web reads the page's data again, and a route whose input
+     or answer names a credential is never offered. A route's `operationId`, method and path
+     are the contract;
    - import and export (`packages/contract/src/pluginTransfer.ts`,
      `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
      types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and

@@ -154,12 +154,6 @@ export interface StoredPluginManifest {
   }[];
   assistant?: {
     skills: { name: string; description: string; instructions: string }[];
-    operations: {
-      name: string;
-      summary: string;
-      changes: boolean;
-      input?: Record<string, unknown>;
-    }[];
   };
 }
 

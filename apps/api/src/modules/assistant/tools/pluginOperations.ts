@@ -1,11 +1,11 @@
 import { withOrg } from '@erxes/core-db';
-import { RPCLink } from '@orpc/client/fetch';
+import { StandardBracketNotationSerializer } from '@orpc/openapi-client/standard';
 import { ORPCError } from '@orpc/server';
-import { outboundFetch } from '~/lib/outbound';
+import { z } from 'zod';
+import { type OutboundAnswer, requestOutbound } from '~/lib/outbound';
 import { logger } from '~/logger';
 import { pluginSession } from '~/modules/plugins/installations.service';
-import type { InstalledPlugin } from '../plugins';
-import { type ApiProcedure, carriesCredentials, isCredentialName } from './apiCatalog';
+import type { PluginProcedure } from './pluginDocument';
 import { bounded, describeError, refusal } from './results';
 
 const PLUGIN_TIMEOUT_MS = 30_000;
@@ -14,58 +14,102 @@ const PLUGIN_MAX_BYTES = 1_000_000;
 
 const log = logger.child({ component: 'assistant' });
 
-export interface PluginProcedure extends ApiProcedure {
-  plugin: string;
-  apiUrl: string;
-  operation: string;
-}
+const serializer = new StandardBracketNotationSerializer();
 
-export const pluginProcedures = (plugins: InstalledPlugin[]): PluginProcedure[] =>
-  plugins.flatMap(({ name: plugin, apiUrl, operations }) =>
-    apiUrl
-      ? operations.map((operation) => {
-          const method = operation.changes ? 'POST' : 'GET';
+const Failure = z.object({
+  code: z.string().optional(),
+  message: z.string().optional(),
+  data: z.object({ issues: z.array(z.unknown()) }).optional(),
+});
 
-          return {
-            name: `${plugin}:${operation.name}`,
-            method,
-            path: `${plugin} ${operation.name.replaceAll('.', ' ')}`,
-            summary: operation.summary,
-            input: operation.input ?? { type: 'object' },
-            changes: operation.changes,
-            denied:
-              carriesCredentials([operation.input]) ||
-              operation.name.split('.').some(isCredentialName),
-            plugin,
-            apiUrl,
-            operation: operation.name,
-          };
-        })
-      : [],
+const isPathValue = (value: unknown): value is string | number =>
+  (typeof value === 'string' && value !== '' && value !== '.' && value !== '..') ||
+  typeof value === 'number';
+
+const requestFor = (entry: PluginProcedure, input: Record<string, unknown>) => {
+  const missing = entry.pathNames.filter((name) => !isPathValue(input[name]));
+
+  if (missing.length > 0) {
+    return refusal('INVALID_INPUT', `${entry.name} needs ${missing.join(', ')} in its input`);
+  }
+
+  const path = entry.pathNames.reduce(
+    (filled, name) => filled.replace(`{${name}}`, encodeURIComponent(String(input[name]))),
+    entry.path,
   );
+
+  const rest = Object.entries(input).filter(([name]) => !entry.pathNames.includes(name));
+
+  const inQuery = ([name]: [string, unknown]) =>
+    !entry.sendsBody || entry.queryNames.includes(name);
+
+  const query = new URLSearchParams(
+    serializer
+      .serialize(Object.fromEntries(rest.filter(inQuery)))
+      .map(([name, value]) => [name, String(value)]),
+  ).toString();
+
+  return {
+    ok: true as const,
+    url: `${entry.url}${path}${query ? `?${query}` : ''}`,
+    body: entry.sendsBody
+      ? JSON.stringify(Object.fromEntries(rest.filter((item) => !inQuery(item))))
+      : '',
+  };
+};
+
+const jsonOf = (text: string): unknown => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text === '' ? null : text;
+  }
+};
+
+const resultOf = (entry: PluginProcedure, answer: OutboundAnswer) => {
+  const json = jsonOf(answer.body.toString());
+
+  if (answer.status >= 200 && answer.status < 300) return bounded(json);
+
+  const failure = Failure.safeParse(json).data;
+
+  return refusal(
+    failure?.code ?? 'ERROR',
+    failure?.message ?? `The ${entry.plugin} plugin answered ${answer.status}`,
+    { status: answer.status, ...(failure?.data ? { issues: failure.data.issues } : {}) },
+  );
+};
 
 export const callPluginProcedure = async (
   orgId: string,
   entry: PluginProcedure,
   input: Record<string, unknown>,
 ) => {
+  const request = requestFor(entry, input);
+
+  if (!request.ok) return request;
+
   try {
     const session = await withOrg(orgId, () => pluginSession(entry.plugin));
 
-    const link = new RPCLink({
-      url: `${entry.apiUrl.replace(/\/+$/, '')}/rpc`,
-      headers: { authorization: `Bearer ${session.token}` },
-      fetch: outboundFetch({ timeoutMs: PLUGIN_TIMEOUT_MS, maxBytes: PLUGIN_MAX_BYTES }),
+    const answer = await requestOutbound(request.url, {
+      method: entry.method,
+      body: request.body,
+      headers: {
+        accept: 'application/json',
+        authorization: `Bearer ${session.token}`,
+        ...(entry.sendsBody ? { 'content-type': 'application/json' } : {}),
+      },
+      timeoutMs: PLUGIN_TIMEOUT_MS,
+      maxBytes: PLUGIN_MAX_BYTES,
+      overflow: 'fail',
     });
 
-    return bounded(await link.call(entry.operation.split('.'), input, { context: {} }));
+    return resultOf(entry, answer);
   } catch (error) {
     if (error instanceof ORPCError) return describeError(error);
 
-    log.warn(
-      { err: error, plugin: entry.plugin, operation: entry.operation },
-      'plugin call failed',
-    );
+    log.warn({ err: error, plugin: entry.plugin, procedure: entry.name }, 'plugin call failed');
 
     return refusal('PLUGIN_UNAVAILABLE', `The ${entry.plugin} plugin did not answer`);
   }

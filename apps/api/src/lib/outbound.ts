@@ -185,29 +185,3 @@ export const postOutbound = async (
     ms: answer.ms,
   };
 };
-
-const headersOf = (incoming: IncomingHttpHeaders) => {
-  const headers = new Headers();
-
-  for (const [name, value] of Object.entries(incoming)) {
-    for (const item of [value ?? []].flat()) headers.append(name, item);
-  }
-
-  return headers;
-};
-
-export const outboundFetch =
-  (options: { timeoutMs: number; maxBytes: number }) => async (request: Request) => {
-    const answer = await requestOutbound(request.url, {
-      method: request.method,
-      body: await request.text(),
-      headers: Object.fromEntries(request.headers),
-      ...options,
-      overflow: 'fail',
-    });
-
-    return new Response(answer.status === 204 ? null : new Uint8Array(answer.body), {
-      status: answer.status,
-      headers: headersOf(answer.headers),
-    });
-  };
