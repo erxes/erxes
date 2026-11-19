@@ -42,6 +42,18 @@ const amounts = (name: string): (string | null)[] =>
     .getAllByRole('cell')
     .slice(2)
     .map((cell) => cell.textContent);
+const excelIndents = (
+  sheet: ReturnType<typeof buildReportWorkbook>['worksheets'][number],
+): Map<unknown, number | undefined> => {
+  const indents = new Map<unknown, number | undefined>();
+  sheet.eachRow((sheetRow) =>
+    indents.set(
+      sheetRow.getCell(2).value,
+      sheetRow.getCell(2).alignment?.indent,
+    ),
+  );
+  return indents;
+};
 const formatted = (value: number): string =>
   value.toLocaleString(undefined, {
     minimumFractionDigits: 1,
@@ -161,7 +173,7 @@ test('amount columns keep their share as a report grows from four to twelve colu
   ).toBeCloseTo(100);
 });
 
-test('a mistyped indent of a billion levels still opens the preview and keeps the row name inside its Excel column', () => {
+test('a mistyped indent of a billion levels still opens the preview and the Excel sheet widens the name column instead of hiding the name', () => {
   const report = balanceSheet(['Эцсийн үлдэгдэл']);
   report.sections[0].rows[1].tabCount = 1_000_000_000;
   render(<ReportPaper values={report} />);
@@ -176,10 +188,29 @@ test('a mistyped indent of a billion levels still opens the preview and keeps th
     settings: defaultReportRunSettings(),
     labels: { number: '№', name: 'Үзүүлэлт' },
   }).worksheets[0];
-  let excelIndent: number | undefined;
-  sheet.eachRow((sheetRow) => {
-    if (sheetRow.getCell(2).value === 'Дансны авлага')
-      excelIndent = sheetRow.getCell(2).alignment.indent;
-  });
-  expect(excelIndent).toBe(12);
+  expect(excelIndents(sheet).get('Дансны авлага')).toBe(20);
+  expect(sheet.getColumn(2).width).toBe(116);
+});
+
+test('deeply nested rows keep their own level in Excel and a flat report keeps the usual name column', () => {
+  const nested = balanceSheet(['Эцсийн үлдэгдэл']);
+  nested.sections[0].rows[0].tabCount = 6;
+  nested.sections[0].rows[1].tabCount = 7;
+  const input = {
+    cells: [],
+    settings: defaultReportRunSettings(),
+    labels: { number: '№', name: 'Үзүүлэлт' },
+  };
+  const sheet = buildReportWorkbook({ ...input, values: nested }).worksheets[0];
+  const indents = excelIndents(sheet);
+  expect(indents.get('Мөнгө ба түүнтэй адилтгах хөрөнгө')).toBe(6);
+  expect(indents.get('Дансны авлага')).toBe(7);
+  expect(indents.get('Нийт хөрөнгө')).toBe(0);
+  expect(sheet.getColumn(2).width).toBe(77);
+  const flat = balanceSheet(['Эцсийн үлдэгдэл']);
+  flat.sections[0].rows[1].tabCount = 0;
+  expect(
+    buildReportWorkbook({ ...input, values: flat }).worksheets[0].getColumn(2)
+      .width,
+  ).toBe(56);
 });

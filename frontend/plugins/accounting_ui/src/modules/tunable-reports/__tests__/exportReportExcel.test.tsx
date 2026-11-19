@@ -120,7 +120,7 @@ test('an accountant gets the printed report as a sheet: titles, period, amounts 
   const revenue = findRow(sheet, 'Борлуулалтын орлого');
   expect(revenue.getCell(4).numFmt).toBe('#,##0.00');
   const tours = findRow(sheet, 'Аяллын орлого');
-  expect(tours.getCell(2).alignment.indent).toBe(4);
+  expect(tours.getCell(2).alignment.indent).toBe(2);
   expect(tours.getCell(2).font.italic).toBe(true);
   const profit = findRow(sheet, 'Нийт ашиг');
   expect(profit.getCell(4).font).toMatchObject({ bold: true, underline: true });

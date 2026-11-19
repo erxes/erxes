@@ -34,7 +34,7 @@ const NAME_COLUMN_WIDTH = 56;
 const VALUE_COLUMN_WIDTH = 20;
 const FONT_SIZE = 11;
 const LINE_HEIGHT = 15;
-const MAX_NAME_INDENT = 12;
+const INDENT_WIDTH = 3;
 const BORDER: Partial<ExcelJS.Borders> = {
   top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
   left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -61,6 +61,15 @@ export const buildReportWorkbook = ({
       columns: section.columns.filter((column) => column.isActive),
       rows: section.rows.filter((row) => row.isActive),
     }));
+  const nameWidth =
+    NAME_COLUMN_WIDTH +
+    INDENT_WIDTH *
+      Math.max(
+        0,
+        ...sections.flatMap((section) =>
+          section.rows.map((row) => reportRowIndent(row.tabCount)),
+        ),
+      );
   const columnCount =
     2 + Math.max(0, ...sections.map((section) => section.columns.length));
   const cellValues = new Map(
@@ -90,14 +99,12 @@ export const buildReportWorkbook = ({
     },
   );
   worksheet.getColumn(1).width = NUMBER_COLUMN_WIDTH;
-  worksheet.getColumn(2).width = NAME_COLUMN_WIDTH;
+  worksheet.getColumn(2).width = nameWidth;
   for (let column = 3; column <= columnCount; column += 1)
     worksheet.getColumn(column).width = VALUE_COLUMN_WIDTH;
 
   const textWidth =
-    NUMBER_COLUMN_WIDTH +
-    NAME_COLUMN_WIDTH +
-    (columnCount - 2) * VALUE_COLUMN_WIDTH;
+    NUMBER_COLUMN_WIDTH + nameWidth + (columnCount - 2) * VALUE_COLUMN_WIDTH;
 
   let line = 0;
   const addText = (text: string, font?: Partial<ExcelJS.Font>) => {
@@ -158,7 +165,7 @@ export const buildReportWorkbook = ({
       nameCell.alignment = {
         wrapText: true,
         vertical: 'top',
-        indent: Math.min(reportRowIndent(row.tabCount) * 2, MAX_NAME_INDENT),
+        indent: reportRowIndent(row.tabCount),
       };
       const valueCells = section.columns.map((column, index) => {
         const cell = worksheet.getCell(line, index + 3);
