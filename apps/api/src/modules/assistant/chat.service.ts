@@ -1,4 +1,3 @@
-import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import { completeSimple } from '@earendil-works/pi-ai/compat';
 import { ROOT_CONVERSATION_ID } from '@earendil-works/pi-durable';
 import type { AssistantProvider, AssistantSendRequest } from '@erxes/core-contract';
@@ -10,9 +9,9 @@ import { logger } from '~/logger';
 import {
   agentNamed,
   removeAgent,
+  startRun,
   stopAgent,
   watchConversation,
-  withHarness,
 } from '~/modules/agents/host';
 import { StorageBusy } from '~/modules/agents/storage';
 import { readContents } from './attachments';
@@ -112,26 +111,16 @@ export const sendMessage = async (request: AssistantSendRequest) => {
 
   const modelId = request.model ?? DEFAULT_MODELS[key.provider];
 
-  await withHarness(agentNamed(ASSISTANT_AGENT), { orgId, key: thread.id }, async (harness) => {
-    const root = await harness.root(BACKGROUND_CONTEXT);
-
-    await root.configure(
-      {
-        model: { provider: key.provider, modelId },
-        thinkingLevel: request.thinkingLevel ?? 'off',
-      },
-      BACKGROUND_CONTEXT,
-    );
-
-    await root.submit(
-      {
-        type: 'input',
-        content: modelInput(parts, contents),
-        entry: { kind: 'assistant.user', data: StoredParts.parse(parts) },
-      },
-      BACKGROUND_CONTEXT,
-    );
-  }).catch((error: unknown) => {
+  await startRun(
+    agentNamed(ASSISTANT_AGENT),
+    { orgId, key: thread.id },
+    {
+      type: 'input',
+      content: modelInput(parts, contents),
+      entry: { kind: 'assistant.user', data: StoredParts.parse(parts) },
+    },
+    { model: { provider: key.provider, modelId }, thinkingLevel: request.thinkingLevel ?? 'off' },
+  ).catch((error: unknown) => {
     if (error instanceof StorageBusy) {
       throw fail('ASSISTANT_BUSY', 'Another server is writing in this thread; try again shortly');
     }

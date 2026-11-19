@@ -1,9 +1,8 @@
-import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import { caller, db, requestOrgId, withOrg } from '@erxes/core-db';
 import { fail, notFound } from '~/http/errors';
 import { scoped, unscoped } from '~/orpc';
 import { listAgentModels, setAgentModel } from './agentModels';
-import { agentNamed, withHarness } from './host';
+import { agentNamed, startRun } from './host';
 import { pluginAgentDefinition } from './pluginAgents';
 import { StorageBusy } from './storage';
 
@@ -22,14 +21,11 @@ const submitToAgent = async ({ agent, key, text, requestId }: Submit) => {
 
   await withOrg(orgId, (tx) => pluginAgentDefinition(tx, agent));
 
-  await withHarness(agentNamed(agent), { orgId, key }, async (harness) => {
-    const root = await harness.root(BACKGROUND_CONTEXT);
-
-    await root.submit(
-      { type: 'input', content: text, ...(requestId ? { requestId } : {}) },
-      BACKGROUND_CONTEXT,
-    );
-  }).catch((error: unknown) => {
+  await startRun(
+    agentNamed(agent),
+    { orgId, key },
+    { type: 'input', content: text, ...(requestId ? { requestId } : {}) },
+  ).catch((error: unknown) => {
     if (error instanceof StorageBusy) {
       throw fail('ASSISTANT_BUSY', 'Another server runs this conversation; try again shortly');
     }

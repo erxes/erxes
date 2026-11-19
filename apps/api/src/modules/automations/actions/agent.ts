@@ -1,5 +1,5 @@
 import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
-import { agentNamed, withHarness } from '~/modules/agents/host';
+import { agentNamed, countRun, withHarness } from '~/modules/agents/host';
 import { answerText } from '~/modules/agents/pluginAgents';
 import { type CoreAction, idempotencyKey, text } from './context';
 
@@ -9,8 +9,10 @@ export const AUTOMATION_AGENT = 'automation';
 const ANSWER_LOOKBACK = 20;
 
 /** Asks the step's agent and waits for its answer; a retried step lands in the same conversation. */
-const askAgent = async (orgId: string, key: string, requestId: string, prompt: string) =>
-  withHarness(agentNamed(AUTOMATION_AGENT), { orgId, key }, async (harness) => {
+const askAgent = async (orgId: string, key: string, requestId: string, prompt: string) => {
+  await countRun(orgId);
+
+  return withHarness(agentNamed(AUTOMATION_AGENT), { orgId, key }, async (harness) => {
     const root = await harness.root(BACKGROUND_CONTEXT);
 
     const submission = await root.submit(
@@ -26,6 +28,7 @@ const askAgent = async (orgId: string, key: string, requestId: string, prompt: s
 
     return answer;
   });
+};
 
 export const AGENT_ACTIONS: CoreAction[] = [
   {
