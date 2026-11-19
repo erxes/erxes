@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import { type coreClient, expect, expectAccessible, test, unique } from './fixtures';
 
 const SEALED = 'sk_e2e_0123456789';
@@ -45,10 +46,16 @@ test('an owner connects a service by hand, seals its keys and changes its hosts'
   await host.press('Backspace');
   await host.fill('api.boat.test');
   await host.press('Enter');
+  await page.route('**/core/v1/integrations', async (route) => {
+    if (route.request().method() === 'GET') await delay(500);
+
+    await route.continue();
+  });
   await dialog.getByRole('button', { name: 'Add integration' }).click();
   await expect(dialog).toBeHidden();
 
   await expect(page.getByRole('heading', { name })).toBeVisible();
+  await page.unrouteAll({ behavior: 'wait' });
   await expect(page.getByRole('tab', { name: 'Keys', selected: true })).toBeVisible();
   await expect(page.getByText('Not set up')).toBeVisible();
   await expect(page.getByText('No keys yet')).toBeVisible();

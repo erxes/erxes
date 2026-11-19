@@ -125,8 +125,8 @@ const NewForm = ({ onDone }: { onDone: () => void }) => {
 
   const create = useMutation(
     orpc.integrations.create.mutationOptions({
-      onSuccess: (created) => {
-        void client.invalidateQueries({ queryKey: orpc.integrations.key() });
+      onSuccess: async (created) => {
+        await client.invalidateQueries({ queryKey: orpc.integrations.key() });
         toast({ title: t('created', 'Integration added') });
         onDone();
         void navigate({
