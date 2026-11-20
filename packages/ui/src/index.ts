@@ -231,6 +231,8 @@ export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneI
 
 export { Board } from './modules/board/Board';
 
+export { useBoardScroll } from './modules/board/useBoardScroll';
+
 export type { BoardMove } from './modules/board/BoardRoot';
 
 export { RecordList } from './modules/record-list/RecordList';

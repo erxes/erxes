@@ -239,6 +239,7 @@ value themeState
 value toAmountInput
 value toIsoDay
 value toast
+value useBoardScroll
 value useConfirm
 value useFieldControl
 value useFilterContext

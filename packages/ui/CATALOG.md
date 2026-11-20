@@ -55,6 +55,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TPluginListType` A plugin's list: its record type, `<plugin>:<record>` (`sales:deal`).
 - `type TRecordTableSort { by, direction }` The order a list's rows come in: by a column, either way.
 - `type TViewTabsProps { recordType, allLabel }` The props of the host's saved-view tabs: the list and its "All …" label.
+- `useBoardScroll(board)` Scrolls a board sideways with a mouse wheel or a drag on empty board.
 - `useFilterContext()` Controls of the enclosing `Filter`: open or close it and switch views.
 - `useListDisplay(list, displays)` The display a list shows, as picked in its Display menu.
 - `useListFilterParams()` `ListFilter`'s conditions and search, as params for the list's query.
