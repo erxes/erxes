@@ -1,15 +1,19 @@
 import type { BroadcastPlaceholder } from '@erxes/core-contract';
-import { Input, Textarea } from 'erxes-ui';
+import { Input, Label, Textarea } from 'erxes-ui';
 import { lazy, Suspense, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { fieldToken } from './body-editor/fields';
+import { ReplyToSelect } from '~/components/ReplyToSelect';
+import { SenderLabelInput } from '~/components/SenderLabelInput';
 import { LabelRow } from './PlaceholderMenu';
 import type { BroadcastDraft } from './useBroadcastDraft';
 
-/** BlockNote and ProseMirror load the first time an email is opened. */
-const BodyEditor = lazy(async () => ({
-  default: (await import('./body-editor/BodyEditor')).BodyEditor,
+/** The email editor loads the first time an email is opened. */
+const EmailEditor = lazy(async () => ({
+  default: (await import('./EmailEditor')).EmailEditor,
 }));
+
+/** A field as text: `{{ firstName }}`, which core fills per customer. */
+const fieldToken = (name: BroadcastPlaceholder) => `{{ ${name} }}`;
 
 const GREETING = '{{ firstName | there }}';
 
@@ -89,6 +93,34 @@ interface SectionProps {
   onChange: (patch: Partial<BroadcastDraft>) => void;
 }
 
+/** Who it comes from (the label after the organisation's name on SaaS) and where replies go. */
+const SenderFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
+  const { t } = useTranslation('broadcasts');
+  const nameId = useId();
+  const replyId = useId();
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-1.5">
+        <Label htmlFor={nameId}>{t('from-name', 'From name')}</Label>
+        <SenderLabelInput
+          id={nameId}
+          value={draft.fromName}
+          onChange={(fromName) => onChange({ fromName })}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={replyId}>{t('reply-to', 'Replies go to')}</Label>
+        <ReplyToSelect
+          id={replyId}
+          value={draft.replyTo}
+          onChange={(replyTo) => onChange({ replyTo })}
+        />
+      </div>
+    </div>
+  );
+};
+
 /** An email's subject, preview text and sender. */
 const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
   const { t } = useTranslation('broadcasts');
@@ -111,20 +143,7 @@ const EmailFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
         onChange={(preheader) => onChange({ preheader })}
         hint={t('preheader-hint', 'Shown after the subject in most inboxes.')}
       />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          label={t('from-name', 'From name')}
-          value={draft.fromName}
-          onChange={(fromName) => onChange({ fromName })}
-          hint={t('from-name-hint', "The address stays the deployment's sender.")}
-        />
-        <TextField
-          label={t('reply-to', 'Replies go to')}
-          value={draft.replyTo}
-          onChange={(replyTo) => onChange({ replyTo })}
-          placeholder="team@example.com"
-        />
-      </div>
+      <SenderFields draft={draft} onChange={onChange} />
     </>
   );
 };
@@ -153,7 +172,7 @@ const UnknownPlaceholders = ({ names }: { names: string[] }) => {
   );
 };
 
-/** The email's message in the block editor. */
+/** The email's message in the email editor. */
 const EmailBody = ({ draft, onChange }: SectionProps) => {
   const { t } = useTranslation('broadcasts');
   const label = t('body-email', 'Message');
@@ -168,20 +187,17 @@ const EmailBody = ({ draft, onChange }: SectionProps) => {
           </>
         }
       >
-        <BodyEditor
+        <EmailEditor
           label={label}
-          value={draft.body}
-          onChange={(body) => onChange({ body })}
-          placeholder={t(
-            'body-email-placeholder',
-            "Write, or type '/' for headings, lists and pictures",
-          )}
+          value={draft.content}
+          onChange={(content) => onChange({ content })}
         />
       </Suspense>
       <p className="text-xs text-muted-foreground">
         {t(
           'body-email-hint',
-          'Type { or use Insert a field for a customer’s name. An unsubscribe link is added at the end.',
+          'Type / for blocks and pictures, {{trigger}} or Insert a field for a customer’s name. An unsubscribe link is added at the end.',
+          { trigger: '{{' },
         )}
       </p>
     </div>

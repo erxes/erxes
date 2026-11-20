@@ -22,6 +22,7 @@ export const useIntegrationStatus = () => {
   const canPayments = useCan()('payments.manage');
   const ebarimt = useQuery(orpc.ebarimt.settings.queryOptions());
   const email = useQuery(orpc.emails.settings.queryOptions());
+  const sender = useQuery(orpc.emails.sender.queryOptions());
 
   const gateways = useQuery(
     orpc.payments.gateways.queryOptions({ input: canPayments ? undefined : skipToken }),
@@ -38,9 +39,12 @@ export const useIntegrationStatus = () => {
 
   const statusOf = (integration: Integration): IntegrationStatus | null => {
     if (integration.kind === 'email') {
-      if (!email.isSuccess) return null;
+      if (!email.isSuccess || !sender.isSuccess) return null;
 
-      return { state: email.data ? 'connected' : 'not-set-up' };
+      // SaaS: sent through erxes' provider, nothing to set up; production with only the log: not set up.
+      const connected = sender.data.canDeliver && (email.data !== null || !sender.data.ownSending);
+
+      return { state: connected ? 'connected' : 'not-set-up' };
     }
 
     if (integration.kind === 'ebarimt') {
@@ -71,8 +75,14 @@ export const useIntegrationStatus = () => {
   return {
     statusOf,
     /** A state query failed: its tiles show no state, the page says so. */
-    error: email.error ?? ebarimt.error ?? gateways.error ?? failed.error,
+    error: email.error ?? sender.error ?? ebarimt.error ?? gateways.error ?? failed.error,
     refetch: () =>
-      Promise.all([email.refetch(), ebarimt.refetch(), gateways.refetch(), failed.refetch()]),
+      Promise.all([
+        email.refetch(),
+        sender.refetch(),
+        ebarimt.refetch(),
+        gateways.refetch(),
+        failed.refetch(),
+      ]),
   };
 };

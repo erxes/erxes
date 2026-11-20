@@ -33,6 +33,21 @@ export type BroadcastRecipientStatus = (typeof BROADCAST_RECIPIENT_STATUSES)[num
 
 export type SuppressionReason = (typeof SUPPRESSION_REASONS)[number];
 
+/** A mark on an email editor's text: bold, a link, a colour. */
+export interface EmailMark {
+  type: string;
+  attrs?: Record<string, unknown>;
+}
+
+/** One node of an email editor document (maily JSON), the shape `@maily-to/render` reads. */
+export interface EmailNode {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: EmailNode[];
+  marks?: EmailMark[];
+  text?: string;
+}
+
 /**
  * A message to many customers at once, by email or SMS (decision 47). The
  * audience is a saved customer view (live: its filter as it is when sending
@@ -55,11 +70,23 @@ export const broadcasts = pgTable(
     subject: text(),
     /** Email only: the line inboxes show after the subject. */
     preheader: text(),
-    /** Markdown for email, plain text for SMS, with placeholders. */
+    /** SMS: the text, with placeholders. Email: the plain-text part, rendered from `content`. */
     body: text().default('').notNull(),
+    /** Email only: the message as the email editor's document (maily JSON, a `doc` node). */
+    content: jsonb().$type<EmailNode>(),
+    /**
+     * Email only: `content` rendered to HTML whenever it is saved, with each placeholder
+     * left as `{{ name | fallback }}` for the recipient's value. Null while `content` is empty.
+     */
+    html: text(),
     /** Email only: the sender's name shown with erxes's sending address. */
     fromName: text(),
     replyTo: text(),
+    /** Email only: files (`core_files`) attached to every copy. */
+    attachmentIds: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     scheduledAt: timestamptz(),
     startedAt: timestamptz(),
     finishedAt: timestamptz(),
@@ -67,6 +94,10 @@ export const broadcasts = pgTable(
     error: text(),
     /** Recipients frozen when sending started. */
     total: integer().default(0).notNull(),
+    /** The recurring broadcast this one is a run of (`core_broadcast_schedules`). */
+    parentId: text(),
+    /** The run's moment in its parent's schedule: one copy per moment. */
+    occurrenceAt: timestamptz(),
     createdBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -81,6 +112,8 @@ export const broadcasts = pgTable(
     index('core_broadcasts_sending_idx')
       .on(table.status)
       .where(sql`${table.status} = 'sending'`),
+    // A recurring broadcast's runs: never two for one moment of its schedule.
+    uniqueIndex('core_broadcasts_occurrence_key').on(table.parentId, table.occurrenceAt),
     check('core_broadcasts_channel_check', inList(table.channel, BROADCAST_CHANNELS)),
     check('core_broadcasts_status_check', inList(table.status, BROADCAST_STATUSES)),
     foreignKey({
@@ -92,6 +125,12 @@ export const broadcasts = pgTable(
       columns: [table.viewId],
       foreignColumns: [views.id],
       name: 'core_broadcasts_view_id_fkey',
+    }).onDelete('set null'),
+    // A deleted recurring broadcast's runs stay, with their numbers.
+    foreignKey({
+      columns: [table.parentId],
+      foreignColumns: [table.id],
+      name: 'core_broadcasts_parent_id_fkey',
     }).onDelete('set null'),
     foreignKey({
       columns: [table.createdBy],

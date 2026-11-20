@@ -1,5 +1,4 @@
 import {
-  BOOLEAN_STRINGS,
   EMAIL_DRIVERS,
   FILE_STORAGES,
   LOG_FORMATS,
@@ -8,6 +7,7 @@ import {
 } from '@erxes/core-db/enums';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { baseUrl, flag, list, optional, pluginKeys, positive, text } from './envValues';
 
 /** Settings that may also come from a file named by `<NAME>_FILE` (Docker and Kubernetes secrets). */
 const SECRETS = [
@@ -32,58 +32,6 @@ const readSecret = (name: string) => {
 
   return file ? readFileSync(file, 'utf8') : process.env[name];
 };
-
-/** Blank counts as unset; values are trimmed. */
-const optional = <T extends z.ZodType>(schema: T) =>
-  z.preprocess(
-    (value) => (typeof value === 'string' ? value.trim() || undefined : value),
-    schema.optional(),
-  );
-
-const text = optional(z.string());
-
-const flag = optional(z.enum(BOOLEAN_STRINGS).transform((value) => value === 'true'));
-
-const positive = (fallback: number) =>
-  optional(z.coerce.number().positive()).transform((value) => value ?? fallback);
-
-const baseUrl = (fallback: string) =>
-  optional(z.url())
-    .transform((value) => value ?? fallback)
-    .transform((value) => value.replace(/\/+$/, ''));
-
-const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
-
-/**
- * Plugin client secrets, `hr:<secret>,ecom:<secret>`, as secret → plugin name.
- * They are registered (hashed) in `core_plugins` at startup; a plugin trades
- * its secret for short-lived tokens (`POST /core/v1/plugins/token`) and never
- * sends it on API calls. `pnpm plugin:secret <name>` rotates one.
- */
-const pluginKeys = optional(z.string()).transform((value, ctx) => {
-  const keys = new Map<string, string>();
-
-  for (const entry of (value ?? '').split(',')) {
-    const separator = entry.indexOf(':');
-    const name = entry.slice(0, separator).trim().toLowerCase();
-    const secret = entry.slice(separator + 1).trim();
-
-    if (separator < 1 || !secret) continue;
-
-    if (!PLUGIN_NAME.test(name) || name === 'core') {
-      ctx.addIssue({ code: 'custom', message: `"${name}" is not a valid plugin name` });
-    } else if (secret.length < 32) {
-      ctx.addIssue({
-        code: 'custom',
-        message: `the key for "${name}" needs 32 characters or more`,
-      });
-    } else {
-      keys.set(secret, name);
-    }
-  }
-
-  return keys;
-});
 
 const Env = z
   .object({
@@ -126,6 +74,10 @@ const Env = z
     EMAIL_DRIVER: optional(z.enum(EMAIL_DRIVERS)),
     EMAIL_SMTP_URL: text,
     EMAIL_FROM: text,
+    SENDGRID_WEBHOOK_PUBLIC_KEY: text,
+    SES_CONFIGURATION_SET: text,
+    SES_EVENTS_TOPIC_ARNS: list,
+    EMAIL_AUTH_HOURLY_CAP: positive(300),
 
     SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
 
@@ -326,11 +278,28 @@ export const config = {
     url: env.APP_URL,
   },
   email: {
-    /** `smtp` (EMAIL_SMTP_URL) or `log` (development: written to the log, not sent). */
+    /**
+     * `smtp` (EMAIL_SMTP_URL) or `log` (development: written to the log, not
+     * sent). In production the log delivers nothing: what members send is refused.
+     */
     driver: env.EMAIL_DRIVER ?? (env.EMAIL_SMTP_URL ? 'smtp' : 'log'),
     /** `smtps://user:pass@smtp.example.com:465` (SES, Mailgun, Postmark, …). */
     smtpUrl: env.EMAIL_SMTP_URL,
     from: env.EMAIL_FROM ?? 'erxes <no-reply@erxes.io>',
+    /**
+     * Sign-in, invitation and password reset emails an organisation may send
+     * an hour to addresses no delivery proved yet, while its sending ramp is on.
+     */
+    authHourlyCap: env.EMAIL_AUTH_HOURLY_CAP,
+    /** What the provider of `EMAIL_SMTP_URL` reports later: bounces, complaints, deliveries. */
+    events: {
+      /** SendGrid's Signed Event Webhook verification key (base64 SPKI); unset: its events are refused. */
+      sendgridKey: env.SENDGRID_WEBHOOK_PUBLIC_KEY,
+      /** SES: the configuration set every email names, whose event destination is an SNS topic. */
+      sesConfigurationSet: env.SES_CONFIGURATION_SET,
+      /** SES: the SNS topics its events may come through; a notification from any other is refused. */
+      sesTopicArns: env.SES_EVENTS_TOPIC_ARNS,
+    },
   },
   broadcast: {
     /** Copies one broadcast sends a minute, within what the mail or SMS provider allows. */

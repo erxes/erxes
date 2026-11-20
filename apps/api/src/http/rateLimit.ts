@@ -104,6 +104,13 @@ export const createRateLimits = () => ({
         `plugin-public:${ip(req)}:${String(req.params.name)}:${String(req.params.orgId)}`,
     }),
   ],
+  /**
+   * Email providers' event webhooks: 3000 a minute per address (SendGrid batches its events, SNS
+   * posts one a message, both from shared addresses and both retry what was refused).
+   */
+  emailEvents: [
+    rateLimit({ windowSeconds: 60, max: 3000, key: (req) => `email-events:${ip(req)}` }),
+  ],
   /** Uploads through signed links: 120 a minute per address. */
   upload: rateLimit({
     windowSeconds: 60,

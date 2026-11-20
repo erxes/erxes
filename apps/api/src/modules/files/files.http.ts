@@ -1,4 +1,6 @@
-import { requestOrgId, withOrg } from '@erxes/core-db';
+import { files, requestOrgId, withOrg, withSystem } from '@erxes/core-db';
+import { and, eq } from 'drizzle-orm';
+import { z } from 'zod';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { link, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
@@ -136,4 +138,32 @@ downloadRouter.get('/files/:id/download', async (req, res) => {
 
   res.setHeader('Cache-Control', 'private, no-store');
   res.redirect(302, url);
+});
+
+const PublicId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
+
+/**
+ * `GET /core/v1/files/public/:id` for anyone, with no sign-in: pictures in emails, which
+ * mail clients fetch on their own. Only a ready file uploaded as public answers; every
+ * other id is a 404, so the address shows nothing else and lists nothing.
+ */
+export const publicFilesRouter = Router();
+
+publicFilesRouter.get('/files/public/:id', async (req, res) => {
+  const id = PublicId.safeParse(req.params.id);
+
+  const [row] = id.success
+    ? await withSystem('public file lookup', (tx) =>
+        tx
+          .select()
+          .from(files)
+          .where(and(eq(files.id, id.data), eq(files.public, true), eq(files.status, 'ready')))
+          .limit(1),
+      )
+    : [];
+
+  if (!row) throw notFound('File');
+
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.redirect(302, await downloadUrlOf(row, false));
 });

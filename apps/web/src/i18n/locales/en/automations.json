@@ -69,6 +69,7 @@
   "every-month": "month",
   "on-day": "on day",
   "at": "at",
+  "org-zone": "{{zone}}, the organisation’s time zone",
   "every-hour-hint": "At the minute of the time below, every hour.",
   "for-each-record": "Run for each matching record",
   "customers": "Customers",

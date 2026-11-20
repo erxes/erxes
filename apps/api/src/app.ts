@@ -10,7 +10,7 @@ import { authenticate } from '~/http/auth';
 import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
-import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
+import { downloadRouter, publicFilesRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { registerAgent } from '~/modules/agents/host';
 import { assistantAgent } from '~/modules/assistant/agent';
@@ -23,6 +23,7 @@ import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
+import { emailEventsRouter } from '~/modules/email/events/events.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -114,6 +115,7 @@ export const createApp = (log: Logger = logger): Express => {
       '/core/v1/setup',
       '/core/v1/auth/password-reset',
       '/core/v1/auth/invitation',
+      '/core/v1/email/reply-tos/confirm',
     ],
     limit.signIn,
   );
@@ -127,6 +129,9 @@ export const createApp = (log: Logger = logger): Express => {
 
   // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
   app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));
+
+  // Email providers report bounces, complaints and deliveries: signed raw bodies, no sign-in.
+  app.use('/core/v1', emailEventsRouter(limit.emailEvents));
 
   app.use(express.json({ limit: '1mb' }));
 
@@ -172,6 +177,9 @@ export const createApp = (log: Logger = logger): Express => {
 
   // A broadcast's own links: unsubscribe, open pixel, tracked clicks (signed per recipient).
   app.use('/core/v1', broadcastLinksRouter);
+
+  // Pictures in emails: files uploaded as public, which mail clients fetch with no sign-in.
+  app.use('/core/v1', publicFilesRouter);
 
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', limit.token, oauthRouter);

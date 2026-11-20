@@ -1075,6 +1075,88 @@
       }
     }
   },
+  "broadcastSchedules": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts/{id}/schedule"
+        }
+      }
+    },
+    "start": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/start"
+        }
+      }
+    },
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/broadcasts/{id}/schedule"
+        }
+      }
+    },
+    "pause": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/pause"
+        }
+      }
+    },
+    "resume": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/resume"
+        }
+      }
+    },
+    "stop": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/stop"
+        }
+      }
+    },
+    "preview": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcast-schedules/preview"
+        }
+      }
+    },
+    "upcoming": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcast-schedules/upcoming"
+        }
+      }
+    }
+  },
   "companies": {
     "list": {
       "~orpc": {
@@ -1565,6 +1647,116 @@
         "route": {
           "method": "POST",
           "path": "/email/settings/test"
+        }
+      }
+    },
+    "sender": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/sender"
+        }
+      }
+    },
+    "replyTos": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/reply-tos"
+        }
+      }
+    },
+    "addReplyTo": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/reply-tos"
+        }
+      }
+    },
+    "removeReplyTo": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/email/reply-tos/{id}"
+        }
+      }
+    },
+    "confirmReplyTo": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/reply-tos/confirm"
+        }
+      }
+    },
+    "deliveries": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/deliveries"
+        }
+      }
+    },
+    "addresses": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/addresses"
+        }
+      }
+    },
+    "limits": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/limits"
+        }
+      }
+    },
+    "pacing": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/pacing"
+        }
+      }
+    },
+    "resumeSending": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/limits/resume"
+        }
+      }
+    },
+    "setRamp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/email/limits/ramp"
         }
       }
     }

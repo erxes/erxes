@@ -59,6 +59,12 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string().nullable(),
     }),
   }),
+  /** The link that confirms an address as the organisation's Reply-To. */
+  z.object({
+    to: z.string(),
+    template: z.literal('reply_to_confirmation'),
+    data: z.object({ organization: z.string(), link: z.string(), days: z.number() }),
+  }),
   /** A customer's one-time sign-in code. */
   z.object({
     to: z.string(),
@@ -73,12 +79,17 @@ export const EmailPayload = z.discriminatedUnion('template', [
     fromName: z.string().optional(),
     data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
     attachments: z.array(InlineImage).max(5).optional(),
+    /** Stored files attached, read when it is sent. */
+    fileIds: z.array(z.string()).max(5).optional(),
   }),
   /** A plain message (automations, plugins): a subject and text. */
   z.object({
     to: z.string(),
     template: z.literal('message'),
     replyTo: z.string().optional(),
+    fromName: z.string().optional(),
+    /** Copied on every email of the step (automations). */
+    cc: z.array(z.email()).max(5).optional(),
     data: z.object({ subject: z.string(), body: z.string(), button: Button.optional() }),
   }),
 ]);
@@ -166,6 +177,20 @@ const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): Emai
     case 'notification':
     case 'customer_notification':
       return noticeOf(email);
+
+    case 'reply_to_confirmation': {
+      const { data } = email;
+
+      return {
+        subject: `Confirm replies to this address for ${data.organization}`,
+        heading: 'Confirm this address',
+        lines: [
+          `${data.organization} wants replies to its emails on erxes to come to this address.`,
+          `The link works once, for ${data.days} days. If you don't know ${data.organization}, ignore this email: nothing changes.`,
+        ],
+        button: { label: 'Confirm the address', link: data.link },
+      };
+    }
 
     case 'sign_in_code': {
       const { data } = email;

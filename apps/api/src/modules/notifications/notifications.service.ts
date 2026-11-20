@@ -210,6 +210,7 @@ const emailNotified = async (
         link: `${app}${input.link ?? '/notifications'}`,
       },
     })),
+    { source: 'notification' },
   );
 };
 

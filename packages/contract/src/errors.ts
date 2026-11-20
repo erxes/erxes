@@ -174,6 +174,13 @@ export const ERRORS = {
   BROADCAST_INCOMPLETE: { status: 400, data: z.object({ missing: z.array(z.string()) }) },
   UNKNOWN_PLACEHOLDER: { status: 400, data: z.object({ placeholders: z.array(z.string()) }) },
   NO_RECIPIENTS: { status: 409 },
+  // An attachment that isn't a ready file of the organisation, or files too large together.
+  BROADCAST_ATTACHMENT_UNAVAILABLE: { status: 400, data: z.object({ id: z.string() }) },
+  BROADCAST_ATTACHMENTS_TOO_LARGE: { status: 400, data: z.object({ maxSizeMb: z.number() }) },
+  // A recurring broadcast's schedule can't move from where it stands (`state`): pause what runs.
+  REPEAT_STATE: { status: 409, data: z.object({ state: z.string() }) },
+  // Production with no way to send email: it would only be written to the server's log.
+  EMAIL_NOT_CONFIGURED: { status: 409 },
 
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).

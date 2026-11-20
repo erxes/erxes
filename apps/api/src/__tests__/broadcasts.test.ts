@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { loggedSms } from '~/modules/sms/sms';
-import { audienceOf, emailsTo, useBroadcasts } from './broadcasts.fixture';
+import {
+  audienceOf,
+  emailDoc,
+  emailsTo,
+  field,
+  linkTo,
+  paragraph,
+  say,
+  useBroadcasts,
+} from './broadcasts.fixture';
 import { useTestDatabase } from './db';
 import { makeDue, settle } from './settle';
 
@@ -20,6 +29,7 @@ describe('broadcasts', { timeout: 300_000 }, () => {
       { firstName: 'Nomail' },
     ]);
     await owner.suppressions.add({ channel: 'email', addresses: ['dorj@news.mn'] });
+    await owner.emails.addReplyTo({ email: 'hello@acme.mn' });
 
     expect(
       await owner.broadcasts.audience({ channel: 'email', filter: audienceOf('news') }),
@@ -30,7 +40,21 @@ describe('broadcasts', { timeout: 300_000 }, () => {
       channel: 'email',
       filter: audienceOf('news'),
       subject: 'Hello {{ firstName | friend }}',
-      body: 'Hi **{{ firstName | there }}**,\n\nRead [the news](https://acme.mn/news).',
+      content: emailDoc(
+        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'News' }] },
+        paragraph(
+          'Hi ',
+          field('firstName', 'there'),
+          ', read ',
+          linkTo('the news', 'https://acme.mn/news'),
+        ),
+        paragraph({ type: 'text', text: 'Big sale', marks: [{ type: 'bold' }] }),
+        {
+          type: 'button',
+          attrs: { url: 'https://acme.mn/sale' },
+          content: [{ type: 'text', text: 'Shop' }],
+        },
+      ),
       fromName: 'Acme',
       replyTo: 'hello@acme.mn',
     });
@@ -40,8 +64,10 @@ describe('broadcasts', { timeout: 300_000 }, () => {
     const preview = await owner.broadcasts.preview({ id: draft.id });
 
     expect(preview.subject).toMatch(/^Hello /);
-    expect(preview.html).toContain('<strong>');
+    expect(preview.html).toContain('<strong>Big sale</strong>');
     expect(preview.html).toContain('href="https://acme.mn/news"');
+    expect(preview.html).toContain('href="https://acme.mn/sale"');
+    expect(preview.html).not.toContain('{{');
 
     expect(await owner.broadcasts.send({ id: draft.id })).toMatchObject({ status: 'sending' });
     await expect(owner.broadcasts.update({ id: draft.id, name: 'Late' })).rejects.toMatchObject({
@@ -56,7 +82,8 @@ describe('broadcasts', { timeout: 300_000 }, () => {
 
     expect(bat).toMatchObject({ subject: 'Hello Bat', fromName: 'Acme', replyTo: 'hello@acme.mn' });
     expect(anon?.subject).toBe('Hello friend');
-    expect(anon?.text).toContain('Hi **there**');
+    expect(anon?.text).toContain('Hi there, read the news');
+    expect(bat?.text).toContain('Hi Bat, read the news');
     expect(emailsTo('dorj@news.mn')).toEqual([]);
     expect(bat?.headers?.['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click');
     expect(bat?.headers?.['List-Unsubscribe']).toContain('/core/v1/b/');
@@ -116,6 +143,70 @@ describe('broadcasts', { timeout: 300_000 }, () => {
     });
   });
 
+  it('duplicates the audience and content into a fresh draft, scheduled or sent', async () => {
+    const owner = t.owner();
+
+    await t.customersIn('twin', [{ firstName: 'Ikh', primaryEmail: 'ikh@twin.mn' }]);
+
+    const desk = await owner.emails.addReplyTo({ email: 'desk@twin.mn' });
+
+    const content = {
+      channel: 'email',
+      filter: audienceOf('twin'),
+      subject: 'Twins {{ firstName | friend }}',
+      preheader: 'Two of a kind',
+      content: say('Hi ', field('firstName', 'there')),
+      fromName: 'Twin desk',
+      replyTo: 'desk@twin.mn',
+    } as const;
+
+    const fresh = {
+      status: 'draft',
+      viewId: null,
+      scheduledAt: null,
+      startedAt: null,
+      finishedAt: null,
+      error: null,
+      total: 0,
+      stats: { queued: 0, sending: 0, sent: 0, failed: 0, skipped: 0, opened: 0 },
+    };
+
+    const source = await owner.broadcasts.create({ name: 'Twin', ...content });
+
+    await owner.broadcasts.schedule({
+      id: source.id,
+      at: new Date(Date.now() + 3_600_000).toISOString(),
+    });
+
+    const scheduledCopy = await owner.broadcasts.duplicate({ id: source.id });
+
+    expect(scheduledCopy.id).not.toBe(source.id);
+    expect(scheduledCopy).toMatchObject({ name: 'Twin (copy)', ...content, ...fresh });
+
+    await owner.broadcasts.send({ id: source.id });
+    await settle();
+
+    expect(await owner.broadcasts.get({ id: source.id })).toMatchObject({
+      status: 'sent',
+      total: 1,
+    });
+    expect(await owner.broadcasts.duplicate({ id: source.id })).toMatchObject({
+      name: 'Twin (copy)',
+      ...content,
+      ...fresh,
+    });
+
+    // A Reply-To no longer on the list stays behind, so the copy can still be saved.
+    await owner.emails.removeReplyTo({ id: desk.id });
+
+    const unlisted = await owner.broadcasts.duplicate({ id: source.id });
+
+    expect(unlisted).toMatchObject({ ...content, replyTo: null });
+    expect(
+      await owner.broadcasts.update({ id: unlisted.id, subject: 'Twins again', replyTo: null }),
+    ).toMatchObject({ subject: 'Twins again', replyTo: null });
+  });
+
   it('sends to a saved view, which stays while a broadcast waits on it', async () => {
     const owner = t.owner();
 
@@ -135,7 +226,7 @@ describe('broadcasts', { timeout: 300_000 }, () => {
       channel: 'email',
       viewId: view.id,
       subject: 'Hi {{ firstName }}',
-      body: 'Hi',
+      content: say('Hi'),
     });
 
     expect(await owner.broadcasts.audience({ channel: 'email', viewId: view.id })).toMatchObject({
@@ -197,25 +288,7 @@ describe('broadcasts', { timeout: 300_000 }, () => {
 
   it('checks what it is given and who asks', async () => {
     const owner = t.owner();
-
-    await expect(
-      owner.broadcasts.create({ name: 'Typo', channel: 'email', body: 'Hi {{ fristName }}' }),
-    ).rejects.toMatchObject({
-      status: 400,
-      code: 'UNKNOWN_PLACEHOLDER',
-      data: { placeholders: ['fristName'] },
-    });
-
-    const scripted = await t.emailTo('news', {
-      body: '[win](javascript:alert(1)) ![x](data:image/svg+xml,1) <b onclick="x">hi</b> [mail](mailto:a@acme.mn)',
-    });
-
-    const { html } = await owner.broadcasts.preview({ id: scripted.id });
-
-    expect(html).not.toMatch(/javascript:|data:image|<b /);
-    expect(html).toContain('href="mailto:a@acme.mn"');
-
-    const draft = await t.emailTo('news', { subject: '', body: '' });
+    const draft = await t.emailTo('news', { subject: '', content: null });
 
     await expect(owner.broadcasts.send({ id: draft.id })).rejects.toMatchObject({
       status: 400,

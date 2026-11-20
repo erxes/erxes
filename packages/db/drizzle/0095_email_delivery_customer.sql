@@ -1,0 +1,1 @@
+ALTER TABLE "core_email_deliveries" ADD COLUMN "customer_id" text;

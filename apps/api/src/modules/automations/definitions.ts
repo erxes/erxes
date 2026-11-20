@@ -19,7 +19,7 @@ import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
-import { actionCatalog } from './actions/catalog';
+import { actionCatalog, coreAction } from './actions/catalog';
 import { render } from './templates';
 import { dateConditions } from './conditions';
 
@@ -97,6 +97,9 @@ const actionProblems = (
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))
     .map((field) => `Step ${step.id} (${action.label}): ${field.label} is required`);
+
+  for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
+    problems.push(`Step ${step.id} (${action.label}): ${problem}`);
 
   if (action.subject && action.subject !== 'any' && subject && action.subject !== subject)
     problems.push(

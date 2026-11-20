@@ -62,9 +62,15 @@ const SuppressionRow = ({ row, canManage }: { row: Suppression; canManage: boole
           disabled={remove.isPending}
           onClick={() =>
             void confirm({
-              message: t('unsuppress-confirm', 'Let broadcasts reach {{address}} again?', {
-                address: row.address,
-              }),
+              // An email bounce or a member's entry stops every email; SMS stops only broadcasts.
+              message:
+                row.channel === 'email'
+                  ? t('unsuppress-confirm-email', 'Let every email reach {{address}} again?', {
+                      address: row.address,
+                    })
+                  : t('unsuppress-confirm', 'Let broadcasts reach {{address}} again?', {
+                      address: row.address,
+                    }),
               options: { okLabel: t('unsuppress', 'Allow again') },
             }).then(() => remove.mutate({ id: row.id }))
           }
@@ -89,7 +95,7 @@ const NoSuppressions = () => {
         <Empty.Description>
           {t(
             'suppressions-empty-description',
-            'Addresses that unsubscribe or bounce land here and get no more broadcasts.',
+            'Addresses that unsubscribe land here and get no more broadcasts; one that bounces or marks an email as spam gets no email at all.',
           )}
         </Empty.Description>
       </Empty.Header>

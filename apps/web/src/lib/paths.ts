@@ -21,6 +21,7 @@ export const paths = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   acceptInvitation: '/accept-invitation',
+  confirmReplyTo: '/confirm-reply-to',
   /** A plugin's (or core app's) first page: `config.path` without slashes. */
   app: (path: string) => `/${path}`,
   notifications: '/notifications',

@@ -58,7 +58,8 @@ const valueOf = (values: PlaceholderValues, name: BroadcastPlaceholder) => {
 
 /**
  * Fills each placeholder with the customer's value, else its fallback, else
- * nothing. `escape` encodes the values for where they go (HTML).
+ * nothing. `escape` encodes the customer's values for where they go (HTML); a
+ * fallback is part of the text, already written in its encoding.
  */
 export const fillPlaceholders = (
   text: string,
@@ -68,5 +69,5 @@ export const fillPlaceholders = (
   text.replace(PLACEHOLDER, (_match, name: string, fallback: string | undefined) => {
     const value = isName(name) ? valueOf(values, name)?.trim() : null;
 
-    return escape(value || fallback?.trim() || '');
+    return value ? escape(value) : (fallback?.trim() ?? '');
   });

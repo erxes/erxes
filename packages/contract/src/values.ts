@@ -19,7 +19,6 @@ import {
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
   LIVE_MODES,
-  NOTIFICATION_DELIVERIES,
   ORG_UNIT_KINDS,
   PLUGIN_LIST_TYPE,
   PRODUCT_KINDS,
@@ -34,6 +33,14 @@ import {
   ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
 } from '@erxes/core-db/assistantEnums';
+import {
+  EMAIL_DELIVERY_PROVIDERS,
+  EMAIL_DELIVERY_STATUSES,
+  EMAIL_LANES,
+  EMAIL_SOURCES,
+  REPEAT_FREQUENCIES,
+  REPEAT_STATES,
+} from '@erxes/core-db/emailEnums';
 import { z } from 'zod';
 
 // The constants and schemas a browser uses at runtime. Nothing here builds on a
@@ -336,6 +343,32 @@ export const BroadcastRecipientStatus = z.enum(BROADCAST_RECIPIENT_STATUSES);
 
 export const SuppressionReason = z.enum(SUPPRESSION_REASONS);
 
+/** Files an email broadcast attaches to every copy: at most this many… */
+export const BROADCAST_ATTACHMENTS_MAX = 5;
+
+/** …and this many MB together. */
+export const BROADCAST_ATTACHMENTS_MAX_MB = 10;
+
+/** A recurring broadcast repeats every N days, weeks or months. */
+export const RepeatFrequency = z.enum(REPEAT_FREQUENCIES);
+
+/** A recurring broadcast's schedule: saved, running, held, or done. */
+export const RepeatState = z.enum(REPEAT_STATES);
+
+// ─── Email delivery log ─────────────────────────────────────────────────────
+
+/** What an email was for (`core_email_deliveries.source`). */
+export const EmailSource = z.enum(EMAIL_SOURCES);
+
+/** Where an email stands: queued, sent, failed, reported by the provider, or not sent (suppressed, held, capped). */
+export const EmailDeliveryStatus = z.enum(EMAIL_DELIVERY_STATUSES);
+
+/** How an email goes out: SMTP, SendGrid, Amazon SES, or only into the server's log. */
+export const EmailProvider = z.enum(EMAIL_DELIVERY_PROVIDERS);
+
+/** An address's standing: `proven`, `unknown` or `suppressed`. */
+export const EmailLane = z.enum(EMAIL_LANES);
+
 /** What `{{ firstName | there }}` in a broadcast fills in: each customer's value, or the organisation's name. */
 export const BROADCAST_PLACEHOLDERS = [
   'firstName',
@@ -349,6 +382,9 @@ export const BROADCAST_PLACEHOLDERS = [
 ] as const;
 
 export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
+
+/** The nodes and marks an email's document may hold; the email editor offers only these. */
+export { EMAIL_MARK_TYPES, EMAIL_NODE_TYPES } from '@erxes/core-db/emailEnums';
 
 // ─── eBarimt ────────────────────────────────────────────────────────────────
 
@@ -369,21 +405,8 @@ export const EbarimtPaperSize = z.enum(EBARIMT_PAPER_SIZES);
 
 export type EbarimtPaperSize = z.infer<typeof EbarimtPaperSize>;
 
-// ─── Notifications ──────────────────────────────────────────────────────────
-
-/** Security notices a member can't mute. */
-export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
-  'core.user.role_changed',
-  'core.user.password_set',
-  'core.security.mass_deletion',
-  'core.security.alert',
-  'core.security.new_sign_in',
-];
-
-/** Where a group of notifications goes: the inbox and email, the inbox only, or nowhere. */
-export const NotificationDelivery = z.enum(NOTIFICATION_DELIVERIES);
-
-export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
+// ─── Live updates and the assistant ─────────────────────────────────────────
+// (Notification groups and kinds are in `notificationGroups.ts`.)
 
 /** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
 export const LiveMode = z.enum(LIVE_MODES);
@@ -403,57 +426,3 @@ export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
 export const AssistantAvatarColor = z.enum(ASSISTANT_AVATAR_COLORS);
 
 export const AssistantAvatarExpression = z.enum(ASSISTANT_AVATAR_EXPRESSIONS);
-
-/**
- * Core's notifications in groups a member chooses for at once (each plugin
- * is a group of its own). `security` is always on.
- */
-export const CORE_NOTIFICATION_GROUPS = [
-  {
-    key: 'assigned',
-    label: 'Assigned to me',
-    kinds: ['core.customer.assigned', 'core.company.assigned'],
-    default: 'email',
-  },
-  {
-    key: 'records',
-    label: 'Changes to records I own',
-    kinds: [
-      'core.customer.updated',
-      'core.customer.merged',
-      'core.customer.deleted',
-      'core.company.updated',
-      'core.company.merged',
-      'core.company.deleted',
-      'core.customer.activity',
-      'core.company.activity',
-    ],
-    default: 'inbox',
-  },
-  { key: 'mentions', label: 'Mentions', kinds: ['core.note.mentioned'], default: 'email' },
-  {
-    key: 'automations',
-    label: 'Automations',
-    kinds: ['core.automation.message', 'core.automation.failed'],
-    default: 'inbox',
-  },
-  {
-    key: 'transfer',
-    label: 'Imports and exports',
-    kinds: ['core.import.done', 'core.export.ready'],
-    default: 'inbox',
-  },
-  { key: 'security', label: 'Security', kinds: UNMUTABLE_NOTIFICATION_KINDS, default: 'inbox' },
-] as const satisfies readonly {
-  key: string;
-  label: string;
-  kinds: readonly string[];
-  default: NotificationDelivery;
-}[];
-
-/** The group a notification belongs to: a core group, or the plugin that sent it. */
-export const notificationGroupOf = (source: string, kind: string) =>
-  source === 'core'
-    ? (CORE_NOTIFICATION_GROUPS.find((group) => (group.kinds as readonly string[]).includes(kind))
-        ?.key ?? 'records')
-    : source;

@@ -33,6 +33,11 @@ type FileRow = typeof files.$inferSelect;
 const fileWithUrl = {
   ...getTableColumns(files),
   url: sql<string>`${`${CORE_API_PREFIX}/files/`} || ${files.id} || '/download'`.as('url'),
+  publicUrl: sql<
+    string | null
+  >`case when ${files.public} then ${`${CORE_API_PREFIX}/files/public/`} || ${files.id} end`.as(
+    'public_url',
+  ),
 };
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
@@ -58,7 +63,7 @@ const uploadedBy = () => {
  */
 export const createUpload = async (
   client: Db,
-  input: { name: string; contentType: string; size: number },
+  input: { name: string; contentType: string; size: number; public?: boolean },
 ) => {
   assertUploadAllowed(await fileSettingsOf(client), input);
 
@@ -83,6 +88,7 @@ export const createUpload = async (
         contentType: input.contentType,
         size: input.size,
         status: 'pending',
+        public: input.public ?? false,
         ...uploadedBy(),
       })
       .returning(fileWithUrl),

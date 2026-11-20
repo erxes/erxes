@@ -118,6 +118,17 @@ describe('email sending settings', () => {
     expect(mail?.from).toContain('hello@acme.mn');
     expect(mail?.to.join()).toContain('someone@example.com');
     expect(mail?.data).toContain('Test email from erxes');
+    expect(mail?.data).toContain('From: Acme <hello@acme.mn>');
+
+    // No name of its own: the organisation's, as the editors show it.
+    await t.owner().emails.saveSettings({ ...ownServer(), fromName: '', username: '' });
+    expect(await t.owner().emails.sender({})).toMatchObject({ name: 'Acme' });
+    await t.owner().emails.sendTest({ to: 'someone@example.com' });
+    expect(smtp.received.at(-1)?.data).toContain('From: Acme <hello@acme.mn>');
+    // The delivery log says what it went through.
+    expect(
+      (await t.owner().emails.deliveries({ search: 'someone@example.com' })).data[0],
+    ).toMatchObject({ provider: 'smtp', status: 'sent' });
 
     // Removed: back to the server's (the log driver here), still answering.
     await t.owner().emails.removeSettings({});

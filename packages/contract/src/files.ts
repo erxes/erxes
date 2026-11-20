@@ -21,6 +21,8 @@ export const FileInfo = createSelectSchema(files, {
     status: true,
     /** `core` or the plugin that uploaded it. */
     source: true,
+    /** A picture for emails, open to anyone at `publicUrl`. */
+    public: true,
     /** Who uploaded it: a team member (`actorId` = user id), a plugin (its name) or `system`. */
     actorType: true,
     actorId: true,
@@ -33,6 +35,11 @@ export const FileInfo = createSelectSchema(files, {
      * Use it for `<img src>` and links. The query selects it with the row.
      */
     url: z.string(),
+    /**
+     * A public file's address for anyone (`/core/v1/files/public/<id>`), with no sign-in:
+     * what an email shows. Null for every other file.
+     */
+    publicUrl: z.string().nullable(),
   });
 
 export type FileInfo = z.infer<typeof FileInfo>;
@@ -112,6 +119,11 @@ export const filesContract = {
           .regex(/^[a-z0-9][a-z0-9.+-]*\/[a-z0-9][a-z0-9.+-]*$/, 'type/subtype'),
         /** Bytes; the stored object must match it. */
         size: z.int().min(0),
+        /**
+         * A picture for emails (PNG, JPEG, GIF or WebP): once ready, anyone with its
+         * `publicUrl` can open it, as mail clients do. Set only here, never after.
+         */
+        public: z.boolean().optional(),
       }),
     )
     .output(z.object({ file: FileInfo, upload: UploadTarget })),

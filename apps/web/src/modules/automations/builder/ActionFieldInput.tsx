@@ -12,6 +12,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
   type ActionInputProps,
   CustomFieldSelect,
@@ -254,6 +255,14 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <LookupMultiSelect {...props} />;
     case 'json':
       return <JsonInput {...props} />;
+    case 'reply_to':
+      return (
+        <ReplyToSelect
+          value={typeof value === 'string' ? value : null}
+          onChange={(next) => onChange(next ?? undefined)}
+          disabled={disabled}
+        />
+      );
     default:
       return <TextField {...props} />;
   }

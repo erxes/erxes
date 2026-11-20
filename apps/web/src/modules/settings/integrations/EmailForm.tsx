@@ -1,9 +1,11 @@
 import type { EmailSettings, EmailSettingsInput } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { IconCircleCheck } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, Input, Label, Select, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EventsFields } from './EmailEvents';
 import { FormSection } from './FormSection';
 
 type Provider = EmailSettings['provider'];
@@ -26,6 +28,9 @@ const draftOf = (saved: EmailSettings | null) => ({
   username: saved?.username ?? '',
   region: saved?.region ?? '',
   secret: '',
+  eventsKey: saved?.eventsKey ?? '',
+  configurationSet: saved?.configurationSet ?? '',
+  eventsTopicArn: saved?.eventsTopicArn ?? '',
 });
 
 type Draft = ReturnType<typeof draftOf>;
@@ -47,10 +52,19 @@ const inputOf = (draft: Draft): EmailSettingsInput => {
     secret: draft.secret || undefined,
   };
 
-  if (draft.provider === 'sendgrid') return { provider: 'sendgrid', ...sender };
+  if (draft.provider === 'sendgrid') {
+    return { provider: 'sendgrid', ...sender, eventsKey: draft.eventsKey };
+  }
 
   if (draft.provider === 'ses') {
-    return { provider: 'ses', ...sender, region: draft.region, username: draft.username };
+    return {
+      provider: 'ses',
+      ...sender,
+      region: draft.region,
+      username: draft.username,
+      configurationSet: draft.configurationSet,
+      eventsTopicArn: draft.eventsTopicArn,
+    };
   }
 
   return {
@@ -139,6 +153,20 @@ const ProviderPicker = ({
   );
 };
 
+/** The saved secret is never shown: this says it is there, and that a typed one replaces it. */
+const SecretSaved = ({ provider }: { provider: Provider }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+
+  return (
+    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <IconCircleCheck className="size-3.5 text-(--success-text)" />
+      {t(`secret-saved.${provider}`, {
+        defaultValue: `The ${SECRET_LABELS[provider].toLowerCase()} is saved. Type a new one only to replace it.`,
+      })}
+    </p>
+  );
+};
+
 /** Sender, provider and how to reach it; the saved secret is never shown. */
 const FormSections = ({
   draft,
@@ -151,6 +179,8 @@ const FormSections = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
   const id = useId();
+  // The server keeps the saved secret for the same provider and user (`secretFor`); it is never sent back.
+  const secretKept = saved?.provider === draft.provider && saved.username === draft.username;
 
   // Connection labels differ by provider (`field.ses.username`: the access key id).
   const field = (key: TextKey, label: string, placeholder = '', type = 'text') => (
@@ -193,7 +223,12 @@ const FormSections = ({
           {CONNECTION_FIELDS[draft.provider].map(({ key, label, placeholder }) =>
             field(key, label, placeholder),
           )}
-          {field('secret', SECRET_LABELS[draft.provider], '', 'password')}
+          {field(
+            'secret',
+            SECRET_LABELS[draft.provider],
+            secretKept ? '••••••••••••' : '',
+            'password',
+          )}
         </div>
         {draft.provider === 'smtp' && (
           <span className="flex items-center gap-2 text-sm">
@@ -207,14 +242,13 @@ const FormSections = ({
             </label>
           </span>
         )}
-        {saved && (
-          <p className="text-xs text-muted-foreground">
-            {t(`secret-kept.${draft.provider}`, {
-              defaultValue: `Leave the ${SECRET_LABELS[draft.provider].toLowerCase()} empty to keep the saved one.`,
-            })}
-          </p>
-        )}
+        {secretKept && <SecretSaved provider={draft.provider} />}
       </FormSection>
+      <EventsFields
+        provider={draft.provider}
+        draft={draft}
+        onChange={(key, value) => onChange({ ...draft, [key]: value })}
+      />
     </>
   );
 };

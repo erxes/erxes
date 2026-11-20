@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { config } from '~/config';
 import { loggedEmails } from '~/modules/email/email';
 import { loggedSms } from '~/modules/sms/sms';
 import { aMinuteLater, useCustomers } from './customerAuth.fixture';
@@ -78,6 +79,34 @@ describe('customer notifications', { timeout: 300_000 }, () => {
     await settle();
 
     expect(loggedSms.at(-1)).toMatchObject({ to: '+97699112233', text: 'Your order is ready' });
+  });
+
+  it('leaves out only the email while email sending isn’t set up', async () => {
+    const both = await t.owner().customers.create({
+      firstName: 'Both',
+      primaryEmail: 'both@example.com',
+      primaryPhone: '+97699445566',
+    });
+
+    config.isProduction = true;
+
+    try {
+      expect(
+        await t.hr().customerNotifications.create({
+          customerIds: [both.id],
+          kind: 'hr.order.shipped',
+          title: 'Your order shipped',
+          channels: ['email', 'sms'],
+        }),
+      ).toEqual({ created: 1, skipped: 0 });
+    } finally {
+      config.isProduction = false;
+    }
+
+    await settle();
+
+    expect(loggedSms.at(-1)).toMatchObject({ to: '+97699445566', text: 'Your order shipped' });
+    expect(loggedEmails.some((email) => email.to === 'both@example.com')).toBe(false);
   });
 
   it('sends to everyone who signed up, in their own organisation only', async () => {

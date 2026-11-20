@@ -1,5 +1,6 @@
 import type { FileSettings } from '@erxes/core-contract';
 import { type Db, organizations, type OrganizationSettings } from '@erxes/core-db';
+import { EMAIL_IMAGE_TYPES } from '@erxes/core-db/emailEnums';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
@@ -76,11 +77,23 @@ export const fileSettingsOf = async (client: Db): Promise<FileSettings> => {
   };
 };
 
-/** Throws unless the settings accept a file of this name, type and size. */
+const isEmailImage = (contentType: string) =>
+  EMAIL_IMAGE_TYPES.some((type) => type === contentType);
+
+/**
+ * Throws unless the settings accept a file of this name, type and size. A public file
+ * (a picture for emails) must also be a PNG, JPEG, GIF or WebP.
+ */
 export const assertUploadAllowed = (
   settings: FileSettings,
-  input: { name: string; contentType: string; size: number },
+  input: { name: string; contentType: string; size: number; public?: boolean },
 ) => {
+  if (input.public && !isEmailImage(input.contentType)) {
+    throw fail('FILE_TYPE_NOT_ALLOWED', 'Pictures in emails are PNG, JPEG, GIF or WebP', {
+      allowedTypes: [...EMAIL_IMAGE_TYPES],
+    });
+  }
+
   if (input.size > settings.maxSizeMb * MB) {
     throw fail('FILE_TOO_LARGE', `Files can be up to ${settings.maxSizeMb} MB`, {
       maxSizeMb: settings.maxSizeMb,

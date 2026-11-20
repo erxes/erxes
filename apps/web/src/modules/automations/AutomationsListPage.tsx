@@ -21,7 +21,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useCan } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { catalogQuery } from './automationQueries';
 import { countSteps } from './builder/flowChecks';
 import { describeTrigger } from './builder/flowText';
@@ -157,6 +157,7 @@ const AutomationList = ({ automations }: { automations: Automation[] }) => {
   const canManage = useCan()('automations.manage');
   const toggle = useToggle();
   const catalog = useQuery(catalogQuery());
+  const { timezone } = useSession().organization;
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<Automation['status'] | 'all'>('all');
   const search = q.trim().toLowerCase();
@@ -196,8 +197,12 @@ const AutomationList = ({ automations }: { automations: Automation[] }) => {
               key={automation.id}
               automation={automation}
               triggerLabel={
-                describeTrigger(automation.definition.trigger, catalog.data?.triggers ?? [], [])
-                  .title
+                describeTrigger(
+                  automation.definition.trigger,
+                  catalog.data?.triggers ?? [],
+                  [],
+                  timezone,
+                ).title
               }
               toggle={canManage ? toggle : null}
             />

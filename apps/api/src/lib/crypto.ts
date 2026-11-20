@@ -22,6 +22,7 @@ export {
   type KeyObject,
   randomInt,
   randomUUID,
+  sign,
   verify,
 } from 'node:crypto';
 

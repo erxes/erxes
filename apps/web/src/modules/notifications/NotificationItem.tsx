@@ -7,20 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { ChangeList, useChangeLookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
+import { useNotificationText } from './notificationText';
 import { type Inbox, useNotificationActions } from './useNotifications';
 
 /** Core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
 const Changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()]));
 
 type Changes = z.infer<typeof Changes>;
-
-/** Core's own kinds have translated titles; plugins send theirs ready to read. */
-const useNotificationTitle = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'notifications.kinds' });
-
-  return (notification: Notification) =>
-    notification.source === 'core' ? t(notification.kind, notification.title) : notification.title;
-};
 
 const changesOf = (notification: Notification) => {
   const changes = Changes.safeParse(notification.data.changes);
@@ -193,7 +186,7 @@ const NotificationTitle = ({
   notification: Notification;
   onOpen: () => void;
 }) => {
-  const title = useNotificationTitle();
+  const { title } = useNotificationText();
   const { t } = useTranslation('common', { keyPrefix: 'notifications' });
 
   return (
@@ -236,6 +229,7 @@ export const NotificationItem = ({
   const navigate = useNavigate();
   const { markRead } = useNotificationActions();
   const [expanded, setExpanded] = useState(false);
+  const body = useNotificationText().body(notification);
   const listedChanges = changesOf(notification);
   // A compact list has no room for changes.
   const changes = compact ? null : listedChanges;
@@ -267,14 +261,14 @@ export const NotificationItem = ({
       />
       <div className="min-w-0 flex-1">
         <NotificationTitle notification={notification} onOpen={open} />
-        {notification.body && (
+        {body && (
           <p
             className={cn(
               'text-sm text-muted-foreground',
               compact ? 'line-clamp-2' : 'whitespace-pre-line',
             )}
           >
-            {notification.body}
+            {body}
           </p>
         )}
         {changes && expanded && (

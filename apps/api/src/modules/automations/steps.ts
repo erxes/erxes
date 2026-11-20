@@ -1,5 +1,6 @@
 import type { AutomationStep } from '@erxes/core-contract';
-import { type automations, type Db, runAs } from '@erxes/core-db';
+import { type automations, type Db, runAs, savepoint } from '@erxes/core-db';
+import { ORPCError } from '@orpc/server';
 import { fromDatabase } from '~/http/errors';
 import { withRunCause } from '~/lib/causation';
 import { coreAction } from './actions/catalog';
@@ -12,7 +13,12 @@ export type StepOutcome =
   | { kind: 'done'; input: unknown; output: unknown; next: Cursor | null }
   | { kind: 'wait'; until: Date; event: string | null }
   /** The step calls another system: the call job runs it outside this transaction. */
-  | { kind: 'call' };
+  | { kind: 'call' }
+  /** The step can't succeed on a retry: the run fails now. */
+  | { kind: 'failed'; error: string };
+
+/** Errors a retry can't fix: email that would only reach the log stays so until an admin acts. */
+const FINAL_ERRORS: ReadonlySet<string> = new Set(['EMAIL_NOT_CONFIGURED']);
 
 export interface StepState {
   tx: Db;
@@ -82,21 +88,31 @@ const runLocalAction = async (
     context,
   };
 
-  const output = await withRunCause(
-    {
-      runId: state.run.id,
-      automationId: automation.id,
-      automationName: automation.name,
-      depth: state.run.depth,
-    },
-    // A unique or reference conflict fails the run with what it means.
-    () =>
-      runAs(member, () => run(ctx)).catch((error: unknown) => {
-        throw fromDatabase(error);
-      }),
-  );
+  const cause = {
+    runId: state.run.id,
+    automationId: automation.id,
+    automationName: automation.name,
+    depth: state.run.depth,
+  };
 
-  return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
+  try {
+    // In a savepoint: a step that fails for good leaves none of its writes behind.
+    const output = await withRunCause(cause, () =>
+      savepoint(() =>
+        // A unique or reference conflict fails the run with what it means.
+        runAs(member, () => run(ctx)).catch((error: unknown) => {
+          throw fromDatabase(error);
+        }),
+      ),
+    );
+
+    return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
+  } catch (error) {
+    if (error instanceof ORPCError && FINAL_ERRORS.has(error.code))
+      return { kind: 'failed', error: error.message };
+
+    throw error;
+  }
 };
 
 /** What the step at the run's cursor does: move on, wait, or call out. */

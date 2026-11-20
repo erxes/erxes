@@ -193,4 +193,40 @@ describe('automations: paths, testing and operations', { timeout: 600_000 }, () 
 
     expect(fields.data.map((field) => field.path)).toContain('subject.primaryEmail');
   });
+
+  it('copies an email step to its Cc, at most 5 addresses', async () => {
+    const mail = (cc: string): DefinitionInput => ({
+      trigger: { kind: 'event', event: 'core.customer.created' },
+      steps: [
+        {
+          id: 'mail',
+          type: 'action',
+          action: 'core.email.send',
+          input: { to: 'subject', subject: 'Copied', body: 'Hello', cc },
+        },
+      ],
+    });
+
+    const check = async (cc: string) =>
+      (await t.owner().automations.check({ definition: mail(cc) })).problems;
+
+    expect(await check('a@cc.mn, b@cc.mn, c@cc.mn, d@cc.mn, e@cc.mn, f@cc.mn')).toEqual([
+      'Step mail (Send an email): Cc takes at most 5 addresses',
+    ]);
+    expect(await check('a@cc.mn, not-an-address')).toEqual([
+      'Step mail (Send an email): an address in Cc is not an email address',
+    ]);
+    expect(await check('{{subject.primaryEmail}}')).toEqual([]);
+
+    const id = await t.active('Cc', mail('Boss@cc.mn, copied@mail.mn, boss@cc.mn'));
+
+    await t.owner().customers.create({ firstName: 'Copied', primaryEmail: 'copied@mail.mn' });
+    await settle();
+
+    // The recipient isn't copied on their own email, and a repeat goes once.
+    expect(loggedEmails.filter((email) => email.subject === 'Copied')).toMatchObject([
+      { to: 'copied@mail.mn', cc: ['boss@cc.mn'] },
+    ]);
+    expect((await t.runsOf(id))[0]?.status).toBe('succeeded');
+  });
 });

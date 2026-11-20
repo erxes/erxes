@@ -8,23 +8,34 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 export const EmailSettings = createSelectSchema(emailSettings, {
   createdAt: isoDate,
   updatedAt: isoDate,
-}).pick({
-  /** `smtp`: the organisation's own server; `sendgrid`, `ses`: through their SMTP. */
-  provider: true,
-  /** Shown with `fromEmail`; a broadcast's own sender name replaces it. */
-  fromName: true,
-  fromEmail: true,
-  smtpHost: true,
-  smtpPort: true,
-  /** TLS from the start (port 465), rather than STARTTLS. */
-  smtpSecure: true,
-  /** `smtp`: its user name; `ses`: the access key id. */
-  username: true,
-  /** `ses`: the AWS region. */
-  region: true,
-  createdAt: true,
-  updatedAt: true,
-});
+})
+  .pick({
+    /** `smtp`: the organisation's own server; `sendgrid`, `ses`: through their SMTP. */
+    provider: true,
+    /** Shown with `fromEmail`; a broadcast's or automation's own name replaces it. */
+    fromName: true,
+    fromEmail: true,
+    smtpHost: true,
+    smtpPort: true,
+    /** TLS from the start (port 465), rather than STARTTLS. */
+    smtpSecure: true,
+    /** `smtp`: its user name; `ses`: the access key id. */
+    username: true,
+    /** `ses`: the AWS region. */
+    region: true,
+    /** `sendgrid`: the Signed Event Webhook's verification key; empty: its events aren't taken. */
+    eventsKey: true,
+    /** `ses`: the configuration set every email names; its event destination is `eventsTopicArn`. */
+    configurationSet: true,
+    /** `ses`: the SNS topic events come through; empty: they aren't taken. */
+    eventsTopicArn: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    /** Where the provider posts its events (bounces, complaints, deliveries); null for `smtp`. */
+    eventsUrl: z.string().nullable(),
+  });
 
 export type EmailSettings = z.infer<typeof EmailSettings>;
 
@@ -50,10 +61,29 @@ export const EmailSettingsInput = z.discriminatedUnion('provider', [
     /** Empty: the server takes mail without signing in. */
     username: z.string().trim().max(200),
   }),
-  z.object({ provider: z.literal('sendgrid'), ...sender }),
+  z.object({
+    provider: z.literal('sendgrid'),
+    ...sender,
+    /** The Signed Event Webhook's verification key (base64), from SendGrid's Mail Settings. */
+    eventsKey: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z0-9+/=\s]{0,500}$/, 'a base64 key')
+      .default(''),
+  }),
   z.object({
     provider: z.literal('ses'),
     ...sender,
+    configurationSet: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z0-9_-]{0,64}$/, 'a configuration set name')
+      .default(''),
+    eventsTopicArn: z
+      .string()
+      .trim()
+      .regex(/^(arn:aws[a-z-]*:sns:[a-z0-9-]+:\d{12}:[A-Za-z0-9_-]{1,256})?$/, 'an SNS topic ARN')
+      .default(''),
     region: z
       .string()
       .trim()
@@ -77,6 +107,9 @@ const base = oc.errors({ ...COMMON_ERRORS, INVALID_URL });
  * notifications, automations and broadcasts all go out from its own address
  * through its SMTP server, SendGrid or Amazon SES. Without settings they go
  * through the server's (`EMAIL_SMTP_URL`). The secret is never sent back.
+ * SendGrid and SES report bounces and complaints to `eventsUrl`, checked with
+ * `eventsKey` or `eventsTopicArn`. Self-hosted only: on SaaS every organisation sends through the server's,
+ * and saving or testing answers 402 NOT_IN_PLAN.
  */
 export const emailSettingsContract = {
   settings: base
@@ -103,10 +136,12 @@ export const emailSettingsContract = {
     })
     .output(z.object({ ok: z.literal(true) })),
   sendTest: base
+    .errors({ EMAIL_NOT_CONFIGURED: ERRORS.EMAIL_NOT_CONFIGURED })
     .route({
       method: 'POST',
       path: '/email/settings/test',
-      summary: 'Send a test email with the saved settings, to me or to `to`, and say how it went',
+      summary:
+        'Send a test email with the saved settings, to me or to `to`, and say how it went. 409 EMAIL_NOT_CONFIGURED when email can’t be delivered',
     })
     .input(z.object({ to: z.string().trim().check(z.email()).max(254).optional() }))
     .output(

@@ -1,8 +1,8 @@
 import { paths } from '~/lib/paths';
-import { QueryObserver, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { orpc } from '@erxes/core-contract/client';
+import { watchArrivals } from './arrivals';
 import { useNotificationSettings } from './useNotifications';
 
 export const desktopSupported = () => typeof window !== 'undefined' && 'Notification' in window;
@@ -33,9 +33,8 @@ const popUp = (
 
 /**
  * Desktop notifications (Settings › Notifications › Browser): new inbox items
- * pop up while erxes isn't the tab in front. The list refetches on the live
- * inbox signal; the tag is the notification's id, so several open tabs show
- * it once. Clicking opens it. Signing out or turning them off closes the open ones.
+ * pop up while erxes isn't the tab in front (`watchArrivals`); the tag is the
+ * notification's id, so several open tabs show it once. Clicking opens it. Signing out or turning them off closes the open ones.
  */
 export const useDesktopNotifications = () => {
   const navigate = useNavigate();
@@ -54,36 +53,13 @@ export const useDesktopNotifications = () => {
   useEffect(() => {
     if (!enabled) return;
 
-    // A failed check stays quiet: the next live signal or poll tries again.
-    const latest = new QueryObserver(
-      client,
-      orpc.notifications.list.queryOptions({
-        input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
-      }),
-    );
-
     const popups = new Set<Notification>();
     const clicks = new AbortController();
-    let seen: Set<string> | undefined;
 
-    const unsubscribe = latest.subscribe(({ data }) => {
-      if (!data) return;
+    const unsubscribe = watchArrivals(client, (item) => {
+      if (document.visibilityState === 'visible') return;
 
-      // What was there when they were turned on isn't news.
-      if (!seen) {
-        seen = new Set(data.data.map((item) => item.id));
-
-        return;
-      }
-
-      for (const item of data.data) {
-        if (seen.has(item.id)) continue;
-        seen.add(item.id);
-
-        if (document.visibilityState === 'visible') continue;
-
-        popups.add(popUp(item, () => open(item.link ?? paths.notifications), clicks.signal));
-      }
+      popups.add(popUp(item, () => open(item.link ?? paths.notifications), clicks.signal));
     });
 
     return () => {
