@@ -2,7 +2,7 @@ import { db, requestOrgId, withOrg } from '@erxes/core-db';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { audited, scoped, unscoped } from '~/orpc';
 import { appSettings, removeApp, saveApp } from './app.service';
-import { checkConnection, listConnections, removeConnection } from './connections.service';
+import { listConnections, removeConnection, repairConnection } from './connections.service';
 import { loginUrl } from './login';
 import { guardedGraph, importMeta } from './pluginApi';
 import { unrouteFromRelay } from './relay';
@@ -30,9 +30,7 @@ export const metaRouter = {
   connections: scoped.meta.connections.handler(async ({ input }) => ({
     data: await listConnections(db(), input.kind),
   })),
-  repair: unscoped.meta.repair.handler(({ input }) =>
-    checkConnection(requestOrgId(), input.id, true),
-  ),
+  repair: unscoped.meta.repair.handler(({ input }) => repairConnection(requestOrgId(), input.id)),
   disconnect: unscoped.meta.disconnect.handler(async ({ input, context }) => {
     const row = await withOrg(requestOrgId(), async (tx) => {
       const removed = await removeConnection(tx, input.id);

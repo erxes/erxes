@@ -3,7 +3,7 @@ import { asc } from 'drizzle-orm';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { defineSchedule } from '~/modules/jobs/jobs';
-import { checkConnection } from './connections.service';
+import { repairConnection } from './connections.service';
 import { pruneSends } from './send';
 
 const log = logger.child({ component: 'meta' });
@@ -19,7 +19,7 @@ const checkAll = async () => {
   );
 
   await inOrder(all, (row) =>
-    checkConnection(row.orgId, row.id, false).catch((error: unknown) => {
+    repairConnection(row.orgId, row.id, { daily: true }).catch((error: unknown) => {
       log.error({ err: error, orgId: row.orgId, connectionId: row.id }, 'Meta check failed');
     }),
   );

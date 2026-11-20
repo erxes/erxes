@@ -46,10 +46,13 @@ export const useFakeGraph = () => {
     pages: [] as unknown[],
     names: new Map<string, string>(),
     refuseTokens: false,
+    relayDown: false,
     sent: 0,
   };
 
   const answer = (call: GraphCall): [number, unknown] => {
+    if (call.path.startsWith('/relay/')) return fake.relayDown ? [503, {}] : [200, { ok: true }];
+
     if (fake.refuseTokens && call.auth)
       return [400, { error: { message: 'Error validating access token', code: 190 } }];
 
@@ -110,6 +113,11 @@ export const useFakeGraph = () => {
       dialogUrl: `${base}/dialog/oauth`,
       app: INSTALL_APP,
       verifyToken: INSTALL_VERIFY_TOKEN,
+      relay: {
+        url: `${base}/relay`,
+        key: 'relay-key',
+        webhookUrl: 'https://core.test/core/v1/meta/webhook',
+      },
     });
   });
 

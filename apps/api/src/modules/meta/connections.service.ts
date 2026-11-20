@@ -115,16 +115,26 @@ export const markRefused = async (orgId: string, id: string, error: unknown) => 
 
 const problemOf = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
-export const checkConnection = async (orgId: string, id: string, repair: boolean) => {
+const routeAgain = (row: ConnectionRow, daily: boolean) => {
+  if (row.app !== 'install') return undefined;
+
+  const routed = routeThroughRelay(row.kind, row.externalId);
+
+  return daily
+    ? routed.catch((error: unknown) => {
+        log.warn(
+          { err: error, orgId: row.orgId, connectionId: row.id },
+          'Meta relay route not restored',
+        );
+      })
+    : routed;
+};
+
+export const repairConnection = async (orgId: string, id: string, { daily = false } = {}) => {
   const { row, token } = await openConnection(orgId, id);
 
   const error = await (async () => {
-    if (repair) {
-      await subscribeToPage(row.pageId, token);
-
-      if (row.app === 'install') await routeThroughRelay(row.kind, row.externalId);
-    }
-
+    await Promise.all([subscribeToPage(row.pageId, token), routeAgain(row, daily)]);
     await graph('me', token, { query: { fields: 'id' } });
 
     return null;
