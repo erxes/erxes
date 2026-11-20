@@ -405,6 +405,12 @@ export const AUTOMATION_FIELD_TYPES = [
   'select',
 ] as const;
 
+/**
+ * What core remembers of an event type's payload: `seen` marks that the type happened at all,
+ * the others how a key's values compare (each is one of `AUTOMATION_FIELD_TYPES`).
+ */
+export const EVENT_DATA_KINDS = ['seen', 'text', 'number', 'boolean', 'list'] as const;
+
 /** The inputs an action's form shows. */
 export const ACTION_FIELD_TYPES = [
   'text',

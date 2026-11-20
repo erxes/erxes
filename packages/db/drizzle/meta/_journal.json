@@ -666,6 +666,13 @@
       "when": 1795106753541,
       "tag": "0094_email_senders",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1795110960296,
+      "tag": "0095_event_data",
+      "breakpoints": true
     }
   ]
 }

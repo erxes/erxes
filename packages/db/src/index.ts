@@ -36,6 +36,7 @@ export {
   auditCheckpoints,
   authTokens,
   auditLogs,
+  eventData,
   events,
   files,
   notifications,
