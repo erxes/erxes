@@ -49,7 +49,7 @@
   "days": "days",
   "template-hint": "Text can use placeholders like",
   "no-runs": "No runs yet",
-  "no-runs-description": "Runs appear here when the trigger event happens and its conditions hold.",
+  "no-runs-description": "Runs appear here as soon as the trigger event happens and its conditions hold.",
   "retry": "Continue from the failed step",
   "cancel": "Cancel",
   "waiting-until": "Waiting until",
@@ -311,10 +311,8 @@
   "event-data": "What steps can use from it",
   "event-data-none": "“{{event}}” carries no data of its own.",
   "event-data-waiting-title": "No data from this event yet",
-  "event-data-waiting": "erxes learns what “{{event}}” carries the next time it happens. Make it happen once (a test is fine) and its data shows up here within a few seconds.",
+  "event-data-waiting": "erxes learns what “{{event}}” carries the next time it happens. Make it happen once (a test is fine) and its data shows up here by itself.",
   "event-data-use-customer": "You can already use the customer’s details.",
   "event-data-use-company": "You can already use the company’s details.",
-  "event-data-check": "Check again",
-  "event-data-still-none": "Nothing has arrived yet.",
-  "event-data-waiting-short": "Nothing yet. Its data shows up here after the next “{{event}}”."
+  "event-data-waiting-short": "Waiting for the next “{{event}}”. Its data shows up here as soon as it arrives."
 }

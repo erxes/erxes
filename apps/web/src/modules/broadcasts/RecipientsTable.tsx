@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { EmptyList } from '~/components/EmptyList';
 import { QueryState } from '~/components/QueryState';
 import { forwardPaging } from '~/lib/cursorList';
+import { liveOptions } from '~/lib/live';
 import { paths } from '~/lib/paths';
 import { flattenPages, LoadMore, OptionSelect, SearchBar } from './BroadcastBits';
 
@@ -111,7 +112,7 @@ export const RecipientsTable = ({ broadcast }: { broadcast: Broadcast }) => {
         search: search || undefined,
       }),
       select: flattenPages,
-      refetchInterval: broadcast.status === 'sending' ? 5000 : false,
+      ...liveOptions([`broadcasts:${broadcast.id}`], broadcast.status === 'sending' ? 5000 : false),
     }),
   );
 

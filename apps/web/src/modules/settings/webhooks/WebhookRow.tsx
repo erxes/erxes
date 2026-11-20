@@ -13,8 +13,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, RelativeDateDisplay, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Listening } from '~/components/Listening';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { liveOptions } from '~/lib/live';
 
 const useWebhookError = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
@@ -83,7 +85,7 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
   const deliveries = useQuery(
     orpc.webhooks.deliveries.queryOptions({
       input: { id: webhook.id, limit: 30 },
-      refetchInterval: 10_000,
+      ...liveOptions([`webhooks.deliveries:${webhook.id}`], 10_000),
     }),
   );
 
@@ -101,7 +103,9 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
       isEmpty={({ data }) => !data.length}
       empty={
         <p className="px-4 py-3 text-sm text-muted-foreground">
-          {t('no-deliveries', 'Nothing sent yet.')}
+          <Listening>
+            {t('no-deliveries', 'Nothing sent yet. Deliveries show up here as they happen.')}
+          </Listening>
         </p>
       }
     >

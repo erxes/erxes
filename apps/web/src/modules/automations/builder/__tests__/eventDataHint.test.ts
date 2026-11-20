@@ -42,23 +42,26 @@ const textFor = (event: EventDataSource, subject: 'customer' | null) => {
 };
 
 describe('EventDataHint', () => {
-  it('says how to get a plugin event’s data while none has arrived, and offers to look again', () => {
+  it('says how to get a plugin event’s data while none has arrived, and that it shows up by itself', () => {
     const text = textFor({ label: 'Chat received', source: 'chat', seen: false }, 'customer');
 
     expect(text).toContain('No data from this event yet');
     expect(text).toContain('Make it happen once');
+    expect(text).toContain('shows up here by itself');
     expect(text).toContain('You can already use the customer’s details.');
-    expect(text).toContain('Check again');
+    expect(document.querySelector('button')).toBeNull();
   });
 
   it('does not ask the member to wait for an event that arrived with nothing, or for core’s', () => {
     const arrived = textFor({ label: 'Office opened', source: 'hr', seen: true }, null);
 
     expect(arrived).toContain('carries no data of its own.');
-    expect(arrived).not.toContain('Check again');
+    expect(arrived).not.toContain('No data from this event yet');
 
     act(() => root?.unmount());
 
-    expect(textFor({ label: 'Tag created', source: 'core' }, null)).not.toContain('Check again');
+    expect(textFor({ label: 'Tag created', source: 'core' }, null)).not.toContain(
+      'No data from this event yet',
+    );
   });
 });

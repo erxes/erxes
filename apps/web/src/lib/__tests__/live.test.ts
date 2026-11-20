@@ -118,16 +118,14 @@ describe('LiveClient (one stream per browser)', () => {
     const source = FakeEventSource.current();
 
     source.emit('hello', { mode: 'live' });
-    source.emit('timeline', { targets: [{ targetType: 'customer', targetId: 'c1' }] });
-    source.emit('assistant');
+    source.emit('changed', { topics: ['timeline:customer:c1', 'assistant'] });
     await tick();
 
     expect(leader.getMode()).toBe('live');
     expect(follower.getMode()).toBe('live');
     expect(seen).toEqual([
       { event: 'resync' },
-      { event: 'timeline', data: { targets: [{ targetType: 'customer', targetId: 'c1' }] } },
-      { event: 'assistant' },
+      { event: 'changed', data: { topics: ['timeline:customer:c1', 'assistant'] } },
     ]);
 
     leader.stop();
