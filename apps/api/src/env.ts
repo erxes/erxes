@@ -29,6 +29,9 @@ const SECRETS = [
   'CLOUDFLARE_ACCESS_KEY_ID',
   'CLOUDFLARE_SECRET_ACCESS_KEY',
   'CLOUDFLARE_API_TOKEN',
+  'META_APP_SECRET',
+  'META_VERIFY_TOKEN',
+  'META_RELAY_KEY',
 ] as const;
 
 const readSecret = (name: string) => {
@@ -143,6 +146,13 @@ const Env = z
     ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
     EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
 
+    META_APP_ID: text,
+    META_APP_SECRET: text,
+    META_VERIFY_TOKEN: text,
+    META_PUBLIC_URL: optional(z.url()),
+    META_RELAY_URL: optional(z.url()),
+    META_RELAY_KEY: text,
+
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
     SAAS_PLATFORM_TOKEN: text,
@@ -246,6 +256,17 @@ const Env = z
         message:
           'CLOUDFLARE_USE_CDN=true needs FILES_STORAGE=cloudflare, CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_HASH',
       });
+    }
+
+    if (!env.META_APP_ID !== !env.META_APP_SECRET || !env.META_RELAY_URL !== !env.META_RELAY_KEY) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Set META_APP_ID with META_APP_SECRET, META_RELAY_URL with META_RELAY_KEY',
+      });
+    }
+
+    if (env.META_RELAY_URL && !env.META_PUBLIC_URL) {
+      ctx.addIssue({ code: 'custom', message: 'META_RELAY_URL needs META_PUBLIC_URL' });
     }
   });
 

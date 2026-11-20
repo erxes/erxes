@@ -104,6 +104,7 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.security.alert',
   'core.import.done',
   'core.export.ready',
+  'core.integration.broken',
   'core.security.new_sign_in',
 ] as const;
 

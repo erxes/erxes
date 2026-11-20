@@ -23,6 +23,8 @@ const SCOPE_LABELS: Record<string, string> = {
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',
   'live:write': 'Refresh its screens live',
+  'meta:read': 'See the connected Facebook pages and Instagram accounts',
+  'meta:write': 'Send and call Meta through the connected pages and accounts',
   'notifications:write': 'Send notifications to team members',
   'payments:read': 'Read invoices and refunds',
   'payments:write': 'Create invoices and refunds',

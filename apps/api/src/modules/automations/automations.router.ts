@@ -25,10 +25,14 @@ import {
   retryAutomationRun,
   startAutomation,
 } from '~/modules/automations/runs.service';
+import { metaRecordChoices } from '~/modules/meta/actions';
 import { scoped } from '~/orpc';
 
 export const automationsRouter = {
   catalog: scoped.automations.catalog.handler(() => automationCatalog(db())),
+  recordChoices: scoped.automations.recordChoices.handler(({ input }) =>
+    metaRecordChoices(db(), input.recordType),
+  ),
   list: scoped.automations.list.handler(({ input }) => listAutomations(db(), input)),
   get: scoped.automations.get.handler(({ input }) => getAutomation(db(), input.id)),
   create: scoped.automations.create.handler(({ input }) => createAutomation(db(), input)),

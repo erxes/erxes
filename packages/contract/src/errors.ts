@@ -189,6 +189,11 @@ export const ERRORS = {
   COMPANY_NOT_FOUND: { status: 404 },
   TAX_OFFICE_UNAVAILABLE: { status: 503 },
 
+  META_NOT_SET_UP: { status: 409 },
+  META_REFUSED: { status: 400 },
+  SEND_IN_PROGRESS: { status: 409 },
+  GRAPH_PATH_NOT_ALLOWED: { status: 403 },
+
   // erxes.io: workspaces and sign-in links (saas.http.ts).
   OWNER_REQUIRED: { status: 400 },
   TOKEN_USED: { status: 400 },
