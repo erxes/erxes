@@ -29,7 +29,7 @@ export const PapaDealStages = ({
     sent: t('papa-step-sent', 'Sent to Papa'),
     inTransit: t('papa-step-in-transit', 'On the way'),
     delivered: t('papa-step-delivered', 'Delivered'),
-    cancelled: t('papa-step-cancelled', 'Cancelled by us'),
+     cancelled: t('papa-step-cancelled', 'Cancelled by user'),
     failed: t('papa-step-failed', 'Failed (cancelled by Papa or expired)'),
   };
 
