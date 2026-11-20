@@ -1,11 +1,6 @@
-import { IconHourglass, IconRefresh } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { Button } from 'erxes-ui';
-import { useState } from 'react';
+import { IconHourglass } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { catalogQuery } from '../automationQueries';
-
-const RECHECK_MS = 5000;
+import { Listening } from '~/components/Listening';
 
 /** The event that starts runs, as far as its data goes: who publishes it and whether one arrived. */
 export interface EventDataSource {
@@ -16,7 +11,7 @@ export interface EventDataSource {
 
 /**
  * Why an event offers no data, and what to do about it. erxes learns a plugin event's data from
- * the first one that arrives, so until then this says how to get it and lets the member look again.
+ * the first one that arrives and pushes the change, so the data shows up here by itself.
  */
 export const EventDataHint = ({
   event,
@@ -31,9 +26,6 @@ export const EventDataHint = ({
 }) => {
   const { t } = useTranslation('automations');
   const waiting = event.source !== 'core' && !event.seen;
-  // While it waits it looks again by itself, so the data shows up without a reload.
-  const catalog = useQuery({ ...catalogQuery(), refetchInterval: waiting ? RECHECK_MS : false });
-  const [checked, setChecked] = useState(false);
 
   const meanwhile =
     subject === 'company'
@@ -49,41 +41,21 @@ export const EventDataHint = ({
     );
   }
 
-  const again = (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={catalog.isFetching}
-        onClick={() => void catalog.refetch().then(() => setChecked(true))}
-      >
-        <IconRefresh />
-        {t('event-data-check', 'Check again')}
-      </Button>
-      {checked && !catalog.isFetching && (
-        <output className="text-muted-foreground">
-          {t('event-data-still-none', 'Nothing has arrived yet.')}
-        </output>
-      )}
-    </div>
-  );
-
   if (compact) {
     return (
       <div className="flex items-start gap-2.5 text-xs">
         <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
           <IconHourglass className="size-3.5" />
         </span>
-        <div className="min-w-0 space-y-2">
-          <p className="text-muted-foreground">
+        <p className="min-w-0 text-muted-foreground">
+          <Listening>
             {t(
               'event-data-waiting-short',
-              'Nothing yet. Its data shows up here after the next “{{event}}”.',
+              'Waiting for the next “{{event}}”. Its data shows up here as soon as it arrives.',
               { event: event.label },
             )}
-          </p>
-          {again}
-        </div>
+          </Listening>
+        </p>
       </div>
     );
   }
@@ -91,17 +63,16 @@ export const EventDataHint = ({
   return (
     <div className="space-y-2 rounded-md border border-dashed p-3 text-xs">
       <p className="text-sm font-medium">
-        {t('event-data-waiting-title', 'No data from this event yet')}
+        <Listening>{t('event-data-waiting-title', 'No data from this event yet')}</Listening>
       </p>
       <p className="text-muted-foreground">
         {t(
           'event-data-waiting',
-          'erxes learns what “{{event}}” carries the next time it happens. Make it happen once (a test is fine) and its data shows up here within a few seconds.',
+          'erxes learns what “{{event}}” carries the next time it happens. Make it happen once (a test is fine) and its data shows up here by itself.',
           { event: event.label },
         )}
       </p>
       {subject && <p className="text-muted-foreground">{meanwhile}</p>}
-      {again}
     </div>
   );
 };

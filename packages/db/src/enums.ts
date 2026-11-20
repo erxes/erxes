@@ -348,6 +348,8 @@ export const FILE_GRANT_OPS = ['put', 'get'] as const;
 /** How a browser gets live updates: a stream, or polling when streams are off. */
 export const LIVE_MODES = ['live', 'polling'] as const;
 
+export const STREAM_TOPICS = ['inbox', 'assistant', 'automations.catalog'] as const;
+
 export const NOTIFICATION_PRIORITIES = ['normal', 'high'] as const;
 
 export const AUDIT_STREAM_FORMATS = ['erxes', 'datadog', 'splunk'] as const;

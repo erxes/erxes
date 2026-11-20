@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
 import { orpc } from '@erxes/core-contract/client';
+import { liveOptions } from '~/lib/live';
 
 /** How soon to watch again after the server ends a watch: it went idle, or another server runs it. */
 const REWATCH_MS = 1500;
@@ -26,7 +27,12 @@ export const threadTitle = (
 ) => thread?.title ?? t('untitled', 'Untitled conversation');
 
 export const useThread = (threadId: string | null) =>
-  useQuery(orpc.assistant.thread.queryOptions({ input: threadId ? { id: threadId } : skipToken }));
+  useQuery(
+    orpc.assistant.thread.queryOptions({
+      input: threadId ? { id: threadId } : skipToken,
+      ...liveOptions(['assistant'], false),
+    }),
+  );
 
 /**
  * The conversation as the server commits it: the view, changed by each event, watched again

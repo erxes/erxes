@@ -176,6 +176,8 @@ export * from './files';
 
 export * from './leads';
 
+export * from './stream';
+
 export * from './money';
 
 export * from './notifications';

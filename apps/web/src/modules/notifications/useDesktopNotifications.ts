@@ -1,4 +1,5 @@
 import type { Notification as InboxItem } from '@erxes/core-contract';
+import { liveOptions } from '~/lib/live';
 import { paths } from '~/lib/paths';
 import { QueryObserver, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';
@@ -68,6 +69,7 @@ export const useDesktopNotifications = () => {
       client,
       orpc.notifications.list.queryOptions({
         input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
+        ...liveOptions(['inbox']),
       }),
     );
 

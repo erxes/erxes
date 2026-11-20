@@ -16,8 +16,9 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
   with no table import (`common.ts`, `money.ts`).
 - `src/common.ts` has `Id`, `IdList`, `CursorQuery`, `cursorPageOf`, `isoDate`. `src/events.ts`
   has the event schemas plugins publish. The `/core/v1/stream` messages are Server-Sent Events
-  outside the router: `StreamData` in `apps/api/src/modules/live/stream.http.ts`, read by
-  `apps/web/src/lib/liveClient.ts`.
+  outside the router: `StreamTopic` and `StreamChanged` in `src/stream.ts` name what changed. A table
+  trigger sends a topic with `core_live_topic`, `apps/api/src/modules/live/stream.http.ts` passes
+  it on, and a web query that shows it lists it with `liveOptions` (`apps/web/src/lib/live.ts`).
 - `routes.json` comes from `pnpm openapi`. The OpenAPI document is generated, never committed:
   `pnpm openapi <file>` also writes it to `<file>`.
 - The package has no import-time side effects (`sideEffects: false` in its package.json).
