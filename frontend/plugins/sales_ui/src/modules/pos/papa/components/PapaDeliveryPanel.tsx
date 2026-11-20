@@ -243,6 +243,19 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
               </Alert>
             )}
 
+            {papa.deal?.error && (
+              <Alert variant="warning">
+                <IconAlertTriangle />
+                <Alert.Description>
+                  {t(
+                    'papa-deal-not-moved',
+                    'The delivery deal was not moved: {{error}}',
+                    { error: papa.deal.error },
+                  )}
+                </Alert.Description>
+              </Alert>
+            )}
+
             <PanelField
               icon={IconCash}
               label={t('papa-price', 'Delivery price')}
@@ -347,7 +360,11 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
                 cell={false}
               >
                 <PosPanelText>
-                  {[delivery.car.type, delivery.car.plate, delivery.car.capacity]
+                  {[
+                    delivery.car.type,
+                    delivery.car.plate,
+                    delivery.car.capacity,
+                  ]
                     .filter(Boolean)
                     .join(' · ') || '-'}
                 </PosPanelText>
@@ -425,8 +442,14 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
                 'Papa could not take the delivery fee from your Papa wallet when this delivery ended. Top up the wallet in the Papa Business app or business.papa.mn, then pay it here.',
               )}
             </p>
-            <PapaWalletBalance amount={delivery?.unpaidAmount ?? delivery?.price} />
-            <Button disabled={busy} onClick={onPayFromWallet} className="w-full">
+            <PapaWalletBalance
+              amount={delivery?.unpaidAmount ?? delivery?.price}
+            />
+            <Button
+              disabled={busy}
+              onClick={onPayFromWallet}
+              className="w-full"
+            >
               <IconWallet />
               {t('papa-fee-pay-wallet', 'Pay Papa fee from wallet')}
             </Button>
@@ -437,7 +460,10 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
               className="w-full"
             >
               <IconCash />
-              {t('papa-fee-paid-outside-action', 'Paid outside Papa (cash or transfer)')}
+              {t(
+                'papa-fee-paid-outside-action',
+                'Paid outside Papa (cash or transfer)',
+              )}
             </Button>
           </section>
         )}

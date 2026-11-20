@@ -10,6 +10,26 @@ export type TPapaSize = (typeof PAPA_SIZES)[number];
 export const PAPA_CAR_TYPE_GROUPS = ['car', 'light'] as const;
 export type TPapaCarTypeGroup = (typeof PAPA_CAR_TYPE_GROUPS)[number];
 
+/** Delivery steps that move the order's deal (`deliveryConfig.papa.stageIds`). */
+export const PAPA_DEAL_STEPS = [
+  'sent',
+  'inTransit',
+  'delivered',
+  'cancelled',
+  'failed',
+] as const;
+export type TPapaDealStep = (typeof PAPA_DEAL_STEPS)[number];
+
+export type TPapaStageIds = Record<TPapaDealStep, string>;
+
+export const EMPTY_PAPA_STAGE_IDS: TPapaStageIds = {
+  sent: '',
+  inTransit: '',
+  delivered: '',
+  cancelled: '',
+  failed: '',
+};
+
 /** Statuses from which erxes can quote and send again. */
 export const PAPA_RESENDABLE_STATUSES = [
   'QUOTED',
@@ -43,6 +63,15 @@ export const posPapaConfigSchema = z
     categoryId: text,
     conditionId: text,
     size: z.enum(PAPA_SIZES).nullish(),
+    stageIds: z
+      .object({
+        sent: text,
+        inTransit: text,
+        delivered: text,
+        cancelled: text,
+        failed: text,
+      })
+      .nullish(),
   })
   .passthrough();
 
@@ -178,6 +207,18 @@ export const locationLabel = (
   return parent
     ? `${referenceLabel(parent)} › ${referenceLabel(row)}`
     : referenceLabel(row);
+};
+
+// `posOrder.papaDeal`: the delivery deal Papa statuses move.
+const papaDealSchema = z
+  .object({ dealId: text, step: text, error: text })
+  .passthrough();
+
+export type TPapaDeal = z.infer<typeof papaDealSchema>;
+
+export const parsePapaDeal = (value: unknown): TPapaDeal | null => {
+  const parsed = papaDealSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 };
 
 export const parsePapaDelivery = (value: unknown): TPapaDelivery | null => {

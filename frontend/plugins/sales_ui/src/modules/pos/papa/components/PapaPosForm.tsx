@@ -14,12 +14,14 @@ import {
   usePapaReferences,
 } from '../hooks/usePapaReferences';
 import {
+  EMPTY_PAPA_STAGE_IDS,
   PAPA_CAR_TYPE_GROUPS,
   PAPA_SIZES,
   parsePosPapaConfig,
   TPapaCarTypeGroup,
 } from '../utils/papaJson';
 import { PapaAddressForm } from './PapaAddressForm';
+import { PapaDealStages } from './PapaDealStages';
 import { PapaReferenceSelect } from './PapaReferenceSelect';
 
 const posPapaFormSchema = z
@@ -30,6 +32,13 @@ const posPapaFormSchema = z
     categoryId: z.string(),
     conditionId: z.string(),
     size: z.enum(PAPA_SIZES),
+    stageIds: z.object({
+      sent: z.string(),
+      inTransit: z.string(),
+      delivered: z.string(),
+      cancelled: z.string(),
+      failed: z.string(),
+    }),
   })
   .superRefine((values, ctx) => {
     if (!values.enabled) {
@@ -60,11 +69,12 @@ const DEFAULT_VALUES: TPosPapaForm = {
   categoryId: '',
   conditionId: '',
   size: 'SMALL',
+  stageIds: EMPTY_PAPA_STAGE_IDS,
 };
 
 interface PapaPosFormProps {
   posId: string;
-  deliveryConfig?: { papa?: unknown } | null;
+  deliveryConfig?: { papa?: unknown; pipelineId?: string | null } | null;
   hasAccount: boolean;
 }
 
@@ -101,6 +111,13 @@ export const PapaPosForm = ({
       categoryId: saved.categoryId || '',
       conditionId: saved.conditionId || '',
       size: saved.size || DEFAULT_VALUES.size,
+      stageIds: {
+        sent: saved.stageIds?.sent || '',
+        inTransit: saved.stageIds?.inTransit || '',
+        delivered: saved.stageIds?.delivered || '',
+        cancelled: saved.stageIds?.cancelled || '',
+        failed: saved.stageIds?.failed || '',
+      },
     });
   }, [deliveryConfig, form]);
 
@@ -344,6 +361,24 @@ export const PapaPosForm = ({
                 )}
               />
             </div>
+
+            <Form.Field
+              control={form.control}
+              name="stageIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    {t('papa-deal-stages', 'Deal stages')}
+                  </Form.Label>
+                  <PapaDealStages
+                    pipelineId={deliveryConfig?.pipelineId || undefined}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
           </>
         )}
 

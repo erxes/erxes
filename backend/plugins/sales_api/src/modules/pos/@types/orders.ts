@@ -1,6 +1,6 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
-import { IPapaDelivery } from '../papa/types';
+import { IPapaDealLink, IPapaDelivery } from '../papa/types';
 
 export interface IPosOrderItem {
   createdAt?: Date;
@@ -76,6 +76,8 @@ export interface IPosOrder {
   deliveryInfo?: any;
   // Papa Logistic delivery state; sales-owned, never set by a synced order.
   papaDelivery?: IPapaDelivery;
+  // The delivery deal Papa statuses move; sales-owned like `papaDelivery`.
+  papaDeal?: IPapaDealLink;
   description?: string;
   isPre?: boolean;
   origin?: string;

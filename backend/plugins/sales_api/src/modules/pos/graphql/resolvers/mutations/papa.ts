@@ -88,60 +88,60 @@ export const papaMutations = {
   async posOrderPapaSend(
     _root,
     { _id, ...args }: IPapaSendArgs & { _id: string },
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return sendPapaDelivery(models, requireId(_id), args, user?._id);
+    return sendPapaDelivery(models, subdomain, requireId(_id), args, user?._id);
   },
 
   async posOrderPapaRefresh(
     _root,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return refreshPapaDelivery(models, requireId(_id));
+    return refreshPapaDelivery(models, subdomain, requireId(_id));
   },
 
   async posOrderPapaCancel(
     _root,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return cancelPapaDelivery(models, requireId(_id));
+    return cancelPapaDelivery(models, subdomain, requireId(_id));
   },
 
   async posOrderPapaApprovePhoto(
     _root,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return approvePapaPhotoProof(models, requireId(_id));
+    return approvePapaPhotoProof(models, subdomain, requireId(_id));
   },
 
   async posOrderPapaMarkDelivered(
     _root,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return markPapaDelivered(models, requireId(_id));
+    return markPapaDelivered(models, subdomain, requireId(_id));
   },
 
   async posOrderPapaPay(
     _root,
     { _id, method }: { _id: string; method: TPapaPaymentMethod },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return payPapaDelivery(models, requireId(_id), method);
+    return payPapaDelivery(models, subdomain, requireId(_id), method);
   },
 };

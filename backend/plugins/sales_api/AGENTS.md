@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-14`
+- **Last synchronized:** `2026-11-18`
 
 ## Scope
 
@@ -31,68 +31,6 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
-
-- Two templates for core's Templates page ship through
-  `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
-  starter automations built on `templateHelpers.ts` (`emailStep` writes the
-  maily `contentJson` beside its html; `OPEN_DEAL_CONDITIONS` = active, not a
-  Won/Lost stage): `sales.deal-lost` (probability `Lost` → team notification,
-  email asking why), `sales.stale-deal` (membership trigger on a listed
-  segment `stageChangedDate` 7 days later, re-checked nightly → notify
-  `{{ trigger.assignedUserIds }}`), `sales.deal-round-robin` (segment trigger
-  on active deals created today → `transform` exposes `assignedUserIds` →
-  `split` reads that step (`target`; split conditions cannot read the record)
-  → `pickMember` → `setProperty assignedUserIds` → notify),
-  `sales.big-deal-approval` (membership trigger, `once`, on open deals with
-  `totalAmount numberigt` the `core:text` limit written into the segment
-  part → `approval` → notify approved/rejected) and `sales.pos-review` (a
-  solution: POS order `paid` → 1 day → frontline rating link → email; a
-  second journey alerts the team on a 1 or 2 from that form). Lookup segment
-  fields (`assignedUserIds`) only take equals/not equals, so "nobody
-  assigned" is a split condition, never a segment.
-  `sales.sales-employee` (v8, a solution), built on frontline node types
-  (hidden without frontline), and `sales.deal-won` (v3, an automation: one
-  journey, no parts — notifies the chosen team and emails the deal's
-  customer, trigger `sales:sales.deals.probability` fixed to
-  `{ probability: 'Won' }` so no pipeline/stage picker is needed; the email
-  step reads `{{ trigger.customers.primaryEmail }}`, the generic reference
-  path every `exposure: 'reference'` output field supports). Its email's
-  subject and body are the template's own literal text in the step (body as
-  maily `contentJson` plus its html in `content`: the builder's editor opens
-  only from `contentJson`, so a body without it opens empty), not a
-  `core:emails.content` requirement: that requirement's wizard reuses the
-  builder's rich editor, which needs a live automation it does not have yet,
-  and breaks there; the org rewords the email in the builder after
-  installing, same as any other action. Only `core:emails.sender` (a real
-  per-org pick) stays a requirement. Sales employee's one Messenger journey: an AI agent part (Product, Customer, POS
-  order and Loyalty account lookups, offer rules in its instructions, and the
-  whole product catalog as knowledge: core `product.knowledge` with
-  `scope: 'all'`, which an unscoped source needs to index anything) replies
-  itself. Helper tools, each a workflow whose result it tells the customer:
-  `place_order` (Create POS order of type delivery from `[{code, count}]`
-  lines, address and phone in the description; returns number, total and
-  `onlinePaymentUrl`; a `split` on the created order's `totalAmount` against
-  the `bigOrder` answer hands an order at or above it to an available sales
-  person, so the limit holds whatever the agent concluded) and `hand_over` (`pickMember` with a required
-  fallback, then handoff). The `request_discount` handoff tool first has the agent tell the customer
-  it was asked (a handoff ends the agent's turn with no text), then
-  `approval`; an AI agent step words each decision, sent with frontline's
-  customer message action. Two core segment parts (`core:segments.segment`,
-  owned by automations): "paid or not from the chat" (`paidDate` set, or not a
-  delivery order) and "orders from the chat" (delivery orders). Payment
-  reminder journey: POS order event `created` on the chosen POS, wait 2
-  hours, `if` not settled, message the customer with
-  `{{ trigger.onlinePaymentUrl }}`. Paid journey: event `paid`, `if` from the
-  chat, thank the customer. Delivered journey (`deliveryCompleted`, from the
-  chat): a frontline rating form part's link, sent with the delivered text.
-  Low rating (form submitted, rating below 3): Find object on the order
-  (`aboutRecordId`), notify the leads. Returned journey (from the chat):
-  notify the leads, then message the customer. `src/meta/templates/__tests__` runs `validateTemplate` and
-  checks the installed shape against the engine's config schemas.
-- The Create POS order action accepts an order line by product `code` as well
-  as `productId` (`action/resolveProductCodes.ts`, core `products.find`); an
-  unknown code fails the step instead of dropping the line. Prices stay with
-  posclient, which sets each line from the product's POS price.
 
 - Pipelines persist `productIds`, `tagIds`, and `excludeTagIds` for deal product selection. Core reads them through the existing tenant-scoped `pipeline.findOne` contract.
 
@@ -149,6 +87,17 @@
   `staffEmail`, `staffFirstName` and `staffLastName` create one through
   `/staff/create` (`SUPER_ADMIN`). Car groups expand to Papa `car_type`
   (`car` → `PASSANGER_CAR`; `light` → `ON_FOOT`, `MOPED`, `BICYCLE`).
+- Papa statuses move the order's delivery deal (`papa/deal.ts`,
+  `syncPapaDeal`, run after every send and refresh, so callbacks too):
+  `CONFIRM` → `sent`, `CREATING_SHIPPING`/`START` → `inTransit`,
+  `END`/`COMPLETED` → `delivered`, `USER_CANCELLED` → `cancelled`,
+  `CANCELLED`/`EXPIRED` → `failed`, each to the stage in
+  `deliveryConfig.papa.stageIds` (a step without one moves nothing). The
+  first move creates the deal through `createDeliveryDeal` when the order has
+  none (in `deliveryConfig.stageId`, else the step's stage); moves go through
+  `changeDeal`, so stage permissions, loyalty, activity logs, board
+  subscriptions and automations run as for a board drag, as the user who
+  sent the delivery.
 - POS configuration stores `customerCreateConfig` (`enabled`,
   `assignCashierAsOwner`, `layout`) for POS client customer registration and
   syncs it to POS client.
@@ -156,20 +105,6 @@
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
   the target does not name one.
-- Create deal accepts product lines: `items` (JSON text of
-  `{ productId, quantity | count, unitPrice? }`) or, when empty, `productIds`
-  (one of each). `action/dealProducts.ts` prices a line from the line or the
-  Core product, computes row `amount`, ticks the row and drops missing
-  products; `Deals.createDeal` fills currency and totals. `items` and
-  `productIds` are never stored as deal fields.
-- Create deal publishes its own output (`targetId`, `name`, `number`,
-  `totalAmount`, `onlinePaymentUrl`); deal triggers expose `onlinePaymentUrl`
-  too. `resolveDealPaymentUrl.ts` re-reads the deal and asks Payment's
-  `getOrCreateInvoiceUrl` for `totalAmount − mobileAmount` with the deal
-  pipeline's `paymentIds` and `contentType: 'sales:deal'`; it returns `''`
-  when nothing is owed or no online payment is configured. Paying lands in the
-  existing `sales:deal` payments callback (`mobileAmounts`). Pricing plans and
-  loyalty discounts are not applied to automation lines.
 
 - Runs as the sales federated GraphQL and tRPC plugin service.
 - Exposes deals, pipelines, boards, stages, labels, product/payment data, sales
@@ -432,8 +367,9 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   `salesPapaConfigSave`, `salesPapaAddressCreate` (`posPapaConfigManage`) and
   `posOrderPapaQuote`, `posOrderPapaSend`, `posOrderPapaRefresh`,
   `posOrderPapaCancel`, `posOrderPapaApprovePhoto`,
-  `posOrderPapaMarkDelivered` (`posOrderPapaManage`).
-  `PosOrderDetail.papaDelivery` (JSON).
+  `posOrderPapaMarkDelivered`, `posOrderPapaPay(_id, method: wallet|outside)`
+  and query `salesPapaWallet` (`posOrderPapaManage`).
+  `PosOrderDetail.papaDelivery` and `papaDeal` (JSON).
 - HTTP `GET /papa-callback/:secret` (gateway `/pl:sales/papa-callback/...`),
   registered with Papa by `salesPapaConfigSave` through `/client/configration`.
 
@@ -476,26 +412,15 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   status, driver/car, shipping id, end pincode, photo-proof flag and the last
   50 callback events. Local statuses `QUOTED`, `SENDING`, `FAILED` precede
   Papa's `parcel_order_status` values.
+- `pos_orders.papaDeal` links the delivery deal Papa moves: `dealId`, the
+  last `step` and the `papaOrderId` it belongs to, a `creatingAt` create
+  claim, and the last move `error`.
 - POS order items keep the optional `conditionCode` (core product condition code) the POS client sold a line under, for reporting.
 - POS `customerCreateConfig.layout` rows hold customer system field codes from
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
 
-- POS order event triggers read a field set for the first time from
-  `eventUpdateDescription.added` as well as `updated` (a new order's first
-  `paidDate` or `returnInfo` arrives as added); an update is never taken for a
-  create. "Delivery completed" means status `done`: posclient creates an order
-  with no kitchen step as `complete`, which is not a delivery. `statusToDone`
-  writes the done status onto the sales order so the event fires, and skips
-  the delivery deal when the POS keeps no delivery stage. Create POS order
-  passes posclient's refusal through (`throwOnError`) so the run says why.
-- Automation node and template icons (`icon` in automation constants and
-  `meta/templates`) are Tabler names the erxes-ui icon registry has
-  (the keys of `ALL_ICONS` in
-  `frontend/libs/erxes-ui/src/modules/icons/components/TablerIcons.ts`; an
-  aliased import such as `IconMessageCircle` is not one); any
-  other name draws as a placeholder in the builder and the template gallery.
 - Export handlers read the inner payload through `unwrapExportPayload`: the
   module producer passes `data`, not the `{ subdomain, data }` envelope the
   shared types describe. Deal and POS order rows always carry `_id` and are
@@ -509,20 +434,12 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - `Deals.addScoreLogs` only `$addToSet`s ids and sends no db event log, so
   deal-updated automations and segments do not run on point movements. Never
   store a score, total or balance next to the ids: loyalty is the only ledger.
-- Deal product permissions: `dealsEdit` (or `dealsAdd` for new and copied deals)
-  is enough to add product rows, change quantities and enter discounts.
-  `dealsProductsEdit` is required only when a saved row's `unitPrice` changes
-  (`utils/productPricePermissions.ts`); new rows are not checked. Removing rows
-  requires `dealsProductsDelete`, both in `dealsDeleteProductData` and in a
-  full-array `dealsEdit` save. The Sales User default group includes
-  `dealsProductsDelete`; only Sales Admin includes `dealsProductsEdit`.
+- The product-row deletion mutation requires `dealsProductsDelete` in addition to
+  `dealsEdit`. Full-array `dealsEdit` saves require `dealsEdit` and
+  `dealsProductsEdit`. The Sales Admin default group includes both product actions.
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
-- `Boards.createBoard` and `Pipelines.createPipeline` store `userId` from their
-  `userId` argument, falling back to `doc.userId`; resolvers pass the creator
-  in `doc`, and a copied pipeline keeps its source's creator. Archiving or
-  unarchiving a pipeline changes only `status`, never `userId`.
 - POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
   callers submit `false` or omit the field. This applies to GraphQL and tRPC
   creation; transport-side `onServer`/offline routing checks remain in place.
@@ -541,17 +458,6 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
-- Find object targets (`findSalesObject`, `sales/meta/automations/findObject.ts`):
-  deal (`_id`, `name`, `number`) and POS order `sales:pos.orders` (`_id`,
-  `number`; `customerId` only for customer-owned orders, `customerType`
-  empty or `customer`). `newest` sorts by `createdAt`. The POS order target
-  declares an AI agent `lookup` (`customerField: 'customerId'`, by
-  `number`) with its own narrow output (number, status, dates, amounts,
-  type), never the POS order trigger output with tokens and register numbers.
-  Orders an automation creates are synced unpaid from posclient at once, so
-  they are found before payment. `syncOrderFromClient` runs paid-only work
-  (Order paid trigger, loyalty, deal) only with `paidDate`, and pushes an
-  order to a sub-branch's offline POS only once paid.
 
 - POS configuration, order items/payments, and aggregate report values remain
   JSON scalar outputs. Order details return an items array; item reports unwind
@@ -839,7 +745,18 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 - `papaDelivery` is sales-owned: `PosOrders.createOrUpdate` drops it from
   synced documents, like `scoreLogIds`. Never move Papa state into
-  `deliveryInfo`, which POS client sync overwrites.
+  `deliveryInfo`, which POS client sync overwrites. `papaDeal` is dropped the
+  same way and stays outside `papaDelivery`, which every Papa read rewrites
+  whole.
+- A Papa deal moves forward only within one Papa order (`shouldMoveDeal`);
+  a resend (new `papaOrderId`) starts over. A deal problem never fails the
+  delivery: it is stored in `papaDeal.error` and retried on the next refresh.
+  A step stage outside `deliveryConfig.pipelineId` is refused. The deal create
+  is claimed with a conditional `papaDeal.creatingAt` write (stale after 60s)
+  so a callback and a refresh cannot make two deals.
+- `createDeliveryDeal` (POS "done") reuses `deliveryInfo.dealId` or
+  `papaDeal.dealId`, keeps the stage of a deal Papa has moved, and stores a
+  new deal id on the order it was given.
 - Papa callbacks are unsigned GETs: the handler checks the `callbackSecret`
   path segment, answers 200 before work (Papa times out at 10s and never
   retries), and never trusts query values beyond `reference_id` — it re-reads
@@ -868,10 +785,38 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - The dynamic get does not document `cargo.shipping_id`; once the order is in
   a shipping status, `refreshPapaDelivery` reads it from the regular
   `/parcel_order/get` `cargos[]`.
-- Papa `COMPLETED` means the delivery fee is paid; a delivered but unpaid
-  order stays `END` until Papa is paid (not yet handled in erxes).
+- Papa takes its delivery fee from the business's own wallet when a
+  delivery ends (verified on dev: the order goes straight to `COMPLETED`).
+  A delivery that ends while the wallet is short stays `END`, unpaid;
+  `posOrderPapaPay` settles it later from the wallet
+  (`/invoice/create/wallet`) or records it as paid outside Papa
+  (`/parcel_order/cash_payment`). This is the business's fee to Papa, never
+  the end customer's payment. `salesPapaWallet` reads `/wallet/fiat` with the
+  partner id from `/client/get` (`owner_id`); `available` = balance − hold.
+  Papa's `is_paid` means the order can be paid now, not that it is paid
+  (confirmed by Papa), so `papaDelivery.isPaid` comes from `COMPLETED` or
+  `unpaid_amount === 0`.
+  `/parcel_order/cash_payment` (paid outside Papa) moves an `END` order to
+  `COMPLETED`; `/invoice/create/wallet` fails with "Дансны үлдэгдэл
+  хүрэлцэхгүй" when the business wallet is short. Wallets are topped up only
+  in the Papa Business app or business.papa.mn, never through the API.
 - Papa client secrets stay server-side: never expose them through GraphQL,
-  POS client sync, or `deliveryConfig`.
+  POS client sync, or `deliveryConfig`. The API URL must be `https://` on
+  `papa.mn` or a subdomain (`isTrustedPapaUrl`), checked on save and again in
+  the `PapaClient` constructor, so credentials never reach another host.
+- A create that fails without an answer (timeout, network, 5xx:
+  `isUncertainPapaFailure`) may still have made a Papa order: the send looks
+  it up (`findOrderByReference`). Papa's `/parcel_order` list rows carry no
+  `reference_id` and it ignores `order_name` (seen on dev), so rows are
+  matched by `name` ("Order <number>"), cancelled/expired ones skipped, and
+  each candidate confirmed by the `reference_id` its `/parcel_order/dynamic/get`
+  returns; if none is found the delivery is `FAILED` with
+  `createUncertain`, and the next send looks it up again before creating.
+  Only a clear refusal (4xx) returns the delivery to `QUOTED`.
+- A `FAILED` delivery with a Papa order (or `createUncertain`) cannot be
+  re-quoted; it is sent again or cancelled (cancel reads Papa's status
+  first). Quote writes are conditional on the status read before the Papa
+  call, so a concurrent send's `SENDING` claim is never overwritten.
 
 ## Validation
 

@@ -66,6 +66,7 @@ export const types = () => `
     putResponses: JSON
     deliveryInfo: JSON
     papaDelivery: JSON
+    papaDeal: JSON
     deal: JSON
     dealLink: String
   }

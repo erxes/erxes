@@ -160,6 +160,11 @@ export const posOrderSchema = schemaWrapper(
       optional: true,
       label: 'Papa Logistic delivery state (sales-owned)',
     },
+    papaDeal: {
+      type: Object,
+      optional: true,
+      label: 'Delivery deal moved by Papa statuses (sales-owned)',
+    },
     description: {
       type: String,
       label: 'Description',

@@ -13,7 +13,11 @@ import {
   SALES_POS_ORDER_PAPA_SEND,
   SALES_PAPA_WALLET,
 } from '../graphql/papaDocuments';
-import { PAPA_ACTIVE_STATUSES, parsePapaDelivery } from '../utils/papaJson';
+import {
+  PAPA_ACTIVE_STATUSES,
+  parsePapaDeal,
+  parsePapaDelivery,
+} from '../utils/papaJson';
 
 // Papa's webhook updates the order on the server; poll while a delivery can
 // still change so the panel follows it without a manual refresh.
@@ -37,6 +41,7 @@ export const usePapaDelivery = (orderId: string) => {
     () => parsePapaDelivery(order?.papaDelivery),
     [order?.papaDelivery],
   );
+  const deal = useMemo(() => parsePapaDeal(order?.papaDeal), [order?.papaDeal]);
   const isActive = !!delivery && PAPA_ACTIVE_STATUSES.includes(delivery.status);
 
   useEffect(() => {
@@ -108,6 +113,7 @@ export const usePapaDelivery = (orderId: string) => {
   return {
     order,
     delivery,
+    deal,
     loading,
     error,
     busy:
@@ -159,7 +165,10 @@ export const usePapaDelivery = (orderId: string) => {
         () => payMutation({ variables: { id: orderId, method } }),
         method === 'wallet'
           ? t('papa-fee-paid-wallet', 'Papa fee paid from the wallet')
-          : t('papa-fee-paid-outside', 'Papa fee recorded as paid outside Papa'),
+          : t(
+              'papa-fee-paid-outside',
+              'Papa fee recorded as paid outside Papa',
+            ),
       ),
     approvePhoto: () =>
       run(

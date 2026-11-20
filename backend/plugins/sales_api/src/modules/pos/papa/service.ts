@@ -2,11 +2,7 @@ import { getEnv, redis } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IPosOrderDocument } from '../@types/orders';
 import { IPapaConfigDocument } from '../@types/papaConfigs';
-import {
-  isTrustedPapaUrl,
-  isUncertainPapaFailure,
-  PapaClient,
-} from './client';
+import { isTrustedPapaUrl, isUncertainPapaFailure, PapaClient } from './client';
 import {
   PAPA_CALLBACK_OBJECT_TYPES,
   PAPA_CALLBACK_PATH,
@@ -21,6 +17,7 @@ import {
   PAPA_SHIPPING_STATUSES,
   TPapaSize,
 } from './constants';
+import { syncPapaDeal } from './deal';
 import {
   appendEvent,
   buildCallbackUrl,
@@ -35,6 +32,7 @@ import {
 import {
   IPapaAddress,
   IPapaDelivery,
+  IPapaDynamicCreateInput,
   IPapaReferences,
   IPosPapaConfig,
 } from './types';
@@ -438,30 +436,18 @@ export const quotePapaDelivery = async (
   return delivery;
 };
 
-/** Creates the Papa order from the stored quote and announces it to drivers. */
-export const sendPapaDelivery = async (
-  models: IModels,
-  orderId: string,
-  args: IPapaSendArgs,
-  userId?: string,
-) => {
-  const order = await models.PosOrders.getOrder(orderId);
-  assertDeliveryOrder(order);
-
-  const current = order.papaDelivery;
-
-  // A FAILED delivery that has (or may have) a Papa order is retried without
-  // a second create: it only confirms, after looking the order up if needed.
-  const retryConfirm =
+/**
+ * The stored quote a send can use. A FAILED delivery that has (or may have)
+ * a Papa order is a retry: it confirms that order instead of creating one.
+ */
+const getSendableQuote = (current: IPapaDelivery | undefined) => {
+  const retry =
     current?.status === PAPA_LOCAL_STATUS.FAILED &&
     (!!current.papaOrderId || !!current.createUncertain);
 
-  const quoteId = current?.quoteId;
-
   if (
-    !current ||
-    !quoteId ||
-    (current.status !== PAPA_LOCAL_STATUS.QUOTED && !retryConfirm)
+    !current?.quoteId ||
+    (current.status !== PAPA_LOCAL_STATUS.QUOTED && !retry)
   ) {
     throw new Error('Get a delivery quote before sending to Papa');
   }
@@ -470,6 +456,111 @@ export const sendPapaDelivery = async (
     throw new Error('The delivery quote has expired; quote again');
   }
 
+  return { current, quoteId: current.quoteId };
+};
+
+/** What a send knows about its Papa order; read again when the send fails. */
+interface IPapaSendState {
+  papaOrderId?: string;
+  createUncertain: boolean;
+}
+
+/**
+ * The Papa order behind this send, created at most once. An order a lost
+ * create response left behind is found by `reference_id` instead of being
+ * created again; its id is stored before anything else happens.
+ */
+const ensurePapaOrder = async (
+  models: IModels,
+  client: PapaClient,
+  orderId: string,
+  input: IPapaDynamicCreateInput,
+  state: IPapaSendState,
+) => {
+  if (state.papaOrderId) {
+    return state.papaOrderId;
+  }
+
+  // A failed lookup counts as not found.
+  const recover = async () =>
+    (
+      await client
+        .findOrderByReference(orderId, input.cargo.name)
+        .catch(() => undefined)
+    )?.id;
+
+  let papaOrderId = state.createUncertain ? await recover() : undefined;
+
+  if (!papaOrderId) {
+    try {
+      papaOrderId = (await client.createDynamicOrder(input)).id;
+    } catch (error) {
+      if (!isUncertainPapaFailure(error)) {
+        throw error;
+      }
+
+      papaOrderId = await recover();
+
+      if (!papaOrderId) {
+        state.createUncertain = true;
+        throw error;
+      }
+    }
+  }
+
+  state.papaOrderId = papaOrderId;
+  state.createUncertain = false;
+
+  // Stored before confirming, so a failed confirm retries without creating.
+  await models.PosOrders.updateOne(
+    { _id: orderId },
+    {
+      $set: { 'papaDelivery.papaOrderId': papaOrderId },
+      $unset: { 'papaDelivery.createUncertain': '' },
+    },
+  );
+
+  return papaOrderId;
+};
+
+/**
+ * Back to QUOTED only when Papa surely has no order for this send; otherwise
+ * FAILED, so the next send confirms (or looks up) instead of creating.
+ */
+const markSendFailed = (
+  models: IModels,
+  orderId: string,
+  current: IPapaDelivery,
+  state: IPapaSendState,
+  error: unknown,
+) => {
+  const message = error instanceof Error ? error.message : String(error);
+  const ownsOrder = !!state.papaOrderId || state.createUncertain;
+
+  return setDelivery(models, orderId, {
+    ...current,
+    status: ownsOrder ? PAPA_LOCAL_STATUS.FAILED : PAPA_LOCAL_STATUS.QUOTED,
+    papaOrderId: state.papaOrderId,
+    createUncertain: state.createUncertain || undefined,
+    error: state.createUncertain
+      ? `${message}. Papa may have created the order; sending again looks it up before creating another`
+      : message,
+    updatedAt: new Date(),
+  });
+};
+
+/** Creates the Papa order from the stored quote and announces it to drivers. */
+export const sendPapaDelivery = async (
+  models: IModels,
+  subdomain: string,
+  orderId: string,
+  args: IPapaSendArgs,
+  userId?: string,
+) => {
+  const order = await models.PosOrders.getOrder(orderId);
+  assertDeliveryOrder(order);
+
+  const { current, quoteId } = getSendableQuote(order.papaDelivery);
   const receiverPhone = normalizeMnPhone(
     args.receiverPhone || order.deliveryInfo?.phone,
   );
@@ -511,56 +602,23 @@ export const sendPapaDelivery = async (
     description: args.description ?? order.deliveryInfo?.description,
     receiverPays: args.receiverPays,
   });
-
-  let papaOrderId = current.papaOrderId;
-  let createUncertain = !!current.createUncertain;
-
-  // Papa keeps our POS order id as `reference_id`; find an order a lost
-  // create response left behind. A failed lookup counts as not found.
-  const recoverOrderId = async () =>
-    (
-      await client
-        .findOrderByReference(orderId, input.cargo.name)
-        .catch(() => undefined)
-    )?.id;
+  const state: IPapaSendState = {
+    papaOrderId: current.papaOrderId,
+    createUncertain: !!current.createUncertain,
+  };
 
   try {
-    if (!papaOrderId && createUncertain) {
-      papaOrderId = await recoverOrderId();
-    }
-
-    if (!papaOrderId) {
-      try {
-        papaOrderId = (await client.createDynamicOrder(input)).id;
-      } catch (error) {
-        if (!isUncertainPapaFailure(error)) {
-          throw error;
-        }
-
-        papaOrderId = await recoverOrderId();
-
-        if (!papaOrderId) {
-          createUncertain = true;
-          throw error;
-        }
-      }
-
-      createUncertain = false;
-
-      // Persist the Papa id before confirming so a failed confirm can retry.
-      await models.PosOrders.updateOne(
-        { _id: orderId },
-        {
-          $set: { 'papaDelivery.papaOrderId': papaOrderId },
-          $unset: { 'papaDelivery.createUncertain': '' },
-        },
-      );
-    }
-
+    const papaOrderId = await ensurePapaOrder(
+      models,
+      client,
+      orderId,
+      input,
+      state,
+    );
     const confirmed = await client.confirmDynamicOrder(papaOrderId);
     const now = new Date();
 
-    return setDelivery(models, orderId, {
+    const delivery = await setDelivery(models, orderId, {
       ...current,
       ...orderToDelivery(confirmed, now),
       carTypes: input.car_type,
@@ -570,31 +628,22 @@ export const sendPapaDelivery = async (
       sentAt: now,
       updatedAt: now,
     });
+
+    await syncPapaDeal({ subdomain, models, orderId });
+
+    return delivery;
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-
-    // Back to QUOTED only when Papa surely has no order for it; otherwise
-    // FAILED, so the next send confirms (or looks up) instead of creating.
-    await setDelivery(models, orderId, {
-      ...current,
-      status:
-        papaOrderId || createUncertain
-          ? PAPA_LOCAL_STATUS.FAILED
-          : PAPA_LOCAL_STATUS.QUOTED,
-      papaOrderId,
-      createUncertain: createUncertain || undefined,
-      error: createUncertain
-        ? `${message}. Papa may have created the order; sending again looks it up before creating another`
-        : message,
-      updatedAt: new Date(),
-    });
-
+    await markSendFailed(models, orderId, current, state, error);
     throw error;
   }
 };
 
 /** Re-reads the Papa order (and shipping once it exists) into the order. */
-export const refreshPapaDelivery = async (models: IModels, orderId: string) => {
+export const refreshPapaDelivery = async (
+  models: IModels,
+  subdomain: string,
+  orderId: string,
+) => {
   const order = await models.PosOrders.getOrder(orderId);
   const current = order.papaDelivery;
 
@@ -629,10 +678,18 @@ export const refreshPapaDelivery = async (models: IModels, orderId: string) => {
     next = { ...next, ...shippingToDelivery(shipping) };
   }
 
-  return setDelivery(models, orderId, next);
+  const delivery = await setDelivery(models, orderId, next);
+
+  await syncPapaDeal({ subdomain, models, orderId });
+
+  return delivery;
 };
 
-export const cancelPapaDelivery = async (models: IModels, orderId: string) => {
+export const cancelPapaDelivery = async (
+  models: IModels,
+  subdomain: string,
+  orderId: string,
+) => {
   const order = await models.PosOrders.getOrder(orderId);
   let current = order.papaDelivery;
 
@@ -644,7 +701,7 @@ export const cancelPapaDelivery = async (models: IModels, orderId: string) => {
 
   // A failed send leaves a Papa order behind; cancel it by Papa's own status.
   if (current.status === PAPA_LOCAL_STATUS.FAILED) {
-    current = await refreshPapaDelivery(models, orderId);
+    current = await refreshPapaDelivery(models, subdomain, orderId);
   }
 
   if (!PAPA_CANCELLABLE_STATUSES.includes(current.status)) {
@@ -660,14 +717,18 @@ export const cancelPapaDelivery = async (models: IModels, orderId: string) => {
     await client.cancelConfirmedOrder(papaOrderId);
   }
 
-  return refreshPapaDelivery(models, orderId);
+  return refreshPapaDelivery(models, subdomain, orderId);
 };
 
 /**
  * The store closes a started delivery itself (no pincode or photo), e.g. when
  * the receiver confirmed by phone.
  */
-export const markPapaDelivered = async (models: IModels, orderId: string) => {
+export const markPapaDelivered = async (
+  models: IModels,
+  subdomain: string,
+  orderId: string,
+) => {
   const order = await models.PosOrders.getOrder(orderId);
   const current = order.papaDelivery;
 
@@ -683,7 +744,7 @@ export const markPapaDelivered = async (models: IModels, orderId: string) => {
 
   await createPapaClient(config).endCargo(current.cargoId);
 
-  return refreshPapaDelivery(models, orderId);
+  return refreshPapaDelivery(models, subdomain, orderId);
 };
 
 const toAmount = (value: unknown) => {
@@ -728,6 +789,7 @@ export type TPapaPaymentMethod = (typeof PAPA_PAYMENT_METHODS)[number];
  */
 export const payPapaDelivery = async (
   models: IModels,
+  subdomain: string,
   orderId: string,
   method: TPapaPaymentMethod,
 ) => {
@@ -773,12 +835,13 @@ export const payPapaDelivery = async (
     }
   }
 
-  return refreshPapaDelivery(models, orderId);
+  return refreshPapaDelivery(models, subdomain, orderId);
 };
 
 /** Approves the driver's photo proof, which ends the delivery. */
 export const approvePapaPhotoProof = async (
   models: IModels,
+  subdomain: string,
   orderId: string,
 ) => {
   const order = await models.PosOrders.getOrder(orderId);
@@ -798,7 +861,7 @@ export const approvePapaPhotoProof = async (
 
   await client.approveImage(proof.id);
 
-  return refreshPapaDelivery(models, orderId);
+  return refreshPapaDelivery(models, subdomain, orderId);
 };
 
 export const getPapaPhotoProof = async (models: IModels, orderId: string) => {
@@ -814,17 +877,21 @@ export const getPapaPhotoProof = async (models: IModels, orderId: string) => {
   return createPapaClient(config).getApproveImage(shippingId);
 };
 
+/** A callback query value as text; arrays or objects (`?a[]=x`) count as absent. */
+const queryText = (value: unknown) => (typeof value === 'string' ? value : '');
+
 /**
  * Handles one Papa webhook. The payload is never trusted: it only names the
  * order, whose state is then re-read from Papa with the stored order id.
  */
 export const handlePapaCallback = async (
   models: IModels,
+  subdomain: string,
   query: Record<string, unknown>,
 ) => {
-  const referenceId = String(query.reference_id || '');
-  const objectType = String(query.object_type || '');
-  const objectAction = String(query.object_action || '');
+  const referenceId = queryText(query.reference_id);
+  const objectType = queryText(query.object_type);
+  const objectAction = queryText(query.object_action);
 
   if (
     !referenceId ||
@@ -839,7 +906,7 @@ export const handlePapaCallback = async (
     return;
   }
 
-  const updated = await refreshPapaDelivery(models, referenceId);
+  const updated = await refreshPapaDelivery(models, subdomain, referenceId);
 
   await models.PosOrders.updateOne(
     { _id: referenceId },

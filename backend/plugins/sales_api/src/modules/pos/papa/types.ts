@@ -1,4 +1,9 @@
-import { TPapaCarTypeGroup, TPapaSize, TPapaWeightType } from './constants';
+import {
+  TPapaCarTypeGroup,
+  TPapaDealStep,
+  TPapaSize,
+  TPapaWeightType,
+} from './constants';
 
 /** Papa's response envelope for every endpoint. */
 export interface IPapaEnvelope<T> {
@@ -207,6 +212,22 @@ export interface IPosPapaConfig {
   categoryId?: string;
   conditionId?: string;
   size?: TPapaSize;
+  /** Deal stage for each delivery step; a step without one moves nothing. */
+  stageIds?: Partial<Record<TPapaDealStep, string>>;
+}
+
+/**
+ * The delivery deal a Papa order moves (`posOrder.papaDeal`). Kept apart
+ * from `papaDelivery`, which every Papa read rewrites whole.
+ */
+export interface IPapaDealLink {
+  dealId?: string;
+  step?: TPapaDealStep;
+  /** The Papa order `step` belongs to; a resend starts the steps over. */
+  papaOrderId?: string;
+  creatingAt?: Date;
+  error?: string;
+  updatedAt?: Date;
 }
 
 export interface IPapaDeliveryEvent {

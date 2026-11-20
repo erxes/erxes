@@ -4,7 +4,11 @@ export const PAPA_DEV_API_URL = 'https://dev-api.papa.mn/api/v4';
 export const PAPA_TRUSTED_HOST = 'papa.mn';
 
 /** Papa orders that can no longer be the live order behind an erxes order. */
-export const PAPA_ENDED_ORDER_STATUSES = ['CANCELLED', 'USER_CANCELLED', 'EXPIRED'];
+export const PAPA_ENDED_ORDER_STATUSES = [
+  'CANCELLED',
+  'USER_CANCELLED',
+  'EXPIRED',
+];
 
 /** At most this many same-named candidates are checked by their dynamic get. */
 export const PAPA_ORDER_LOOKUP_LIMIT = 3;
@@ -97,3 +101,38 @@ export const PAPA_SHIPPING_STATUSES: string[] = [
 
 // Pickup addresses are a handful per business; stop paging well before this.
 export const PAPA_MAX_ADDRESS_PAGES = 10;
+
+/** Pipeline steps a Papa delivery moves its deal through. */
+export const PAPA_DEAL_STEPS = [
+  'sent',
+  'inTransit',
+  'delivered',
+  'cancelled',
+  'failed',
+] as const;
+
+export type TPapaDealStep = (typeof PAPA_DEAL_STEPS)[number];
+
+/** Papa status → deal step; statuses not listed (NEW, local ones) move nothing. */
+export const PAPA_DEAL_STEP_BY_STATUS: Record<string, TPapaDealStep> = {
+  [PAPA_ORDER_STATUS.CONFIRM]: 'sent',
+  [PAPA_ORDER_STATUS.CREATING_SHIPPING]: 'inTransit',
+  [PAPA_ORDER_STATUS.START]: 'inTransit',
+  [PAPA_ORDER_STATUS.END]: 'delivered',
+  [PAPA_ORDER_STATUS.COMPLETED]: 'delivered',
+  [PAPA_ORDER_STATUS.USER_CANCELLED]: 'cancelled',
+  [PAPA_ORDER_STATUS.CANCELLED]: 'failed',
+  [PAPA_ORDER_STATUS.EXPIRED]: 'failed',
+};
+
+/** A deal only moves forward for one Papa order; the last three are final. */
+export const PAPA_DEAL_STEP_RANK: Record<TPapaDealStep, number> = {
+  sent: 1,
+  inTransit: 2,
+  delivered: 3,
+  cancelled: 3,
+  failed: 3,
+};
+
+// A deal create that has not finished within this is taken as crashed.
+export const PAPA_DEAL_CREATE_LOCK_MS = 60_000;

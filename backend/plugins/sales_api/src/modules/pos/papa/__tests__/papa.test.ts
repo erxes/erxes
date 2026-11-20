@@ -12,6 +12,8 @@ import {
   expandCarTypes,
   normalizeMnPhone,
   orderToDelivery,
+  papaDealStep,
+  shouldMoveDeal,
   trimTrailingSlashes,
 } from '../mapping';
 
@@ -505,5 +507,32 @@ describe('PapaClient', () => {
     expect(creates[0].quote_id).toBeUndefined();
     expect(cargo.dynamic_price_id).toBe('quote1');
     expect(cargo.schedule_type).toBe('THREE_HOURS');
+  });
+});
+
+describe('Papa delivery deal steps', () => {
+  it('maps Papa statuses to pipeline steps', () => {
+    expect(papaDealStep('NEW')).toBeUndefined();
+    expect(papaDealStep('FAILED')).toBeUndefined();
+    expect(papaDealStep('CONFIRM')).toBe('sent');
+    expect(papaDealStep('CREATING_SHIPPING')).toBe('inTransit');
+    expect(papaDealStep('START')).toBe('inTransit');
+    expect(papaDealStep('END')).toBe('delivered');
+    expect(papaDealStep('COMPLETED')).toBe('delivered');
+    expect(papaDealStep('USER_CANCELLED')).toBe('cancelled');
+    expect(papaDealStep('CANCELLED')).toBe('failed');
+    expect(papaDealStep('EXPIRED')).toBe('failed');
+  });
+
+  it('moves a deal forward only, and starts over for a resend', () => {
+    const sent = { step: 'sent' as const, papaOrderId: 'p1' };
+    const delivered = { step: 'delivered' as const, papaOrderId: 'p1' };
+
+    expect(shouldMoveDeal(undefined, 'sent', 'p1')).toBe(true);
+    expect(shouldMoveDeal(sent, 'inTransit', 'p1')).toBe(true);
+    expect(shouldMoveDeal(sent, 'sent', 'p1')).toBe(false);
+    expect(shouldMoveDeal(delivered, 'inTransit', 'p1')).toBe(false);
+    expect(shouldMoveDeal(delivered, 'failed', 'p1')).toBe(false);
+    expect(shouldMoveDeal(delivered, 'sent', 'p2')).toBe(true);
   });
 });

@@ -81,6 +81,7 @@ export const SALES_POS_ORDER_PAPA_DELIVERY = gql(`
       status
       deliveryInfo
       papaDelivery
+      papaDeal
     }
   }
 `);

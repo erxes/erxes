@@ -1,4 +1,4 @@
-import { timingSafeEqual } from 'crypto';
+import { timingSafeEqual } from 'node:crypto';
 import { Request, Response } from 'express';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
@@ -33,7 +33,11 @@ export const papaCallback = async (req: Request, res: Response) => {
 
     res.status(200).end();
 
-    await handlePapaCallback(models, req.query as Record<string, unknown>);
+    await handlePapaCallback(
+      models,
+      subdomain,
+      req.query as Record<string, unknown>,
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[sales] Papa callback failed: ${message}`);

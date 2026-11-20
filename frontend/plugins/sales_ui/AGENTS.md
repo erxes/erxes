@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-16`
+- **Last synchronized:** `2026-11-18`
 
 ## Scope
 
@@ -24,15 +24,6 @@
   plugin routes.
 
 ## Current Capabilities
-
-- The automations POS module answers the template requirement kind
-  `sales:pos.pos` through its `templateRequirement` entry
-  (`PosTemplateRequirement`, `SelectPos`); the answer is the POS id a Create POS
-  order step takes as `posId`, and `usePosTemplateRequirement` names it
-  (`posDetail.name`) through `onLabel` for the finished wizard step. Up to six
-  POS show as cards (`TemplateRequirementOptions`), more as `SelectPos`; a new
-  one is made in place with `PosCreate`, whose `onCreateSuccess(posId)` picks
-  it, and the only POS is picked by itself.
 
 - Deals and POS orders export to CSV through the shared `ui-modules`
   `Export` button: the deals action bar exports the current pipeline, stage
@@ -52,7 +43,7 @@
   the item suffix; the automation
   history link and the API's automation `link` open the Orders page with the
   panel's `panel` query key. The old sheets' links are rewritten to the panel
-  by `useOpenRecordPanelFromQuery` (`widgets/record-panel/useOpenRecordPanelFromQuery.tsx`, shared with the deal pages): Orders and POS Loyalty
+  by `useOpenPosPanelFromQuery` (`modules/pos/hooks`): Orders and POS Loyalty
   `pos_order_id`, Covers `pos_cover_id`, and Items `pos_order_id`
   (`<order>_<item>`: both ids may contain `_`, even as their first character,
   and item ids have no fixed length, as the POS client may send its own, so
@@ -93,7 +84,7 @@
   closes the panel. Activity shows only the
   record's logs (`showInternalNotes={false}`, no note box), as POS had no
   notes before the panel.
-- The order and cover panels' full view is a page (`src/pages/PosRecordDetailPage.tsx`): `detailPath` (`getPosOrderDetailPath` / `getPosCoverDetailPath` in `modules/pos/constants/posPanel.ts`) keeps the POS the panel was opened under (`/sales/pos/<posId>/orders/<id>`, `/sales/pos/<posId>/covers/<id>`) and falls back to `/sales/pos/orders/<id>` / `/sales/pos/covers/<id>` elsewhere (contacts, loyalty, automations); the static `orders`, `covers` and `loyalty` segments are never read as a POS id. Like operation's `TaskDetailPage`, each page renders `RecordSidePanel expanded expandedMode="page" expandable={false}` with a POS › POS name › record crumb (the record as plain `Breadcrumb.Page` text, capped at `max-w-md` and truncated) and `RecordSidePanel.Tabs` headed by the `common` `side-panel` `detail` label with its icon rather than the record title; like the deal page, `PosRecordPage` provides a memoized `SidePanelNavigatorContext` navigator whose `close` / `back` replace the page with the POS's orders or covers list (`/sales/pos` without a POS), and whose `listPath` is that list, so the header's shared minimize button (ui-modules `PageHeader.End`, always rendered) returns there with the record open in the side panel; the cover delete action leaves a deleted cover's page: the order with Detail beside Payments (default; the form spans the detail grid and `PosOrderForm` lays its payment inputs in two columns from `@3xl/record-panel`, one column in a narrow panel) and Activity, the cover with Detail beside Activity and its delete action in the header. Detail wraps the panel view in its own `@container/record-panel`, so the 24rem column keeps the one-column layout; loading, errors and missing records use the panel's `PosPanelDetailLayout` states.
+- The order and cover panels' full view is a page (`src/pages/PosRecordDetailPage.tsx`): `detailPath` (`getPosOrderDetailPath` / `getPosCoverDetailPath` in `modules/pos/constants/posPanel.ts`) keeps the POS the panel was opened under (`/sales/pos/<posId>/orders/<id>`, `/sales/pos/<posId>/covers/<id>`) and falls back to `/sales/pos/orders/<id>` / `/sales/pos/covers/<id>` elsewhere (contacts, loyalty, automations); the static `orders`, `covers` and `loyalty` segments are never read as a POS id. Like operation's `TaskDetailPage`, each page renders `RecordSidePanel expanded expandedMode="page" expandable={false}` with a POS › POS name › record crumb (the record as plain `Breadcrumb.Page` text, capped at `max-w-md` and truncated) and `RecordSidePanel.Tabs` headed by the `common` `side-panel` `detail` label with its icon rather than the record title; like the deal page, `PosRecordPage` provides a memoized `SidePanelNavigatorContext` navigator whose `close` / `back` replace the page with the POS's orders or covers list (`/sales/pos` without a POS), so the cover delete action leaves a deleted cover's page: the order with Detail beside Payments (default; the form spans the detail grid and `PosOrderForm` lays its payment inputs in two columns from `@3xl/record-panel`, one column in a narrow panel) and Activity, the cover with Detail beside Activity and its delete action in the header. Detail wraps the panel view in its own `@container/record-panel`, so the 24rem column keeps the one-column layout; loading, errors and missing records use the panel's `PosPanelDetailLayout` states.
 - The cover panel (`widgets/record-panel/PosCoverPanel.tsx`) displays the POS client's root `description` as a read-only `PanelField`
   (`closing-note`, "Closing note" / "Хаалтын тэмдэглэл", wrapped multi-line text; `components/CoverDescription.tsx` is no longer used by the panel) and edits
   Sales-owned `note` through `posCoversEdit`. The note form loads saved text,
@@ -120,7 +111,10 @@
   shown as saved through `hasSecret`) and `PapaPosForm` saves the POS's
   `deliveryConfig.papa` (`enabled`, pickup `addressId` with an inline
   `PapaAddressForm` that registers a new Papa address, `carTypeGroups`
-  `car` / `light`, `categoryId`, `conditionId`, default `size`). The POS order
+  `car` / `light`, `categoryId`, `conditionId`, default `size`, and
+  `stageIds`: the deal stage per delivery step `sent` / `inTransit` /
+  `delivered` / `cancelled` / `failed`, picked by `PapaDealStages` from the
+  delivery pipeline (`deliveryConfig.pipelineId`), each clearable). The POS order
   panel has a Delivery tab (`PapaDeliveryPanel`, record panel tab `delivery`):
   the full-page order view (`PosRecordDetailPage`) adds the same
   `delivery` tab after Payments; for `type: 'delivery'` orders it quotes (district, address, coordinates,
@@ -131,6 +125,15 @@
   phone/email/name fields while `salesPapaConfig.staffId` is empty, so saving
   can create the Papa staff member. It polls every 15s
   while the delivery can still change (`PAPA_ACTIVE_STATUSES`).
+  `PapaWalletBalance` (`usePapaWallet`, `salesPapaWallet`) shows the
+  business's Papa wallet on the account card and above Send, warning when it
+  cannot cover the price (`isPapaWalletShort`): Papa takes the fee when the
+  delivery ends. The Delivery tab shows the Papa fee as Paid / Unpaid for
+  `END` and `COMPLETED`; an unpaid `END` delivery offers "Pay Papa fee from
+  wallet" and "Paid outside Papa" (`posOrderPapaPay`, confirm dialogs,
+  refetching the delivery and the wallet). It is the store's fee to Papa,
+  never the customer's payment. When the delivery deal could not be moved,
+  the tab shows `papaDeal.error` as a warning.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -144,17 +147,6 @@
   for confirmation with the count when more than one deal is selected.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
-- The deals settings pipelines table (`/sales/settings/deals`) filters by
-  name (`searchValue`), status (`pipelineStatus`: active / archived) and
-  creator (`createdBy`, matched on `userId`) through `PipelinesSubHeader`.
-  A pipeline without a stored `status` counts as `active`, matching the
-  backend's active group.
-  `salesPipelines` takes none of these arguments, so `PipelineRecordTable`
-  filters the loaded rows and, while any filter is set, keeps loading every
-  page; a failed page stops that loading with a toast and the bottom skeleton
-  row retries it, showing the same toast when the retry fails.
-- The add deal form's properties hint opens
-  `/sales/settings/properties/sales:deal`, inside Sales settings.
 - "Score earn configuration" (`deals/loyaltyRules`, button beside Add
   pipeline, dialog state in `loyaltyRulesDialogOpenAtom`) edits the whole
   `salesLoyaltyRules` list at once in three groups — every board and every
@@ -197,7 +189,7 @@
   `SalesDealScoreLogs` (50 per page, infinite scroll) and asks
   `SalesLoyaltyScoreLogsByIds` once per new id, at most 100 per request; the
   deal and the customer show as text with an open icon on hover
-  (`OpenableCell`): the deal's opens the deal panel (`useSidePanel().openRecord`, like POS's order cell; both first close the `LoyaltyDrillSheet` through `useLoyaltyDrill()?.close()`, as the modal sheet would cover the side panel), the customer's goes to
+  (`OpenableCell`): the deal's opens the deal sheet, the customer's goes to
   `/contacts/customers?contactId=` (core's customer sheet is not shared). The stage filter shows in every view but
   the board. Without loyalty a stored `'points'` view shows the board.
   The same page for POS orders is `/sales/pos/loyalty`
@@ -306,15 +298,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   The insights contract has no score log date range, so only the timeline
   tiles take a period; the others always cover all time.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
-- The deal Payments tab is `ProductsPayment` (`detail/product/components/ProductPayment.tsx`: state, totals, `dealsEdit` save, QPay invoice, QR unlock) drawing its rows from `ProductPaymentRows.tsx` (`PaymentTotals`, `CashPaymentRow`, `MobilePaymentRow` with the QPay sheet, `MobilePaidRow`, `PaymentTypeRow`, `PaymentQrDialog`, `parsePaymentConfig`); rows only render and call the handlers they are given. Typed payment amounts live in the component's state, as in other plugins: tab switches keep them because the Products / Payments sub-tabs and core's panel tabs stay mounted, while switching to another deal, closing the panel or deleting the deal drops them. The footer shows `unsaved-changes` after a payment edit, and a completed Save clears it only when no payment was edited after that Save began (a local edit revision). While there is no unsaved payment edit and no save is running, the form re-reads `deal.paymentsData` (an effect in `ProductsPayment`), so a mounted form shows payments saved elsewhere, keeps amounts typed but not saved, and Save never writes an older copy back. Cancelling the QR dialog or entering a wrong code resets an amount to 0 only when one was typed and not saved, so it changes only a form that is already unsaved and never marks a clean form unsaved. Totals and change use the deal's saved products.
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
 - The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
-  saved for the first time. That legacy path renders `FieldsInDetail` with
-  `bare`, so the property groups show without the outer card.
-- The add-deal form's configure-properties action opens
-  `/sales/settings/properties/sales:deal`, the sales settings scope.
+  saved for the first time.
 - The deal sheet header's icon-only buttons carry an `aria-label`: Close, and
   Collapse or Expand sidebar, with the `sales` keys `close`, `collapse-sidebar`
   and `expand-sidebar`.
@@ -323,20 +311,27 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
   The broker entity selector that follows is
   labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
-  placeholder. The sheet (`SalesFormFields`) and the panel (`DealPanelBroker`)
-  save the broker through `useDealBroker`
-  (`deals/components/deal-selects/hooks/useDealBroker.ts`): a picked type stays
-  local until a broker is picked, then type and broker are saved together;
-  `None` saves at once and clears both; clearing the selector clears both while
-  the chosen type stays on screen. A deal never keeps a type without a broker,
-  and changing the type never drops the saved broker. Customers and Companies follow tags (`DealContactsField`:
-  ui-modules `ContactsRelationField` with `variant="chip"`); a linked contact
-  opens in the side panel (no `onOpen`, so the field's own `openRecord`); the chevron opens the picker, and changes
+  placeholder. Customers and Companies follow tags (`DealContactsField`:
+  ui-modules `ContactsRelationField` with `variant="chip"`); inside the
+  deal sheet a linked contact opens in the sheet's own Customers / Companies
+  rail tab (`onOpen` → `setActiveSideTab(RELATION_CONTACT_SIDE_TABS[kind])`,
+  the app's side panel sits behind the modal sheet), elsewhere (a
+  notification) in the side panel; the chevron opens the picker, and changes
   are saved on the deal's own single `customerId` / `companyId` through
-  `dealsEdit` (no core relation), dropping only the cached `deals` lists
-  queried by `customerId` / `companyId` so boards keep theirs. The board card's customer / company chips
+  `dealsEdit` (no core relation). The board card's customer / company chips
   save the same way (the latest pick replaces the one before). The add form
   and the detail rail use one customer and one company too.
+- The deal sheet's right rail (`DealSideWidgets` →
+  ui-modules `RelationWidgetSideTabs`, given the deal's customers / companies)
+  holds Customers and Companies icons; each opens the side panel's view of the
+  deal's contacts inside the sheet (`EmbeddedRecordPanel`), where their other
+  records are. After them come, as `extraTabs`, only the relation widgets
+  registered with `contentTypes` containing `sales:deal` (accounting
+  `transactions`, mongolian `ebarimt`), rendered through
+  `useRelationWidgetTabs` with `contentType: 'sales:deal'` and the deal's
+  `_id`, so they read records linked to the deal itself. Widgets without
+  `contentTypes` (contact-linked, e.g. tickets, deals) are not listed beside a
+  deal.
 - Deal detail header shows a `⋯` actions menu (`DealsActions`
   `variant="menu"`) with watch/unwatch, duplicate, print (shared
   `PrintDocument` sheet), archive/unarchive, and remove for archived deals.
@@ -380,10 +375,6 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   show a warning and are stripped on the next save. "Add field" (gated by
   `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
   `core:customer` and places the new property on the form, visible.
-- The Create deal action form (`CreateDealActionConfigForm`) adds `productIds`
-  (product suggestions) and `items` (JSON lines, attribute placeholders) like
-  the POS order form, reusing its `products` / `order-items` translations;
-  `salesActionConfigFormSchema` keeps both, so saving does not strip them.
 - POS and pipeline "Automations" tabs (`PosAutomations`, `PipelineAutomations`)
   share `modules/automations` (`SourceAutomations` / `useSourceAutomations`,
   query `SalesSourceAutomations`): they list the automations whose trigger runs
@@ -394,7 +385,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   (`SalesSourceAutomationRemove`, evicted from the Apollo cache so every list
   showing it drops it).
 - Other plugins' sections (`relationSettingsWidgets`, from `ui-modules`
-  `useRelationSettingsModules`) become their own tabs: POS settings sidebar items keyed
+  `useRelationSettingsModules`) become their own tabs: POS sidebar items keyed
   `relation.<pluginName>.<name>` (`POS_RELATION_TAB_PREFIX`, saved POS only)
   and pipeline form tabs (saved pipeline only). Each renders
   `RelationSettingsWidget` (`PosRelationSettings` / `PipelineRelationSettings`)
@@ -412,40 +403,35 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Architecture
 
-| Area                | Path                                                                                                  | Responsibility                                                                                                             |
-| ------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| App sidebar         | `frontend/plugins/sales_ui/src/Sidebar.tsx`                                                           | `SalesSidebar` (app sidebar) and `SalesSidebarFooter` (Settings link), rendered by the `./sales` entry through `AppLayout` |
-| Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                            | Sales routes, navigation, and remote registration                                                                          |
-| Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                          | Module Federation development serving and watch ignore rules                                                               |
-| Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                               | Pipeline form, stages, product config, and property selection                                                              |
-| Settings boards nav | `frontend/plugins/sales_ui/src/modules/deals/boards/components/settings/BoardsSettingsNavigation.tsx` | BOARDS settings sidebar group and `useSettingsActiveBoard`                                                                 |
-| Export buttons      | `src/modules/deals/actionBar/components/DealsExport.tsx`, `src/pages/OrdersPage.tsx`                  | Start `sales:sales.deals` and `sales:pos.posOrders` exports with the page filters                                          |
-| Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                 | Deal overview, properties, activity, products, and payments                                                                |
-| Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                         | Deal product table, filters, expanded view, row actions, footer totals, and save                                           |
-| Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts`  | Reconciles advanced-view row/footer discount edits into `hand` discount metadata                                           |
-| Dashboard widgets   | `frontend/plugins/sales_ui/src/widgets/dashboard`                                                     | `./dashboardWidget` remote: loyalty points tiles, their config form and states                                             |
-| Loyalty sections    | `frontend/plugins/sales_ui/src/modules/loyalty-points/components`                                     | Insight/timeline sections shared by the Loyalty points pages and the dashboard widgets                                     |
-| Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                         | Voucher and coupon line on a deal's Products tab, saved with the products                                                  |
-| POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                     | Manages admin and cashier POS permission controls                                                                          |
-| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                 | POS customer registration settings and layout sheet                                                                        |
-| POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                   | Provides POS queries and mutations used by settings screens                                                                |
-| POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                     | Describes POS configuration data consumed by the UI                                                                        |
-| Settings POS tabs   | `frontend/plugins/sales_ui/src/modules/pos/components/PosSettingsTabs.tsx`                            | The open POS's tabs as a settings sidebar group                                                                            |
-| Record panel        | `frontend/plugins/sales_ui/src/widgets/record-panel`                                                  | POS order and cover views drawn in the app side panel                                                                      |
-| GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`                                                                | Validates documents against the composed gateway schema                                                                    |
+| Area                | Path                                                                                                 | Responsibility                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar         | `frontend/plugins/sales_ui/src/Sidebar.tsx`                                                          | `SalesSidebar` (app sidebar) and `SalesSidebarFooter` (Settings link), rendered by the `./sales` entry through `AppLayout` |
+| Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                                                          |
+| Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                                                               |
+| Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                                                              |
+| Export buttons      | `src/modules/deals/actionBar/components/DealsExport.tsx`, `src/pages/OrdersPage.tsx`                 | Start `sales:sales.deals` and `sales:pos.posOrders` exports with the page filters                                          |
+| Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                                                                |
+| Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save                                           |
+| Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata                                           |
+| Dashboard widgets   | `frontend/plugins/sales_ui/src/widgets/dashboard`                                                    | `./dashboardWidget` remote: loyalty points tiles, their config form and states                                             |
+| Loyalty sections    | `frontend/plugins/sales_ui/src/modules/loyalty-points/components`                                    | Insight/timeline sections shared by the Loyalty points pages and the dashboard widgets                                     |
+| Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                        | Voucher and coupon line on a deal's Products tab, saved with the products                                                  |
+| POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                                                          |
+| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                                                                        |
+| POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                                                                |
+| POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                                                                        |
+| Record panel        | `frontend/plugins/sales_ui/src/widgets/record-panel`                                                 | POS order and cover views drawn in the app side panel                                                                      |
+| GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`                                                               | Validates documents against the composed gateway schema                                                                    |
 
 ## Contracts
 
 ### Provides
 
-- `widgets.recordPanels: [{ contentType: 'sales:deal', detailPath, tabs: [{ value: 'products', label: 'Products', labelKey: 'products', after: 'detail' }, { value: 'relations', label: 'Relations', labelKey: 'relations', after: 'detail' }] }]` (panel order Detail · Products · Relations · Properties · Activity: core places tabs with `after: 'detail'` right behind Detail in config order, like the POS order's Payments; core skips relation widgets for plugin records and the deal's customer and company are chips in Detail, so the Relations tab (`DealPanelRelations`) lists only the deal's own widgets: those registered with `contentTypes` containing `sales:deal` (accounting `transactions`, mongolian `ebarimt`) plus payment `invoices`, which reads invoices by the deal's `contentType` / `contentTypeId` but registers no `contentTypes` (`DEAL_SCOPED_WIDGETS`), through `useDealRelationTabs` (`deals/cards/hooks/useDealRelationTabs.ts`), each as a foldable section like core's contact Relations (a `related-records` header; sections start folded and the user's folds persist in `dealRelationsFoldedAtom`, local storage `erxes:dealRelationsFolded`; no customize control, as plugin panel tabs are fixed and cannot be pinned), with a `deal-relations-empty` state when no such plugin is enabled; contact-linked widgets stay out; core labels each tab with `t(labelKey)` in the plugin's `i18nNamespace` (`sales`), so the config passes `labelKey: 'products'` / `'relations'` and both stay keys in `sales.json`) with `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`): the deal panel in the app's side panel, every view of a saved deal wrapped in `DealIdProvider` (the `new` draft is not, as it has no id yet); only the title's `useDealDetail` always fetches (`cache-and-network`) and subscribes; other views use `cache-first` with `subscribe: false` and fetch only on a cache miss (Detail, Properties and Products show `DealPanelError` (`DealPanelStates.tsx`, like the former sheet's error state) when the query fails without a cached deal and `DealPanelNotFound` only when it returns no deal without an error; a missing id comes back as the API's plain `Deal not found` error), and a `delete` from `salesDealChanged` or the panel's own Delete action leaves the panel (back to a stacked parent, else closed) only while that deal is still the panel's record (`panelStateRef` in `useDealDetail` / `useDealActions`, reset on unmount), so a record opened during the request is never closed. The deal page provides the same exit through `SidePanelNavigatorContext` (like core's `ContactDetailPage`): its navigator's record is the page's deal and `close` / `back` replace the page with the deal's board, so a delete on the page lands on the board; its `listPath` is that board, so the minimize button ui-modules `PageHeader.End` draws on record pages (after `DealPanelActions`; the page does not add it itself) returns to the board with the deal open in the side panel. `summary` (the config sets `summary: true`, so core draws this view between the panel header and its tabs: `DealPanelSummary` in `DealPanelStage.tsx`, the `cache-first` deal's `DealStageProgress`, a bordered strip as tall as a page's filter row (`box-content h-9`) of nothing but one dot per pipeline stage in order, spread over the full width (16px dots with a 28px hit area, joined by 2px lines), filled up to the current one, each with its name as a tooltip and moving the deal there on click; nothing with under two stages; the deal page renders the same `DealPanelSummary` as a full-width strip above its `RecordSidePanel.Tabs`, spanning the Detail column and the tabs); `title` (deal name; the red `failed-to-load-deal` text when the query fails without a cached deal; a saved deal's title (`DealPanelHeaderTitle`, not the `new` draft's) runs `useDealPanelTabMemory`, which saves the panel tab last picked in `dealPanelTabAtom` (local storage `erxes:dealPanelTab`); sales opens deals through `useOpenDealPanel` (`deals/hooks/useOpenDealPanel.ts`: board cards, list Name/Number cells and Edit action, loyalty score logs, the contact Deals section), which passes that tab as ui-modules `openRecord`'s `tab` option, so the next deal opens straight on it with no Detail flash, even after the panel closed; deals opened from outside sales (search, notifications, legacy links) open on Detail; core falls back to Detail if the tab is missing; the deal page keeps its own `tab` query and Products default); `actions` (`DealPanelActions`: only the `DealsActions` ⋯ menu, whose `menuItems` put `MoveDealSubmenu` (a `DropdownMenu.Sub` holding the same `DealSelect` as `MoveDealDropdown`, both through `useMoveDeal`) and a Product config item linking to the pipeline's settings tab above Watch / Duplicate / Print / Archive / Remove; the deal page passes `expanded` so its header shows a labelled Product config button (gear and text) and `MoveDealDropdown` as their own buttons beside a `DealsActions` ⋯ menu without them (watch, duplicate, print, archive, remove); full view is the deal page through `detailPath`); `detail` (`DealPanelDetail`, `PanelField` rows with icons whose values are label-free table-style cells (`DealPanelCells`: `PanelFieldTrigger` popovers; `DealContactsField variant="inline"`; dates `table`, priority `table` with `badge={false}`, labels `table` with `targetId` and the deal's `pipelineId`, so labels list outside sales pages; the label add / edit / remove / label hooks (`usePipelineDetails.ts`) take that `pipelineId` as their second argument from `LabelForm` and `SelectLabel`, falling back to the URL's only when none is given, so a new label refetches the deal's pipeline and shows at once) so the left labels are never repeated, grouped like core's customer Detail through `DealDetailSection` (`DealDetailSection.tsx`: small muted `nested` headings for field groups, bordered headings for the sections below them, an optional header `action`): number and archived badge, then General (name, stage cell (`DealPanelStageCell`, `autoSelectFirst={false}`, so a saved deal whose stage is missing from its pipeline is never moved without a pick) (`DealPanelStage`; the dotted stage progress is not in Detail but above the tabs, see `summary`; both take their stage list and optimistic move from `useDealStageMove`, shared with `SelectDealStage` in the notification overview), assignees, priority, labels), Schedule (start/close dates) and Organization (broker, branches, departments), then Tags (`DealPanelTags`: up to three coloured `TagsSelect.SelectedList` badges or an `add-tags` prompt in an inline cell, saved as `tagIds` through `editDeals`), Customers and Companies as their own sections; beside them from the panel's `@3xl` container width, below them under a top border when narrower: checklists (`Checklists compact`: icon-only delete), attachments (`Attachments compact`: no inset, plain headings), description); `properties` (`DealPipelineProperties`); `activity` (`DealActivityTab`); `tab` `products` (`Products` with `compact`: under 768px of width `ProductsRecordTable` `layout="cards"` draws the rows as a bordered list (`ProductCardList`, rows from the same table instance): a `product-service` / `quantity` / `amount` heading, then per row the table's `ProductTypeIcon` `compact` (16px badge without padding, 4px from the name: blue box for product, red invoice for service, with its tooltip), the product name (click opens the Edit sheet) with a green `−n%` badge when `discountPercent` is set, a muted `quantity × unit price` line (UOM entry values from `getProductUomInfo`) adding `discount −amount` when a hand discount exists (`handDiscountAmount` in `utils/discountInfos.ts`), a compact − quantity + stepper (`ProductQuantityStepper`, 28px tall with 24px buttons: steps by 1, never below 1 with −, also takes a typed value on blur/Enter; saves through `useUpdateProductRecord` with `normalizeProductUom` and `calculateProductValues('quantity', …)`, like the table's quantity cells), the bold amount (quantity × unit price − discount) and the row's `more` cell menu (Edit / Duplicate / Delete); there is no row selection, column selector or expandable detail in this layout (other fields are edited in the Edit sheet); wider, and in the expanded dialog, the table; with `compact` the header stacks into two columns and the Advanced / Tax / Expand view switches wrap one at a time (`flex-wrap`); payments alongside; product row field edits save at once through `editDealsProductData`, while VAT apply and footer discount/amount edits stay local until Save, in `ProductsList` state (kept across tab switches because the tabs stay mounted, dropped on another deal or a closed panel, as in other plugins): each such edit is merged into `pendingProductPatches` (`getProductsDataPatches` of the new rows against the previous ones, like `updateLocalProduct`), so a server refetch (for example after a row edit saves) keeps it; a pending patch clears once the server returns its values (`isPatchAppliedByServer` compares numbers within a tolerance and arrays such as `discountInfos` and objects by value, never by identity), and a completed Save also drops the pending patches it sent unless a later edit replaced them, so later refetches show the server's rows; while patches are pending, `useSyncLocalProductsData` keeps only local rows the server has never returned (optimistic adds), so a row deleted on the server is not resurrected; `Products` keys `ProductsList` by the deal id, so switching the record remounts it; the footer (`ProductFooter`) heads with the Amount total as a primary-tinted tile (`DealAmounts size="xl" showZero`: one large figure per currency, currency code small and muted, `0` when empty; the footer's discount / tax drafts and handlers live in `useProductFooterAdjustments`) holding a product-count pill, with Unused / Total as smaller lines beside it only when unused products exist; the footer shows `unsaved-changes` beside Save after a footer edit, and a successful Save (`useDealsEdit` hook-level `onCompleted`, keeping its toast) clears it only when no footer edit was made after that Save began (a local edit revision); Save is disabled while `useDealsEdit` is loading). `new` (`DealPanelNew`, the deal draft that replaced `AddDealSheet` / `AddCardForm`): opened with `openNewRecord('sales:deal', defaults)` from a board column's "+" (`{ boardId, pipelineId, stageId }`: only the stage row shows), a contact's Deals section "+" (`{ customerId | companyId }`, stacked over the contact) and the Deals relation widget's "+" in the inbox (the conversation's contacts, `{ stack: true }` like the contact section, so Save or Cancel returns to the record it started from); without a stage it asks board, pipeline and stage (picking a board auto-selects the pipeline and its first stage). Labels list the form's `pipelineId` (`SelectLabels.FormItem pipelineId`, like `SelectStage`), never the URL's, and changing the board or pipeline clears `labelIds` with the stage, so a deal is never saved with another pipeline's labels. `DealPanelNew` keys its form (`DealPanelNewForm`) on the draft (`JSON.stringify` of `useSidePanelDraft`), so a new `openNewRecord` while the draft is open (another column's "+", another contact) starts a fresh form with those defaults. A save still in flight when its form is replaced does not close the newer draft: `onCompleted` runs `finish` only while that form is mounted (Apollo calls `onCompleted` after unmount). That `onCompleted` is passed to `useDealsAdd({ onCompleted })`, never to the `addDeals` call: a call-level `onCompleted` replaces the hook's, which drops the `deal-added` toast. Below the properties and the settings link it renders ui-modules `DataExtensionCreateFields` (`recordType="sales:deal"`, `layout="stack"`); their values are written by the shared create link when `dealsAdd` returns, so the form has no saving code for them. Name and stage are required; Save calls `dealsAdd` with the stage, evicts cached `deals` lists like before and returns (Back, else closes) without opening the new deal. Board cards (`DealsBoardCard`), the list's Name/Number cells (`MoveDealSelect.tsx`) and its Edit action (`DealsMoreColumn`) open the deal panel; the former deal sheet (`SalesItemDetail`) was removed like POS's order and cover sheets, and legacy `salesItemId` links open the panel (see Data and State).
 - `widgets.recordPanels: [{ contentType: 'sales:pos.orders', properties: false, tabs: [{ value: 'payments', label: 'Payments', labelKey: 'payments', after: 'detail' }] }, { contentType: 'sales:pos.covers', properties: false }]` (`modules/pos/constants/posPanel.ts`) with `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`): order views `title` (`#<number>`), `detail`, `activity`, `tab` `payments` (core labels it with `t(labelKey)` in the plugin's `i18nNamespace` (`sales`), so the config passes `labelKey: 'payments'`, and draws it between Detail and Activity); cover views `title` (POS name), `actions` (delete), `detail`, `activity`. `sales:pos.orders` is the order content type the backend already uses (segments, automations, payment callbacks); covers have no backend content type, so `sales:pos.covers` names them for the panel only.
 - `widgets.contactWidgets: [{ name: 'posOrders' }]` (`src/widgets/contact/PosOrdersContactSection.tsx`): the POS orders section of a customer's / company's Relations overview, from `posOrders(customerId, customerType)` (`salesContactPosOrders`; companies are kept on orders as `customerId` with `customerType: 'company'`), rows (`#number`, total · date) opening the order panel stacked on the contact's panel. Users without the `posOrderRead` action get no section and no query: `usePermissionCheck().getModuleActions('pos')` must hold `*` or `posOrderRead`, since a module `*` grant reaches the frontend unexpanded and `hasActionPermission` misses it while the API allows it; a failed query shows the translated `failed-to-load-pos-orders` text, never the raw server message (the header count still reads 0: `ContactWidgetSection` has no error state). Same name as the `posOrders` relation widget, so core lists this section instead of that widget under More; that widget reads orders by `dealId` and has no host beside a deal any more.
 - Starts core `exportStart` jobs for entity types `sales:sales.deals` and
   `sales:pos.posOrders` (served by `sales_api`) through `ui-modules` `Export`.
-- The deal page (`src/pages/DealDetailPage.tsx`, route `/sales/deals/:dealId`, after the static `/sales/deals/loyalty`) is the panel's full view: `detailPath` returns `/sales/deals/<id>`, so the core panel's expand button opens it (core draws no expand button without `detailPath`). Like operation's `TaskDetailPage`, it renders `RecordSidePanel expanded expandedMode="page" expandable={false}` with a `PageHeader` (Sales Pipeline crumb to the deal's board and pipeline, the deal name once loaded as plain `Breadcrumb.Page` text, `DealPanelActions`) and `RecordSidePanel.Tabs` (`visibleCount` 7, one per tab beside the split Detail, so all show on a wide page) with `overviewTab` `detail` (`DealPageFields`: the fields only; the checklists are the Checklist tab; headed by the `side-panel` `detail` label rather than the deal name, which the breadcrumb and Name field already show; its width is dragged from its right edge by ui-modules `RecordSidePanel.Tabs`, shared by every record page) beside Products (default, `DealPanelProductsTab compact={false}`, the table), Description (`DealPageDescription`: attachments uploader and list above the description, centred up to `max-w-5xl` with `px-4`, wider than operation's `TaskPageDescription`), Checklist (`DealPageChecklists`, label `checklist`: centred like Description, an `add` `ChecklistOverview` at the top right, then `Checklists bare` with an `empty` state (`no-checklists`, falling back to "No checklists yet"); `Checklists` takes `empty` and shows nothing without it, as in the panel), Relations (`DealPanelRelations`), Properties and Activity, in that order, reusing the panel's exported `DealPanelTitle` / `DealPanelProperties` / `DealPanelProductsTab`; tab labels use core's `common` `side-panel` keys (including `relations`) and `products` / `description`. The product list passes its row handlers (`onLocalChange` for inline cell edits, `rowActions` for Edit / Duplicate / Delete) through `ProductListHandlersContext` (`product/productListHandlers.ts`, read with `useProductLocalChange` / `useProductRowActions`), never a global atom, so two product lists mounted at once (the panel and the deal page, or the expanded dialog) each keep their own handlers. The Name field (`DealFields`) wraps a long name onto more lines instead of truncating it: its `TextField` carries `data-panel-inline` (so `PanelField` does not force `h-7` on it) and `h-auto` with `overflow-wrap:anywhere` on the text; every other name (panel title, page overview header, breadcrumb) still truncates. `DealFields` (`DealPanelDetail.tsx`, with `DealPanelBroker.tsx` and the `useDealListField` optimistic id-list hook) is shared by the panel's Detail (fields, checklists, attachments and description together) and the page tabs in `DealPageSections.tsx` (`DealPageFields`, `DealPageDescription`, `DealPageChecklists`). Every deal view (panel Detail, Properties, Products, Relations, the page tabs, and the page body with `live`, which fetches and subscribes) loads through `DealPanelLoader` (`DealPanelStates.tsx`): a spinner while loading, `DealPanelError` for a failed query, `DealPanelNotFound` for a missing deal (no name crumb).
-- `widgets.relationWidgets` `deals` (`src/widgets/relation/modules/Deal.tsx`): its "+" opens the Connect deal panel (see below) for the host's customer, else its company, stacked; with neither it opens the new-deal draft.It lists the deals of the host's customer / company, one `DealWidgetCard` each (`DealWidget` loads it, `py-6` spinner): a header button (name, archived badge, chevron; pipeline › stage chip; the used products' amount per currency, large) opening the deal panel stacked on the host through `useOpenDealPanel` (no new tab, no `salesItemId` link), then an icon field grid showing only fields with values (priority, start → close dates with an overdue close date red, customers, companies, departments, branches as names with `+n` and a tooltip past two, labels and tags as colour-dot chips) and assignees (`SelectAssigneeDeal` `card`, editable), and a muted footer with `#number` (else the created date) and the product count.
-- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal panel stacked on the contact's panel (`openRecord` with `stack`, Back returns), rows drawn by `DealContactRow` (`src/widgets/contact/DealContactRow.tsx`, like operation's task rows: a sandbox icon tile (amber when archived), name with `#number` and an archived badge, then the priority (`PriorityIcon` and `PriorityTitle`, hidden for No Priority), pipeline › stage, assignees (`MembersInline`) or No assignee, and the close date (red when overdue), with the API's `amount` per currency on the right), `+` (`createLabel` `connect-deal`) opening the Connect deal panel: `recordPanels` entry `sales:dealConnection` (`DEAL_CONNECTION_CONTENT_TYPE`, `properties: false`, `draftTitle: true`; `RecordPanel` draws `DealConnectionPanel` for its `new` view and `connect-deal` as its title) opened with `openNewRecord(DEAL_CONNECTION_CONTENT_TYPE, { contentType, contentId }, { stack: true })`, like operation's Connect task: help text, a search (`salesDealConnectionCandidates`, `deals(search, cursor)` paged 30 at a time through `Combobox.FetchMore`; never `noSkipArchive`, since deals whose stage was deleted fail their `stage` field ("Stage not found") and so the whole list; `errorPolicy: 'all'` keeps the rows if a field still fails) beside a Create deal button that replaces the page with the deal draft (`openNewRecord('sales:deal', { customerId | companyId }, { replace: true })`), and the deals list, where a deal already holding a customer (or company, for a company) is disabled with Already connected / Linked elsewhere; picking one re-reads its contacts (`salesDealConnectionContacts`), runs `dealsEdit` setting only the empty field (`getDealContactUpdate`, so another contact is never replaced), evicts the cached contact `deals` lists, toasts and goes back; in the deal draft started there, the prefilled Customers / Companies are saved on the deal by `dealsAdd`; saving evicts the cached `deals` lists so contact sections read again.
+- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
   silently narrows the trigger.
@@ -477,46 +463,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Data and State
 
-- `SalesIndexPage` runs `useCloseSidePanelOnPipelineChange` (`widgets/record-panel/`): switching from one `boardId` / `pipelineId` query value to another closes the open side panel; a value filled from empty (first load, a minimized deal page, a legacy link) keeps it open.
-- There is no deal sheet: `salesItemId` is a legacy link key (notifications'
-  `buildDealPath`, global and deals search,
-  automation results, core's agent references and the
-  backend `dealLink` href all still build it). `SalesIndexPage` and
-  `SalesLoyaltyPointsPage` turn it into the deal panel with
-  `useOpenRecordPanelFromQuery('salesItemId', 'sales:deal')`, the hook the POS
-  pages use for `pos_order_id` / `pos_cover_id`: it drops the key and sets
-  `panel` with `replace`, so Back never returns to the key. Nothing sets
-  `dealDetailSheetState` any more, so every deal view names its deal through
-  `DealIdProvider`: the panel, the deal page and the inbox notification's
-  `SalesDealNotificationContent` (around its `DealsProvider`, as in the panel),
-  so its checklist, edit and remove hooks never fall back to another deal.
+- The `salesItemId` URL key alone decides whether the deal sheet is open.
+  `SalesItemDetail` copies it into `dealDetailSheetState`, so browser Back and
+  Forward close and reopen the sheet. Its not-found and error states have a
+  Close button.
 - Apollo Client owns pipeline/deal/POS server state; React Hook Form owns
   pipeline and POS settings forms.
-- `DealIdProvider` (`src/modules/deals/context/DealIdContext.tsx`) names the
-  deal for hooks that otherwise read `salesItemId` / `dealDetailSheetState`
-  (`useCurrentDealId`, `useDealDetail`, `useDealsEdit`, `useDealsRemove`,
-  `useDealsCopy`, `useChecklists`); its id wins over both. `useDealActions`
-  leaves the side panel when the provided deal is removed: `canGoBack ? back()
-: close()`, so a deal stacked over a contact returns to it; the
-  `salesDealChanged` delete in `useDealDetail` does the same only while the
-  panel still shows that deal (`useSidePanel().record`), so the menu's remove
-  and its own delete event never step back twice; both also go through
-  `leaveDeletedDealPanel` (`modules/deals/utils`), which leaves a deleted
-  deal's panel only once per id, as an embedded panel's `back` pops its stack
-  on every call and the delete event usually arrives before the mutation
-  result. It reads the panel's
-  `back` / `close` / `canGoBack` / record and the `salesItemId` setter from a
-  ref updated in an effect, not from its dependencies: those change identity
-  on renders (`useSidePanel` history, `useQueryState` setter) and would
-  resubscribe `salesDealChanged` on every render. A deal counts as
-  removed only when its `dealsRemove` result is fulfilled with
-  `data.dealsRemove`: `useDealsRemove` defines `onError` (its error toast), so
-  Apollo resolves a failed remove instead of rejecting it, and that deal's
-  sheet / panel stay open; nothing is rethrown from the menu's `onClick`. A
-  successful `dealsRemove` (`useDealsRemove` `update`) deletes the cached
-  `deals` lists filtered by `customerId` / `companyId`, as `DealContactsField`
-  does, so a contact's Deals section drops the deal at once and board columns
-  are not refetched.
 - Product table filters, Advanced view, Tax view, expanded view, and edit sheet
   open state are local React state inside the deal product detail surface.
 - `propertyIds` is submitted with pipeline create/edit and reloaded from
@@ -533,9 +485,6 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
-- Reuse the shared deal helpers instead of copying them: `DealPanelLoader` for any view that loads one deal, `DealAmounts` (`deals/components/DealAmounts.tsx`) for per-currency totals, `getPriorityLevel` / `getPriorityName` (`deals/utils/dealPriority.ts`) for priority names ↔ levels, `evictContactDealLists` (`deals/utils/dealCache.ts`) after any change to a deal's customer / company or a removal, and `handDiscountAmount` (`product/utils/discountInfos.ts`) for hand discounts.
-- Deal Connect entry points (`DealsContactSection`, the relation `Deal` widget, `DealConnectionPanel`) read `useDealConnectionAccess`: `+` shows only with `dealsAdd`, or `showDeals` plus `dealsEdit` (`canLink`); without `canLink` it opens the new-deal draft directly, so the deals list is never requested without `showDeals`; Create deal in the panel needs `dealsAdd`, and the panel itself shows a no-permission message without `canLink` (the API still enforces all three). `useContactDeals` skips its queries without `showDeals`. Contact deal lists come from `useContactDeals` (customer and company queries, deduped, the host excluded).
-- Keep components to rendering: data and edit logic goes in a hook beside them (`useDealConnection`, `useProductFooterAdjustments`, `useLocalProductEdits`, `useNarrowContainer`), and a board card's detail rows are `DealsBoardCardInfo`.
 - The deals list `stage` column uses `SelectStage.InlineCell` with the row's own pipeline and `autoSelectFirst={false}`, and ignores auto selections. Never use the shared `StageSelect` there: it auto-selects the first stage when the deal's stage is not in the loaded list (archived deals, other pipelines) and its `onChange` would move the deal.
 - Dashboard widget `module` names (`SALES_DASHBOARD_MODULES`) are stored in
   users' saved layouts as `sales:<module>`: renaming one orphans placed tiles.
@@ -556,13 +505,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   erxes-ui's `ChartTooltip` / `ChartLegend` (another copy's store; the page
   crashes with `activeIndex` of undefined). erxes-ui's `ChartContainer` and
   `Chart*Content` components are safe.
-- Typing a lower price in the base unit price cell never lowers the unit
-  price, for any role: the unit price stays and the difference times quantity
-  becomes the row's `hand` discount (requires `dealsEdit`). Raising the unit
-  price, and editing the entry UOM price, require `dealsProductsEdit`; without
-  it a higher or negative price shows an error toast and the entry UOM price
-  is read-only. Row and footer manual discounts require `dealsEdit`. Row and
-  bulk product deletion controls require `dealsProductsDelete`.
+- Deal unit price (base and entry UOM), row discounts, and footer manual discounts
+  require `dealsProductsEdit`; restricted numeric cells remain readable. Row and bulk
+  product deletion controls require `dealsProductsDelete`.
 
 - The Sales Pipeline breadcrumb links to `/sales/deals` with the current
   `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
@@ -593,27 +538,6 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   plugin settings, `config.tsx` has no `settingsNavigation`, and there is
   no `./salesSettings` expose; old `/settings/sales/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
-- Below the shared Tags/Properties items, `SalesSettingsLayout` renders two
-  route-scoped `NavigationMenuGroup`s, and neither page has a side panel:
-  `BoardsSettingsNavigation` (BOARDS, only on `/sales/settings/deals`, matched
-  with `useIsMatchingLocation` so a trailing slash still counts, titled
-  `Boards (N)` with the board count as before) lists every board (archived
-  ones badged); a row links to `?activeBoardId=<id>`,
-  its `⋯` menu edits (`boardId`), archives or deletes the board, and the group
-  `+` sets `createBoard=1`. `PosSettingsTabs` (only on
-  `/sales/settings/pos/<id>`, titled with the POS name) lists the POS steps
-  and other plugins' relation tabs as `?activeTab=` links.
-- `DealsSettings` calls `useSettingsActiveBoard`, which keeps
-  `activeBoardId` on an existing board (the first one by default, clearing
-  `pipelineId` and `tab` when it moves) and runs the board archive
-  subscription. It renders the single `BoardForm` in its `SettingsHeader`;
-  `BoardForm` has no trigger of its own: the dialog opens only from `boardId`
-  (edit) or `createBoard` (add, the BOARDS group `+`), and closing clears
-  both. Keep one instance: a second copy stacks two dialogs.
-  Edit fills the form once per opened board (`loadedBoardIdRef`) with
-  `reset(values, { keepDefaultValues: true })`, so an unchanged name saves,
-  add still opens empty, and an archive-triggered detail refetch keeps typed
-  edits; Save is disabled while the board loads.
 - Money and product text on board cards and column totals is `text-xs` (12 px)
   or larger with `tabular-nums`. Column headings are `text-base`, the same size
   as card titles.
@@ -653,9 +577,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Memoize filtered query collections by the source array; form synchronization
   and board effects rely on stable references when Apollo data is unchanged.
 - Memoize overview attachment inputs by the server attachment array so unrelated
-  rerenders cannot discard pending uploads. Attachment `url` is an upload key:
-  file links open `${REACT_APP_API_URL}/read-file?key=<url>&name=<name>`
-  (absolute URLs pass through), never the bare key. Relation-card section visibility
+  rerenders cannot discard pending uploads. Relation-card section visibility
   must use the same filtered collection passed to its renderer. Label forms
   report a missing pipeline before attempting either add or edit.
 - Deal printing owns typed documents for the public Core document service;
@@ -792,7 +714,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   the watcher never exits. With Sales enabled, `pnpm dev:uis` generates types,
   starts the watcher, then starts the host and Sales remote.
 
-- Papa JSON (`papaDelivery`, `deliveryConfig.papa`, `salesPapaReferences`,
+- Papa JSON (`papaDelivery`, `papaDeal`, `deliveryConfig.papa`, `salesPapaReferences`,
   `salesPapaAddresses`, the photo proof) is narrowed in
   `pos/papa/utils/papaJson.ts`. Papa does not document its reference row
   shape, so rows need only an `id`; labels fall back from `name` to `title`,
@@ -811,7 +733,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   search (`usePapaAddressSearch`) asks OpenStreetMap Nominatim once per click,
   limited to Mongolia, retrying once without the last address part after a
   one-second pause: Nominatim forbids search-as-you-type and more than one
-  request per second. Never wire it to keystrokes.
+  request per second. Never wire it to keystrokes. A map click or pin drag
+  fills the address from Nominatim reverse (`findAddressAt`, Mongolian, one
+  request per pick) only while the address is empty or still the last
+  map-filled text; typed addresses are never overwritten. A typed or pasted
+  address with no valid pin is looked up by itself when the field loses
+  focus, and Get price waits for that lookup (`fillFromAddress`); each
+  address is asked once, so a miss is not retried until the text changes
+  ("Find on map" always asks again).
 - Papa mutations refetch `salesPosOrderPapaDelivery` for that order; the tab
   never reads Papa state from `salesPosOrderDetail`.
 - The Delivery tab pre-fills from `posOrder.deliveryInfo` (`orderDeliveryDefaults`):
@@ -831,7 +760,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. Settings pages use the settings sidebar groups instead of a panel; `PosEdit` still takes the POS page header as `header`.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SalesSettingsIndexPage` renders `BoardsList` beside its `SettingsHeader`, and `PosEdit` takes the POS page header as `header` so `PosEditSidebar` sits beside it. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. The deal settings `BoardsList` passes its heading as `label` and `BoardForm` as `actions`; keep that single `BoardForm` instance, because every instance opens its dialog from the `boardId` query state and a second copy stacks two dialogs on edit.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal detail chips render through erxes-ui `Combobox.ChipTrigger`; every chip except stage
   passes a translated `label` by default so the field is named.
@@ -883,9 +812,6 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   identical.
 - Editing a row discount sets `hand` to the difference between requested total
   discount and existing automatic discount.
-- Newly added product rows start without a discount; they never inherit the
-  deal's current total discount percent (`hooks/useDealProductActions.tsx`).
-  Duplicated rows keep the source row's discount.
 - Editing the footer total discount clears current `hand` for each matching
   currency row and adds the footer amount/percent on top of automatic
   discounts.
@@ -893,8 +819,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `0` is still a real manual edit.
 - Footer handle percent and amount drafts are mutually exclusive per currency;
   editing one clears the other so both inputs derive from the same `hand`
-  discount state. Both drafts reset when rows are added or removed, so the
-  inputs re-derive from the rows' `hand` discounts.
+  discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
 - Deal start/close date selects: every variant opens a popover holding
@@ -912,24 +837,17 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Validation
 
-- `pnpm nx test sales_ui` (jsdom Jest with `~/*` and `@/*` mappers; `useDealRelationTabs` scenarios: deal widgets, payment `invoices` by plugin, contact widgets left out)
-- Deal panel smoke: a contact's Deals card and a loyalty score-log row open
-  the deal panel directly through `openRecord`, with no `salesItemId` step.
-- Legacy deal link smoke: a notification's Open deal, a global or deals search
-  result and a pasted `?salesItemId=` URL on the deals board or the loyalty
-  points page open the deal panel and replace the key with `panel`.
-- Deal Relations smoke: the same deal's panel and page Relations tab show
-  Transactions, eBarimt and Invoices sections with only that deal's records;
-  with accounting, mongolian and payment all disabled the tab shows
-  `deal-relations-empty`.
+- `pnpm nx test sales_ui` (jsdom Jest with `~/*` and `@/*` mappers; `DealSideWidgets` rail scenarios)
+- Deal rail smoke: open a deal synced to accounting and issued an eBarimt; the
+  rail lists Customers, Companies, Transactions and eBarimt, and the
+  Transactions / eBarimt tabs show only that deal's records.
 
 - POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
 
-- Permission smoke: as Sales User, change a 1,000,000 unit price to 900,000 and
-  verify the price stays 1,000,000 with a 10% discount; row and footer discounts
-  are editable and rows can be deleted. On a deal with discounted rows, newly
-  added products arrive with a 0 discount. As Sales Admin, a lower price also
-  becomes a discount and a higher price changes the unit price. Without `dealsProductsDelete`, row and bulk delete actions are hidden.
+- Permission smoke: without `dealsProductsEdit`, base/entry prices and row/footer
+  discounts remain read-only; without `dealsProductsDelete`, row and bulk delete actions
+  are hidden. Grant each action independently and verify only its controls become
+  available.
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
 
@@ -965,7 +883,6 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   development, editing a GraphQL document must trigger the codegen watcher.
 - `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealJson.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealReviewRegressions.test.cjs`
-- `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productsDataPatches.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/hooks/__tests__/useProductsListState.test.cjs`
 - Deals migration smoke: create/edit/watch a deal; move stages, edit labels and
   checklists, and add/edit/remove products. Verify immediate list/detail updates
   and subscription updates with no Apollo cache or missing-field warnings.

@@ -1,11 +1,15 @@
 import {
   PAPA_CAR_TYPE_GROUPS,
+  PAPA_DEAL_STEP_BY_STATUS,
+  PAPA_DEAL_STEP_RANK,
   PAPA_MAX_EVENTS,
   PAPA_SIZES,
   TPapaCarTypeGroup,
+  TPapaDealStep,
   TPapaSize,
 } from './constants';
 import {
+  IPapaDealLink,
   IPapaDelivery,
   IPapaDeliveryEvent,
   IPapaDynamicCreateInput,
@@ -194,3 +198,20 @@ export const buildCallbackUrl = (
   callbackPath: string,
   secret: string,
 ) => `${trimTrailingSlashes(gatewayDomain)}/pl:sales${callbackPath}/${secret}`;
+
+/** The pipeline step a Papa status stands for, if any. */
+export const papaDealStep = (status?: string): TPapaDealStep | undefined =>
+  status ? PAPA_DEAL_STEP_BY_STATUS[status] : undefined;
+
+/**
+ * Whether a deal at `link` moves to `step` for Papa order `papaOrderId`:
+ * forward only within one Papa order, while a resend starts over.
+ */
+export const shouldMoveDeal = (
+  link: IPapaDealLink | undefined,
+  step: TPapaDealStep,
+  papaOrderId: string,
+) =>
+  !link?.step ||
+  link.papaOrderId !== papaOrderId ||
+  PAPA_DEAL_STEP_RANK[step] > PAPA_DEAL_STEP_RANK[link.step];
