@@ -1,7 +1,7 @@
 # Mutation testing with Stryker, shared by core (mutation-tests.yml) and every plugin. Stryker makes
 # small changes to the code (`>` to `>=`, a branch removed) and runs the tests that cover each one.
 # A change every test still passes on is a false test: it runs over the code without checking it.
-# Pull requests: only the files they change, from the base branch's last results, and one comment
+# Pull requests: only the lines they add, from the base branch's last results, and one comment
 # with what no test caught. Branch runs: every file, rerunning only what changed since the last run,
 # and one `false-test` issue per folder, updated in place and closed once every change is caught.
 # It reports and never blocks a merge. The settings and ignore rules are tools/mutation/.
@@ -39,13 +39,14 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      pull-requests: read
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
       count: ${{ steps.plan.outputs.count }}
     steps:
+      # A pull request's checkout is its merge commit; its first parent is the base.
       - uses: actions/checkout@v7
         with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
           persist-credentials: false
       # This workflow's own scripts, at the commit the caller pinned.
       - uses: actions/checkout@v7
@@ -58,21 +59,19 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 26
-      - name: Files the pull request changes
+      # The pull request's lines as its merge commit (what the shards check out) numbers them: a
+      # file it touches is mutated only where it adds lines, so a one-line change to a file every
+      # test loads (app.ts) costs a few changes to test, not hundreds.
+      - name: Lines the pull request adds
         if: env.MODE == 'pr'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
-            --jq '.[] | select(.status != "removed") | .filename' > "$RUNNER_TEMP/changed.txt"
+        run: git diff --unified=0 --no-color HEAD^1 HEAD > "$RUNNER_TEMP/changes.diff"
       - id: plan
         run: node .erxes-mutation/tools/mutation/plan.ts
         env:
           MUTATE: ${{ inputs.mutate }}
           SHARDS: ${{ inputs.shards }}
           FILES_PER_SHARD: ${{ env.MODE == 'pr' && '5' || '' }}
-          CHANGED_FILES: ${{ env.MODE == 'pr' && format('{0}/changed.txt', runner.temp) || '' }}
+          CHANGES_DIFF: ${{ env.MODE == 'pr' && format('{0}/changes.diff', runner.temp) || '' }}
 
   mutate:
     name: Mutate (${{ matrix.shard }})
@@ -100,7 +99,7 @@ jobs:
           --health-cmd "pg_isready -U ci" --health-interval 5s --health-timeout 3s --health-retries 20
     env:
       DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
-      MUTATE_FILES: ${{ matrix.files }}
+      MUTATE_FILES: ${{ matrix.mutate }}
     steps:
       - uses: actions/checkout@v7
         with:
