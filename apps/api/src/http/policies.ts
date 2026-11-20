@@ -137,6 +137,7 @@ export const ACCESS = {
   'emails.send': { plugin: 'emails:write' },
   'emails.settings': needs('integrations.manage'),
   'emails.saveSettings': needs('integrations.manage'),
+  'emails.defaultSending': needs('integrations.manage'),
   'emails.removeSettings': needs('integrations.manage'),
   'emails.sendTest': needs('integrations.manage'),
   // Broadcast and automation editors pick from them.

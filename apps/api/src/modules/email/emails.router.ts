@@ -1,4 +1,5 @@
 import { db, requestOrgId } from '@erxes/core-db';
+import { config } from '~/config';
 import { audited, scoped, unscoped } from '~/orpc';
 import { sendEmail } from './email';
 import { addSender, listSenders, removeSender, resendConfirmation } from './senders.service';
@@ -28,7 +29,11 @@ export const emailsRouter = {
     ).then(({ queued }) => ({ queued })),
   ),
   settings: scoped.emails.settings.handler(() => getSettings(db())),
-  saveSettings: scoped.emails.saveSettings.handler(({ input }) => saveSettings(db(), input)),
+  // Signs in to the mail server first: no transaction held meanwhile.
+  saveSettings: unscoped.emails.saveSettings.handler(({ input }) => saveSettings(input)),
+  defaultSending: unscoped.emails.defaultSending.handler(() => ({
+    from: config.email.driver === 'log' ? null : config.email.from,
+  })),
   removeSettings: scoped.emails.removeSettings.handler(() => removeSettings(db())),
   // Sends over the network: no transaction held meanwhile.
   sendTest: unscoped.emails.sendTest.handler(({ input }) => sendTest(input.to)),

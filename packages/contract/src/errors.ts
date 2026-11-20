@@ -181,6 +181,8 @@ export const ERRORS = {
   NO_RECIPIENTS: { status: 409 },
   // A broadcast names a sender that isn't confirmed (or isn't the organisation's).
   SENDER_NOT_CONFIRMED: { status: 400 },
+  // Email sending: the server refused the login or couldn't be reached, so the settings stay as they were.
+  MAIL_SERVER_REFUSED: { status: 400 },
 
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).

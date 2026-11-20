@@ -6,6 +6,7 @@ import { isoDate } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 
 export const EmailSettings = createSelectSchema(emailSettings, {
+  failedAt: isoDate,
   createdAt: isoDate,
   updatedAt: isoDate,
 }).pick({
@@ -22,6 +23,10 @@ export const EmailSettings = createSelectSchema(emailSettings, {
   username: true,
   /** `ses`: the AWS region. */
   region: true,
+  /** Since when its server refuses the login or can't be reached: "Needs attention". */
+  failedAt: true,
+  /** What the server said. */
+  failure: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -67,9 +72,9 @@ export const EmailSettingsInput = z.discriminatedUnion('provider', [
 
 export type EmailSettingsInput = z.infer<typeof EmailSettingsInput>;
 
-const { INVALID_URL } = ERRORS;
+const { INVALID_URL, MAIL_SERVER_REFUSED } = ERRORS;
 
-const base = oc.errors({ ...COMMON_ERRORS, INVALID_URL });
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_URL, MAIL_SERVER_REFUSED });
 
 /**
  * How the organisation sends its emails (Settings › Email sending,
@@ -91,10 +96,18 @@ export const emailSettingsContract = {
       method: 'PUT',
       path: '/email/settings',
       summary:
-        'Send the organisation’s emails this way. 400 INVALID_URL for an SMTP server core may not reach, INVALID_INPUT without the secret the first time',
+        'Send the organisation’s emails this way, once its server takes the login. 400 INVALID_URL for an SMTP server core may not reach, MAIL_SERVER_REFUSED with what the server said, INVALID_INPUT without the secret the first time',
     })
     .input(EmailSettingsInput)
     .output(EmailSettings),
+  defaultSending: base
+    .route({
+      method: 'GET',
+      path: '/email/default',
+      summary:
+        'How the organisation’s emails go out without its own settings: the server’s From, or null when the server sends none',
+    })
+    .output(z.object({ from: z.string().nullable() })),
   removeSettings: base
     .route({
       method: 'DELETE',

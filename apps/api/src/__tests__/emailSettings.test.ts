@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { sesSmtpPassword } from '~/modules/email/transport';
 import { useTestDatabase } from './db';
+import { settle } from './settle';
 import { useSmtp } from './smtp.fixture';
 import { useTwoOrgs } from './support';
 
@@ -81,15 +82,64 @@ describe('email sending settings', () => {
     expect(smtp.received.slice(-1)[0]?.to.join()).toContain('open@example.com');
   });
 
-  it('says why a test failed, and refuses a server core may not reach in production', async () => {
-    await t.owner().emails.saveSettings({ ...ownServer('pa55word'), smtpPort: 1 });
+  it('keeps settings whose server refuses the login or doesn’t answer', async () => {
+    await t.owner().emails.saveSettings(ownServer('pa55word'));
 
-    const answer = await t.owner().emails.sendTest({ to: 'someone@example.com' });
-
-    expect(answer.ok).toBe(false);
-    expect(answer.error).toBeTruthy();
+    await expect(t.owner().emails.saveSettings(ownServer('wrong'))).rejects.toMatchObject({
+      code: 'MAIL_SERVER_REFUSED',
+      message: expect.stringContaining('535') as unknown,
+    });
+    await expect(
+      t.owner().emails.saveSettings({ ...ownServer('pa55word'), smtpPort: 1 }),
+    ).rejects.toMatchObject({ code: 'MAIL_SERVER_REFUSED' });
     await expect(
       t.owner().emails.saveSettings({ ...ownServer('x'), smtpHost: 'no-such-host.invalid' }),
     ).rejects.toMatchObject({ code: 'INVALID_URL' });
+
+    // The working settings stay, with the saved password.
+    expect(await t.owner().emails.sendTest({ to: 'kept@example.com' })).toEqual({
+      ok: true,
+      error: null,
+    });
+  });
+
+  it('needs attention while its server refuses, tells the owners once, and recovers', async () => {
+    await t.owner().emails.saveSettings(ownServer('pa55word'));
+    // Someone changed the password on the mail server.
+    smtp.password = 'changed';
+
+    const failed = await t.owner().emails.sendTest({ to: 'someone@example.com' });
+
+    expect(failed.ok).toBe(false);
+    expect(failed.error).toContain('535');
+    expect(await t.owner().emails.settings({})).toMatchObject({
+      failedAt: expect.any(String) as unknown,
+      failure: expect.stringContaining('535') as unknown,
+    });
+
+    await t.owner().emails.sendTest({ to: 'again@example.com' });
+    await settle();
+
+    const alerts = await t.owner().notifications.list({ kind: 'core.security.' });
+
+    expect(alerts.data.filter((alert) => alert.title === 'Your emails can’t be sent')).toHaveLength(
+      1,
+    );
+
+    // The server takes the login again: the next email clears it.
+    smtp.password = 'pa55word';
+    expect(await t.owner().emails.sendTest({ to: 'back@example.com' })).toEqual({
+      ok: true,
+      error: null,
+    });
+    expect(await t.owner().emails.settings({})).toMatchObject({ failedAt: null, failure: null });
+  });
+
+  it('says how emails go out without the organisation’s settings', async () => {
+    // Tests run the log driver: the server sends nothing.
+    expect(await t.owner().emails.defaultSending({})).toEqual({ from: null });
+    await expect(t.member().emails.defaultSending({})).rejects.toMatchObject({
+      code: 'NOT_ALLOWED',
+    });
   });
 });

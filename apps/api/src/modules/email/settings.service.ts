@@ -8,7 +8,7 @@ import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { deliverEmail } from './email';
 import { renderEmail } from './templates';
-import type { EmailSettingsRow } from './transport';
+import { type EmailSettingsRow, loginRefusal } from './transport';
 
 /** What members see: everything but the sealed secret. */
 const shown = ({ secretSealed: _secret, orgId: _org, updatedBy: _by, ...rest }: EmailSettingsRow) =>
@@ -51,14 +51,11 @@ const secretFor = (input: EmailSettingsInput, before: EmailSettingsRow | null) =
   throw fail('INVALID_INPUT', message, { issues: [{ path: ['secret'], message }] });
 };
 
-/** Sends the organisation's emails this way from now on; audited without the secret. */
-export const saveSettings = async (client: Db, input: EmailSettingsInput) => {
-  if (input.provider === 'smtp') await checkHost(input.smtpHost);
-
-  const before = await settingsRow(client);
+/** The row the input saves, with the saved secret when it keeps it. */
+const valuesOf = (input: EmailSettingsInput, before: EmailSettingsRow | null) => {
   const smtp = input.provider === 'smtp' ? input : null;
 
-  const values = {
+  return {
     provider: input.provider,
     fromName: input.fromName ?? '',
     fromEmail: input.fromEmail,
@@ -68,6 +65,16 @@ export const saveSettings = async (client: Db, input: EmailSettingsInput) => {
     username: input.provider === 'sendgrid' ? '' : input.username,
     region: input.provider === 'ses' ? input.region : '',
     secretSealed: secretFor(input, before),
+  };
+};
+
+const storeSettings = async (client: Db, input: EmailSettingsInput) => {
+  const before = await settingsRow(client);
+
+  const values = {
+    ...valuesOf(input, before),
+    failedAt: null,
+    failure: null,
     updatedBy: caller('user').userId,
     updatedAt: sql`now()`,
   };
@@ -93,6 +100,25 @@ export const saveSettings = async (client: Db, input: EmailSettingsInput) => {
   });
 
   return shown(row);
+};
+
+/**
+ * Sends the organisation's emails this way from now on, once its server takes
+ * the login (400 MAIL_SERVER_REFUSED with its answer); audited without the
+ * secret. Calls out: outside the request's transaction.
+ */
+export const saveSettings = async (input: EmailSettingsInput) => {
+  if (input.provider === 'smtp') await checkHost(input.smtpHost);
+
+  const orgId = requestOrgId();
+  const candidate = await withOrg(orgId, async (tx) => valuesOf(input, await settingsRow(tx)));
+  const refused = await loginRefusal(candidate);
+
+  if (refused) {
+    throw fail('MAIL_SERVER_REFUSED', `The mail server refused: ${refused.slice(0, 300)}`);
+  }
+
+  return withOrg(orgId, (client) => storeSettings(client, input));
 };
 
 /** The organisation's emails go through the server's again. */
