@@ -220,6 +220,7 @@ value isUndefinedOrNull
 value jsonOf
 value listFilterQuery
 value localTimeZone
+value meFirst
 value memberName
 value oneOf
 value pluginFetch
@@ -248,6 +249,7 @@ value useListDisplay
 value useListFilterParams
 value useListViews
 value useLiveSignal
+value useMeId
 value useMediaQuery
 value useMemberOptions
 value useMembersById

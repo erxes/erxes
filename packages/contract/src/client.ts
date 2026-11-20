@@ -46,6 +46,8 @@ export const memberQueries = {
       input: { ids: ids.join(','), limit: 100 },
       staleTime: 5 * 60_000,
     }),
+  /** Web's session query (same key), so the pickers' "me first" costs no request. */
+  me: orpc.auth.me.queryOptions({ staleTime: 60_000, retry: false }),
 };
 
 /**

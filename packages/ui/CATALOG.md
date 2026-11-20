@@ -120,10 +120,11 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<IconsProvider>` Loads the Tabler icon set in the background for `IconComponent`.
 - `isRule(rule)` Whether a condition entry is a rule rather than a nested group.
 - `<LookupPicker lookup value onValueChange multiple placeholder>` A button that picks members or tags, one or several with `multiple`.
+- `meFirst(items, meId)` The members with `meId` moved to the top: most picks are your own.
 - `type Member { id, email, fullName, username, avatarUrl, … }` A team member as the pickers show one.
 - `<MemberInline memberId members placeholder size>` A member's avatar and name by id, or a placeholder without one.
 - `memberName(member)` How a member reads: the display name, else the username, else the email.
-- `type MemberQueries { team, byIds }` Where members come from, as TanStack query options.
+- `type MemberQueries { team, byIds, me }` Where members come from, as TanStack query options.
 - `<NumberField placeholder value scope onSave onValueChange>` A number in a table cell or panel row that edits in a popover.
 - `<PhoneDisplay maxVisible primaryPhone phones phoneValidationStatus>` A record's phones as chips, the primary one with its validation mark.
 - `<PhoneField recordId onValueChange onValidationStatusChange primaryPhone phones>` An editable list of a record's phones, each with its own menu.
@@ -139,6 +140,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TConditionLookups { members, tags, contacts, products }` Where member, tag, contact and product values pick from.
 - `type TConditionRule { path, op, value, where }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
+- `useMeId(members)` The signed-in member's id, when `members` says how to read it.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.
 - `useMembersById(ids, members)` Members by id, any status.
 - `useProductOptions(products, enabled, picked, search)` Products matching `search` as picker options, the `picked` ones first.
