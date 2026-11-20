@@ -1,25 +1,32 @@
+"use client"
+
 import Link from "next/link"
-import { XCircleIcon } from "lucide-react"
+import { ArrowLeftIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 const Layout = ({ children }: { children?: React.ReactNode }) => {
   return (
-    <div className="flex h-screen w-screen md:items-center justify-center bg-black">
-      <ScrollArea className="bg-white md:rounded-lg h-screen md:h-[44rem] md:max-h-[95vh] overflow-hidden">
-        <div className="mx-auto flex  w-screen max-w-lg flex-col items-center justify-center px-4 md:px-8 py-5">
-          {children}
+    <div className="flex h-screen w-screen flex-col bg-sidebar">
+      <header className="flex h-14 flex-none items-center gap-2 border-b bg-background px-3">
+        <Button
+          Component={Link}
+          href="/"
+          variant="ghost"
+          className="h-9 w-9 rounded-lg p-0 text-muted-foreground hover:text-foreground"
+          title="Буцах"
+        >
+          <ArrowLeftIcon className="h-5 w-5" />
+        </Button>
+        <h1 className="text-sm font-semibold">Тохиргоо</h1>
+      </header>
+      <div className="min-h-0 flex-auto overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-xl flex-col items-center px-4 py-6">
+          <div className="flex w-full flex-col items-center rounded-xl border bg-background px-5 py-6 shadow-xs md:px-6">
+            {children}
+          </div>
         </div>
-      </ScrollArea>
-      <Button
-        Component={Link}
-        className="absolute right-5 top-5 h-auto rounded-lg md:rounded-full p-1 hover:bg-white/20 hover:text-white bg-neutral-300 md:bg-transparent"
-        variant="ghost"
-        href="/"
-      >
-        <XCircleIcon className="h-6 w-6 text-white" />
-      </Button>
+      </div>
     </div>
   )
 }

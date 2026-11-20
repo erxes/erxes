@@ -15,12 +15,12 @@ const HeaderLayout = ({
 }) => {
   const label = useAtomValue(userLabelAtom)
   return (
-    <header className="flex flex-none items-center justify-between border-b px-3 md:px-5 py-1.5 print:hidden h-14 ">
+    <header className="flex flex-none items-center justify-between border-b bg-background px-3 md:px-5 py-1.5 print:hidden h-14">
       <div className={cn("flex w-auto items-center", !hideUser && "sm:w-1/3")}>
         <HeaderMenu />
         <Logo />
         {!hideUser && (
-          <p className="hidden flex-auto text-center text-black/60 sm:block">
+          <p className="hidden flex-auto text-center font-medium text-muted-foreground sm:block">
             {label}
           </p>
         )}

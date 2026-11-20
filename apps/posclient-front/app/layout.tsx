@@ -1,11 +1,10 @@
-/* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import "@/styles/globals.css"
 
 import { Metadata } from "next"
 import Script from "next/script"
 import JotaiProvider from "@/store"
 
-import { fontSans } from "@/lib/fonts"
+import { fontMono, fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -45,7 +44,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <body
           className={cn(
             "h-screen w-screen overflow-hidden bg-background font-sans text-xs font-medium antialiased xl:text-sm flex flex-col",
-            fontSans.variable
+            fontSans.variable,
+            fontMono.variable
           )}
         >
           <JotaiProvider>{children}</JotaiProvider>

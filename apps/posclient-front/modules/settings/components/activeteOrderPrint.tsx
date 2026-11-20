@@ -1,21 +1,23 @@
 "use client"
 
 import { printSeparatelyAtom } from "@/store"
-import type { CheckedState } from "@radix-ui/react-checkbox"
-import { Label } from "@radix-ui/react-label"
 import { useAtom } from "jotai"
+import {
+  Label as LabelPrimitive,
+  type Checkbox as CheckboxPrimitive,
+} from "radix-ui"
 
 import { Checkbox } from "@/components/ui/checkbox"
 
 const ActivateOrderPrint = () => {
   const [printSeparately, setPrintSeparately] = useAtom(printSeparatelyAtom)
 
-  const handleCheckboxChange = (checked: CheckedState) => {
+  const handleCheckboxChange = (checked: CheckboxPrimitive.CheckedState) => {
     setPrintSeparately(checked === true)
   }
 
   return (
-    <Label
+    <LabelPrimitive.Root
       className="flex items-center w-full gap-2 pb-5 cursor-pointer"
       htmlFor="printSeparately"
     >
@@ -25,7 +27,7 @@ const ActivateOrderPrint = () => {
         onCheckedChange={handleCheckboxChange}
       />
       Тус бүрээр нь хэвлэх
-    </Label>
+    </LabelPrimitive.Root>
   )
 }
 

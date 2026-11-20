@@ -16,7 +16,7 @@ const Progress = () => {
   return (
     <>
       <Collapsible open={showFilter}>
-        <CollapsibleContent className="pt-3">
+        <CollapsibleContent className="px-4 pt-3">
           <Filter
             filter={filter}
             setFilter={setFilter}

@@ -37,7 +37,7 @@ const ClearSessionButton = () => {
             iconOnly
             onClick={() => logout()}
             aria-label="Clear session & refresh"
-            className="absolute bg-transparent border-none shadow-none right-4 top-4 text-muted-foreground hover:bg-gray-100 hover:text-foreground"
+            className="absolute bg-transparent border-none shadow-none right-4 top-4 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <Paintbrush className="w-4 h-4" />
           </Button>

@@ -4,11 +4,11 @@ import { configAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 
 import DeleteOrders from "../DeleteOrders"
+import FetchRemainders from "../FetchRemainders"
 import SendData from "../SendData"
 import SyncConfig from "../SyncConfig"
 import SyncOrders from "../SyncOrders"
 import ErxesLink from "./ErxesLink"
-import FetchRemainders from "../FetchRemainders"
 
 const Grid = () => {
   const { branchId, departmentId, ebarimtConfig, saveRemainder } =

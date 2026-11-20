@@ -18,7 +18,7 @@ const CheckoutMain = () => {
   const mode = useAtomValue(modeAtom)
   return (
     <OrderDetail inCheckout>
-      <div className="pb-4 md:p-4">
+      <div className="pb-3 md:p-3 md:pb-2">
         <Customer />
       </div>
       {!(mode === "mobile" && orderCollapsible) ? (
@@ -31,7 +31,7 @@ const CheckoutMain = () => {
         open={orderCollapsible}
         onOpenChange={(open) => setOrderCollapsible(open)}
       >
-        <div className="grid flex-none grid-cols-2 gap-2 pt-4 md:p-4">
+        <div className="grid flex-none grid-cols-2 gap-2 border-t bg-muted/30 pt-4 md:p-3">
           <DeliveryInputs />
           <TotalAmount />
           <ChooseType />

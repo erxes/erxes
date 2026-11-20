@@ -182,10 +182,10 @@ const DirectDiscount: React.FC = () => {
               )
             }}
           />
-          <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-sm whitespace-nowrap">
+          <span className="rounded-xs bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs whitespace-nowrap">
             {discountPercent.toFixed(4)}%
           </span>
-          <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-sm whitespace-nowrap">
+          <span className="rounded-xs bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs whitespace-nowrap">
             {formatAmount(discountAmount)}₮
           </span>
         </div>

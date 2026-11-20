@@ -64,18 +64,21 @@ const HeaderMenu = () => {
   return (
     <div
       className={cn(
-        "p-1 rounded-md bg-neutral-100 flex items-center justify-center",
+        "flex flex-none items-center justify-center",
         mode === "market" && "sm:ml-2",
         ["main", "coffee-shop"].includes(mode) && "sm:mr-2"
       )}
     >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-auto rounded-sm bg-white p-1">
-            <MenuIcon className="h-6 w-6" />
+          <Button
+            variant="ghost"
+            className="h-9 w-9 rounded-lg p-0 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+          >
+            <MenuIcon className="h-5 w-5" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="p-3 min-w-[200px]">
+        <DropdownMenuContent className="p-1.5 min-w-[220px]">
           {menu.map((itm) => (
             <MenuItem {...itm} key={itm.href} />
           ))}
@@ -98,13 +101,13 @@ const MenuItem = ({
 }) => (
   <DropdownMenuItem asChild>
     <Button
-      className="w-full justify-start mb-1"
+      className="w-full justify-start mb-0.5 font-medium"
       variant="ghost"
       size="sm"
       Component={Link}
       href={`/${href}`}
     >
-      <Icon className="mr-2 h-5 w-5" />
+      <Icon className="mr-2 h-5 w-5 text-muted-foreground" />
       {text}
     </Button>
   </DropdownMenuItem>

@@ -3,14 +3,12 @@
 *.md
 *.yml
 *.yaml
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
 .prettierrc
 .snyk
 *.tar.gz
 Dockerfile
 .dockerignore
-npm-debug.log
-README.md
-.env*
-.git*
-*.md
+node_modules
 .next

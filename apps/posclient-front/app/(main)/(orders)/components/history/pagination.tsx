@@ -29,7 +29,7 @@ const Pagination = ({
   const goToPage = (page: number) => {}
 
   return (
-    <div className="flex items-center justify-end gap-4 p-4">
+    <div className="flex flex-none items-center justify-end gap-3 px-3 pb-3 text-[13px] font-medium">
       <Select
         value={(filter.perPage || 10).toString()}
         onValueChange={(value) =>
@@ -44,7 +44,7 @@ const Pagination = ({
         }
         disabled={loading}
       >
-        <SelectTrigger className="h-8 w-[70px]">
+        <SelectTrigger className="h-7 w-[70px] rounded text-[13px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent side="top">
@@ -55,14 +55,17 @@ const Pagination = ({
           ))}
         </SelectContent>
       </Select>
-      <div>
-        Хуудас: {filter.page}/{totalPage}
+      <div className="text-muted-foreground">
+        Хуудас{" "}
+        <span className="font-semibold text-foreground tabular-nums">
+          {filter.page}/{totalPage || 1}
+        </span>
       </div>
       <div className="flex">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-1">
           <Button
-            variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            variant="ghost"
+            className="hidden h-7 w-7 rounded p-0 lg:flex"
             onClick={() => setFilter({ ...filter, page: 1 })}
             disabled={filter.page === 1 || loading}
           >
@@ -70,8 +73,8 @@ const Pagination = ({
             <ChevronsLeftIcon className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
-            className="h-8 w-8 p-0"
+            variant="ghost"
+            className="h-7 w-7 rounded p-0"
             disabled={filter.page === 1 || loading}
             onClick={() => setFilter({ ...filter, page: filter.page - 1 })}
           >
@@ -79,8 +82,8 @@ const Pagination = ({
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
-            className="h-8 w-8 p-0"
+            variant="ghost"
+            className="h-7 w-7 rounded p-0"
             disabled={filter.page === totalPage || loading}
             onClick={() => setFilter({ ...filter, page: filter.page + 1 })}
           >
@@ -88,8 +91,8 @@ const Pagination = ({
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            variant="ghost"
+            className="hidden h-7 w-7 rounded p-0 lg:flex"
             onClick={() => setFilter({ ...filter, page: totalPage })}
             disabled={filter.page === totalPage || loading}
           >

@@ -38,7 +38,7 @@ const CartItem = ({
 
   return (
     <motion.div
-      className="mb-0.5 flex items-center rounded bg-gray-100 px-3.5 first:bg-primary/10 first:font-medium"
+      className="mb-0.5 flex items-center rounded-sm bg-gray-100 px-3.5 first:bg-primary/10 first:font-medium"
       variants={itemVariants}
       initial="initial"
       exit="exit"
@@ -60,7 +60,7 @@ const CartItem = ({
         </div>
       </div>
       <div className="w-3/12">
-        <div className="inline-flex overflow-hidden rounded border border-primary/40">
+        <div className="inline-flex overflow-hidden rounded-sm border border-primary/40">
           <Button
             className={btnClassName}
             Component="div"

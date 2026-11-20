@@ -16,9 +16,9 @@ const Logo = () => {
   const { logo } = config?.uiOptions || {}
 
   return (
-    <div className="rounded-md bg-gray-100 p-1 mx-1 block">
+    <div className="mx-1 block flex-none">
       <div
-        className="rounded bg-white px-3 text-black"
+        className="flex h-9 cursor-pointer items-center rounded-lg px-2 text-foreground transition-colors hover:bg-accent"
         onClick={() => (pathname === "/" ? reset() : router.push("/"))}
       >
         <Image
@@ -27,7 +27,7 @@ const Logo = () => {
           fallBack="/logo-dark.png"
           height={24}
           width={48}
-          className="object-contain h-8 w-auto min-w-[5rem]"
+          className="h-7 w-auto min-w-[4.5rem] object-contain"
           priority
         />
       </div>

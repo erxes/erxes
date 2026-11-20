@@ -8,6 +8,7 @@ import {
 import { configAtom, paymentTypesAtom } from "@/store/config.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
+import { PrinterIcon } from "lucide-react"
 
 import { IPaymentType } from "@/types/config.types"
 import { captureDocumentHtml } from "@/lib/captureHtml"
@@ -313,7 +314,7 @@ const Receipt = ({ date, report }: any) => {
 
   return (
     <PrintLayout>
-      <div className="flex min-h-[calc(100vh-1rem)] flex-col print:block print:min-h-0">
+      <div className="flex flex-col print:block">
         <div className="report-print">
           <header className="block pb-2 border-b border-black/15">
             <div className="report-print__title">Өдрийн тайлан</div>
@@ -340,12 +341,9 @@ const Receipt = ({ date, report }: any) => {
           </footer>
         </div>
 
-        <div className="sticky bottom-4 z-10 mt-auto px-4 pb-4 print:hidden">
-          <Button
-            onClick={handlePrint}
-            className="h-9 w-full px-3 text-xs shadow-md"
-            size="sm"
-          >
+        <div className="px-2 pb-2 pt-3 print:hidden">
+          <Button onClick={handlePrint} className="h-9 w-full px-3 text-xs">
+            <PrinterIcon className="mr-1.5 h-4 w-4" />
             Хэвлэх
           </Button>
         </div>

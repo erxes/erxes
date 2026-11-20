@@ -25,14 +25,18 @@ const Products = () => {
 
   return (
     <ScrollArea className="w-full md:pr-3">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-2 gap-y-3">
+      <div className="grid grid-cols-2 gap-3 p-0.5 pb-3 md:grid-cols-4 2xl:grid-cols-5">
         {products.map((product) => (
           <ProductItem key={product._id} {...product} />
         ))}
       </div>
       {productsCount > FETCH_MORE_PER_PAGE &&
         products.length < productsCount && (
-          <Button className="w-full my-3" ref={ref} variant="outline">
+          <Button
+            className="w-full my-3 rounded-xl text-muted-foreground"
+            ref={ref}
+            variant="outline"
+          >
             <LoaderIcon />
             Уншиж байна ( {products.length} / {productsCount} )
           </Button>

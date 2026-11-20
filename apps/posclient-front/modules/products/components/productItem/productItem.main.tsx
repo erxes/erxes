@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { memo, useState } from "react"
 import dynamic from "next/dynamic"
 import { isSimilarityModeAtom, mobileTabAtom, modeAtom } from "@/store"
 import { addToCartAtom } from "@/store/cart.store"
@@ -53,7 +53,7 @@ const ProductItem = (props: IProduct) => {
     <>
       <div
         className={cn(
-          "relative rounded-lg border p-3 text-center",
+          "group relative flex cursor-pointer select-none flex-col rounded-2xl bg-background p-2.5 text-left shadow-xs transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.98]",
           isShowRemainder && isCheckRem && remainder === 0 && "opacity-70"
         )}
         onClick={() => {
@@ -77,18 +77,21 @@ const ProductItem = (props: IProduct) => {
             })
         }}
       >
-        <Image
-          src={(attachment || {}).url || ""}
-          alt=""
-          width={200}
-          height={100}
-          className="mb-3 aspect-[4/3] h-auto w-full object-contain px-3"
-        />
+        <div className="relative mb-2.5 flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-muted/70">
+          <Image
+            src={(attachment || {}).url || ""}
+            alt=""
+            width={200}
+            height={100}
+            className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="mb-1 h-8 overflow-hidden  text-ellipsis text-sm leading-4 ">
-                <small>{`${code} - ${name}`}</small>
+              <div className="mb-1.5 line-clamp-2 h-9 px-0.5 text-[13px] font-medium leading-[18px] text-foreground">
+                <span className="text-muted-foreground">{code}</span>
+                {` - ${name}`}
               </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -96,8 +99,8 @@ const ProductItem = (props: IProduct) => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <div className="flex items-center justify-between gap-2 text-left">
-          <p className="font-extrabold">
+        <div className="mt-auto flex items-center justify-between gap-2 px-0.5 text-left">
+          <p className="text-base font-bold tracking-tight">
             {formatNum(unitPrice)}₮{" "}
             {isShowRemainder && typeof remainder === "number" &&
               (remainders && remainders?.length > 1 ? (
@@ -110,7 +113,7 @@ const ProductItem = (props: IProduct) => {
                           key={location}
                           className="flex items-center border-b font-semibold"
                         >
-                          <span className="flex-1 border-r p-1 text-left text-neutral-600">
+                          <span className="flex-1 border-r p-1 text-left text-muted-foreground">
                             {location}
                           </span>
                           <span className="flex-1 p-1 text-right ">
@@ -126,7 +129,7 @@ const ProductItem = (props: IProduct) => {
               ))}
           </p>
           {hasSimilarity && (
-            <span className="shrink-0 whitespace-nowrap rounded-md cursor-pointer bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">
+            <span className="shrink-0 whitespace-nowrap rounded-full cursor-pointer bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               Сонгох...
             </span>
           )}
@@ -143,4 +146,4 @@ const ProductItem = (props: IProduct) => {
   )
 }
 
-export default ProductItem
+export default memo(ProductItem)

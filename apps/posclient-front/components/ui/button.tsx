@@ -6,28 +6,32 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import type { LinkProps } from "next/link"
 import type { ButtonHTMLAttributes, JSXElementConstructor } from "react"
-import { forwardRef, useRef } from "react"
-import { mergeRefs } from "react-merge-refs"
+import { forwardRef } from "react"
+
+const glossy =
+  "relative border border-transparent shadow-button-primary [text-shadow:0_1px_1px_rgb(0_0_0/25%)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-b before:from-white/20 before:opacity-50 before:transition-opacity before:duration-300 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:bottom-1/2 after:rounded-[inherit] after:bg-white/10 after:mix-blend-overlay"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+  "inline-flex items-center justify-center rounded-md font-medium transition-[color,background-color,box-shadow,opacity,transform] duration-200 outline-offset-2 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring/70 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        default: cn(glossy, "bg-primary text-primary-foreground"),
+        destructive: cn(
+          glossy,
+          "bg-destructive text-destructive-foreground"
+        ),
         outline:
-          "border border-input hover:bg-accent hover:text-accent-foreground",
+          "bg-background shadow-button-outline hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-border",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "underline-offset-4 hover:underline text-primary",
       },
       size: {
         default: "h-10 py-2 px-4",
-        sm: "h-9 px-3 rounded-md",
-        lg: "h-11 px-8 rounded-md text-sm font-extrabold",
+        sm: "h-9 px-3",
+        lg: "h-11 px-8 text-sm font-semibold",
         icon: "h-9 w-9",
       },
     },
@@ -61,12 +65,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       iconOnly,
       ...rest
     } = props
-    const ref = useRef<any>(null)
     return (
       <Component
         {...rest}
         className={cn(buttonVariants({ variant, size, className }))}
-        ref={mergeRefs([ref, buttonRef])}
+        ref={buttonRef}
         disabled={disabled || loading}
       >
         <AnimatePresence>

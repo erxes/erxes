@@ -58,7 +58,7 @@ const ActiveOrders = () => {
     <Popover open={open} onOpenChange={() => setOpen((prev) => !prev)}>
       <div className="mr-2 rounded-md bg-gray-100 p-1 ml-auto">
         <PopoverTrigger asChild>
-          <Button className="h-8 bg-white font-bold rounded-sm" variant="ghost">
+          <Button className="h-8 bg-white font-bold rounded-xs" variant="ghost">
             {activeOrder?.number ?? "0000"}
           </Button>
         </PopoverTrigger>

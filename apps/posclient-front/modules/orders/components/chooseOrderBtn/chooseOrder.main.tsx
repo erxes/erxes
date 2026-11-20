@@ -5,6 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { AlarmClockIcon, CheckIcon } from "lucide-react"
 
 import { IOrder } from "@/types/order.types"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -29,23 +30,21 @@ const ChooseOrder = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className={statusVariants({ status })}
+            variant="ghost"
+            className={cn(
+              statusVariants({ status }),
+              activeOrder === _id &&
+                "bg-primary/10 text-primary ring-2 ring-primary hover:bg-primary/15 hover:text-primary"
+            )}
             onClick={() => setNextOrder(_id)}
           >
-            {isPre && (
-              <AlarmClockIcon
-                className="h-5 w-5 mr-1 -ml-1"
-                strokeWidth={2.2}
-              />
+            {activeOrder === _id && (
+              <CheckIcon className="-ml-0.5 h-3.5 w-3.5" strokeWidth={3} />
             )}
+            {isPre && <AlarmClockIcon className="h-4 w-4" strokeWidth={2.2} />}
             {(number || "").split("_")[1]}
             {slotCode && ` (${slotCode})`}
             {origin === "kiosk" && "*"}
-            {activeOrder === _id && (
-              <span className="absolute -right-2 -top-2  rounded-full border-2 border-white bg-inherit p-1 text-white">
-                <CheckIcon className="h-3 w-3" strokeWidth={4} />
-              </span>
-            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -59,16 +58,20 @@ const ChooseOrder = ({
 }
 
 const statusVariants = cva(
-  "font-extrabold relative overflow-visible my-2 mx-1 py-2 h-auto text-sm whitespace-nowrap",
+  "relative mx-1 my-2 h-8 gap-1 overflow-visible whitespace-nowrap rounded-lg px-3 text-[13px] font-semibold tabular-nums ring-1 ring-inset",
   {
     variants: {
       status: {
-        pending: "bg-amber-400 hover:bg-amber-400/90",
-        reDoing: "bg-amber-400 hover:bg-amber-400/90",
-        doing: "bg-amber-400 hover:bg-amber-400/90",
-        done: "bg-green-400 hover:bg-green-400/90",
-        complete: "bg-green-300 hover:bg-green-300/90",
-        new: "bg-zinc-500 hover:bg-zinc-500/90",
+        pending:
+          "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100 hover:text-amber-800",
+        reDoing:
+          "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100 hover:text-amber-800",
+        doing:
+          "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100 hover:text-amber-800",
+        done: "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100 hover:text-emerald-800",
+        complete:
+          "bg-teal-50 text-teal-700 ring-teal-200 hover:bg-teal-100 hover:text-teal-800",
+        new: "bg-muted text-foreground ring-border hover:bg-accent",
       },
     },
     defaultVariants: {

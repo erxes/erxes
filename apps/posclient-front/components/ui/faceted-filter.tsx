@@ -25,7 +25,7 @@ interface IFacetedFilter {
   options: {
     label: string
     value: string
-    icon?: (props: { className: string }) => JSX.Element
+    icon?: (props: { className: string }) => React.JSX.Element
   }[]
   onSelect?: (value: string[]) => void
   values?: string[]
@@ -55,7 +55,7 @@ export function FacetedFilter({
               <Separator orientation="vertical" className="mx-2 h-4" />
               <Badge
                 variant="secondary"
-                className="rounded-sm px-1 font-normal lg:hidden"
+                className="rounded-xs px-1 font-normal lg:hidden"
               >
                 {vals.length}
               </Badge>
@@ -63,7 +63,7 @@ export function FacetedFilter({
                 {vals.length > 2 ? (
                   <Badge
                     variant="secondary"
-                    className="rounded-sm px-1 font-normal"
+                    className="rounded-xs px-1 font-normal"
                   >
                     {vals.length} selected
                   </Badge>
@@ -74,7 +74,7 @@ export function FacetedFilter({
                       <Badge
                         variant="secondary"
                         key={option.value}
-                        className="rounded-sm px-1 font-normal"
+                        className="rounded-xs px-1 font-normal"
                       >
                         {option.label}
                       </Badge>
@@ -105,7 +105,7 @@ export function FacetedFilter({
                   >
                     <div
                       className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        "mr-2 flex h-4 w-4 items-center justify-center rounded-xs border border-primary",
                         isSelected
                           ? "bg-primary text-primary-foreground"
                           : "opacity-50 [&_svg]:invisible"

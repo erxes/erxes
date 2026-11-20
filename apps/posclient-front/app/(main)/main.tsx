@@ -10,12 +10,14 @@ const MainIndexPage = () => {
   return (
     <BarcodeListener>
       <Header />
-      <section className="flex overflow-hidden flex-auto items-stretch">
-        <div className="flex flex-col p-4 pr-0 w-2/3 h-full">
+      <section className="flex flex-auto items-stretch overflow-hidden bg-muted/60">
+        <div className="flex h-full w-2/3 flex-col p-4 pr-2">
           <ProductsContainer />
         </div>
-        <div className="flex flex-col w-1/3 border-l">
-          <CheckoutMain />
+        <div className="flex w-1/3 flex-col py-3 pr-3 pl-1">
+          <div className="relative flex flex-auto flex-col overflow-hidden rounded-2xl bg-background shadow-sm">
+            <CheckoutMain />
+          </div>
         </div>
       </section>
       <CheckoutDialog />

@@ -24,12 +24,22 @@ jobs:
         with:
           node-version: 22.19.0
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Install dependencies
+        working-directory: apps/posclient-front
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        working-directory: apps/posclient-front
+        run: pnpm lint
+
       - name: Build
-        run: |
-          cd apps/posclient-front
-          rm -rf node_modules
-          npm install
-          npm run build
+        working-directory: apps/posclient-front
+        run: pnpm build
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')

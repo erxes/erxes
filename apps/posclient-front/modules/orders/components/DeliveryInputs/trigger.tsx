@@ -13,7 +13,7 @@ const SettingsTrigger = () => {
       <Button
         variant="outline"
         className={cn(
-          "col-span-2 font-semibold h-11",
+          "col-span-2 h-12 w-12 rounded-xl px-0 font-semibold",
           isPre && "border-2 border-primary text-primary hover:text-primary"
         )}
       >

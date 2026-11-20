@@ -91,7 +91,7 @@ const CategoriesToPrint = () => {
       return prev.slice(0, categoriesToPrint.length)
     })
   }, [categoriesToPrint.length])
-  
+
   if (isActive || !isPrint) {
     return null
   }
@@ -171,7 +171,7 @@ const CategoriesToPrint = () => {
                 title="бэлтгэх"
                 values={filterGroup}
                 onSelect={(value) => updateFilter(index, value)}
-                className="min-w-0 overflow-hidden text-xs border-solid shadow-sm h-9 border-input bg-background"
+                className="min-w-0 overflow-hidden text-xs border-solid shadow-xs h-9 border-input bg-background"
               />
             </div>
 
@@ -186,7 +186,7 @@ const CategoriesToPrint = () => {
                   disabled={printersLoading || printers.length === 0}
                 >
                   <SelectTrigger
-                    className="text-xs shadow-sm h-9 bg-background"
+                    className="text-xs shadow-xs h-9 bg-background"
                     loading={printersLoading}
                   >
                     <SelectValue placeholder="Принтер сонгох" />

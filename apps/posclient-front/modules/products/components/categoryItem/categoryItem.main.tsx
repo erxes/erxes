@@ -23,7 +23,7 @@ const CategoryItem = ({ _id }: { _id: string }) => {
       <Button
         variant={"outline"}
         size="sm"
-        className="my-2 whitespace-nowrap font-bold"
+        className="my-2 h-10 rounded-full px-4 whitespace-nowrap"
       >
         <Skeleton style={{ width: 80 }} className="h-3" />
       </Button>
@@ -36,8 +36,8 @@ const CategoryItem = ({ _id }: { _id: string }) => {
       variant={activeCat !== _id ? "outline" : undefined}
       size="sm"
       className={cn(
-        "my-2 whitespace-nowrap font-bold",
-        activeCat !== _id && " text-black/75"
+        "my-2 h-10 rounded-full px-4 whitespace-nowrap font-semibold",
+        activeCat !== _id && "text-muted-foreground"
       )}
       onClick={() => {
         if (activeCat === _id) {

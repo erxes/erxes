@@ -175,5 +175,6 @@ const SlotComponent = forwardRef<HTMLButtonElement, ISlotComponent>(
     )
   }
 )
+SlotComponent.displayName = "SlotComponent"
 
 export default memo(Slot)

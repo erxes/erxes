@@ -27,8 +27,12 @@ const ProductCategories = () => {
             <SlidersHorizontalIcon className="h-5 w-5" />
           </Button>
         ) : (
-          <Button className="my-2 mr-2 font-bold whitespace-nowrap" size="sm">
-            <MenuIcon className="h-4 w-4 mr-1" strokeWidth={3} />
+          <Button
+            variant="outline"
+            className="my-2 mr-2 h-10 rounded-full px-4 font-semibold whitespace-nowrap"
+            size="sm"
+          >
+            <MenuIcon className="h-4 w-4 mr-1.5 text-primary" strokeWidth={2.5} />
             {!!activeCat ? catName : "Ангилал"}
             <ProductCount />
           </Button>

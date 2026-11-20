@@ -1,20 +1,20 @@
 import ActiveOrders from "@/modules/orders/ActiveOrders.main"
+import OrderNotf from "@/modules/orders/orderNotf"
 
 import HeaderMenu from "../headerMenu"
 import Logo from "./logo"
-import OrderNotf from "@/modules/orders/orderNotf"
 
 const Header = () => {
   return (
-    <header className="flex flex-none items-center border-b px-4  py-1.5">
-      <div className="flex w-auto flex-none items-center">
+    <header className="flex h-14 flex-none items-center gap-1 border-b bg-background px-3">
+      <div className="flex flex-none items-center">
         <HeaderMenu />
-        <div className="px-1" />
         <Logo />
       </div>
-      <div className="flex flex-auto items-center overflow-hidden pl-4">
+      <div className="mx-2 h-6 w-px flex-none bg-border" />
+      <div className="flex min-w-0 flex-auto items-center gap-2 overflow-hidden">
         <ActiveOrders />
-        <OrderNotf/>
+        <OrderNotf />
       </div>
     </header>
   )

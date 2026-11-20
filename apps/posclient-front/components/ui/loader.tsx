@@ -20,7 +20,7 @@ const Loader = ({
 export const LoaderIcon = ({ className, ...rest }: LucideProps) => {
   return (
     <Loader2Icon
-      className={cn("animate-spin h-5 w-5 mr-2", className)}
+      className={cn("animate-spin h-5 w-5 mr-2 text-primary", className)}
       {...rest}
     />
   )
@@ -38,7 +38,10 @@ export const LoaderWrapper = ({
   return (
     <div
       style={style}
-      className={cn("flex items-center justify-center flex-auto", className)}
+      className={cn(
+        "flex items-center justify-center flex-auto font-medium text-muted-foreground",
+        className
+      )}
     >
       {children}
     </div>

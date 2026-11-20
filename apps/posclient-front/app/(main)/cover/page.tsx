@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useQuery } from "@apollo/client"
-import { subDays } from "date-fns"
+import { endOfDay, startOfDay, subDays } from "date-fns"
 import { AlarmPlus } from "lucide-react"
 import { DateRange } from "react-day-picker"
 
@@ -15,10 +15,10 @@ import { queries } from "./graphql"
 
 const Cover = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 15),
-    to: new Date(),
+    from: startOfDay(subDays(new Date(), 15)),
+    to: endOfDay(new Date()),
   })
-  const { data, loading: loadingCovers } = useQuery(queries.covers, {
+  const { data, previousData, loading: loadingCovers } = useQuery(queries.covers, {
     variables: {
       startDate: dateRange?.from,
       endDate: dateRange?.to,
@@ -40,7 +40,9 @@ const Cover = () => {
           Нэмэх
         </Button>
       </div>
-      {!loadingCovers && <DataTable data={data?.covers ?? []} />}
+      {(!loadingCovers || previousData) && (
+        <DataTable data={data?.covers ?? previousData?.covers ?? []} />
+      )}
     </div>
   )
 }

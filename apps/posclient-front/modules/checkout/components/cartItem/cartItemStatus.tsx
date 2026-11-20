@@ -23,7 +23,7 @@ const CartItemStatus = ({ status }: { status?: IOrderItemStatus }) => {
   )
 }
 
-const statusVariants = cva("h-2 w-2 rounded", {
+const statusVariants = cva("h-2 w-2 rounded-sm", {
   variants: {
     status: {
       confirm: "bg-amber-400",

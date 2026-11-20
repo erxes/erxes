@@ -4,9 +4,11 @@ import { cn } from "@/lib/utils"
 
 const StatusExplain = () => {
   return (
-    <div className="w-full mt-3">
-      <div className="mb-3 font-bold">Захиалгын төлөвүүд</div>
-      <div className="grid grid-cols-2 gap-2">
+    <div className="mt-3 w-full border-t pt-4">
+      <div className="mb-3 text-xs font-medium text-muted-foreground">
+        Захиалгын төлөвүүд
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-xs">
         {statuses.map((status) => (
           <Item key={status.name}>
             <Indicator className={status.indicaterClassName}>
@@ -34,7 +36,7 @@ const Indicator = ({
   <>
     <div
       className={cn(
-        "flex h-4 w-4 items-center justify-center rounded  text-white",
+        "flex h-4 w-4 items-center justify-center rounded-sm  text-white",
         className
       )}
     >

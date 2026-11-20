@@ -85,13 +85,29 @@ const CategoriesSheetNew = ({
     [hiddenParents]
   )
 
+  const ordersWithChildren = useMemo(() => {
+    const result = new Set<string>()
+
+    categories.forEach((cat: ICategory) => {
+      const order = cat.order
+
+      if (
+        order &&
+        categories.some(
+          (e: ICategory) =>
+            e.order?.includes(order) && e.order.length > order.length
+        )
+      ) {
+        result.add(order)
+      }
+    })
+
+    return result
+  }, [categories])
+
   const checkHasChildren = useCallback(
-    (order: string) =>
-      !!categories.find(
-        (e: ICategory) =>
-          e.order?.includes(order) && e.order.length > order.length
-      ),
-    [categories]
+    (order: string) => ordersWithChildren.has(order),
+    [ordersWithChildren]
   )
 
   const isHiddenChild = useCallback(

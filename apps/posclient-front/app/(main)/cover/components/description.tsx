@@ -21,7 +21,7 @@ export const Description = () => {
       </CardHeader>
       <CardContent className="space-y-3">
         <Textarea
-          value={description}
+          value={description ?? ""}
           disabled={busy || status === "confirm" || status === "confirming"}
           onChange={(e) => setDescription(e.target.value)}
         />

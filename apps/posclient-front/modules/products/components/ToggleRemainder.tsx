@@ -17,8 +17,8 @@ const ToggleRemainder = () => {
     variant={!toggleRemainder ? "outline" : undefined}
     size="sm"
     className={cn(
-      "my-2 whitespace-nowrap font-bold",
-      !toggleRemainder && " text-black/75"
+      "my-2 h-10 rounded-full px-4 whitespace-nowrap font-semibold",
+      !toggleRemainder && "text-muted-foreground"
     )}
     onClick={() => {
       setToggleRemainder(!toggleRemainder)

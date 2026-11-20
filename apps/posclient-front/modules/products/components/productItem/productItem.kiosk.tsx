@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { addToCartAtom } from "@/store/cart.store"
 import { useSetAtom } from "jotai"
 
@@ -32,4 +33,4 @@ const ProductItem = (props: IProduct) => {
   )
 }
 
-export default ProductItem
+export default memo(ProductItem)

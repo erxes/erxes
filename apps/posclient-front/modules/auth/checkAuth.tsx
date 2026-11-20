@@ -1,6 +1,5 @@
 "use client"
 
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import { configAtom, configsAtom, currentUserAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
@@ -52,8 +51,11 @@ const CheckAuth = ({ children }: any) => {
 
   if (!Array.isArray(configs))
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <ServerOffIcon className={cn("m-4 h-12 w-12")} strokeWidth={0.8} />
+      <div className="flex h-screen flex-col items-center justify-center gap-1 bg-muted text-center">
+        <ServerOffIcon
+          className={cn("m-4 h-12 w-12 text-muted-foreground")}
+          strokeWidth={0.8}
+        />
         <h5>Network Error</h5>
         <br />
         <p>Сервертэй холбогдоход алдаа гарлаа</p>
@@ -67,8 +69,8 @@ const CheckAuth = ({ children }: any) => {
   if (show === "private") return children
 
   return (
-    <div className="flex h-screen  items-center justify-center">
-      <Loader2 className="mr-2 animate-spin" /> Уншиж байна...
+    <div className="flex h-screen items-center justify-center font-medium text-muted-foreground">
+      <Loader2 className="mr-2 animate-spin text-primary" /> Уншиж байна...
     </div>
   )
 }

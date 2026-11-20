@@ -13,7 +13,7 @@ import {
   orderTotalAmountAtom,
   unPaidAmountAtom,
 } from "@/store/order.store"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { Dialog as DialogPrimitive } from "radix-ui"
 import { useAtom, useAtomValue } from "jotai"
 import { CheckCircle2Icon, CircleIcon, XIcon } from "lucide-react"
 

@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { addToCartAtom } from "@/store/cart.store"
 import { isShowRemainderAtom } from "@/store/config.store"
 import { changeFocusAtom, searchPopoverAtom } from "@/store/ui.store"
@@ -31,4 +32,4 @@ const ProductItem = (props: IProduct) => {
   )
 }
 
-export default ProductItem
+export default memo(ProductItem)

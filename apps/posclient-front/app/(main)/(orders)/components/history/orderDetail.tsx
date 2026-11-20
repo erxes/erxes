@@ -14,9 +14,12 @@ import {
   CircleIcon,
   GaugeCircle,
   HashIcon,
+  HistoryIcon,
+  InfoIcon,
   LampIcon,
-  LucideIcon,
   Luggage,
+  PackageIcon,
+  ReceiptTextIcon,
   StopCircle,
   StoreIcon,
   TruckIcon,
@@ -26,29 +29,26 @@ import {
 } from "lucide-react"
 
 import { IOrderStatus } from "@/types/order.types"
-import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
+import {
+  ORDER_ITEM_STATUSES,
+  ORDER_STATUSES,
+  typeTextDef,
+} from "@/lib/constants"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { statusVariant } from "./columns"
 import Items from "./items"
+import OrderChangeLogs, { OrderChangeLog } from "./orderChangeLogs"
+import { PanelField, PanelSection } from "./panel"
 import Payment from "./payment"
-
-type OrderChangeEntry = {
-  field: string
-  oldValue?: unknown
-  newValue?: unknown
-}
-
-type OrderChangeLog = {
-  _id: string
-  createdAt?: string
-  changes?: OrderChangeEntry[]
-  user?: {
-    email?: string
-    primaryEmail?: string
-  }
-}
 
 type OrderChangeLogsData = {
   orderChangeLogs?: OrderChangeLog[]
@@ -152,235 +152,135 @@ const OrderDetail = () => {
     return null
   }
 
+  const customerName = customer
+    ? customer.firstName || customer.lastName
+      ? `${customer.firstName || ""} ${customer.lastName || ""}`.trim()
+      : `${customer.primaryEmail || customer.email || ""} ${customer.primaryPhone || ""}`.trim()
+    : ""
+  const StatusIcon = StatusIcons[status as IOrderStatus] || CircleIcon
+  const TypeIcon = TypeIcons[type as keyof typeof TypeIcons] || StoreIcon
+
   return (
     <Sheet open={!!detailId} onOpenChange={() => setDetailId(null)}>
-      <SheetContent className="sm:max-w-3xl w-full p-4 overflow-y-auto">
-        <div className="pb-3 text-sm font-bold flex items-start justify-between">
-          Захиалгын дэлгэрэнгүй
+      <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-xl">
+        <SheetTitle className="sr-only">Захиалгын дэлгэрэнгүй</SheetTitle>
+        <div className="box-content flex h-10 flex-none items-center gap-1 border-b bg-sidebar px-2">
+          <div className="flex h-6 w-6 flex-none items-center justify-center rounded-sm bg-primary/10 text-primary">
+            <ReceiptTextIcon className="h-3.5 w-3.5" />
+          </div>
+          <div className="min-w-0 flex-1 truncate px-1 text-sm font-medium tabular-nums">
+            {number}
+          </div>
+          <Badge variant={statusVariant[status] || "secondary"}>{status}</Badge>
           <SheetClose asChild>
-            <Button variant="ghost" size="icon" className="-mt-2.5">
-              <XIcon className="h-5 w-5" />
+            <Button variant="ghost" className="h-7 w-7 p-0" title="Хаах">
+              <XIcon className="h-4 w-4" />
             </Button>
           </SheetClose>
         </div>
-        <div className="space-y-3">
-          <div className="grid md:grid-cols-3 gap-2">
-            <DescriptionCard
-              title="Захиалгын дугаар"
-              value={number}
-              Icon={HashIcon}
-            />
-            <DescriptionCard
-              title="Төлөв"
-              value={status}
-              Icon={StatusIcons[status as IOrderStatus]}
-            />
-            <DescriptionCard
-              title="Төрөл"
-              value={type}
-              Icon={TypeIcons[type as keyof typeof TypeIcons]}
-            />
-            <DescriptionCard
-              title="Үүсгэсэн огноо"
-              value={formatDate(createdAt)}
-              Icon={CalendarPlusIcon}
-            />
-            <DescriptionCard
-              title="Төлбөр төлсөн огноо"
-              value={formatDate(paidDate)}
-              Icon={CalendarCheckIcon}
-            />
-            <DescriptionCard
-              title="Өөрчилсөн огноо"
-              value={formatDate(modifiedAt)}
-              Icon={CalendarIcon}
-            />
-            {!!dueDate && (
-              <DescriptionCard
-                title="Дуусах огноо /DueDate/"
-                value={formatDate(dueDate)}
-                Icon={CalendarClockIcon}
-              />
+        <Tabs defaultValue="detail" className="flex min-h-0 flex-1 flex-col">
+          <TabsList className="h-9 w-full flex-none justify-start gap-1 rounded-none border-b bg-transparent p-0 px-2">
+            <TabsTrigger value="detail" className={tabClass}>
+              <InfoIcon className="h-4 w-4" />
+              Дэлгэрэнгүй
+            </TabsTrigger>
+            <TabsTrigger value="items" className={tabClass}>
+              <PackageIcon className="h-4 w-4" />
+              Бараа
+              <span className="text-muted-foreground">
+                {(items || []).length}
+              </span>
+            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="activity" className={tabClass}>
+                <HistoryIcon className="h-4 w-4" />
+                Түүх
+              </TabsTrigger>
             )}
-            {!!isPre && (
-              <DescriptionCard
-                title="Урьдчилсан захиалга эсэх"
-                value={isPre ? "Тийм" : "Үгүй"}
-                Icon={AlarmClockIcon}
+          </TabsList>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <TabsContent value="detail" className="mt-0 px-3 pb-3">
+              <PanelSection title="Ерөнхий">
+                <PanelField icon={HashIcon} label="Захиалгын дугаар">
+                  <span className="tabular-nums">{number}</span>
+                </PanelField>
+                <PanelField icon={StatusIcon} label="Төлөв">
+                  <Badge variant={statusVariant[status] || "secondary"}>
+                    {status}
+                  </Badge>
+                </PanelField>
+                <PanelField icon={TypeIcon} label="Төрөл">
+                  {!!type && <Badge>{typeTextDef[type] || type}</Badge>}
+                </PanelField>
+                {!!slotCode && (
+                  <PanelField icon={LampIcon} label="Байрлал">
+                    {slotCode}
+                  </PanelField>
+                )}
+                {!!isPre && (
+                  <PanelField icon={AlarmClockIcon} label="Урьдчилсан">
+                    Тийм
+                  </PanelField>
+                )}
+              </PanelSection>
+              <PanelSection title="Хүмүүс">
+                <PanelField icon={UserCog} label="Кассчин">
+                  {`${primaryEmail || email || ""} ${primaryPhone || ""}`.trim()}
+                </PanelField>
+                <PanelField icon={User} label="Харилцагч">
+                  {customerName}
+                </PanelField>
+              </PanelSection>
+              <PanelSection title="Огноо">
+                <PanelField icon={CalendarPlusIcon} label="Үүсгэсэн">
+                  <span className="tabular-nums">{formatDate(createdAt)}</span>
+                </PanelField>
+                <PanelField icon={CalendarIcon} label="Өөрчилсөн">
+                  <span className="tabular-nums">{formatDate(modifiedAt)}</span>
+                </PanelField>
+                <PanelField icon={CalendarCheckIcon} label="Төлбөр төлсөн">
+                  <span className="tabular-nums">{formatDate(paidDate)}</span>
+                </PanelField>
+                {!!dueDate && (
+                  <PanelField icon={CalendarClockIcon} label="Дуусах огноо">
+                    <span className="tabular-nums">{formatDate(dueDate)}</span>
+                  </PanelField>
+                )}
+              </PanelSection>
+              <Payment
+                cashAmount={cashAmount}
+                mobileAmount={mobileAmount}
+                totalAmount={totalAmount}
+                finalAmount={finalAmount}
+                paidAmounts={paidAmounts}
               />
-            )}
-            {!!slotCode && (
-              <DescriptionCard
-                title="Байрлал"
-                value={slotCode || ""}
-                Icon={LampIcon}
-              />
-            )}
-
-            <DescriptionCard
-              title="Кассчин"
-              value={`${primaryEmail || email || ""} ${primaryPhone || ""}`}
-              Icon={UserCog}
-            />
-            {!!customer && (
-              <DescriptionCard
-                title="Харилцагч"
-                value={
-                  customer?.firstName || customer?.lastName
-                    ? `${customer.firstName || ""} ${customer.lastName || ""}`
-                    : `${customer.primaryEmail || customer.email || ""} ${
-                        customer.primaryPhone || ""
-                      }`
-                }
-                Icon={User}
-              />
-            )}
-            {!!description && (
-              <Card className="col-span-3">
-                <CardHeader className="p-2 pb-1">
-                  <CardTitle className="text-xs text-slate-500 font-medium ">
-                    Тайлбар
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex px-2 pb-2 items-center">
-                  <div className="text-sm text-slate-800">{description}</div>
-                </CardContent>
-              </Card>
+              {!!description && (
+                <PanelSection title="Тайлбар">
+                  <p className="whitespace-pre-wrap px-1 text-xs">
+                    {description}
+                  </p>
+                </PanelSection>
+              )}
+            </TabsContent>
+            <TabsContent value="items" className="mt-0 px-3 pb-3">
+              <Items items={items} />
+            </TabsContent>
+            {isAdmin && (
+              <TabsContent value="activity" className="mt-0 px-3 pb-3">
+                <OrderChangeLogs
+                  logs={changeLogData?.orderChangeLogs || []}
+                  items={items}
+                />
+              </TabsContent>
             )}
           </div>
-          <Payment
-            cashAmount={cashAmount}
-            mobileAmount={mobileAmount}
-            totalAmount={totalAmount}
-            finalAmount={finalAmount}
-            paidAmounts={paidAmounts}
-          />
-          <Items items={items} />
-          {isAdmin && (
-            <OrderChangeLogs
-              logs={changeLogData?.orderChangeLogs || []}
-              formatDate={formatDate}
-            />
-          )}
-        </div>
+        </Tabs>
       </SheetContent>
     </Sheet>
   )
 }
 
-const fieldLabels: Record<string, string> = {
-  itemActions: "Барааны үйлдэл",
-  items: "Бараанууд",
-  status: "Төлөв",
-  saleStatus: "Борлуулалтын төлөв",
-  totalAmount: "Нийт дүн",
-  directDiscount: "Хөнгөлөлт",
-  directIsAmount: "Хөнгөлөлт дүнгээр",
-  customerId: "Харилцагч",
-  customerType: "Харилцагчийн төрөл",
-  brokerId: "Зуучлагч",
-  brokerType: "Зуучлагчийн төрөл",
-  type: "Захиалгын төрөл",
-  billType: "Баримтын төрөл",
-  registerNumber: "Регистрийн дугаар",
-  slotCode: "Ширээ",
-  subBranchId: "Дэд салбар",
-  departmentId: "Хэлтэс",
-  taxInfo: "Татварын мэдээлэл",
-  extraInfo: "Нэмэлт мэдээлэл",
-  dueDate: "Дуусах огноо",
-  branchId: "Салбар",
-  deliveryInfo: "Хүргэлтийн мэдээлэл",
-  description: "Тайлбар",
-}
-
-const formatChangeValue = (value: unknown) => {
-  if (value === null || value === undefined || value === "") {
-    return "-"
-  }
-
-  if (typeof value === "string" || typeof value === "number") {
-    return `${value}`
-  }
-
-  if (typeof value === "boolean") {
-    return value ? "Тийм" : "Үгүй"
-  }
-
-  return JSON.stringify(value)
-}
-
-const OrderChangeLogs = ({
-  logs,
-  formatDate,
-}: {
-  logs: OrderChangeLog[]
-  formatDate: (date: string) => string
-}) => {
-  if (!logs.length) {
-    return null
-  }
-
-  return (
-    <Card>
-      <CardHeader className="p-2 pb-1">
-        <CardTitle className="text-xs text-slate-500 font-medium">
-          Өөрчлөлтийн лог
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3 px-2 pb-2">
-        {logs.map((log) => (
-          <div
-            key={log._id}
-            className="border-b pb-2 last:border-b-0 last:pb-0"
-          >
-            <div className="mb-1 text-xs text-slate-500">
-              {formatDate(log.createdAt || "")}
-              {log.user?.primaryEmail || log.user?.email
-                ? ` · ${log.user.primaryEmail || log.user.email}`
-                : ""}
-            </div>
-            <div className="space-y-1">
-              {(log.changes || []).map((change) => (
-                <div
-                  key={`${log._id}-${change.field}`}
-                  className="text-sm text-slate-800 break-words min-w-0"
-                >
-                  <span className="font-semibold">
-                    {fieldLabels[change.field] || change.field}:
-                  </span>{" "}
-                  {formatChangeValue(change.oldValue)} →{" "}
-                  {formatChangeValue(change.newValue)}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  )
-}
-
-const DescriptionCard = ({
-  title,
-  value,
-  Icon,
-}: {
-  title: string
-  value: string
-  Icon: LucideIcon
-}) => (
-  <Card>
-    <CardHeader className="p-2 pb-1">
-      <CardTitle className="text-xs text-slate-500 font-medium ">
-        {title}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="flex px-2 pb-2 items-center">
-      <Icon className="mr-1 h-5 w-5 text-slate-800" strokeWidth={1.9} />
-      <div className="text-sm font-semibold text-slate-800">{value}</div>
-    </CardContent>
-  </Card>
-)
+const tabClass =
+  "relative h-full gap-1.5 rounded-none bg-transparent px-2 text-xs font-medium text-muted-foreground shadow-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
 
 export default OrderDetail

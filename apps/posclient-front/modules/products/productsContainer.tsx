@@ -13,7 +13,7 @@ const ProductsContainer = () => {
   const mode = useAtomValue(modeAtom)
   return (
     <>
-      <div className="-mt-1 flex flex-none items-center pb-3 pr-3">
+      <div className="-mt-1 flex flex-none items-center pb-2 pr-3">
         <Search />
         <div className="flex flex-auto overflow-hidden">
           <ProductCategories />

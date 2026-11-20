@@ -11,7 +11,7 @@ import {
   setInitialAtom,
 } from "@/store/order.store"
 import { ebarimtSheetAtom } from "@/store/ui.store"
-import { AspectRatio } from "@radix-ui/react-aspect-ratio"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import useReciept from "@/lib/useReciept"

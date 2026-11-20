@@ -20,11 +20,14 @@ const Search: React.FC = () => {
         width: show ? 270 : "2.5rem",
         borderRadius: show ? 8 : 24,
       }}
-      className="relative flex flex-none mr-3 border"
+      className="relative my-2 mr-3 flex h-10 flex-none overflow-hidden bg-background shadow-xs transition-shadow focus-within:shadow-focus"
     >
-      <SearchIc className="w-5 h-5 text-black/75" />
+      <SearchIc className="left-3 h-4 w-4 text-muted-foreground" />
       <Input
-        className={cn("z-1 relative border-none", focused && "pl-9")}
+        className={cn(
+          "z-1 relative h-10 border-none bg-transparent focus-visible:shadow-none",
+          focused && "pl-9"
+        )}
         onFocus={() => setFocused(true)}
         onBlur={() => !search && setFocused(false)}
         onChange={(e) => setSearch(e.target.value)}
@@ -38,7 +41,7 @@ const Search: React.FC = () => {
 export const SearchIc = ({ className }: { className?: string }) => (
   <SearchIcon
     className={cn(
-      "absolute left-2 top-1/2 h-4 w-4 -translate-y-2/4 text-black/40",
+      "absolute left-2 top-1/2 h-4 w-4 -translate-y-2/4 text-muted-foreground",
       className
     )}
     strokeWidth={2}

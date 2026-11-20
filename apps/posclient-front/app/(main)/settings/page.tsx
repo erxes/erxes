@@ -12,6 +12,7 @@ import QzTraySettings from "@/modules/settings/components/qzTraySettings"
 import ScrollerWidth from "@/modules/settings/components/ScrollerWidth"
 import StatusExplain from "@/modules/settings/components/StatusExplain"
 import { configAtom, currentUserAtom } from "@/store/config.store"
+import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
 import Image from "@/components/ui/image"
@@ -22,18 +23,28 @@ const Settings = () => {
 
   return (
     <>
-      <Image
-        alt=""
-        src="/user.png"
-        height={80}
-        width={80}
-        className="rounded-full"
-      />
-      <div className="mt-3 mb-1 font-bold">{details?.fullName}</div>
-      <div className="mb-5">{email}</div>
-      <div className="w-full py-2 mb-4 text-center rounded-lg bg-neutral-100">
-        <p>{config?.name}</p>
-        <div className="font-bold">{config?.createdAt}</div>
+      <div className="flex w-full items-center gap-3 pb-5">
+        <Image
+          alt=""
+          src="/user.png"
+          height={48}
+          width={48}
+          className="h-12 w-12 flex-none rounded-full"
+        />
+        <div className="min-w-0">
+          <div className="truncate text-sm font-semibold">
+            {details?.fullName}
+          </div>
+          <div className="truncate text-xs text-muted-foreground">{email}</div>
+        </div>
+      </div>
+      <div className="mb-5 flex w-full items-center justify-between gap-3 rounded-lg border bg-sidebar px-3 py-2.5 text-xs">
+        <span className="truncate font-medium">{config?.name}</span>
+        {!!config?.createdAt && (
+          <span className="flex-none tabular-nums text-muted-foreground">
+            {format(new Date(config.createdAt), "yyyy.MM.dd HH:mm")}
+          </span>
+        )}
       </div>
       <ChooseTheme />
       <Grid />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { columnNumberAtom, showItemsAtom } from "@/store/progress.store"
 import { useAtomValue } from "jotai"
 import { ChevronsUpDownIcon, SoupIcon, TruckIcon } from "lucide-react"
@@ -39,12 +39,14 @@ const ActiveOrder = ({
   const numberArr = (number || "").split("_")
   const colNum = useAtomValue(columnNumberAtom)
   const showItems = useAtomValue(showItemsAtom)
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(showItems)
+  const [prevShowItems, setPrevShowItems] = useState(showItems)
   const TypeIcon = type === "eat" ? SoupIcon : TruckIcon
 
-  useEffect(() => {
+  if (prevShowItems !== showItems) {
+    setPrevShowItems(showItems)
     setShow(showItems)
-  }, [showItems])
+  }
 
   return (
     <Collapsible open={show} onOpenChange={(open) => setShow(open)}>
@@ -80,8 +82,8 @@ const ActiveOrder = ({
         <CollapsibleContent>
           <CardContent className="pb-2">
             <div className="border-y border-dashed py-1 space-y-0.5">
-              {(items || []).map((item, i) => (
-                <ActiveOrderItem key={i} {...item} />
+              {(items || []).map((item) => (
+                <ActiveOrderItem key={item._id} {...item} />
               ))}
             </div>
           </CardContent>

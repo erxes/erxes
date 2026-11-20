@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
+
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { getLocal, getPaymentType, setLocal } from "@/lib/utils"
 import { Button } from "@/components/ui/button"

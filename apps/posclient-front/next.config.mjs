@@ -1,24 +1,25 @@
-/** @type {import('next').NextConfig} */
-import pwa from 'next-pwa'
+import withSerwistInit from "@serwist/next"
 
+/** @type {import('next').NextConfig} */
 const ignoredWatchPaths = [
-  '**/.git/**',
-  '**/.next/**',
-  '**/node_modules/**',
-  '**/dist/**',
-  '**/coverage/**',
+  "**/.git/**",
+  "**/.next/**",
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/coverage/**",
 ]
 
 const nextConfig = {
   reactStrictMode: false,
+  turbopack: {},
   compiler: {
-    removeConsole: process.env.NODE_ENV !== 'development',
+    removeConsole: process.env.NODE_ENV !== "development",
   },
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'localhost',
+        protocol: "http",
+        hostname: "localhost",
       },
     ],
   },
@@ -31,18 +32,17 @@ const nextConfig = {
       ...config.watchOptions,
       aggregateTimeout: 300,
       ignored: ignoredWatchPaths,
-      poll: process.env.WATCHPACK_POLLING === 'false' ? undefined : true,
+      poll: process.env.WATCHPACK_POLLING === "false" ? undefined : true,
     }
 
     return config
   },
 }
 
-const withPWA = pwa({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
+const withSerwist = withSerwistInit({
+  swSrc: "app/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
 })
 
-export default withPWA(nextConfig)
+export default withSerwist(nextConfig)

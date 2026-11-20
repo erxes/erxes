@@ -2,7 +2,7 @@
 
 import { activeCatName } from "@/store"
 import { useQuery } from "@apollo/client"
-import { Label } from "@radix-ui/react-label"
+import { Label as LabelPrimitive } from "radix-ui"
 import { useSetAtom } from "jotai"
 
 import { cn } from "@/lib/utils"
@@ -26,7 +26,7 @@ const CategoryItem = ({ _id, active }: { _id: string; active: boolean }) => {
   return (
     <div>
       <RadioGroupItem value={_id} id={_id} className="peer sr-only" />
-      <Label
+      <LabelPrimitive.Root
         className={cn(
           "w-full text-center py-1 rounded-r-3xl block",
           active && "text-white bg-primary/90 overflow-hidden"
@@ -47,7 +47,7 @@ const CategoryItem = ({ _id, active }: { _id: string; active: boolean }) => {
         <div className="font-bold uppercase pt-2">
           {loading ? <Skeleton className="w-16 h-4 mx-auto" /> : name}
         </div>
-      </Label>
+      </LabelPrimitive.Root>
     </div>
   )
 }

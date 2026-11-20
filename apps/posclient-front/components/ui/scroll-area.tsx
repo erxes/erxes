@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { scrollWidthAtom } from "@/store"
-import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
+import { ScrollArea as ScrollAreaPrimitive } from "radix-ui"
 import { useAtomValue } from "jotai"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react"
 
@@ -176,7 +176,7 @@ const ScrollBar = React.forwardRef<
       ref={ref}
       orientation={orientation}
       className={cn(
-        "flex touch-none select-none transition-colors bg-neutral-100 rounded",
+        "flex touch-none select-none transition-colors bg-neutral-100 rounded-sm",
         orientation === "vertical" && "h-full p-[1px]",
         orientation === "vertical" && width <= 8 && "w-2.5 max-w-[10px]",
         orientation === "horizontal" &&

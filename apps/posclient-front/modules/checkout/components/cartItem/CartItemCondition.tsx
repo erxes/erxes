@@ -81,7 +81,7 @@ export const CartItemConditionBadge = ({
   if (!name) return null
 
   return (
-    <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-700">
+    <span className="ml-1 rounded-sm bg-amber-100 px-1 text-[10px] font-semibold text-amber-700">
       {name}
     </span>
   )

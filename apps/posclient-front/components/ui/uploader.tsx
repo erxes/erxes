@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { useState } from "react"
 import { ImagePlusIcon, XIcon } from "lucide-react"
 

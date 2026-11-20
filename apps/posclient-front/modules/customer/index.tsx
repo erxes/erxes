@@ -94,7 +94,7 @@ const Customer = () => {
 
   return (
     <>
-      <div className="flex items-center gap-1 relative">
+      <div className="relative flex items-center gap-2">
         <CustomerType className="h-5 w-5" />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -102,14 +102,14 @@ const Customer = () => {
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between px-2"
+              className="h-11 w-full justify-between rounded-xl px-3 font-normal"
             >
               {!!customer ? (
                 getCustomerLabel(customer)
               ) : (
-                <span>
+                <span className="text-muted-foreground">
                   {`${placeHolder(customerType)} сонгох`}{" "}
-                  <Kbd className="bg-neutral-200/70 px-1">F9</Kbd>
+                  <Kbd className="ml-1 px-1">F9</Kbd>
                 </span>
               )}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -118,7 +118,7 @@ const Customer = () => {
           {!!customer && (
             <Button
               variant="secondary"
-              className="h-5 w-5 p-0.5 rounded-full absolute right-2 top-1/2 -translate-y-1/2"
+              className="absolute right-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full p-1"
               onClick={handleClean}
             >
               <XIcon className="h-4 w-4" />
@@ -187,7 +187,7 @@ const Customer = () => {
         onCreated={handleCreated}
         onClose={() => setAddOpen(false)}
       />
-      {loadingCU && <Loader className="absolute inset-0 bg-white/50" />}
+      {loadingCU && <Loader className="absolute inset-0 bg-background/60 backdrop-blur-[1px]" />}
     </>
   )
 }

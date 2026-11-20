@@ -121,7 +121,7 @@ const Login = ({
             />
             <Button
               type="submit"
-              className="w-full font-bold uppercase"
+              className="w-full h-11 font-semibold"
               loading={loading}
             >
               Log in
@@ -129,12 +129,13 @@ const Login = ({
           </form>
 
           <div className="flex items-center justify-between">
-            <SyncConfig configType="config" variant="link" className="">
+            <SyncConfig configType="config" variant="link" className="px-0">
               Sync Config
             </SyncConfig>
             <Button
               Component={Link}
               variant="link"
+              className="px-0"
               href={`${env.NEXT_PUBLIC_SERVER_DOMAIN}/settings/sales/pos`}
               target="_blank"
             >

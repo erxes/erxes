@@ -26,7 +26,7 @@ export const PricingScheduleBanner = () => {
           <div
             key={status.planId}
             className={cn(
-              "flex items-center gap-1.5 rounded px-2 py-1 text-xs",
+              "flex items-center gap-1.5 rounded-sm px-2 py-1 text-xs",
               TONE_CLASS[tone]
             )}
           >

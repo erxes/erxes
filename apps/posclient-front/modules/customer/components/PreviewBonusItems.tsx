@@ -15,7 +15,7 @@ export const PreviewBonusItems = () => {
           className="flex items-center justify-between py-1 text-sm"
         >
           <span className="flex items-center gap-2 overflow-hidden">
-            <span className="shrink-0 rounded bg-green-100 px-1 text-[10px] font-semibold text-green-700">
+            <span className="shrink-0 rounded-sm bg-green-100 px-1 text-[10px] font-semibold text-green-700">
               Бонус
             </span>
             <small className="truncate">{name}</small>

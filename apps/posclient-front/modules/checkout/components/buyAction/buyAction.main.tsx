@@ -62,6 +62,7 @@ const BuyAction = () => {
     <>
       <SplitButton
         size="lg"
+        className="rounded-xl"
         onClick={() => {
           setButtonType("order")
           setTimeout(orderCU)
@@ -98,7 +99,7 @@ const BuyAction = () => {
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"
-            className="flex-auto bg-green-500 hover:bg-green-500/90"
+            className="h-12 flex-auto rounded-xl bg-emerald-600 text-base hover:bg-emerald-600/90"
             loading={loading && buttonType === "pay"}
             disabled={disabled}
             onClick={() => {

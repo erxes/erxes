@@ -1,9 +1,9 @@
+import { HistoryOrderCancelTrigger } from "@/modules/orders/components/orderCancel"
 import { queries } from "@/modules/orders/graphql"
 import { paymentDetailAtom } from "@/store/history.store"
 import { useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
 
-import { HistoryOrderCancelTrigger } from "@/modules/orders/components/orderCancel"
 import { OrderReturnTrigger } from "./orderReturn"
 
 const PaymentDetail = ({

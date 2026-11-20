@@ -55,12 +55,17 @@ const CartItem = ({
   const { price, originalPrice } = usePreviewUnitPrice(_id, unitPrice)
 
   return (
-    <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
+    <Collapsible
+      className={cn(
+        "rounded-xl bg-muted/50 transition-colors",
+        idx === 0 && "bg-primary/8 ring-1 ring-inset ring-primary/20"
+      )}
+    >
       <motion.div
         variants={itemVariants}
         animate="animate"
         initial="initial"
-        className="border-b mx-4"
+        className="px-3"
         exit="exit"
         transition={{
           duration: 0.3,
@@ -68,7 +73,7 @@ const CartItem = ({
       >
         <div className={"flex items-stretch overflow-hidden"}>
           <Label
-            className="flex w-1/12 flex-col justify-between pt-4 pb-3"
+            className="flex w-1/12 flex-col justify-between pt-3 pb-2"
             htmlFor={_id}
           >
             <TooltipProvider>
@@ -104,13 +109,13 @@ const CartItem = ({
               </Tooltip>
             </TooltipProvider>
           </Label>
-          <div className=" w-7/12 py-4 pl-3 text-sm">
+          <div className="w-7/12 py-3 pl-2 text-sm">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <small className="block h-8 overflow-hidden leading-4">
+                  <p className="line-clamp-2 text-[13px] font-medium leading-[18px]">
                     {productName}
-                  </small>
+                  </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{productName}</p>
@@ -122,7 +127,7 @@ const CartItem = ({
               <ProductPrice
                 unitPrice={price}
                 productId={productId}
-                className="ml-2 text-xs"
+                className="ml-2 text-xs font-semibold"
               />
               <StrikedPrice price={originalPrice} />
               <CartItemConditionBadge
@@ -137,6 +142,7 @@ const CartItem = ({
             <LoyaltyDiscountReason itemId={_id} discountInfos={discountInfos} />
           </div>
           <div className="flex w-5/12 items-center justify-end">
+            <div className="flex items-center rounded-full bg-background p-0.5 shadow-xs">
             <Button
               className={countBtnClass}
               onClick={() =>
@@ -147,7 +153,7 @@ const CartItem = ({
             </Button>
             <FocusChanger>
               <Input
-                className="mx-2 w-10 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="mx-0.5 h-8 w-9 border-none bg-transparent p-1 text-center text-sm font-bold focus-visible:shadow-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 type="number"
                 onChange={(e) =>
                   changeItem({
@@ -167,6 +173,7 @@ const CartItem = ({
             >
               <Plus className="h-3 w-3" strokeWidth={4} />
             </Button>
+            </div>
           </div>
         </div>
         <CollapsibleContent className="w-full pb-3 space-y-2">
@@ -180,7 +187,7 @@ const CartItem = ({
             <Input
               id="description"
               placeholder="Тайлбар бичих"
-              value={description}
+              value={description ?? ""}
               onChange={(e) => changeItem({ _id, description: e.target.value })}
             />
           </div>
@@ -201,7 +208,7 @@ const CartItem = ({
 }
 
 export const countBtnClass =
-  "h-7 w-7 rounded-full p-0 bg-amber-400 hover:bg-amber-400/90 text-black"
+  "h-8 w-8 rounded-full p-0 bg-primary/10 text-primary shadow-none [text-shadow:none] before:hidden after:hidden hover:bg-primary hover:text-primary-foreground"
 
 const itemVariants: Variants = {
   animate: {

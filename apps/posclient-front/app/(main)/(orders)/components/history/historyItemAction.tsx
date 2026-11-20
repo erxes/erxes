@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import OrderCancel from "@/modules/orders/components/orderCancel"
 import { modeAtom } from "@/store"
 import { detailIdAtom } from "@/store/history.store"
 import { activeOrderIdAtom } from "@/store/order.store"
@@ -17,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import OrderCancel from "@/modules/orders/components/orderCancel"
 import OrderReturn from "./orderReturn"
 import PaymentDetail from "./paymentDetail"
 
@@ -53,7 +53,11 @@ const HistoryItemAction = ({
           <Button
             variant="ghost"
             size="icon"
-            className={mode !== "mobile" ? "h-8 w-8 p-0" : ""}
+            className={
+              mode !== "mobile"
+                ? "h-8 w-full rounded-none p-0 focus-visible:outline-transparent"
+                : ""
+            }
           >
             {mode === "mobile" ? (
               <ChevronsRight
@@ -61,7 +65,7 @@ const HistoryItemAction = ({
                 strokeWidth={1.5}
               />
             ) : (
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </DropdownMenuTrigger>

@@ -24,7 +24,7 @@ const Slots = () => {
   return (
     <ScrollArea>
       <RadioGroup
-        className="flex-col flex gap-1.5 pr-4 pt-1.5"
+        className="flex flex-col gap-2 pr-3 pt-1.5 pb-2"
         value={activeSlot || ""}
         onValueChange={(value) => {
           setActiveSlot(value)
