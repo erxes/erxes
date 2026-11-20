@@ -187,6 +187,7 @@ describe('team members (/core/v1/users)', () => {
     });
 
     await owner.users.invite({ email: 'desk@acme.mn', role: desk.key });
+    await owner.users.invite({ email: 'manager@acme.mn', role: 'admin' });
 
     const allowed = async (permission: string) =>
       emails(await owner.users.list({ permission, limit: 100 }));
@@ -196,9 +197,9 @@ describe('team members (/core/v1/users)', () => {
     const [ownerOnly] = OWNER_ONLY_PERMISSIONS;
 
     // The role that lists it, admins through `*`, and owners.
-    expect(viewers).toEqual(expect.arrayContaining(['desk@acme.mn', 'boss@acme.mn']));
+    expect(viewers).toEqual(expect.arrayContaining(['desk@acme.mn', 'manager@acme.mn']));
     expect(viewers).toContain('owner@acme.mn');
-    expect(deleters).toContain('boss@acme.mn');
+    expect(deleters).toContain('manager@acme.mn');
     expect(deleters).not.toContain('desk@acme.mn');
     expect(await allowed(ownerOnly ?? '')).toEqual(['owner@acme.mn']);
     expect(await allowed('pms.housekeeping.work')).not.toContain('desk@acme.mn');
