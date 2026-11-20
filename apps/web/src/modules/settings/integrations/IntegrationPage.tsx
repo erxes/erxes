@@ -5,6 +5,7 @@ import { useCan } from '~/modules/auth/session';
 import { integrationPath, isCustomKey, useIntegrations } from './catalog';
 import { CustomIntegration } from './CustomIntegration';
 import { EbarimtIntegration } from './EbarimtIntegration';
+import { MetaIntegration } from './MetaIntegration';
 import { PluginIntegration } from './PluginIntegration';
 
 /**
@@ -28,6 +29,8 @@ export const IntegrationPage = () => {
   if (integration.kind === 'plugin') return <PluginIntegration integration={integration} />;
 
   if (integration.kind === 'custom') return <CustomIntegration integration={integration} />;
+
+  if (integration.kind === 'meta') return <MetaIntegration integration={integration} />;
 
   if (integration.kind !== 'ebarimt') return <Navigate to={integrationPath(integration)} replace />;
 

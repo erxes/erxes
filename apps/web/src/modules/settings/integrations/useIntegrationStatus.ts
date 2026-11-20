@@ -1,3 +1,4 @@
+import type { MetaConnection } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useCan } from '~/modules/auth/session';
@@ -12,8 +13,18 @@ export interface IntegrationStatus {
   count?: number;
 }
 
+const metaStatus = (connections: MetaConnection[]): IntegrationStatus => {
+  const broken = connections.filter((connection) => connection.status === 'broken').length;
+
+  if (broken) return { state: 'attention', count: broken };
+
+  return connections.length
+    ? { state: 'connected', count: connections.length }
+    : { state: 'not-set-up' };
+};
+
 /**
- * Each integration's state (`statusOf`), from three queries for the whole
+ * Each integration's state (`statusOf`), from four queries for the whole
  * catalog. Null while it loads, when its query failed (`error`), or when the
  * member may not see it (gateways and receipts need payments.manage). A
  * plugin's tile has none: core can't tell whether a plugin is set up.
@@ -21,6 +32,7 @@ export interface IntegrationStatus {
 export const useIntegrationStatus = () => {
   const canPayments = useCan()('payments.manage');
   const ebarimt = useQuery(orpc.ebarimt.settings.queryOptions());
+  const meta = useQuery(orpc.meta.connections.queryOptions({ input: {} }));
 
   const gateways = useQuery(
     orpc.payments.gateways.queryOptions({ input: canPayments ? undefined : skipToken }),
@@ -36,6 +48,8 @@ export const useIntegrationStatus = () => {
   );
 
   const statusOf = (integration: Integration): IntegrationStatus | null => {
+    if (integration.kind === 'meta') return meta.data ? metaStatus(meta.data.data) : null;
+
     if (integration.kind === 'custom') {
       return { state: integration.record.sealedNames.length ? 'connected' : 'not-set-up' };
     }
@@ -68,7 +82,8 @@ export const useIntegrationStatus = () => {
   return {
     statusOf,
     /** A state query failed: its tiles show no state, the page says so. */
-    error: ebarimt.error ?? gateways.error ?? failed.error,
-    refetch: () => Promise.all([ebarimt.refetch(), gateways.refetch(), failed.refetch()]),
+    error: ebarimt.error ?? meta.error ?? gateways.error ?? failed.error,
+    refetch: () =>
+      Promise.all([ebarimt.refetch(), meta.refetch(), gateways.refetch(), failed.refetch()]),
   };
 };
