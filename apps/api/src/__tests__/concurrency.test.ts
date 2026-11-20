@@ -1,9 +1,11 @@
-import { files, withSystem } from '@erxes/core-db';
+import { files, newId, withOrg, withSystem } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
+import { uploadStore } from '~/modules/files/bucket';
 import { pruneUploads, purgeDeletedFiles, readFileBytes } from '~/modules/files/files.service';
 import { setStorage, storage } from '~/modules/files/storage';
 import { adminDb, useTestDatabase } from './db';
+import { ACCESS_KEY_ID, useFakeS3 } from './s3.fixture';
 import { useTwoOrgs } from './support';
 
 /**
@@ -68,6 +70,17 @@ describe('concurrency', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
+  const s3 = useFakeS3();
+
+  /** The organisation's own bucket, in the fake S3. */
+  const bucket = (name: string) => ({
+    endpoint: s3.endpoint(),
+    region: 'us-east-1',
+    bucket: name,
+    forcePathStyle: true,
+    accessKeyId: ACCESS_KEY_ID,
+    secretAccessKey: 'fake-secret',
+  });
 
   /** Starts an upload and sends its bytes. */
   const startUpload = async (bytes: Buffer) => {
@@ -146,6 +159,41 @@ describe('concurrency', () => {
       expect(await purgeDeletedFiles()).toBe(1);
       expect(await fileRow(file.id)).toBeUndefined();
       expect(await storage().stat(tombstone?.key ?? '')).toBeNull();
+    });
+
+    it('One store per file: moving the organisation’s bucket waits for an upload starting in it, then sees its file', async () => {
+      await t.owner().files.saveBucket(bucket('erxes-files'));
+
+      const started = gate();
+      const release = gate();
+
+      // createUpload's steps: where the file goes (the bucket, read `for share`), then its row.
+      const upload = withOrg(t.ids.org, async (tx) => {
+        const store = await uploadStore(tx);
+
+        started.open();
+        await release.opened;
+        await tx.insert(files).values({
+          id: newId(),
+          key: `uploads/${t.ids.org}/race`,
+          storage: store.name,
+          name: 'race.txt',
+          contentType: 'text/plain',
+          size: 1,
+          actorType: 'system',
+        });
+      });
+
+      await started.opened;
+
+      const moving = t.owner().files.saveBucket(bucket('other-files'));
+
+      await someoneWaitsForALock();
+      release.open();
+      await upload;
+
+      await expect(moving).rejects.toMatchObject({ status: 409, code: 'BUCKET_IN_USE' });
+      expect((await t.owner().files.settings()).bucket).toMatchObject({ bucket: 'erxes-files' });
     });
   });
 });

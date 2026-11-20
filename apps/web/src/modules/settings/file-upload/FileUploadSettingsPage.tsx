@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
+import { BucketForm } from './BucketForm';
 import { fileSettingsQuery, LimitsForm } from './LimitsForm';
 import { TryUpload } from './TryUpload';
 
@@ -104,7 +105,11 @@ export const FileUploadSettingsPage = () => {
                   </p>
                 )}
                 <LimitsForm settings={data} canEdit={canEdit} />
-                <StorageInfo settings={data} />
+                {data.bucketAllowed ? (
+                  <BucketForm settings={data} canEdit={canEdit} />
+                ) : (
+                  <StorageInfo settings={data} />
+                )}
                 <TryUpload />
               </>
             )}

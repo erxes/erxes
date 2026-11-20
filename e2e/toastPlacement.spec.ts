@@ -18,7 +18,7 @@ test('the toast after a save sits above the save bar', async ({ page }) => {
 
   const size = page.getByRole('textbox', { name: 'Largest file (MB)' });
   const before = await size.inputValue();
-  const save = page.getByRole('button', { name: 'Save' });
+  const save = page.getByRole('button', { name: 'Save', exact: true });
   const bar = save.locator('..');
 
   await size.fill(before === '5' ? '6' : '5');

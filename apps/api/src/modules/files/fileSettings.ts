@@ -6,6 +6,7 @@ import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { bucketAllowed, bucketRow } from './bucket';
 
 const MB = 1024 * 1024;
 
@@ -59,7 +60,7 @@ const typeAllowed = (allowed: string[], name: string, contentType: string) => {
 };
 
 /** The organisation's upload rules, within what this server accepts (the scope's organisation: row level security). */
-export const fileSettingsOf = async (client: Db): Promise<FileSettings> => {
+export const fileSettingsOf = async (client: Db) => {
   const [row] = await client
     .select({ settings: organizations.settings })
     .from(organizations)
@@ -73,12 +74,14 @@ export const fileSettingsOf = async (client: Db): Promise<FileSettings> => {
     allowedTypes: saved.allowedTypes ?? [],
     limitMb,
     storage: config.files.driver,
+    bucketAllowed: bucketAllowed(),
+    bucket: await bucketRow(client),
   };
 };
 
 /** Throws unless the settings accept a file of this name, type and size. */
 export const assertUploadAllowed = (
-  settings: FileSettings,
+  settings: Pick<FileSettings, 'maxSizeMb' | 'allowedTypes'>,
   input: { name: string; contentType: string; size: number },
 ) => {
   if (input.size > settings.maxSizeMb * MB) {

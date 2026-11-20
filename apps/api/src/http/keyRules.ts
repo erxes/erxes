@@ -92,6 +92,9 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'automations.test': null,
   'files.settings': 'settings',
   'files.updateSettings': 'settings',
+  // Storage keys are entered by a member, never sent by a key.
+  'files.saveBucket': null,
+  'files.removeBucket': null,
   'leads.createStage': 'settings',
   'leads.updateStage': 'settings',
   'leads.reorderStages': 'settings',

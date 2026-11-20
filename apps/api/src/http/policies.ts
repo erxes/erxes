@@ -182,6 +182,8 @@ export const ACCESS = {
   'files.remove': { member: 'any', plugin: 'files:write' },
   'files.settings': needs('settings.manage'),
   'files.updateSettings': needs('settings.manage'),
+  'files.saveBucket': needs('settings.manage'),
+  'files.removeBucket': needs('settings.manage'),
 
   'notifications.list': MEMBER,
   'notifications.unreadCount': MEMBER,

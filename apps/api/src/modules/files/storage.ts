@@ -31,7 +31,7 @@ import { cloudflareImages, cloudflareStream } from './cloudflare';
 
 type FileStorage = (typeof FILE_STORAGES)[number];
 
-type FileStore = (typeof FILE_STORES)[number];
+export type FileStore = (typeof FILE_STORES)[number];
 
 interface UploadRequest {
   contentType: string;
@@ -269,7 +269,7 @@ const localStorage: Storage = {
 
 // ─── S3-compatible (AWS S3, Cloudflare R2, MinIO) ───────────────────────────
 
-type S3Settings = typeof config.files.s3;
+export type S3Settings = typeof config.files.s3;
 
 const s3ClientOf = (s3: S3Settings) =>
   new S3Client({
@@ -286,7 +286,7 @@ const isNotFound = (error: unknown) =>
   error instanceof NotFound ||
   (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404);
 
-const s3Storage = (s3: S3Settings): Storage => {
+export const s3Storage = (s3: S3Settings): Storage => {
   const client = s3ClientOf(s3);
 
   return {
@@ -393,10 +393,11 @@ export type StoredBytes = Pick<Storage, 'downloadUrl' | 'remove' | 'read'>;
 const others = new Map<FileStorage, Storage>();
 
 /**
- * Where one file's bytes are (`core_files.storage`). Null is a file from
- * before that was recorded, kept in the server's storage.
+ * Where one file's bytes are (`core_files.storage`), outside an organisation's
+ * own bucket (`bucket.ts`). Null is a file from before that was recorded,
+ * kept in the server's storage.
  */
-export const storageOf = (name: FileStore | null): StoredBytes => {
+export const storageOf = (name: Exclude<FileStore, 'bucket'> | null): StoredBytes => {
   if (name === null || name === config.files.driver) return storage();
 
   if (name === 'cloudflare_images') return cloudflareImages;
