@@ -1636,6 +1636,7 @@
     "decimals": "Decimal places",
     "dateError": "Select a valid start and end date; the end must be on or after the start.",
     "preview": "Report layout",
+    "previewHint": "Layout of the current draft, unsaved changes included. Amounts appear after you save and generate the report.",
     "previousPage": "Previous page",
     "nextPage": "Next page",
     "records": "reports",

@@ -52,7 +52,20 @@ jest.mock('@/tunable-reports/ReportEditor', () => ({
   }) => renderLayout(<button type="submit">save</button>, <p>Editor</p>),
 }));
 jest.mock('@/tunable-reports/ReportPreview', () => ({
-  ReportPreview: () => <p>Preview</p>,
+  ReportPreview: ({ organization }: { organization?: { name?: string } }) => (
+    <>
+      <p>Preview</p>
+      <p>{organization?.name}</p>
+    </>
+  ),
+}));
+jest.mock('@/journal-reports/hooks/useJournalReportOrganizationName', () => ({
+  useJournalReportOrganizationName: () => ({
+    organizationName: 'Алтай Тайга Тур ХХК',
+    phoneNumber: '',
+    email: '',
+    loading: false,
+  }),
 }));
 jest.mock('erxes-ui', () => ({
   Button: (props: ComponentProps<'button'>) => (
@@ -107,4 +120,9 @@ test('keeps the detail open when deletion is cancelled or fails', async () => {
   await waitFor(() => expect(mockRemoveReport).toHaveBeenCalledTimes(1));
   expect(screen.getByText('Preview')).toBeTruthy();
   expect(screen.queryByRole('heading', { name: 'Report list' })).toBeNull();
+});
+test('the saved report is shown with the company it will be printed for', () => {
+  renderDetail('show');
+  expect(screen.getByText('Preview')).toBeTruthy();
+  expect(screen.getByText('Алтай Тайга Тур ХХК')).toBeTruthy();
 });

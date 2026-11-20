@@ -10,6 +10,7 @@ import { REPORT_DETAIL } from '@/tunable-reports/graphql';
 import { ReportEditor } from '@/tunable-reports/ReportEditor';
 import { ReportPreview } from '@/tunable-reports/ReportPreview';
 import { useReportTranslation } from '@/tunable-reports/locales';
+import { useReportOrganization } from '@/tunable-reports/useReportOrganization';
 import { useReportActions } from '@/tunable-reports/useReports';
 
 export const TunableReportDetailPage = ({
@@ -22,6 +23,7 @@ export const TunableReportDetailPage = ({
   const navigate = useNavigate();
   const { t } = useReportTranslation();
   const { canManage, canRemove, removing, removeReport } = useReportActions();
+  const { organization } = useReportOrganization();
   const { data, loading, error, refetch } = useQuery(REPORT_DETAIL, {
     variables: { _id: id || '' },
     skip: mode === 'new',
@@ -96,7 +98,7 @@ export const TunableReportDetailPage = ({
               </div>
             )}
             {!error && report && mode === 'show' && (
-              <ReportPreview report={report} />
+              <ReportPreview report={report} organization={organization} />
             )}
           </div>
         </>

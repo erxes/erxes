@@ -69,9 +69,14 @@ export const TunableReportsPage = () => {
             className="flex min-w-0 flex-col border border-border/70 shadow-none"
           >
             <Card.Header className="flex-1 space-y-3">
-              <Badge variant="secondary" className="w-fit font-mono">
-                {report.code}
-              </Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="secondary" className="w-fit font-mono">
+                  {report.code}
+                </Badge>
+                {report.status === 'archived' && (
+                  <Badge variant="warning">{t('archived')}</Badge>
+                )}
+              </div>
               <Card.Title
                 className="line-clamp-2 text-base leading-relaxed"
                 title={report.name}

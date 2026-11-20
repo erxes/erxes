@@ -12,5 +12,10 @@ export const useJournalReportOrganizationName = () => {
     currentOrganization?.name?.trim() ||
     '';
 
-  return { organizationName, loading };
+  return {
+    organizationName,
+    phoneNumber: data?.structureDetail?.phoneNumber?.trim() || '',
+    email: data?.structureDetail?.email?.trim() || '',
+    loading,
+  };
 };

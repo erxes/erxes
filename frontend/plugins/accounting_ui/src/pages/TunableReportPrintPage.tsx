@@ -1,20 +1,33 @@
+import { useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { Button, Spinner } from 'erxes-ui';
-import { IconPrinter } from '@tabler/icons-react';
+import { IconPrinter, IconReport } from '@tabler/icons-react';
 import { REPORT_GENERATE } from '@/tunable-reports/graphql';
+import { ReportExcelButton } from '@/tunable-reports/ReportExcelButton';
 import { ReportPreview } from '@/tunable-reports/ReportPreview';
-import { parseReportRunSettings } from '@/tunable-reports/runReport';
+import { ReportRunSheet } from '@/tunable-reports/ReportRunSheet';
+import {
+  parseReportRunSettings,
+  reportRunPath,
+} from '@/tunable-reports/runReport';
 import { useReportTranslation } from '@/tunable-reports/locales';
-import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
+import { useReportOrganization } from '@/tunable-reports/useReportOrganization';
 
 export const TunableReportPrintPage = () => {
   const { id } = useParams();
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const { t } = useReportTranslation();
+  const [runOpen, setRunOpen] = useState(false);
   const settings = parseReportRunSettings(params, t);
-  const { organizationName, loading: organizationLoading } =
-    useJournalReportOrganizationName();
+  const { organization, loading: organizationLoading } =
+    useReportOrganization();
   const { data, loading, error, refetch } = useQuery(REPORT_GENERATE, {
     variables: {
       _id: id || '',
@@ -22,11 +35,14 @@ export const TunableReportPrintPage = () => {
     },
     skip: !id || !settings.success,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
   const result = data?.accountingTunableReportGenerate;
   const report = result?.report;
   const orientation =
     report?.orientation === 'landscape' ? 'landscape' : 'portrait';
+  const ready =
+    !!report && !loading && !organizationLoading && !error && settings.success;
   const renderContent = () => {
     if (!settings.success)
       return (
@@ -49,7 +65,7 @@ export const TunableReportPrintPage = () => {
           report={report}
           settings={settings.data}
           cells={result?.cells}
-          organizationName={organizationName}
+          organization={organization}
         />
       );
     if (loading)
@@ -67,21 +83,45 @@ export const TunableReportPrintPage = () => {
         <Button asChild variant="outline">
           <Link to="/accounting/tunable-reports">{t('back')}</Link>
         </Button>
-        <Button
-          disabled={
-            !report ||
-            loading ||
-            organizationLoading ||
-            !!error ||
-            !settings.success
-          }
-          onClick={() => globalThis.print()}
-        >
-          <IconPrinter />
-          {t('print')}
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            variant="outline"
+            disabled={!id}
+            onClick={() => setRunOpen(true)}
+          >
+            <IconReport />
+            {t('run')}
+          </Button>
+          <ReportExcelButton
+            report={report}
+            cells={result?.cells}
+            settings={settings.success ? settings.data : undefined}
+            organization={organization}
+            disabled={!ready}
+          />
+          <Button disabled={!ready} onClick={() => globalThis.print()}>
+            <IconPrinter />
+            {t('print')}
+          </Button>
+        </div>
       </div>
       {renderContent()}
+      {id && runOpen && (
+        <ReportRunSheet
+          report={{ _id: id, name: report?.name ?? '' }}
+          open={runOpen}
+          onOpenChange={setRunOpen}
+          defaultValues={settings.success ? settings.data : undefined}
+          onRun={(next) => {
+            const path = reportRunPath(id, next);
+            if (settings.success && path === reportRunPath(id, settings.data)) {
+              void refetch();
+              return;
+            }
+            navigate(path);
+          }}
+        />
+      )}
     </div>
   );
 };
