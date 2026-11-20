@@ -3,11 +3,10 @@ import { flexRender } from '@tanstack/react-table';
 import { cn } from 'erxes-ui/lib/utils';
 import { useRowWindow } from '../hooks/useRowWindow';
 import { RecordTableCell } from './RecordTableCell';
-import { useRecordTableViewport } from './RecordTableCursor';
 import { useRecordTable } from './RecordTableProvider';
 import { RecordTableRow } from './RecordTableRow';
 
-/** Past this many rows, a cursor-paged table renders only the rows near its viewport. */
+/** Past this many rows, a table renders only the rows near the visible area. */
 const WINDOW_AFTER = 100;
 
 /** Stands in for `rows` rows that are not rendered, so the scroll height stays the same. */
@@ -32,9 +31,9 @@ const RowsGap = ({
 /**
  * The rows, rendered again when the data or the column order, visibility or pinning changes.
  * The leaf headers keep their identity while a column is resized (only CSS variables change
- * then), so resizing renders no rows. Selection re-renders only the rows it touches. In a
- * `RecordTable.CursorProvider` with more than `WINDOW_AFTER` rows, only the rows near the
- * viewport render, so a long list keeps a small page.
+ * then), so resizing renders no rows. Selection re-renders only the rows it touches. With more
+ * than `WINDOW_AFTER` rows, only the rows near the visible area of the table's scroll
+ * container (or the page) render, so a long list keeps a small page.
  */
 export const RecordTableRowList = ({
   handleRowViewChange,
@@ -46,15 +45,10 @@ export const RecordTableRowList = ({
   const { table } = useRecordTable();
   const { rows } = table.getRowModel();
   const leafHeaders = table.getHeaderGroups().at(-1)?.headers ?? [];
-  const viewport = useRecordTableViewport();
-  const windowed = rows.length > WINDOW_AFTER && viewport !== null;
+  const windowed = rows.length > WINDOW_AFTER;
   const [listStart, setListStart] = useState<HTMLTableRowElement | null>(null);
-
-  const { start, end } = useRowWindow({
-    count: rows.length,
-    viewport: windowed ? viewport : null,
-    listStart,
-  });
+  const slice = useRowWindow({ count: rows.length, listStart });
+  const { start, end } = windowed ? slice : { start: 0, end: rows.length };
 
   return (
     <>
