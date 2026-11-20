@@ -3,6 +3,7 @@ import { PosAutomations } from '@/pos/components/automations/PosAutomations';
 import { PosRelationSettings } from '@/pos/components/automations/PosRelationSettings';
 import { CustomerCreate } from '@/pos/components/customerCreate/CustomerCreate';
 import { DeliveryConfig } from '@/pos/components/deliveryConfig';
+import { PapaSettings } from '@/pos/papa/components/PapaSettings';
 import { Payment } from '@/pos/components/payment';
 import { Permission } from '@/pos/components/permission';
 import { Products } from '@/pos/components/products';
@@ -110,10 +111,13 @@ export const MainContent: React.FC<MainContentProps> = ({
         );
       case 'delivery':
         return (
-          <DeliveryConfig
-            posId={posId}
-            onSaveActionChange={handleSaveActionChange}
-          />
+          <>
+            <DeliveryConfig
+              posId={posId}
+              onSaveActionChange={handleSaveActionChange}
+            />
+            <PapaSettings posId={posId} />
+          </>
         );
       case 'sync':
         return <SyncCard posId={posId} />;
