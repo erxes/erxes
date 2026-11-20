@@ -5,8 +5,6 @@ import { ACC_TRANSACTIONS_CREATE } from '../graphql/mutations/accTransactionsCre
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
-import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 import {
   buildTransactionEditPath,
   getTransactionReturnPath,
@@ -19,7 +17,6 @@ export const useTransactionsCreate = (
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo');
-  const variables = useTransactionsVariables();
 
   const [_createTransaction, { loading }] = useMutation(
     ACC_TRANSACTIONS_CREATE,
@@ -47,17 +44,7 @@ export const useTransactionsCreate = (
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: [
-        {
-          query: TRANSACTIONS_QUERY,
-          variables,
-        },
-      ],
-      awaitRefetchQueries: true,
-      update: (cache, { data }) => {
-        cache.evict({ fieldName: 'accTrRecordsMain' });
-        cache.gc();
-
+      update: (_cache, { data }) => {
         const newParentId = data?.accTransactionsCreate?.[0]?.parentId;
 
         const pathname = newParentId
