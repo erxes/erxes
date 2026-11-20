@@ -1,10 +1,10 @@
 import type { ConditionGroup } from '@erxes/core-contract';
 import { memberQueries, messageOf, productSearchQueries } from '@erxes/core-contract/client';
 import { useQueries } from '@tanstack/react-query';
-import { ConditionsEditor as Conditions, pluginJson, type TConditionField } from 'erxes-ui';
+import { ConditionsEditor as Conditions, type TConditionField } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
 import { tagsQuery } from '~/modules/tags/useTags';
+import { recordChoicesQuery } from './recordChoices';
 import { StartFromView } from './StartFromView';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
@@ -30,14 +30,11 @@ const conditionField = (
   },
 });
 
-const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
-
 const recordsKey = (field: FieldInfo) => `${field.source}:${field.recordType}`;
 
 /**
- * The records each plugin record field picks from: `GET <api>/automations/records/<recordType>`,
- * all of them (no `parent`), as the plugin lists them for the member. Shared with the action
- * inputs that list the same records.
+ * The records each record field picks from, core's or its plugin's, all of them (no `parent`),
+ * as they are listed for the member. Shared with the action inputs that list the same records.
  */
 const useRecordChoices = (fields: FieldInfo[]) => {
   const wanted = [
@@ -49,11 +46,9 @@ const useRecordChoices = (fields: FieldInfo[]) => {
   ];
 
   const results = useQueries({
-    queries: wanted.map(({ source = '', recordType = '' }) => ({
-      queryKey: ['plugin-records', source, recordType, ''],
-      queryFn: () => pluginJson(source, `/automations/records/${recordType}`, PluginRecords),
-      staleTime: 60_000,
-    })),
+    queries: wanted.map(({ source = '', recordType = '' }) =>
+      recordChoicesQuery(source, recordType),
+    ),
   });
 
   return {

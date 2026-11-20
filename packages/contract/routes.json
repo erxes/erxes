@@ -428,6 +428,16 @@
         }
       }
     },
+    "recordChoices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/records/{recordType}"
+        }
+      }
+    },
     "list": {
       "~orpc": {
         "errorMap": {},
@@ -2901,6 +2911,108 @@
         "route": {
           "method": "POST",
           "path": "/integrations/programs/{id}/test"
+        }
+      }
+    }
+  },
+  "meta": {
+    "app": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/meta/app"
+        }
+      }
+    },
+    "saveApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/meta/app"
+        }
+      }
+    },
+    "removeApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/meta/app"
+        }
+      }
+    },
+    "loginUrl": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/meta/login"
+        }
+      }
+    },
+    "connections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/meta/connections"
+        }
+      }
+    },
+    "repair": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/meta/connections/{id}/repair"
+        }
+      }
+    },
+    "disconnect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/meta/connections/{id}"
+        }
+      }
+    },
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/meta/send"
+        }
+      }
+    },
+    "graph": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/meta/graph"
+        }
+      }
+    },
+    "import": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/meta/import"
         }
       }
     }
