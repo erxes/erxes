@@ -35,6 +35,10 @@ export const emailSettings = pgTable(
     region: text().default('').notNull(),
     /** The password, API key or secret access key, sealed (`lib/secrets`); never sent out. */
     secretSealed: text().notNull(),
+    /** Since when its server refuses the login or can't be reached; cleared by the next email it takes. */
+    failedAt: timestamp({ withTimezone: true, mode: 'date' }),
+    /** What the server said, or why it couldn't be reached. */
+    failure: text(),
     updatedBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

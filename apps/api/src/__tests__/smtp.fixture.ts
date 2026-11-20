@@ -8,8 +8,15 @@ interface Received {
   data: string;
 }
 
-/** Just enough SMTP to take mail (no TLS, no sign-in): what each message said. */
-const startSmtp = async () => {
+/** The only password `AUTH PLAIN` takes, until a test changes it; any user name goes. */
+const PASSWORD = 'pa55word';
+
+/** `AUTH PLAIN <base64 of \0user\0password>`: whether the password is the server's. */
+const signsIn = (line: string, password: string) =>
+  Buffer.from(line.slice(11), 'base64').toString().split('\0')[2] === password;
+
+/** Just enough SMTP to take mail (no TLS; signing in is optional): what each message said. */
+const startSmtp = async (accepts: { password: string }) => {
   const received: Received[] = [];
 
   const server = createServer((socket) => {
@@ -26,8 +33,14 @@ const startSmtp = async () => {
             mail = { from: '', to: [], data: '' };
             socket.write('250 queued\r\n');
           } else mail.data += `${line}\n`;
-        } else if (/^EHLO/i.test(line)) socket.write('250 test\r\n');
-        else if (/^MAIL FROM:/i.test(line)) {
+        } else if (/^EHLO/i.test(line)) socket.write('250-test\r\n250 AUTH PLAIN\r\n');
+        else if (/^AUTH PLAIN /i.test(line)) {
+          socket.write(
+            signsIn(line, accepts.password)
+              ? '235 ok\r\n'
+              : '535 Authentication Credentials Invalid\r\n',
+          );
+        } else if (/^MAIL FROM:/i.test(line)) {
           mail.from = line.slice(10);
           socket.write('250 ok\r\n');
         } else if (/^RCPT TO:/i.test(line)) {
@@ -49,13 +62,16 @@ const startSmtp = async () => {
   return { server, received, port: typeof address === 'object' && address ? address.port : 0 };
 };
 
-/** A fake SMTP server for the file's tests: its port, and the messages it took. */
+/**
+ * A fake SMTP server for the file's tests: its port, the messages it took, and
+ * the password it takes (a test changes it to see sign-ins refused).
+ */
 export const useSmtp = () => {
-  const smtp = { port: 0, received: [] as Received[] };
+  const smtp = { port: 0, received: [] as Received[], password: PASSWORD };
   let server: Server | undefined;
 
   beforeAll(async () => {
-    const started = await startSmtp();
+    const started = await startSmtp(smtp);
 
     server = started.server;
     smtp.port = started.port;

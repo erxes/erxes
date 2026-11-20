@@ -5,7 +5,7 @@ import { logger } from '~/logger';
 import { defineJob } from '~/modules/jobs/jobs';
 import { addressing, confirmedSender, parseFrom, type Sender } from './addressing';
 import { EmailPayload, type InlineImage, renderEmail } from './templates';
-import { orgTransport } from './transport';
+import { isSettingsFailure, markFailing, markWorking, orgTransport } from './transport';
 
 const log = logger.child({ component: 'email' });
 
@@ -69,13 +69,10 @@ const shownFrom = (from: ReturnType<typeof addressing>['from']) =>
   typeof from === 'string' ? from : `${from.name} <${from.address}>`;
 
 /**
- * Sends one email now, or throws the server's refusal (nodemailer's
- * `responseCode`). An organisation with its own settings (Settings ›
- * Email sending) sends from its address through its provider; the others
- * through the server's.
+ * The organisation's server (`own`) when it has one, else the server's: in
+ * development (`EMAIL_DRIVER=log`) only written to the log.
  */
-export const deliverEmail = async (message: Message, orgId?: string) => {
-  const own = orgId ? await orgTransport(orgId) : null;
+const deliverVia = async (own: Awaited<ReturnType<typeof orgTransport>>, message: Message) => {
   const { fromName, sender, attachments, ...mail } = message;
 
   const sending = own
@@ -109,6 +106,28 @@ export const deliverEmail = async (message: Message, orgId?: string) => {
   transporter ??= createTransport(config.email.smtpUrl);
 
   await transporter.sendMail(outgoing);
+};
+
+/**
+ * Sends one email now, or throws the server's refusal (nodemailer's
+ * `responseCode`). An organisation with its own settings (Settings ›
+ * Email sending) sends from its address through its provider; the others
+ * through the server's.
+ */
+export const deliverEmail = async (message: Message, orgId?: string) => {
+  if (!orgId) return deliverVia(null, message);
+
+  try {
+    const own = await orgTransport(orgId);
+
+    await deliverVia(own, message);
+
+    if (own?.settings.failedAt) await markWorking(orgId);
+  } catch (error) {
+    if (isSettingsFailure(error)) await markFailing(orgId, error.message);
+
+    throw error;
+  }
 };
 
 /** A link into the scope's organisation (`withOrg`) in erxes: `APP_URL`, with its subdomain. */

@@ -1,11 +1,19 @@
 import { emailSettings, withOrg } from '@erxes/core-db';
+import { isNotNull, isNull, sql } from 'drizzle-orm';
 import { createTransport, type Transporter } from 'nodemailer';
 import { config } from '~/config';
 import { hmacSha256Bytes } from '~/lib/crypto';
-import { publicAddressOf } from '~/lib/outbound';
+import { OutboundError, publicAddressOf } from '~/lib/outbound';
 import { unseal } from '~/lib/secrets';
+import { enqueueJob } from '~/modules/jobs/jobs';
 
 export type EmailSettingsRow = typeof emailSettings.$inferSelect;
+
+/** What signing in to a server needs: the saved settings, or those about to be saved. */
+export type ServerSettings = Pick<
+  EmailSettingsRow,
+  'provider' | 'smtpHost' | 'smtpPort' | 'smtpSecure' | 'username' | 'region' | 'secretSealed'
+>;
 
 /** Amazon SES's SMTP password for an IAM secret access key (AWS's published derivation, version 4). */
 export const sesSmtpPassword = (secretAccessKey: string, region: string) => {
@@ -18,7 +26,7 @@ export const sesSmtpPassword = (secretAccessKey: string, region: string) => {
 };
 
 /** The SMTP server of the settings and how to sign in to it: SendGrid and SES take SMTP too. */
-const serverOf = (settings: EmailSettingsRow) => {
+const serverOf = (settings: ServerSettings) => {
   const secret = unseal(settings.secretSealed);
 
   if (settings.provider === 'sendgrid') {
@@ -52,7 +60,7 @@ const serverOf = (settings: EmailSettingsRow) => {
  * a private one, see `publicAddressOf`) with TLS checked against its name.
  * Mail goes out encrypted, except to a development server.
  */
-const transportFor = async (settings: EmailSettingsRow) => {
+const transportFor = async (settings: ServerSettings) => {
   const { host, ...server } = serverOf(settings);
 
   return createTransport({
@@ -92,3 +100,54 @@ export const orgTransport = async (orgId: string) => {
 
   return { settings, transport };
 };
+
+/** Signs in to the server and leaves: what it said when it refused, or null. */
+export const loginRefusal = async (settings: ServerSettings) => {
+  let transport: Transporter | undefined;
+
+  try {
+    transport = await transportFor(settings);
+    await transport.verify();
+
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  } finally {
+    transport?.close();
+  }
+};
+
+/** nodemailer's codes for a server that refused the login or couldn't be reached. */
+const SERVER_FAILURES = new Set(['EAUTH', 'ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'EDNS', 'ETLS']);
+
+/** The settings need fixing, not the email: the login was refused or the server can't be reached. */
+export const isSettingsFailure = (error: unknown): error is Error =>
+  error instanceof OutboundError ||
+  (error instanceof Error &&
+    'code' in error &&
+    typeof error.code === 'string' &&
+    SERVER_FAILURES.has(error.code));
+
+/** The queue that tells the owners their emails stopped (`emailFailingJob`). */
+export const EMAIL_FAILING_QUEUE = 'email.failing';
+
+/** Its server stopped taking the organisation's emails; the first failure tells the owners. */
+export const markFailing = (orgId: string, failure: string) =>
+  withOrg(orgId, async (tx) => {
+    const [first] = await tx
+      .update(emailSettings)
+      .set({ failedAt: sql`now()`, failure })
+      .where(isNull(emailSettings.failedAt))
+      .returning({ orgId: emailSettings.orgId });
+
+    if (first) await enqueueJob(tx, { orgId, queue: EMAIL_FAILING_QUEUE, payload: { failure } });
+  });
+
+/** Its server took an email again. */
+export const markWorking = (orgId: string) =>
+  withOrg(orgId, (tx) =>
+    tx
+      .update(emailSettings)
+      .set({ failedAt: null, failure: null })
+      .where(isNotNull(emailSettings.failedAt)),
+  );

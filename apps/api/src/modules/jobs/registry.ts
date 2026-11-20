@@ -5,6 +5,7 @@ import { BROADCAST_JOBS } from '~/modules/broadcasts/starting';
 import { fireJob } from '~/modules/automations/triggers';
 import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
+import { emailFailingJob } from '~/modules/email/failing';
 import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
 import { incomingJob } from '~/modules/integrations/incoming';
@@ -26,6 +27,7 @@ export const JOBS = [
   callJob,
   fireJob,
   emailJob,
+  emailFailingJob,
   smsJob,
   paymentCheckJob,
   ebarimtSyncJob,

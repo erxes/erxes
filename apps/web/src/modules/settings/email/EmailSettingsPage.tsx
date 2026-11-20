@@ -1,8 +1,17 @@
 import type { EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconMail } from '@tabler/icons-react';
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
-import { Button, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast } from 'erxes-ui';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Button,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Spinner,
+  Tabs,
+  useFormat,
+  useToast,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -16,10 +25,21 @@ import { IntegrationStatusBadge } from '../integrations/IntegrationStatusBadge';
 import { EmailForm, PROVIDER_NAMES } from './EmailForm';
 import { EmailSenders } from './EmailSenders';
 
+/** Where the organisation's emails go without its settings: the server's address, or nowhere. */
+const useWithoutSettings = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+  const from = useQuery(orpc.emails.defaultSending.queryOptions()).data?.from;
+
+  return from
+    ? t('default-from', 'Without your own, emails go out from {{from}}.', { from })
+    : t('default-none', 'Without your own, emails aren’t sent: this server has no mail settings.');
+};
+
 /** Sends a test email to the member the way the organisation's go out, and says how it went. */
 const SendTest = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
   const { toast } = useToast();
+  const client = useQueryClient();
 
   const failed = (description?: string) =>
     toast({
@@ -35,6 +55,8 @@ const SendTest = () => {
           ? toast({ title: t('test-sent', 'Test email sent to you') })
           : failed(result.error ?? undefined),
       onError: (error) => failed(messageOf(error)),
+      // The test sets or clears "Needs attention".
+      onSettled: () => client.invalidateQueries({ queryKey: orpc.emails.settings.key() }),
     }),
   );
 
@@ -55,7 +77,7 @@ const RemoveEmail = () => {
     ),
   );
 
-  const message = t('remove-description', 'Emails go out from erxes’s address again.');
+  const message = useWithoutSettings();
 
   return (
     <DangerSection
@@ -76,8 +98,50 @@ const HOW_IT_WORKS = [
     'Broadcasts and automations can send as a confirmed sender instead (the Senders tab).',
   ],
   ['verify', 'SendGrid and Amazon SES only send from addresses or domains you verified with them.'],
-  ['none', 'Without it, emails go out from erxes’s address.'],
 ] as const;
+
+/** Its server refused the last email's login or couldn't be reached: what it said, and since when. */
+const Failing = ({ saved }: { saved: EmailSettings }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+  const fmt = useFormat();
+
+  if (!saved.failedAt) return null;
+
+  return (
+    <div role="alert" className="space-y-1 rounded-lg border border-warning p-4 text-sm">
+      <p className="font-medium">{t('failing-title', 'Your emails can’t be sent')}</p>
+      <p className="text-muted-foreground">
+        {t('failing-body', 'Since {{date}} the mail server answers: {{failure}}', {
+          date: fmt.dateTime(saved.failedAt),
+          failure: saved.failure ?? '',
+        })}
+      </p>
+      <p className="text-muted-foreground">
+        {t(
+          'failing-fix',
+          'Fix the password or server on the Settings tab. The next email that goes out clears this.',
+        )}
+      </p>
+    </div>
+  );
+};
+
+const NotSetUp = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+  const defaultSending = useQuery(orpc.emails.defaultSending.queryOptions());
+  const withoutSettings = useWithoutSettings();
+
+  return (
+    <QueryState query={defaultSending}>
+      {() => (
+        <p className="rounded-lg border p-4 text-sm">
+          {withoutSettings}{' '}
+          {t('set-up-hint', 'Set up your own server or account to send from your address.')}
+        </p>
+      )}
+    </QueryState>
+  );
+};
 
 const Overview = ({ saved }: { saved: EmailSettings | null }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
@@ -87,6 +151,7 @@ const Overview = ({ saved }: { saved: EmailSettings | null }) => {
 
   return (
     <div className="space-y-6">
+      {saved && <Failing saved={saved} />}
       {saved ? (
         <OverviewSection title={t('sending-as', 'Sending as')}>
           <dl className="grid grid-cols-3 gap-x-6 gap-y-1.5 rounded-lg border p-4 text-sm">
@@ -107,12 +172,7 @@ const Overview = ({ saved }: { saved: EmailSettings | null }) => {
           </dl>
         </OverviewSection>
       ) : (
-        <p className="rounded-lg border p-4 text-sm">
-          {t(
-            'set-up-hint',
-            'Emails go out from erxes’s address. Set up your own server or account to send from yours.',
-          )}
-        </p>
+        <NotSetUp />
       )}
       <HowItWorks
         title={t('how', 'How it works')}
@@ -120,6 +180,13 @@ const Overview = ({ saved }: { saved: EmailSettings | null }) => {
       />
     </div>
   );
+};
+
+/** Connected, connected but its server refusing, or not set up. */
+const stateOf = (saved: EmailSettings | null) => {
+  if (!saved) return 'not-set-up';
+
+  return saved.failedAt ? 'attention' : 'connected';
 };
 
 const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
@@ -157,7 +224,7 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl font-semibold">{t('name.email', 'Email sending')}</h1>
-            <IntegrationStatusBadge status={{ state: saved ? 'connected' : 'not-set-up' }} />
+            <IntegrationStatusBadge status={{ state: stateOf(saved) }} />
           </div>
           <p className="text-sm text-muted-foreground">
             {t(
