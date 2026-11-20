@@ -70,7 +70,12 @@ describe('event stream', () => {
         {
           type: 'hr.review.scheduled',
           payload: { reviewId: 'r1' },
-          notify: { userIds: [t.ids.member], title: 'Review on Friday', priority: 'high' },
+          notify: {
+            userIds: [t.ids.member],
+            title: 'Review on Friday',
+            priority: 'high',
+            text: { title: 'Review on {{day}}', values: { day: 'Friday' } },
+          },
           dedupeKey: 'review-r1',
         },
       ],
@@ -91,6 +96,8 @@ describe('event stream', () => {
       title: 'Review on Friday',
       priority: 'high',
       source: 'hr',
+      // What web needs to say it in the member's language.
+      data: { text: { title: 'Review on {{day}}', values: { day: 'Friday' } } },
     });
 
     // Core's own changes are in the stream too (for automations).

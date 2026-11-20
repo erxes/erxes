@@ -28,7 +28,8 @@ export type PluginTranslations = z.infer<typeof PluginTranslations>;
  */
 export const NotificationText = z.object({
   title: PluginText,
-  body: PluginText.optional(),
+  /** As long as a notification's own body may be; one past a translation's length reads in English. */
+  body: z.string().trim().min(1).max(2000).optional(),
   values: z.record(z.string(), z.union([z.string(), z.number()])).default({}),
 });
 

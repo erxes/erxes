@@ -145,7 +145,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `packages/contract/src/pluginTranslations.ts`): the English title and body with their values left
      out, which are the keys, and the values
      (`apps/web/src/modules/notifications/notificationText.ts`). Its `title` and `body` stay ready
-     to read in English, for email. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     to read in English, for email. An event's `notify` takes the same as `text`. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own. `open`'s
      `tab` (a type's tab `value`, `detail` or `activity`; anything else opens the default) and a
