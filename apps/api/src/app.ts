@@ -21,6 +21,7 @@ import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
+import { integrationIncomingRouter } from '~/modules/integrations/incoming.http';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { senderLinksRouter } from '~/modules/email/senders.http';
@@ -128,6 +129,7 @@ export const createApp = (log: Logger = logger): Express => {
 
   // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
   app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));
+  app.use('/core/v1', integrationIncomingRouter(limit.integrationIncoming));
 
   app.use(express.json({ limit: '1mb' }));
 

@@ -72,6 +72,47 @@ describe('assistant tools', () => {
     expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
   });
 
+  it("writes a custom integration's program but never its key or its hosts", async () => {
+    const integration = await t.owner().integrations.create({
+      key: 'boat',
+      name: 'Boat',
+      hosts: ['api.boat.test'],
+    });
+
+    model.script(
+      callThen('integrations.setSecrets', { id: integration.id, secrets: { apiKey: 'sk_1234' } }),
+    );
+    await ask('Save the Boat key sk_1234');
+    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
+
+    model.script(callThen('integrations.update', { id: integration.id, hosts: ['evil.test'] }));
+    await ask('Let Boat call evil.test');
+    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
+
+    model.script(
+      callThen('integrations.saveProgram', {
+        integrationId: integration.id,
+        kind: 'action',
+        key: 'ping',
+        label: 'Ping Boat',
+        code: 'return { pong: true };',
+      }),
+    );
+    await ask('Add a ping action to Boat');
+
+    const detail = await t.owner().integrations.get({ id: integration.id });
+
+    expect(detail).toMatchObject({
+      hosts: ['api.boat.test'],
+      sealedNames: [],
+      programs: [expect.objectContaining({ key: 'ping', version: 1 })],
+    });
+
+    model.script(callThen('integrations.testProgram', { id: detail.programs[0]?.id }));
+    await ask('Ping Boat now');
+    expect(model.lastToolResult()).toContain('"pong":true');
+  });
+
   it("refuses what the member's role can't do, and doesn't offer it", async () => {
     model.script(callThen('audit.list', {}));
     await ask('Show the audit log', t.member());

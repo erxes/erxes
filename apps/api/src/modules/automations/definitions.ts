@@ -17,6 +17,7 @@ import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
+import { integrationActions } from '~/modules/integrations/actions';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
@@ -52,7 +53,7 @@ export const automationCatalog = async (client: Db) => {
         seen: found !== undefined,
       };
     }),
-    actions: actionCatalog(installed),
+    actions: [...actionCatalog(installed), ...(await integrationActions(client))],
   };
 };
 

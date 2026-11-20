@@ -1,15 +1,6 @@
 import { IconPlugConnected, IconSearch } from '@tabler/icons-react';
 import { messageOf } from '@erxes/core-contract/client';
-import {
-  Button,
-  INTEGRATION_CATEGORIES,
-  InputGroup,
-  PageContainer,
-  PageHeader,
-  ScrollArea,
-  type TIntegrationCategory,
-  ToggleGroup,
-} from 'erxes-ui';
+import { Button, InputGroup, PageContainer, PageHeader, ScrollArea, ToggleGroup } from 'erxes-ui';
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,23 +10,32 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
 import { useCan, useSession } from '~/modules/auth/session';
-import { type Integration, integrationPath, servesCountry, useIntegrations } from './catalog';
+import {
+  CATEGORIES,
+  type Category,
+  type Integration,
+  integrationPath,
+  servesCountry,
+  useIntegrations,
+} from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
   useIntegrationText,
 } from './IntegrationStatusBadge';
+import { NewCustomIntegration } from './NewCustomIntegration';
 import { type IntegrationStatus, useIntegrationStatus } from './useIntegrationStatus';
 
 const useCategoryLabel = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.category' });
 
-  return (category: TIntegrationCategory) =>
+  return (category: Category) =>
     ({
       email: t('email', 'Email'),
       messaging: t('messaging', 'Messaging'),
       payments: t('payments', 'Payments'),
       tax: t('tax', 'Tax receipts'),
+      custom: t('custom', 'Custom'),
     })[category];
 };
 
@@ -123,8 +123,8 @@ const Filters = ({
   onChange,
 }: {
   search: string;
-  category: TIntegrationCategory | null;
-  onChange: (next: { q?: string | null; category?: TIntegrationCategory | null }) => void;
+  category: Category | null;
+  onChange: (next: { q?: string | null; category?: Category | null }) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const categoryLabel = useCategoryLabel();
@@ -149,11 +149,11 @@ const Filters = ({
         aria-label={t('categories', 'Categories')}
         value={[category ?? 'all']}
         onValueChange={([next]) =>
-          onChange({ category: INTEGRATION_CATEGORIES.find((item) => item === next) ?? null })
+          onChange({ category: CATEGORIES.find((item) => item === next) ?? null })
         }
       >
         <ToggleGroup.Item value="all">{t('all', 'All')}</ToggleGroup.Item>
-        {INTEGRATION_CATEGORIES.map((item) => (
+        {CATEGORIES.map((item) => (
           <ToggleGroup.Item key={item} value={item}>
             {categoryLabel(item)}
           </ToggleGroup.Item>
@@ -164,12 +164,13 @@ const Filters = ({
 };
 
 /** The catalog cut by the search and category, then into connected, local and other regions. */
-const useSections = (search: string, category: TIntegrationCategory | null) => {
+const useSections = (search: string, category: Category | null) => {
   const { country } = useSession().organization;
-  const { statusOf, error, refetch } = useIntegrationStatus();
+  const status = useIntegrationStatus();
+  const { statusOf } = status;
   const categoryLabel = useCategoryLabel();
   const textOf = useIntegrationText();
-  const { integrations } = useIntegrations();
+  const { integrations, ...custom } = useIntegrations();
   const needle = search.trim().toLocaleLowerCase();
 
   const matches = (integration: Integration) => {
@@ -191,8 +192,8 @@ const useSections = (search: string, category: TIntegrationCategory | null) => {
 
   return {
     statusOf,
-    error,
-    refetch,
+    error: status.error ?? custom.error,
+    refetch: () => Promise.all([status.refetch(), custom.refetch()]),
     shown,
     connected: shown.filter(isSetUp),
     available: shown.filter((integration) => !isSetUp(integration) && local(integration)),
@@ -205,7 +206,7 @@ const Catalog = () => {
 
   const [params, setParams] = useQueryStates({
     q: parseAsString,
-    category: parseAsStringLiteral(INTEGRATION_CATEGORIES),
+    category: parseAsStringLiteral(CATEGORIES),
   });
 
   const search = params.q ?? '';
@@ -213,14 +214,17 @@ const Catalog = () => {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <div className="space-y-1">
-        <h1 className="text-lg font-semibold">{t('title', 'Integrations')}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t(
-            'intro',
-            'Connect the services your organisation works with. Each one runs for all your plugins.',
-          )}
-        </p>
+      <div className="flex flex-wrap items-start gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
+          <h1 className="text-lg font-semibold">{t('title', 'Integrations')}</h1>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              'intro',
+              'Connect the services your organisation works with. Each one runs for all your plugins.',
+            )}
+          </p>
+        </div>
+        <NewCustomIntegration />
       </div>
       <Filters
         search={search}

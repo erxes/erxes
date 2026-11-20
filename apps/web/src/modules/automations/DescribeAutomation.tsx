@@ -1,29 +1,8 @@
 import { IconSparkles } from '@tabler/icons-react';
 import { Button, Dialog, Textarea } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { type SyntheticEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  assistantAskState,
-  assistantOpenState,
-  newChatAction,
-} from '~/modules/assistant/assistantState';
-import { useCan } from '~/modules/auth/session';
-
-const useAskAssistant = () => {
-  const allowed = useCan()('assistant.chat');
-  const setAsk = useSetAtom(assistantAskState);
-  const setOpen = useSetAtom(assistantOpenState);
-  const newChat = useSetAtom(newChatAction);
-
-  const ask = (text: string) => {
-    newChat();
-    setAsk(text);
-    setOpen(true);
-  };
-
-  return allowed ? ask : null;
-};
+import { useAskAssistant } from '~/modules/assistant/useAskAssistant';
 
 export const DescribeAutomation = () => {
   const { t } = useTranslation('automations');

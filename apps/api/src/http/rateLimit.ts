@@ -104,6 +104,13 @@ export const createRateLimits = () => ({
         `plugin-public:${ip(req)}:${String(req.params.name)}:${String(req.params.orgId)}`,
     }),
   ],
+  integrationIncoming: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 600,
+      key: (req) => `integration-incoming:${ip(req)}:${String(req.params.id)}`,
+    }),
+  ],
   /** Uploads through signed links: 120 a minute per address. */
   upload: rateLimit({
     windowSeconds: 60,

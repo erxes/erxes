@@ -23,6 +23,7 @@ import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
+import { integrationsContract } from './integrations';
 import { rolesContract } from './roles';
 import { searchContract } from './search';
 import { tagsContract } from './tags';
@@ -69,6 +70,7 @@ export type CoreContract = {
   search: typeof searchContract;
   suppressions: typeof suppressionsContract;
   tags: typeof tagsContract;
+  integrations: typeof integrationsContract;
   units: typeof unitsContract;
   unitTypes: typeof unitTypesContract;
   trash: typeof trashContract;
@@ -112,6 +114,7 @@ export const coreContract: CoreContract = {
   search: searchContract,
   suppressions: suppressionsContract,
   tags: tagsContract,
+  integrations: integrationsContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
   trash: trashContract,
@@ -222,6 +225,10 @@ export * from './saas';
 export * from './search';
 
 export * from './tags';
+
+export * from './integrations';
+
+export * from './integrationValues';
 
 export * from './units';
 
