@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-11-20`
 
 ## Scope
 
@@ -27,6 +27,8 @@
 - Stores exchange-rate rows in the tenant-scoped `exchange_rates` Mongo collection, one document per `date + mainCurrency + rateCurrency`.
 - Resolves active exchange rates by selecting the latest row whose `date` is less than or equal to the requested date.
 - Provides ebarimt, product-place, config, Erkhet sync-log, and MS Dynamic backend capabilities through plugin-owned modules.
+- The eBarimt before-resolver hook checks company codes on company create/edit;
+  sales deal create/edit does not perform an eBarimt company lookup.
 - Provides `erkhetRemainders` for callers that need Erkhet stock by product ids
   and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
@@ -92,6 +94,8 @@
   should be exposed through explicit remainder query responses.
 - Missing Erkhet stock entries return a zero remainder; never substitute test
   stock values or log product query counts in the remainder resolver.
+- Keep sales deal saves out of the eBarimt before-resolver registration;
+  company-code checks remain registered for `companiesAdd` and `companiesEdit`.
 
 ## Validation
 
@@ -100,3 +104,5 @@
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
 - Smoke scenario: create or upsert exchange-rate rows for multiple foreign currencies on the same date, then call `exchangeRates.getActiveRate` with a `Date` and verify the latest matching row is returned.
 - Product places smoke scenario: move a deal with products into a configured product-place stage and verify split/place/print runs once, while a non-stage deal edit does not trigger product-place side effects.
+- eBarimt hook smoke scenario: save a deal with many products and verify no
+  eBarimt company lookup runs; company create/edit still checks company codes.
