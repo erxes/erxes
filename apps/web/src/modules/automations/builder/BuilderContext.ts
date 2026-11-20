@@ -8,6 +8,8 @@ export type StartingEvent = {
   source: string;
   record?: string | null;
   fields: DataField[];
+  /** One has happened here, so erxes knows what it carries. */
+  seen?: boolean;
 };
 
 /** What the builder needs everywhere: event types (for waits) and how each step did (last 30 days). */

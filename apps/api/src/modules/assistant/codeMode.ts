@@ -1,7 +1,4 @@
-import {
-  ASSISTANT_PROGRAM_FAILURES,
-  ASSISTANT_PROGRAM_HOST_FUNCTIONS,
-} from '@erxes/core-db/assistantEnums';
+import { ASSISTANT_PROGRAM_FAILURES } from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 import { logger } from '~/logger';
 import type { HostAnswer, ProgramJob } from './codeMode.worker';
@@ -39,7 +36,7 @@ const FromProgram = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('call'),
     id: z.int(),
-    name: z.enum(ASSISTANT_PROGRAM_HOST_FUNCTIONS),
+    name: z.string(),
     args: z.array(z.string()),
   }),
   z.object({ type: z.literal('done'), result: ProgramResult }),
@@ -48,9 +45,13 @@ const FromProgram = z.discriminatedUnion('type', [
 
 export type FromProgram = z.infer<typeof FromProgram>;
 
-type HostName = (typeof ASSISTANT_PROGRAM_HOST_FUNCTIONS)[number];
+type Host = Record<string, (args: string[]) => Promise<unknown>>;
 
-type Host = Record<HostName, (args: string[]) => Promise<unknown>>;
+export interface Program {
+  code: string;
+  prelude: string;
+  host: Host;
+}
 
 const log = logger.child({ component: 'assistant' });
 
@@ -78,7 +79,7 @@ const FAILED: ProgramResult = { ok: false, code: 'PROGRAM_ERROR', message: 'The 
 const answerCall = async (
   host: Host,
   budget: { calls: number },
-  name: HostName,
+  name: string,
   args: string[],
 ): Promise<HostAnswer['answer']> => {
   budget.calls += 1;
@@ -87,8 +88,12 @@ const answerCall = async (
     return { ok: true, json: JSON.stringify(refusal('TOO_MANY_CALLS', 'Too many API calls')) };
   }
 
+  const call = Object.hasOwn(host, name) ? host[name] : undefined;
+
+  if (!call) return { ok: false, message: 'The call failed' };
+
   try {
-    return { ok: true, json: JSON.stringify((await host[name](args)) ?? null) };
+    return { ok: true, json: JSON.stringify((await call(args)) ?? null) };
   } catch (error) {
     log.warn({ err: error, call: name }, 'code mode: a host call failed');
 
@@ -124,13 +129,18 @@ const resultOf = (end: WorkerEnd<ProgramResult>) => {
   return end.ended === 'out-of-memory' ? OUT_OF_MEMORY : FAILED;
 };
 
-export const runProgram = async (code: string, host: Host) => {
-  const granted = await gate.acquire(AbortSignal.timeout(CODE_LIMITS.timeMs));
+export const runProgram = async (
+  { code, prelude, host }: Program,
+  runs: ReturnType<typeof workerGate> = gate,
+) => {
+  const granted = await runs.acquire(AbortSignal.timeout(CODE_LIMITS.timeMs));
 
   if (granted !== 'granted') return BUSY;
 
   const job: ProgramJob = {
     code,
+    prelude,
+    hosts: Object.keys(host),
     memoryBytes: CODE_LIMITS.memoryBytes,
     stackBytes: CODE_LIMITS.stackBytes,
     outputChars: CODE_LIMITS.outputChars,
@@ -140,7 +150,7 @@ export const runProgram = async (code: string, host: Host) => {
     'codeMode.worker',
     { data: job, heapMb: WORKER_HEAP_MB, signal: AbortSignal.timeout(CODE_LIMITS.timeMs) },
     conversation(host),
-  ).finally(gate.release);
+  ).finally(runs.release);
 
   return resultOf(end);
 };

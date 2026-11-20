@@ -43,6 +43,10 @@ export const useIntegrationStatus = () => {
       return { state: email.data ? 'connected' : 'not-set-up' };
     }
 
+    if (integration.kind === 'custom') {
+      return { state: integration.record.sealedNames.length ? 'connected' : 'not-set-up' };
+    }
+
     if (integration.kind === 'ebarimt') {
       if (!ebarimt.isSuccess) return null;
 

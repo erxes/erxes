@@ -72,6 +72,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     message: 'A company with this name already exists',
   },
   core_tags_org_type_name_key: { field: 'name', message: 'A tag with this name already exists' },
+  core_integrations_org_key_key: {
+    field: 'key',
+    message: 'An integration with this key already exists',
+  },
   core_email_senders_org_email_key: { field: 'email', message: 'This address is a sender already' },
   core_lead_stages_org_name_key: {
     field: 'name',
