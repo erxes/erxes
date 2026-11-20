@@ -1,5 +1,5 @@
 import { TR_STATUSES } from '../../../types/constants';
-import { getTrWorkflowActions } from '../statusWorkflow';
+import { getTrWorkflowActions, isAddressedTrStatus } from '../statusWorkflow';
 
 const keys = (actions: { key: string }[]) => actions.map(({ key }) => key);
 
@@ -8,6 +8,16 @@ const mentioned = {
   mentionOwnerId: 'owner',
   mentionUserIds: ['approver'],
 };
+
+describe('isAddressedTrStatus', () => {
+  it('shows the mention list only for statuses handed to someone', () => {
+    expect(isAddressedTrStatus(TR_STATUSES.MENTIONED)).toBe(true);
+    expect(isAddressedTrStatus(TR_STATUSES.RETURNED)).toBe(true);
+    expect(isAddressedTrStatus(TR_STATUSES.APPROVED)).toBe(false);
+    expect(isAddressedTrStatus(TR_STATUSES.COMPLETE)).toBe(false);
+    expect(isAddressedTrStatus(undefined)).toBe(false);
+  });
+});
 
 describe('getTrWorkflowActions', () => {
   it('shows approve and reject to a mentioned approver, with forward and return under More', () => {

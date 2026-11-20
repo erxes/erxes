@@ -49,6 +49,12 @@ export const isMentionResponder = ({
 }: TWorkflowParams) =>
   !!currentUserId && unique(mentionUserIds).includes(currentUserId);
 
+/** Statuses that hand the transaction to the users in `mentionUserIds`. */
+const ADDRESSED_STATUS_VALUES = [TR_STATUSES.MENTIONED, TR_STATUSES.RETURNED];
+
+export const isAddressedTrStatus = (status?: string) =>
+  !!status && ADDRESSED_STATUS_VALUES.includes(status);
+
 const OWNER_STATUS_VALUES = [
   TR_STATUSES.DRAFT,
   TR_STATUSES.MENTIONED,

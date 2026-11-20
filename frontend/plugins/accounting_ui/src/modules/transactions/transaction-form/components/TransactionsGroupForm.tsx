@@ -32,6 +32,7 @@ import { cleanTrDocs, isHiddenTransaction } from './utils';
 import {
   getAvailableTrStatusOptions,
   getNextMentionFields,
+  isAddressedTrStatus,
   TTrWorkflowFields,
 } from '../utils/statusWorkflow';
 import { TrWorkflowActions } from './TrWorkflowActions';
@@ -176,23 +177,27 @@ const FormFields = memo(
             </Form.Item>
           )}
         />
-        <Form.Field
-          control={form.control}
-          name="mentionUserIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('approve')}</Form.Label>
-              <Form.Control>
-                <SelectMember.FormItem
-                  onValueChange={(users) => field.onChange(users || [])}
-                  value={field.value}
-                  mode="multiple"
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        {/* Only statuses addressed to someone show the mention list; the
+            saved values stay in the form so other saves keep them. */}
+        {isAddressedTrStatus(status) && (
+          <Form.Field
+            control={form.control}
+            name="mentionUserIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('approve')}</Form.Label>
+                <Form.Control>
+                  <SelectMember.FormItem
+                    onValueChange={(users) => field.onChange(users || [])}
+                    value={field.value}
+                    mode="multiple"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
       </div>
     );
   },
