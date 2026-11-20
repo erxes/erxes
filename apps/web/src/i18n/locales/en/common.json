@@ -126,6 +126,7 @@
     "assistant-keys": "Provider keys",
     "assistant-code-mode": "Code mode",
     "assistant-appearance": "Appearance",
+    "email-sending": "Email sending",
     "integrations": "Integrations"
   },
   "auth": {

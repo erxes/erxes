@@ -72,8 +72,8 @@ const { INVALID_URL } = ERRORS;
 const base = oc.errors({ ...COMMON_ERRORS, INVALID_URL });
 
 /**
- * How the organisation sends its emails (Settings › Integrations › Email
- * sending, `integrations.manage`): invitations, password resets,
+ * How the organisation sends its emails (Settings › Email sending,
+ * `integrations.manage`): invitations, password resets,
  * notifications, automations and broadcasts all go out from its own address
  * through its SMTP server, SendGrid or Amazon SES. Without settings they go
  * through the server's (`EMAIL_SMTP_URL`). The secret is never sent back.
