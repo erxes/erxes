@@ -25,6 +25,8 @@ const PAGING_PARAMS = new Set([
   'orderBy',
 ]);
 
+const DATE_FIELDS = ['date', 'createdAt', 'updatedAt'];
+
 type TStructure = { _id: string; code?: string; title?: string };
 
 type TPtrMember = {
@@ -226,6 +228,16 @@ const toListParams = (
 const toCountParams = (filter: Record<string, unknown> | undefined) =>
   ({ ...withoutPaging(filter), limit: 1 } as TTrRecordListParams);
 
+const withDateFields = (doc: Record<string, unknown>) => ({
+  ...doc,
+  ...Object.fromEntries(
+    DATE_FIELDS.filter((field) => doc[field]).map((field) => [
+      field,
+      new Date(doc[field] as string | number | Date),
+    ]),
+  ),
+});
+
 const findActiveUser = async (
   subdomain: string,
   userId: string,
@@ -272,7 +284,7 @@ export const getListFilterMatches = async ({
 
   const matches = sift(filterParams);
   const anyMatch = (docs: TChangedDoc[]) =>
-    docs.some((doc) => !!doc && matches(doc));
+    docs.some((doc) => !!doc && matches(withDateFields(doc)));
 
   return { matchesOld: anyMatch(oldDocs), matchesNew: anyMatch(newDocs) };
 };
