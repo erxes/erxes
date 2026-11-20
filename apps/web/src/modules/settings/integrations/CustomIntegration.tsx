@@ -52,7 +52,7 @@ const DetailsForm = ({ record }: { record: CustomRecord }) => {
           onChange={(event) => setDraft({ ...draft, name: event.target.value })}
         />
       </div>
-      <HostsField hosts={hosts} onChange={(next) => setDraft({ ...draft, hosts: next })} />
+      <HostsField hosts={hosts} hadHosts onChange={(next) => setDraft({ ...draft, hosts: next })} />
       <div className="flex justify-end">
         <Button
           disabled={!changed || !name.trim() || !!hostsProblem(hosts) || update.isPending}

@@ -1578,6 +1578,7 @@
       "hosts": "Allowed hosts",
       "hosts-placeholder": "api.example.com",
       "hosts-hint": "Programs may call only these hosts. Press Enter after each one.",
+      "hosts-none": "Add at least one host.",
       "hosts-many": "At most {{count}} hosts.",
       "hosts-invalid": "Each host is a name like api.example.com, without https://.",
       "created": "Integration added",

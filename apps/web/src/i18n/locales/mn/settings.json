@@ -1563,6 +1563,7 @@
       "hosts": "Зөвшөөрсөн хостууд",
       "hosts-placeholder": "api.example.com",
       "hosts-hint": "Програмууд зөвхөн эдгээр хост руу хандана. Хост бүрийн дараа Enter дарна.",
+      "hosts-none": "Дор хаяж нэг хост нэмнэ үү.",
       "hosts-many": "Хамгийн ихдээ {{count}} хост.",
       "hosts-invalid": "Хост бүр api.example.com шиг нэр байна, https:// гүйгээр.",
       "created": "Интеграц нэмэгдлээ",

@@ -37,21 +37,26 @@ export const hostsProblem = (hosts: string[]): HostsProblem | null => {
 
 export const HostsField = ({
   hosts,
+  hadHosts = false,
   onChange,
 }: {
   hosts: string[];
+  hadHosts?: boolean;
   onChange: (hosts: string[]) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
   const id = useId();
   const problem = hostsProblem(hosts);
 
-  const message =
-    problem?.code === 'many'
-      ? t('hosts-many', 'At most {{count}} hosts.', { count: problem.max })
-      : problem?.code === 'invalid'
-        ? t('hosts-invalid', 'Each host is a name like api.example.com, without https://.')
-        : null;
+  const messages = {
+    none: hadHosts ? t('hosts-none', 'Add at least one host.') : null,
+    many: t('hosts-many', 'At most {{count}} hosts.', {
+      count: problem?.code === 'many' ? problem.max : 0,
+    }),
+    invalid: t('hosts-invalid', 'Each host is a name like api.example.com, without https://.'),
+  };
+
+  const message = problem ? messages[problem.code] : null;
 
   return (
     <div className="space-y-1.5">

@@ -253,3 +253,31 @@ test("a custom integration's event starts an automation and its action runs as a
 
   expect(detail.steps[0]?.output).toEqual({ berth: 'B-boat_42' });
 });
+
+test('a name of 100 letters keeps the delete dialog usable, and no hosts says why it cannot save', async ({
+  page,
+  api,
+}) => {
+  const key = `long_${unique()}`;
+
+  await api.integrations.create({ key, name: 'V'.repeat(100), hosts: ['api.long.test'] });
+  await page.goto(`/settings/integrations/custom.${key}?tab=overview`);
+
+  const heading = await page.getByRole('heading', { level: 1 }).boundingBox();
+  const viewport = page.viewportSize();
+
+  expect((heading?.x ?? 0) + (heading?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+
+  await page.getByPlaceholder('api.example.com').press('Backspace');
+  await expect(page.getByText('Add at least one host.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+  await page.getByRole('button', { name: 'Delete', exact: true }).click();
+
+  const dialog = page.getByRole('alertdialog');
+
+  await expect(dialog.getByRole('button', { name: confirm })).toBeInViewport({ ratio: 1 });
+  await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeInViewport({ ratio: 1 });
+  await dialog.getByRole('button', { name: confirm }).click();
+  await expect(page).toHaveURL(/\/settings\/integrations$/);
+});
