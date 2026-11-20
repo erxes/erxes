@@ -3,6 +3,7 @@ import { QueryObserver, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
+import { useNotificationText } from './notificationText';
 import { useNotificationSettings } from './useNotifications';
 
 export const desktopSupported = () => typeof window !== 'undefined' && 'Notification' in window;
@@ -45,6 +46,10 @@ export const useDesktopNotifications = () => {
   const enabled =
     Boolean(settings?.browser) && desktopSupported() && Notification.permission === 'granted';
 
+  const text = useNotificationText();
+  // The member's language now, not the one in use when the popups were turned on.
+  const shown = useEffectEvent(text);
+
   // The latest navigate, so moving between pages keeps the popups open.
   const open = useEffectEvent((link: string) => {
     window.focus();
@@ -82,7 +87,13 @@ export const useDesktopNotifications = () => {
 
         if (document.visibilityState === 'visible') continue;
 
-        popups.add(popUp(item, () => open(item.link ?? paths.notifications), clicks.signal));
+        popups.add(
+          popUp(
+            { id: item.id, ...shown(item) },
+            () => open(item.link ?? paths.notifications),
+            clicks.signal,
+          ),
+        );
       }
     });
 

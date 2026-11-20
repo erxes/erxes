@@ -140,7 +140,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      plugin's `name` and the key is the English text, which shows when no translation is there.
      The manifest's `translations` (`PluginTranslations`, `packages/contract/src/pluginTranslations.ts`)
      add words to that namespace per language, for what core shows from the manifest (the title,
-     activity and timeline labels) as well as from the config. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     activity and timeline labels) as well as from the config. A notification is read in the
+     member's language the same way when the plugin sends `data.text` (`NotificationText`,
+     `packages/contract/src/pluginTranslations.ts`): the English title and body with their values left
+     out, which are the keys, and the values
+     (`apps/web/src/modules/notifications/notificationText.ts`). Its `title` and `body` stay ready
+     to read in English, for email. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own. `open`'s
      `tab` (a type's tab `value`, `detail` or `activity`; anything else opens the default) and a
