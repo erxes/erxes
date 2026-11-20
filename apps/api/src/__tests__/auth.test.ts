@@ -1,11 +1,14 @@
+import { rateLimits, users } from '@erxes/core-db';
 import type { ORPCError } from '@orpc/client';
+import { hash } from 'bcryptjs';
+import { eq } from 'drizzle-orm';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-import { hashPassword } from '~/lib/crypto';
+import { hashPassword, sha256 } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
 import { settle } from './settle';
 
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 /** How a call failed, or null when it didn't. */
@@ -20,6 +23,17 @@ const failure = (call: Promise<unknown>) =>
   );
 
 const OWNER = { email: 'owner@acme.mn', password: 'correct horse' };
+
+const LEGACY_PASSWORD = 'Legacy-pass-1';
+
+const storedHash = async (email: string) => {
+  const [row] = await adminDb()
+    .select({ passwordHash: users.passwordHash })
+    .from(users)
+    .where(eq(users.email, email));
+
+  return row?.passwordHash;
+};
 
 /** In hours. */
 const THIRTY_DAYS = 30 * 24;
@@ -136,6 +150,50 @@ describe('sign-in (/core/v1/auth)', () => {
     expect(await failure(wrongPassword('nobody@acme.mn'))).toEqual(wrong);
   });
 
+  it.each([
+    { format: 'argon2id', stored: () => hashPassword(LEGACY_PASSWORD), kept: true },
+    // What core stored before argon2id: scrypt with N=16384, r=8, p=1.
+    {
+      format: 'scrypt',
+      stored: async () =>
+        'scrypt$16384$8$1$TeMdrIJLDPUw2xLyh9yiFA$eXxsgXrYwUQ_9GBp1Bpxeq_Tvc3K5eG1Y8UP7hLEGWavCOTIKvqW9koDP3dTZOWIDQ3Pccqht2Pl_p3S7t9Lkg',
+      kept: false,
+    },
+    // Old erxes: bcrypt, cost 10, of the password's hex SHA-256.
+    { format: 'bcrypt', stored: () => hash(sha256(LEGACY_PASSWORD), 10), kept: false },
+  ])(
+    'signs in with a $format hash, refuses a wrong password and leaves argon2id stored',
+    async ({ format, stored, kept }) => {
+      const email = `owner@${format}.mn`;
+      const before = await stored();
+
+      await createOrganization({
+        subdomain: format,
+        name: format,
+        owner: { email, passwordHash: before },
+      });
+
+      expect(await failure(wrongPassword(email))).toMatchObject({ status: 401 });
+      expect(await storedHash(email)).toBe(before);
+
+      expect(
+        await server.browser().api.auth.signIn({ email, password: LEGACY_PASSWORD }),
+      ).toMatchObject({ user: { email } });
+
+      const after = await storedHash(email);
+
+      expect(after).toMatch(/^\$argon2id\$v=19\$m=19456,t=2,p=1\$[\w+/]{22}\$[\w+/]{43}$/);
+      // A current hash is not rewritten.
+      expect(after === before).toBe(kept);
+      // The re-saved hash signs in too.
+      expect(
+        await failure(server.browser().api.auth.signIn({ email, password: LEGACY_PASSWORD })),
+      ).toBeNull();
+      // These sign-ins don't count against the rest of the file's 20 a minute.
+      await adminDb().delete(rateLimits);
+    },
+  );
+
   it('asks for the organisation when the email exists in several', async () => {
     await expect(
       server.browser().api.auth.signIn({ email: 'shared@x.mn', password: 'pw-globex' }),
@@ -150,10 +208,10 @@ describe('sign-in (/core/v1/auth)', () => {
 
   it('blocks cookie-signed changes from other sites, not reads', async () => {
     const cookie = (await signedIn()).cookie();
-    const users = server.url('/core/v1/users');
+    const usersUrl = server.url('/core/v1/users');
 
     const invite = (site: string, email: string) =>
-      fetch(users, {
+      fetch(usersUrl, {
         method: 'POST',
         headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': site },
         body: JSON.stringify({ email }),
@@ -162,7 +220,7 @@ describe('sign-in (/core/v1/auth)', () => {
     expect((await invite('cross-site', 'evil@acme.mn')).status).toBe(403);
     expect((await invite('same-origin', 'good@acme.mn')).status).toBe(201);
     expect(
-      (await fetch(users, { headers: { cookie, 'sec-fetch-site': 'cross-site' } })).status,
+      (await fetch(usersUrl, { headers: { cookie, 'sec-fetch-site': 'cross-site' } })).status,
     ).toBe(200);
   });
 
