@@ -15,7 +15,7 @@ on:
         type: string
         required: true
       shards:
-        description: Runners a branch run splits the files across (a pull request uses one).
+        description: Most runners a run splits the files across; a pull request takes one for every 5 files it changes.
         type: number
         default: 4
       timeout-minutes:
@@ -70,7 +70,8 @@ jobs:
         run: node .erxes-mutation/tools/mutation/plan.ts
         env:
           MUTATE: ${{ inputs.mutate }}
-          SHARDS: ${{ env.MODE == 'pr' && 1 || inputs.shards }}
+          SHARDS: ${{ inputs.shards }}
+          FILES_PER_SHARD: ${{ env.MODE == 'pr' && '5' || '' }}
           CHANGED_FILES: ${{ env.MODE == 'pr' && format('{0}/changed.txt', runner.temp) || '' }}
 
   mutate:

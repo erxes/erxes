@@ -23,7 +23,9 @@ const files = changedList
   ? lines(readFileSync(changedList, 'utf8')).filter(mutated)
   : globSync(include, { exclude }).filter(mutated);
 
-const shardCount = Math.max(1, Math.min(Number(process.env.SHARDS ?? '1'), files.length));
+const perShard = Number(process.env.FILES_PER_SHARD ?? '0');
+const wanted = perShard > 0 ? Math.ceil(files.length / perShard) : files.length;
+const shardCount = Math.max(1, Math.min(Number(process.env.SHARDS ?? '1'), wanted));
 
 const newShard = (shard: number) => ({ shard, size: 0, files: new Array<string>() });
 
