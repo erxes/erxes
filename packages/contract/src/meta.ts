@@ -119,6 +119,7 @@ const MetaImportConnection = z.object({
   app: z.enum(META_APP_SOURCES),
   status: z.enum(META_CONNECTION_STATUSES).default('healthy'),
   statusReason: z.string().max(1000).nullish(),
+  connectedBy: Id.nullish(),
 });
 
 const MetaImportPerson = z.object({
@@ -226,8 +227,16 @@ export const metaContract = {
       method: 'POST',
       path: '/meta/import',
       summary:
-        "Bring in an app, connections and people's customers from another erxes Meta integration: tokens are sealed here, a connection already here is updated",
+        "Bring in an app, connections and people's customers from another erxes Meta integration: tokens are sealed here, a connection already here is updated. In the same transaction the calling plugin's saved automations move to core: its <plugin>.facebook|instagram.message_received|comment_received triggers become core's Meta events, its <plugin>.facebook|instagram.reply steps send_message or reply_to_comment by the trigger, input message becomes text and {{event.payload.content}} {{event.payload.text}}; an active one publishes the result as a new version. placeholdersLeft counts conversationId and integrationId placeholders core has no value for, stepsLeft reply steps under another trigger",
     })
     .input(MetaImportInput)
-    .output(z.object({ connections: z.int(), people: z.int() })),
+    .output(
+      z.object({
+        connections: z.int(),
+        people: z.int(),
+        automations: z.int(),
+        placeholdersLeft: z.int(),
+        stepsLeft: z.int(),
+      }),
+    ),
 };

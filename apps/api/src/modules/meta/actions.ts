@@ -14,6 +14,11 @@ import { sendOnce } from './send';
 
 const REPLY_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+export const META_REPLIES = {
+  facebook: { message: 'core.messenger.send_message', comment: 'core.facebook.reply_to_comment' },
+  instagram: { message: 'core.instagram.send_message', comment: 'core.instagram.reply_to_comment' },
+} as const satisfies Record<MetaKind, Record<'message' | 'comment', string>>;
+
 const Trigger = z.object({
   event: z.object({ payload: z.record(z.string(), z.unknown()) }).optional(),
 });
@@ -118,7 +123,7 @@ const commentFields = (kind: MetaKind): ActionField[] => [
 
 export const META_ACTIONS: CoreAction[] = [
   {
-    type: 'core.messenger.send_message',
+    type: META_REPLIES.facebook.message,
     label: 'Send a Messenger message',
     description: 'As a connected Facebook page, to the person who wrote unless you name another',
     subject: null,
@@ -127,7 +132,7 @@ export const META_ACTIONS: CoreAction[] = [
     call: sendMessage('facebook'),
   },
   {
-    type: 'core.facebook.reply_to_comment',
+    type: META_REPLIES.facebook.comment,
     label: 'Reply to the comment',
     description: "As the page, under a person's comment on its post",
     subject: null,
@@ -155,7 +160,7 @@ export const META_ACTIONS: CoreAction[] = [
     },
   },
   {
-    type: 'core.instagram.send_message',
+    type: META_REPLIES.instagram.message,
     label: 'Send an Instagram message',
     description:
       'As a connected Instagram account, to the person who wrote unless you name another',
@@ -165,7 +170,7 @@ export const META_ACTIONS: CoreAction[] = [
     call: sendMessage('instagram'),
   },
   {
-    type: 'core.instagram.reply_to_comment',
+    type: META_REPLIES.instagram.comment,
     label: 'Reply to the comment',
     description: "As the account, under a person's comment on its post",
     subject: null,

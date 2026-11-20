@@ -1,11 +1,12 @@
 import type { MetaGraphInput, MetaImportInput } from '@erxes/core-contract';
-import { type Db, metaConnections, metaPeople, newId } from '@erxes/core-db';
+import { caller, type Db, metaConnections, metaPeople, newId } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import type { z } from 'zod';
 import { fail } from '~/http/errors';
 import { seal } from '~/lib/secrets';
 import { inOrder } from '~/lib/sequence';
 import { saveApp } from './app.service';
+import { moveAutomations } from './automationMove';
 import { type ConnectionRow, openConnection } from './connections.service';
 import { graphCall } from './graph';
 
@@ -56,6 +57,7 @@ export const importMeta = async (client: Db, input: z.infer<typeof MetaImportInp
       app: connection.app,
       status: connection.status,
       statusReason: connection.statusReason ?? null,
+      connectedBy: connection.connectedBy ?? null,
       updatedAt: sql`now()`,
     };
 
@@ -77,5 +79,7 @@ export const importMeta = async (client: Db, input: z.infer<typeof MetaImportInp
         set: { customerId: sql`excluded.customer_id` },
       });
 
-  return { connections: input.connections.length, people: input.people.length };
+  const moved = await moveAutomations(client, caller('plugin').plugin);
+
+  return { connections: input.connections.length, people: input.people.length, ...moved };
 };
