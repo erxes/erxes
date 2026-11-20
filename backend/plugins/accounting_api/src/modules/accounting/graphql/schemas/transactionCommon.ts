@@ -157,6 +157,20 @@ export const types = () => `
     totalCount: Int,
   }
 
+  type AccTransactionsListChange {
+    trIds: [String]
+    list: [AccCommonTransaction]
+    hasMore: Boolean
+    totalCount: Int
+  }
+
+  type AccTrRecordsListChange {
+    trIds: [String]
+    list: [AccCommonTrRecord]
+    hasMore: Boolean
+    totalCount: Int
+  }
+
   input CommonTrDetailInput {
     ${trDetailFields}
   }
