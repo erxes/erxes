@@ -85,6 +85,9 @@ const TriggerGroup = ({
   );
 };
 
+const isEventText = (field: FieldInfo) =>
+  field.path.startsWith('event.payload.') && !field.recordType;
+
 /**
  * What a step can insert, searchable: the trigger's own values first, then the customer or
  * company runs are about, then earlier steps' results, then the time.
@@ -106,7 +109,7 @@ const DataPicker = ({
     ? fields.filter((field) => field.path.startsWith('subject.') && !field.conditionsOnly)
     : [];
 
-  const own = fields.filter((field) => field.path.startsWith('event.payload.'));
+  const own = fields.filter(isEventText);
   const steps = fields.filter((field) => field.path.startsWith('steps.'));
   const RecordIcon = subject === 'company' ? IconBuilding : IconUser;
 
