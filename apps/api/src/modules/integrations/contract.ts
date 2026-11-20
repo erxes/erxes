@@ -68,6 +68,22 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+const isBlank = (value: unknown) => value === undefined || value === null || value === '';
+
+const isNumber = (value: unknown) =>
+  typeof value === 'number'
+    ? Number.isFinite(value)
+    : typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value));
+
+const problemOf = (field: Program['fields'][number], value: unknown) => {
+  if (isBlank(value)) return field.required ? `${field.label} is required` : null;
+
+  return field.type === 'number' && !isNumber(value) ? `${field.label} must be a number` : null;
+};
+
+export const inputProblem = (program: Program, input: Record<string, unknown>) =>
+  program.fields.map((field) => problemOf(field, input[field.key])).find(Boolean) ?? null;
+
 export const healedOutputs = (program: Program, result: unknown) => {
   if (!isRecord(result)) return null;
 

@@ -254,19 +254,22 @@ test("a custom integration's event starts an automation and its action runs as a
   expect(detail.steps[0]?.output).toEqual({ berth: 'B-boat_42' });
 });
 
-test('a name of 100 letters keeps the delete dialog usable, and no hosts says why it cannot save', async ({
+test('on a phone a name of 100 letters stays on the page and in the delete dialog, and no hosts says why it cannot save', async ({
   page,
   api,
 }) => {
   const key = `long_${unique()}`;
+  const width = 390;
 
   await api.integrations.create({ key, name: 'V'.repeat(100), hosts: ['api.long.test'] });
+  await page.setViewportSize({ width, height: 844 });
   await page.goto(`/settings/integrations/custom.${key}?tab=overview`);
 
   const heading = await page.getByRole('heading', { level: 1 }).boundingBox();
-  const viewport = page.viewportSize();
+  const save = await page.getByRole('button', { name: 'Save changes' }).boundingBox();
 
-  expect((heading?.x ?? 0) + (heading?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+  expect((heading?.x ?? width) + (heading?.width ?? width)).toBeLessThanOrEqual(width);
+  expect((save?.x ?? width) + (save?.width ?? width)).toBeLessThanOrEqual(width);
 
   await page.getByPlaceholder('api.example.com').press('Backspace');
   await expect(page.getByText('Add at least one host.')).toBeVisible();

@@ -98,7 +98,7 @@ export const IntegrationLayout = ({
           />
         </PageHeader.Start>
       </PageHeader>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" fitWidth>
         <div className="mx-auto max-w-4xl space-y-6 p-6">
           <IntegrationHeader integration={integration} actions={actions} />
           <Tabs value={current?.value} onValueChange={onTab}>

@@ -55,7 +55,7 @@ const Fields = ({ title, fields }: { title: string; fields: ProgramField[] }) =>
 };
 
 const Copyable = ({ value }: { value: string }) => (
-  <CopyText value={value} className="max-w-full">
+  <CopyText value={value} className="max-w-full text-left">
     <code className="font-mono text-xs break-all">{value}</code>
   </CopyText>
 );

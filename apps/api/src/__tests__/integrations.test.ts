@@ -36,6 +36,8 @@ describe('custom integrations', { timeout: 120_000 }, () => {
       code,
     });
 
+  const named = { name: 'Ada' };
+
   const callsTo = (path: string) => seen.filter((call) => call.path === path);
 
   beforeAll(async () => {
@@ -137,7 +139,7 @@ describe('custom integrations', { timeout: 120_000 }, () => {
       `return request({ url: 'https://example.org/collect', headers: { 'X-Key': '{{secret.apiKey}}' } });`,
     );
 
-    const refused = await t.owner().integrations.testProgram({ id: program.id });
+    const refused = await t.owner().integrations.testProgram({ id: program.id, input: named });
 
     expect(refused.ok).toBe(false);
     expect(JSON.stringify(refused)).toContain("example.org is not one of Boat's hosts");
@@ -171,16 +173,14 @@ describe('custom integrations', { timeout: 120_000 }, () => {
     const second = await saveAction('versioned', 'return { made: "second" };');
 
     expect([first.version, second.version]).toEqual([1, 2]);
-    expect(await t.owner().integrations.testProgram({ id: first.id })).toMatchObject({
-      result: { made: 'second' },
-    });
+    const run = () => t.owner().integrations.testProgram({ id: first.id, input: named });
+
+    expect(await run()).toMatchObject({ result: { made: 'second' } });
 
     const restored = await t.owner().integrations.restoreProgram({ id: first.id, version: 1 });
 
     expect(restored.version).toBe(3);
-    expect(await t.owner().integrations.testProgram({ id: first.id })).toMatchObject({
-      result: { made: 'first' },
-    });
+    expect(await run()).toMatchObject({ result: { made: 'first' } });
     expect(
       (await t.owner().integrations.programVersions({ id: first.id })).data.map(
         (version) => version.version,

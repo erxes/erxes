@@ -11,9 +11,31 @@ import { useTranslation } from 'react-i18next';
 import { useAskAssistant } from '~/modules/assistant/useAskAssistant';
 import { CustomProgram, KindBadge, programTypes } from './CustomProgram';
 
+const useAskForProgram = (record: CustomRecord) => {
+  const ask = useAskAssistant();
+
+  return ask
+    ? () =>
+        ask(
+          `Add an action to the ${record.name} integration (${INTEGRATION_NAMESPACE}.${record.key}).`,
+        )
+    : null;
+};
+
+const AskButton = ({ onAsk }: { onAsk: () => void }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+
+  return (
+    <Button variant="outline" className="shrink-0" onClick={onAsk}>
+      <IconSparkles />
+      {t('ask-assistant', 'Ask the assistant')}
+    </Button>
+  );
+};
+
 const NoPrograms = ({ record }: { record: CustomRecord }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
-  const ask = useAskAssistant();
+  const ask = useAskForProgram(record);
 
   return (
     <Empty variant="outline">
@@ -31,17 +53,7 @@ const NoPrograms = ({ record }: { record: CustomRecord }) => {
       </Empty.Header>
       {ask && (
         <Empty.Content>
-          <Button
-            variant="outline"
-            onClick={() =>
-              ask(
-                `Add an action to the ${record.name} integration (${INTEGRATION_NAMESPACE}.${record.key}).`,
-              )
-            }
-          >
-            <IconSparkles />
-            {t('ask-assistant', 'Ask the assistant')}
-          </Button>
+          <AskButton onAsk={ask} />
         </Empty.Content>
       )}
     </Empty>
@@ -92,6 +104,7 @@ export const CustomPrograms = ({ record }: { record: IntegrationDetail }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
   const { programs } = record;
   const [programId, setProgramId] = useQueryState('program', parseAsString);
+  const ask = useAskForProgram(record);
   const open = programs.find((program) => program.id === programId);
 
   if (open) {
@@ -102,12 +115,15 @@ export const CustomPrograms = ({ record }: { record: IntegrationDetail }) => {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        {t(
-          'programs-intro',
-          'The assistant writes these. Actions are automation steps; incoming programs start automations from the service.',
-        )}
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className="min-w-0 flex-1 basis-64 text-sm text-muted-foreground">
+          {t(
+            'programs-intro',
+            'The assistant writes these. Actions are automation steps; incoming programs start automations from the service.',
+          )}
+        </p>
+        {ask && <AskButton onAsk={ask} />}
+      </div>
       <ul className="divide-y rounded-lg border">
         {programs.map((program) => (
           <ProgramRow

@@ -1,4 +1,5 @@
 import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
+import { isIntegrationType } from '@erxes/core-contract/integrationValues';
 import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
@@ -22,8 +23,11 @@ const NEEDS = {
 const missingAction = (type: string, known: ActionInfo[]) => {
   const elsewhere = known.find((item) => item.type === type);
 
-  return elsewhere?.subject
-    ? `“${elsewhere.label}” needs ${NEEDS[elsewhere.subject]}, and this trigger is not about one`
+  if (elsewhere?.subject)
+    return `“${elsewhere.label}” needs ${NEEDS[elsewhere.subject]}, and this trigger is not about one`;
+
+  return isIntegrationType(type)
+    ? 'This action is not available (its integration or program may be deleted)'
     : 'This action is not available (its plugin may be uninstalled)';
 };
 
