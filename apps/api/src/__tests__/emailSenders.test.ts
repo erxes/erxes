@@ -5,7 +5,7 @@ import { useTestDatabase } from './db';
 import { settle } from './settle';
 import { useSmtp } from './smtp.fixture';
 
-/** Settings › Integrations › Email sending › Senders, and the emails that go out as them. */
+/** Settings › Email sending › Senders, and the emails that go out as them. */
 describe('email senders', { timeout: 300_000 }, () => {
   useTestDatabase();
 

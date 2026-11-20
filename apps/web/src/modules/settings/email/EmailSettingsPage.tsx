@@ -1,20 +1,20 @@
 import type { EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Spinner, useToast } from 'erxes-ui';
+import { IconMail } from '@tabler/icons-react';
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
+import { Button, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Navigate } from 'react-router-dom';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
-import type { Integration } from './catalog';
-import { useIntegrationsSaved } from './customMutation';
-import { DangerSection } from './DangerSection';
+import { paths } from '~/lib/paths';
+import { useCan } from '~/modules/auth/session';
+import { useIntegrationsSaved } from '../integrations/customMutation';
+import { DangerSection } from '../integrations/DangerSection';
+import { HowItWorks, OverviewSection, useIntegrationTab } from '../integrations/IntegrationLayout';
+import { IntegrationStatusBadge } from '../integrations/IntegrationStatusBadge';
 import { EmailForm, PROVIDER_NAMES } from './EmailForm';
 import { EmailSenders } from './EmailSenders';
-import {
-  HowItWorks,
-  IntegrationLayout,
-  OverviewSection,
-  useIntegrationTab,
-} from './IntegrationLayout';
 
 /** Sends a test email to the member the way the organisation's go out, and says how it went. */
 const SendTest = () => {
@@ -122,13 +122,7 @@ const Overview = ({ saved }: { saved: EmailSettings | null }) => {
   );
 };
 
-const EmailPage = ({
-  integration,
-  saved,
-}: {
-  integration: Integration;
-  saved: EmailSettings | null;
-}) => {
+const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const [tab, setTab] = useIntegrationTab('overview');
 
@@ -155,30 +149,72 @@ const EmailPage = ({
     },
   ];
 
+  const current = tabs.find((item) => item.value === tab) ?? tabs[0];
+
   return (
-    <IntegrationLayout
-      integration={integration}
-      tabs={tabs}
-      tab={tab}
-      onTab={setTab}
-      actions={
-        saved ? (
-          <SendTest />
-        ) : (
-          <Button onClick={() => setTab('settings')}>{t('email.set-up-short', 'Set up')}</Button>
-        )
-      }
-    />
+    <div className="mx-auto max-w-4xl space-y-6 p-6">
+      <header className="flex flex-wrap items-start gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-semibold">{t('name.email', 'Email sending')}</h1>
+            <IntegrationStatusBadge status={{ state: saved ? 'connected' : 'not-set-up' }} />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              'catalog.email',
+              'Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES.',
+            )}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {saved ? (
+            <SendTest />
+          ) : (
+            <Button onClick={() => setTab('settings')}>{t('email.set-up-short', 'Set up')}</Button>
+          )}
+        </div>
+      </header>
+      <Tabs value={current?.value} onValueChange={setTab}>
+        <Tabs.List variant="flush" className="h-9">
+          {tabs.map((item) => (
+            <Tabs.Trigger key={item.value} value={item.value}>
+              {item.label}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs>
+      {current?.content}
+    </div>
   );
 };
 
-/** Email sending's page: how the organisation's emails go out, and its settings. */
-export const EmailIntegration = ({ integration }: { integration: Integration }) => {
-  const settings = useQuery(orpc.emails.settings.queryOptions());
+/** Settings › Email sending: how the organisation's emails go out, its settings and senders. */
+export const EmailSettingsPage = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const canManage = useCan()('integrations.manage');
+
+  const settings = useQuery(
+    orpc.emails.settings.queryOptions({ input: canManage ? undefined : skipToken }),
+  );
+
+  if (!canManage) return <Navigate to={paths.settings.root} replace />;
 
   return (
-    <QueryState query={settings}>
-      {(saved) => <EmailPage integration={integration} saved={saved} />}
-    </QueryState>
+    <PageContainer>
+      <PageHeader>
+        <PageHeader.Start>
+          <AppBreadcrumb
+            items={[
+              { label: t('name.email', 'Email sending'), to: paths.settings.email, icon: IconMail },
+            ]}
+          />
+        </PageHeader.Start>
+      </PageHeader>
+      <ScrollArea className="flex-1" fitWidth>
+        <QueryState query={settings} className="py-12">
+          {(saved) => <EmailPage saved={saved} />}
+        </QueryState>
+      </ScrollArea>
+    </PageContainer>
   );
 };

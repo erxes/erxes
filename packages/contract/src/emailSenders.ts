@@ -38,8 +38,8 @@ const { NOT_PENDING } = ERRORS;
 const base = oc.errors({ ...COMMON_ERRORS, NOT_PENDING });
 
 /**
- * Addresses broadcasts and automations may send as (Settings › Integrations ›
- * Email sending › Senders, `integrations.manage`). Adding one emails it a
+ * Addresses broadcasts and automations may send as (Settings › Email
+ * sending › Senders, `integrations.manage`). Adding one emails it a
  * confirmation link; it is usable once the link is opened. A sender on the
  * sending address's domain is the From; any other is the Reply-To, and the
  * email goes out from the sending address under the sender's name.

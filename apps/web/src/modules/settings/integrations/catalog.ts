@@ -1,6 +1,6 @@
 import type { Integration as CustomRecord } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { type Icon, IconApi, IconCreditCard, IconMail, IconReceiptTax } from '@tabler/icons-react';
+import { type Icon, IconApi, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { INTEGRATION_CATEGORIES, type TIntegrationTab, type TPluginIntegration } from 'erxes-ui';
 import { paths } from '~/lib/paths';
@@ -32,23 +32,12 @@ interface Base {
  * core's header over the plugin's tabs.
  */
 export type Integration =
-  | (Base & { kind: 'email' })
   | (Base & { kind: 'ebarimt' })
   | (Base & { kind: 'gateways'; to: string })
   | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] })
   | (Base & { kind: 'custom'; record: CustomRecord });
 
 const INTEGRATIONS: Integration[] = [
-  {
-    kind: 'email',
-    key: 'email',
-    name: 'Email sending',
-    summary:
-      'Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES.',
-    icon: IconMail,
-    category: 'email',
-    countries: [],
-  },
   {
     kind: 'ebarimt',
     key: 'ebarimt',

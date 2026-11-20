@@ -5,7 +5,6 @@ import { useCan } from '~/modules/auth/session';
 import { integrationPath, isCustomKey, useIntegrations } from './catalog';
 import { CustomIntegration } from './CustomIntegration';
 import { EbarimtIntegration } from './EbarimtIntegration';
-import { EmailIntegration } from './EmailIntegration';
 import { PluginIntegration } from './PluginIntegration';
 
 /**
@@ -25,8 +24,6 @@ export const IntegrationPage = () => {
 
     return waiting ? <PageSpinner /> : <Navigate to={paths.settings.integrations} replace />;
   }
-
-  if (integration.kind === 'email') return <EmailIntegration integration={integration} />;
 
   if (integration.kind === 'plugin') return <PluginIntegration integration={integration} />;
 
