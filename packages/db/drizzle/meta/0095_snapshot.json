@@ -1,5 +1,5 @@
 {
-  "id": "d3e230d2-63b9-4ab4-9cf1-47c11960977b",
+  "id": "27882edd-62a7-4b12-aa02-b6ec1fa00274",
   "prevId": "631f4c8d-54fe-4b6a-8a43-da70e9414701",
   "version": "7",
   "dialect": "postgresql",
@@ -3256,12 +3256,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "storage": {
-          "name": "storage",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "name": {
           "name": "name",
           "type": "text",
@@ -3419,10 +3413,6 @@
         "core_files_status_check": {
           "name": "core_files_status_check",
           "value": "\"core_files\".\"status\" IN ('pending', 'ready', 'deleting')"
-        },
-        "core_files_storage_check": {
-          "name": "core_files_storage_check",
-          "value": "\"core_files\".\"storage\" IN ('local', 's3', 'cloudflare', 'cloudflare_images', 'cloudflare_stream')"
         },
         "core_files_size_check": {
           "name": "core_files_size_check",
@@ -3946,6 +3936,79 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.core_event_data": {
+      "name": "core_event_data",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_event_data_org_id_fkey": {
+          "name": "core_event_data_org_id_fkey",
+          "tableFrom": "core_event_data",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_event_data_pkey": {
+          "name": "core_event_data_pkey",
+          "columns": [
+            "org_id",
+            "type",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_event_data_kind_check": {
+          "name": "core_event_data_kind_check",
+          "value": "\"core_event_data\".\"kind\" IN ('seen', 'text', 'number', 'boolean', 'list')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.core_events": {

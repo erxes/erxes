@@ -198,7 +198,9 @@ export { EntityPicker } from './modules/pickers/EntityPicker';
 export {
   type Member,
   type MemberQueries,
+  meFirst,
   memberName,
+  useMeId,
   useMembersById,
 } from './modules/pickers/members';
 

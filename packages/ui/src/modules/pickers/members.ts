@@ -1,4 +1,4 @@
-import { keepPreviousData, type UseQueryOptions, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, skipToken, type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 /** A team member as the pickers show one. Core's `User` has these fields and more. */
@@ -23,7 +23,23 @@ export interface MemberQueries {
   team: MemberQuery;
   /** Members by id, for those outside the active team (disabled ones). */
   byIds: (ids: string[]) => MemberQuery;
+  /** The signed-in member, whom pickers list first; in core, `orpc.auth.me`. */
+  me?: UseQueryOptions<{ user: Pick<Member, 'id'> }, Error, { user: Pick<Member, 'id'> }>;
 }
+
+/** The members with `meId` moved to the top: most picks are your own. */
+export const meFirst = <T extends Pick<Member, 'id'>>(
+  items: T[],
+  meId: string | null | undefined,
+) => {
+  const me = items.find((item) => item.id === meId);
+
+  return me ? [me, ...items.filter((item) => item !== me)] : items;
+};
+
+/** The signed-in member's id, when `members` says how to read it. */
+export const useMeId = (members: MemberQueries) =>
+  useQuery(members.me ?? { queryKey: ['erxes-ui', 'no-me'], queryFn: skipToken }).data?.user.id;
 
 /** How a member reads: the display name, else the username, else the email. */
 export const memberName = (member: Pick<Member, 'fullName' | 'username' | 'email'>) =>

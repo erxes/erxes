@@ -670,8 +670,22 @@
     {
       "idx": 95,
       "version": "7",
-      "when": 1795119038791,
-      "tag": "0095_file_storage",
+      "when": 1795110960296,
+      "tag": "0095_event_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1795148048926,
+      "tag": "0096_integrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1795156585159,
+      "tag": "0097_file_storage",
       "breakpoints": true
     }
   ]

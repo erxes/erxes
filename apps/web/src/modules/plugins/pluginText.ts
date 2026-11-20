@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { type QueryClient, useQuery } from '@tanstack/react-query';
+import type { i18n as I18n } from 'i18next';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
@@ -36,12 +37,32 @@ export const usePluginTranslations = () => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    for (const { name, manifest } of data?.data ?? []) {
-      for (const [language, texts] of Object.entries(manifest?.translations ?? {})) {
-        i18n.addResourceBundle(language, name, texts, true, false);
-      }
-    }
+    if (data) addTranslations(i18n, data.data);
   }, [data, i18n]);
+};
+
+type Installed = Awaited<ReturnType<typeof orpc.plugins.list.call>>['data'];
+
+const addTranslations = (i18n: I18n, plugins: Installed) => {
+  for (const { name, manifest } of plugins) {
+    for (const [language, texts] of Object.entries(manifest?.translations ?? {})) {
+      i18n.addResourceBundle(language, name, texts, true, false);
+    }
+  }
+};
+
+/**
+ * Resolves once the installed plugins' translations are in place, for text that is read once
+ * and can't be redrawn (a desktop popup). Also resolves when the registry can't be read.
+ */
+export const pluginTranslationsReady = async (client: QueryClient, i18n: I18n) => {
+  try {
+    const plugins = await client.query({ ...pluginsQuery(), staleTime: 'static' });
+
+    addTranslations(i18n, plugins.data);
+  } catch {
+    // The text then reads as the plugin sent it.
+  }
 };
 
 /**

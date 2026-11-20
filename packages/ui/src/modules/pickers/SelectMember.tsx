@@ -13,7 +13,14 @@ import { PopoverScoped } from '../hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { MemberLink } from '../records/MemberLink';
 import { EntityPicker } from './EntityPicker';
-import { type Member, type MemberQueries, memberName, useMembersById } from './members';
+import {
+  type Member,
+  type MemberQueries,
+  meFirst,
+  memberName,
+  useMeId,
+  useMembersById,
+} from './members';
 
 /** A member's name, with an "Inactive" badge for disabled ones. */
 const MemberLabel = ({ member }: { member: Member }) => {
@@ -77,10 +84,11 @@ const MemberList = ({
 }) => {
   const { t } = useTranslation('ui', { keyPrefix: 'member' });
   const team = useQuery(members.team);
+  const meId = useMeId(members);
 
   return (
     <EntityPicker
-      items={team.data?.data ?? []}
+      items={meFirst(team.data?.data ?? [], meId)}
       itemKey={(member) => ({
         id: member.id,
         label: `${memberName(member)} ${member.email ?? ''}`,

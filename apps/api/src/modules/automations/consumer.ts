@@ -14,6 +14,7 @@ import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { checkersByMember } from './conditionCheck';
 import { nextCursor, stepAt } from './cursor';
+import { rememberEventData } from './eventData';
 import { advanceJob, continueAfter, definitionsOf, finishRun, log, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
 
@@ -369,6 +370,8 @@ export const automationsConsumer: EventConsumer = {
   name: 'core.automations',
   async handle(tx, event: EventRow) {
     const dto = CoreEvent.parse(event);
+
+    await rememberEventData(tx, event);
 
     if (event.subjectId) await resumeWaiting(tx, event, event.subjectId, dto);
 

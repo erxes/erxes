@@ -33,7 +33,7 @@ const envFile = resolve(root, '.env.local');
 const servers = {
   api: {
     filter: '@erxes/api',
-    env: { PORT: String(stack.ports.api), DATA_URL: `${postgres}/erxes` },
+    env: { PORT: String(stack.ports.api), DATA_URL: `${postgres}/erxes`, APP_URL: ui },
     ready: `${api}/ready`,
   },
   ui: {

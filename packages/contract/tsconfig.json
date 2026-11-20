@@ -7,6 +7,7 @@
     "../db/src/schema",
     "../db/src/table.ts",
     "../db/src/enums.ts",
-    "../db/src/assistantEnums.ts"
+    "../db/src/assistantEnums.ts",
+    "../db/src/integrationEnums.ts"
   ]
 }

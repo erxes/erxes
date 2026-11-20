@@ -37,6 +37,9 @@ const useRecordTableCursorContext = () => {
   return context;
 };
 
+/** The element a cursor-paged table scrolls in; null outside `RecordTableCursorProvider`. */
+export const useRecordTableViewport = () => useContext(RecordTableCursorContext)?.viewport ?? null;
+
 /**
  * Scrolls a cursor-paged table. With a `sessionKey` it remembers the first visible row and the
  * scroll position for the session, and restores the position when the rows come back.
