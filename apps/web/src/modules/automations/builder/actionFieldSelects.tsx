@@ -1,14 +1,21 @@
 import type { ActionField, ActionInfo } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
-import { useQuery } from '@tanstack/react-query';
-import { LookupPicker, Select, textOf, useMemberOptions, useTagOptions } from 'erxes-ui';
+import { skipToken, useQuery } from '@tanstack/react-query';
+import {
+  LookupPicker,
+  pluginJson,
+  Select,
+  textOf,
+  useMemberOptions,
+  useTagOptions,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { z } from 'zod';
 import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { tagsQuery } from '~/modules/tags/useTags';
-import { recordChoicesQuery } from './recordChoices';
 import type { FieldInfo } from './useAutomationFields';
 
 export type ActionInputProps = {
@@ -116,6 +123,8 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
   );
 };
 
+const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
+
 /**
  * The run's values that are records of this type (the trigger's task, a deal an earlier step
  * created), as picker options that insert them: "Task created: Task".
@@ -154,10 +163,15 @@ export const PluginRecordSelect = ({
   // A chosen parent lists its own records: a run's record may sit under another one.
   const fromRun = parent.startsWith('{{');
   const listed = Boolean(recordType) && !waiting && !fromRun;
+  const query = new URLSearchParams(parent ? { parent } : {});
 
   const records = useQuery({
-    ...recordChoicesQuery(action.source, recordType ?? '', parent),
-    enabled: listed,
+    queryKey: ['plugin-records', action.source, recordType, parent],
+    queryFn:
+      recordType && listed
+        ? () =>
+            pluginJson(action.source, `/automations/records/${recordType}?${query}`, PluginRecords)
+        : skipToken,
   });
 
   const parentLabel = action.fields.find((other) => other.key === dependsOn)?.label;

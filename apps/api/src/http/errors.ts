@@ -77,7 +77,6 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     message: 'An integration with this key already exists',
   },
   core_email_senders_org_email_key: { field: 'email', message: 'This address is a sender already' },
-  core_meta_people_customer_id_fkey: { field: 'people', message: 'No such customer' },
   core_lead_stages_org_name_key: {
     field: 'name',
     message: 'A stage with this name already exists',

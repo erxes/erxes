@@ -8,13 +8,11 @@ import { AutomationId } from './records';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
 import {
-  AutomationCatalog,
+  ActionInfo,
   AutomationFieldPath,
   AutomationRun,
-  CHOICES_SUMMARY,
+  DataField,
   DryRun,
-  RecordChoices,
-  RecordChoicesQuery,
   RunStatus,
   RunStep,
 } from './automationRuns';
@@ -103,11 +101,30 @@ export const automationsContract = {
       path: '/automations/catalog',
       summary: "Triggers (event types) and actions: core's and installed plugins'",
     })
-    .output(AutomationCatalog),
-  recordChoices: base
-    .route({ method: 'GET', path: '/automations/records/{recordType}', summary: CHOICES_SUMMARY })
-    .input(RecordChoicesQuery)
-    .output(RecordChoices),
+    .output(
+      z.object({
+        triggers: z.array(
+          z.object({
+            type: z.string(),
+            label: z.string(),
+            /** A line on what it is, for pickers. */
+            description: z.string().nullable().optional(),
+            source: z.string(),
+            subject: z.enum(CONTENT_TYPES).nullable(),
+            /** The record it is about, as its plugin names it (`Order`). */
+            record: z.string().nullable(),
+            /**
+             * Its payload's values later steps can insert (`{{event.payload.<key>}}`): what its
+             * publisher lists, then what its events have carried in this organisation.
+             */
+            fields: z.array(DataField),
+            /** One has happened here since core began remembering what plugins' events carry. */
+            seen: z.boolean(),
+          }),
+        ),
+        actions: z.array(ActionInfo),
+      }),
+    ),
   list: base
     .route({ method: 'GET', path: '/automations' })
     .input(z.object({ status: AutomationStatus.optional() }))

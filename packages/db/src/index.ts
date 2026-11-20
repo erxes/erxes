@@ -96,10 +96,6 @@ export {
   integrations,
   integrationPrograms,
   integrationProgramVersions,
-  metaApps,
-  metaConnections,
-  metaPeople,
-  metaSends,
 } from './schema';
 
 export type {

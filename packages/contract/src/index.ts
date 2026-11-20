@@ -24,7 +24,6 @@ import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
 import { integrationsContract } from './integrations';
-import { metaContract } from './meta';
 import { rolesContract } from './roles';
 import { searchContract } from './search';
 import { tagsContract } from './tags';
@@ -72,7 +71,6 @@ export type CoreContract = {
   suppressions: typeof suppressionsContract;
   tags: typeof tagsContract;
   integrations: typeof integrationsContract;
-  meta: typeof metaContract;
   units: typeof unitsContract;
   unitTypes: typeof unitTypesContract;
   trash: typeof trashContract;
@@ -117,7 +115,6 @@ export const coreContract: CoreContract = {
   suppressions: suppressionsContract,
   tags: tagsContract,
   integrations: integrationsContract,
-  meta: metaContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
   trash: trashContract,
@@ -185,8 +182,6 @@ export * from './money';
 
 export * from './notifications';
 
-export * from './notificationGroups';
-
 export * from './platform';
 
 export * from './organizations';
@@ -236,10 +231,6 @@ export * from './tags';
 export * from './integrations';
 
 export * from './integrationValues';
-
-export * from './meta';
-
-export * from './metaEvents';
 
 export * from './units';
 

@@ -8,8 +8,6 @@ import { emailJob } from '~/modules/email/email';
 import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
 import { incomingJob } from '~/modules/integrations/incoming';
-import { metaCheckSchedule } from '~/modules/meta/checks';
-import { inboundJob as metaInboundJob } from '~/modules/meta/inbound';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import { paymentCheckJob } from '~/modules/payments/invoiceState';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
@@ -45,8 +43,6 @@ export const JOBS = [
   exampleDataJob,
   cloudflareMoveJob,
   incomingJob,
-  metaInboundJob,
-  metaCheckSchedule,
   ...BROADCAST_JOBS,
   ...CONSUMER_JOBS,
   ...MAINTENANCE,

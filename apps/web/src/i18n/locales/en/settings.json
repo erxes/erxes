@@ -1372,73 +1372,17 @@
       "print": "Print",
       "keys": "Keys",
       "programs": "Programs",
-      "senders": "Senders",
-      "app-keys": "App keys"
+      "senders": "Senders"
     },
     "name": {
       "ebarimt": "eBarimt",
       "payment-gateways": "Payment gateways",
-      "email": "Email sending",
-      "meta": "Facebook & Instagram"
+      "email": "Email sending"
     },
     "catalog": {
       "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI.",
       "payment-gateways": "QPay, Stripe, PayPal and more: connected on Settings › Payments.",
-      "email": "Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES.",
-      "meta": "Messages, comments and reactions on your Facebook pages and Instagram accounts start automations."
-    },
-    "meta": {
-      "save-failed": "Could not save",
-      "connect": "Connect pages",
-      "not-set-up": "Save your Meta app first",
-      "connect-failed": "Could not connect",
-      "connected-count_one": "{{count}} page or account connected",
-      "connected-count_other": "{{count}} pages and accounts connected",
-      "status": {
-        "healthy": "Working",
-        "broken": "Needs repair"
-      },
-      "kind": {
-        "facebook": "Facebook",
-        "instagram": "Instagram"
-      },
-      "repair": "Repair",
-      "repaired": "Connection checked",
-      "disconnect": "Disconnect",
-      "disconnected": "Disconnected",
-      "disconnect-confirm": "Disconnect {{name}}?",
-      "disconnect-description": "Its messages and comments stop reaching erxes, and automations that use it fail.",
-      "connected-at": "Connected {{date}}",
-      "empty": "No pages connected yet",
-      "empty-description": "Connect your Facebook pages and the Instagram accounts linked to them. You pick which ones on Meta’s screen.",
-      "connections": "Pages and accounts",
-      "how": "How it works",
-      "how-events": "Messages, comments and reactions on your pages start automations.",
-      "how-reply": "Automations reply, comment and like as the page.",
-      "how-apps": "Pages connect through your own Meta app, or through this install’s when you have none.",
-      "section": {
-        "app": "Your Meta app",
-        "app-description": "From your app’s settings on developers.facebook.com. The secret is never shown again.",
-        "addresses": "Addresses for Meta",
-        "addresses-description": "Paste these into your app on developers.facebook.com."
-      },
-      "field": {
-        "appId": "App id",
-        "appSecret": "App secret",
-        "verifyToken": "Verify token",
-        "webhookUrl": "Webhook callback address",
-        "callbackUrl": "OAuth redirect address"
-      },
-      "secret-saved": "Saved",
-      "secret-kept": "Leave the app secret empty to keep the saved one.",
-      "verify-hint": "Pick any verify token and enter the same one in Meta’s webhook setup.",
-      "app-saved": "Meta app saved",
-      "save": "Save app",
-      "install-app": "Pages connect through this install’s Meta app until you save your own.",
-      "remove-title": "Remove your Meta app",
-      "remove-description": "New connections go through the install’s app. Pages connected through yours stop working.",
-      "remove-confirm": "Remove your Meta app?",
-      "remove": "Remove"
+      "email": "Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES."
     },
     "ebarimt": {
       "remove-title": "Remove eBarimt",

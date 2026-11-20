@@ -224,7 +224,6 @@ describe('plugins in core’s settings', () => {
       );
 
     expect(section('Available') && links(section('Available') ?? container)).toEqual([
-      [expect.stringContaining('Facebook & Instagram'), '/settings/integrations/meta'],
       [expect.stringContaining('eBarimt'), '/settings/integrations/ebarimt'],
       [expect.stringContaining('Messenger'), '/settings/integrations/chat.meta'],
     ]);

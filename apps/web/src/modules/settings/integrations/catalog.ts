@@ -1,12 +1,6 @@
 import type { Integration as CustomRecord } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import {
-  type Icon,
-  IconApi,
-  IconBrandMeta,
-  IconCreditCard,
-  IconReceiptTax,
-} from '@tabler/icons-react';
+import { type Icon, IconApi, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { INTEGRATION_CATEGORIES, type TIntegrationTab, type TPluginIntegration } from 'erxes-ui';
 import { paths } from '~/lib/paths';
@@ -39,22 +33,11 @@ interface Base {
  */
 export type Integration =
   | (Base & { kind: 'ebarimt' })
-  | (Base & { kind: 'meta' })
   | (Base & { kind: 'gateways'; to: string })
   | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] })
   | (Base & { kind: 'custom'; record: CustomRecord });
 
 const INTEGRATIONS: Integration[] = [
-  {
-    kind: 'meta',
-    key: 'meta',
-    name: 'Facebook & Instagram',
-    summary:
-      'Messages, comments and reactions on your Facebook pages and Instagram accounts start automations.',
-    icon: IconBrandMeta,
-    category: 'messaging',
-    countries: [],
-  },
   {
     kind: 'ebarimt',
     key: 'ebarimt',

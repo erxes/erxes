@@ -4,13 +4,12 @@ import {
   AUTOMATION_FIELD_TYPES,
   AUTOMATION_PATH_TYPES,
   AUTOMATION_SUBJECTS,
-  CONTENT_TYPES,
   RUN_STATUSES,
 } from '@erxes/core-db/enums';
 import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, LIST_MAX } from './common';
+import { Id, isoDate } from './common';
 import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
@@ -157,41 +156,6 @@ export const ActionInfo = z.object({
 });
 
 export type ActionInfo = z.infer<typeof ActionInfo>;
-
-export const AutomationCatalog = z.object({
-  triggers: z.array(
-    z.object({
-      type: z.string(),
-      label: z.string(),
-      /** A line on what it is, for pickers. */
-      description: z.string().nullable().optional(),
-      source: z.string(),
-      subject: z.enum(CONTENT_TYPES).nullable(),
-      /** The record it is about, as its plugin names it (`Order`). */
-      record: z.string().nullable(),
-      /**
-       * Its payload's values later steps can insert (`{{event.payload.<key>}}`): what its
-       * publisher lists, then what its events have carried in this organisation.
-       */
-      fields: z.array(DataField),
-      /** One has happened here since core began remembering what plugins' events carry. */
-      seen: z.boolean(),
-    }),
-  ),
-  actions: z.array(ActionInfo),
-});
-
-export const CHOICES_SUMMARY =
-  "Core's own records of a type for the builder's pickers, as a plugin's `/automations/records/<recordType>` answers: `facebook_page`, `instagram_account`";
-
-export const RecordChoicesQuery = z.object({
-  recordType: RecordType,
-  parent: z.string().max(200).optional(),
-});
-
-export const RecordChoices = z
-  .array(z.object({ value: z.string(), label: z.string() }))
-  .max(LIST_MAX);
 
 // ─── Runs ───────────────────────────────────────────────────────────────────
 
