@@ -10,7 +10,7 @@ import {
 import { Skeleton, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useContactsOverview } from '../hooks';
+import { type CountResult, useContactsOverview } from '../hooks';
 import { HOME_NS } from '../i18n';
 
 const Stat = ({
@@ -21,7 +21,7 @@ const Stat = ({
 }: {
   label: string;
   icon: TablerIcon;
-  query: UseQueryResult<number>;
+  query: UseQueryResult<CountResult>;
   to: string;
 }) => {
   const fmt = useFormat();
@@ -40,7 +40,7 @@ const Stat = ({
           <Skeleton className="mt-1 h-5 w-12" />
         ) : (
           <span className="text-lg font-semibold leading-tight tabular-nums">
-            {query.isError ? '—' : fmt.number(query.data)}
+            {query.isError ? '—' : fmt.count(query.data.total, query.data.capped)}
           </span>
         )}
       </span>
