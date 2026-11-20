@@ -1,52 +1,8 @@
-import { IconArrowUp, IconSparkles } from '@tabler/icons-react';
-import { Button, Dialog, Input, Textarea } from 'erxes-ui';
+import { IconSparkles } from '@tabler/icons-react';
+import { Button, Dialog, Textarea } from 'erxes-ui';
 import { type SyntheticEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAskAssistant } from '~/modules/assistant/useAskAssistant';
-
-export const AskAssistantBar = ({ disabled }: { disabled?: boolean }) => {
-  const { t } = useTranslation('automations');
-  const ask = useAskAssistant();
-  const [text, setText] = useState('');
-  const request = text.trim();
-
-  if (!ask) return null;
-
-  const submit = (event: SyntheticEvent) => {
-    event.preventDefault();
-
-    if (!request) return;
-
-    ask(request);
-    setText('');
-  };
-
-  return (
-    <form className="flex shrink-0 items-center gap-2 border-t bg-background p-3" onSubmit={submit}>
-      <IconSparkles aria-hidden className="size-4 shrink-0 text-primary-text" />
-      <Input
-        variant="secondary"
-        value={text}
-        disabled={disabled}
-        aria-label={t('ask-assistant', 'Ask the assistant')}
-        placeholder={
-          disabled
-            ? t('ask-assistant-save-first', 'Save your changes, then ask the assistant')
-            : t('ask-assistant-placeholder', 'Ask the assistant to change this automation…')
-        }
-        onChange={(event) => setText(event.target.value)}
-      />
-      <Button
-        type="submit"
-        size="icon"
-        disabled={Boolean(disabled) || !request}
-        aria-label={t('ask-assistant-send', 'Send to the assistant')}
-      >
-        <IconArrowUp />
-      </Button>
-    </form>
-  );
-};
 
 export const DescribeAutomation = () => {
   const { t } = useTranslation('automations');

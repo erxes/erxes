@@ -1,5 +1,8 @@
 import type { IntegrationProgramRun } from '@erxes/core-contract';
-import { INTEGRATION_REQUEST_METHODS, INTEGRATION_SIGNATURE_ENCODINGS } from '@erxes/core-db';
+import {
+  INTEGRATION_REQUEST_METHODS,
+  INTEGRATION_SIGNATURE_ENCODINGS,
+} from '@erxes/core-db/integrationEnums';
 import { z } from 'zod';
 import { hmacSha256Bytes, safeEqual } from '~/lib/crypto';
 import { OutboundError, requestOutbound } from '~/lib/outbound';

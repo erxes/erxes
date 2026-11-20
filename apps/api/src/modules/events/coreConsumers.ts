@@ -154,6 +154,7 @@ export const notificationsConsumer: EventConsumer = {
         title: request.title,
         body: request.body,
         link: request.link ?? event.link ?? undefined,
+        data: request.text ? { text: request.text } : undefined,
         priority: request.priority,
         entityType: event.entityType ?? undefined,
         entityId: event.entityId ?? undefined,

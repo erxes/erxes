@@ -670,8 +670,15 @@
     {
       "idx": 95,
       "version": "7",
-      "when": 1795111718347,
-      "tag": "0095_integrations",
+      "when": 1795110960296,
+      "tag": "0095_event_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1795148048926,
+      "tag": "0096_integrations",
       "breakpoints": true
     }
   ]

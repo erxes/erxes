@@ -1,8 +1,5 @@
-import {
-  type AUTOMATION_FIELD_TYPES,
-  type INTEGRATION_FIELD_TYPES,
-  INTEGRATION_PROGRAM_KINDS,
-} from '../enums';
+import type { AUTOMATION_FIELD_TYPES } from '../enums';
+import { type INTEGRATION_FIELD_TYPES, INTEGRATION_PROGRAM_KINDS } from '../integrationEnums';
 import { sql } from 'drizzle-orm';
 import {
   check,

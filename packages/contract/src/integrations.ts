@@ -1,4 +1,7 @@
-import { INTEGRATION_FIELD_TYPES, INTEGRATION_PROGRAM_KINDS } from '@erxes/core-db/enums';
+import {
+  INTEGRATION_FIELD_TYPES,
+  INTEGRATION_PROGRAM_KINDS,
+} from '@erxes/core-db/integrationEnums';
 import {
   integrationPrograms,
   integrationProgramVersions,
