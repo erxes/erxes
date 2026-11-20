@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react';
-import '../src/styles.css';
+import './styles.css';
 const link = document.createElement('link');
 link.href =
   'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Roboto+Mono:wght@100..700&display=swap';
