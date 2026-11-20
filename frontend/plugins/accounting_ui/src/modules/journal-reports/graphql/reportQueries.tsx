@@ -119,6 +119,8 @@ query AccountingJournalReportOrganization {
   structureDetail {
     _id
     title
+    phoneNumber
+    email
   }
 }
 `);

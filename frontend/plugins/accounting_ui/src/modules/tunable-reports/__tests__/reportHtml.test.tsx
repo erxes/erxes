@@ -46,3 +46,62 @@ test('replaces run-date placeholders in HTML without adding an automatic date ra
   ).toBeTruthy();
   expect(screen.getByText('{unknown}')).toBeTruthy();
 });
+
+test('fills the company placeholders of a tax form from the organization and blanks the ones it has no data for', () => {
+  const { container } = render(
+    <ReportHtml
+      value="<p>Татвар төлөгчийн нэр: <b>{name}</b></p><p>Утас: {phone1}, {phone2}</p><p>И-мэйл: {email}</p><p>Гэрчилгээ №{certificate_number}</p>"
+      organization={{
+        name: 'Алтай Тайга Тур ХХК',
+        phoneNumber: '+976 9911 2233',
+        email: 'sanhuu@altaitaiga.mn',
+      }}
+    />,
+  );
+  expect(screen.getByText('Алтай Тайга Тур ХХК').tagName).toBe('B');
+  expect(screen.getByText('Утас: +976 9911 2233,')).toBeTruthy();
+  expect(screen.getByText('И-мэйл: sanhuu@altaitaiga.mn')).toBeTruthy();
+  expect(screen.getByText('Гэрчилгээ №')).toBeTruthy();
+  expect(container.textContent).not.toContain('{');
+});
+
+test('a company name with markup characters is printed as text, never as HTML', () => {
+  const { container } = render(
+    <ReportHtml
+      value="<p>{name}</p>"
+      organization={{ name: 'А & Б <img src=x onerror=alert(1)> ХХК' }}
+    />,
+  );
+  expect(container.querySelector('img')).toBeNull();
+  expect(
+    screen.getByText('А & Б <img src=x onerror=alert(1)> ХХК'),
+  ).toBeTruthy();
+});
+
+test('company placeholders stay visible until the organization is known and unknown tokens are never touched', () => {
+  const { rerender } = render(
+    <ReportHtml value="<p>{name} · {phone1} · {tin}</p>" />,
+  );
+  expect(screen.getByText('{name} · {phone1} · {tin}')).toBeTruthy();
+  rerender(
+    <ReportHtml
+      value="<p>{name} · {phone1} · {tin}</p>"
+      organization={{ name: 'Номин ХХК' }}
+    />,
+  );
+  expect(screen.getByText('Номин ХХК · · {tin}')).toBeTruthy();
+});
+
+test('an apostrophe in the company name cannot break out of a quoted attribute', () => {
+  const name = "D'Artagnan' href='https://evil.example";
+  const { container } = render(
+    <ReportHtml
+      value="<p><a title='{name}'>Татвар төлөгч</a> {name}</p>"
+      organization={{ name }}
+    />,
+  );
+  const link = container.querySelector('a');
+  expect(link?.getAttribute('title')).toBe(name);
+  expect(link?.hasAttribute('href')).toBe(false);
+  expect(container.textContent).toBe(`Татвар төлөгч ${name}`);
+});
