@@ -293,8 +293,6 @@ export const PLUGIN_SCOPES = [
   'files:read',
   'files:write',
   'live:write',
-  'meta:read',
-  'meta:write',
   'notifications:write',
   'payments:read',
   'payments:write',

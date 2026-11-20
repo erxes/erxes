@@ -3,7 +3,6 @@ import {
   IconBrandDiscord,
   IconBrandFacebook,
   IconBrandInstagram,
-  IconBrandMessenger,
   IconBrandTelegram,
   IconBuilding,
   IconChecklist,
@@ -55,13 +54,10 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
   payment: { label: 'Payments', icon: IconCreditCard, order: 3 },
   email: { label: 'Messages', icon: IconMail, order: 4 },
   notification: { label: 'Messages', icon: IconMail, order: 4 },
-  messenger: { label: 'Facebook Messenger', icon: IconBrandMessenger, order: 5 },
-  facebook: { label: 'Facebook Page', icon: IconBrandFacebook, order: 6 },
-  instagram: { label: 'Instagram', icon: IconBrandInstagram, order: 7 },
-  note: { label: 'Timeline', icon: IconNote, order: 8 },
-  webhook: { label: 'Integrations', icon: IconWebhook, order: 9 },
-  http: { label: 'Integrations', icon: IconWebhook, order: 9 },
-  agent: { label: 'AI agents', icon: IconSparkles, order: 10 },
+  note: { label: 'Timeline', icon: IconNote, order: 5 },
+  webhook: { label: 'Integrations', icon: IconWebhook, order: 6 },
+  http: { label: 'Integrations', icon: IconWebhook, order: 6 },
+  agent: { label: 'AI agents', icon: IconSparkles, order: 7 },
 };
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {

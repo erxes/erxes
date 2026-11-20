@@ -104,9 +104,6 @@ export const createRateLimits = () => ({
         `plugin-public:${ip(req)}:${String(req.params.name)}:${String(req.params.orgId)}`,
     }),
   ],
-  metaWebhook: [
-    rateLimit({ windowSeconds: 60, max: 6000, key: (req) => `meta-webhook:${ip(req)}` }),
-  ],
   integrationIncoming: [
     rateLimit({
       windowSeconds: 60,

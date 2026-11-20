@@ -12,7 +12,6 @@ import {
   INVOICE_PAID_DATA,
   INVOICE_REFUNDED_DATA,
 } from './eventTypes';
-import { META_EVENT_TYPES } from './metaEvents';
 
 export { type CoreEventType, EventTypeInfo } from './eventTypes';
 
@@ -181,7 +180,6 @@ export const CORE_EVENT_TYPES = [
     description: 'A payment is refunded, in part or in full',
     ...INVOICE_REFUNDED_DATA,
   },
-  ...META_EVENT_TYPES,
 ] as const satisfies readonly CoreEventType[];
 
 /** `core.customer.created`, `core.customer.*`, `hr.*` or `*`. */

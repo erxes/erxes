@@ -134,24 +134,6 @@ export const config = {
     /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */
     taxpayerUrl: env.EBARIMT_TAXPAYER_URL,
   },
-  meta: {
-    app:
-      env.META_APP_ID && env.META_APP_SECRET
-        ? { appId: env.META_APP_ID, appSecret: env.META_APP_SECRET }
-        : null,
-    verifyToken: env.META_VERIFY_TOKEN,
-    publicUrl: env.META_PUBLIC_URL?.replace(/\/+$/, ''),
-    relay:
-      env.META_RELAY_URL && env.META_RELAY_KEY && env.META_PUBLIC_URL
-        ? {
-            url: env.META_RELAY_URL.replace(/\/+$/, ''),
-            key: env.META_RELAY_KEY,
-            webhookUrl: `${env.META_PUBLIC_URL.replace(/\/+$/, '')}/core/v1/meta/webhook`,
-          }
-        : null,
-    graphUrl: 'https://graph.facebook.com/v23.0',
-    dialogUrl: 'https://www.facebook.com/v23.0/dialog/oauth',
-  },
   /**
    * SaaS (erxes.io): core reads each organisation's plugins, tiers and
    * bundles from its Stripe customer and enforces them. Off: self-hosted,

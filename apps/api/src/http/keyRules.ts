@@ -47,7 +47,6 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   fields: { lookup: true, writes: 'settings' },
   files: 'files',
   integrations: null,
-  meta: null,
   leads: 'contacts',
   notifications: null,
   organizations: { lookup: true, writes: 'settings' },

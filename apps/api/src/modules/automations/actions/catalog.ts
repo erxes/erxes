@@ -3,7 +3,6 @@ import { AGENT_ACTIONS } from './agent';
 import type { CoreAction } from './context';
 import { LEAD_ACTIONS } from './leads';
 import { MESSAGE_ACTIONS } from './messages';
-import { META_ACTIONS } from '~/modules/meta/actions';
 import type { ActionPlugin } from './plugin';
 import { RECORD_ACTIONS } from './records';
 
@@ -12,7 +11,6 @@ const CORE_ACTIONS: CoreAction[] = [
   ...MESSAGE_ACTIONS,
   ...LEAD_ACTIONS,
   ...AGENT_ACTIONS,
-  ...META_ACTIONS,
 ];
 
 export const coreAction = (type: string) => CORE_ACTIONS.find((action) => action.type === type);
