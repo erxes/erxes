@@ -1,4 +1,10 @@
-import { ACTIVITY_TARGETS, ACTOR_TYPES, FILE_STATUSES, NOTIFICATION_PRIORITIES } from '../enums';
+import {
+  ACTIVITY_TARGETS,
+  ACTOR_TYPES,
+  FILE_STATUSES,
+  FILE_STORES,
+  NOTIFICATION_PRIORITIES,
+} from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -33,8 +39,13 @@ export const files = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    /** Object key in the storage driver: `<orgId>/<yyyy>/<mm>/<id>`. */
+    /**
+     * Where the bytes are, in `storage`: the object key (`<orgId>/<yyyy>/<mm>/<id>`),
+     * the Cloudflare Images id, or the Cloudflare Stream playback address.
+     */
     key: text().notNull(),
+    /** Which storage holds the bytes; null for files from before it was recorded, kept in the server's storage. */
+    storage: text({ enum: FILE_STORES }),
     name: text().notNull(),
     contentType: text().notNull(),
     size: bigint({ mode: 'number' }).notNull(),
@@ -58,6 +69,7 @@ export const files = pgTable(
       name: 'core_files_org_id_fkey',
     }).onDelete('cascade'),
     check('core_files_status_check', inList(table.status, FILE_STATUSES)),
+    check('core_files_storage_check', inList(table.storage, FILE_STORES)),
     index('core_files_deleting_idx')
       .on(table.updatedAt)
       .where(sql`${table.status} = 'deleting'`),

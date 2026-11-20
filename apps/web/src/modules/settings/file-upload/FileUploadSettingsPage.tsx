@@ -3,12 +3,45 @@ import type { FileSettings } from '@erxes/core-contract';
 import { IconCloudUpload, IconServer } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
 import { fileSettingsQuery, LimitsForm } from './LimitsForm';
 import { TryUpload } from './TryUpload';
+
+type Translate = TFunction<'settings', 'file-upload'>;
+
+const STORAGE_TEXT: Record<
+  FileSettings['storage'],
+  { title: (t: Translate) => string; description: (t: Translate) => string }
+> = {
+  local: {
+    title: (t) => t('storage-local', 'This server’s disk'),
+    description: (t) =>
+      t(
+        'storage-local-description',
+        'Files are kept on the erxes server. For many or large files, ask your administrator to use cloud storage.',
+      ),
+  },
+  s3: {
+    title: (t) => t('storage-s3', 'S3-compatible storage'),
+    description: (t) =>
+      t(
+        'storage-s3-description',
+        'Files go straight from the browser to the bucket (AWS S3, Cloudflare R2, MinIO …). erxes only keeps their details.',
+      ),
+  },
+  cloudflare: {
+    title: (t) => t('storage-cloudflare', 'Cloudflare'),
+    description: (t) =>
+      t(
+        'storage-cloudflare-description',
+        'Files go straight from the browser to an R2 bucket. When Images and Stream are on, images and videos move there after upload.',
+      ),
+  },
+};
 
 /** Where files go; set by whoever runs the server (FILES_STORAGE). */
 const StorageInfo = ({ settings }: { settings: FileSettings }) => {
@@ -17,28 +50,16 @@ const StorageInfo = ({ settings }: { settings: FileSettings }) => {
   return (
     <section className="flex gap-4 rounded-lg border bg-background p-5">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-muted text-muted-foreground">
-        {settings.storage === 's3' ? (
-          <IconCloudUpload className="size-4" />
-        ) : (
+        {settings.storage === 'local' ? (
           <IconServer className="size-4" />
+        ) : (
+          <IconCloudUpload className="size-4" />
         )}
       </span>
       <div className="space-y-1">
-        <h2 className="text-base font-semibold">
-          {settings.storage === 's3'
-            ? t('storage-s3', 'S3-compatible storage')
-            : t('storage-local', 'This server’s disk')}
-        </h2>
+        <h2 className="text-base font-semibold">{STORAGE_TEXT[settings.storage].title(t)}</h2>
         <p className="text-sm text-muted-foreground">
-          {settings.storage === 's3'
-            ? t(
-                'storage-s3-description',
-                'Files go straight from the browser to the bucket (AWS S3, Cloudflare R2, MinIO …). erxes only keeps their details.',
-              )
-            : t(
-                'storage-local-description',
-                'Files are kept on the erxes server. For many or large files, ask your administrator to use cloud storage.',
-              )}
+          {STORAGE_TEXT[settings.storage].description(t)}
         </p>
         <p className="text-xs text-muted-foreground">
           {t(

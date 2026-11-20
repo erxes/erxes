@@ -10,7 +10,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
-import { FILE_GRANT_OPS } from '@erxes/core-db/enums';
+import { FILE_GRANT_OPS, type FILE_STORAGES, type FILE_STORES } from '@erxes/core-db/enums';
 import {
   link,
   mkdir,
@@ -27,6 +27,11 @@ import { z } from 'zod';
 import { config } from '~/config';
 import { hmacSha256, safeEqual } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
+import { cloudflareImages, cloudflareStream } from './cloudflare';
+
+type FileStorage = (typeof FILE_STORAGES)[number];
+
+type FileStore = (typeof FILE_STORES)[number];
 
 interface UploadRequest {
   contentType: string;
@@ -111,6 +116,9 @@ type LocalGrant = z.infer<typeof LocalGrant>;
 /** A file's own key, or an upload's temporary one. */
 const KEY =
   /^([A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+|uploads\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[a-f0-9]+)$/;
+
+/** Core's own keys (a file's or an upload's), as opposed to erxes 3.x ones. */
+export const isCoreKey = (key: string) => KEY.test(key) || key.startsWith('uploads/');
 
 const signingKey = () =>
   Buffer.from(hmacSha256(config.auth.jwtSecret, 'core-files-v1', 'hex'), 'hex');
@@ -261,7 +269,9 @@ const localStorage: Storage = {
 
 // ─── S3-compatible (AWS S3, Cloudflare R2, MinIO) ───────────────────────────
 
-const s3ClientOf = (s3: typeof config.files.s3) =>
+type S3Settings = typeof config.files.s3;
+
+const s3ClientOf = (s3: S3Settings) =>
   new S3Client({
     region: s3.region,
     endpoint: s3.endpoint,
@@ -276,8 +286,7 @@ const isNotFound = (error: unknown) =>
   error instanceof NotFound ||
   (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404);
 
-const s3Storage = (): Storage => {
-  const { s3 } = config.files;
+const s3Storage = (s3: S3Settings): Storage => {
   const client = s3ClientOf(s3);
 
   return {
@@ -358,11 +367,17 @@ const s3Storage = (): Storage => {
   };
 };
 
+const DRIVERS: Record<FileStorage, () => Storage> = {
+  local: () => localStorage,
+  s3: () => s3Storage(config.files.s3),
+  cloudflare: () => s3Storage(config.files.cloudflare.r2),
+};
+
 let current: Storage | null = null;
 
-/** The configured driver (FILES_STORAGE). */
+/** The configured driver (FILES_STORAGE): where uploads go. */
 export const storage = (): Storage => {
-  current ??= config.files.driver === 's3' ? s3Storage() : localStorage;
+  current ??= DRIVERS[config.files.driver]();
 
   return current;
 };
@@ -370,4 +385,27 @@ export const storage = (): Storage => {
 /** Tests swap the driver. */
 export const setStorage = (next: Storage | null) => {
   current = next;
+};
+
+/** What a stored file needs wherever its bytes are. */
+export type StoredBytes = Pick<Storage, 'downloadUrl' | 'remove' | 'read'>;
+
+const others = new Map<FileStorage, Storage>();
+
+/**
+ * Where one file's bytes are (`core_files.storage`). Null is a file from
+ * before that was recorded, kept in the server's storage.
+ */
+export const storageOf = (name: FileStore | null): StoredBytes => {
+  if (name === null || name === config.files.driver) return storage();
+
+  if (name === 'cloudflare_images') return cloudflareImages;
+
+  if (name === 'cloudflare_stream') return cloudflareStream;
+
+  const found = others.get(name) ?? DRIVERS[name]();
+
+  others.set(name, found);
+
+  return found;
 };

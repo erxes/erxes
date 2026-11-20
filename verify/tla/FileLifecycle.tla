@@ -6,9 +6,10 @@
 (* files. Each action is one atomic step of the implementation: one SQL    *)
 (* statement, one storage call, or a commit.                               *)
 (*                                                                         *)
-(* Storage holds two keys. "upload" is the upload link's key               *)
+(* Storage holds three keys. "upload" is the upload link's key             *)
 (* (files.service.ts:40-41, a fresh nonce per createUpload); "final" is    *)
-(* the file's own key (files.service.ts:44-48), which no link can write.   *)
+(* the file's own key (files.service.ts:44-48), which no link can write;   *)
+(* "cf" is the file's copy in Cloudflare Images or Stream.                 *)
 (* A stored object is the version number of the PUT that wrote it; 0 means *)
 (* nothing is stored.                                                      *)
 (*                                                                         *)
@@ -17,6 +18,12 @@
 (*    stat saw (CopySourceIfMatch, storage.ts:328-339).                    *)
 (*  - local: the link writes once (hard link, files.http.ts:67-72);        *)
 (*    promote hard-links and never replaces the target (storage.ts:225-235)*)
+(*                                                                         *)
+(* With Cloudflare (`cdn`, the s3 driver standing for R2), a job moves a   *)
+(* ready image or video to Images or Stream (cloudflareMove.ts:108-153):   *)
+(* Cloudflare fetches the "final" object into "cf", the row moves to "cf"  *)
+(* only while still ready under "final", then the R2 object goes. A job    *)
+(* that loses to a deletion removes its "cf" copy. Retries repeat a step.  *)
 (*                                                                         *)
 (* Left out: storeServerFile (ready at once, no link), the size-mismatch   *)
 (* branch of completeUpload (both drivers refuse a body of another length, *)
@@ -30,7 +37,7 @@ CONSTANTS
   MaxPuts,     \* PUTs the client sends to its upload link
   Broken       \* deliberately broken designs, for the .broken-*.cfg checks
 
-Keys == {"upload", "final"}
+Keys == {"upload", "final", "cf"}
 Busy == {"locked", "statted", "copied", "dropped"}
 
 VARIABLES
@@ -46,9 +53,11 @@ VARIABLES
   rpc,      \* removeFile, only used by the remove_bytes_first design
   ppc,      \* purgeDeletedFiles
   pkey,     \* the key purge read from a deleting row
-  served    \* versions handed to a reader through a download link
+  served,   \* versions handed to a reader through a download link
+  cdn,      \* CLOUDFLARE_USE_CDN: ready files move to Images or Stream
+  mpc       \* the move job (cloudflareMove.ts)
 
-vars == <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, served>>
+vars == <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 TypeOK ==
   /\ driver \in {"local", "s3"}
@@ -64,6 +73,8 @@ TypeOK ==
   /\ ppc \in {"idle", "read", "removed"}
   /\ pkey \in Keys
   /\ served \subseteq 0..MaxPuts
+  /\ cdn \in BOOLEAN
+  /\ mpc \in {"idle", "pushed", "committed", "lost", "done"}
 
 \* After createUpload (files.service.ts:54-99): a pending row on the upload key.
 Init ==
@@ -80,6 +91,8 @@ Init ==
   /\ ppc = "idle"
   /\ pkey = "upload"
   /\ served = {}
+  /\ cdn \in BOOLEAN
+  /\ mpc = "idle"
 
 Release(c) == /\ lock' = "none"
               /\ pc' = [pc EXCEPT ![c] = "idle"]
@@ -90,7 +103,7 @@ Put ==
   /\ driver = "s3" \/ store["upload"] = 0
   /\ store' = [store EXCEPT !["upload"] = puts + 1]
   /\ puts' = puts + 1
-  /\ UNCHANGED <<driver, row, rowKey, lock, pc, seen, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 (***************************************************************************)
 (* completeUpload (files.service.ts:124-182), one transaction that holds   *)
@@ -106,7 +119,7 @@ CLock(c) ==
   /\ row = "pending"
   /\ lock' = c
   /\ pc' = [pc EXCEPT ![c] = "locked"]
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, seen, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 \* storage().stat(row.key) (137); nothing there is 409 UPLOAD_INCOMPLETE (139-141).
 CStat(c) ==
@@ -116,7 +129,7 @@ CStat(c) ==
        ELSE /\ seen' = [seen EXCEPT ![c] = store[rowKey]]
             /\ pc' = [pc EXCEPT ![c] = "statted"]
             /\ UNCHANGED lock
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 \* The first half of storage().promote (155): S3 CopyObject with
 \* CopySourceIfMatch (storage.ts:329-337), local link() (storage.ts:226-233).
@@ -133,7 +146,7 @@ CCopy(c) ==
             /\ pc' = [pc EXCEPT ![c] = "copied"]
             /\ UNCHANGED lock
        ELSE Release(c) /\ UNCHANGED store
-  /\ UNCHANGED <<driver, row, rowKey, puts, seen, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, puts, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 \* The second half of promote: DeleteObject on the upload key (storage.ts:338)
 \* or unlink (storage.ts:234).
@@ -141,7 +154,7 @@ CDrop(c) ==
   /\ pc[c] = "copied"
   /\ store' = [store EXCEPT !["upload"] = 0]
   /\ pc' = [pc EXCEPT ![c] = "dropped"]
-  /\ UNCHANGED <<driver, row, rowKey, puts, lock, seen, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, puts, lock, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 \* update ... set status 'ready', key finalKey where status = 'pending', the
 \* audit row, commit (164-180).
@@ -151,14 +164,14 @@ CCommit(c) ==
   /\ rowKey' = "final"
   /\ checked' = seen[c]
   /\ Release(c)
-  /\ UNCHANGED <<driver, store, puts, seen, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, store, puts, seen, rpc, ppc, pkey, served, cdn, mpc>>
 
 \* The transaction rolls back at any point: a crash, a lost connection, a
 \* failed audit insert. Storage changes already made stay.
 CAbort(c) ==
   /\ pc[c] \in Busy
   /\ Release(c)
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, seen, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 (***************************************************************************)
 (* Cleanup and deletion                                                    *)
@@ -170,7 +183,7 @@ Prune ==
   /\ row = "pending"
   /\ lock = "none" \/ "prune_ignores_lock" \in Broken
   /\ row' = "deleting"
-  /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn, mpc>>
 
 \* Broken design only: removeFile deletes the bytes first and marks the row
 \* after, and can stop in between (guardDeletions throws, the process dies).
@@ -181,12 +194,12 @@ RemoveBytes ==
   /\ row \in {"pending", "ready"}
   /\ store' = [store EXCEPT ![rowKey] = 0]
   /\ rpc' = "bytesGone"
-  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, ppc, pkey, served, cdn, mpc>>
 
 RemoveStops ==
   /\ rpc = "bytesGone"
   /\ rpc' = "idle"
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, ppc, pkey, served, cdn, mpc>>
 
 \* removeFile's claim (254-258): one update `status <> 'deleting'`. An update
 \* waits for a row lock, so it runs after a completion commits or rolls back.
@@ -196,7 +209,7 @@ RemoveClaim ==
   /\ row \in {"pending", "ready"}
   /\ row' = "deleting"
   /\ rpc' = "idle"
-  /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, ppc, pkey, served>>
+  /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, ppc, pkey, served, cdn, mpc>>
 
 \* purgeDeletedFiles (279-314): read deleting rows' keys in one scope (280-291),
 \* remove the bytes outside any scope (295-302), a storage failure keeps the
@@ -206,31 +219,82 @@ PurgeRead ==
   /\ row = "deleting"
   /\ pkey' = rowKey
   /\ ppc' = "read"
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, served>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, served, cdn, mpc>>
 
 PurgeRemove ==
   /\ ppc = "read"
   /\ store' = [store EXCEPT ![pkey] = 0]
   /\ ppc' = "removed"
-  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, rpc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, rpc, pkey, served, cdn, mpc>>
 
 PurgeStorageFails ==
   /\ ppc = "read"
   /\ ppc' = "idle"
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, pkey, served>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, pkey, served, cdn, mpc>>
 
 PurgeDelete ==
   /\ ppc = "removed"
   /\ row' = IF row = "deleting" THEN "gone" ELSE row
   /\ ppc' = "idle"
-  /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, rpc, pkey, served>>
+  /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, rpc, pkey, served, cdn, mpc>>
 
 \* GET /files/:id/download (files.http.ts:134-157) and getFile (184-194): a
 \* link only for a ready row (readyFile, 205-213), to the row's key.
 Download ==
   /\ row = "ready" \/ ("download_pending" \in Broken /\ row = "pending")
   /\ served' = served \cup {store[rowKey]}
-  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey>>
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, cdn, mpc>>
+
+(***************************************************************************)
+(* The Cloudflare move (cloudflareMove.ts), queued by the completion's     *)
+(* commit (files.service.ts:178), so only for a file that became ready.    *)
+(***************************************************************************)
+
+\* The job reads the row (109-111), sees it ready under the R2 key (126),
+\* and Cloudflare fetches the R2 object into Images or Stream (100, 72-74).
+\* In the broken design the R2 object is removed before the row moves.
+MovePush ==
+  /\ cdn /\ driver = "s3"
+  /\ mpc = "idle"
+  /\ row = "ready" /\ rowKey = "final"
+  /\ store' = [store EXCEPT !["cf"] = store["final"],
+                            !["final"] = IF "move_drops_first" \in Broken THEN 0 ELSE @]
+  /\ mpc' = "pushed"
+  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn>>
+
+\* A failed attempt after the push runs again from the start (the image id
+\* and the video's creator find the copy it made).
+MoveRetry ==
+  /\ mpc = "pushed"
+  /\ mpc' = "idle"
+  /\ UNCHANGED <<driver, row, rowKey, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn>>
+
+\* update ... set storage, key where status = 'ready' and key = the R2 key
+\* (137-143). It waits for a row lock like removeFile's claim; a row deleted
+\* meanwhile updates nothing, and the job removes its copy (145-148).
+MoveCommit ==
+  /\ mpc = "pushed"
+  /\ lock = "none"
+  /\ IF row = "ready" /\ rowKey = "final"
+       THEN /\ rowKey' = "cf"
+            /\ mpc' = "committed"
+       ELSE /\ mpc' = "lost"
+            /\ UNCHANGED rowKey
+  /\ UNCHANGED <<driver, row, store, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn>>
+
+\* The R2 object goes after the row moved (152), or on a retry that finds the
+\* row moved (115-119).
+MoveDrop ==
+  /\ mpc = "committed"
+  /\ store' = [store EXCEPT !["final"] = 0]
+  /\ mpc' = "done"
+  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn>>
+
+MoveCleanup ==
+  /\ mpc = "lost"
+  /\ store' = [store EXCEPT !["cf"] = 0]
+  /\ mpc' = "done"
+  /\ UNCHANGED <<driver, row, rowKey, puts, lock, pc, seen, checked, rpc, ppc, pkey, served, cdn>>
 
 Next ==
   \/ Put
@@ -239,6 +303,7 @@ Next ==
   \/ RemoveBytes \/ RemoveStops \/ RemoveClaim
   \/ PurgeRead \/ PurgeRemove \/ PurgeStorageFails \/ PurgeDelete
   \/ Download
+  \/ MovePush \/ MoveRetry \/ MoveCommit \/ MoveDrop \/ MoveCleanup
 
 Spec == Init /\ [][Next]_vars
 
@@ -246,12 +311,13 @@ Spec == Init /\ [][Next]_vars
 (* Properties                                                              *)
 (***************************************************************************)
 
-\* No ready file without its bytes: a ready row points at its own key, and
-\* that key holds exactly the version the completion checked.
+\* No ready file without its bytes: a ready row points at its own key (or at
+\* Cloudflare's copy of it), and that key holds exactly the version the
+\* completion checked.
 ReadyHasCheckedBytes ==
-  row = "ready" => /\ rowKey = "final"
+  row = "ready" => /\ rowKey \in {"final", "cf"}
                    /\ checked # 0
-                   /\ store["final"] = checked
+                   /\ store[rowKey] = checked
 
 \* No deleted bytes under a live record: while a row is ready, nothing
 \* removes or replaces the bytes under its key.
