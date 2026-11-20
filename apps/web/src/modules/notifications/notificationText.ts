@@ -25,7 +25,8 @@ export const useNotificationText = () => {
 
     const said = (words: string) =>
       plugin(words, {
-        ...text.data.values,
+        // As `replace`, so a value named `ns` or `lng` fills its place and is never an option.
+        replace: text.data.values,
         ns: notification.source,
         defaultValue: words,
         nsSeparator: false,

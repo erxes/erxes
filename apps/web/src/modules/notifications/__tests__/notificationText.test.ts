@@ -63,9 +63,19 @@ describe('a notification in the member’s language', () => {
   });
 
   it('reads a plugin’s text in English with its values filled in', async () => {
-    expect(await read(confirmed)).toBe(
-      'Reservation RS-000123 confirmed | 2 nights from 3 December',
-    );
+    // The text and its values are what is read, not the title and body sent beside them.
+    const sent = { ...confirmed, title: 'As sent', body: 'As sent' };
+
+    expect(await read(sent)).toBe('Reservation RS-000123 confirmed | 2 nights from 3 December');
+  });
+
+  it('fills in a value whose name is one of the translator’s own options', async () => {
+    const named = {
+      ...confirmed,
+      data: { text: { title: 'From {{ns}} in {{lng}}', values: { ns: 'Front desk', lng: 'May' } } },
+    };
+
+    expect(await read(named)).toBe('From Front desk in May | 2 nights from 3 December');
   });
 
   it('reads the same notification in Mongolian once the member picks it', async () => {
