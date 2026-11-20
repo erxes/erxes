@@ -1,2 +1,0 @@
-ALTER TABLE "core_email_deliveries" ADD COLUMN "provider" text;--> statement-breakpoint
-ALTER TABLE "core_email_deliveries" ADD CONSTRAINT "core_email_deliveries_provider_check" CHECK ("core_email_deliveries"."provider" IN ('smtp', 'sendgrid', 'ses', 'log'));

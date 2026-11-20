@@ -1,9 +1,10 @@
 import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
+import { isIntegrationType } from '@erxes/core-contract/integrationValues';
 import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
 
-const isEmpty = (value: unknown) =>
+export const isEmpty = (value: unknown) =>
   value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length);
 
 /** The action's required inputs the step leaves empty. */
@@ -13,13 +14,34 @@ export const emptyRequired = (input: Record<string, unknown>, action: ActionInfo
 /** What an empty required input says, under the input and on the canvas card. */
 export const fillIn = (field: ActionField) => `Fill in ${field.label.toLowerCase()}`;
 
+const NEEDS = {
+  customer: 'a customer',
+  company: 'a company',
+  any: 'a customer or company',
+} as const;
+
+const missingAction = (type: string, known: ActionInfo[]) => {
+  const elsewhere = known.find((item) => item.type === type);
+
+  if (elsewhere?.subject)
+    return `“${elsewhere.label}” needs ${NEEDS[elsewhere.subject]}, and this trigger is not about one`;
+
+  return isIntegrationType(type)
+    ? 'This action is not available (its integration or program may be deleted)'
+    : 'This action is not available (its plugin may be uninstalled)';
+};
+
 /** What keeps a step from working, before the server says so. */
-const stepProblems = (step: AutomationStep, actions: ActionInfo[]): string[] => {
+const stepProblems = (
+  step: AutomationStep,
+  actions: ActionInfo[],
+  known: ActionInfo[],
+): string[] => {
   switch (step.type) {
     case 'action': {
       const action = actions.find((item) => item.type === step.action);
 
-      if (!action) return ['This action is not available (its plugin may be uninstalled)'];
+      if (!action) return [missingAction(step.action, known)];
 
       return emptyRequired(step.input, action).map(fillIn);
     }
@@ -39,14 +61,15 @@ const stepProblems = (step: AutomationStep, actions: ActionInfo[]): string[] => 
 export const flowProblems = (
   steps: AutomationStep[],
   actions: ActionInfo[],
+  known: ActionInfo[] = actions,
   into = new Map<string, string[]>(),
 ) => {
   for (const step of steps) {
-    const problems = stepProblems(step, actions);
+    const problems = stepProblems(step, actions, known);
 
     if (problems.length) into.set(step.id, problems);
 
-    for (const arm of armsOf(step)) flowProblems(arm.steps, actions, into);
+    for (const arm of armsOf(step)) flowProblems(arm.steps, actions, known, into);
   }
 
   return into;

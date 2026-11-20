@@ -66,7 +66,8 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
 - No query per item in a loop (`no-await-in-loop`): batch with `inArray` or a set-based update.
   Loops that are sequential on purpose go through `inOrder` or `repeatWhile` (`src/lib/sequence.ts`).
 - Tokens core signs get their own JOSE `typ` (`signJwt`); `verifyJwt` checks it and parses the claims.
-- Settings are read only in `src/config.ts`. Secrets also read `<NAME>_FILE`.
+- Settings are read only in `src/env.ts`, which checks the environment, and shaped in
+  `src/config.ts`, which the code imports. Secrets also read `<NAME>_FILE`.
 - `src/lib/crypto.ts` is the only file that imports `node:crypto`: `safeEqual`, `sha256`,
   `hmacSha256`, `randomToken`, password hashing and sealing. Add a missing helper there.
   `src/lib/secrets.ts` seals with keys derived from core's secret.

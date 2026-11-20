@@ -13,7 +13,7 @@ export interface IntegrationStatus {
 }
 
 /**
- * Each integration's state (`statusOf`), from four queries for the whole
+ * Each integration's state (`statusOf`), from three queries for the whole
  * catalog. Null while it loads, when its query failed (`error`), or when the
  * member may not see it (gateways and receipts need payments.manage). A
  * plugin's tile has none: core can't tell whether a plugin is set up.
@@ -21,8 +21,6 @@ export interface IntegrationStatus {
 export const useIntegrationStatus = () => {
   const canPayments = useCan()('payments.manage');
   const ebarimt = useQuery(orpc.ebarimt.settings.queryOptions());
-  const email = useQuery(orpc.emails.settings.queryOptions());
-  const sender = useQuery(orpc.emails.sender.queryOptions());
 
   const gateways = useQuery(
     orpc.payments.gateways.queryOptions({ input: canPayments ? undefined : skipToken }),
@@ -38,13 +36,8 @@ export const useIntegrationStatus = () => {
   );
 
   const statusOf = (integration: Integration): IntegrationStatus | null => {
-    if (integration.kind === 'email') {
-      if (!email.isSuccess || !sender.isSuccess) return null;
-
-      // SaaS: sent through erxes' provider, nothing to set up; production with only the log: not set up.
-      const connected = sender.data.canDeliver && (email.data !== null || !sender.data.ownSending);
-
-      return { state: connected ? 'connected' : 'not-set-up' };
+    if (integration.kind === 'custom') {
+      return { state: integration.record.sealedNames.length ? 'connected' : 'not-set-up' };
     }
 
     if (integration.kind === 'ebarimt') {
@@ -75,14 +68,7 @@ export const useIntegrationStatus = () => {
   return {
     statusOf,
     /** A state query failed: its tiles show no state, the page says so. */
-    error: email.error ?? sender.error ?? ebarimt.error ?? gateways.error ?? failed.error,
-    refetch: () =>
-      Promise.all([
-        email.refetch(),
-        sender.refetch(),
-        ebarimt.refetch(),
-        gateways.refetch(),
-        failed.refetch(),
-      ]),
+    error: ebarimt.error ?? gateways.error ?? failed.error,
+    refetch: () => Promise.all([ebarimt.refetch(), gateways.refetch(), failed.refetch()]),
   };
 };

@@ -21,6 +21,7 @@ import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerApps';
+import { integrationIncomingRouter } from '~/modules/integrations/incoming.http';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { emailEventsRouter } from '~/modules/email/events/events.http';
@@ -28,6 +29,7 @@ import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';
+import { legacyFilesRouter } from './modules/files/legacyFiles.http';
 
 const REQUEST_ID = /^[\w.:-]{8,100}$/;
 
@@ -64,7 +66,9 @@ const requestLogger = (log: Logger) =>
     quietReqLogger: true,
     quietResLogger: true,
     customAttributeKeys: { reqId: 'requestId' },
-    autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/ready' },
+    autoLogging: {
+      ignore: (req) => req.url === '/health' || req.url === '/ready',
+    },
     customLogLevel: (_req, res, error) => {
       if (error || res.statusCode >= 500) return 'error';
 
@@ -85,8 +89,14 @@ const requestLogger = (log: Logger) =>
         remoteAddress,
       }),
     },
-    customSuccessObject: (req, _res, line: Record<string, unknown>) => ({ ...line, req }),
-    customErrorObject: (req, _res, _error, line: Record<string, unknown>) => ({ ...line, req }),
+    customSuccessObject: (req, _res, line: Record<string, unknown>) => ({
+      ...line,
+      req,
+    }),
+    customErrorObject: (req, _res, _error, line: Record<string, unknown>) => ({
+      ...line,
+      req,
+    }),
   });
 
 export const createApp = (log: Logger = logger): Express => {
@@ -127,8 +137,12 @@ export const createApp = (log: Logger = logger): Express => {
   app.use('/core/v1/saas', limit.token, saasRouter);
   app.get('/gateway/pl\\:core/core-login', limit.token, saasLogin);
 
+  // erxes 3.x file links (`<api>/read-file?key=`), at its path and core's: no sign-in, as in 3.x.
+  app.use(['/core/v1', '/gateway'], legacyFilesRouter);
+
   // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
   app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));
+  app.use('/core/v1', integrationIncomingRouter(limit.integrationIncoming));
 
   // Email providers report bounces, complaints and deliveries: signed raw bodies, no sign-in.
   app.use('/core/v1', emailEventsRouter(limit.emailEvents));

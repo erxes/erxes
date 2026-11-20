@@ -1,8 +1,8 @@
-import { CORE_API_PREFIX } from '@erxes/core-contract';
 import {
   actorOf,
   caller,
   type Db,
+  fileBuckets,
   files,
   newId,
   requestOrgId,
@@ -10,7 +10,7 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
+import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
@@ -20,25 +20,17 @@ import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { assertStreamable, queueCloudflareMove } from './cloudflareMove';
+import { fileWithUrl } from './fileColumns';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
-import { canShowInline, storage } from './storage';
+import { storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
+import { canShowInline } from './storage';
 import { logger } from '~/logger';
 import { guardDeletions } from '~/lib/deletionGuard';
 
 const log = logger.child({ component: 'files' });
 
 type FileRow = typeof files.$inferSelect;
-
-/** A file with its stable address, `/core/v1/files/<id>/download`. */
-const fileWithUrl = {
-  ...getTableColumns(files),
-  url: sql<string>`${`${CORE_API_PREFIX}/files/`} || ${files.id} || '/download'`.as('url'),
-  publicUrl: sql<
-    string | null
-  >`case when ${files.public} then ${`${CORE_API_PREFIX}/files/public/`} || ${files.id} end`.as(
-    'public_url',
-  ),
-};
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
 const uploadKey = (orgId: string, id: string) => `uploads/${orgId}/${id}/${randomToken(12, 'hex')}`;
@@ -66,13 +58,16 @@ export const createUpload = async (
   input: { name: string; contentType: string; size: number; public?: boolean },
 ) => {
   assertUploadAllowed(await fileSettingsOf(client), input);
+  assertStreamable(input);
 
   const id = newId();
   // The upload link writes here; the file's own key is only written by core, after checking.
   const key = uploadKey(requestOrgId(), id);
   const expiresIn = config.files.linkTtlSeconds;
 
-  const target = await storage().uploadTarget(key, {
+  const store = await uploadStore(client);
+
+  const target = await store.bytes.uploadTarget(key, {
     contentType: input.contentType,
     size: input.size,
     expiresIn,
@@ -84,6 +79,7 @@ export const createUpload = async (
       .values({
         id,
         key,
+        storage: store.name,
         name: input.name,
         contentType: input.contentType,
         size: input.size,
@@ -140,14 +136,15 @@ export const completeUpload = async (client: Db, id: string) => {
     return row;
   }
 
-  const stored = await storage().stat(row.key);
+  const store = await uploadedTo(client, row.storage);
+  const stored = await store.stat(row.key);
 
   if (!stored) {
     throw fail('UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
   }
 
   if (stored.size !== row.size) {
-    await storage().remove(row.key);
+    await store.remove(row.key);
     throw fail(
       'UPLOAD_INCOMPLETE',
       'The uploaded file does not match the declared size; upload it again',
@@ -157,7 +154,7 @@ export const completeUpload = async (client: Db, id: string) => {
   const finalKey = storageKey(requestOrgId(), id);
 
   try {
-    await storage().promote(row.key, finalKey, stored);
+    await store.promote(row.key, finalKey, stored);
   } catch {
     throw fail('UPLOAD_CHANGED', 'The file changed while it was being checked; upload it again');
   }
@@ -178,6 +175,8 @@ export const completeUpload = async (client: Db, id: string) => {
     metadata: { contentType: row.contentType, size: row.size },
   });
 
+  await queueCloudflareMove(client, ready);
+
   return ready;
 };
 
@@ -191,11 +190,11 @@ export const getFile = async (client: Db, id: string) => {
     return { ...row, downloadUrl: null };
   }
 
-  return { ...row, downloadUrl: await downloadUrlOf(row, false) };
+  return { ...row, downloadUrl: await downloadUrlOf(client, row, false) };
 };
 
-export const downloadUrlOf = (row: FileRow, forceDownload: boolean) =>
-  storage().downloadUrl(row.key, {
+export const downloadUrlOf = async (client: Db, row: FileRow, forceDownload: boolean) =>
+  (await storeOf(client, row.storage)).downloadUrl(row.key, {
     name: row.name,
     contentType: row.contentType,
     inline: !forceDownload && canShowInline(row.contentType),
@@ -300,8 +299,9 @@ export const removeFile = async (client: Db, id: string) => {
 export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   const rows = await withSystem('files: deletions to purge', (tx) =>
     tx
-      .select({ id: files.id, key: files.key })
+      .select({ id: files.id, key: files.key, storage: files.storage, bucket: fileBuckets })
       .from(files)
+      .leftJoin(fileBuckets, eq(fileBuckets.orgId, files.orgId))
       .where(
         and(
           eq(files.status, 'deleting'),
@@ -316,7 +316,7 @@ export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   // One object at a time: the store never gets 500 deletes at once.
   await inOrder(rows, async (row) => {
     try {
-      await storage().remove(row.key);
+      await storeWith(row.storage, row.bucket).remove(row.key);
       removed.push(row.id);
     } catch (error) {
       log.error({ key: row.key, err: error }, 'could not delete stored file; will retry');
@@ -366,16 +366,23 @@ export const storeServerFile = async (
 ) => {
   const id = newId();
   const key = storageKey(orgId, id);
+  const store = await withOrg(orgId, uploadStore);
 
-  await storage().write(key, input.body, input.contentType);
+  await store.bytes.write(key, input.body, input.contentType);
 
-  return withOrg(orgId, async (tx) =>
-    oneRow(
+  return withOrg(orgId, async (tx) => {
+    // The bucket moved meanwhile: it can't have seen this file, so store it again.
+    if ((await uploadStore(tx)).place !== store.place) {
+      throw new Error('the organisation’s bucket changed while the file was stored');
+    }
+
+    return oneRow(
       await tx
         .insert(files)
         .values({
           id,
           key,
+          storage: store.name,
           name: input.name,
           contentType: input.contentType,
           size: input.body.length,
@@ -383,8 +390,8 @@ export const storeServerFile = async (
           ...uploadedBy(),
         })
         .returning(),
-    ),
-  );
+    );
+  });
 };
 
 /**
@@ -392,7 +399,11 @@ export const storeServerFile = async (
  * read in a short scope and the bytes after it: call it outside any scope.
  */
 export const readFileBytes = async (orgId: string, id: string) => {
-  const row = await withOrg(orgId, (tx) => readyFile(tx, id));
+  const { row, store } = await withOrg(orgId, async (tx) => {
+    const ready = await readyFile(tx, id);
 
-  return { row, body: await storage().read(row.key) };
+    return { row: ready, store: await storeOf(tx, ready.storage) };
+  });
+
+  return { row, body: await store.read(row.key) };
 };

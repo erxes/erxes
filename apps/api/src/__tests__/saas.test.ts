@@ -1,31 +1,22 @@
+import { verifyPluginSession } from '@erxes/plugin-sdk';
 import { sql } from 'drizzle-orm';
-import { decodeJwt, SignJWT } from 'jose';
-import { once } from 'node:events';
-import { createServer, type Server } from 'node:http';
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { z } from 'zod';
-import { config } from '~/config';
+import { SignJWT } from 'jose';
+import { describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
+import {
+  CUSTOMER,
+  HANDOFF_SECRET,
+  nowSeconds,
+  pluginItem,
+  STRIPE_KEY,
+  subscribed,
+  useSaas,
+} from './saasSupport';
 import { useTestServer } from './support';
 
-const PLATFORM_TOKEN = 'erxes-io-platform-token-0123456789abcdefghij';
-const HANDOFF_SECRET = 'erxes-io-jwt-token-secret-0123456789';
 const ORG_ID = 'saasOrg0000000001';
 const WORKSPACE = { organization: { subdomain: 'cloud', name: 'Cloud Co' } };
-
-/** What erxes.io sends to create or change a workspace. */
-interface WorkspaceBody {
-  organization?: { subdomain: string; name: string };
-  owner?: { email: string };
-  status?: string;
-}
-
-/** What erxes.io's platform API answers about one subdomain's plugins. */
-interface PlatformAnswer {
-  status: string;
-  details: { code: string; tier: string; status: string }[];
-}
 
 /** Exactly erxes.io's `workspaceUrl` token: HS256 `{ user: { email } }`, 5 minutes. */
 const handoff = (email: string) =>
@@ -35,45 +26,20 @@ const handoff = (email: string) =>
     .setExpirationTime('5m')
     .sign(new TextEncoder().encode(HANDOFF_SECRET));
 
-describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
+describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();
-  let platform: Server;
-  let platformUrl = '';
+  const saas = useSaas(server);
+  const { fromErxesIo } = saas;
 
-  /** What the fake erxes.io answers for `?subdomain=cloud`, as its real API does. */
-  let answer: PlatformAnswer | 'down' = {
-    status: 'active',
-    details: [{ code: 'hr', tier: 'plus', status: 'active' }],
-  };
-
-  const platformCalls: string[] = [];
   /** The owner's browser, signed in through erxes.io's link. */
   let owner = server.browser();
-
-  /** erxes.io → core. */
-  const fromErxesIo = async (
-    method: string,
-    path: string,
-    body?: WorkspaceBody,
-    token = PLATFORM_TOKEN,
-  ) => {
-    const response = await fetch(server.url(`/core/v1/saas${path}`), {
-      method,
-      headers: { ...server.headers(token), 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    return {
-      status: response.status,
-      body: z.record(z.string(), z.unknown()).parse(await response.json()),
-    };
-  };
 
   const refresh = () => fromErxesIo('POST', `/organizations/${ORG_ID}/refresh`);
   const hr = async (org = ORG_ID) => server.client(await server.pluginToken(undefined, org));
   const plan = () => owner.api.saas.plan({});
+  const hrEntry = async () => (await plan()).plugins.find((item) => item.code === 'hr');
 
   /** The status the plugin token endpoint answers for the organisation. */
   const tokenStatus = () =>
@@ -82,48 +48,7 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       (error: { status: number }) => error.status,
     );
 
-  beforeAll(async () => {
-    platform = createServer((req, res) => {
-      platformCalls.push(`${req.headers.authorization} ${req.url}`);
-
-      if (req.headers.authorization !== `Bearer ${PLATFORM_TOKEN}`) return res.writeHead(401).end();
-
-      if (answer === 'down') return res.writeHead(503).end();
-
-      if (!req.url?.includes('subdomain=cloud'))
-        return res
-          .writeHead(404, { 'content-type': 'application/json' })
-          .end('{"error":"Not found"}');
-
-      return res.writeHead(200, { 'content-type': 'application/json' }).end(
-        JSON.stringify({
-          subdomain: 'cloud',
-          status: answer.status,
-          plugins: Object.fromEntries(answer.details.map((row) => [row.code, row.tier])),
-          details: answer.details,
-        }),
-      );
-    }).listen(0);
-    await once(platform, 'listening');
-
-    const address = platform.address();
-
-    if (!address || typeof address === 'string') throw new Error('not listening on a port');
-
-    platformUrl = `http://127.0.0.1:${address.port}`;
-  });
-
-  afterAll(async () => {
-    Object.assign(config.saas, {
-      enabled: false,
-      platformToken: undefined,
-      handoffSecret: undefined,
-    });
-    platform.closeAllConnections();
-    await new Promise<void>((resolve) => platform.close(() => resolve()));
-  });
-
-  it('self-hosted: no plan, every plugin at its top tier, no SaaS door', async () => {
+  it('self-hosted: no plan, every plugin at its top tier, no bundles, no SaaS door', async () => {
     const self = await createOrganization({
       subdomain: 'selfhost',
       name: 'Self',
@@ -133,24 +58,31 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     const member = server.client({ user: self.owner.id, org: self.organization.id });
 
     expect(await member.saas.plan({})).toMatchObject({ saas: false, plugins: [] });
-    expect(await (await hr(self.organization.id)).saas.pluginPlan({})).toMatchObject({
+    expect(await (await hr(self.organization.id)).saas.pluginPlan({})).toEqual({
       saas: false,
       tier: 'pro',
+      status: null,
       access: 'full',
+      readOnlyUntil: null,
+      bundles: [],
     });
+
+    const { token } = await member.plugins.session({ name: 'hr' });
+
+    expect(
+      await verifyPluginSession(token, { coreUrl: server.url(''), plugin: 'hr' }),
+    ).toMatchObject({ tier: 'pro', access: 'full', saas: false, bundles: [] });
     expect((await fromErxesIo('PUT', `/organizations/${ORG_ID}`, {})).status).toBe(404);
   });
 
-  it('creates the workspace from erxes.io, reads its plugins and tiers, and signs the owner in with erxes.io’s link', async () => {
-    Object.assign(config.saas, {
-      enabled: true,
-      platformUrl,
-      platformToken: PLATFORM_TOKEN,
-      handoffSecret: HANDOFF_SECRET,
-      billingUrl: 'https://erxes.io/organizations/{subdomain}/billing',
+  it('creates the workspace from erxes.io, reads its Stripe customer, and signs the owner in with erxes.io’s link', async () => {
+    saas.enable();
+    saas.setStripe({
+      metadata: { free_plugins: 'hr', plugin_tiers: 'hr:plus' },
+      subscriptions: [],
     });
 
-    const body = { ...WORKSPACE, owner: { email: 'owner@cloud.mn' } };
+    const body = { ...WORKSPACE, owner: { email: 'owner@cloud.mn' }, stripeCustomerId: CUSTOMER };
 
     expect((await fromErxesIo('PUT', `/organizations/${ORG_ID}`, body, 'wrong-token')).status).toBe(
       401,
@@ -163,11 +95,10 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       created: true,
       organizationStatus: 'active',
       plugins: [{ code: 'hr', tier: 'plus', status: 'active' }],
+      bundles: [],
     });
-    // Core asked erxes.io with its platform token.
-    expect(platformCalls.at(-1)).toBe(
-      `Bearer ${PLATFORM_TOKEN} /api/platform/organizations/plugins?subdomain=cloud`,
-    );
+    // Core read the customer with its Stripe key.
+    expect(saas.calls.at(0)).toBe(`Bearer ${STRIPE_KEY} /v1/customers/${CUSTOMER}`);
 
     // erxes.io's link opens the workspace once (the organisation from the address).
     const token = await handoff('OWNER@cloud.mn');
@@ -199,23 +130,17 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       plugins: [{ code: 'hr', tier: 'plus', status: 'active', access: 'full', installed: true }],
       manageUrl: 'https://erxes.io/organizations/cloud/billing',
     });
-
-    // The plugin learns its tier, from core and in its members' session tokens.
     expect(await (await hr()).saas.pluginPlan({})).toMatchObject({ tier: 'plus', access: 'full' });
-    expect(decodeJwt((await owner.api.plugins.session({ name: 'hr' })).token)).toMatchObject({
-      tier: 'plus',
-      access: 'full',
-    });
   });
 
-  it('keeps the last answer when erxes.io is down, and warns while a payment retries', async () => {
-    answer = 'down';
+  it('keeps the last answer when Stripe is down, and warns while a payment retries', async () => {
+    saas.setStripe('down');
     expect((await refresh()).body).toMatchObject({ plugins: [{ code: 'hr', tier: 'plus' }] });
     expect(await tokenStatus()).toBe(200);
 
-    answer = { status: 'active', details: [{ code: 'hr', tier: 'plus', status: 'past_due' }] };
+    saas.setStripe(subscribed('past_due', pluginItem('hr', 'plus')));
     await refresh();
-    expect((await plan()).plugins[0]).toMatchObject({ status: 'past_due', access: 'warning' });
+    expect(await hrEntry()).toMatchObject({ status: 'past_due', access: 'warning' });
     // Writes pass the plan check: what stops this one is only the scope this
     // installation never granted, not READ_ONLY or a payment error.
     const plugin = await hr();
@@ -227,9 +152,10 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   });
 
   it('a plugin that leaves the plan is read-only for the grace days, then off; bought again, it is back', async () => {
-    answer = { status: 'active', details: [] };
+    // Removed, and its period ended: the item grants nothing now.
+    saas.setStripe(subscribed('active', pluginItem('hr', 'plus', 0, nowSeconds() - 60)));
     await refresh();
-    const [lapsed] = (await plan()).plugins;
+    const lapsed = await hrEntry();
 
     expect(lapsed).toMatchObject({ code: 'hr', tier: null, access: 'read_only' });
     expect(lapsed?.readOnlyUntil).toMatch(/^\d{4}-\d{2}-\d{2}T/);
@@ -256,7 +182,7 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     expect(await tokenStatus()).not.toBe(200);
 
     // Bought again (Pro this time).
-    answer = { status: 'active', details: [{ code: 'hr', tier: 'pro', status: 'active' }] };
+    saas.setStripe(subscribed('active', pluginItem('hr', 'pro')));
     await refresh();
     expect((await plan()).plugins).toMatchObject([
       { code: 'hr', tier: 'pro', access: 'full', installed: true },
@@ -265,8 +191,10 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   });
 
   it('a disabled workspace lets nobody in but its plan page', async () => {
-    answer = { status: 'inactive', details: [{ code: 'hr', tier: 'pro', status: 'active' }] };
-    await refresh();
+    expect(
+      (await fromErxesIo('PUT', `/organizations/${ORG_ID}`, { ...WORKSPACE, status: 'inactive' }))
+        .status,
+    ).toBe(200);
 
     const disabled = { code: 'ORGANIZATION_DISABLED' };
 
@@ -274,12 +202,11 @@ describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     expect(await plan()).toMatchObject({ organizationStatus: 'inactive' });
     await expect((await hr()).saas.pluginPlan({})).rejects.toMatchObject(disabled);
 
-    // erxes.io turns it back on itself (enable), no need to wait for the next check.
-    answer = { status: 'active', details: [{ code: 'hr', tier: 'pro', status: 'active' }] };
+    // erxes.io turns it back on (enable); the Stripe customer it named stays.
     expect(
       (await fromErxesIo('PUT', `/organizations/${ORG_ID}`, { ...WORKSPACE, status: 'active' }))
-        .status,
-    ).toBe(200);
+        .body,
+    ).toMatchObject({ plugins: [{ code: 'hr', tier: 'pro', status: 'active' }] });
     expect((await owner.api.customers.list({})).totalCount).toBe(0);
   });
 

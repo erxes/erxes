@@ -1,5 +1,5 @@
 import { FILE_STORAGES } from '@erxes/core-db/enums';
-import { files } from '@erxes/core-db/schema';
+import { fileBuckets, files } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
@@ -55,6 +55,18 @@ export const UploadTarget = z.object({
 
 export type UploadTarget = z.infer<typeof UploadTarget>;
 
+/** The organisation's own S3-compatible bucket; the secret is never sent back. */
+export const FileBucket = createSelectSchema(fileBuckets, { updatedAt: isoDate }).pick({
+  /** The S3 API address. */
+  endpoint: true,
+  region: true,
+  bucket: true,
+  /** `<endpoint>/<bucket>` addresses (MinIO) rather than `<bucket>.<endpoint>`. */
+  forcePathStyle: true,
+  accessKeyId: true,
+  updatedAt: true,
+});
+
 /** What an organisation accepts (Settings → File upload). */
 export const FileSettings = z.object({
   /** Largest upload in MB. */
@@ -63,8 +75,12 @@ export const FileSettings = z.object({
   allowedTypes: z.array(z.string()),
   /** The deployment's limit; `maxSizeMb` can't go above it. */
   limitMb: z.int(),
-  /** Where files are stored. */
+  /** Where the server stores files (FILES_STORAGE). */
   storage: z.enum(FILE_STORAGES),
+  /** Whether the organisation may store files in its own bucket: a self-hosted server on its disk. */
+  bucketAllowed: z.boolean(),
+  /** The organisation's own bucket, where new uploads go; null: the server's storage. */
+  bucket: FileBucket.nullable(),
 });
 
 export type FileSettings = z.infer<typeof FileSettings>;
@@ -79,7 +95,34 @@ const AllowedType = z
     '.ext, type/subtype or type/*',
   );
 
+/** Where to store new uploads: an S3-compatible bucket and a key that may read and write it. */
+export const FileBucketInput = z.object({
+  endpoint: z.url({ protocol: /^https?$/ }).max(500),
+  region: z
+    .string()
+    .trim()
+    .min(1)
+    .max(64)
+    .regex(/^[a-z0-9-]+$/, 'auto, us-east-1 …'),
+  bucket: z
+    .string()
+    .trim()
+    .regex(
+      /^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/,
+      '3 to 63 lowercase letters, digits, dots, hyphens',
+    ),
+  forcePathStyle: z.boolean(),
+  accessKeyId: z.string().trim().min(1).max(128),
+  /** Left out on a change to the same address and key id: the saved one stays. */
+  secretAccessKey: z.string().min(1).max(256).optional(),
+});
+
+export type FileBucketInput = z.infer<typeof FileBucketInput>;
+
 const {
+  BUCKET_IN_USE,
+  BUCKET_NOT_ALLOWED,
+  BUCKET_REFUSED,
   FILE_TOO_LARGE,
   FILE_TYPE_NOT_ALLOWED,
   LIMIT_EXCEEDED,
@@ -98,6 +141,9 @@ const base = oc.errors({
   UPLOAD_CHANGED,
   UPLOAD_INCOMPLETE,
 });
+
+/** The organisation's own bucket. */
+const bucketBase = base.errors({ BUCKET_IN_USE, BUCKET_NOT_ALLOWED, BUCKET_REFUSED });
 
 export const filesContract = {
   createUpload: base
@@ -179,5 +225,22 @@ export const filesContract = {
         allowedTypes: z.array(AllowedType).max(100),
       }),
     )
+    .output(FileSettings),
+  saveBucket: bucketBase
+    .route({
+      method: 'PUT',
+      path: '/settings/files/bucket',
+      summary:
+        'Store new uploads in the organisation’s own bucket, once a test file goes in and out (owners and admins). 403 BUCKET_NOT_ALLOWED on erxes.io or when the server sets the storage, 400 BUCKET_REFUSED when the test fails, 409 BUCKET_IN_USE to move to another bucket while files are in this one',
+    })
+    .input(FileBucketInput)
+    .output(FileSettings),
+  removeBucket: bucketBase
+    .route({
+      method: 'DELETE',
+      path: '/settings/files/bucket',
+      summary:
+        'Store new uploads on the server again (owners and admins). 409 BUCKET_IN_USE while files are in the bucket',
+    })
     .output(FileSettings),
 };

@@ -19,7 +19,7 @@ export const areas = [
   {
     // Where settings come from the environment: core's config, CLIs, tests and build configs.
     files: [
-      'apps/api/src/config.ts',
+      'apps/api/src/env.ts',
       'apps/api/scripts/**',
       'apps/api/src/__tests__/**',
       'packages/create-erxes/src/existing-plugins.ts',

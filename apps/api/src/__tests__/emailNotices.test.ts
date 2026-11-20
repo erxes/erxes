@@ -6,7 +6,7 @@ import { adminDb, useTestDatabase } from './db';
 import { useEmailRamp } from './emailRamp.fixture';
 import { settle } from './settle';
 
-const LIMITS = '/settings/integrations/email?tab=limits';
+const LIMITS = '/settings/email?tab=limits';
 
 /** What the sending ramp tells the members who manage integrations, and only them. */
 describe('email sending notices', { timeout: 240_000 }, () => {
@@ -96,7 +96,7 @@ describe('email sending notices', { timeout: 240_000 }, () => {
       {
         title: 'Bounces are not being counted',
         priority: 'high',
-        link: '/settings/integrations/email',
+        link: '/settings/email',
         data: { provider: 'SendGrid' },
       },
     ]);

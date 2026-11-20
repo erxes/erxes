@@ -121,7 +121,10 @@ const deliver = async (
   const emailing = wantsEmail && (await canDeliverEmail(client));
 
   if (wantsEmail && !emailing)
-    log.warn({ orgId, kind: input.kind }, 'customer notification not emailed: sending isn’t set up');
+    log.warn(
+      { orgId, kind: input.kind },
+      'customer notification not emailed: sending isn’t set up',
+    );
 
   if (emailing) {
     await sendEmail(

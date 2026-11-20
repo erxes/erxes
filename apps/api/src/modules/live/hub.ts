@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import { StreamTopic } from '@erxes/core-contract';
 import { sslOptions } from '@erxes/core-db';
 import { Client } from 'pg';
 import { z } from 'zod';
@@ -7,24 +8,19 @@ import { logger } from '~/logger';
 
 const log = logger.child({ component: 'live' });
 
-/** What a committed change announces (see migration 0008). */
+/** What a committed change announces (`core_live_topic`, migration 0099). */
 const LiveSignal = z.discriminatedUnion('k', [
-  z.object({ o: z.string(), k: z.literal('inbox'), u: z.string() }),
-  z.object({ o: z.string(), k: z.literal('assistant'), u: z.string() }),
-  /** Stop the run of agent storage `s`'s root conversation, on whichever server runs it. */
-  z.object({ o: z.string(), k: z.literal('agent-stop'), s: z.string() }),
-  /** A customer's or company's timeline. */
-  z.object({ o: z.string(), k: z.literal('timeline'), t: z.string(), i: z.string() }),
-  /** Many records changed at once (merge, import): refetch everything. */
-  z.object({ o: z.string(), k: z.literal('resync') }),
-  /** A plugin's topic changed (`core_live_signal`): to everyone, or members `u`. */
+  /** Topic `t` changed: for everyone in the organisation, or members `u`. */
   z.object({
     o: z.string(),
-    k: z.literal('plugin'),
-    p: z.string(),
-    t: z.string(),
+    k: z.literal('topic'),
+    t: StreamTopic,
     u: z.array(z.string()).optional(),
   }),
+  /** Stop the run of agent storage `s`'s root conversation, on whichever server runs it. */
+  z.object({ o: z.string(), k: z.literal('agent-stop'), s: z.string() }),
+  /** Many records changed at once (merge, import): refetch everything. */
+  z.object({ o: z.string(), k: z.literal('resync') }),
 ]);
 
 export type LiveSignal = z.infer<typeof LiveSignal>;

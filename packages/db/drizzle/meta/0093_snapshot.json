@@ -1,5 +1,5 @@
 {
-  "id": "e48d4ab6-542a-4fb3-b23b-98e6bcfc77a6",
+  "id": "b35411c2-627a-4bc3-b9ca-33b72bd02ecd",
   "prevId": "88b157d4-f2e0-46ff-9c28-26b0e6ab6800",
   "version": "7",
   "dialect": "postgresql",
@@ -6772,8 +6772,21 @@
           "notNull": true,
           "default": "'active'"
         },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "plugins": {
           "name": "plugins",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "bundles": {
+          "name": "bundles",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
@@ -13554,123 +13567,6 @@
         "core_ebarimt_settings_percent_check": {
           "name": "core_ebarimt_settings_percent_check",
           "value": "\"core_ebarimt_settings\".\"vat_percent\" >= 0 AND \"core_ebarimt_settings\".\"vat_percent\" <= 100 AND \"core_ebarimt_settings\".\"city_tax_percent\" >= 0 AND \"core_ebarimt_settings\".\"city_tax_percent\" <= 100"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.core_email_reply_tos": {
-      "name": "core_email_reply_tos",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "secret_hash": {
-          "name": "secret_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verified_at": {
-          "name": "verified_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_email_reply_tos_org_email_key": {
-          "name": "core_email_reply_tos_org_email_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "lower(\"email\")",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_email_reply_tos_org_id_fkey": {
-          "name": "core_email_reply_tos_org_id_fkey",
-          "tableFrom": "core_email_reply_tos",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_email_reply_tos_status_check": {
-          "name": "core_email_reply_tos_status_check",
-          "value": "\"core_email_reply_tos\".\"status\" IN ('pending', 'verified')"
         }
       },
       "isRLSEnabled": false

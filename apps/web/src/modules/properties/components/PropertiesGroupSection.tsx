@@ -50,6 +50,7 @@ const PropertiesGroupActions = ({
             variant="ghost"
             size="icon"
             className="size-7 shrink-0"
+            aria-label={t('group-actions', 'Actions for {{name}}', { name: group.name })}
             onClick={(event) => event.stopPropagation()}
           />
         }

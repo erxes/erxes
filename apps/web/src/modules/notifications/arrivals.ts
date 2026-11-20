@@ -1,6 +1,7 @@
 import type { Notification } from '@erxes/core-contract';
 import { type QueryClient, QueryObserver } from '@tanstack/react-query';
 import { orpc } from '@erxes/core-contract/client';
+import { liveOptions } from '~/lib/live';
 
 /**
  * Calls `onNew` with each unread notification that arrives after it starts:
@@ -14,6 +15,7 @@ export const watchArrivals = (client: QueryClient, onNew: (item: Notification) =
     client,
     orpc.notifications.list.queryOptions({
       input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
+      ...liveOptions(['inbox']),
     }),
   );
 

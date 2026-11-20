@@ -8,9 +8,9 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { RAMP_NOTICE_QUEUE, RAMP_RULES, RampNotice, rampOf } from './ramp';
 
 /** Settings › Integrations › Email sending: its Limits tab, and its Overview. */
-const LIMITS_LINK = '/settings/integrations/email?tab=limits';
+const LIMITS_LINK = '/settings/email?tab=limits';
 
-const OVERVIEW_LINK = '/settings/integrations/email';
+const OVERVIEW_LINK = '/settings/email';
 
 /** Active members who manage integrations (the owner's `*` among them). */
 const adminIds = async (client: Db) =>

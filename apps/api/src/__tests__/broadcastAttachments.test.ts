@@ -72,9 +72,11 @@ describe('broadcast attachments', { timeout: 300_000 }, () => {
 
   it('refuses more than 5 files, over 10 MB together, a repeated file and SMS attachments', async () => {
     const owner = t.owner();
+
     const small = await Promise.all(
       [1, 2, 3, 4, 5, 6].map((n) => upload(`f${n}.txt`, Buffer.from(`file ${n}`))),
     );
+
     const ids = small.map(({ id }) => id);
 
     await expect(
@@ -121,6 +123,7 @@ describe('broadcast attachments', { timeout: 300_000 }, () => {
   it('refuses another organisation’s file and one still uploading', async () => {
     const owner = t.owner();
     const theirs = await upload('theirs.txt', Buffer.from('globex'), 'other');
+
     const pending = await owner.files.createUpload({
       name: 'later.txt',
       contentType: 'text/plain',

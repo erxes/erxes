@@ -1,177 +1,5 @@
-import {
-  EMAIL_DRIVERS,
-  FILE_STORAGES,
-  LOG_FORMATS,
-  LOG_LEVELS,
-  SMS_DRIVERS,
-} from '@erxes/core-db/enums';
-import { readFileSync } from 'node:fs';
-import { z } from 'zod';
-import { baseUrl, flag, list, optional, pluginKeys, positive, text } from './envValues';
+import { env } from './env';
 
-/** Settings that may also come from a file named by `<NAME>_FILE` (Docker and Kubernetes secrets). */
-const SECRETS = [
-  'DATA_URL',
-  'DATA_MIGRATION_URL',
-  'DATA_LISTEN_URL',
-  'DATA_SSL_CA',
-  'CORE_JWT_SECRET',
-  'CORE_SIGNING_KEY',
-  'CORE_SIGNING_KEYS_RETIRED',
-  'CORE_ENCRYPTION_KEY',
-  'CORE_PLUGIN_KEYS',
-  'EMAIL_SMTP_URL',
-  'SAAS_PLATFORM_TOKEN',
-  'SAAS_JWT_TOKEN_SECRET',
-  'S3_ACCESS_KEY_ID',
-  'S3_SECRET_ACCESS_KEY',
-] as const;
-
-const readSecret = (name: string) => {
-  const file = process.env[`${name}_FILE`];
-
-  return file ? readFileSync(file, 'utf8') : process.env[name];
-};
-
-const Env = z
-  .object({
-    NODE_ENV: text,
-    PORT: positive(3400),
-
-    LOG_LEVEL: optional(z.enum(LOG_LEVELS)),
-    LOG_FORMAT: optional(z.enum(LOG_FORMATS)),
-    OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.url()),
-
-    DATA_URL: text,
-    DATA_MIGRATION_URL: text,
-    DATA_RUNTIME_ROLE: text,
-    DATA_LISTEN_URL: text,
-    DATA_SSL: flag,
-    DATA_SSL_CA: text,
-    DATA_SSL_INSECURE: flag,
-    DATA_POOL_MAX: positive(10),
-    DATA_MIGRATE_ON_START: flag,
-    DATA_ROLE: text,
-    DATA_STATEMENT_TIMEOUT_MS: positive(15_000),
-
-    LIVE_MAX_STREAMS_PER_USER: positive(10),
-    CORE_SETUP: flag,
-
-    CORE_JWT_SECRET: text,
-    CORE_ACCESS_TOKEN_TTL_SECONDS: positive(3600),
-    CORE_SESSION_HOURS: positive(12),
-    DEFAULT_SUBDOMAIN: optional(z.string().toLowerCase()),
-    FAILED_SIGN_IN_ALERT: positive(10),
-    CORE_SIGNING_KEY: text,
-    CORE_SIGNING_KEY_DEV_FILE: text,
-    CORE_SIGNING_KEYS_RETIRED: text,
-    CORE_ENCRYPTION_KEY: text,
-    CORE_PLUGIN_KEYS: pluginKeys,
-    PLUGINS_AUTO_INSTALL: flag,
-
-    APP_URL: baseUrl('http://localhost:3500'),
-
-    EMAIL_DRIVER: optional(z.enum(EMAIL_DRIVERS)),
-    EMAIL_SMTP_URL: text,
-    EMAIL_FROM: text,
-    SENDGRID_WEBHOOK_PUBLIC_KEY: text,
-    SES_CONFIGURATION_SET: text,
-    SES_EVENTS_TOPIC_ARNS: list,
-    EMAIL_AUTH_HOURLY_CAP: positive(300),
-
-    SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
-
-    BROADCAST_PER_MINUTE: positive(600),
-
-    OUTBOUND_ALLOW_PRIVATE: flag,
-
-    ASSISTANT_OPENAI_URL: baseUrl('https://api.openai.com/v1'),
-    ASSISTANT_GROK_URL: baseUrl('https://api.x.ai/v1'),
-    ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
-    ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
-    EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
-
-    SAAS: flag,
-    SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
-    SAAS_PLATFORM_TOKEN: text,
-    SAAS_JWT_TOKEN_SECRET: text,
-    SAAS_GRACE_DAYS: positive(7),
-    SAAS_BILLING_URL: text,
-
-    FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
-    FILES_LOCAL_DIR: text,
-    FILES_MAX_SIZE_MB: positive(50),
-    FILES_LINK_TTL_SECONDS: positive(300),
-    FILES_PENDING_TTL_HOURS: positive(24),
-    S3_BUCKET: text,
-    S3_REGION: text,
-    S3_ENDPOINT: text,
-    S3_ACCESS_KEY_ID: text,
-    S3_SECRET_ACCESS_KEY: text,
-    S3_FORCE_PATH_STYLE: flag,
-
-    AUDIT_RETENTION_DAYS: positive(365),
-    NOTIFICATIONS_RETENTION_DAYS: positive(90),
-    EVENTS_RETENTION_DAYS: positive(30),
-    AUTOMATION_RUN_DETAILS_RETENTION_DAYS: positive(90),
-
-    MASS_DELETE_ALERT: positive(100),
-    MASS_DELETE_LIMIT: positive(500),
-
-    AGENT_MAX_TURNS: optional(z.coerce.number().int().positive()).transform((value) => value ?? 30),
-    AGENT_RUNS_PER_MINUTE: positive(60),
-  })
-  .superRefine((env, ctx) => {
-    if (env.NODE_ENV !== 'production') return;
-
-    const problem = (message: string) => ctx.addIssue({ code: 'custom', message });
-
-    if (!env.DATA_URL) problem('DATA_URL (or DATA_URL_FILE) must be set in production');
-
-    if (!env.CORE_JWT_SECRET) {
-      problem('CORE_JWT_SECRET (or CORE_JWT_SECRET_FILE) must be set in production');
-    }
-
-    if (!env.CORE_SIGNING_KEY) {
-      problem(
-        'CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256',
-      );
-    }
-
-    if (env.DATA_SSL_INSECURE) {
-      problem(
-        'DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)',
-      );
-    }
-  })
-  .superRefine((env, ctx) => {
-    if (env.SAAS && (env.SAAS_PLATFORM_TOKEN?.length ?? 0) < 32) {
-      ctx.addIssue({
-        code: 'custom',
-        message:
-          "SAAS=true needs SAAS_PLATFORM_TOKEN (at least 32 characters; erxes.io's PLATFORM_API_TOKEN)",
-      });
-    }
-
-    if (env.FILES_STORAGE === 's3' && !env.S3_BUCKET) {
-      ctx.addIssue({ code: 'custom', message: 'FILES_STORAGE=s3 needs S3_BUCKET' });
-    }
-  });
-
-const parsed = Env.safeParse({
-  ...process.env,
-  ...Object.fromEntries(SECRETS.map((name) => [name, readSecret(name)])),
-});
-
-if (!parsed.success) {
-  const problems = parsed.error.issues.map((issue) =>
-    issue.path.length ? `${issue.path.join('.')}: ${issue.message}` : issue.message,
-  );
-
-  throw new Error(`Invalid settings:\n  ${problems.join('\n  ')}`);
-}
-
-const env = parsed.data;
 const isProduction = env.NODE_ENV === 'production';
 const dataUrl = env.DATA_URL ?? 'postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes';
 
@@ -324,16 +152,18 @@ export const config = {
     taxpayerUrl: env.EBARIMT_TAXPAYER_URL,
   },
   /**
-   * SaaS (erxes.io): core reads each organisation's plugins and tiers from
-   * erxes.io's entitlement API and enforces them. Off: self-hosted, every
-   * plugin at its top tier, nothing to check.
+   * SaaS (erxes.io): core reads each organisation's plugins, tiers and
+   * bundles from its Stripe customer and enforces them. Off: self-hosted,
+   * every plugin at its top tier, nothing to check.
    */
   saas: {
     enabled: env.SAAS ?? false,
-    /** erxes.io, whose `/api/platform/organizations/plugins?subdomain=` answers what each organisation has. */
+    /** erxes.io, where a refused sign-in link goes back to. */
     platformUrl: env.SAAS_PLATFORM_URL,
-    /** Bearer token both ways: core → erxes.io (PLATFORM_API_TOKEN there), erxes.io → core's /saas/*. */
+    /** erxes.io → core's /saas/* (PLATFORM_API_TOKEN there). */
     platformToken: env.SAAS_PLATFORM_TOKEN,
+    /** Reads erxes.io's Stripe account: customers, subscriptions, products. */
+    stripe: { key: env.SAAS_STRIPE_SECRET_KEY, url: 'https://api.stripe.com/v1' },
     /** erxes.io's sign-in hand-off key (its SAAS_JWT_TOKEN_SECRET, HS256). */
     handoffSecret: env.SAAS_JWT_TOKEN_SECRET,
     /** Days a plugin that left the plan stays read-only before it is turned off. */
@@ -360,7 +190,10 @@ export const config = {
     autoInstall: env.PLUGINS_AUTO_INSTALL ?? env.CORE_SETUP !== false,
   },
   files: {
-    /** `local` (a folder on this server) or `s3` (AWS S3, Cloudflare R2, MinIO, …). */
+    /**
+     * `local` (a folder on this server), `s3` (AWS S3, R2, MinIO, …) or
+     * `cloudflare` (an R2 bucket, plus Images and Stream with `cloudflare.useCdn`).
+     */
     driver: env.FILES_STORAGE ?? 'local',
     localDir: env.FILES_LOCAL_DIR ?? './data/files',
     s3: {
@@ -371,6 +204,25 @@ export const config = {
       accessKeyId: env.S3_ACCESS_KEY_ID,
       secretAccessKey: env.S3_SECRET_ACCESS_KEY,
       forcePathStyle: env.S3_FORCE_PATH_STYLE ?? false,
+    },
+    cloudflare: {
+      /** The R2 bucket, through its S3 API. */
+      r2: {
+        bucket: env.CLOUDFLARE_BUCKET_NAME ?? '',
+        region: 'auto',
+        endpoint: `https://${env.CLOUDFLARE_ACCOUNT_ID ?? 'account'}.r2.cloudflarestorage.com`,
+        accessKeyId: env.CLOUDFLARE_ACCESS_KEY_ID,
+        secretAccessKey: env.CLOUDFLARE_SECRET_ACCESS_KEY,
+        forcePathStyle: false,
+      },
+      /** Images go to Cloudflare Images and videos to Stream after they reach R2. */
+      useCdn: env.CLOUDFLARE_USE_CDN ?? false,
+      accountId: env.CLOUDFLARE_ACCOUNT_ID ?? '',
+      apiToken: env.CLOUDFLARE_API_TOKEN,
+      /** Images' delivery address: `<imagesUrl>/<accountHash>/<image id>/<variant>`. */
+      accountHash: env.CLOUDFLARE_ACCOUNT_HASH ?? '',
+      apiUrl: 'https://api.cloudflare.com/client/v4',
+      imagesUrl: 'https://imagedelivery.net',
     },
     /** The deployment's limit; organisations can only lower it. */
     maxSizeMb: env.FILES_MAX_SIZE_MB,

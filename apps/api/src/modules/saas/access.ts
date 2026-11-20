@@ -23,11 +23,11 @@ export const readOnlyUntil = (
 };
 
 /**
- * What a plugin may do in an organisation, from what erxes.io last said:
+ * What a plugin may do in an organisation, from what Stripe last said:
  * in the plan → `full` (`warning` while a payment retries or the plugin ends
  * at period end); left the plan → `read_only` for the grace days, then
- * `off`; never had it → `off`. Self-hosted, and organisations erxes.io
- * hasn't answered for yet, are `full`.
+ * `off`; never had it → `off`. Self-hosted, and organisations not read
+ * from Stripe yet, are `full`.
  */
 export const accessOf = (
   row: EntitlementRow | null | undefined,
@@ -45,8 +45,16 @@ export const accessOf = (
   return until && until > now ? 'read_only' : 'off';
 };
 
-/** The tier a plugin has here (self-hosted: everything, as Pro). */
-export const tierOf = (row: EntitlementRow | null | undefined, code: string) =>
-  !config.saas.enabled
-    ? 'pro'
-    : (row?.plugins.find((plugin) => plugin.code === code)?.tier ?? (row ? null : 'pro'));
+/**
+ * The plan a plugin learns from `saas.pluginPlan` and from its session and call tokens: its tier
+ * (self-hosted: everything, as Pro) and the bundle codes the organisation has live on Stripe, one
+ * per bundle bought (self-hosted: none).
+ */
+export const planOfPlugin = (row: EntitlementRow | null | undefined, code: string) =>
+  config.saas.enabled
+    ? {
+        saas: true,
+        tier: row?.plugins.find((plugin) => plugin.code === code)?.tier ?? (row ? null : 'pro'),
+        bundles: row?.bundles ?? [],
+      }
+    : { saas: false, tier: 'pro' as const, bundles: [] };

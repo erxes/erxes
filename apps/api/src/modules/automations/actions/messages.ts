@@ -140,9 +140,7 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
 
       if (cc.includes('{{')) return [];
 
-      return [
-        ...new Set(CcList.safeParse(ccOf(cc)).error?.issues.map((issue) => issue.message)),
-      ];
+      return [...new Set(CcList.safeParse(ccOf(cc)).error?.issues.map((issue) => issue.message))];
     },
     // Queues the emails in the step's transaction; the email job sends them.
     run: async (ctx) => {
@@ -173,6 +171,7 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       const wanted = checked(CcList, ccOf(ctx.input.cc)).filter(
         (address) => !recipients.some((recipient) => recipient.toLowerCase() === address),
       );
+
       const suppressedCc = await suppressedOf(ctx.tx, wanted, false);
       const cc = wanted.filter((address) => !suppressedCc.has(address));
 

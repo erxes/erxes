@@ -5,16 +5,17 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '~/lib/paths';
+import { liveOptions } from '~/lib/live';
 
 /** Statuses whose audience and content can still change (a recurring one's, for its later runs). */
 export const isEditable = (status: Broadcast['status']) =>
   status === 'draft' || status === 'scheduled' || status === 'recurring';
 
-/** One broadcast, polled while it goes out so the numbers move. */
+/** One broadcast, refetched as it goes out so the numbers move. */
 export const broadcastQuery = (id: string) =>
   orpc.broadcasts.get.queryOptions({
     input: { id },
-    refetchInterval: ({ state }) => (state.data?.status === 'sending' ? 3000 : false),
+    ...liveOptions([`broadcasts:${id}`], 5000),
   });
 
 /** Only a broadcast that isn't going out can be deleted (the API's rule). */

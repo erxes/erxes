@@ -16,6 +16,14 @@ export const ASSISTANT_THINKING_KINDS = ['effort', 'toggle', 'budget', 'fixed', 
 
 export const ASSISTANT_QUESTION_MODES = ['single_select', 'multi_select'] as const;
 
+export const ASSISTANT_QUESTION_COMPONENTS = [
+  'text',
+  'long_text',
+  'number',
+  'date',
+  'member',
+] as const;
+
 export const ASSISTANT_RECORD_TYPES = [
   'customer',
   'company',
@@ -47,8 +55,6 @@ export const ASSISTANT_TEXT_TYPES = [
 ] as const;
 
 export const ASSISTANT_ARTIFACT_FORMATS = ['html', 'csv', 'markdown'] as const;
-
-export const ASSISTANT_PROGRAM_HOST_FUNCTIONS = ['searchApi', 'callApi'] as const;
 
 export const ASSISTANT_PROGRAM_FAILURES = ['TIMEOUT', 'OUT_OF_MEMORY', 'PROGRAM_ERROR'] as const;
 

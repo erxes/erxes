@@ -63,7 +63,7 @@ export const ReplyToSelect = ({
         {stale
           ? t('stale', 'This address isn’t verified any more: choose another or add it again.')
           : t('hint', 'Only confirmed addresses.')}{' '}
-        <Link className="underline" to={paths.settings.integration('email')}>
+        <Link className="underline" to={paths.settings.email}>
           {t('manage', 'Manage addresses')}
         </Link>
       </p>

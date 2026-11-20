@@ -108,7 +108,11 @@ const runLocalAction = async (
 
     return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
   } catch (error) {
-    if (error instanceof ORPCError && FINAL_ERRORS.has(error.code))
+    if (
+      error instanceof ORPCError &&
+      typeof error.code === 'string' &&
+      FINAL_ERRORS.has(error.code)
+    )
       return { kind: 'failed', error: error.message };
 
     throw error;

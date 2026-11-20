@@ -37,6 +37,7 @@ export {
   auditCheckpoints,
   authTokens,
   auditLogs,
+  eventData,
   events,
   files,
   notifications,
@@ -82,6 +83,7 @@ export {
   emailDeliveries,
   emailAddresses,
   emailRamps,
+  fileBuckets,
   pluginInstallations,
   productCategories,
   products,
@@ -95,6 +97,9 @@ export {
   users,
   webhookDeliveries,
   webhooks,
+  integrations,
+  integrationPrograms,
+  integrationProgramVersions,
 } from './schema';
 
 export type {
@@ -110,6 +115,7 @@ export type {
   ImportCounts,
   ImportOptions,
   InvoiceLine,
+  IntegrationProgramDefinition,
   TaxBuyer,
   EbarimtTaxRule,
   EbarimtPrintBlock,

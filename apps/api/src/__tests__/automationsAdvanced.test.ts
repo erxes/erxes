@@ -10,6 +10,18 @@ const note = (body: string): DefinitionInput => ({
   steps: [{ id: 'n', type: 'action', action: 'core.note.add', input: { body } }],
 });
 
+const mail = (cc: string): DefinitionInput => ({
+  trigger: { kind: 'event', event: 'core.customer.created' },
+  steps: [
+    {
+      id: 'mail',
+      type: 'action',
+      action: 'core.email.send',
+      input: { to: 'subject', subject: 'Copied', body: 'Hello', cc },
+    },
+  ],
+});
+
 describe('automations: paths, testing and operations', { timeout: 600_000 }, () => {
   useTestDatabase();
 
@@ -195,18 +207,6 @@ describe('automations: paths, testing and operations', { timeout: 600_000 }, () 
   });
 
   it('copies an email step to its Cc, at most 5 addresses', async () => {
-    const mail = (cc: string): DefinitionInput => ({
-      trigger: { kind: 'event', event: 'core.customer.created' },
-      steps: [
-        {
-          id: 'mail',
-          type: 'action',
-          action: 'core.email.send',
-          input: { to: 'subject', subject: 'Copied', body: 'Hello', cc },
-        },
-      ],
-    });
-
     const check = async (cc: string) =>
       (await t.owner().automations.check({ definition: mail(cc) })).problems;
 

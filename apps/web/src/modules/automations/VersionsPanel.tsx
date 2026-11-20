@@ -1,7 +1,5 @@
-import { IconHistory } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Sheet, useToast, useFormat } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
@@ -79,29 +77,21 @@ const VersionList = ({ automationId, active }: { automationId: string; active: n
 export const VersionsPanel = ({
   automationId,
   active,
+  open,
+  onOpenChange,
 }: {
   automationId: string;
   active: number | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger
-        render={
-          <Button
-            variant="ghost"
-            title={t('versions', 'Versions')}
-            aria-label={t('versions', 'Versions')}
-          />
-        }
-      >
-        <IconHistory />
-      </Sheet.Trigger>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <Sheet.View>
         <Sheet.Header>
-          <Sheet.Title>{t('versions', 'Versions')}</Sheet.Title>
+          <Sheet.Title>{t('versions', 'Earlier versions')}</Sheet.Title>
           <Sheet.Description>
             {t(
               'versions-description',

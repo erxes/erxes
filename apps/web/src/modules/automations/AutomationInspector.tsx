@@ -72,8 +72,8 @@ const InspectorTabs = ({
 };
 
 const SettingsPanel = (props: InspectorProps) => {
-  const { draft, actions, fields, problems, onSelect } = props;
-  const { events, outputsBefore } = useContext(BuilderContext);
+  const { draft, fields, problems, onSelect } = props;
+  const { events, outputsBefore, knownActions } = useContext(BuilderContext);
 
   const stepProblems = [...problems.entries()].flatMap(([stepId, list]) => {
     const step = findStep(draft.definition.steps, stepId);
@@ -84,7 +84,7 @@ const SettingsPanel = (props: InspectorProps) => {
             stepId,
             first: list[0],
             title: describeStep(step, {
-              actions,
+              actions: knownActions,
               events,
               fields: [...fields, ...outputsBefore(stepId)],
             }).title,

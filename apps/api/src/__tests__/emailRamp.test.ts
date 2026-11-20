@@ -1,9 +1,16 @@
-import { emailRamps, emailSettings, newId, suppressions } from '@erxes/core-db';
+import {
+  emailRamps,
+  emailSettings,
+  newId,
+  pluginInstallations,
+  suppressions,
+} from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { seal } from '~/lib/secrets';
 import { loggedEmails } from '~/modules/email/email';
+import { forgetEntitlements } from '~/modules/saas/entitlements';
 import { adminDb, useTestDatabase } from './db';
 import { useEmailRamp } from './emailRamp.fixture';
 import { makeDue, settle } from './settle';
@@ -134,7 +141,7 @@ describe('email sending ramp', { timeout: 240_000 }, () => {
       {
         title: 'Email sending is halted',
         priority: 'high',
-        link: '/settings/integrations/email?tab=limits',
+        link: '/settings/email?tab=limits',
         data: { percent: '12.0', sent: 100, days: 7 },
       },
     ]);
@@ -216,6 +223,12 @@ describe('email sending ramp', { timeout: 240_000 }, () => {
       code: 'NOT_IN_PLAN',
     });
     config.saas.enabled = false;
+    // SaaS read the organisation's plan, which has no plugins here: hr comes back.
+    await adminDb()
+      .update(pluginInstallations)
+      .set({ status: 'active', statusReason: null })
+      .where(eq(pluginInstallations.orgId, t.ids.org));
+    forgetEntitlements(t.ids.org);
 
     // Through the server's sending (the log driver here), the ramp can't be turned off.
     await expect(t.owner().emails.setRamp({ enabled: false })).rejects.toMatchObject({

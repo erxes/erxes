@@ -133,3 +133,19 @@ test('a member filters customers by a tag, opens the advanced filter and clears 
   await expect(row).toBeHidden();
   await expect(page.getByRole('button', { name: `Name ${other}` })).toBeVisible();
 });
+
+test('Escape in a list inside a dialog closes only the list', async ({ page }) => {
+  await page.goto('/contacts/customers');
+  await page.getByRole('button', { name: 'Export' }).click();
+
+  const dialog = page.getByRole('dialog', { name: 'Export' });
+
+  await dialog.getByRole('combobox', { name: 'Format' }).click();
+  await expect(page.getByRole('listbox')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('listbox')).toBeHidden();
+  await expect(dialog).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+});

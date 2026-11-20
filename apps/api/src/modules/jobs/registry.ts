@@ -8,7 +8,9 @@ import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
 import { rampSchedule } from '~/modules/email/rampEvaluation';
 import { rampNoticeJob } from '~/modules/email/rampNotices';
+import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
+import { incomingJob } from '~/modules/integrations/incoming';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import { paymentCheckJob } from '~/modules/payments/invoiceState';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
@@ -44,6 +46,8 @@ export const JOBS = [
   pluginImportRunJob,
   exportRunJob,
   exampleDataJob,
+  cloudflareMoveJob,
+  incomingJob,
   ...BROADCAST_JOBS,
   broadcastRepeat,
   ...CONSUMER_JOBS,

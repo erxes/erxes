@@ -178,10 +178,10 @@ const STEP_TYPES = ['action', 'delay', 'wait_for', 'branch', 'switch', 'split', 
 export type StepType = (typeof STEP_TYPES)[number];
 
 export const STEP_TITLES: Record<StepType, string> = {
-  action: 'Action',
+  action: 'Do something',
   delay: 'Wait',
   wait_for: 'Wait for an event',
-  branch: 'If / else',
+  branch: 'If / otherwise',
   switch: 'Choose a path',
   split: 'A/B split',
   stop: 'Stop',

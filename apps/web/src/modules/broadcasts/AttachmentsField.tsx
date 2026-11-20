@@ -11,28 +11,15 @@ const MB = 1024 * 1024;
 
 const sizeOf = (files: { size: number }[]) => files.reduce((sum, file) => sum + file.size, 0);
 
-/** The files an email broadcast sends with every copy: uploaded as they are picked. */
-export const AttachmentsField = ({
-  value,
-  onChange,
-}: {
-  value: string[];
-  onChange: (attachmentIds: string[]) => void;
-}) => {
+/** Uploads picked files within the limits and adds them to `value`. */
+const useAttach = (
+  value: string[],
+  attached: { size: number }[],
+  onChange: (attachmentIds: string[]) => void,
+) => {
   const { t } = useTranslation('broadcasts');
   const { toast } = useToast();
   const [uploading, setUploading] = useState(0);
-
-  const files = useQuery(
-    orpc.files.list.queryOptions({
-      input: value.length > 0 ? { ids: value.join(',') } : skipToken,
-      select: (page) => page.data,
-    }),
-  );
-
-  const attached = files.data ?? [];
-  // Files the list no longer returns were deleted since they were attached.
-  const deleted = files.isSuccess ? value.filter((id) => !attached.some((f) => f.id === id)) : [];
 
   const refuse = (title: string) => toast({ variant: 'destructive', title });
 
@@ -78,6 +65,44 @@ export const AttachmentsField = ({
     onChange([...value, ...ids.flat()]);
   };
 
+  return { attach, uploading };
+};
+
+const DeletedNotice = ({ count, onRemove }: { count: number; onRemove: () => void }) => {
+  const { t } = useTranslation('broadcasts');
+
+  return (
+    <p role="alert" className="flex items-center gap-2 text-xs text-destructive-text">
+      {t('attachments-deleted', '{{count}} attached files were deleted', { count })}
+      <Button variant="ghost" size="sm" onClick={onRemove}>
+        {t('attachments-remove-deleted', 'Remove them')}
+      </Button>
+    </p>
+  );
+};
+
+/** The files an email broadcast sends with every copy: uploaded as they are picked. */
+export const AttachmentsField = ({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (attachmentIds: string[]) => void;
+}) => {
+  const { t } = useTranslation('broadcasts');
+
+  const files = useQuery(
+    orpc.files.list.queryOptions({
+      input: value.length > 0 ? { ids: value.join(',') } : skipToken,
+      select: (page) => page.data,
+    }),
+  );
+
+  const attached = files.data ?? [];
+  // Files the list no longer returns were deleted since they were attached.
+  const deleted = files.isSuccess ? value.filter((id) => !attached.some((f) => f.id === id)) : [];
+  const { attach, uploading } = useAttach(value, attached, onChange);
+
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
@@ -97,19 +122,10 @@ export const AttachmentsField = ({
         />
       )}
       {deleted.length > 0 && (
-        <p role="alert" className="flex items-center gap-2 text-xs text-destructive-text">
-          {t('attachments-deleted', '{{count}} attached files were deleted', {
-            count: deleted.length,
-          })}
-          <Button
-            variant="link"
-            size="sm"
-            className="h-auto p-0"
-            onClick={() => onChange(value.filter((id) => !deleted.includes(id)))}
-          >
-            {t('attachments-remove-deleted', 'Remove them')}
-          </Button>
-        </p>
+        <DeletedNotice
+          count={deleted.length}
+          onRemove={() => onChange(value.filter((id) => !deleted.includes(id)))}
+        />
       )}
       <p className="text-xs text-muted-foreground">
         {t('attachments-hint', 'Sent with every email: up to {{max}} files, {{mb}} MB together.', {

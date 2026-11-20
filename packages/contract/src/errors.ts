@@ -149,6 +149,11 @@ export const ERRORS = {
   FILE_TYPE_NOT_ALLOWED: { status: 400, data: z.object({ allowedTypes: z.array(z.string()) }) },
   UPLOAD_INCOMPLETE: { status: 409 },
   UPLOAD_CHANGED: { status: 409 },
+  // The organisation's own bucket: not offered here (erxes.io, or the server's configuration sets
+  // the storage), the bucket refused core's test file, or files are still stored in it.
+  BUCKET_NOT_ALLOWED: { status: 403 },
+  BUCKET_REFUSED: { status: 400 },
+  BUCKET_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
   // Signed upload links of the local driver (files.http.ts).
   CONTENT_TYPE_MISMATCH: { status: 400 },
   SIZE_MISMATCH: { status: 400 },

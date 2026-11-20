@@ -302,6 +302,40 @@
   scrollbar-color: var(--border) transparent;
 }
 
+/* A board that scrolls sideways (useBoardScroll): its scrollbar stays in sight, also where the
+   system hides scrollbars until they move (macOS), and the hand grabs while the board pans.
+   Chrome and Safari draw the ::-webkit-scrollbar bar; scrollbar-width would turn it back into
+   the hiding one there, so only browsers without it (Firefox) get the standard properties. */
+@utility board-scroll {
+  &::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 10px;
+    border: 2px solid var(--background);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  &[data-panning] {
+    cursor: grabbing;
+    user-select: none;
+  }
+}
+
 @utility block-child {
   & > * {
     @apply block!;

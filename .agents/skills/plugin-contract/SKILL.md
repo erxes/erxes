@@ -47,7 +47,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      as `reads:<permission>`), and `plugins.callToken` (`apps/api/src/modules/plugins/pluginCalls.ts`)
      issues a 5-minute token, typ `erxes-plugin-call+jwt`, `aud` the plugin read, `sub`
      `plugin:<caller>`, claims `org`, `plugin`, `permissions` (approved and declared by the plugin
-     read), `tier` and `access`, while both are installed there. The SDK's `fetchPlugin` sends it
+     read), `tier`, `access`, `saas` and `bundles` (as `saas.pluginPlan` answers them, also in
+     member session tokens), while both are installed there. The SDK's `fetchPlugin` sends it
      to `<api.url><path>`, and `verifyPluginCall` gives the plugin read a `PluginMember` with
      `userId` `plugin:<caller>`. The scope prefix, the typ, the claims and the codes
      `READ_NOT_APPROVED`, `PLUGIN_NOT_INSTALLED` and `PLUGIN_UNREACHABLE` are the contract.
@@ -139,7 +140,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      plugin's `name` and the key is the English text, which shows when no translation is there.
      The manifest's `translations` (`PluginTranslations`, `packages/contract/src/pluginTranslations.ts`)
      add words to that namespace per language, for what core shows from the manifest (the title,
-     activity and timeline labels) as well as from the config. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
+     activity and timeline labels) as well as from the config. A notification is read in the
+     member's language the same way when the plugin sends `data.text` (`NotificationText`,
+     `packages/contract/src/pluginTranslations.ts`): the English title and body with their values left
+     out, which are the keys, and the values
+     (`apps/web/src/modules/notifications/notificationText.ts`). Its `title` and `body` stay ready
+     to read in English, for email. An event's `notify` takes the same as `text`. A slot's props (`TRecordSlotProps`, `TRelationTabProps`) are the contract: a new
      optional slot or prop is additive, a renamed one a break. erxes-ui's `useOpenRecord` and `ContactLink` open records and drafts
      through the `RecordOpenerProvider` web mounts, so the panel's URL stays core's own. `open`'s
      `tab` (a type's tab `value`, `detail` or `activity`; anything else opens the default) and a

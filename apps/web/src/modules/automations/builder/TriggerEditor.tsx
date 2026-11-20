@@ -1,10 +1,11 @@
 import type { AutomationTrigger, DataField } from '@erxes/core-contract';
 import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Badge, Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
+import { EventDataHint } from './EventDataHint';
 import { eventDataFields } from './flowChecks';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
 import { AudienceEditor, Field } from './triggerFields';
@@ -43,6 +44,7 @@ type EventInfo = {
   source: string;
   subject: 'customer' | 'company' | null;
   fields?: DataField[];
+  seen?: boolean;
 };
 
 const KindPicker = ({
@@ -91,6 +93,31 @@ const KindPicker = ({
   );
 };
 
+/** What steps can use from the event: its values by name, or why there are none yet. */
+const EventData = ({ event }: { event: EventInfo }) => {
+  const { t } = useTranslation('automations');
+  const fields = event.fields ?? [];
+
+  // Core's customer and company events carry that record, which steps use as the record.
+  if (!fields.length && event.source === 'core' && event.subject) return null;
+
+  return (
+    <Field label={t('event-data', 'What steps can use from it')}>
+      {fields.length ? (
+        <div className="flex flex-wrap gap-1.5">
+          {fields.map((field) => (
+            <Badge key={field.key} variant="secondary">
+              {field.label}
+            </Badge>
+          ))}
+        </div>
+      ) : (
+        <EventDataHint event={event} subject={event.subject} />
+      )}
+    </Field>
+  );
+};
+
 const EventTriggerSettings = ({
   trigger,
   events,
@@ -116,6 +143,7 @@ const EventTriggerSettings = ({
           onChange={(event) => onChange({ ...trigger, event })}
         />
       </Field>
+      {started && <EventData event={started} />}
       <Field
         label={t('only-if', 'Only if')}
         hint={

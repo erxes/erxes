@@ -121,7 +121,7 @@ downloadRouter.get('/files/:id/download', async (req, res) => {
   const url = await withOrg(requestOrgId(), async (tx) => {
     const row = await readyFile(tx, req.params.id);
     const saving = req.query.download === '1';
-    const address = await downloadUrlOf(row, saving);
+    const address = await downloadUrlOf(tx, row, saving);
 
     // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
     if (saving) {
@@ -165,5 +165,5 @@ publicFilesRouter.get('/files/public/:id', async (req, res) => {
   if (!row) throw notFound('File');
 
   res.setHeader('Cache-Control', 'public, max-age=300');
-  res.redirect(302, await downloadUrlOf(row, false));
+  res.redirect(302, await withOrg(row.orgId, (tx) => downloadUrlOf(tx, row, false)));
 });

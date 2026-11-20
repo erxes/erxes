@@ -6,6 +6,7 @@ import { Button, Command, Spinner, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
 import { type CursorParams, forwardPaging } from '~/lib/cursorList';
+import { liveOptions } from '~/lib/live';
 import { threadTitle } from './useThread';
 
 const PAGE = 50;
@@ -31,6 +32,7 @@ const useThreadPages = () =>
     orpc.assistant.threads.infiniteOptions({
       input: (page: CursorParams) => page,
       ...forwardPaging(PAGE),
+      ...liveOptions(['assistant'], false),
     }),
   );
 

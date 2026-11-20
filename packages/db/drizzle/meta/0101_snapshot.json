@@ -1,6 +1,6 @@
 {
-  "id": "5d51b16e-25b9-4dc9-aa4b-78eb243157be",
-  "prevId": "471b6019-8cf9-460a-ac90-f501f5f52b3d",
+  "id": "d50b70a8-32c1-417e-92b5-2957402f05fc",
+  "prevId": "0c92d82e-375e-474b-af97-585373950bb5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3233,6 +3233,96 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.core_file_buckets": {
+      "name": "core_file_buckets",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "endpoint": {
+          "name": "endpoint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bucket": {
+          "name": "bucket",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "force_path_style": {
+          "name": "force_path_style",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "access_key_id": {
+          "name": "access_key_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "secret_sealed": {
+          "name": "secret_sealed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_file_buckets_org_id_fkey": {
+          "name": "core_file_buckets_org_id_fkey",
+          "tableFrom": "core_file_buckets",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.core_files": {
       "name": "core_files",
       "schema": "",
@@ -3255,6 +3345,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "storage": {
+          "name": "storage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -3413,6 +3509,10 @@
         "core_files_status_check": {
           "name": "core_files_status_check",
           "value": "\"core_files\".\"status\" IN ('pending', 'ready', 'deleting')"
+        },
+        "core_files_storage_check": {
+          "name": "core_files_storage_check",
+          "value": "\"core_files\".\"storage\" IN ('local', 's3', 'cloudflare', 'bucket', 'cloudflare_images', 'cloudflare_stream')"
         },
         "core_files_size_check": {
           "name": "core_files_size_check",
@@ -3936,6 +4036,79 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.core_event_data": {
+      "name": "core_event_data",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_event_data_org_id_fkey": {
+          "name": "core_event_data_org_id_fkey",
+          "tableFrom": "core_event_data",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_event_data_pkey": {
+          "name": "core_event_data_pkey",
+          "columns": [
+            "org_id",
+            "type",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_event_data_kind_check": {
+          "name": "core_event_data_kind_check",
+          "value": "\"core_event_data\".\"kind\" IN ('seen', 'text', 'number', 'boolean', 'list')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.core_events": {
@@ -6772,8 +6945,21 @@
           "notNull": true,
           "default": "'active'"
         },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "plugins": {
           "name": "plugins",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "bundles": {
+          "name": "bundles",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
@@ -12675,6 +12861,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "from_email": {
+          "name": "from_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "reply_to": {
           "name": "reply_to",
           "type": "text",
@@ -13558,8 +13750,8 @@
       },
       "isRLSEnabled": false
     },
-    "public.core_email_addresses": {
-      "name": "core_email_addresses",
+    "public.core_email_senders": {
+      "name": "core_email_senders",
       "schema": "",
       "columns": {
         "id": {
@@ -13581,489 +13773,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "sent_count": {
-          "name": "sent_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_sent_at": {
-          "name": "last_sent_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "delivered_count": {
-          "name": "delivered_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_delivered_at": {
-          "name": "last_delivered_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "soft_bounces": {
-          "name": "soft_bounces",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_bounced_at": {
-          "name": "last_bounced_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_email_addresses_org_email_key": {
-          "name": "core_email_addresses_org_email_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "email",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_email_addresses_org_id_fkey": {
-          "name": "core_email_addresses_org_id_fkey",
-          "tableFrom": "core_email_addresses",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_email_addresses_email_check": {
-          "name": "core_email_addresses_email_check",
-          "value": "\"core_email_addresses\".\"email\" = lower(\"core_email_addresses\".\"email\")"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.core_email_deliveries": {
-      "name": "core_email_deliveries",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "source": {
-          "name": "source",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "source_id": {
-          "name": "source_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to": {
-          "name": "to",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "customer_id": {
-          "name": "customer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "subject": {
-          "name": "subject",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "error": {
-          "name": "error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sent_at": {
-          "name": "sent_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reported_at": {
-          "name": "reported_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "deferrals": {
-          "name": "deferrals",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_email_deliveries_org_created_idx": {
-          "name": "core_email_deliveries_org_created_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": false,
-              "nulls": "last"
-            },
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": false,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_email_deliveries_source_idx": {
-          "name": "core_email_deliveries_source_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_email_deliveries_org_id_fkey": {
-          "name": "core_email_deliveries_org_id_fkey",
-          "tableFrom": "core_email_deliveries",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_email_deliveries_source_check": {
-          "name": "core_email_deliveries_source_check",
-          "value": "\"core_email_deliveries\".\"source\" IN ('account', 'security', 'notification', 'customer', 'customer_account', 'broadcast', 'automation', 'plugin', 'ebarimt', 'settings')"
-        },
-        "core_email_deliveries_status_check": {
-          "name": "core_email_deliveries_status_check",
-          "value": "\"core_email_deliveries\".\"status\" IN ('queued', 'sent', 'delivered', 'bounced', 'complained', 'failed', 'suppressed', 'held', 'capped')"
-        },
-        "core_email_deliveries_provider_check": {
-          "name": "core_email_deliveries_provider_check",
-          "value": "\"core_email_deliveries\".\"provider\" IN ('smtp', 'sendgrid', 'ses', 'log')"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.core_email_ramps": {
-      "name": "core_email_ramps",
-      "schema": "",
-      "columns": {
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "tier": {
-          "name": "tier",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "enabled": {
-          "name": "enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "day": {
-          "name": "day",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "(now() at time zone 'utc')::date"
-        },
-        "sent_today": {
-          "name": "sent_today",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "tier_changed_at": {
-          "name": "tier_changed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "evaluated_at": {
-          "name": "evaluated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "halted_at": {
-          "name": "halted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "halt_reason": {
-          "name": "halt_reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resumed_at": {
-          "name": "resumed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resumed_by": {
-          "name": "resumed_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resume_reason": {
-          "name": "resume_reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "capped_notice_at": {
-          "name": "capped_notice_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "limit_notice_day": {
-          "name": "limit_notice_day",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "events_notice_at": {
-          "name": "events_notice_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "core_email_ramps_org_id_fkey": {
-          "name": "core_email_ramps_org_id_fkey",
-          "tableFrom": "core_email_ramps",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_email_ramps_tier_check": {
-          "name": "core_email_ramps_tier_check",
-          "value": "\"core_email_ramps\".\"tier\" >= 0 and \"core_email_ramps\".\"tier\" < 5"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.core_email_reply_tos": {
-      "name": "core_email_reply_tos",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "secret_hash": {
-          "name": "secret_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verified_at": {
-          "name": "verified_at",
+        "confirmed_at": {
+          "name": "confirmed_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
@@ -14090,8 +13807,8 @@
         }
       },
       "indexes": {
-        "core_email_reply_tos_org_email_key": {
-          "name": "core_email_reply_tos_org_email_key",
+        "core_email_senders_org_email_key": {
+          "name": "core_email_senders_org_email_key",
           "columns": [
             {
               "expression": "org_id",
@@ -14100,9 +13817,9 @@
               "nulls": "last"
             },
             {
-              "expression": "lower(\"email\")",
+              "expression": "email",
+              "isExpression": false,
               "asc": true,
-              "isExpression": true,
               "nulls": "last"
             }
           ],
@@ -14113,9 +13830,9 @@
         }
       },
       "foreignKeys": {
-        "core_email_reply_tos_org_id_fkey": {
-          "name": "core_email_reply_tos_org_id_fkey",
-          "tableFrom": "core_email_reply_tos",
+        "core_email_senders_org_id_fkey": {
+          "name": "core_email_senders_org_id_fkey",
+          "tableFrom": "core_email_senders",
           "tableTo": "core_organizations",
           "columnsFrom": [
             "org_id"
@@ -14125,17 +13842,25 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "core_email_senders_created_by_fkey": {
+          "name": "core_email_senders_created_by_fkey",
+          "tableFrom": "core_email_senders",
+          "tableTo": "core_users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "core_email_reply_tos_status_check": {
-          "name": "core_email_reply_tos_status_check",
-          "value": "\"core_email_reply_tos\".\"status\" IN ('pending', 'verified')"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.core_email_settings": {
@@ -14208,27 +13933,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "events_key": {
-          "name": "events_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "configuration_set": {
-          "name": "configuration_set",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "events_topic_arn": {
-          "name": "events_topic_arn",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
         },
         "updated_by": {
           "name": "updated_by",
@@ -14393,6 +14097,381 @@
           "value": "\"core_favorites\".\"path\" ~ '^/[^/\\s]'"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.core_integration_program_versions": {
+      "name": "core_integration_program_versions",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "program_id": {
+          "name": "program_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "definition": {
+          "name": "definition",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_integration_program_versions_program_id_fkey": {
+          "name": "core_integration_program_versions_program_id_fkey",
+          "tableFrom": "core_integration_program_versions",
+          "tableTo": "core_integration_programs",
+          "columnsFrom": [
+            "program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_integration_program_versions_org_id_fkey": {
+          "name": "core_integration_program_versions_org_id_fkey",
+          "tableFrom": "core_integration_program_versions",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_integration_program_versions_pkey": {
+          "name": "core_integration_program_versions_pkey",
+          "columns": [
+            "program_id",
+            "version"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.core_integration_programs": {
+      "name": "core_integration_programs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "integration_id": {
+          "name": "integration_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fields": {
+          "name": "fields",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "outputs": {
+          "name": "outputs",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "events": {
+          "name": "events",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_integration_programs_org_integration_kind_key_key": {
+          "name": "core_integration_programs_org_integration_kind_key_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "integration_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_integration_programs_integration_id_fkey": {
+          "name": "core_integration_programs_integration_id_fkey",
+          "tableFrom": "core_integration_programs",
+          "tableTo": "core_integrations",
+          "columnsFrom": [
+            "integration_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_integration_programs_org_id_fkey": {
+          "name": "core_integration_programs_org_id_fkey",
+          "tableFrom": "core_integration_programs",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_integration_programs_kind_check": {
+          "name": "core_integration_programs_kind_check",
+          "value": "\"core_integration_programs\".\"kind\" IN ('action', 'incoming')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_integrations": {
+      "name": "core_integrations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hosts": {
+          "name": "hosts",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "secrets_sealed": {
+          "name": "secrets_sealed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sealed_names": {
+          "name": "sealed_names",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_integrations_org_key_key": {
+          "name": "core_integrations_org_key_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_integrations_org_id_fkey": {
+          "name": "core_integrations_org_id_fkey",
+          "tableFrom": "core_integrations",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     }
   },

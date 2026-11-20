@@ -1,6 +1,6 @@
 {
-  "id": "f21d2e41-1106-43b6-87c3-f84e9a46ad00",
-  "prevId": "140d43ba-e215-48a0-81bb-197fdfc6d833",
+  "id": "27882edd-62a7-4b12-aa02-b6ec1fa00274",
+  "prevId": "631f4c8d-54fe-4b6a-8a43-da70e9414701",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3938,6 +3938,79 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.core_event_data": {
+      "name": "core_event_data",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_event_data_org_id_fkey": {
+          "name": "core_event_data_org_id_fkey",
+          "tableFrom": "core_event_data",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_event_data_pkey": {
+          "name": "core_event_data_pkey",
+          "columns": [
+            "org_id",
+            "type",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_event_data_kind_check": {
+          "name": "core_event_data_kind_check",
+          "value": "\"core_event_data\".\"kind\" IN ('seen', 'text', 'number', 'boolean', 'list')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.core_events": {
       "name": "core_events",
       "schema": "",
@@ -6772,8 +6845,21 @@
           "notNull": true,
           "default": "'active'"
         },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "plugins": {
           "name": "plugins",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "bundles": {
+          "name": "bundles",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
@@ -12675,6 +12761,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "from_email": {
+          "name": "from_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "reply_to": {
           "name": "reply_to",
           "type": "text",
@@ -13558,181 +13650,8 @@
       },
       "isRLSEnabled": false
     },
-    "public.core_email_deliveries": {
-      "name": "core_email_deliveries",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source_id": {
-          "name": "source_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to": {
-          "name": "to",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "customer_id": {
-          "name": "customer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "subject": {
-          "name": "subject",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "error": {
-          "name": "error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sent_at": {
-          "name": "sent_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_email_deliveries_org_created_idx": {
-          "name": "core_email_deliveries_org_created_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": false,
-              "nulls": "last"
-            },
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": false,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_email_deliveries_source_idx": {
-          "name": "core_email_deliveries_source_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_email_deliveries_org_id_fkey": {
-          "name": "core_email_deliveries_org_id_fkey",
-          "tableFrom": "core_email_deliveries",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_email_deliveries_source_check": {
-          "name": "core_email_deliveries_source_check",
-          "value": "\"core_email_deliveries\".\"source\" IN ('account', 'security', 'notification', 'customer', 'broadcast', 'automation', 'plugin', 'ebarimt', 'settings')"
-        },
-        "core_email_deliveries_status_check": {
-          "name": "core_email_deliveries_status_check",
-          "value": "\"core_email_deliveries\".\"status\" IN ('queued', 'sent', 'failed')"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.core_email_reply_tos": {
-      "name": "core_email_reply_tos",
+    "public.core_email_senders": {
+      "name": "core_email_senders",
       "schema": "",
       "columns": {
         "id": {
@@ -13754,26 +13673,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "status": {
-          "name": "status",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "secret_hash": {
-          "name": "secret_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verified_at": {
-          "name": "verified_at",
+        "confirmed_at": {
+          "name": "confirmed_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
@@ -13800,8 +13707,8 @@
         }
       },
       "indexes": {
-        "core_email_reply_tos_org_email_key": {
-          "name": "core_email_reply_tos_org_email_key",
+        "core_email_senders_org_email_key": {
+          "name": "core_email_senders_org_email_key",
           "columns": [
             {
               "expression": "org_id",
@@ -13810,9 +13717,9 @@
               "nulls": "last"
             },
             {
-              "expression": "lower(\"email\")",
+              "expression": "email",
+              "isExpression": false,
               "asc": true,
-              "isExpression": true,
               "nulls": "last"
             }
           ],
@@ -13823,9 +13730,9 @@
         }
       },
       "foreignKeys": {
-        "core_email_reply_tos_org_id_fkey": {
-          "name": "core_email_reply_tos_org_id_fkey",
-          "tableFrom": "core_email_reply_tos",
+        "core_email_senders_org_id_fkey": {
+          "name": "core_email_senders_org_id_fkey",
+          "tableFrom": "core_email_senders",
           "tableTo": "core_organizations",
           "columnsFrom": [
             "org_id"
@@ -13835,17 +13742,25 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "core_email_senders_created_by_fkey": {
+          "name": "core_email_senders_created_by_fkey",
+          "tableFrom": "core_email_senders",
+          "tableTo": "core_users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "core_email_reply_tos_status_check": {
-          "name": "core_email_reply_tos_status_check",
-          "value": "\"core_email_reply_tos\".\"status\" IN ('pending', 'verified')"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.core_email_settings": {

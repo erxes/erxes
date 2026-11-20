@@ -19,3 +19,18 @@ export const PluginTranslations = z.partialRecord(
 );
 
 export type PluginTranslations = z.infer<typeof PluginTranslations>;
+
+/**
+ * A plugin's notification in the reader's language, sent as its `data.text`. `title` and `body`
+ * are the English text with its values left out (`Reservation {{number}} confirmed`): keys of the
+ * manifest's `translations`. `values` fills them in. The notification's own `title` and `body`
+ * stay ready to read in English, for email and for a reader that does not translate.
+ */
+export const NotificationText = z.object({
+  title: PluginText,
+  /** As long as a notification's own body may be; one past a translation's length reads in English. */
+  body: z.string().trim().min(1).max(2000).optional(),
+  values: z.record(z.string(), z.union([z.string(), z.number()])).default({}),
+});
+
+export type NotificationText = z.infer<typeof NotificationText>;

@@ -15,8 +15,8 @@ test('a member creates an automation, turns it on and it runs', async ({ page, a
   await page.getByRole('textbox', { name: 'Name' }).fill(`Welcome note ${suffix}`);
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
-  await page.getByRole('button', { name: 'Turn on' }).click();
-  await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
+  await page.getByRole('switch', { name: 'Turn on' }).click();
+  await expect(page.getByRole('switch', { name: 'Turn off' })).toBeVisible();
   await expectAccessible(page);
 
   const customer = await api.customers.create({ firstName: `Ada ${suffix}` });

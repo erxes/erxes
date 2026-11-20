@@ -19,16 +19,10 @@ import { storedError } from '~/modules/jobs/jobs';
 
 export type CoreEventInput = Pick<
   typeof events.$inferInsert,
-  'type' | 'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'payload'
+  'type' | 'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'payload' | 'dedupeKey'
 >;
 
-/**
- * Core publishes its own events (`core.customer.created`, …) in the same
- * transaction as the change, for automations and webhooks to come.
- */
-export const publishCoreEvents = async (client: Db, inputs: CoreEventInput | CoreEventInput[]) => {
-  const list = Array.isArray(inputs) ? inputs : [inputs];
-
+export const publishEventsFrom = async (client: Db, source: string, list: CoreEventInput[]) => {
   if (!list.length) {
     return;
   }
@@ -37,21 +31,31 @@ export const publishCoreEvents = async (client: Db, inputs: CoreEventInput | Cor
   const imported = currentImport();
   const actor = actorOf(caller());
 
-  await client.insert(events).values(
-    list.map((input) => ({
-      id: newId(),
-      source: 'core',
-      ...input,
-      ...actor,
-      payload: imported
-        ? { ...input.payload, _import: { id: imported.importId, quiet: imported.quiet } }
-        : (input.payload ?? {}),
-      // Caused by an automation's action: that run, one level deeper.
-      causedByRun: cause?.runId ?? null,
-      depth: cause ? cause.depth + 1 : 0,
-    })),
-  );
+  await client
+    .insert(events)
+    .values(
+      list.map((input) => ({
+        id: newId(),
+        source,
+        ...input,
+        ...actor,
+        payload: imported
+          ? { ...input.payload, _import: { id: imported.importId, quiet: imported.quiet } }
+          : (input.payload ?? {}),
+        // Caused by an automation's action: that run, one level deeper.
+        causedByRun: cause?.runId ?? null,
+        depth: cause ? cause.depth + 1 : 0,
+      })),
+    )
+    .onConflictDoNothing();
 };
+
+/**
+ * Core publishes its own events (`core.customer.created`, …) in the same
+ * transaction as the change, for automations and webhooks to come.
+ */
+export const publishCoreEvents = (client: Db, inputs: CoreEventInput | CoreEventInput[]) =>
+  publishEventsFrom(client, 'core', Array.isArray(inputs) ? inputs : [inputs]);
 
 /**
  * A plugin publishes events over HTTP (plugins on core's database use

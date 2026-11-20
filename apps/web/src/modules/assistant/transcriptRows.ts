@@ -1,6 +1,7 @@
 import {
   AssistantArtifact,
   type AssistantMessagePart,
+  AssistantQuestionComponent,
   AssistantQuestionMode,
 } from '@erxes/core-contract';
 import { z } from 'zod';
@@ -38,6 +39,7 @@ const Question = z.object({
     .optional()
     .transform((options) => options ?? []),
   selectionMode: AssistantQuestionMode.optional(),
+  component: AssistantQuestionComponent.optional(),
 });
 
 const AskUserInput = z.object({ questions: z.array(Question).min(1) });
@@ -226,11 +228,21 @@ const isStep = (row: TranscriptRow | Step): row is Step => !('kind' in row);
 
 const rowsOf = (parts: ReplyPart[], context: Context) => {
   const rows: TranscriptRow[] = [];
+  let thought: Extract<TranscriptRow, { kind: 'thinking' }> | undefined;
 
   for (const part of parts) {
     const row = rowOf(part, context);
 
     if (!row) continue;
+
+    if (!isStep(row) && row.kind === 'thinking' && thought) {
+      thought.text = `${thought.text}\n\n${row.text}`;
+      thought.streaming = row.streaming;
+
+      continue;
+    }
+
+    if (!isStep(row) && row.kind === 'thinking') thought = row;
 
     const last = rows.at(-1);
 

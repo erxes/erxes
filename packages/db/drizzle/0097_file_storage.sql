@@ -1,0 +1,2 @@
+ALTER TABLE "core_files" ADD COLUMN "storage" text;--> statement-breakpoint
+ALTER TABLE "core_files" ADD CONSTRAINT "core_files_storage_check" CHECK ("core_files"."storage" IN ('local', 's3', 'cloudflare', 'cloudflare_images', 'cloudflare_stream'));

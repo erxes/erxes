@@ -21,12 +21,12 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { accessOf, type EntitlementRow, NOT_IN_PLAN } from './access';
-import { askPlatform, type PlatformEntitlements } from './platform';
+import { readStripe, type StripeEntitlements } from './stripe';
 
 const log = logger.child({ component: 'saas' });
 
-/** erxes.io answers with `Cache-Control: max-age=30`: older than this, ask again (in the background). */
-const FRESH_MS = 30_000;
+/** As erxes 3.x core caches a Stripe customer's plugins: older than this, read again (in the background). */
+const FRESH_MS = 60_000;
 
 type Change = 'installed' | 'resumed' | 'removed';
 
@@ -116,7 +116,7 @@ const reconcilePlugins = async (tx: Db, row: EntitlementRow, now = new Date()) =
   return changes.map((item) => ({ plugin: item.plugin.name, change: item.change }));
 };
 
-/** Rows read on every request: kept 30 s per process, replaced at once when this process refreshes. */
+/** Rows read on every request: kept a minute per process, replaced at once when this process refreshes. */
 const cache = new Map<string, { row: EntitlementRow | null; at: number }>();
 const inFlight = new Map<string, Promise<EntitlementRow | null>>();
 
@@ -144,11 +144,7 @@ const describe = (list: EntitledPlugin[] = []) =>
     .join(',');
 
 /** Plugins that disappeared are marked lapsed (kept while still gone); ones that came back are cleared. */
-const lapsedAfter = (
-  before: EntitlementRow | undefined,
-  answer: PlatformEntitlements,
-  now: Date,
-) => {
+const lapsedAfter = (before: EntitlementRow | undefined, answer: StripeEntitlements, now: Date) => {
   const codes = new Set(answer.plugins.map((plugin) => plugin.code));
   const lapsed: Record<string, string> = {};
 
@@ -161,16 +157,16 @@ const lapsedAfter = (
   return lapsed;
 };
 
-/** Stores erxes.io's answer, makes installations follow, and audits what changed as the system. */
-const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) =>
+/** Stores what Stripe said, makes installations follow, and audits what changed as the system. */
+const storeAnswer = (orgId: string, name: string, answer: StripeEntitlements) =>
   withOrg(orgId, async (tx) => {
     const [before] = await tx.select().from(entitlements).for('update').limit(1);
 
     const now = new Date();
 
     const values = {
-      orgStatus: answer.orgStatus,
       plugins: answer.plugins,
+      bundles: answer.bundles,
       lapsed: lapsedAfter(before, answer, now),
       fetchedAt: now,
       lastError: null,
@@ -189,7 +185,7 @@ const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) 
     if (
       !before ||
       describe(before.plugins) !== describe(row.plugins) ||
-      before.orgStatus !== row.orgStatus ||
+      before.bundles.join(',') !== row.bundles.join(',') ||
       changes.length
     ) {
       await runAs(system('saas entitlements'), () =>
@@ -199,8 +195,8 @@ const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) 
           targetId: orgId,
           targetLabel: name,
           metadata: {
-            status: { before: before?.orgStatus ?? null, after: row.orgStatus },
             plugins: { before: before?.plugins ?? null, after: row.plugins },
+            bundles: { before: before?.bundles ?? null, after: row.bundles },
             lapsed: row.lapsed,
             installations: changes,
           },
@@ -211,11 +207,11 @@ const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) 
     return row;
   });
 
-/** erxes.io can't be reached: the stored answer stays in force, with the error noted. */
+/** Stripe can't be read: the stored answer stays in force, with the error noted. */
 const keepWithError = (orgId: string, error: unknown) => {
   log.warn(
     { org: orgId, err: error },
-    'could not read entitlements from erxes.io; keeping the last answer',
+    'could not read entitlements from Stripe; keeping the last answer',
   );
 
   const message = error instanceof Error ? error.message : String(error);
@@ -246,30 +242,26 @@ const fetchEntitlements = async (orgId: string) => {
 
   rememberSubdomain(orgId, org.subdomain);
 
-  const answer = await askPlatform(org.subdomain).then(
-    (value) => ({ value }),
-    (error: unknown) => ({ error }),
-  );
+  // No Stripe customer: no plugins, as in erxes 3.x core.
+  const customerId = (await storedEntitlements(orgId))?.stripeCustomerId;
+
+  const answer = customerId
+    ? await readStripe(customerId).then(
+        (value) => ({ value }),
+        (error: unknown) => ({ error }),
+      )
+    : { value: { plugins: [], bundles: [] } };
 
   if ('error' in answer) return keepWithError(orgId, answer.error);
-
-  if (!answer.value) {
-    log.warn(
-      { org: orgId, subdomain: org.subdomain },
-      'erxes.io does not know this organisation; keeping the last answer',
-    );
-
-    return storedEntitlements(orgId);
-  }
 
   return storeAnswer(orgId, org.name, answer.value);
 };
 
 /**
- * Asks erxes.io what the organisation has and stores it: plugins that
- * disappeared are marked lapsed (read-only, then off), ones that came back
- * are cleared, installations follow. If erxes.io can't be reached the
- * stored answer stays in force. Changes are audited as the system.
+ * Reads what the organisation's Stripe customer has and stores it: plugins
+ * that disappeared are marked lapsed (read-only, then off), ones that came
+ * back are cleared, installations follow. If Stripe can't be read the stored
+ * answer stays in force. Changes are audited as the system.
  */
 export const refreshEntitlements = (orgId: string): Promise<EntitlementRow | null> => {
   const running = inFlight.get(orgId);
@@ -292,8 +284,8 @@ export const refreshEntitlements = (orgId: string): Promise<EntitlementRow | nul
 /**
  * The organisation's entitlements for a request: from this process's cache,
  * else the database; a stale answer is used while a fresh one is fetched in
- * the background; the very first time, erxes.io is asked (3 s at most, then
- * the organisation is let in and asked again later).
+ * the background; the very first time, Stripe is read (3 s at most, then
+ * the organisation is let in and read again later).
  */
 export const entitlementsOf = async (orgId: string): Promise<EntitlementRow | null> => {
   if (!config.saas.enabled) return null;
@@ -324,7 +316,7 @@ export const entitlementsOf = async (orgId: string): Promise<EntitlementRow | nu
   ]);
 };
 
-/** Hourly: every organisation asked again, and read-only plugins past their grace turned off. */
+/** Hourly: every organisation read again, and read-only plugins past their grace turned off. */
 export const refreshAllEntitlements = async () => {
   if (!config.saas.enabled) return 0;
 
@@ -334,7 +326,7 @@ export const refreshAllEntitlements = async () => {
 
   let refreshed = 0;
 
-  // One organisation at a time: erxes.io is asked once per organisation, not all at once.
+  // One organisation at a time: Stripe is read once per organisation, not all at once.
   await inOrder(orgs, (org) =>
     refreshEntitlements(org.id)
       .then(() => (refreshed += 1))

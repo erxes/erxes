@@ -1,12 +1,25 @@
 import {
   IconBolt,
+  IconBrandDiscord,
+  IconBrandFacebook,
+  IconBrandInstagram,
+  IconBrandTelegram,
   IconBuilding,
+  IconChecklist,
   IconCreditCard,
+  IconFolder,
+  IconForms,
   IconMagnet,
   IconMail,
+  IconMessage,
+  IconMessageCircle,
   IconNote,
+  IconPhone,
   IconPuzzle,
+  IconSparkles,
+  IconTicket,
   IconUser,
+  IconUsers,
   IconWebhook,
   type TablerIcon,
 } from '@tabler/icons-react';
@@ -44,6 +57,7 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
   note: { label: 'Timeline', icon: IconNote, order: 5 },
   webhook: { label: 'Integrations', icon: IconWebhook, order: 6 },
   http: { label: 'Integrations', icon: IconWebhook, order: 6 },
+  agent: { label: 'AI agents', icon: IconSparkles, order: 7 },
 };
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {
@@ -64,8 +78,33 @@ export const groupOf = (item: CatalogItem): CatalogGroup => {
     : { key: 'core:general', source: 'core', label: 'General', icon: IconBolt, order: 50 };
 };
 
-/** The icon of an event's or action's area (a mail for email, a person for customers, a puzzle for plugins). */
-export const catalogIcon = (item: CatalogItem) => groupOf(item).icon;
+/** What a word in a plugin's type usually means, first match first (`frontline.facebook.message_received`). */
+const WORD_ICONS: [RegExp, TablerIcon][] = [
+  [/^facebook$/, IconBrandFacebook],
+  [/^instagram$/, IconBrandInstagram],
+  [/^telegram$/, IconBrandTelegram],
+  [/^discord$/, IconBrandDiscord],
+  [/^e?mail$/, IconMail],
+  [/^comment$/, IconMessageCircle],
+  [/^(message|conversation|chat)$/, IconMessage],
+  [/^ticket$/, IconTicket],
+  [/^(form|survey)$/, IconForms],
+  [/^(task|triage)$/, IconChecklist],
+  [/^project$/, IconFolder],
+  [/^(team|member)$/, IconUsers],
+  [/^call$/, IconPhone],
+];
+
+/**
+ * An event's or action's icon: for a plugin's, what a word of its type names (a channel, a
+ * ticket, a task), else its area's (a mail for email, a person for customers, a puzzle for plugins).
+ */
+export const catalogIcon = (item: CatalogItem) => {
+  const words = item.source === 'core' ? [] : item.type.split(/[._]/).slice(1);
+  const found = WORD_ICONS.find(([word]) => words.some((part) => word.test(part)));
+
+  return found?.[1] ?? groupOf(item).icon;
+};
 
 export type GroupEntry = { group: CatalogGroup; items: CatalogItem[] };
 

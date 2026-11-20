@@ -1,5 +1,11 @@
+import {
+  ACTIVITY_TARGETS,
+  ACTOR_TYPES,
+  FILE_STATUSES,
+  FILE_STORES,
+  NOTIFICATION_PRIORITIES,
+} from '../enums';
 import { EMAIL_IMAGE_TYPES } from '../emailEnums';
-import { ACTIVITY_TARGETS, ACTOR_TYPES, FILE_STATUSES, NOTIFICATION_PRIORITIES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -35,8 +41,13 @@ export const files = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    /** Object key in the storage driver: `<orgId>/<yyyy>/<mm>/<id>`. */
+    /**
+     * Where the bytes are, in `storage`: the object key (`<orgId>/<yyyy>/<mm>/<id>`),
+     * the Cloudflare Images id, or the Cloudflare Stream playback address.
+     */
     key: text().notNull(),
+    /** Which storage holds the bytes; null for files from before it was recorded, kept in the server's storage. */
+    storage: text({ enum: FILE_STORES }),
     name: text().notNull(),
     contentType: text().notNull(),
     size: bigint({ mode: 'number' }).notNull(),
@@ -65,6 +76,7 @@ export const files = pgTable(
       name: 'core_files_org_id_fkey',
     }).onDelete('cascade'),
     check('core_files_status_check', inList(table.status, FILE_STATUSES)),
+    check('core_files_storage_check', inList(table.storage, FILE_STORES)),
     index('core_files_deleting_idx')
       .on(table.updatedAt)
       .where(sql`${table.status} = 'deleting'`),
@@ -73,6 +85,37 @@ export const files = pgTable(
       'core_files_public_check',
       sql`not ${table.public} or ${inList(table.contentType, EMAIL_IMAGE_TYPES)}`,
     ),
+  ],
+);
+
+/**
+ * The organisation's own S3-compatible bucket (AWS S3, Cloudflare R2, MinIO),
+ * set in Settings › File upload on a self-hosted server that keeps files on
+ * its disk. New uploads go there; files stored before stay where they are.
+ */
+export const fileBuckets = pgTable(
+  'file_buckets',
+  {
+    orgId: orgIdColumn().primaryKey(),
+    /** The S3 API address, for example `https://<account>.r2.cloudflarestorage.com`. */
+    endpoint: text().notNull(),
+    region: text().notNull(),
+    bucket: text().notNull(),
+    /** Addresses the bucket as `<endpoint>/<bucket>` (MinIO) rather than `<bucket>.<endpoint>`. */
+    forcePathStyle: boolean().notNull(),
+    accessKeyId: text().notNull(),
+    /** The secret access key, sealed (`lib/secrets`); never sent out. */
+    secretSealed: text().notNull(),
+    updatedBy: text(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_file_buckets_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 

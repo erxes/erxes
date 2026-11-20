@@ -96,7 +96,9 @@
     "own": "Your own answer",
     "own-placeholder": "Or write your own answer",
     "answer-placeholder": "Your answer",
-    "send": "Send answers"
+    "send": "Send answers",
+    "member-placeholder": "Choose a team member…",
+    "date-placeholder": "Choose a date"
   },
   "steps_one": "{{count}} step",
   "steps_other": "{{count}} steps",

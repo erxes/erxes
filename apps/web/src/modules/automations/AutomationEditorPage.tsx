@@ -7,11 +7,17 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { useLeaveWarning } from '~/lib/useLeaveWarning';
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
-import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
+import {
+  automationQuery,
+  type Catalog,
+  catalogQuery,
+  runsQuery,
+  statsQuery,
+} from './automationQueries';
 import { FlowCanvas } from './builder/FlowCanvas';
 import { countSteps, flowProblems, stepOutputFields } from './builder/flowChecks';
 import { insertStep, newStep, removeStep } from './builder/flowModel';
@@ -62,9 +68,7 @@ const useShortcuts = ({
  * and what the builder parts share (events, per-step stats, earlier outputs).
  */
 const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automationId: string) => {
-  const stats = useQuery(
-    orpc.automations.stats.queryOptions({ input: { id: automationId }, refetchInterval: 15_000 }),
-  );
+  const stats = useQuery(statsQuery(automationId));
 
   const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
   const { fields, error: fieldsError } = useAutomationFields(hasSubject ? subject : null);
@@ -79,7 +83,10 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
     [catalog.actions, hasSubject, subject],
   );
 
-  const problems = useMemo(() => flowProblems(definition.steps, actions), [definition, actions]);
+  const problems = useMemo(
+    () => flowProblems(definition.steps, actions, catalog.actions),
+    [definition, actions, catalog.actions],
+  );
 
   const builder = useMemo(() => {
     const events = catalog.triggers.filter((item) => item.subject);
@@ -97,8 +104,9 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
         stepOutputFields(definition.steps, stepId, { events, actions, trigger: started }),
       trigger: started,
       hasSubject,
+      knownActions: catalog.actions,
     };
-  }, [catalog.triggers, stats.data, definition, actions, hasSubject]);
+  }, [catalog.triggers, catalog.actions, stats.data, definition, actions, hasSubject]);
 
   return { stats, subject, hasSubject, fields, fieldsError, actions, problems, builder };
 };

@@ -1,0 +1,277 @@
+import {
+  BOOLEAN_STRINGS,
+  EMAIL_DRIVERS,
+  FILE_STORAGES,
+  LOG_FORMATS,
+  LOG_LEVELS,
+  SMS_DRIVERS,
+} from '@erxes/core-db/enums';
+import { readFileSync } from 'node:fs';
+import { z } from 'zod';
+
+/** Settings that may also come from a file named by `<NAME>_FILE` (Docker and Kubernetes secrets). */
+const SECRETS = [
+  'DATA_URL',
+  'DATA_MIGRATION_URL',
+  'DATA_LISTEN_URL',
+  'DATA_SSL_CA',
+  'CORE_JWT_SECRET',
+  'CORE_SIGNING_KEY',
+  'CORE_SIGNING_KEYS_RETIRED',
+  'CORE_ENCRYPTION_KEY',
+  'CORE_PLUGIN_KEYS',
+  'EMAIL_SMTP_URL',
+  'SAAS_PLATFORM_TOKEN',
+  'SAAS_JWT_TOKEN_SECRET',
+  'SAAS_STRIPE_SECRET_KEY',
+  'S3_ACCESS_KEY_ID',
+  'S3_SECRET_ACCESS_KEY',
+  'CLOUDFLARE_ACCESS_KEY_ID',
+  'CLOUDFLARE_SECRET_ACCESS_KEY',
+  'CLOUDFLARE_API_TOKEN',
+] as const;
+
+const readSecret = (name: string) => {
+  const file = process.env[`${name}_FILE`];
+
+  return file ? readFileSync(file, 'utf8') : process.env[name];
+};
+
+/** Blank counts as unset; values are trimmed. */
+const optional = <T extends z.ZodType>(schema: T) =>
+  z.preprocess(
+    (value) => (typeof value === 'string' ? value.trim() || undefined : value),
+    schema.optional(),
+  );
+
+const text = optional(z.string());
+
+const flag = optional(z.enum(BOOLEAN_STRINGS).transform((value) => value === 'true'));
+
+const positive = (fallback: number) =>
+  optional(z.coerce.number().positive()).transform((value) => value ?? fallback);
+
+const baseUrl = (fallback: string) =>
+  optional(z.url())
+    .transform((value) => value ?? fallback)
+    .transform((value) => value.replace(/\/+$/, ''));
+
+const list = optional(z.string()).transform((value) =>
+  (value ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean),
+);
+
+const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
+
+/**
+ * Plugin client secrets, `hr:<secret>,ecom:<secret>`, as secret → plugin name.
+ * They are registered (hashed) in `core_plugins` at startup; a plugin trades
+ * its secret for short-lived tokens (`POST /core/v1/plugins/token`) and never
+ * sends it on API calls. `pnpm plugin:secret <name>` rotates one.
+ */
+const pluginKeys = optional(z.string()).transform((value, ctx) => {
+  const keys = new Map<string, string>();
+
+  for (const entry of (value ?? '').split(',')) {
+    const separator = entry.indexOf(':');
+    const name = entry.slice(0, separator).trim().toLowerCase();
+    const secret = entry.slice(separator + 1).trim();
+
+    if (separator < 1 || !secret) continue;
+
+    if (!PLUGIN_NAME.test(name) || name === 'core') {
+      ctx.addIssue({ code: 'custom', message: `"${name}" is not a valid plugin name` });
+    } else if (secret.length < 32) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `the key for "${name}" needs 32 characters or more`,
+      });
+    } else {
+      keys.set(secret, name);
+    }
+  }
+
+  return keys;
+});
+
+const Env = z
+  .object({
+    NODE_ENV: text,
+    PORT: positive(3400),
+
+    LOG_LEVEL: optional(z.enum(LOG_LEVELS)),
+    LOG_FORMAT: optional(z.enum(LOG_FORMATS)),
+    OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.url()),
+
+    DATA_URL: text,
+    DATA_MIGRATION_URL: text,
+    DATA_RUNTIME_ROLE: text,
+    DATA_LISTEN_URL: text,
+    DATA_SSL: flag,
+    DATA_SSL_CA: text,
+    DATA_SSL_INSECURE: flag,
+    DATA_POOL_MAX: positive(10),
+    DATA_MIGRATE_ON_START: flag,
+    DATA_ROLE: text,
+    DATA_STATEMENT_TIMEOUT_MS: positive(15_000),
+
+    LIVE_MAX_STREAMS_PER_USER: positive(10),
+    CORE_SETUP: flag,
+
+    CORE_JWT_SECRET: text,
+    CORE_ACCESS_TOKEN_TTL_SECONDS: positive(3600),
+    CORE_SESSION_HOURS: positive(12),
+    DEFAULT_SUBDOMAIN: optional(z.string().toLowerCase()),
+    FAILED_SIGN_IN_ALERT: positive(10),
+    CORE_SIGNING_KEY: text,
+    CORE_SIGNING_KEY_DEV_FILE: text,
+    CORE_SIGNING_KEYS_RETIRED: text,
+    CORE_ENCRYPTION_KEY: text,
+    CORE_PLUGIN_KEYS: pluginKeys,
+    PLUGINS_AUTO_INSTALL: flag,
+
+    APP_URL: baseUrl('http://localhost:3500'),
+
+    EMAIL_DRIVER: optional(z.enum(EMAIL_DRIVERS)),
+    EMAIL_SMTP_URL: text,
+    EMAIL_FROM: text,
+    SENDGRID_WEBHOOK_PUBLIC_KEY: text,
+    SES_CONFIGURATION_SET: text,
+    SES_EVENTS_TOPIC_ARNS: list,
+    EMAIL_AUTH_HOURLY_CAP: positive(300),
+
+    SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
+
+    BROADCAST_PER_MINUTE: positive(600),
+
+    OUTBOUND_ALLOW_PRIVATE: flag,
+
+    ASSISTANT_OPENAI_URL: baseUrl('https://api.openai.com/v1'),
+    ASSISTANT_GROK_URL: baseUrl('https://api.x.ai/v1'),
+    ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
+    ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
+    EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
+
+    SAAS: flag,
+    SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
+    SAAS_PLATFORM_TOKEN: text,
+    SAAS_JWT_TOKEN_SECRET: text,
+    SAAS_GRACE_DAYS: positive(7),
+    SAAS_BILLING_URL: text,
+    SAAS_STRIPE_SECRET_KEY: text,
+
+    FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
+    FILES_LOCAL_DIR: text,
+    FILES_MAX_SIZE_MB: positive(50),
+    FILES_LINK_TTL_SECONDS: positive(300),
+    FILES_PENDING_TTL_HOURS: positive(24),
+    S3_BUCKET: text,
+    S3_REGION: text,
+    S3_ENDPOINT: text,
+    S3_ACCESS_KEY_ID: text,
+    S3_SECRET_ACCESS_KEY: text,
+    S3_FORCE_PATH_STYLE: flag,
+    // Cloudflare (FILES_STORAGE=cloudflare): the names erxes 3.x used, so its settings carry over.
+    CLOUDFLARE_ACCOUNT_ID: text,
+    CLOUDFLARE_BUCKET_NAME: text,
+    CLOUDFLARE_ACCESS_KEY_ID: text,
+    CLOUDFLARE_SECRET_ACCESS_KEY: text,
+    CLOUDFLARE_USE_CDN: flag,
+    CLOUDFLARE_API_TOKEN: text,
+    CLOUDFLARE_ACCOUNT_HASH: text,
+
+    AUDIT_RETENTION_DAYS: positive(365),
+    NOTIFICATIONS_RETENTION_DAYS: positive(90),
+    EVENTS_RETENTION_DAYS: positive(30),
+    AUTOMATION_RUN_DETAILS_RETENTION_DAYS: positive(90),
+
+    MASS_DELETE_ALERT: positive(100),
+    MASS_DELETE_LIMIT: positive(500),
+
+    AGENT_MAX_TURNS: optional(z.coerce.number().int().positive()).transform((value) => value ?? 30),
+    AGENT_RUNS_PER_MINUTE: positive(60),
+  })
+  .superRefine((env, ctx) => {
+    if (env.NODE_ENV !== 'production') return;
+
+    const problem = (message: string) => ctx.addIssue({ code: 'custom', message });
+
+    if (!env.DATA_URL) problem('DATA_URL (or DATA_URL_FILE) must be set in production');
+
+    if (!env.CORE_JWT_SECRET) {
+      problem('CORE_JWT_SECRET (or CORE_JWT_SECRET_FILE) must be set in production');
+    }
+
+    if (!env.CORE_SIGNING_KEY) {
+      problem(
+        'CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256',
+      );
+    }
+
+    if (env.DATA_SSL_INSECURE) {
+      problem(
+        'DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)',
+      );
+    }
+  })
+  .superRefine((env, ctx) => {
+    if (env.SAAS && ((env.SAAS_PLATFORM_TOKEN?.length ?? 0) < 32 || !env.SAAS_STRIPE_SECRET_KEY)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'SAAS=true needs SAAS_PLATFORM_TOKEN (≥ 32 characters) and SAAS_STRIPE_SECRET_KEY',
+      });
+    }
+
+    if (env.FILES_STORAGE === 's3' && !env.S3_BUCKET) {
+      ctx.addIssue({ code: 'custom', message: 'FILES_STORAGE=s3 needs S3_BUCKET' });
+    }
+
+    if (
+      env.FILES_STORAGE === 'cloudflare' &&
+      !(
+        env.CLOUDFLARE_ACCOUNT_ID &&
+        env.CLOUDFLARE_BUCKET_NAME &&
+        env.CLOUDFLARE_ACCESS_KEY_ID &&
+        env.CLOUDFLARE_SECRET_ACCESS_KEY
+      )
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'FILES_STORAGE=cloudflare needs CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_ACCESS_KEY_ID and CLOUDFLARE_SECRET_ACCESS_KEY',
+      });
+    }
+
+    if (
+      env.CLOUDFLARE_USE_CDN &&
+      !(
+        env.FILES_STORAGE === 'cloudflare' &&
+        env.CLOUDFLARE_API_TOKEN &&
+        env.CLOUDFLARE_ACCOUNT_HASH
+      )
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'CLOUDFLARE_USE_CDN=true needs FILES_STORAGE=cloudflare, CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_HASH',
+      });
+    }
+  });
+
+const parsed = Env.safeParse({
+  ...process.env,
+  ...Object.fromEntries(SECRETS.map((name) => [name, readSecret(name)])),
+});
+
+if (!parsed.success) {
+  const problems = parsed.error.issues.map((issue) =>
+    issue.path.length ? `${issue.path.join('.')}: ${issue.message}` : issue.message,
+  );
+
+  throw new Error(`Invalid settings:\n  ${problems.join('\n  ')}`);
+}
+
+/** The environment, checked. `config.ts` shapes it into the settings the code reads. */
+export const env = parsed.data;

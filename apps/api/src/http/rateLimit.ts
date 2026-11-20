@@ -96,7 +96,11 @@ export const createRateLimits = () => ({
    * for many organisations from the same addresses).
    */
   pluginPublic: [
-    rateLimit({ windowSeconds: 60, max: 3000, key: (req) => `plugin-public:${ip(req)}` }),
+    rateLimit({
+      windowSeconds: 60,
+      max: 3000,
+      key: (req) => `plugin-public:${ip(req)}`,
+    }),
     rateLimit({
       windowSeconds: 60,
       max: 600,
@@ -109,7 +113,18 @@ export const createRateLimits = () => ({
    * posts one a message, both from shared addresses and both retry what was refused).
    */
   emailEvents: [
-    rateLimit({ windowSeconds: 60, max: 3000, key: (req) => `email-events:${ip(req)}` }),
+    rateLimit({
+      windowSeconds: 60,
+      max: 3000,
+      key: (req) => `email-events:${ip(req)}`,
+    }),
+  ],
+  integrationIncoming: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 600,
+      key: (req) => `integration-incoming:${ip(req)}:${String(req.params.id)}`,
+    }),
   ],
   /** Uploads through signed links: 120 a minute per address. */
   upload: rateLimit({

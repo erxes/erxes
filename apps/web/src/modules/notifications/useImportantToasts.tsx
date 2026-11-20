@@ -29,8 +29,8 @@ export const useImportantToasts = () => {
 
     const shown = toast({
       variant: 'warning',
-      title: text.title(item),
-      description: text.body(item) ?? undefined,
+      title: text(item).title,
+      description: text(item).body ?? undefined,
       action: link ? (
         <Button
           variant="outline"

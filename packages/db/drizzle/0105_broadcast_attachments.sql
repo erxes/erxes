@@ -1,1 +1,0 @@
-ALTER TABLE "core_broadcasts" ADD COLUMN "attachment_ids" text[] DEFAULT '{}'::text[] NOT NULL;

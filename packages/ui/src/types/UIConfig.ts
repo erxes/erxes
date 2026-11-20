@@ -75,6 +75,8 @@ export type TRecordTab = {
   label: string;
   icon: Icon;
   after?: 'detail' | 'activity';
+  /** Show this tab only when the record is expanded. */
+  expandedOnly?: boolean;
   component: React.ComponentType<TRecordSlotProps>;
 };
 

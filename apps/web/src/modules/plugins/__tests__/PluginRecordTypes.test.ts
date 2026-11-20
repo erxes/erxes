@@ -29,13 +29,15 @@ describe('a plugin record in core’s side panel', () => {
 
     await vi.waitFor(() => expect(panel(container)).toContain('d1 in the panel'));
     expect(panel(container)).toContain('Deal d1');
-    // Its own plugin's relation tab doesn't show on it.
-    expect(tabNames(container)).toEqual(['Detail']);
+    expect(tabNames(container)).toEqual(['Detail', 'Notes']);
+    expect(panel(container)).not.toContain('Terms of d1');
 
     await click(container.querySelector('[data-record-side-panel] button[aria-expanded]'));
 
     await vi.waitFor(() => expect(address(container)).toBe('/sales/deals/d1'));
     await vi.waitFor(() => expect(container.textContent).toContain('d1 on its page'));
+    expect(tabNames(container)).toEqual(['Terms', 'Notes']);
+    expect(panel(container)).toContain('Terms of d1');
     const crumbs = container.querySelectorAll('nav a[href="/sales"], nav a[href="/sales/deals"]');
     expect([...crumbs].map((a) => a.textContent).join(' › ')).toBe('Sales › Deal');
   });

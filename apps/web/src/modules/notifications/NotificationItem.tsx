@@ -186,7 +186,7 @@ const NotificationTitle = ({
   notification: Notification;
   onOpen: () => void;
 }) => {
-  const { title } = useNotificationText();
+  const text = useNotificationText();
   const { t } = useTranslation('common', { keyPrefix: 'notifications' });
 
   return (
@@ -200,7 +200,7 @@ const NotificationTitle = ({
           notification.readAt === null && 'font-medium',
         )}
       >
-        {title(notification)}
+        {text(notification).title}
       </button>
       {notification.readAt === null && (
         <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary">
@@ -228,8 +228,8 @@ export const NotificationItem = ({
 }) => {
   const navigate = useNavigate();
   const { markRead } = useNotificationActions();
+  const { body } = useNotificationText()(notification);
   const [expanded, setExpanded] = useState(false);
-  const body = useNotificationText().body(notification);
   const listedChanges = changesOf(notification);
   // A compact list has no room for changes.
   const changes = compact ? null : listedChanges;

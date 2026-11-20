@@ -49,7 +49,7 @@ export const EmailSetupBanner = ({ settingsLink = true }: { settingsLink?: boole
           )}
         </p>
         {settingsLink && (
-          <Link className="font-medium underline" to={paths.settings.integration('email')}>
+          <Link className="font-medium underline" to={paths.settings.email}>
             {t('link', 'Settings › Integrations › Email sending')}
           </Link>
         )}

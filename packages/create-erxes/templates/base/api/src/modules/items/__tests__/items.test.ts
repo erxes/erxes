@@ -15,6 +15,8 @@ const clientAs = (orgId: string, permissions: string[] = Object.values(PERMISSIO
     tier: 'pro',
     access: 'full',
     canChange: () => true,
+    saas: false,
+    bundles: [],
   };
 
   return createRouterClient(router, { context: { member } });

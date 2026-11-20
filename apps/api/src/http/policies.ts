@@ -1,4 +1,5 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
+import { MESSAGING_ACCESS } from './messagingPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
@@ -31,6 +32,7 @@ export const ACCESS = {
   'agents.models': needs('assistant.chat'),
   'agents.setModel': needs('assistant.manage'),
   ...ASSISTANT_ACCESS,
+  ...MESSAGING_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,
   'apiKeys.create': needs('api_keys.create'),
@@ -134,26 +136,6 @@ export const ACCESS = {
   'customers.linkCompany': { member: 'contacts.edit', plugin: 'customers:write' },
   'customers.unlinkCompany': needs('contacts.edit'),
 
-  'emails.send': { plugin: 'emails:write' },
-  'emails.settings': needs('integrations.manage'),
-  'emails.saveSettings': needs('integrations.manage'),
-  'emails.removeSettings': needs('integrations.manage'),
-  'emails.sendTest': needs('integrations.manage'),
-  // Read by the broadcast and automation editors, for the From and the Reply-To picker.
-  'emails.sender': MEMBER,
-  'emails.replyTos': MEMBER,
-  'emails.addReplyTo': needs('integrations.manage'),
-  'emails.removeReplyTo': needs('integrations.manage'),
-  'emails.confirmReplyTo': PUBLIC,
-  // Who was emailed what: for those who manage how the organisation sends.
-  'emails.deliveries': needs('integrations.manage'),
-  'emails.addresses': needs('integrations.manage'),
-  'emails.limits': needs('integrations.manage'),
-  'emails.resumeSending': needs('integrations.manage'),
-  'emails.setRamp': needs('integrations.manage'),
-  // A broadcast's page says when its emails are held.
-  'emails.pacing': MEMBER,
-
   'events.publish': { plugin: 'events:write' },
   'events.list': needs('events.view'),
   'events.failures': needs('events.view'),
@@ -191,6 +173,8 @@ export const ACCESS = {
   'files.remove': { member: 'any', plugin: 'files:write' },
   'files.settings': needs('settings.manage'),
   'files.updateSettings': needs('settings.manage'),
+  'files.saveBucket': needs('settings.manage'),
+  'files.removeBucket': needs('settings.manage'),
 
   'notifications.list': MEMBER,
   'notifications.unreadCount': MEMBER,
@@ -253,35 +237,6 @@ export const ACCESS = {
   'users.disable': { member: 'team.manage', plugin: 'users:write' },
   'users.enable': { member: 'team.manage', plugin: 'users:write' },
 
-  'broadcasts.list': needs('broadcasts.view'),
-  'broadcasts.get': needs('broadcasts.view'),
-  'broadcasts.recipients': needs('broadcasts.view'),
-  // An estimate and a preview read customers through the audience, like the list does.
-  'broadcasts.audience': needs('broadcasts.view'),
-  'broadcasts.preview': needs('broadcasts.view'),
-  'broadcasts.create': needs('broadcasts.manage'),
-  'broadcasts.update': needs('broadcasts.manage'),
-  'broadcasts.remove': needs('broadcasts.manage'),
-  'broadcasts.duplicate': needs('broadcasts.manage'),
-  'broadcasts.test': needs('broadcasts.manage'),
-  'broadcasts.send': needs('broadcasts.send'),
-  'broadcasts.schedule': needs('broadcasts.send'),
-  'broadcasts.unschedule': needs('broadcasts.send'),
-  'broadcasts.pause': needs('broadcasts.send'),
-  'broadcasts.resume': needs('broadcasts.send'),
-  'broadcasts.cancel': needs('broadcasts.send'),
-  'broadcastSchedules.get': needs('broadcasts.view'),
-  'broadcastSchedules.preview': needs('broadcasts.view'),
-  'broadcastSchedules.upcoming': needs('broadcasts.view'),
-  'broadcastSchedules.save': needs('broadcasts.manage'),
-  'broadcastSchedules.start': needs('broadcasts.send'),
-  'broadcastSchedules.pause': needs('broadcasts.send'),
-  'broadcastSchedules.resume': needs('broadcasts.send'),
-  'broadcastSchedules.stop': needs('broadcasts.send'),
-  'suppressions.list': needs('broadcasts.view'),
-  'suppressions.add': needs('broadcasts.manage'),
-  'suppressions.remove': needs('broadcasts.manage'),
-
   'automations.catalog': needs('automations.view'),
   'automations.list': needs('automations.view'),
   'automations.get': needs('automations.view'),
@@ -317,6 +272,18 @@ export const ACCESS = {
   'productCategories.create': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.remove': { member: 'products.manage', plugin: 'products:write' },
+
+  'integrations.list': needs('integrations.manage'),
+  'integrations.get': needs('integrations.manage'),
+  'integrations.create': needs('integrations.manage'),
+  'integrations.update': needs('integrations.manage'),
+  'integrations.setSecrets': needs('integrations.manage'),
+  'integrations.remove': needs('integrations.manage'),
+  'integrations.saveProgram': needs('integrations.manage'),
+  'integrations.removeProgram': needs('integrations.manage'),
+  'integrations.programVersions': needs('integrations.manage'),
+  'integrations.restoreProgram': needs('integrations.manage'),
+  'integrations.testProgram': needs('integrations.manage'),
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

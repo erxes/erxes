@@ -1,5 +1,5 @@
 import { type AutomationDefinition, Reentry } from '@erxes/core-contract';
-import { Input, Select, Textarea } from 'erxes-ui';
+import { Button, Collapsible, Input, Select, Textarea } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
@@ -70,7 +70,7 @@ const ReentrySelect = ({
         if (reentry) onChange({ ...definition, reentry });
       }}
     >
-      <Select.Trigger aria-label={t('reentry', 'The same record may run through')}>
+      <Select.Trigger aria-label={t('reentry', 'How often can the same record go through?')}>
         <Select.Value />
       </Select.Trigger>
       <Select.Content>
@@ -144,31 +144,20 @@ export const AutomationSettings = ({
 
   return (
     <>
+      <p className="text-sm text-muted-foreground">
+        {t('settings-hint', 'Choose a card on the left to change it.')}
+      </p>
       <div className="space-y-1.5">
-        <FieldLabel htmlFor={`${id}-name`}>{t('name', 'Name')}</FieldLabel>
-        <Input
-          id={`${id}-name`}
-          value={draft.name}
-          disabled={!editable}
-          onChange={(event) => draft.change({ name: event.target.value })}
-        />
-      </div>
-      <div className="space-y-1.5">
-        <FieldLabel htmlFor={`${id}-description`}>{t('description', 'Description')}</FieldLabel>
+        <FieldLabel htmlFor={`${id}-description`}>{t('description', 'Note')}</FieldLabel>
         <Textarea
           id={`${id}-description`}
           rows={3}
           value={draft.description}
           disabled={!editable}
-          placeholder={t('description-placeholder', 'What does it do, and why?')}
+          placeholder={t('description-placeholder', 'What is this automation for?')}
           onChange={(event) => draft.change({ description: event.target.value })}
         />
       </div>
-      <div className="space-y-1.5">
-        <FieldLabel>{t('reentry', 'The same record may run through')}</FieldLabel>
-        <ReentrySelect definition={definition} disabled={!editable} onChange={setDefinition} />
-      </div>
-      <RunLimit draft={draft} editable={editable} skippedByLimit={skippedByLimit} />
       {fieldsError && (
         <p role="alert" className="text-sm text-destructive-text">
           {t('fields-failed', 'Could not load the record fields: {{message}}', {
@@ -176,19 +165,38 @@ export const AutomationSettings = ({
           })}
         </p>
       )}
-      {subject && (
-        <div className="space-y-1.5">
-          <FieldLabel>
-            {t('goal', 'Goal: once this holds, the record leaves the automation')}
-          </FieldLabel>
-          <ConditionsEditor
-            subject={subject}
-            value={definition.goal}
-            disabled={!editable}
-            onChange={(goal) => setDefinition({ ...definition, goal })}
-          />
-        </div>
-      )}
+      <Collapsible defaultOpen={skippedByLimit > 0}>
+        <Collapsible.Trigger
+          render={<Button variant="ghost" size="sm" tone="muted" className="-ml-2" />}
+        >
+          <Collapsible.TriggerIcon className="size-3" />
+          {t('more-options', 'More options')}
+        </Collapsible.Trigger>
+        <Collapsible.Panel>
+          <div className="space-y-5 pt-3">
+            <div className="space-y-1.5">
+              <FieldLabel>{t('reentry', 'How often can the same record go through?')}</FieldLabel>
+              <ReentrySelect
+                definition={definition}
+                disabled={!editable}
+                onChange={setDefinition}
+              />
+            </div>
+            <RunLimit draft={draft} editable={editable} skippedByLimit={skippedByLimit} />
+            {subject && (
+              <div className="space-y-1.5">
+                <FieldLabel>{t('goal', 'Stop early once this is true')}</FieldLabel>
+                <ConditionsEditor
+                  subject={subject}
+                  value={definition.goal}
+                  disabled={!editable}
+                  onChange={(goal) => setDefinition({ ...definition, goal })}
+                />
+              </div>
+            )}
+          </div>
+        </Collapsible.Panel>
+      </Collapsible>
     </>
   );
 };

@@ -1,6 +1,7 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import { Input, Switch } from 'erxes-ui';
-import { useContext } from 'react';
+import { IconChevronUp, IconPlus } from '@tabler/icons-react';
+import { Button, Input, Switch } from 'erxes-ui';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionFieldInput } from './ActionFieldInput';
 import { SplitPaths, SwitchCases } from './ArmSettings';
@@ -8,7 +9,7 @@ import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
-import { emptyRequired } from './flowChecks';
+import { emptyRequired, isEmpty } from './flowChecks';
 import { actionDefaults } from './flowModel';
 import type { SettingsProps } from './stepSettingsProps';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
@@ -32,6 +33,46 @@ const NameField = ({
         onChange={(event) => onChange({ ...step, label: event.target.value || undefined })}
       />
     </div>
+  );
+};
+
+const useDetails = (step: Extract<AutomationStep, { type: 'action' }>, action: ActionInfo) => {
+  const filledKeys = () =>
+    new Set(action.fields.filter((field) => !isEmpty(step.input[field.key])).map(({ key }) => key));
+
+  const [showAll, setShowAll] = useState(false);
+  const [kept, setKept] = useState(filledKeys);
+  const shown = action.fields.filter((field) => showAll || field.required || kept.has(field.key));
+  const labelShown = showAll || Boolean(step.label);
+  const hiddenCount = action.fields.length - shown.length + Number(!labelShown);
+
+  const emptyOptional = action.fields.some(
+    (field) => !field.required && isEmpty(step.input[field.key]),
+  );
+
+  return {
+    shown,
+    showAll,
+    labelShown,
+    hiddenCount,
+    foldable: showAll ? emptyOptional || !step.label : hiddenCount > 0,
+    toggle: () => {
+      setKept(filledKeys());
+      setShowAll(!showAll);
+    },
+  };
+};
+
+const DetailsToggle = ({ details }: { details: ReturnType<typeof useDetails> }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Button variant="ghost" size="sm" tone="muted" className="-ml-2" onClick={details.toggle}>
+      {details.showAll ? <IconChevronUp /> : <IconPlus />}
+      {details.showAll
+        ? t('fewer-details', 'Show fewer details')
+        : t('more-details', 'Add more details ({{count}})', { count: details.hiddenCount })}
+    </Button>
   );
 };
 
@@ -63,10 +104,11 @@ const ActionInputs = ({
     });
 
   const empty = new Set(emptyRequired(step.input, action).map((field) => field.key));
+  const details = useDetails(step, action);
 
   return (
     <div className="space-y-4 border-t pt-4">
-      {action.fields.map((field) =>
+      {details.shown.map((field) =>
         field.type === 'boolean' ? (
           <label
             key={field.key}
@@ -111,6 +153,8 @@ const ActionInputs = ({
           </div>
         ),
       )}
+      {details.labelShown && <NameField step={step} disabled={disabled} onChange={onChange} />}
+      {details.foldable && <DetailsToggle details={details} />}
     </div>
   );
 };
@@ -149,12 +193,14 @@ const ActionSettings = ({
           <p className="text-xs text-muted-foreground">{action.description}</p>
         )}
       </div>
-      {action && action.fields.length > 0 && (
-        <ActionInputs {...props} action={action} dataFields={[...recordFields, ...outputs]} />
+      {action && (
+        <ActionInputs
+          key={`${step.id}:${step.action}`}
+          {...props}
+          action={action}
+          dataFields={[...recordFields, ...outputs]}
+        />
       )}
-      <div className="border-t pt-4">
-        <NameField step={step} disabled={disabled} onChange={onChange} />
-      </div>
     </>
   );
 };
