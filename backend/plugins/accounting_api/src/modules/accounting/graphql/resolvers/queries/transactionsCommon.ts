@@ -1,3 +1,5 @@
+import { TR_STATUSES } from '../../../@types/constants';
+import { getNavStatusFilter } from '../../../utils/transactionNavStatus';
 import {
   ICursorPaginateParams,
   IUserDocument,
@@ -64,6 +66,7 @@ interface IQueryParams {
   journal: string;
   journals: string[];
   statuses: string[];
+  navStatus?: string;
 
   createdUserId?: string;
   modifiedUserId?: string;
@@ -401,6 +404,7 @@ export const generateFilter = async (
     departmentId,
     currency,
     statuses,
+    navStatus,
     ptrStatus,
     status,
     mentionOwnerId,
@@ -417,8 +421,6 @@ export const generateFilter = async (
   const filter: any = {};
   const orFilter: any[] = [];
   const andFilter: any[] = [];
-  const hasStatusOrMentionFilter =
-    !!status || !!statuses?.length || !!mentionOwnerId || !!mentionUserId;
 
   if (createdUserId) {
     filter.createdBy = createdUserId;
@@ -469,24 +471,28 @@ export const generateFilter = async (
     filter.journal = journal;
   }
 
-  if (hasStatusOrMentionFilter) {
-    if (statuses?.length) {
-      filter.status = { $in: statuses };
-    }
+  // An explicit status filter wins; the sidebar `navStatus` applies only
+  // without one, and with neither the list shows the real tier.
+  const navFilter =
+    !status && !statuses?.length && navStatus
+      ? getNavStatusFilter(navStatus, user._id)
+      : undefined;
+  if (status) {
+    filter.status = status;
+  } else if (statuses?.length) {
+    filter.status = { $in: statuses };
+  } else if (navFilter) {
+    andFilter.push(navFilter);
+  } else {
+    filter.status = { $in: TR_STATUSES.ACTIVE };
+  }
 
-    if (status) {
-      filter.status = status;
-    }
+  if (mentionOwnerId) {
+    filter.mentionOwnerId = mentionOwnerId;
+  }
 
-    if (mentionOwnerId) {
-      filter.mentionOwnerId = mentionOwnerId;
-    }
-
-    if (mentionUserId) {
-      filter.mentionUserIds = {
-        $in: [mentionUserId],
-      };
-    }
+  if (mentionUserId) {
+    filter.mentionUserIds = { $in: [mentionUserId] };
   }
 
   if (ptrStatus) {
@@ -759,7 +765,11 @@ const transactionCommon = {
         .lean();
     const groupFilter = getExpandedGroupFilter(contentTransactions);
     const relatedTrs: ITransactionDocument[] = groupFilter
-      ? await models.Transactions.find(groupFilter)
+      ? await models.Transactions.find({
+          ...groupFilter,
+          // A nav shortcut filters through `$and`, not `status`.
+          ...(countFilter.status ? { status: countFilter.status } : {}),
+        })
           .sort({ ...sort, parentId: 1, ptrId: 1 })
           .lean()
       : [];

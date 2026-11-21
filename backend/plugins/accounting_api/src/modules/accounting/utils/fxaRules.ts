@@ -2,7 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { IFxaLedgerAsset } from './fxaLedger';
 import { FIXED_ASSET_DEPRECIATION_METHODS } from '@/fixedAssets/@types/constants';
 import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
-import { JOURNALS, TR_INVENTORY_STATUS_TYPES } from '../@types/constants';
+import { JOURNALS, TRANSACTION_STATUS_TYPES } from '../@types/constants';
 
 export interface IFxaDepreciationRules extends Record<string, unknown> {
   originalCost?: number;
@@ -104,7 +104,7 @@ export const getFxaCorrections = async (
   const transactions = await models.Transactions.find({
     journal: { $in: [JOURNALS.FXA_REVALUATION, JOURNALS.FXA_CAPITAL] },
     date: { $lt: endDate },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     ...(excludeId ? { _id: { $ne: excludeId } } : {}),
     ...(fixedAssetIds
       ? { 'details.fixedAssetId': { $in: fixedAssetIds } }
@@ -193,7 +193,7 @@ export const assertCorrectionDateOpen = async (
   }
   const posted = await models.Transactions.findOne({
     journal: JOURNALS.FXA_DEP,
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     contentType: 'accounting:adjustFixedAsset',
     date: { $gte: pureDate(date) },
   }).lean();

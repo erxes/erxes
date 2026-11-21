@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { ITransaction } from '@/accounting/@types/transaction';
+import { TTransactionDecision } from '../../../utils/trStatusWorkflow';
 import { assertTransactionJournalsPermission } from '../../../utils/transactionPermissions';
 import {
   validateRequiredId,
@@ -79,6 +80,28 @@ const transactionsMutations = {
     );
 
     return transactions;
+  },
+
+  /**
+   * Approves or declines a saved `mentioned`/`requested` transaction. Being
+   * listed in its `mentionUserIds` is the permission; journal and account
+   * rights are not required, and form edits go through the update mutation.
+   */
+  async accTransactionsDecide(
+    _root,
+    {
+      parentId,
+      decision,
+    }: { parentId: string; decision: TTransactionDecision },
+    { user, models }: IContext,
+  ) {
+    validateRequiredId(parentId, 'parentId');
+
+    return await models.Transactions.decidePTransaction(
+      parentId,
+      decision,
+      user._id,
+    );
   },
 
   /**

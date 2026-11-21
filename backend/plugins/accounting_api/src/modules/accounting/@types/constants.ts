@@ -54,66 +54,52 @@ export const TR_SIDES = {
   ALL: ['dt', 'ct'],
 };
 
-export const TR_STATUSES = {
-  // future level
-  PLAN: 'plan',
-  // conversation level
+const TRANSACTION_STATUS = {
+  ESTIMATED: 'estimated',
+  COMPLETE: 'complete',
+  EXECUTING: 'executing',
+  REQUESTED: 'requested',
   DRAFT: 'draft',
   MENTIONED: 'mentioned',
-  APPROVED: 'approved',
-  REJECED: 'rejeced',
-  RETURNED: 'returned',
-  // business level
-  PROGRESS: 'progress',
-  ASSIGNED: 'assigned',
-  CONFIRMED: 'confirmed',
-  CANELLED: 'canelled',
-  COMPLETE: 'complete',
-
-  ALL: [
-    'plan',
-    'draft',
-    'mentioned',
-    'approved',
-    'rejeced',
-    'returned',
-    'progress',
-    'assigned',
-    'confirmed',
-    'canelled',
-    'complete',
-  ],
-  ACTIVE: ['progress', 'assigned', 'confirmed', 'canelled', 'complete'],
-  CONVERSATION: [
-    'draft',
-    'mentioned',
-    'approved',
-    'rejeced',
-    'returned',
-    'plan',
-  ],
+  PLAN: 'plan',
 };
 
-export const TR_INVENTORY_STATUS_TYPES = {
+const REAL_STATUSES = [
+  TRANSACTION_STATUS.ESTIMATED,
+  TRANSACTION_STATUS.COMPLETE,
+];
+const SOON_STATUSES = [
+  TRANSACTION_STATUS.EXECUTING,
+  TRANSACTION_STATUS.REQUESTED,
+];
+const OMIT_STATUSES = [
+  TRANSACTION_STATUS.DRAFT,
+  TRANSACTION_STATUS.MENTIONED,
+  TRANSACTION_STATUS.PLAN,
+];
+
+export const TR_STATUSES = {
+  ...TRANSACTION_STATUS,
+  ALL: [...REAL_STATUSES, ...SOON_STATUSES, ...OMIT_STATUSES],
+  ACTIVE: REAL_STATUSES,
+};
+
+export const TRANSACTION_STATUS_TYPES = {
   OMIT: 'omit',
   SOON: 'soon',
   REAL: 'real',
+  OMIT_STATUSES,
+  SOON_STATUSES,
+  REAL_STATUSES,
+};
 
-  OMIT_STATUSES: [TR_STATUSES.PLAN],
-  SOON_STATUSES: [
-    TR_STATUSES.DRAFT,
-    TR_STATUSES.MENTIONED,
-    TR_STATUSES.APPROVED,
-    TR_STATUSES.REJECED,
-    TR_STATUSES.RETURNED,
-  ],
-  REAL_STATUSES: [
-    TR_STATUSES.PROGRESS,
-    TR_STATUSES.ASSIGNED,
-    TR_STATUSES.CONFIRMED,
-    TR_STATUSES.CANELLED,
-    TR_STATUSES.COMPLETE,
-  ],
+/** The accounting tier of a status; unknown or missing statuses are omitted. */
+export const getTransactionStatusType = (status?: string) => {
+  if (REAL_STATUSES.includes(status || ''))
+    return TRANSACTION_STATUS_TYPES.REAL;
+  if (SOON_STATUSES.includes(status || ''))
+    return TRANSACTION_STATUS_TYPES.SOON;
+  return TRANSACTION_STATUS_TYPES.OMIT;
 };
 
 export const PTR_STATUSES = {

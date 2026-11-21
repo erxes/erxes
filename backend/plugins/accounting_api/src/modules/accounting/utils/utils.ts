@@ -2,7 +2,8 @@ import {
   ACCOUNT_JOURNALS,
   JOURNALS,
   ACCOUNT_KINDS,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
+  getTransactionStatusType,
 } from '@/accounting/@types/constants';
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
@@ -80,18 +81,6 @@ const emptyInventoryDiff = (): TInventoryDiff => ({
   diffSoonOut: 0,
 });
 
-const getInventoryStatusType = (status?: string) => {
-  if (TR_INVENTORY_STATUS_TYPES.REAL_STATUSES.includes(status || '')) {
-    return TR_INVENTORY_STATUS_TYPES.REAL;
-  }
-
-  if (TR_INVENTORY_STATUS_TYPES.SOON_STATUSES.includes(status || '')) {
-    return TR_INVENTORY_STATUS_TYPES.SOON;
-  }
-
-  return TR_INVENTORY_STATUS_TYPES.OMIT;
-};
-
 const addInventoryDiff = (
   diffsByProductId: Record<string, TInventoryDiff>,
   productId: string,
@@ -126,10 +115,10 @@ const collectInventoryDiffs = (
   direction: 1 | -1,
   locations = new Map<string, TInventoryLocationDiff>(),
 ): Map<string, TInventoryLocationDiff> => {
-  const statusType = getInventoryStatusType(transaction.status);
+  const statusType = getTransactionStatusType(transaction.status);
   const isIncome = multiplier > 0;
 
-  if (statusType === TR_INVENTORY_STATUS_TYPES.OMIT) return locations;
+  if (statusType === TRANSACTION_STATUS_TYPES.OMIT) return locations;
 
   for (const detail of transaction.details || []) {
     if (!detail.productId) continue;
@@ -148,7 +137,7 @@ const collectInventoryDiffs = (
     addInventoryDiff(
       location.products,
       detail.productId,
-      statusType === TR_INVENTORY_STATUS_TYPES.REAL
+      statusType === TRANSACTION_STATUS_TYPES.REAL
         ? {
             diffCount: direction * multiplier * count,
             diffCost: direction * multiplier * amount,

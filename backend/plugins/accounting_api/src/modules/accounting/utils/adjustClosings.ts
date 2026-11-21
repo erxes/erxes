@@ -13,6 +13,10 @@ import {
   TR_STATUSES,
 } from '../@types/constants';
 import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  assertNoUnsettledTransaction,
+  getAdjustmentFailure,
+} from './unsettledTransactions';
 
 type TAccountMeta = {
   _id: string;
@@ -537,6 +541,10 @@ const buildClosingResult = async (models: IModels, adjust: IAdjustClosing) => {
 
   const accountIds = accounts.map((account) => account._id);
   const period = await getClosingPeriod(models, adjust, accountIds);
+  await assertNoUnsettledTransaction(models, {
+    date: { $lt: getNextDate(period.endDate) },
+    'details.accountId': { $in: accountIds },
+  });
   const balances = await getClosingBalances(
     models,
     accountIds,
@@ -613,11 +621,9 @@ export const calculateAdjustClosing = async (
         validationError?.beginDate ||
         adjust.beginDate ||
         getPureDate(adjust.date),
-      successDate: validationError?.date,
+      ...getAdjustmentFailure(error, validationError?.date),
       checkedAt: new Date(),
       status: 'process',
-      error: error instanceof Error ? error.message : 'Validation failed.',
-      warning: '',
       closePeriodTrId: '',
       earningTrId: '',
       taxPayableTrId: '',

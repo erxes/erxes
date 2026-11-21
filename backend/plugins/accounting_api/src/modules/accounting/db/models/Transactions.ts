@@ -4,11 +4,15 @@ import moment from 'moment';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
+import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove, commonRemoveValidation } from '../../utils/commonRemove';
 import { commonSave, commonSaveValidation } from '../../utils/commonSave';
 import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
+import {
+  resolveTrStatusWorkflow,
+  TTransactionDecision,
+} from '../../utils/trStatusWorkflow';
 import { transactionSchema } from '../definitions/transaction';
 import {
   generateTrStatusActivityLog,
@@ -46,7 +50,16 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     parentId: string,
     docs: (ITransaction & { _id?: string })[],
     userId: string,
-    options?: { skipAccountPermission?: boolean; preservePtrIds?: boolean },
+    options?: {
+      skipAccountPermission?: boolean;
+      preservePtrIds?: boolean;
+      decision?: TTransactionDecision;
+    },
+  ): Promise<ITransactionDocument[]>;
+  decidePTransaction(
+    parentId: string,
+    decision: TTransactionDecision,
+    userId: string,
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -65,30 +78,19 @@ const normalizeParentWorkflowDocs = (
   docs: (ITransaction & { _id?: string })[],
   userId: string,
   oldTr?: ITransactionDocument,
+  decision?: TTransactionDecision,
 ) => {
   const firstDoc = docs[0];
+  if (!firstDoc) return docs;
 
-  if (!firstDoc) {
-    return docs;
-  }
+  const workflow = resolveTrStatusWorkflow({
+    next: firstDoc,
+    old: oldTr,
+    userId,
+    decision,
+  });
 
-  const status = firstDoc.status;
-  const isReturned = status === TR_STATUSES.RETURNED;
-  const mentionOwnerId = isReturned
-    ? userId
-    : firstDoc.mentionOwnerId || oldTr?.mentionOwnerId;
-  let mentionUserIds = firstDoc.mentionUserIds || oldTr?.mentionUserIds || [];
-
-  if (isReturned) {
-    mentionUserIds = oldTr?.mentionOwnerId ? [oldTr.mentionOwnerId] : [];
-  }
-
-  return docs.map((doc) => ({
-    ...doc,
-    status,
-    mentionOwnerId,
-    mentionUserIds,
-  }));
+  return docs.map((doc) => ({ ...doc, ...workflow }));
 };
 
 const normalizeRelAccounts = (
@@ -350,15 +352,28 @@ export const loadTransactionClass = (
     static async syncParentWorkflowIdentifiers(
       parentId: string,
       ptrNumber: string,
+      transactions: ITransactionDocument[],
     ) {
-      if (!parentId || !ptrNumber) {
+      const [firstTransaction] = transactions;
+      if (!parentId || !firstTransaction) {
         return;
       }
 
+      const { status, mentionOwnerId, mentionUserIds } = firstTransaction;
+      const workflow = {
+        status,
+        mentionOwnerId,
+        mentionUserIds,
+      };
+
       await models.Transactions.updateMany(
         { parentId },
-        { $set: { parentId, ptrNumber } },
+        { $set: { parentId, ptrNumber, ...workflow } },
       );
+
+      for (const transaction of transactions) {
+        Object.assign(transaction, workflow);
+      }
     }
 
     /**
@@ -538,7 +553,11 @@ export const loadTransactionClass = (
           }
         }
 
-        await this.syncParentWorkflowIdentifiers(parentId, ptrNumber);
+        await this.syncParentWorkflowIdentifiers(
+          parentId,
+          ptrNumber,
+          transactions,
+        );
         await setPtrStatus(models, transactions);
 
         await session.commitTransaction();
@@ -583,6 +602,34 @@ export const loadTransactionClass = (
     }
 
     /**
+     * Records a listed user's approval or decline. The saved journals are
+     * re-saved unchanged through the update path, so the decided status
+     * reaches every row of the parent, inventory tiers and the activity log.
+     */
+    public static async decidePTransaction(
+      parentId: string,
+      decision: TTransactionDecision,
+      userId: string,
+    ) {
+      if (!['APPROVE', 'DECLINE'].includes(decision)) {
+        throw new Error('Invalid transaction decision');
+      }
+
+      const savedTrs = await models.Transactions.find({ parentId }).lean();
+      const rootTrs = savedTrs.filter((tr) => !tr.originId);
+      if (!rootTrs.length) {
+        throw new Error('Not found old transactions');
+      }
+
+      return this.updatePTransaction(
+        parentId,
+        rootTrs.map((tr) => ({ ...tr })),
+        userId,
+        { skipAccountPermission: true, preservePtrIds: true, decision },
+      );
+    }
+
+    /**
      * Create a perfect transactions
      */
     public static async updatePTransaction(
@@ -592,6 +639,7 @@ export const loadTransactionClass = (
       options: {
         skipAccountPermission?: boolean;
         preservePtrIds?: boolean;
+        decision?: TTransactionDecision;
       } = {},
     ) {
       const oldGroupTrs = await models.Transactions.find({ parentId }).lean();
@@ -614,7 +662,12 @@ export const loadTransactionClass = (
       const ptrNumber =
         oldTrs[0].ptrNumber || (await this.getPtrNumber(oldTrs[0]));
 
-      docs = normalizeParentWorkflowDocs(docs, userId, oldTrs[0]);
+      docs = normalizeParentWorkflowDocs(
+        docs,
+        userId,
+        oldTrs[0],
+        options.decision,
+      );
       if (!options.skipAccountPermission) {
         await assertCanWriteTransactionAccounts({
           models,
@@ -707,7 +760,11 @@ export const loadTransactionClass = (
           });
         }
 
-        await this.syncParentWorkflowIdentifiers(parentId, ptrNumber);
+        await this.syncParentWorkflowIdentifiers(
+          parentId,
+          ptrNumber,
+          transactions,
+        );
         await setPtrStatus(models, transactions);
 
         await session.commitTransaction();
@@ -728,6 +785,7 @@ export const loadTransactionClass = (
           oldStatus,
           oldMentionOwnerId: oldMentOwnerId,
           oldMentionUserIds: oldMentUserIds,
+          decision: options.decision,
         });
 
         if (activityLog) {

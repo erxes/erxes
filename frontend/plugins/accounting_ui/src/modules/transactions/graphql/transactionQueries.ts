@@ -460,7 +460,7 @@ fragment AccountingTrRecordListFields on AccCommonTrRecord {
 `);
 
 export const TRANSACTIONS_QUERY = gql(`
-query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: String, $mentionOwnerId: String, $mentionUserId: String, $searchValue: String, $number: String, $customerType: String, $customerId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountSearchValue: String, $accountBrand: String, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $statuses: [String], $createdUserId: String, $modifiedUserId: String, $startDate: Date, $endDate: Date, $startUpdatedDate: Date, $endUpdatedDate: Date, $startCreatedDate: Date, $endCreatedDate: Date, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
+query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: String, $mentionOwnerId: String, $mentionUserId: String, $searchValue: String, $number: String, $customerType: String, $customerId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountSearchValue: String, $accountBrand: String, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $statuses: [String], $navStatus: String, $createdUserId: String, $modifiedUserId: String, $startDate: Date, $endDate: Date, $startUpdatedDate: Date, $endUpdatedDate: Date, $startCreatedDate: Date, $endCreatedDate: Date, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
   accTransactionsMain(
     ids: $ids
     excludeIds: $excludeIds
@@ -491,6 +491,7 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
     journal: $journal
     journals: $journals
     statuses: $statuses
+    navStatus: $navStatus
     createdUserId: $createdUserId
     modifiedUserId: $modifiedUserId
     startDate: $startDate
@@ -519,7 +520,7 @@ query accountingAccTransactions($ids: [String], $excludeIds: Boolean, $status: S
 `);
 
 export const TR_RECORDS_QUERY = gql(`
-query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: String, $mentionOwnerId: String, $mentionUserId: String, $searchValue: String, $number: String, $customerType: String, $customerId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountSearchValue: String, $accountBrand: String, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $statuses: [String], $createdUserId: String, $modifiedUserId: String, $startDate: Date, $endDate: Date, $startUpdatedDate: Date, $endUpdatedDate: Date, $startCreatedDate: Date, $endCreatedDate: Date, $groupRule: [String], $folded: Boolean, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
+query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: String, $mentionOwnerId: String, $mentionUserId: String, $searchValue: String, $number: String, $customerType: String, $customerId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountSearchValue: String, $accountBrand: String, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $statuses: [String], $navStatus: String, $createdUserId: String, $modifiedUserId: String, $startDate: Date, $endDate: Date, $startUpdatedDate: Date, $endUpdatedDate: Date, $startCreatedDate: Date, $endCreatedDate: Date, $groupRule: [String], $folded: Boolean, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
   accTrRecordsMain(
     ids: $ids
     excludeIds: $excludeIds
@@ -550,6 +551,7 @@ query accountingAccTrRecords($ids: [String], $excludeIds: Boolean, $status: Stri
     journal: $journal
     journals: $journals
     statuses: $statuses
+    navStatus: $navStatus
     createdUserId: $createdUserId
     modifiedUserId: $modifiedUserId
     startDate: $startDate

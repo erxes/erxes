@@ -6,7 +6,7 @@ import {
   JOURNALS,
   TR_SIDES,
   TR_STATUSES,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
   TR_FOLLOW_TYPES,
   TR_DETAIL_FOLLOW_TYPES,
 } from '../@types/constants';
@@ -82,7 +82,7 @@ export const getFxaDeferredTaxTransactions = async (
   const posted =
     !openingIncome && accountIds.length
       ? await models.Transactions.find({
-          status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+          status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
           date: { $lte: endDate },
           'details.accountId': { $in: accountIds },
           'details.fixedAssetId': {
