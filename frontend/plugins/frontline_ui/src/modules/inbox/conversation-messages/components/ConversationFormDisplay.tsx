@@ -13,6 +13,7 @@ import {
   getFormWidgetResource,
   normalizeFormWidgetData,
 } from '@/inbox/conversation-messages/utils/formWidget';
+import { getFormAvatarUrl } from '@/forms/utils/getFormAvatarUrl';
 import { useTranslation } from 'react-i18next';
 import {
   Avatar,
@@ -26,7 +27,13 @@ import {
 } from 'erxes-ui';
 
 type FileVariant =
-  'image' | 'text' | 'pdf' | 'spreadsheet' | 'archive' | 'code' | 'other';
+  | 'image'
+  | 'text'
+  | 'pdf'
+  | 'spreadsheet'
+  | 'archive'
+  | 'code'
+  | 'other';
 
 const getFileVariant = (url: string): FileVariant => {
   const ext = url.split('?')[0].split('.').pop()?.toLowerCase() ?? '';
@@ -93,10 +100,12 @@ export const ConversationFormDisplay = ({
                     ),
                   )
                 : [];
-            const avatar =
-              item.type === 'core:customer:avatar'
-                ? getFormWidgetResource(item.value)
-                : undefined;
+            const isAvatar =
+              item.type === 'core:customer:avatar' ||
+              item.type === 'core:company:avatar';
+            const avatar = isAvatar
+              ? getFormWidgetResource(getFormAvatarUrl(item.value))
+              : undefined;
 
             return (
               <div
@@ -112,10 +121,9 @@ export const ConversationFormDisplay = ({
                 )}
               >
                 <Label>{item.text}</Label>
-                {item.type !== 'file' &&
-                  item.type !== 'core:customer:avatar' && (
-                    <TextField value={text} readOnly />
-                  )}
+                {item.type !== 'file' && !isAvatar && (
+                  <TextField value={text} readOnly />
+                )}
                 {item.type === 'file' && (
                   <div className="flex items-center overflow-x-auto hide-scroll snap-x">
                     {fileUrls.map((url) => {
@@ -160,7 +168,7 @@ export const ConversationFormDisplay = ({
                     })}
                   </div>
                 )}
-                {item.type === 'core:customer:avatar' && (
+                {isAvatar && (
                   <Avatar size={'xl'}>
                     {avatar && (
                       <Avatar.Image src={readImage(avatar)} alt="avatar" />

@@ -9,4 +9,8 @@ export const FORM_GROUP_LABELS: Record<FormGroupKey, FormGroupMetadata> = {
     labelKey: 'core-fields',
     description: 'Default fields tied directly to the core.',
   },
+  'core:company': {
+    labelKey: 'company-fields',
+    description: 'Fields saved to a company linked with the customer.',
+  },
 };

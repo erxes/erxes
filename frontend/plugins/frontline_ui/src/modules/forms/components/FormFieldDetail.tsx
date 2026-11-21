@@ -304,13 +304,13 @@ export const FormFieldDetail = ({
                 expectedType:
                   type === originalType
                     ? undefined
-                    : (previous.expectedType ?? previous.type),
+                    : previous.expectedType ?? previous.type,
                 type,
                 validation:
                   type === originalType
-                    ? (conversionCheck.savedField?.validation ??
+                    ? conversionCheck.savedField?.validation ??
                       fieldData?.validation ??
-                      '')
+                      ''
                     : getConvertedFieldValidation(type),
                 validator:
                   type === originalType
@@ -363,85 +363,85 @@ export const FormFieldDetail = ({
     </div>
   );
 
-  const validatorConfiguration = draft.type?.startsWith(
-    'core:customer',
-  ) ? null : (
-    <div className="space-y-3 col-span-2">
-      <Label>{t('validation', 'Validation')}</Label>
-      <ToggleGroup
-        type="single"
-        variant="outline"
-        value={draft.validator?.type ?? 'NONE'}
-        onValueChange={(value) => {
-          if (!value) return;
-          handleChangeValidator({
-            type: value as FieldValidatorType,
-          });
-        }}
-      >
-        <ToggleGroup.Item value="NONE" className="flex-1">
-          {t('none', 'None')}
-        </ToggleGroup.Item>
-        <ToggleGroup.Item value="PRESET" className="flex-1">
-          {t('preset', 'Preset')}
-        </ToggleGroup.Item>
-        <ToggleGroup.Item value="CUSTOM" className="flex-1">
-          {t('custom', 'Custom')}
-        </ToggleGroup.Item>
-      </ToggleGroup>
-
-      {draft.validator?.type === 'PRESET' && (
-        <Select
-          value={draft.validator.presetKey ?? ''}
-          onValueChange={(value) =>
+  const validatorConfiguration =
+    draft.type?.startsWith('core:customer') ||
+    draft.type?.startsWith('core:company') ? null : (
+      <div className="space-y-3 col-span-2">
+        <Label>{t('validation', 'Validation')}</Label>
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={draft.validator?.type ?? 'NONE'}
+          onValueChange={(value) => {
+            if (!value) return;
             handleChangeValidator({
-              presetKey: value as FieldValidatorPresetKey,
-            })
-          }
+              type: value as FieldValidatorType,
+            });
+          }}
         >
-          <Select.Trigger>
-            <Select.Value
-              placeholder={t('select-preset-rule', 'Select a preset rule')}
-            />
-          </Select.Trigger>
-          <Select.Content>
-            {VALIDATOR_PRESET_OPTIONS.map((opt) => (
-              <Select.Item key={opt.value} value={opt.value}>
-                {t(opt.label)}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
-      )}
+          <ToggleGroup.Item value="NONE" className="flex-1">
+            {t('none', 'None')}
+          </ToggleGroup.Item>
+          <ToggleGroup.Item value="PRESET" className="flex-1">
+            {t('preset', 'Preset')}
+          </ToggleGroup.Item>
+          <ToggleGroup.Item value="CUSTOM" className="flex-1">
+            {t('custom', 'Custom')}
+          </ToggleGroup.Item>
+        </ToggleGroup>
 
-      {draft.validator?.type === 'CUSTOM' && (
-        <Input
-          value={draft.validator.customRegex ?? ''}
-          onChange={(e) =>
-            handleChangeValidator({ customRegex: e.target.value })
-          }
-          placeholder={t(
-            'regex-pattern-placeholder',
-            'Regex pattern (e.g. ^[A-Z]{3}\\d{4}$)',
-          )}
-          spellCheck={false}
-        />
-      )}
+        {draft.validator?.type === 'PRESET' && (
+          <Select
+            value={draft.validator.presetKey ?? ''}
+            onValueChange={(value) =>
+              handleChangeValidator({
+                presetKey: value as FieldValidatorPresetKey,
+              })
+            }
+          >
+            <Select.Trigger>
+              <Select.Value
+                placeholder={t('select-preset-rule', 'Select a preset rule')}
+              />
+            </Select.Trigger>
+            <Select.Content>
+              {VALIDATOR_PRESET_OPTIONS.map((opt) => (
+                <Select.Item key={opt.value} value={opt.value}>
+                  {t(opt.label)}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        )}
 
-      {draft.validator?.type && draft.validator.type !== 'NONE' && (
-        <Input
-          value={draft.validator.errorMessage ?? ''}
-          onChange={(e) =>
-            handleChangeValidator({ errorMessage: e.target.value })
-          }
-          placeholder={t(
-            'error-message-placeholder',
-            'Error message shown to the user',
-          )}
-        />
-      )}
-    </div>
-  );
+        {draft.validator?.type === 'CUSTOM' && (
+          <Input
+            value={draft.validator.customRegex ?? ''}
+            onChange={(e) =>
+              handleChangeValidator({ customRegex: e.target.value })
+            }
+            placeholder={t(
+              'regex-pattern-placeholder',
+              'Regex pattern (e.g. ^[A-Z]{3}\\d{4}$)',
+            )}
+            spellCheck={false}
+          />
+        )}
+
+        {draft.validator?.type && draft.validator.type !== 'NONE' && (
+          <Input
+            value={draft.validator.errorMessage ?? ''}
+            onChange={(e) =>
+              handleChangeValidator({ errorMessage: e.target.value })
+            }
+            placeholder={t(
+              'error-message-placeholder',
+              'Error message shown to the user',
+            )}
+          />
+        )}
+      </div>
+    );
 
   const showSearch =
     draft?.type === 'select' || draft?.type === 'select:countries';
