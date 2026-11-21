@@ -1,9 +1,10 @@
 // Already loaded by `node --import` (see the file), which is what lets it patch http, express and pg.
 import { stopTracing } from '~/instrumentation';
-import { closeDb, configureDb, runMigrations, runtimeRole } from '@erxes/core-db';
+import { closeDb, configureDb, runtimeRole } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { startDraining } from '~/lib/lifecycle';
+import { migrate } from '~/lib/migrate';
 import { loadSigningKeys } from '~/lib/signing';
 import { closeAgents } from '~/modules/agents/host';
 import { recoverAgents } from '~/modules/agents/recovery';
@@ -16,6 +17,16 @@ import { logger } from '~/logger';
 const log = logger.child({ component: 'main' });
 
 const start = async () => {
+  // Production migrates with its own command (`pnpm db:migrate`); development
+  // migrates on start for convenience. Both run as the owner role.
+  if (config.data.migrateOnStart) {
+    const applied = await migrate();
+
+    if (applied.length) {
+      log.info({ migrations: applied }, 'applied migrations');
+    }
+  }
+
   configureDb({
     ...config.data,
     applicationName: 'erxes-core',
@@ -23,16 +34,6 @@ const start = async () => {
   });
 
   loadSigningKeys();
-
-  // Production migrates with its own command and role (`pnpm db:migrate`);
-  // development migrates on start for convenience.
-  if (config.data.migrateOnStart) {
-    const applied = await runMigrations();
-
-    if (applied.length) {
-      log.info({ migrations: applied }, 'applied migrations');
-    }
-  }
 
   // Tenant isolation relies on row level security: a role that bypasses it
   // (superuser, BYPASSRLS) turns it off. Refused in production.

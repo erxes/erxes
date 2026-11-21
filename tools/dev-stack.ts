@@ -1,6 +1,8 @@
 /**
  * A throwaway stack for this checkout: Postgres 18 in Docker on tmpfs, migrated, with the
- * e2e owner's organisation and its example data, and the API and UI dev servers.
+ * e2e owner's organisation and its example data, and the API and UI dev servers. Migrations
+ * run as the owner `erxes`; the API runs as the runtime role `erxes_app`, so row level
+ * security applies as in production.
  *   vp run dev:stack up | down | status
  * The container name and the ports come from the checkout's path, so parallel checkouts
  * never collide. `up` writes `.env.local`, which `vp run test` and the dev servers read.
@@ -22,8 +24,16 @@ export const stack = {
   ports: { postgres: base, api: base + 1, ui: base + 2 },
 };
 
-// No password: the throwaway server listens on 127.0.0.1 only and trusts local connections.
+// No passwords: the throwaway server listens on 127.0.0.1 only and trusts local connections.
 const postgres = `postgres://erxes@127.0.0.1:${stack.ports.postgres}`;
+
+/** The owner migrates and creates the runtime role (DATA_RUNTIME_ROLE), which the API and seeding use. */
+const data = {
+  DATA_URL: `postgres://erxes_app@127.0.0.1:${stack.ports.postgres}/erxes`,
+  DATA_MIGRATION_URL: `${postgres}/erxes`,
+  DATA_RUNTIME_ROLE: 'erxes_app',
+};
+
 const api = `http://localhost:${stack.ports.api}`;
 const ui = `http://localhost:${stack.ports.ui}`;
 const state = resolve(root, '.scratch/dev-stack');
@@ -33,7 +43,7 @@ const envFile = resolve(root, '.env.local');
 const servers = {
   api: {
     filter: '@erxes/api',
-    env: { PORT: String(stack.ports.api), DATA_URL: `${postgres}/erxes`, APP_URL: ui },
+    env: { PORT: String(stack.ports.api), ...data, APP_URL: ui },
     ready: `${api}/ready`,
   },
   ui: {
@@ -152,7 +162,7 @@ const startServer = (server: Server) => {
   child.unref();
 };
 
-/** The organisation and owner (migrating first), then example data through the API. */
+/** The organisation and owner (migrating and granting the runtime role first), then example data through the API. */
 const seed = () => {
   const printed = run(
     'pnpm',
@@ -161,7 +171,7 @@ const seed = () => {
       ['--email', OWNER.email, '--password', OWNER.password],
       ['--full-name', `${OWNER.firstName} ${OWNER.lastName}`],
     ].flat(),
-    { NODE_ENV: 'development', DATA_URL: `${postgres}/erxes` },
+    { NODE_ENV: 'development', ...data },
   );
 
   const token = /^token\s+(\S+)/m.exec(printed)?.[1];
@@ -211,7 +221,7 @@ export const isUp = () =>
   containerStatus() === 'running' && alive(pidOf('api')) && alive(pidOf('ui'));
 
 const status = async () => {
-  say(`postgres  ${postgres}/erxes  ${stack.container}: ${containerStatus()}`);
+  say(`postgres  ${data.DATA_URL}  ${stack.container}: ${containerStatus()}`);
 
   for (const server of ['api', 'ui'] as const) {
     const pid = pidOf(server);
@@ -237,7 +247,12 @@ const up = async () => {
   await startPostgres();
   writeFileSync(
     envFile,
-    `# Written by \`vp run dev:stack up\` for this checkout; \`down\` removes it.\nDATA_URL=${postgres}/erxes\nDATA_TEST_URL=${postgres}/postgres\n`,
+    [
+      '# Written by `vp run dev:stack up` for this checkout; `down` removes it.',
+      ...Object.entries(data).map(([name, value]) => `${name}=${value}`),
+      `DATA_TEST_URL=${postgres}/postgres`,
+      '',
+    ].join('\n'),
   );
 
   const token = seed();
