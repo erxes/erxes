@@ -219,7 +219,6 @@
   "catalog-back": "All categories",
   "catalog-search-in": "Search in {{name}}…",
   "catalog-plugin": "Plugin",
-  "catalog-integration": "Integration",
   "catalog-count-event_one": "{{count}} event",
   "catalog-count-event_other": "{{count}} events",
   "catalog-count-action_one": "{{count}} action",

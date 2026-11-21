@@ -130,19 +130,6 @@ describe('secret vault', { timeout: 120_000 }, () => {
     expect(rotated.secret).not.toBe(hook.secret);
     expect((await storedOf(t.ids.org, 'core')).map((row) => row.id)).toEqual([sealed?.id]);
 
-    const integration = await t
-      .owner()
-      .integrations.create({ key: 'boat', name: 'Boat', hosts: ['example.com'] });
-
-    await t.owner().integrations.setSecrets({ id: integration.id, secrets: { apiKey: 'k-1' } });
-    await t.owner().integrations.setSecrets({ id: integration.id, secrets: { token: 't-1' } });
-    expect(await storedOf(t.ids.org, 'core')).toHaveLength(2);
-
-    await t
-      .owner()
-      .integrations.setSecrets({ id: integration.id, secrets: { apiKey: null, token: null } });
-    expect((await storedOf(t.ids.org, 'core')).map((row) => row.id)).toEqual([sealed?.id]);
-
     await t.owner().webhooks.remove({ id: hook.webhook.id });
     expect(await storedOf(t.ids.org, 'core')).toEqual([]);
   });

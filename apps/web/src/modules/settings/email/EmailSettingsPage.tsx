@@ -10,7 +10,7 @@ import { EmailSetupBanner, useProviderName } from '~/components/EmailSetupBanner
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
-import { useIntegrationsSaved } from '../integrations/customMutation';
+import { useIntegrationsSaved } from '../integrations/useIntegrationsSaved';
 import { DangerSection } from '../integrations/DangerSection';
 import { HowItWorks, OverviewSection, useIntegrationTab } from '../integrations/IntegrationLayout';
 import { IntegrationStatusBadge } from '../integrations/IntegrationStatusBadge';

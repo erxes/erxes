@@ -36,10 +36,6 @@ export const useIntegrationStatus = () => {
   );
 
   const statusOf = (integration: Integration): IntegrationStatus | null => {
-    if (integration.kind === 'custom') {
-      return { state: integration.record.sealedNames.length ? 'connected' : 'not-set-up' };
-    }
-
     if (integration.kind === 'ebarimt') {
       if (!ebarimt.isSuccess) return null;
 

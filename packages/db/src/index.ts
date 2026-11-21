@@ -97,9 +97,6 @@ export {
   users,
   webhookDeliveries,
   webhooks,
-  integrations,
-  integrationPrograms,
-  integrationProgramVersions,
   secrets,
 } from './schema';
 
@@ -116,7 +113,6 @@ export type {
   ImportCounts,
   ImportOptions,
   InvoiceLine,
-  IntegrationProgramDefinition,
   TaxBuyer,
   EbarimtTaxRule,
   EbarimtPrintBlock,

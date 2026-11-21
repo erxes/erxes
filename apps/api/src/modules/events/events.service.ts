@@ -22,7 +22,7 @@ export type CoreEventInput = Pick<
   'type' | 'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'payload' | 'dedupeKey'
 >;
 
-export const publishEventsFrom = async (client: Db, source: string, list: CoreEventInput[]) => {
+const publishCore = async (client: Db, list: CoreEventInput[]) => {
   if (!list.length) {
     return;
   }
@@ -36,7 +36,7 @@ export const publishEventsFrom = async (client: Db, source: string, list: CoreEv
     .values(
       list.map((input) => ({
         id: newId(),
-        source,
+        source: 'core',
         ...input,
         ...actor,
         payload: imported
@@ -55,7 +55,7 @@ export const publishEventsFrom = async (client: Db, source: string, list: CoreEv
  * transaction as the change, for automations and webhooks to come.
  */
 export const publishCoreEvents = (client: Db, inputs: CoreEventInput | CoreEventInput[]) =>
-  publishEventsFrom(client, 'core', Array.isArray(inputs) ? inputs : [inputs]);
+  publishCore(client, Array.isArray(inputs) ? inputs : [inputs]);
 
 /**
  * A plugin publishes events over HTTP (plugins on core's database use

@@ -57,8 +57,6 @@ const DENIED_PROCEDURES = new Set([
   'payments.removeGateway',
   'payments.pluginSettings',
   'payments.updatePluginSettings',
-  'integrations.update',
-  'integrations.remove',
   'webhooks.create',
   'webhooks.update',
   'webhooks.rotateSecret',
