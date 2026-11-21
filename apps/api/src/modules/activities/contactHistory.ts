@@ -5,7 +5,8 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { notify } from '~/modules/notifications/notifications.service';
 import { newOwnerNotice, ownerNotice } from './contactNotices';
-import { moveActivities, recordActivity, removeActivities } from './activities.service';
+import { moveActivities, removeActivities } from './activities.service';
+import { recordActivity } from './record';
 import {
   contactChanges,
   contactLabel,

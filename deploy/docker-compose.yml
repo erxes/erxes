@@ -24,7 +24,10 @@ x-api-env: &api-env
   CORE_SETUP: ${CORE_SETUP:-true}
   FILES_STORAGE: ${FILES_STORAGE:-local}
   FILES_LOCAL_DIR: /app/data/files
-  EMAIL_DRIVER: ${EMAIL_DRIVER:-log}
+  # Unset: SMTP when EMAIL_SMTP_URL is set, else nothing is delivered (Settings › Integrations › Email sending).
+  EMAIL_DRIVER: ${EMAIL_DRIVER:-}
+  EMAIL_SMTP_URL: ${EMAIL_SMTP_URL:-}
+  EMAIL_FROM: ${EMAIL_FROM:-}
 
 x-api-secrets: &api-secrets
   - core_jwt_secret

@@ -26,6 +26,30 @@ export const Currency = z
 
 export type Currency = z.infer<typeof Currency>;
 
+/** Every IANA time zone this runtime knows, `UTC` first. */
+export const timeZones = () => ['UTC', ...Intl.supportedValuesOf('timeZone')];
+
+/**
+ * A named zone the runtime can use, by any of its IANA names: one browser lists
+ * `Asia/Kolkata` where Node lists `Asia/Calcutta`. Offsets (`+08:00`) are no zone.
+ */
+const isTimeZone = (zone: string) => {
+  if (/^[+-]/.test(zone)) return false;
+
+  try {
+    return Boolean(new Intl.DateTimeFormat('en', { timeZone: zone }).resolvedOptions().timeZone);
+  } catch {
+    return false;
+  }
+};
+
+/** An IANA time zone (`Asia/Ulaanbaatar`, `UTC`). */
+export const TimeZone = z
+  .string()
+  .trim()
+  .max(60)
+  .refine(isTimeZone, 'a time zone like Asia/Ulaanbaatar or UTC');
+
 /** The currency a country uses, to suggest one when an organisation picks its country. */
 export const currencyOfCountry = (country: string): string | null =>
   isCountry(country) ? countryToCurrency[country] : null;

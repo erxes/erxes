@@ -5,6 +5,7 @@ import { lazyNamed } from '~/lib/lazyNamed';
 import { useLiveUpdates } from '~/lib/live';
 import { AssistantHost } from '~/modules/assistant/AssistantHost';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
+import { useImportantToasts } from '~/modules/notifications/useImportantToasts';
 import { usePluginTranslations } from '~/modules/plugins/pluginText';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
@@ -36,6 +37,8 @@ export const MainLayout = () => {
   useLiveUpdates();
   // New inbox items as desktop notifications, when the member turned them on.
   useDesktopNotifications();
+  // Important ones arriving now as a toast too.
+  useImportantToasts();
   useSettingsReturn();
   // Plugins' words from their manifests, in the member's language.
   usePluginTranslations();

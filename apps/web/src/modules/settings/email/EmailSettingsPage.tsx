@@ -1,4 +1,4 @@
-import type { EmailSettings } from '@erxes/core-contract';
+import type { EmailSender, EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconMail } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
@@ -6,6 +6,7 @@ import { Button, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast 
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { EmailSetupBanner, useProviderName } from '~/components/EmailSetupBanner';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
@@ -13,8 +14,14 @@ import { useIntegrationsSaved } from '../integrations/customMutation';
 import { DangerSection } from '../integrations/DangerSection';
 import { HowItWorks, OverviewSection, useIntegrationTab } from '../integrations/IntegrationLayout';
 import { IntegrationStatusBadge } from '../integrations/IntegrationStatusBadge';
+import { EmailAddressesTab } from './EmailAddressesTab';
+import { EmailDeliveriesTab } from './EmailDeliveriesTab';
+import { EventsHelp } from './EmailEvents';
 import { EmailForm, PROVIDER_NAMES } from './EmailForm';
-import { EmailSenders } from './EmailSenders';
+import { EmailHaltNotice } from './EmailHaltBanner';
+import { EmailLimitsTab } from './EmailLimitsTab';
+import { ReplyTosSection } from './ReplyTosSection';
+import { ServerSender } from './ServerSender';
 
 /** Sends a test email to the member the way the organisation's go out, and says how it went. */
 const SendTest = () => {
@@ -71,22 +78,60 @@ const RemoveEmail = () => {
 
 const HOW_IT_WORKS = [
   ['all', 'Invitations, password resets, notifications, automations and broadcasts all use it.'],
-  [
-    'senders',
-    'Broadcasts and automations can send as a confirmed sender instead (the Senders tab).',
-  ],
   ['verify', 'SendGrid and Amazon SES only send from addresses or domains you verified with them.'],
+  ['reply-to', 'Replies go only to the Reply-To addresses you confirmed.'],
   ['none', 'Without it, emails go out from erxes’s address.'],
 ] as const;
 
-const Overview = ({ saved }: { saved: EmailSettings | null }) => {
+const HOW_IT_WORKS_SERVER = [
+  ['all', 'Invitations, password resets, notifications, automations and broadcasts all use it.'],
+  ['server', 'Every email goes out from erxes’ address under your organisation’s name.'],
+  ['label', 'A broadcast or automation adds a label after the name, such as “Marketing”.'],
+  ['reply-to', 'Replies go only to the Reply-To addresses you confirmed.'],
+] as const;
+
+/** The server's sender and how it sends: "Acme <no-reply@erxes.io> · via SendGrid". */
+const ServerSending = ({ sender }: { sender: EmailSender }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+  const providerName = useProviderName();
+
+  return (
+    <OverviewSection title={t('sending-as', 'Sending as')}>
+      <p className="rounded-lg border p-4 text-sm">
+        {t('sending-line', '{{name}} <{{address}}> · via {{provider}}', {
+          name: sender.name,
+          address: sender.address,
+          provider: providerName(sender.provider),
+        })}
+      </p>
+    </OverviewSection>
+  );
+};
+
+const Overview = ({ sender, saved }: { sender: EmailSender; saved: EmailSettings | null }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+
+  if (!sender.ownSending) {
+    return (
+      <div className="space-y-6">
+        <EmailSetupBanner settingsLink={false} />
+        <EmailHaltNotice />
+        <ServerSending sender={sender} />
+        <HowItWorks
+          title={t('how', 'How it works')}
+          lines={HOW_IT_WORKS_SERVER.map(([key, text]) => t(`how-server-${key}`, text))}
+        />
+      </div>
+    );
+  }
 
   const server =
     saved?.provider === 'smtp' ? `${saved.smtpHost}:${saved.smtpPort}` : saved?.region || null;
 
   return (
     <div className="space-y-6">
+      <EmailSetupBanner settingsLink={false} />
+      <EmailHaltNotice />
       {saved ? (
         <OverviewSection title={t('sending-as', 'Sending as')}>
           <dl className="grid grid-cols-3 gap-x-6 gap-y-1.5 rounded-lg border p-4 text-sm">
@@ -107,13 +152,17 @@ const Overview = ({ saved }: { saved: EmailSettings | null }) => {
           </dl>
         </OverviewSection>
       ) : (
-        <p className="rounded-lg border p-4 text-sm">
-          {t(
-            'set-up-hint',
-            'Emails go out from erxes’s address. Set up your own server or account to send from yours.',
-          )}
-        </p>
+        <>
+          <ServerSending sender={sender} />
+          <p className="text-sm text-muted-foreground">
+            {t(
+              'set-up-hint',
+              'Emails go out from erxes’s address. Set up your own server or account to send from yours.',
+            )}
+          </p>
+        </>
       )}
+      {saved && <EventsHelp saved={saved} />}
       <HowItWorks
         title={t('how', 'How it works')}
         lines={HOW_IT_WORKS.map(([key, text]) => t(`how-${key}`, text))}
@@ -122,7 +171,43 @@ const Overview = ({ saved }: { saved: EmailSettings | null }) => {
   );
 };
 
-const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
+/** The settings tab: SaaS shows erxes' sender, self-hosted its own; both list the Reply-To addresses. */
+const SettingsTab = ({ sender, saved }: { sender: EmailSender; saved: EmailSettings | null }) =>
+  sender.ownSending ? (
+    <div className="space-y-6">
+      <EmailForm key={saved?.updatedAt ?? 'new'} saved={saved} />
+      <ReplyTosSection byLink={false} />
+      {saved && <RemoveEmail />}
+    </div>
+  ) : (
+    <div className="space-y-6">
+      <ServerSender sender={sender} />
+      <ReplyTosSection byLink />
+    </div>
+  );
+
+/** What the header offers: a test once set up, else the way to set it up; SaaS: nothing to set up. */
+const HeaderAction = ({
+  sender,
+  saved,
+  onSetUp,
+}: {
+  sender: EmailSender;
+  saved: EmailSettings | null;
+  onSetUp: () => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+
+  if (!sender.ownSending) return null;
+
+  return saved ? (
+    <SendTest />
+  ) : (
+    <Button onClick={onSetUp}>{t('email.set-up-short', 'Set up')}</Button>
+  );
+};
+
+const EmailPage = ({ sender, saved }: { sender: EmailSender; saved: EmailSettings | null }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const [tab, setTab] = useIntegrationTab('overview');
 
@@ -130,22 +215,27 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
     {
       value: 'overview',
       label: t('tab.overview', 'Overview'),
-      content: <Overview saved={saved} />,
+      content: <Overview sender={sender} saved={saved} />,
     },
     {
       value: 'settings',
       label: t('tab.settings', 'Settings'),
-      content: (
-        <div className="space-y-6">
-          <EmailForm key={saved?.updatedAt ?? 'new'} saved={saved} />
-          {saved && <RemoveEmail />}
-        </div>
-      ),
+      content: <SettingsTab sender={sender} saved={saved} />,
     },
     {
-      value: 'senders',
-      label: t('tab.senders', 'Senders'),
-      content: <EmailSenders saved={saved} />,
+      value: 'activity',
+      label: t('tab.activity', 'Activity'),
+      content: <EmailDeliveriesTab />,
+    },
+    {
+      value: 'addresses',
+      label: t('tab.addresses', 'Addresses'),
+      content: <EmailAddressesTab />,
+    },
+    {
+      value: 'limits',
+      label: t('tab.limits', 'Limits'),
+      content: <EmailLimitsTab />,
     },
   ];
 
@@ -157,7 +247,14 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl font-semibold">{t('name.email', 'Email sending')}</h1>
-            <IntegrationStatusBadge status={{ state: saved ? 'connected' : 'not-set-up' }} />
+            <IntegrationStatusBadge
+              status={{
+                state:
+                  sender.canDeliver && (saved !== null || !sender.ownSending)
+                    ? 'connected'
+                    : 'not-set-up',
+              }}
+            />
           </div>
           <p className="text-sm text-muted-foreground">
             {t(
@@ -167,11 +264,7 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {saved ? (
-            <SendTest />
-          ) : (
-            <Button onClick={() => setTab('settings')}>{t('email.set-up-short', 'Set up')}</Button>
-          )}
+          <HeaderAction sender={sender} saved={saved} onSetUp={() => setTab('settings')} />
         </div>
       </header>
       <Tabs value={current?.value} onValueChange={setTab}>
@@ -188,13 +281,17 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
   );
 };
 
-/** Settings › Email sending: how the organisation's emails go out, its settings and senders. */
+/** Settings › Email sending: how the organisation's emails go out, and its settings. */
 export const EmailSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const canManage = useCan()('integrations.manage');
 
   const settings = useQuery(
     orpc.emails.settings.queryOptions({ input: canManage ? undefined : skipToken }),
+  );
+
+  const sender = useQuery(
+    orpc.emails.sender.queryOptions({ input: canManage ? undefined : skipToken }),
   );
 
   if (!canManage) return <Navigate to={paths.settings.root} replace />;
@@ -211,8 +308,12 @@ export const EmailSettingsPage = () => {
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1" fitWidth>
-        <QueryState query={settings} className="py-12">
-          {(saved) => <EmailPage saved={saved} />}
+        <QueryState query={sender} className="py-12">
+          {(from) => (
+            <QueryState query={settings} className="py-12">
+              {(saved) => <EmailPage sender={from} saved={saved} />}
+            </QueryState>
+          )}
         </QueryState>
       </ScrollArea>
     </PageContainer>
