@@ -9,7 +9,6 @@ import {
   useQueryState,
   Filter,
   useFilterContext,
-  useFilterQueryState,
 } from 'erxes-ui';
 import React, { createContext, useContext, useState } from 'react';
 import { usePermissionsModules } from 'ui-modules/modules/permissions/hooks/usePermissions';
@@ -65,7 +64,7 @@ export const SelectModulesProvider = ({
       value={{
         selectedModule,
         setSelectedModule,
-        selectedModuleName: !value ? '' : value,
+        selectedModuleName: value || '',
         onSelect,
       }}
     >
@@ -155,7 +154,7 @@ const SelectModuleFilterView = () => {
       <SelectModulesProvider
         value={module || ''}
         onValueChange={(value) => {
-          setModule(value as string);
+          setModule(value);
           resetFilterState();
         }}
       >
@@ -179,7 +178,7 @@ const SelectModuleFilterBarItem = () => {
       <SelectModulesProvider
         value={module as string}
         onValueChange={(value) => {
-          setModule(value as string);
+          setModule(value);
           resetFilterState();
           setOpen(false);
         }}
