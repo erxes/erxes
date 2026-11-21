@@ -11,7 +11,7 @@ export const NotificationConversationDetail = ({
 
   useEffect(() => {
     if (conversationId !== contentTypeId) {
-      setConversationId(contentTypeId);
+      setConversationId(contentTypeId, { replace: true });
     }
   }, [contentTypeId, conversationId, setConversationId]);
 
