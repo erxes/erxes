@@ -23,7 +23,7 @@ import { asPlugin } from './withoutSignIn.service';
 
 type Status = UserRow['status'];
 
-/** Every word in the email, a name, the username or the employee id. */
+/** Every word in the email, a name, the username, the employee id or the code. */
 export const userSearch = (search: string) =>
   matchEveryWord(search, (pattern) =>
     or(
@@ -32,6 +32,7 @@ export const userSearch = (search: string) =>
       ilike(users.username, pattern),
       ilike(users.shortName, pattern),
       ilike(users.employeeId, pattern),
+      ilike(users.code, pattern),
     ),
   );
 

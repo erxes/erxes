@@ -13,6 +13,7 @@ export interface UserChanges {
   lastName?: string | null;
   shortName?: string | null;
   employeeId?: string | null;
+  code?: string | null;
   phone?: string | null;
   birthDate?: string | null;
   workStartedDate?: string | null;
@@ -83,7 +84,7 @@ export const profileChanges = (
 ) => {
   const set = nameChanges(input, current);
 
-  for (const key of ['shortName', 'employeeId', 'phone', 'description'] as const) {
+  for (const key of ['shortName', 'employeeId', 'code', 'phone', 'description'] as const) {
     const value = blankToNull(input[key]);
 
     if (value !== undefined) {

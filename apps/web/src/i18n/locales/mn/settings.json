@@ -1439,7 +1439,8 @@
     "password-number": "Тоо нэмнэ үү",
     "password-lowercase": "Жижиг үсэг нэмнэ үү",
     "password-uppercase": "Том үсэг нэмнэ үү",
-    "password-mismatch": "Нууц үг таарахгүй байна"
+    "password-mismatch": "Нууц үг таарахгүй байна",
+    "code": "Код"
   },
   "exchange-rates": {
     "exchange-rates-label": "Ханш",

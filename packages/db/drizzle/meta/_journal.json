@@ -855,6 +855,13 @@
       "when": 1795373029997,
       "tag": "0121_exchange_rates",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1795373047386,
+      "tag": "0122_user_code",
+      "breakpoints": true
     }
   ]
 }
