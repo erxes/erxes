@@ -757,6 +757,13 @@
       "when": 1795284881197,
       "tag": "0107_integration_connections",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1795315772079,
+      "tag": "0108_field_value_stats",
+      "breakpoints": true
     }
   ]
 }
