@@ -8,13 +8,14 @@ import {
   integrations,
   newId,
   requestOrgId,
+  secrets,
 } from '@erxes/core-db';
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { hmacSha256 } from '~/lib/crypto';
 import { lockKeys } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
-import { coreKey } from '~/lib/secrets';
+import { coreKey } from '~/lib/coreKey';
 import { appLink } from '~/modules/email/email';
 
 type ProgramRow = typeof integrationPrograms.$inferSelect;
@@ -61,9 +62,10 @@ const findProgram = async (client: Db, id: string) => {
 
 export const loadedPrograms = (client: Db) =>
   client
-    .select({ integration: integrations, program: integrationPrograms })
+    .select({ integration: integrations, program: integrationPrograms, secret: secrets })
     .from(integrationPrograms)
-    .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId));
+    .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId))
+    .leftJoin(secrets, eq(secrets.id, integrations.valuesSecretId));
 
 export const findLoadedProgram = async (client: Db, id: string) => {
   const [loaded] = await loadedPrograms(client).where(eq(integrationPrograms.id, id)).limit(1);

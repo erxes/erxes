@@ -6,16 +6,25 @@ import {
   paymentGateways,
   paymentInvoices,
   paymentPluginSettings,
+  secrets,
 } from '@erxes/core-db';
 import { createGateway } from '@erxes/payment-gateways';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { openSecret, saveSecret, type WithSecret } from '~/modules/secrets/vault';
 
-export type GatewayRow = typeof paymentGateways.$inferSelect;
+type GatewayRecord = typeof paymentGateways.$inferSelect;
+
+export type GatewayRow = WithSecret<GatewayRecord>;
+
+const gatewaysWithSecret = (client: Db) =>
+  client
+    .select({ ...getTableColumns(paymentGateways), secret: secrets })
+    .from(paymentGateways)
+    .innerJoin(secrets, eq(secrets.id, paymentGateways.configSecretId));
 
 /** The calling plugin's payment settings; members have none. */
 const pluginSettingsOf = async (client: Db) => {
@@ -46,9 +55,7 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
     throw fail('GATEWAY_NOT_ALLOWED', 'This plugin may not use that gateway (Settings › Payments)');
   }
 
-  const active = await client
-    .select()
-    .from(paymentGateways)
+  const active = await gatewaysWithSecret(client)
     .where(
       and(
         eq(paymentGateways.status, 'active'),
@@ -91,22 +98,17 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
   return gateway;
 };
 
-const configOf = (row: GatewayRow) => GatewayConfig.parse(JSON.parse(unseal(row.configSealed)));
+const configOf = (row: GatewayRow) => GatewayConfig.parse(JSON.parse(openSecret(row.secret)));
 
 export const driverOf = (row: GatewayRow) => createGateway(configOf(row), { cacheKey: row.id });
 
-/** The row with the settings a member may see; the sealed credentials stay out. */
-const withVisibleSettings = (row: GatewayRow) => ({
+const withVisibleSettings = (row: GatewayRecord, settings: GatewayConfig) => ({
   ...row,
-  settings: visibleGatewaySettings(configOf(row)),
+  settings: visibleGatewaySettings(settings),
 });
 
 const gatewayOrThrow = async (client: Db, id: string) => {
-  const [row] = await client
-    .select()
-    .from(paymentGateways)
-    .where(eq(paymentGateways.id, id))
-    .limit(1);
+  const [row] = await gatewaysWithSecret(client).where(eq(paymentGateways.id, id)).limit(1);
 
   if (!row) throw notFound('Gateway');
 
@@ -127,9 +129,9 @@ const verifyGateway = async (id: string, settings: GatewayConfig) => {
 export const listGateways = async (client: Db) => ({
   data: (
     await wholeList((limit) =>
-      client.select().from(paymentGateways).orderBy(paymentGateways.createdAt).limit(limit),
+      gatewaysWithSecret(client).orderBy(paymentGateways.createdAt).limit(limit),
     )
-  ).map(withVisibleSettings),
+  ).map((row) => withVisibleSettings(row, configOf(row))),
 });
 
 export const addGateway = async (client: Db, input: { name: string; config: GatewayConfig }) => {
@@ -144,7 +146,7 @@ export const addGateway = async (client: Db, input: { name: string; config: Gate
         id,
         kind: input.config.kind,
         name: input.name,
-        configSealed: seal(JSON.stringify(input.config)),
+        configSecretId: await saveSecret(client, JSON.stringify(input.config)),
         createdBy: caller('user').userId,
       })
       .returning(),
@@ -158,7 +160,7 @@ export const addGateway = async (client: Db, input: { name: string; config: Gate
     metadata: { kind: input.config.kind, ...visibleGatewaySettings(input.config) },
   });
 
-  return withVisibleSettings(row);
+  return withVisibleSettings(row, input.config);
 };
 
 export const updateGateway = async (
@@ -172,6 +174,7 @@ export const updateGateway = async (
     if (input.config.kind !== before.kind)
       throw fail('KIND_CHANGED', 'Add a new gateway to change its kind');
     await verifyGateway(id, input.config);
+    await saveSecret(client, JSON.stringify(input.config), before.configSecretId);
   }
 
   const row = oneRow(
@@ -179,7 +182,6 @@ export const updateGateway = async (
       .update(paymentGateways)
       .set({
         name: input.name,
-        configSealed: input.config && seal(JSON.stringify(input.config)),
         status: input.status,
         updatedAt: sql`now()`,
       })
@@ -195,7 +197,7 @@ export const updateGateway = async (
     metadata: { credentialsChanged: Boolean(input.config), status: input.status },
   });
 
-  return withVisibleSettings(row);
+  return withVisibleSettings(row, input.config ?? configOf(before));
 };
 
 export const removeGateway = async (client: Db, id: string) => {

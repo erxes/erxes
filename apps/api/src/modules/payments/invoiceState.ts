@@ -1,14 +1,23 @@
 import { type Invoice, PAYMENT_GATEWAYS } from '@erxes/core-contract';
-import { type Db, paymentGateways, paymentInvoices, runAs, system, withOrg } from '@erxes/core-db';
+import {
+  type Db,
+  paymentGateways,
+  paymentInvoices,
+  runAs,
+  secrets,
+  system,
+  withOrg,
+} from '@erxes/core-db';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { notFound } from '~/http/errors';
 import { hmacSha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
-import { coreKey } from '~/lib/secrets';
+import { coreKey } from '~/lib/coreKey';
 import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
+import { withSecret } from '~/modules/secrets/vault';
 import { driverOf } from './gateways.service';
 
 const log = logger.child({ component: 'payments' });
@@ -133,18 +142,21 @@ const markExpired = async (tx: Db, invoice: InvoiceRow) => {
 const current = async (tx: Db, id: string) =>
   oneRow(await tx.select().from(paymentInvoices).where(eq(paymentInvoices.id, id)).limit(1));
 
-/** The organisation's invoice with its gateway (null for a payment recorded outside one). */
-export const invoiceWithGateway = async (tx: Db, id: string) => {
-  const [row] = await tx
-    .select({ invoice: paymentInvoices, gateway: paymentGateways })
+const invoicesWithGateway = (client: Db) =>
+  client
+    .select({ invoice: paymentInvoices, gateway: paymentGateways, secret: secrets })
     .from(paymentInvoices)
     .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(eq(paymentInvoices.id, id))
-    .limit(1);
+    .leftJoin(secrets, eq(secrets.id, paymentGateways.configSecretId));
+
+/** The organisation's invoice with its gateway (null for a payment recorded outside one). */
+export const invoiceWithGateway = async (tx: Db, id: string, lock = false) => {
+  const found = invoicesWithGateway(tx).where(eq(paymentInvoices.id, id)).limit(1);
+  const [row] = await (lock ? found.for('update', { of: paymentInvoices }) : found);
 
   if (!row) throw notFound('Invoice');
 
-  return row;
+  return { invoice: row.invoice, gateway: withSecret(row.gateway, row.secret) };
 };
 
 /**

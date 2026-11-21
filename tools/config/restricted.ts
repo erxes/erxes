@@ -75,6 +75,14 @@ const bcrypt = {
   message: 'Use verifyPassword from apps/api/src/lib/crypto.ts.',
 };
 
+// A secret is sealed in one place, the vault (core_secrets), so one key and one cipher cover all.
+const sealing = {
+  name: '~/lib/crypto',
+  importNames: ['encrypt', 'decrypt'],
+  message:
+    'Save a secret with saveSecret and read it with readSecret or openSecret (apps/api/src/modules/secrets/vault.ts).',
+};
+
 // Packages are shared with plugins and never reach into an app.
 const noApps = {
   group: ['@erxes/api', '@erxes/api/*', '@erxes/web', '@erxes/web/*', '**/apps/**'],
@@ -130,6 +138,8 @@ const noTimers = {
   name: 'setInterval',
   message: 'Periodic work is a schedule: defineSchedule() in apps/api/src/modules/jobs.',
 };
+
+const apiPaths = [routerBuilder, ...decided, ...nodeCrypto, bcrypt];
 
 export const restrictedRules = {
   'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }],
@@ -203,13 +213,14 @@ export const restrictedOverrides = [
     // pg-boss schedules.
     files: ['apps/api/**'],
     rules: {
-      'no-restricted-imports': [
-        'error',
-        { paths: [routerBuilder, ...decided, ...nodeCrypto, bcrypt] },
-      ],
+      'no-restricted-imports': ['error', { paths: [...apiPaths, sealing] }],
       'no-restricted-properties': ['error', oneTransaction],
       'no-restricted-globals': ['error', noTimers],
     },
+  },
+  {
+    files: ['apps/api/src/modules/secrets/vault.ts'],
+    rules: { 'no-restricted-imports': ['error', { paths: apiPaths }] },
   },
   {
     // A live stream's heartbeat and member re-check belong to its connection and end with it.

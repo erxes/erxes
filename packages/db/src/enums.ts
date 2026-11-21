@@ -300,6 +300,7 @@ export const PLUGIN_SCOPES = [
   'payments:write',
   'products:read',
   'products:write',
+  'secrets:write',
   'units:read',
   'units:write',
   'users:read',

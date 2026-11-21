@@ -1,13 +1,5 @@
 import { PAYMENT_GATEWAYS } from '@erxes/core-contract';
-import {
-  actorOf,
-  caller,
-  type Db,
-  newId,
-  paymentGateways,
-  paymentInvoices,
-  paymentRefunds,
-} from '@erxes/core-db';
+import { actorOf, caller, type Db, newId, paymentInvoices, paymentRefunds } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
@@ -16,7 +8,7 @@ import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { driverOf, type GatewayRow } from './gateways.service';
-import { eventPayload, type InvoiceRow, shownInvoice } from './invoiceState';
+import { eventPayload, type InvoiceRow, invoiceWithGateway, shownInvoice } from './invoiceState';
 
 const log = logger.child({ component: 'payments' });
 
@@ -38,15 +30,9 @@ const hiddenFromCaller = (invoice: { source: string }) => {
 };
 
 const ownInvoice = async (client: Db, id: string) => {
-  const [row] = await client
-    .select({ invoice: paymentInvoices, gateway: paymentGateways })
-    .from(paymentInvoices)
-    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(eq(paymentInvoices.id, id))
-    .for('update', { of: paymentInvoices })
-    .limit(1);
+  const row = await invoiceWithGateway(client, id, true);
 
-  if (!row || hiddenFromCaller(row.invoice)) throw notFound('Invoice');
+  if (hiddenFromCaller(row.invoice)) throw notFound('Invoice');
 
   return row;
 };

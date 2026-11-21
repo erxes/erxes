@@ -1,6 +1,7 @@
 import { completeSimple } from '@earendil-works/pi-ai/compat';
 import type { AssistantProvider } from '@erxes/core-contract';
 import { requestOrgId, withOrg } from '@erxes/core-db';
+import type { SecretRow } from '~/modules/secrets/vault';
 import { notFound } from '~/http/errors';
 import { findConnection, listConnections, openKey } from './connections.service';
 import {
@@ -19,8 +20,8 @@ import {
   unreadableKey,
 } from './providers';
 
-const providerModels = async (provider: AssistantProvider, sealedKey: string) => {
-  const apiKey = openKey(sealedKey);
+const providerModels = async (provider: AssistantProvider, secret: SecretRow) => {
+  const apiKey = openKey(secret);
 
   if (apiKey === null) return { provider, models: [], error: unreadableKey(provider) };
 
@@ -52,7 +53,7 @@ export const listModels = async () => {
   const { data } = await withOrg(requestOrgId(), (tx) => listConnections(tx));
 
   return {
-    data: await Promise.all(data.map((row) => providerModels(row.provider, row.sealedKey))),
+    data: await Promise.all(data.map((row) => providerModels(row.provider, row.secret))),
   };
 };
 
@@ -86,7 +87,7 @@ export const verifyModel = async (provider: AssistantProvider, model: string) =>
     );
   }
 
-  const apiKey = openKey(connection.sealedKey);
+  const apiKey = openKey(connection.secret);
 
   if (apiKey === null) return answer(unreadableKey(provider));
 

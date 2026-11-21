@@ -1,4 +1,4 @@
-import { assistantConnections } from '@erxes/core-db';
+import { assistantConnections, secrets } from '@erxes/core-db';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { adminDb, useTestDatabase } from './db';
@@ -38,7 +38,10 @@ describe('assistant connections, models and settings', () => {
     const stored = await adminDb().select().from(assistantConnections);
 
     expect(stored).toHaveLength(1);
-    expect(stored[0]?.sealedKey).not.toContain(KEY);
+    const sealed = await adminDb().select().from(secrets);
+
+    expect(sealed.map((row) => row.id)).toEqual([stored[0]?.keySecretId]);
+    expect(JSON.stringify(sealed)).not.toContain(KEY);
 
     expect((await t.other().assistant.connections({})).data).toEqual([]);
   });

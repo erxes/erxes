@@ -19,6 +19,7 @@ const SECRETS = [
   'CORE_SIGNING_KEY',
   'CORE_SIGNING_KEYS_RETIRED',
   'CORE_ENCRYPTION_KEY',
+  'CORE_ENCRYPTION_KEYS_RETIRED',
   'CORE_PLUGIN_KEYS',
   'EMAIL_SMTP_URL',
   'SAAS_PLATFORM_TOKEN',
@@ -129,6 +130,7 @@ const Env = z
     CORE_SIGNING_KEY_DEV_FILE: text,
     CORE_SIGNING_KEYS_RETIRED: text,
     CORE_ENCRYPTION_KEY: text,
+    CORE_ENCRYPTION_KEYS_RETIRED: text,
     CORE_PLUGIN_KEYS: pluginKeys,
     PLUGINS_AUTO_INSTALL: flag,
 
@@ -202,6 +204,12 @@ const Env = z
 
     if (!env.CORE_JWT_SECRET) {
       problem('CORE_JWT_SECRET (or CORE_JWT_SECRET_FILE) must be set in production');
+    }
+
+    if (!env.CORE_ENCRYPTION_KEY) {
+      problem(
+        'CORE_ENCRYPTION_KEY (or CORE_ENCRYPTION_KEY_FILE) must be set in production: openssl rand -base64 48',
+      );
     }
 
     if (!env.CORE_SIGNING_KEY) {

@@ -2,8 +2,8 @@ import type { CustomerTokens } from '@erxes/core-contract';
 import { customerSessions, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { sha256 } from '~/lib/crypto';
-import { seal, unseal } from '~/lib/secrets';
+import { coreKey } from '~/lib/coreKey';
+import { hmacSha256, sha256 } from '~/lib/crypto';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
@@ -23,6 +23,9 @@ const CUSTOMER_ACCESS_SECONDS = 900;
  * later still ends the session.
  */
 const REUSE_GRACE_SECONDS = 60;
+
+const secretAfter = (sessionId: string, secret: string) =>
+  hmacSha256(coreKey('erxes-customer-refresh-v1'), `${sessionId}.${secret}`, 'base64url');
 
 interface CustomerSessionRef {
   orgId: string;
@@ -111,7 +114,6 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
       .select({
         tokenHash: customerSessions.tokenHash,
         previousTokenHash: customerSessions.previousTokenHash,
-        tokenSealed: customerSessions.tokenSealed,
         live: sql<boolean>`${customerSessions.revokedAt} is null and ${customerSessions.expiresAt} > now()`,
         justRotated: sql<boolean>`coalesce(${customerSessions.rotatedAt} > now() - make_interval(secs => ${REUSE_GRACE_SECONDS}), false)`,
       })
@@ -125,14 +127,13 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
     const ref = { orgId: row.orgId, customerId: row.customerId, sessionId: row.id };
 
     if (sameHash(session.tokenHash, secret)) {
-      const next = newSecret();
+      const next = secretAfter(row.id, secret);
 
       await tx
         .update(customerSessions)
         .set({
           tokenHash: sha256(next),
           previousTokenHash: session.tokenHash,
-          tokenSealed: seal(next),
           rotatedAt: sql`now()`,
           lastUsedAt: sql`now()`,
           expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
@@ -144,8 +145,8 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
 
     if (!session.previousTokenHash || !sameHash(session.previousTokenHash, secret)) return null;
 
-    if (session.justRotated && session.tokenSealed) {
-      return tokensFor(ref, row.clientId, `${row.id}.${unseal(session.tokenSealed)}`);
+    if (session.justRotated) {
+      return tokensFor(ref, row.clientId, `${row.id}.${secretAfter(row.id, secret)}`);
     }
 
     await tx

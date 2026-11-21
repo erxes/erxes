@@ -1,17 +1,17 @@
 import type { AssistantProvider } from '@erxes/core-contract';
-import { assistantConnections, type Db, newId, requestOrgId } from '@erxes/core-db';
-import { asc, eq, sql } from 'drizzle-orm';
+import { assistantConnections, type Db, newId, requestOrgId, secrets } from '@erxes/core-db';
+import { asc, eq, getTableColumns, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
-import { seal, unseal } from '~/lib/secrets';
+import { openSecret, saveSecret, type SecretRow, type WithSecret } from '~/modules/secrets/vault';
 import { unreadableKey } from './providers';
 
-type ConnectionRow = typeof assistantConnections.$inferSelect;
+type ConnectionRow = WithSecret<typeof assistantConnections.$inferSelect>;
 
-export const openKey = (sealed: string) => {
+export const openKey = (secret: SecretRow) => {
   try {
-    return unseal(sealed);
+    return openSecret(secret);
   } catch {
     return null;
   }
@@ -20,8 +20,9 @@ export const openKey = (sealed: string) => {
 const orgRows = (client: Db) =>
   wholeList((limit) =>
     client
-      .select()
+      .select({ ...getTableColumns(assistantConnections), secret: secrets })
       .from(assistantConnections)
+      .innerJoin(secrets, eq(secrets.id, assistantConnections.keySecretId))
       .orderBy(asc(assistantConnections.createdAt), asc(assistantConnections.id))
       .limit(limit),
   );
@@ -34,7 +35,7 @@ const present = (rows: ConnectionRow[]) => {
   return rows.map((row) => ({
     ...row,
     isDefault: row === chosen,
-    hasKey: openKey(row.sealedKey) !== null,
+    hasKey: openKey(row.secret) !== null,
   }));
 };
 
@@ -44,15 +45,22 @@ export const listConnections = async (client: Db) => ({ data: present(await orgR
 const lockKeysOfOrg = (client: Db) => lockKeys(client, [`assistant-connections:${requestOrgId()}`]);
 
 export const saveConnection = async (client: Db, provider: AssistantProvider, apiKey: string) => {
-  const sealedKey = seal(apiKey);
-
   await lockKeysOfOrg(client);
+
+  const [before] = await client
+    .select({ keySecretId: assistantConnections.keySecretId })
+    .from(assistantConnections)
+    .where(eq(assistantConnections.provider, provider))
+    .limit(1);
+
+  const keySecretId = await saveSecret(client, apiKey, before?.keySecretId);
+
   await client
     .insert(assistantConnections)
-    .values({ id: newId(), provider, sealedKey })
+    .values({ id: newId(), provider, keySecretId })
     .onConflictDoUpdate({
       target: [assistantConnections.orgId, assistantConnections.provider],
-      set: { sealedKey, updatedAt: sql`now()` },
+      set: { keySecretId, updatedAt: sql`now()` },
     });
 
   const rows = present(await orgRows(client));
@@ -113,7 +121,7 @@ export const usableKey = async (client: Db, provider?: AssistantProvider) => {
     );
   }
 
-  const apiKey = openKey(connection.sealedKey);
+  const apiKey = openKey(connection.secret);
 
   if (apiKey === null) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
 

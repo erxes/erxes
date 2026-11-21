@@ -42,6 +42,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   customerAuth: null,
   customerNotifications: null,
   emails: null,
+  secrets: null,
   // The event stream carries contacts' data.
   events: null,
   fieldGroups: { lookup: true, writes: 'settings' },

@@ -100,6 +100,7 @@ export {
   integrations,
   integrationPrograms,
   integrationProgramVersions,
+  secrets,
 } from './schema';
 
 export type {

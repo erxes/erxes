@@ -108,12 +108,6 @@ export const customerSessions = pgTable(
     clientId: text().notNull(),
     tokenHash: text().notNull(),
     previousTokenHash: text(),
-    /**
-     * The current refresh token, sealed with core's key, and when it replaced
-     * the previous one: a refresh with the previous token just after (a second
-     * tab, a retried request) gets this same token instead of ending the session.
-     */
-    tokenSealed: text(),
     rotatedAt: timestamptz(),
     userAgent: text(),
     ip: text(),

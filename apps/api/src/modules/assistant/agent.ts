@@ -56,8 +56,8 @@ export const assistantAgent: Agent = {
           plugins,
         };
 
-        const keys = data.flatMap(({ provider, sealedKey }) => {
-          const apiKey = openKey(sealedKey);
+        const keys = data.flatMap(({ provider, secret }) => {
+          const apiKey = openKey(secret);
 
           return apiKey === null ? [] : [{ provider, apiKey }];
         });

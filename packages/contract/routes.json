@@ -3057,6 +3057,48 @@
       }
     }
   },
+  "secrets": {
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/secrets"
+        }
+      }
+    },
+    "replace": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/secrets/{id}"
+        }
+      }
+    },
+    "read": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/secrets/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/secrets/{id}"
+        }
+      }
+    }
+  },
   "units": {
     "list": {
       "~orpc": {

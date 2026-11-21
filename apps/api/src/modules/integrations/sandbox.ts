@@ -45,8 +45,8 @@ type Integration = LoadedProgram['integration'];
 
 const gate = workerGate(RUNS_AT_ONCE, RUNS_WAITING);
 
-const sealedOf = (integration: Integration) => {
-  const sealed = sealedValuesOf(integration);
+const sealedOf = (integration: Integration, secret: LoadedProgram['secret']) => {
+  const sealed = sealedValuesOf(secret);
 
   const valueOf = (name: string) => {
     const value = Object.hasOwn(sealed, name) ? sealed[name] : undefined;
@@ -152,8 +152,8 @@ const door =
     }
   };
 
-const doors = ({ integration }: LoadedProgram) => {
-  const sealed = sealedOf(integration);
+const doors = ({ integration, secret }: LoadedProgram) => {
+  const sealed = sealedOf(integration, secret);
 
   return {
     request: door(RequestOptions, (options) => request(integration, sealed, options)),
