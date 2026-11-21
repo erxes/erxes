@@ -32,6 +32,7 @@ const NOISE_PATTERNS: RegExp[] = [
   /Non-Error promise rejection captured/i,
   /Network request failed/i,
   /Load failed/i,
+  /Failed to fetch/i,
   // expected business/auth conditions (kept in sync with the backend classifier)
   /login required/i,
   /permission required/i,
