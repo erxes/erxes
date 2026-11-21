@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
 import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCan } from '~/modules/auth/session';
+import { useDataValuesTab } from '~/modules/dataExtensions/values/useDataValuesTab';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
@@ -118,6 +119,8 @@ const useContactTabs = ({
       : { customerIds: [], companyIds: [contentId] },
   });
 
+  const dataTabs = useDataValuesTab(contentType, contentId);
+
   const tabs: IRecordSidePanelTab[] = [
     {
       value: DETAIL_TAB,
@@ -139,6 +142,7 @@ const useContactTabs = ({
         <CompanyPanelProperties companyId={contentId} />
       ),
     },
+    ...dataTabs,
     ...relationTabs,
     {
       value: ACTIVITY_TAB,

@@ -241,6 +241,7 @@ value toIsoDay
 value toast
 value useBoardScroll
 value useConfirm
+value useContactOptions
 value useFieldControl
 value useFilterContext
 value useFocusFirstField

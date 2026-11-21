@@ -33,6 +33,11 @@ const BroadcastsRoutes = lazyNamed(
 
 const ReportsRoutes = lazyNamed(() => import('~/modules/reports/ReportsRoutes'), 'ReportsRoutes');
 
+const ObjectsRoutes = lazyNamed(
+  () => import('~/modules/dataExtensions/records/ObjectsRoutes'),
+  'ObjectsRoutes',
+);
+
 const SettingsRoutes = lazyNamed(
   () => import('~/modules/settings/SettingsRoutes'),
   'SettingsRoutes',
@@ -87,6 +92,7 @@ export const AppRoutes = () => (
       <Route path="automations/*" element={<AutomationsRoutes />} />
       <Route path="broadcasts/*" element={<BroadcastsRoutes />} />
       <Route path="reports/*" element={<ReportsRoutes />} />
+      <Route path="objects/*" element={<ObjectsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="notifications/:source" element={<NotificationsPage />} />

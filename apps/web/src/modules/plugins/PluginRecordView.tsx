@@ -13,6 +13,7 @@ import { type ComponentType, type ElementType, type ReactNode, Suspense } from '
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { SharedTimeline } from '~/modules/activity/SharedTimeline';
+import { useDataValuesTab } from '~/modules/dataExtensions/values/useDataValuesTab';
 import { ContactDetailScroll } from '~/modules/side-panel/details/ContactDetailFields';
 import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
 import { type IRecordSidePanelTab, RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
@@ -72,6 +73,7 @@ const useRecordTabs = (
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const contacts = useRecordContacts(type, record.contentId);
   const relationTabs = usePluginRelationTabs({ ...record, contacts });
+  const dataTabs = useDataValuesTab(record.contentType, record.contentId);
   const text = usePluginText();
   const own = type.tabs?.filter((tab) => expanded || !tab.expandedOnly) ?? [];
   const properties = propertiesOf(plugin, type);
@@ -109,6 +111,7 @@ const useRecordTabs = (
           },
         ]
       : []),
+    ...dataTabs,
     ...relationTabs,
     ...(type.activity
       ? [
