@@ -34,6 +34,9 @@ jest.mock(
   '@/settings/account/account-categories/components/SelectAccountCategory',
   () => ({ SelectAccountCategory: () => <span>Category selector</span> }),
 );
+jest.mock('@/tunable-reports/ReferenceSelect', () => ({
+  ReferenceSelect: ({ label }: { label: string }) => <span>{label}</span>,
+}));
 jest.mock('@apollo/client', () => ({ useQuery: () => ({ loading: false }) }));
 jest.mock('erxes-ui', () => {
   const { forwardRef, createContext, useContext } =
