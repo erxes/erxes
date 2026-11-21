@@ -18,7 +18,6 @@
   <a href="https://erxes.io/changelog">Changelog</a>
   |
   <a href="https://discord.com/invite/aaGzy3gQK5">Discord</a>
-  </p>
 </p>
 
 <p align="center">
@@ -53,7 +52,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 
 - **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. It is the source available software, but even better.
 - **100% customizable:** Our plugin-based architecture provides unlimited customization and lets you meet all your needs, no matter how specific they are.
-- **100% privacy:** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
+- - **100% privacy:** We've designed the erxes platform to let you retain complete control over your company's sensitive data...
 - **100% in control:** You can build any experience you want, where all the channels your business operates on are connected and integrated.
 
 ---
@@ -70,7 +69,7 @@ erxes is a secure, self-hosted, and scalable source available experience managem
 ## erxes Core & Plugins
 erxes is composed of 2 main components: **Core** & **Plugins**
 
-**Core:** It contains the core five modules which goes with all plugins - **My inbox**, **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
+**Core:** It contains the core five modules which go with all plugins - **My inbox**, **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
 
 
 **Plugins:** erxes comes with a set of plugins that allow you to create unique business experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
