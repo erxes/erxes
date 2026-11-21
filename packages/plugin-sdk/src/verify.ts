@@ -267,14 +267,28 @@ export interface CustomerSignIn {
   customerId: string;
   /** The plugin whose app the customer signed in to (any app of the organisation may call). */
   clientId: string;
+  /**
+   * The core agent talking to the customer, when core minted the token for one; null for the
+   * customer's own sign-in. Routes a website calls with its key may take an agent's token alone.
+   */
+  agentId: string | null;
 }
 
+/** The `sid` prefix of a token core mints for its agent talking to a customer. */
+const AGENT_SESSION = 'agent:';
+
 const CustomerClaims = z
-  .object({ sub: z.string().min(1), org: z.string().min(1), client_id: z.string() })
+  .object({
+    sub: z.string().min(1),
+    org: z.string().min(1),
+    client_id: z.string(),
+    sid: z.string().optional(),
+  })
   .transform((claims): CustomerSignIn => ({
     orgId: claims.org,
     customerId: claims.sub,
     clientId: claims.client_id,
+    agentId: claims.sid?.startsWith(AGENT_SESSION) ? claims.sid.slice(AGENT_SESSION.length) : null,
   }));
 
 /**
