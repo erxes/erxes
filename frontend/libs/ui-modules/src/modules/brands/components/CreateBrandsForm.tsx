@@ -84,7 +84,7 @@ export const CreateBrandForm = () => {
 export function SelectBrandCreateContainer({
   children,
 }: {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }) {
   const { setNewBrandName } = useSelectBrandsContext();
   return (
