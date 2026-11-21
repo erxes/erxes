@@ -94,6 +94,7 @@ export {
   pluginInstallations,
   pluginIntegrationStates,
   productCategories,
+  productInventories,
   products,
   productTags,
   rateLimits,

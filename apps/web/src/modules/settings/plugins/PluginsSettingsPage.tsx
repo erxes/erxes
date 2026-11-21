@@ -30,6 +30,7 @@ const SCOPE_LABELS: Record<string, string> = {
   'exchange_rates:read': 'Read exchange rates',
   'exchange_rates:write': 'Add and change exchange rates',
   'fields:write': 'Keep its own properties on customers and companies',
+  'inventories:write': 'Set and change product stock',
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',
   'live:write': 'Refresh its screens live',

@@ -213,6 +213,13 @@ export const productsContract = {
         all: QueryBoolean.default(false),
         /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
+        /** With `departmentId`, the place `minRemainder` and `maxRemainder` read (either left out for none). */
+        branchId: Id.optional(),
+        departmentId: Id.optional(),
+        /** Stock at least this: in the place named, where its stock is set; else the total over every place. */
+        minRemainder: z.coerce.number().optional(),
+        /** Stock at most this, read as `minRemainder` is. */
+        maxRemainder: z.coerce.number().optional(),
       }),
     )
     .output(cursorPageOf(Product)),

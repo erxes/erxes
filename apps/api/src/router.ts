@@ -17,7 +17,11 @@ import {
 } from '~/modules/broadcasts/broadcasts.router';
 import { paymentsRouter } from '~/modules/payments/payments.router';
 import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
-import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
+import {
+  productCategoriesRouter,
+  productInventoriesRouter,
+  productsRouter,
+} from '~/modules/products/products.router';
 import { banksRouter } from '~/modules/banks/banks.router';
 import { integrationsRouter } from '~/modules/integrations/integrations.router';
 import { secretsRouter } from '~/modules/secrets/secrets.router';
@@ -65,6 +69,7 @@ export const coreRouter = unscoped.router({
   payments: paymentsRouter,
   ebarimt: ebarimtRouter,
   productCategories: productCategoriesRouter,
+  productInventories: productInventoriesRouter,
   products: productsRouter,
   webhooks: webhooksRouter,
   integrations: integrationsRouter,

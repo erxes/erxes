@@ -61,6 +61,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   ebarimt: 'payments',
   plugins: 'plugins',
   productCategories: 'products',
+  productInventories: 'products',
   products: 'products',
   roles: 'team',
   saas: 'settings',

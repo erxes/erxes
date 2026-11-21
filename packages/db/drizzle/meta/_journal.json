@@ -869,6 +869,13 @@
       "when": 1795373056259,
       "tag": "0123_member_restrictions",
       "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1795373106777,
+      "tag": "0124_product_inventories",
+      "breakpoints": true
     }
   ]
 }

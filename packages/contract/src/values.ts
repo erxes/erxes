@@ -260,6 +260,12 @@ export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
 
+/**
+ * In a list of branch or department ids to sum stock over, the stock with no branch (or no
+ * department), as 3.x's inventory keys named it.
+ */
+export const NO_PLACE = '_';
+
 /** Where a member works (`branch`) or what they do (`department`). */
 export const UnitKind = z.enum(ORG_UNIT_KINDS);
 

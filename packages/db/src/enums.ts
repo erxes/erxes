@@ -296,6 +296,7 @@ export const PLUGIN_SCOPES = [
   'fields:write',
   'files:read',
   'files:write',
+  'inventories:write',
   'live:write',
   'notifications:write',
   'payments:read',

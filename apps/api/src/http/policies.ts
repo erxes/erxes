@@ -281,6 +281,12 @@ export const ACCESS = {
   'products.use': { plugin: 'products:write' },
   'products.archive': { member: 'products.manage', plugin: 'products:write' },
   'products.restore': { member: 'products.manage', plugin: 'products:write' },
+  // Stock: every member and products:read read it; only the plugin that keeps it writes.
+  'productInventories.list': { member: 'any', plugin: 'products:read' },
+  'productInventories.remainders': { member: 'any', plugin: 'products:read' },
+  'productInventories.stock': { member: 'any', plugin: 'products:read' },
+  'productInventories.set': { plugin: 'inventories:write' },
+  'productInventories.increase': { plugin: 'inventories:write' },
   'productCategories.list': { member: 'any', plugin: 'products:read' },
   'productCategories.create': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },
