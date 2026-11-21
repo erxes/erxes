@@ -60,6 +60,62 @@ describe('files', () => {
     expect(redirect.headers.get('location')).toMatch(/\/core\/v1\/files\/signed\//);
   });
 
+  it('serves a picture uploaded for emails to anyone, and no other file', async () => {
+    const png = Buffer.from('fake png bytes');
+
+    const started = await t.member().files.createUpload({
+      name: 'banner.png',
+      contentType: 'image/png',
+      size: png.length,
+      public: true,
+    });
+
+    await fetch(t.url(started.upload.url), {
+      method: 'PUT',
+      headers: started.upload.headers,
+      body: png,
+    });
+
+    const publicPath = `/core/v1/files/public/${started.file.id}`;
+
+    // Not before the upload is checked.
+    expect((await fetch(t.url(publicPath), { redirect: 'manual' })).status).toBe(404);
+
+    const done = await t.member().files.complete({ id: started.file.id });
+
+    expect(done).toMatchObject({ public: true, publicUrl: publicPath });
+
+    // No sign-in: a mail client follows it to the bytes.
+    const shown = await fetch(t.url(publicPath));
+
+    expect(shown.status).toBe(200);
+    expect(Buffer.from(await shown.arrayBuffer())).toEqual(png);
+    expect(shown.headers.get('content-type')).toBe('image/png');
+
+    const own = await uploaded(t.member(), 'notes.txt', 'text/plain', 'private');
+
+    expect(own.publicUrl).toBeNull();
+    expect(
+      (await fetch(t.url(`/core/v1/files/public/${own.id}`), { redirect: 'manual' })).status,
+    ).toBe(404);
+    expect(
+      (await fetch(t.url('/core/v1/files/public/..%2Fx'), { redirect: 'manual' })).status,
+    ).toBe(404);
+
+    // Only pictures every mail client draws can be public: never SVG, which can carry script.
+    await expect(
+      t.member().files.createUpload({
+        name: 'logo.svg',
+        contentType: 'image/svg+xml',
+        size: 10,
+        public: true,
+      }),
+    ).rejects.toMatchObject({ status: 400, code: 'FILE_TYPE_NOT_ALLOWED' });
+
+    await t.member().files.remove({ id: done.id });
+    expect((await fetch(t.url(publicPath), { redirect: 'manual' })).status).toBe(404);
+  });
+
   it('serves risky types as downloads, never inline', async () => {
     const done = await uploaded(t.member(), 'page.html', 'text/html', '<script>1</script>');
     const got = await t.member().files.get({ id: done.id });

@@ -106,11 +106,28 @@ export const config = {
     url: env.APP_URL,
   },
   email: {
-    /** `smtp` (EMAIL_SMTP_URL) or `log` (development: written to the log, not sent). */
+    /**
+     * `smtp` (EMAIL_SMTP_URL) or `log` (development: written to the log, not
+     * sent). In production the log delivers nothing: what members send is refused.
+     */
     driver: env.EMAIL_DRIVER ?? (env.EMAIL_SMTP_URL ? 'smtp' : 'log'),
     /** `smtps://user:pass@smtp.example.com:465` (SES, Mailgun, Postmark, …). */
     smtpUrl: env.EMAIL_SMTP_URL,
     from: env.EMAIL_FROM ?? 'erxes <no-reply@erxes.io>',
+    /**
+     * Sign-in, invitation and password reset emails an organisation may send
+     * an hour to addresses no delivery proved yet, while its sending ramp is on.
+     */
+    authHourlyCap: env.EMAIL_AUTH_HOURLY_CAP,
+    /** What the provider of `EMAIL_SMTP_URL` reports later: bounces, complaints, deliveries. */
+    events: {
+      /** SendGrid's Signed Event Webhook verification key (base64 SPKI); unset: its events are refused. */
+      sendgridKey: env.SENDGRID_WEBHOOK_PUBLIC_KEY,
+      /** SES: the configuration set every email names, whose event destination is an SNS topic. */
+      sesConfigurationSet: env.SES_CONFIGURATION_SET,
+      /** SES: the SNS topics its events may come through; a notification from any other is refused. */
+      sesTopicArns: env.SES_EVENTS_TOPIC_ARNS,
+    },
   },
   broadcast: {
     /** Copies one broadcast sends a minute, within what the mail or SMS provider allows. */

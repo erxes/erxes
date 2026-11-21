@@ -2,10 +2,35 @@ import { runAs, system } from '@erxes/core-db';
 import { z } from 'zod';
 import { postOutbound } from '~/lib/outbound';
 import { sendEmail } from '~/modules/email/email';
+import { suppressedOf } from '~/modules/email/addresses';
+import { requireReplyTo } from '~/modules/email/replyTos.service';
+import { requireDelivery } from '~/modules/email/sender';
 import { notify } from '~/modules/notifications/notifications.service';
-import { type CoreAction, idempotencyKey, list, parseBody, subjectFields, text } from './context';
+import {
+  checked,
+  type CoreAction,
+  idempotencyKey,
+  list,
+  parseBody,
+  subjectFields,
+  text,
+} from './context';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** An email step's Cc: up to 5 addresses, copied on each of its emails. */
+const CcList = z
+  .array(z.email('an address in Cc is not an email address'))
+  .max(5, 'Cc takes at most 5 addresses');
+
+const ccOf = (value: unknown) => [
+  ...new Set(
+    (text(value) ?? '')
+      .split(',')
+      .map((address) => address.trim().toLowerCase())
+      .filter(Boolean),
+  ),
+];
 
 /** Headers a member may add to a webhook: plain names, not ones the transport owns. */
 const extraHeaders = (value: unknown) =>
@@ -81,22 +106,42 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       },
       { key: 'body', label: 'Message', type: 'longtext', required: true },
       {
-        key: 'fromEmail',
-        label: 'From',
-        type: 'email_sender',
+        key: 'cc',
+        label: 'Cc',
+        type: 'text',
         required: false,
-        description: 'Leave empty to send from your sending address',
+        placeholder: 'manager@acme.mn, sales@acme.mn',
+        description: 'Up to 5 addresses, comma separated, copied on each email',
+      },
+      {
+        key: 'fromName',
+        label: 'Sender label',
+        type: 'text',
+        required: false,
+        placeholder: 'Support',
+        description: 'Shown with the organisation’s name, e.g. “MSM Group · Support”',
       },
       {
         key: 'replyTo',
-        label: 'Reply to',
-        type: 'text',
+        label: 'Replies go to',
+        type: 'reply_to',
         required: false,
-        placeholder: 'team@example.com',
-        description: 'Leave empty for replies to go to the From address',
+        description: 'One of the verified addresses in Settings › Email sending',
       },
     ],
-    outputs: [{ key: 'sent', label: 'Emails sent', type: 'number' }],
+    outputs: [
+      { key: 'sent', label: 'Emails sent', type: 'number' },
+      { key: 'held', label: 'Emails held by the sending limit', type: 'number' },
+      { key: 'suppressed', label: 'Addresses suppressed', type: 'number' },
+    ],
+    // Placeholders fill in when the step runs, and are checked then.
+    check: (input) => {
+      const cc = text(input.cc) ?? '';
+
+      if (cc.includes('{{')) return [];
+
+      return [...new Set(CcList.safeParse(ccOf(cc)).error?.issues.map((issue) => issue.message))];
+    },
     // Queues the emails in the step's transaction; the email job sends them.
     run: async (ctx) => {
       const to = (text(ctx.input.to) ?? '').trim();
@@ -115,23 +160,57 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         body: (text(ctx.input.body) ?? '').slice(0, 20_000),
       };
 
-      const fromEmail = text(ctx.input.fromEmail)?.trim() || undefined;
-      const replyTo = text(ctx.input.replyTo)?.trim();
+      const fromName = text(ctx.input.fromName)?.trim() || undefined;
+      const replyTo = text(ctx.input.replyTo)?.trim().toLowerCase() || undefined;
 
-      await sendEmail(
+      // Email that can't be delivered, or a Reply-To that isn't verified (any more), fails the step.
+      await requireDelivery(ctx.tx);
+      await requireReplyTo(ctx.tx, replyTo, ['replyTo']);
+
+      // A Cc that is also a recipient, or suppressed, is left out.
+      const wanted = checked(CcList, ccOf(ctx.input.cc)).filter(
+        (address) => !recipients.some((recipient) => recipient.toLowerCase() === address),
+      );
+
+      const suppressedCc = await suppressedOf(ctx.tx, wanted, false);
+      const cc = wanted.filter((address) => !suppressedCc.has(address));
+
+      // To the customer the run is about: the email shows on their timeline.
+      const customerId =
+        to === 'subject' && ctx.subject?.type === 'customer' ? ctx.subject.id : null;
+
+      // A suppressed address (bounced, complained, added by a member) is held back, and the
+      // sending ramp may hold some until its next window: the outcome says so.
+      const { queued, held, suppressed } = await sendEmail(
         ctx.tx,
         ctx.orgId,
         recipients.map((address) => ({
+          customerId,
           to: address,
           template: 'message',
-          fromEmail,
-          // Data can fill it in, so a value that isn't an address by then is left out.
-          replyTo: replyTo && EMAIL.test(replyTo) ? replyTo : undefined,
+          fromName,
+          replyTo,
+          cc: cc.length ? cc : undefined,
           data,
         })),
+        { source: 'automation', sourceId: ctx.automation.id },
       );
 
-      return { sent: recipients.length, to: recipients };
+      const reasons = [
+        suppressed ? `${suppressed} of ${recipients.length} addresses are suppressed` : null,
+        held
+          ? `${held} of ${recipients.length} are held by the sending limit and go out when it allows`
+          : null,
+      ].filter(Boolean);
+
+      return {
+        sent: queued,
+        held,
+        suppressed,
+        to: recipients,
+        ...(cc.length ? { cc } : {}),
+        ...(reasons.length ? { reason: reasons.join('; ') } : {}),
+      };
     },
   },
   {

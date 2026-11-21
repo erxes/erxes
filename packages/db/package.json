@@ -11,6 +11,7 @@
     "./assistantEnums": "./src/assistantEnums.ts",
     "./automationDefinition": "./src/automationDefinition.ts",
     "./dataExtensionEnums": "./src/dataExtensionEnums.ts",
+    "./emailEnums": "./src/emailEnums.ts",
     "./enums": "./src/enums.ts",
     "./integrationEnums": "./src/integrationEnums.ts",
     "./schema": "./src/schema/index.ts"

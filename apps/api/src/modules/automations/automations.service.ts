@@ -10,6 +10,7 @@ import {
 } from '@erxes/core-db';
 import { and, desc, eq, getTableColumns, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
+import { orgTimezone } from '~/lib/orgTime';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkDefinition } from './definitions';
@@ -122,7 +123,10 @@ export const updateAutomation = async (
       triggerEvent: input.definition && triggerKey(input.definition),
       activeVersion,
       ...(published
-        ? { activatedBy: caller('user').userId, nextRunAt: firstRunAt(published) }
+        ? {
+            activatedBy: caller('user').userId,
+            nextRunAt: firstRunAt(published, await orgTimezone(client)),
+          }
         : {}),
       updatedAt: sql`now()`,
     })
@@ -153,7 +157,7 @@ export const activateAutomation = async (client: Db, id: string) => {
       status: 'active',
       activeVersion: version,
       activatedBy: caller('user').userId,
-      nextRunAt: firstRunAt(definition),
+      nextRunAt: firstRunAt(definition, await orgTimezone(client)),
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));

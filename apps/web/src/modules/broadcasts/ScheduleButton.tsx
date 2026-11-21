@@ -1,20 +1,80 @@
-import type { Broadcast } from '@erxes/core-contract';
+import type { Broadcast, BroadcastSchedule } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { IconCalendarClock } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
-import { Button, Input, Label, Popover } from 'erxes-ui';
-import { addHours, addMinutes, format, isAfter, isValid, parseISO } from 'date-fns';
-import { type SubmitEvent, useId, useState } from 'react';
+import { IconCalendarClock, IconRepeat } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { Button, Popover, ToggleGroup } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBroadcastHandlers } from './broadcastQueries';
+import { QueryState } from '~/components/QueryState';
+import { ScheduleRepeat } from './repeat/ScheduleRepeat';
+import { ScheduleOnce } from './ScheduleOnce';
 
-/** A `datetime-local` value: the browser's local time, to the minute. */
-const localValue = (date: Date) => format(date, "yyyy-MM-dd'T'HH:mm");
+const MODES = ['once', 'repeat'] as const;
 
-/** The server takes a time at least a minute ahead. */
-const isTooSoon = (date: Date) => !isAfter(date, addMinutes(Date.now(), 1));
+type Mode = (typeof MODES)[number];
 
-/** Sends at a time the member picks, at least a minute ahead. */
+interface DialogProps {
+  broadcast: Broadcast;
+  prepare?: () => Promise<void>;
+  onDone: () => void;
+}
+
+/** Once or repeating; a draft with a saved rule (a duplicate's) opens on repeating. */
+const ScheduleForm = ({
+  schedule,
+  ...props
+}: DialogProps & { schedule: BroadcastSchedule | null }) => {
+  const { t } = useTranslation('broadcasts');
+  const recurring = props.broadcast.status === 'recurring';
+  const [mode, setMode] = useState<Mode>(schedule || recurring ? 'repeat' : 'once');
+
+  return (
+    <div className="space-y-3">
+      {!recurring && (
+        <ToggleGroup
+          variant="outline"
+          value={[mode]}
+          onValueChange={([next]) => {
+            const found = MODES.find((item) => item === next);
+
+            if (found) setMode(found);
+          }}
+          className="w-full"
+        >
+          <ToggleGroup.Item value="once" className="flex-1">
+            {t('repeat.once', 'Once')}
+          </ToggleGroup.Item>
+          <ToggleGroup.Item value="repeat" className="flex-1">
+            {t('repeat.repeat', 'Repeat')}
+          </ToggleGroup.Item>
+        </ToggleGroup>
+      )}
+      {mode === 'once' ? (
+        <ScheduleOnce {...props} />
+      ) : (
+        <ScheduleRepeat {...props} schedule={schedule} />
+      )}
+    </div>
+  );
+};
+
+/** The saved schedule first, so the fields open with it. */
+const ScheduleDialog = (props: DialogProps) => {
+  const schedule = useQuery(
+    orpc.broadcastSchedules.get.queryOptions({ input: { id: props.broadcast.id } }),
+  );
+
+  return (
+    <QueryState query={schedule} className="py-6">
+      {(data) => <ScheduleForm {...props} schedule={data} />}
+    </QueryState>
+  );
+};
+
+/**
+ * Sends once at a time the member picks, or repeats on a schedule; both on the organisation's
+ * clock. On a recurring broadcast it changes the schedule.
+ */
 export const ScheduleButton = ({
   broadcast,
   prepare,
@@ -25,68 +85,19 @@ export const ScheduleButton = ({
   disabled?: boolean;
 }) => {
   const { t } = useTranslation('broadcasts');
-  const id = useId();
   const [open, setOpen] = useState(false);
-  const [at, setAt] = useState(() => localValue(addHours(Date.now(), 1)));
-  const handlers = useBroadcastHandlers();
-
-  const schedule = useMutation(
-    orpc.broadcasts.schedule.mutationOptions({
-      ...handlers,
-      onSuccess: async () => {
-        setOpen(false);
-        await handlers.onSuccess();
-      },
-    }),
-  );
-
-  const [tooSoon, setTooSoon] = useState(false);
-  const when = parseISO(at);
-
-  const submit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const soon = isTooSoon(when);
-
-    setTooSoon(soon);
-
-    if (soon) return;
-
-    await prepare?.();
-    schedule.mutate({ id: broadcast.id, at: when.toISOString() });
-  };
+  const recurring = broadcast.status === 'recurring';
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger render={<Button variant="outline" disabled={disabled} />}>
-        <IconCalendarClock />
-        {t('schedule', 'Schedule')}
+        {recurring ? <IconRepeat /> : <IconCalendarClock />}
+        {recurring ? t('repeat.edit', 'Edit schedule') : t('schedule', 'Schedule')}
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-72">
-        <form
-          onSubmit={(event) => void submit(event).catch(handlers.onError)}
-          className="space-y-3"
-        >
-          <div className="space-y-1.5">
-            <Label htmlFor={id}>{t('schedule-at', 'Send at')}</Label>
-            <Input
-              id={id}
-              type="datetime-local"
-              value={at}
-              onChange={(event) => setAt(event.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              {t('schedule-hint', 'Your time zone. The audience is fixed when it starts.')}
-            </p>
-            {tooSoon && (
-              <p className="text-sm text-destructive-text">
-                {t('schedule-too-soon', 'Pick a time at least a minute from now.')}
-              </p>
-            )}
-          </div>
-          <Button type="submit" className="w-full" disabled={!isValid(when) || schedule.isPending}>
-            {t('schedule-confirm', 'Schedule')}
-          </Button>
-        </form>
+      <Popover.Content align="end" className="w-80">
+        {open && (
+          <ScheduleDialog broadcast={broadcast} prepare={prepare} onDone={() => setOpen(false)} />
+        )}
       </Popover.Content>
     </Popover>
   );

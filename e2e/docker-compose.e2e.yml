@@ -2,5 +2,12 @@ services:
   api:
     environment:
       ASSISTANT_KIMI_URL: http://host.docker.internal:3510/v1
+      # Production sends only through a real provider: the flows' emails go to Mailpit.
+      EMAIL_SMTP_URL: smtp://mailpit:1025
     extra_hosts:
       - host.docker.internal:host-gateway
+    depends_on:
+      mailpit: { condition: service_started }
+
+  mailpit:
+    image: axllent/mailpit:v1.29

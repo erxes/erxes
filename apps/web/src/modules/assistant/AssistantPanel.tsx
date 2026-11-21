@@ -1,8 +1,8 @@
 import { RecordOpenerProvider } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { recordPageHref } from '~/modules/side-panel/panelNavigation';
+import { useLocation } from 'react-router-dom';
+import { useRecordPageNavigation } from '~/modules/side-panel/panelNavigation';
 import { recordPagePath, usePanelRecordType } from '~/modules/side-panel/panelRecordTypes';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { SidePanelNavigatorContext } from '~/modules/side-panel/recordView';
@@ -28,7 +28,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
   const shown = useShownRecords();
   const { openNewRecord } = useSidePanel();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { openPage } = useRecordPageNavigation();
   const { type } = usePanelRecordType(shown.top?.record.contentType ?? '');
   const recordPage = shown.top ? recordPagePath(type, shown.top.record, pathname) : null;
   const chatShown = shown.top === null;
@@ -52,7 +52,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
       onExpandedChange={() => {
         if (!recordPage || !shown.top) return;
 
-        void navigate(recordPageHref(recordPage, shown.top.tab));
+        openPage(recordPage, shown.top.tab);
         shown.navigator?.close();
       }}
     >

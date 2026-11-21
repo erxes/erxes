@@ -9,7 +9,11 @@ import { filesRouter } from '~/modules/files/files.router';
 import { notificationsRouter } from '~/modules/notifications/notifications.router';
 import { authRouter } from '~/modules/auth/auth.router';
 import { automationsRouter } from '~/modules/automations/automations.router';
-import { broadcastsRouter, suppressionsRouter } from '~/modules/broadcasts/broadcasts.router';
+import {
+  broadcastSchedulesRouter,
+  broadcastsRouter,
+  suppressionsRouter,
+} from '~/modules/broadcasts/broadcasts.router';
 import { paymentsRouter } from '~/modules/payments/payments.router';
 import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
 import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
@@ -60,6 +64,7 @@ export const coreRouter = unscoped.router({
   auth: authRouter,
   automations: automationsRouter,
   broadcasts: broadcastsRouter,
+  broadcastSchedules: broadcastSchedulesRouter,
   suppressions: suppressionsRouter,
   payments: paymentsRouter,
   ebarimt: ebarimtRouter,

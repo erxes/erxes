@@ -59,17 +59,17 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string().nullable(),
     }),
   }),
+  /** The link that confirms an address as the organisation's Reply-To. */
+  z.object({
+    to: z.string(),
+    template: z.literal('reply_to_confirmation'),
+    data: z.object({ organization: z.string(), link: z.string(), days: z.number() }),
+  }),
   /** A customer's one-time sign-in code. */
   z.object({
     to: z.string(),
     template: z.literal('sign_in_code'),
     data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
-  }),
-  /** The link that confirms an address as one of the organisation's senders. */
-  z.object({
-    to: z.string(),
-    template: z.literal('sender_confirmation'),
-    data: z.object({ organization: z.string(), link: z.string() }),
   }),
   /** An email rendered already (a broadcast's test copy). */
   z.object({
@@ -77,17 +77,19 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('rendered'),
     replyTo: z.string().optional(),
     fromName: z.string().optional(),
-    /** A confirmed sender's address it goes out as; gone or unconfirmed by then: the sending address. */
-    fromEmail: z.string().optional(),
     data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
     attachments: z.array(InlineImage).max(5).optional(),
+    /** Stored files attached, read when it is sent. */
+    fileIds: z.array(z.string()).max(5).optional(),
   }),
   /** A plain message (automations, plugins): a subject and text. */
   z.object({
     to: z.string(),
     template: z.literal('message'),
     replyTo: z.string().optional(),
-    fromEmail: z.string().optional(),
+    fromName: z.string().optional(),
+    /** Copied on every email of the step (automations). */
+    cc: z.array(z.email()).max(5).optional(),
     data: z.object({ subject: z.string(), body: z.string(), button: Button.optional() }),
   }),
 ]);
@@ -176,6 +178,20 @@ const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): Emai
     case 'customer_notification':
       return noticeOf(email);
 
+    case 'reply_to_confirmation': {
+      const { data } = email;
+
+      return {
+        subject: `Confirm replies to this address for ${data.organization}`,
+        heading: 'Confirm this address',
+        lines: [
+          `${data.organization} wants replies to its emails on erxes to come to this address.`,
+          `The link works once, for ${data.days} days. If you don't know ${data.organization}, ignore this email: nothing changes.`,
+        ],
+        button: { label: 'Confirm the address', link: data.link },
+      };
+    }
+
     case 'sign_in_code': {
       const { data } = email;
 
@@ -187,20 +203,6 @@ const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): Emai
           "If you didn't ask for it, ignore this email: nobody can sign in without the code.",
         ],
         button: null,
-      };
-    }
-
-    case 'sender_confirmation': {
-      const { data } = email;
-
-      return {
-        subject: `Confirm ${email.to} as a sender for ${data.organization}`,
-        heading: 'Confirm this address',
-        lines: [
-          `${data.organization} wants to send emails as ${email.to} from erxes.`,
-          "Confirm only if you look after this mailbox. If you don't know about it, ignore this email: nothing is sent as you.",
-        ],
-        button: { label: 'Confirm the address', link: data.link },
       };
     }
 
@@ -229,19 +231,6 @@ export const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char] ?? char);
 
 const escape = escapeHtml;
-
-/** A small page erxes answers a link from an email with (unsubscribe, confirm a sender). */
-export const linkPage = (
-  title: string,
-  body: string,
-) => `<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width"><meta name="robots" content="noindex"><title>${escape(title)}</title></head>
-<body style="margin:0;padding:48px 16px;background:#f6f7f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111">
-<main style="max-width:420px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;text-align:center">${body}</main></body></html>`;
-
-/** The page's one button, posting back to the same address. */
-export const linkPageButton = (label: string) =>
-  `<form method="post"><button type="submit" style="padding:10px 24px;font-size:14px;color:#fff;background:#5629b6;border:0;border-radius:8px;cursor:pointer">${escape(label)}</button></form>`;
 
 /** Plain HTML (no remote images or scripts) and a text version. */
 export const renderEmail = (email: EmailPayload) => {

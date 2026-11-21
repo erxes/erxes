@@ -726,15 +726,29 @@
     {
       "idx": 103,
       "version": "7",
-      "when": 1795252644895,
-      "tag": "0103_data_extensions",
+      "when": 1795251799285,
+      "tag": "0103_email_sending",
       "breakpoints": true
     },
     {
       "idx": 104,
       "version": "7",
-      "when": 1795257220696,
-      "tag": "0104_data_field_groups",
+      "when": 1795263489379,
+      "tag": "0104_data_extensions",
+      "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1795263562416,
+      "tag": "0105_data_plugins",
+      "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1795263855274,
+      "tag": "0106_data_field_groups",
       "breakpoints": true
     }
   ]

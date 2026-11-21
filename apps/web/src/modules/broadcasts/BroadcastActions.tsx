@@ -15,7 +15,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
-import { useBroadcastHandlers } from './broadcastQueries';
+import { isRemovable, useBroadcastHandlers, useDuplicateBroadcast } from './broadcastQueries';
+import { RepeatActions } from './repeat/RepeatActions';
 import { ScheduleButton } from './ScheduleButton';
 
 /**
@@ -72,19 +73,19 @@ const useMoves = (broadcast: Broadcast, prepare?: () => Promise<void>) => {
   return { move, sendNow, stop };
 };
 
-/** Duplicate and delete, behind the "more" button. */
-const MoreMenu = ({ broadcast }: { broadcast: Broadcast }) => {
+/** Duplicate (after `prepare` saves the editor's changes) and delete, behind the "more" button. */
+const MoreMenu = ({
+  broadcast,
+  prepare,
+}: {
+  broadcast: Broadcast;
+  prepare?: () => Promise<void>;
+}) => {
   const { t } = useTranslation('broadcasts');
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const handlers = useBroadcastHandlers();
-
-  const duplicate = useMutation(
-    orpc.broadcasts.duplicate.mutationOptions({
-      ...handlers,
-      onSuccess: (copy) => navigate(paths.broadcasts.broadcast(copy.id)),
-    }),
-  );
+  const { duplicate, pending } = useDuplicateBroadcast();
 
   const remove = useMutation(
     orpc.broadcasts.remove.mutationOptions({
@@ -93,7 +94,7 @@ const MoreMenu = ({ broadcast }: { broadcast: Broadcast }) => {
     }),
   );
 
-  const removable = broadcast.status !== 'sending' && broadcast.status !== 'paused';
+  const removable = isRemovable(broadcast.status);
 
   return (
     <DropdownMenu>
@@ -103,10 +104,7 @@ const MoreMenu = ({ broadcast }: { broadcast: Broadcast }) => {
         <IconDots />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
-        <DropdownMenu.Item
-          disabled={duplicate.isPending}
-          onClick={() => duplicate.mutate({ id: broadcast.id })}
-        >
+        <DropdownMenu.Item disabled={pending} onClick={() => duplicate(broadcast.id, prepare)}>
           <IconCopy />
           {t('duplicate', 'Duplicate')}
         </DropdownMenu.Item>
@@ -173,6 +171,9 @@ export const BroadcastActions = ({
       {canSend && status === 'draft' && (
         <ScheduleButton broadcast={broadcast} prepare={prepare} disabled={Boolean(blocked)} />
       )}
+      {canSend && status === 'recurring' && (
+        <RepeatActions broadcast={broadcast} prepare={prepare} />
+      )}
       {canSend && (status === 'draft' || status === 'scheduled') && (
         <Button
           disabled={Boolean(blocked) || move.send.isPending}
@@ -201,7 +202,7 @@ export const BroadcastActions = ({
           {t('cancel', 'Stop for good')}
         </Button>
       )}
-      {can('broadcasts.manage') && <MoreMenu broadcast={broadcast} />}
+      {can('broadcasts.manage') && <MoreMenu broadcast={broadcast} prepare={prepare} />}
     </>
   );
 };
