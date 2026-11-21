@@ -1,6 +1,7 @@
 import {
   type Caller,
   db,
+  type Db,
   enterScope,
   pluginInstallations,
   plugins,
@@ -157,25 +158,33 @@ const memberKeyCaller = async (key: ApiKeyRow) => {
   return { ...member, apiKeyId: key.id };
 };
 
-/** An API key: a member key, or a regular or management key with its rules. */
+/** The caller a key acts as, or its refusal (recorded on its own: `withOrgDetached`). */
+const keyCallerOf = async (req: Request, tx: Db, key: ApiKeyRow): Promise<Caller> => {
+  if (key.kind === 'member') return memberKeyCaller(key);
+
+  const result = await keyCaller(tx, key, req.ip ?? null);
+
+  if ('denied' in result) throw await refuseKey(key, result.denied);
+
+  return result.caller;
+};
+
+/**
+ * An API key: a member key, or a regular or management key with its rules. Its checks and
+ * marking it used share one transaction of its organisation.
+ */
 const resolveApiKey = async (req: Request, token: string): Promise<Resolved> => {
   const key = await apiKeyOfToken(token);
 
   if (!key) throw unauthorized();
 
-  let who: Caller;
+  const who = await withOrg(key.orgId, async (tx) => {
+    const caller = await keyCallerOf(req, tx, key);
 
-  if (key.kind === 'member') {
-    who = await memberKeyCaller(key);
-  } else {
-    const result = await withOrg(key.orgId, (tx) => keyCaller(tx, key, req.ip ?? null));
+    await markKeyUsed(key.orgId, key.id);
 
-    if ('denied' in result) throw await refuseKey(key, result.denied);
-
-    who = result.caller;
-  }
-
-  await markKeyUsed(key.orgId, key.id);
+    return caller;
+  });
 
   req.log.setBindings({ orgId: key.orgId, actorId: key.userId, apiKeyId: key.id });
 
