@@ -208,6 +208,7 @@ export {
   LookupPicker,
   type Tag,
   type TagsQuery,
+  useContactOptions,
   useMemberOptions,
   useProductOptions,
   useTagOptions,

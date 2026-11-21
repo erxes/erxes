@@ -7,6 +7,9 @@ import {
   IconCloudUpload,
   IconApps,
   IconArrowUpRight,
+  IconBox,
+  IconColumns,
+  IconPlug,
   IconHierarchy2,
   IconLock,
   IconMoodSmile,
@@ -75,6 +78,23 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     ...(can('audit.view')
       ? [{ name: t('audit-log', 'Audit log'), to: paths.settings.auditLog, icon: IconShieldCheck }]
       : []),
+  ];
+};
+
+/** The settings "Data model" group: custom objects, every record type's fields, connected plugins. */
+const useSettingsDataModelPaths = (): SettingsPath[] => {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+
+  if (!useCan()('properties.manage')) return [];
+
+  return [
+    { name: t('data-objects', 'Objects'), to: paths.settings.dataObjects, icon: IconBox },
+    { name: t('data-fields', 'Fields'), to: paths.settings.dataFields, icon: IconColumns },
+    {
+      name: t('data-plugins', 'Connected plugins'),
+      to: paths.settings.dataPlugins,
+      icon: IconPlug,
+    },
   ];
 };
 
@@ -245,6 +265,7 @@ export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
   const developer = useSettingsDeveloperPaths();
+  const dataModel = useSettingsDataModelPaths();
   const account = useSettingsAccountPaths();
   const assistant = useSettingsAssistantPaths();
 
@@ -259,6 +280,11 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('workspace')}>
           {workspace.map((item) => (
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
+          ))}
+        </SettingsNavigationGroup>
+        <SettingsNavigationGroup name={t('data-model', 'Data model')}>
+          {dataModel.map((item) => (
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>

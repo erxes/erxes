@@ -62,6 +62,12 @@ export const paths = {
     list: '/reports',
     leads: '/reports/leads',
   },
+  /** Custom objects' records: `/objects/<key>`, a record at `/objects/<key>/<id>`. */
+  objects: {
+    root: '/objects',
+    list: (objectKey: string) => `/objects/${id(objectKey)}`,
+    record: (objectKey: string, recordId: string) => `/objects/${id(objectKey)}/${id(recordId)}`,
+  },
   settings: {
     root: '/settings',
     general: '/settings/general',
@@ -95,6 +101,12 @@ export const paths = {
     assistantAppearance: '/settings/assistant-appearance',
     /** Plugins' record types' properties: `/settings/properties/<plugin>.<type>`. */
     properties: '/settings/properties',
+    /** Data model: custom objects, the fields of each record type, connected plugins. */
+    dataModel: '/settings/data-model',
+    dataObjects: '/settings/data-model/objects',
+    dataFields: '/settings/data-model/fields',
+    dataFieldsOf: (recordType: string) => `/settings/data-model/fields/${id(recordType)}`,
+    dataPlugins: '/settings/data-model/plugins',
   },
 } as const;
 

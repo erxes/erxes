@@ -239,6 +239,7 @@ value toAmountInput
 value toIsoDay
 value toast
 value useConfirm
+value useContactOptions
 value useFieldControl
 value useFilterContext
 value useFocusFirstField

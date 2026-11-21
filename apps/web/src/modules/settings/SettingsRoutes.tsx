@@ -23,6 +23,11 @@ const PluginPropertiesSettings = lazyNamed(
   'PluginPropertiesSettings',
 );
 
+const DataModelRoutes = lazyNamed(
+  () => import('~/modules/dataExtensions/settings/DataModelRoutes'),
+  'DataModelRoutes',
+);
+
 const AssistantKeysPage = lazyNamed(
   () => import('./assistant/AssistantKeysPage'),
   'AssistantKeysPage',
@@ -103,6 +108,7 @@ export const SettingsRoutes = () => (
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="properties/*" element={<PluginPropertiesSettings />} />
+      <Route path="data-model/*" element={<DataModelRoutes />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

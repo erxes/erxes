@@ -3,6 +3,7 @@ import { IconAlignLeft, IconHierarchy2, IconId } from '@tabler/icons-react';
 import { Skeleton, Spinner, usePanelExpanded } from 'erxes-ui';
 import { type IRecordSidePanelTab, RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { useTranslation } from 'react-i18next';
+import { useDataValuesTab } from '~/modules/dataExtensions/values/useDataValuesTab';
 import { ContactPanelIdentity } from '~/modules/side-panel/details/ContactPanelActions';
 import type { IRecordViewProps } from '~/modules/side-panel/recordView';
 import { SidePanelFailed } from '~/modules/side-panel/SidePanelEmpty';
@@ -22,6 +23,7 @@ const DESCRIPTION_TAB = 'description';
 const useProductTabs = (product: Product): IRecordSidePanelTab[] => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
+  const dataTabs = useDataValuesTab('core:product', product.id);
 
   const tabs: IRecordSidePanelTab[] = [
     {
@@ -36,6 +38,7 @@ const useProductTabs = (product: Product): IRecordSidePanelTab[] => {
       icon: IconHierarchy2,
       content: <ProductPanelProperties product={product} />,
     },
+    ...dataTabs,
   ];
 
   if (!expanded) return tabs;

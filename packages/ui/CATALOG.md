@@ -139,6 +139,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TConditionLookups { members, tags, contacts, products }` Where member, tag, contact and product values pick from.
 - `type TConditionRule { path, op, value, where }` One rule of a condition: a `path`, an operator and maybe a value.
 - `<TextField placeholder value scope onSave onValueChange>` A text value in a table cell or panel row that edits in a popover.
+- `useContactOptions(contacts, type, picked, search)` Customers or companies matching `search` as picker options.
 - `useMemberOptions(members, enabled, picked)` The active team members as picker options.
 - `useMembersById(ids, members)` Members by id, any status.
 - `useProductOptions(products, enabled, picked, search)` Products matching `search` as picker options, the `picked` ones first.
