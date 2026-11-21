@@ -71,3 +71,5 @@ export * from './ebarimt';
 export * from './email';
 
 export * from './favorites';
+
+export * from './integrations';

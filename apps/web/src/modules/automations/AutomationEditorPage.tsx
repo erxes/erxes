@@ -6,12 +6,17 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { AskAssistantBar } from './AskAssistant';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
-import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
+import {
+  automationQuery,
+  type Catalog,
+  catalogQuery,
+  runsQuery,
+  statsQuery,
+} from './automationQueries';
 import { FlowCanvas } from './builder/FlowCanvas';
 import { countSteps, flowProblems, stepOutputFields } from './builder/flowChecks';
 import { insertStep, newStep, removeStep } from './builder/flowModel';
@@ -74,9 +79,7 @@ const useShortcuts = ({
  * and what the builder parts share (events, per-step stats, earlier outputs).
  */
 const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automationId: string) => {
-  const stats = useQuery(
-    orpc.automations.stats.queryOptions({ input: { id: automationId }, refetchInterval: 15_000 }),
-  );
+  const stats = useQuery(statsQuery(automationId));
 
   const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
   const { fields, error: fieldsError } = useAutomationFields(hasSubject ? subject : null);
@@ -273,19 +276,16 @@ const AutomationEditor = ({
         />
         <Tabs.Content value="build" className="mt-0 flex min-h-0 flex-1">
           <BuilderContext.Provider value={built.builder}>
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-              <BuildCanvas
-                built={built}
-                catalog={catalog}
-                draft={draft}
-                editable={editable}
-                selected={selected}
-                onSelect={setSelected}
-                zoom={zoom}
-                onZoom={setZoom}
-              />
-              {editable && <AskAssistantBar disabled={draft.dirty} />}
-            </div>
+            <BuildCanvas
+              built={built}
+              catalog={catalog}
+              draft={draft}
+              editable={editable}
+              selected={selected}
+              onSelect={setSelected}
+              zoom={zoom}
+              onZoom={setZoom}
+            />
             <AutomationInspector
               automation={automation}
               draft={draft}

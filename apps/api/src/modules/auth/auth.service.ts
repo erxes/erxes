@@ -16,7 +16,7 @@ import { assertNotLockedOut, twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
-import { verifyPassword } from '~/lib/crypto';
+import { hashPassword, isCurrentPasswordHash, verifyPassword } from '~/lib/crypto';
 import { asMember } from './account.service';
 import { type ExampleLanguage, exampleDataJob } from '~/modules/organizations/exampleData';
 
@@ -115,6 +115,26 @@ const recordFailure = async (
 };
 
 /**
+ * A password stored in an older format (core's scrypt, old erxes' bcrypt) is
+ * re-saved as argon2id once it has been checked. A password changed meanwhile
+ * stays as it is.
+ */
+const upgradePasswordHash = async (user: Account['user'], password: string) => {
+  const stored = user.passwordHash;
+
+  if (stored === null || isCurrentPasswordHash(stored)) return;
+
+  const passwordHash = await hashPassword(password);
+
+  await withOrg(user.orgId, (tx) =>
+    tx
+      .update(users)
+      .set({ passwordHash })
+      .where(and(eq(users.id, user.id), eq(users.passwordHash, stored))),
+  );
+};
+
+/**
  * Checks email + password in one organisation. The organisation comes from
  * the request, then the address, then DEFAULT_SUBDOMAIN; with none of them it
  * is the only organisation that has this email. Every failure answers the
@@ -142,6 +162,8 @@ export const signIn = async (
 
     throw invalidCredentials();
   }
+
+  await upgradePasswordHash(match.user, input.password);
 
   // The password was right; two-factor members still owe the second step.
   if (match.user.totpEnabledAt) {

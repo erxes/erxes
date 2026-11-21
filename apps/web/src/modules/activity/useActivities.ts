@@ -1,4 +1,4 @@
-import type { Activity } from '@erxes/core-contract';
+import type { Activity, StreamTopic } from '@erxes/core-contract';
 import {
   type InfiniteData,
   type UseInfiniteQueryResult,
@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useLivePolling } from '~/lib/live';
+import { liveOptions } from '~/lib/live';
 
 export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';
 
@@ -31,7 +31,6 @@ export const useActivities = (
   filters: TimelineFilters = {},
 ) => {
   const { kind = 'all', includeRelated = false, q, actorId, source } = filters;
-  const refetchInterval = useLivePolling();
 
   const query = useInfiniteQuery(
     orpc.activities.list.infiniteOptions({
@@ -51,7 +50,7 @@ export const useActivities = (
       initialPageParam: undefined,
       getNextPageParam: (last) =>
         last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
-      ...pageOptions(refetchInterval),
+      ...pageOptions([`timeline:${targetType}:${targetId}`]),
     }),
   );
 
@@ -67,7 +66,6 @@ export const useMemberActivities = (
   filters: Pick<TimelineFilters, 'kind' | 'q' | 'source'> = {},
 ) => {
   const { kind = 'all', q, source } = filters;
-  const refetchInterval = useLivePolling();
 
   const query = useInfiniteQuery(
     orpc.activities.byMember.infiniteOptions({
@@ -84,7 +82,7 @@ export const useMemberActivities = (
       initialPageParam: undefined,
       getNextPageParam: (last) =>
         last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
-      ...pageOptions(refetchInterval),
+      ...pageOptions([]),
     }),
   );
 
@@ -92,8 +90,8 @@ export const useMemberActivities = (
 };
 
 /** How a timeline's pages refresh. */
-const pageOptions = (refetchInterval: ReturnType<typeof useLivePolling>) => ({
-  refetchInterval,
+const pageOptions = (topics: readonly StreamTopic[]) => ({
+  ...liveOptions(topics),
   // Live updates refetch what changed; reopening the tab shows what is there at once.
   staleTime: 30_000,
   // Changing a filter keeps the current entries (dimmed) until the new ones arrive.
@@ -122,6 +120,7 @@ export const usePinnedNotes = (targetType: string, targetId: string) =>
       input: { targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 },
       select: (page) => page.data,
       staleTime: 30_000,
+      ...liveOptions([`timeline:${targetType}:${targetId}`], false),
     }),
   );
 

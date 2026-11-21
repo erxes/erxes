@@ -119,7 +119,7 @@ downloadRouter.get('/files/:id/download', async (req, res) => {
   const url = await withOrg(requestOrgId(), async (tx) => {
     const row = await readyFile(tx, req.params.id);
     const saving = req.query.download === '1';
-    const address = await downloadUrlOf(row, saving);
+    const address = await downloadUrlOf(tx, row, saving);
 
     // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
     if (saving) {

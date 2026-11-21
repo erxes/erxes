@@ -15,18 +15,19 @@ import { z } from 'zod';
 import { signAccessToken } from '~/http/session';
 import { startWorkers, stopWorkers } from '~/modules/jobs/jobs';
 import { liveHub } from '~/modules/live/hub';
+import { audienceOf } from './broadcasts.fixture';
 import { adminDb, testDatabaseUrl, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 const Hello = z.object({ mode: z.enum(LIVE_MODES) });
 
-const Timeline = z.object({
-  targets: z.array(z.object({ targetType: z.string(), targetId: z.string() })),
-});
+const Changed = z.object({ topics: z.array(z.string()) });
 
-/** The records a `timeline` event says changed. */
-const targetsOf = (message: EventSourceMessage) => Timeline.parse(JSON.parse(message.data)).targets;
+const topicsOf = (message: EventSourceMessage) => Changed.parse(JSON.parse(message.data)).topics;
+
+const heard = (events: EventSourceMessage[]) =>
+  events.filter((message) => message.event === 'changed').flatMap(topicsOf);
 
 /** Two minutes on the clock, and the stream's once-a-minute check runs. */
 const aMinuteLater = () => {
@@ -68,6 +69,13 @@ const openStream = async (url: string, headers: Record<string, string>) => {
           if (!found) throw new Error(`no ${type} event yet`);
 
           return found;
+        },
+        { timeout: 8000, interval: 50 },
+      ),
+    hears: (topic: string) =>
+      vi.waitFor(
+        () => {
+          if (!heard(events).includes(topic)) throw new Error(`${topic} has not changed yet`);
         },
         { timeout: 8000, interval: 50 },
       ),
@@ -116,19 +124,17 @@ describe('live updates (/core/v1/stream)', () => {
       kind: 'hr.leave.requested',
       title: 'Leave',
     });
-    await member.next('inbox');
+    await member.hears('inbox');
 
     const customer = await t
       .owner()
       .customers.create({ firstName: 'Live', primaryEmail: 'live@mail.mn' });
 
-    expect(targetsOf(await owner.next('timeline'))).toEqual([
-      { targetType: 'customer', targetId: customer.id },
-    ]);
-    await member.next('timeline');
+    await owner.hears(`timeline:customer:${customer.id}`);
+    await member.hears(`timeline:customer:${customer.id}`);
 
     // Nothing crosses organisations, and nobody sees another member's inbox.
-    expect(of(owner.events, 'inbox')).toEqual([]);
+    expect(heard(owner.events)).not.toContain('inbox');
     expect(other.events.filter((message) => message.event !== 'hello')).toEqual([]);
 
     await Promise.all([member.close(), owner.close(), other.close()]);
@@ -145,12 +151,79 @@ describe('live updates (/core/v1/stream)', () => {
     await adminDb().insert(assistantThreads).values({ id, orgId: t.ids.org, userId: t.ids.owner });
     await t.owner().assistant.updateThread({ id, title: 'Renamed' });
 
-    await owner.next('assistant');
+    await owner.hears('assistant');
 
-    expect(of(member.events, 'assistant')).toEqual([]);
+    expect(heard(member.events)).not.toContain('assistant');
 
     await Promise.all([owner.close(), member.close()]);
   });
+
+  it(
+    'tells the organisation, and only it, when what its automations, webhooks, broadcasts and plugins show changes',
+    { timeout: 120_000 },
+    async () => {
+      const owner = await stream();
+      const other = await stream(t.ids.otherOwner, t.ids.otherOrg);
+
+      await Promise.all([owner.next('hello'), other.next('hello')]);
+
+      await t.client(await t.pluginToken()).plugins.registerManifest({
+        title: 'HR',
+        version: '3.0.0',
+        scopes: ['notifications:write', 'events:write', 'live:write', 'audit:write'],
+        events: [{ type: 'hr.chat.received', label: 'Chat received' }],
+      });
+      await t
+        .hr()
+        .events.publish({ events: [{ type: 'hr.chat.received', payload: { text: 'Hi' } }] });
+      await settle();
+      await owner.hears('automations.catalog');
+
+      await t.hr().plugins.signal({ topics: ['leave.requests'] });
+      await owner.hears('plugin:hr:leave.requests');
+
+      // A topic names a record by its id, and ids are mixed case.
+      await t.hr().plugins.signal({ topics: ['leave:wKbpQmWs3Aj7WXjc2'] });
+      await owner.hears('plugin:hr:leave:wKbpQmWs3Aj7WXjc2');
+
+      const { id: automationId } = await t.owner().automations.create({
+        name: 'Note',
+        definition: {
+          trigger: { kind: 'event', event: 'core.customer.created' },
+          steps: [{ id: 'note', type: 'action', action: 'core.note.add', input: { body: 'hi' } }],
+        },
+      });
+
+      await t.owner().automations.activate({ id: automationId });
+
+      const { webhook } = await t
+        .owner()
+        .webhooks.create({ url: 'http://127.0.0.1:9/hook', eventTypes: ['core.customer.*'] });
+
+      await t
+        .owner()
+        .customers.create({ firstName: 'Topic', primaryEmail: 'topic@mail.mn', code: 'tp-1' });
+      await settle();
+      await owner.hears(`automations.runs:${automationId}`);
+      await owner.hears(`webhooks.deliveries:${webhook.id}`);
+
+      const broadcast = await t.owner().broadcasts.create({
+        name: 'tp',
+        channel: 'email',
+        filter: audienceOf('tp'),
+        subject: 'Hi',
+        body: 'Hi',
+      });
+
+      await t.owner().broadcasts.send({ id: broadcast.id });
+      await settle();
+      await owner.hears(`broadcasts:${broadcast.id}`);
+
+      expect(heard(other.events)).toEqual([]);
+
+      await Promise.all([owner.close(), other.close()]);
+    },
+  );
 
   it('wakes the event consumers as soon as an event is published', async () => {
     const customer = await t
@@ -179,9 +252,7 @@ describe('live updates (/core/v1/stream)', () => {
 
     const started = Date.now();
 
-    await owner.next('timeline', (message) =>
-      targetsOf(message).some((target) => target.targetId === customer.id),
-    );
+    await owner.hears(`timeline:customer:${customer.id}`);
     // The workers' safety poll is 5 s away; NOTIFY woke them right away.
     expect(Date.now() - started).toBeLessThan(2500);
 

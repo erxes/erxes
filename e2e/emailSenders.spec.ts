@@ -3,7 +3,7 @@ import { expect, expectAccessible, test, unique } from './fixtures';
 test('an owner adds a sender, which waits for its link, and removes it', async ({ page }) => {
   const address = `sales-${unique()}@e2e.test`;
 
-  await page.goto('/settings/integrations/email?tab=senders');
+  await page.goto('/settings/email?tab=senders');
   await expect(page.getByRole('tab', { name: 'Senders', selected: true })).toBeVisible();
 
   // A wrong address is refused in the dialog, next to the field.

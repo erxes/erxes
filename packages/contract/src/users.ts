@@ -16,6 +16,7 @@ import {
   isoDate,
 } from './common';
 import { MemberId } from './records';
+import { PermissionAction } from './roles';
 import { InviteRole, NewPassword, RoleKey, UserLinkName } from './values';
 
 export const UserStatus = z.enum(USER_STATUSES);
@@ -218,6 +219,8 @@ export const usersContract = {
         /** `true`: invited and active members; `false`: disabled ones. */
         isActive: QueryBoolean.optional(),
         role: RoleKey.optional(),
+        /** Only the members whose role allows this action (`hr.leave.approve`); owners always do. */
+        permission: PermissionAction.optional(),
         /** `false`: only the members who don't sign in. */
         canSignIn: QueryBoolean.optional(),
         ids: IdList.optional(),

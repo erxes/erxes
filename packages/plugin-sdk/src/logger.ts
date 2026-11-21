@@ -20,6 +20,10 @@ const SECRET_FIELDS = [
   'appPassword',
   'secretKey',
   'privateKey',
+  'appSecret',
+  'pageToken',
+  'verifyToken',
+  'secretSealed',
 ];
 
 /**

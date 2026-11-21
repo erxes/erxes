@@ -670,8 +670,64 @@
     {
       "idx": 95,
       "version": "7",
-      "when": 1795121869733,
-      "tag": "0095_data_extensions",
+      "when": 1795110960296,
+      "tag": "0095_event_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1795148048926,
+      "tag": "0096_integrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1795156585159,
+      "tag": "0097_file_storage",
+      "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1795156687269,
+      "tag": "0098_file_buckets",
+      "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1795162661251,
+      "tag": "0099_live_topics",
+      "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1795163359086,
+      "tag": "0100_meta",
+      "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1795179438632,
+      "tag": "0101_drop_meta",
+      "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1795250097244,
+      "tag": "0102_live_topic_ids",
+      "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1795252504385,
+      "tag": "0103_data_extensions",
       "breakpoints": true
     }
   ]

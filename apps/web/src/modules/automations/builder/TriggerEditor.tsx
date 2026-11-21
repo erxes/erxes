@@ -1,11 +1,14 @@
 import type { AutomationTrigger, DataField } from '@erxes/core-contract';
 import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Badge, Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
+import { EventDataHint } from './EventDataHint';
 import { eventDataFields } from './flowChecks';
+import { RecordPicks } from './RecordPicks';
+import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
 import { AudienceEditor, Field } from './triggerFields';
 
@@ -44,6 +47,7 @@ type EventInfo = {
   source: string;
   subject: 'customer' | 'company' | null;
   fields?: DataField[];
+  seen?: boolean;
 };
 
 const KindPicker = ({
@@ -92,6 +96,33 @@ const KindPicker = ({
   );
 };
 
+/** What steps can use from the event: its values by name, or why there are none yet. */
+const EventData = ({ event }: { event: EventInfo }) => {
+  const { t } = useTranslation('automations');
+  const fields = (event.fields ?? []).filter((field) => !field.recordType);
+
+  // Core's customer and company events carry that record, which steps use as the record.
+  if (!fields.length && event.source === 'core' && event.subject) return null;
+
+  if (!fields.length && event.fields?.length) return null;
+
+  return (
+    <Field label={t('event-data', 'What steps can use from it')}>
+      {fields.length ? (
+        <div className="flex flex-wrap gap-1.5">
+          {fields.map((field) => (
+            <Badge key={field.key} variant="secondary">
+              {field.label}
+            </Badge>
+          ))}
+        </div>
+      ) : (
+        <EventDataHint event={event} subject={event.subject} />
+      )}
+    </Field>
+  );
+};
+
 const EventTriggerSettings = ({
   trigger,
   events,
@@ -105,6 +136,13 @@ const EventTriggerSettings = ({
 }) => {
   const { t } = useTranslation('automations');
   const started = events.find((event) => event.type === trigger.event);
+  const eventFields = eventDataFields(started);
+  const recordFields = eventFields.filter((field) => field.recordType && field.source);
+
+  const { picks, rest } = splitPicks(
+    trigger.conditions,
+    recordFields.map((field) => field.path),
+  );
 
   return (
     <>
@@ -117,20 +155,29 @@ const EventTriggerSettings = ({
           onChange={(event) => onChange({ ...trigger, event })}
         />
       </Field>
+      <RecordPicks
+        fields={recordFields}
+        picks={picks}
+        disabled={disabled}
+        onChange={(next) => onChange({ ...trigger, conditions: joinPicks(next, rest) })}
+      />
+      {started && <EventData event={started} />}
       <Field
         label={t('only-if', 'Only if')}
         hint={
-          trigger.conditions?.rules.length
+          rest?.rules.length
             ? undefined
             : t('only-if-empty', 'No conditions: every such event starts a run.')
         }
       >
         <ConditionsEditor
           subject={started?.subject ?? null}
-          extraFields={eventDataFields(started)}
-          value={trigger.conditions}
+          extraFields={eventFields.filter((field) => !recordFields.includes(field))}
+          value={rest}
           disabled={disabled}
-          onChange={(conditions) => onChange({ ...trigger, conditions })}
+          onChange={(conditions) =>
+            onChange({ ...trigger, conditions: joinPicks(picks, conditions) })
+          }
         />
       </Field>
     </>
