@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
   type UIEvent,
@@ -74,21 +75,29 @@ export const RecordTableCursorProvider = ({
     if (sessionKey) store.set(tablePositionState(sessionKey), (saved) => ({ ...saved, ...part }));
   };
 
-  const rememberScrollTop = useDebouncedCallback((scroll: number) => remember({ scroll }), 150);
-
-  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-    const scroll = event.currentTarget;
+  // Once the scrolling pauses, not on every scroll event: a scroll fires one per frame.
+  const rememberPosition = useDebouncedCallback((scroll: HTMLDivElement) => {
     const firstVisibleRow = scroll.querySelector('.in-view');
 
     if (firstVisibleRow) remember({ row: firstVisibleRow.id });
 
-    rememberScrollTop(scroll.scrollTop);
-  };
+    remember({ scroll: scroll.scrollTop });
+  }, 150);
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => rememberPosition(event.currentTarget);
+
+  // The list it last restored: once its rows are in, the position is the member's, so a page
+  // that loads while they scroll leaves it where it is.
+  const restoredFor = useRef<string | null>(null);
 
   useEffect(() => {
     const scroll = scrollRef.current;
 
-    if (!dataLength || loading || !scroll || !sessionKey) return;
+    if (!dataLength || loading || !scroll || !sessionKey || restoredFor.current === sessionKey) {
+      return;
+    }
+
+    restoredFor.current = sessionKey;
 
     const saved = store.get(tablePositionState(sessionKey)).scroll;
 
