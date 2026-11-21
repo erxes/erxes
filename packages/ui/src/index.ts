@@ -185,6 +185,8 @@ export { Filter } from './modules/filter/components/Filter';
 
 export { useFilterContext } from './modules/filter/hooks/useFilterContext';
 
+export { parseDateRangeFromString } from './modules/filter/date-filter/parseDateRangeFromString';
+
 export { PopoverScoped } from './modules/hotkey/components/PopoverScoped';
 
 export { usePreviousHotkeyScope } from './modules/hotkey/hooks/usePreviousHotkeyScope';

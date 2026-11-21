@@ -240,6 +240,7 @@ value localTimeZone
 value meFirst
 value memberName
 value oneOf
+value parseDateRangeFromString
 value pluginFetch
 value pluginJson
 value printHtml

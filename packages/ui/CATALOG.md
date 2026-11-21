@@ -43,6 +43,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<ListFilterEmpty records fallback>` A list's empty state while `ListFilter` filters it, with Clear filters.
 - `listFilterQuery` The URL params holding a list's filter, as nuqs parsers.
 - `<ListViewsProvider views>` Gives every list with a `recordType` saved views, as core's lists have.
+- `parseDateRangeFromString(date, today)` The start and end of the days a date filter's value covers.
 - `RecordList.{Provider, Skeleton, useSelection}` Rows grouped under headers that fold away, such as tasks by status.
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.

@@ -76,6 +76,25 @@
     "days_other": "{{count}} өдөр",
     "placeholder": "Огноо сонгох"
   },
+  "date-filter": {
+    "apply": "Хэрэглэх",
+    "cancel": "Цуцлах",
+    "custom": "{{field}} огноо эсвэл хугацаа сонгох",
+    "custom-range": "{{label}}: хугацаа сонгох",
+    "day": "Өдөр",
+    "field-date": "{{field}} огноо",
+    "half-year": "Хагас жил",
+    "in-the-past": "Өнгөрсөнд",
+    "last-1-day": "Сүүлийн 1 өдөр",
+    "last-3-days": "Сүүлийн 3 өдөр",
+    "last-3-months": "Сүүлийн 3 сар",
+    "last-7-days": "Сүүлийн 7 өдөр",
+    "month": "Сар",
+    "quarter": "Улирал",
+    "today": "Өнөөдөр",
+    "unknown": "Тодорхойгүй",
+    "year": "Жил"
+  },
   "document": {
     "placeholder": "Баримтын орлуулагч",
     "placeholder-code": "Баримтын орлуулагч: {{code}}",

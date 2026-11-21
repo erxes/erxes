@@ -76,6 +76,25 @@
     "days_other": "{{count}} days",
     "placeholder": "Pick a date"
   },
+  "date-filter": {
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "custom": "Custom {{field}} date or timeframe",
+    "custom-range": "Custom {{label}} range",
+    "day": "Day",
+    "field-date": "{{field}} date",
+    "half-year": "Half Year",
+    "in-the-past": "In the past",
+    "last-1-day": "Last 1 day",
+    "last-3-days": "Last 3 days",
+    "last-3-months": "Last 3 months",
+    "last-7-days": "Last 7 days",
+    "month": "Month",
+    "quarter": "Quarter",
+    "today": "Today",
+    "unknown": "Unknown",
+    "year": "Year"
+  },
   "document": {
     "placeholder": "Document placeholder",
     "placeholder-code": "Document placeholder: {{code}}",
