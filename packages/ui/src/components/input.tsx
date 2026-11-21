@@ -41,6 +41,8 @@ export const inputVariants = cva(
         bordered: 'border border-input shadow-none aria-invalid:border-destructive',
         // No border or corners: a cell in a grid that draws its own lines.
         flush: 'rounded-none shadow-none',
+        // A value beside its label in a side panel row: no drop shadow, regular weight.
+        field: 'shadow-none font-normal',
       },
       text: fieldTextVariants,
     },

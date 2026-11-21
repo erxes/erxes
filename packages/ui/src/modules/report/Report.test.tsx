@@ -64,6 +64,21 @@ describe('ReportPageContainer', () => {
     expect(onUrlUpdate.mock.lastCall?.[0].queryString).toBe('?inPreview=false');
   });
 
+  it('names its table and cells by data-slot, so a report reads back its figures', async () => {
+    await page('?inPreview=true');
+
+    const table = document.querySelector('table[data-slot="table"]');
+
+    expect(
+      [...(table?.querySelectorAll('[data-slot="table-cell"]') ?? [])].map(
+        (cell) => cell.textContent,
+      ),
+    ).toEqual(['Cash']);
+    expect(
+      table?.querySelector('[data-slot="table-body"] > [data-slot="table-row"]'),
+    ).not.toBeNull();
+  });
+
   it('offers Excel only with an export', async () => {
     const onExport = vi.fn<() => void>();
 

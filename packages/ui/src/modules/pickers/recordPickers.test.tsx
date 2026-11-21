@@ -12,7 +12,7 @@ import { SelectCustomer } from './SelectContacts';
 import { SelectMember } from './SelectMember';
 import { ProductsInline, SelectProduct } from './SelectProducts';
 import { SelectProductsBulk } from './SelectProductsBulk';
-import { BranchesInline, SelectBranches } from './SelectUnits';
+import { BranchBadge, BranchesInline, SelectBranches } from './SelectUnits';
 
 const page = setupPageRender();
 
@@ -152,6 +152,20 @@ describe('SelectBranches', () => {
 
     await settle();
     expect(three.textContent).toBe('3 branches');
+  });
+
+  it('draws one branch as text, its code before its name, and nothing for one it lacks', async () => {
+    const plain = page(<BranchBadge units={units} branchId="dk" plain />);
+
+    await settle();
+    expect(plain.textContent).toBe('03Darkhan');
+
+    document.body.innerHTML = '';
+
+    const gone = page(<BranchBadge units={units} branchId="gone" plain />);
+
+    await settle();
+    expect(gone.textContent).toBe('');
   });
 });
 

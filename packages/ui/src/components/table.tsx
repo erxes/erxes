@@ -16,6 +16,10 @@ const tableVariants = cva(
         // A rounded panel around square cells, which round where a cell's `corner` says
         // (3.x's inventory and fixed asset lines).
         frame: 'rounded-lg p-1 overflow-hidden',
+        // A printed sheet: white with black text, every head ruled, long text wrapping in the
+        // cells, 10pt when printed with its head on each page (3.x's tunable report paper).
+        paper:
+          'bg-white text-black print:text-print print:[&_thead]:table-header-group [&_th]:border-t [&_th]:border-r [&_th]:border-b [&_th:first-child]:border-l [&_th]:bg-white [&_th]:text-black [&_th]:whitespace-normal [&_th]:wrap-anywhere [&_td]:h-auto [&_td]:bg-white [&_td]:px-2 [&_td]:py-1 [&_td]:whitespace-normal [&_td]:wrap-anywhere',
       },
     },
     defaultVariants: { variant: 'default' },
@@ -31,8 +35,21 @@ const TableRoot = ({
   <table ref={ref} className={cn(tableVariants({ variant }), className)} {...props} />
 );
 
-const TableHeader = ({ ref, className, ...props }: React.ComponentProps<'tbody'>) => (
-  <thead ref={ref} className={cn(className)} {...props} />
+/** `ruled` draws the rules between and under its heads, as the body's cells have (a grid). */
+const TableHeader = ({
+  ref,
+  className,
+  ruled,
+  ...props
+}: React.ComponentProps<'tbody'> & { ruled?: boolean }) => (
+  <thead
+    ref={ref}
+    className={cn(
+      ruled && '[&_th]:border-r [&_th]:border-b [&_th:first-child]:border-l',
+      className,
+    )}
+    {...props}
+  />
 );
 
 const TableBody = ({ ref, className, ...props }: React.ComponentProps<'tbody'>) => (
@@ -63,9 +80,17 @@ const tableRowVariants = cva('[&>td]:border-b [&>td:first-child]:border-l transi
       // A totals line under the rows: bold figures on the panel's ground, with no rules.
       total:
         'group/table-row hover:bg-transparent [&>td]:border-0 [&>td:first-child]:border-0 [&>td]:bg-transparent [&>td]:px-2 [&>td]:font-semibold [&>td]:tabular-nums',
+      // A row of actions under the rows (a footer's buttons): no rules, no ground, no hover.
+      plain:
+        'hover:bg-transparent [&>td]:border-0 [&>td:first-child]:border-0 [&>td]:bg-transparent',
     },
     /** The first row of a group (3.x's T-account rows of one voucher): a thick rule above it. */
     groupStart: { true: '[&>td]:border-t-4 [&>td]:border-t-muted' },
+    /**
+     * A row dragged with dnd-kit: `useSortable`'s transform and transition reach it as
+     * `--sortable-transform` and `--sortable-transition` in its `style`.
+     */
+    sortable: { true: 'sortable' },
   },
   defaultVariants: { variant: 'default' },
 });
@@ -75,16 +100,31 @@ const TableRow = ({
   className,
   variant,
   groupStart,
+  sortable,
   ...props
 }: React.ComponentProps<'tr'> & VariantProps<typeof tableRowVariants>) => (
-  <tr ref={ref} className={cn(tableRowVariants({ variant, groupStart }), className)} {...props} />
+  <tr
+    ref={ref}
+    className={cn(tableRowVariants({ variant, groupStart, sortable }), className)}
+    {...props}
+  />
 );
 
-const TableHead = ({ ref, className, ...props }: React.ComponentProps<'th'>) => (
+/**
+ * `sortable` is a column head dragged with dnd-kit, as `Table.Row`'s: `useSortable`'s transform
+ * and transition reach it as `--sortable-transform` and `--sortable-transition`.
+ */
+const TableHead = ({
+  ref,
+  className,
+  sortable,
+  ...props
+}: React.ComponentProps<'th'> & { sortable?: boolean }) => (
   <th
     ref={ref}
     className={cn(
       'h-9 px-2 text-left align-middle font-semibold text-xs text-accent-foreground *:[[role=checkbox]]:translate-y-0.5 border-spacing-0 font-mono uppercase bg-sidebar',
+      sortable && 'sortable',
       className,
     )}
     {...props}
@@ -109,6 +149,8 @@ const tableCellVariants = cva(
         repeated: 'bg-tint-repeated',
         /** An option of its row is turned on. */
         highlight: 'bg-tint-highlight',
+        /** Something it holds is wrong (a formula that failed to check). */
+        invalid: 'bg-destructive/10',
       },
       /** The corner it rounds, in a `frame` table: the first and last row's outer cells. */
       corner: {

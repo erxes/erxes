@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { displayNum, formatAmount } from './format';
+import { displayNum, formatAmount, formatter } from './format';
 import { fixNum } from './numbers';
 
 describe('fixNum', () => {
@@ -28,6 +28,18 @@ describe('displayNum', () => {
     expect(displayNum(1234.5678, 3)).toBe('1,234.568');
     expect(displayNum('1,000', 0)).toBe('1,000');
     expect(displayNum(null)).toBe('0.00');
+  });
+});
+
+describe("useFormat's number", () => {
+  const { number } = formatter('en');
+
+  it('shows up to 3 decimals, or exactly or up to the decimals asked for', () => {
+    expect(number(1234.567_89)).toBe('1,234.568');
+    expect(number(1234.5, { decimals: 2 })).toBe('1,234.50');
+    expect(number(0.5, { decimals: 0 })).toBe('1');
+    expect(number(1.234_56, { maxDecimals: 4 })).toBe('1.2346');
+    expect(number(1.5, { maxDecimals: 4 })).toBe('1.5');
   });
 });
 

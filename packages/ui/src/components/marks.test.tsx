@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { setupDomRender } from '../lib/render-in-dom';
 import { RecordTable } from '../modules/record-table/components/RecordTable';
+import { RecordTableInlineCell } from '../modules/record-table/components/RecordTableCellInline';
 import { Button } from './button';
 import { Table } from './table';
 
@@ -73,5 +74,34 @@ describe('marks on a part itself', () => {
     const container = render(<Button fill="border">Add line</Button>);
 
     expect(container.querySelector('button')?.hasAttribute('aria-pressed')).toBe(false);
+  });
+});
+
+describe('a cell value that opens its record', () => {
+  it('opens on a click without the click reaching the row', () => {
+    const opened: string[] = [];
+    const rowClicks: string[] = [];
+
+    const container = render(
+      <Table>
+        <Table.Body>
+          <Table.Row onClick={() => rowClicks.push('row')}>
+            <Table.Cell>
+              <RecordTableInlineCell.TextButton onClick={() => opened.push('P-01')}>
+                P-01
+              </RecordTableInlineCell.TextButton>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>,
+    );
+
+    const button = container.querySelector('button');
+
+    button?.click();
+
+    expect(opened).toEqual(['P-01']);
+    expect(rowClicks).toEqual([]);
+    expect(button?.getAttribute('type')).toBe('button');
   });
 });

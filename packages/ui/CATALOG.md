@@ -51,7 +51,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
-- `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
+- `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor, TextButton}` A table cell value, and the trigger and popover that edit it in place.
 - `RecordTableTree.{Indentation, Arrow, Trigger, Row}` A record table whose rows are a tree, indented with arrows that fold.
 - `SelectTree.{Item, Provider}` A picker's items as a tree, indented with arrows that fold.
 - `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
@@ -283,7 +283,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TIntegrationTab { value, label, component }` A tab on an integration's page.
 - `type TIntegrationUI { key, logo, tabs }` An integration package's logo and tabs in Settings › Integrations.
-- `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
+- `type TPanelRecordType { contentType, title, newTitle, icon, detailPath, … }` A record type a plugin shows in core's side panel.
 - `type TPluginIntegration { key, icon, tabs }` The icon and tabs of a plugin integration in Settings › Integrations.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
 - `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
@@ -318,6 +318,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `loadPhoneFormatter()` Loads the phone library, once.
 - `localTimeZone()` The browser's time zone ("Asia/Ulaanbaatar"), when it says.
 - `type NextPage { hasNextPage, isFetchingNextPage, fetchNextPage }` The next page of a list, as an infinite query has it.
+- `type NumberDigits { decimals, maxDecimals }` The decimals `useFormat().number` shows.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
 - `printElement(element, { page })` Prints one element of the page, with the page's own styles.

@@ -29,8 +29,10 @@ const dialogContentVariants = cva(
         /** No panel: what it holds, such as an image in a lightbox, floats on the backdrop. */
         bare: '',
       },
+      /** `wide` holds a long read, such as a guide with tables: 1100px or 90% of the screen across, 85% down. */
+      size: { default: '', wide: 'w-dialog-wide max-w-dialog-wide h-dialog-tall' },
     },
-    defaultVariants: { variant: 'default' },
+    defaultVariants: { variant: 'default', size: 'default' },
   },
 );
 
@@ -42,6 +44,7 @@ const DialogContent = ({
   ref,
   className,
   variant,
+  size,
   initialFocus,
   ...props
 }: DialogPrimitive.Popup.Props & VariantProps<typeof dialogContentVariants>) => {
@@ -54,7 +57,7 @@ const DialogContent = ({
         <DialogPrimitive.Popup
           ref={mergeRefs(popupRef, ref)}
           initialFocus={initialFocus ?? (() => findFirstField(popupRef.current) ?? true)}
-          className={cn(dialogContentVariants({ variant }), className)}
+          className={cn(dialogContentVariants({ variant, size }), className)}
           {...props}
         />
       </DialogPrimitive.Viewport>
@@ -95,7 +98,9 @@ const DialogContentCombined = ({
   description,
   hideClose,
   ...props
-}: DialogPrimitive.Popup.Props & React.ComponentProps<typeof DialogCombinedHeader>) => (
+}: DialogPrimitive.Popup.Props &
+  VariantProps<typeof dialogContentVariants> &
+  React.ComponentProps<typeof DialogCombinedHeader>) => (
   <DialogContent {...props}>
     <DialogCombinedHeader title={title} description={description} hideClose={hideClose} />
     {children}

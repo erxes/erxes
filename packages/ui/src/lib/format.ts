@@ -41,6 +41,9 @@ type DateInput = Date | string | number;
 /** ISO strings read as written: `2026-11-14` is that day here, not UTC midnight. */
 const toDate = (value: DateInput) => (typeof value === 'string' ? parseISO(value) : value);
 
+/** The decimals `useFormat().number` shows. Exactly `decimals`, or up to `maxDecimals`. */
+export type NumberDigits = { decimals?: number; maxDecimals?: number };
+
 /** The formatters for `language` (an i18next code), for code outside React. */
 export const formatter = (language: string) => {
   const locale =
@@ -64,8 +67,15 @@ export const formatter = (language: string) => {
         ? formatDistance(date, base, { addSuffix: true, locale })
         : formatDistanceStrict(date, base, { addSuffix: true, locale, roundingMethod: 'floor' });
     },
-    /** A count or measure: "1,234". */
-    number: (value: number) => new Intl.NumberFormat(language).format(value),
+    /**
+     * A count or measure: "1,234", with up to 3 decimals. `decimals` shows exactly that many
+     * ("1,234.50" with 2); `maxDecimals` shows up to that many (1.23456 → "1.2346" with 4).
+     */
+    number: (value: number, { decimals, maxDecimals }: NumberDigits = {}) =>
+      new Intl.NumberFormat(language, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals ?? maxDecimals,
+      }).format(value),
     /** A list's total; when counting stopped there (`capped`), there are more: "10,000+". */
     count: (value: number, capped?: boolean) =>
       `${new Intl.NumberFormat(language).format(value)}${capped ? '+' : ''}`,

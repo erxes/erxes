@@ -152,6 +152,8 @@ export {
   zoneOffset,
 } from './lib/format';
 
+export type { NumberDigits } from './lib/format';
+
 export { amountStep, formatMoney, fromAmountInput, toAmountInput, useMoney } from './lib/money';
 
 export { fixNum } from './lib/numbers';

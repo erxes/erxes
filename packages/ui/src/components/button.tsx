@@ -68,7 +68,12 @@ const variants = cva(
     compoundVariants: [
       { fill: 'tint', tone: ['default', 'muted'], className: 'bg-accent' },
       { fill: 'tint', tone: 'destructive', className: 'bg-destructive/10' },
-      { fill: 'tint', tone: 'primary', className: 'bg-primary/10' },
+      // Primary's tint has a rule round it (3.x's import guide button).
+      {
+        fill: 'tint',
+        tone: 'primary',
+        className: 'border border-primary/30 bg-primary/10 hover:bg-primary/15',
+      },
       { fill: 'tint', tone: 'warning', className: 'bg-warning/10' },
     ],
     defaultVariants: {

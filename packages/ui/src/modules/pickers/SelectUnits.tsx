@@ -80,15 +80,26 @@ type UnitBadgeProps = BadgeOwnProps & {
   /** The unit, when the page has it; else it is read by `unitId`. */
   unit?: UnitChoice;
   unitId?: string | null;
+  /** Text, not a badge: the code muted, then the name (3.x's `renderAsPlainText`). */
+  plain?: boolean;
 };
 
-const UnitBadge = ({ kind, unit, unitId, units, ...props }: UnitBadgeProps) => {
+const UnitBadge = ({ kind, unit, unitId, units, plain, ...props }: UnitBadgeProps) => {
   const { units: rows, loading } = useUnits(units, kind);
   const shown = unit ?? rows.find((row) => row.id === unitId);
 
   if (!shown && loading && unitId) return <Skeleton className="h-4 w-8" />;
 
   if (!shown) return null;
+
+  if (plain) {
+    return (
+      <span className="flex items-center gap-2 overflow-hidden">
+        {shown.code && <span className="shrink-0 text-muted-foreground">{shown.code}</span>}
+        <TextOverflowTooltip value={shown.name} />
+      </span>
+    );
+  }
 
   return (
     <Badge variant="secondary" {...props}>
@@ -100,27 +111,30 @@ const UnitBadge = ({ kind, unit, unitId, units, ...props }: UnitBadgeProps) => {
 
 /**
  * A branch as a badge: its code and name.
- * It reads the branch by `branchId` unless `branch` is given.
+ * It reads the branch by `branchId` unless `branch` is given; `plain` draws it as text.
  */
 export const BranchBadge = ({
   branch,
   branchId,
   ...props
-}: BadgeOwnProps & { branch?: UnitChoice; branchId?: string | null }) => (
+}: BadgeOwnProps & { branch?: UnitChoice; branchId?: string | null; plain?: boolean }) => (
   <UnitBadge kind="branch" unit={branch} unitId={branchId} {...props} />
 );
 
 /**
  * A department as a badge: its code and name.
- * It reads the department by `departmentId` unless `department` is given.
+ * It reads the department by `departmentId` unless `department` is given; `plain` draws it as
+ * text.
  */
 export const DepartmentBadge = ({
   department,
   departmentId,
   ...props
-}: BadgeOwnProps & { department?: UnitChoice; departmentId?: string | null }) => (
-  <UnitBadge kind="department" unit={department} unitId={departmentId} {...props} />
-);
+}: BadgeOwnProps & {
+  department?: UnitChoice;
+  departmentId?: string | null;
+  plain?: boolean;
+}) => <UnitBadge kind="department" unit={department} unitId={departmentId} {...props} />;
 
 type UnitsInlineProps = UnitSource & { placeholder?: string };
 

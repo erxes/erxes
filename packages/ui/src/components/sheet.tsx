@@ -35,7 +35,7 @@ const sheetVariants = cva(
       },
       // A right sheet's width from the sm breakpoint. The wide ones (3.x's sheet widths) fill
       // the viewport below md and three quarters of it from md, up to their size.
-      size: { md: '', lg: '', xl: '', '2xl': '', '5xl': '', '6xl': '' },
+      size: { md: '', lg: '', xl: '', '2xl': '', '5xl': '', '6xl': '', '7xl': '' },
     },
     compoundVariants: [
       { side: 'right', size: 'md', className: 'sm:w-md' },
@@ -44,6 +44,7 @@ const sheetVariants = cva(
       { side: 'right', size: '2xl', className: 'w-sheet md:w-3/4 sm:max-w-2xl' },
       { side: 'right', size: '5xl', className: 'w-sheet md:w-3/4 sm:max-w-5xl' },
       { side: 'right', size: '6xl', className: 'w-sheet md:w-3/4 sm:max-w-6xl' },
+      { side: 'right', size: '7xl', className: 'w-sheet md:w-3/4 sm:max-w-7xl' },
     ],
     defaultVariants: {
       side: 'right',

@@ -62,6 +62,8 @@ const selectTriggerVariants = cva(
         flush: 'rounded-none shadow-none',
         // Rounded with no drop shadow: a picker inside a cell's editor popover.
         flat: 'shadow-none',
+        // A value beside its label in a side panel row: small regular text, a ground on hover.
+        field: 'rounded-sm px-2 text-xs font-normal shadow-none hover:bg-accent',
       },
     },
     defaultVariants: { variant: 'default' },
@@ -148,12 +150,14 @@ const CollectedItem = ({ value, children }: { value: string; children: React.Rea
   return null;
 };
 
+/** `size="sm"` is a short row in small text, for a side panel field's options. */
 const SelectItem = ({
   className,
   children,
   value,
+  size = 'default',
   ...props
-}: Omit<SelectPrimitive.Item.Props, 'value'> & { value: string }) =>
+}: Omit<SelectPrimitive.Item.Props, 'value'> & { value: string; size?: 'default' | 'sm' }) =>
   use(CollectingContext) ? (
     <CollectedItem value={value}>{children}</CollectedItem>
   ) : (
@@ -161,6 +165,7 @@ const SelectItem = ({
       value={value}
       className={cn(
         'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden data-highlighted:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4',
+        size === 'sm' && 'h-7 text-xs',
         className,
       )}
       {...props}
