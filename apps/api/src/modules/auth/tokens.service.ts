@@ -124,6 +124,7 @@ export const sendInvitations = async (tx: Db, invited: { id: string; email: stri
         days: INVITE_DAYS,
       },
     })),
+    { source: 'account' },
   );
 };
 

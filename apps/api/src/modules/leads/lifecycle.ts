@@ -12,7 +12,7 @@ import {
 } from '@erxes/core-db';
 import { fail } from '~/http/errors';
 import { currentImport } from '~/lib/causation';
-import { recordActivity } from '~/modules/activities/activities.service';
+import { recordActivity } from '~/modules/activities/record';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { findStage, firstStage, type StageRow, stagesOf } from './stages';
 

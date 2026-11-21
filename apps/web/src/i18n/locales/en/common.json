@@ -193,6 +193,11 @@
     "reset-save": "Save and sign in",
     "reset-subtitle": "Other devices are signed out when you save it.",
     "reset-title": "Choose a new password",
+    "reply-to-title": "Confirm this address",
+    "reply-to-subtitle": "An organisation on erxes asked for replies to its emails to come to this address.",
+    "reply-to-confirm": "Confirm the address",
+    "reply-to-done": "Address confirmed",
+    "reply-to-done-description": "Replies to {{organization}}’s emails can now come to {{email}}.",
     "use-app": "Use the app instead",
     "use-recovery": "Use a recovery code",
     "verify": "Verify",
@@ -647,7 +652,7 @@
     "resize": "Resize side panel",
     "drag-to-resize": "Drag to resize",
     "navigation": "Record navigation",
-    "collapse": "Collapse record",
+    "open-in-panel": "Open in side panel",
     "back": "Back",
     "error": "Unable to load record",
     "record-not-found": "This record no longer exists.",
@@ -704,9 +709,28 @@
         },
         "note": {
           "mentioned": "You were mentioned in a note"
+        },
+        "email": {
+          "halted": "Email sending is halted",
+          "capped": "Sign-in emails are being stopped",
+          "limit_reached": "Today’s email limit is reached",
+          "events_refused": "Bounces are not being counted",
+          "resumed": "Email sending was resumed"
         }
       }
     },
+    "bodies": {
+      "core": {
+        "email": {
+          "halted": "Bounces and complaints reached {{percent}}% of {{sent}} emails over the last {{days}} days. Only sign-in and account emails go out until an admin resumes sending.",
+          "capped": "More than {{cap}} sign-in, invitation or password reset emails went to unproven addresses in an hour; the rest of that hour’s were not sent. Someone may be abusing a sign-in form.",
+          "limit_reached": "The organisation sent its {{limit}} emails for today. The rest wait and go out from 00:00 ({{timezone}}); sign-in and account emails still go out.",
+          "events_refused": "{{provider}} events are refused until you add the verification key in Settings. Without them erxes can’t see bounces or spam complaints, and keeps emailing bad addresses.",
+          "resumed": "Reason: {{reason}}"
+        }
+      }
+    },
+    "open": "Open",
     "settings": {
       "title": "Notifications",
       "description": "Choose how and about what you hear. These settings are yours; teammates choose their own.",
@@ -768,6 +792,12 @@
       "other": "<b>{{actor}}</b> · {{type}}",
       "data-changed": "<b>{{actor}}</b> changed data",
       "data-created": "<b>{{actor}}</b> created this record",
+      "emailed": "Emailed <b>{{subject}}</b>",
+      "email-failed": "Email not sent: <b>{{subject}}</b>",
+      "email-bounced": "Email bounced: <b>{{subject}}</b>",
+      "email-complained": "Email marked as spam: <b>{{subject}}</b>",
+      "email-suppressed": "Email not sent, the address is suppressed: <b>{{subject}}</b>",
+      "email-held": "Email held by the sending limit: <b>{{subject}}</b>",
       "on-record": "· on <record/>"
     },
     "deleted": "a deleted record",
@@ -795,20 +825,36 @@
   "query-state": {
     "retry": "Try again"
   },
-  "sender-select": {
-    "default": "Your sending address",
-    "failed": "Could not load the senders.",
-    "hint": "Only confirmed senders are listed.",
-    "manage": "Manage senders",
-    "unconfirmed": "{{email}} (not confirmed)"
-  },
   "region": {
     "country": "Country",
     "currency": "Currency",
     "choose-country": "Choose a country",
     "choose-currency": "Choose a currency",
+    "choose-time-zone": "Choose a time zone",
     "search": "Search",
     "no-match": "Nothing matches"
+  },
+  "reply-to": {
+    "none": "To the sender (no Reply-To)",
+    "clear": "No Reply-To",
+    "stale": "This address isn’t verified any more: choose another or add it again.",
+    "hint": "Only confirmed addresses.",
+    "manage": "Manage addresses"
+  },
+  "sender": {
+    "label-placeholder": "Marketing",
+    "from-line": "{{name}} <{{address}}> · via {{provider}}"
+  },
+  "email-setup": {
+    "title": "Email sending isn’t set up",
+    "description": "Emails would only be written to the server’s log, so broadcasts, tests and automation emails are not sent. Set up a provider, or set EMAIL_SMTP_URL on the server.",
+    "link": "Settings › Integrations › Email sending",
+    "via": {
+      "smtp": "SMTP",
+      "sendgrid": "SendGrid",
+      "ses": "Amazon SES",
+      "log": "log"
+    }
   },
   "crash": {
     "app-title": "erxes stopped working",

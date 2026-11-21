@@ -39,8 +39,27 @@ const AcceptInvitationPage = lazyNamed(
   'AcceptInvitationPage',
 );
 
-/** Links from emails work signed in or not: they sign in when done. */
-const LINK_PAGES = new Set<string>([paths.resetPassword, paths.acceptInvitation]);
+const ConfirmReplyToPage = lazyNamed(
+  () => import('~/modules/auth/ConfirmReplyToPage'),
+  'ConfirmReplyToPage',
+);
+
+/** A page a link from an email opens, signed in or not. */
+const LinkPage = ({ pathname }: { pathname: string }) => {
+  if (pathname === paths.resetPassword) return <ResetPasswordPage />;
+
+  if (pathname === paths.acceptInvitation) return <AcceptInvitationPage />;
+
+  if (pathname === paths.confirmReplyTo) return <ConfirmReplyToPage />;
+
+  return null;
+};
+
+const LINK_PAGES = new Set<string>([
+  paths.resetPassword,
+  paths.acceptInvitation,
+  paths.confirmReplyTo,
+]);
 
 const FullScreenSpinner = () => (
   <div className="flex h-svh items-center justify-center">
@@ -83,9 +102,7 @@ const Screen = () => {
   const session = useSessionQuery();
   const [next] = useQueryState('next');
 
-  if (LINK_PAGES.has(pathname)) {
-    return pathname === paths.resetPassword ? <ResetPasswordPage /> : <AcceptInvitationPage />;
-  }
+  if (LINK_PAGES.has(pathname)) return <LinkPage pathname={pathname} />;
 
   if (session.isPending) return <FullScreenSpinner />;
 

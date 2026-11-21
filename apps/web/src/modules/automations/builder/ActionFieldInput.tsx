@@ -12,7 +12,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { SenderSelect } from '~/components/SenderSelect';
+import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
   type ActionInputProps,
   CustomFieldSelect,
@@ -246,15 +246,6 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <CustomFieldSelect {...props} />;
     case 'lead_stage':
       return <LeadStageSelect {...props} />;
-    case 'email_sender':
-      return (
-        <SenderSelect
-          label={field.label}
-          value={typeof value === 'string' && value ? value : null}
-          disabled={disabled}
-          onChange={(email) => onChange(email ?? undefined)}
-        />
-      );
     case 'plugin_record':
       return <PluginRecordSelect {...props} />;
     case 'select':
@@ -264,6 +255,14 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <LookupMultiSelect {...props} />;
     case 'json':
       return <JsonInput {...props} />;
+    case 'reply_to':
+      return (
+        <ReplyToSelect
+          value={typeof value === 'string' ? value : null}
+          onChange={(next) => onChange(next ?? undefined)}
+          disabled={disabled}
+        />
+      );
     default:
       return <TextField {...props} />;
   }

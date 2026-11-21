@@ -24,7 +24,7 @@ const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
     case 'event':
       return { kind, event: 'core.customer.created' };
     case 'schedule':
-      return { kind, every: 'day', at: '09:00', timezone: 'Asia/Ulaanbaatar' };
+      return { kind, every: 'day', at: '09:00' };
     case 'date':
       return {
         kind,
@@ -33,7 +33,6 @@ const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
         offsetDays: 0,
         yearly: true,
         at: '09:00',
-        timezone: 'Asia/Ulaanbaatar',
       };
     default:
       return { kind: 'manual', audience: { type: 'customer' } };

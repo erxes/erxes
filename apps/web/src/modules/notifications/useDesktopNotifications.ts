@@ -1,12 +1,11 @@
 import type { Notification as InboxItem } from '@erxes/core-contract';
-import { liveOptions } from '~/lib/live';
 import { paths } from '~/lib/paths';
-import { QueryObserver, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { orpc } from '@erxes/core-contract/client';
 import { useTranslation } from 'react-i18next';
 import { pluginTranslationsReady } from '~/modules/plugins/pluginText';
+import { watchArrivals } from './arrivals';
 import { useNotificationText } from './notificationText';
 import { useNotificationSettings } from './useNotifications';
 
@@ -64,18 +63,8 @@ export const useDesktopNotifications = () => {
   useEffect(() => {
     if (!enabled) return;
 
-    // A failed check stays quiet: the next live signal or poll tries again.
-    const latest = new QueryObserver(
-      client,
-      orpc.notifications.list.queryOptions({
-        input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
-        ...liveOptions(['inbox']),
-      }),
-    );
-
     const popups = new Set<Notification>();
     const clicks = new AbortController();
-    let seen: Set<string> | undefined;
 
     const tell = async (item: InboxItem, fromPlugin: boolean) => {
       if (fromPlugin) await pluginTranslationsReady(client, i18n);
@@ -91,25 +80,11 @@ export const useDesktopNotifications = () => {
       );
     };
 
-    const unsubscribe = latest.subscribe(({ data }) => {
-      if (!data) return;
+    const unsubscribe = watchArrivals(client, (item) => {
+      if (document.visibilityState === 'visible') return;
 
-      // What was there when they were turned on isn't news.
-      if (!seen) {
-        seen = new Set(data.data.map((item) => item.id));
-
-        return;
-      }
-
-      for (const item of data.data) {
-        if (seen.has(item.id)) continue;
-        seen.add(item.id);
-
-        if (document.visibilityState === 'visible') continue;
-
-        // A popup's words can't change once shown, so a plugin's wait for its translations.
-        void tell(item, item.source !== 'core');
-      }
+      // A popup's words can't change once shown, so a plugin's wait for its translations.
+      void tell(item, item.source !== 'core');
     });
 
     return () => {

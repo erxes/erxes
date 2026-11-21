@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { signAccessToken } from '~/http/session';
 import { startWorkers, stopWorkers } from '~/modules/jobs/jobs';
 import { liveHub } from '~/modules/live/hub';
-import { audienceOf } from './broadcasts.fixture';
+import { audienceOf, say } from './broadcasts.fixture';
 import { adminDb, testDatabaseUrl, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
@@ -212,7 +212,7 @@ describe('live updates (/core/v1/stream)', () => {
         channel: 'email',
         filter: audienceOf('tp'),
         subject: 'Hi',
-        body: 'Hi',
+        content: say('Hi'),
       });
 
       await t.owner().broadcasts.send({ id: broadcast.id });

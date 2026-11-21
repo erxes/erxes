@@ -3,7 +3,7 @@ import { activities, type Db, users } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { keysetPage } from '~/lib/keyset';
-import { recordActivity } from '~/modules/activities/activities.service';
+import { recordActivity } from '~/modules/activities/record';
 import { assertRecordRight, findRecordType } from '~/modules/recordTypes/recordTypes.service';
 import { fail } from '~/http/errors';
 import { isComputed, pluginOf } from './columns';

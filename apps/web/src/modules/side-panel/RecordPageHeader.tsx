@@ -1,7 +1,11 @@
 import { PageHeader } from 'erxes-ui';
 import type { ReactNode } from 'react';
+import { PanelExpandButton } from './PanelExpandButton';
 
-/** A record page's header: its list's breadcrumb ending in the record's name, then its actions. */
+/**
+ * A record page's header: its list's breadcrumb ending in the record's name, then its actions
+ * and the button putting the record back in the side panel.
+ */
 export const RecordPageHeader = ({
   breadcrumb,
   actions,
@@ -16,6 +20,9 @@ export const RecordPageHeader = ({
     >
       {breadcrumb}
     </PageHeader.Start>
-    {actions && <PageHeader.End className="ml-auto min-w-0 max-w-full">{actions}</PageHeader.End>}
+    <PageHeader.End className="ml-auto min-w-0 max-w-full">
+      {actions}
+      <PanelExpandButton />
+    </PageHeader.End>
   </PageHeader>
 );
