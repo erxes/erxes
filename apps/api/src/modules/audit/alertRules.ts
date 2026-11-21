@@ -1,16 +1,14 @@
+import type { auditLogs } from '@erxes/core-db';
 import { z } from 'zod';
 
-/** An audit entry, as the alert rules read it. */
-export interface Entry {
-  action: string;
-  targetType?: string | null;
-  targetId?: string | null;
-  targetLabel?: string | null;
-  changes?: Record<string, unknown> | null;
-  metadata?: Record<string, unknown> | null;
-  ip?: string | null;
-  userAgent?: string | null;
-}
+/**
+ * An audit entry as a service records it and the alert rules read it. Plugins pass the end
+ * user's `ip` and `userAgent`; otherwise they are the request's.
+ */
+export type AuditInput = Pick<
+  typeof auditLogs.$inferInsert,
+  'action' | 'targetType' | 'targetId' | 'targetLabel' | 'changes' | 'metadata' | 'ip' | 'userAgent'
+>;
 
 /** What the owners are told; `body` names who did it. */
 interface OwnerAlert {
@@ -21,7 +19,7 @@ interface OwnerAlert {
   email: boolean;
 }
 
-type OwnerRule = (label: string, entry: Entry) => OwnerAlert | null;
+type OwnerRule = (label: string, entry: AuditInput) => OwnerAlert | null;
 
 export const describeDevice = (userAgent?: string | null) => {
   if (!userAgent) return 'an unknown device';
@@ -56,7 +54,7 @@ const RoleChange = z.object({
   role: z.union([z.array(z.unknown()), z.object({ after: z.unknown() })]).optional(),
 });
 
-const roleAfter = (changes: Entry['changes']) => {
+const roleAfter = (changes: AuditInput['changes']) => {
   const role = RoleChange.safeParse(changes).data?.role;
 
   return Array.isArray(role) ? role[1] : role?.after;

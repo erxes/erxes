@@ -1,3 +1,4 @@
+import type { ApiKeyRules } from '@erxes/core-contract';
 import { apiKeys, caller, type Db, newId, users, withOrg, withSystem } from '@erxes/core-db';
 import { and, count, desc, eq, getTableColumns, isNull, lt, or, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
@@ -85,10 +86,7 @@ const mustExpire = (kind: KeyRulesInput['kind'], lifetimeDays: number | null | u
 const auditRules = ({ permissions: _held, ...rules }: Awaited<ReturnType<typeof keyRuleColumns>>) =>
   rules;
 
-export const createApiKey = async (
-  client: Db,
-  input: KeyRulesInput & { name: string; lifetimeDays: number | null },
-) => {
+export const createApiKey = async (client: Db, input: ApiKeyRules) => {
   const me = sessionMember();
 
   mustExpire(input.kind, input.lifetimeDays);

@@ -54,7 +54,10 @@ export type ApiKey = z.infer<typeof ApiKey>;
 /** An address (`203.0.113.7`) or range (`10.0.0.0/8`), IPv4 or IPv6. */
 const IpRange = z.union([z.ipv4(), z.ipv6(), z.cidrv4(), z.cidrv6()]);
 
-const KeyRules = createUpdateSchema(apiKeys, { name: (name) => name.trim().min(1).max(100) })
+/** A key's name, rules and lifetime, as a member makes or changes it. */
+export const ApiKeyRules = createUpdateSchema(apiKeys, {
+  name: (name) => name.trim().min(1).max(100),
+})
   .pick({ name: true })
   .required({ name: true })
   .extend({
@@ -82,6 +85,8 @@ const KeyRules = createUpdateSchema(apiKeys, { name: (name) => name.trim().min(1
     /** Days until it stops working; null: until it is revoked (regular keys only). */
     lifetimeDays: z.literal(API_KEY_LIFETIMES).nullable(),
   });
+
+export type ApiKeyRules = z.infer<typeof ApiKeyRules>;
 
 export const KeyDecision = z.object({
   allowed: z.boolean(),
@@ -140,7 +145,7 @@ export const apiKeysContract = {
       description:
         'A new key; the key is returned once here. 403 OWNER_ONLY: a management key needs an owner or admin. 403 BEYOND_OWN_PERMISSIONS: an area your role lacks. 400 LIMIT_EXCEEDED past 20 keys',
     })
-    .input(KeyRules)
+    .input(ApiKeyRules)
     .output(z.object({ apiKey: ApiKey, key: z.string() })),
   update: base
     .route({
@@ -150,7 +155,7 @@ export const apiKeysContract = {
       description:
         'Change a key you made: its name and rules (a key made before rules takes them now). The secret stays; a lifetime given starts again from now',
     })
-    .input(KeyRules.extend({ id: Id, lifetimeDays: KeyRules.shape.lifetimeDays.optional() }))
+    .input(ApiKeyRules.extend({ id: Id, lifetimeDays: ApiKeyRules.shape.lifetimeDays.optional() }))
     .output(ApiKey),
   remove: base
     .route({

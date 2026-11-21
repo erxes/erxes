@@ -112,6 +112,20 @@ export const FieldListQuery = z.object({
 
 export type FieldListQuery = z.infer<typeof FieldListQuery>;
 
+/** A new custom field. */
+export const FieldCreate = FieldFields.omit({ order: true })
+  .required({ contentType: true, label: true, type: true })
+  .refine(needsOptions, { path: ['options'], error: 'select fields need options' });
+
+export type FieldCreate = z.infer<typeof FieldCreate>;
+
+/** Changes to a custom field. */
+export const FieldUpdate = FieldFields.omit({ contentType: true })
+  .extend({ id: Id })
+  .refine(changes, 'nothing to update');
+
+export type FieldUpdate = z.infer<typeof FieldUpdate>;
+
 export const fieldsContract = {
   list: base
     .route({
@@ -149,11 +163,7 @@ export const fieldsContract = {
       description:
         'Add a custom field (owners and admins). 409 TAKEN for a taken label or code; 400 PLUGIN_NOT_INSTALLED for a `<plugin>.<type>` whose plugin this organisation has not installed',
     })
-    .input(
-      FieldFields.omit({ order: true })
-        .required({ contentType: true, label: true, type: true })
-        .refine(needsOptions, { path: ['options'], error: 'select fields need options' }),
-    )
+    .input(FieldCreate)
     .output(Field),
   update: base
     .route({
@@ -163,11 +173,7 @@ export const fieldsContract = {
       description:
         "Change a field. The type changes only within types sharing a stored value while records hold values (409 FIELD_IN_USE). A plugin's field takes only `isVisible` (403 PLUGIN_FIELD)",
     })
-    .input(
-      FieldFields.omit({ contentType: true })
-        .extend({ id: Id })
-        .refine(changes, 'nothing to update'),
-    )
+    .input(FieldUpdate)
     .output(Field),
   reorder: base
     .route({

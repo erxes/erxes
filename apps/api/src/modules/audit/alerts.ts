@@ -16,7 +16,7 @@ import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { notify } from '~/modules/notifications/notifications.service';
-import { describeDevice, type Entry, OWNER_RULES } from './alertRules';
+import { describeDevice, type AuditInput, OWNER_RULES } from './alertRules';
 
 const log = logger.child({ component: 'audit' });
 
@@ -101,7 +101,7 @@ export const securityAlert = async (client: Db, input: AlertInput) => {
   if (input.email) await emailAlert(client, input, recipients);
 };
 
-const failedSignIns = async (client: Db, entry: Entry) => {
+const failedSignIns = async (client: Db, entry: AuditInput) => {
   const key = entry.targetId ?? entry.targetLabel;
 
   if (!key) return;
@@ -129,7 +129,7 @@ const failedSignIns = async (client: Db, entry: Entry) => {
   });
 };
 
-const newDevice = async (client: Db, entry: Entry) => {
+const newDevice = async (client: Db, entry: AuditInput) => {
   if (!entry.targetId) return;
 
   // This sign-in is already in the log: it is one of these.
@@ -166,7 +166,7 @@ const newDevice = async (client: Db, entry: Entry) => {
   });
 };
 
-const recoveryCodeUsed = async (client: Db, entry: Entry) => {
+const recoveryCodeUsed = async (client: Db, entry: AuditInput) => {
   if (!entry.targetId) return;
 
   await securityAlert(client, {
@@ -180,7 +180,7 @@ const recoveryCodeUsed = async (client: Db, entry: Entry) => {
 };
 
 /** Rules that tell the member concerned, or count before they tell anyone. */
-const MEMBER_RULES: Record<string, (client: Db, entry: Entry) => Promise<void>> = {
+const MEMBER_RULES: Record<string, (client: Db, entry: AuditInput) => Promise<void>> = {
   'auth.recovery_code_used': recoveryCodeUsed,
   'auth.sign_in_failed': failedSignIns,
   'auth.signed_in': newDevice,
@@ -197,7 +197,7 @@ type AlertActor = ReturnType<typeof actorOf>;
  * seen in 90 days or a recovery code used, and the owners about many failed
  * sign-ins to one account.
  */
-const alertsFor = async (client: Db, actor: AlertActor, entries: Entry[]) => {
+const alertsFor = async (client: Db, actor: AlertActor, entries: AuditInput[]) => {
   const actorUserId = actor.actorType === 'user' ? (actor.actorId ?? null) : null;
 
   const lookupWho = async () => {
@@ -237,7 +237,7 @@ const alertsFor = async (client: Db, actor: AlertActor, entries: Entry[]) => {
 };
 
 /** Runs the rules in a savepoint: an alert that fails never undoes the change it's about. */
-export const raiseAlerts = async (client: Db, actor: AlertActor, entries: Entry[]) => {
+export const raiseAlerts = async (client: Db, actor: AlertActor, entries: AuditInput[]) => {
   if (!entries.some((entry) => WATCHED.has(entry.action))) return;
 
   try {

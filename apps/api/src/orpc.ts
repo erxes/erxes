@@ -6,7 +6,8 @@ import type { Request, Response } from 'express';
 import { enforceAccess } from '~/http/access';
 import { fail, fromDatabase } from '~/http/errors';
 import { logger } from '~/logger';
-import { type AuditInput, recordAudit } from '~/modules/audit/audit.service';
+import type { AuditInput } from '~/modules/audit/alertRules';
+import { recordAudit } from '~/modules/audit/audit.service';
 
 /**
  * What the handler passes in: the Express request (host, cookies), the
