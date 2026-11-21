@@ -715,6 +715,13 @@
       "when": 1795179438632,
       "tag": "0101_drop_meta",
       "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1795250097244,
+      "tag": "0102_live_topic_ids",
+      "breakpoints": true
     }
   ]
 }
