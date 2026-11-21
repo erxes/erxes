@@ -13,6 +13,16 @@ server {
   resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
   set $core_api ${CORE_API_URL};
 
+  # Compressed on the way out: the build's files from the .gz copies the image keeps beside
+  # them, and the API's JSON as it passes. The live stream (text/event-stream) stays as is.
+  gzip on;
+  gzip_static on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_comp_level 5;
+  gzip_min_length 1024;
+  gzip_types application/javascript application/json text/css text/plain image/svg+xml;
+
   # add_header in a location replaces the server's, so each location repeats them.
 
   location = /healthz { access_log off; return 200 "ok\n"; }
