@@ -1,8 +1,16 @@
 import { broadcastRecipients, type Db, requestOrgId } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { fail } from '~/http/errors';
-import { assertComplete, assertReachable, getBroadcast, moveBroadcast } from './broadcasts.service';
+import { requireReplyTo } from '~/modules/email/replyTos.service';
+import {
+  assertComplete,
+  assertDeliverable,
+  assertReachable,
+  getBroadcast,
+  moveBroadcast,
+} from './broadcasts.service';
 import { queueDelivery } from './delivery';
+import { dropDraftSchedule } from './schedules.service';
 import { queueStart } from './starting';
 
 /**
@@ -13,6 +21,8 @@ export const sendBroadcast = async (tx: Db, id: string) => {
   const broadcast = await getBroadcast(tx, id);
 
   assertComplete(broadcast);
+  await assertDeliverable(tx, broadcast);
+  await requireReplyTo(tx, broadcast.replyTo);
   await assertReachable(tx, broadcast);
 
   await moveBroadcast(tx, id, ['draft', 'scheduled'], {
@@ -21,6 +31,7 @@ export const sendBroadcast = async (tx: Db, id: string) => {
     scheduledAt: null,
     error: null,
   });
+  await dropDraftSchedule(tx, id);
   await queueStart(tx, requestOrgId(), id);
 
   return getBroadcast(tx, id);
@@ -38,13 +49,19 @@ const assertFuture = (at: Date) => {
 /** Sends at `at`. Moving it again leaves the earlier start to find a different moment and do nothing. */
 export const scheduleBroadcast = async (tx: Db, id: string, at: Date) => {
   assertFuture(at);
-  assertComplete(await getBroadcast(tx, id));
+
+  const broadcast = await getBroadcast(tx, id);
+
+  assertComplete(broadcast);
+  await assertDeliverable(tx, broadcast);
+  await requireReplyTo(tx, broadcast.replyTo);
 
   await moveBroadcast(tx, id, ['draft', 'scheduled'], {
     status: 'scheduled',
     scheduledAt: at,
     error: null,
   });
+  await dropDraftSchedule(tx, id);
   await queueStart(tx, requestOrgId(), id, at);
 
   return getBroadcast(tx, id);
@@ -65,6 +82,7 @@ export const pauseBroadcast = async (tx: Db, id: string) => {
 
 /** Back to sending; a broadcast paused before its audience was frozen starts over. */
 export const resumeBroadcast = async (tx: Db, id: string) => {
+  await assertDeliverable(tx, await getBroadcast(tx, id));
   await moveBroadcast(tx, id, ['paused'], { status: 'sending' });
 
   const broadcast = await getBroadcast(tx, id);

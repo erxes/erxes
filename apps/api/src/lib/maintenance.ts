@@ -7,6 +7,7 @@ import { pruneAudit } from '~/modules/audit/audit.service';
 import { signAuditCheckpoints } from '~/modules/audit/checkpoints';
 import { pruneRunDetails } from '~/modules/automations/runs.service';
 import { tickAutomations } from '~/modules/automations/triggers';
+import { pruneEmailDeliveries } from '~/modules/email/deliveries';
 import { pruneEvents } from '~/modules/events/events.service';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { storage } from '~/modules/files/storage';
@@ -52,6 +53,7 @@ const cleanup = async () => {
   await withSystem('cleanup: webhook deliveries', (tx) =>
     pruneDeliveries(tx, config.retention.eventDays),
   );
+  await withSystem('cleanup: email deliveries', (tx) => pruneEmailDeliveries(tx));
 
   const runs = await withSystem('cleanup: automation run details', (tx) =>
     pruneRunDetails(tx, config.retention.runDetailDays),

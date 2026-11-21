@@ -1,4 +1,3 @@
-import { CORE_API_PREFIX } from '@erxes/core-contract';
 import {
   actorOf,
   caller,
@@ -11,7 +10,7 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
+import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
@@ -22,6 +21,7 @@ import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { assertStreamable, queueCloudflareMove } from './cloudflareMove';
+import { fileWithUrl } from './fileColumns';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
 import { storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
 import { canShowInline } from './storage';
@@ -31,12 +31,6 @@ import { guardDeletions } from '~/lib/deletionGuard';
 const log = logger.child({ component: 'files' });
 
 type FileRow = typeof files.$inferSelect;
-
-/** A file with its stable address, `/core/v1/files/<id>/download`. */
-const fileWithUrl = {
-  ...getTableColumns(files),
-  url: sql<string>`${`${CORE_API_PREFIX}/files/`} || ${files.id} || '/download'`.as('url'),
-};
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
 const uploadKey = (orgId: string, id: string) => `uploads/${orgId}/${id}/${randomToken(12, 'hex')}`;
@@ -61,7 +55,7 @@ const uploadedBy = () => {
  */
 export const createUpload = async (
   client: Db,
-  input: { name: string; contentType: string; size: number },
+  input: { name: string; contentType: string; size: number; public?: boolean },
 ) => {
   assertUploadAllowed(await fileSettingsOf(client), input);
   assertStreamable(input);
@@ -90,6 +84,7 @@ export const createUpload = async (
         contentType: input.contentType,
         size: input.size,
         status: 'pending',
+        public: input.public ?? false,
         ...uploadedBy(),
       })
       .returning(fileWithUrl),

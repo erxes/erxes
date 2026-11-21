@@ -43,12 +43,18 @@ const contentTypeOf = (file: File) => file.type || 'application/octet-stream';
  */
 export const uploadFile = async (
   file: File,
-  options: { onProgress?: (percent: number) => void; signal?: AbortSignal } = {},
+  options: {
+    onProgress?: (percent: number) => void;
+    signal?: AbortSignal;
+    /** A picture for emails, open to anyone at its `publicUrl`. */
+    public?: boolean;
+  } = {},
 ): Promise<FileInfo> => {
   const { file: pending, upload } = await orpc.files.createUpload.call({
     name: file.name,
     contentType: contentTypeOf(file),
     size: file.size,
+    ...(options.public && { public: true }),
   });
 
   await put(upload.url, upload.headers, file, options.onProgress, options.signal);

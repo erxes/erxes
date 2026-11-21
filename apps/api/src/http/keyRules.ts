@@ -33,6 +33,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   auth: null,
   // Broadcasts and the suppression list send to and name contacts' addresses.
   broadcasts: null,
+  broadcastSchedules: null,
   suppressions: null,
   companies: 'contacts',
   customers: 'contacts',

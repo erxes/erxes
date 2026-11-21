@@ -1,12 +1,17 @@
 import type { Broadcast } from '@erxes/core-contract';
+import { IconRepeat } from '@tabler/icons-react';
 import { cn, ScrollArea, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { usePercent } from './BroadcastBits';
 import { BroadcastActions } from './BroadcastActions';
 import { BroadcastHeader } from './BroadcastHeader';
+import { PacingBanner } from './PacingBanner';
 import { PreviewPanel } from './PreviewPanel';
 import { RecipientsTable } from './RecipientsTable';
+import { RepeatPanel } from './repeat/RepeatPanel';
 
 const Tile = ({ label, value, note }: { label: string; value: string; note?: string }) => (
   <div className="rounded-lg border bg-background p-4">
@@ -117,6 +122,17 @@ export const BroadcastReport = ({ broadcast }: { broadcast: Broadcast }) => {
       </BroadcastHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-7xl space-y-6 p-6">
+          <PacingBanner broadcast={broadcast} />
+          {broadcast.status === 'recurring' && <RepeatPanel broadcast={broadcast} />}
+          {broadcast.parentId && (
+            <Link
+              to={paths.broadcasts.broadcast(broadcast.parentId)}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:underline"
+            >
+              <IconRepeat className="size-4" />
+              {t('repeat.run-of', 'A run of a recurring broadcast: open its schedule')}
+            </Link>
+          )}
           {broadcast.error && (
             <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive-text">
               {broadcast.error}

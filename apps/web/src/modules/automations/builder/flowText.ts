@@ -5,7 +5,7 @@ import type {
   ConditionGroup,
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
-import { zoneLabel } from './timezones';
+import { zoneLabel } from '~/lib/timeZones';
 import type { FieldInfo } from './useAutomationFields';
 
 /** Words for the trigger and the cards on the canvas. */
@@ -106,6 +106,8 @@ export const describeTrigger = (
   trigger: AutomationTrigger,
   events: { type: string; label: string }[],
   fields: FieldInfo[],
+  /** The organisation's: scheduled and date triggers run by its clock. */
+  timeZone: string,
 ): { title: string; detail: string | null } => {
   switch (trigger.kind) {
     case 'event': {
@@ -120,7 +122,7 @@ export const describeTrigger = (
         title: scheduleText(trigger),
         detail: trigger.audience
           ? audienceText('For each', trigger.audience, fields)
-          : zoneLabel(trigger.timezone),
+          : zoneLabel(timeZone),
       };
     case 'date': {
       const field =
@@ -135,7 +137,7 @@ export const describeTrigger = (
 
       return {
         title: `${offset} ${field.toLowerCase()}${trigger.yearly ? ', every year' : ''}`,
-        detail: `At ${trigger.at} (${zoneLabel(trigger.timezone)})`,
+        detail: `At ${trigger.at} (${zoneLabel(timeZone)})`,
       };
     }
 

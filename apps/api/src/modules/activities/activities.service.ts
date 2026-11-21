@@ -60,30 +60,6 @@ export const selectEntries = (client: Db) =>
 export const entryById = async (client: Db, id: string) =>
   oneRow(await selectEntries(client).where(eq(activities.id, id)).limit(1));
 
-export interface CoreActivity {
-  /** A customer or company, or a record type's record (`custom.project`, `hr.employee`). */
-  targetType: ActivityTarget | `${string}.${string}`;
-  targetId: string;
-  type: string;
-  data?: Record<string, unknown>;
-}
-
-/**
- * Adds core's own entries to the timeline. Call it in the same transaction as
- * the change it describes.
- */
-export const recordActivity = async (client: Db, entries: CoreActivity | CoreActivity[]) => {
-  const list = Array.isArray(entries) ? entries : [entries];
-
-  if (!list.length) return;
-
-  const actor = actorOf(caller());
-
-  await client
-    .insert(activities)
-    .values(list.map((entry) => ({ id: newId(), source: 'core', ...entry, ...actor })));
-};
-
 const targetsOf = (targetType: ActivityTarget, ids: string[]) =>
   and(eq(activities.targetType, targetType), inArray(activities.targetId, ids));
 

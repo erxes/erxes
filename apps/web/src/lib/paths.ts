@@ -21,6 +21,7 @@ export const paths = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   acceptInvitation: '/accept-invitation',
+  confirmReplyTo: '/confirm-reply-to',
   /** A plugin's (or core app's) first page: `config.path` without slashes. */
   app: (path: string) => `/${path}`,
   notifications: '/notifications',
@@ -77,7 +78,6 @@ export const paths = {
     integrations: '/settings/integrations',
     integration: (key: string) => `/settings/integrations/${id(key)}`,
     email: '/settings/email',
-    emailSenders: '/settings/email?tab=senders',
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',

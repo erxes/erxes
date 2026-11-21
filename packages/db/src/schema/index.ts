@@ -66,6 +66,8 @@ export * from './apiKeys';
 
 export * from './broadcasts';
 
+export * from './broadcastSchedules';
+
 export * from './ebarimt';
 
 export * from './email';

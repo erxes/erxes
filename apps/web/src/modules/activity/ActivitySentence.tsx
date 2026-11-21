@@ -9,9 +9,12 @@ import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
 import { usePluginText } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
+import { Link } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import {
   readCompanyLink,
   readCustomerLink,
+  readEmailed,
   readLead,
   readMerged,
   readTagged,
@@ -229,6 +232,54 @@ const LinkSentence = ({
   );
 };
 
+/** The sentence for each state of an email; a bounce or complaint the provider reports later adds its own entry. */
+const EMAILED_SENTENCE = {
+  queued: 'emailed',
+  sent: 'emailed',
+  delivered: 'emailed',
+  failed: 'email-failed',
+  bounced: 'email-bounced',
+  complained: 'email-complained',
+  suppressed: 'email-suppressed',
+  held: 'email-held',
+  capped: 'email-failed',
+} as const;
+
+/** An email to the customer: its subject, what sent it (a broadcast links to it), and a failure's reason. */
+const EmailedSentence = ({ activity }: { activity: Activity }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email.deliveries' });
+  const email = readEmailed(activity);
+
+  if (!email) return <SentenceLine name="other" values={{ actor: '', type: activity.type }} />;
+
+  const source = t(`source.${email.source}`, email.source);
+
+  // Not sent: why, in the delivery log's words; else the server's own.
+  const errorNote = (status: string, error: string) =>
+    status === 'suppressed'
+      ? t(`reason.${error}`, error)
+      : status === 'held' || status === 'capped'
+        ? t(`hold.${error}`, error)
+        : error;
+
+  return (
+    <>
+      <SentenceLine name={EMAILED_SENTENCE[email.status]} values={{ subject: email.subject }} />{' '}
+      <span className="text-muted-foreground">
+        ·{' '}
+        {email.source === 'broadcast' && email.sourceId ? (
+          <Link to={paths.broadcasts.broadcast(email.sourceId)} className="hover:underline">
+            {source}
+          </Link>
+        ) : (
+          source
+        )}
+        {email.error && ` · ${errorNote(email.status, email.error)}`}
+      </span>
+    </>
+  );
+};
+
 /** One line about a core entry: who did what; plugin entries bring their own summary. */
 export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
   if (activity.source !== 'core') return <>{activity.summary}</>;
@@ -258,6 +309,8 @@ export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
       return <LinkSentence activity={activity} actor={actor} verb={verb} />;
     case 'lead':
       return <LeadSentence activity={activity} actor={actor} />;
+    case 'emailed':
+      return <EmailedSentence activity={activity} />;
     default:
       return <SentenceLine name="other" values={{ actor, type: activity.type }} />;
   }

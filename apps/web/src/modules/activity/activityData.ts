@@ -1,4 +1,4 @@
-import type { Activity } from '@erxes/core-contract';
+import { type Activity, EmailDeliveryStatus } from '@erxes/core-contract';
 import { z } from 'zod';
 
 /*
@@ -40,6 +40,16 @@ export const readLead = reader(
     to: z.object({ name: z.string().optional(), color: z.string().optional() }).nullable(),
     // Core writes null when the move gave no reason.
     reason: z.string().nullish(),
+  }),
+);
+
+export const readEmailed = reader(
+  z.object({
+    subject: z.string(),
+    source: z.string(),
+    sourceId: z.string().nullable(),
+    status: EmailDeliveryStatus,
+    error: z.string().nullable(),
   }),
 );
 

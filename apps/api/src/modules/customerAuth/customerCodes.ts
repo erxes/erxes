@@ -96,11 +96,16 @@ export const sendCode = async (
   });
 
   if (address.kind === 'email') {
-    await sendEmail(tx, organization.id, {
-      to: address.value,
-      template: 'sign_in_code',
-      data: { organization: organization.name, code, minutes: CODE_MINUTES },
-    });
+    await sendEmail(
+      tx,
+      organization.id,
+      {
+        to: address.value,
+        template: 'sign_in_code',
+        data: { organization: organization.name, code, minutes: CODE_MINUTES },
+      },
+      { source: 'customer_account', sourceId: id },
+    );
   } else {
     await sendSms(tx, organization.id, {
       to: address.value,

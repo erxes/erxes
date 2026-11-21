@@ -1,7 +1,7 @@
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient, ORPCErrorFromErrorMap } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
-import { createTanstackQueryUtils } from '@orpc/tanstack-query';
+import { createTanstackQueryUtils, type RouterUtils } from '@orpc/tanstack-query';
 import DataLoader from 'dataloader';
 import type { ERRORS, ErrorCode } from './errors';
 import type { coreContract } from './index';
@@ -29,7 +29,9 @@ const client: ContractRouterClient<typeof coreContract> = createORPCClient(
  * web's QueryClient), and `invalidateQueries({ queryKey: orpc.users.key() })`
  * reaches every users query. Never write a query key by hand.
  */
-export const orpc = createTanstackQueryUtils(client);
+// Named, since the declaration of the type spelled out is past what tsc writes.
+export const orpc: RouterUtils<ContractRouterClient<typeof coreContract>> =
+  createTanstackQueryUtils(client);
 
 /**
  * Where erxes-ui's member pickers and `useMembersById` read members:

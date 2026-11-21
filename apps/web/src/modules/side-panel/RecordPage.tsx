@@ -8,6 +8,7 @@ import {
   usePanelRecordType,
   useRecordPagePathOf,
 } from './panelRecordTypes';
+import { useRecordPageNavigation } from './panelNavigation';
 import { type ISidePanelNavigator, SidePanelNavigatorContext } from './recordView';
 import { SidePanelRecord } from './SidePanelLayout';
 import { useSidePanel } from './useSidePanel';
@@ -21,6 +22,7 @@ export const RecordPageView = ({ contentType, contentId, listPath: pageList }: R
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { openRecord } = useSidePanel();
+  const { replacePage, backToPanel } = useRecordPageNavigation();
   const [tab, setTab] = useQueryState('tab');
   const { type } = usePanelRecordType(contentType);
   const pagePathOf = useRecordPagePathOf();
@@ -41,19 +43,24 @@ export const RecordPageView = ({ contentType, contentId, listPath: pageList }: R
       replaceRecord: (next) => {
         const page = pagePathOf(next, pathname);
 
-        if (page) void navigate(page, { replace: true });
+        if (page) replacePage(page);
         else openRecord(next);
       },
       back: backToList,
       canGoBack: false,
       close: backToList,
     };
-  }, [record, tab, setTab, openRecord, navigate, listPath, pagePathOf, pathname]);
+  }, [record, tab, setTab, openRecord, navigate, listPath, pagePathOf, pathname, replacePage]);
 
   return (
     <PageContainer>
       <SidePanelNavigatorContext.Provider value={navigator}>
-        <RecordSidePanel expanded expandedMode="page" expandable={false}>
+        {/* Collapsing puts the record back in the side panel, on the tab the page shows. */}
+        <RecordSidePanel
+          expanded
+          expandedMode="page"
+          onExpandedChange={() => backToPanel(record, tab ?? '', listPath)}
+        >
           <SidePanelRecord key={contentId} record={record} />
         </RecordSidePanel>
       </SidePanelNavigatorContext.Provider>

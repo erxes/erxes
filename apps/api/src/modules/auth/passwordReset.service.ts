@@ -70,6 +70,7 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
               minutes: RESET_MINUTES,
             },
           })),
+          { source: 'account', sourceId: member.id },
         );
         await runAs(asMember(member), () =>
           recordAudit(tx, {
