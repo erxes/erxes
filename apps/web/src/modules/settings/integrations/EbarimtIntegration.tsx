@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
 import type { Integration } from './catalog';
-import { useIntegrationsSaved } from './customMutation';
+import { useIntegrationsSaved } from './useIntegrationsSaved';
 import { DangerSection } from './DangerSection';
 import { EbarimtActivity } from './EbarimtActivity';
 import { EbarimtForm } from './EbarimtForm';

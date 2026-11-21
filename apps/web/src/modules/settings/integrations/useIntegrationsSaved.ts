@@ -1,11 +1,11 @@
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { messageOf } from '@erxes/core-contract/client';
 import { type QueryKey, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 
 export const useIntegrationsSaved = (
   failedTitle: string,
-  onSaved?: () => void,
-  queryKey: QueryKey = orpc.integrations.key(),
+  onSaved: (() => void) | undefined,
+  queryKey: QueryKey,
 ) => {
   const { toast } = useToast();
   const client = useQueryClient();

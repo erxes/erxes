@@ -278,18 +278,6 @@ export const ACCESS = {
   'secrets.read': { plugin: 'secrets:write' },
   'secrets.remove': { plugin: 'secrets:write' },
 
-  'integrations.list': needs('integrations.manage'),
-  'integrations.get': needs('integrations.manage'),
-  'integrations.create': needs('integrations.manage'),
-  'integrations.update': needs('integrations.manage'),
-  'integrations.setSecrets': needs('integrations.manage'),
-  'integrations.remove': needs('integrations.manage'),
-  'integrations.saveProgram': needs('integrations.manage'),
-  'integrations.removeProgram': needs('integrations.manage'),
-  'integrations.programVersions': needs('integrations.manage'),
-  'integrations.restoreProgram': needs('integrations.manage'),
-  'integrations.testProgram': needs('integrations.manage'),
-
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),
   'webhooks.create': needs('webhooks.manage'),

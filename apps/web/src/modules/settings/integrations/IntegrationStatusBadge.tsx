@@ -32,17 +32,8 @@ export const useIntegrationText = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const text = usePluginText();
 
-  return (integration: Integration) => {
-    if (integration.kind === 'custom') {
-      return {
-        name: integration.name,
-        summary: t('custom.summary', 'Added by hand. Calls {{hosts}}.', {
-          hosts: integration.summary,
-        }),
-      };
-    }
-
-    return integration.kind === 'plugin'
+  return (integration: Integration) =>
+    integration.kind === 'plugin'
       ? {
           name: text(integration.plugin, integration.name),
           summary: text(integration.plugin, integration.summary),
@@ -51,7 +42,6 @@ export const useIntegrationText = () => {
           name: t(`name.${integration.key}`, integration.name),
           summary: t(`catalog.${integration.key}`, integration.summary),
         };
-  };
 };
 
 /** The integration's mark in a square, as tiles and its page show it. */

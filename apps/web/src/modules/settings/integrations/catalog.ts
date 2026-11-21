@@ -1,13 +1,10 @@
-import type { Integration as CustomRecord } from '@erxes/core-contract';
-import { orpc } from '@erxes/core-contract/client';
-import { type Icon, IconApi, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { type Icon, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
 import { INTEGRATION_CATEGORIES, type TIntegrationTab, type TPluginIntegration } from 'erxes-ui';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
-export const CATEGORIES = [...INTEGRATION_CATEGORIES, 'custom'] as const;
+export const CATEGORIES = INTEGRATION_CATEGORIES;
 
 export type Category = (typeof CATEGORIES)[number];
 
@@ -34,8 +31,7 @@ interface Base {
 export type Integration =
   | (Base & { kind: 'ebarimt' })
   | (Base & { kind: 'gateways'; to: string })
-  | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] })
-  | (Base & { kind: 'custom'; record: CustomRecord });
+  | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] });
 
 const INTEGRATIONS: Integration[] = [
   {
@@ -71,55 +67,26 @@ const pluginIntegration = (
   countries,
 });
 
-const CUSTOM_PREFIX = 'custom.';
-
-export const customIntegrationKey = (key: string) => `${CUSTOM_PREFIX}${key}`;
-
-export const isCustomKey = (key: string) => key.startsWith(CUSTOM_PREFIX);
-
-const customIntegration = (record: CustomRecord): Integration => ({
-  kind: 'custom',
-  key: customIntegrationKey(record.key),
-  name: record.name,
-  summary: record.hosts.join(', '),
-  icon: IconApi,
-  category: 'custom',
-  countries: [],
-  record,
-});
-
 /**
- * Core's integrations, then the installed plugins', then the custom ones, that the member may
- * open: gateways need payments.manage, a plugin's the permission it names, custom ones
- * integrations.manage. `loading` until the plugin UIs have loaded, `loadingCustom` the custom ones.
+ * Core's integrations, then the installed plugins', that the member may open: gateways need
+ * payments.manage, a plugin's the permission it names. `loading` until the plugin UIs have loaded.
  */
 export const useIntegrations = () => {
   const { plugins, loading } = usePlugins();
   const can = useCan();
-
-  const custom = useQuery(
-    orpc.integrations.list.queryOptions({ input: can('integrations.manage') ? {} : skipToken }),
-  );
 
   const integrations = [
     ...INTEGRATIONS,
     ...plugins.flatMap(({ config }) =>
       config.integrations.map((tile) => pluginIntegration(config.name, tile)),
     ),
-    ...(custom.data?.data ?? []).map(customIntegration),
   ].filter((integration) => {
     if (integration.kind === 'gateways') return can('payments.manage');
 
     return integration.kind !== 'plugin' || can(integration.permission);
   });
 
-  return {
-    integrations,
-    loading,
-    loadingCustom: custom.isPending,
-    error: custom.error,
-    refetch: custom.refetch,
-  };
+  return { integrations, loading };
 };
 
 /** Where its tile goes: its own page, or the settings page it has elsewhere. */

@@ -743,6 +743,13 @@
       "when": 1795279998774,
       "tag": "0105_secret_vault_drop_sealed",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1795283832634,
+      "tag": "0106_drop_custom_integrations",
+      "breakpoints": true
     }
   ]
 }

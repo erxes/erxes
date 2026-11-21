@@ -23,7 +23,6 @@ import {
   IntegrationStatusBadge,
   useIntegrationText,
 } from './IntegrationStatusBadge';
-import { NewCustomIntegration } from './NewCustomIntegration';
 import { type IntegrationStatus, useIntegrationStatus } from './useIntegrationStatus';
 
 const useCategoryLabel = () => {
@@ -35,7 +34,6 @@ const useCategoryLabel = () => {
       messaging: t('messaging', 'Messaging'),
       payments: t('payments', 'Payments'),
       tax: t('tax', 'Tax receipts'),
-      custom: t('custom', 'Custom'),
     })[category];
 };
 
@@ -170,7 +168,7 @@ const useSections = (search: string, category: Category | null) => {
   const { statusOf } = status;
   const categoryLabel = useCategoryLabel();
   const textOf = useIntegrationText();
-  const { integrations, ...custom } = useIntegrations();
+  const { integrations } = useIntegrations();
   const needle = search.trim().toLocaleLowerCase();
 
   const matches = (integration: Integration) => {
@@ -192,8 +190,8 @@ const useSections = (search: string, category: Category | null) => {
 
   return {
     statusOf,
-    error: status.error ?? custom.error,
-    refetch: () => Promise.all([status.refetch(), custom.refetch()]),
+    error: status.error,
+    refetch: status.refetch,
     shown,
     connected: shown.filter(isSetUp),
     available: shown.filter((integration) => !isSetUp(integration) && local(integration)),
@@ -214,17 +212,14 @@ const Catalog = () => {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <div className="flex flex-wrap items-start gap-4">
-        <div className="min-w-0 flex-1 space-y-1">
-          <h1 className="text-lg font-semibold">{t('title', 'Integrations')}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t(
-              'intro',
-              'Connect the services your organisation works with. Each one runs for all your plugins.',
-            )}
-          </p>
-        </div>
-        <NewCustomIntegration />
+      <div className="space-y-1">
+        <h1 className="text-lg font-semibold">{t('title', 'Integrations')}</h1>
+        <p className="text-sm text-muted-foreground">
+          {t(
+            'intro',
+            'Connect the services your organisation works with. Each one runs for all your plugins.',
+          )}
+        </p>
       </div>
       <Filters
         search={search}
