@@ -1,6 +1,6 @@
 import sift from 'sift';
 import type { Collection, Document } from 'mongodb';
-import { migrateTransactionStatuses } from '../transactionStatusMigration';
+import { migrateTransactionStatuses } from '../migrateTransactionStatuses';
 
 type TRow = { _id: string; status?: string; mentionUserIds?: string[] };
 
