@@ -1,3 +1,4 @@
+import type { AgentBlock } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconRefresh, IconSend } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
@@ -5,17 +6,20 @@ import { Button, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Markdown } from '~/modules/assistant/Markdown';
+import { AgentBlocks } from './AgentBlocks';
 
 interface Turn {
   id: string;
   from: 'you' | 'agent' | 'error';
   text: string;
+  blocks: AgentBlock[];
 }
 
-const turnOf = (from: Turn['from'], text: string): Turn => ({
+const turnOf = (from: Turn['from'], text: string, blocks: AgentBlock[] = []): Turn => ({
   id: crypto.randomUUID(),
   from,
   text,
+  blocks,
 });
 
 /** The conversation so far: the member's messages right, the agent's answers left. */
@@ -38,8 +42,11 @@ const Transcript = ({ turns, pending }: { turns: Turn[]; pending: boolean }) => 
             {turn.text}
           </p>
         ) : turn.from === 'agent' ? (
-          <div key={turn.id} className="max-w-2xl rounded-lg bg-muted px-3 py-2">
-            <Markdown text={turn.text} streaming={false} />
+          <div key={turn.id} className="flex max-w-2xl flex-col gap-2">
+            <div className="rounded-lg bg-muted px-3 py-2">
+              <Markdown text={turn.text} streaming={false} />
+            </div>
+            <AgentBlocks blocks={turn.blocks} />
           </div>
         ) : (
           <p key={turn.id} className="text-sm text-destructive-text">
@@ -70,7 +77,8 @@ export const TryAgent = ({ agentId }: { agentId: string }) => {
     ask.mutate(
       { id: agentId, text: message, restart: turns.length === 0 },
       {
-        onSuccess: ({ answer }) => setTurns((was) => [...was, turnOf('agent', answer)]),
+        onSuccess: ({ answer, blocks }) =>
+          setTurns((was) => [...was, turnOf('agent', answer, blocks)]),
         onError: (failure) => setTurns((was) => [...was, turnOf('error', messageOf(failure))]),
       },
     );
