@@ -1,3 +1,4 @@
+import { OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
 import { users } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
@@ -177,6 +178,31 @@ describe('team members (/core/v1/users)', () => {
 
     // A member within the manager's own permissions is still theirs to manage.
     expect((await asLead.users.disable({ id: peer.id })).status).toBe('disabled');
+  });
+
+  it('lists the members whose role allows an action', async () => {
+    const desk = await owner.roles.create({
+      name: 'Front desk',
+      permissions: ['team.view', 'contacts.view'],
+    });
+
+    await owner.users.invite({ email: 'desk@acme.mn', role: desk.key });
+    await owner.users.invite({ email: 'manager@acme.mn', role: 'admin' });
+
+    const allowed = async (permission: string) =>
+      emails(await owner.users.list({ permission, limit: 100 }));
+
+    const viewers = await allowed('contacts.view');
+    const deleters = await allowed('contacts.delete');
+    const [ownerOnly] = OWNER_ONLY_PERMISSIONS;
+
+    // The role that lists it, admins through `*`, and owners.
+    expect(viewers).toEqual(expect.arrayContaining(['desk@acme.mn', 'manager@acme.mn']));
+    expect(viewers).toContain('owner@acme.mn');
+    expect(deleters).toContain('manager@acme.mn');
+    expect(deleters).not.toContain('desk@acme.mn');
+    expect(await allowed(ownerOnly ?? '')).toEqual(['owner@acme.mn']);
+    expect(await allowed('pms.housekeeping.work')).not.toContain('desk@acme.mn');
   });
 
   it('disables and re-enables a member; a disabled member is signed out', async () => {

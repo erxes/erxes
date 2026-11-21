@@ -71,8 +71,8 @@ const shownFrom = (from: ReturnType<typeof addressing>['from']) =>
 /**
  * Sends one email now, or throws the server's refusal (nodemailer's
  * `responseCode`). An organisation with its own settings (Settings ›
- * Integrations › Email sending) sends from its address through its provider;
- * the others through the server's.
+ * Email sending) sends from its address through its provider; the others
+ * through the server's.
  */
 export const deliverEmail = async (message: Message, orgId?: string) => {
   const own = orgId ? await orgTransport(orgId) : null;

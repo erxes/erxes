@@ -11,7 +11,14 @@ import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertAssignable, assertNotAbove } from '~/modules/roles/roles.service';
 import { profileChanges, type UserChanges } from './userProfile';
-import { assertTeamManager, findUser, lockTeam, otherActiveOwners, type UserRow } from './userRows';
+import {
+  allowedTo,
+  assertTeamManager,
+  findUser,
+  lockTeam,
+  otherActiveOwners,
+  type UserRow,
+} from './userRows';
 import { asPlugin } from './withoutSignIn.service';
 
 type Status = UserRow['status'];
@@ -35,6 +42,7 @@ export const listUsers = async (
     status?: Status;
     isActive?: boolean;
     role?: string;
+    permission?: string;
     canSignIn?: boolean;
     ids?: string[];
   },
@@ -55,6 +63,10 @@ export const listUsers = async (
 
   if (query.role) {
     filters.push(eq(users.role, query.role));
+  }
+
+  if (query.permission) {
+    filters.push(allowedTo(client, query.permission));
   }
 
   if (query.ids) {

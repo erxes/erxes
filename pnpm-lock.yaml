@@ -178,6 +178,9 @@ importers:
       '@repeaterjs/repeater':
         specifier: ^3.1.0
         version: 3.1.0
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       csv-parse:
         specifier: ^7.0.3
         version: 7.0.3
@@ -5219,6 +5222,10 @@ packages:
 
   bcrypt-pbkdf@1.0.2:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==}
+
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
+    hasBin: true
 
   bignumber.js@9.3.1:
     resolution: {integrity: sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==}
@@ -13108,6 +13115,8 @@ snapshots:
     dependencies:
       tweetnacl: 0.14.5
     optional: true
+
+  bcryptjs@3.0.3: {}
 
   bignumber.js@9.3.1: {}
 

@@ -1,11 +1,12 @@
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
-import { cn } from 'erxes-ui/lib/utils';
+import { cn, hiddenInputInFlow } from 'erxes-ui/lib/utils';
 
 /** A themed checkbox; pass `indeterminate` for a partial selection. */
 export const Checkbox = ({ className, ...props }: CheckboxPrimitive.Root.Props) => (
   <CheckboxPrimitive.Root
     className={cn(
       'peer inline-flex items-center justify-center size-4 shrink-0 rounded border border-scroll outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 data-disabled:cursor-not-allowed data-disabled:opacity-50 data-checked:border-primary data-indeterminate:border-primary data-checked:bg-primary data-indeterminate:bg-primary data-checked:text-primary-foreground data-indeterminate:text-primary-foreground bg-background',
+      hiddenInputInFlow,
       className,
     )}
     {...props}

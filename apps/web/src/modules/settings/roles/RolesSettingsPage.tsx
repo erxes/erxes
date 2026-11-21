@@ -26,7 +26,7 @@ const RoleList = ({
 
   return (
     <div className="flex w-64 shrink-0 border-r">
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" fitWidth>
         <nav aria-label={t('title', 'Roles')} className="space-y-0.5 p-2">
           {roles.map((item) => (
             <button

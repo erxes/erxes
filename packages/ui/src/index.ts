@@ -198,7 +198,9 @@ export { EntityPicker } from './modules/pickers/EntityPicker';
 export {
   type Member,
   type MemberQueries,
+  meFirst,
   memberName,
+  useMeId,
   useMembersById,
 } from './modules/pickers/members';
 
@@ -229,6 +231,8 @@ export { TextField } from './modules/record-field/components/TextField';
 export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneInput';
 
 export { Board } from './modules/board/Board';
+
+export { useBoardScroll } from './modules/board/useBoardScroll';
 
 export type { BoardMove } from './modules/board/BoardRoot';
 

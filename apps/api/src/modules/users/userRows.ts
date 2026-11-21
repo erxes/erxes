@@ -1,5 +1,6 @@
 import { caller, type Db, roles, runAs, users } from '@erxes/core-db';
-import { and, count, eq, ne } from 'drizzle-orm';
+import { OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
+import { and, arrayOverlaps, count, eq, exists, ne, or } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { lockOrganization } from '~/lib/locks';
@@ -54,6 +55,31 @@ export const findUser = async (client: Db, id: string, lock = false) => {
   }
 
   return row;
+};
+
+/**
+ * The members whose role allows `action`, decided as `can` does: owners may do
+ * everything, `*` covers every action that isn't owner-only.
+ */
+export const allowedTo = (client: Db, action: string) => {
+  const isOwner = eq(users.role, 'owner');
+
+  if (OWNER_ONLY_PERMISSIONS.includes(action)) {
+    return isOwner;
+  }
+
+  const granted = client
+    .select({ key: roles.key })
+    .from(roles)
+    .where(
+      and(
+        eq(roles.orgId, users.orgId),
+        eq(roles.key, users.role),
+        arrayOverlaps(roles.permissions, [action, '*']),
+      ),
+    );
+
+  return or(isOwner, exists(granted));
 };
 
 /** Other active owners besides `exceptId` (an organisation always keeps one). */

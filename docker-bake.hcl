@@ -9,6 +9,8 @@ target "api" {
 target "web" {
   dockerfile = "apps/web/Dockerfile"
   tags       = ["erxes-web:local"]
+  # A new day reruns `apk upgrade`, so a cached layer never keeps a fixed CVE.
+  args = { APK_UPGRADE_DAY = formatdate("YYYY-MM-DD", timestamp()) }
 }
 
 group "default" {

@@ -59,7 +59,7 @@ describe('audit log', () => {
 
     const entries = await t.owner().audit.list({ targetId: t.ids.member });
 
-    expect(JSON.stringify(entries)).not.toMatch(/scrypt|passwordHash/);
+    expect(JSON.stringify(entries)).not.toMatch(/argon2id|passwordHash/);
     expect(entries.data[0]?.action).toBe('user.password_set');
   });
 

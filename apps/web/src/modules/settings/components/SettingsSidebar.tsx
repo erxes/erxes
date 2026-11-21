@@ -12,6 +12,7 @@ import {
   IconPlug,
   IconHierarchy2,
   IconLock,
+  IconMail,
   IconMoodSmile,
   IconPlugConnected,
   IconSettings,
@@ -68,6 +69,7 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : []),
     ...(can('integrations.manage')
       ? [
+          { name: t('email-sending', 'Email sending'), to: paths.settings.email, icon: IconMail },
           {
             name: t('integrations', 'Integrations'),
             to: paths.settings.integrations,

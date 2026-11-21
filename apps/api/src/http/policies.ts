@@ -152,8 +152,6 @@ export const ACCESS = {
   'events.retryFailures': needs('events.view'),
   'events.dismissFailures': needs('events.view'),
 
-  'recordTypes.list': MEMBER,
-
   ...DATA_EXTENSION_ACCESS,
 
   // Plugins read product groups (with products:read) and their own record types' (the service checks).
@@ -187,6 +185,8 @@ export const ACCESS = {
   'files.remove': { member: 'any', plugin: 'files:write' },
   'files.settings': needs('settings.manage'),
   'files.updateSettings': needs('settings.manage'),
+  'files.saveBucket': needs('settings.manage'),
+  'files.removeBucket': needs('settings.manage'),
 
   'notifications.list': MEMBER,
   'notifications.unreadCount': MEMBER,
@@ -305,6 +305,18 @@ export const ACCESS = {
   'productCategories.create': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.remove': { member: 'products.manage', plugin: 'products:write' },
+
+  'integrations.list': needs('integrations.manage'),
+  'integrations.get': needs('integrations.manage'),
+  'integrations.create': needs('integrations.manage'),
+  'integrations.update': needs('integrations.manage'),
+  'integrations.setSecrets': needs('integrations.manage'),
+  'integrations.remove': needs('integrations.manage'),
+  'integrations.saveProgram': needs('integrations.manage'),
+  'integrations.removeProgram': needs('integrations.manage'),
+  'integrations.programVersions': needs('integrations.manage'),
+  'integrations.restoreProgram': needs('integrations.manage'),
+  'integrations.testProgram': needs('integrations.manage'),
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

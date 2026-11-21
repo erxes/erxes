@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, Input, Label, Select, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FormSection } from './FormSection';
+import { FormSection } from '../integrations/FormSection';
 
 type Provider = EmailSettings['provider'];
 

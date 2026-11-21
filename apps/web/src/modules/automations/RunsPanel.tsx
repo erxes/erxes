@@ -1,3 +1,4 @@
+import { Listening } from '~/components/Listening';
 import { paths } from '~/lib/paths';
 import type { AutomationRun, RunStep } from '@erxes/core-contract';
 import { IconPlayerStop, IconRefresh } from '@tabler/icons-react';
@@ -18,7 +19,7 @@ import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { runsQuery } from './automationQueries';
+import { runQuery, runsQuery } from './automationQueries';
 
 const STATUS_VARIANT = {
   running: 'info',
@@ -132,12 +133,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
   const fmt = useFormat();
   const canManage = useCan()('automations.manage');
 
-  const detail = useQuery(
-    orpc.automations.run.queryOptions({
-      input: { runId: run.id },
-      refetchInterval: run.status === 'running' || run.status === 'waiting' ? 3000 : false,
-    }),
-  );
+  const detail = useQuery(runQuery(run));
 
   return (
     <div className="space-y-3 p-4">
@@ -192,10 +188,12 @@ const NoRuns = () => {
       <Empty.Header>
         <Empty.Title>{t('no-runs', 'No runs yet')}</Empty.Title>
         <Empty.Description>
-          {t(
-            'no-runs-description',
-            'Runs appear here when the trigger event happens and its conditions hold.',
-          )}
+          <Listening>
+            {t(
+              'no-runs-description',
+              'Runs appear here as soon as the trigger event happens and its conditions hold.',
+            )}
+          </Listening>
         </Empty.Description>
       </Empty.Header>
     </Empty>

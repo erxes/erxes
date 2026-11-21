@@ -1,15 +1,17 @@
-import { ACTOR_TYPES, CONTENT_TYPES } from '../enums';
+import { ACTOR_TYPES, CONTENT_TYPES, EVENT_DATA_KINDS } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
+  check,
   foreignKey,
   index,
   integer,
   jsonb,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { orgIdColumn, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt } from './common';
 import { organizations } from './organizations';
 
@@ -63,6 +65,31 @@ export const events = pgTable(
       columns: [table.orgId],
       foreignColumns: [organizations.id],
       name: 'core_events_org_id_fkey',
+    }).onDelete('cascade'),
+  ],
+);
+
+/**
+ * What an organisation's events of a type have carried: one row per payload key with how its
+ * values compare, and one with an empty key once the type happened at all. The automations
+ * consumer writes them, so the builder offers an event's data without its publisher listing it.
+ */
+export const eventData = pgTable(
+  'event_data',
+  {
+    orgId: orgIdColumn(),
+    type: text().notNull(),
+    key: text().notNull(),
+    kind: text({ enum: EVENT_DATA_KINDS }).notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.type, table.key], name: 'core_event_data_pkey' }),
+    check('core_event_data_kind_check', inList(table.kind, EVENT_DATA_KINDS)),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_event_data_org_id_fkey',
     }).onDelete('cascade'),
   ],
 );

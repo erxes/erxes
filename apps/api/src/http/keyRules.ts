@@ -54,6 +54,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   fieldGroups: { lookup: true, writes: 'settings' },
   fields: { lookup: true, writes: 'settings' },
   files: 'files',
+  integrations: null,
   leads: 'contacts',
   notifications: null,
   organizations: { lookup: true, writes: 'settings' },
@@ -100,6 +101,9 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'automations.test': null,
   'files.settings': 'settings',
   'files.updateSettings': 'settings',
+  // Storage keys are entered by a member, never sent by a key.
+  'files.saveBucket': null,
+  'files.removeBucket': null,
   'leads.createStage': 'settings',
   'leads.updateStage': 'settings',
   'leads.reorderStages': 'settings',
