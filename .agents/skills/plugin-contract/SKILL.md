@@ -95,6 +95,15 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      core product ids and picks products. No related rows count 0 and total 0, so "fewer than 3" includes
      them. Core reads only a view the plugin's role owns and has granted; otherwise the rule is
      `INVALID_FILTER`. The path shape, the view's columns and the measures are the contract;
+   - Data Extensions objects (`apps/api/src/modules/dataExtensions/nativeSources.ts`,
+     `apps/api/src/modules/dataExtensions/pluginValues.service.ts`): the manifest's `objects` are
+     record types members add fields to once the plugin is connected. Each names a view its role
+     owns and grants to `erxes_core_reader`, with `id`, a column per own field and
+     `custom_fields jsonb`, where the plugin keeps the added fields' values by field id
+     (a relation's target id, or ids for a many-to-many). The plugin checks a patch with
+     `dataValues.check` before it saves, and core reads the values from the view for
+     `dataValues.get`, formulas and rollups. The view's columns, the map's shape and the check
+     are the contract;
    - Module Federation: `SHARED` in `packages/ui/src/federation.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`, `checkAccess`, `recordSections`, `recordTypes`,

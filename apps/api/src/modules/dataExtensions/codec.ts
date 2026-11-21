@@ -1,7 +1,7 @@
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { type FieldColumn, columnsOf } from './columns';
+import { type FieldColumn, columnsOf, pluginOf } from './columns';
 import type { DataFieldRow } from './definitions';
 
 /**
@@ -9,11 +9,59 @@ import type { DataFieldRow } from './definitions';
  * column per part (`<column>_amount`, `<column>_currency`); relations are `relationValues.ts`'s.
  */
 
-/** A column as a select reads it, so the driver hands back JSON-ready values. */
-export const readColumn = (table: SQL, { name, type }: FieldColumn) => {
-  const column = sql`${table}.${sql.identifier(name)}`;
+/** Casts of the column types a plugin's value is read as, for text that fits them. */
+const CASTS = {
+  numeric: sql`numeric`,
+  smallint: sql`smallint`,
+  bigint: sql`bigint`,
+  boolean: sql`boolean`,
+  date: sql`date`,
+  timestamptz: sql`timestamptz`,
+} as const;
+
+/**
+ * A plugin record's value, or one part of a composite, from the `custom_fields` map (by field
+ * id) of its row in the plugin's view, as the column's type. A value that doesn't fit is null.
+ */
+const customFieldPart = (row: SQL, fieldId: string, { part, type }: FieldColumn): SQL => {
+  const value = sql`(${row}.custom_fields -> ${fieldId}::text)`;
+  const json = part === null ? value : sql`(${value} -> ${part}::text)`;
+  const text = sql`(${json} #>> '{}')`;
 
   switch (type) {
+    case 'jsonb':
+      return json;
+    case 'text':
+      return text;
+    case 'text[]':
+      return sql`(case when jsonb_typeof(${json}) = 'array' then array(select jsonb_array_elements_text(${json})) end)`;
+    default:
+      return sql`(case when pg_input_is_valid(${text}, ${type}) then ${text}::${CASTS[type]} end)`;
+  }
+};
+
+/**
+ * A field's column over its record's row: the column of core's table, or for a plugin's record
+ * type the part of the value its view's `custom_fields` holds.
+ */
+export const storedColumn = (
+  field: Pick<DataFieldRow, 'id' | 'recordType'>,
+  row: SQL,
+  column: FieldColumn,
+) =>
+  pluginOf(field.recordType)
+    ? customFieldPart(row, field.id, column)
+    : sql`${row}.${sql.identifier(column.name)}`;
+
+/** A field's column as a select reads it, so the driver hands back JSON-ready values. */
+export const readColumn = (
+  field: Pick<DataFieldRow, 'id' | 'recordType'>,
+  table: SQL,
+  stored: FieldColumn,
+) => {
+  const column = storedColumn(field, table, stored);
+
+  switch (stored.type) {
     case 'date':
       return sql`${column}::text`;
     case 'numeric':

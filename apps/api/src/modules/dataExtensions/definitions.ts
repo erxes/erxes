@@ -2,7 +2,7 @@ import { CUSTOM_OBJECT_PREFIX, customObjectType } from '@erxes/core-contract';
 import { type Db, dataFields, dataObjects, dataTables, requestOrgId } from '@erxes/core-db';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
-import { hostTable, objectTable, schemaOf } from './columns';
+import { hostTable, objectTable, pluginOf, schemaOf } from './columns';
 import { createTable } from './ddl';
 
 /** The definitions Data Extensions reads: objects, fields, and where each record type is kept. */
@@ -83,7 +83,7 @@ export const tableOf = async (client: Db, recordType: string) => {
   return row?.tableName ?? null;
 };
 
-/** A table name for a core or plugin record type that no other record type has. */
+/** A table name for a core record type that no other record type has. */
 const freeHostTable = async (client: Db, recordType: string) => {
   const names = new Set(
     (await client.select({ tableName: dataTables.tableName }).from(dataTables)).map(
@@ -102,12 +102,15 @@ const freeHostTable = async (client: Db, recordType: string) => {
 
 /**
  * The table a record type's fields add columns to. A custom object's is made with it; a core
- * or plugin type's is made with its first field.
+ * type's is made with its first field. A plugin's record type has none: the plugin keeps its
+ * records' values.
  */
 export const ensureTable = async (client: Db, recordType: string) => {
   const existing = await tableOf(client, recordType);
 
   if (existing) return existing;
+
+  if (pluginOf(recordType)) throw new Error(`${recordType}'s values are its plugin's`);
 
   const key = customKeyOf(recordType);
   const tableName = key ? objectTable(key) : await freeHostTable(client, recordType);

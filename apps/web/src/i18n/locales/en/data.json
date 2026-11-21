@@ -291,6 +291,7 @@
     "url": "Link"
   },
   "values": {
+    "keptByPlugin": "The plugin keeps these values. Change them where you edit the record.",
     "tab": "Data"
   }
 }

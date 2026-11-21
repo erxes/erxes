@@ -19,7 +19,7 @@ import {
 import { previewComputed } from './computedRules';
 import { connectPlugin, disconnectPlugin, listDataPlugins } from './dataPlugins.service';
 import { convertField } from './fieldConvert';
-import { removePluginValues } from './hostRecords';
+import { removePluginRecords } from './hostRecords';
 import { listHistory } from './valueHistory';
 import { createRelation } from './relations.service';
 
@@ -38,9 +38,9 @@ export const dataChangesRouter = {
   ),
   remove: scoped.dataChanges.remove.handler(({ input }) =>
     audited(
-      (tx) => removePluginValues(tx, input),
+      (tx) => removePluginRecords(tx, input),
       () => ({
-        action: 'data_values.removed',
+        action: 'data_links.removed',
         targetType: input.recordType,
         metadata: { recordIds: input.recordIds },
       }),

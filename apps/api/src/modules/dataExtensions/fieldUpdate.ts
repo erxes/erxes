@@ -8,7 +8,7 @@ import { columnsOf, isComputed } from './columns';
 import { assertUnread, checkComputed } from './computedRules';
 import { changeSchema, setUnique } from './ddl';
 import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
-import { assertFieldDefinition } from './fieldRules';
+import { assertFieldDefinition, assertPluginKeeps } from './fieldRules';
 import { assertSettings, renameInConditions } from './writeRules';
 
 type FieldType = DataFieldRow['type'];
@@ -104,6 +104,8 @@ export const updateField = async (
   }
 
   if (field.type !== 'relation') assertFieldDefinition(next);
+
+  assertPluginKeeps(field.recordType, next);
 
   if (changes.settings) {
     await assertSettings(client, { ...field, key: changes.key ?? field.key, ...next });

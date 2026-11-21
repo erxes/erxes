@@ -1,6 +1,7 @@
 import { db } from '@erxes/core-db';
 import { scoped, audited, recordOf } from '~/orpc';
 import { getValues, lookupValues, updateValues } from './hostValues.service';
+import { checkValues } from './pluginValues.service';
 import { createRecord, setRecordDeleted, updateRecord } from './recordWrites';
 import { getRecord, listRecords } from './records.service';
 
@@ -60,4 +61,5 @@ export const dataValuesRouter = {
       }),
     ),
   ),
+  check: scoped.dataValues.check.handler(({ input }) => checkValues(db(), input)),
 };

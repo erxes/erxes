@@ -5,6 +5,8 @@ import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { assertRecordRight, findRecordType } from '~/modules/recordTypes/recordTypes.service';
 import { columnParam } from './codec';
+import { pluginOf } from './columns';
+import { nativeSources } from './nativeSources';
 import { computedFor } from './computed';
 import { alias, customKeyOf, ensureTable, fieldsOf, qualified, tableOf } from './definitions';
 import { valueColumns, valuesOf } from './recordQueries';
@@ -16,8 +18,10 @@ import { prepareValues } from './values';
 import { afterWrite } from './writeRules';
 
 /**
- * Data Extensions values on core's and plugins' records (`core.customer`, `hr.employee`),
- * in the record type's table (`ext_<plugin>_<type>`), a row per record that has any.
+ * Data Extensions values on core's and plugins' records (`core.customer`, `hr.employee`).
+ * Core keeps its own records' values in the record type's table (`ext_core_<type>`), a row per
+ * record that has any; a plugin keeps its records' in its own tables, and core reads them from
+ * the `custom_fields` of the plugin's view.
  */
 
 const T = alias('t');
@@ -39,6 +43,36 @@ const hostType = async (client: Db, recordType: string, right: 'read' | 'update'
 };
 
 /**
+ * The row, `t`, a record's values are read from: its row in core's table, with who changed
+ * them last, or for a plugin's record its view's row (`custom_fields`). Null when there is
+ * none to read.
+ */
+const valuesRow = async (client: Db, recordType: string) => {
+  if (pluginOf(recordType)) {
+    const natives = await nativeSources(client);
+    const from = natives(recordType)?.from;
+
+    return from
+      ? {
+          join: sql`left join ${from} ${T} on ${T}.id = ${IDS}.id`,
+          changed: sql`null::text as updated_by, null::timestamptz as updated_at`,
+          natives,
+        }
+      : null;
+  }
+
+  const table = await tableOf(client, recordType);
+
+  return table
+    ? {
+        join: sql`left join ${qualified(table)} ${T} on ${T}.record_id = ${IDS}.id`,
+        changed: sql`${T}.updated_by, ${T}.updated_at`,
+        natives: undefined,
+      }
+    : null;
+};
+
+/**
  * Values of these records, null where none is kept: the fields the caller may read, or every
  * field with `everything` (the checks and history a write makes).
  */
@@ -48,14 +82,14 @@ const readValues = async (
   everything: boolean,
 ) => {
   const all = await fieldsOf(client, input.recordType);
-  const table = await tableOf(client, input.recordType);
-  const sides = await relationSides(client, all);
+  const from = await valuesRow(client, input.recordType);
+  const sides = await relationSides(client, all, from?.natives);
   const ids = [...new Set(input.recordIds)];
   const id = sql`${IDS}.id`;
   const computed = await computedFor(client, input.recordType, all, T, id);
   const fields = everything ? all : await readableFields(client, all, computed.uses);
 
-  if (!table) {
+  if (!from) {
     return ids.map((recordId) => ({
       recordType: input.recordType,
       recordId,
@@ -68,9 +102,9 @@ const readValues = async (
   const columns = valueColumns(fields, sides, T, id, computed.values);
 
   const { rows } = await client.execute(
-    sql`select ${IDS}.id as record_id, ${T}.updated_by, ${T}.updated_at${columns.length ? sql`, ${sql.join(columns, sql`, `)}` : sql``}
+    sql`select ${IDS}.id as record_id, ${from.changed}${columns.length ? sql`, ${sql.join(columns, sql`, `)}` : sql``}
       from unnest(${textArray(ids)}) as ${IDS}(id)
-      left join ${qualified(table)} ${T} on ${T}.record_id = ${IDS}.id${computed.join}`,
+      ${from.join}${computed.join}`,
   );
 
   return rows.map((row) => ({
@@ -114,11 +148,24 @@ const allValues = async (client: Db, recordType: string, recordId: string) =>
 export const getValues = (client: Db, input: { recordType: string; recordId: string }) =>
   oneOf(client, input.recordType, input.recordId, 'read');
 
-/** Changes some of a record's values; null clears one. */
+/**
+ * Changes some of a core record's values; null clears one. 400 INVALID_REFERENCE for a
+ * plugin's record type, whose plugin keeps the values.
+ */
 export const updateValues = async (
   client: Db,
   input: { recordType: string; recordId: string; values: Record<string, unknown> },
 ) => {
+  const plugin = pluginOf(input.recordType);
+
+  if (plugin) {
+    throw fail(
+      'INVALID_REFERENCE',
+      `${plugin} keeps its records’ values; it checks them with dataValues.check`,
+      { field: 'recordType' },
+    );
+  }
+
   await hostType(client, input.recordType, 'update');
   await assertRecordsExist(client, input.recordType, [input.recordId], 'recordId');
 

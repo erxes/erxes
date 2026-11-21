@@ -65,7 +65,8 @@ export const dataChangesContract = {
     .route({
       method: 'GET',
       path: '/data-history/{recordType}/{recordId}',
-      summary: 'Who changed a record’s values, when and from what, newest first',
+      summary:
+        'Who changed a record’s values, when and from what, newest first. 400 INVALID_REFERENCE for a plugin’s record type, whose plugin keeps its history',
     })
     .input(CursorQuery.extend({ recordType: DataExtensionRecordType, recordId: Id }))
     .output(cursorPageOf(DataExtensionChange)),
@@ -74,7 +75,7 @@ export const dataChangesContract = {
       method: 'POST',
       path: '/data-fields/{id}/convert',
       summary:
-        'Convert a field to another type, its values carried over where they fit. `apply` false is a dry run; 409 UNCONVERTIBLE when values would be cleared and `clearUnconvertible` is not set',
+        'Convert a field to another type, its values carried over where they fit. `apply` false is a dry run; 409 UNCONVERTIBLE when values would be cleared and `clearUnconvertible` is not set; 400 INVALID_TYPE for a plugin’s record type, whose plugin keeps the values',
     })
     .input(
       z.object({
@@ -92,7 +93,7 @@ export const dataChangesContract = {
       method: 'POST',
       path: '/data-values/{recordType}/remove',
       summary:
-        'A plugin’s records are gone: clear their values, their links and their value history',
+        'A plugin’s records are gone: clear the links core keeps to them (on core’s and custom records, and their pairs). `removed` counts them',
     })
     .input(
       z.object({ recordType: DataExtensionRecordType, recordIds: z.array(Id).min(1).max(100) }),

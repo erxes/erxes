@@ -1,7 +1,7 @@
 import type { Db } from '@erxes/core-db';
 import { type SQL, sql } from 'drizzle-orm';
 import { inOrder } from '~/lib/sequence';
-import { isComputed } from './columns';
+import { isComputed, pluginOf } from './columns';
 import type { ComputedValues } from './recordQueries';
 import { type DataFieldRow, customKeyOf, fieldsOf, tableOf } from './definitions';
 import { compileFormula, resultOf } from './formula/compile';
@@ -29,12 +29,19 @@ export interface TypeModel {
   native: NativeSource | null;
 }
 
-/** A record in a query: its Data Extensions row (null without one), its own-fields row, and its id. */
+/**
+ * A record in a query: its Data Extensions row (null without one; a plugin's record's is its
+ * view row), its own-fields row, and its id.
+ */
 export interface RecordRow {
   ext: SQL | null;
   native: SQL | null;
   id: SQL;
 }
+
+/** Whether a record's row has its own fields: a custom object's, or a plugin's view row. */
+const keepsOwnFields = (recordType: string) =>
+  customKeyOf(recordType) !== null || pluginOf(recordType) !== null;
 
 /** How many formulas deep one may reach through others and relations. */
 const DEPTH_MAX = 6;
@@ -77,8 +84,8 @@ export class Computer {
     const fields = await fieldsOf(this.client, recordType);
 
     const [sides, table] = await Promise.all([
-      relationSides(this.client, fields),
-      tableOf(this.client, recordType),
+      relationSides(this.client, fields, this.natives),
+      pluginOf(recordType) ? null : tableOf(this.client, recordType),
     ]);
 
     return {
@@ -100,11 +107,19 @@ export class Computer {
       : sql``;
   }
 
-  /** The row a record type's own query reads: own fields on its own table for custom objects. */
+  /**
+   * The row a record type's own query reads its own fields from: the record's row itself for
+   * custom objects, and for a plugin's, whose row is its view's (`custom_fields` included).
+   */
   nativeRow(model: TypeModel, ext: SQL, joined: SQL): SQL | null {
-    if (customKeyOf(model.recordType)) return ext;
+    if (keepsOwnFields(model.recordType)) return ext;
 
     return model.native?.from ? joined : null;
+  }
+
+  /** The join a record type's own query needs for its own fields, aliased `row`. */
+  ownJoin(model: TypeModel, row: SQL, id: SQL) {
+    return keepsOwnFields(model.recordType) ? sql`` : this.nativeJoin(model, row, id);
   }
 
   /** `{path}` on `row`'s record. */
@@ -313,9 +328,7 @@ export const computedFor = async (
     uses.set(field.id, computer.uses);
   });
 
-  const join = customKeyOf(recordType) ? sql`` : computer.nativeJoin(model, own, id);
-
-  return { values, uses, join };
+  return { values, uses, join: computer.ownJoin(model, own, id) };
 };
 
 /** A computed field's value over a record row, or null when it can't be read (a field it read was archived). */

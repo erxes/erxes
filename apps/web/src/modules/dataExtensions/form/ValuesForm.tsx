@@ -10,7 +10,8 @@ interface ValuesFormProps {
   /** The fields to ask for, in order (`formFields`). */
   fields: DataExtensionField[];
   values: DataExtensionValues;
-  onChange: (key: string, value: Value) => void;
+  /** Left out, every value shows as text to read: values the record's plugin keeps. */
+  onChange?: (key: string, value: Value) => void;
   /** A field's problem by its key, from the last save. */
   errors?: Record<string, string>;
   disabled?: boolean;
@@ -24,7 +25,9 @@ const FieldRow = ({
   disabled,
 }: Omit<ValuesFormProps, 'fields' | 'errors'> & { field: DataExtensionField; error?: string }) => {
   const id = useId();
-  const { required, locked } = fieldState(field, values);
+  const state = fieldState(field, values);
+  const locked = state.locked || !onChange;
+  const required = state.required;
   const { t } = useTranslation('data', { keyPrefix: 'form' });
 
   return (
@@ -46,7 +49,7 @@ const FieldRow = ({
         value={values[field.key]}
         locked={locked}
         disabled={disabled}
-        onChange={(value) => onChange(field.key, value)}
+        onChange={(value) => onChange?.(field.key, value)}
       />
     </PanelFormRow>
   );

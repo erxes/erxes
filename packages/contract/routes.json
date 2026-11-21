@@ -1609,6 +1609,16 @@
           "path": "/data-values/{recordType}/{recordId}"
         }
       }
+    },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/{recordType}/check"
+        }
+      }
     }
   },
   "favorites": {

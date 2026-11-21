@@ -7,10 +7,10 @@ import { eq, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { fail, pgCode } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { columnsOf, type FieldColumn, freeColumn } from './columns';
+import { columnsOf, type FieldColumn, freeColumn, pluginOf } from './columns';
 import { assertUnread } from './computedRules';
 import { addColumns, changeSchema, dropColumns, setUnique } from './ddl';
-import { findField, qualified, tableOf } from './definitions';
+import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
 import { assertFieldDefinition, takenColumns } from './fieldRules';
 
 /**
@@ -157,6 +157,30 @@ const keptSettings = (settings: DataFieldSettings, to: Convertible): DataFieldSe
 });
 
 /**
+ * The one column a field's values move from, or 400 INVALID_TYPE for a field that can't be
+ * converted: a relation, a composite, or one of a plugin's record type (it keeps the values).
+ */
+const convertedColumn = (field: DataFieldRow, to: Convertible) => {
+  const plugin = pluginOf(field.recordType);
+
+  if (plugin) {
+    throw fail(
+      'INVALID_TYPE',
+      `${plugin} keeps ${field.label}’s values, so core can't convert them`,
+    );
+  }
+
+  const columns = columnsOf(field);
+  const [from] = columns;
+
+  if (!from || columns.length !== 1 || field.type === 'relation' || field.type === to) {
+    throw fail('INVALID_TYPE', `A ${field.type} field can't be converted to ${to}`);
+  }
+
+  return from;
+};
+
+/**
  * Converts a field (a dry run unless `apply`): 400 INVALID_TYPE for a field that can't be, 409
  * UNCONVERTIBLE when values would be cleared without `clearUnconvertible`, 409 FIELD_IN_USE
  * while a formula or rollup reads it, 409 TAKEN when it stays unique and values repeat.
@@ -172,18 +196,8 @@ export const convertField = async (
   },
 ) => {
   const field = await findField(client, input.id);
-  const [from] = columnsOf(field);
+  const from = convertedColumn(field, input.type);
   const table = await tableOf(client, field.recordType);
-
-  if (
-    !from ||
-    columnsOf(field).length !== 1 ||
-    field.type === 'relation' ||
-    field.type === input.type
-  ) {
-    throw fail('INVALID_TYPE', `A ${field.type} field can't be converted to ${input.type}`);
-  }
-
   const choosing = input.type === 'select' || input.type === 'multiSelect';
 
   const options =
@@ -207,7 +221,7 @@ export const convertField = async (
     scale: field.settings.scale ?? 5,
   });
 
-  const to = columnsOf({ type: input.type, column: 'v', relation: null, settings })[0];
+  const to = columnsOf({ ...field, type: input.type, column: 'v', relation: null, settings })[0];
 
   if (!to) throw fail('INVALID_TYPE', `${input.type} keeps no column`);
 

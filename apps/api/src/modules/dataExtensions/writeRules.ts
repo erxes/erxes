@@ -10,6 +10,7 @@ import { inOrder } from '~/lib/sequence';
 import { type DataFieldRow, fieldsOf } from './definitions';
 import { assertRoles } from './fieldAccess';
 import { recordChanges } from './valueHistory';
+import { byKeyPath, type ValuePath } from './values';
 
 /**
  * What every write to a record's values ends with, in its transaction: rules that depend on
@@ -56,15 +57,22 @@ const conditionHolds = (condition: DataFieldCondition, values: Values) => {
   }
 };
 
-/** 400 INVALID_INPUT for each field its `requiredWhen` makes required and the record leaves empty. */
-const assertRequiredWhen = (fields: DataFieldRow[], values: Values) => {
+/**
+ * 400 INVALID_INPUT for each field its `requiredWhen` makes required and the record leaves
+ * empty. `values` are by key, every active field's.
+ */
+export const assertRequiredWhen = (
+  fields: DataFieldRow[],
+  values: Values,
+  at: ValuePath = byKeyPath,
+) => {
   const issues = fields.flatMap((field) => {
     const rule = field.settings.requiredWhen;
 
     return rule && conditionHolds(rule, values) && isEmptyValue(values[field.key])
       ? [
           {
-            path: ['values', field.key],
+            path: at(field),
             message: `${field.label} is required while ${rule.field} is set this way`,
           },
         ]
