@@ -28,7 +28,7 @@ describe('payments', { timeout: 240_000 }, () => {
       code: 'NO_GATEWAY',
     });
 
-    const gateway = await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    const gateway = await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
     const input = { ...order('o1', 150_000), dedupeKey: 'order-o1' };
     const invoice = await t.hr().payments.createInvoice(input);
     const { id } = invoice;
@@ -59,9 +59,9 @@ describe('payments', { timeout: 240_000 }, () => {
     });
 
     // One with invoices can't be removed.
-    await expect(t.owner().payments.removeGateway({ id: gateway.id })).rejects.toMatchObject({
-      code: 'GATEWAY_IN_USE',
-    });
+    await expect(
+      t.owner().integrations.remove({ key: 'test', id: gateway.id }),
+    ).rejects.toMatchObject({ code: 'GATEWAY_IN_USE' });
 
     // Cancelling a pending one.
     const second = await t.hr().payments.createInvoice(order('o2'));
@@ -86,11 +86,9 @@ describe('payments', { timeout: 240_000 }, () => {
 
       const second = await t
         .owner()
-        .payments.addGateway({ name: 'Test B', config: { kind: 'test' } });
+        .integrations.connect({ key: 'test', name: 'Test B', keys: {} });
 
-      const third = await t
-        .owner()
-        .payments.addGateway({ name: 'Test C', config: { kind: 'test' } });
+      const third = await t.owner().integrations.connect({ key: 'test', name: 'Test C', keys: {} });
 
       // Owner settings: hr may use B and C, B by default.
       expect((await t.owner().payments.pluginSettings({})).data).toEqual([

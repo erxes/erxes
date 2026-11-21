@@ -10,13 +10,21 @@ import {
   tokenCache,
   withBearer,
 } from './http';
+import { defineIntegration, field, secret, toggle } from '../define';
 import {
   type CreateInvoiceInput,
   type DriverOptions,
   type GatewayDriver,
   GatewayError,
-  type PayPalConfig,
 } from './types';
+
+const keys = z.object({
+  clientId: field('Client ID'),
+  clientSecret: secret('Client secret'),
+  sandbox: toggle('Sandbox (test environment)'),
+});
+
+type PayPalConfig = z.output<typeof keys>;
 
 const TokenAnswer = z.object({
   access_token: z.string().min(1),
@@ -163,7 +171,7 @@ const checkOrder = async ({ order }: Client, orderId: string, amount: number) =>
  * which sends them back through core; the check captures an approved order.
  * Refunds of any part go to the capture.
  */
-export const paypalDriver = (config: PayPalConfig, options: DriverOptions = {}): GatewayDriver => {
+const paypalDriver = (config: PayPalConfig, options: DriverOptions = {}): GatewayDriver => {
   const client = paypalClient(config, options);
 
   return {
@@ -197,3 +205,46 @@ export const paypalDriver = (config: PayPalConfig, options: DriverOptions = {}):
     },
   };
 };
+
+export const paypal = defineIntegration({
+  key: 'paypal',
+  name: 'PayPal',
+  summary: 'Payers pay with PayPal or a card on PayPal’s page.',
+  category: 'payments',
+  countries: [],
+  permission: 'payments.manage',
+  dashboard: 'https://developer.paypal.com/dashboard/applications',
+  keys,
+  verify: (config, options) => paypalDriver(config, options).verify(),
+  payments: {
+    currencies: [
+      'AUD',
+      'BRL',
+      'CAD',
+      'CHF',
+      'CNY',
+      'CZK',
+      'DKK',
+      'EUR',
+      'GBP',
+      'HKD',
+      'HUF',
+      'ILS',
+      'JPY',
+      'MXN',
+      'MYR',
+      'NOK',
+      'NZD',
+      'PHP',
+      'PLN',
+      'SEK',
+      'SGD',
+      'THB',
+      'TWD',
+      'USD',
+    ],
+    refunds: 'partial',
+    pays: 'paypal',
+    driver: paypalDriver,
+  },
+});

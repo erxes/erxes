@@ -2286,36 +2286,6 @@
         }
       }
     },
-    "addGateway": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/payments/gateways"
-        }
-      }
-    },
-    "updateGateway": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PATCH",
-          "path": "/payments/gateways/{id}"
-        }
-      }
-    },
-    "removeGateway": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/payments/gateways/{id}"
-        }
-      }
-    },
     "createInvoice": {
       "~orpc": {
         "errorMap": {},
@@ -2941,6 +2911,58 @@
         "route": {
           "method": "DELETE",
           "path": "/tags/{id}"
+        }
+      }
+    }
+  },
+  "integrations": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations"
+        }
+      }
+    },
+    "connections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/connections"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/{key}/connections"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/integrations/{key}/connections/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integrations/{key}/connections/{id}"
         }
       }
     }

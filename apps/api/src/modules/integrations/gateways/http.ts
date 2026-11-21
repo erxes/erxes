@@ -1,4 +1,3 @@
-import { createHmac } from 'node:crypto';
 import QRCode from 'qrcode';
 import { z } from 'zod';
 import { type DriverOptions, GatewayError } from './types';
@@ -91,9 +90,6 @@ export const basic = (user: string, password: string) =>
   `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`;
 
 export const json = (body: unknown) => JSON.stringify(body);
-
-export const hmacHex = (key: string, message: string) =>
-  createHmac('sha256', key).update(message).digest('hex');
 
 /** Mongolian gateways take tögrög with up to 2 decimals; core keeps hundredths. */
 export const toTugrug = (amount: number) => amount / 100;

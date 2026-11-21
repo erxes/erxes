@@ -750,6 +750,13 @@
       "when": 1795283832634,
       "tag": "0106_drop_custom_integrations",
       "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1795284881197,
+      "tag": "0107_integration_connections",
+      "breakpoints": true
     }
   ]
 }

@@ -1,8 +1,6 @@
 import {
   ACTOR_TYPES,
   INVOICE_STATUSES,
-  PAYMENT_GATEWAY_KINDS,
-  PAYMENT_GATEWAY_STATUSES,
   PAYMENT_METHODS,
   REFUND_METHODS,
   REFUND_STATUSES,
@@ -23,8 +21,8 @@ import {
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
+import { integrationConnections } from './integrations';
 import { organizations } from './organizations';
-import { secrets } from './secrets';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -55,39 +53,6 @@ export interface TaxBuyer {
   companyNo?: string;
   consumerNo?: string;
 }
-
-/**
- * An organisation's payment gateway connection (QPay, …). Credentials are
- * in the vault (`core_secrets`); the API never returns them.
- */
-export const paymentGateways = pgTable(
-  'payment_gateways',
-  {
-    id: text().primaryKey(),
-    orgId: orgIdColumn(),
-    kind: text({ enum: PAYMENT_GATEWAY_KINDS }).notNull(),
-    name: text().notNull(),
-    configSecretId: text().notNull(),
-    status: text({ enum: PAYMENT_GATEWAY_STATUSES }).default('active').notNull(),
-    createdBy: text(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    uniqueIndex('core_payment_gateways_org_id_id_key').on(table.orgId, table.id),
-    check('core_payment_gateways_kind_check', inList(table.kind, PAYMENT_GATEWAY_KINDS)),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_payment_gateways_org_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.configSecretId],
-      foreignColumns: [secrets.id],
-      name: 'core_payment_gateways_config_secret_id_fkey',
-    }),
-  ],
-);
 
 /**
  * An invoice at a gateway, made for a plugin's (or core's) record — the
@@ -163,7 +128,7 @@ export const paymentInvoices = pgTable(
     ),
     foreignKey({
       columns: [table.orgId, table.gatewayId],
-      foreignColumns: [paymentGateways.orgId, paymentGateways.id],
+      foreignColumns: [integrationConnections.orgId, integrationConnections.id],
       name: 'core_payment_invoices_gateway_fkey',
     }),
   ],

@@ -46,7 +46,7 @@ describe('ebarimt', { timeout: 240_000 }, () => {
   });
 
   it('issues a receipt when an invoice is paid, and replaces or returns it on refunds', async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     const books = await t.owner().productCategories.create({ name: 'Books' });
     const phone = await t.owner().products.create({ kind: 'goods', name: 'Phone', code: 'P1' });

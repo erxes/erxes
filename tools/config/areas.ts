@@ -10,7 +10,6 @@ export const areas = [
       'apps/api/**',
       'packages/db/**',
       'packages/plugin-sdk/**',
-      'packages/payment-gateways/**',
       'packages/create-erxes/**',
       '{tools,e2e}/**',
     ],
@@ -61,13 +60,7 @@ export const areas = [
   {
     // A query per item is an N+1: batch it (`inArray`, a set-based update), or go through
     // `inOrder`/`repeatWhile` (apps/api/src/lib/sequence.ts) on purpose.
-    files: [
-      'apps/api/**',
-      'packages/contract/**',
-      'packages/db/**',
-      'packages/plugin-sdk/**',
-      'packages/payment-gateways/**',
-    ],
+    files: ['apps/api/**', 'packages/contract/**', 'packages/db/**', 'packages/plugin-sdk/**'],
     rules: { 'no-await-in-loop': 'error' },
   },
   {

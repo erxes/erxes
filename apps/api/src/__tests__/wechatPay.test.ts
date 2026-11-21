@@ -1,6 +1,6 @@
-import { createGateway, type WeChatPayConfig } from '@erxes/payment-gateways';
 import { describe, expect, it } from 'vite-plus/test';
 import { generateKeyPairSync, verify } from '~/lib/crypto';
+import { gatewayDriver } from '~/modules/integrations/registry';
 import { fakeGateway } from './fakeGateway';
 
 const keys = generateKeyPairSync('rsa', {
@@ -9,8 +9,7 @@ const keys = generateKeyPairSync('rsa', {
   publicKeyEncoding: { type: 'spki', format: 'pem' },
 });
 
-const config: WeChatPayConfig = {
-  kind: 'wechatpay',
+const config = {
   appId: 'wx8888888888888888',
   mchId: '1900000109',
   serialNo: '5157F09EFDC096DE15EBE81A47057A72',
@@ -43,7 +42,7 @@ describe('WeChat Pay', () => {
       ['POST /v3/global/transactions/native', { code_url: 'weixin://wxpay/bizpayurl?pr=abc' }],
     ]);
 
-    const driver = createGateway(config, { fetch: gateway.fetch });
+    const driver = gatewayDriver('wechatpay', config, { fetch: gateway.fetch });
 
     const created = await driver.createInvoice(invoice);
 
@@ -92,7 +91,7 @@ describe('WeChat Pay', () => {
       ['POST /v3/global/refunds', { id: '50300000001' }],
     ]);
 
-    const driver = createGateway(config, { fetch: gateway.fetch });
+    const driver = gatewayDriver('wechatpay', config, { fetch: gateway.fetch });
     const state = { wechatTotal: 1500, wechatCurrency: 'USD' };
 
     await driver.verify();
@@ -111,7 +110,8 @@ describe('WeChat Pay', () => {
   });
 
   it('refuses a private key that is not a PEM key', async () => {
-    const driver = createGateway(
+    const driver = gatewayDriver(
+      'wechatpay',
       { ...config, privateKey: '-----BEGIN PRIVATE KEY----- nope -----END PRIVATE KEY-----' },
       { fetch: fakeGateway([]).fetch },
     );

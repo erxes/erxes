@@ -22,6 +22,7 @@ const SendAgain = ({ invoiceId }: { invoiceId: string }) => {
       onSuccess: () => {
         toast({ title: t('queued', 'Sending the receipt again') });
         void client.invalidateQueries({ queryKey: orpc.ebarimt.receipts.key() });
+        void client.invalidateQueries({ queryKey: orpc.integrations.list.key() });
       },
       onError: (error) =>
         toast({

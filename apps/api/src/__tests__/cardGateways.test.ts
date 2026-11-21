@@ -1,4 +1,4 @@
-import { createGateway } from '@erxes/payment-gateways';
+import { gatewayDriver } from '~/modules/integrations/registry';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { callbackSignature } from '~/modules/payments/invoiceState';
 import { useTestDatabase } from './db';
@@ -29,7 +29,7 @@ const stripeReplies: [string, unknown][] = [
 describe('card gateway drivers', () => {
   it('Stripe opens a Checkout page in the invoice’s currency, checks the session, and refunds part', async () => {
     const stripe = fakeGateway(stripeReplies);
-    const driver = createGateway({ kind: 'stripe', secretKey: 'sk_test' }, { fetch: stripe.fetch });
+    const driver = gatewayDriver('stripe', { secretKey: 'sk_test' }, { fetch: stripe.fetch });
     const created = await driver.createInvoice({ ...dollars, payerEmail: 'payer@acme.mn' });
     const form = new URLSearchParams(stripe.calls[0]?.body);
 
@@ -87,8 +87,9 @@ describe('card gateway drivers', () => {
       ],
     ]);
 
-    const driver = createGateway(
-      { kind: 'paypal', clientId: 'c', clientSecret: 's', sandbox: true },
+    const driver = gatewayDriver(
+      'paypal',
+      { clientId: 'c', clientSecret: 's', sandbox: true },
       { fetch: paypal.fetch, cacheKey: 'paypal-test' },
     );
 
@@ -139,9 +140,10 @@ describe('card gateways through core', { timeout: 120_000 }, () => {
   });
 
   it('keeps the credentials out of the gateway’s settings', async () => {
-    const stripe = await t.owner().payments.addGateway({
+    const stripe = await t.owner().integrations.connect({
+      key: 'stripe',
       name: 'Stripe',
-      config: { kind: 'stripe', secretKey: 'sk_live_secret' },
+      keys: { secretKey: 'sk_live_secret' },
     });
 
     expect(stripe.settings).toEqual({});
@@ -177,10 +179,10 @@ describe('card gateways through core', { timeout: 120_000 }, () => {
   });
 
   it('answers GATEWAY_REFUSED when StorePay has no phone to bill', async () => {
-    const storepay = await t.owner().payments.addGateway({
+    const storepay = await t.owner().integrations.connect({
+      key: 'storepay',
       name: 'StorePay',
-      config: {
-        kind: 'storepay',
+      keys: {
         storeId: '1',
         username: 'u',
         password: 'p',

@@ -63,7 +63,7 @@ export {
   oauthCodes,
   oauthRefreshTokens,
   organizations,
-  paymentGateways,
+  integrationConnections,
   paymentInvoices,
   entitlements,
   favorites,

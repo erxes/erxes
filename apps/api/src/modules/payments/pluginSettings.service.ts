@@ -1,7 +1,7 @@
 import {
   caller,
   type Db,
-  paymentGateways,
+  integrationConnections,
   paymentPluginSettings,
   pluginInstallations,
   plugins,
@@ -51,9 +51,9 @@ const checkGateways = async (client: Db, allowed: string[], fallback: string | n
 
   const found = wanted.length
     ? await client
-        .select({ id: paymentGateways.id })
-        .from(paymentGateways)
-        .where(inArray(paymentGateways.id, wanted))
+        .select({ id: integrationConnections.id })
+        .from(integrationConnections)
+        .where(inArray(integrationConnections.id, wanted))
     : [];
 
   if (found.length !== wanted.length) throw notFound('Gateway');

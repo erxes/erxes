@@ -1,4 +1,4 @@
-import { createGateway } from '@erxes/payment-gateways';
+import { gatewayDriver } from '~/modules/integrations/registry';
 import { describe, expect, it } from 'vite-plus/test';
 import { hmacSha256 } from '~/lib/crypto';
 import { fakeGateway, tugrugInvoice as invoice, urlOf } from './fakeGateway';
@@ -21,8 +21,9 @@ describe('Mongolian gateway drivers', () => {
       ],
     ]);
 
-    const driver = createGateway(
-      { kind: 'socialpay', terminal: 'T1', terminalKey: 'k' },
+    const driver = gatewayDriver(
+      'socialpay',
+      { terminal: 'T1', terminalKey: 'k' },
       { fetch: gateway.fetch },
     );
 
@@ -55,8 +56,9 @@ describe('Mongolian gateway drivers', () => {
 
     const gateway = fakeGateway(replies);
 
-    const driver = createGateway(
-      { kind: 'monpay', username: 'branch', accountId: 'acc' },
+    const driver = gatewayDriver(
+      'monpay',
+      { username: 'branch', accountId: 'acc' },
       {
         fetch: (url, init) =>
           urlOf(url).includes('/check?uuid=u-1')
@@ -87,15 +89,9 @@ describe('Mongolian gateway drivers', () => {
       ['/merchant/loan', { status: 'Success', value: 77 }],
     ]);
 
-    const driver = createGateway(
-      {
-        kind: 'storepay',
-        storeId: '12',
-        username: 'u',
-        password: 'p',
-        appUsername: 'a',
-        appPassword: 'b',
-      },
+    const driver = gatewayDriver(
+      'storepay',
+      { storeId: '12', username: 'u', password: 'p', appUsername: 'a', appPassword: 'b' },
       { fetch: gateway.fetch, cacheKey: 'storepay-test' },
     );
 
@@ -127,8 +123,9 @@ describe('Mongolian gateway drivers', () => {
       ['/invoices/invoice-id', { state: 'paid' }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'pocket', terminalId: '9', clientId: 'c', clientSecret: 's' },
+    const driver = gatewayDriver(
+      'pocket',
+      { terminalId: '9', clientId: 'c', clientSecret: 's' },
       { fetch: gateway.fetch, cacheKey: 'pocket-test' },
     );
 
@@ -151,8 +148,9 @@ describe('Mongolian gateway drivers', () => {
       ['/status?requestId=tx-1', { code: 200, data: { status: 'APPROVED' } }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'toki', merchantId: 'm', username: 'u', password: 'p' },
+    const driver = gatewayDriver(
+      'toki',
+      { merchantId: 'm', username: 'u', password: 'p' },
       { fetch: gateway.fetch, cacheKey: 'toki-test' },
     );
 
@@ -172,8 +170,9 @@ describe('Mongolian gateway drivers', () => {
       ['/api/inquiry', { status: 'SENT', amount: '1500' }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'golomt', checksumKey: 'ck', token: 'gt' },
+    const driver = gatewayDriver(
+      'golomt',
+      { checksumKey: 'ck', token: 'gt' },
       { fetch: gateway.fetch },
     );
 
@@ -200,8 +199,9 @@ describe('Mongolian gateway drivers', () => {
       ['POST /order', { order: { id: 31, password: 'pw', hppUrl: 'https://hpp.tdb.mn/flex' } }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'tdb', username: 'u', password: 'p', apiUrl: 'https://tdb.test:8000/' },
+    const driver = gatewayDriver(
+      'tdb',
+      { username: 'u', password: 'p', apiUrl: 'https://tdb.test:8000/' },
       { fetch: gateway.fetch },
     );
 
@@ -233,8 +233,9 @@ describe('Mongolian gateway drivers', () => {
       ['/payment/cancel', [{ description: 'SUCCESS', correction_paymentId: 'corr-1' }]],
     ]);
 
-    const driver = createGateway(
-      { kind: 'hipay', entityId: 'e1', clientSecret: 'hs', apiUrl: 'https://hipay.test/v2' },
+    const driver = gatewayDriver(
+      'hipay',
+      { entityId: 'e1', clientSecret: 'hs', apiUrl: 'https://hipay.test/v2' },
       { fetch: gateway.fetch },
     );
 

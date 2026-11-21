@@ -12,7 +12,17 @@ import {
   toTugrug,
   withBearer,
 } from './http';
-import type { CreateInvoiceInput, DriverOptions, GatewayDriver, QPayConfig } from './types';
+import { defineIntegration, field, secret, toggle } from '../define';
+import type { CreateInvoiceInput, DriverOptions, GatewayDriver } from './types';
+
+const keys = z.object({
+  clientId: field('Client ID'),
+  clientSecret: secret('Client secret'),
+  invoiceCode: field('Invoice code'),
+  sandbox: toggle('Sandbox (test environment)'),
+});
+
+type QPayConfig = z.output<typeof keys>;
 
 const TokenAnswer = z.object({
   access_token: z.string().min(1),
@@ -150,7 +160,7 @@ const checkPayment = async (request: Send, gatewayInvoiceId: string, amount: num
  * QPay takes amounts in tögrög; we keep hundredths (MNT's smallest unit). Core
  * sends it MNT invoices only.
  */
-export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
+const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
   const { request, cache } = qpayClient(config, options);
 
   return {
@@ -177,3 +187,15 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
     },
   };
 };
+
+export const qpay = defineIntegration({
+  key: 'qpay',
+  name: 'QPay',
+  summary: 'Invoices with a QR code payers scan in any bank app.',
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => qpayDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'full', pays: 'bank-qr', driver: qpayDriver },
+});

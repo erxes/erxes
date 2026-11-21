@@ -1,16 +1,21 @@
 import { z } from 'zod';
+import { hmacSha256 } from '~/lib/crypto';
+import { defineIntegration, secret } from '../define';
 import {
   Amount,
   fromTugrug,
   gatewayHttp,
-  hmacHex,
   json,
   parse,
   probeId,
   qrInstructions,
   toTugrug,
 } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError, type GolomtConfig } from './types';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({ checksumKey: secret('Checksum key'), token: secret('Token') });
+
+type GolomtConfig = z.output<typeof keys>;
 
 const BASE = 'https://ecommerce.golomtbank.com';
 
@@ -32,7 +37,7 @@ const InquiryAnswer = z.object({
  * checksums are HMAC-SHA256 with the merchant key. The page sends the payer to
  * the callback address once paid.
  */
-export const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}): GatewayDriver => {
+const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('Golomt', `${BASE}/api`, options);
   const headers = { Authorization: `Bearer ${config.token}` };
 
@@ -48,7 +53,7 @@ export const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}):
         body: json({
           amount: text,
           callback,
-          checksum: hmacHex(config.checksumKey, `${transactionId}${text}GET${callback}`),
+          checksum: hmacSha256(config.checksumKey, `${transactionId}${text}GET${callback}`, 'hex'),
           genToken: 'N',
           returnType: 'GET',
           socialDeeplink: 'Y',
@@ -90,7 +95,7 @@ export const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}):
           headers,
           body: json({
             transactionId: gatewayInvoiceId,
-            checksum: hmacHex(config.checksumKey, gatewayInvoiceId + gatewayInvoiceId),
+            checksum: hmacSha256(config.checksumKey, gatewayInvoiceId + gatewayInvoiceId, 'hex'),
           }),
         }),
         'an unreadable inquiry',
@@ -115,3 +120,15 @@ export const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}):
     },
   };
 };
+
+export const golomt = defineIntegration({
+  key: 'golomt',
+  name: 'Golomt Bank',
+  summary: "Card payments on Golomt Bank's page, with a SocialPay link.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => golomtDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'none', pays: 'card', driver: golomtDriver },
+});

@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { basic, gatewayHttp, json, parse, probeId, qrInstructions, Text, toTugrug } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError, type MonPayConfig } from './types';
+import { defineIntegration, field, secret } from '../define';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({ username: field('Username'), accountId: secret('Account ID') });
+
+type MonPayConfig = z.output<typeof keys>;
 
 const Answer = z.object({
   code: z.coerce.number(),
@@ -17,7 +22,7 @@ const PENDING = 23;
  * MonPay app, checked by its uuid. Basic auth with the branch username and
  * account id.
  */
-export const monpayDriver = (config: MonPayConfig, options: DriverOptions = {}): GatewayDriver => {
+const monpayDriver = (config: MonPayConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('MonPay', 'https://wallet.monpay.mn/rest/branch/qrpurchase', options);
   const headers = { Authorization: basic(config.username, config.accountId) };
 
@@ -80,3 +85,15 @@ export const monpayDriver = (config: MonPayConfig, options: DriverOptions = {}):
     },
   };
 };
+
+export const monpay = defineIntegration({
+  key: 'monpay',
+  name: 'MonPay',
+  summary: "Mobicom's wallet: a QR code payers scan in the MonPay app.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => monpayDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: monpayDriver },
+});

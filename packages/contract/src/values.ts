@@ -17,6 +17,7 @@ import {
   EBARIMT_TAX_TYPES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
+  INTEGRATION_CATEGORIES,
   INVOICE_STATUSES,
   LIVE_MODES,
   ORG_UNIT_KINDS,
@@ -330,9 +331,11 @@ export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 /** Who changed what in core (owners and admins). */
 export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
-// ─── Payments (gateways: `./paymentGateways`) ───────────────────────────────
+// ─── Payments and integrations ──────────────────────────────────────────────
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
+
+export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
 
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 

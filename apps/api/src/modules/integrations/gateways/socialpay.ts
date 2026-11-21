@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { hmacSha256 } from '~/lib/crypto';
+import { defineIntegration, field, secret } from '../define';
 import {
   Amount,
   fromTugrug,
   gatewayHttp,
-  hmacHex,
   json,
   NO_INSTRUCTIONS,
   parse,
@@ -11,12 +12,11 @@ import {
   qrInstructions,
   toTugrug,
 } from './http';
-import {
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-  type SocialPayConfig,
-} from './types';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({ terminal: field('Terminal'), terminalKey: secret('Terminal key') });
+
+type SocialPayConfig = z.output<typeof keys>;
 
 const Answer = z.object({
   header: z.object({ code: z.coerce.number() }).optional(),
@@ -41,10 +41,7 @@ const Answer = z.object({
  * to the payer's phone when it is given. Every request is signed with the
  * terminal key: HMAC-SHA256 of terminal + invoice + amount (+ phone).
  */
-export const socialpayDriver = (
-  config: SocialPayConfig,
-  options: DriverOptions = {},
-): GatewayDriver => {
+const socialpayDriver = (config: SocialPayConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('SocialPay', 'https://instore.golomtbank.com/pos/invoice', options);
 
   const signed = (invoice: string, amount: number, phone?: string) => {
@@ -55,7 +52,11 @@ export const socialpayDriver = (
       invoice,
       terminal: config.terminal,
       ...(phone ? { phone } : {}),
-      checksum: hmacHex(config.terminalKey, config.terminal + invoice + text + (phone ?? '')),
+      checksum: hmacSha256(
+        config.terminalKey,
+        config.terminal + invoice + text + (phone ?? ''),
+        'hex',
+      ),
     };
   };
 
@@ -134,3 +135,15 @@ export const socialpayDriver = (
     },
   };
 };
+
+export const socialpay = defineIntegration({
+  key: 'socialpay',
+  name: 'SocialPay',
+  summary: "Golomt Bank's wallet: a QR code, or an invoice sent to the payer's phone.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => socialpayDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: socialpayDriver },
+});

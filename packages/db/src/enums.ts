@@ -446,25 +446,17 @@ export const ACTION_FIELD_TYPES = [
   'reply_to',
 ] as const;
 
+// ─── Integrations ───────────────────────────────────────────────────────────
+
+export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
+
+export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
+
+export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
+
+export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch'] as const;
+
 // ─── Payments ───────────────────────────────────────────────────────────────
-
-export const PAYMENT_GATEWAY_KINDS = [
-  'qpay',
-  'socialpay',
-  'monpay',
-  'storepay',
-  'pocket',
-  'toki',
-  'golomt',
-  'tdb',
-  'hipay',
-  'stripe',
-  'paypal',
-  'wechatpay',
-  'test',
-] as const;
-
-export const PAYMENT_GATEWAY_STATUSES = ['active', 'disabled'] as const;
 
 /**
  * How an invoice was paid: through its gateway, or recorded as taken outside

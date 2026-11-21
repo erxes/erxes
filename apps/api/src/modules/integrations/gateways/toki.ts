@@ -10,7 +10,16 @@ import {
   toTugrug,
   withBearer,
 } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError, type TokiConfig } from './types';
+import { defineIntegration, field, secret } from '../define';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({
+  merchantId: field('Merchant ID'),
+  username: field('Username'),
+  password: secret('Password'),
+});
+
+type TokiConfig = z.output<typeof keys>;
 
 const Answer = <T extends z.ZodType>(data: T) =>
   z.object({
@@ -37,7 +46,7 @@ const State = z.object({ tokiTransactionId: z.string().optional() });
  * Toki (Unitel's super app) merchant QR payment requests: the payer scans the
  * request id in Toki; checked by its transaction id, cancelled by request id.
  */
-export const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDriver => {
+const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('Toki', 'https://ms-api.toki.mn/third-party-service/v1', options);
 
   const cache = tokenCache(`toki:${options.cacheKey ?? config.merchantId}`, async () => {
@@ -115,3 +124,15 @@ export const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): Gat
     },
   };
 };
+
+export const toki = defineIntegration({
+  key: 'toki',
+  name: 'Toki',
+  summary: "Unitel's super app: a QR code payers scan in Toki.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => tokiDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: tokiDriver },
+});

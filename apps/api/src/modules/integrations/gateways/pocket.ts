@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { gatewayHttp, json, parse, qrInstructions, Text, tokenCache, toTugrug } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError, type PocketConfig } from './types';
+import { defineIntegration, digits, field, secret } from '../define';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({
+  terminalId: field('Terminal ID', digits()),
+  clientId: field('Client ID'),
+  clientSecret: secret('Client secret'),
+});
+
+type PocketConfig = z.output<typeof keys>;
 
 const TokenAnswer = z.object({
   access_token: z.string().min(1),
@@ -19,7 +28,7 @@ const CheckAnswer = z.object({ state: z.string() });
  * Pocket (InvesCore) invoices: a QR and app deeplink for the terminal, checked
  * by invoice id. Token by client credentials from InvesCore's sign-in.
  */
-export const pocketDriver = (config: PocketConfig, options: DriverOptions = {}): GatewayDriver => {
+const pocketDriver = (config: PocketConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('Pocket', 'https://service.invescore.mn/merchant/v2/invoicing', options);
   const signIn = gatewayHttp('Pocket', 'https://sso.invescore.mn/auth/realms/invescore', options);
   const terminalId = Number(config.terminalId);
@@ -101,3 +110,15 @@ export const pocketDriver = (config: PocketConfig, options: DriverOptions = {}):
     },
   };
 };
+
+export const pocket = defineIntegration({
+  key: 'pocket',
+  name: 'Pocket',
+  summary: "InvesCore's app: a QR code or a link payers open in Pocket.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => pocketDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: pocketDriver },
+});

@@ -6,13 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
-import { type Integration, integrationPath } from './catalog';
+import { type Integration, statusOf } from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
   useIntegrationText,
 } from './IntegrationStatusBadge';
-import { useIntegrationStatus } from './useIntegrationStatus';
 
 export interface IntegrationTab {
   value: string;
@@ -36,7 +35,7 @@ const IntegrationHeader = ({
   actions?: ReactNode;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
-  const status = useIntegrationStatus().statusOf(integration);
+  const status = statusOf(integration);
   const { name, summary } = useIntegrationText()(integration);
 
   return (
@@ -93,7 +92,7 @@ export const IntegrationLayout = ({
                 to: paths.settings.integrations,
                 icon: IconPlugConnected,
               },
-              { label: name, to: integrationPath(integration) },
+              { label: name, to: paths.settings.integration(integration.key) },
             ]}
           />
         </PageHeader.Start>
@@ -101,15 +100,17 @@ export const IntegrationLayout = ({
       <ScrollArea className="flex-1" fitWidth>
         <div className="mx-auto max-w-4xl space-y-6 p-6">
           <IntegrationHeader integration={integration} actions={actions} />
-          <Tabs value={current?.value} onValueChange={onTab}>
-            <Tabs.List variant="flush" className="h-9">
-              {tabs.map((item) => (
-                <Tabs.Trigger key={item.value} value={item.value}>
-                  {item.label}
-                </Tabs.Trigger>
-              ))}
-            </Tabs.List>
-          </Tabs>
+          {tabs.length > 1 && (
+            <Tabs value={current?.value} onValueChange={onTab}>
+              <Tabs.List variant="flush" className="h-9">
+                {tabs.map((item) => (
+                  <Tabs.Trigger key={item.value} value={item.value}>
+                    {item.label}
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+            </Tabs>
+          )}
           {current?.content}
         </div>
       </ScrollArea>

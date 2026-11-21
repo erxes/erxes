@@ -18,7 +18,7 @@ describe('payments under concurrent calls', { timeout: 120_000 }, () => {
   const t = useTwoOrgs();
 
   it('stores one invoice when a plugin retries with the same dedupe key at once', async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     const input = { ...order('o1'), dedupeKey: 'order-o1' };
 

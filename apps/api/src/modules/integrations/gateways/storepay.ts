@@ -12,13 +12,23 @@ import {
   toTugrug,
   withBearer,
 } from './http';
+import { defineIntegration, digits, field, secret } from '../define';
 import {
   type CreateInvoiceInput,
   type DriverOptions,
   type GatewayDriver,
   GatewayError,
-  type StorePayConfig,
 } from './types';
+
+const keys = z.object({
+  storeId: field('Store ID', digits()),
+  username: field('Username'),
+  password: secret('Password'),
+  appUsername: field('App username'),
+  appPassword: secret('App password'),
+});
+
+type StorePayConfig = z.output<typeof keys>;
 
 const TokenAnswer = z.object({
   access_token: z.string().min(1),
@@ -108,10 +118,7 @@ const requestLoan = async ({ call }: Client, config: StorePayConfig, input: Crea
  * StorePay buy-now-pay-later: a loan request to the payer's phone, which they
  * confirm in the StorePay app; checked by loan id. A refund cancels the loan.
  */
-export const storepayDriver = (
-  config: StorePayConfig,
-  options: DriverOptions = {},
-): GatewayDriver => {
+const storepayDriver = (config: StorePayConfig, options: DriverOptions = {}): GatewayDriver => {
   const client = storepayClient(config, options);
 
   return {
@@ -147,3 +154,15 @@ export const storepayDriver = (
     },
   };
 };
+
+export const storepay = defineIntegration({
+  key: 'storepay',
+  name: 'StorePay',
+  summary: 'Buy now, pay later: payers confirm a loan in the StorePay app.',
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => storepayDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'full', pays: 'installments', driver: storepayDriver },
+});

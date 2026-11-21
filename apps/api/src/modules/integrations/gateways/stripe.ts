@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { gatewayHttp, NO_INSTRUCTIONS, pageInstructions, parse } from './http';
-import type { DriverOptions, GatewayDriver, StripeConfig } from './types';
+import { defineIntegration, secret } from '../define';
+import type { DriverOptions, GatewayDriver } from './types';
+
+const keys = z.object({ secretKey: secret('Secret key') });
+
+type StripeConfig = z.output<typeof keys>;
 
 const Session = z.object({
   id: z.string().min(1),
@@ -18,7 +23,7 @@ const Refund = z.object({ id: z.string().min(1) });
  * Stripe takes amounts in the currency's smallest unit, as core keeps them.
  * Refunds of any part go to the session's payment intent.
  */
-export const stripeDriver = (config: StripeConfig, options: DriverOptions = {}): GatewayDriver => {
+const stripeDriver = (config: StripeConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('Stripe', 'https://api.stripe.com/v1', options);
 
   const call = (path: string, form?: Record<string, string>) =>
@@ -96,3 +101,16 @@ export const stripeDriver = (config: StripeConfig, options: DriverOptions = {}):
     },
   };
 };
+
+export const stripe = defineIntegration({
+  key: 'stripe',
+  name: 'Stripe',
+  summary: "Cards, Apple Pay and Google Pay on Stripe's page, in any currency it takes.",
+  category: 'payments',
+  countries: [],
+  permission: 'payments.manage',
+  dashboard: 'https://dashboard.stripe.com/apikeys',
+  keys,
+  verify: (config, options) => stripeDriver(config, options).verify(),
+  payments: { currencies: [], refunds: 'partial', pays: 'card-wallet', driver: stripeDriver },
+});

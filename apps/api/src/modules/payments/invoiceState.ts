@@ -1,7 +1,7 @@
-import { type Invoice, PAYMENT_GATEWAYS } from '@erxes/core-contract';
+import type { Invoice } from '@erxes/core-contract';
 import {
   type Db,
-  paymentGateways,
+  integrationConnections,
   paymentInvoices,
   runAs,
   secrets,
@@ -17,6 +17,7 @@ import { coreKey } from '~/lib/coreKey';
 import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
 import { withSecret } from '~/modules/secrets/vault';
 import { driverOf } from './gateways.service';
 
@@ -27,8 +28,12 @@ export type InvoiceRow = typeof paymentInvoices.$inferSelect;
 const payment = paymentInvoices.payment;
 
 /** How each gateway kind refunds, as SQL over the joined gateway. */
-const refundKind = sql<Invoice['refundable']['gateway']>`case ${paymentGateways.kind} ${sql.join(
-  Object.entries(PAYMENT_GATEWAYS).map(([kind, { refunds }]) => sql`when ${kind} then ${refunds}`),
+const refundKind = sql<
+  Invoice['refundable']['gateway']
+>`case ${integrationConnections.key} ${sql.join(
+  INTEGRATIONS.flatMap(({ key, payments }) =>
+    payments ? [sql`when ${key} then ${payments.refunds}`] : [],
+  ),
   sql` `,
 )} else 'none' end`;
 
@@ -46,7 +51,7 @@ export const selectInvoices = (client: Db) =>
         shortUrl: sql<string | null>`${payment} ->> 'shortUrl'`,
         links: sql<Invoice['payment']['links']>`coalesce(${payment} -> 'links', '[]'::jsonb)`,
       },
-      gatewayKind: paymentGateways.kind,
+      gatewayKind: integrationConnections.key,
       refundable: {
         amount: sql<number>`case when ${paymentInvoices.status} = 'paid'
           then coalesce(${paymentInvoices.paidAmount}, ${paymentInvoices.amount}) - ${paymentInvoices.refundedAmount}
@@ -55,7 +60,7 @@ export const selectInvoices = (client: Db) =>
       },
     })
     .from(paymentInvoices)
-    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId));
+    .leftJoin(integrationConnections, eq(integrationConnections.id, paymentInvoices.gatewayId));
 
 export const shownInvoice = async (client: Db, id: string) =>
   oneRow(await selectInvoices(client).where(eq(paymentInvoices.id, id)).limit(1));
@@ -144,10 +149,10 @@ const current = async (tx: Db, id: string) =>
 
 const invoicesWithGateway = (client: Db) =>
   client
-    .select({ invoice: paymentInvoices, gateway: paymentGateways, secret: secrets })
+    .select({ invoice: paymentInvoices, gateway: integrationConnections, secret: secrets })
     .from(paymentInvoices)
-    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .leftJoin(secrets, eq(secrets.id, paymentGateways.configSecretId));
+    .leftJoin(integrationConnections, eq(integrationConnections.id, paymentInvoices.gatewayId))
+    .leftJoin(secrets, eq(secrets.id, integrationConnections.secretId));
 
 /** The organisation's invoice with its gateway (null for a payment recorded outside one). */
 export const invoiceWithGateway = async (tx: Db, id: string, lock = false) => {
@@ -179,7 +184,7 @@ export const refresh = async (orgId: string, id: string) => {
   );
 
   return withOrg(orgId, async (tx) => {
-    if (check.paid) return { invoice: await markPaid(tx, invoice, gateway.kind, check), gateway };
+    if (check.paid) return { invoice: await markPaid(tx, invoice, gateway.key, check), gateway };
 
     if (invoice.expiresAt.getTime() < Date.now())
       return { invoice: await markExpired(tx, invoice), gateway };

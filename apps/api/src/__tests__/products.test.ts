@@ -184,7 +184,7 @@ describe('products', { timeout: 120_000 }, () => {
   });
 
   it('bills one invoice for several plugins’ lines and lets each read it', async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     const api = await pluginApi(t.url(''), 'tms');
 

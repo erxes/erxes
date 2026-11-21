@@ -13,7 +13,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   const { settings } = usePosApi();
 
   const paidReceipt = async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     const invoice = await t.hr().payments.createInvoice({
       amount: 22_000,
