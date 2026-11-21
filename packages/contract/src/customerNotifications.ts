@@ -5,6 +5,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
+import { MarkReadInput } from './notifications';
 import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
 export const CustomerNotificationChannel = z.enum(CUSTOMER_NOTIFICATION_CHANNELS);
@@ -143,12 +144,6 @@ export const customerNotificationsContract = {
       description:
         'Mark some (`ids`) or all of my notifications read, or unread with `read: false`',
     })
-    .input(
-      z.object({
-        ids: z.array(Id).max(200).optional(),
-        source: z.string().trim().max(40).optional(),
-        read: z.boolean().default(true),
-      }),
-    )
+    .input(MarkReadInput)
     .output(z.object({ updated: z.int() })),
 };

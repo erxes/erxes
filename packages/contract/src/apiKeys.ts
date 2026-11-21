@@ -83,12 +83,14 @@ const KeyRules = createUpdateSchema(apiKeys, { name: (name) => name.trim().min(1
     lifetimeDays: z.literal(API_KEY_LIFETIMES).nullable(),
   });
 
-const KeyDecision = z.object({
+export const KeyDecision = z.object({
   allowed: z.boolean(),
   /** The rule that decided: `area:contacts:read`, `kind:management`, `ip`, `expired`, `rows`, … */
   rule: z.string(),
   reason: z.string(),
 });
+
+export type KeyDecision = z.infer<typeof KeyDecision>;
 
 /** A procedure as keys see it: the area and access it needs, or null when no key calls it. */
 const KeyCall = z.object({

@@ -1,4 +1,5 @@
-import type { CursorQuery } from '@erxes/core-contract';
+import type { coreContract, CursorQuery } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   type BroadcastChannel,
   type BroadcastRecipientStatus,
@@ -76,7 +77,7 @@ export const listSuppressions = (
 /** Adds addresses by hand; one already suppressed keeps its reason. */
 export const addSuppressions = async (
   client: Db,
-  input: { channel: BroadcastChannel; addresses: string[]; detail?: string },
+  input: InferContractRouterInputs<typeof coreContract>['suppressions']['add'],
 ) => {
   const addresses = [...new Set(input.addresses)];
 

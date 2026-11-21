@@ -103,6 +103,15 @@ const FieldFields = createUpdateSchema(fields, {
 const needsOptions = (value: { type?: FieldType; options?: string[] }) =>
   !value.type || !OPTION_FIELD_TYPES.includes(value.type) || (value.options?.length ?? 0) > 0;
 
+/** Custom fields of a record type; archived ones only with `archived`. */
+export const FieldListQuery = z.object({
+  contentType: PropertyContentType,
+  groupId: Id.optional(),
+  archived: QueryBoolean.optional(),
+});
+
+export type FieldListQuery = z.infer<typeof FieldListQuery>;
+
 export const fieldsContract = {
   list: base
     .route({
@@ -112,13 +121,7 @@ export const fieldsContract = {
       description:
         "Custom fields of a record type, in order. Archived ones (or those of an archived group) only with `archived=true`. Plugins read product fields (`products:read`) and their own record types'",
     })
-    .input(
-      z.object({
-        contentType: PropertyContentType,
-        groupId: Id.optional(),
-        archived: QueryBoolean.optional(),
-      }),
-    )
+    .input(FieldListQuery)
     .output(listOf(Field)),
   usage: base
     .route({

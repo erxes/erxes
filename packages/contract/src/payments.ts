@@ -119,6 +119,17 @@ export const PaymentSettings = createSelectSchema(organizations, {
 
 export type PaymentSettings = z.infer<typeof PaymentSettings>;
 
+/** Money back for a paid invoice: all that is left unless `amount`. */
+export const RefundRequest = z.object({
+  id: Id,
+  amount: z.int().min(1).optional(),
+  reason: z.string().trim().min(1).max(255),
+  manual: z.boolean().default(false),
+  dedupeKey: DedupeKey.optional(),
+});
+
+export type RefundRequest = z.infer<typeof RefundRequest>;
+
 /**
  * Payments: an organisation's gateway connections (QPay, …) and invoices
  * made through them for plugins' records. Paid invoices publish
@@ -230,15 +241,7 @@ export const paymentsContract = {
       description:
         'Give money back for a paid invoice (all that is left unless `amount`). Through the gateway, or `manual` to record a refund made outside erxes. A refused refund is kept as failed. 409 NOT_REFUNDABLE / PARTIAL_NOT_SUPPORTED',
     })
-    .input(
-      z.object({
-        id: Id,
-        amount: z.int().min(1).optional(),
-        reason: z.string().trim().min(1).max(255),
-        manual: z.boolean().default(false),
-        dedupeKey: DedupeKey.optional(),
-      }),
-    )
+    .input(RefundRequest)
     .output(z.object({ refund: Refund, invoice: Invoice })),
   refunds: base
     .route({ method: 'GET', path: '/payments/invoices/{id}/refunds', summary: 'List refunds' })

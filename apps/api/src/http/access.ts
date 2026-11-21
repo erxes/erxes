@@ -1,9 +1,14 @@
-import { coreContract, CORE_API_PREFIX, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
+import {
+  coreContract,
+  CORE_API_PREFIX,
+  type KeyDecision,
+  OWNER_ONLY_PERMISSIONS,
+} from '@erxes/core-contract';
 import { caller, type Caller, type KeyRules, scopedOrgId, withOrgDetached } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { fail } from './errors';
-import { decideKey, type KeyDecision } from './keyRules';
+import { decideKey } from './keyRules';
 import { ACCESS } from './policies';
 import type { Policy, ProcedurePath } from './policyRules';
 

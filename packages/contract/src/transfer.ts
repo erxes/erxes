@@ -158,6 +158,16 @@ export const Export = createSelectSchema(exports, {
 
 export type Export = z.infer<typeof Export>;
 
+/** A list to export: its record type, file format, columns and filters. */
+export const ExportRequest = z.object({
+  recordType: TransferRecordType,
+  format: z.enum(EXPORT_FORMATS).default('csv'),
+  columns: z.array(z.string().max(100)).min(1).max(200),
+  query: ExportQuery.default({}),
+});
+
+export type ExportRequest = z.infer<typeof ExportRequest>;
+
 /** Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of lists. */
 const {
   CROSS_SITE,
@@ -314,13 +324,6 @@ export const transferContract = {
       description:
         'Export a list (its filters) to CSV or Excel in the background; a notification says when it is ready',
     })
-    .input(
-      z.object({
-        recordType: TransferRecordType,
-        format: z.enum(EXPORT_FORMATS).default('csv'),
-        columns: z.array(z.string().max(100)).min(1).max(200),
-        query: ExportQuery.default({}),
-      }),
-    )
+    .input(ExportRequest)
     .output(Export),
 };

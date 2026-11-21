@@ -1,4 +1,6 @@
+import type { coreContract } from '@erxes/core-contract';
 import { caller, db, requestOrgId, withOrg } from '@erxes/core-db';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { fail, notFound } from '~/http/errors';
 import { scoped, unscoped } from '~/orpc';
 import { listAgentModels, setAgentModel } from './agentModels';
@@ -6,12 +8,7 @@ import { agentNamed, startRun } from './host';
 import { pluginAgentDefinition } from './pluginAgents';
 import { StorageBusy } from './storage';
 
-interface Submit {
-  agent: string;
-  key: string;
-  text: string;
-  requestId?: string | undefined;
-}
+type Submit = InferContractRouterInputs<typeof coreContract>['agents']['submit'];
 
 /** A plugin's message into one conversation of its own agent; the run goes on after this returns. */
 const submitToAgent = async ({ agent, key, text, requestId }: Submit) => {

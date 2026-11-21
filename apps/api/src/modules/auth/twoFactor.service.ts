@@ -5,6 +5,8 @@ import { signJwt, verifyJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { readSecret, saveSecret } from '~/modules/secrets/vault';
 import { randomToken, sha256, verifyPassword } from '~/lib/crypto';
+import type { coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { z } from 'zod';
 import { asMember } from './account.service';
 import { matchStep, newTotpSecret, otpauthUri } from './totp';
@@ -155,11 +157,9 @@ export const twoFactorChallenge = (orgId: string, userId: string) =>
  * The second step: an authenticator code (each works once) or a recovery
  * code (each works once). Failures count toward the sign-in lockout.
  */
-export const completeTwoFactor = async (input: {
-  challenge: string;
-  code?: string;
-  recoveryCode?: string;
-}) => {
+export const completeTwoFactor = async (
+  input: InferContractRouterInputs<typeof coreContract>['auth']['signInTwoFactor'],
+) => {
   const challenge = await verifyJwt(input.challenge, ChallengeClaims, {
     typ: CHALLENGE_TYP,
     audience: 'erxes-core',

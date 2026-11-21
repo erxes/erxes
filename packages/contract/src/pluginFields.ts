@@ -65,6 +65,23 @@ const PluginValue = z.object({
     .nullable(),
 });
 
+/** A patch to a plugin record's custom field values, to check against its fields. */
+export const PluginValuesCheck = z.object({
+  contentType: PluginRecordType,
+  /** The record's values as the plugin keeps them now. */
+  current: CustomFields,
+  patch: CustomFieldsPatch,
+  /** What the record is in, by the keys groups' `appliesTo` name (`{ team: [id] }`). */
+  appliesTo: AppliesTo.default({}),
+  /**
+   * The record is being made: each required field its create form asks for
+   * (`isVisibleToCreate`) that applies and shows needs a value.
+   */
+  create: z.boolean().default(false),
+});
+
+export type PluginValuesCheck = z.infer<typeof PluginValuesCheck>;
+
 const { INVALID_FIELD, INVALID_FIELD_VALUE } = ERRORS;
 
 const base = oc.errors({ ...COMMON_ERRORS, INVALID_FIELD, INVALID_FIELD_VALUE });
@@ -101,20 +118,6 @@ export const pluginFieldsContract = {
       description:
         "Apply a patch to a record's custom field values, for a plugin that keeps them (its own `<plugin>.<type>`): the values to save, checked and trimmed; null or empty clears one. Core stores nothing. 400 INVALID_FIELD for a field not of that type, archived, or in a group that doesn't apply to the record (`appliesTo`), INVALID_FIELD_VALUE for a value that doesn't fit or a required field left empty while it shows; 403 NOT_ALLOWED for another plugin's type",
     })
-    .input(
-      z.object({
-        contentType: PluginRecordType,
-        /** The record's values as the plugin keeps them now. */
-        current: CustomFields,
-        patch: CustomFieldsPatch,
-        /** What the record is in, by the keys groups' `appliesTo` name (`{ team: [id] }`). */
-        appliesTo: AppliesTo.default({}),
-        /**
-         * The record is being made: each required field its create form asks for
-         * (`isVisibleToCreate`) that applies and shows needs a value.
-         */
-        create: z.boolean().default(false),
-      }),
-    )
+    .input(PluginValuesCheck)
     .output(z.object({ values: CustomFields })),
 };

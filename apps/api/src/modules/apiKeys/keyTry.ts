@@ -1,10 +1,14 @@
-import { coreContract } from '@erxes/core-contract';
+import { coreContract, type KeyDecision } from '@erxes/core-contract';
 import { companies, customers, type Db, withRowLimits } from '@erxes/core-db';
-import { getContractRouter, isContractProcedure } from '@orpc/contract';
+import {
+  getContractRouter,
+  type InferContractRouterInputs,
+  isContractProcedure,
+} from '@orpc/contract';
 import { eq } from 'drizzle-orm';
 import { can, decideKeyCall } from '~/http/access';
 import { memberOf } from '~/http/auth';
-import { callPermission, type KeyDecision, keyNeed } from '~/http/keyRules';
+import { callPermission, keyNeed } from '~/http/keyRules';
 import { ACCESS } from '~/http/policies';
 import { sessionMember, visibleKey } from './apiKeys.service';
 import { keyCaller } from './keyCaller';
@@ -88,7 +92,7 @@ const contactDenial = async (
     : deny('rows', "This contact is outside the key's limits, so the key can't see it");
 };
 
-type Input = { id: string; recordId?: string; ip?: string };
+type Input = InferContractRouterInputs<typeof coreContract>['apiKeys']['try'];
 
 /** How the key decides each call: the same checks a real call meets, in the same order. */
 const decider = async (client: Db, input: Input): Promise<(path: string) => KeyDecision> => {

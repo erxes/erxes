@@ -16,7 +16,7 @@ import { z } from 'zod';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { publicPaths, recordKeyDenial } from '~/http/access';
 import { fail } from '~/http/errors';
-import type { KeyDecision } from '~/http/keyRules';
+import type { KeyDecision } from '@erxes/core-contract';
 import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';

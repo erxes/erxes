@@ -1,3 +1,4 @@
+import type { coreContract } from '@erxes/core-contract';
 import {
   actorOf,
   caller,
@@ -12,6 +13,7 @@ import {
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { config } from '~/config';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
@@ -57,7 +59,7 @@ const uploadedBy = () => {
  */
 export const createUpload = async (
   client: Db,
-  input: { name: string; contentType: string; size: number; public?: boolean },
+  input: InferContractRouterInputs<typeof coreContract>['files']['createUpload'],
 ) => {
   assertUploadAllowed(await fileSettingsOf(client), input);
   assertStreamable(input);

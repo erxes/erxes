@@ -1,4 +1,4 @@
-import { FIELD_TYPE_FAMILIES, type FieldLogic } from '@erxes/core-contract';
+import { FIELD_TYPE_FAMILIES, type FieldListQuery, type FieldLogic } from '@erxes/core-contract';
 import { type Db, type PropertyContentType, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -64,10 +64,7 @@ const checkGroup = async (
   }
 };
 
-export const listFields = async (
-  client: Db,
-  input: { contentType: PropertyContentType; groupId?: string; archived?: boolean },
-) => {
+export const listFields = async (client: Db, input: FieldListQuery) => {
   assertPluginReads(input.contentType);
 
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));

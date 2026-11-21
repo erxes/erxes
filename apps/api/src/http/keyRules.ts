@@ -8,6 +8,7 @@ import {
   type ApiKeyArea,
   type ApiKeyAreas,
   type CorePermission,
+  type KeyDecision,
 } from '@erxes/core-contract';
 import type { KeyRules } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
@@ -207,13 +208,6 @@ const NEEDS = [...POLICIES.keys()].map((path) => ({ path, need: keyNeed(path) })
 /** The calls a key may make in the area with the access. */
 export const areaCalls = (area: ApiKeyArea, access: ApiKeyAccess) =>
   NEEDS.filter(({ need }) => need?.area === area && need.access === access).map(({ path }) => path);
-
-export interface KeyDecision {
-  allowed: boolean;
-  /** The rule that decided, as the audit log and "Try this key" show it. */
-  rule: string;
-  reason: string;
-}
 
 const isLimited = (rows: KeyRules['rows']) => rows.owners !== null || rows.tags !== null;
 

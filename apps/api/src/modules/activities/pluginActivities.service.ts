@@ -1,4 +1,5 @@
-import type { ActivityInput } from '@erxes/core-contract';
+import type { ActivityInput, coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { activities, caller, companies, customers, type Db, newId, notes } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { PgInsertValue } from 'drizzle-orm/pg-core';
@@ -110,14 +111,7 @@ export const createPluginActivity = async (client: Db, input: ActivityInput) => 
  */
 export const importPluginNote = async (
   client: Db,
-  input: {
-    targetType: string;
-    targetId: string;
-    body: string;
-    authorId: string;
-    createdAt: string;
-    dedupeKey: string;
-  },
+  input: InferContractRouterInputs<typeof coreContract>['activities']['importNote'],
 ) => {
   const { plugin } = caller('plugin');
 
