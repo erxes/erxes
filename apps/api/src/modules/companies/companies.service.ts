@@ -18,6 +18,7 @@ import {
   contactsTagged,
   contactUpdated,
 } from '~/modules/activities/contactHistory';
+import { writeCoreValues } from '~/modules/dataExtensions/hostValues.service';
 import { applyCustomFields } from '~/modules/fields/customValues';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { changeTags, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
@@ -40,6 +41,7 @@ const scalarFields = (input: CompanyInput) => {
     phones,
     tagIds,
     customFields,
+    values,
     leadStageId,
     disqualifyReason,
     source,
@@ -95,6 +97,9 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
     );
 
     await saveCustomFields(tx, 'company', created, customFields, Object.keys(customFields));
+
+    if (input.values) await writeCoreValues(tx, 'core.company', created, input.values, true);
+
     await recordLeadSteps(tx, 'company', [{ id: created, steps: lead.steps }]);
     await setRecordTags(tx, 'company', created, tagIds);
     await contactCreated(tx, 'company', await findCompany(tx, created));
@@ -191,6 +196,8 @@ export const updateCompany = async (client: Db, id: string, input: CompanyInput)
     if (tagIds) {
       await setRecordTags(tx, 'company', id, tagIds);
     }
+
+    if (input.values) await writeCoreValues(tx, 'core.company', id, input.values);
 
     await contactUpdated(tx, 'company', current, await findCompany(tx, id));
   });

@@ -12,17 +12,28 @@ import {
   updateCustomer,
 } from '~/modules/customers/customers.service';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
+import { withDataValues, withDataValuesOf } from '~/modules/dataExtensions/hostValues.service';
 import { scoped } from '~/orpc';
 
+const TYPE = 'core.customer';
+
 export const customersRouter = {
-  list: scoped.customers.list.handler(({ input }) => listCustomers(db(), input)),
-  get: scoped.customers.get.handler(({ input }) => getCustomer(db(), input.id)),
+  list: scoped.customers.list.handler(async ({ input }) => {
+    const page = await listCustomers(db(), input);
+
+    return { ...page, data: await withDataValues(db(), TYPE, page.data) };
+  }),
+  get: scoped.customers.get.handler(async ({ input }) =>
+    withDataValuesOf(db(), TYPE, await getCustomer(db(), input.id)),
+  ),
   findOrCreate: scoped.customers.findOrCreate.handler(({ input }) =>
     findOrCreateCustomer(db(), input),
   ),
-  create: scoped.customers.create.handler(({ input }) => createCustomer(db(), input)),
-  update: scoped.customers.update.handler(({ input: { id, ...changes } }) =>
-    updateCustomer(db(), id, changes),
+  create: scoped.customers.create.handler(async ({ input }) =>
+    withDataValuesOf(db(), TYPE, await createCustomer(db(), input)),
+  ),
+  update: scoped.customers.update.handler(async ({ input: { id, ...changes } }) =>
+    withDataValuesOf(db(), TYPE, await updateCustomer(db(), id, changes)),
   ),
   remove: scoped.customers.remove.handler(({ input }) => removeCustomers(db(), input.ids)),
   merge: scoped.customers.merge.handler(({ input }) => mergeCustomers(input)),

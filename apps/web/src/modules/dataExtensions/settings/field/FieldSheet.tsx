@@ -48,6 +48,7 @@ const useFieldSave = (
         key: draft.key,
         description: draft.description || undefined,
         icon: draft.icon ?? undefined,
+        groupId: draft.groupId ?? undefined,
       });
 
       return;
@@ -61,6 +62,7 @@ const useFieldSave = (
       key: draft.key === field.key ? undefined : draft.key,
       description: draft.description || null,
       icon: draft.icon,
+      groupId: draft.groupId,
     });
   };
 
@@ -92,7 +94,13 @@ const FieldSettings = ({
 
   return (
     <>
-      <GeneralSettings draft={draft} set={set} setSettings={setSettings} creating={!field} />
+      <GeneralSettings
+        recordType={recordType}
+        draft={draft}
+        set={set}
+        setSettings={setSettings}
+        creating={!field}
+      />
       <TypeSettings recordType={recordType} draft={draft} set={set} setSettings={setSettings} />
       <Section title={t('conditions', 'Conditions')}>
         <ConditionEditor
@@ -100,6 +108,12 @@ const FieldSettings = ({
           condition={draft.settings.visibleWhen}
           fields={others}
           onChange={(visibleWhen) => setSettings({ visibleWhen })}
+        />
+        <ConditionEditor
+          label={t('hidden-when', 'Hide while')}
+          condition={draft.settings.hiddenWhen}
+          fields={others}
+          onChange={(hiddenWhen) => setSettings({ hiddenWhen })}
         />
         <ConditionEditor
           label={t('required-when', 'Required while')}

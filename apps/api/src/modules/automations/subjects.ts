@@ -1,6 +1,7 @@
 import { companies, customers, type Db } from '@erxes/core-db';
 import { getTableName, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { valuesByRecord } from '~/modules/dataExtensions/hostValues.service';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 import type { SubjectType } from '~/modules/views/filterFields';
@@ -15,6 +16,9 @@ export const SUBJECT_PAGE = 500;
  * list filter compiles (`"core_customers"."id" = …`) applies as it is.
  */
 export const SUBJECT_TABLES = { customer: customers, company: companies } as const;
+
+/** Each record type's Data Extensions record type. */
+const DATA_TYPES = { customer: 'core.customer', company: 'core.company' } as const;
 
 export const isSubjectType = (type: string | null | undefined): type is SubjectType =>
   type === 'customer' || type === 'company';
@@ -41,7 +45,8 @@ const toSubject = (row: z.infer<typeof Row>, type: SubjectType): Subject => ({
 });
 
 /**
- * Records of a type as templates see them (`subject.*`, with `tagIds` and `customFields`), in
+ * Records of a type as templates see them (`subject.*`, with `tagIds`, `customFields` and the
+ * Data Extensions values under `data`), in
  * id order: `where` is a condition on the type's table, `after` continues from a page's last id.
  */
 export const loadSubjects = async (
@@ -62,7 +67,16 @@ export const loadSubjects = async (
     limit ${page.limit ?? SUBJECT_PAGE}
   `);
 
-  return result.rows.map((row) => toSubject(Row.parse(row), type));
+  const subjects = result.rows.map((row) => toSubject(Row.parse(row), type));
+
+  const values = await valuesByRecord(
+    tx,
+    DATA_TYPES[type],
+    subjects.map((subject) => subject.id),
+  );
+
+  // Data Extensions values by field key: `subject.data.<key>`.
+  return subjects.map((subject) => ({ ...subject, data: values.get(subject.id) ?? {} }));
 };
 
 /** The record a run is about, as templates read it. */

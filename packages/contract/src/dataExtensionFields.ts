@@ -7,11 +7,11 @@ import {
   DATA_EXTENSION_RESULT_TYPES,
   DATA_EXTENSION_ROLLUP_OPS,
   DATA_EXTENSION_STATUSES,
-  DATA_EXTENSION_VISIBLE_OPERATORS,
 } from '@erxes/core-db/dataExtensionEnums';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
-import { RoleKey } from './values';
+import { DataExtensionCondition, DataExtensionFieldKey } from './dataExtensionConditions';
+import { PluginName, RoleKey } from './values';
 
 /**
  * Data Extensions: objects and fields an organisation defines at runtime, for its own records
@@ -41,8 +41,11 @@ export const DataExtensionObjectKey = z
   .string()
   .regex(/^[a-z][a-z0-9_]{0,39}$/, 'lower case letters, digits and _, starting with a letter');
 
-/** A field's key: camelCase, the name its value has in `values`. */
-export const DataExtensionFieldKey = z
+/**
+ * The key a member gives a new field: camelCase, the name its value has in `values`. A plugin's
+ * field keeps its manifest `code` (`total_spent`) as its key.
+ */
+const MemberFieldKey = z
   .string()
   .regex(/^[a-z][a-zA-Z0-9]{0,29}$/, 'camelCase letters and digits, starting with a letter');
 
@@ -105,13 +108,6 @@ const RoleKeys = z
   .max(50)
   .refine((list) => new Set(list).size === list.length, 'each role once');
 
-/** Shown on a form only while another field's value matches. */
-const VisibleWhen = z.object({
-  field: DataExtensionFieldKey,
-  operator: z.enum(DATA_EXTENSION_VISIBLE_OPERATORS),
-  value: z.json().optional(),
-});
-
 export const DataExtensionResultType = z.enum(DATA_EXTENSION_RESULT_TYPES);
 
 export type DataExtensionResultType = z.infer<typeof DataExtensionResultType>;
@@ -170,16 +166,21 @@ export const DataExtensionFieldSettings = z.object({
   precision: z.int().min(0).max(6).optional(),
   /** Member fields: several team members instead of one. */
   multiple: z.boolean().optional(),
-  /** The section the field shows under on a record. */
-  group: z.string().trim().max(60).optional(),
   /** Asked on create forms; on unless false. */
   showInCreate: z.boolean().optional(),
   placeholder: z.string().trim().max(120).optional(),
   /** Only members who manage the data model may change the value. */
   readOnly: z.boolean().optional(),
-  visibleWhen: VisibleWhen.optional(),
-  /** Required while another field's value matches: `stage` is `lost` → a lost reason. */
-  requiredWhen: VisibleWhen.optional(),
+  /** Kept with its values, but shown on no record, form or list column. */
+  hidden: z.boolean().optional(),
+  /** Offered in list filters; on unless false. */
+  filterable: z.boolean().optional(),
+  /** Shown on a form only while the record's other values meet it. */
+  visibleWhen: DataExtensionCondition.optional(),
+  /** Hidden while the record's other values meet it. */
+  hiddenWhen: DataExtensionCondition.optional(),
+  /** Required while the record's other values meet it: `stage` is `lost` → a lost reason. */
+  requiredWhen: DataExtensionCondition.optional(),
   /** The roles (keys) that see the field's values; empty or absent: everyone. */
   visibleTo: RoleKeys.optional(),
   /** The roles that change its values, among those that see them; empty or absent: everyone. */
@@ -212,6 +213,10 @@ export const DataExtensionField = z.object({
   options: z.array(DataExtensionOption),
   relation: DataExtensionRelation.nullable(),
   settings: DataExtensionFieldSettings,
+  /** The group it shows under (`dataFieldGroups`); null: the untitled first section. */
+  groupId: Id.nullable(),
+  /** The plugin that declared it in its manifest and writes its values; null: a member's. */
+  plugin: PluginName.nullable(),
   /** Order on records and forms, lowest first. */
   position: z.int(),
   status: DataExtensionStatus,
@@ -224,13 +229,14 @@ export type DataExtensionField = z.infer<typeof DataExtensionField>;
 /** A new field. A relation is added with `relations.create`, which adds both sides. */
 export const DataExtensionFieldCreate = z.object({
   recordType: DataExtensionRecordType,
-  key: DataExtensionFieldKey,
+  key: MemberFieldKey,
   label: Label,
   description: Description.optional(),
   icon: Icon.optional(),
   type: DataExtensionFieldType.exclude(['relation']),
   options: DataExtensionOptions.optional(),
   settings: DataExtensionFieldSettings.optional(),
+  groupId: Id.optional(),
 });
 
 /**
@@ -239,23 +245,24 @@ export const DataExtensionFieldCreate = z.object({
  */
 export const DataExtensionFieldUpdate = z.object({
   id: Id,
-  key: DataExtensionFieldKey.optional(),
+  key: MemberFieldKey.optional(),
   label: Label.optional(),
   description: Description.nullable().optional(),
   icon: Icon.nullable().optional(),
   type: DataExtensionFieldType.exclude(['relation']).optional(),
   options: DataExtensionOptions.optional(),
   settings: DataExtensionFieldSettings.optional(),
+  groupId: Id.nullable().optional(),
 });
 
 /** A relation: a field on `recordType` and its pair on `targetRecordType`, added together. */
 export const DataExtensionRelationCreate = z.object({
   recordType: DataExtensionRecordType,
-  key: DataExtensionFieldKey,
+  key: MemberFieldKey,
   label: Label,
   targetRecordType: DataExtensionRecordType,
   kind: DataExtensionRelationKind,
-  inverseKey: DataExtensionFieldKey,
+  inverseKey: MemberFieldKey,
   inverseLabel: Label,
   onDelete: z.enum(DATA_EXTENSION_ON_DELETE).default('setNull'),
 });

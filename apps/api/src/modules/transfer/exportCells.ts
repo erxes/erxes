@@ -15,7 +15,10 @@ import { eq, inArray, sql } from 'drizzle-orm';
 import writeXlsxFile from 'write-excel-file/node';
 import { defuse } from '~/lib/csv';
 import { editorText } from '~/lib/editorText';
+import { DATA_PATH } from '~/modules/dataExtensions/hostFilters';
 import { customCell } from './columns';
+import { exportedValues } from './dataColumns';
+import { isCoreType } from './pluginTransfer';
 
 export type Cell = string | number | Date | null;
 
@@ -107,10 +110,22 @@ export const pageCells = async (
 ): Promise<Cell[][]> => {
   const relations = await relationsOf(tx, recordType === 'company', rows, keys);
 
+  const values = isCoreType(recordType)
+    ? await exportedValues(
+        tx,
+        recordType,
+        rows.map((row) => row.id),
+        keys,
+      )
+    : new Map<string, Record<string, unknown>>();
+
   return rows.map((row) =>
     keys.map((key): Cell => {
       if (key.startsWith('customFields.'))
         return customCell(row.customFields[key.slice('customFields.'.length)]);
+
+      if (key.startsWith(DATA_PATH))
+        return customCell(values.get(row.id)?.[key.slice(DATA_PATH.length)]);
 
       if (key === 'tags') return (relations.tags.get(row.id) ?? []).join('; ');
 

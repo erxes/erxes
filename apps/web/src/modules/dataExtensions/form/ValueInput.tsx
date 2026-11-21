@@ -20,6 +20,7 @@ import {
   CurrencyValueInput,
   FullNameValueInput,
   ListValueInput,
+  TextListValueInput,
 } from './CompositeInputs';
 import { FilesValueInput } from './FilesInput';
 import type { ValueInputProps } from './inputProps';
@@ -43,6 +44,7 @@ const INPUTS = {
   dateTime: DateValueInput,
   select: SelectValueInput,
   multiSelect: MultiSelectValueInput,
+  textList: TextListValueInput,
   emails: ListValueInput,
   phones: ListValueInput,
   links: ListValueInput,

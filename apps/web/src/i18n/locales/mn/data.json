@@ -14,15 +14,21 @@
     "visible-to-hint": "Бусад эрх утгыг нь болон түүнийг уншдаг томьёог харахгүй."
   },
   "conditions": {
+    "all-rules": "{{count}} нөхцөл, бүгд биелэх",
     "always": "Үргэлж",
+    "any-rule": "{{count}} нөхцөл, аль нэг нь биелэх",
     "clear": "Нөхцөл хасах",
     "field": "Талбар",
     "no": "Үгүй",
     "operator": "Харьцуулах",
     "operators": {
+      "contains": "агуулсан",
       "eq": "тэнцүү",
+      "greaterThan": "их",
       "in": "аль нэг нь",
+      "isEmpty": "хоосон",
       "isNotEmpty": "утгатай",
+      "lessThan": "бага",
       "neq": "тэнцүү биш"
     },
     "value": "Утга",
@@ -71,13 +77,14 @@
     "digits": "Оронгийн тоо",
     "edit": "{{label}} засах",
     "group": "Бүлэг",
-    "group-placeholder": "Энэ гарчгийн доор харагдана",
+    "hidden-when": "Энэ үед нуух",
     "key-hint": "camelCase: API, томьёо, импортод утгын нэр болно.",
     "label": "Нэр",
     "max": "Хамгийн их",
     "max-length": "Текстийн дээд урт",
     "min": "Хамгийн бага",
     "multiple": "Олон гишүүн",
+    "no-group": "Бүлэггүй",
     "option-color": "Өнгө",
     "option-label": "Сонголт",
     "option-value": "Хадгалах утга",
@@ -288,6 +295,7 @@
     "rollup": "Нийлбэр",
     "select": "Сонголт",
     "text": "Текст",
+    "textList": "Текстийн жагсаалт",
     "url": "Холбоос (URL)"
   },
   "values": {

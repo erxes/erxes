@@ -134,6 +134,11 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     field: 'key',
     message: 'This record type already has a field with this key',
   },
+  core_data_field_groups_org_type_code_key: {
+    field: 'code',
+    message: 'This record type already has a group with this code',
+  },
+  core_data_fields_group_id_fkey: { field: 'groupId', message: 'No such field group' },
   core_org_unit_types_org_kind_code_key: {
     field: 'code',
     message: 'Another unit type of this kind has this code',

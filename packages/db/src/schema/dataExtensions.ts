@@ -10,6 +10,8 @@ import {
   type DATA_EXTENSION_ROLLUP_OPS,
   type DATA_EXTENSION_VISIBLE_OPERATORS,
 } from '../dataExtensionEnums';
+import type { CONDITION_MATCHES } from '../enums';
+import { sql } from 'drizzle-orm';
 import {
   check,
   foreignKey,
@@ -22,6 +24,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
+import { dataFieldGroups } from './dataFieldGroups';
 import { organizations } from './organizations';
 
 /**
@@ -53,11 +56,16 @@ export interface DataFieldRelation {
 export type DataJson = string | number | boolean | null | DataJson[] | { [key: string]: DataJson };
 
 /** Another field of the record whose value a rule waits on: `stage` `eq` `lost`. */
-export interface DataFieldCondition {
+export interface DataFieldRule {
   field: string;
   operator: (typeof DATA_EXTENSION_VISIBLE_OPERATORS)[number];
   value?: DataJson;
 }
+
+/** One rule, or several that must all (`all`) or any one (`any`) hold. */
+export type DataFieldCondition =
+  | DataFieldRule
+  | { match: (typeof CONDITION_MATCHES)[number]; rules: DataFieldRule[] };
 
 /** How a field behaves; the API checks each setting on every write. */
 export interface DataFieldSettings {
@@ -71,11 +79,16 @@ export interface DataFieldSettings {
   currency?: string;
   precision?: number;
   multiple?: boolean;
-  group?: string;
   showInCreate?: boolean;
   placeholder?: string;
   readOnly?: boolean;
+  /** Kept, with its values, but shown nowhere unless a screen asks for hidden fields. */
+  hidden?: boolean;
+  /** Offered in list filters; on unless false. */
+  filterable?: boolean;
   visibleWhen?: DataFieldCondition;
+  /** Hidden while it holds: the opposite of `visibleWhen`, for "hide when …" rules. */
+  hiddenWhen?: DataFieldCondition;
   /** Required while another field's value matches (`stage` is `lost` → a lost reason). */
   requiredWhen?: DataFieldCondition;
   /** The roles that see the field's values, and those that change them; empty: everyone. */
@@ -174,6 +187,13 @@ export const dataFields = pgTable(
     options: jsonb().$type<DataFieldOption[]>().default([]).notNull(),
     relation: jsonb().$type<DataFieldRelation>(),
     settings: jsonb().$type<DataFieldSettings>().default({}).notNull(),
+    /** The section it shows under; none: the record type's first, untitled one. */
+    groupId: text(),
+    /**
+     * The plugin that declared it in its manifest (`fields`) and writes its values; members only
+     * read them. Null: a member made it.
+     */
+    plugin: text(),
     position: integer().notNull().default(0),
     status: text({ enum: DATA_EXTENSION_STATUSES }).notNull().default('active'),
     createdBy: text(),
@@ -182,6 +202,15 @@ export const dataFields = pgTable(
   },
   (table) => [
     uniqueIndex('core_data_fields_org_type_key_key').on(table.orgId, table.recordType, table.key),
+    index('core_data_fields_group_id_idx').on(table.groupId),
+    index('core_data_fields_plugin_idx')
+      .on(table.plugin)
+      .where(sql`${table.plugin} IS NOT NULL`),
+    foreignKey({
+      columns: [table.groupId],
+      foreignColumns: [dataFieldGroups.id],
+      name: 'core_data_fields_group_id_fkey',
+    }),
     uniqueIndex('core_data_fields_org_type_column_key').on(
       table.orgId,
       table.recordType,

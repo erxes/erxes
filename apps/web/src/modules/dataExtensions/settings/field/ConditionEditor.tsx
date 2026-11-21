@@ -1,17 +1,28 @@
-import type { DataExtensionField, DataExtensionFieldSettings } from '@erxes/core-contract';
+import type {
+  DataExtensionCondition,
+  DataExtensionField,
+  DataExtensionRule,
+} from '@erxes/core-contract';
 import { IconX } from '@tabler/icons-react';
 import { Button, Input, Label, MultipleSelector, Select, StringArrayInput } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { numberOf, stringsOf, textOfValue } from '../../form/inputProps';
 
-type Condition = NonNullable<DataExtensionFieldSettings['visibleWhen']>;
+type Condition = DataExtensionRule;
 
 const OPERATORS = {
   eq: 'is',
   neq: 'is not',
   in: 'is one of',
   isNotEmpty: 'has a value',
+  isEmpty: 'is empty',
+  contains: 'contains',
+  greaterThan: 'is more than',
+  lessThan: 'is less than',
 } satisfies Record<Condition['operator'], string>;
+
+/** Operators that compare with no value. */
+const NO_VALUE: ReadonlySet<string> = new Set(['isNotEmpty', 'isEmpty']);
 
 const isOperator = (value: string): value is Condition['operator'] =>
   Object.hasOwn(OPERATORS, value);
@@ -36,7 +47,7 @@ const ConditionValue = ({
   const set = (value: Condition['value']) => onChange({ ...condition, value });
   const label = t('value', 'Value');
 
-  if (condition.operator === 'isNotEmpty') return null;
+  if (NO_VALUE.has(condition.operator)) return null;
 
   if (condition.operator === 'in') {
     const picked = stringsOf(condition.value);
@@ -97,11 +108,8 @@ const ConditionValue = ({
   );
 };
 
-/**
- * "Show only while" / "Required while" another field of the record type has a value: a field,
- * how it compares, and the value. Off until a field is picked.
- */
-export const ConditionEditor = ({
+/** One rule: a field, how it compares, and the value. Off until a field is picked. */
+const RuleEditor = ({
   label,
   condition,
   fields,
@@ -174,3 +182,60 @@ export const ConditionEditor = ({
     </div>
   );
 };
+
+/** Several rules, made through the API or carried over from old properties: read here, removable. */
+const RulesSummary = ({
+  label,
+  condition,
+  onChange,
+}: {
+  label: string;
+  condition: Extract<DataExtensionCondition, { rules: unknown }>;
+  onChange: (condition: DataExtensionCondition | undefined) => void;
+}) => {
+  const { t } = useTranslation('data', { keyPrefix: 'conditions' });
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label>{label}</Label>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span className="min-w-0 flex-1">
+          {condition.match === 'all'
+            ? t('all-rules', '{{count}} rules, all of them', { count: condition.rules.length })
+            : t('any-rule', '{{count}} rules, any one of them', { count: condition.rules.length })}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={t('clear', 'Remove condition')}
+          onClick={() => onChange(undefined)}
+        >
+          <IconX />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * "Show only while", "Hide while" or "Required while" other fields of the record type have a
+ * value: one rule to edit, or a summary of several.
+ */
+export const ConditionEditor = ({
+  label,
+  condition,
+  fields,
+  onChange,
+}: {
+  label: string;
+  condition: DataExtensionCondition | undefined;
+  /** The record type's other fields. */
+  fields: DataExtensionField[];
+  onChange: (condition: DataExtensionCondition | undefined) => void;
+}) =>
+  condition && 'rules' in condition ? (
+    <RulesSummary label={label} condition={condition} onChange={onChange} />
+  ) : (
+    <RuleEditor label={label} condition={condition} fields={fields} onChange={onChange} />
+  );

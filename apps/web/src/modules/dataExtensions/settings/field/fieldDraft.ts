@@ -14,6 +14,8 @@ export interface FieldDraft {
   type: DataExtensionFieldType;
   options: DataExtensionOption[];
   settings: DataExtensionFieldSettings;
+  /** The group it shows under; null: none. */
+  groupId: string | null;
 }
 
 export type SetDraft = (patch: Partial<FieldDraft>) => void;
@@ -29,6 +31,7 @@ export const newDraft = (): FieldDraft => ({
   type: 'text',
   options: [],
   settings: {},
+  groupId: null,
 });
 
 export const draftOf = (field: DataExtensionField): FieldDraft => ({
@@ -39,6 +42,7 @@ export const draftOf = (field: DataExtensionField): FieldDraft => ({
   type: field.type,
   options: field.options,
   settings: field.settings,
+  groupId: field.groupId,
 });
 
 /** `Lost reason` → `lostReason`: what a new field's key starts as. */

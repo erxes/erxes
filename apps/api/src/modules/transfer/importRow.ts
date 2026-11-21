@@ -12,7 +12,8 @@ import {
   linkCustomerCompany,
   updateCustomer,
 } from '~/modules/customers/customers.service';
-import { CellError, customValue, parseDate, parseNumber, splitList } from './columns';
+import { CellError, customValue, parseBoolean, parseDate, parseNumber, splitList } from './columns';
+import type { DataColumnField } from './dataColumns';
 import {
   companyIds,
   type Context,
@@ -56,10 +57,39 @@ const readCell = (input: Record<string, unknown>, refs: Refs, key: string, raw: 
   } else input[key] = raw;
 };
 
+/** A select's option for a cell: its value, or its label in any case; the text when none fits. */
+const choice = (field: DataColumnField, text: string) =>
+  field.options.find(
+    (option) => option.value === text || option.label.toLowerCase() === text.toLowerCase(),
+  )?.value ?? text;
+
+/** A cell as a Data Extensions field's value; the field's own checks run on save. */
+const dataValue = (field: DataColumnField, text: string): unknown => {
+  switch (field.type) {
+    case 'number':
+    case 'percent':
+    case 'rating':
+      return parseNumber(text);
+    case 'boolean':
+      return parseBoolean(text);
+    case 'date':
+      return parseDate(text);
+    case 'select':
+      return choice(field, text);
+    case 'multiSelect':
+      return splitList(text).map((item) => choice(field, item));
+    case 'textList':
+      return splitList(text);
+    default:
+      return text;
+  }
+};
+
 /** One row's cells → the record's input (checked by the contract's schema later) and the things it names. */
 const readRow = (ctx: Context, cells: string[]) => {
   const input: Record<string, unknown> = {};
   const customFields: Record<string, unknown> = {};
+  const values: Record<string, unknown> = {};
   const refs: Refs = {};
 
   for (const [index, key] of Object.entries(ctx.imp.mapping)) {
@@ -72,6 +102,7 @@ const readRow = (ctx: Context, cells: string[]) => {
     try {
       if (key.startsWith('customFields.'))
         customFields[key.slice('customFields.'.length)] = customValue(column?.fieldType, raw);
+      else if (column?.dataField) values[column.dataField.key] = dataValue(column.dataField, raw);
       else readCell(input, refs, key, raw);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -81,6 +112,8 @@ const readRow = (ctx: Context, cells: string[]) => {
   }
 
   if (Object.keys(customFields).length) input.customFields = customFields;
+
+  if (Object.keys(values).length) input.values = values;
 
   return { input, refs };
 };

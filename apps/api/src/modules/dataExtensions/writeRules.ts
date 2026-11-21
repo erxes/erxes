@@ -1,3 +1,4 @@
+import { conditionHolds, isEmptyValue, rulesOf } from '@erxes/core-contract';
 import {
   type DataFieldCondition,
   dataFields,
@@ -19,44 +20,6 @@ import { byKeyPath, type ValuePath } from './values';
 
 type Values = Record<string, unknown>;
 
-/** No value: null, blank text, an empty list, or a composite with every part empty. */
-const isEmptyValue = (value: unknown): boolean => {
-  if (value === null || value === undefined || value === '') return true;
-
-  if (Array.isArray(value)) return value.length === 0;
-
-  return typeof value === 'object' && Object.values(value).every(isEmptyValue);
-};
-
-const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
-
-/** `value` matches `wanted`; a list matches when one of its items does. */
-const matches = (value: unknown, wanted: unknown) =>
-  Array.isArray(value) ? value.some((item) => same(item, wanted)) : same(value, wanted);
-
-/**
- * Whether a record's values meet a condition on one of its fields. One on a field that's no
- * longer active (no key in `values`) never holds.
- */
-const conditionHolds = (condition: DataFieldCondition, values: Values) => {
-  if (!(condition.field in values)) return false;
-
-  const value = values[condition.field] ?? null;
-
-  switch (condition.operator) {
-    case 'isNotEmpty':
-      return !isEmptyValue(value);
-    case 'eq':
-      return matches(value, condition.value);
-    case 'neq':
-      return !matches(value, condition.value);
-    case 'in':
-      return (
-        Array.isArray(condition.value) && condition.value.some((wanted) => matches(value, wanted))
-      );
-  }
-};
-
 /**
  * 400 INVALID_INPUT for each field its `requiredWhen` makes required and the record leaves
  * empty. `values` are by key, every active field's.
@@ -73,7 +36,9 @@ export const assertRequiredWhen = (
       ? [
           {
             path: at(field),
-            message: `${field.label} is required while ${rule.field} is set this way`,
+            message: `${field.label} is required while ${rulesOf(rule)
+              .map((one) => one.field)
+              .join(', ')} is set this way`,
           },
         ]
       : [];
@@ -100,28 +65,55 @@ export const afterWrite = async (
   await recordChanges(client, input);
 };
 
-const CONDITIONS = ['visibleWhen', 'requiredWhen'] as const;
+const CONDITIONS = ['visibleWhen', 'hiddenWhen', 'requiredWhen'] as const;
+
+const renamed = (condition: DataFieldCondition, from: string, to: string): DataFieldCondition => {
+  const rename = <T extends { field: string }>(rule: T) =>
+    rule.field === from ? { ...rule, field: to } : rule;
+
+  return 'rules' in condition
+    ? { ...condition, rules: condition.rules.map(rename) }
+    : rename(condition);
+};
+
+const names = (settings: DataFieldSettings, key: string) =>
+  CONDITIONS.some((setting) => {
+    const condition = settings[setting];
+
+    return condition ? rulesOf(condition).some((rule) => rule.field === key) : false;
+  });
 
 /** Conditions on a renamed field follow it to its new key. */
-export const renameInConditions = (client: Db, recordType: string, from: string, to: string) =>
-  inOrder(CONDITIONS, (setting) =>
-    client
-      .update(dataFields)
-      .set({
-        settings: sql`jsonb_set(${dataFields.settings}, ${`{${setting},field}`}::text[], to_jsonb(${to}::text))`,
-      })
-      .where(
-        and(
-          eq(dataFields.recordType, recordType),
-          sql`${dataFields.settings} -> ${setting} ->> 'field' = ${from}`,
-        ),
-      ),
+export const renameInConditions = async (
+  client: Db,
+  recordType: string,
+  from: string,
+  to: string,
+) => {
+  const naming = (await fieldsOf(client, recordType, true)).filter((field) =>
+    names(field.settings, from),
   );
 
+  await inOrder(naming, (field) => {
+    const settings = { ...field.settings };
+
+    for (const setting of CONDITIONS) {
+      const condition = settings[setting];
+
+      if (condition) settings[setting] = renamed(condition, from, to);
+    }
+
+    return client
+      .update(dataFields)
+      .set({ settings, updatedAt: sql`now()` })
+      .where(and(eq(dataFields.id, field.id), eq(dataFields.recordType, recordType)));
+  });
+};
+
 /**
- * 400 INVALID_INPUT unless each condition (`visibleWhen`, `requiredWhen`) names another active
- * field of the record type; 400 INVALID_REFERENCE for a role `visibleTo` or `editableBy` names
- * that the organisation lacks.
+ * 400 INVALID_INPUT unless each condition (`visibleWhen`, `hiddenWhen`, `requiredWhen`) names
+ * other active fields of the record type; 400 INVALID_REFERENCE for a role `visibleTo` or
+ * `editableBy` names that the organisation lacks.
  */
 export const assertSettings = async (
   client: Db,
@@ -138,7 +130,14 @@ const assertConditions = async (
   const named = CONDITIONS.flatMap((setting) => {
     const condition = field.settings[setting];
 
-    return condition ? [{ setting, key: condition.field }] : [];
+    if (!condition) return [];
+
+    return 'rules' in condition
+      ? condition.rules.map((rule, index) => ({
+          path: ['settings', setting, 'rules', index, 'field'],
+          key: rule.field,
+        }))
+      : [{ path: ['settings', setting, 'field'], key: condition.field }];
   });
 
   if (!named.length) return;
@@ -147,10 +146,7 @@ const assertConditions = async (
 
   const issues = named
     .filter(({ key }) => key === field.key || !keys.has(key))
-    .map(({ setting, key }) => ({
-      path: ['settings', setting, 'field'],
-      message: `${key} is not another field of this record type`,
-    }));
+    .map(({ path, key }) => ({ path, message: `${key} is not another field of this record type` }));
 
   if (issues.length) throw fail('INVALID_INPUT', 'A condition names no other field', { issues });
 };

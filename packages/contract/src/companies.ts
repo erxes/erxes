@@ -18,6 +18,11 @@ import {
   isoDate,
 } from './common';
 import { ContactLink, ContactLinkInput } from './customers';
+import {
+  DataExtensionValues,
+  DataExtensionValuesInput,
+  DataSortQuery,
+} from './dataExtensionValues';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 import { CompanyId, CustomerId } from './records';
 
@@ -54,6 +59,9 @@ export const Company = createSelectSchema(companies, {
   .extend({ tagIds: z.array(z.string()), customFields: CustomFields });
 
 export type Company = z.infer<typeof Company>;
+
+/** A company as its get, list, create and update answer: with the Data Extensions values the caller may read. */
+export const CompanyWithValues = Company.extend({ values: DataExtensionValues });
 
 /** A person as listed on a company, with the link. */
 export const PersonRef = createSelectSchema(customers, { id: CustomerId })
@@ -110,6 +118,8 @@ export const CompanyFields = createUpdateSchema(companies, {
     tagIds: z.array(Id).max(50).optional(),
     /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
     customFields: CustomFieldsPatch.optional(),
+    /** Sets the given Data Extensions values by field key; `null` clears one. Others stay. */
+    values: DataExtensionValuesInput.optional(),
   });
 
 export type CompanyInput = z.infer<typeof CompanyFields>;
@@ -176,9 +186,9 @@ export const companiesContract = {
         ids: IdList.optional(),
         /** An advanced filter: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
-      }),
+      }).extend(DataSortQuery.shape),
     )
-    .output(cursorPageOf(Company)),
+    .output(cursorPageOf(CompanyWithValues)),
   get: base
     .route({
       method: 'GET',
@@ -186,7 +196,7 @@ export const companiesContract = {
       summary: 'A company; ids merged into another company resolve to it',
     })
     .input(ID)
-    .output(Company),
+    .output(CompanyWithValues),
   create: base
     .route({
       method: 'POST',
@@ -195,11 +205,11 @@ export const companiesContract = {
       summary: 'Create a company. 409 TAKEN when the name is taken',
     })
     .input(CompanyFields.extend({ primaryName: z.string().trim().min(1).max(200) }))
-    .output(Company),
+    .output(CompanyWithValues),
   update: base
     .route({ method: 'PATCH', path: '/companies/{id}' })
     .input(CompanyFields.extend({ id: Id }).refine(changes, 'nothing to update'))
-    .output(Company),
+    .output(CompanyWithValues),
   remove: base
     .route({
       method: 'POST',

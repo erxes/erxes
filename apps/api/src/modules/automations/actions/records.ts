@@ -1,9 +1,16 @@
-import { CompanyFields, CustomerFields, Id } from '@erxes/core-contract';
+import {
+  CompanyFields,
+  CustomerFields,
+  DataExtensionFieldKey,
+  DataExtensionValuesInput,
+  Id,
+} from '@erxes/core-contract';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { addNote } from '~/modules/activities/activities.service';
 import { tagCompanies, updateCompany } from '~/modules/companies/companies.service';
 import { tagCustomers, updateCustomer } from '~/modules/customers/customers.service';
+import { fieldsOf } from '~/modules/dataExtensions/definitions';
 import { checked, type CoreAction, list, needSubject, parseInput, text } from './context';
 
 const CustomerChanges = CustomerFields.pick({
@@ -15,6 +22,20 @@ const CustomerChanges = CustomerFields.pick({
 });
 
 const CompanyChanges = CompanyFields.pick({ primaryName: true, ownerId: true, description: true });
+
+/** Types whose values a step's text input gives as text: numbers and yes or no. */
+const NUMERIC: ReadonlySet<string> = new Set(['number', 'percent', 'rating']);
+
+/** A step's value as its Data Extensions field takes it: `'42'` a number, `'true'` yes; `''` clears. */
+const typedValue = (type: string | undefined, value: unknown) => {
+  if (value === '' || value === undefined) return null;
+
+  if (typeof value !== 'string') return value;
+
+  if (type && NUMERIC.has(type) && Number.isFinite(Number(value))) return Number(value);
+
+  return type === 'boolean' && (value === 'true' || value === 'false') ? value === 'true' : value;
+};
 
 const tagFields = [
   { key: 'add', label: 'Add tags', type: 'tags', required: false },
@@ -152,4 +173,33 @@ export const RECORD_ACTIONS: CoreAction[] = [
       return { fieldId, value };
     },
   },
+  ...(['customer', 'company'] as const).map((subject): CoreAction => ({
+    type: `core.${subject}.set_data_value`,
+    label: 'Set a data field',
+    description: `Write a value into one of the ${subject}’s Data Extensions fields`,
+    subject,
+    fields: [
+      { key: 'field', label: 'Field key', type: 'text', required: true },
+      {
+        key: 'value',
+        label: 'Value',
+        type: 'text',
+        required: false,
+        description: 'Leave empty to clear the field',
+      },
+    ],
+    run: async (ctx) => {
+      const id = needSubject(ctx, subject);
+      const { field } = parseInput(ctx, z.object({ field: DataExtensionFieldKey }));
+      const typeOf = (await fieldsOf(ctx.tx, `core.${subject}`)).find((one) => one.key === field);
+      const value = typedValue(typeOf?.type, ctx.input.value);
+      const values = checked(DataExtensionValuesInput, { [field]: value });
+
+      await (subject === 'customer'
+        ? updateCustomer(ctx.tx, id, { values })
+        : updateCompany(ctx.tx, id, { values }));
+
+      return { field, value };
+    },
+  })),
 ];

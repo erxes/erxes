@@ -132,7 +132,16 @@ export const valueFromRow = (field: DataFieldRow, row: Record<string, unknown>) 
 };
 
 /** Words of a record's text values, for its search column. */
-const SEARCH_TYPES = new Set(['text', 'email', 'phone', 'url', 'select', 'fullName', 'emails']);
+const SEARCH_TYPES = new Set([
+  'text',
+  'email',
+  'phone',
+  'url',
+  'select',
+  'textList',
+  'fullName',
+  'emails',
+]);
 
 const textsOf = (value: unknown): string[] => {
   if (typeof value === 'string') return [value];

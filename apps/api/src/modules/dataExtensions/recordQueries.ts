@@ -144,6 +144,8 @@ const filterColumn = (
       return { type: 'select', expr: at(), label };
     case 'multiSelect':
       return { type: 'select', expr: at(), label, array: true };
+    case 'textList':
+      return { type: 'text', expr: at(), label, array: true };
     case 'member':
       return { type: 'member', expr: at(), label, array: field.settings.multiple === true };
     case 'relation': {

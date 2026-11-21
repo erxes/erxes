@@ -41,6 +41,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   customerAuth: null,
   customerNotifications: null,
   dataFields: { lookup: true, writes: 'settings' },
+  dataFieldGroups: { lookup: true, writes: 'settings' },
   dataObjects: { lookup: true, writes: 'settings' },
   dataPlugins: { lookup: true, writes: 'settings' },
   // History follows its record type's rights; converting is a data model change.

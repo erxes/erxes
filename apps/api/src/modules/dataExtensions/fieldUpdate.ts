@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from 'node:util';
 import type { Db, DataFieldOption, DataFieldSettings } from '@erxes/core-db';
 import { dataFields } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
@@ -8,7 +9,8 @@ import { columnsOf, isComputed } from './columns';
 import { assertUnread, checkComputed } from './computedRules';
 import { changeSchema, setUnique } from './ddl';
 import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
-import { assertFieldDefinition, assertPluginKeeps } from './fieldRules';
+import { assertGroupOf } from './fieldGroups.service';
+import { assertFieldDefinition, assertMemberField, assertPluginKeeps } from './fieldRules';
 import { assertSettings, renameInConditions } from './writeRules';
 
 type FieldType = DataFieldRow['type'];
@@ -23,7 +25,7 @@ const sameColumn = (from: FieldType, to: FieldType) =>
   from === to || SAME_COLUMN.some((pair) => pair.includes(from) && pair.includes(to));
 
 /** Clears option values a select no longer has from every record. */
-const clearDropped = async (client: Db, field: DataFieldRow, options: DataFieldOption[]) => {
+export const clearDropped = async (client: Db, field: DataFieldRow, options: DataFieldOption[]) => {
   const kept = new Set(options.map((option) => option.value));
   const dropped = field.options.map((option) => option.value).filter((value) => !kept.has(value));
   const table = await tableOf(client, field.recordType);
@@ -60,6 +62,22 @@ const syncUnique = async (client: Db, field: DataFieldRow, unique: boolean) => {
 };
 
 /**
+ * Whether a change only places the field (its group) or hides it: what members change of a
+ * plugin's field, whose manifest decides the rest.
+ */
+const placingOnly = (
+  field: DataFieldRow,
+  changes: { settings?: DataFieldSettings; [key: string]: unknown },
+) =>
+  Object.entries(changes).every(
+    ([key, value]) => value === undefined || key === 'groupId' || key === 'settings',
+  ) &&
+  (!changes.settings ||
+    isDeepStrictEqual(withoutHidden(changes.settings), withoutHidden(field.settings)));
+
+const withoutHidden = ({ hidden: _hidden, ...settings }: DataFieldSettings) => settings;
+
+/**
  * Changes a field. Its key may change (the column stays); its type only to one that keeps the
  * column (400 INVALID_TYPE otherwise); options are replaced whole, and values of dropped ones
  * cleared; settings are replaced whole.
@@ -78,9 +96,14 @@ export const updateField = async (
     type?: Exclude<FieldType, 'relation'>;
     options?: DataFieldOption[];
     settings?: DataFieldSettings;
+    groupId?: string | null;
   },
 ) => {
   const field = await findField(client, id);
+
+  if (!placingOnly(field, changes)) assertMemberField(field);
+
+  if (changes.groupId) await assertGroupOf(client, field.recordType, changes.groupId);
 
   const next = {
     type: changes.type ?? field.type,

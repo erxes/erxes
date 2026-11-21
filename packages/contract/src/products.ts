@@ -18,6 +18,11 @@ import {
   QueryBoolean,
 } from './common';
 import { Currency } from './money';
+import {
+  DataExtensionValues,
+  DataExtensionValuesInput,
+  DataSortQuery,
+} from './dataExtensionValues';
 
 export const ProductStatus = z.enum(PRODUCT_STATUSES);
 
@@ -88,6 +93,11 @@ export const Product = createSelectSchema(products, {
 
 export type Product = z.infer<typeof Product>;
 
+/** A product as its get, list, create and update answer: with the Data Extensions values the caller may read. */
+export const ProductWithValues = Product.extend({ values: DataExtensionValues });
+
+export type ProductWithValues = z.infer<typeof ProductWithValues>;
+
 export const ProductCategory = createSelectSchema(productCategories, {
   id: Id,
   parentId: () => Id,
@@ -148,6 +158,8 @@ const ProductFields = createUpdateSchema(products, {
     tagIds: z.array(Id).max(50).optional(),
     /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
     customFields: CustomFieldsPatch.optional(),
+    /** Sets the given Data Extensions values by field key; `null` clears one. Others stay. */
+    values: DataExtensionValuesInput.optional(),
   });
 
 const CategoryFields = createUpdateSchema(productCategories, {
@@ -170,6 +182,7 @@ const {
   INVALID_TAG,
   LIMIT_EXCEEDED,
   NOTHING_TO_RETRY,
+  PLUGIN_FIELD,
   PLUGIN_NOT_INSTALLED,
   SUBJECT_REQUIRED,
 } = ERRORS;
@@ -186,6 +199,7 @@ const base = oc.errors({
   INVALID_TAG,
   LIMIT_EXCEEDED,
   NOTHING_TO_RETRY,
+  PLUGIN_FIELD,
   PLUGIN_NOT_INSTALLED,
   SUBJECT_REQUIRED,
 });
@@ -213,13 +227,13 @@ export const productsContract = {
         all: QueryBoolean.default(false),
         /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
-      }),
+      }).extend(DataSortQuery.shape),
     )
-    .output(cursorPageOf(Product)),
+    .output(cursorPageOf(ProductWithValues)),
   get: base
     .route({ method: 'GET', path: '/products/{id}' })
     .input(z.object({ id: Id }))
-    .output(Product),
+    .output(ProductWithValues),
   lookup: base
     .route({
       method: 'GET',
@@ -237,7 +251,7 @@ export const productsContract = {
         "Add a product. 409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
     .input(ProductFields.required({ kind: true, name: true }))
-    .output(Product),
+    .output(ProductWithValues),
   update: base
     .route({
       method: 'PATCH',
@@ -250,7 +264,7 @@ export const productsContract = {
         'nothing to update',
       ),
     )
-    .output(Product),
+    .output(ProductWithValues),
   use: base
     .route({
       method: 'POST',
@@ -267,11 +281,11 @@ export const productsContract = {
       summary: 'Take a product out of lists and pickers; orders and invoices keep it',
     })
     .input(z.object({ id: Id }))
-    .output(Product),
+    .output(ProductWithValues),
   restore: base
     .route({ method: 'POST', path: '/products/{id}/restore' })
     .input(z.object({ id: Id }))
-    .output(Product),
+    .output(ProductWithValues),
 };
 
 /** Groups of products, nested by `parentId`. */

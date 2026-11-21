@@ -93,6 +93,7 @@ export {
   users,
   webhookDeliveries,
   webhooks,
+  dataFieldGroups,
   dataFields,
   dataObjects,
   dataPlugins,

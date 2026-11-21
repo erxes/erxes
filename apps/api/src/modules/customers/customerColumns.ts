@@ -3,7 +3,7 @@ import type { customers } from '@erxes/core-db';
 import { normalizeEmail, normalizePhone, resolveContacts } from '~/lib/contacts';
 import type { CustomerRow } from './customerRows';
 
-/** The plain columns of an input (contacts, tags and custom fields are resolved separately). */
+/** The plain columns of an input (contacts, tags, custom fields and values are resolved separately). */
 export const scalarFields = (input: CustomerInput) => {
   const {
     primaryEmail,
@@ -12,6 +12,7 @@ export const scalarFields = (input: CustomerInput) => {
     phones,
     tagIds,
     customFields,
+    values,
     leadStageId,
     disqualifyReason,
     source,

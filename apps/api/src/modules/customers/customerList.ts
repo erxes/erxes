@@ -5,6 +5,7 @@ import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
+import { type DataSortInput, dataSort } from '~/modules/views/dataFilterFields';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { type CustomerRow, selectCustomers } from './customerRows';
 
@@ -55,16 +56,16 @@ export const customerListWhere = async (client: Db, query: CustomerQuery) => {
   return and(...filters);
 };
 
-export const listCustomers = (client: Db, query: CursorQuery & CustomerQuery) =>
-  boundedList(Boolean(query.filter || query.search), async () =>
+export const listCustomers = (client: Db, query: CursorQuery & CustomerQuery & DataSortInput) =>
+  boundedList(Boolean(query.filter || query.search || query.sortField), async () =>
     keysetPage(
       client,
       {
         table: customers,
         id: customers.id,
         createdAt: customers.createdAt,
-
         countCap: LIST_COUNT_CAP,
+        sort: await dataSort(client, query.state === 'lead' ? 'lead' : 'customer', query),
       },
       await customerListWhere(client, query),
       query,

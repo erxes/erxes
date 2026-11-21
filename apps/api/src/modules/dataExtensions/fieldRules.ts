@@ -123,6 +123,16 @@ export const assertRoom = async (client: Db, recordType: string, adding = 1) => 
   }
 };
 
+/** 403 PLUGIN_FIELD for a field a plugin declared: only its manifest changes it. */
+export const assertMemberField = (field: { id: string; label: string; plugin: string | null }) => {
+  if (field.plugin) {
+    throw fail('PLUGIN_FIELD', `${field.label} is ${field.plugin}’s: its manifest changes it`, {
+      fieldId: field.id,
+      plugin: field.plugin,
+    });
+  }
+};
+
 /** A plugin reads the fields of its own record types only. */
 export const assertPluginReads = (recordType: string) => {
   const who = caller();

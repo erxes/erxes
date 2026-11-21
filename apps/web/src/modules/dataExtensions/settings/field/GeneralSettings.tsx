@@ -1,7 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import { Input, Select } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTypeLabel } from '../../dataQueries';
+import { groupsQuery, useTypeLabel } from '../../dataQueries';
 import { FIELD_TYPE_LIST, FIELD_TYPES, isFieldType } from '../../fieldTypes';
 import { IconRow, KeyAndDescription, SettingRow } from '../SettingRow';
 import { type FieldDraft, keyOfLabel, type SetDraft, type SetSettings } from './fieldDraft';
@@ -61,13 +62,53 @@ const TypePicker = ({
   );
 };
 
+/** No group: the select's value for a field outside every group. */
+const NO_GROUP = 'none';
+
+/** The group a field shows under, from the record type's groups. */
+const GroupPicker = ({
+  id,
+  recordType,
+  draft,
+  set,
+}: {
+  id: string;
+  recordType: string;
+  draft: FieldDraft;
+  set: SetDraft;
+}) => {
+  const { t } = useTranslation('data', { keyPrefix: 'field' });
+  const groups = useQuery(groupsQuery(recordType)).data?.data ?? [];
+
+  return (
+    <Select
+      value={draft.groupId ?? NO_GROUP}
+      onValueChange={(value) => set({ groupId: value === NO_GROUP ? null : value })}
+    >
+      <Select.Trigger id={id} variant="bordered">
+        <Select.Value />
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value={NO_GROUP}>{t('no-group', 'No group')}</Select.Item>
+        {groups.map((group) => (
+          <Select.Item key={group.id} value={group.id}>
+            {group.label}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
+};
+
 /** Type, icon, label, key and description; then the group and placeholder forms show. */
 export const GeneralSettings = ({
+  recordType,
   draft,
   set,
   setSettings,
   creating,
 }: {
+  recordType: string;
   draft: FieldDraft;
   set: SetDraft;
   setSettings: SetSettings;
@@ -103,12 +144,7 @@ export const GeneralSettings = ({
       />
       <div className="flex gap-3">
         <SettingRow label={t('group', 'Group')} htmlFor={ids.group}>
-          <Input
-            id={ids.group}
-            value={draft.settings.group ?? ''}
-            placeholder={t('group-placeholder', 'Shown under this heading')}
-            onChange={({ target }) => setSettings({ group: target.value || undefined })}
-          />
+          <GroupPicker id={ids.group} recordType={recordType} draft={draft} set={set} />
         </SettingRow>
         <SettingRow label={t('placeholder', 'Placeholder')} htmlFor={ids.placeholder}>
           <Input

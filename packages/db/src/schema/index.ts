@@ -60,6 +60,8 @@ export * from './agent';
 
 export * from './dataExtensions';
 
+export * from './dataFieldGroups';
+
 export * from './orgUnits';
 
 export * from './apiKeys';

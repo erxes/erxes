@@ -19,6 +19,13 @@ export const fieldsQuery = (recordType: string | null, archived = false) =>
     staleTime: STALE,
   });
 
+/** A record type's active field groups, in order. */
+export const groupsQuery = (recordType: string | null) =>
+  orpc.dataFieldGroups.list.queryOptions({
+    input: recordType ? { recordType } : skipToken,
+    staleTime: STALE,
+  });
+
 /** The record types fields go on: core's, the plugins' and the custom objects. */
 export const recordTypesQuery = () => orpc.recordTypes.list.queryOptions({ staleTime: STALE });
 

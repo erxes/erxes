@@ -1,6 +1,6 @@
-import { DataExtensionValues } from '@erxes/core-contract';
-import { type Caller, caller, type Db, roles, runAs, users } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { type AppliesTo, DataExtensionValues, groupApplies } from '@erxes/core-contract';
+import { type Caller, caller, dataFieldGroups, type Db, roles, runAs, users } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { objectsPlugins } from '~/modules/recordTypes/recordTypes.service';
 import { pluginOf } from './columns';
@@ -64,6 +64,30 @@ const byKey = (fields: Map<string, DataFieldRow>, values: Values) =>
 const AT_PATCH: ValuePath = (field) => ['patch', field.id];
 
 /**
+ * The record type's active fields that apply to a record in `appliesTo` (`{ team: [id] }`):
+ * those outside a group, or in one whose `appliesTo` the record meets.
+ */
+const applyingFields = async (client: Db, recordType: string, appliesTo: AppliesTo) => {
+  const fields = await fieldsOf(client, recordType);
+
+  const limited = await client
+    .select({ id: dataFieldGroups.id, appliesTo: dataFieldGroups.appliesTo })
+    .from(dataFieldGroups)
+    .where(
+      and(
+        eq(dataFieldGroups.recordType, recordType),
+        sql`${dataFieldGroups.appliesTo} <> '{}'::jsonb`,
+      ),
+    );
+
+  const skipped = new Set(
+    limited.filter((group) => !groupApplies(group.appliesTo, appliesTo)).map((group) => group.id),
+  );
+
+  return fields.filter((field) => !field.groupId || !skipped.has(field.groupId));
+};
+
+/**
  * A plugin's record's values after `patch` (null clears one), checked against the record
  * type's active fields and their rules: what the plugin then saves. `current` is what the
  * record holds; values of ids that are no active field's stay as they are. With `create`,
@@ -79,11 +103,12 @@ export const checkValues = async (
     patch: Values;
     create?: boolean;
     userId?: string;
+    appliesTo?: Record<string, string[]>;
   },
 ) => {
   await assertOwnType(client, input.recordType);
 
-  const fields = await fieldsOf(client, input.recordType);
+  const fields = await applyingFields(client, input.recordType, input.appliesTo ?? {});
   const byId = new Map(fields.map((field) => [field.id, field]));
   const unknown = Object.keys(input.patch).filter((id) => !byId.has(id));
 
@@ -91,7 +116,7 @@ export const checkValues = async (
     throw fail('INVALID_INPUT', 'Some values are not valid', {
       issues: unknown.map((id) => ({
         path: ['patch', id],
-        message: 'No active field has this id',
+        message: 'No active field of a group that applies to this record has this id',
       })),
     });
   }

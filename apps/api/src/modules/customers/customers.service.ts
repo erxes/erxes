@@ -12,6 +12,7 @@ import {
   contactsTagged,
   contactUpdated,
 } from '~/modules/activities/contactHistory';
+import { writeCoreValues } from '~/modules/dataExtensions/hostValues.service';
 import { applyCustomFields } from '~/modules/fields/customValues';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { changeTags, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
@@ -61,6 +62,9 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
     );
 
     await saveCustomFields(tx, 'customer', created, customFields, Object.keys(customFields));
+
+    if (input.values) await writeCoreValues(tx, 'core.customer', created, input.values, true);
+
     await recordLeadSteps(tx, 'customer', [{ id: created, steps: lead.steps }]);
     await setRecordTags(tx, 'customer', created, tagIds);
     await contactCreated(tx, 'customer', await findCustomer(tx, created));
@@ -113,6 +117,8 @@ export const updateCustomer = async (client: Db, id: string, input: CustomerInpu
     if (tagIds) {
       await setRecordTags(tx, 'customer', id, tagIds);
     }
+
+    if (input.values) await writeCoreValues(tx, 'core.customer', id, input.values);
 
     await contactUpdated(tx, 'customer', current, await findCustomer(tx, id));
   });

@@ -12,6 +12,7 @@ import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { fieldShown, pluginTitle } from '~/modules/fields/fieldRows';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
 import { textArray } from '@erxes/plugin-sdk/filter';
+import { dataFilterFields } from './dataFilterFields';
 import { productFields } from './productFilterFields';
 import { relationFields } from './relationFields';
 
@@ -226,7 +227,11 @@ export const filterFields = async (
   recordType: ViewRecordType,
 ): Promise<FieldSpec[]> => {
   if (recordType === 'product')
-    return [...(await productFields(client)), ...(await customFields(client, recordType))];
+    return [
+      ...(await productFields(client)),
+      ...(await customFields(client, recordType)),
+      ...(await dataFilterFields(client, recordType)),
+    ];
 
   const isCompany = isCompanyList(recordType);
   const stageNames = recordType === 'customer' ? [] : await stageNamesOf(client);
@@ -237,6 +242,7 @@ export const filterFields = async (
     ...commonFields(isCompany ? companies : customers),
     ...(isCompany ? COMPANY_RELATED : CUSTOMER_RELATED),
     ...(await customFields(client, recordType)),
+    ...(await dataFilterFields(client, recordType)),
     ...(await relationFields(client, isCompany ? 'company' : 'customer')),
   ];
 };
@@ -261,6 +267,7 @@ export const subjectFilterFields = async (
     ...commonFields(customers),
     ...CUSTOMER_RELATED,
     ...(await customFields(client, 'customer')),
+    ...(await dataFilterFields(client, 'customer')),
     ...(await relationFields(client, 'customer')),
   ];
 };

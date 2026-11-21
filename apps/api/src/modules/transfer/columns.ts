@@ -1,6 +1,7 @@
 import type { TransferColumn, TransferRecordType } from '@erxes/core-contract';
 import { type Db, fields } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
+import { type DataColumnField, dataColumns } from './dataColumns';
 import { type CoreRecordType, isCoreType, pluginTransfer } from './pluginTransfer';
 
 type FieldType = (typeof fields.$inferSelect)['type'];
@@ -10,6 +11,8 @@ export interface Column extends TransferColumn {
   aliases: string[];
   /** Custom fields: their type, for converting cells. */
   fieldType?: FieldType;
+  /** Data Extensions fields (`data.<key>`): the field, for converting cells. */
+  dataField?: DataColumnField;
 }
 
 const column = (key: string, label: string, extra: Partial<Column> = {}): Column => ({
@@ -155,6 +158,7 @@ export const transferColumns = async (
         aliases: field.code && !field.plugin ? [field.code.toLowerCase()] : [],
       }),
     ),
+    ...(await dataColumns(client, recordType)),
     ...relationColumns(isCompany),
   ];
 };
@@ -225,7 +229,7 @@ export const parseDate = (value: string): string => {
 const YES = new Set(['yes', 'y', 'true', '1', 'тийм', 'үнэн', 'x', '✓']);
 const NO = new Set(['no', 'n', 'false', '0', 'үгүй', 'худал']);
 
-const parseBoolean = (value: string) => {
+export const parseBoolean = (value: string) => {
   const text = value.trim().toLowerCase();
 
   if (YES.has(text)) return true;
