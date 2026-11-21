@@ -13,6 +13,7 @@ import {
 } from './panelNavigation';
 import {
   type IOpenRecordOptions,
+  PanelOpenRecordContext,
   SidePanelNavigatorContext,
   SidePanelRecordPathContext,
 } from './recordView';
@@ -85,6 +86,21 @@ const useLatestPanel = (now: PanelNow) => {
     ),
     dismissPath: useCallback((targetPath: string) => dismissPathIn(latest.current, targetPath), []),
   };
+};
+
+/**
+ * `useSidePanel().openRecord(entity)` for list rows and board cards. It follows no route, so a
+ * list's rows don't render again each time the panel or the page's URL changes.
+ */
+export const useOpenPanelRecord = () => {
+  const navigator = useContext(SidePanelNavigatorContext);
+  const open = useContext(PanelOpenRecordContext);
+
+  if (navigator) return (entity: TRelationEntity) => navigator.openRecord(entity);
+
+  if (!open) throw new Error('useOpenPanelRecord must be used within a PanelRecordOpener.');
+
+  return open;
 };
 
 /**

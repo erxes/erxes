@@ -14,7 +14,7 @@ import {
 } from 'erxes-ui';
 import { memo } from 'react';
 import { useMinuteClock } from '~/lib/useMinuteClock';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import { useLeadsT } from './i18n';
 import type { BoardLead } from './useBoardMove';
 import { daysSince } from './useLeads';
@@ -106,7 +106,7 @@ export const LeadCard = memo(function LeadCard({
   lead: BoardLead;
 }) {
   const t = useLeadsT();
-  const { openRecord } = useSidePanel();
+  const openRecord = useOpenPanelRecord();
 
   return (
     <Board.Card
