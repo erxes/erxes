@@ -14,6 +14,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useRef, useEffect, useState } from 'react';
+import { parse } from 'csv-parse/browser/esm/sync';
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
@@ -47,54 +48,118 @@ const readFileAsText = (file: File): Promise<string> => file.text();
 type ColIndices = {
   productCode: number;
   newPrice: number;
-  uom: number;
-  unitPrice: number;
+  uom?: number;
+  unitPrice?: number;
 };
 
-const detectColumns = (headerCells: string[]): ColIndices => {
-  const cols: ColIndices = {
-    productCode: 0,
-    newPrice: 1,
-    uom: 2,
-    unitPrice: 3,
-  };
-  headerCells.forEach((cell, i) => {
-    if (cell === 'productcode' || cell === 'product code') cols.productCode = i;
-    else if (cell === 'newprice' || cell === 'new price') cols.newPrice = i;
-    else if (cell === 'uom' || cell === 'unit of measure') cols.uom = i;
-    else if (cell === 'unitprice' || cell === 'unit price') cols.unitPrice = i;
+interface IFixedPriceImportRow {
+  productCode: string;
+  newPrice: number;
+  uom?: string;
+  unitPrice?: number;
+}
+
+interface IParsedFixedPrices {
+  rows: IFixedPriceImportRow[];
+  skippedLines: number[];
+  missingColumns: boolean;
+}
+
+const POSITIONAL_COLUMNS: ColIndices = {
+  productCode: 0,
+  newPrice: 1,
+  uom: 2,
+  unitPrice: 3,
+};
+
+const HEADER_COLUMNS: Record<string, keyof ColIndices> = {
+  productcode: 'productCode',
+  'product code': 'productCode',
+  newprice: 'newPrice',
+  'new price': 'newPrice',
+  uom: 'uom',
+  'unit of measure': 'uom',
+  unitprice: 'unitPrice',
+  'unit price': 'unitPrice',
+};
+
+const parseAmount = (value?: string) => {
+  const normalized = (value ?? '').replace(/[\s,]/g, '');
+  return normalized ? Number(normalized) : Number.NaN;
+};
+
+const readHeaderColumns = (headerCells: string[]): ColIndices | null => {
+  const named: Partial<ColIndices> = {};
+
+  headerCells.forEach((cell, index) => {
+    const key = HEADER_COLUMNS[cell];
+    if (key && named[key] === undefined) {
+      named[key] = index;
+    }
   });
-  return cols;
+
+  if (named.productCode === undefined || named.newPrice === undefined) {
+    return null;
+  }
+
+  return { ...named, productCode: named.productCode, newPrice: named.newPrice };
 };
 
-const parseRow = (line: string, cols: ColIndices) => {
-  const parts = line.split(',').map((s) => s.trim());
-  const productCode = parts[cols.productCode];
-  const price = Number.parseFloat(parts[cols.newPrice]);
-  if (!productCode || Number.isNaN(price)) return null;
-  const uom = parts[cols.uom] || undefined;
-  const up = Number.parseFloat(parts[cols.unitPrice]);
-  return {
-    productCode,
-    newPrice: price,
-    uom,
-    unitPrice: Number.isNaN(up) ? undefined : up,
+/**
+ * Read a fixed-price CSV. A header row names the columns it carries and any
+ * other column is ignored; a file without a header is read by position. Cells
+ * may be quoted and hold commas (`"Coke, 0.5L"`, `"1,500"`), so the text goes
+ * through a CSV parser, and a row that cannot be read is reported by its line.
+ */
+const parseCsvText = (text: string): IParsedFixedPrices => {
+  const records = parse(text, {
+    bom: true,
+    skip_empty_lines: true,
+    trim: true,
+    relax_column_count: true,
+  }) as string[][];
+  const parsed: IParsedFixedPrices = {
+    rows: [],
+    skippedLines: [],
+    missingColumns: false,
   };
-};
 
-const parseCsvText = (text: string) => {
-  const lines = text
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean);
-  if (!lines.length) return null;
-  const firstCells = lines[0].split(',').map((s) => s.trim().toLowerCase());
-  const hasHeader = Number.isNaN(Number.parseFloat(firstCells[1]));
-  const cols = hasHeader
-    ? detectColumns(firstCells)
-    : { productCode: 0, newPrice: 1, uom: 2, unitPrice: 3 };
-  const dataLines = hasHeader ? lines.slice(1) : lines;
-  return dataLines.map((line) => parseRow(line, cols)).filter(Boolean);
+  if (!records.length) return parsed;
+
+  const firstCells = records[0].map((cell) => cell.toLowerCase());
+  const hasHeader = Number.isNaN(parseAmount(firstCells[1]));
+  const cols = hasHeader ? readHeaderColumns(firstCells) : POSITIONAL_COLUMNS;
+
+  if (!cols) {
+    parsed.missingColumns = true;
+    return parsed;
+  }
+
+  const firstDataLine = hasHeader ? 2 : 1;
+
+  records.slice(hasHeader ? 1 : 0).forEach((cells, index) => {
+    const productCode = cells[cols.productCode];
+    const newPrice = parseAmount(cells[cols.newPrice]);
+
+    if (!productCode || Number.isNaN(newPrice)) {
+      parsed.skippedLines.push(index + firstDataLine);
+      return;
+    }
+
+    const unitPrice =
+      cols.unitPrice === undefined
+        ? Number.NaN
+        : parseAmount(cells[cols.unitPrice]);
+
+    parsed.rows.push({
+      productCode,
+      newPrice,
+      uom: (cols.uom === undefined ? '' : cells[cols.uom]) || undefined,
+      unitPrice: Number.isNaN(unitPrice) ? undefined : unitPrice,
+    });
+  });
+
+  return parsed;
 };
 
 const STATUS_BADGE_STYLES: Record<FixedPricingStatus, React.CSSProperties> = {
@@ -236,11 +301,40 @@ export const FixedPricingTable = ({
     fileInputRef.current.value = '';
     if (!file) return;
 
-    const text = await readFileAsText(file);
-    const productsData = parseCsvText(text);
+    let parsed: IParsedFixedPrices;
 
-    if (!productsData?.length) {
-      toast({ title: 'No valid rows found in CSV', variant: 'destructive' });
+    try {
+      parsed = parseCsvText(await readFileAsText(file));
+    } catch (error) {
+      toast({
+        title:
+          error instanceof Error
+            ? error.message
+            : 'Could not read the CSV file',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (parsed.missingColumns) {
+      toast({
+        title: 'CSV header must include productCode and newPrice columns',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const productsData = parsed.rows;
+    const skippedLines = parsed.skippedLines.join(', ');
+    const skippedNote = skippedLines
+      ? ` Skipped line(s) without a product code or price: ${skippedLines}.`
+      : '';
+
+    if (!productsData.length) {
+      toast({
+        title: `No valid rows found in CSV.${skippedNote}`,
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -255,7 +349,12 @@ export const FixedPricingTable = ({
         toast({
           title: `Imported ${count} rows. ${
             notFound.length
-          } product code(s) not found: ${notFound.join(', ')}`,
+          } product code(s) not found: ${notFound.join(', ')}.${skippedNote}`,
+          variant: 'destructive',
+        });
+      } else if (skippedNote) {
+        toast({
+          title: `Imported ${count} rows.${skippedNote}`,
           variant: 'destructive',
         });
       } else {
