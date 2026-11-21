@@ -5,6 +5,7 @@ import { apiKeysRouter } from '~/modules/apiKeys/apiKeys.router';
 import { auditRouter } from '~/modules/audit/audit.router';
 import { emailsRouter } from '~/modules/email/emails.router';
 import { eventsRouter } from '~/modules/events/events.router';
+import { exchangeRatesRouter } from '~/modules/exchangeRates/exchangeRates.router';
 import { filesRouter } from '~/modules/files/files.router';
 import { notificationsRouter } from '~/modules/notifications/notifications.router';
 import { authRouter } from '~/modules/auth/auth.router';
@@ -53,6 +54,7 @@ export const coreRouter = unscoped.router({
   audit: auditRouter,
   emails: emailsRouter,
   events: eventsRouter,
+  exchangeRates: exchangeRatesRouter,
   files: filesRouter,
   notifications: notificationsRouter,
   auth: authRouter,

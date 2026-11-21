@@ -56,6 +56,14 @@
  *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
  *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
  *
+ * Exchange rates (scopes `exchange_rates:read`, `exchange_rates:write`): the ones members keep in
+ * Settings › Exchange rates. A rate counts from its day until the pair's next one; `getActiveRate`
+ * answers the rate in force on a day (a moment counts on its day in the organisation's time zone),
+ * or null, with `mainCurrency` the organisation's currency unless given.
+ *
+ *   const spot = await core.forOrg(orgId).exchangeRates.getActiveRate({ date: tr.date.toISOString(), rateCurrency: 'USD' });
+ *   const rate = spot?.rate ?? 0;                                   // 1 USD = rate MNT
+ *
  * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.
  *

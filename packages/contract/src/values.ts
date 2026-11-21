@@ -162,9 +162,9 @@ export const API_KEY_AREA_INFO = {
   },
   settings: {
     label: 'Settings',
-    covers: 'Organisation, tags, fields, payment gateways',
+    covers: 'Organisation, tags, fields, payment gateways, exchange rates',
     read: ['settings.manage', 'integrations.manage', 'payments.manage'],
-    write: ['tags.manage', 'tags.delete', 'properties.manage'],
+    write: ['tags.manage', 'tags.delete', 'properties.manage', 'exchange_rates.manage'],
   },
 } as const satisfies Record<
   ApiKeyArea,

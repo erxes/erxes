@@ -133,7 +133,8 @@
     "assistant-code-mode": "Code mode",
     "assistant-appearance": "Appearance",
     "email-sending": "Email sending",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "exchange-rates": "Exchange Rates"
   },
   "auth": {
     "welcome": "Welcome",

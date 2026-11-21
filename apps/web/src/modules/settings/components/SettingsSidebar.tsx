@@ -19,6 +19,7 @@ import {
   IconKey,
   IconTrash,
   IconCreditCard,
+  IconCurrencyDollar,
   IconUserCircle,
   IconUsersGroup,
   IconWebhook,
@@ -55,6 +56,11 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('roles', 'Roles'), to: paths.settings.roles, icon: IconShieldHalf },
     { name: t('structure', 'Structure'), to: paths.settings.structure, icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), to: paths.settings.fileUpload, icon: IconCloudUpload },
+    {
+      name: t('exchange-rates', 'Exchange Rates'),
+      to: paths.settings.exchangeRates,
+      icon: IconCurrencyDollar,
+    },
     ...(plan?.pluginsManaged
       ? []
       : [{ name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps }]),

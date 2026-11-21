@@ -70,6 +70,7 @@ export const paths = {
     teamMember: (userId: string) => `/settings/team-members/${id(userId)}`,
     roles: '/settings/roles',
     structure: '/settings/structure',
+    exchangeRates: '/settings/exchange-rates',
     fileUpload: '/settings/file-upload',
     plugins: '/settings/plugins',
     plan: '/settings/plan',

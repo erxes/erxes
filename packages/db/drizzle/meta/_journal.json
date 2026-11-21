@@ -848,6 +848,13 @@
       "when": 1795372253258,
       "tag": "0120_organization_currencies",
       "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "7",
+      "when": 1795373029997,
+      "tag": "0121_exchange_rates",
+      "breakpoints": true
     }
   ]
 }

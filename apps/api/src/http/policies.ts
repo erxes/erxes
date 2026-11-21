@@ -213,6 +213,11 @@ export const ACCESS = {
   'tags.remove': needs('tags.delete'),
 
   // Branches and departments: every member reads them (pickers); plugins keep a copy.
+  'exchangeRates.list': { member: 'any', plugin: 'exchange_rates:read' },
+  'exchangeRates.getActiveRate': { member: 'any', plugin: 'exchange_rates:read' },
+  'exchangeRates.create': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
+  'exchangeRates.update': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
+  'exchangeRates.remove': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
   'units.list': { member: 'any', plugin: 'units:read' },
   'units.get': { member: 'any', plugin: 'units:read' },
   'units.create': { member: 'structure.manage', plugin: 'units:write' },

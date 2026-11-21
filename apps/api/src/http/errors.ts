@@ -72,6 +72,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     message: 'A company with this name already exists',
   },
   core_tags_org_type_name_key: { field: 'name', message: 'A tag with this name already exists' },
+  core_exchange_rates_org_pair_date_key: {
+    field: 'date',
+    message: 'This currency already has a rate on this day',
+  },
   core_lead_stages_org_name_key: {
     field: 'name',
     message: 'A stage with this name already exists',

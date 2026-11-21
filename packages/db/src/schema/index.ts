@@ -79,3 +79,5 @@ export * from './email';
 export * from './favorites';
 
 export * from './secrets';
+
+export * from './exchangeRates';

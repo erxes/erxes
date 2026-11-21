@@ -27,6 +27,8 @@ const SCOPE_LABELS: Record<string, string> = {
   'emails:write': 'Send emails from erxes',
   'events:read': 'Receive core events',
   'events:write': 'Publish events (timelines, notifications, automations)',
+  'exchange_rates:read': 'Read exchange rates',
+  'exchange_rates:write': 'Add and change exchange rates',
   'fields:write': 'Keep its own properties on customers and companies',
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',

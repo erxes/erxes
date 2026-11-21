@@ -40,6 +40,7 @@ export {
   authTokens,
   auditLogs,
   eventData,
+  exchangeRates,
   events,
   files,
   notifications,

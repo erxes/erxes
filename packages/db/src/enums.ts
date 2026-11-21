@@ -291,6 +291,8 @@ export const PLUGIN_SCOPES = [
   'emails:write',
   'events:read',
   'events:write',
+  'exchange_rates:read',
+  'exchange_rates:write',
   'fields:write',
   'files:read',
   'files:write',
