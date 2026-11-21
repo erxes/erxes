@@ -105,6 +105,15 @@ export interface StoredPluginManifest {
     retry?: { attempts: number; delay: number; maxDelay: number };
   }[];
   timelines?: { type: string; label: string; permission?: string; recordAccess?: boolean }[];
+  /** Its record types Data Extensions may add fields to, with the permissions over their records. */
+  objects?: {
+    type: string;
+    label: string;
+    singularLabel: string;
+    icon?: string;
+    permission?: string;
+    updatePermission?: string;
+  }[];
   /** Fields it keeps on customers or companies: core stores them as custom fields, the plugin their values. */
   fields?: {
     code: string;

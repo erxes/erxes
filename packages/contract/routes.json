@@ -1289,6 +1289,254 @@
       }
     }
   },
+  "dataFields": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-fields"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields"
+        }
+      }
+    },
+    "relate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/relations"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-fields/{id}"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/reorder"
+        }
+      }
+    },
+    "archive": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/{id}/archive"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/{id}/restore"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-fields/{id}"
+        }
+      }
+    }
+  },
+  "dataObjects": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects/{key}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-objects/{key}"
+        }
+      }
+    },
+    "archive": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{key}/archive"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{key}/restore"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-objects/{key}"
+        }
+      }
+    }
+  },
+  "dataRecords": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects/{objectKey}/records"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects/{objectKey}/records/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{objectKey}/records"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-objects/{objectKey}/records/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-objects/{objectKey}/records/{id}"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{objectKey}/records/{id}/restore"
+        }
+      }
+    }
+  },
+  "dataValues": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-values/{recordType}/{recordId}"
+        }
+      }
+    },
+    "lookup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/{recordType}/lookup"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-values/{recordType}/{recordId}"
+        }
+      }
+    }
+  },
   "favorites": {
     "list": {
       "~orpc": {
@@ -2619,6 +2867,18 @@
         "route": {
           "method": "POST",
           "path": "/products/{id}/restore"
+        }
+      }
+    }
+  },
+  "recordTypes": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/record-types"
         }
       }
     }

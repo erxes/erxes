@@ -21,6 +21,7 @@ import { PluginFields } from './pluginFields';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
+import { PluginObjects } from './recordTypes';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
 import { PluginTranslations } from './pluginTranslations';
@@ -177,6 +178,8 @@ export const PluginManifest = z.object({
     .optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
   timelines: z.array(PluginTimeline).max(50).optional(),
+  /** Its record types members may add fields to through Data Extensions (`PluginObjects`). */
+  objects: PluginObjects.optional(),
   /**
    * How its timeline entries look: a label, a colour and an icon per type —
    * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,

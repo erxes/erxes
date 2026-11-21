@@ -1,6 +1,7 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
+import { DATA_EXTENSION_ACCESS } from './dataExtensionPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 
 /**
@@ -150,6 +151,8 @@ export const ACCESS = {
   'events.failures': needs('events.view'),
   'events.retryFailures': needs('events.view'),
   'events.dismissFailures': needs('events.view'),
+
+  ...DATA_EXTENSION_ACCESS,
 
   // Plugins read product groups (with products:read) and their own record types' (the service checks).
   'fieldGroups.list': { member: 'any', plugin: 'installed' },

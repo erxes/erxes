@@ -93,6 +93,9 @@ export {
   users,
   webhookDeliveries,
   webhooks,
+  dataFields,
+  dataObjects,
+  dataTables,
   integrations,
   integrationPrograms,
   integrationProgramVersions,
@@ -123,4 +126,7 @@ export type {
   PropertyContentType,
   CustomValue,
   OrganizationSettings,
+  DataFieldOption,
+  DataFieldRelation,
+  DataFieldSettings,
 } from './schema';
