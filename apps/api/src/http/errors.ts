@@ -96,6 +96,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     field: 'name',
     message: 'A category with this name is already there',
   },
+  core_product_categories_org_code_key: {
+    field: 'code',
+    message: 'Another category has this code',
+  },
   core_products_org_code_key: { field: 'code', message: 'Another product has this code' },
   core_products_org_barcode_key: { field: 'barcode', message: 'Another product has this barcode' },
   core_users_org_email_key: {

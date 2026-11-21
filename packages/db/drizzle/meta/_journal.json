@@ -876,6 +876,13 @@
       "when": 1795373106777,
       "tag": "0124_product_inventories",
       "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "7",
+      "when": 1795373114071,
+      "tag": "0125_product_category_code",
+      "breakpoints": true
     }
   ]
 }

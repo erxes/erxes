@@ -37,6 +37,24 @@ describe('products', { timeout: 120_000 }, () => {
     return t.client((await token(t.ids.org)).access_token);
   };
 
+  it("keeps a category's own code, unique whatever its case", async () => {
+    const drinks = await t.owner().productCategories.create({ name: 'Drinks', code: 'DR-1' });
+
+    expect(drinks).toMatchObject({ name: 'Drinks', code: 'DR-1', parentId: null });
+    await expect(
+      t.owner().productCategories.create({ name: 'Tea', code: 'dr-1' }),
+    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'code' } });
+
+    const renamed = await t.owner().productCategories.update({ id: drinks.id, code: 'DR-2' });
+
+    expect(renamed.code).toBe('DR-2');
+    expect((await t.owner().productCategories.list()).data).toContainEqual(
+      expect.objectContaining({ id: drinks.id, code: 'DR-2' }),
+    );
+    expect((await t.other().productCategories.list()).data).toEqual([]);
+    await t.owner().productCategories.remove({ id: drinks.id });
+  });
+
   it('keeps one catalog that members manage and only their organisation sees', async () => {
     const category = await t.owner().productCategories.create({ name: 'Phones' });
     const created = await t.owner().products.create({ ...phone, categoryId: category.id });

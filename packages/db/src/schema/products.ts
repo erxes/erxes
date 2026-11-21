@@ -24,6 +24,8 @@ export const productCategories = pgTable(
     id: text().primaryKey(),
     orgId: orgIdColumn(),
     name: text().notNull(),
+    /** The organisation's own code (3.x's category code), unique when set. */
+    code: text(),
     parentId: text(),
     createdBy: text(),
     createdAt: createdAt(),
@@ -31,6 +33,9 @@ export const productCategories = pgTable(
   },
   (table) => [
     uniqueIndex('core_product_categories_org_id_id_key').on(table.orgId, table.id),
+    uniqueIndex('core_product_categories_org_code_key')
+      .on(table.orgId, sql`lower(${table.code})`)
+      .where(sql`${table.code} IS NOT NULL`),
     uniqueIndex('core_product_categories_org_parent_name_key').on(
       table.orgId,
       sql`coalesce(${table.parentId}, '')`,

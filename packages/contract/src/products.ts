@@ -92,7 +92,14 @@ export const ProductCategory = createSelectSchema(productCategories, {
   id: Id,
   parentId: () => Id,
   createdAt: isoDate,
-}).pick({ id: true, name: true, parentId: true, createdAt: true });
+}).pick({
+  id: true,
+  name: true,
+  /** The organisation's own code, unique when set (3.x's category code). */
+  code: true,
+  parentId: true,
+  createdAt: true,
+});
 
 export type ProductCategory = z.infer<typeof ProductCategory>;
 
@@ -152,8 +159,9 @@ const ProductFields = createUpdateSchema(products, {
 
 const CategoryFields = createUpdateSchema(productCategories, {
   name: (name) => name.trim().min(1).max(100),
+  code: (code) => code.trim().min(1).max(100),
   parentId: () => Id,
-}).pick({ name: true, parentId: true });
+}).pick({ name: true, code: true, parentId: true });
 
 /**
  * The organisation's catalog of goods and services, shared by every plugin.
@@ -291,7 +299,8 @@ export const productCategoriesContract = {
       method: 'POST',
       path: '/product-categories',
       successStatus: 201,
-      summary: '409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY',
+      summary:
+        '409 TAKEN (same name under the same parent, or a code another category has); 400 INVALID_CATEGORY',
     })
     .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),
