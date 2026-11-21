@@ -7,7 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
-import { type KeyPlugin, useKeyPlugins } from '../developer/keys/useKeyPlugins';
+import { AccessSection } from '../developer/keys/KeyAccess';
+import { fitLimits, type KeyDraft, keyRules, newDraft, opensAny } from '../developer/keys/keyDraft';
+import { type KeyPlugin, useGiver, useKeyPlugins } from '../developer/keys/useKeyPlugins';
 import { AgentFields, type AgentDraft } from './AgentFields';
 import { type Template, TEMPLATES, templateAccess } from './agentTemplates';
 
@@ -50,6 +52,7 @@ const AgentForm = ({ template, plugin }: { template: Template; plugin: KeyPlugin
   const { toast } = useToast();
   const navigate = useNavigate();
   const client = useQueryClient();
+  const giver = useGiver();
 
   const [draft, setDraft] = useState<AgentDraft>({
     name: template.name,
@@ -58,6 +61,12 @@ const AgentForm = ({ template, plugin }: { template: Template; plugin: KeyPlugin
     model: null,
     customers: template.customers,
   });
+
+  const [access, setAccess] = useState<KeyDraft>(() => ({
+    ...newDraft(giver),
+    preset: 'custom',
+    ...templateAccess(template, plugin),
+  }));
 
   const create = useMutation(
     orpc.agents.create.mutationOptions({
@@ -74,25 +83,23 @@ const AgentForm = ({ template, plugin }: { template: Template; plugin: KeyPlugin
     }),
   );
 
-  const access = templateAccess(template, plugin);
-  const opened = access.actions[plugin?.name ?? ''] ?? [];
-  const labels = new Map(plugin?.actions.map(({ action, label }) => [action, label]));
+  const { areas, pluginAccess, actions } = keyRules(access);
+  const ready = draft.name.trim() && draft.instructions.trim() && opensAny(access);
 
   return (
     <div className="space-y-4">
       <AgentFields draft={draft} onChange={setDraft} />
-      <div className="rounded-lg border bg-muted/40 p-4 text-sm">
-        <p className="font-medium">{t('access-title', 'What it may read')}</p>
-        <p className="text-muted-foreground">
-          {opened.length
-            ? opened.map((action) => labels.get(action) ?? action).join(', ')
-            : t('access-none', 'Nothing yet. Choose on its Access tab after you make it.')}
-        </p>
-      </div>
+      <AccessSection draft={access} onChange={(next) => setAccess(fitLimits(next))} />
       <div className="flex justify-end">
         <Button
-          disabled={create.isPending || !draft.name.trim() || !draft.instructions.trim()}
-          onClick={() => create.mutate({ ...draft, template: template.id, access })}
+          disabled={create.isPending || !ready}
+          onClick={() =>
+            create.mutate({
+              ...draft,
+              template: template.id,
+              access: { areas, pluginAccess, actions },
+            })
+          }
         >
           {create.isPending && <Spinner size="sm" />}
           {t('create', 'Make agent')}

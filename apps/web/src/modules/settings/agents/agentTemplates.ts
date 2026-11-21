@@ -95,7 +95,7 @@ Answer in the customer's language, in short messages.`,
     id: null,
     icon: IconFile,
     title: 'Blank',
-    description: 'Your own instructions, with read access to the plugins you choose later.',
+    description: 'Your own instructions, and the access you choose.',
     plugin: null,
     actions: null,
     customers: false,
@@ -106,7 +106,7 @@ Answer in the customer's language, in short messages.`,
 
 /** The template's access: only the plugin's matching actions, so it reads no one's orders. */
 export const templateAccess = (template: Template, plugin: KeyPlugin | undefined) => {
-  const pluginAccess: ApiKeyPlugins = {};
+  const plugins: ApiKeyPlugins = {};
   const actions: ApiKeyActions = {};
   const pattern = template.actions;
 
@@ -115,9 +115,9 @@ export const templateAccess = (template: Template, plugin: KeyPlugin | undefined
     : [];
 
   if (plugin && picked.length) {
-    pluginAccess[plugin.name] = 'write';
+    plugins[plugin.name] = 'write';
     actions[plugin.name] = picked.map(({ action }) => action);
   }
 
-  return { areas: {}, pluginAccess, actions };
+  return { areas: {}, plugins, actions };
 };
