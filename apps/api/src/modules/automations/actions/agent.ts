@@ -27,7 +27,7 @@ export const AGENT_ACTIONS: CoreAction[] = [
       if (!prompt) throw new Error('Say what the agent should do');
 
       // A retried step lands in the same conversation and asks once.
-      const answer = await askAgent(
+      const { answer } = await askAgent(
         agentNamed(AUTOMATION_AGENT),
         { orgId: ctx.orgId, key: `${ctx.run.id}-${ctx.step.id}` },
         prompt,

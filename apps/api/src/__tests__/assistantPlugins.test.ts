@@ -16,6 +16,7 @@ const SKILL_TEXT =
   '# Leave balances\n\nRead days left with hr:leave.balances; show them per employee.';
 
 const AGENT_INSTRUCTIONS = 'You answer questions about leave for the HR team.';
+const LEAVE_URL = 'https://hr.example.com/leave/new';
 
 const finished = () =>
   adminDb().select().from(events).where(eq(events.type, 'core.agent.finished'));
@@ -217,6 +218,14 @@ describe('assistant plugin contributions', () => {
       inSteps(
         { tool: 'searchApi', input: { query: 'leave balances' } },
         { tool: 'callApi', input: { procedure: 'hr:leave.balances', input: {} } },
+        {
+          tool: 'show',
+          input: { blocks: [{ kind: 'link', title: 'Request leave', url: LEAVE_URL }] },
+        },
+        {
+          tool: 'show',
+          input: { blocks: [{ kind: 'link', title: 'Request leave', url: LEAVE_URL }] },
+        },
         { text: 'Bat-Erdene has 12 days.' },
       ),
     );
@@ -232,6 +241,7 @@ describe('assistant plugin contributions', () => {
       plugin: 'hr',
       key: 'chat-1',
       answer: 'Bat-Erdene has 12 days.',
+      blocks: [{ kind: 'link', title: 'Request leave', url: LEAVE_URL }],
     });
     expect(hr.calls.slice(before)).toEqual([
       { procedure: 'leave.balances', userId: t.ids.owner, orgId: t.ids.org, input: {} },
