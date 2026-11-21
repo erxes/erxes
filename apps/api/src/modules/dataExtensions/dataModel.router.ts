@@ -18,7 +18,35 @@ import {
 } from './objects.service';
 import { previewComputed } from './computedRules';
 import { connectPlugin, disconnectPlugin, listDataPlugins } from './dataPlugins.service';
+import { convertField } from './fieldConvert';
+import { removePluginValues } from './hostRecords';
+import { listHistory } from './valueHistory';
 import { createRelation } from './relations.service';
+
+export const dataChangesRouter = {
+  history: scoped.dataChanges.history.handler(({ input }) => listHistory(db(), input)),
+  convert: scoped.dataChanges.convert.handler(({ input }) =>
+    input.apply
+      ? audited(
+          (tx) => convertField(tx, input),
+          (result) => ({
+            ...recordOf('data_field', 'converted', input.id, { label: result.field?.label }),
+            metadata: { type: input.type, cleared: result.unconvertible },
+          }),
+        )
+      : convertField(db(), input),
+  ),
+  remove: scoped.dataChanges.remove.handler(({ input }) =>
+    audited(
+      (tx) => removePluginValues(tx, input),
+      () => ({
+        action: 'data_values.removed',
+        targetType: input.recordType,
+        metadata: { recordIds: input.recordIds },
+      }),
+    ),
+  ),
+};
 
 export const dataPluginsRouter = {
   list: scoped.dataPlugins.list.handler(() => listDataPlugins(db())),

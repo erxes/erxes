@@ -10,8 +10,10 @@ import { alias, customKeyOf, ensureTable, fieldsOf, qualified, tableOf } from '.
 import { valueColumns, valuesOf } from './recordQueries';
 import { assertRecordsExist } from './references';
 import { relationSides, writeRelation } from './relationValues';
+import { readableFields } from './fieldAccess';
 import { asTaken } from './unique';
 import { prepareValues } from './values';
+import { afterWrite } from './writeRules';
 
 /**
  * Data Extensions values on core's and plugins' records (`core.customer`, `hr.employee`),
@@ -36,19 +38,22 @@ const hostType = async (client: Db, recordType: string, right: 'read' | 'update'
   return type;
 };
 
-/** Values of these records: every field's value, null where none is kept. */
-export const lookupValues = async (
+/**
+ * Values of these records, null where none is kept: the fields the caller may read, or every
+ * field with `everything` (the checks and history a write makes).
+ */
+const readValues = async (
   client: Db,
   input: { recordType: string; recordIds: string[] },
-  right: 'read' | 'update' = 'read',
+  everything: boolean,
 ) => {
-  await hostType(client, input.recordType, right);
-  await assertRecordsExist(client, input.recordType, input.recordIds, 'recordId');
-
-  const fields = await fieldsOf(client, input.recordType);
+  const all = await fieldsOf(client, input.recordType);
   const table = await tableOf(client, input.recordType);
-  const sides = await relationSides(client, fields);
+  const sides = await relationSides(client, all);
   const ids = [...new Set(input.recordIds)];
+  const id = sql`${IDS}.id`;
+  const computed = await computedFor(client, input.recordType, all, T, id);
+  const fields = everything ? all : await readableFields(client, all, computed.uses);
 
   if (!table) {
     return ids.map((recordId) => ({
@@ -60,8 +65,6 @@ export const lookupValues = async (
     }));
   }
 
-  const id = sql`${IDS}.id`;
-  const computed = await computedFor(client, input.recordType, fields, T, id);
   const columns = valueColumns(fields, sides, T, id, computed.values);
 
   const { rows } = await client.execute(
@@ -79,6 +82,18 @@ export const lookupValues = async (
   }));
 };
 
+/** Values of these records the caller may read: each readable field's value, null where none is kept. */
+export const lookupValues = async (
+  client: Db,
+  input: { recordType: string; recordIds: string[] },
+  right: 'read' | 'update' = 'read',
+) => {
+  await hostType(client, input.recordType, right);
+  await assertRecordsExist(client, input.recordType, input.recordIds, 'recordId');
+
+  return readValues(client, input, false);
+};
+
 const oneOf = async (
   client: Db,
   recordType: string,
@@ -91,6 +106,10 @@ const oneOf = async (
 
   return values;
 };
+
+/** Every value of one record, the caller's hidden fields included. */
+const allValues = async (client: Db, recordType: string, recordId: string) =>
+  (await readValues(client, { recordType, recordIds: [recordId] }, true))[0]?.values ?? {};
 
 export const getValues = (client: Db, input: { recordType: string; recordId: string }) =>
   oneOf(client, input.recordType, input.recordId, 'read');
@@ -105,6 +124,7 @@ export const updateValues = async (
 
   const fields = await fieldsOf(client, input.recordType);
   const sides = await relationSides(client, fields);
+  const before = await allValues(client, input.recordType, input.recordId);
   const prepared = await prepareValues(client, fields, sides, input.values, false);
   const table = await ensureTable(client, input.recordType);
   const names = prepared.own.map(({ column }) => sql.identifier(column.name));
@@ -126,6 +146,13 @@ export const updateValues = async (
   await inOrder(prepared.outside, ({ side, value }) =>
     writeRelation(client, side, input.recordId, value),
   );
+  await afterWrite(client, {
+    recordType: input.recordType,
+    recordId: input.recordId,
+    fields,
+    before,
+    after: await allValues(client, input.recordType, input.recordId),
+  });
 
   return oneOf(client, input.recordType, input.recordId, 'update');
 };

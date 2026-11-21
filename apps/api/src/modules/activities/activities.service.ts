@@ -61,7 +61,8 @@ export const entryById = async (client: Db, id: string) =>
   oneRow(await selectEntries(client).where(eq(activities.id, id)).limit(1));
 
 export interface CoreActivity {
-  targetType: ActivityTarget;
+  /** A customer or company, or a record type's record (`custom.project`, `hr.employee`). */
+  targetType: ActivityTarget | `${string}.${string}`;
   targetId: string;
   type: string;
   data?: Record<string, unknown>;

@@ -1,5 +1,6 @@
 import type { Db } from '@erxes/core-db';
 import { type SQL, sql } from 'drizzle-orm';
+import { inOrder } from '~/lib/sequence';
 import { isComputed } from './columns';
 import type { ComputedValues } from './recordQueries';
 import { type DataFieldRow, customKeyOf, fieldsOf, tableOf } from './definitions';
@@ -42,7 +43,7 @@ export class Computer {
   private readonly models = new Map<string, Promise<TypeModel>>();
   private aliases = 0;
   /** The fields read so far (relations walked included), by id. */
-  readonly uses = new Set<string>();
+  uses = new Set<string>();
 
   private constructor(
     private readonly client: Db,
@@ -284,7 +285,8 @@ const aggregate = (
 
 /**
  * The formula and rollup values of a record type's fields in its own query, whose row is `ext`
- * and record id `id`; `join` gives the query the record's own fields they read.
+ * and record id `id`; `join` gives the query the record's own fields they read, and `uses` the
+ * fields each one reads (relations walked included), by its id.
  */
 export const computedFor = async (
   client: Db,
@@ -294,26 +296,26 @@ export const computedFor = async (
   id: SQL,
 ) => {
   const values: ComputedValues = new Map();
+  const uses = new Map<string, ReadonlySet<string>>();
   const list = fields.filter((field) => isComputed(field.type));
 
-  if (!list.length) return { values, join: sql`` };
+  if (!list.length) return { values, uses, join: sql`` };
 
   const computer = await Computer.create(client);
   const model = await computer.model(recordType);
   const own = computer.alias('own');
   const row: RecordRow = { ext, native: computer.nativeRow(model, ext, own), id };
 
-  const computed = await Promise.all(
-    list.map(
-      async (field) => [field.id, await computedValue(computer, model, row, field)] as const,
-    ),
-  );
-
-  for (const [fieldId, value] of computed) values.set(fieldId, value);
+  // One at a time, so each field's reads are its own.
+  await inOrder(list, async (field) => {
+    computer.uses = new Set();
+    values.set(field.id, await computedValue(computer, model, row, field));
+    uses.set(field.id, computer.uses);
+  });
 
   const join = customKeyOf(recordType) ? sql`` : computer.nativeJoin(model, own, id);
 
-  return { values, join };
+  return { values, uses, join };
 };
 
 /** A computed field's value over a record row, or null when it can't be read (a field it read was archived). */

@@ -52,6 +52,13 @@ export interface DataFieldRelation {
 /** A JSON value, as a jsonb column holds it. */
 export type DataJson = string | number | boolean | null | DataJson[] | { [key: string]: DataJson };
 
+/** Another field of the record whose value a rule waits on: `stage` `eq` `lost`. */
+export interface DataFieldCondition {
+  field: string;
+  operator: (typeof DATA_EXTENSION_VISIBLE_OPERATORS)[number];
+  value?: DataJson;
+}
+
 /** How a field behaves; the API checks each setting on every write. */
 export interface DataFieldSettings {
   required?: boolean;
@@ -68,11 +75,12 @@ export interface DataFieldSettings {
   showInCreate?: boolean;
   placeholder?: string;
   readOnly?: boolean;
-  visibleWhen?: {
-    field: string;
-    operator: (typeof DATA_EXTENSION_VISIBLE_OPERATORS)[number];
-    value?: DataJson;
-  };
+  visibleWhen?: DataFieldCondition;
+  /** Required while another field's value matches (`stage` is `lost` → a lost reason). */
+  requiredWhen?: DataFieldCondition;
+  /** The roles that see the field's values, and those that change them; empty: everyone. */
+  visibleTo?: string[];
+  editableBy?: string[];
   /** A formula field's expression (`{amount} * 1.1`); `result` is what the API found it gives. */
   formula?: { expression: string; result?: DataResultType };
   /**

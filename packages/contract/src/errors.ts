@@ -131,6 +131,8 @@ export const ERRORS = {
   INVALID_FIELD_VALUE: { status: 400, data: z.object({ fieldId: z.string() }) },
   INVALID_FIELD_GROUP: { status: 400, data: z.object({ groupId: z.string() }).optional() },
   FIELD_IN_USE: { status: 409, data: z.object({ fieldId: z.string() }).optional() },
+  /** Converting a field would clear this many values that don't fit its new type. */
+  UNCONVERTIBLE: { status: 409, data: z.object({ count: z.int() }) },
   // Data Extensions (the `dataextension` plugin): another change to the organisation's data
   // model held its tables past the lock timeout; the same change can be sent again.
   SCHEMA_BUSY: { status: 409 },

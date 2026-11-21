@@ -9,6 +9,7 @@ import { assertUnread, checkComputed } from './computedRules';
 import { changeSchema, setUnique } from './ddl';
 import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
 import { assertFieldDefinition } from './fieldRules';
+import { assertSettings, renameInConditions } from './writeRules';
 
 type FieldType = DataFieldRow['type'];
 
@@ -104,7 +105,14 @@ export const updateField = async (
 
   if (field.type !== 'relation') assertFieldDefinition(next);
 
-  if (changes.key && changes.key !== field.key) await assertUnread(client, [id], field.label);
+  if (changes.settings) {
+    await assertSettings(client, { ...field, key: changes.key ?? field.key, ...next });
+  }
+
+  if (changes.key && changes.key !== field.key) {
+    await assertUnread(client, [id], field.label);
+    await renameInConditions(client, field.recordType, field.key, changes.key);
+  }
 
   const settings =
     changes.settings && isComputed(next.type)

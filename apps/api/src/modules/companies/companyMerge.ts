@@ -4,6 +4,7 @@ import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
+import { mergeHostValues } from '~/modules/dataExtensions/hostRecords';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CompanyRow, findCompany, inOrg, selectCompanies } from './companyRows';
@@ -86,6 +87,7 @@ export const mergeCompanies = async (input: { ids: string[]; keepId: string }) =
   const otherIds = others.map((other) => other.id);
 
   await moveRelations(tx, keep.id, otherIds);
+  await mergeHostValues(tx, 'core.company', keep.id, otherIds);
   await tx.delete(companies).where(inArray(companies.id, otherIds));
 
   await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(keep.id));

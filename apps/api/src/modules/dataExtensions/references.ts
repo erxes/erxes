@@ -4,6 +4,7 @@ import { inArray, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { fail } from '~/http/errors';
 import { customKeyOf, qualified, tableOf } from './definitions';
+import { nativeSources } from './nativeSources';
 
 /** Core's record types a relation or member field can point to, and where their ids are. */
 const CORE_TABLES: Record<string, { table: PgTable; id: PgColumn }> = {
@@ -11,6 +12,22 @@ const CORE_TABLES: Record<string, { table: PgTable; id: PgColumn }> = {
   'core.company': { table: companies, id: companies.id },
   'core.product': { table: products, id: products.id },
   'core.member': { table: users, id: users.id },
+};
+
+/**
+ * A plugin's records among `ids`, read from the view its manifest object names; null when it
+ * names none core can read, so the ids are taken as given.
+ */
+const pluginIds = async (client: Db, recordType: string, ids: string[]) => {
+  const source = (await nativeSources(client))(recordType);
+
+  if (!source?.from) return null;
+
+  const { rows } = await client.execute<{ id: string }>(
+    sql`select ${sql.identifier(source.id)}::text as id from ${source.from} v where ${sql.identifier(source.id)} = any(${textArray(ids)})`,
+  );
+
+  return rows.map((row) => row.id);
 };
 
 const existing = async (client: Db, recordType: string, ids: string[]) => {
@@ -22,7 +39,9 @@ const existing = async (client: Db, recordType: string, ids: string[]) => {
     return rows.map((row) => String(row.id));
   }
 
-  const table = customKeyOf(recordType) ? await tableOf(client, recordType) : null;
+  if (!customKeyOf(recordType)) return pluginIds(client, recordType, ids);
+
+  const table = await tableOf(client, recordType);
 
   if (!table) return null;
 
@@ -35,8 +54,8 @@ const existing = async (client: Db, recordType: string, ids: string[]) => {
 
 /**
  * Throws 400 INVALID_REFERENCE (naming the input `field`) unless every id is a record of
- * `recordType`: core's or a custom object's in use. A plugin's records live in the plugin, so
- * its ids are taken as given.
+ * `recordType`: core's, a custom object's in use, or a plugin's its view has. A plugin object
+ * with no readable view has its ids taken as given.
  */
 export const assertRecordsExist = async (
   client: Db,

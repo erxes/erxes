@@ -64,7 +64,8 @@ export const Activity = createSelectSchema(activities, {
     /**
      * Core types: `updated` → `{ changes: { field: [before, after] } }`;
      * `tagged` → `{ added: ids, removed: ids }`; `merged` → `{ mergedIds }`;
-     * `*_linked` → `{ customerId | companyId }`.
+     * `*_linked` → `{ customerId | companyId }`; `data.record.created` and
+     * `data.values.changed` → `{ changes: DataExtensionValueChange[] }`.
      */
     data: true,
     link: true,

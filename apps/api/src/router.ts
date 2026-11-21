@@ -36,6 +36,7 @@ import { tagsRouter } from '~/modules/tags/tags.router';
 import { unitTypesRouter, unitsRouter } from '~/modules/units/units.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
 import {
+  dataChangesRouter,
   dataFieldsRouter,
   dataObjectsRouter,
   dataPluginsRouter,
@@ -91,4 +92,5 @@ export const coreRouter = unscoped.router({
   dataFields: dataFieldsRouter,
   dataRecords: dataRecordsRouter,
   dataValues: dataValuesRouter,
+  dataChanges: dataChangesRouter,
 });

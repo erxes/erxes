@@ -34,6 +34,26 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'rollup',
 ] as const;
 
+/** Types a field can be converted between, its values carried over where they fit. */
+export const DATA_EXTENSION_CONVERTIBLE_TYPES = [
+  'text',
+  'longText',
+  'email',
+  'phone',
+  'url',
+  'select',
+  'multiSelect',
+  'number',
+  'percent',
+  'rating',
+  'boolean',
+  'date',
+  'dateTime',
+] as const;
+
+/** A value history entry: a custom record made, or later values changed. */
+export const DATA_EXTENSION_CHANGE_KINDS = ['created', 'updated'] as const;
+
 /** What a formula or rollup's value is. */
 export const DATA_EXTENSION_RESULT_TYPES = [
   'number',

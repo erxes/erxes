@@ -1,6 +1,7 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
+import { DATA_EXTENSION_ACCESS } from './dataExtensionPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 
 /**
@@ -153,40 +154,7 @@ export const ACCESS = {
 
   'recordTypes.list': MEMBER,
 
-  'dataObjects.list': MEMBER,
-  'dataObjects.get': MEMBER,
-  'dataObjects.create': needs('properties.manage'),
-  'dataObjects.update': needs('properties.manage'),
-  'dataObjects.archive': needs('properties.manage'),
-  'dataObjects.restore': needs('properties.manage'),
-  'dataObjects.remove': needs('properties.manage'),
-
-  'dataPlugins.list': MEMBER,
-  'dataPlugins.connect': needs('properties.manage'),
-  'dataPlugins.disconnect': needs('properties.manage'),
-
-  // Plugins read the fields of their own record types, whose values they show (the service checks).
-  'dataFields.list': { member: 'any', plugin: 'installed' },
-  'dataFields.create': needs('properties.manage'),
-  'dataFields.relate': needs('properties.manage'),
-  'dataFields.update': needs('properties.manage'),
-  'dataFields.preview': needs('properties.manage'),
-  'dataFields.reorder': needs('properties.manage'),
-  'dataFields.archive': needs('properties.manage'),
-  'dataFields.restore': needs('properties.manage'),
-  'dataFields.remove': needs('properties.manage'),
-
-  'dataRecords.list': needs('objects.view'),
-  'dataRecords.get': needs('objects.view'),
-  'dataRecords.create': needs('objects.edit'),
-  'dataRecords.update': needs('objects.edit'),
-  'dataRecords.remove': needs('objects.delete'),
-  'dataRecords.restore': needs('objects.delete'),
-
-  // Values follow their record type's own rights; a plugin reaches only its own (the service checks).
-  'dataValues.get': { member: 'any', plugin: 'installed' },
-  'dataValues.lookup': { member: 'any', plugin: 'installed' },
-  'dataValues.update': { member: 'any', plugin: 'installed' },
+  ...DATA_EXTENSION_ACCESS,
 
   // Plugins read product groups (with products:read) and their own record types' (the service checks).
   'fieldGroups.list': { member: 'any', plugin: 'installed' },
