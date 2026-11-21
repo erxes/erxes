@@ -8,10 +8,14 @@ import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { agentCustomerToken } from '~/modules/customerAuth/customerSessions';
 import { type Agent, answerText, madeAgentName } from './agent';
 import { agentOrThrow, chatOf, modelKey, notifyRun } from './agents.service';
+import { showTool, shownBlocks } from './blocks';
 
-const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API first.`;
+const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. To show a product, a picture or a payment link, call show with what they gave you.`;
 
 const CUSTOMER_GUIDE = `You are talking with one signed-in customer. Their own orders, bookings and profile are under the website and customer procedures (names with ":website:" or ":customer:"), which act as them. Never look up other customers' records.`;
+
+/** The most entries one run reads back for what it showed. */
+const RUN_ENTRIES_MAX = 200;
 
 /** The key's caller now, or null once the key, its maker or the maker's role is gone. */
 const keyCallerOf = async (client: Db, keyId: string) => {
@@ -54,7 +58,7 @@ export const madeAgent = (id: string): Agent => ({
 
       const extension = defineExtension({
         name: 'made-agent',
-        tools,
+        tools: [...tools, showTool],
         sections: [
           section(
             'agent',
@@ -68,11 +72,19 @@ export const madeAgent = (id: string): Agent => ({
               if (chat) {
                 const answer = answerText(await api.entry(run.answer, context));
 
+                const { items } = await api.entries(
+                  { minEntryId: run.first, maxEntryId: run.last, order: 'ascending' },
+                  RUN_ENTRIES_MAX,
+                  undefined,
+                  context,
+                );
+
                 await notifyRun(scope.orgId, 'core.agent.finished', {
                   agentId: id,
                   plugin: chat.plugin,
                   key: scope.key,
                   answer,
+                  blocks: shownBlocks(items),
                 });
               }
 

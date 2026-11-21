@@ -19,6 +19,7 @@ import { fixedWindow } from '~/http/rateLimit';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
 import { type Agent, type AgentScope, answerText, madeAgentId } from './agent';
+import { isInput, shownBlocks } from './blocks';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -250,7 +251,9 @@ export const askAgent = async (
 
     if (settled.status !== 'done' || !answer) throw new Error('The agent did not answer');
 
-    return answer;
+    const run = items.slice(0, Math.max(0, items.findIndex(isInput))).toReversed();
+
+    return { answer, blocks: shownBlocks(run) };
   });
 };
 

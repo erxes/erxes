@@ -74,9 +74,7 @@ const tryAgent = async (id: string, text: string, restart: boolean) => {
 
   if (restart) await removeConversation(db(), agent, scope);
 
-  const answer = await askAgent(agent, scope, text).catch(busy);
-
-  return { answer };
+  return askAgent(agent, scope, text).catch(busy);
 };
 
 export const agentsRouter = {
