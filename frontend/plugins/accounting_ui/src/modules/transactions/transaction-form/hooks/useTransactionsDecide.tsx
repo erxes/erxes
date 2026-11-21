@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { nanoid } from 'nanoid';
 import { useTranslation } from 'react-i18next';
 import type { AccountingTransactionDecision } from '~/gql/graphql';
 import { TRANSACTION_CONTENT_TYPE } from '../../constants/transactionPanel';
@@ -9,10 +10,15 @@ import {
 } from '../graphql/mutations/accTransactionsDecide';
 import { TRANSACTIONS_DETAIL_QUERY } from '../graphql/queries/accTransactionsDetail';
 
-/** Internal notes store BlockNote blocks; a plain reason is one paragraph. */
-const toNoteContent = (text: string) =>
+/**
+ * Internal notes store BlockNote blocks; a plain reason is one paragraph. The
+ * note display (`parseBlocks`) accepts blocks only with an `id`, otherwise it
+ * prints the raw JSON.
+ */
+export const toNoteContent = (text: string) =>
   JSON.stringify([
     {
+      id: nanoid(),
       type: 'paragraph',
       props: {
         textColor: 'default',
