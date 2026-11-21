@@ -120,7 +120,7 @@
 
 /* The page itself prints only from a report (ReportPageContainer): edge to edge, with the
    browser's header and footer off and a little room at the top. Receipts print in their own
-   frame (printHtml). */
+   frame (printHtml), and a plugin's voucher in one with these styles and its own @page (printElement). */
 @page {
   margin: 0;
   margin-top: 5mm;

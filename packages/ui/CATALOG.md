@@ -320,6 +320,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type NextPage { hasNextPage, isFetchingNextPage, fetchNextPage }` The next page of a list, as an infinite query has it.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
+- `printElement(element, { page })` Prints one element of the page, with the page's own styles.
 - `printHtml(html)` Prints a whole HTML page through the browser's print dialog.
 - `readImage(value)` The address to show a stored file at.
 - `SexCode` A person's sex as an ISO/IEC 5218 code.

@@ -269,6 +269,7 @@ value oneOf
 value parseDateRangeFromString
 value pluginFetch
 value pluginJson
+value printElement
 value printHtml
 value productTitle
 value readImage

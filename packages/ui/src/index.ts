@@ -459,7 +459,7 @@ export {
 
 export { addPluginStyles } from './utils/plugin-styles';
 
-export { printHtml } from './utils/print';
+export { printElement, printHtml } from './utils/print';
 
 export {
   RecordTimeline,
