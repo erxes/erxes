@@ -1,5 +1,5 @@
 import { CORE_API_PREFIX } from '@erxes/core-contract';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { base64url, createRemoteJWKSet, jwtVerify } from 'jose';
 import type { z } from 'zod';
 
 export interface VerifyOptions {
@@ -61,8 +61,5 @@ export const sha256 = async (body: string | Uint8Array<ArrayBuffer>) => {
     ),
   );
 
-  return btoa(String.fromCharCode(...digest))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+  return base64url.encode(digest);
 };
