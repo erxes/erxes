@@ -35,7 +35,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
     return { invoice, receipt };
   };
 
-  it('has a default template for each plugin eBarimt issues receipts for', async () => {
+  it('has a default template for core and each plugin that takes payments', async () => {
     expect(await t.owner().ebarimt.printTemplates({})).toEqual({ data: [] });
     await expect(
       t.owner().ebarimt.previewPrint({ paperSize: '80mm', blocks: [] }),
@@ -45,14 +45,14 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
 
     const { data } = await t.owner().ebarimt.printTemplates({});
 
-    expect(data).toHaveLength(1);
-    expect(data[0]).toMatchObject({
+    expect(data.map((row) => row.plugin)).toEqual(['core', 'hr']);
+    expect(data[1]).toMatchObject({
       plugin: 'hr',
       paperSize: '80mm',
       headerText: '',
       updatedAt: null,
     });
-    expect(data[0]?.blocks.map((block) => block.type)).toEqual([
+    expect(data[1]?.blocks.map((block) => block.type)).toEqual([
       'merchant',
       'header',
       'bill',

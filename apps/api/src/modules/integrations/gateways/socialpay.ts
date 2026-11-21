@@ -12,7 +12,7 @@ import {
   qrInstructions,
   toTugrug,
 } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 const keys = z.object({ terminal: field('Terminal'), terminalKey: secret('Terminal key') });
 
@@ -36,12 +36,7 @@ const Answer = z.object({
     .optional(),
 });
 
-/**
- * SocialPay (Golomt Bank's wallet) in-store invoices: a deeplink QR, or a push
- * to the payer's phone when it is given. Every request is signed with the
- * terminal key: HMAC-SHA256 of terminal + invoice + amount (+ phone).
- */
-const socialpayDriver = (config: SocialPayConfig, options: DriverOptions = {}): GatewayDriver => {
+const socialpayClient = (config: SocialPayConfig, options: ClientOptions) => {
   const send = gatewayHttp('SocialPay', 'https://instore.golomtbank.com/pos/invoice', options);
 
   const signed = (invoice: string, amount: number, phone?: string) => {
@@ -85,16 +80,35 @@ const socialpayDriver = (config: SocialPayConfig, options: DriverOptions = {}): 
     return response.desc;
   };
 
-  return {
-    kind: 'socialpay',
-    async verify() {
-      // SocialPay has no sign-in: a ₮1 invoice proves the terminal and key, then goes.
-      const invoice = probeId();
+  return { signed, call, createQr };
+};
 
-      await createQr(invoice, 100);
-      await call('/cancel', signed(invoice, 100)).catch(() => undefined);
-    },
-    async createInvoice(input) {
+/**
+ * SocialPay (Golomt Bank's wallet) in-store invoices: a deeplink QR, or a push
+ * to the payer's phone when it is given. Every request is signed with the
+ * terminal key: HMAC-SHA256 of terminal + invoice + amount (+ phone).
+ */
+export const socialpay = defineIntegration({
+  key: 'socialpay',
+  name: 'SocialPay',
+  summary: "Golomt Bank's wallet: a QR code, or an invoice sent to the payer's phone.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: socialpayClient,
+  async verify({ signed, call, createQr }) {
+    // SocialPay has no sign-in: a ₮1 invoice proves the terminal and key, then goes.
+    const invoice = probeId();
+
+    await createQr(invoice, 100);
+    await call('/cancel', signed(invoice, 100)).catch(() => undefined);
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'app-qr',
+    async createInvoice({ signed, call, createQr }, input) {
       const phone = input.payerPhone?.replace(/\D/g, '');
 
       if (phone) {
@@ -113,7 +127,7 @@ const socialpayDriver = (config: SocialPayConfig, options: DriverOptions = {}): 
         payment: await qrInstructions(deeplink, [{ name: 'SocialPay', link: deeplink }]),
       };
     },
-    async check(gatewayInvoiceId, amount) {
+    async check({ signed, call }, { gatewayInvoiceId, amount }) {
       const response = await call('/check', signed(gatewayInvoiceId, amount));
       const paid = response.resp_code === '00';
       const paidAmount = paid ? fromTugrug(response.amount ?? toTugrug(amount)) : 0;
@@ -124,7 +138,7 @@ const socialpayDriver = (config: SocialPayConfig, options: DriverOptions = {}): 
         paymentId: paid ? gatewayInvoiceId : null,
       };
     },
-    async cancel(gatewayInvoiceId, amount) {
+    async cancel({ signed, call }, { gatewayInvoiceId, amount }) {
       const response = await call('/cancel', signed(gatewayInvoiceId, amount));
 
       if (response.resp_code !== '00')
@@ -133,17 +147,5 @@ const socialpayDriver = (config: SocialPayConfig, options: DriverOptions = {}): 
     refund() {
       return Promise.reject(new GatewayError('SocialPay makes no refunds'));
     },
-  };
-};
-
-export const socialpay = defineIntegration({
-  key: 'socialpay',
-  name: 'SocialPay',
-  summary: "Golomt Bank's wallet: a QR code, or an invoice sent to the payer's phone.",
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => socialpayDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: socialpayDriver },
+  },
 });

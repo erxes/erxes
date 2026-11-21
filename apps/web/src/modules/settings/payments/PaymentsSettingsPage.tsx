@@ -10,7 +10,7 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
-import { ConnectGateways, NoGateways, PluginGatewaySettings } from './PluginGateways';
+import { ConnectGateways, DefaultGateway, NoGateways } from './Gateways';
 import { InvoiceDetails } from './InvoiceDetails';
 import { STATUS_BADGE } from './invoiceStatus';
 
@@ -135,7 +135,7 @@ const CurrencyNote = () => {
   );
 };
 
-/** Settings › Payments: which gateways plugins use, and the invoices they made. */
+/** Settings › Payments: the default gateway, and the invoices made. */
 export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const canManage = useCan()('payments.manage');
@@ -171,7 +171,7 @@ export const PaymentsSettingsPage = () => {
               </section>
             }
           >
-            {({ data }) => <PluginGatewaySettings gateways={data} />}
+            {({ data }) => <DefaultGateway gateways={data} />}
           </QueryState>
           <Invoices />
         </div>

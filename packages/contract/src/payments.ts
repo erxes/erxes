@@ -1,5 +1,5 @@
 import { GATEWAY_REFUND_KINDS, RECORDED_PAYMENT_METHODS } from '@erxes/core-db/enums';
-import { paymentInvoices, paymentPluginSettings, paymentRefunds } from '@erxes/core-db/schema';
+import { organizations, paymentInvoices, paymentRefunds } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
@@ -117,15 +117,11 @@ export const Refund = createSelectSchema(paymentRefunds, {
 
 export type Refund = z.infer<typeof Refund>;
 
-/** How a plugin takes payments here: its default gateway, and the only ones it may use (none: any). */
-export const PluginPaymentSettings = createSelectSchema(paymentPluginSettings, {
-  defaultGatewayId: () => Id,
-  allowedGatewayIds: () => z.array(Id),
-})
-  .pick({ plugin: true, defaultGatewayId: true, allowedGatewayIds: true })
-  .extend({ title: z.string() });
+export const PaymentSettings = createSelectSchema(organizations, {
+  defaultGatewayId: () => Id.nullable(),
+}).pick({ defaultGatewayId: true });
 
-export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
+export type PaymentSettings = z.infer<typeof PaymentSettings>;
 
 /**
  * Payments: an organisation's gateway connections (QPay, …) and invoices
@@ -134,8 +130,6 @@ export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
  */
 const {
   CURRENCY_NOT_SUPPORTED,
-  DEFAULT_NOT_ALLOWED,
-  GATEWAY_NOT_ALLOWED,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
@@ -154,8 +148,6 @@ const {
 const base = oc.errors({
   ...COMMON_ERRORS,
   CURRENCY_NOT_SUPPORTED,
-  DEFAULT_NOT_ALLOWED,
-  GATEWAY_NOT_ALLOWED,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
@@ -184,7 +176,7 @@ export const paymentsContract = {
       path: '/payments/invoices',
       successStatus: 201,
       summary:
-        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the first allowed gateway that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
+        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the organisation's default gateway, else the oldest active one that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
     })
     .input(
       InvoiceFields.extend({
@@ -251,23 +243,23 @@ export const paymentsContract = {
     .route({ method: 'GET', path: '/payments/invoices/{id}/refunds' })
     .input(z.object({ id: Id }))
     .output(listOf(Refund)),
-  pluginSettings: base
+  settings: base
     .route({
       method: 'GET',
-      path: '/payments/plugins',
-      summary: 'Installed plugins that take payments, with their gateway settings',
+      path: '/payments/settings',
+      summary:
+        'The organisation’s default gateway, which an invoice goes through unless it names one; null: the oldest active one that takes its currency',
     })
-    .output(listOf(PluginPaymentSettings)),
-  updatePluginSettings: base
-    .route({ method: 'PUT', path: '/payments/plugins/{plugin}' })
-    .input(
-      z.object({
-        plugin: z.string().min(1).max(60),
-        defaultGatewayId: Id.nullable(),
-        allowedGatewayIds: z.array(Id).max(50),
-      }),
-    )
-    .output(PluginPaymentSettings),
+    .output(PaymentSettings),
+  saveSettings: base
+    .route({
+      method: 'PUT',
+      path: '/payments/settings',
+      summary:
+        'Set or clear the default gateway, for every invoice of the organisation. 400 NO_GATEWAY when it is not an active gateway here',
+    })
+    .input(z.object({ defaultGatewayId: Id.nullable() }))
+    .output(PaymentSettings),
   invoices: base
     .route({ method: 'GET', path: '/payments/invoices', summary: 'Invoices, newest first' })
     .input(

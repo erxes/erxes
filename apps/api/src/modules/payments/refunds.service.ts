@@ -7,7 +7,7 @@ import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { gatewayOf } from '~/modules/integrations/registry';
-import { driverOf, type GatewayRow } from './gateways.service';
+import { gatewayAt, type GatewayRow } from './gateways.service';
 import { eventPayload, type InvoiceRow, invoiceWithGateway, shownInvoice } from './invoiceState';
 
 const log = logger.child({ component: 'payments' });
@@ -98,8 +98,10 @@ const gatewayRefund = async (
   gateway: GatewayRow,
   input: { paymentId: string; amount: number; note: string },
 ) => {
+  const { payments, client } = gatewayAt(gateway);
+
   try {
-    const result = await driverOf(gateway).refund(input, invoice.payment);
+    const result = await payments.refund(client, { ...input, state: invoice.payment });
 
     return { status: 'succeeded' as const, gatewayRefundId: result.refundId, error: null };
   } catch (error) {

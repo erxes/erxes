@@ -13,7 +13,7 @@ import {
   withBearer,
 } from './http';
 import { defineIntegration, field, secret, toggle } from '../define';
-import type { CreateInvoiceInput, DriverOptions, GatewayDriver } from './types';
+import type { ClientOptions, CreateInvoiceInput } from './types';
 
 const keys = z.object({
   clientId: field('Client ID'),
@@ -62,7 +62,7 @@ const CheckAnswer = z.object({
 });
 
 /** QPay's API with its access token, cached per connection and mode. */
-const qpayClient = (config: QPayConfig, options: DriverOptions) => {
+const qpayClient = (config: QPayConfig, options: ClientOptions) => {
   const send = gatewayHttp(
     'QPay',
     config.sandbox ? 'https://merchant-sandbox.qpay.mn/v2' : 'https://merchant.qpay.mn/v2',
@@ -160,34 +160,6 @@ const checkPayment = async (request: Send, gatewayInvoiceId: string, amount: num
  * QPay takes amounts in tögrög; we keep hundredths (MNT's smallest unit). Core
  * sends it MNT invoices only.
  */
-const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
-  const { request, cache } = qpayClient(config, options);
-
-  return {
-    kind: 'qpay',
-    async verify() {
-      cache.forget();
-      await cache.token();
-    },
-    createInvoice: (input) => createInvoice(request, config, input),
-    check: (gatewayInvoiceId, amount) => checkPayment(request, gatewayInvoiceId, amount),
-    async cancel(gatewayInvoiceId) {
-      await request(`/invoice/${encodeURIComponent(gatewayInvoiceId)}`, { method: 'DELETE' });
-    },
-    async refund(input) {
-      await request(`/payment/refund/${encodeURIComponent(input.paymentId)}`, {
-        method: 'DELETE',
-        body: json({
-          note: input.note.slice(0, 255),
-          ...(input.callbackUrl ? { callback_url: input.callbackUrl } : {}),
-        }),
-      });
-
-      return { refundId: null };
-    },
-  };
-};
-
 export const qpay = defineIntegration({
   key: 'qpay',
   name: 'QPay',
@@ -196,6 +168,31 @@ export const qpay = defineIntegration({
   countries: ['MN'],
   permission: 'payments.manage',
   keys,
-  verify: (config, options) => qpayDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'full', pays: 'bank-qr', driver: qpayDriver },
+  client: (config, options) => ({ config, ...qpayClient(config, options) }),
+  async verify({ cache }) {
+    cache.forget();
+    await cache.token();
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'full',
+    pays: 'bank-qr',
+    createInvoice: ({ request, config }, input) => createInvoice(request, config, input),
+    check: ({ request }, { gatewayInvoiceId, amount }) =>
+      checkPayment(request, gatewayInvoiceId, amount),
+    async cancel({ request }, { gatewayInvoiceId }) {
+      await request(`/invoice/${encodeURIComponent(gatewayInvoiceId)}`, { method: 'DELETE' });
+    },
+    async refund({ request }, { paymentId, note, callbackUrl }) {
+      await request(`/payment/refund/${encodeURIComponent(paymentId)}`, {
+        method: 'DELETE',
+        body: json({
+          note: note.slice(0, 255),
+          ...(callbackUrl ? { callback_url: callbackUrl } : {}),
+        }),
+      });
+
+      return { refundId: null };
+    },
+  },
 });

@@ -1,5 +1,4 @@
 import { db } from '@erxes/core-db';
-import { receiptPlugins } from '~/modules/ebarimt/plugins';
 import { findCompany } from '~/modules/ebarimt/posapi';
 import {
   listPrintTemplates,
@@ -20,7 +19,6 @@ import { scoped, unscoped } from '~/orpc';
 
 export const ebarimtRouter = {
   settings: scoped.ebarimt.settings.handler(() => getSettings(db())),
-  plugins: scoped.ebarimt.plugins.handler(() => receiptPlugins(db())),
   saveSettings: scoped.ebarimt.saveSettings.handler(({ input }) => saveSettings(db(), input)),
   removeSettings: scoped.ebarimt.removeSettings.handler(() => removeSettings(db())),
   testConnection: unscoped.ebarimt.testConnection.handler(({ input }) =>

@@ -17,7 +17,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { test } from '~/modules/integrations/gateways/test';
 import { type CreateInvoiceInput, GatewayError } from '~/modules/integrations/gateways/types';
 import { getOrganization } from '~/modules/organizations/organizations.service';
-import { driverOf, type GatewayRow, resolveGateway } from './gateways.service';
+import { gatewayAt, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
 import {
   callbackSignature,
@@ -63,8 +63,10 @@ interface InvoiceInput {
 
 /** The gateway's invoice; a refusal (a payer it can't bill, an amount it won't take) is a 400. */
 const openAtGateway = async (gateway: GatewayRow, input: CreateInvoiceInput) => {
+  const { payments, client } = gatewayAt(gateway);
+
   try {
-    return await driverOf(gateway).createInvoice(input);
+    return await payments.createInvoice(client, input);
   } catch (error) {
     if (!(error instanceof GatewayError)) throw error;
 
@@ -186,8 +188,14 @@ export const cancelInvoice = async (id: string) => {
     throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
   }
 
-  await driverOf(gateway)
-    .cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment)
+  const { payments, client } = gatewayAt(gateway);
+
+  await payments
+    .cancel(client, {
+      gatewayInvoiceId: invoice.gatewayInvoiceId ?? '',
+      amount: invoice.amount,
+      state: invoice.payment,
+    })
     .catch((error: unknown) =>
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );

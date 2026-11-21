@@ -56,8 +56,8 @@ export const PluginManifest = z.object({
   countries: z.array(Country).max(250).optional(),
   /**
    * Who issues tax receipts for its invoices: core's integration (eBarimt,
-   * the default), or `own` when the plugin sends them itself. An `own`
-   * plugin can't be picked in core's eBarimt settings, so no invoice gets two.
+   * the default), or `own` when the plugin sends them itself. Core issues
+   * none for an `own` plugin's invoices, so no invoice gets two.
    */
   taxReceipts: z.enum(TAX_RECEIPT_ISSUERS).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */

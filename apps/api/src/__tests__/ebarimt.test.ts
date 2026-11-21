@@ -39,7 +39,6 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     expect(await t.owner().ebarimt.saveSettings(settings())).toMatchObject({
       status: 'active',
       vatPercent: 10,
-      plugins: ['hr'],
     });
     // The other organisation sees none of it.
     expect(await t.other().ebarimt.settings({})).toBeNull();
@@ -204,10 +203,10 @@ describe('ebarimt', { timeout: 240_000 }, () => {
       return invoice;
     };
 
-    // Another currency, or a plugin eBarimt isn't on for: no receipt.
+    // Another currency, or eBarimt turned off: no receipt.
     const dollars = await paid('usd', 'USD');
 
-    await t.owner().ebarimt.saveSettings({ ...settings(), plugins: [] });
+    await t.owner().ebarimt.saveSettings({ ...settings(), status: 'disabled' });
 
     const other = await paid('off');
 
@@ -215,7 +214,7 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     expect(await receiptsOf(dollars.id)).toEqual([]);
     expect(await receiptsOf(other.id)).toEqual([]);
 
-    await t.owner().ebarimt.saveSettings(settings());
+    await t.owner().ebarimt.saveSettings({ ...settings(), status: 'active' });
     fake.refuse = 'Invalid merchant';
 
     const invoice = await paid('o8');

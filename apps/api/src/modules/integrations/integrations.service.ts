@@ -98,7 +98,7 @@ const verified = async (
   keys: Record<string, unknown>,
 ) => {
   try {
-    await integration.verify(keys, { cacheKey: id });
+    await integration.verify(integration.client(keys, { cacheKey: id }));
   } catch (error) {
     throw fail(
       'GATEWAY_REFUSED',

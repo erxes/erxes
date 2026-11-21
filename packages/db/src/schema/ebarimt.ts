@@ -26,8 +26,8 @@ import { paymentInvoices } from './payments';
 
 // eBarimt, Mongolia's tax receipts. An organisation turns it on in Settings ›
 // Integrations; core then sends a receipt to the merchant's PosAPI (a service
-// the tax office gives each merchant) for every paid invoice of the plugins it
-// picks, and returns or replaces it when the invoice is refunded.
+// the tax office gives each merchant) for every paid invoice, except a plugin's
+// that sends its own, and returns or replaces it when the invoice is refunded.
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -58,11 +58,6 @@ export const ebarimtSettings = pgTable(
     cityTaxPercent: doublePrecision().default(0).notNull(),
     /** The product classification code sent on every line. */
     classificationCode: text().default('').notNull(),
-    /** The plugins whose paid invoices get receipts (`core` for core's own). */
-    plugins: text()
-      .array()
-      .default(sql`'{}'::text[]`)
-      .notNull(),
     rules: jsonb().$type<EbarimtTaxRule[]>().default([]).notNull(),
     updatedBy: text(),
     createdAt: createdAt(),

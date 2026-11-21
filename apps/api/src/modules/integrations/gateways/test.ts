@@ -1,38 +1,11 @@
 import { z } from 'zod';
 import { defineIntegration } from '../define';
-import { type GatewayDriver, GatewayError } from './types';
+import { GatewayError } from './types';
 
 /**
  * Development and tests: nothing leaves the server. Core's `test-pay` sets
  * `testPaid` on the invoice; `testRefundFails` makes refunds fail.
  */
-const testDriver = (): GatewayDriver => ({
-  kind: 'test',
-  async verify() {},
-  async createInvoice(input) {
-    return {
-      gatewayInvoiceId: `test_${input.invoiceId}`,
-      payment: { qrText: `TEST:${input.invoiceId}`, qrImage: null, shortUrl: null, links: [] },
-    };
-  },
-  async check(gatewayInvoiceId, amount, state) {
-    const paid = state.testPaid === true;
-
-    return {
-      paid,
-      paidAmount: paid ? amount : 0,
-      paymentId: paid ? `pay_${gatewayInvoiceId}` : null,
-    };
-  },
-  async cancel() {},
-  async refund(input, state) {
-    if (state.testRefundFails === true)
-      throw new GatewayError('The test gateway refused the refund');
-
-    return { refundId: `refund_${input.paymentId}_${input.amount}` };
-  },
-});
-
 export const test = defineIntegration({
   key: 'test',
   name: 'Test',
@@ -41,6 +14,33 @@ export const test = defineIntegration({
   countries: [],
   permission: 'payments.manage',
   keys: z.object({}),
-  verify: () => testDriver().verify(),
-  payments: { currencies: [], refunds: 'partial', pays: 'test', driver: testDriver },
+  client: () => ({}),
+  async verify() {},
+  payments: {
+    currencies: [],
+    refunds: 'partial',
+    pays: 'test',
+    async createInvoice(_client, input) {
+      return {
+        gatewayInvoiceId: `test_${input.invoiceId}`,
+        payment: { qrText: `TEST:${input.invoiceId}`, qrImage: null, shortUrl: null, links: [] },
+      };
+    },
+    async check(_client, { gatewayInvoiceId, amount, state }) {
+      const paid = state.testPaid === true;
+
+      return {
+        paid,
+        paidAmount: paid ? amount : 0,
+        paymentId: paid ? `pay_${gatewayInvoiceId}` : null,
+      };
+    },
+    async cancel() {},
+    async refund(_client, { paymentId, amount, state }) {
+      if (state.testRefundFails === true)
+        throw new GatewayError('The test gateway refused the refund');
+
+      return { refundId: `refund_${paymentId}_${amount}` };
+    },
+  },
 });

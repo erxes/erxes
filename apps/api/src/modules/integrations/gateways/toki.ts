@@ -11,7 +11,7 @@ import {
   withBearer,
 } from './http';
 import { defineIntegration, field, secret } from '../define';
-import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 const keys = z.object({
   merchantId: field('Merchant ID'),
@@ -42,11 +42,7 @@ const why = (answer: { code?: number; error?: string | { message?: string | null
 /** Toki keeps the id it checks by in the invoice's state. */
 const State = z.object({ tokiTransactionId: z.string().optional() });
 
-/**
- * Toki (Unitel's super app) merchant QR payment requests: the payer scans the
- * request id in Toki; checked by its transaction id, cancelled by request id.
- */
-const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDriver => {
+const tokiClient = (config: TokiConfig, options: ClientOptions) => {
   const send = gatewayHttp('Toki', 'https://ms-api.toki.mn/third-party-service/v1', options);
 
   const cache = tokenCache(`toki:${options.cacheKey ?? config.merchantId}`, async () => {
@@ -67,13 +63,31 @@ const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDri
   const authorized = withBearer(send, cache.token);
   const call = (path: string, init?: RequestInit) => authorized(`/payment-request${path}`, init);
 
-  return {
-    kind: 'toki',
-    async verify() {
-      cache.forget();
-      await cache.token();
-    },
-    async createInvoice(input) {
+  return { config, cache, call };
+};
+
+/**
+ * Toki (Unitel's super app) merchant QR payment requests: the payer scans the
+ * request id in Toki; checked by its transaction id, cancelled by request id.
+ */
+export const toki = defineIntegration({
+  key: 'toki',
+  name: 'Toki',
+  summary: "Unitel's super app: a QR code payers scan in Toki.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: tokiClient,
+  async verify({ cache }) {
+    cache.forget();
+    await cache.token();
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'app-qr',
+    async createInvoice({ config, call }, input) {
       const answer = parse(
         'Toki',
         RequestAnswer,
@@ -100,7 +114,7 @@ const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDri
         state: { tokiTransactionId: answer.data.transactionId ?? answer.data.requestId },
       };
     },
-    async check(gatewayInvoiceId, amount, state) {
+    async check({ call }, { gatewayInvoiceId, amount, state }) {
       const requestId = State.parse(state).tokiTransactionId ?? gatewayInvoiceId;
 
       const answer = parse(
@@ -116,23 +130,11 @@ const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDri
 
       return { paid, paidAmount: paid ? amount : 0, paymentId: paid ? requestId : null };
     },
-    async cancel(gatewayInvoiceId) {
+    async cancel({ call }, { gatewayInvoiceId }) {
       await call(`/${encodeURIComponent(gatewayInvoiceId)}`, { method: 'PATCH' });
     },
     refund() {
       return Promise.reject(new GatewayError('Toki makes no refunds'));
     },
-  };
-};
-
-export const toki = defineIntegration({
-  key: 'toki',
-  name: 'Toki',
-  summary: "Unitel's super app: a QR code payers scan in Toki.",
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => tokiDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: tokiDriver },
+  },
 });

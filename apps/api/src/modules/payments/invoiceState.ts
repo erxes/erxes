@@ -19,7 +19,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { INTEGRATIONS } from '~/modules/integrations/registry';
 import { withSecret } from '~/modules/secrets/vault';
-import { driverOf } from './gateways.service';
+import { gatewayAt } from './gateways.service';
 
 const log = logger.child({ component: 'payments' });
 
@@ -177,11 +177,13 @@ export const refresh = async (orgId: string, id: string) => {
     return { invoice, gateway };
   }
 
-  const check = await driverOf(gateway).check(
-    invoice.gatewayInvoiceId,
-    invoice.amount,
-    invoice.payment,
-  );
+  const { payments, client } = gatewayAt(gateway);
+
+  const check = await payments.check(client, {
+    gatewayInvoiceId: invoice.gatewayInvoiceId,
+    amount: invoice.amount,
+    state: invoice.payment,
+  });
 
   return withOrg(orgId, async (tx) => {
     if (check.paid) return { invoice: await markPaid(tx, invoice, gateway.key, check), gateway };

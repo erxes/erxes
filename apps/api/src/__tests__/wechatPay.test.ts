@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { generateKeyPairSync, verify } from '~/lib/crypto';
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { gatewayOf, openGateway } from '~/modules/integrations/registry';
 import { fakeGateway } from './fakeGateway';
 
 const keys = generateKeyPairSync('rsa', {
@@ -42,9 +42,9 @@ describe('WeChat Pay', () => {
       ['POST /v3/global/transactions/native', { code_url: 'weixin://wxpay/bizpayurl?pr=abc' }],
     ]);
 
-    const driver = gatewayDriver('wechatpay', config, { fetch: gateway.fetch });
+    const { payments, client } = openGateway('wechatpay', config, { fetch: gateway.fetch });
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(created).toMatchObject({
       gatewayInvoiceId: 'inv3',
@@ -91,17 +91,24 @@ describe('WeChat Pay', () => {
       ['POST /v3/global/refunds', { id: '50300000001' }],
     ]);
 
-    const driver = gatewayDriver('wechatpay', config, { fetch: gateway.fetch });
+    const { payments, client } = openGateway('wechatpay', config, { fetch: gateway.fetch });
     const state = { wechatTotal: 1500, wechatCurrency: 'USD' };
 
-    await driver.verify();
-    expect(await driver.check('inv3', 1500, state)).toEqual({
-      paid: true,
-      paidAmount: 1500,
-      paymentId: '4200000001',
-    });
+    await gatewayOf('wechatpay').verify(client);
+    expect(await payments.check(client, { gatewayInvoiceId: 'inv3', amount: 1500, state })).toEqual(
+      {
+        paid: true,
+        paidAmount: 1500,
+        paymentId: '4200000001',
+      },
+    );
     expect(
-      await driver.refund({ paymentId: '4200000001', amount: 500, note: 'One item back' }, state),
+      await payments.refund(client, {
+        paymentId: '4200000001',
+        amount: 500,
+        note: 'One item back',
+        state,
+      }),
     ).toEqual({ refundId: '50300000001' });
     expect(gateway.sent('/refunds')).toMatchObject({
       transaction_id: '4200000001',
@@ -110,12 +117,12 @@ describe('WeChat Pay', () => {
   });
 
   it('refuses a private key that is not a PEM key', async () => {
-    const driver = gatewayDriver(
+    const { payments, client } = openGateway(
       'wechatpay',
       { ...config, privateKey: '-----BEGIN PRIVATE KEY----- nope -----END PRIVATE KEY-----' },
       { fetch: fakeGateway([]).fetch },
     );
 
-    await expect(driver.createInvoice(invoice)).rejects.toMatchObject({ status: 400 });
+    await expect(payments.createInvoice(client, invoice)).rejects.toMatchObject({ status: 400 });
   });
 });

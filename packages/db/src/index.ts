@@ -73,7 +73,6 @@ export {
   exports,
   usedTokens,
   auditStreams,
-  paymentPluginSettings,
   paymentRefunds,
   ebarimtSettings,
   ebarimtReceipts,

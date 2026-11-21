@@ -1,7 +1,7 @@
 import type { EbarimtSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Checkbox, Input, Label, Spinner, useToast } from 'erxes-ui';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button, Input, Label, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type DraftRule, draftRule, EbarimtRules } from './EbarimtRules';
@@ -38,66 +38,10 @@ const draftOf = (saved: EbarimtSettings | null) => ({
     vatPercent: String(saved?.vatPercent ?? 10),
     cityTaxPercent: String(saved?.cityTaxPercent ?? 0),
   } satisfies Record<TextKey, string>,
-  plugins: saved?.plugins ?? [],
   rules: (saved?.rules ?? []).map(draftRule),
 });
 
 type Draft = ReturnType<typeof draftOf>;
-
-/** The plugins that take payments here: each one's paid invoices may get receipts. */
-const PluginChoice = ({
-  value,
-  onChange,
-}: {
-  value: string[];
-  onChange: (plugins: string[]) => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const id = useId();
-  const plugins = useQuery(orpc.ebarimt.plugins.queryOptions());
-  const rows = plugins.data?.data ?? [];
-  const own = rows.filter((row) => row.ownReceipts);
-
-  return (
-    <div className="space-y-2">
-      <Label>{t('plugins', 'Issue receipts for invoices of')}</Label>
-      {plugins.isError && (
-        <p className="text-xs text-destructive-text">
-          {t('plugins-failed', 'Could not load the plugins that take payments.')}
-        </p>
-      )}
-      {plugins.isSuccess && !rows.length && (
-        <p className="text-xs text-muted-foreground">
-          {t('no-plugins', 'No installed plugin takes payments yet.')}
-        </p>
-      )}
-      <div className="flex flex-wrap gap-4">
-        {rows.map((row) => (
-          <span key={row.plugin} className="flex items-center gap-2 text-sm">
-            <Checkbox
-              id={`${id}-${row.plugin}`}
-              disabled={row.ownReceipts}
-              checked={value.includes(row.plugin)}
-              onCheckedChange={(on) =>
-                onChange(on ? [...value, row.plugin] : value.filter((name) => name !== row.plugin))
-              }
-            />
-            <label htmlFor={`${id}-${row.plugin}`}>{row.title}</label>
-          </span>
-        ))}
-      </div>
-      {own.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {t('own-receipts', {
-            defaultValue:
-              '{{plugins}} send their own eBarimt receipts, so core issues none for them.',
-            plugins: own.map((row) => row.title).join(', '),
-          })}
-        </p>
-      )}
-    </div>
-  );
-};
 
 /** Asks the PosAPI at the typed address for its state. */
 const TestConnection = ({ posApiUrl }: { posApiUrl: string }) => {
@@ -165,13 +109,12 @@ const inputOf = (draft: Draft, rules: DraftRule[]) => ({
   ...draft.text,
   vatPercent: Number(draft.text.vatPercent || 0),
   cityTaxPercent: Number(draft.text.cityTaxPercent || 0),
-  plugins: draft.plugins,
   rules: rules
     .filter((rule) => rule.categoryIds.length || rule.productIds.length)
     .map(({ key: _key, ...rule }) => rule),
 });
 
-/** The form's groups: connection, business, taxes and plugins. */
+/** The form's groups: connection, business and taxes. */
 const FormSections = ({
   draft,
   onChange: setDraft,
@@ -227,18 +170,6 @@ const FormSections = ({
           {TAX_FIELDS.map(({ key, label, placeholder }) => field(key, label, placeholder))}
         </div>
         <EbarimtRules rules={draft.rules} onChange={(rules) => setDraft({ ...draft, rules })} />
-      </FormSection>
-      <FormSection
-        title={t('section.plugins', 'Plugins')}
-        description={t(
-          'section.plugins-description',
-          'Paid invoices of these plugins get receipts, whether paid through a gateway or in cash.',
-        )}
-      >
-        <PluginChoice
-          value={draft.plugins}
-          onChange={(plugins) => setDraft({ ...draft, plugins })}
-        />
       </FormSection>
     </>
   );

@@ -22,7 +22,7 @@ const answer = (res: ServerResponse, status: number, body: unknown) => {
 /**
  * A merchant's PosAPI and the tax office's lookup on one local server, for
  * the file's tests: `fake` is what PosAPI received (and `refuse` makes it
- * refuse receipts), `settings()` eBarimt settings that point at it for `hr`.
+ * refuse receipts), `settings()` eBarimt settings that point at it.
  * The tax office knows one company, registration 1234567.
  */
 export const usePosApi = () => {
@@ -100,7 +100,6 @@ export const usePosApi = () => {
       merchantTin: '37900846788',
       districtCode: '3505',
       posNo: '10001',
-      plugins: ['hr'],
     }),
   };
 };

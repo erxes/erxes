@@ -161,8 +161,6 @@ export const ERRORS = {
 
   // Payments.
   CURRENCY_NOT_SUPPORTED: { status: 400, data: z.object({ currency: z.string() }) },
-  DEFAULT_NOT_ALLOWED: { status: 400 },
-  GATEWAY_NOT_ALLOWED: { status: 403 },
   GATEWAY_REFUSED: { status: 400 },
   GATEWAY_IN_USE: { status: 409 },
   KIND_CHANGED: { status: 400 },

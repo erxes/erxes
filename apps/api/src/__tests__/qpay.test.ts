@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { openGateway } from '~/modules/integrations/registry';
 import { useTestDatabase } from './db';
 import { urlOf } from './fakeGateway';
 import { useTwoOrgs } from './support';
@@ -45,13 +45,13 @@ describe('QPay driver', () => {
     );
 
     try {
-      const driver = gatewayDriver(
+      const { payments, client } = openGateway(
         'qpay',
         { clientId: 'id', clientSecret: 'secret', invoiceCode: 'CODE', sandbox: true },
         { cacheKey: 'g-1' },
       );
 
-      const created = await driver.createInvoice({
+      const created = await payments.createInvoice(client, {
         invoiceId: 'inv-1',
         amount: 150_000,
         currency: 'MNT',
@@ -82,14 +82,24 @@ describe('QPay driver', () => {
           links: [{ name: 'Khan', link: 'khanbank://q' }],
         },
       });
-      expect(await driver.check('q-1', 150_000, {})).toMatchObject({
+      expect(
+        await payments.check(client, { gatewayInvoiceId: 'q-1', amount: 150_000, state: {} }),
+      ).toMatchObject({
         paid: true,
         paidAmount: 150_000,
         paymentId: 'p-9',
       });
-      expect((await driver.check('q-1', 150_100, {})).paid).toBe(false);
+      expect(
+        (await payments.check(client, { gatewayInvoiceId: 'q-1', amount: 150_100, state: {} }))
+          .paid,
+      ).toBe(false);
 
-      await driver.refund({ paymentId: 'p-9', amount: 150_000, note: 'Out of stock' }, {});
+      await payments.refund(client, {
+        paymentId: 'p-9',
+        amount: 150_000,
+        note: 'Out of stock',
+        state: {},
+      });
       expect(calls.at(-1)?.url).toBe('https://merchant-sandbox.qpay.mn/v2/payment/refund/p-9');
       expect(JSON.parse(calls.at(-1)?.body ?? '{}')).toEqual({ note: 'Out of stock' });
     } finally {

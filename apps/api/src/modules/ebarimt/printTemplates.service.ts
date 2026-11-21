@@ -11,7 +11,7 @@ import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { settingsOf } from './plan';
-import { receiptPlugins } from './plugins';
+import { receiptSources } from './plugins';
 import { allBlocks, defaultBlocks, linesOfRequest, type PrintData, renderReceipt } from './print';
 
 type TemplateRow = typeof ebarimtPrintTemplates.$inferSelect;
@@ -47,39 +47,37 @@ const defaultTemplate = (plugin: string) => ({
 const templateOf = (plugin: string, saved: TemplateRow | undefined) =>
   saved ? { ...saved, blocks: allBlocks(saved.blocks) } : defaultTemplate(plugin);
 
-const titles = async (client: Db) =>
-  new Map((await receiptPlugins(client)).data.map((row) => [row.plugin, row.title]));
-
 const withTitle = async <T extends { plugin: string }>(client: Db, template: T) => ({
   ...template,
-  title: (await titles(client)).get(template.plugin) ?? template.plugin,
+  title:
+    (await receiptSources(client)).find((source) => source.plugin === template.plugin)?.title ??
+    template.plugin,
 });
 
-/** One template for each plugin eBarimt issues receipts for, in the settings' order. */
+/** One template for core and each plugin eBarimt issues receipts for. */
 export const listPrintTemplates = async (client: Db) => {
   const settings = await settingsOf(client);
 
   if (!settings) return { data: [] };
 
   const saved = await client.select().from(ebarimtPrintTemplates);
-  const named = await titles(client);
 
   return {
-    data: settings.plugins.map((plugin) => ({
+    data: (await receiptSources(client)).map(({ plugin, title }) => ({
       ...templateOf(
         plugin,
         saved.find((row) => row.plugin === plugin),
       ),
-      title: named.get(plugin) ?? plugin,
+      title,
     })),
   };
 };
 
-/** A plugin eBarimt issues receipts for. 409 EBARIMT_NOT_SET_UP, 400 INVALID_INPUT. */
+/** Core or a plugin eBarimt issues receipts for. 409 EBARIMT_NOT_SET_UP, 400 INVALID_INPUT. */
 const pickedPlugin = async (client: Db, plugin: string) => {
-  const settings = await setUp(client);
+  await setUp(client);
 
-  if (settings.plugins.includes(plugin)) return;
+  if ((await receiptSources(client)).some((source) => source.plugin === plugin)) return;
 
   const message = `eBarimt doesn't issue receipts for ${plugin}`;
 

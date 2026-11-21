@@ -11,7 +11,7 @@ import {
   toTugrug,
 } from './http';
 import { defineIntegration, field, httpsUrl, secret } from '../define';
-import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 const keys = z.object({
   username: field('Username'),
@@ -39,12 +39,7 @@ const State = z.object({ tdbPassword: z.string() });
 /** Statuses of a paid order. */
 const PAID = new Set(['FULLYPAID', 'PAID']);
 
-/**
- * TDB (Trade and Development Bank) card e-commerce: an order with a hosted
- * payment page (`hppUrl?id=…&password=…`), which sends the payer to the
- * callback address; read back by id and password. Basic auth.
- */
-const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): GatewayDriver => {
+const tdbClient = (config: TdbConfig, options: ClientOptions) => {
   const send = gatewayHttp('TDB', config.apiUrl.replace(/\/+$/, ''), options);
   const headers = { Authorization: basic(config.username, config.password) };
 
@@ -61,16 +56,35 @@ const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): GatewayDrive
       'an unreadable order',
     );
 
-  return {
-    kind: 'tdb',
-    async verify() {
-      // No sign-in endpoint: wrong credentials answer 401 even for an unknown order.
-      await detail('0', '0').catch((error: unknown) => {
-        if (error instanceof GatewayError && (error.status === 401 || error.status === 403))
-          throw error;
-      });
-    },
-    async createInvoice(input) {
+  return { send, headers, detail };
+};
+
+/**
+ * TDB (Trade and Development Bank) card e-commerce: an order with a hosted
+ * payment page (`hppUrl?id=…&password=…`), which sends the payer to the
+ * callback address; read back by id and password. Basic auth.
+ */
+export const tdb = defineIntegration({
+  key: 'tdb',
+  name: 'TDB',
+  summary: "Card payments on the Trade and Development Bank's page.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: tdbClient,
+  async verify({ detail }) {
+    // No sign-in endpoint: wrong credentials answer 401 even for an unknown order.
+    await detail('0', '0').catch((error: unknown) => {
+      if (error instanceof GatewayError && (error.status === 401 || error.status === 403))
+        throw error;
+    });
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'card',
+    async createInvoice({ send, headers }, input) {
       const { order } = parse(
         'TDB',
         OrderAnswer,
@@ -102,7 +116,7 @@ const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): GatewayDrive
         state: { tdbPassword: order.password },
       };
     },
-    async check(gatewayInvoiceId, amount, state) {
+    async check({ detail }, { gatewayInvoiceId, amount, state }) {
       const { order } = await detail(gatewayInvoiceId, State.parse(state).tdbPassword);
       const paid = PAID.has((order.status ?? '').toUpperCase());
       const paidAmount = paid ? (order.amount ? fromTugrug(order.amount) : amount) : 0;
@@ -119,17 +133,5 @@ const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): GatewayDrive
     refund() {
       return Promise.reject(new GatewayError('TDB refunds are made in the bank’s merchant portal'));
     },
-  };
-};
-
-export const tdb = defineIntegration({
-  key: 'tdb',
-  name: 'TDB',
-  summary: "Card payments on the Trade and Development Bank's page.",
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => tdbDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'card', driver: tdbDriver },
+  },
 });

@@ -13,12 +13,7 @@ import {
   withBearer,
 } from './http';
 import { defineIntegration, digits, field, secret } from '../define';
-import {
-  type CreateInvoiceInput,
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-} from './types';
+import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
 
 const keys = z.object({
   storeId: field('Store ID', digits()),
@@ -48,7 +43,7 @@ const why = (answer: z.infer<typeof Answer>) =>
 const CANCEL_LOAN = 2;
 
 /** StorePay's merchant API with its access token (password grant, app credentials). */
-const storepayClient = (config: StorePayConfig, options: DriverOptions) => {
+const storepayClient = (config: StorePayConfig, options: ClientOptions) => {
   const send = gatewayHttp('StorePay', 'https://service.storepay.mn', options);
 
   const cache = tokenCache(`storepay:${options.cacheKey ?? config.username}`, async () => {
@@ -82,13 +77,13 @@ const storepayClient = (config: StorePayConfig, options: DriverOptions) => {
       'an unreadable answer',
     );
 
-  return { cache, call };
+  return { config, cache, call };
 };
 
 type Client = ReturnType<typeof storepayClient>;
 
 /** A loan request to the payer's phone, once StorePay says it can lend them the amount. */
-const requestLoan = async ({ call }: Client, config: StorePayConfig, input: CreateInvoiceInput) => {
+const requestLoan = async ({ call, config }: Client, input: CreateInvoiceInput) => {
   const mobileNumber = Number(mongolianPhone('StorePay', input.payerPhone));
   const amount = toTugrug(input.amount);
   const limit = await call('/user/possibleAmount', { mobileNumber });
@@ -118,43 +113,6 @@ const requestLoan = async ({ call }: Client, config: StorePayConfig, input: Crea
  * StorePay buy-now-pay-later: a loan request to the payer's phone, which they
  * confirm in the StorePay app; checked by loan id. A refund cancels the loan.
  */
-const storepayDriver = (config: StorePayConfig, options: DriverOptions = {}): GatewayDriver => {
-  const client = storepayClient(config, options);
-
-  return {
-    kind: 'storepay',
-    async verify() {
-      client.cache.forget();
-      await client.cache.token();
-    },
-    createInvoice: (input) => requestLoan(client, config, input),
-    async check(gatewayInvoiceId, amount) {
-      const answer = await client.call(
-        `/merchant/loan/check/${encodeURIComponent(gatewayInvoiceId)}`,
-      );
-
-      const paid = answer.value === true;
-
-      return { paid, paidAmount: paid ? amount : 0, paymentId: paid ? gatewayInvoiceId : null };
-    },
-    async cancel() {
-      // A loan the payer hasn't confirmed lapses; a confirmed one is refunded instead.
-    },
-    async refund(input) {
-      const answer = await client.call('/merchant/loanChange', {
-        changeTypeId: CANCEL_LOAN,
-        loanId: Number(input.paymentId),
-        reason: input.note.slice(0, 255),
-      });
-
-      if (answer.status !== 'Success')
-        throw new GatewayError(`StorePay kept the loan: ${why(answer)}`);
-
-      return { refundId: null };
-    },
-  };
-};
-
 export const storepay = defineIntegration({
   key: 'storepay',
   name: 'StorePay',
@@ -163,6 +121,37 @@ export const storepay = defineIntegration({
   countries: ['MN'],
   permission: 'payments.manage',
   keys,
-  verify: (config, options) => storepayDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'full', pays: 'installments', driver: storepayDriver },
+  client: storepayClient,
+  async verify({ cache }) {
+    cache.forget();
+    await cache.token();
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'full',
+    pays: 'installments',
+    createInvoice: requestLoan,
+    async check({ call }, { gatewayInvoiceId, amount }) {
+      const answer = await call(`/merchant/loan/check/${encodeURIComponent(gatewayInvoiceId)}`);
+
+      const paid = answer.value === true;
+
+      return { paid, paidAmount: paid ? amount : 0, paymentId: paid ? gatewayInvoiceId : null };
+    },
+    async cancel() {
+      // A loan the payer hasn't confirmed lapses; a confirmed one is refunded instead.
+    },
+    async refund({ call }, { paymentId, note }) {
+      const answer = await call('/merchant/loanChange', {
+        changeTypeId: CANCEL_LOAN,
+        loanId: Number(paymentId),
+        reason: note.slice(0, 255),
+      });
+
+      if (answer.status !== 'Success')
+        throw new GatewayError(`StorePay kept the loan: ${why(answer)}`);
+
+      return { refundId: null };
+    },
+  },
 });

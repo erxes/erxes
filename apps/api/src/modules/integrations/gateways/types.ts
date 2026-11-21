@@ -30,14 +30,14 @@ export interface CreateInvoiceInput {
   payerEmail?: string;
 }
 
-interface CreatedInvoice {
+export interface CreatedInvoice {
   gatewayInvoiceId: string;
   payment: PayerInstructions;
-  /** What the driver needs later (`check`, `refund`); kept with the invoice, never shown. */
+  /** What the gateway needs later (`check`, `refund`); kept with the invoice, never shown. */
   state?: Record<string, unknown>;
 }
 
-interface PaymentCheck {
+export interface PaymentCheck {
   /** Paid at least the invoice amount. */
   paid: boolean;
   /** What the gateway says was paid, in the smallest unit. */
@@ -46,28 +46,18 @@ interface PaymentCheck {
   paymentId: string | null;
 }
 
-interface RefundInput {
+export interface GatewayInvoice {
+  gatewayInvoiceId: string;
+  amount: number;
+  state: Record<string, unknown>;
+}
+
+export interface RefundInput {
   paymentId: string;
-  /** In the smallest unit; drivers with `refunds: 'full'` only accept the paid amount. */
   amount: number;
   note: string;
   callbackUrl?: string;
-}
-
-/** What any payment gateway does for core. */
-export interface GatewayDriver {
-  readonly kind: string;
-  /** Checks the credentials (on connecting). */
-  verify(): Promise<void>;
-  createInvoice(input: CreateInvoiceInput): Promise<CreatedInvoice>;
-  /** Asked of the gateway itself: callbacks are never trusted alone. `state` is the invoice's stored `payment`. */
-  check(
-    gatewayInvoiceId: string,
-    amount: number,
-    state: Record<string, unknown>,
-  ): Promise<PaymentCheck>;
-  cancel(gatewayInvoiceId: string, amount: number, state: Record<string, unknown>): Promise<void>;
-  refund(input: RefundInput, state: Record<string, unknown>): Promise<{ refundId: string | null }>;
+  state: Record<string, unknown>;
 }
 
 export class GatewayError extends Error {
@@ -80,7 +70,7 @@ export class GatewayError extends Error {
   }
 }
 
-export interface DriverOptions {
+export interface ClientOptions {
   /** Caches the gateway's access token under this key (the connection id). */
   cacheKey?: string;
   fetch?: typeof globalThis.fetch;

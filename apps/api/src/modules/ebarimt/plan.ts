@@ -47,11 +47,9 @@ export const settingsOf = async (tx: Db) => {
 /** Does the organisation issue receipts for this invoice? */
 const issuesFor = (
   settings: SettingsRow | null,
-  invoice: Pick<InvoiceRow, 'source' | 'currency'>,
+  invoice: Pick<InvoiceRow, 'currency'>,
 ): settings is SettingsRow =>
-  settings?.status === 'active' &&
-  settings.plugins.includes(invoice.source) &&
-  invoice.currency === RECEIPT_CURRENCY;
+  settings?.status === 'active' && invoice.currency === RECEIPT_CURRENCY;
 
 /** What the invoice still holds: paid less refunded (nothing unless it was paid). */
 export const keptAmount = (invoice: InvoiceRow) =>
@@ -116,7 +114,6 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
 
   if (!invoice || !issuesFor(settings, invoice)) return null;
 
-  // Picked before the plugin said it sends its own: the plugin's receipt stands.
   if ((await ownReceiptPlugins(tx, [invoice.source])).size) return null;
 
   const ids = [...new Set(invoice.lines.flatMap((line) => line.productId ?? []))];

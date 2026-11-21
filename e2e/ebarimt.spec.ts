@@ -61,12 +61,6 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   await expect(page.getByText('Off', { exact: true })).toBeHidden();
 
   // Core's own invoices get receipts too.
-  const settings = await api.ebarimt.settings({});
-
-  if (!settings) throw new Error('eBarimt was not saved');
-
-  await api.ebarimt.saveSettings({ ...settings, plugins: ['core'] });
-
   const gateway = await api.integrations.connect({ key: 'test', name: 'Test', keys: {} });
   const ref = unique();
 

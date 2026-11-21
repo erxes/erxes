@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { gatewayHttp, json, parse, qrInstructions, Text, tokenCache, toTugrug } from './http';
 import { defineIntegration, digits, field, secret } from '../define';
-import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 const keys = z.object({
   terminalId: field('Terminal ID', digits()),
@@ -24,11 +24,7 @@ const InvoiceAnswer = z.object({
 
 const CheckAnswer = z.object({ state: z.string() });
 
-/**
- * Pocket (InvesCore) invoices: a QR and app deeplink for the terminal, checked
- * by invoice id. Token by client credentials from InvesCore's sign-in.
- */
-const pocketDriver = (config: PocketConfig, options: DriverOptions = {}): GatewayDriver => {
+const pocketClient = (config: PocketConfig, options: ClientOptions) => {
   const send = gatewayHttp('Pocket', 'https://service.invescore.mn/merchant/v2/invoicing', options);
   const signIn = gatewayHttp('Pocket', 'https://sso.invescore.mn/auth/realms/invescore', options);
   const terminalId = Number(config.terminalId);
@@ -59,15 +55,33 @@ const pocketDriver = (config: PocketConfig, options: DriverOptions = {}): Gatewa
       body: json(body),
     });
 
-  return {
-    kind: 'pocket',
-    async verify() {
-      if (!Number.isInteger(terminalId) || terminalId <= 0)
-        throw new GatewayError('The Pocket terminal id is a positive number', 400);
-      cache.forget();
-      await cache.token();
-    },
-    async createInvoice(input) {
+  return { terminalId, cache, post };
+};
+
+/**
+ * Pocket (InvesCore) invoices: a QR and app deeplink for the terminal, checked
+ * by invoice id. Token by client credentials from InvesCore's sign-in.
+ */
+export const pocket = defineIntegration({
+  key: 'pocket',
+  name: 'Pocket',
+  summary: "InvesCore's app: a QR code or a link payers open in Pocket.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: pocketClient,
+  async verify({ terminalId, cache }) {
+    if (!Number.isInteger(terminalId) || terminalId <= 0)
+      throw new GatewayError('The Pocket terminal id is a positive number', 400);
+    cache.forget();
+    await cache.token();
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'app-qr',
+    async createInvoice({ terminalId, post }, input) {
       const answer = parse(
         'Pocket',
         InvoiceAnswer,
@@ -90,7 +104,7 @@ const pocketDriver = (config: PocketConfig, options: DriverOptions = {}): Gatewa
         ),
       };
     },
-    async check(gatewayInvoiceId, amount) {
+    async check({ terminalId, post }, { gatewayInvoiceId, amount }) {
       const answer = parse(
         'Pocket',
         CheckAnswer,
@@ -108,17 +122,5 @@ const pocketDriver = (config: PocketConfig, options: DriverOptions = {}): Gatewa
     refund() {
       return Promise.reject(new GatewayError('Pocket makes no refunds'));
     },
-  };
-};
-
-export const pocket = defineIntegration({
-  key: 'pocket',
-  name: 'Pocket',
-  summary: "InvesCore's app: a QR code or a link payers open in Pocket.",
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => pocketDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: pocketDriver },
+  },
 });

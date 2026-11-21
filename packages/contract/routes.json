@@ -2346,23 +2346,23 @@
         }
       }
     },
-    "pluginSettings": {
+    "settings": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/payments/plugins"
+          "path": "/payments/settings"
         }
       }
     },
-    "updatePluginSettings": {
+    "saveSettings": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PUT",
-          "path": "/payments/plugins/{plugin}"
+          "path": "/payments/settings"
         }
       }
     },
@@ -2395,16 +2395,6 @@
         "route": {
           "method": "GET",
           "path": "/ebarimt/settings"
-        }
-      }
-    },
-    "plugins": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/ebarimt/plugins"
         }
       }
     },

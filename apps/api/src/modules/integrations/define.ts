@@ -7,7 +7,14 @@ import type {
 import type { Db } from '@erxes/core-db';
 import type { GATEWAY_REFUND_KINDS } from '@erxes/core-db/enums';
 import { z } from 'zod';
-import type { DriverOptions, GatewayDriver } from './gateways/types';
+import type {
+  ClientOptions,
+  CreatedInvoice,
+  CreateInvoiceInput,
+  GatewayInvoice,
+  PaymentCheck,
+  RefundInput,
+} from './gateways/types';
 
 type FormField = Pick<IntegrationField, 'label' | 'type'>;
 
@@ -42,14 +49,17 @@ export const httpsUrl = () =>
 
 export type Keys = z.ZodObject;
 
-interface GatewayPayments<K> {
+interface Payments<C> {
   currencies: string[];
   refunds: (typeof GATEWAY_REFUND_KINDS)[number];
   pays: string;
-  driver(keys: K, options: DriverOptions): GatewayDriver;
+  createInvoice(client: C, input: CreateInvoiceInput): Promise<CreatedInvoice>;
+  check(client: C, invoice: GatewayInvoice): Promise<PaymentCheck>;
+  cancel(client: C, invoice: GatewayInvoice): Promise<void>;
+  refund(client: C, refund: RefundInput): Promise<{ refundId: string | null }>;
 }
 
-interface Connection {
+interface Listing {
   key: string;
   name: string;
   summary: string;
@@ -59,16 +69,18 @@ interface Connection {
   dashboard?: string;
 }
 
-export interface KeyedIntegration<K extends Keys = Keys> extends Connection {
+export interface KeyedIntegration<K extends Keys = Keys, C = unknown> extends Listing {
   keys: K;
-  verify(keys: z.output<K>, options: DriverOptions): Promise<void>;
-  payments?: GatewayPayments<z.output<K>>;
+  client(keys: z.output<K>, options: ClientOptions): C;
+  verify(client: C): Promise<void>;
+  payments?: Payments<C>;
   status?: never;
 }
 
-export interface PagedIntegration extends Connection {
+export interface PagedIntegration extends Listing {
   status(tx: Db): Promise<IntegrationStatus>;
   keys?: never;
+  client?: never;
   verify?: never;
   payments?: never;
 }
@@ -86,9 +98,9 @@ const fieldOf = (key: string, schema: z.ZodType): IntegrationField => {
 export const fieldsOf = (keys: Keys) =>
   Object.entries<z.ZodType>(keys.shape).map(([key, schema]) => fieldOf(key, schema));
 
-export function defineIntegration<K extends Keys>(
-  definition: KeyedIntegration<K>,
-): KeyedIntegration<K>;
+export function defineIntegration<K extends Keys, C>(
+  definition: KeyedIntegration<K, C>,
+): KeyedIntegration<K, C>;
 export function defineIntegration(definition: PagedIntegration): PagedIntegration;
 export function defineIntegration(definition: Integration) {
   if (definition.keys) fieldsOf(definition.keys);
