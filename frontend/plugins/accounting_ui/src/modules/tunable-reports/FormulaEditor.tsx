@@ -9,6 +9,7 @@ import {
   FormulaKind,
   FORMULA_TABLE_WIDTHS,
   getFormulaColumns,
+  getFormulaHeaderGroups,
 } from '@/tunable-reports/formulaColumns';
 import { reportId as makeReportId } from '@/tunable-reports/values';
 import { useReportTranslation } from '@/tunable-reports/locales';
@@ -65,6 +66,8 @@ export const FormulaCellEditor = ({
     if (invalid >= 0) setKind(fields[invalid].kind);
   }, [errors, fields, target.rowId, target.columnId, section.formulaType]);
   const headers = getFormulaColumns(kind, t);
+  const headerGroups = getFormulaHeaderGroups(headers);
+  const grouped = headerGroups.length < headers.length;
   const rows = matching.filter((item) => item.formula.kind === kind);
   return (
     <div className="min-w-0 space-y-4 p-4">
@@ -110,15 +113,43 @@ export const FormulaCellEditor = ({
             <Table className={FORMULA_TABLE_WIDTHS[kind]}>
               <Table.Header>
                 <Table.Row>
-                  <Table.Head className="sticky left-0 z-20 w-10">
+                  <Table.Head
+                    rowSpan={grouped ? 2 : undefined}
+                    className="sticky left-0 z-20 w-10"
+                  >
                     <span className="sr-only">{t('remove')}</span>
                   </Table.Head>
-                  {headers.map(({ key, label, className }) => (
-                    <Table.Head key={key} className={className}>
-                      {label}
-                    </Table.Head>
-                  ))}
+                  {headerGroups.map((item) =>
+                    'span' in item ? (
+                      <Table.Head
+                        key={item.key}
+                        colSpan={item.span}
+                        className="border-x text-center"
+                      >
+                        {item.label}
+                      </Table.Head>
+                    ) : (
+                      <Table.Head
+                        key={item.key}
+                        rowSpan={grouped ? 2 : undefined}
+                        className={item.className}
+                      >
+                        {item.label}
+                      </Table.Head>
+                    ),
+                  )}
                 </Table.Row>
+                {grouped && (
+                  <Table.Row>
+                    {headers
+                      .filter((column) => column.group)
+                      .map(({ key, label, className }) => (
+                        <Table.Head key={key} className={className}>
+                          {label}
+                        </Table.Head>
+                      ))}
+                  </Table.Row>
+                )}
               </Table.Header>
               <Table.Body>
                 {rows.map((item) => (
