@@ -18,6 +18,11 @@ const bot = (externalId: string, name: string) => ({
   secret: { token: `token-${externalId}` },
 });
 
+const dailyCheckComesDue = async () => {
+  await queue().send('integrations.check-all', null);
+  await settle();
+};
+
 describe('integration account rules', { timeout: 240_000 }, () => {
   useTestDatabase();
 
@@ -36,11 +41,6 @@ describe('integration account rules', { timeout: 240_000 }, () => {
 
   const offerBots = (candidates: ReturnType<typeof bot>[]) =>
     t.hr().pluginAccounts.offer({ integration: 'bot', userId: t.ids.owner, candidates });
-
-  const dailyCheckComesDue = async () => {
-    await queue().send('integrations.check-all', null);
-    await settle();
-  };
 
   it('starts a sign-in at the service only for an integration that signs in', async () => {
     expect(await t.owner().integrationAccounts.start({ integration: 'hr.chat' })).toEqual({
