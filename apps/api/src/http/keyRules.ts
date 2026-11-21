@@ -53,8 +53,6 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   emails: null,
   // The event stream carries contacts' data.
   events: null,
-  fieldGroups: { lookup: true, writes: 'settings' },
-  fields: { lookup: true, writes: 'settings' },
   files: 'files',
   integrations: null,
   leads: 'contacts',

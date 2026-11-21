@@ -12,7 +12,7 @@ import {
   linkCustomerCompany,
   updateCustomer,
 } from '~/modules/customers/customers.service';
-import { CellError, customValue, parseBoolean, parseDate, parseNumber, splitList } from './columns';
+import { CellError, parseBoolean, parseDate, parseNumber, splitList } from './columns';
 import type { DataColumnField } from './dataColumns';
 import {
   companyIds,
@@ -88,7 +88,6 @@ const dataValue = (field: DataColumnField, text: string): unknown => {
 /** One row's cells → the record's input (checked by the contract's schema later) and the things it names. */
 const readRow = (ctx: Context, cells: string[]) => {
   const input: Record<string, unknown> = {};
-  const customFields: Record<string, unknown> = {};
   const values: Record<string, unknown> = {};
   const refs: Refs = {};
 
@@ -100,9 +99,7 @@ const readRow = (ctx: Context, cells: string[]) => {
     const column = ctx.columns.get(key);
 
     try {
-      if (key.startsWith('customFields.'))
-        customFields[key.slice('customFields.'.length)] = customValue(column?.fieldType, raw);
-      else if (column?.dataField) values[column.dataField.key] = dataValue(column.dataField, raw);
+      if (column?.dataField) values[column.dataField.key] = dataValue(column.dataField, raw);
       else readCell(input, refs, key, raw);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -110,8 +107,6 @@ const readRow = (ctx: Context, cells: string[]) => {
       throw new CellError(`${column?.label ?? key}: ${message}`, { cause: error });
     }
   }
-
-  if (Object.keys(customFields).length) input.customFields = customFields;
 
   if (Object.keys(values).length) input.values = values;
 

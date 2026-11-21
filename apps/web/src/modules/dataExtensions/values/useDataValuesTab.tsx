@@ -1,10 +1,10 @@
-import { IconDatabase } from '@tabler/icons-react';
+import { IconHierarchy2 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { lazyPanelView } from '~/modules/side-panel/lazyPanelView';
 import type { IRecordSidePanelTab } from '~/modules/side-panel/recordSidePanelTypes';
 import { useFields } from '../dataQueries';
 
-const DATA_TAB = 'data';
+const FIELDS_TAB = 'fields';
 
 // Loads with the tab, so the panels of records without fields carry none of its inputs.
 const DataValuesPanel = lazyPanelView(
@@ -12,11 +12,12 @@ const DataValuesPanel = lazyPanelView(
 );
 
 /**
- * The Data tab of a record in the side panel: its Data Extensions values. None while its type
- * has no fields. `contentType` is the panel's (`core:customer`, `hr:employee`).
+ * The Fields tab of a plugin's record whose UI doesn't edit them in core: its Data Extensions
+ * values, read only. None while its type has no fields. `contentType` is the panel's
+ * (`hr:employee`).
  */
 export const useDataValuesTab = (contentType: string, recordId: string): IRecordSidePanelTab[] => {
-  const { t } = useTranslation('data', { keyPrefix: 'values' });
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const recordType = contentType.replace(':', '.');
   const { fields } = useFields(recordType);
 
@@ -24,9 +25,9 @@ export const useDataValuesTab = (contentType: string, recordId: string): IRecord
 
   return [
     {
-      value: DATA_TAB,
-      label: t('tab', 'Data'),
-      icon: IconDatabase,
+      value: FIELDS_TAB,
+      label: t('fields', 'Fields'),
+      icon: IconHierarchy2,
       content: <DataValuesPanel recordType={recordType} recordId={recordId} />,
     },
   ];

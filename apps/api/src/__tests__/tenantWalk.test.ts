@@ -8,8 +8,8 @@ const BODIES: Partial<Record<string, object>> = {
   'customers.update': { firstName: 'pwned' },
   'companies.update': { primaryName: 'pwned' },
   'tags.update': { name: 'pwned' },
-  'fields.update': { label: 'pwned' },
-  'fieldGroups.update': { name: 'pwned' },
+  'dataFields.update': { label: 'pwned' },
+  'dataFieldGroups.update': { label: 'pwned' },
   'users.update': { fullName: 'pwned' },
   'users.setPassword': { password: 'Pwned-password-1' },
   'activities.editNote': { body: 'pwned' },
@@ -46,9 +46,21 @@ describe('tenant isolation (API)', () => {
       customers: customer.id,
       companies: (await b.companies.create({ primaryName: 'Globex LLC' })).id,
       tags: (await b.tags.create({ type: 'customer', name: 'vip', colorCode: '#ff0000' })).id,
-      fieldGroups: (await b.fieldGroups.create({ contentType: 'customer', name: 'Private' })).id,
-      fields: (await b.fields.create({ contentType: 'customer', label: 'Salary', type: 'number' }))
-        .id,
+      dataFieldGroups: (
+        await b.dataFieldGroups.create({
+          recordType: 'core.customer',
+          label: 'Private',
+          code: 'private',
+        })
+      ).id,
+      dataFields: (
+        await b.dataFields.create({
+          recordType: 'core.customer',
+          key: 'salary',
+          label: 'Salary',
+          type: 'number',
+        })
+      ).id,
       users: t.ids.otherOwner,
       files: (await b.files.createUpload({ name: 'b.txt', contentType: 'text/plain', size: 3 }))
         .file.id,
@@ -110,7 +122,7 @@ describe('tenant isolation (API)', () => {
       customers: await a.customers.list({}),
       companies: await a.companies.list({}),
       tags: await a.tags.list({ type: 'customer' }),
-      fields: await a.fields.list({ contentType: 'customer' }),
+      dataFields: await a.dataFields.list({ recordType: 'core.customer' }),
       users: await a.users.list({}),
       audit: await a.audit.list({}),
       events: await a.events.list({}),

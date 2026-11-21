@@ -133,13 +133,18 @@ export const assertMemberField = (field: { id: string; label: string; plugin: st
   }
 };
 
-/** A plugin reads the fields of its own record types only. */
+/**
+ * A plugin reads the fields of its own record types, and the shared product catalog's with
+ * `products:read` (to show the values products carry).
+ */
 export const assertPluginReads = (recordType: string) => {
   const who = caller();
 
-  if (who.type === 'plugin' && !recordType.startsWith(`${who.plugin}.`)) {
-    throw fail('NOT_ALLOWED', 'Plugins read the fields of their own record types only');
-  }
+  if (who.type !== 'plugin' || recordType.startsWith(`${who.plugin}.`)) return;
+
+  if (recordType === 'core.product' && who.scopes.includes('products:read')) return;
+
+  throw fail('NOT_ALLOWED', 'Plugins read the fields of their own record types and of products');
 };
 
 /** The next position at the end of a record type's fields. */

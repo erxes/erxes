@@ -23,7 +23,7 @@ export type ActionInputProps = {
   action: ActionInfo;
   field: ActionField;
   value: unknown;
-  /** The step's other inputs (a value follows the custom field chosen in another). */
+  /** The step's other inputs (a value follows the field chosen in another). */
   input: Record<string, unknown>;
   onChange: (value: unknown) => void;
   disabled?: boolean;
@@ -31,26 +31,39 @@ export type ActionInputProps = {
   dataFields: FieldInfo[];
 };
 
-const CUSTOM_PREFIX = 'subject.customFields.';
+/** Where the record's own Data Extensions fields are, as conditions read them. */
+const DATA_PREFIX = 'subject.data.';
 
-export const fieldIdOf = (path: string) => path.replace(CUSTOM_PREFIX, '');
+/** A Data Extensions field's key from its path (`subject.data.plan` → `plan`). */
+export const fieldKeyOf = (path: string) => path.slice(DATA_PREFIX.length);
 
-export const customFieldsOf = (fields: FieldInfo[]) =>
-  fields.filter((item) => item.path.startsWith(CUSTOM_PREFIX));
+/** The record's own Data Extensions fields among the paths a step can read. */
+export const dataFieldsOf = (fields: FieldInfo[]) =>
+  fields.filter((item) => item.path.startsWith(DATA_PREFIX));
 
 const asList = (value: unknown) =>
   Array.isArray(value) ? value.map(textOf) : value ? [textOf(value)] : [];
 
-export const CustomFieldSelect = ({ value, onChange, disabled, dataFields }: ActionInputProps) => {
+/** One of the record's Data Extensions fields, saved by key (`data_field`). */
+export const DataFieldSelect = ({
+  value,
+  onChange,
+  disabled,
+  dataFields,
+  subject,
+}: ActionInputProps) => {
   const { t } = useTranslation('automations');
-  const customFields = customFieldsOf(dataFields);
+  const fields = dataFieldsOf(dataFields);
 
-  if (!customFields.length) {
+  if (!fields.length) {
     return (
       <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
-        {t('no-custom-fields', 'No custom fields yet.')}{' '}
-        <Link to={paths.contacts.properties} className="text-primary-text hover:underline">
-          {t('add-in-properties', 'Add one in Properties')}
+        {t('no-data-fields', 'No fields yet.')}{' '}
+        <Link
+          to={paths.settings.dataFieldsOf(`core.${subject}`)}
+          className="text-primary-text hover:underline"
+        >
+          {t('add-in-data-model', 'Add one in the Data model')}
         </Link>
       </p>
     );
@@ -62,9 +75,9 @@ export const CustomFieldSelect = ({ value, onChange, disabled, dataFields }: Act
         <Select.Value placeholder={t('choose-field', 'Choose a field')} />
       </Select.Trigger>
       <Select.Content>
-        {customFields.map((item) => (
-          <Select.Item key={item.path} value={fieldIdOf(item.path)}>
-            {item.label.replace(/ \(custom\)$/, '')}
+        {fields.map((item) => (
+          <Select.Item key={item.path} value={fieldKeyOf(item.path)}>
+            {item.label}
           </Select.Item>
         ))}
       </Select.Content>

@@ -6,8 +6,6 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
   CursorQuery,
-  CustomFields,
-  CustomFieldsPatch,
   DESCRIPTION_MAX,
   EmailAddress,
   Id,
@@ -56,7 +54,7 @@ export const Company = createSelectSchema(companies, {
     createdAt: true,
     updatedAt: true,
   })
-  .extend({ tagIds: z.array(z.string()), customFields: CustomFields });
+  .extend({ tagIds: z.array(z.string()) });
 
 export type Company = z.infer<typeof Company>;
 
@@ -116,9 +114,10 @@ export const CompanyFields = createUpdateSchema(companies, {
   })
   .extend({
     tagIds: z.array(Id).max(50).optional(),
-    /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
-    customFields: CustomFieldsPatch.optional(),
-    /** Sets the given Data Extensions values by field key; `null` clears one. Others stay. */
+    /**
+     * Sets the given Data Extensions values by field key; `null` clears one. Others stay. A
+     * plugin's field: 403 PLUGIN_FIELD.
+     */
     values: DataExtensionValuesInput.optional(),
   });
 
@@ -140,8 +139,6 @@ const TagChange = z.object({
 
 const {
   INVALID_ACTOR,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
   INVALID_OWNER,
   INVALID_TAG,
   INVALID_TYPE,
@@ -155,8 +152,6 @@ const {
 const base = oc.errors({
   ...COMMON_ERRORS,
   INVALID_ACTOR,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
   INVALID_OWNER,
   INVALID_TAG,
   INVALID_TYPE,

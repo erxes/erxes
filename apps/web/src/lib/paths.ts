@@ -1,9 +1,4 @@
-import {
-  type FieldContentType,
-  isCoreFieldType,
-  type PropertyContentType,
-  type ViewRecordType,
-} from '@erxes/core-contract';
+import type { ViewRecordType } from '@erxes/core-contract';
 
 /*
  * Every address in core. Links, redirects and navigate() take them from here; the route files
@@ -36,7 +31,6 @@ export const paths = {
     companies: '/contacts/companies',
     company: (companyId: string) => `/contacts/companies/${id(companyId)}`,
     settings: contactSettings,
-    properties: `${contactSettings}/properties`,
     tags: `${contactSettings}/tags`,
     leadStages: `${contactSettings}/lead-stages`,
     importExport: `${contactSettings}/import-export`,
@@ -47,7 +41,6 @@ export const paths = {
     product: (productId: string) => `/products/${id(productId)}`,
     settings: productSettings,
     categories: `${productSettings}/categories`,
-    properties: `${productSettings}/properties`,
   },
   automations: {
     list: '/automations',
@@ -100,8 +93,6 @@ export const paths = {
     notifications: '/settings/notifications',
     assistant: '/settings/assistant',
     assistantAppearance: '/settings/assistant-appearance',
-    /** Plugins' record types' properties: `/settings/properties/<plugin>.<type>`. */
-    properties: '/settings/properties',
     /** Data model: custom objects, the fields of each record type, connected plugins. */
     dataModel: '/settings/data-model',
     dataObjects: '/settings/data-model/objects',
@@ -110,30 +101,6 @@ export const paths = {
     dataPlugins: '/settings/data-model/plugins',
   },
 } as const;
-
-/** Where each kind of record's properties are set up. */
-const PROPERTIES_AREA = {
-  customer: paths.contacts.properties,
-  company: paths.contacts.properties,
-  product: paths.products.properties,
-} satisfies Record<FieldContentType, string>;
-
-/** A record type's properties: its groups and fields, adding and editing one. */
-export const propertyPaths = (contentType: PropertyContentType) => {
-  const area = isCoreFieldType(contentType)
-    ? PROPERTIES_AREA[contentType]
-    : paths.settings.properties;
-
-  const list = `${area}/${contentType}`;
-
-  return {
-    /** The settings area that lists them: Contacts › Settings › Properties. */
-    area,
-    list,
-    add: (groupId?: string) => (groupId ? `${list}/${id(groupId)}/add` : `${list}/add`),
-    field: (groupId: string, fieldId: string) => `${list}/${id(groupId)}/${id(fieldId)}`,
-  };
-};
 
 /** The list each saved view opens on. */
 export const LIST_PATHS = {

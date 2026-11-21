@@ -16,7 +16,7 @@ import { relationSides, writeRelation } from './relationValues';
 import { readableFields } from './fieldAccess';
 import { asTaken } from './unique';
 import { prepareValues } from './values';
-import { afterWrite } from './writeRules';
+import { afterWrite, askedBy } from './writeRules';
 
 /**
  * Data Extensions values on core's and plugins' records (`core.customer`, `hr.employee`).
@@ -216,8 +216,9 @@ export const updateValues = async (
 
 /**
  * Writes a core record's values (its own procedure checked the caller may change the record):
- * each checked against its field, `requiredWhen` after, and the value history. With
- * `creating`, defaults fill what the input leaves out and required fields need a value.
+ * each checked against its field, required ones after (those the input names, and any whose
+ * `requiredWhen` holds, while they show), and the value history. With `creating`, defaults
+ * fill what the input leaves out. A record type without fields keeps no row.
  */
 export const writeCoreValues = async (
   client: Db,
@@ -228,6 +229,9 @@ export const writeCoreValues = async (
 ) => {
   const input = { recordType, recordId, values };
   const fields = await fieldsOf(client, input.recordType);
+
+  if (!fields.length && !Object.keys(values).length) return;
+
   const sides = await relationSides(client, fields);
   // A new record's own timeline says it was made: its values show as set, not as a new record.
   const before = creating ? {} : await allValues(client, input.recordType, input.recordId);
@@ -258,5 +262,6 @@ export const writeCoreValues = async (
     fields,
     before,
     after: await allValues(client, input.recordType, input.recordId),
+    asked: askedBy(Object.keys(values)),
   });
 };

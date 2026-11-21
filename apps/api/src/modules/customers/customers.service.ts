@@ -13,8 +13,6 @@ import {
   contactUpdated,
 } from '~/modules/activities/contactHistory';
 import { writeCoreValues } from '~/modules/dataExtensions/hostValues.service';
-import { applyCustomFields } from '~/modules/fields/customValues';
-import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { changeTags, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { assertOwner } from '~/lib/guards';
@@ -35,8 +33,6 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, 'customer', input.tagIds ?? []);
-
-  const customFields = await applyCustomFields(client, 'customer', {}, input.customFields);
 
   const lead = await planLeadOnCreate(client, {
     ...input,
@@ -61,9 +57,7 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
         .returning({ id: customers.id }),
     );
 
-    await saveCustomFields(tx, 'customer', created, customFields, Object.keys(customFields));
-
-    if (input.values) await writeCoreValues(tx, 'core.customer', created, input.values, true);
+    await writeCoreValues(tx, 'core.customer', created, input.values ?? {}, true);
 
     await recordLeadSteps(tx, 'customer', [{ id: created, steps: lead.steps }]);
     await setRecordTags(tx, 'customer', created, tagIds);
@@ -76,7 +70,7 @@ export const createCustomer = async (client: Db, input: CustomerInput) => {
 };
 
 export const updateCustomer = async (client: Db, id: string, input: CustomerInput) => {
-  // Custom fields are merged from what is stored: concurrent edits wait, then build on each other.
+  // Values are merged from what is stored: concurrent edits wait, then build on each other.
   await lockRows(client, 'core_customers', [id]);
 
   const current = await findCustomer(client, id);
@@ -87,11 +81,6 @@ export const updateCustomer = async (client: Db, id: string, input: CustomerInpu
 
   const tagIds =
     input.tagIds === undefined ? undefined : await checkTagIds(client, 'customer', input.tagIds);
-
-  const customFields =
-    input.customFields === undefined
-      ? undefined
-      : await applyCustomFields(client, 'customer', current.customFields, input.customFields);
 
   const lead = await planLeadOnUpdate(client, current, input);
 
@@ -107,12 +96,6 @@ export const updateCustomer = async (client: Db, id: string, input: CustomerInpu
     }
 
     await recordLeadSteps(tx, 'customer', [{ id, steps: lead.steps }]);
-
-    if (customFields) {
-      const keys = Object.keys(input.customFields ?? {});
-
-      await saveCustomFields(tx, 'customer', id, customFields, keys);
-    }
 
     if (tagIds) {
       await setRecordTags(tx, 'customer', id, tagIds);

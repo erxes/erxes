@@ -14,16 +14,19 @@ describe('product filters and views', { timeout: 120_000 }, () => {
     const drinks = await t.owner().productCategories.create({ name: 'Drinks' });
     const tea = await t.owner().productCategories.create({ name: 'Tea', parentId: drinks.id });
 
-    const brand = await t
-      .owner()
-      .fields.create({ contentType: 'product', label: 'Brand', type: 'text' });
+    await t.owner().dataFields.create({
+      recordType: 'core.product',
+      key: 'brand',
+      label: 'Brand',
+      type: 'text',
+    });
 
     const green = await t.owner().products.create({
       kind: 'goods',
       name: 'Green tea',
       categoryId: tea.id,
       price: 500,
-      customFields: { [brand.id]: 'Acme' },
+      values: { brand: 'Acme' },
     });
 
     const cola = await t
@@ -42,9 +45,10 @@ describe('product filters and views', { timeout: 120_000 }, () => {
       'Drinks › Tea',
     ]);
     expect(fields.find((entry) => entry.path === 'subject.plugins')?.options).toEqual(['hr']);
-    expect(fields.find((entry) => entry.path === `subject.customFields.${brand.id}`)).toMatchObject(
-      { label: 'Brand', group: 'custom' },
-    );
+    expect(fields.find((entry) => entry.path === 'subject.data.brand')).toMatchObject({
+      label: 'Brand',
+      group: 'custom',
+    });
     // Contacts' fields are not the products list's; tags are both.
     expect(fields.some((entry) => entry.path === 'subject.ownerId')).toBe(false);
     expect(fields.some((entry) => entry.path === 'subject.tagIds')).toBe(true);
@@ -66,9 +70,9 @@ describe('product filters and views', { timeout: 120_000 }, () => {
       cola.name,
       green.name,
     ]);
-    expect(
-      await names(where({ path: `subject.customFields.${brand.id}`, op: 'eq', value: 'acme' })),
-    ).toEqual([green.name]);
+    expect(await names(where({ path: 'subject.data.brand', op: 'eq', value: 'acme' }))).toEqual([
+      green.name,
+    ]);
     expect(await names(where({ path: 'subject.kind', op: 'eq', value: 'service' }))).toEqual([
       delivery.name,
     ]);

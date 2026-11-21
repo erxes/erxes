@@ -41,16 +41,6 @@ export const diffFields = <T extends object>(
   fields: readonly (keyof T & string)[],
 ) => diff(fields.map((field) => [field, before[field], after[field]]));
 
-/** Custom field values that changed, keyed `customFields.<fieldId>`. */
-export const diffCustomFields = (before: Record<string, unknown>, after: Record<string, unknown>) =>
-  diff(
-    [...new Set([...Object.keys(before), ...Object.keys(after)])].map((key) => [
-      `customFields.${key}`,
-      before[key],
-      after[key],
-    ]),
-  );
-
 export const mergeChanges = (...parts: (Changes | null)[]): Changes | null => {
   const merged: Changes = Object.fromEntries(parts.flatMap((part) => Object.entries(part ?? {})));
 

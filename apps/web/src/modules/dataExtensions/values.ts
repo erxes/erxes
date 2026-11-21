@@ -1,5 +1,5 @@
 import type { DataExtensionField, DataExtensionValues } from '@erxes/core-contract';
-import { conditionHolds, fieldShows } from '@erxes/core-contract/dataExtensionConditions';
+import { fieldRequired, fieldShows } from '@erxes/core-contract/dataExtensionConditions';
 import { isApiError } from '@erxes/core-contract/client';
 import { isComputedType } from './fieldTypes';
 
@@ -11,14 +11,14 @@ const same = (a: Value | undefined, b: Value | undefined) =>
 
 /**
  * How a field shows on a form, given the record's values now, as the API checks it on each
- * write: hidden fields never show.
+ * write: hidden fields never show, and a field is required only while it shows.
  */
 export const fieldState = (field: DataExtensionField, values: DataExtensionValues) => {
-  const { requiredWhen, required, readOnly, hidden } = field.settings;
+  const { readOnly, hidden } = field.settings;
 
   return {
     visible: !hidden && fieldShows(field.settings, values),
-    required: Boolean(required) || Boolean(requiredWhen && conditionHolds(requiredWhen, values)),
+    required: fieldRequired(field.settings, values),
     /** Computed, numbered or read-only: shown, never typed in. */
     locked: isComputedType(field.type) || Boolean(readOnly),
   };
@@ -35,6 +35,10 @@ export const formFields = (fields: DataExtensionField[], creating: boolean) =>
 /** Only the values that differ from `before`, so a save sends what the member changed. */
 export const changedValues = (before: DataExtensionValues, after: DataExtensionValues) =>
   Object.fromEntries(Object.entries(after).filter(([key, value]) => !same(before[key], value)));
+
+/** A write refused for its Data Extensions values: INVALID_INPUT naming `values.<key>`. */
+export const isValuesError = (error: unknown) =>
+  isApiError(error, 'INVALID_INPUT') && error.data.issues.some(({ path }) => path[0] === 'values');
 
 /** Each field's problem from a failed write: required ones, refused values, taken ones. */
 export const fieldErrorsOf = (error: unknown): Record<string, string> => {

@@ -10,6 +10,11 @@ describe('plugin fields members see', { timeout: 120_000 }, () => {
 
   const t = useTwoOrgs();
 
+  const pluginKeys = async (client = t.owner()) =>
+    (await client.dataFields.list({ recordType: 'core.customer' })).data
+      .filter((field) => field.plugin)
+      .map((field) => field.key);
+
   it('shows a plugin’s fields only while it is installed with fields:write', async () => {
     await t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'Sales',
@@ -23,16 +28,13 @@ describe('plugin fields members see', { timeout: 120_000 }, () => {
     const owner = t.owner();
 
     const shown = async () => ({
-      fields: (await owner.fields.list({ contentType: 'customer' })).data
-        .filter((field) => field.plugin)
-        .map((field) => field.code),
+      fields: await pluginKeys(),
       filter: (await owner.views.fields({ recordType: 'customer' })).data
         .filter((field) => field.group === 'plugin')
-        .map((field) => field.label),
+        .map((field) => field.path),
     });
 
-    // The filter has the custom field and its Data Extensions field, `subject.data.total_spent`.
-    const listed = { fields: ['total_spent'], filter: ['Total spent', 'Total spent'] };
+    const listed = { fields: ['total_spent'], filter: ['subject.data.total_spent'] };
     const hidden = { fields: [], filter: [] };
 
     expect(await shown()).toEqual(listed);
@@ -50,9 +52,7 @@ describe('plugin fields members see', { timeout: 120_000 }, () => {
     await owner.plugins.uninstall({ name: 'hr' });
     expect(await shown()).toEqual(hidden);
     // The other organisation still has it.
-    expect(
-      (await t.other().fields.list({ contentType: 'customer' })).data.filter((f) => f.plugin),
-    ).toHaveLength(1);
+    expect(await pluginKeys(t.other())).toEqual(['total_spent']);
   });
 
   it('keeps a field the manifest marks not filterable as a column only', async () => {
@@ -73,11 +73,11 @@ describe('plugin fields members see', { timeout: 120_000 }, () => {
       ],
     });
 
-    const [field] = (await other.fields.list({ contentType: 'customer' })).data;
-    const path = `subject.customFields.${field?.id}`;
+    const [field] = (await other.dataFields.list({ recordType: 'core.customer' })).data;
+    const path = 'subject.data.total_spent';
 
     // Still a field (columns and sorting keep it), but not in the filter, which refuses it.
-    expect(field).toMatchObject({ code: 'total_spent', archivedAt: null });
+    expect(field).toMatchObject({ key: 'total_spent', status: 'active' });
     expect(
       (await other.views.fields({ recordType: 'customer' })).data.some((f) => f.path === path),
     ).toBe(false);

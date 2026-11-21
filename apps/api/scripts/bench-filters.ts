@@ -1,7 +1,7 @@
 /**
  * How fast lists and advanced filters are on a big organisation: seeds a
  * throwaway database (BENCH_ROWS customers, default 100,000) with tags,
- * properties, companies and activity, then times each kind of filter through
+ * Data Extensions fields, companies and activity, then times each kind of filter through
  * the real list function, as a role under row level security (like
  * production). Prints a table (and writes it to the GitHub job summary).
  *
@@ -17,8 +17,9 @@ import { randomToken } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
 import { listCompanies } from '~/modules/companies/companyList';
 import { listCustomers } from '~/modules/customers/customerList';
+import { createField } from '~/modules/dataExtensions/fields.service';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { seedSql } from './benchSeed';
+import { BENCH_FIELDS, seedSql } from './benchSeed';
 import { runCli, say } from './cli';
 
 const baseUrl = process.env.BENCH_URL ?? process.env.DATA_TEST_URL ?? '';
@@ -50,17 +51,12 @@ const CASES: [string, { filter?: string; search?: string }][] = [
   ['Email contains', { filter: rule('subject.primaryEmail', 'contains', 'p12345@') }],
   ['Search box', { search: 'p12345@' }],
   ['Has a tag', { filter: rule('subject.tagIds', 'contains', 'tag5') }],
-  ['Custom number > 9900', { filter: rule('subject.customFields.f_spend', 'gt', 9900) }],
-  ['Custom select = gold', { filter: rule('subject.customFields.f_tier', 'eq', 'gold') }],
+  ['Field number > 9900', { filter: rule('subject.data.spend', 'gt', 9900) }],
+  ['Field select = gold', { filter: rule('subject.data.tier', 'eq', 'gold') }],
+  ['Field multi-select has golf', { filter: rule('subject.data.interests', 'contains', 'golf') }],
   [
-    'Custom multi-select has golf',
-    { filter: rule('subject.customFields.f_interests', 'contains', 'golf') },
-  ],
-  [
-    'Custom date in the next 30 days',
-    {
-      filter: rule('subject.customFields.f_renewal', 'within_next', { amount: 30, unit: 'days' }),
-    },
+    'Field date in the next 30 days',
+    { filter: rule('subject.data.renewal', 'within_next', { amount: 30, unit: 'days' }) },
   ],
   [
     'No activity for 60 days',
@@ -71,8 +67,8 @@ const CASES: [string, { filter?: string; search?: string }][] = [
     { filter: rule('subject.birthDate', 'anniversary_within', { amount: 7 }) },
   ],
   [
-    'Company property: region is north',
-    { filter: rule('subject.company.customFields.f_region', 'eq', 'north') },
+    'Company field: region is north',
+    { filter: rule('subject.company.data.region', 'eq', 'north') },
   ],
   ['First name is', { filter: rule('subject.firstName', 'eq', 'Firstc4ca42') }],
   ['Search box, two words', { search: 'first c4ca 8000' }],
@@ -82,7 +78,7 @@ const CASES: [string, { filter?: string; search?: string }][] = [
     {
       filter: allOf(
         { path: 'subject.tagIds', op: 'contains', value: 'tag5' },
-        { path: 'subject.customFields.f_spend', op: 'gt', value: 5000 },
+        { path: 'subject.data.spend', op: 'gt', value: 5000 },
         { path: 'subject.createdAt', op: 'within_last', value: { amount: 12, unit: 'months' } },
       ),
     },
@@ -137,17 +133,21 @@ const prepare = async (url: string): Promise<Bench> => {
     owner: { email: 'owner@bench.mn' },
   });
 
+  const orgId = org.organization.id;
+  const owner: Caller = { type: 'user', userId: org.owner.id, role: 'owner', permissions: ['*'] };
+
+  // The fields' tables and columns, made as the app makes them.
+  await runAs(owner, () =>
+    withOrg(orgId, (tx) => inOrder(BENCH_FIELDS, (field) => createField(tx, field))),
+  );
   await closeDb();
 
   const started = performance.now();
 
-  await run(url, seedSql(org.organization.id, rows));
+  await run(url, seedSql(orgId, rows));
   say(`seeded in ${((performance.now() - started) / 1000).toFixed(1)} s`);
 
-  return {
-    orgId: org.organization.id,
-    owner: { type: 'user', userId: org.owner.id, role: 'owner', permissions: ['*'] },
-  };
+  return { orgId, owner };
 };
 
 /** From here on queries run as a runtime role under row level security, like production. */

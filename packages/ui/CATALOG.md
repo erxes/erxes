@@ -239,16 +239,16 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setPluginRuntime(next)` Sets the plugin runtime; web calls it at startup and plugins don't.
 - `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
+- `type TDataValue` A Data Extensions field's value, as JSON.
+- `type TFieldGroupLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TIntegrationCategory` An integration's category in Settings › Integrations.
 - `type TIntegrationTab { value, label, component }` A tab on a plugin integration's page.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
 - `type TPluginIntegration { key, name, summary, icon, category, … }` A plugin's tile in core's Settings › Integrations, next to core's own.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
-- `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
-- `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
+- `type TRecordDataFields { type, values, save, limits, appliesTo }` A plugin record type's Data Extensions fields, edited in core.
 - `type TRecordDraftProps { defaults, onCreated, onCancel }` Props of a plugin record type's `New` slot, the draft form.
-- `type TRecordProperties { type, values, save, limits, appliesTo }` Custom fields on a plugin record type, whose values the plugin keeps.
 - `type TRecordSection { contentType, title, icon, component }` A plugin's section on a customer's or company's detail in core's panel.
 - `type TRecordSectionProps { contentType, contentId }` What a record section is given: the customer or company it shows on.
 - `type TRecordSlotProps` What each slot of a plugin record is given: the record.

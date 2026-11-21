@@ -74,13 +74,13 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
      token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
      be undone. The shapes, the token `typ` and the two paths are the contract;
-   - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
+   - segments (`packages/contract/src/dataPluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
-     become read-only custom fields of each organisation that has the plugin, with `plugin` set
-     (`syncPluginFields`). The plugin writes their values quietly with `fields.setPluginValues`
-     (scope `fields:write`), and members filter (unless `filterable: false`), sort and save
-     views by them while the
-     plugin is installed there with `fields:write` (`fieldShown`); a job with `onInstall`
+     become read-only Data Extensions fields of each organisation that has the plugin, with
+     `plugin` set and the code as key (`syncPluginDataFields`). The plugin writes their values
+     quietly with `dataValues.setPluginValues` (scope `fields:write`), and members filter
+     (`subject.data.<code>`, unless `filterable: false`), sort and save views by them while the
+     plugin is installed there with `fields:write`; a job with `onInstall`
      runs once when an organisation installs the plugin or approves its scopes; a plugin's
      filter fields come with `group: 'plugin'` and its title in `groupLabel`. With `views:read`
      a plugin lists the shared views (`views.list`) and asks which records one matches now
@@ -110,7 +110,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `relationTabs`, `settings`, `integrations`, `dashboardWidgets`, `floatingWidget`), and its first module
      renders under `/<path>/*`. `settings` (`{ path, label, icon? }`, each `path` under `/<path>/`) are the
      plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
-     once, to its first page, else to its Properties, in "Plugin settings"
+     once, to its first page, else to its record type's Data model fields, in "Plugin settings"
      (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `integrations`
      (`TPluginIntegration`: `key`, `name`, `summary`, `icon`, `category` from erxes-ui's
      `INTEGRATION_CATEGORIES`, `countries`, `permission`, `tabs` of `{ value, label, component }`)
@@ -133,13 +133,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `Title`, `Actions`, `Detail`, `tabs`, `New`, with `detailPath(id)` under `/<path>/` as the
      expanded page (where the plugin renders erxes-ui's `RecordPage`), `contacts(id)` for
      relation tabs and `activity` for core's timeline
-     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). A type's `properties`
-     (`TRecordProperties`: `type` as `<name>.<thing>`, `values(id)` query options, `save(id, patch)`)
-     give it custom fields: core keeps their definitions (`fields.*` and `fieldGroups.*` take
-     `<plugin>.<type>` while that plugin is installed, else 400 `PLUGIN_NOT_INSTALLED`), draws a
-     Properties tab and their settings page at `/settings/properties/<plugin>.<type>`, which a
-     plugin with settings pages links from its own settings, and the plugin keeps
-     the values, checking a patch with `fields.check` (its own types only) before it saves. `relationTabs` show on the
+     (`apps/web/src/modules/plugins/PluginRecordView.tsx`). A type's `dataFields`
+     (`TRecordDataFields`: `type` as `<name>.<thing>`, `values(id)` query options of the record's
+     `custom_fields` by field id, `save(id, patch)`, and `limits` with `appliesTo(id)`) let
+     members edit its Data Extensions fields: core keeps their definitions (`dataFields.list`,
+     `dataFieldGroups.list`; Settings › Data model at `/settings/data-model/fields/<plugin>.<type>`),
+     draws them under their groups in a Fields tab, and the plugin keeps the values, checking a
+     patch with `dataValues.check` (its own types only, with the record's `appliesTo`) before it
+     saves. Without `dataFields` the tab shows them read only, from the plugin's view. `relationTabs` show on the
      record types their `hosts` name (`core:customer`, `core:company`, a plugin type with
      `contacts`), and on customers and companies when they name none
      (`apps/web/src/modules/plugins/PluginRelationTabs.tsx`). web validates these and `dashboardWidgets` when it
@@ -176,7 +177,7 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      browser: a list's name and its displays' keys are the contract.
      The API compiles the filter with `compileFilter` from `@erxes/plugin-sdk/filter`, the
      compiler core's own lists use (`apps/api/src/modules/views/recordFilter.ts` adds core's
-     custom fields, tags and lookups on top). A field type or operator it accepts is the contract,
+     Data Extensions fields, tags and lookups on top). A field type or operator it accepts is the contract,
      and so is its 400 `INVALID_FILTER`.
      Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
      shared with `import: false` fails to load. A library goes in `SHARED` when erxes-ui hands

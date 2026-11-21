@@ -50,6 +50,8 @@ type TContactContentType
 type TContactKind
 type TDashboardWidget
 type TDashboardWidgetPreview
+type TDataValue
+type TFieldGroupLimit
 type TIntegrationCategory
 type TIntegrationTab
 type TListDisplay
@@ -61,11 +63,9 @@ type TPanelRecordType
 type TPluginIntegration
 type TPluginListType
 type TPluginSettingsPage
-type TPropertyLimit
-type TPropertyValue
 type TRecordContacts
+type TRecordDataFields
 type TRecordDraftProps
-type TRecordProperties
 type TRecordSection
 type TRecordSectionProps
 type TRecordSlotProps

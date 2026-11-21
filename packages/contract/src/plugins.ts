@@ -17,7 +17,7 @@ import { Country } from './money';
 import { EventType } from './platform';
 import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
-import { PluginFields } from './pluginFields';
+import { PluginFields } from './dataPluginFields';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
@@ -212,7 +212,7 @@ export const PluginManifest = z.object({
   subscriptions: z.array(EventPattern).max(100).optional(),
   /** Background work at its API (`PluginJobs`): core POSTs each job to `<api.url>/jobs/<name>`. */
   jobs: PluginJobs.optional(),
-  /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
+  /** Fields it keeps on customers and companies (`PluginFields`): Data Extensions fields members read. */
   fields: PluginFields.optional(),
   /** Its records members import and export through core (`PluginTransfers`): core asks `<api.url>/transfer/*` for the rows. */
   transfer: PluginTransfers.optional(),

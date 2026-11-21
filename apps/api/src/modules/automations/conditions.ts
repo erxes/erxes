@@ -1,7 +1,7 @@
 import type { AutomationDefinition, ConditionGroup, ConditionRule } from '@erxes/core-contract';
 import { z } from 'zod';
 
-/** A value at a dotted path (`subject.customFields.abc`), or undefined. */
+/** A value at a dotted path (`subject.data.plan`), or undefined. */
 export const valueAt = (context: Record<string, unknown>, path: string): unknown =>
   path.split('.').reduce<unknown>((current, key) => {
     if (current === null || current === undefined) return undefined;
@@ -155,16 +155,13 @@ const renamePath = (group: ConditionGroup, from: string, to: string): ConditionG
 type DateTrigger = Extract<AutomationDefinition['trigger'], { kind: 'date' }>;
 
 /**
- * A date trigger's conditions. Its event's `date` is each record's own date field, so rules on
- * it read that field: one condition for all the records a firing goes through.
+ * A date trigger's conditions. Its event's `date` is each record's own date field
+ * (`subject.birthDate`, `subject.data.<key>`), so rules on it read that field: one condition for
+ * all the records a firing goes through.
  */
 export const dateConditions = (trigger: DateTrigger) =>
   trigger.conditions &&
-  renamePath(
-    trigger.conditions,
-    'event.payload.date',
-    trigger.field === 'birthDate' ? 'subject.birthDate' : `subject.customFields.${trigger.field}`,
-  );
+  renamePath(trigger.conditions, 'event.payload.date', `subject.${trigger.field}`);
 
 export const evaluateGroup = (
   group: ConditionGroup | undefined,

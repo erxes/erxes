@@ -1,5 +1,5 @@
 import type { ContentType } from '@erxes/core-db';
-import { type Changes, diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
+import { type Changes, diffFields, mergeChanges } from '~/lib/changes';
 
 /** A customer or company row: its columns by name. */
 export interface ContactRecord {
@@ -8,10 +8,9 @@ export interface ContactRecord {
   [column: string]: unknown;
 }
 
-/** A customer or company as read with its tags and custom field values. */
+/** A customer or company as read with its tags. */
 export interface ContactRow extends ContactRecord {
   tagIds: string[];
-  customFields: Record<string, unknown>;
 }
 
 const CUSTOMER_FIELDS = [
@@ -64,7 +63,7 @@ export const contactLabel = (type: ContentType, row: ContactRecord): string => {
 export const detailLink = (type: ContentType, id: string) =>
   `/contacts/${type === 'customer' ? 'customers' : 'companies'}/${encodeURIComponent(id)}`;
 
-/** Field, custom field and tag changes between two versions of a record. */
+/** Field and tag changes between two versions of a record (Data Extensions values keep their own history). */
 export const contactChanges = (
   type: ContentType,
   before: ContactRow,
@@ -72,6 +71,5 @@ export const contactChanges = (
 ): Changes | null =>
   mergeChanges(
     diffFields(before, after, type === 'customer' ? CUSTOMER_FIELDS : COMPANY_FIELDS),
-    diffCustomFields(before.customFields, after.customFields),
     diffFields(before, after, ['tagIds']),
   );

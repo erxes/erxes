@@ -7,7 +7,7 @@ import { pluginOf } from './columns';
 import { type DataFieldRow, fieldsOf } from './definitions';
 import { relationSides } from './relationValues';
 import { prepareValues, type ValuePath } from './values';
-import { assertRequiredWhen } from './writeRules';
+import { askedBy, assertRequired } from './writeRules';
 
 /**
  * A plugin keeps its records' Data Extensions values itself, in a `custom_fields` map by field
@@ -141,9 +141,10 @@ export const checkValues = async (
     ...[...changed].filter(([, value]) => value !== null),
   ]);
 
-  assertRequiredWhen(
+  assertRequired(
     fields,
     Object.fromEntries(fields.map((field) => [field.key, values[field.id] ?? null])),
+    askedBy(Object.keys(written), create),
     AT_PATCH,
   );
 

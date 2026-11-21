@@ -6,17 +6,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ProductId } from './records';
 import { ProductKind, PluginName } from './values';
-import {
-  CursorQuery,
-  CustomFields,
-  CustomFieldsPatch,
-  cursorPageOf,
-  Id,
-  IdList,
-  isoDate,
-  listOf,
-  QueryBoolean,
-} from './common';
+import { CursorQuery, cursorPageOf, Id, IdList, isoDate, listOf, QueryBoolean } from './common';
 import { Currency } from './money';
 import {
   DataExtensionValues,
@@ -81,12 +71,6 @@ export const Product = createSelectSchema(products, {
     archivedAt: true,
   })
   .extend({
-    /**
-     * The organisation's own product properties (brand, warranty, room
-     * capacity), set up in Settings › Properties, by field id. Every plugin
-     * sees them; what only one plugin needs stays in that plugin.
-     */
-    customFields: CustomFields,
     /** Product tags (`tags.list({ type: 'product' })`), in the order they were added. */
     tagIds: z.array(Id),
   });
@@ -156,9 +140,10 @@ const ProductFields = createUpdateSchema(products, {
   .extend({
     /** The product tags it has after the change. 400 INVALID_TAG. */
     tagIds: z.array(Id).max(50).optional(),
-    /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
-    customFields: CustomFieldsPatch.optional(),
-    /** Sets the given Data Extensions values by field key; `null` clears one. Others stay. */
+    /**
+     * Sets the given Data Extensions values by field key (the organisation's own product
+     * fields: brand, warranty); `null` clears one. Others stay.
+     */
     values: DataExtensionValuesInput.optional(),
   });
 
@@ -175,8 +160,6 @@ const CategoryFields = createUpdateSchema(productCategories, {
 const {
   CATEGORY_HAS_CHILDREN,
   INVALID_CATEGORY,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
   INVALID_FILE,
   INVALID_PRODUCT,
   INVALID_TAG,
@@ -192,8 +175,6 @@ const base = oc.errors({
   ...COMMON_ERRORS,
   CATEGORY_HAS_CHILDREN,
   INVALID_CATEGORY,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
   INVALID_FILE,
   INVALID_PRODUCT,
   INVALID_TAG,
@@ -238,10 +219,11 @@ export const productsContract = {
     .route({
       method: 'GET',
       path: '/products/lookup',
-      summary: 'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
+      summary:
+        'The given products (archived ones too), with their Data Extensions values, for order lines: `?ids=a,b`, at most 100',
     })
     .input(z.object({ ids: IdList }))
-    .output(z.object({ data: z.array(Product).max(100) })),
+    .output(z.object({ data: z.array(ProductWithValues).max(100) })),
   create: base
     .route({
       method: 'POST',

@@ -190,17 +190,6 @@ describe('Data Extensions fields a plugin declares', { timeout: 300_000 }, () =>
     expect((await fieldOf('total_spent')).type).toBe('number');
   });
 
-  it('keeps the old fields.setPluginValues working beside it', async () => {
-    const anu = await t.owner().customers.create({ firstName: 'Old' });
-
-    await expect(
-      t.hr().fields.setPluginValues({
-        contentType: 'customer',
-        values: [{ recordId: anu.id, code: 'total_spent', value: 7 }],
-      }),
-    ).resolves.toEqual({ written: 1, skipped: [] });
-  });
-
   it('shows a plugin’s fields only while it is installed and may fill them', async () => {
     const owner = t.owner();
     const keys = async () => (await fieldsOf('core.customer')).map((field) => field.key);

@@ -6,8 +6,8 @@ import { DATA_PATH } from '~/modules/dataExtensions/hostFilters';
 import { valuesByRecord } from '~/modules/dataExtensions/hostValues.service';
 
 /**
- * Data Extensions fields as import and export columns (`data.<key>`), beside the custom
- * fields' `customFields.<id>`. A cell is written through the fields' own checks on import.
+ * Data Extensions fields as import and export columns (`data.<key>`). A cell is written
+ * through the fields' own checks on import.
  */
 
 export type DataColumnField = Pick<DataFieldRow, 'key' | 'type' | 'options'>;

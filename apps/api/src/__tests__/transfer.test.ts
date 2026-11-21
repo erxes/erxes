@@ -95,7 +95,6 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
-  let spend = '';
 
   /** A file as if uploaded through /files. */
   const upload = (name: string, body: Buffer) =>
@@ -119,9 +118,12 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
   const customerTags = async () => (await t.owner().tags.list({ type: 'customer' })).data;
 
   beforeAll(async () => {
-    spend = (
-      await t.owner().fields.create({ contentType: 'customer', label: 'Spend', type: 'number' })
-    ).id;
+    await t.owner().dataFields.create({
+      recordType: 'core.customer',
+      key: 'spend',
+      label: 'Spend',
+      type: 'number',
+    });
     // Already there: the import updates her (upsert by email).
     await t.owner().customers.create({ firstName: 'Saraa', primaryEmail: 'saraa@x.mn' });
   });
@@ -159,7 +161,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
       4: 'tags',
       5: 'owner',
       6: 'companies',
-      7: `customFields.${spend}`,
+      7: 'data.spend',
       8: 'birthDate',
     });
     expect(mapped.sample[0]?.[0]).toBe('Бат');
@@ -208,7 +210,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
       lastName: 'Болд',
       primaryPhone: '99112233',
       birthDate: '1990-05-01',
-      customFields: { [spend]: 1500 },
+      values: { spend: 1500 },
     });
     expect((await customerTags()).map((tag) => tag.name).toSorted()).toEqual(['Golf', 'VIP']);
     expect((await t.owner().customers.companies({ id: bat.id })).data).toEqual([
@@ -217,7 +219,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
 
     const [saraa] = (await t.owner().customers.list({ search: 'saraa' })).data;
 
-    expect(saraa?.customFields[spend]).toBe(200);
+    expect(saraa?.values.spend).toBe(200);
     expect(saraa?.tagIds).toHaveLength(1);
 
     // Quiet by default: its events say so (automations skip them).
@@ -255,7 +257,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
     const csv = await t.owner().transfer.createExport({
       recordType: 'customer',
       format: 'csv',
-      columns: ['firstName', 'primaryEmail', 'tags', `customFields.${spend}`],
+      columns: ['firstName', 'primaryEmail', 'tags', 'data.spend'],
       query: {
         filter: { match: 'all', rules: [{ path: 'subject.tagIds', op: 'contains', value: vip }] },
       },

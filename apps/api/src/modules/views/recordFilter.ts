@@ -14,28 +14,19 @@ import {
   products,
 } from '@erxes/core-db';
 import {
-  COMPARE,
   compileColumn,
-  compileDate,
   compileGroup,
-  escapeLike,
   type FilterContext,
   invalidFilter,
   list,
-  lowerList,
   NEGATIVE,
-  number,
   text,
 } from '@erxes/plugin-sdk/filter';
 import { not, type SQL, sql } from 'drizzle-orm';
-import { valuesTable } from '~/modules/fields/fieldValues';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
-import type { CustomSpec, FieldSpec } from './fieldSpec';
+import type { FieldSpec } from './fieldSpec';
 import { filterFields, isCompanyList, type SubjectType, subjectFilterFields } from './filterFields';
 import { compileRelated, type RelationViews, relationViews } from './relationFilter';
-
-const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
-  invalidFilter(`“${spec.label}” can't use “${op}”`);
 
 /** Rules name records (a lead stage, a category); the column holds their ids. */
 const compileLookup = (x: SQL, rule: ConditionRule, lookup: (names: string[]) => SQL) => {
@@ -49,81 +40,17 @@ const compileLookup = (x: SQL, rule: ConditionRule, lookup: (names: string[]) =>
 
 const LOOKUP_OPS: ConditionRule['op'][] = ['eq', 'neq', 'in', 'not_in'];
 
-/** A built-in column (or a linked company's). */
+/** A built-in column, a Data Extensions field, or the linked company's. */
 const compileValue = (spec: FieldSpec, rule: ConditionRule, context: FilterContext) =>
   spec.lookup && LOOKUP_OPS.includes(rule.op)
     ? compileLookup(spec.expr, rule, spec.lookup)
     : compileColumn(spec, spec.path, rule, context);
 
-/** A custom field's text values: a choice field "contains" an option; a text or list field contains text. */
-const customText = (x: SQL, spec: FieldSpec, rule: ConditionRule) => {
-  switch (rule.op) {
-    case 'eq':
-      return sql`lower(${x}) = lower(${text(rule.value)})`;
-
-    case 'contains':
-      return spec.type === 'select'
-        ? sql`lower(${x}) = lower(${text(rule.value)})`
-        : sql`${x} ilike ${`%${escapeLike(text(rule.value))}%`}`;
-
-    case 'starts_with':
-      return sql`${x} ilike ${`${escapeLike(text(rule.value))}%`}`;
-
-    case 'in':
-      return sql`lower(${x}) = any(${lowerList(rule.value)})`;
-
-    default:
-      return undefined;
-  }
-};
-
-/**
- * A custom field: "has a value row where …" (an index lookup on the typed
- * column); negative rules are "has no value row where …", so a record without
- * a value counts as "is not X". Multi-choice fields match when any choice does.
- */
+/** Each record type's table, for its tags. */
 const RECORDS = { customer: customers, company: companies, product: products } satisfies Record<
   FieldContentType,
   unknown
 >;
-
-const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule): SQL => {
-  const v = valuesTable(custom.recordType);
-  const record = RECORDS[custom.recordType];
-
-  const has = (condition?: SQL) =>
-    sql`exists (select 1 from ${v} where ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
-
-  const positive = NEGATIVE[rule.op];
-
-  if (positive) return not(compileCustom(spec, custom, { ...rule, op: positive }));
-
-  const { op } = rule;
-
-  if (op === 'exists') return has();
-
-  // No value reads as "no".
-  if (custom.storage === 'bool' && op === 'eq') {
-    const yes = has(sql`${v.boolValue}`);
-
-    return rule.value === true || rule.value === 'true' ? yes : not(yes);
-  }
-
-  const compare = COMPARE[op];
-
-  const condition =
-    custom.storage === 'number'
-      ? compare && sql`${v.numberValue} ${sql.raw(compare)} ${number(rule.value)}`
-      : custom.storage === 'date'
-        ? compileDate(sql`${v.dateValue}`, op, rule.value, true)
-        : custom.storage === 'text'
-          ? customText(sql`${v.textValue}`, spec, rule)
-          : undefined;
-
-  if (!condition) throw cannotUse(spec, op);
-
-  return has(condition);
-};
 
 const tagType = (recordType: ViewRecordType): FieldContentType =>
   recordType === 'product' ? 'product' : isCompanyList(recordType) ? 'company' : 'customer';
@@ -167,9 +94,6 @@ interface Compiling {
   views: RelationViews;
 }
 
-const compileField = (spec: FieldSpec, rule: ConditionRule, context: FilterContext) =>
-  spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule, context);
-
 const compileRule = (rule: ConditionRule, compiling: Compiling): SQL => {
   const { specs, recordType, context, views } = compiling;
   const spec = specs.get(rule.path);
@@ -192,13 +116,13 @@ const compileRule = (rule: ConditionRule, compiling: Compiling): SQL => {
 
   if (spec.viaCompany) {
     const positive = NEGATIVE[rule.op];
-    const inner = compileField(spec, positive ? { ...rule, op: positive } : rule, context);
+    const inner = compileValue(spec, positive ? { ...rule, op: positive } : rule, context);
     const linked = sql`exists (select 1 from ${customerCompanies} join ${companies} on ${companies.id} = ${customerCompanies.companyId} and ${companies.orgId} = ${customerCompanies.orgId} where ${customerCompanies.orgId} = ${customers.orgId} and ${customerCompanies.customerId} = ${customers.id} and ${inner})`;
 
     return positive ? not(linked) : linked;
   }
 
-  return compileField(spec, rule, context);
+  return compileValue(spec, rule, context);
 };
 
 const parseFilter = (filter: string | ConditionGroup) => {

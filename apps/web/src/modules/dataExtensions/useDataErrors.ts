@@ -34,6 +34,12 @@ export const useDataErrorText = () => {
       return t('limit', 'You have reached the most this allows.');
     }
 
+    if (isApiError(error, 'GROUP_IN_USE')) {
+      return t('group-in-use', '{{count}} fields are in this group. Move or delete them first.', {
+        count: error.data.count,
+      });
+    }
+
     if (isApiError(error, 'UNCONVERTIBLE')) {
       return t('unconvertible', '{{count}} values don’t fit the new type.', {
         count: error.data.count,

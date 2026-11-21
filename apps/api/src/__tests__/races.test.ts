@@ -89,17 +89,18 @@ describe('concurrent writes', () => {
       if (!active.some((user) => user.id === id)) await as(still?.id ?? '').users.enable({ id });
   });
 
-  it('two edits of different custom fields at once: both are kept', async () => {
+  it('two edits of different data fields at once: both are kept', async () => {
     const owner = as(ownerA);
 
-    const shoe = await owner.fields.create({
-      contentType: 'customer',
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'shoeSize',
       label: 'Shoe size',
       type: 'number',
     });
-
-    const nickname = await owner.fields.create({
-      contentType: 'customer',
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'nickname',
       label: 'Nickname',
       type: 'text',
     });
@@ -108,12 +109,12 @@ describe('concurrent writes', () => {
 
     for (let round = 0; round < 3; round += 1) {
       await Promise.all([
-        owner.customers.update({ id, customFields: { [shoe.id]: 40 + round } }),
-        owner.customers.update({ id, customFields: { [nickname.id]: `bat-${round}` } }),
+        owner.customers.update({ id, values: { shoeSize: 40 + round } }),
+        owner.customers.update({ id, values: { nickname: `bat-${round}` } }),
       ]);
-      expect((await owner.customers.get({ id })).customFields).toEqual({
-        [shoe.id]: 40 + round,
-        [nickname.id]: `bat-${round}`,
+      expect((await owner.customers.get({ id })).values).toEqual({
+        shoeSize: 40 + round,
+        nickname: `bat-${round}`,
       });
     }
   });

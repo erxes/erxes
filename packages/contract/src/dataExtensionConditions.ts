@@ -122,3 +122,24 @@ export const fieldShows = (
 ) =>
   (!settings.visibleWhen || conditionHolds(settings.visibleWhen, values)) &&
   !(settings.hiddenWhen && conditionHolds(settings.hiddenWhen, values));
+
+/**
+ * Whether a field needs a value, given the record's values: `required` (where the write or
+ * form asks for the field, `asked`) or `requiredWhen` holds, and only while the field shows:
+ * not `hidden`, `visibleWhen` holds and `hiddenWhen` doesn't.
+ */
+export const fieldRequired = (
+  settings: {
+    hidden?: boolean;
+    required?: boolean;
+    requiredWhen?: DataExtensionCondition;
+    visibleWhen?: DataExtensionCondition;
+    hiddenWhen?: DataExtensionCondition;
+  },
+  values: Values,
+  asked = true,
+) =>
+  !settings.hidden &&
+  fieldShows(settings, values) &&
+  ((asked && Boolean(settings.required)) ||
+    Boolean(settings.requiredWhen && conditionHolds(settings.requiredWhen, values)));

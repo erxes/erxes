@@ -26,7 +26,7 @@ const TransferPage = CursorQuery.extend({
   limit: z.coerce.number().int().min(1).max(100).default(50),
 }).prefault({});
 
-/** A column imports map to and exports write: built-in fields, properties (`customFields.<id>`), tags, owner, companies. */
+/** A column imports map to and exports write: built-in fields, Data Extensions fields (`data.<key>`), tags, owner, companies. */
 export const TransferColumn = z.object({
   key: z.string(),
   label: z.string(),

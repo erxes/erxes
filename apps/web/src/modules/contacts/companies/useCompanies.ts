@@ -1,4 +1,4 @@
-import type { Company } from '@erxes/core-contract';
+import type { Company, DataExtensionValues } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useListFilterParams, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
@@ -54,6 +54,18 @@ export const useCompanyEdit = () => {
         }),
     }),
   );
+};
+
+/** Saves a company's Data Extensions values; the caller shows a failure on its fields. */
+export const useCompanyValuesSave = (id: string) => {
+  const client = useQueryClient();
+
+  return async (values: DataExtensionValues) => {
+    const company = await orpc.companies.update.call({ id, values });
+
+    patchCachedRecord(client, orpc.companies.list.key(), company);
+    client.setQueryData(orpc.companies.get.queryKey({ input: { id } }), company);
+  };
 };
 
 /** Callers show the failure next to the field it is about (`TAKEN`). */

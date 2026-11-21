@@ -226,15 +226,16 @@ const compileArray = (
     case 'contains':
       return sql`${x} @> ${textArray(values(rule.value))}`;
 
+    // A record without a list (null) holds none of the values, as one with an empty list.
     case 'neq':
     case 'not_contains':
-      return sql`not (${x} @> ${textArray(values(rule.value))})`;
+      return sql`not (coalesce(${x}, '{}') @> ${textArray(values(rule.value))})`;
 
     case 'in':
       return sql`${x} && ${textArray(list(rule.value).flatMap(values))}`;
 
     case 'not_in':
-      return sql`not (${x} && ${textArray(list(rule.value).flatMap(values))})`;
+      return sql`not (coalesce(${x}, '{}') && ${textArray(list(rule.value).flatMap(values))})`;
 
     default:
       return undefined;
@@ -347,7 +348,7 @@ export const compileColumn = (
 
   if (op === 'exists')
     return isArray(field)
-      ? sql`cardinality(${x}) > 0`
+      ? sql`coalesce(cardinality(${x}), 0) > 0`
       : field.type === 'text'
         ? sql`coalesce(${x}, '') <> ''`
         : sql`${x} is not null`;

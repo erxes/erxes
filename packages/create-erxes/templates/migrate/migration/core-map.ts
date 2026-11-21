@@ -137,16 +137,19 @@ export const CORE_CALLS: Record<string, Equivalent> = {
     '<plugin>_tags',
     "core's tags are for customers and companies (decision 9)",
   ),
-  'fields.find': owned(
-    '<plugin>_fields',
-    'core custom fields cover customers, companies and products',
+  'fields.find': sdk(
+    'dataFields.list',
+    "Data Extensions fields of the plugin's record types (manifest `objects`); values in its records' `custom_fields` by field id",
   ),
-  'fields.validateFieldValues': owned('zod in the procedure input'),
-  'fields.getFieldList': owned('<plugin>_fields'),
-  'fields.generateTypedListFromMap': owned('<plugin>_fields'),
-  'fields.generatePropertiesData': owned('<plugin>_fields'),
-  'fields.fieldsCombinedByContentType': owned('<plugin>_fields'),
-  'fieldsGroups.find': owned('<plugin>_fields'),
+  'fields.validateFieldValues': sdk(
+    'dataValues.check',
+    "a record's `custom_fields` patch, with `appliesTo`; answers the values to save",
+  ),
+  'fields.getFieldList': sdk('dataFields.list', '`recordType` `<plugin>.<type>`'),
+  'fields.generateTypedListFromMap': sdk('dataValues.check', 'values come back typed'),
+  'fields.generatePropertiesData': sdk('dataValues.check', 'values come back typed'),
+  'fields.fieldsCombinedByContentType': sdk('dataFields.list', 'one record type at a time'),
+  'fieldsGroups.find': sdk('dataFieldGroups.list', '`recordType` `<plugin>.<type>`'),
   'configs.getConfig': owned(
     '<plugin>_settings',
     'country and currency: organizations.current (sdk)',

@@ -60,10 +60,6 @@ const checkOne = (field: DataFieldRow, value: unknown, issues: Issue[], at: Valu
     return undefined;
   }
 
-  if (parsed.data === null && field.settings.required) {
-    issues.push({ path: at(field), message: `${field.label} is required` });
-  }
-
   return parsed.data;
 };
 
@@ -90,9 +86,10 @@ const withDefaults = (fields: DataFieldRow[], input: Record<string, unknown>) =>
 
 /**
  * Checks `input` (values by key) against the record type's active fields: unknown keys,
- * values of the wrong shape, cleared required fields and links kept on the linked records
- * answer 400 INVALID_INPUT with an issue per value (at `at`); a read-only field 403
- * NOT_ALLOWED; an id of no record 400 INVALID_REFERENCE.
+ * values of the wrong shape and links kept on the linked records answer 400 INVALID_INPUT
+ * with an issue per value (at `at`); a read-only field 403 NOT_ALLOWED; an id of no record
+ * 400 INVALID_REFERENCE. Required fields are checked once the record's values are known
+ * (`assertRequired`), since a field needs a value only while it shows.
  */
 export const prepareValues = async (
   client: Db,
@@ -126,18 +123,6 @@ export const prepareValues = async (
     } else {
       if (key in input) assertEditable(field);
       values[key] = checkOne(field, value, issues, at);
-    }
-  }
-
-  if (creating) {
-    for (const field of fields) {
-      if (
-        field.settings.required &&
-        (values[field.key] ?? null) === null &&
-        !(field.key in given)
-      ) {
-        issues.push({ path: at(field), message: `${field.label} is required` });
-      }
     }
   }
 

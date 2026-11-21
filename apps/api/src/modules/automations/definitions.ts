@@ -4,9 +4,9 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { CONTENT_TYPES, type ContentType, type Db, emailSenders, fields } from '@erxes/core-db';
+import { CONTENT_TYPES, type ContentType, type Db, emailSenders } from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
-import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import { and, inArray, isNotNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
@@ -14,6 +14,7 @@ import { subjectCompiler } from '~/modules/views/recordFilter';
 import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { dateConditions } from './conditions';
+import { dateFieldOf, dateKeyOf } from './dateFields';
 
 type Catalog = Awaited<ReturnType<typeof automationCatalog>>;
 
@@ -152,15 +153,13 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
   if (trigger.kind === 'event' && !catalog.triggers.some((item) => item.type === trigger.event))
     return [`Unknown trigger ${trigger.event}`];
 
-  if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
+  if (trigger.kind !== 'date' || (trigger.field === 'birthDate' && trigger.subject === 'customer'))
+    return [];
 
-  const [field] = await client
-    .select({ type: fields.type })
-    .from(fields)
-    .where(and(eq(fields.id, trigger.field), inArray(fields.contentType, CONTENT_TYPES)))
-    .limit(1);
+  const key = dateKeyOf(trigger.field);
+  const field = key ? await dateFieldOf(client, trigger.subject, key) : undefined;
 
-  return field?.type === 'date' ? [] : ['The date trigger needs a date field'];
+  return field ? [] : ['The date trigger needs a date field (`birthDate` or `data.<key>`)'];
 };
 
 /** Templates may only use filters that exist. */

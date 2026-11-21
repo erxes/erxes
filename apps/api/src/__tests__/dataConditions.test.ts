@@ -36,9 +36,22 @@ describe('Data Extensions conditions and field options', { timeout: 300_000 }, (
           ],
         },
         hiddenWhen: { field: 'score', operator: 'isEmpty' },
-        hidden: true,
         filterable: false,
       },
+    });
+    await add({
+      recordType: 'core.customer',
+      key: 'secret',
+      label: 'Secret',
+      type: 'text',
+      settings: { required: true, hidden: true },
+    });
+    await add({
+      recordType: 'core.customer',
+      key: 'gated',
+      label: 'Gated',
+      type: 'text',
+      settings: { required: true, visibleWhen: { field: 'score', operator: 'eq', value: 1 } },
     });
     customerId = (await owner.customers.create({ firstName: 'Saraa' })).id;
   });
@@ -58,7 +71,6 @@ describe('Data Extensions conditions and field options', { timeout: 300_000 }, (
         ],
       },
       hiddenWhen: { field: 'score', operator: 'isEmpty' },
-      hidden: true,
       filterable: false,
     });
   });
@@ -75,6 +87,21 @@ describe('Data Extensions conditions and field options', { timeout: 300_000 }, (
     });
     await expect(write({ score: 9, reason: 'Big order' })).resolves.toMatchObject({
       values: { score: 9, note: 'a vip customer', reason: 'Big order' },
+    });
+  });
+
+  it('requires a field only while it shows, as old properties did', async () => {
+    // Hidden, or its `visibleWhen` fails: it may stay empty.
+    await expect(write({ secret: null, gated: null })).resolves.toMatchObject({
+      values: { secret: null, gated: null },
+    });
+    await expect(write({ score: 1, gated: null })).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_INPUT',
+      data: { issues: [{ path: ['values', 'gated'] }] },
+    });
+    await expect(write({ score: 1, gated: 'open' })).resolves.toMatchObject({
+      values: { score: 1, gated: 'open' },
     });
   });
 

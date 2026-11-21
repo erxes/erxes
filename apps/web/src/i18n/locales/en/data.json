@@ -14,12 +14,13 @@
     "visible-to-hint": "Other roles don’t see its values, nor formulas that read it."
   },
   "conditions": {
-    "all-rules": "{{count}} rules, all of them",
-    "always": "Always",
-    "any-rule": "{{count}} rules, any one of them",
-    "clear": "Remove condition",
+    "add-rule": "Add rule",
     "field": "Field",
+    "match": "Which rules",
+    "match-all": "All of these rules",
+    "match-any": "Any one of these rules",
     "no": "No",
+    "no-rules": "No rules",
     "operator": "Compare",
     "operators": {
       "contains": "contains",
@@ -31,6 +32,7 @@
       "lessThan": "is less than",
       "neq": "is not"
     },
+    "remove-rule": "Remove rule",
     "value": "Value",
     "yes": "Yes"
   },
@@ -51,6 +53,8 @@
     "archive-first": "Archive it first: only an archived one can be deleted.",
     "failed": "Could not save",
     "field-in-use": "A formula, rollup, condition or label uses this field. Change that first.",
+    "group-in-use_one": "{{count}} field is in this group. Move or delete it first.",
+    "group-in-use_other": "{{count}} fields are in this group. Move or delete them first.",
     "limit": "You have reached the most this allows.",
     "not-allowed": "You may not change this.",
     "schema-busy": "Another change to the data model is running. Try again.",
@@ -114,6 +118,7 @@
     "empty": "No fields yet",
     "empty-description": "Add a field to keep more about each record: a value, a choice, a formula or a link.",
     "more": "More",
+    "move": "Move {{label}}",
     "read-only": "Read-only",
     "record-types": "Record types",
     "remove": "Delete",
@@ -161,6 +166,25 @@
       "number": "number",
       "text": "text"
     }
+  },
+  "groups": {
+    "actions": "Actions for {{label}}",
+    "add": "Add group",
+    "applies-to": "Shows on",
+    "applies-to-all": "All",
+    "applies-to-hint": "Leave empty to show this group on every record. Otherwise a record must match each list.",
+    "archived": "Archived",
+    "code": "Code",
+    "code-hint": "For imports and integrations. Empty: made from the name.",
+    "description": "Description",
+    "edit": "Edit {{label}}",
+    "edit-short": "Edit",
+    "empty": "No groups yet: fields show under one untitled section.",
+    "label": "Name",
+    "limited": "Some records",
+    "remove-confirm": "Delete the group {{label}}?",
+    "sheet-description": "Fields show under their group on each record.",
+    "title": "Groups"
   },
   "history": {
     "changed": "Changed <b>{{label}}</b> from {{from}} to <b>{{to}}</b>",
@@ -300,6 +324,6 @@
   },
   "values": {
     "keptByPlugin": "The plugin keeps these values. Change them where you edit the record.",
-    "tab": "Data"
+    "section": "Fields"
   }
 }

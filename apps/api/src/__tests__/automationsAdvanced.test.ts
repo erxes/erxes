@@ -167,8 +167,8 @@ describe('automations: paths, testing and operations', { timeout: 600_000 }, () 
         {
           id: 'f',
           type: 'action',
-          action: 'core.customer.set_field',
-          input: { fieldId: 'no-such-field', value: '1' },
+          action: 'core.customer.set_data_value',
+          input: { field: 'noSuchField', value: '1' },
         },
       ],
     });

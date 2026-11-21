@@ -56,8 +56,8 @@ export const AutomationFieldPath = FilterField.extend({
 export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
 
 /**
- * One input of an action. Besides plain values: `custom_field` (one of the
- * subject's custom fields, by id), `lead_stage` (a lead stage, by id),
+ * One input of an action. Besides plain values: `data_field` (one of the
+ * subject's Data Extensions fields, by key), `lead_stage` (a lead stage, by id),
  * `recipients` (`subject` = the record's own email, or addresses),
  * `plugin_record` (one of the plugin's own records of `recordType`, by id).
  */
@@ -70,7 +70,7 @@ export const ActionField = z
     options: z.array(z.object({ value: z.string(), label: z.string() })).optional(),
     description: z.string().optional(),
     placeholder: z.string().optional(),
-    /** The key of a `custom_field` input: this value takes that field's type (a date, a choice …). */
+    /** The key of a `data_field` input: this value takes that field's type (a date, a choice …). */
     sameTypeAs: z.string().optional(),
     /**
      * A `plugin_record` input's records (`pipeline`): web lists them from

@@ -1,18 +1,15 @@
 import type { DataExtensionField } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import {
   IconArchive,
   IconArrowsExchange,
   IconDots,
   IconEdit,
-  IconGripVertical,
   IconRestore,
   IconTrash,
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Badge, Button, cn, DropdownMenu, useConfirm, useSortRoleDescription } from 'erxes-ui';
+import { Badge, Button, DropdownMenu, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRefreshDataModel, useTypeLabel } from '../dataQueries';
@@ -20,6 +17,7 @@ import { convertTargets, FIELD_TYPES } from '../fieldTypes';
 import { useDataErrorToast } from '../useDataErrors';
 import { ConvertDialog } from './ConvertDialog';
 import { FieldSheet } from './field/FieldSheet';
+import { SortableRow } from './SortableList';
 
 const useFieldActions = () => {
   const refresh = useRefreshDataModel();
@@ -119,36 +117,8 @@ export const FieldRow = ({ field, sortable }: { field: DataExtensionField; sorta
   const [converting, setConverting] = useState(false);
   const TypeIcon = FIELD_TYPES[field.type].icon;
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: field.id,
-    disabled: !sortable,
-    attributes: { roleDescription: useSortRoleDescription() },
-  });
-
   return (
-    <li
-      ref={setNodeRef}
-      style={{
-        '--sortable-transform': CSS.Transform.toString(transform),
-        '--sortable-transition': transition,
-      }}
-      className={cn(
-        'sortable flex items-center gap-2 rounded-md border bg-background px-2 py-1.5',
-        isDragging && 'z-10 opacity-40',
-      )}
-    >
-      {sortable && (
-        <Button
-          variant="ghost"
-          size="icon"
-          tone="muted"
-          className="size-6 shrink-0 cursor-grab"
-          {...attributes}
-          {...listeners}
-        >
-          <IconGripVertical />
-        </Button>
-      )}
+    <SortableRow id={field.id} label={field.label} sortable={sortable}>
       <TypeIcon className="size-4 shrink-0 text-muted-foreground" />
       <button
         type="button"
@@ -172,6 +142,6 @@ export const FieldRow = ({ field, sortable }: { field: DataExtensionField; sorta
         onOpenChange={setEditing}
       />
       <ConvertDialog field={field} open={converting} onOpenChange={setConverting} />
-    </li>
+    </SortableRow>
   );
 };

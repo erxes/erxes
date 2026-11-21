@@ -1,4 +1,4 @@
-import { conditionHolds, isEmptyValue, rulesOf } from '@erxes/core-contract';
+import { conditionHolds, fieldRequired, isEmptyValue, rulesOf } from '@erxes/core-contract';
 import {
   type DataFieldCondition,
   dataFields,
@@ -20,29 +20,48 @@ import { byKeyPath, type ValuePath } from './values';
 
 type Values = Record<string, unknown>;
 
+/** Which fields a write asks for, so their `required` holds. */
+export type Asked = (field: DataFieldRow) => boolean;
+
 /**
- * 400 INVALID_INPUT for each field its `requiredWhen` makes required and the record leaves
- * empty. `values` are by key, every active field's.
+ * A write asks for the fields it names (`keys`); with `onCreate`, a new record's also those
+ * its create form shows (`showInCreate`).
  */
-export const assertRequiredWhen = (
+export const askedBy = (keys: Iterable<string>, onCreate = false): Asked => {
+  const named = new Set(keys);
+
+  return (field) => named.has(field.key) || (onCreate && field.settings.showInCreate !== false);
+};
+
+const requiredMessage = (field: DataFieldRow, values: Values) => {
+  const rule = field.settings.requiredWhen;
+
+  return rule && conditionHolds(rule, values)
+    ? `${field.label} is required while ${rulesOf(rule)
+        .map((one) => one.field)
+        .join(', ')} is set this way`
+    : `${field.label} is required`;
+};
+
+/**
+ * 400 INVALID_INPUT for each field the record leaves empty while it needs a value: `required`
+ * where the write asks for it, or `requiredWhen` holds, and only while the field shows (as old
+ * custom properties' `isRequired`). A plugin's field is the plugin's to fill. `values` are by
+ * key, every active field's.
+ */
+export const assertRequired = (
   fields: DataFieldRow[],
   values: Values,
+  asked: Asked,
   at: ValuePath = byKeyPath,
 ) => {
-  const issues = fields.flatMap((field) => {
-    const rule = field.settings.requiredWhen;
-
-    return rule && conditionHolds(rule, values) && isEmptyValue(values[field.key])
-      ? [
-          {
-            path: at(field),
-            message: `${field.label} is required while ${rulesOf(rule)
-              .map((one) => one.field)
-              .join(', ')} is set this way`,
-          },
-        ]
-      : [];
-  });
+  const issues = fields.flatMap((field) =>
+    !field.plugin &&
+    isEmptyValue(values[field.key]) &&
+    fieldRequired(field.settings, values, asked(field))
+      ? [{ path: at(field), message: requiredMessage(field, values) }]
+      : [],
+  );
 
   if (issues.length) throw fail('INVALID_INPUT', 'Some values are not valid', { issues });
 };
@@ -59,9 +78,10 @@ export const afterWrite = async (
     fields: DataFieldRow[];
     before: Values | null;
     after: Values;
+    asked: Asked;
   },
 ) => {
-  assertRequiredWhen(input.fields, input.after);
+  assertRequired(input.fields, input.after, input.asked);
   await recordChanges(client, input);
 };
 

@@ -436,7 +436,7 @@ export const ACTION_FIELD_TYPES = [
   'members',
   'tags',
   'json',
-  'custom_field',
+  'data_field',
   'lead_stage',
   'recipients',
   'email_sender',

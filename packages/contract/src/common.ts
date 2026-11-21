@@ -92,12 +92,12 @@ export const LIST_MAX = 1000;
 export const listOf = <T extends z.ZodType>(item: T) =>
   z.object({ data: z.array(item).max(LIST_MAX) });
 
-/** Records that tags and custom fields attach to. */
+/** Records that tags attach to. */
 export const ContentType = z.enum(CONTENT_TYPES);
 
 export type ContentType = z.infer<typeof ContentType>;
 
-/** Records custom fields attach to: contacts, and the shared product catalog. */
+/** Records tags attach to: contacts, and the shared product catalog. */
 export const FieldContentType = z.enum(FIELD_CONTENT_TYPES);
 
 export type FieldContentType = z.infer<typeof FieldContentType>;
@@ -106,37 +106,12 @@ export type FieldContentType = z.infer<typeof FieldContentType>;
 const recordTypePart = z.string().regex(/^[a-z][a-z0-9_]*$/);
 
 /**
- * A plugin's own record type, `<plugin>.<type>` (`operation.task`): core keeps
- * its custom field definitions, the plugin keeps the values.
+ * A plugin's own record type, `<plugin>.<type>` (`operation.task`): core keeps its Data
+ * Extensions field definitions, the plugin keeps the values.
  */
 export const PluginRecordType = z.templateLiteral([recordTypePart, '.', recordTypePart]);
 
 export type PluginRecordType = z.infer<typeof PluginRecordType>;
-
-/** What custom fields are defined for: one of core's records, or a plugin's record type. */
-export const PropertyContentType = z.union([FieldContentType, PluginRecordType]);
-
-export type PropertyContentType = z.infer<typeof PropertyContentType>;
-
-/** One of core's records, whose custom field values core keeps (in `core_<type>_field_values`). */
-export const isCoreFieldType = (type: PropertyContentType): type is FieldContentType =>
-  FieldContentType.safeParse(type).success;
-
-/** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
-export const CustomValue = z.union([
-  z.string().max(5000),
-  z.number(),
-  z.boolean(),
-  z.array(z.string().max(200)).max(50),
-]);
-
-export type CustomValue = z.infer<typeof CustomValue>;
-
-/** Custom field values by field id. */
-export const CustomFields = z.record(Id, CustomValue);
-
-/** Changes to custom field values; `null` clears one. */
-export const CustomFieldsPatch = z.record(Id, CustomValue.nullable());
 
 /**
  * Ids by what a plugin's UI config names (`{ team: [id], project: [id] }`): the records of its

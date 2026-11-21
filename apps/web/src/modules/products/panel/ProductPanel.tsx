@@ -1,9 +1,8 @@
-import type { Product } from '@erxes/core-contract';
-import { IconAlignLeft, IconHierarchy2, IconId } from '@tabler/icons-react';
+import type { ProductWithValues } from '@erxes/core-contract';
+import { IconAlignLeft, IconId } from '@tabler/icons-react';
 import { Skeleton, Spinner, usePanelExpanded } from 'erxes-ui';
 import { type IRecordSidePanelTab, RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { useTranslation } from 'react-i18next';
-import { useDataValuesTab } from '~/modules/dataExtensions/values/useDataValuesTab';
 import { ContactPanelIdentity } from '~/modules/side-panel/details/ContactPanelActions';
 import type { IRecordViewProps } from '~/modules/side-panel/recordView';
 import { SidePanelFailed } from '~/modules/side-panel/SidePanelEmpty';
@@ -13,17 +12,14 @@ import { ProductPageHeader, ProductPanelActions } from './ProductPanelActions';
 import { ProductDescription, ProductPanelDetail } from './ProductPanelDetail';
 import { ProductFieldset, ProductPanelName } from './ProductPanelFields';
 import { ProductAvatar } from './ProductPanelImages';
-import { ProductPanelProperties } from './ProductPanelProperties';
 
 const DETAIL_TAB = 'detail';
-const PROPERTIES_TAB = 'properties';
 const DESCRIPTION_TAB = 'description';
 
-/** Detail and Properties; a full page adds Description, as for contacts. */
-const useProductTabs = (product: Product): IRecordSidePanelTab[] => {
+/** Detail (its own fields and the Data Extensions ones); a full page adds Description, as for contacts. */
+const useProductTabs = (product: ProductWithValues): IRecordSidePanelTab[] => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
-  const dataTabs = useDataValuesTab('core:product', product.id);
 
   const tabs: IRecordSidePanelTab[] = [
     {
@@ -32,13 +28,6 @@ const useProductTabs = (product: Product): IRecordSidePanelTab[] => {
       icon: IconId,
       content: <ProductPanelDetail product={product} />,
     },
-    {
-      value: PROPERTIES_TAB,
-      label: t('properties', 'Properties'),
-      icon: IconHierarchy2,
-      content: <ProductPanelProperties product={product} />,
-    },
-    ...dataTabs,
   ];
 
   if (!expanded) return tabs;
@@ -59,7 +48,7 @@ const ProductPanelView = ({
   product,
   onBack,
   onClose,
-}: Omit<IRecordViewProps, 'record'> & { product: Product }) => {
+}: Omit<IRecordViewProps, 'record'> & { product: ProductWithValues }) => {
   const expanded = usePanelExpanded();
   const { tab: selectedTab, setTab } = useSidePanel();
   const tabs = useProductTabs(product);
@@ -94,7 +83,7 @@ const ProductPanelView = ({
         visibleCount={8}
         overviewTab={DETAIL_TAB}
         overviewHeader={<ContactPanelIdentity title={name} avatar={avatar} />}
-        expandedDefaultTab={PROPERTIES_TAB}
+        expandedDefaultTab={DESCRIPTION_TAB}
       />
     </>
   );

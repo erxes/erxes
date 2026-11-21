@@ -15,9 +15,9 @@ import { z } from 'zod';
 import { SenderSelect } from '~/components/SenderSelect';
 import {
   type ActionInputProps,
-  CustomFieldSelect,
-  customFieldsOf,
-  fieldIdOf,
+  DataFieldSelect,
+  dataFieldsOf,
+  fieldKeyOf,
   LeadStageSelect,
   LookupMultiSelect,
   OptionSelect,
@@ -100,13 +100,13 @@ const DateInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
 
 const CLEAR = '__clear';
 
-/** A value for the custom field chosen in another input: shaped like that field. */
+/** A value for the field chosen in another input: shaped like that field. */
 const ChosenFieldValue = (props: ActionInputProps & { fieldInput: string }) => {
   const { t } = useTranslation('automations');
   const { value, onChange, disabled, input, dataFields, fieldInput } = props;
 
-  const chosen = customFieldsOf(dataFields).find(
-    (item) => fieldIdOf(item.path) === input[fieldInput],
+  const chosen = dataFieldsOf(dataFields).find(
+    (item) => fieldKeyOf(item.path) === input[fieldInput],
   );
 
   if (chosen?.type === 'date') return <DateInput {...props} />;
@@ -242,8 +242,8 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <Switch checked={value === true} disabled={disabled} onCheckedChange={onChange} />;
     case 'recipients':
       return <RecipientsInput {...props} />;
-    case 'custom_field':
-      return <CustomFieldSelect {...props} />;
+    case 'data_field':
+      return <DataFieldSelect {...props} />;
     case 'lead_stage':
       return <LeadStageSelect {...props} />;
     case 'email_sender':

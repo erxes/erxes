@@ -19,8 +19,6 @@ import { dataRecordsContract, dataValuesContract } from './dataRecords';
 import { favoritesContract } from './favorites';
 import { customerAccountContract, customerAuthContract } from './customerAuth';
 import { customerNotificationsContract } from './customerNotifications';
-import { fieldGroupsContract } from './fieldGroups';
-import { fieldsContract } from './fields';
 import { filesContract } from './files';
 import { notificationsContract } from './notifications';
 import { organizationsContract } from './organizations';
@@ -67,8 +65,6 @@ export type CoreContract = {
   customerNotifications: typeof customerNotificationsContract;
   emails: typeof emailsContract;
   events: typeof eventsContract;
-  fieldGroups: typeof fieldGroupsContract;
-  fields: typeof fieldsContract;
   files: typeof filesContract;
   leads: typeof leadsContract;
   notifications: typeof notificationsContract;
@@ -119,8 +115,6 @@ export const coreContract: CoreContract = {
   customerNotifications: customerNotificationsContract,
   emails: emailsContract,
   events: eventsContract,
-  fieldGroups: fieldGroupsContract,
-  fields: fieldsContract,
   files: filesContract,
   leads: leadsContract,
   notifications: notificationsContract,
@@ -186,6 +180,8 @@ export * from './dataChanges';
 
 export * from './dataPlugins';
 
+export * from './dataPluginFields';
+
 export * from './dataExtensionConditions';
 
 export * from './dataFieldGroups';
@@ -205,12 +201,6 @@ export * from './emails';
 export * from './events';
 
 export * from './favorites';
-
-export * from './fieldGroups';
-
-export * from './fieldLogic';
-
-export * from './fields';
 
 export * from './recordTypes';
 
@@ -247,8 +237,6 @@ export * from './pluginJobs';
 export * from './plugins';
 
 export * from './pluginAssistant';
-
-export * from './pluginFields';
 
 export * from './pluginRelations';
 

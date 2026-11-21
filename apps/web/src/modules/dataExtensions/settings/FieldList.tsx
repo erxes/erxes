@@ -1,17 +1,15 @@
 import type { DataExtensionField } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconColumns } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Empty, useSortList } from 'erxes-ui';
+import { Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
-import { useSortSensors } from '~/lib/sortSensors';
 import { fieldsQuery } from '../dataQueries';
 import { useDataErrorToast } from '../useDataErrors';
 import { FieldRow } from './FieldRow';
+import { GroupList } from './groups/GroupList';
+import { SortableList } from './SortableList';
 
 /** The active fields in order, dragged into a new one: saved at once, shown before it is. */
 const SortableFields = ({
@@ -23,12 +21,6 @@ const SortableFields = ({
 }) => {
   const client = useQueryClient();
   const failed = useDataErrorToast();
-  const sensors = useSortSensors();
-
-  const sortList = useSortList(
-    (id) => fields.find((field) => field.id === id)?.label ?? String(id),
-  );
-
   const key = fieldsQuery(recordType).queryKey;
 
   const reorder = useMutation(
@@ -41,37 +33,19 @@ const SortableFields = ({
     }),
   );
 
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    const from = fields.findIndex((field) => field.id === active.id);
-    const to = fields.findIndex((field) => field.id === over?.id);
-
-    if (from === -1 || to === -1 || from === to) return;
-
-    const next = arrayMove(fields, from, to);
-
-    client.setQueryData(key, { data: next });
-    reorder.mutate({ recordType, ids: next.map((field) => field.id) });
-  };
-
   return (
-    <DndContext
-      {...sortList}
-      collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-      onDragEnd={handleDragEnd}
-      sensors={sensors}
+    <SortableList
+      items={fields}
+      labelOf={(field) => field.label}
+      onReorder={(next) => {
+        client.setQueryData(key, { data: next });
+        reorder.mutate({ recordType, ids: next.map((field) => field.id) });
+      }}
     >
-      <SortableContext
-        items={fields.map((field) => field.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <ul className="flex flex-col gap-1">
-          {fields.map((field) => (
-            <FieldRow key={field.id} field={field} sortable />
-          ))}
-        </ul>
-      </SortableContext>
-    </DndContext>
+      {fields.map((field) => (
+        <FieldRow key={field.id} field={field} sortable />
+      ))}
+    </SortableList>
   );
 };
 
@@ -96,7 +70,10 @@ const NoFields = () => {
   );
 };
 
-/** A record type's fields: the active ones to drag into order, then the archived ones. */
+/**
+ * A record type's field groups, then its fields: the active ones to drag into order, then the
+ * archived ones.
+ */
 export const FieldList = ({ recordType }: { recordType: string }) => {
   const { t } = useTranslation('data', { keyPrefix: 'fields' });
   const active = useQuery(fieldsQuery(recordType));
@@ -104,6 +81,8 @@ export const FieldList = ({ recordType }: { recordType: string }) => {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
+      <GroupList recordType={recordType} />
+      <h2 className="text-sm font-semibold">{t('title', 'Fields')}</h2>
       <QueryState query={active} isEmpty={({ data }) => !data.length} empty={<NoFields />}>
         {({ data }) => <SortableFields recordType={recordType} fields={data} />}
       </QueryState>

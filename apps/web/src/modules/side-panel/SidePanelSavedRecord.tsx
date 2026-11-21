@@ -1,5 +1,5 @@
 import type { Company, Customer } from '@erxes/core-contract';
-import { IconAlignLeft, IconHierarchy2, IconHistory, IconId } from '@tabler/icons-react';
+import { IconAlignLeft, IconHistory, IconId } from '@tabler/icons-react';
 import { companyTitle, customerTitle, Skeleton, usePanelExpanded } from 'erxes-ui';
 import { RecordPageHeader } from './RecordPageHeader';
 import { type IRecordSidePanelTab, RecordSidePanel } from './RecordSidePanel';
@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
 import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCan } from '~/modules/auth/session';
-import { useDataValuesTab } from '~/modules/dataExtensions/values/useDataValuesTab';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
@@ -22,7 +21,6 @@ import {
 } from './details/ContactPanelActions';
 import { ContactPanelDescription } from './details/ContactPanelDescription';
 import { CompanyPanelName, CustomerPanelName } from './details/ContactPanelNames';
-import { CompanyPanelProperties, CustomerPanelProperties } from './details/ContactPanelProperties';
 import { CustomerPanelDetail } from './details/CustomerPanelDetail';
 import type { IRecordViewProps } from './recordView';
 import { SidePanelFailed } from './SidePanelEmpty';
@@ -30,7 +28,6 @@ import type { TRelationEntity } from './sidePanelPaths';
 import { useSidePanel } from './useSidePanel';
 
 const DETAIL_TAB = 'detail';
-const PROPERTIES_TAB = 'properties';
 const DESCRIPTION_TAB = 'description';
 const ACTIVITY_TAB = 'activity';
 
@@ -95,7 +92,7 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
   return { failed: query.error };
 };
 
-/** Detail, Properties and Activity; a full page adds Description. */
+/** Detail (with its Data Extensions fields), plugins' tabs and Activity; a full page adds Description. */
 const useContactTabs = ({
   contentType,
   contentId,
@@ -119,8 +116,6 @@ const useContactTabs = ({
       : { customerIds: [], companyIds: [contentId] },
   });
 
-  const dataTabs = useDataValuesTab(contentType, contentId);
-
   const tabs: IRecordSidePanelTab[] = [
     {
       value: DETAIL_TAB,
@@ -132,17 +127,6 @@ const useContactTabs = ({
         <CompanyPanelDetail companyId={contentId} />
       ),
     },
-    {
-      value: PROPERTIES_TAB,
-      label: t('properties', 'Properties'),
-      icon: IconHierarchy2,
-      content: isCustomer ? (
-        <CustomerPanelProperties customerId={contentId} />
-      ) : (
-        <CompanyPanelProperties companyId={contentId} />
-      ),
-    },
-    ...dataTabs,
     ...relationTabs,
     {
       value: ACTIVITY_TAB,

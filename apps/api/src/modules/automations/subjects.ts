@@ -2,7 +2,6 @@ import { companies, customers, type Db } from '@erxes/core-db';
 import { getTableName, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { valuesByRecord } from '~/modules/dataExtensions/hostValues.service';
-import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 import type { SubjectType } from '~/modules/views/filterFields';
 
@@ -45,9 +44,9 @@ const toSubject = (row: z.infer<typeof Row>, type: SubjectType): Subject => ({
 });
 
 /**
- * Records of a type as templates see them (`subject.*`, with `tagIds`, `customFields` and the
- * Data Extensions values under `data`), in
- * id order: `where` is a condition on the type's table, `after` continues from a page's last id.
+ * Records of a type as templates see them (`subject.*`, with `tagIds` and the Data Extensions
+ * values under `data`), in id order: `where` is a condition on the type's table, `after`
+ * continues from a page's last id.
  */
 export const loadSubjects = async (
   tx: Db,
@@ -59,8 +58,7 @@ export const loadSubjects = async (
   const name = sql.identifier(getTableName(table));
 
   const result = await tx.execute(sql`
-    select ${name}.*, ${tagIdsColumn(type, table.id).sql} as tag_ids,
-      ${customFieldsColumn(type, table.id)} as custom_fields
+    select ${name}.*, ${tagIdsColumn(type, table.id).sql} as tag_ids
     from ${table}
     where ${where ?? sql`true`} ${page.after ? sql`and ${table.id} > ${page.after}` : sql``}
     order by ${table.id}

@@ -19,7 +19,7 @@ import { createAutomation } from '~/modules/automations/automations.service';
 import { AUTOMATION_TEMPLATES } from '~/modules/automations/library';
 import { createCompany } from '~/modules/companies/companies.service';
 import { createCustomer, linkCustomerCompany } from '~/modules/customers/customers.service';
-import { createField } from '~/modules/fields/fields.service';
+import { createField } from '~/modules/dataExtensions/fields.service';
 import { createTag } from '~/modules/tags/tags.service';
 import { createView } from '~/modules/views/views.service';
 import type { ExampleCopy } from './exampleCopy';
@@ -29,7 +29,7 @@ import { EXAMPLE_COPY_MN } from './exampleCopyMn';
 /**
  * Example data for a fresh organisation, so its first look isn't empty (as
  * HubSpot and Attio do): companies, customers and leads across the lead
- * stages, linked with roles, tags, two custom fields, timeline notes, a saved
+ * stages, linked with roles, tags, two Data Extensions fields, timeline notes, a saved
  * view and a welcome automation left off. Everything is tagged "Example", so
  * it can be filtered and deleted in one go. Emails are `@example.com` (never
  * delivered). Written through the services, so timelines, search and events
@@ -52,27 +52,30 @@ const isoDay = (days: number) => {
   return date.toISOString().slice(0, 10);
 };
 
-/** The tags and custom fields the example records use. */
+/** The tags and Data Extensions fields (`plan`, `renewal`) the example records use. */
 const seedLabels = async (tx: Db, copy: ExampleCopy) => {
   const tag = async (type: ContentType, name: string, colorCode: string) =>
     (await createTag(tx, { type, name, colorCode })).id;
+
+  await createField(tx, {
+    recordType: 'core.customer',
+    key: 'plan',
+    label: copy.plan.label,
+    type: 'select',
+    options: copy.plan.options.map((option) => ({ value: option, label: option, color: 'gray' })),
+  });
+  await createField(tx, {
+    recordType: 'core.customer',
+    key: 'renewal',
+    label: copy.renewal,
+    type: 'date',
+  });
 
   return {
     exampleCustomer: await tag('customer', copy.tags.example, '#94a3b8'),
     vip: await tag('customer', copy.tags.vip, '#f59e0b'),
     exampleCompany: await tag('company', copy.tags.example, '#94a3b8'),
     partner: await tag('company', copy.tags.partner, '#10b981'),
-    plan: await createField(tx, {
-      contentType: 'customer',
-      label: copy.plan.label,
-      type: 'select',
-      options: copy.plan.options,
-    }),
-    renewal: await createField(tx, {
-      contentType: 'customer',
-      label: copy.renewal,
-      type: 'date',
-    }),
   };
 };
 
@@ -86,13 +89,13 @@ interface Seeding {
   companyIds: string[];
 }
 
-const customFieldsOf = ({ copy, labels }: Seeding, person: Person) => {
+const valuesOf = ({ copy }: Seeding, person: Person) => {
   const plan = person.plan === undefined ? undefined : copy.plan.options[person.plan];
 
   // null: empty.
   return {
-    [labels.plan.id]: plan ?? null,
-    [labels.renewal.id]: person.renewalInDays === undefined ? null : isoDay(person.renewalInDays),
+    plan: plan ?? null,
+    renewal: person.renewalInDays === undefined ? null : isoDay(person.renewalInDays),
   };
 };
 
@@ -110,7 +113,7 @@ const seedPerson = async (seeding: Seeding, person: Person) => {
     ownerId: caller('user').userId,
     ...(person.birthDate ? { birthDate: person.birthDate } : {}),
     tagIds: person.vip ? [labels.exampleCustomer, labels.vip] : [labels.exampleCustomer],
-    customFields: customFieldsOf(seeding, person),
+    values: valuesOf(seeding, person),
     ...(lead
       ? {
           state: 'lead' as const,

@@ -27,6 +27,8 @@ import { useSession } from '~/modules/auth/session';
 import { NewContactForm } from '~/modules/side-panel/details/NewContactForm';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { CategoryPicker } from '../categories/CategoryPicker';
+import { CreateValues, useCreateValues } from '~/modules/dataExtensions/form/CreateValues';
+import { isValuesError } from '~/modules/dataExtensions/values';
 import { PRODUCT_CONTENT_TYPE, useOpenProduct, useProductCreate } from '../useProducts';
 import { productFieldError } from './productErrors';
 
@@ -65,7 +67,10 @@ const newProductSchema = (t: Translate) =>
 type TNewProduct = z.infer<ReturnType<typeof newProductSchema>>;
 
 /** Creates the product; a code another product has shows under Code, with a way to open that one. */
-const useProductSave = (form: UseFormReturn<TNewProduct>) => {
+const useProductSave = (
+  form: UseFormReturn<TNewProduct>,
+  data: ReturnType<typeof useCreateValues>,
+) => {
   const { t } = useTranslation('product');
   const { toast } = useToast();
   const create = useProductCreate();
@@ -83,10 +88,17 @@ const useProductSave = (form: UseFormReturn<TNewProduct>) => {
         categoryId: values.categoryId,
         price: fromAmountInput(values.price || '0', values.currency),
         currency: values.currency,
+        values: data.values,
       });
 
       showCreated(created.id);
     } catch (error) {
+      if (isValuesError(error)) {
+        data.failed(error);
+
+        return;
+      }
+
       const fieldError = productFieldError(error, t);
 
       if (fieldError?.field === 'code') {
@@ -228,7 +240,8 @@ export const ProductPanelNew = () => {
     },
   });
 
-  const { save, saving, existingId } = useProductSave(form);
+  const data = useCreateValues('core.product');
+  const { save, saving, existingId } = useProductSave(form, data);
   const { errors } = form.formState;
 
   return (
@@ -275,6 +288,7 @@ export const ProductPanelNew = () => {
           {t('form.open-existing', 'Open that product')}
         </Button>
       )}
+      <CreateValues asked={data.asked} draft={data.draft} disabled={saving} />
     </NewContactForm>
   );
 };

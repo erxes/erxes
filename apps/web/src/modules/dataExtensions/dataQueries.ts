@@ -19,10 +19,10 @@ export const fieldsQuery = (recordType: string | null, archived = false) =>
     staleTime: STALE,
   });
 
-/** A record type's active field groups, in order. */
-export const groupsQuery = (recordType: string | null) =>
+/** A record type's active field groups, in order; the archived ones with `archived`. */
+export const groupsQuery = (recordType: string | null, archived = false) =>
   orpc.dataFieldGroups.list.queryOptions({
-    input: recordType ? { recordType } : skipToken,
+    input: recordType ? { recordType, archived } : skipToken,
     staleTime: STALE,
   });
 
@@ -54,6 +54,7 @@ export const useRefreshDataModel = () => {
     Promise.all([
       client.invalidateQueries({ queryKey: orpc.dataObjects.key() }),
       client.invalidateQueries({ queryKey: orpc.dataFields.key() }),
+      client.invalidateQueries({ queryKey: orpc.dataFieldGroups.key() }),
       client.invalidateQueries({ queryKey: orpc.recordTypes.key() }),
       client.invalidateQueries({ queryKey: orpc.dataPlugins.key() }),
     ]);

@@ -4,8 +4,6 @@ export * from './companies';
 
 export * from './customers';
 
-export * from './fields';
-
 export * from './organizations';
 
 export * from './tags';
@@ -39,8 +37,6 @@ export * from './saas';
 export * from './views';
 
 export * from './transfer';
-
-export * from './fieldValues';
 
 export * from './leadStages';
 

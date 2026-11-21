@@ -736,6 +736,20 @@
       "when": 1795257220696,
       "tag": "0104_data_field_groups",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1795258585347,
+      "tag": "0105_copy_properties",
+      "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1795258849639,
+      "tag": "0106_drop_properties",
+      "breakpoints": true
     }
   ]
 }

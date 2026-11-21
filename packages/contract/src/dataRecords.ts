@@ -12,7 +12,7 @@ import {
   QueryBoolean,
 } from './common';
 import { ERRORS } from './errors';
-import { PluginValuesInput, PluginValuesWritten } from './pluginFields';
+import { PluginValuesInput, PluginValuesWritten } from './dataPluginFields';
 import { DataExtensionFieldKey } from './dataExtensionConditions';
 import { DataExtensionObjectKey, DataExtensionRecordType } from './dataExtensionFields';
 import { dataExtensionsBase as base } from './dataExtensions';
@@ -171,7 +171,7 @@ export const dataValuesContract = {
       method: 'POST',
       path: '/data-values/{recordType}/check',
       summary:
-        'A plugin checks its own record’s values before it saves them: the record’s values after `patch` (null clears one), checked and normalised. 400 INVALID_INPUT names each value that isn’t valid or field id that isn’t active; 403 NOT_ALLOWED for another’s record type',
+        'A plugin checks its own record’s values before it saves them: the record’s values after `patch` (null clears one), checked and normalised. A required field needs a value only while it shows, where the patch names it or, with `create`, its create form shows it. 400 INVALID_INPUT names each value that isn’t valid, required field left empty or field id that isn’t active; 403 NOT_ALLOWED for another’s record type',
     })
     .input(
       z.object({
@@ -179,7 +179,7 @@ export const dataValuesContract = {
         /** The values the record holds now, by field id; empty for a new record. */
         current: ValuesById.default({}),
         patch: z.record(Id, z.json().nullable()),
-        /** A new record: every value is checked, and defaults fill the rest. */
+        /** A new record: every value is checked, defaults fill the rest, and required `showInCreate` fields need one. */
         create: z.boolean().default(false),
         /** The member who made the change: their role must be allowed to change these fields. */
         userId: Id.optional(),

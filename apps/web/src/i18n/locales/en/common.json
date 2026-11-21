@@ -595,7 +595,7 @@
     "not-found-description": "This panel link does not point to a record.",
     "detail": "Detail",
     "activity": "Activity",
-    "properties": "Properties",
+    "fields": "Fields",
     "untitled": "Untitled",
     "chat": {
       "title": "Assistant",
@@ -642,7 +642,6 @@
     "no-properties-hint": "Get started by creating your first property.",
     "required": "required",
     "create-property": "Create property",
-    "properties-not-saved": "Could not save the property",
     "empty": "Empty",
     "resize": "Resize side panel",
     "drag-to-resize": "Drag to resize",

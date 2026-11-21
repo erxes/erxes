@@ -1,44 +1,12 @@
 import type { DataExtensionField, DataExtensionRecord } from '@erxes/core-contract';
-import { memberQueries } from '@erxes/core-contract/client';
 import { IconClock } from '@tabler/icons-react';
-import {
-  MemberInline,
-  RecordTable,
-  type RecordTableColumnDef,
-  RecordTableInlineCell,
-  useFormat,
-} from 'erxes-ui';
+import { RecordTable, type RecordTableColumnDef, RecordTableInlineCell, useFormat } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { FIELD_TYPES } from '../fieldTypes';
-import { useValueText } from '../form/valueText';
-
-const ValueCell = ({
-  field,
-  record,
-}: {
-  field: DataExtensionField;
-  record: DataExtensionRecord;
-}) => {
-  const text = useValueText();
-  const value = record.values[field.key];
-
-  if (field.type === 'member' && typeof value === 'string') {
-    return (
-      <RecordTableInlineCell>
-        <MemberInline memberId={value} members={memberQueries} />
-      </RecordTableInlineCell>
-    );
-  }
-
-  return (
-    <RecordTableInlineCell>
-      <span className="truncate">{text(field, value)}</span>
-    </RecordTableInlineCell>
-  );
-};
+import { DataValueCell } from '../values/dataColumns';
 
 /** The record's label field: its name, linking to its page. */
 const LabelCell = ({ objectKey, record }: { objectKey: string; record: DataExtensionRecord }) => {
@@ -90,7 +58,7 @@ export const useRecordColumns = (
           field.id === labelFieldId ? (
             <LabelCell objectKey={objectKey} record={row.original} />
           ) : (
-            <ValueCell field={field} record={row.original} />
+            <DataValueCell field={field} value={row.original.values[field.key]} />
           ),
         size: field.id === labelFieldId ? 240 : 180,
       })),

@@ -86,11 +86,11 @@ const CONFIGS: Record<string, unknown> = {
           queryKey: ['task-contacts', id],
           queryFn: async () => ({ customerIds: ['c1'], companyIds: [] }),
         }),
-        // Custom fields core defines, values the plugin keeps.
-        properties: {
+        // Data Extensions fields core defines, values the plugin keeps.
+        dataFields: {
           type: 'tasks.task',
           values: (id: string) => ({
-            queryKey: ['task-properties', id],
+            queryKey: ['task-fields', id],
             queryFn: async () => ({}),
           }),
           save: async () => undefined,
@@ -305,8 +305,8 @@ describe('a plugin record in core’s side panel', () => {
   it('shows another plugin’s relation tab where it names the type; a record opened there stacks, and Back returns', async () => {
     const container = await render('/tasks?panel=/detail/tasks:task/t1');
 
-    // Properties (the type keeps custom fields) comes before relation tabs.
-    await vi.waitFor(() => expect(tabNames(container)).toEqual(['Detail', 'Properties', 'Deals']));
+    // Fields (the plugin keeps the type's Data Extensions values) comes before relation tabs.
+    await vi.waitFor(() => expect(tabNames(container)).toEqual(['Detail', 'Fields', 'Deals']));
     expect(panel(container)).toContain('Task t1');
 
     await click(container.querySelector('[data-panel-tab="sales_ui:deals"]'));

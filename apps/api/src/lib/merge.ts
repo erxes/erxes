@@ -34,12 +34,3 @@ export const combineContacts = (
 
   return { primary: keep.primary ?? all[0] ?? null, list: unique([keep.primary, ...all]) };
 };
-
-/** Custom field values of all records; the kept record's values win. */
-export const combineCustomFields = <Value>(
-  keep: Record<string, Value>,
-  others: Record<string, Value>[],
-): Record<string, Value> => ({
-  ...Object.fromEntries(others.toReversed().flatMap((other) => Object.entries(other))),
-  ...keep,
-});

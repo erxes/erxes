@@ -24,6 +24,7 @@ export const DraftEditor = ({
   saving,
   readOnly,
   onSave,
+  ungroupedTitle,
 }: {
   fields: DataExtensionField[];
   draft: ValuesDraft;
@@ -31,6 +32,8 @@ export const DraftEditor = ({
   /** The member can't change the record: values show, nothing saves. */
   readOnly?: boolean;
   onSave: (changes: DataExtensionValues) => void;
+  /** The section title of the fields outside a group (`ValuesForm`). */
+  ungroupedTitle?: string;
 }) => {
   const { t } = useTranslation('data', { keyPrefix: 'form' });
 
@@ -43,6 +46,7 @@ export const DraftEditor = ({
         onChange={draft.set}
         errors={draft.errors}
         disabled={Boolean(readOnly) || saving}
+        ungroupedTitle={ungroupedTitle}
       />
       {draft.dirty && !readOnly && (
         <div className="flex justify-end gap-2">

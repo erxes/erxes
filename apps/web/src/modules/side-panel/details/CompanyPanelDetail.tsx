@@ -15,12 +15,17 @@ import {
   usePanelExpanded,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
+import {
+  useCompany,
+  useCompanyEdit,
+  useCompanyValuesSave,
+} from '~/modules/contacts/companies/useCompanies';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
 import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
 import {
   ContactChannelsSection,
+  ContactDataFields,
   ContactDetailScroll,
   ContactOwnerField,
   ContactTextField,
@@ -145,6 +150,7 @@ const CompanyFields = ({ company }: { company: Company }) => {
 // The company's fields as record table cells: click a value to edit it.
 export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => {
   const { data: company, isPending } = useCompany(companyId);
+  const saveValues = useCompanyValuesSave(companyId);
 
   if (isPending) return <Spinner area="lg" />;
 
@@ -153,6 +159,7 @@ export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => {
   return (
     <ContactDetailScroll>
       <CompanyFields company={company} />
+      <ContactDataFields recordType="core.company" values={company.values} save={saveValues} />
       <LeadPanelSection recordType="company" record={company} />
       <ContactPanelTags contentType="core:company" contentId={company.id} tagIds={company.tagIds} />
       <ContactPanelRelationField contentType="core:company" contentId={company.id} />

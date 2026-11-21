@@ -24,7 +24,6 @@ import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
-import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { syncPluginDataFields } from '~/modules/dataExtensions/pluginFieldSync';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { checkManifest } from './manifestChecks';
@@ -178,7 +177,6 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
   await installAll(tx, [orgId], rows);
   await withOrg(orgId, (scoped) =>
     inOrder(rows, async (row) => {
-      await syncPluginFields(scoped, row.name, row.manifest?.fields);
       await syncPluginDataFields(scoped, row.name, row.manifest?.fields);
       await grantDefaultPermissions(scoped, row.name, row.manifest?.permissionSets);
     }),
@@ -285,7 +283,6 @@ export const registerManifest = async (manifest: PluginManifest) => {
     await schedulePluginJobs(tx, plugin, manifest.jobs);
     await approveNewScopes(tx, plugin, manifest);
     // Every organisation that has it gets the manifest's fields, and what its sets newly give.
-    await syncPluginFields(tx, plugin, manifest.fields);
     await syncPluginDataFields(tx, plugin, manifest.fields);
     await grantDefaultPermissions(
       tx,

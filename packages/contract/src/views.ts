@@ -25,8 +25,8 @@ export type ViewListType = z.infer<typeof ViewListType>;
 
 /**
  * A filter on a list: the condition language automations use, on the
- * record's fields (`subject.state`, `subject.customFields.<id>`,
- * `subject.tagIds`, `subject.company.industry`, …). In list queries it goes
+ * record's fields (`subject.state`, `subject.data.<key>`, `subject.tagIds`,
+ * `subject.company.industry`, `subject.company.data.<key>`, …). In list queries it goes
  * as JSON in `filter`.
  */
 export const RecordFilter = ConditionGroup;

@@ -2,11 +2,8 @@ import { IconCategory, IconHierarchy2 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppSettingsLayout } from '~/components/AppSettingsLayout';
-import { PropertiesSettingsRoutes } from '~/modules/settings/properties/PropertiesSettingsRoutes';
 import { paths } from '~/lib/paths';
 import { CategoriesPage } from './CategoriesPage';
-
-const PRODUCT_PROPERTY_TYPES = ['product'] as const;
 
 /** Products › Settings, as Contacts keeps its own: "Exit settings" goes back to the catalog. */
 const ProductsSettingsLayout = () => {
@@ -25,8 +22,8 @@ const ProductsSettingsLayout = () => {
           icon: IconCategory,
         },
         {
-          name: sidebarT('properties', 'Properties'),
-          to: paths.products.properties,
+          name: sidebarT('data-fields', 'Fields'),
+          to: paths.settings.dataFieldsOf('core.product'),
           icon: IconHierarchy2,
         },
       ]}
@@ -34,16 +31,12 @@ const ProductsSettingsLayout = () => {
   );
 };
 
-/** Everything under `/products/settings/*`: categories and product properties. */
+/** Everything under `/products/settings/*`: categories; product fields are in the Data model. */
 export const ProductsSettingsRoutes = () => (
   <Routes>
     <Route element={<ProductsSettingsLayout />}>
       <Route index element={<Navigate to={paths.products.categories} replace />} />
       <Route path="categories" element={<CategoriesPage />} />
-      <Route
-        path="properties/*"
-        element={<PropertiesSettingsRoutes types={PRODUCT_PROPERTY_TYPES} />}
-      />
       <Route path="*" element={<Navigate to={paths.products.categories} replace />} />
     </Route>
   </Routes>

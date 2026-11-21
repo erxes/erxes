@@ -17,6 +17,8 @@ interface ValuesFormProps {
   /** A field's problem by its key, from the last save. */
   errors?: Record<string, string>;
   disabled?: boolean;
+  /** Given, the fields outside a group show under a section of this title, as groups do. */
+  ungroupedTitle?: string;
 }
 
 const FieldRow = ({
@@ -25,7 +27,10 @@ const FieldRow = ({
   onChange,
   error,
   disabled,
-}: Omit<ValuesFormProps, 'fields' | 'errors'> & { field: DataExtensionField; error?: string }) => {
+}: Omit<ValuesFormProps, 'fields' | 'errors' | 'ungroupedTitle'> & {
+  field: DataExtensionField;
+  error?: string;
+}) => {
   const id = useId();
   const state = fieldState(field, values);
   const locked = state.locked || !onChange;
@@ -67,6 +72,7 @@ export const ValuesForm = ({
   onChange,
   errors = {},
   disabled,
+  ungroupedTitle,
 }: ValuesFormProps) => {
   const shown = fields.filter((field) => fieldState(field, values).visible);
   // Ungrouped fields first, then each group's in the groups' order.
@@ -95,8 +101,11 @@ export const ValuesForm = ({
             />
           ));
 
-        return group ? (
-          <PanelSection key={group} title={labels.get(group) ?? ''}>
+        return group || ungroupedTitle ? (
+          <PanelSection
+            key={group}
+            title={group ? (labels.get(group) ?? '') : (ungroupedTitle ?? '')}
+          >
             {rows}
           </PanelSection>
         ) : (

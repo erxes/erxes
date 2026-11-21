@@ -27,7 +27,7 @@ data access. "Rewrite" means a new design. "Drop" means it is not in core.
 | `core-ui` contacts (customers, leads, companies)                                  | `apps/web/src/modules/contacts`, `leads`                  | Rewrite on oRPC, same UX                                               | Done (side panel with activity)                   |
 | `core-ui` settings                                                                | `apps/web/src/modules/settings`                           | Rewrite on oRPC, same UX                                               | Done (team members, roles, payments, audit log …) |
 | `libs/erxes-ui`                                                                   | `packages/ui`                                             | Copied, then cleaned up in place                                       | Done (unused modules, Apollo and dayjs removed)   |
-| `core-api/modules/forms` fields (properties)                                      | `core_fields` + `custom_fields` jsonb                     | Rewrite                                                                | Done (customers, companies)                       |
+| `core-api/modules/forms` fields (properties)                                      | Data Extensions (`core_data_fields`) + `custom_fields`    | Rewrite                                                                | Done (customers, companies)                       |
 | `core-ui` create owner (`/create-owner`)                                          | `/core/v1/setup` + `SetupPage`                            | Rewrite                                                                | Done                                              |
 
 Paths without a prefix are under `apps/api/src`.

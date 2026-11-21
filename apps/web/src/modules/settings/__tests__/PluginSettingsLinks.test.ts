@@ -18,7 +18,7 @@ const MetaOverview = () => createElement('p', null, 'Conversations from Facebook
 
 const MetaApp = () => createElement('p', null, 'App id and secret');
 
-const properties = (type: string) => ({
+const dataFields = (type: string) => ({
   type,
   values: async () => ({}),
   save: async () => undefined,
@@ -42,7 +42,7 @@ const CONFIGS: Record<string, unknown> = {
         detailPath: (id: string) => `/pms/rooms/${id}`,
         Title: Page,
         Detail: Page,
-        properties: properties('pms.room'),
+        dataFields: dataFields('pms.room'),
       },
     ],
   },
@@ -57,7 +57,7 @@ const CONFIGS: Record<string, unknown> = {
         detailPath: (id: string) => `/tms/bookings/${id}`,
         Title: Page,
         Detail: Page,
-        properties: properties('tms.booking'),
+        dataFields: dataFields('tms.booking'),
       },
     ],
   },
@@ -199,7 +199,7 @@ const links = (container: Element) =>
   [...container.querySelectorAll('a')].map((link) => [link.textContent, link.getAttribute('href')]);
 
 describe('plugins in core’s settings', () => {
-  it('links each plugin with settings once, to its first page, else to its properties', async () => {
+  it('links each plugin with settings once, to its first page, else to its fields', async () => {
     const container = await renderSettings();
 
     const group = [...container.querySelectorAll('[data-sidebar="group"]')].find((element) =>
@@ -208,7 +208,7 @@ describe('plugins in core’s settings', () => {
 
     expect(group && links(group)).toEqual([
       ['Pms', '/pms/settings'],
-      ['Tms', '/settings/properties/tms.booking'],
+      ['Tms', '/settings/data-model/fields/tms.booking'],
     ]);
     expect(container.textContent).not.toContain('Property management');
     expect(container.textContent).not.toContain('Rates');

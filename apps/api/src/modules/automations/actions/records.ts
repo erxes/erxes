@@ -3,7 +3,6 @@ import {
   CustomerFields,
   DataExtensionFieldKey,
   DataExtensionValuesInput,
-  Id,
 } from '@erxes/core-contract';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
@@ -143,48 +142,19 @@ export const RECORD_ACTIONS: CoreAction[] = [
       return { noteId: note.id };
     },
   },
-  {
-    type: 'core.customer.set_field',
-    label: 'Set a custom field',
-    description: 'Write a value into one of the customer’s custom fields',
-    subject: 'customer',
-    fields: [
-      { key: 'fieldId', label: 'Field', type: 'custom_field', required: true },
-      {
-        key: 'value',
-        label: 'Value',
-        type: 'text',
-        required: false,
-        sameTypeAs: 'fieldId',
-        description: 'Leave empty to clear the field',
-      },
-    ],
-    run: async (ctx) => {
-      const id = needSubject(ctx, 'customer');
-      const { fieldId } = parseInput(ctx, z.object({ fieldId: Id }));
-      const value = ctx.input.value === '' ? null : (ctx.input.value ?? null);
-
-      const { customFields } = checked(CustomerFields.pick({ customFields: true }), {
-        customFields: { [fieldId]: value },
-      });
-
-      await updateCustomer(ctx.tx, id, { customFields });
-
-      return { fieldId, value };
-    },
-  },
   ...(['customer', 'company'] as const).map((subject): CoreAction => ({
     type: `core.${subject}.set_data_value`,
-    label: 'Set a data field',
-    description: `Write a value into one of the ${subject}’s Data Extensions fields`,
+    label: 'Set a field',
+    description: `Write a value into one of the ${subject}’s fields`,
     subject,
     fields: [
-      { key: 'field', label: 'Field key', type: 'text', required: true },
+      { key: 'field', label: 'Field', type: 'data_field', required: true },
       {
         key: 'value',
         label: 'Value',
         type: 'text',
         required: false,
+        sameTypeAs: 'field',
         description: 'Leave empty to clear the field',
       },
     ],

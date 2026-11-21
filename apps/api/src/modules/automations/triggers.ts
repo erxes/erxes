@@ -1,12 +1,12 @@
 import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
-import { automations, customers, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
+import { automations, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
-import { valuesTable } from '~/modules/fields/fieldValues';
 import { defineJob } from '~/modules/jobs/jobs';
 import { automationChecker } from './conditionCheck';
 import { dateConditions } from './conditions';
+import { dateKeyOf, onDate } from './dateFields';
 import { startRun, startRuns } from './consumer';
 import { definitionOf, log } from './runs';
 import { nextOccurrence, zonedDate } from './schedule';
@@ -58,29 +58,10 @@ const audienceEnrollment = (
   startOf: (subject) => ({ eventId: `${startKey}:${subject.id}`, event }),
 });
 
-const CustomFields = z.record(z.string(), z.unknown());
-
-/** Month * 100 + day of a `YYYY-MM-DD` day, as the birthday column and value index hold it. */
-const monthDayOf = (iso: string) => Number(iso.slice(5, 7)) * 100 + Number(iso.slice(8, 10));
-
-/** The records whose date is `iso` (any year: its month and day), through the date's index. */
-const onDate = (trigger: DateTrigger, iso: string): SQL => {
-  if (trigger.field === 'birthDate' && trigger.subject === 'customer')
-    return trigger.yearly
-      ? sql`${customers.birthMonthDay} = ${monthDayOf(iso)}`
-      : sql`${customers.birthDate} = ${iso}::date`;
-
-  const v = valuesTable(trigger.subject);
-
-  const day = trigger.yearly
-    ? sql`((extract(month from ${v.dateValue}) * 100 + extract(day from ${v.dateValue}))::smallint) = ${monthDayOf(iso)}`
-    : sql`${v.dateValue} = ${iso}::date`;
-
-  return sql`exists (select 1 from ${v} where ${v.recordId} = ${SUBJECT_TABLES[trigger.subject].id} and ${v.fieldId} = ${trigger.field} and ${v.dateValue} is not null and ${day})`;
-};
+const DataValues = z.record(z.string(), z.unknown());
 
 /** The records whose date (moved by the offset) is today in the trigger's time zone. */
-const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
+const dateEnrollment = async (tx: Db, trigger: DateTrigger, at: string): Promise<Enrollment> => {
   const today = zonedDate(new Date(at), trigger.timezone);
   // The record's date + offset = today → the record's date = today − offset.
   const target = new Date(Date.UTC(today.year, today.month - 1, today.day - trigger.offsetDays));
@@ -92,7 +73,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
 
   return {
     type: trigger.subject,
-    where: onDate(trigger, iso),
+    where: await onDate(tx, trigger, iso),
     conditions: dateConditions(trigger),
     event,
     startOf: (subject) => ({
@@ -105,7 +86,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
           date:
             trigger.field === 'birthDate'
               ? subject.birthDate
-              : CustomFields.safeParse(subject.customFields).data?.[trigger.field],
+              : DataValues.safeParse(subject.data).data?.[dateKeyOf(trigger.field) ?? ''],
         },
       },
     }),
@@ -163,11 +144,11 @@ const FirePayload = z.object({
 
 type FirePayload = z.infer<typeof FirePayload>;
 
-const enrollmentFor = (definition: AutomationDefinition, payload: FirePayload) => {
+const enrollmentFor = async (tx: Db, definition: AutomationDefinition, payload: FirePayload) => {
   const { trigger } = definition;
   const at = payload.scheduledFor;
 
-  if (trigger.kind === 'date') return dateEnrollment(trigger, at);
+  if (trigger.kind === 'date') return dateEnrollment(tx, trigger, at);
 
   if (trigger.kind !== 'schedule' && trigger.kind !== 'manual') return null;
 
@@ -227,7 +208,7 @@ export const fireJob = defineJob({
       return;
     }
 
-    const enrollment = enrollmentFor(definition, job.payload);
+    const enrollment = await enrollmentFor(tx, definition, job.payload);
 
     if (!enrollment) return;
 

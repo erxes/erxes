@@ -8,7 +8,7 @@ import { readRecord, recordSource, type RecordSource, T } from './records.servic
 import { writeRelation } from './relationValues';
 import { asTaken } from './unique';
 import { prepareValues, type PreparedValues } from './values';
-import { afterWrite } from './writeRules';
+import { afterWrite, type Asked, askedBy } from './writeRules';
 
 /**
  * Writes to a custom object's records. Each reads the record with every field (the checks and
@@ -71,6 +71,7 @@ const finish = async (
   source: RecordSource,
   id: string,
   before: Record<string, unknown> | null,
+  asked: Asked,
 ) => {
   const after = await readRecord(client, source, id);
 
@@ -80,6 +81,7 @@ const finish = async (
     fields: source.fields,
     before,
     after: after.values,
+    asked,
   });
 
   return answer(client, source, id);
@@ -121,7 +123,7 @@ export const createRecord = async (
   );
   await writeOutside(client, prepared, id);
 
-  return finish(client, source, id, null);
+  return finish(client, source, id, null, askedBy(Object.keys(input.values), true));
 };
 
 export const updateRecord = async (
@@ -152,7 +154,7 @@ export const updateRecord = async (
   );
   await writeOutside(client, prepared, input.id);
 
-  return finish(client, source, input.id, current.values);
+  return finish(client, source, input.id, current.values, askedBy(Object.keys(input.values)));
 };
 
 /** Moves a record to the recycle bin (`deleted`) or back out of it. */

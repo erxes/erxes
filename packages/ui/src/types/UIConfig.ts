@@ -94,36 +94,43 @@ export type TRecordDraftProps = {
 };
 
 /**
- * A custom field's value: text, number, date, yes/no or options.
- * A date is `YYYY-MM-DD`; several options are a list.
+ * A Data Extensions field's value, as JSON. Text, a number, yes/no, a `YYYY-MM-DD` date, an
+ * option's value or a list of them, or a composite value (an address, a currency amount).
  */
-export type TPropertyValue = string | number | boolean | string[];
+export type TDataValue =
+  | string
+  | number
+  | boolean
+  | null
+  | TDataValue[]
+  | { [key: string]: TDataValue };
 
 /**
- * Custom fields on a plugin record type, whose values the plugin keeps.
- * Core keeps the fields of `type` (Settings › Properties, under the plugin) and draws the
- * record's Properties tab; the plugin keeps each record's values by field id, checks a patch
- * with core's `fields.check` and saves the values it answers.
+ * A plugin record type's Data Extensions fields, edited in core. The plugin
+ * keeps the values in its records' `custom_fields` by field id. Core keeps the fields of `type` (Settings › Data model) and
+ * draws them, grouped by field group, as the record's Fields tab, editable; the plugin checks a
+ * patch with core's `dataValues.check` (passing the record's `appliesTo`) and saves what it
+ * answers.
  */
-export type TRecordProperties = {
+export type TRecordDataFields = {
   /** The record type the fields are defined on, `<plugin>.<type>`, e.g. `operation.task`. */
   type: string;
   /** The record's values by field id, as query options; core refetches them after a save. */
-  values: (contentId: string) => UseQueryOptions<Record<string, TPropertyValue>>;
+  values: (contentId: string) => UseQueryOptions<Record<string, TDataValue>>;
   /** Saves a patch of values by field id; `null` clears one. */
-  save: (contentId: string, patch: Record<string, TPropertyValue | null>) => Promise<unknown>;
+  save: (contentId: string, patch: Record<string, TDataValue>) => Promise<unknown>;
   /**
    * What a field group can be limited to, as old sales' groups were to boards and pipelines
    * (`team`, `project`): the group shows only on records in one of the picked ids of each.
-   * The plugin passes a record's `appliesTo` to `fields.check`, which refuses the rest.
+   * The plugin passes a record's `appliesTo` to `dataValues.check`, which skips the rest.
    */
-  limits?: TPropertyLimit[];
+  limits?: TFieldGroupLimit[];
   /** What a record is in, by the limits' keys (`{ team: [id] }`); needed with `limits`. */
   appliesTo?: (contentId: string) => UseQueryOptions<Record<string, string[]>>;
 };
 
 /** One thing a plugin's field groups can be limited to. */
-export type TPropertyLimit = {
+export type TFieldGroupLimit = {
   /** The key in the group's `appliesTo`: lower case letters, digits and `_`. */
   key: string;
   /** What it lists, in the plugin's words ("Teams"). */
@@ -135,7 +142,7 @@ export type TPropertyLimit = {
 /**
  * A record type a plugin shows in core's side panel. Core draws the panel as it draws a
  * customer's: header with Back, expand and close, the tabs (Detail, the type's own `tabs`,
- * Properties, every allowed plugin's relation tabs for it, Activity), resizing, the address
+ * Fields, every allowed plugin's relation tabs for it, Activity), resizing, the address
  * `?panel=/detail/<contentType>/<id>`, drafts. The plugin fills the slots. Open one with
  * `useOpenRecord().open({ contentType, contentId })`, a draft with `openNew(contentType)`.
  */
@@ -167,10 +174,10 @@ export type TPanelRecordType = {
   /** A timeline type of the plugin's manifest (`timelines`): core's Activity tab shows it. */
   activity?: string;
   /**
-   * Custom fields: core adds a Properties tab and their settings page,
-   * `/settings/properties/<plugin>.<type>`, which the plugin's own settings link.
+   * Data Extensions fields the plugin keeps the values of: core adds a Fields tab, and the
+   * record type's fields are set up in Settings › Data model, which the plugin's settings link.
    */
-  properties?: TRecordProperties;
+  dataFields?: TRecordDataFields;
 };
 
 /** Props of a relation tab: the record it shows on, and its contacts. */

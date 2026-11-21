@@ -21,7 +21,7 @@ export const transferRouter = {
 
     return {
       data: (await transferColumns(db(), input.recordType)).map(
-        ({ aliases, fieldType, ...column }) => column,
+        ({ aliases, dataField, ...column }) => column,
       ),
     };
   }),

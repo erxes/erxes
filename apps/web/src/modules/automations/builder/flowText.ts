@@ -215,10 +215,8 @@ const actionDetail = (
     if (field.type === 'plugin_record') return [];
 
     const named =
-      field.type === 'custom_field'
-        ? context.fields
-            .find((item) => item.path === `subject.customFields.${String(value)}`)
-            ?.label.replace(/ \(custom\)$/, '')
+      field.type === 'data_field'
+        ? context.fields.find((item) => item.path === `subject.data.${String(value)}`)?.label
         : field.type === 'lead_stage'
           ? context.stages?.find((stage) => stage.id === value)?.name
           : undefined;

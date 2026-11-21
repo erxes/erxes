@@ -5,7 +5,6 @@ import {
   companyTags,
   customerCompanies,
   customerTags,
-  type CustomValue,
   type Db,
   tags,
   users,
@@ -16,17 +15,16 @@ import writeXlsxFile from 'write-excel-file/node';
 import { defuse } from '~/lib/csv';
 import { editorText } from '~/lib/editorText';
 import { DATA_PATH } from '~/modules/dataExtensions/hostFilters';
-import { customCell } from './columns';
+import { valueCell } from './columns';
 import { exportedValues } from './dataColumns';
 import { isCoreType } from './pluginTransfer';
 
 export type Cell = string | number | Date | null;
 
-/** A customer or company row as the export reads it: its columns and its custom field values. */
+/** A customer or company row as the export reads it: its columns. */
 export interface ExportRecord {
   id: string;
   ownerId: string | null;
-  customFields: Record<string, CustomValue>;
   [column: string]: unknown;
 }
 
@@ -121,11 +119,8 @@ export const pageCells = async (
 
   return rows.map((row) =>
     keys.map((key): Cell => {
-      if (key.startsWith('customFields.'))
-        return customCell(row.customFields[key.slice('customFields.'.length)]);
-
       if (key.startsWith(DATA_PATH))
-        return customCell(values.get(row.id)?.[key.slice(DATA_PATH.length)]);
+        return valueCell(values.get(row.id)?.[key.slice(DATA_PATH.length)]);
 
       if (key === 'tags') return (relations.tags.get(row.id) ?? []).join('; ');
 

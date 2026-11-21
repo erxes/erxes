@@ -139,9 +139,7 @@ const DataPicker = ({
                 icon={RecordIcon}
                 label={field.label}
                 path={field.path}
-                note={
-                  field.path.startsWith('subject.customFields.') ? t('custom', 'Custom') : undefined
-                }
+                note={field.path.startsWith('subject.data.') ? t('custom', 'Custom') : undefined}
                 onPick={onPick}
               />
             ))}

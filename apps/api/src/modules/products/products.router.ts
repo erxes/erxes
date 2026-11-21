@@ -28,7 +28,9 @@ export const productsRouter = {
   get: scoped.products.get.handler(async ({ input }) =>
     withDataValuesOf(db(), TYPE, await findProduct(db(), input.id)),
   ),
-  lookup: scoped.products.lookup.handler(({ input }) => lookupProducts(db(), input.ids)),
+  lookup: scoped.products.lookup.handler(async ({ input }) => ({
+    data: await withDataValues(db(), TYPE, (await lookupProducts(db(), input.ids)).data),
+  })),
   create: scoped.products.create.handler(async ({ input }) =>
     withDataValuesOf(db(), TYPE, await createProduct(db(), input)),
   ),

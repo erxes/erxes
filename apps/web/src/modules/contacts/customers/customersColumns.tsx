@@ -22,12 +22,11 @@ import {
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { customFieldColumns } from '~/modules/properties/customFieldColumns';
-import { useFields } from '~/modules/properties/useFields';
+import { useFields } from '~/modules/dataExtensions/dataQueries';
+import { dataFieldColumns } from '~/modules/dataExtensions/values/dataColumns';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import {
   ContactEmailsCell,
-  ContactFieldCell,
   ContactMoreCell,
   ContactOwnerCell,
   ContactPhonesCell,
@@ -189,10 +188,10 @@ const createCustomersColumns = (t: (key: string) => string): RecordTableColumnDe
   },
 ];
 
-/** The customer columns (leads: stage and days in it after the name), source, last activity, one per custom field. */
+/** The customer columns (leads: stage and days in it after the name), source, last activity, one per Data Extensions field. */
 export const useCustomersColumns = (state: CustomerState = 'customer') => {
   const { t } = useTranslation('contact');
-  const { fields } = useFields('customer');
+  const { fields } = useFields('core.customer');
 
   return useMemo(
     () =>
@@ -201,9 +200,7 @@ export const useCustomersColumns = (state: CustomerState = 'customer') => {
         'name',
         'customer',
         state === 'lead',
-        customFieldColumns<Customer>(fields, (customer, field) => (
-          <ContactFieldCell record={customer} field={field} scope={SCOPE} />
-        )),
+        dataFieldColumns<Customer>(fields),
       ),
     [fields, t, state],
   );

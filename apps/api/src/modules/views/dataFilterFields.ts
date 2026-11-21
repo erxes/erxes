@@ -7,8 +7,8 @@ import { hostListSource } from '~/modules/dataExtensions/hostFilters';
 import type { FieldSpec } from './fieldSpec';
 
 /**
- * Core lists' Data Extensions fields: `subject.data.<key>` in filters and saved views, beside
- * the custom fields' `subject.customFields.<id>`, and `data.<key>` as a list's sort.
+ * Core lists' Data Extensions fields: `subject.data.<key>` in filters and saved views (and a
+ * customer's company's, `subject.company.data.<key>`), and `data.<key>` as a list's sort.
  */
 
 const SOURCES: Record<ViewRecordType, { recordType: string; id: PgColumn }> = {
@@ -31,6 +31,23 @@ export const dataFilterFields = async (client: Db, list: ViewRecordType): Promis
     pluginTitle
       ? { ...spec, group: 'plugin' as const, groupLabel: pluginTitle }
       : { ...spec, group: 'custom' as const },
+  );
+
+const COMPANY_PATH = 'subject.company.';
+
+/**
+ * A customer list's filters by the linked company's Data Extensions fields
+ * (`subject.company.data.<key>`): a customer matches when one of its companies does.
+ */
+export const companyDataFilterFields = async (client: Db): Promise<FieldSpec[]> =>
+  ((await sourceOf(client, 'company'))?.filters ?? []).map(
+    ({ field: _field, pluginTitle: _title, ...spec }) => ({
+      ...spec,
+      path: `${COMPANY_PATH}${spec.path.slice('subject.'.length)}`,
+      label: `Company ${spec.label}`,
+      group: 'company' as const,
+      viaCompany: true,
+    }),
   );
 
 /** A list query's order by a Data Extensions field (`data.<key>`), ascending unless said. */

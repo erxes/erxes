@@ -32,12 +32,16 @@ describe('automation subjects', { timeout: 300_000 }, () => {
     owner = server.client({ user: acme.owner.id, org: orgId });
   });
 
-  it("starts event automations on the record's custom fields", async () => {
-    const tier = await owner.fields.create({
-      contentType: 'customer',
+  it("starts event automations on the record's data fields", async () => {
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'tier',
       label: 'Tier',
       type: 'select',
-      options: ['Bronze', 'Gold'],
+      options: [
+        { value: 'Bronze', label: 'Bronze', color: 'orange' },
+        { value: 'Gold', label: 'Gold', color: 'yellow' },
+      ],
     });
 
     const automation = await owner.automations.create({
@@ -48,7 +52,7 @@ describe('automation subjects', { timeout: 300_000 }, () => {
           event: 'core.customer.created',
           conditions: {
             match: 'all',
-            rules: [{ path: `subject.customFields.${tier.id}`, op: 'eq', value: 'Gold' }],
+            rules: [{ path: 'subject.data.tier', op: 'eq', value: 'Gold' }],
           },
         },
         steps: [{ id: 'stop', type: 'stop' }],
@@ -57,12 +61,9 @@ describe('automation subjects', { timeout: 300_000 }, () => {
 
     await owner.automations.activate({ id: automation.id });
 
-    const gold = await owner.customers.create({
-      firstName: 'Gold',
-      customFields: { [tier.id]: 'Gold' },
-    });
+    const gold = await owner.customers.create({ firstName: 'Gold', values: { tier: 'Gold' } });
 
-    await owner.customers.create({ firstName: 'Bronze', customFields: { [tier.id]: 'Bronze' } });
+    await owner.customers.create({ firstName: 'Bronze', values: { tier: 'Bronze' } });
     await settle();
 
     const runs = await owner.automations.runs({ id: automation.id });
