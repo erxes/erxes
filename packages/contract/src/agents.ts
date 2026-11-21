@@ -97,7 +97,7 @@ export const agentsContract = {
       path: '/agents',
       successStatus: 201,
       summary:
-        'Make an agent with its own API key, which nobody sees: it acts by that key’s rules, never beyond yours. 403 BEYOND_OWN_PERMISSIONS: access your role lacks',
+        "Make an agent with its own API key, which nobody sees: it acts by that key's rules, never beyond yours. 403 BEYOND_OWN_PERMISSIONS: access your role lacks",
     })
     .input(
       AgentFields.extend({ template: AgentTemplate.nullable().default(null), access: AgentAccess }),
