@@ -61,6 +61,72 @@ const IntegrationHeader = ({
   );
 };
 
+/** The page around one integration: the breadcrumb to it (and to a step of it), then its content. */
+export const IntegrationShell = ({
+  integration,
+  step,
+  children,
+}: {
+  integration: Integration;
+  /** A step of the integration that takes the page: choosing accounts, its connect form. */
+  step?: { label: string; to: string };
+  children: ReactNode;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const { name } = useIntegrationText()(integration);
+
+  return (
+    <PageContainer>
+      <PageHeader>
+        <PageHeader.Start>
+          <AppBreadcrumb
+            items={[
+              {
+                label: t('title', 'Integrations'),
+                to: paths.settings.integrations,
+                icon: IconPlugConnected,
+              },
+              { label: name, to: integrationPath(integration) },
+              ...(step ? [step] : []),
+            ]}
+          />
+        </PageHeader.Start>
+      </PageHeader>
+      <ScrollArea className="flex-1" fitWidth>
+        <div className="mx-auto max-w-4xl space-y-6 p-6">{children}</div>
+      </ScrollArea>
+    </PageContainer>
+  );
+};
+
+/** A page's tabs and the content of the one that is open: the first when `tab` names none. */
+export const TabStrip = ({
+  tabs,
+  tab,
+  onTab,
+}: {
+  tabs: IntegrationTab[];
+  tab: string;
+  onTab: (tab: string) => void;
+}) => {
+  const current = tabs.find((item) => item.value === tab) ?? tabs[0];
+
+  return (
+    <>
+      <Tabs value={current?.value} onValueChange={onTab}>
+        <Tabs.List variant="flush" className="h-9">
+          {tabs.map((item) => (
+            <Tabs.Trigger key={item.value} value={item.value}>
+              {item.label}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs>
+      {current?.content}
+    </>
+  );
+};
+
 /**
  * One integration's page: its mark, name, state and main action on top,
  * then its tabs (Overview first).
@@ -78,42 +144,11 @@ export const IntegrationLayout = ({
   tab: string;
   onTab: (tab: string) => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
-  const { name } = useIntegrationText()(integration);
-  const current = tabs.find((item) => item.value === tab) ?? tabs[0];
-
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <AppBreadcrumb
-            items={[
-              {
-                label: t('title', 'Integrations'),
-                to: paths.settings.integrations,
-                icon: IconPlugConnected,
-              },
-              { label: name, to: integrationPath(integration) },
-            ]}
-          />
-        </PageHeader.Start>
-      </PageHeader>
-      <ScrollArea className="flex-1" fitWidth>
-        <div className="mx-auto max-w-4xl space-y-6 p-6">
-          <IntegrationHeader integration={integration} actions={actions} />
-          <Tabs value={current?.value} onValueChange={onTab}>
-            <Tabs.List variant="flush" className="h-9">
-              {tabs.map((item) => (
-                <Tabs.Trigger key={item.value} value={item.value}>
-                  {item.label}
-                </Tabs.Trigger>
-              ))}
-            </Tabs.List>
-          </Tabs>
-          {current?.content}
-        </div>
-      </ScrollArea>
-    </PageContainer>
+    <IntegrationShell integration={integration}>
+      <IntegrationHeader integration={integration} actions={actions} />
+      <TabStrip tabs={tabs} tab={tab} onTab={onTab} />
+    </IntegrationShell>
   );
 };
 

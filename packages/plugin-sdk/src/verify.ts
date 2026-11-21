@@ -1,14 +1,16 @@
 import {
-  CORE_API_PREFIX,
   CoreEvent,
+  IntegrationHookCall,
   PluginAccess,
   PluginJobDelivery,
   PluginTier,
   PluginTransferRequest,
   RecordAccessCheck,
 } from '@erxes/core-contract';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
+import { bearerOf, sha256, type VerifyOptions, verifyCoreToken } from './coreToken';
+
+export { bearerOf };
 
 /** The signed-in member a plugin UI calls the plugin's API for. */
 export interface PluginMember {
@@ -72,52 +74,6 @@ export const DeliveredEvent = z.object({
 });
 
 export type DeliveredEvent = z.infer<typeof DeliveredEvent>;
-
-interface VerifyOptions {
-  coreUrl: string;
-  plugin: string;
-}
-
-const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-
-/**
- * The plugin's server clock may run a little ahead of core's: a token core
- * just issued, or one a member's browser renews 30 s before it ends, still passes.
- */
-const CLOCK_TOLERANCE_SECONDS = 60;
-
-/** A token core signed (its public keys), for this plugin (or `audience`), of this kind, unexpired; its claims parsed. */
-const verifyCoreToken = async <T>(
-  token: string,
-  options: Pick<VerifyOptions, 'coreUrl'> & { plugin?: string },
-  typ: string,
-  claims: z.ZodType<T>,
-  audience = options.plugin,
-) => {
-  const base = options.coreUrl.replace(/\/+$/, '');
-  let jwks = jwksByCore.get(base);
-
-  if (!jwks) {
-    jwks = createRemoteJWKSet(new URL(`${base}${CORE_API_PREFIX}/.well-known/jwks.json`));
-    jwksByCore.set(base, jwks);
-  }
-
-  if (!audience) throw new Error('no audience to check the token for');
-
-  const { payload } = await jwtVerify(token, jwks, {
-    issuer: 'erxes-core',
-    audience,
-    typ,
-    algorithms: ['ES256'],
-    clockTolerance: CLOCK_TOLERANCE_SECONDS,
-  });
-
-  const parsed = claims.safeParse(payload);
-
-  if (!parsed.success) throw new Error(`not an erxes ${typ} token`);
-
-  return parsed.data;
-};
 
 // A claim of the wrong type or an unknown value fails verification: it never grants access.
 const Tier = PluginTier.nullable();
@@ -203,10 +159,6 @@ export const verifyPluginCall = async (
 
   return { ...member({ ...claims, role: 'plugin' }), plugin: claims.plugin };
 };
-
-/** The bearer token of a request's `Authorization` header, if any. */
-export const bearerOf = (authorization: string | undefined | null) =>
-  authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() || null : null;
 
 const CallClaims = z
   .object({
@@ -314,21 +266,6 @@ export const verifyCustomerToken = async (
   if (!token) throw new Error('no customer token');
 
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
-};
-
-/** A body's SHA-256, base64url: text as UTF-8, or its bytes as they came. */
-const sha256 = async (body: string | Uint8Array<ArrayBuffer>) => {
-  const digest = new Uint8Array(
-    await crypto.subtle.digest(
-      'SHA-256',
-      typeof body === 'string' ? new TextEncoder().encode(body) : body,
-    ),
-  );
-
-  return btoa(String.fromCharCode(...digest))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
 };
 
 const EventClaims = z.object({ sha: z.string(), event: z.string(), org: z.string() });
@@ -450,6 +387,34 @@ export const verifyCoreAccessCheck = async (
   if (check.orgId !== claims.org) throw new Error('the check does not match the token');
 
   return check;
+};
+
+const IntegrationClaims = z.object({ sha: z.string(), integration: z.string(), org: z.string() });
+
+export const verifyCoreIntegration = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: VerifyOptions,
+): Promise<IntegrationHookCall> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const claims = await verifyCoreToken(
+    token,
+    options,
+    'erxes-core-integration+jwt',
+    IntegrationClaims,
+  );
+
+  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  const call = IntegrationHookCall.parse(JSON.parse(rawBody));
+
+  if (call.callId !== claims.integration || call.orgId !== claims.org)
+    throw new Error('the call does not match the token');
+
+  return call;
 };
 
 const TransferClaims = z.object({ sha: z.string(), transfer: z.string(), org: z.string() });

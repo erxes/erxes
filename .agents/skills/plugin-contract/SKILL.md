@@ -74,6 +74,28 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
      token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
      be undone. The shapes, the token `typ` and the two paths are the contract;
+   - integrations (`packages/contract/src/pluginIntegrations.ts`, `apps/api/src/modules/integrations`):
+     the manifest's `integrations` (`PluginIntegration`: `key`, `name`, `summary`, `category`,
+     `permission`, `accounts` kinds, `connect`, `pick`, `setup`, `hooks`) put an outside service on
+     Settings › Integrations while the plugin is installed and active. Core draws connecting,
+     choosing, the accounts and the setup form, and keeps each account's secret. Core POSTs
+     `IntegrationHookCall` to `<api.url>/integrations/<key>/<hook>`, signed with an
+     `erxes-core-integration+jwt` token over the body's digest and checked by
+     `verifyCoreIntegration`: `start` (a `redirect` connect, answered `{ url }`), `connect` (a
+     `form` connect, answered `{ candidates }`), and the `hooks` the integration lists:
+     `connected` (before an account is saved), `check` (answered `{ error }`, null while the
+     service takes the account) and `disconnect`. A 4xx answer's `{ message }` is shown to the
+     member. A sign-in page ends with `pluginAccounts.offer` and a redirect to the `url` it
+     answers. The plugin's server reads its accounts with `pluginAccounts.list`, `open` (the
+     secret and the organisation's setup), `update`, `report` and `setup`; a plugin reaches only
+     the accounts of its own integrations (`<plugin>.<key>`). An action with `integration`
+     (and `accountKind`) gets an account input: its POST carries `account` (`id`, `kind`,
+     `externalId`, `name`, `config`, `secret`) and `setup`, and `input` leaves the pick out. A
+     `DataField` with `integration` holds an account id: triggers and conditions pick it from the
+     organisation's accounts, and the account input offers it. In the plugin UI's `./config`,
+     `integrations` (`TPluginIntegration`: `key`, `icon`, `tabs`) adds the mark and tabs of its
+     own. The hook paths, the token `typ`, the shapes, the `account` and `setup` keys of an
+     action's call and the codes `INTEGRATION_REFUSED` and `PICK_EXPIRED` are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set

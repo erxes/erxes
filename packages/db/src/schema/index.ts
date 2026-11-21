@@ -71,3 +71,5 @@ export * from './email';
 export * from './favorites';
 
 export * from './integrations';
+
+export * from './integrationAccounts';

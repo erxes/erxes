@@ -227,7 +227,6 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type FileStorageAdapter { upload, remove }` Where erxes-ui's upload hooks and components send files.
 - `getPluginAssetsUrl(pluginName, url)` A file's URL in a plugin UI's deployed `assets` folder.
 - `getPluginRuntime()` The host's plugin runtime, or null outside erxes.
-- `INTEGRATION_CATEGORIES` Every integration category, in Settings › Integrations' order.
 - `type IUIConfig { name, path, icon, settings, integrations, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
 - `pluginFetch(plugin, path, init)` `fetch` against a plugin's API as the signed-in member.
 - `pluginJson(plugin, path, schema, init)` JSON in, JSON out, checked against `schema`.
@@ -238,10 +237,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setPluginRuntime(next)` Sets the plugin runtime; web calls it at startup and plugins don't.
 - `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
-- `type TIntegrationCategory` An integration's category in Settings › Integrations.
-- `type TIntegrationTab { value, label, component }` A tab on a plugin integration's page.
+- `type TIntegrationTab { value, label, component }` A tab a plugin adds to its integration's page.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
-- `type TPluginIntegration { key, name, summary, icon, category, … }` A plugin's tile in core's Settings › Integrations, next to core's own.
+- `type TPluginIntegration { key, icon, tabs }` What a plugin's UI adds to an integration its manifest declares.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
 - `type TPropertyLimit { key, label, options }` One thing a plugin's field groups can be limited to.
 - `type TPropertyValue` A custom field's value: text, number, date, yes/no or options.

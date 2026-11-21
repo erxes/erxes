@@ -2793,6 +2793,178 @@
       }
     }
   },
+  "integrationAccounts": {
+    "definitions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integration-definitions"
+        }
+      }
+    },
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integration-accounts"
+        }
+      }
+    },
+    "choices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integration-accounts/choices"
+        }
+      }
+    },
+    "start": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integration-accounts/start"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integration-accounts/connect"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integration-accounts"
+        }
+      }
+    },
+    "setSecrets": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integration-accounts/{id}/secrets"
+        }
+      }
+    },
+    "pick": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integration-picks/{id}"
+        }
+      }
+    },
+    "confirmPick": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integration-picks/{id}/confirm"
+        }
+      }
+    },
+    "cancelPick": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integration-picks/{id}"
+        }
+      }
+    },
+    "rename": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/integration-accounts/{id}"
+        }
+      }
+    },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integration-accounts/{id}/check"
+        }
+      }
+    },
+    "usage": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integration-accounts/{id}/usage"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integration-accounts/{id}"
+        }
+      }
+    },
+    "setup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integration-setups/{integration}"
+        }
+      }
+    },
+    "saveSetup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integration-setups/{integration}"
+        }
+      }
+    },
+    "removeSetup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integration-setups/{integration}"
+        }
+      }
+    }
+  },
   "integrations": {
     "list": {
       "~orpc": {
@@ -2901,6 +3073,68 @@
         "route": {
           "method": "POST",
           "path": "/integrations/programs/{id}/test"
+        }
+      }
+    }
+  },
+  "pluginAccounts": {
+    "offer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugin/integration-accounts/offer"
+        }
+      }
+    },
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/plugin/integration-accounts"
+        }
+      }
+    },
+    "open": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/plugin/integration-accounts/{id}"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/plugin/integration-accounts/{id}"
+        }
+      }
+    },
+    "report": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugin/integration-accounts/{id}/report"
+        }
+      }
+    },
+    "setup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/plugin/integration-setups/{integration}"
         }
       }
     }

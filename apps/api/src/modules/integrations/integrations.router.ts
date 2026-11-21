@@ -17,6 +17,7 @@ import {
   restoreProgram,
   saveProgram,
 } from './programs.service';
+import { customStepValues, withoutAccount } from './stepAccounts';
 
 export const integrationsRouter = {
   list: scoped.integrations.list.handler(() => listIntegrations(db())),
@@ -82,13 +83,22 @@ export const integrationsRouter = {
     ),
   ),
   testProgram: unscoped.integrations.testProgram.handler(async ({ input }) => {
-    const loaded = await withOrg(requestOrgId(), (tx) => loadProgram(tx, input.id));
+    const { loaded, account } = await withOrg(requestOrgId(), async (tx) => {
+      const program = await loadProgram(tx, input.id);
+
+      return {
+        loaded: program,
+        account: await customStepValues(tx, program.integration, input.input),
+      };
+    });
 
     return loaded.program.kind === 'incoming'
       ? runIncoming(loaded, input.incoming)
-      : runAction(requestOrgId(), loaded, {
-          input: input.input,
-          idempotencyKey: `test:${input.id}`,
-        });
+      : runAction(
+          requestOrgId(),
+          loaded,
+          { input: withoutAccount(input.input), idempotencyKey: `test:${input.id}` },
+          account,
+        );
   }),
 };

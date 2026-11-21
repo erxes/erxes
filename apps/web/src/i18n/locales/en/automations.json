@@ -315,5 +315,8 @@
   "event-data-waiting": "erxes learns what “{{event}}” carries the next time it happens. Make it happen once (a test is fine) and its data shows up here by itself.",
   "event-data-use-customer": "You can already use the customer’s details.",
   "event-data-use-company": "You can already use the company’s details.",
-  "event-data-waiting-short": "Waiting for the next “{{event}}”. Its data shows up here as soon as it arrives."
+  "event-data-waiting-short": "Waiting for the next “{{event}}”. Its data shows up here as soon as it arrives.",
+  "no-accounts": "Nothing is connected yet.",
+  "connect-in-integrations": "Connect one in Integrations",
+  "account-broken": "{{name}} (needs reconnecting)"
 }

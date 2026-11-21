@@ -96,6 +96,8 @@ export const eventDataFields = (
     groupLabel: event?.label,
     recordType: field.recordType,
     source: event?.source,
+    integration: field.integration,
+    accountKind: field.accountKind,
   }));
 
 /**
@@ -131,6 +133,8 @@ export const stepOutputFields = (
             ...(output.recordType && action
               ? { recordType: output.recordType, source: action.source }
               : {}),
+            integration: output.integration,
+            accountKind: output.accountKind,
           });
         }
       }

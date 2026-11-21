@@ -208,15 +208,9 @@ export type TPluginSettingsPage = {
   icon?: React.ElementType;
 };
 
-/** Every integration category, in Settings › Integrations' order. */
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
-
-/** An integration's category in Settings › Integrations. */
-export type TIntegrationCategory = (typeof INTEGRATION_CATEGORIES)[number];
-
-/** A tab on a plugin integration's page. Its `value` is the address key (`?tab=`). */
+/** A tab a plugin adds to its integration's page. Its `value` is the address key (`?tab=`). */
 export type TIntegrationTab = {
-  /** Unique on the page, e.g. `overview`: a link or reload opens the tab it names. */
+  /** Unique on the page, e.g. `bots`: a link or reload opens the tab it names. */
   value: string;
   label: string;
   /** Drawn under core's tabs; a `lazy` one loads when its tab first shows. */
@@ -224,26 +218,16 @@ export type TIntegrationTab = {
 };
 
 /**
- * A plugin's tile in core's Settings › Integrations, next to core's own.
- * Its page is `/settings/integrations/<plugin name>.<key>`: core draws the header (mark, name,
- * summary, where it works) and the tabs, and the plugin each tab's content. Shown to members
- * with `integrations.manage` and its `permission` while the plugin is installed and active.
- * It carries no connected state.
+ * What a plugin's UI adds to an integration its manifest declares. That is its mark and tabs of
+ * its own: core draws the page at `/settings/integrations/<plugin>.<key>` from the manifest's
+ * `integrations` (the header, connecting, choosing, the accounts and the setup form).
  */
 export type TPluginIntegration = {
-  /** Unique within the plugin, e.g. `meta`: lowercase letters, digits and dashes. */
+  /** The manifest integration's `key`, e.g. `meta`. */
   key: string;
-  name: string;
-  /** One line on its tile and under its name. */
-  summary: string;
   icon: Icon;
-  category: TIntegrationCategory;
-  /** The ISO 3166 countries it serves (`MN`); none: any. Others list it under other regions. */
-  countries?: string[];
-  /** The permission a member needs to see and open it, e.g. `frontline.integrations.manage`. */
-  permission: string;
-  /** Its page's tabs, Overview first. */
-  tabs: TIntegrationTab[];
+  /** Tabs after core's own (Accounts, Setup), for what only the plugin can draw. */
+  tabs?: TIntegrationTab[];
 };
 
 /**

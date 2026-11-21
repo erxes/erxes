@@ -441,6 +441,7 @@ export const ACTION_FIELD_TYPES = [
   'recipients',
   'email_sender',
   'plugin_record',
+  'integration_account',
 ] as const;
 
 // ─── Payments ───────────────────────────────────────────────────────────────

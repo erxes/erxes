@@ -730,6 +730,7 @@
         "mentions": "Mentions",
         "automations": "Automations",
         "transfer": "Imports and exports",
+        "integrations": "Integrations",
         "security": "Security"
       },
       "hints": {
@@ -738,6 +739,7 @@
         "mentions": "Someone mentions you in a note",
         "automations": "Messages from automations, and automations you turned on that fail",
         "transfer": "Your imports finish and your exports are ready",
+        "integrations": "An account you connected stops working and needs reconnecting",
         "security": "Your role or password changes, new sign-ins, and security alerts for owners"
       }
     }

@@ -4,6 +4,8 @@ export const INTEGRATION_NAMESPACE = 'integrations';
 
 export const INTEGRATION_FIELD_MAX = 50;
 
+export const INTEGRATION_ACCOUNT_INPUT = '_account';
+
 export const IntegrationKey = z
   .string()
   .trim()

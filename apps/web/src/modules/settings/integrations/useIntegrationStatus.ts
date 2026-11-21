@@ -16,7 +16,7 @@ export interface IntegrationStatus {
  * Each integration's state (`statusOf`), from three queries for the whole
  * catalog. Null while it loads, when its query failed (`error`), or when the
  * member may not see it (gateways and receipts need payments.manage). A
- * plugin's tile has none: core can't tell whether a plugin is set up.
+ * plugin's comes with its definition: its accounts, and how many need reconnecting.
  */
 export const useIntegrationStatus = () => {
   const canPayments = useCan()('payments.manage');
@@ -40,6 +40,16 @@ export const useIntegrationStatus = () => {
       return { state: integration.record.sealedNames.length ? 'connected' : 'not-set-up' };
     }
 
+    if (integration.kind === 'plugin') {
+      const { accountCount, brokenCount } = integration.definition;
+
+      if (!accountCount) return { state: 'not-set-up' };
+
+      return brokenCount
+        ? { state: 'attention', count: brokenCount }
+        : { state: 'connected', count: accountCount };
+    }
+
     if (integration.kind === 'ebarimt') {
       if (!ebarimt.isSuccess) return null;
 
@@ -54,7 +64,7 @@ export const useIntegrationStatus = () => {
       return count ? { state: 'attention', count } : { state: 'connected' };
     }
 
-    if (integration.kind === 'plugin' || !gateways.data) return null;
+    if (!gateways.data) return null;
 
     const all = gateways.data.data;
 

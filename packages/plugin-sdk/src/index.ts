@@ -173,6 +173,32 @@
  *     res.json(await tickets.importRows(request.userId, request.rows, request.mode, request.dryRun));
  *   });
  *
+ * Integrations (Settings › Integrations): the manifest's `integrations` declare an outside
+ * service; core draws connecting, choosing and the accounts, seals each account's secret and
+ * hands it back only to this server. Core POSTs `IntegrationHookCall` to
+ * `<api.url>/integrations/<key>/<hook>`; a 4xx `{ message }` is shown to the member.
+ *
+ *   integrations: [{ key: 'meta', name: 'Meta', summary: 'Facebook pages and Instagram accounts',
+ *     category: 'messaging', permission: 'frontline.integration.manage',
+ *     accounts: [{ kind: 'page', label: 'Page', plural: 'Pages' }],
+ *     connect: { type: 'redirect' }, pick: true, hooks: ['connected', 'check', 'disconnect'] }],
+ *   actions: [{ type: 'frontline.messenger.send', label: 'Send a Messenger message',
+ *     integration: 'frontline.meta', accountKind: 'page', fields: [...] }],
+ *   app.post('/api/integrations/:key/:hook', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const call = await verifyCoreIntegration(req.headers.authorization, req.body, { coreUrl, plugin: 'frontline' });
+ *     if (call.hook === 'start') return res.json({ url: loginUrl(call.orgId, call.userId, call.setup) });
+ *     if (call.hook === 'connect') return res.json({ candidates: await candidatesFrom(call.values) });
+ *     if (call.hook === 'check') return res.json({ error: await refusalOf(call.account) });
+ *     res.sendStatus(204);               // connected: subscribe its webhook; disconnect: stop it
+ *   });
+ *   // The sign-in page comes back to the plugin, which hands over what it found and sends the member on:
+ *   const { url } = await core.forOrg(orgId).pluginAccounts.offer({ integration: 'meta', userId,
+ *     candidates: pages.map((page) => ({ kind: 'page', externalId: page.id, name: page.name,
+ *       secret: { pageToken: page.access_token } })) });
+ *   // For its own work (a reply, a webhook check); an action's POST carries `account` and `setup` already:
+ *   const account = await core.forOrg(orgId).pluginAccounts.open({ id });   // { secret, config, setup }
+ *   await core.forOrg(orgId).pluginAccounts.report({ id, error: 'The page removed the app' });
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and

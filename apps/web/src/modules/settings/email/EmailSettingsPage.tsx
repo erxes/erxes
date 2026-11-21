@@ -2,7 +2,7 @@ import type { EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconMail } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
-import { Button, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast } from 'erxes-ui';
+import { Button, PageContainer, PageHeader, ScrollArea, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -11,7 +11,12 @@ import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { useIntegrationsSaved } from '../integrations/customMutation';
 import { DangerSection } from '../integrations/DangerSection';
-import { HowItWorks, OverviewSection, useIntegrationTab } from '../integrations/IntegrationLayout';
+import {
+  HowItWorks,
+  OverviewSection,
+  TabStrip,
+  useIntegrationTab,
+} from '../integrations/IntegrationLayout';
 import { IntegrationStatusBadge } from '../integrations/IntegrationStatusBadge';
 import { EmailForm, PROVIDER_NAMES } from './EmailForm';
 import { EmailSenders } from './EmailSenders';
@@ -149,8 +154,6 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
     },
   ];
 
-  const current = tabs.find((item) => item.value === tab) ?? tabs[0];
-
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <header className="flex flex-wrap items-start gap-4">
@@ -174,16 +177,7 @@ const EmailPage = ({ saved }: { saved: EmailSettings | null }) => {
           )}
         </div>
       </header>
-      <Tabs value={current?.value} onValueChange={setTab}>
-        <Tabs.List variant="flush" className="h-9">
-          {tabs.map((item) => (
-            <Tabs.Trigger key={item.value} value={item.value}>
-              {item.label}
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
-      </Tabs>
-      {current?.content}
+      <TabStrip tabs={tabs} tab={tab} onTab={setTab} />
     </div>
   );
 };

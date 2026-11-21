@@ -45,8 +45,10 @@ type Integration = LoadedProgram['integration'];
 
 const gate = workerGate(RUNS_AT_ONCE, RUNS_WAITING);
 
-const sealedOf = (integration: Integration) => {
-  const sealed = sealedValuesOf(integration);
+export type AccountValues = Record<string, string> | null;
+
+const sealedOf = (integration: Integration, account: AccountValues) => {
+  const sealed = { ...sealedValuesOf(integration), ...account };
 
   const valueOf = (name: string) => {
     const value = Object.hasOwn(sealed, name) ? sealed[name] : undefined;
@@ -152,8 +154,8 @@ const door =
     }
   };
 
-const doors = ({ integration }: LoadedProgram) => {
-  const sealed = sealedOf(integration);
+const doors = ({ integration }: LoadedProgram, account: AccountValues) => {
+  const sealed = sealedOf(integration, account);
 
   return {
     request: door(RequestOptions, (options) => request(integration, sealed, options)),
@@ -189,9 +191,10 @@ const preludeOf = (globals: Record<string, unknown>) =>
 export const runIntegrationProgram = async (
   loaded: LoadedProgram,
   globals: Record<string, unknown>,
+  account: AccountValues,
 ): Promise<IntegrationProgramRun> => {
   const outcome = await runProgram(
-    { code: loaded.program.code, prelude: preludeOf(globals), host: doors(loaded) },
+    { code: loaded.program.code, prelude: preludeOf(globals), host: doors(loaded, account) },
     gate,
   );
 

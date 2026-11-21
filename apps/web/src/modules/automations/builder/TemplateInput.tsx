@@ -86,7 +86,7 @@ const TriggerGroup = ({
 };
 
 const isEventText = (field: FieldInfo) =>
-  field.path.startsWith('event.payload.') && !field.recordType;
+  field.path.startsWith('event.payload.') && !field.recordType && !field.integration;
 
 /**
  * What a step can insert, searchable: the trigger's own values first, then the customer or

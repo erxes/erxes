@@ -15,3 +15,10 @@ const sealKey = () => coreKey('erxes-core-secrets-v1');
 export const seal = (plain: string) => encrypt(sealKey(), plain);
 
 export const unseal = (sealed: string) => decrypt(sealKey(), sealed);
+
+const vaultKey = () => coreKey('erxes-core-integration-vault-v1');
+
+/** An integration's secrets, sealed for one organisation: a row copied to another doesn't open. */
+export const sealFor = (orgId: string, plain: string) => encrypt(vaultKey(), plain, orgId);
+
+export const unsealFor = (orgId: string, sealed: string) => decrypt(vaultKey(), sealed, orgId);

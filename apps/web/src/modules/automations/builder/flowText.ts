@@ -211,8 +211,8 @@ const actionDetail = (
         : [];
     }
 
-    // Saved by id; its name lives in the plugin.
-    if (field.type === 'plugin_record') return [];
+    // Saved by id; its name lives in the plugin, or with the integration's accounts.
+    if (field.type === 'plugin_record' || field.type === 'integration_account') return [];
 
     const named =
       field.type === 'custom_field'

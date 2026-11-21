@@ -1,12 +1,10 @@
 import { useQueries } from '@tanstack/react-query';
-import { LookupPicker, pluginJson } from 'erxes-ui';
+import { LookupPicker } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
 import type { Picks } from './pickRules';
+import { choicesQuery } from './recordChoices';
 import { Field } from './triggerFields';
 import type { FieldInfo } from './useAutomationFields';
-
-const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
 
 export const RecordPicks = ({
   fields,
@@ -21,13 +19,7 @@ export const RecordPicks = ({
 }) => {
   const { t } = useTranslation('automations');
 
-  const results = useQueries({
-    queries: fields.map(({ source = '', recordType = '' }) => ({
-      queryKey: ['plugin-records', source, recordType, ''],
-      queryFn: () => pluginJson(source, `/automations/records/${recordType}`, PluginRecords),
-      staleTime: 60_000,
-    })),
-  });
+  const results = useQueries({ queries: fields.map(choicesQuery) });
 
   return fields.map((field, at) => {
     const records = results[at];

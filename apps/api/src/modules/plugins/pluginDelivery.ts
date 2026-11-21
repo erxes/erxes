@@ -1,7 +1,7 @@
 import { type Db, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { sha256 } from '~/lib/crypto';
-import { postOutbound } from '~/lib/outbound';
+import { requestOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 
 /** Installations of the plugin (or of any), joined to it, where both are active. */
@@ -32,20 +32,23 @@ interface Delivery {
   path: string;
   orgId: string;
   /** The token's subject is `<kind>:<id>` and its claims carry `<kind>: <id>`; the id is the `Idempotency-Key`. */
-  kind: 'event' | 'job' | 'access' | 'transfer';
+  kind: 'event' | 'job' | 'access' | 'transfer' | 'integration';
   id: string;
   body: string;
   typ: string;
   headers: Record<string, string>;
   timeoutMs?: number;
+  maxBytes?: number;
 }
+
+const ANSWER_BYTES = 2048;
 
 /**
  * POSTs `body` to the plugin's API with a 5-minute core token: `aud` the
  * plugin, `sha` the body's digest, so the body can't be swapped under the
- * token. Anything but 2xx throws, so the job retries. Resolves with the answer's body.
+ * token. Resolves with the plugin's answer, whatever its status.
  */
-export const deliverToPlugin = async (delivery: Delivery) => {
+export const postToPlugin = async (delivery: Delivery) => {
   const token = await signJwt(
     { org: delivery.orgId, [delivery.kind]: delivery.id, sha: sha256(delivery.body, 'base64url') },
     {
@@ -56,17 +59,28 @@ export const deliverToPlugin = async (delivery: Delivery) => {
     },
   );
 
-  const response = await postOutbound(
-    `${delivery.url.replace(/\/+$/, '')}${delivery.path}`,
-    delivery.body,
-    {
+  const maxBytes = delivery.maxBytes ?? ANSWER_BYTES;
+
+  const answer = await requestOutbound(`${delivery.url.replace(/\/+$/, '')}${delivery.path}`, {
+    method: 'POST',
+    body: delivery.body,
+    headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
       'Idempotency-Key': delivery.id,
       ...delivery.headers,
     },
-    delivery.timeoutMs,
-  );
+    timeoutMs: delivery.timeoutMs,
+    maxBytes,
+    overflow: maxBytes > ANSWER_BYTES ? 'fail' : 'cut',
+  });
+
+  return { status: answer.status, body: answer.body.toString('utf8') };
+};
+
+/** As `postToPlugin`, for a delivery a job retries: anything but 2xx throws. Resolves with the answer's body. */
+export const deliverToPlugin = async (delivery: Delivery) => {
+  const response = await postToPlugin(delivery);
 
   if (response.status < 200 || response.status >= 300) {
     throw new Error(

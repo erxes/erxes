@@ -1,8 +1,9 @@
 import type { IntegrationProgram, IntegrationProgramRun } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconPlayerPlay } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
-import { Button, jsonOf, Label, Spinner, Textarea, useToast } from 'erxes-ui';
+import { INTEGRATION_ACCOUNT_INPUT } from '@erxes/core-contract/integrationValues';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, jsonOf, Label, Select, Spinner, Textarea, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -68,16 +69,56 @@ const RunResult = ({ run }: { run: IntegrationProgramRun }) => {
   );
 };
 
-export const CustomProgramTest = ({ program }: { program: IntegrationProgram }) => {
+const OWN_KEYS = 'own';
+
+const TestAccount = ({
+  integration,
+  value,
+  onChange,
+}: {
+  integration: string;
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+  const id = useId();
+
+  const accounts = useQuery(orpc.integrationAccounts.list.queryOptions({ input: { integration } }));
+
+  if (!accounts.data?.data.length) return null;
+
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{t('test-account', 'Account')}</Label>
+      <Select value={value} onValueChange={(next) => onChange(next ?? OWN_KEYS)}>
+        <Select.Trigger id={id}>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value={OWN_KEYS}>
+            {t('test-own-keys', 'The integration’s own keys')}
+          </Select.Item>
+          {accounts.data.data.map((account) => (
+            <Select.Item key={account.id} value={account.id}>
+              {account.name}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    </div>
+  );
+};
+
+const useProgramTest = (program: IntegrationProgram) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
   const { toast } = useToast();
   const incoming = program.kind === 'incoming';
+  const [account, setAccount] = useState(OWN_KEYS);
   const [input, setInput] = useState('{}');
   const [body, setBody] = useState('{}');
   const [headers, setHeaders] = useState('{}');
   const parsedInput = InputJson.safeParse(input);
   const parsedHeaders = HeadersJson.safeParse(headers);
-  const notJson = t('not-json', 'Write a JSON object, like {"name": "value"}.');
 
   const test = useMutation(
     orpc.integrations.testProgram.mutationOptions({
@@ -94,17 +135,51 @@ export const CustomProgramTest = ({ program }: { program: IntegrationProgram }) 
     if (incoming && parsedHeaders.success) {
       test.mutate({ id: program.id, incoming: { headers: parsedHeaders.data, rawBody: body } });
     } else if (!incoming && parsedInput.success) {
-      test.mutate({ id: program.id, input: parsedInput.data });
+      test.mutate({
+        id: program.id,
+        input:
+          account === OWN_KEYS
+            ? parsedInput.data
+            : { ...parsedInput.data, [INTEGRATION_ACCOUNT_INPUT]: account },
+      });
     }
   };
 
-  const ready = incoming ? parsedHeaders.success : parsedInput.success;
+  return {
+    incoming,
+    account,
+    setAccount,
+    input,
+    setInput,
+    body,
+    setBody,
+    headers,
+    setHeaders,
+    inputValid: parsedInput.success,
+    headersValid: parsedHeaders.success,
+    ready: incoming ? parsedHeaders.success : parsedInput.success,
+    run,
+    pending: test.isPending,
+    result: test.data,
+  };
+};
+
+export const CustomProgramTest = ({
+  program,
+  integration,
+}: {
+  program: IntegrationProgram;
+  integration: string;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.custom' });
+  const test = useProgramTest(program);
+  const notJson = t('not-json', 'Write a JSON object, like {"name": "value"}.');
 
   return (
     <OverviewSection title={t('test', 'Test')}>
       <div className="space-y-3 rounded-lg border p-4">
         <p className="text-xs text-muted-foreground">
-          {incoming
+          {test.incoming
             ? t(
                 'test-incoming-hint',
                 'Sends a sample call. It reaches the service but publishes no events.',
@@ -114,31 +189,43 @@ export const CustomProgramTest = ({ program }: { program: IntegrationProgram }) 
                 'Runs it once with this input. It reaches the service for real.',
               )}
         </p>
-        {incoming ? (
+        {test.incoming ? (
           <>
-            <JsonBox label={t('test-body', 'Body')} value={body} error={null} onChange={setBody} />
+            <JsonBox
+              label={t('test-body', 'Body')}
+              value={test.body}
+              error={null}
+              onChange={test.setBody}
+            />
             <JsonBox
               label={t('test-headers', 'Headers')}
-              value={headers}
-              error={parsedHeaders.success ? null : notJson}
-              onChange={setHeaders}
+              value={test.headers}
+              error={test.headersValid ? null : notJson}
+              onChange={test.setHeaders}
             />
           </>
         ) : (
-          <JsonBox
-            label={t('test-input', 'Input')}
-            value={input}
-            error={parsedInput.success ? null : notJson}
-            onChange={setInput}
-          />
+          <>
+            <TestAccount
+              integration={integration}
+              value={test.account}
+              onChange={test.setAccount}
+            />
+            <JsonBox
+              label={t('test-input', 'Input')}
+              value={test.input}
+              error={test.inputValid ? null : notJson}
+              onChange={test.setInput}
+            />
+          </>
         )}
         <div className="flex justify-end">
-          <Button variant="secondary" disabled={!ready || test.isPending} onClick={run}>
-            {test.isPending ? <Spinner size="sm" /> : <IconPlayerPlay />}
+          <Button variant="secondary" disabled={!test.ready || test.pending} onClick={test.run}>
+            {test.pending ? <Spinner size="sm" /> : <IconPlayerPlay />}
             {t('test-run', 'Run test')}
           </Button>
         </div>
-        {test.data && <RunResult run={test.data} />}
+        {test.result && <RunResult run={test.result} />}
       </div>
     </OverviewSection>
   );

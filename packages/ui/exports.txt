@@ -50,7 +50,6 @@ type TContactContentType
 type TContactKind
 type TDashboardWidget
 type TDashboardWidgetPreview
-type TIntegrationCategory
 type TIntegrationTab
 type TListDisplay
 type TListDisplayOption
@@ -123,7 +122,6 @@ value Form
 value FullNameField
 value FullNameValue
 value HoverCard
-value INTEGRATION_CATEGORIES
 value IconComponent
 value IconPicker
 value IconTip

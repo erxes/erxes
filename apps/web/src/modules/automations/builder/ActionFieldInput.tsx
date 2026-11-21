@@ -23,6 +23,7 @@ import {
   OptionSelect,
   PluginRecordSelect,
 } from './actionFieldSelects';
+import { IntegrationAccountSelect } from './IntegrationAccountSelect';
 import { Segmented } from './Segmented';
 import { TemplateInput } from './TemplateInput';
 
@@ -257,6 +258,8 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       );
     case 'plugin_record':
       return <PluginRecordSelect {...props} />;
+    case 'integration_account':
+      return <IntegrationAccountSelect {...props} />;
     case 'select':
       return <OptionSelect {...props} />;
     case 'members':

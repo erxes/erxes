@@ -18,6 +18,7 @@ import { EventType } from './platform';
 import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
+import { IntegrationAccountKind, IntegrationRef, PluginIntegrations } from './pluginIntegrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
@@ -168,6 +169,8 @@ export const PluginManifest = z.object({
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         subject: z.enum(AUTOMATION_SUBJECTS).optional(),
+        integration: IntegrationRef.optional(),
+        accountKind: IntegrationAccountKind.shape.kind.optional(),
         fields: ActionFields.default([]),
         /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
         outputs: z.array(DataField).max(50).optional(),
@@ -240,6 +243,7 @@ export const PluginManifest = z.object({
     .optional(),
   assistant: PluginAssistant.optional(),
   agents: PluginAgents.optional(),
+  integrations: PluginIntegrations.optional(),
 });
 
 export type PluginManifest = z.infer<typeof PluginManifest>;

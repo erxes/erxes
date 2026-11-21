@@ -1,4 +1,4 @@
-import { type PluginManifest } from '@erxes/core-contract';
+import { type PluginManifest, pluginIntegrationRef } from '@erxes/core-contract';
 import { fail } from '~/http/errors';
 
 const namespaced = (plugin: string, values: string[] | undefined, what: string) => {
@@ -89,6 +89,69 @@ const othersReads = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+interface AccountRef {
+  integration?: string;
+  accountKind?: string;
+}
+
+/** Integrations need the plugin's API and one of its permissions; whatever names one names its own, with a kind it declares. */
+const ownIntegrations = (plugin: string, manifest: PluginManifest) => {
+  const integrations = manifest.integrations ?? [];
+  const permissions = new Set(manifest.permissions?.map((item) => item.action));
+
+  const kindsOf = new Map(
+    integrations.map((item) => [
+      pluginIntegrationRef(plugin, item.key),
+      new Set(item.accounts.map((account) => account.kind)),
+    ]),
+  );
+
+  if (integrations.length && !manifest.api) {
+    throw fail('INVALID_REFERENCE', 'Integrations need the manifest to name its api', {
+      field: 'api',
+    });
+  }
+
+  const unknown = integrations.find((item) => item.permission && !permissions.has(item.permission));
+
+  if (unknown?.permission) {
+    throw fail(
+      'UNKNOWN_PERMISSION',
+      `Integration "${unknown.key}" needs ${unknown.permission}, which the manifest's permissions don't declare`,
+      { permissions: [unknown.permission] },
+    );
+  }
+
+  const check = (what: string, ref: AccountRef) => {
+    const kinds = ref.integration === undefined ? undefined : kindsOf.get(ref.integration);
+
+    if (ref.integration !== undefined && !kinds) {
+      throw fail(
+        'INVALID_REFERENCE',
+        `${what} names the integration ${ref.integration}, which the manifest doesn't declare (${plugin}.<key>)`,
+        { field: 'integration' },
+      );
+    }
+
+    if (ref.accountKind !== undefined && !kinds?.has(ref.accountKind)) {
+      throw fail(
+        'INVALID_REFERENCE',
+        `${what} names the account kind ${ref.accountKind}, which its integration doesn't declare`,
+        { field: 'accountKind' },
+      );
+    }
+  };
+
+  for (const action of manifest.actions ?? []) {
+    check(`Action ${action.type}`, action);
+    action.outputs?.forEach((field) => check(`Action ${action.type}'s output ${field.key}`, field));
+  }
+
+  for (const event of manifest.events ?? []) {
+    event.fields?.forEach((field) => check(`Event ${event.type}'s field ${field.key}`, field));
+  }
+};
+
 /**
  * What the schema can't check: the manifest's names are the plugin's own, and what it grants or
  * needs names permissions it declares. Throws the first problem.
@@ -114,4 +177,5 @@ export const checkManifest = (plugin: string, manifest: PluginManifest) => {
 
   ownRelations(plugin, manifest);
   othersReads(plugin, manifest);
+  ownIntegrations(plugin, manifest);
 };

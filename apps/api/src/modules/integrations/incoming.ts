@@ -26,7 +26,7 @@ const IncomingResult = z
   .transform((value) => (Array.isArray(value) ? value : value ? [value] : []));
 
 export const runIncoming = (loaded: LoadedProgram, call: IntegrationIncomingCall) =>
-  runIntegrationProgram(loaded, { incoming: { ...call, body: parseBody(call.rawBody) } });
+  runIntegrationProgram(loaded, { incoming: { ...call, body: parseBody(call.rawBody) } }, null);
 
 const publish = async (
   client: Db,

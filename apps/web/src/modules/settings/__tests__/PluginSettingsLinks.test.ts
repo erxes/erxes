@@ -14,8 +14,6 @@ const Icon = () => null;
 
 const Page = () => null;
 
-const MetaOverview = () => createElement('p', null, 'Conversations from Facebook pages');
-
 const MetaApp = () => createElement('p', null, 'App id and secret');
 
 const properties = (type: string) => ({
@@ -68,13 +66,8 @@ const CONFIGS: Record<string, unknown> = {
     integrations: [
       {
         key: 'meta',
-        name: 'Messenger',
-        summary: 'Facebook and Instagram messages in your inbox.',
         icon: Icon,
-        category: 'messaging',
-        permission: 'chat.integrations.manage',
         tabs: [
-          { value: 'overview', label: 'Overview', component: MetaOverview },
           {
             value: 'app',
             label: 'Meta app',
@@ -82,28 +75,37 @@ const CONFIGS: Record<string, unknown> = {
           },
         ],
       },
-      {
-        key: 'zalo',
-        name: 'Zalo',
-        summary: 'Zalo messages in your inbox.',
-        icon: Icon,
-        category: 'messaging',
-        countries: ['VN'],
-        permission: 'chat.integrations.manage',
-        tabs: [{ value: 'overview', label: 'Overview', component: Page }],
-      },
-      {
-        key: 'vault',
-        name: 'Vault',
-        summary: 'Secrets only some members see.',
-        icon: Icon,
-        category: 'messaging',
-        permission: 'chat.vault.manage',
-        tabs: [{ value: 'overview', label: 'Overview', component: Page }],
-      },
-      { key: 'Telegram bot', name: 'Telegram', summary: 'Broken.', icon: Icon, tabs: [] },
+      { key: 'Telegram bot', icon: Icon },
     ],
   },
+};
+
+const definition = (key: string, name: string, summary: string, countries: string[] = []) => ({
+  key,
+  plugin: 'chat',
+  name,
+  summary,
+  category: 'messaging',
+  countries,
+  accounts: [{ kind: 'page', label: 'Page', plural: 'Pages' }],
+  connect: { type: 'redirect' },
+  pick: true,
+  setup: null,
+  checks: true,
+  accountCount: 0,
+  brokenCount: 0,
+});
+
+// What core answers: the integrations of the chat plugin this member may manage (the API leaves
+// its vault out), with no account connected yet. Everything else is offline.
+const ANSWERS: Record<string, unknown> = {
+  '/core/v1/integration-definitions': {
+    data: [
+      definition('chat.meta', 'Messenger', 'Facebook and Instagram messages in your inbox.'),
+      definition('chat.zalo', 'Zalo', 'Zalo messages in your inbox.', ['VN']),
+    ],
+  },
+  '/core/v1/integration-accounts': { data: [] },
 };
 
 vi.mock('@module-federation/enhanced/runtime', () => ({
@@ -111,9 +113,9 @@ vi.mock('@module-federation/enhanced/runtime', () => ({
   loadRemote: async (id: string) => ({ CONFIG: CONFIGS[id] }),
 }));
 
-// A member who may manage integrations, but not payments or the chat plugin's vault.
+// A member who may manage integrations, but not payments.
 vi.mock('~/modules/auth/session', () => ({
-  useCan: () => (action: string) => action !== 'payments.manage' && action !== 'chat.vault.manage',
+  useCan: () => (action: string) => action !== 'payments.manage',
   useSession: () => ({ organization: { country: 'MN' } }),
 }));
 
@@ -130,8 +132,17 @@ beforeAll(async () => {
       .map((name) => `${name}@http://plugins.test/${name}.js`)
       .join(),
   );
-  // No core here: the registry fails and the local plugins still load.
-  vi.stubGlobal('fetch', async () => Promise.reject(new Error('offline')));
+  // Core answers only for integrations: the registry fails and the local plugins still load.
+  vi.stubGlobal('fetch', async (input: RequestInfo | URL) => {
+    const { pathname } = new URL(
+      input instanceof Request ? input.url : input,
+      window.location.href,
+    );
+
+    return Object.hasOwn(ANSWERS, pathname)
+      ? Response.json(ANSWERS[pathname])
+      : Promise.reject(new Error('offline'));
+  });
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
   ({ SettingsLayout } = await import('../SettingsLayout'));
   ({ IntegrationsSettingsPage } = await import('../integrations/IntegrationsSettingsPage'));
@@ -232,19 +243,21 @@ describe('plugins in core’s settings', () => {
     );
     expect(section('Other regions')?.textContent).toContain('Zalo');
     expect(section('Other regions')?.textContent).toContain('Made for Vietnam');
-    // Payment gateways need payments.manage; the vault its own permission; a malformed tile drops.
+    // Payment gateways need payments.manage.
     expect(container.textContent).not.toContain('Payment gateways');
-    expect(container.textContent).not.toContain('Vault');
-    expect(container.textContent).not.toContain('Telegram');
   });
 
-  it('opens a plugin’s integration under core’s header, a tab at a time', async () => {
-    const container = await renderSettings('/settings/integrations/chat.meta', 'Conversations');
+  it('opens a plugin’s integration: core’s accounts first, then the plugin’s own tabs', async () => {
+    const container = await renderSettings(
+      '/settings/integrations/chat.meta',
+      'Nothing connected yet',
+    );
+
     const tabs = [...container.querySelectorAll('[role="tab"]')];
 
     expect(container.querySelector('h1')?.textContent).toBe('Messenger');
     expect(container.textContent).toContain('Works in any country');
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Meta app']);
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Accounts', 'Meta app']);
     expect(container.textContent).not.toContain('App id and secret');
 
     await act(async () => {
@@ -253,10 +266,10 @@ describe('plugins in core’s settings', () => {
     await vi.waitFor(() => expect(container.textContent).toContain('App id and secret'));
     // The address names the tab, so a reload opens it again.
     await vi.waitFor(() => expect(window.location.search).toBe('?tab=app'));
-    expect(container.textContent).not.toContain('Conversations from Facebook pages');
+    expect(container.textContent).not.toContain('Nothing connected yet');
   });
 
-  it('sends a member without the integration’s permission back to the catalog', async () => {
+  it('sends a member to the catalog from an integration the API leaves out', async () => {
     const container = await renderSettings('/settings/integrations/chat.vault', 'Messenger');
 
     expect(window.location.pathname).toBe('/settings/integrations');

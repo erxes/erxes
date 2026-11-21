@@ -1,7 +1,6 @@
 import type { Icon as TablerIcon } from '@tabler/icons-react';
 import {
   DASHBOARD_WIDGET_PREVIEWS,
-  INTEGRATION_CATEGORIES,
   type TContactContentType,
   type TDashboardWidget,
   type TPanelRecordType,
@@ -18,7 +17,8 @@ import {
   type TRelationTab,
   type TRelationTabProps,
 } from 'erxes-ui';
-import { Country, PluginRecordType } from '@erxes/core-contract';
+import { PluginRecordType } from '@erxes/core-contract';
+import { IntegrationKey } from '@erxes/core-contract/integrationValues';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ComponentType, ElementType } from 'react';
 import { z } from 'zod';
@@ -107,16 +107,11 @@ const DashboardWidget = z.object({
 }) satisfies z.ZodType<TDashboardWidget>;
 
 const Integration = z.object({
-  key: z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'is not lowercase letters, digits and dashes'),
-  name: z.string().min(1),
-  summary: z.string().min(1),
+  key: IntegrationKey,
   icon: TabIcon,
-  category: z.enum(INTEGRATION_CATEGORIES),
-  countries: z.array(Country).optional(),
-  permission: z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'is not a permission'),
   tabs: z
     .array(z.object({ value: z.string().min(1), label: z.string().min(1), component: component() }))
-    .min(1),
+    .optional(),
 }) satisfies z.ZodType<TPluginIntegration>;
 
 /** The address a `detailPath` gives a sample id, if it gives one. */

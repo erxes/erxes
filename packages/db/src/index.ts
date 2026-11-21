@@ -96,6 +96,9 @@ export {
   integrations,
   integrationPrograms,
   integrationProgramVersions,
+  integrationAccounts,
+  integrationPicks,
+  integrationSetups,
 } from './schema';
 
 export type {
@@ -108,11 +111,14 @@ export type {
   ImportCounts,
   ImportOptions,
   InvoiceLine,
+  IntegrationCandidate,
   IntegrationProgramDefinition,
+  IntegrationSecret,
   TaxBuyer,
   EbarimtTaxRule,
   EbarimtPrintBlock,
   PluginStatus,
+  StoredPluginIntegration,
   StoredPluginManifest,
   StoredPluginRelation,
   ContentType,

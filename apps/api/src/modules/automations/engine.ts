@@ -13,6 +13,7 @@ import { defineJob } from '~/modules/jobs/jobs';
 import { coreAction } from './actions/catalog';
 import type { CallContext } from './actions/context';
 import { integrationForAction, runIntegrationAction } from '~/modules/integrations/actions';
+import { customStepValues, pluginStepAccount } from '~/modules/integrations/stepAccounts';
 import { pluginForAction, runPluginAction } from './actions/plugin';
 import { automationChecker } from './conditionCheck';
 import { rememberActionOutput } from './eventData';
@@ -161,15 +162,25 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
 
   if (isIntegrationType(step.action)) {
     const program = await integrationForAction(tx, step.action);
+    const account = await customStepValues(tx, program.integration, ctx.input);
 
-    return { ...prepared, call: () => runAs(member, () => runIntegrationAction(ctx, program)) };
+    return {
+      ...prepared,
+      call: () => runAs(member, () => runIntegrationAction(ctx, program, account)),
+    };
   }
 
   const plugin = await pluginForAction(tx, step.action);
 
+  const bound = await pluginStepAccount(
+    tx,
+    plugin.manifest?.actions?.find((declared) => declared.type === step.action),
+    ctx.input,
+  );
+
   return {
     ...prepared,
-    call: () => runAs(member, () => runPluginAction(ctx, plugin, step.action)),
+    call: () => runAs(member, () => runPluginAction(ctx, plugin, step.action, bound)),
     learnsOutput: true,
   };
 };

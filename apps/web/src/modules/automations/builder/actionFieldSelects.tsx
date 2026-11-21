@@ -1,21 +1,14 @@
 import type { ActionField, ActionInfo } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
-import { skipToken, useQuery } from '@tanstack/react-query';
-import {
-  LookupPicker,
-  pluginJson,
-  Select,
-  textOf,
-  useMemberOptions,
-  useTagOptions,
-} from 'erxes-ui';
+import { useQuery } from '@tanstack/react-query';
+import { LookupPicker, Select, textOf, useMemberOptions, useTagOptions } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { z } from 'zod';
 import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { tagsQuery } from '~/modules/tags/useTags';
+import { pluginRecordsQuery } from './recordChoices';
 import type { FieldInfo } from './useAutomationFields';
 
 export type ActionInputProps = {
@@ -38,7 +31,7 @@ export const fieldIdOf = (path: string) => path.replace(CUSTOM_PREFIX, '');
 export const customFieldsOf = (fields: FieldInfo[]) =>
   fields.filter((item) => item.path.startsWith(CUSTOM_PREFIX));
 
-const asList = (value: unknown) =>
+export const asList = (value: unknown) =>
   Array.isArray(value) ? value.map(textOf) : value ? [textOf(value)] : [];
 
 export const CustomFieldSelect = ({ value, onChange, disabled, dataFields }: ActionInputProps) => {
@@ -123,8 +116,6 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
   );
 };
 
-const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
-
 /**
  * The run's values that are records of this type (the trigger's task, a deal an earlier step
  * created), as picker options that insert them: "Task created: Task".
@@ -163,15 +154,10 @@ export const PluginRecordSelect = ({
   // A chosen parent lists its own records: a run's record may sit under another one.
   const fromRun = parent.startsWith('{{');
   const listed = Boolean(recordType) && !waiting && !fromRun;
-  const query = new URLSearchParams(parent ? { parent } : {});
 
   const records = useQuery({
-    queryKey: ['plugin-records', action.source, recordType, parent],
-    queryFn:
-      recordType && listed
-        ? () =>
-            pluginJson(action.source, `/automations/records/${recordType}?${query}`, PluginRecords)
-        : skipToken,
+    ...pluginRecordsQuery(action.source, recordType ?? '', parent),
+    enabled: listed,
   });
 
   const parentLabel = action.fields.find((other) => other.key === dependsOn)?.label;

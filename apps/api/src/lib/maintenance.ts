@@ -13,6 +13,7 @@ import { storage } from '~/modules/files/storage';
 import { pruneCustomerNotifications } from '~/modules/customerNotifications/customerNotifications.service';
 import { pruneNotifications } from '~/modules/notifications/inbox.service';
 import { refreshAllEntitlements } from '~/modules/saas/entitlements';
+import { pruneIntegrationPicks } from '~/modules/integrations/connect';
 import { defineSchedule } from '~/modules/jobs/jobs';
 import { purgeExpiredTrash } from '~/modules/trash/trash.service';
 import { pruneDeliveries } from '~/modules/webhooks/webhookDelivery';
@@ -56,6 +57,7 @@ const cleanup = async () => {
   );
 
   await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
+  await withSystem('cleanup: integration picks', (tx) => pruneIntegrationPicks(tx));
   // Read-only plugins past their grace period turn off here.
   await refreshAllEntitlements();
   await withSystem('cleanup: deletion counters', (tx) =>

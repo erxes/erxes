@@ -13,7 +13,9 @@ import { broadcastsRouter, suppressionsRouter } from '~/modules/broadcasts/broad
 import { paymentsRouter } from '~/modules/payments/payments.router';
 import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
 import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
+import { integrationAccountsRouter } from '~/modules/integrations/accounts.router';
 import { integrationsRouter } from '~/modules/integrations/integrations.router';
+import { pluginAccountsRouter } from '~/modules/integrations/pluginAccounts.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
 import { trashRouter } from '~/modules/trash/trash.router';
 import { rolesRouter } from '~/modules/roles/roles.router';
@@ -57,7 +59,9 @@ export const coreRouter = unscoped.router({
   productCategories: productCategoriesRouter,
   products: productsRouter,
   webhooks: webhooksRouter,
+  integrationAccounts: integrationAccountsRouter,
   integrations: integrationsRouter,
+  pluginAccounts: pluginAccountsRouter,
   apiKeys: apiKeysRouter,
   trash: trashRouter,
   roles: rolesRouter,

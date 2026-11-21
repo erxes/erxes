@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import type { Integration } from './catalog';
+import { CustomAccounts } from './CustomAccounts';
 import { CustomKeys } from './CustomKeys';
 import { CustomPrograms } from './CustomPrograms';
 import { useIntegrationsSaved } from './customMutation';
@@ -169,6 +170,11 @@ export const CustomIntegration = ({
               value: 'keys',
               label: t('tab.keys', 'Keys'),
               content: <CustomKeys record={record} />,
+            },
+            {
+              value: 'accounts',
+              label: t('tab.accounts', 'Accounts'),
+              content: <CustomAccounts record={record} />,
             },
             {
               value: 'programs',

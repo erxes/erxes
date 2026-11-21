@@ -42,7 +42,11 @@ const IntegrationField = z.object({
   description: z.string().trim().max(300).optional(),
 });
 
-export const IntegrationDataField = DataField.omit({ recordType: true });
+export const IntegrationDataField = DataField.omit({
+  recordType: true,
+  integration: true,
+  accountKind: true,
+});
 
 const IntegrationEvent = z.object({
   key: IntegrationKey,

@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Badge, Button, CopyText, useFormat, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useIntegrationsSaved } from './customMutation';
+import { customIntegrationKey } from './catalog';
 import { CustomProgramTest } from './CustomProgramTest';
 import { CustomProgramVersions } from './CustomProgramVersions';
 import { DangerSection } from './DangerSection';
@@ -186,7 +187,11 @@ export const CustomProgram = ({
           {t('code-hint', 'The assistant writes and changes the code. Ask it for a change.')}
         </p>
       </OverviewSection>
-      <CustomProgramTest key={program.id} program={program} />
+      <CustomProgramTest
+        key={program.id}
+        program={program}
+        integration={customIntegrationKey(record.key)}
+      />
       <CustomProgramVersions program={program} />
       <RemoveProgram program={program} onRemoved={onClose} />
     </div>

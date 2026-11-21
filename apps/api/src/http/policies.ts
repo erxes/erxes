@@ -1,6 +1,7 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
+import { INTEGRATION_ACCOUNT_ACCESS } from './integrationPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 
 /**
@@ -303,6 +304,7 @@ export const ACCESS = {
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.remove': { member: 'products.manage', plugin: 'products:write' },
 
+  ...INTEGRATION_ACCOUNT_ACCESS,
   'integrations.list': needs('integrations.manage'),
   'integrations.get': needs('integrations.manage'),
   'integrations.create': needs('integrations.manage'),

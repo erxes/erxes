@@ -7,6 +7,7 @@ import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
 import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
+import { accountCheckJob, accountChecksSchedule } from '~/modules/integrations/accountChecks';
 import { incomingJob } from '~/modules/integrations/incoming';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import { paymentCheckJob } from '~/modules/payments/invoiceState';
@@ -43,6 +44,8 @@ export const JOBS = [
   exampleDataJob,
   cloudflareMoveJob,
   incomingJob,
+  accountCheckJob,
+  accountChecksSchedule,
   ...BROADCAST_JOBS,
   ...CONSUMER_JOBS,
   ...MAINTENANCE,

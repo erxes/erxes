@@ -8,6 +8,11 @@ import {
   type RELATION_MEASURES,
   type TAX_RECEIPT_ISSUERS,
 } from '../enums';
+import type {
+  INTEGRATION_CATEGORIES,
+  INTEGRATION_FORM_FIELD_TYPES,
+  INTEGRATION_HOOKS,
+} from '../integrationEnums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { orgIdColumn, pgTable } from '../table';
@@ -24,6 +29,32 @@ interface StoredDataField {
   label: string;
   type: (typeof AUTOMATION_FIELD_TYPES)[number];
   recordType?: string;
+  integration?: string;
+  accountKind?: string;
+}
+
+interface StoredFormField {
+  key: string;
+  label: string;
+  type: (typeof INTEGRATION_FORM_FIELD_TYPES)[number];
+  required: boolean;
+  options?: { value: string; label: string }[];
+  description?: string;
+  placeholder?: string;
+}
+
+export interface StoredPluginIntegration {
+  key: string;
+  name: string;
+  summary: string;
+  category: (typeof INTEGRATION_CATEGORIES)[number];
+  countries?: string[];
+  permission?: string;
+  accounts: { kind: string; label: string; plural: string }[];
+  connect: { type: 'form'; fields: StoredFormField[] } | { type: 'redirect' };
+  pick: boolean;
+  setup?: { fields: StoredFormField[] };
+  hooks: (typeof INTEGRATION_HOOKS)[number][];
 }
 
 /** A relation of a plugin's manifest (`PluginRelation` in the contract). */
@@ -142,6 +173,8 @@ export interface StoredPluginManifest {
     label: string;
     description?: string;
     subject?: (typeof AUTOMATION_SUBJECTS)[number];
+    integration?: string;
+    accountKind?: string;
     fields: {
       key: string;
       label: string;
@@ -157,6 +190,7 @@ export interface StoredPluginManifest {
   };
   /** Agents core runs for it, as `<plugin>.<name>`; `tools` are operationIds of its member API document. */
   agents?: { name: string; description: string; instructions: string; tools: string[] }[];
+  integrations?: StoredPluginIntegration[];
 }
 
 /**

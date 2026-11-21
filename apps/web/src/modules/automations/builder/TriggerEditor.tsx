@@ -7,6 +7,7 @@ import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
 import { EventDataHint } from './EventDataHint';
 import { eventDataFields } from './flowChecks';
+import { hasChoices } from './recordChoices';
 import { RecordPicks } from './RecordPicks';
 import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
@@ -99,7 +100,7 @@ const KindPicker = ({
 /** What steps can use from the event: its values by name, or why there are none yet. */
 const EventData = ({ event }: { event: EventInfo }) => {
   const { t } = useTranslation('automations');
-  const fields = (event.fields ?? []).filter((field) => !field.recordType);
+  const fields = (event.fields ?? []).filter((field) => !field.recordType && !field.integration);
 
   // Core's customer and company events carry that record, which steps use as the record.
   if (!fields.length && event.source === 'core' && event.subject) return null;
@@ -137,7 +138,7 @@ const EventTriggerSettings = ({
   const { t } = useTranslation('automations');
   const started = events.find((event) => event.type === trigger.event);
   const eventFields = eventDataFields(started);
-  const recordFields = eventFields.filter((field) => field.recordType && field.source);
+  const recordFields = eventFields.filter(hasChoices);
 
   const { picks, rest } = splitPicks(
     trigger.conditions,

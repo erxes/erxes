@@ -8,6 +8,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
+import { type StepAccount, withoutAccount } from '~/modules/integrations/stepAccounts';
 import { type CallContext, idempotencyKey, parseBody } from './context';
 
 const CORE_CALL_TYP = 'erxes-core-call+jwt';
@@ -43,7 +44,12 @@ export const pluginForAction = async (tx: Db, type: string) => {
  * `<api.url>/automations/actions/<type>` with a 5-minute core token (`aud` the
  * plugin) and an `Idempotency-Key` (`<run>:<step>`), so a retry is safe.
  */
-export const runPluginAction = async (ctx: CallContext, plugin: ActionPlugin, type: string) => {
+export const runPluginAction = async (
+  ctx: CallContext,
+  plugin: ActionPlugin,
+  type: string,
+  bound: StepAccount | null,
+) => {
   const url = plugin.manifest?.api?.url;
 
   if (!url) throw new Error(`${plugin.name} has no API address in its manifest`);
@@ -67,8 +73,9 @@ export const runPluginAction = async (ctx: CallContext, plugin: ActionPlugin, ty
   const response = await postOutbound(
     `${url.replace(/\/+$/, '')}/automations/actions/${type}`,
     JSON.stringify({
-      input: ctx.input,
+      input: withoutAccount(ctx.input),
       context: { event: ctx.context.event, subject: ctx.context.subject, steps: ctx.context.steps },
+      ...bound,
     }),
     {
       'Content-Type': 'application/json',

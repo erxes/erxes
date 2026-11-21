@@ -10,6 +10,8 @@ import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
+import { IntegrationKey } from './integrationValues';
+import { IntegrationRef } from './pluginIntegrations';
 import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
@@ -37,6 +39,8 @@ export const DataField = z.object({
    * ("Task created: Task").
    */
   recordType: RecordType.optional(),
+  integration: IntegrationRef.optional(),
+  accountKind: IntegrationKey.optional(),
 });
 
 export type DataField = z.infer<typeof DataField>;
@@ -85,6 +89,16 @@ export const ActionField = z
      * (`?parent=<value>`), and changing it clears this one.
      */
     dependsOn: z.string().optional(),
+    integration: IntegrationRef.optional(),
+    accountKind: IntegrationKey.optional(),
+  })
+  .refine((field) => (field.type === 'integration_account') === (field.integration !== undefined), {
+    message: 'an integration_account input names its integration, and no other input does',
+    path: ['integration'],
+  })
+  .refine((field) => field.accountKind === undefined || field.integration !== undefined, {
+    message: 'accountKind narrows an integration',
+    path: ['accountKind'],
   })
   .refine((field) => (field.type === 'plugin_record') === (field.recordType !== undefined), {
     message: 'a plugin_record input names its recordType, and no other input does',

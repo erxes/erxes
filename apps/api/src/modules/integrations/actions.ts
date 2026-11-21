@@ -1,16 +1,26 @@
 import {
   type ActionInfo,
+  CUSTOM_INTEGRATION_OWNER,
+  customIntegrationRef,
   type EventTypeInfo,
   type IntegrationProgramRun,
   integrationType,
   LIST_MAX,
 } from '@erxes/core-contract';
-import { type Db, integrationPrograms, integrations, withOrg } from '@erxes/core-db';
-import { and, asc, eq } from 'drizzle-orm';
+import {
+  type Db,
+  integrationAccounts,
+  integrationPrograms,
+  integrations,
+  withOrg,
+} from '@erxes/core-db';
+import { and, asc, eq, like } from 'drizzle-orm';
+import { customAccountInput } from './accountInput';
 import { type CallContext, idempotencyKey } from '~/modules/automations/actions/context';
 import { healedOutputs, inputProblem, saveOutputs } from './contract';
 import { type LoadedProgram, loadedPrograms } from './programs.service';
-import { runIntegrationProgram } from './sandbox';
+import { type AccountValues, runIntegrationProgram } from './sandbox';
+import { withoutAccount } from './stepAccounts';
 
 const catalogOf = (client: Db, kind: 'action' | 'incoming') =>
   client
@@ -30,16 +40,34 @@ const catalogOf = (client: Db, kind: 'action' | 'incoming') =>
     .orderBy(asc(integrations.key), asc(integrationPrograms.key))
     .limit(LIST_MAX);
 
-export const integrationActions = async (client: Db): Promise<ActionInfo[]> =>
-  (await catalogOf(client, 'action')).map((program) => ({
+const integrationsWithAccounts = async (client: Db) =>
+  new Set(
+    (
+      await client
+        .selectDistinct({ integration: integrationAccounts.integration })
+        .from(integrationAccounts)
+        .where(like(integrationAccounts.integration, `${CUSTOM_INTEGRATION_OWNER}.%`))
+    ).map((row) => row.integration),
+  );
+
+export const integrationActions = async (client: Db): Promise<ActionInfo[]> => {
+  const withAccounts = await integrationsWithAccounts(client);
+
+  return (await catalogOf(client, 'action')).map((program) => ({
     type: integrationType(program.integrationKey, program.key),
     label: program.label,
     description: program.description,
     source: program.source,
     subject: null,
-    fields: program.fields,
+    fields: [
+      ...(withAccounts.has(customIntegrationRef(program.integrationKey))
+        ? [customAccountInput(program.integrationKey)]
+        : []),
+      ...program.fields,
+    ],
     outputs: program.outputs,
   }));
+};
 
 export const integrationEventTypes = async (client: Db): Promise<EventTypeInfo[]> =>
   (await catalogOf(client, 'incoming')).flatMap((program) =>
@@ -76,12 +104,13 @@ export const runAction = async (
   orgId: string,
   loaded: LoadedProgram,
   globals: { input: Record<string, unknown>; idempotencyKey: string },
+  account: AccountValues,
 ): Promise<IntegrationProgramRun> => {
   const problem = inputProblem(loaded.program, globals.input);
 
   if (problem) return { ok: false, code: 'INVALID_INPUT', message: problem };
 
-  const run = await runIntegrationProgram(loaded, globals);
+  const run = await runIntegrationProgram(loaded, globals, account);
   const outputs = run.ok ? healedOutputs(loaded.program, run.result) : null;
 
   if (outputs) await withOrg(orgId, (tx) => saveOutputs(tx, loaded.program.id, outputs));
@@ -89,11 +118,17 @@ export const runAction = async (
   return run;
 };
 
-export const runIntegrationAction = async (ctx: CallContext, loaded: LoadedProgram) => {
-  const run = await runAction(ctx.orgId, loaded, {
-    input: ctx.input,
-    idempotencyKey: idempotencyKey(ctx),
-  });
+export const runIntegrationAction = async (
+  ctx: CallContext,
+  loaded: LoadedProgram,
+  account: AccountValues,
+) => {
+  const run = await runAction(
+    ctx.orgId,
+    loaded,
+    { input: withoutAccount(ctx.input), idempotencyKey: idempotencyKey(ctx) },
+    account,
+  );
 
   if (!run.ok) throw new Error(`${loaded.program.label}: ${run.message}`);
 

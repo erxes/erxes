@@ -1,8 +1,15 @@
-import type { Integration as CustomRecord } from '@erxes/core-contract';
+import type { Integration as CustomRecord, IntegrationDefinition } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { type Icon, IconApi, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
+import { INTEGRATION_CATEGORIES } from '@erxes/core-contract/pluginIntegrations';
+import {
+  type Icon,
+  IconApi,
+  IconCreditCard,
+  IconPlugConnected,
+  IconReceiptTax,
+} from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { INTEGRATION_CATEGORIES, type TIntegrationTab, type TPluginIntegration } from 'erxes-ui';
+import type { TIntegrationTab, TPluginIntegration } from 'erxes-ui';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
@@ -28,14 +35,21 @@ interface Base {
  * set up here has its page (`IntegrationPage`, by kind); one that has its own
  * settings page elsewhere (payment gateways on Settings › Payments) links there,
  * so each is connected in one place. A new one adds an entry here. A plugin's
- * come from its `./config` (`integrations`), keyed `<plugin>.<key>`, with
- * core's header over the plugin's tabs.
+ * come from its manifest (`integrationAccounts.definitions`), keyed `<plugin>.<key>`;
+ * its UI's `./config` (`integrations`) adds the mark and tabs of its own.
  */
 export type Integration =
   | (Base & { kind: 'ebarimt' })
   | (Base & { kind: 'gateways'; to: string })
-  | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] })
+  | (Base & {
+      kind: 'plugin';
+      plugin: string;
+      definition: IntegrationDefinition;
+      tabs: TIntegrationTab[];
+    })
   | (Base & { kind: 'custom'; record: CustomRecord });
+
+export type PluginIntegrationEntry = Extract<Integration, { kind: 'plugin' }>;
 
 const INTEGRATIONS: Integration[] = [
   {
@@ -59,16 +73,20 @@ const INTEGRATIONS: Integration[] = [
   },
 ];
 
-/** A plugin's tile as the catalog lists it, keyed by the plugin's name and its key. */
 const pluginIntegration = (
-  plugin: string,
-  { key, countries = [], ...tile }: TPluginIntegration,
+  definition: IntegrationDefinition,
+  ui: TPluginIntegration | undefined,
 ): Integration => ({
-  ...tile,
   kind: 'plugin',
-  key: `${plugin.toLowerCase()}.${key}`,
-  plugin,
-  countries,
+  key: definition.key,
+  name: definition.name,
+  summary: definition.summary,
+  icon: ui?.icon ?? IconPlugConnected,
+  category: definition.category,
+  countries: definition.countries,
+  plugin: definition.plugin,
+  definition,
+  tabs: ui?.tabs ?? [],
 });
 
 const CUSTOM_PREFIX = 'custom.';
@@ -90,35 +108,43 @@ const customIntegration = (record: CustomRecord): Integration => ({
 
 /**
  * Core's integrations, then the installed plugins', then the custom ones, that the member may
- * open: gateways need payments.manage, a plugin's the permission it names, custom ones
- * integrations.manage. `loading` until the plugin UIs have loaded, `loadingCustom` the custom ones.
+ * open: gateways need payments.manage, a plugin's the permission its manifest names (the API
+ * leaves the others out), custom ones integrations.manage. `loading` until the plugins' ones and
+ * their UIs have loaded, `loadingCustom` the custom ones.
  */
 export const useIntegrations = () => {
   const { plugins, loading } = usePlugins();
   const can = useCan();
+  const manages = can('integrations.manage');
 
-  const custom = useQuery(
-    orpc.integrations.list.queryOptions({ input: can('integrations.manage') ? {} : skipToken }),
+  const custom = useQuery(orpc.integrations.list.queryOptions({ input: manages ? {} : skipToken }));
+
+  const definitions = useQuery(
+    orpc.integrationAccounts.definitions.queryOptions({ input: manages ? {} : skipToken }),
+  );
+
+  const uiOf = new Map<string, TPluginIntegration>(
+    plugins.flatMap(({ config }) =>
+      config.integrations.map((ui) => [`${config.name.toLowerCase()}.${ui.key}`, ui] as const),
+    ),
   );
 
   const integrations = [
-    ...INTEGRATIONS,
-    ...plugins.flatMap(({ config }) =>
-      config.integrations.map((tile) => pluginIntegration(config.name, tile)),
+    ...INTEGRATIONS.filter(
+      (integration) => integration.kind !== 'gateways' || can('payments.manage'),
+    ),
+    ...(definitions.data?.data ?? []).map((definition) =>
+      pluginIntegration(definition, uiOf.get(definition.key)),
     ),
     ...(custom.data?.data ?? []).map(customIntegration),
-  ].filter((integration) => {
-    if (integration.kind === 'gateways') return can('payments.manage');
-
-    return integration.kind !== 'plugin' || can(integration.permission);
-  });
+  ];
 
   return {
     integrations,
-    loading,
+    loading: loading || (manages && definitions.isPending),
     loadingCustom: custom.isPending,
-    error: custom.error,
-    refetch: custom.refetch,
+    error: custom.error ?? definitions.error,
+    refetch: () => Promise.all([custom.refetch(), definitions.refetch()]),
   };
 };
 

@@ -19,7 +19,6 @@ import {
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
   LIVE_MODES,
-  NOTIFICATION_DELIVERIES,
   ORG_UNIT_KINDS,
   PLUGIN_LIST_TYPE,
   PRODUCT_KINDS,
@@ -370,21 +369,7 @@ export const EbarimtPaperSize = z.enum(EBARIMT_PAPER_SIZES);
 
 export type EbarimtPaperSize = z.infer<typeof EbarimtPaperSize>;
 
-// ─── Notifications ──────────────────────────────────────────────────────────
-
-/** Security notices a member can't mute. */
-export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
-  'core.user.role_changed',
-  'core.user.password_set',
-  'core.security.mass_deletion',
-  'core.security.alert',
-  'core.security.new_sign_in',
-];
-
-/** Where a group of notifications goes: the inbox and email, the inbox only, or nowhere. */
-export const NotificationDelivery = z.enum(NOTIFICATION_DELIVERIES);
-
-export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
+export * from './notificationGroups';
 
 /** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
 export const LiveMode = z.enum(LIVE_MODES);
@@ -408,57 +393,3 @@ export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
 export const AssistantAvatarColor = z.enum(ASSISTANT_AVATAR_COLORS);
 
 export const AssistantAvatarExpression = z.enum(ASSISTANT_AVATAR_EXPRESSIONS);
-
-/**
- * Core's notifications in groups a member chooses for at once (each plugin
- * is a group of its own). `security` is always on.
- */
-export const CORE_NOTIFICATION_GROUPS = [
-  {
-    key: 'assigned',
-    label: 'Assigned to me',
-    kinds: ['core.customer.assigned', 'core.company.assigned'],
-    default: 'email',
-  },
-  {
-    key: 'records',
-    label: 'Changes to records I own',
-    kinds: [
-      'core.customer.updated',
-      'core.customer.merged',
-      'core.customer.deleted',
-      'core.company.updated',
-      'core.company.merged',
-      'core.company.deleted',
-      'core.customer.activity',
-      'core.company.activity',
-    ],
-    default: 'inbox',
-  },
-  { key: 'mentions', label: 'Mentions', kinds: ['core.note.mentioned'], default: 'email' },
-  {
-    key: 'automations',
-    label: 'Automations',
-    kinds: ['core.automation.message', 'core.automation.failed'],
-    default: 'inbox',
-  },
-  {
-    key: 'transfer',
-    label: 'Imports and exports',
-    kinds: ['core.import.done', 'core.export.ready'],
-    default: 'inbox',
-  },
-  { key: 'security', label: 'Security', kinds: UNMUTABLE_NOTIFICATION_KINDS, default: 'inbox' },
-] as const satisfies readonly {
-  key: string;
-  label: string;
-  kinds: readonly string[];
-  default: NotificationDelivery;
-}[];
-
-/** The group a notification belongs to: a core group, or the plugin that sent it. */
-export const notificationGroupOf = (source: string, kind: string) =>
-  source === 'core'
-    ? (CORE_NOTIFICATION_GROUPS.find((group) => (group.kinds as readonly string[]).includes(kind))
-        ?.key ?? 'records')
-    : source;

@@ -1,9 +1,9 @@
 import type { ConditionGroup } from '@erxes/core-contract';
 import { memberQueries, messageOf, productSearchQueries } from '@erxes/core-contract/client';
 import { useQueries } from '@tanstack/react-query';
-import { ConditionsEditor as Conditions, pluginJson, type TConditionField } from 'erxes-ui';
+import { ConditionsEditor as Conditions, type TConditionField } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
+import { choicesKey, choicesQuery, hasChoices } from './recordChoices';
 import { tagsQuery } from '~/modules/tags/useTags';
 import { StartFromView } from './StartFromView';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
@@ -19,20 +19,18 @@ const choicesOf = (options: string[] | undefined) =>
  * "Won" rather than typing a stage's id.
  */
 const conditionField = (
-  { options, relation, recordType, source, ...field }: FieldInfo,
+  { options, relation, recordType, source, integration, accountKind, ...field }: FieldInfo,
   records?: Choices,
 ): TConditionField => ({
   ...field,
-  ...(recordType ? { type: 'select', options: records ?? [] } : { options: choicesOf(options) }),
+  ...(hasChoices({ ...field, recordType, source, integration, accountKind })
+    ? { type: 'select', options: records ?? [] }
+    : { options: choicesOf(options) }),
   relation: relation && {
     label: relation.label,
     fields: relation.fields.map((inner) => ({ ...inner, options: choicesOf(inner.options) })),
   },
 });
-
-const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
-
-const recordsKey = (field: FieldInfo) => `${field.source}:${field.recordType}`;
 
 /**
  * The records each plugin record field picks from: `GET <api>/automations/records/<recordType>`,
@@ -42,23 +40,15 @@ const recordsKey = (field: FieldInfo) => `${field.source}:${field.recordType}`;
 const useRecordChoices = (fields: FieldInfo[]) => {
   const wanted = [
     ...new Map(
-      fields.flatMap((field) =>
-        field.recordType && field.source ? [[recordsKey(field), field] as const] : [],
-      ),
+      fields.flatMap((field) => (hasChoices(field) ? [[choicesKey(field), field] as const] : [])),
     ).values(),
   ];
 
-  const results = useQueries({
-    queries: wanted.map(({ source = '', recordType = '' }) => ({
-      queryKey: ['plugin-records', source, recordType, ''],
-      queryFn: () => pluginJson(source, `/automations/records/${recordType}`, PluginRecords),
-      staleTime: 60_000,
-    })),
-  });
+  const results = useQueries({ queries: wanted.map(choicesQuery) });
 
   return {
     recordsOf: (field: FieldInfo) => {
-      const at = wanted.findIndex((item) => recordsKey(item) === recordsKey(field));
+      const at = wanted.findIndex((item) => choicesKey(item) === choicesKey(field));
 
       return at < 0 ? undefined : results[at]?.data;
     },

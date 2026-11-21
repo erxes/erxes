@@ -1,4 +1,5 @@
 import { ActionField, type ActionInfo } from '@erxes/core-contract';
+import { accountInput } from '~/modules/integrations/accountInput';
 import { AGENT_ACTIONS } from './agent';
 import type { CoreAction } from './context';
 import { LEAD_ACTIONS } from './leads';
@@ -34,7 +35,10 @@ export const actionCatalog = (installed: ActionPlugin[]): ActionInfo[] => [
       source: plugin.name,
       subject: action.subject ?? null,
       // Checked against the contract when the plugin registered.
-      fields: action.fields.map((field) => ActionField.parse(field)),
+      fields: [
+        ...accountInput(plugin.manifest, action),
+        ...action.fields.map((field) => ActionField.parse(field)),
+      ],
       outputs: action.outputs ?? [],
     })),
   ),

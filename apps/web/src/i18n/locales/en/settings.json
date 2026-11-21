@@ -944,7 +944,9 @@
     "retried": "Retrying {{count}} events",
     "failed": "Something went wrong"
   },
-  "webhooks": { "title": "Webhooks" },
+  "webhooks": {
+    "title": "Webhooks"
+  },
   "audit-log": {
     "title": "Audit log",
     "verify-checkpoint-mismatch": "The log no longer matches signed checkpoint #{{position}}: entries were rewritten or removed outside erxes.",
@@ -1068,8 +1070,14 @@
         "name": "Owner",
         "description": "Everything, including plugins and the audit log's retention"
       },
-      "admin": { "name": "Admin", "description": "Everything except owner-only actions" },
-      "member": { "name": "Member", "description": "Works with contacts and tags" }
+      "admin": {
+        "name": "Admin",
+        "description": "Everything except owner-only actions"
+      },
+      "member": {
+        "name": "Member",
+        "description": "Works with contacts and tags"
+      }
     }
   },
   "general": {
@@ -1372,7 +1380,8 @@
       "print": "Print",
       "keys": "Keys",
       "programs": "Programs",
-      "senders": "Senders"
+      "senders": "Senders",
+      "accounts": "Accounts"
     },
     "name": {
       "ebarimt": "eBarimt",
@@ -1588,6 +1597,78 @@
         "how-server": "Emails come from erxes’s address under the sender’s name, and replies go to the sender. Set up your own sending to send from your domain."
       }
     },
+    "accounts": {
+      "tab-accounts": "Accounts",
+      "tab-setup": "Setup",
+      "connect": "Connect",
+      "connect-again": "Connect again",
+      "reconnect": "Reconnect",
+      "connect-failed": "Could not start connecting",
+      "connect-title": "Connect {{name}}",
+      "connect-description": "What you enter is checked with {{name}}. Secrets are sealed and never shown again.",
+      "cancel": "Cancel",
+      "back": "Back to accounts",
+      "choose": "Choose…",
+      "secret-saved": "Saved. Type to replace it.",
+      "field-required": "Enter {{field}}",
+      "field-number": "{{field}} must be a number",
+      "some-failed_one": "{{count}} could not be connected",
+      "some-failed_other": "{{count}} could not be connected",
+      "connected-count_one": "{{count}} connected",
+      "connected-count_other": "{{count}} connected",
+      "failed-count_one": "{{count}} could not be connected. Connect again to retry.",
+      "failed-count_other": "{{count}} could not be connected. Connect again to retry.",
+      "nothing-found": "The sign-in found nothing to connect. Check that it manages what you want to connect.",
+      "dismiss": "Dismiss",
+      "already-connected": "Connected",
+      "pick-step": "Choose",
+      "pick-title": "Choose what to connect",
+      "pick-description": "Tick what to connect. What is connected already gets this new sign-in. This list is kept until {{time}}.",
+      "pick-confirm_one": "Connect {{count}}",
+      "pick-confirm_other": "Connect {{count}}",
+      "pick-search": "Search",
+      "pick-search-count_one": "Search {{count}}…",
+      "pick-search-count_other": "Search {{count}}…",
+      "pick-all": "Tick all",
+      "pick-none": "Untick all",
+      "pick-no-match": "Nothing matches “{{search}}”.",
+      "pick-failed": "Could not connect",
+      "cancel-failed": "Could not cancel",
+      "pick-gone": "This sign-in ran out of time",
+      "pick-gone-description": "Nothing was connected. Connect again to get a new list.",
+      "empty": "Nothing connected yet",
+      "empty-description": "Use Connect to add {{name}} to erxes.",
+      "healthy": "Healthy",
+      "needs-reconnect": "Needs reconnecting",
+      "checked": "Checked {{when}}",
+      "actions": "Actions for {{name}}",
+      "rename": "Rename",
+      "rename-title": "Rename {{name}}",
+      "rename-description": "The name people pick it by in erxes.",
+      "rename-failed": "Could not rename",
+      "name": "Name",
+      "save": "Save",
+      "check": "Check now",
+      "check-healthy": "{{name}} works",
+      "check-broken": "{{name}} needs reconnecting",
+      "check-failed": "Could not check",
+      "remove": "Remove",
+      "remove-confirm": "Remove {{name}}?",
+      "remove-used": "Its secret is deleted. These automations use it and will fail: {{names}}.",
+      "remove-unused": "Its secret is deleted. No automation uses it.",
+      "removed": "{{name}} removed",
+      "remove-failed": "Could not remove",
+      "setup-intro": "Your organisation’s own keys for {{name}}. Every account of it uses them. Secrets are sealed and never shown again.",
+      "setup-saved": "Saved. Secrets are not shown again.",
+      "setup-failed": "Could not save",
+      "setup-removed": "Setup removed",
+      "setup-remove-failed": "Could not remove the setup",
+      "setup-remove-title": "Remove this setup",
+      "setup-remove-description": "Its keys are deleted. Accounts connected with them may stop working.",
+      "setup-remove-confirm": "Remove the setup of {{name}}?",
+      "pick-update": "Update connected",
+      "updated": "Connected accounts updated"
+    },
     "custom": {
       "summary": "Added by hand. Calls {{hosts}}.",
       "add-key": "Add a key",
@@ -1690,7 +1771,21 @@
       "program-remove-title": "Delete this program",
       "program-remove-description": "Its versions go too. Automations that use it will fail.",
       "program-removed": "Program deleted",
-      "program-remove-failed": "Could not delete the program"
+      "program-remove-failed": "Could not delete the program",
+      "account-keys-empty": "Add this account’s keys. A key it lacks comes from the integration’s own.",
+      "account-add-failed": "Could not add the account",
+      "account-name": "Name",
+      "account-name-placeholder": "Second shop",
+      "account-add": "Add account",
+      "account-add-title": "Add an account",
+      "account-add-description": "Name it, then add its keys.",
+      "account-keys_one": "Keys ({{count}})",
+      "account-keys_other": "Keys ({{count}})",
+      "accounts-intro": "An account is another set of keys for the same service, like a second shop. An automation step picks one; without one it uses the integration’s own keys.",
+      "accounts-empty": "No accounts",
+      "accounts-empty-description": "Programs use the integration’s own keys. Add an account only for a second set.",
+      "test-account": "Account",
+      "test-own-keys": "The integration’s own keys"
     }
   }
 }
