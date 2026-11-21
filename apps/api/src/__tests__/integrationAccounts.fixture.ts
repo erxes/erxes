@@ -12,6 +12,8 @@ export const APP_SECRET = 'app-secret-0123456789';
 
 export const REFUSAL = 'The page did not accept the app';
 
+export const REVOKED = 'The page removed the app';
+
 const ActionCall = z.object({
   input: z.record(z.string(), z.unknown()),
   account: z
@@ -35,8 +37,18 @@ const bodyOf = (request: IncomingMessage) =>
     request.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
   });
 
-const answerHook = (call: IntegrationHookCall): { status: number; body?: unknown } => {
+const answerHook = (
+  call: IntegrationHookCall,
+  revoked: Set<string>,
+): { status: number; body?: unknown } => {
   if (call.hook === 'start') return { status: 200, body: { url: 'https://chat.example/login' } };
+
+  if (call.hook === 'check') {
+    return {
+      status: 200,
+      body: { error: revoked.has(call.account.externalId) ? REVOKED : null },
+    };
+  }
 
   if (call.hook === 'connect') {
     return call.values.token === 'bad'
@@ -60,14 +72,14 @@ const answerHook = (call: IntegrationHookCall): { status: number; body?: unknown
     return { status: 400, body: { message: REFUSAL } };
   }
 
-  return call.hook === 'check' ? { status: 200, body: { error: null } } : { status: 204 };
+  return { status: 204 };
 };
 
 export const useChatPlugin = () => {
   const t = useAutomations();
   const hooks: IntegrationHookCall[] = [];
   const actions: z.infer<typeof ActionCall>[] = [];
-  const state = { apiUrl: '' };
+  const state = { apiUrl: '', revoked: new Set<string>() };
   let plugin: Server;
 
   const receive = async (request: IncomingMessage) => {
@@ -86,7 +98,7 @@ export const useChatPlugin = () => {
 
     hooks.push(call);
 
-    return answerHook(call);
+    return answerHook(call, state.revoked);
   };
 
   const answer = async (request: IncomingMessage, response: ServerResponse) => {
