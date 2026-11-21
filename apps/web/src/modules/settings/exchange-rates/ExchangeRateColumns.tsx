@@ -10,6 +10,7 @@ import {
 import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Badge,
+  Button,
   Combobox,
   Command,
   Popover,
@@ -87,9 +88,13 @@ export const exchangeRateColumns = (
     header: () => <RecordTable.InlineHead label={t('date', 'Date')} icon={IconCalendar} />,
     cell: ({ row }) =>
       actions.canManage ? (
-        <RecordTableInlineCell.Trigger onClick={() => actions.onEdit(row.original)}>
+        <Button
+          variant="cell"
+          className="h-full w-full justify-start"
+          onClick={() => actions.onEdit(row.original)}
+        >
           {row.original.date}
-        </RecordTableInlineCell.Trigger>
+        </Button>
       ) : (
         <RecordTableInlineCell>{row.original.date}</RecordTableInlineCell>
       ),

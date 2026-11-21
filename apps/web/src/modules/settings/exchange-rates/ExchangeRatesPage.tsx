@@ -211,6 +211,7 @@ export const ExchangeRatesPage = () => {
           stickyColumns={['more', 'checkbox']}
           tableId="exchange_rates_record_table"
           empty={<ExchangeRatesEmpty onAdd={canManage ? add : undefined} />}
+          ownEmpty
         >
           {canManage && <ExchangeRatesCommandBar rows={cursor.list} onRemove={removeWithConfirm} />}
         </CursorRecordTable>

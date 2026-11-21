@@ -115,6 +115,7 @@ const RateFields = () => {
                 value={field.value}
                 onChange={(value) => field.onChange(Number(value) || 0)}
                 placeholder="0.00"
+                scale={8}
               />
             </Form.Control>
             <Form.Message />

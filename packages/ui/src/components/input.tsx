@@ -104,16 +104,21 @@ const InputMain = ({
   );
 };
 
-/** A number with thousands separators; `onChange` gets the number, or '' when cleared. */
+/**
+ * A number with thousands separators; `onChange` gets the number, or '' when cleared. It keeps
+ * `scale` decimal places, 2 unless given (an exchange rate takes more).
+ */
 const InputNumber = ({
   value,
   onChange,
   className,
   onInvalid,
+  scale = 2,
   ...props
 }: ReactElementProps<HTMLInputElement> & {
   onChange?: (value?: number | '') => void;
   value?: number;
+  scale?: number;
 }) => {
   const field = useFieldControl();
   const handleInvalid = useValidationMessage(onInvalid);
@@ -123,6 +128,7 @@ const InputNumber = ({
       {...field}
       onInvalid={handleInvalid}
       mask={Number}
+      scale={scale}
       onAccept={(accepted) => {
         onChange?.(accepted ? Number(accepted) : '');
       }}
