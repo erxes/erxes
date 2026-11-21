@@ -9,7 +9,7 @@ import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { agentCustomerToken } from '~/modules/customerAuth/customerSessions';
 import { type Agent, answerText, madeAgentName } from './agent';
 import { agentOrThrow, chatOf, notifyRun } from './agents.service';
-import { showTool, shownBlocks } from './blocks';
+import { runEntries, showTool, shownBlocks } from './blocks';
 
 const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. To show a product, a picture or a payment link, call show with what they gave you.`;
 
@@ -21,9 +21,6 @@ const websiteOf = async (client: Db, id: string | null) => {
 
   return row ?? null;
 };
-
-/** The most entries one run reads back for what it showed. */
-const RUN_ENTRIES_MAX = 200;
 
 /** The key's caller now, or null once the key, its maker or the maker's role is gone. */
 const keyCallerOf = async (client: Db, keyId: string) => {
@@ -87,19 +84,12 @@ export const madeAgent = (id: string): Agent => ({
               if (chat) {
                 const answer = answerText(await api.entry(run.answer, context));
 
-                const { items } = await api.entries(
-                  { minEntryId: run.first, maxEntryId: run.last, order: 'ascending' },
-                  RUN_ENTRIES_MAX,
-                  undefined,
-                  context,
-                );
-
                 await notifyRun(scope.orgId, 'core.agent.finished', {
                   agentId: id,
                   plugin: chat.plugin,
                   key: scope.key,
                   answer,
-                  blocks: shownBlocks(items),
+                  blocks: shownBlocks(await runEntries(api, run.first, run.last)),
                 });
               }
 

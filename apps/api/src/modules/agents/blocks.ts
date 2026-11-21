@@ -1,4 +1,5 @@
-import type { EntryRecord } from '@earendil-works/pi-durable';
+import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
+import type { Conversation, EntryId, EntryRecord } from '@earendil-works/pi-durable';
 import { AGENT_BLOCKS_MAX, AgentBlock } from '@erxes/core-contract';
 import { z } from 'zod';
 import { agentTool } from './tool';
@@ -16,9 +17,19 @@ export const showTool = agentTool({
   execute: ({ blocks }) => ({ shown: blocks.length }),
 });
 
-/** Did the entry come from the person talking (an input), not the agent? */
-export const isInput = (entry: EntryRecord) =>
-  (entry.model ?? []).some((message) => message.role === 'user');
+/** The most entries one run reads back for what it showed. */
+const RUN_ENTRIES_MAX = 200;
+
+/** One run's entries, from its input to its answer, oldest first. */
+export const runEntries = async (
+  reader: Pick<Conversation, 'entries'>,
+  first: EntryId,
+  last: EntryId,
+) => {
+  const query = { minEntryId: first, maxEntryId: last, order: 'ascending' } as const;
+
+  return (await reader.entries(query, RUN_ENTRIES_MAX, undefined, BACKGROUND_CONTEXT)).items;
+};
 
 /** What the agent showed in these entries through `show`, in order, each block once. */
 export const shownBlocks = (entries: readonly EntryRecord[]) => {

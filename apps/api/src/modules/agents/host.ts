@@ -19,7 +19,7 @@ import { fixedWindow } from '~/http/rateLimit';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
 import { type Agent, type AgentScope, answerText, madeAgentId } from './agent';
-import { isInput, shownBlocks } from './blocks';
+import { runEntries, shownBlocks } from './blocks';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -223,8 +223,6 @@ export const startRun = async (
   });
 };
 
-const ANSWER_LOOKBACK = 20;
-
 /**
  * Sends `prompt` to the root conversation, counted (`countRun`), and waits for the answer;
  * rejects when the run ends without one. A retry with the same `requestId` asks once.
@@ -246,12 +244,15 @@ export const askAgent = async (
     );
 
     const settled = await submission.wait(BACKGROUND_CONTEXT);
-    const { items } = await root.entries({}, ANSWER_LOOKBACK, undefined, BACKGROUND_CONTEXT);
-    const answer = answerText(items.find((entry) => entry.kind === 'pi.assistant'));
 
-    if (settled.status !== 'done' || !answer) throw new Error('The agent did not answer');
+    if (settled.type !== 'input' || settled.status !== 'done') {
+      throw new Error('The agent did not answer');
+    }
 
-    const run = items.slice(0, Math.max(0, items.findIndex(isInput))).toReversed();
+    const run = await runEntries(root, settled.entry, settled.answer);
+    const answer = answerText(run.find((entry) => entry.id === settled.answer));
+
+    if (!answer) throw new Error('The agent did not answer');
 
     return { answer, blocks: shownBlocks(run) };
   });
