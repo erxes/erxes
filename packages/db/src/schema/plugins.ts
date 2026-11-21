@@ -134,6 +134,8 @@ export interface StoredPluginManifest {
       default: boolean;
       aliases?: string[];
     }[];
+    /** The column whose filled rows start a batch (`PluginTransfer` in the contract). */
+    batchStart?: string;
   }[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
   /** Its integrations in Settings › Integrations, next to core's; it reports each one's state. */

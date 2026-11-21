@@ -217,3 +217,69 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
     });
   });
 });
+
+describe('a plugin import of grouped rows', { timeout: 300_000 }, () => {
+  useTestDatabase();
+
+  const t = useTwoOrgs();
+
+  const upload = (name: string, body: Buffer) =>
+    storeServerFile(t.ids.org, { name, contentType: 'text/csv', body });
+
+  it("keeps a group's rows in one batch when the type names its batchStart column", async () => {
+    const api = await pluginApi(t.url(''));
+
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '3',
+      api: { url: api.url },
+      permissions: [{ action: 'hr.shift.import', label: 'Import shifts' }],
+      transfer: [
+        {
+          type: 'hr:shift',
+          label: 'shifts',
+          exportPermission: 'hr.shift.import',
+          importPermission: 'hr.shift.import',
+          batchStart: 'date',
+          columns: [
+            { key: 'date', label: 'Date' },
+            { key: 'hours', label: 'Hours' },
+          ],
+        },
+      ],
+    });
+    api.answers.transfer = (request) =>
+      request.kind === 'import'
+        ? { rows: request.rows.map((row) => ({ rowNumber: row.rowNumber, action: 'create' })) }
+        : { rows: [], cursor: null };
+
+    // 203 rows; the 200th to 202nd carry no date, so they stay with the 199th.
+    const lines = Array.from({ length: 203 }, (_, index) =>
+      index >= 199 && index <= 201 ? `,${index}` : `2024-01-01,${index}`,
+    );
+
+    const file = await upload('shifts.csv', Buffer.from(`Date,Hours\n${lines.join('\n')}\n`));
+
+    const { id } = await t
+      .owner()
+      .transfer.createImport({ recordType: 'hr:shift', fileId: file.id });
+
+    await settle();
+    await t.owner().transfer.checkImport({ id });
+    await settle();
+
+    const batches = api.transfers.flatMap((request) =>
+      request.kind === 'import' ? [request.rows.map((row) => row.rowNumber)] : [],
+    );
+
+    expect(batches.map((rows) => [rows[0], rows.at(-1), rows.length])).toEqual([
+      [2, 203, 202],
+      [204, 204, 1],
+    ]);
+    expect(await t.owner().transfer.import({ id })).toMatchObject({
+      status: 'checked',
+      counts: { rows: 203, create: 203 },
+    });
+    await api.close();
+  });
+});

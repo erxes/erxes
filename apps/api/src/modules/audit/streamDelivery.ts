@@ -67,9 +67,11 @@ export const sendBatch = async ({ row, secret, header }: StreamToSend, body: str
   if (row.authHeaderName && header) headers[row.authHeaderName] = openSecret(header);
 
   // A refused or unreachable endpoint is the answer this returns, not an error.
-  const response = await postOutbound(row.url, body, headers, 10_000).catch((error: unknown) => ({
-    error: describeError(error).slice(0, 500),
-  }));
+  const response = await postOutbound(row.url, body, headers, { timeoutMs: 10_000 }).catch(
+    (error: unknown) => ({
+      error: describeError(error).slice(0, 500),
+    }),
+  );
 
   if ('error' in response) {
     return { ok: false, status: null, body: null, error: response.error, ms: null };

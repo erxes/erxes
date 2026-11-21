@@ -74,7 +74,8 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      and active, and the file, the mapping, the check, the jobs and the history stay core's
      (Contacts › Settings › Import & export). Core POSTs `PluginExportRequest` (a page after
      `cursor`, answered `PluginExportPage`) and `PluginImportRequest` (a batch of rows, `dryRun`
-     for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
+     for the check, answered `PluginImportResult`; a type's `batchStart` column keeps the rows
+     below a filled one in its batch), signed with an `erxes-core-transfer+jwt`
      token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
      be undone. A plugin page shows erxes-ui's `Import` and `Export` (web registers them with
      `setTransferButtons`); `Export` sends the selected rows as `query.ids`, else the list's own
