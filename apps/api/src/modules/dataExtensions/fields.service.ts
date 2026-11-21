@@ -12,9 +12,10 @@ import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
-import { columnsOf, freeColumn } from './columns';
+import { columnsOf, freeColumn, isComputed } from './columns';
+import { assertUnread, checkComputed } from './computedRules';
 import { addColumns, changeSchema, setUnique } from './ddl';
-import { type DataFieldRow, ensureTable, findField } from './definitions';
+import { customKeyOf, type DataFieldRow, ensureTable, findField, qualified } from './definitions';
 import {
   assertFieldDefinition,
   assertPluginReads,
@@ -63,21 +64,40 @@ export const createField = async (
     settings?: DataFieldSettings;
   },
 ) => {
-  await extendableType(client, input.recordType);
+  const recordType = await extendableType(client, input.recordType);
+
   await assertRoom(client, input.recordType);
 
-  const field = { ...input, options: input.options ?? [], settings: input.settings ?? {} };
+  if (recordType.nativeFields.some((native) => native.key === input.key)) {
+    throw fail('TAKEN', `${recordType.singularLabel} has its own ${input.key} field`, {
+      field: 'key',
+    });
+  }
 
-  assertFieldDefinition(field);
+  if (input.type === 'autoNumber' && !customKeyOf(input.recordType)) {
+    throw fail('INVALID_TYPE', 'Only custom objects number their records');
+  }
 
-  const column = freeColumn(input.key, await takenColumns(client, input.recordType));
+  const id = newId();
+  const draft = { ...input, options: input.options ?? [], settings: input.settings ?? {} };
+
+  assertFieldDefinition(draft);
+
+  const settings = isComputed(draft.type)
+    ? await checkComputed(client, input.recordType, { ...draft, id })
+    : draft.settings;
+
+  const column = isComputed(draft.type)
+    ? null
+    : freeColumn(input.key, await takenColumns(client, input.recordType));
 
   const row = oneRow(
     await client
       .insert(dataFields)
       .values({
-        ...field,
-        id: newId(),
+        ...draft,
+        settings,
+        id,
         column,
         position: await nextPosition(client, input.recordType),
         createdBy: callerUserId(),
@@ -92,10 +112,20 @@ export const createField = async (
     await addColumns(client, table, columnsOf(row));
 
     if (row.settings.unique && first) await setUnique(client, table, first.name, true);
+
+    if (row.type === 'autoNumber' && first) await numberRecords(client, table, first.name);
   });
 
   return row;
 };
+
+/** Numbers a custom object's records in the order they were made, for a new auto number. */
+const numberRecords = (client: Db, table: string, column: string) =>
+  client.execute(
+    sql`update ${qualified(table)} r set ${sql.identifier(column)} = n.number
+      from (select id, row_number() over (order by created_at, id) as number from ${qualified(table)}) n
+      where n.id = r.id`,
+  );
 
 /** Both sides of a relation, or the field alone. */
 const withPair = async (client: Db, field: DataFieldRow) => {
@@ -135,6 +165,8 @@ export const setFieldStatus = async (client: Db, id: string, status: Status) => 
   const ids = (await withPair(client, field)).map((row) => row.id);
 
   if (status === 'active') await extendableType(client, field.recordType);
+
+  if (status === 'archived') await assertUnread(client, ids, field.label);
 
   await client
     .update(dataFields)

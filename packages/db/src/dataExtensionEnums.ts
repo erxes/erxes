@@ -2,7 +2,8 @@
 
 /**
  * What a field holds. Each is one column of the record's table, or several for `currency`,
- * `fullName`, `address`, `emails`, `phones` and `links`.
+ * `fullName`, `address`, `emails`, `phones` and `links`; `formula` and `rollup` are computed
+ * as records are read and keep none.
  */
 export const DATA_EXTENSION_FIELD_TYPES = [
   'text',
@@ -28,6 +29,43 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'files',
   'relation',
   'json',
+  'autoNumber',
+  'formula',
+  'rollup',
+] as const;
+
+/** What a formula or rollup's value is. */
+export const DATA_EXTENSION_RESULT_TYPES = [
+  'number',
+  'text',
+  'boolean',
+  'date',
+  'dateTime',
+] as const;
+
+/** How a rollup sums up the records a relation links. */
+export const DATA_EXTENSION_ROLLUP_OPS = [
+  'count',
+  'countNotEmpty',
+  'sum',
+  'avg',
+  'min',
+  'max',
+] as const;
+
+/**
+ * What a record type's own fields hold (core's columns, a plugin view's), as formulas and
+ * rollups read them: `member` and `product` hold ids.
+ */
+export const DATA_EXTENSION_NATIVE_TYPES = [
+  'text',
+  'number',
+  'boolean',
+  'date',
+  'dateTime',
+  'select',
+  'member',
+  'product',
 ] as const;
 
 /** Colours of a select field's options; web maps each to a theme token. */
@@ -86,4 +124,5 @@ export const DATA_EXTENSION_COLUMN_TYPES = [
   'date',
   'timestamptz',
   'jsonb',
+  'bigint',
 ] as const;

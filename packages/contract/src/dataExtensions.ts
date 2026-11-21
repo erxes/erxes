@@ -9,13 +9,17 @@ import {
   DataExtensionObjectCreate,
   DataExtensionObjectKey,
   DataExtensionObjectUpdate,
+  DataExtensionFormula,
   DataExtensionRecordType,
   DataExtensionRelationCreate,
+  DataExtensionResultType,
+  DataExtensionRollup,
 } from './dataExtensionFields';
 import { COMMON_ERRORS, ERRORS } from './errors';
 
 const {
   ARCHIVE_FIRST,
+  FIELD_IN_USE,
   INVALID_CURSOR,
   INVALID_FILTER,
   INVALID_REFERENCE,
@@ -30,6 +34,7 @@ const {
 export const dataExtensionsBase = oc.errors({
   ...COMMON_ERRORS,
   ARCHIVE_FIRST,
+  FIELD_IN_USE,
   INVALID_CURSOR,
   INVALID_FILTER,
   INVALID_REFERENCE,
@@ -140,6 +145,28 @@ export const dataFieldsContract = {
     })
     .input(DataExtensionFieldUpdate)
     .output(DataExtensionField),
+  preview: base
+    .route({
+      method: 'POST',
+      path: '/data-fields/preview',
+      summary:
+        'Check a formula or rollup before saving it: what it gives, and its value on one record (`recordId`). 400 INVALID_INPUT names the problem and where in the formula it is',
+    })
+    .input(
+      z.object({
+        recordType: DataExtensionRecordType,
+        formula: DataExtensionFormula.optional(),
+        rollup: DataExtensionRollup.optional(),
+        recordId: Id.optional(),
+      }),
+    )
+    .output(
+      z.object({
+        result: DataExtensionResultType,
+        /** Its value on `recordId`'s record; null without one. */
+        value: z.json().nullable(),
+      }),
+    ),
   reorder: base
     .route({
       method: 'POST',

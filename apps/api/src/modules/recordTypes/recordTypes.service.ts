@@ -1,5 +1,17 @@
-import { CORE_RECORD_TYPES, customObjectType, type RecordType } from '@erxes/core-contract';
-import { caller, type Db, dataObjects, plugins } from '@erxes/core-db';
+import {
+  CORE_RECORD_TYPES,
+  CUSTOM_OBJECT_NATIVE_FIELDS,
+  customObjectType,
+  type RecordType,
+} from '@erxes/core-contract';
+import {
+  caller,
+  type Db,
+  dataObjects,
+  dataPlugins,
+  plugins,
+  type StoredPluginManifest,
+} from '@erxes/core-db';
 import { asc, eq } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { fail } from '~/http/errors';
@@ -8,13 +20,64 @@ import { installedPlugins } from '~/modules/plugins/installedPlugin';
 /** What reads and changes a custom object's records. */
 const OBJECT_PERMISSIONS = { permission: 'objects.view', updatePermission: 'objects.edit' };
 
+/** One of a plugin's manifest `objects`, as core keeps it. */
+export type PluginObject = NonNullable<StoredPluginManifest['objects']>[number];
+
+/** A plugin installed here that declares `objects`, and whether Data Extensions is connected to it. */
+export interface ObjectsPlugin {
+  plugin: string;
+  title: string;
+  objects: PluginObject[];
+  connected: boolean;
+}
+
+/** The installed plugins that declare objects, by name. */
+export const objectsPlugins = async (client: Db): Promise<ObjectsPlugin[]> => {
+  const [rows, links] = await Promise.all([
+    installedPlugins(client).orderBy(asc(plugins.name)),
+    client.select({ plugin: dataPlugins.plugin }).from(dataPlugins),
+  ]);
+
+  const connected = new Set(links.map((link) => link.plugin));
+
+  return rows.flatMap(({ name, manifest }) =>
+    manifest?.objects?.length
+      ? [
+          {
+            plugin: name,
+            title: manifest.title,
+            objects: manifest.objects,
+            connected: connected.has(name),
+          },
+        ]
+      : [],
+  );
+};
+
+/** A plugin object as a record type: its own fields are the view's that it declares. */
+export const pluginRecordType = (plugin: string, object: PluginObject): RecordType => ({
+  type: object.type,
+  plugin,
+  label: object.label,
+  singularLabel: object.singularLabel,
+  icon: object.icon ?? null,
+  permission: object.permission ?? null,
+  updatePermission: object.updatePermission ?? null,
+  nativeFields: (object.fields ?? []).map((field) => ({
+    key: field.key,
+    label: field.label,
+    type: field.type,
+    options: field.options ?? [],
+  })),
+});
+
 /**
- * The record types that can be extended: core's, the `objects` of each plugin installed here in
- * plugin order, then the organisation's active custom objects by label.
+ * The record types that can be extended: core's, the `objects` of each plugin connected to Data
+ * Extensions here in plugin order, then the organisation's active custom objects by label.
  */
 export const listRecordTypes = async (client: Db): Promise<RecordType[]> => {
-  const [rows, objects] = await Promise.all([
-    installedPlugins(client).orderBy(asc(plugins.name)),
+  const [owners, objects] = await Promise.all([
+    objectsPlugins(client),
     client
       .select()
       .from(dataObjects)
@@ -22,17 +85,11 @@ export const listRecordTypes = async (client: Db): Promise<RecordType[]> => {
       .orderBy(asc(dataObjects.pluralLabel)),
   ]);
 
-  const pluginTypes = rows.flatMap(({ name, manifest }) =>
-    (manifest?.objects ?? []).map((object) => ({
-      type: object.type,
-      plugin: name,
-      label: object.label,
-      singularLabel: object.singularLabel,
-      icon: object.icon ?? null,
-      permission: object.permission ?? null,
-      updatePermission: object.updatePermission ?? null,
-    })),
-  );
+  const pluginTypes = owners
+    .filter((owner) => owner.connected)
+    .flatMap(({ plugin, objects: declared }) =>
+      declared.map((object) => pluginRecordType(plugin, object)),
+    );
 
   const customTypes = objects.map((object) => ({
     type: customObjectType(object.key),
@@ -41,12 +98,16 @@ export const listRecordTypes = async (client: Db): Promise<RecordType[]> => {
     singularLabel: object.singularLabel,
     icon: object.icon,
     ...OBJECT_PERMISSIONS,
+    nativeFields: [...CUSTOM_OBJECT_NATIVE_FIELDS],
   }));
 
   return [...CORE_RECORD_TYPES, ...pluginTypes, ...customTypes];
 };
 
-/** One record type, or 400 INVALID_REFERENCE when it isn't core's, an installed plugin's or an active custom object. */
+/**
+ * One record type, or 400 INVALID_REFERENCE when it isn't core's, a connected plugin's or an
+ * active custom object.
+ */
 export const findRecordType = async (client: Db, type: string) => {
   const found = (await listRecordTypes(client)).find((recordType) => recordType.type === type);
 

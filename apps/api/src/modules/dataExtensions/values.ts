@@ -24,6 +24,9 @@ export interface PreparedValues {
   values: Record<string, unknown>;
 }
 
+/** Types whose values erxes gives (the next number, a formula's result): never written. */
+const GIVEN_TYPES: ReadonlySet<string> = new Set(['autoNumber', 'formula', 'rollup']);
+
 /** Whether the caller may change a read-only field: a data model manager, or the plugin itself. */
 const mayChangeReadOnly = () => caller().type === 'plugin' || callerCan('properties.manage');
 
@@ -83,6 +86,8 @@ export const prepareValues = async (
 
     if (!field) {
       issues.push({ path: ['values', key], message: 'No active field has this key' });
+    } else if (GIVEN_TYPES.has(field.type)) {
+      issues.push({ path: ['values', key], message: `${field.label} is worked out, not written` });
     } else if (field.settings.readOnly && key in input && !mayChangeReadOnly()) {
       throw fail('NOT_ALLOWED', `${field.label} is read-only`);
     } else {

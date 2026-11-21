@@ -1,7 +1,8 @@
 import { customObjectType, type CursorQuery } from '@erxes/core-contract';
-import { caller, callerUserId, type Db, newId } from '@erxes/core-db';
+import { caller, callerUserId, type Db, dataFields, newId } from '@erxes/core-db';
 import { compileFilter, FilterParam, invalidFilter, textArray } from '@erxes/plugin-sdk/filter';
-import { and, type SQL, sql } from 'drizzle-orm';
+import { and, inArray, type SQL, sql } from 'drizzle-orm';
+import { computedFor } from './computed';
 import { notFound } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { columnParam, searchQuery, searchText } from './codec';
@@ -20,15 +21,18 @@ const T = alias('t');
 /** Everything a read of an object's records needs. */
 const recordSource = async (client: Db, objectKey: string) => {
   const object = await activeObject(client, objectKey);
-  const fields = await fieldsOf(client, customObjectType(object.key));
+  const recordType = customObjectType(object.key);
+  const fields = await fieldsOf(client, recordType);
   const sides = await relationSides(client, fields);
   const table = objectTable(object.key);
+  const { values: computed } = await computedFor(client, recordType, fields, T, sql`${T}.id`);
 
   return {
     object,
     fields,
     sides,
     table,
+    computed,
     from: sql`${qualified(table)} ${T}`,
     columns: [
       sql`${T}.position`,
@@ -37,7 +41,7 @@ const recordSource = async (client: Db, objectKey: string) => {
       sql`${T}.created_at`,
       sql`${T}.updated_at`,
       sql`${T}.deleted_at`,
-      ...valueColumns(fields, sides, T, sql`${T}.id`),
+      ...valueColumns(fields, sides, T, sql`${T}.id`, computed),
     ],
   };
 };
@@ -99,7 +103,9 @@ const filterOf = (source: Source, filter: string | undefined) => {
 
   const who = caller();
 
-  return compileFilter(filterFields(source.fields, source.sides, T, sql`${T}.id`), parsed.data, {
+  const fields = filterFields(source.fields, source.sides, T, sql`${T}.id`, source.computed);
+
+  return compileFilter(fields, parsed.data, {
     me: who.type === 'user' ? who.userId : null,
   });
 };
@@ -117,7 +123,7 @@ export const listRecords = async (
   },
 ) => {
   const source = await recordSource(client, input.objectKey);
-  const sort = sortExpression(source.fields, T, input.sortField);
+  const sort = sortExpression(source.fields, T, input.sortField, source.computed);
 
   if (!sort) throw invalidFilter(`Records can't be sorted by ${input.sortField}`);
 
@@ -159,6 +165,36 @@ const assignments = (prepared: PreparedValues) =>
 const searchOf = (source: Source, values: Record<string, unknown>) =>
   sql`to_tsvector('simple', ${searchText(source.fields, values)})`;
 
+/**
+ * Each auto number's next value for a new record. Holding the field's row until the write
+ * commits keeps two records from taking the same number.
+ */
+const nextNumbers = async (client: Db, source: Source) => {
+  const numbered = source.fields.filter((field) => field.type === 'autoNumber' && field.column);
+
+  if (!numbered.length) return [];
+
+  await client
+    .select({ id: dataFields.id })
+    .from(dataFields)
+    .where(
+      inArray(
+        dataFields.id,
+        numbered.map((field) => field.id),
+      ),
+    )
+    .for('update');
+
+  return numbered.map((field) => {
+    const column = sql.identifier(field.column ?? '');
+
+    return {
+      name: column,
+      value: sql`(select coalesce(max(${column}), 0) + 1 from ${qualified(source.table)})`,
+    };
+  });
+};
+
 const writeOutside = (client: Db, prepared: PreparedValues, id: string) =>
   inOrder(prepared.outside, ({ side, value }) => writeRelation(client, side, id, value));
 
@@ -169,7 +205,7 @@ export const createRecord = async (
   const source = await recordSource(client, input.objectKey);
   const prepared = await prepareValues(client, source.fields, source.sides, input.values, true);
   const id = newId();
-  const set = assignments(prepared);
+  const set = [...assignments(prepared), ...(await nextNumbers(client, source))];
 
   const columns = [
     sql`id`,

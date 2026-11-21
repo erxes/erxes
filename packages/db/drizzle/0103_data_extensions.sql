@@ -16,7 +16,7 @@ CREATE TABLE "core_data_fields" (
 	"created_by" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "core_data_fields_type_check" CHECK ("core_data_fields"."type" IN ('text', 'longText', 'number', 'percent', 'currency', 'rating', 'boolean', 'date', 'dateTime', 'select', 'multiSelect', 'email', 'phone', 'url', 'emails', 'phones', 'links', 'fullName', 'address', 'member', 'files', 'relation', 'json')),
+	CONSTRAINT "core_data_fields_type_check" CHECK ("core_data_fields"."type" IN ('text', 'longText', 'number', 'percent', 'currency', 'rating', 'boolean', 'date', 'dateTime', 'select', 'multiSelect', 'email', 'phone', 'url', 'emails', 'phones', 'links', 'fullName', 'address', 'member', 'files', 'relation', 'json', 'autoNumber', 'formula', 'rollup')),
 	CONSTRAINT "core_data_fields_status_check" CHECK ("core_data_fields"."status" IN ('active', 'archived'))
 );
 --> statement-breakpoint
@@ -36,6 +36,14 @@ CREATE TABLE "core_data_objects" (
 	CONSTRAINT "core_data_objects_status_check" CHECK ("core_data_objects"."status" IN ('active', 'archived'))
 );
 --> statement-breakpoint
+CREATE TABLE "core_data_plugins" (
+	"org_id" text DEFAULT nullif(current_setting('app.org_id', true), '') NOT NULL,
+	"plugin" text NOT NULL,
+	"connected_by" text,
+	"connected_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "core_data_plugins_pkey" PRIMARY KEY("org_id","plugin")
+);
+--> statement-breakpoint
 CREATE TABLE "core_data_tables" (
 	"org_id" text DEFAULT nullif(current_setting('app.org_id', true), '') NOT NULL,
 	"record_type" text NOT NULL,
@@ -48,12 +56,16 @@ CREATE TABLE "core_data_tables" (
 --> statement-breakpoint
 ALTER TABLE "core_data_fields" ADD CONSTRAINT "core_data_fields_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."core_organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core_data_objects" ADD CONSTRAINT "core_data_objects_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."core_organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "core_data_plugins" ADD CONSTRAINT "core_data_plugins_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."core_organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core_data_tables" ADD CONSTRAINT "core_data_tables_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."core_organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "core_data_fields_org_type_key_key" ON "core_data_fields" USING btree ("org_id","record_type","key");--> statement-breakpoint
 CREATE UNIQUE INDEX "core_data_fields_org_type_column_key" ON "core_data_fields" USING btree ("org_id","record_type","column");--> statement-breakpoint
 CREATE INDEX "core_data_fields_org_type_position_idx" ON "core_data_fields" USING btree ("org_id","record_type","position");--> statement-breakpoint
 CREATE UNIQUE INDEX "core_data_objects_org_key_key" ON "core_data_objects" USING btree ("org_id","key");--> statement-breakpoint
 CREATE UNIQUE INDEX "core_data_tables_org_table_key" ON "core_data_tables" USING btree ("org_id","table_name");--> statement-breakpoint
+ALTER TABLE core_data_plugins ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE core_data_plugins FORCE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE POLICY core_tenant ON core_data_plugins USING (core_tenant_visible(org_id)) WITH CHECK (core_tenant_visible(org_id));--> statement-breakpoint
 ALTER TABLE core_data_objects ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 ALTER TABLE core_data_objects FORCE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE POLICY core_tenant ON core_data_objects USING (core_tenant_visible(org_id)) WITH CHECK (core_tenant_visible(org_id));--> statement-breakpoint
@@ -192,7 +204,7 @@ DECLARE
 BEGIN
   PERFORM public.core_data_check_table(p_table);
   PERFORM public.core_data_check_column(p_column);
-  IF p_type NOT IN ('text', 'text[]', 'numeric', 'smallint', 'boolean', 'date', 'timestamptz', 'jsonb') THEN
+  IF p_type NOT IN ('text', 'text[]', 'numeric', 'smallint', 'boolean', 'date', 'timestamptz', 'jsonb', 'bigint') THEN
     RAISE EXCEPTION 'core_data: invalid column type %', p_type;
   END IF;
   EXECUTE format('ALTER TABLE %I.%I ADD COLUMN %I %s', v_schema, p_table, p_column, p_type);
