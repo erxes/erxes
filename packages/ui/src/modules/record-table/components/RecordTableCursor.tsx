@@ -13,7 +13,11 @@ import { useDebouncedCallback } from 'use-debounce';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
 import { mergeRefs } from 'erxes-ui/lib/utils';
 import { useCursorScroll } from '../hooks/useCursorScroll';
-import { tablePositionState } from '../states/RecordTableCursorState';
+import {
+  TOP_POSITION,
+  tablePositionState,
+  tableViewportState,
+} from '../states/RecordTableCursorState';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 
@@ -134,6 +138,15 @@ export const RecordTableCursorProvider = ({
     }
   }, [loading, dataLength, scrollRef, sessionKey, store]);
 
+  // `useResetPosition` scrolls the list it names while it shows.
+  useEffect(() => {
+    if (!sessionKey || !viewport) return;
+
+    store.set(tableViewportState(sessionKey), viewport);
+
+    return () => store.set(tableViewportState(sessionKey), null);
+  }, [sessionKey, viewport, store]);
+
   const cursor = useMemo(
     () => ({ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading, dataLength }),
     [viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading, dataLength],
@@ -190,4 +203,20 @@ export const RecordTableForwardSkeleton = ({ handleFetchMore }: { handleFetchMor
       handleInView={() => handleFetchMore({ direction: EnumCursorDirection.FORWARD })}
     />
   );
+};
+
+/**
+ * Forgets where a cursor-paged list was: the list under `sessionKey` opens at its first row and
+ * scrolls back to the top. 3.x's status links called it before they changed the list.
+ */
+export const useResetRecordTablePosition = (sessionKey: string) => {
+  const store = useStore();
+
+  return () => {
+    store.set(tablePositionState(sessionKey), TOP_POSITION);
+
+    const viewport = store.get(tableViewportState(sessionKey));
+
+    if (viewport) viewport.scrollTop = 0;
+  };
 };

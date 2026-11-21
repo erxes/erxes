@@ -38,6 +38,8 @@ const variants = cva(
           'text-muted-foreground hover:text-foreground aria-pressed:bg-accent aria-pressed:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
         destructive: 'text-destructive-text',
         primary: 'text-primary-text',
+        /** Something not final yet, such as 3.x's Save on a draft voucher. */
+        warning: 'text-warning-text',
       },
       size: {
         default: 'h-7 py-1',

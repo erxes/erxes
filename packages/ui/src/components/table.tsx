@@ -55,6 +55,8 @@ const tableRowVariants = cva('[&>td]:border-b [&>td:first-child]:border-l transi
       // A loading row: no hover, no column rules.
       placeholder: '[&>td]:border-r-0',
     },
+    /** The first row of a group (3.x's T-account rows of one voucher): a thick rule above it. */
+    groupStart: { true: '[&>td]:border-t-4 [&>td]:border-t-muted' },
   },
   defaultVariants: { variant: 'default' },
 });
@@ -63,9 +65,10 @@ const TableRow = ({
   ref,
   className,
   variant,
+  groupStart,
   ...props
 }: React.ComponentProps<'tr'> & VariantProps<typeof tableRowVariants>) => (
-  <tr ref={ref} className={cn(tableRowVariants({ variant }), className)} {...props} />
+  <tr ref={ref} className={cn(tableRowVariants({ variant, groupStart }), className)} {...props} />
 );
 
 const TableHead = ({ ref, className, ...props }: React.ComponentProps<'th'>) => (

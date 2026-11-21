@@ -7,6 +7,7 @@ import {
   RecordTableBackwardSkeleton,
   RecordTableCursorProvider,
   RecordTableForwardSkeleton,
+  useResetRecordTablePosition,
 } from './RecordTableCursor';
 import { RecordTableHead } from './RecordTableHead';
 import { RecordTableHeader } from './RecordTableHeader';
@@ -29,7 +30,8 @@ const RecordTableHotKeyControl = onDemand(async () => (await hotkeys()).RecordTa
  * The table every record list uses; never `Table` or a plain `<table>`.
  * `RecordTable.Provider` takes the `columns` and `data`; `checkboxColumn` adds row selection,
  * `ColumnSelector` lets a member pick columns, and `CursorProvider` with its skeletons loads
- * more rows by cursor. `HotkeyProvider` and `HotKeyControl` move through a form table's cells
+ * more rows by cursor, remembering where it was per `sessionKey` until `useResetPosition`
+ * forgets it. `HotkeyProvider` and `HotKeyControl` move through a form table's cells
  * with the arrow keys (3.x's `RecordTableHotkeyProvider` and `RecordTableHotKeyControl`).
  */
 export const RecordTable = Object.assign(RecordTableRoot, {
@@ -50,6 +52,7 @@ export const RecordTable = Object.assign(RecordTableRoot, {
   CursorProvider: RecordTableCursorProvider,
   CursorBackwardSkeleton: RecordTableBackwardSkeleton,
   CursorForwardSkeleton: RecordTableForwardSkeleton,
+  useResetPosition: useResetRecordTablePosition,
   Row: RecordTableRow,
   ColumnSelector: RecordTableColumnSelector,
   HotkeyProvider: RecordTableHotkeyProvider,

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { keyedAtom } from 'erxes-ui/lib/keyed-atom';
 import { storedFamily } from 'erxes-ui/lib/stored';
 
 /**
@@ -17,3 +18,9 @@ export const tablePositionState = storedFamily({
   }),
   initial: { filters: '', row: '', rowOffset: 0, scroll: 0 },
 });
+
+/** A list's position before any scroll: the top, under no filters. */
+export const TOP_POSITION = { filters: '', row: '', rowOffset: 0, scroll: 0 };
+
+/** The scrolling element of the list shown under each `sessionKey`, while it shows. */
+export const tableViewportState = keyedAtom<HTMLElement | null>(null);
