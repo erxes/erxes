@@ -754,6 +754,8 @@
     "name": "Organisation name",
     "name-required": "Enter a name",
     "country": "Country",
+    "currencies": "Other currencies",
+    "currencies-help": "Plugins offer these besides the main currency, such as for accounts and deals.",
     "currency": "Currency",
     "currency-help": "New products and invoices take this currency. Products and invoices keep the currency they were made in.",
     "timezone": "Time zone",

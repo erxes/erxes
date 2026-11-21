@@ -4,8 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconSettings } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  CURRENCY_CODES,
   Form,
   Input,
+  MultipleSelector,
   PageContainer,
   PageHeader,
   ScrollArea,
@@ -30,6 +32,7 @@ const organizationSchema = (t: Translate) =>
       .max(100, t('name-too-long', 'Use at most 100 characters')),
     country: z.string(),
     currency: z.string(),
+    currencies: z.array(z.string()),
     timezone: z.string(),
   });
 
@@ -39,6 +42,7 @@ const valuesOf = (organization: Organization): OrganizationValues => ({
   name: organization.name,
   country: organization.country ?? '',
   currency: organization.currency,
+  currencies: organization.currencies,
   timezone: organization.timezone,
 });
 
@@ -118,6 +122,49 @@ const RegionFields = ({ disabled }: { disabled: boolean }) => {
   );
 };
 
+const CURRENCY_OPTIONS = Object.entries(CURRENCY_CODES).map(([value, { label }]) => ({
+  value,
+  label,
+}));
+
+/** The other currencies it trades in, which plugins offer beside the main one. */
+const OtherCurrenciesField = ({ disabled }: { disabled: boolean }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'general' });
+  const { control } = useFormContext<OrganizationValues>();
+
+  return (
+    <Form.Field
+      control={control}
+      name="currencies"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('currencies', 'Other currencies')}</Form.Label>
+          <Form.Control>
+            <MultipleSelector
+              options={CURRENCY_OPTIONS}
+              disabled={disabled}
+              value={field.value.map(
+                (code) =>
+                  CURRENCY_OPTIONS.find((option) => option.value === code) ?? {
+                    value: code,
+                    label: code,
+                  },
+              )}
+              onChange={(options) => field.onChange(options.map((option) => option.value))}
+            />
+          </Form.Control>
+          <Form.Description>
+            {t(
+              'currencies-help',
+              'Plugins offer these besides the main currency, such as for accounts and deals.',
+            )}
+          </Form.Description>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 /** The clock every schedule runs by. */
 const TimeZoneField = ({ disabled }: { disabled: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'general' });
@@ -167,6 +214,7 @@ const OrganizationForm = ({
       name: values.name,
       country: values.country || undefined,
       currency: values.currency,
+      currencies: values.currencies,
       timezone: values.timezone,
     }),
   );
@@ -195,6 +243,7 @@ const OrganizationForm = ({
             )}
           />
           <RegionFields disabled={!canEdit} />
+          <OtherCurrenciesField disabled={!canEdit} />
           <TimeZoneField disabled={!canEdit} />
         </Form.Section>
         {canEdit && <Form.SaveBar saving={save.isPending} />}

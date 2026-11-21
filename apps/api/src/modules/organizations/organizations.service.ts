@@ -115,7 +115,7 @@ const assertKnownZone = async (tx: Db, timezone: string) => {
  */
 export const updateOrganization = async (
   tx: Db,
-  input: Region & { name?: string; timezone?: string },
+  input: Region & { name?: string; timezone?: string; currencies?: string[] },
 ) => {
   const before = await getOrganization(tx);
   const timezone = input.timezone ?? before.timezone;
@@ -129,6 +129,7 @@ export const updateOrganization = async (
         name: input.name ?? before.name,
         country: input.country ?? before.country,
         currency: currencyFor(input, before),
+        currencies: input.currencies ?? before.currencies,
         timezone,
         updatedAt: sql`now()`,
       })
