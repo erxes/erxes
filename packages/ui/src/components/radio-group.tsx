@@ -1,6 +1,6 @@
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
-import { cn } from 'erxes-ui/lib/utils';
+import { cn, hiddenInputInFlow } from 'erxes-ui/lib/utils';
 
 export type RadioGroupProps<Value = string> = RadioGroupPrimitive.Props<Value>;
 
@@ -12,6 +12,7 @@ const RadioGroupItem = <Value = string,>({ className, ...props }: Radio.Root.Pro
   <Radio.Root
     className={cn(
       'inline-flex items-center justify-center aspect-square size-4 rounded-full border border-scroll bg-background shadow-xs shadow-black/5 outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 data-disabled:cursor-not-allowed data-disabled:opacity-50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground',
+      hiddenInputInFlow,
       className,
     )}
     {...props}
