@@ -93,6 +93,9 @@ export const paths = {
     security: '/settings/security',
     notifications: '/settings/notifications',
     assistant: '/settings/assistant',
+    agents: '/settings/agents',
+    agentNew: '/settings/agents/new',
+    agentOf: (agentId: string) => `/settings/agents/${id(agentId)}`,
     assistantAppearance: '/settings/assistant-appearance',
     /** Plugins' record types' properties: `/settings/properties/<plugin>.<type>`. */
     properties: '/settings/properties',

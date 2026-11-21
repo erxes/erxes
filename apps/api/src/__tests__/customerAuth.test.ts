@@ -49,7 +49,12 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(payload).toMatchObject({ sub: signedIn.customer.id, client_id: 'hr' });
     expect(
       await verifyCustomerToken(`Bearer ${signedIn.accessToken}`, { coreUrl: t.url('') }),
-    ).toEqual({ orgId: t.ids.org, customerId: signedIn.customer.id, clientId: 'hr' });
+    ).toEqual({
+      orgId: t.ids.org,
+      customerId: signedIn.customer.id,
+      clientId: 'hr',
+      agentId: null,
+    });
     // A plugin's own token is not a customer's.
     await expect(
       verifyCustomerToken(`Bearer ${await t.pluginToken(undefined, t.ids.org)}`, {

@@ -42,6 +42,25 @@ const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
     },
   );
 
+/**
+ * A 5-minute access token for an agent talking to a signed-in customer: plugins' website and
+ * customer routes take it as the customer's own (`sid` names the agent, not a session).
+ */
+export const agentCustomerToken = (
+  customer: { orgId: string; customerId: string },
+  agentId: string,
+  plugin: string,
+) =>
+  signJwt(
+    { org: customer.orgId, client_id: plugin, sid: `agent:${agentId}` },
+    {
+      typ: CUSTOMER_ACCESS_TYP,
+      audience: CUSTOMER_AUDIENCE,
+      subject: customer.customerId,
+      expiresInSeconds: 300,
+    },
+  );
+
 const tokensFor = async (
   ref: CustomerSessionRef,
   clientId: string,

@@ -1,4 +1,4 @@
-import { bearerOf, verifyAgentCall, verifyPluginSession } from '@erxes/plugin-sdk';
+import { bearerOf, verifyPluginSession } from '@erxes/plugin-sdk';
 import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
 import { oc } from '@orpc/contract';
 import { once } from 'node:events';
@@ -102,15 +102,10 @@ export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
   const options = { coreUrl, plugin };
 
   const callerOf = (token: string) =>
-    verifyPluginSession(token, options).then(
-      (member): Caller => ({ ...member, mayView: member.can('hr.leave.view') }),
-      () =>
-        verifyAgentCall(token, options).then((agent): Caller => ({
-          userId: `agent:${agent.agent}`,
-          orgId: agent.orgId,
-          mayView: true,
-        })),
-    );
+    verifyPluginSession(token, options).then((member): Caller => ({
+      ...member,
+      mayView: member.can('hr.leave.view'),
+    }));
 
   const answerAs = (member: Caller, req: IncomingMessage, res: ServerResponse, raw: string) => {
     const { pathname, searchParams } = new URL(req.url ?? '/', url);

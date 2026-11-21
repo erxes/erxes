@@ -18,8 +18,7 @@ import { fail } from '~/http/errors';
 import { fixedWindow } from '~/http/rateLimit';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
-import type { Agent, AgentScope } from './agent';
-import { isPluginAgent, pluginAgent } from './pluginAgents';
+import { type Agent, type AgentScope, answerText, madeAgentId } from './agent';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -42,9 +41,19 @@ export const registerAgent = (agent: Agent) => {
   agents.set(agent.name, agent);
 };
 
-/** A registered agent, or a plugin's (`frontline.bot`), whose setup reads its manifest. */
-export const agentByName = (name: string) =>
-  agents.get(name) ?? (isPluginAgent(name) ? pluginAgent(name) : undefined);
+let madeAgents: ((id: string) => Agent) | undefined;
+
+/** How agents admins make (`agent.<id>`) run; the app sets it once at start. */
+export const registerMadeAgents = (make: (id: string) => Agent) => {
+  madeAgents = make;
+};
+
+/** A registered agent, or one an admin made (`agent.<id>`), whose setup reads its row. */
+export const agentByName = (name: string) => {
+  const id = madeAgentId(name);
+
+  return agents.get(name) ?? (id === null ? undefined : madeAgents?.(id));
+};
 
 export const agentNamed = (name: string) => {
   const agent = agentByName(name);
@@ -179,7 +188,7 @@ export const withHarness = async <T>(
 let runCount: ReturnType<typeof fixedWindow> | undefined;
 
 /** Counts a run against the organisation's runs a minute across every server; 429 past the limit. */
-export const countRun = async (orgId: string) => {
+const countRun = async (orgId: string) => {
   runCount ??= fixedWindow({ windowSeconds: 60, max: config.agents.runsPerMinute });
 
   const retryAfter = await runCount(`agent-runs:${orgId}`);
@@ -210,6 +219,38 @@ export const startRun = async (
     if (change) await root.configure(change, BACKGROUND_CONTEXT);
 
     return root.submit(input, BACKGROUND_CONTEXT);
+  });
+};
+
+const ANSWER_LOOKBACK = 20;
+
+/**
+ * Sends `prompt` to the root conversation, counted (`countRun`), and waits for the answer;
+ * rejects when the run ends without one. A retry with the same `requestId` asks once.
+ */
+export const askAgent = async (
+  agent: Agent,
+  scope: AgentScope,
+  prompt: string,
+  requestId?: string,
+) => {
+  await countRun(scope.orgId);
+
+  return withHarness(agent, scope, async (harness) => {
+    const root = await harness.root(BACKGROUND_CONTEXT);
+
+    const submission = await root.submit(
+      { type: 'input', content: prompt, ...(requestId ? { requestId } : {}) },
+      BACKGROUND_CONTEXT,
+    );
+
+    const settled = await submission.wait(BACKGROUND_CONTEXT);
+    const { items } = await root.entries({}, ANSWER_LOOKBACK, undefined, BACKGROUND_CONTEXT);
+    const answer = answerText(items.find((entry) => entry.kind === 'pi.assistant'));
+
+    if (settled.status !== 'done' || !answer) throw new Error('The agent did not answer');
+
+    return answer;
   });
 };
 

@@ -1,5 +1,14 @@
-import { apiKeys, caller, type Db, newId, users, withOrg, withSystem } from '@erxes/core-db';
-import { and, count, desc, eq, getTableColumns, isNull, lt, or, sql } from 'drizzle-orm';
+import {
+  agents,
+  apiKeys,
+  caller,
+  type Db,
+  newId,
+  users,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
+import { and, count, desc, eq, getTableColumns, isNull, lt, notExists, or, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
@@ -50,6 +59,10 @@ const withMember = (client: Db) =>
     .from(apiKeys)
     .innerJoin(users, eq(users.id, apiKeys.userId));
 
+/** An agent's key, with its maker's name, for the agent's page. */
+export const agentKey = async (client: Db, id: string) =>
+  oneRow(await withMember(client).where(eq(apiKeys.id, id)).limit(1));
+
 /** A key the caller may see (their own, or any with api_keys.manage), or 404. */
 export const visibleKey = async (client: Db, id: string, userId: string) => {
   const [row] = await withMember(client).where(eq(apiKeys.id, id)).limit(1);
@@ -59,13 +72,16 @@ export const visibleKey = async (client: Db, id: string, userId: string) => {
   return row;
 };
 
+/** An agent's key is the agent's: it shows and changes on the agent's page, not here. */
+const notAnAgents = notExists(sql`(select 1 from ${agents} where ${agents.keyId} = ${apiKeys.id})`);
+
 export const listApiKeys = async (client: Db) => {
   const { userId } = keyManager();
   const own = managesEveryKey() ? undefined : eq(apiKeys.userId, userId);
 
   return {
     data: await wholeList((limit) =>
-      withMember(client).where(own).orderBy(desc(apiKeys.createdAt)).limit(limit),
+      withMember(client).where(and(own, notAnAgents)).orderBy(desc(apiKeys.createdAt)).limit(limit),
     ),
   };
 };
