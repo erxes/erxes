@@ -3,7 +3,7 @@ import { IconBell } from '@tabler/icons-react';
 import { memberQueries, messageOf } from '@erxes/core-contract/client';
 import { Button, Empty, Spinner, formatter, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { actorLabel } from '~/lib/members';
+import { useActorLabel } from '~/modules/activity/useActorLabel';
 import { NotificationItem } from './NotificationItem';
 import type { Inbox } from './useNotifications';
 
@@ -86,6 +86,7 @@ export const NotificationList = ({
   compact,
 }: NotificationListProps) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
+  const actorLabel = useActorLabel();
 
   const members = useMembersById(
     notifications.map((item) => (item.actorType === 'user' ? item.actorId : null)),

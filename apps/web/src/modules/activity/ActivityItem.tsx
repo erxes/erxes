@@ -35,7 +35,7 @@ import { Badge, cn, Skeleton, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChangeList, type Lookups } from '~/components/ChangeList';
-import { actorLabel } from '~/lib/members';
+import { useActorLabel } from './useActorLabel';
 import { usePluginText, usePluginTitle } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import type { ReactNode } from 'react';
@@ -240,6 +240,8 @@ export const ActivityItem = ({
   /** The record whose timeline this is; entries of related records say whose they are. */
   pageTarget: { type: string; id: string };
 }) => {
+  const actorLabel = useActorLabel();
+
   const actor =
     activity.actorName ?? actorLabel(activity.actorType, activity.actorId, lookups.members);
 

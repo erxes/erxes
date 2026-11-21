@@ -1,4 +1,9 @@
 {
+  "actor": {
+    "member": "A team member",
+    "plugin": "A plugin",
+    "customer": "A customer"
+  },
   "navigation": {
     "visited-pages": "Visited pages",
     "details": "Details",
