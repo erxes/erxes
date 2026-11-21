@@ -17,7 +17,8 @@ const foldedState = keyedAtom<{ length: number | undefined; folded: string[] }>(
   folded: [],
 });
 
-interface TreeOptions {
+/** A tree's id, whether its rows come in tree order, and how many there are. */
+export interface TreeOptions {
   id: string;
   /** The rows come in tree order, so they indent and fold; a search result is flat. */
   ordered?: boolean;
