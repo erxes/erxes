@@ -78,6 +78,20 @@ const ownTransfers = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+/** Its integrations need one of its own permissions. */
+const ownIntegrations = (manifest: PluginManifest) => {
+  const declared = new Set(manifest.permissions?.map((item) => item.action));
+  const integration = manifest.integrations?.find((item) => !declared.has(item.permission));
+
+  if (integration) {
+    throw fail(
+      'UNKNOWN_PERMISSION',
+      `Integration "${integration.key}" needs ${integration.permission}, which the manifest's permissions don't declare`,
+      { permissions: [integration.permission] },
+    );
+  }
+};
+
 /** Reads name another plugin, with that plugin's permissions only. */
 const othersReads = (plugin: string, manifest: PluginManifest) => {
   for (const read of manifest.pluginReads ?? []) {
@@ -113,5 +127,6 @@ export const checkManifest = (plugin: string, manifest: PluginManifest) => {
   );
 
   ownRelations(plugin, manifest);
+  ownIntegrations(manifest);
   othersReads(plugin, manifest);
 };

@@ -103,13 +103,17 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
      once, to its first page, else to its Properties, in "Plugin settings"
      (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `integrations`
-     (`TPluginIntegration`: `key`, `name`, `summary`, `icon`, `category` from erxes-ui's
-     `INTEGRATION_CATEGORIES`, `countries`, `permission`, `tabs` of `{ value, label, component }`)
-     are tiles in core's Settings › Integrations next to core's own, for members with
-     `integrations.manage` and the tile's `permission` (one the manifest declares). Its page is
+     (`TPluginIntegration`: `key`, `icon`, `tabs` of `{ value, label, component }`) give the
+     icon and tabs of the integrations the manifest's `integrations` declare (`PluginIntegration`
+     in `packages/contract/src/integrations.ts`: `key`, `name`, `summary`, `category`,
+     `countries`, `permission`, one the manifest declares, else 400 `UNKNOWN_PERMISSION`).
+     `integrations.list` lists them next to core's with `plugin` set, for members with
+     `integrations.manage` and that `permission` while the plugin is installed, with the state
+     the plugin reports by `integrations.report` (`PUT /integrations/{key}/state`, the SDK's
+     `reportIntegration`; 404 for a key its manifest doesn't declare). Its page is
      `/settings/integrations/<name>.<key>`: core draws the header and tabs (`?tab=<value>`), each
      tab's `lazy` component its content (`apps/web/src/modules/settings/integrations/catalog.ts`).
-     A tile has no connected state, and renaming its key or a tab's value breaks links to it.
+     Renaming its key or a tab's value breaks links to it and drops its reported state.
      `dashboardWidgets`
      (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
      draws as the tile's body under its title) join core's home dashboard catalog under the

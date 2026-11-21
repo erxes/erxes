@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
-import { type Integration, statusOf } from './catalog';
+import type { Integration } from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
@@ -35,7 +35,6 @@ const IntegrationHeader = ({
   actions?: ReactNode;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
-  const status = statusOf(integration);
   const { name, summary } = useIntegrationText()(integration);
 
   return (
@@ -44,7 +43,7 @@ const IntegrationHeader = ({
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="min-w-0 break-words text-xl font-semibold">{name}</h1>
-          <IntegrationStatusBadge status={status} />
+          <IntegrationStatusBadge status={integration.status} />
         </div>
         <p className="text-sm text-muted-foreground">{summary}</p>
         <p className="text-xs text-muted-foreground">
@@ -92,7 +91,7 @@ export const IntegrationLayout = ({
                 to: paths.settings.integrations,
                 icon: IconPlugConnected,
               },
-              { label: name, to: paths.settings.integration(integration.key) },
+              { label: name, to: paths.settings.integration(integration.slug) },
             ]}
           />
         </PageHeader.Start>

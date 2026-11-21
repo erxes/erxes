@@ -448,7 +448,7 @@ export const ACTION_FIELD_TYPES = [
 
 // ─── Integrations ───────────────────────────────────────────────────────────
 
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
+export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'social', 'payments', 'tax'] as const;
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
 

@@ -7,7 +7,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import { useIntegrationsSaved } from './useIntegrationsSaved';
 import { DangerSection } from './DangerSection';
 import { EbarimtActivity } from './EbarimtActivity';
@@ -137,7 +137,7 @@ const EbarimtPage = ({
   integration,
   saved,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   saved: EbarimtSettings | null;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
@@ -188,7 +188,7 @@ const EbarimtPage = ({
 };
 
 /** eBarimt's page: what it does, its settings, and the receipts it sent. */
-export const EbarimtIntegration = ({ integration }: { integration: CoreIntegration }) => {
+export const EbarimtIntegration = ({ integration }: { integration: Integration }) => {
   const settings = useQuery(orpc.ebarimt.settings.queryOptions());
 
   return (

@@ -18,6 +18,7 @@ import { EventType } from './platform';
 import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
+import { PluginIntegrations } from './integrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
@@ -177,6 +178,11 @@ export const PluginManifest = z.object({
     .optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
   timelines: z.array(PluginTimeline).max(50).optional(),
+  /**
+   * Its integrations in Settings › Integrations (`PluginIntegration`), listed next to core's
+   * with the state it reports (`integrations.report`).
+   */
+  integrations: PluginIntegrations.optional(),
   /**
    * How its timeline entries look: a label, a colour and an icon per type —
    * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,

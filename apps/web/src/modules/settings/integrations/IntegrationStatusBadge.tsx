@@ -36,8 +36,8 @@ export const useIntegrationText = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const text = usePluginText();
 
-  return (integration: Integration | ListedIntegration) =>
-    'plugin' in integration
+  return (integration: ListedIntegration) =>
+    integration.plugin
       ? {
           name: text(integration.plugin, integration.name),
           summary: text(integration.plugin, integration.summary),

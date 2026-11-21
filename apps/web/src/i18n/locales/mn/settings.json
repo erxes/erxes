@@ -1279,7 +1279,8 @@
       "payments": "Төлбөр",
       "tax": "Татварын баримт",
       "email": "Имэйл",
-      "messaging": "Мессеж"
+      "messaging": "Мессеж",
+      "social": "Сошиал медиа"
     },
     "section": {
       "connected": "Холбогдсон",

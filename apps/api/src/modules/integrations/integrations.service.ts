@@ -22,6 +22,7 @@ import {
   withSettings,
 } from './connections';
 import { fieldsOf, type Integration, type KeyedIntegration } from './define';
+import { pluginIntegrations } from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
 
 const manages = (integration: Integration) => callerCan(integration.permission);
@@ -62,19 +63,20 @@ const connectionStatus = (active: number | undefined): IntegrationStatus => {
 export const listIntegrations = async (client: Db) => {
   const counts = await activeCounts(client);
 
-  return {
-    data: await Promise.all(
-      INTEGRATIONS.filter(manages).map(async (integration) => ({
-        ...integration,
-        dashboard: integration.dashboard ?? null,
-        fields: integration.keys ? fieldsOf(integration.keys) : [],
-        payments: integration.payments ?? null,
-        status: integration.status
-          ? await integration.status(client)
-          : connectionStatus(counts.get(integration.key)),
-      })),
-    ),
-  };
+  const own = await Promise.all(
+    INTEGRATIONS.filter(manages).map(async (integration) => ({
+      ...integration,
+      plugin: null,
+      dashboard: integration.dashboard ?? null,
+      fields: integration.keys ? fieldsOf(integration.keys) : [],
+      payments: integration.payments ?? null,
+      status: integration.status
+        ? await integration.status(client)
+        : connectionStatus(counts.get(integration.key)),
+    })),
+  );
+
+  return { data: [...own, ...(await pluginIntegrations(client))] };
 };
 
 export const integrationConnectionsOf = (client: Db, key: string) =>

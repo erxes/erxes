@@ -106,6 +106,15 @@
  *     res.sendStatus(204);
  *   });
  *
+ * Integrations (Facebook, Instagram): declare them in the manifest, each with one of its own
+ * permissions, and core lists them in Settings › Integrations next to its own, for members with
+ * `integrations.manage` and that permission. Keep their keys with `secrets.save`; the UI config's
+ * `integrations` give each its icon and tabs. Report where each stands after it changes:
+ *
+ *   integrations: [{ key: 'facebook', name: 'Facebook', summary: 'Messenger and page comments in the inbox',
+ *     category: 'social', permission: 'frontline.integration.manage' }],
+ *   await core.reportIntegration(orgId, 'facebook', 'connected', pages.length);  // or 'off', 'attention', 'not-set-up'
+ *
  * A timeline whose records not every member may read declares `recordAccess: true`; core asks the
  * plugin before a member reads or notes on one, and anything but `{ allowed: true }` within 5 s is no:
  *

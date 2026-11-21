@@ -208,12 +208,6 @@ export type TPluginSettingsPage = {
   icon?: React.ElementType;
 };
 
-/** Every integration category, in Settings › Integrations' order. */
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
-
-/** An integration's category in Settings › Integrations. */
-export type TIntegrationCategory = (typeof INTEGRATION_CATEGORIES)[number];
-
 /** A tab on a plugin integration's page. Its `value` is the address key (`?tab=`). */
 export type TIntegrationTab = {
   /** Unique on the page, e.g. `overview`: a link or reload opens the tab it names. */
@@ -224,24 +218,16 @@ export type TIntegrationTab = {
 };
 
 /**
- * A plugin's tile in core's Settings › Integrations, next to core's own.
- * Its page is `/settings/integrations/<plugin name>.<key>`: core draws the header (mark, name,
- * summary, where it works) and the tabs, and the plugin each tab's content. Shown to members
- * with `integrations.manage` and its `permission` while the plugin is installed and active.
- * It carries no connected state.
+ * The icon and tabs of a plugin integration in Settings › Integrations. The manifest's
+ * `integrations` declare it (name, summary, category, countries, permission) and core lists it
+ * with the state the plugin reports; this adds its icon and tabs, by the same `key`. Its page is
+ * `/settings/integrations/<plugin name>.<key>`: core draws the header (mark, name, summary,
+ * state, where it works) and the tabs, and the plugin each tab's content.
  */
 export type TPluginIntegration = {
-  /** Unique within the plugin, e.g. `meta`: lowercase letters, digits and dashes. */
+  /** The key of an integration the manifest declares, e.g. `facebook`. */
   key: string;
-  name: string;
-  /** One line on its tile and under its name. */
-  summary: string;
   icon: Icon;
-  category: TIntegrationCategory;
-  /** The ISO 3166 countries it serves (`MN`); none: any. Others list it under other regions. */
-  countries?: string[];
-  /** The permission a member needs to see and open it, e.g. `frontline.integrations.manage`. */
-  permission: string;
   /** Its page's tabs, Overview first. */
   tabs: TIntegrationTab[];
 };
@@ -258,7 +244,7 @@ export type IUIConfig = {
   icon?: React.ElementType;
   /** The plugin's settings pages; core's settings link the first for members who may use the plugin. */
   settings?: TPluginSettingsPage[];
-  /** Tiles in core's Settings › Integrations, for members with the permission each names. */
+  /** The icon and tabs of the integrations its manifest declares, in core's Settings › Integrations. */
   integrations?: TPluginIntegration[];
   /** Sections on core's customer and company detail, shown to members who may use the plugin. */
   recordSections?: TRecordSection[];

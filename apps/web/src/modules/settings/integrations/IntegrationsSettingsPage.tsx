@@ -23,7 +23,6 @@ import {
   type Category,
   type Integration,
   servesCountry,
-  statusOf,
   useIntegrations,
   useMayOpenIntegrations,
 } from './catalog';
@@ -40,6 +39,7 @@ const useCategoryLabel = () => {
     ({
       email: t('email', 'Email'),
       messaging: t('messaging', 'Messaging'),
+      social: t('social', 'Social media'),
       payments: t('payments', 'Payments'),
       tax: t('tax', 'Tax receipts'),
     })[category];
@@ -56,12 +56,12 @@ const IntegrationTile = ({
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
   const categoryLabel = useCategoryLabel();
   const { name, summary } = useIntegrationText()(integration);
-  const status = statusOf(integration);
+  const { status } = integration;
 
   return (
     <li>
       <Link
-        to={paths.settings.integration(integration.key)}
+        to={paths.settings.integration(integration.slug)}
         className="flex h-full flex-col gap-3 rounded-lg border p-4 transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <span className="flex items-start gap-3">
@@ -73,7 +73,7 @@ const IntegrationTile = ({
             </span>
           </span>
           {/* Only what is connected carries a state; the rest are simply available. */}
-          <IntegrationStatusBadge status={status?.state === 'not-set-up' ? null : status} />
+          <IntegrationStatusBadge status={status.state === 'not-set-up' ? null : status} />
         </span>
         <span className="line-clamp-2 text-sm text-muted-foreground">{summary}</span>
         {foreign && (
@@ -108,7 +108,7 @@ const Section = ({
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((integration) => (
-          <IntegrationTile key={integration.key} integration={integration} foreign={foreign} />
+          <IntegrationTile key={integration.slug} integration={integration} foreign={foreign} />
         ))}
       </ul>
     </section>
@@ -118,10 +118,13 @@ const Section = ({
 const Filters = ({
   search,
   category,
+  categories,
   onChange,
 }: {
   search: string;
   category: Category | null;
+  /** The categories with at least one listed integration. */
+  categories: Category[];
   onChange: (next: { q?: string | null; category?: Category | null }) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
@@ -147,11 +150,11 @@ const Filters = ({
         aria-label={t('categories', 'Categories')}
         value={[category ?? 'all']}
         onValueChange={([next]) =>
-          onChange({ category: CATEGORIES.find((item) => item === next) ?? null })
+          onChange({ category: categories.find((item) => item === next) ?? null })
         }
       >
         <ToggleGroup.Item value="all">{t('all', 'All')}</ToggleGroup.Item>
-        {CATEGORIES.map((item) => (
+        {categories.map((item) => (
           <ToggleGroup.Item key={item} value={item}>
             {categoryLabel(item)}
           </ToggleGroup.Item>
@@ -161,16 +164,24 @@ const Filters = ({
   );
 };
 
-const isSetUp = (integration: Integration) =>
-  (statusOf(integration)?.state ?? 'not-set-up') !== 'not-set-up';
+const isSetUp = (integration: Integration) => integration.status.state !== 'not-set-up';
 
-/** The catalog cut by the search and category, then into connected, local and other regions. */
-const useSections = (search: string, category: Category | null) => {
+/**
+ * The catalog cut by the search and category, then into connected, local and other regions.
+ * A category no integration is in is no filter.
+ */
+const useSections = (search: string, chosen: Category | null) => {
   const { country } = useSession().organization;
   const categoryLabel = useCategoryLabel();
   const textOf = useIntegrationText();
   const { integrations, listed } = useIntegrations();
   const needle = search.trim().toLocaleLowerCase();
+
+  const categories = CATEGORIES.filter((item) =>
+    integrations.some((integration) => integration.category === item),
+  );
+
+  const category = categories.find((item) => item === chosen) ?? null;
 
   const matches = (integration: Integration) => {
     const { name, summary } = textOf(integration);
@@ -188,6 +199,8 @@ const useSections = (search: string, category: Category | null) => {
 
   return {
     listed,
+    categories,
+    category,
     shown,
     connected: shown.filter(isSetUp),
     available: shown.filter((integration) => !isSetUp(integration) && local(integration)),
@@ -219,7 +232,8 @@ const Catalog = () => {
       </div>
       <Filters
         search={search}
-        category={params.category}
+        category={sections.category}
+        categories={sections.categories}
         onChange={(next) => void setParams(next)}
       />
       {sections.listed.isError && (

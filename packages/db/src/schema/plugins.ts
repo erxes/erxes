@@ -2,6 +2,7 @@ import {
   type AUTOMATION_FIELD_TYPES,
   type AUTOMATION_SUBJECTS,
   type DefaultGrantRole,
+  type INTEGRATION_CATEGORIES,
   type PLUGIN_FIELD_TYPES,
   PLUGIN_STATUSES,
   type RELATION_FIELD_TYPES,
@@ -137,6 +138,15 @@ export interface StoredPluginManifest {
     }[];
   }[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
+  /** Its integrations in Settings › Integrations, next to core's; it reports each one's state. */
+  integrations?: {
+    key: string;
+    name: string;
+    summary: string;
+    category: (typeof INTEGRATION_CATEGORIES)[number];
+    countries?: string[];
+    permission: string;
+  }[];
   actions?: {
     type: string;
     label: string;

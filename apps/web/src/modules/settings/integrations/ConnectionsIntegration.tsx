@@ -5,13 +5,13 @@ import { Badge, Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import { CredentialsHelp } from './ConnectionFields';
 import { ConnectIntegration } from './ConnectIntegration';
 import { EditConnection, useConnectionChanges } from './EditConnection';
 import { IntegrationLayout, OverviewSection, useIntegrationTab } from './IntegrationLayout';
 
-const PaymentFacts = ({ payments }: { payments: NonNullable<CoreIntegration['payments']> }) => {
+const PaymentFacts = ({ payments }: { payments: NonNullable<Integration['payments']> }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { currency } = useSession().organization;
   const { currencies, refunds, pays } = payments;
@@ -51,7 +51,7 @@ const ConnectionList = ({
   integration,
   connections,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   connections: IntegrationConnection[];
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -97,7 +97,7 @@ const ConnectionList = ({
   );
 };
 
-const Overview = ({ integration }: { integration: CoreIntegration }) => {
+const Overview = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
 
   const connections = useQuery(
@@ -127,7 +127,7 @@ const Overview = ({ integration }: { integration: CoreIntegration }) => {
   );
 };
 
-export const ConnectionsIntegration = ({ integration }: { integration: CoreIntegration }) => {
+export const ConnectionsIntegration = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const [tab, setTab] = useIntegrationTab('overview');
 

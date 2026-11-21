@@ -5,12 +5,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Input, Label, Switch } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import { useIntegrationText } from './IntegrationStatusBadge';
 
 export type ConnectionValues = Record<string, string | boolean>;
 
-export const connectionKeys = (integration: CoreIntegration, values: ConnectionValues) => ({
+export const connectionKeys = (integration: Integration, values: ConnectionValues) => ({
   keys: Object.fromEntries(Object.entries(values).filter(([, value]) => value !== '')),
   ready: integration.fields.every(
     ({ key, type, optional }) =>
@@ -38,7 +38,7 @@ export const useConnectionsChanged = () => {
     ]);
 };
 
-export const CredentialsHelp = ({ integration }: { integration: CoreIntegration }) => {
+export const CredentialsHelp = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { name } = useIntegrationText()(integration);
   const { dashboard } = integration;
@@ -76,7 +76,7 @@ export const ConnectionFieldInputs = ({
   values,
   onChange,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   values: ConnectionValues;
   onChange: (key: string, value: string | boolean) => void;
 }) => {

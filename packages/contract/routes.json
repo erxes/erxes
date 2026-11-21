@@ -2955,6 +2955,16 @@
           "path": "/integrations/{key}/connections/{id}"
         }
       }
+    },
+    "report": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/{key}/state"
+        }
+      }
     }
   },
   "secrets": {

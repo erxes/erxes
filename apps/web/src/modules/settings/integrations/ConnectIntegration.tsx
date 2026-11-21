@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Button, Dialog, Input, Label, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import {
   ConnectionFieldInputs,
   connectionKeys,
@@ -40,7 +40,7 @@ const ConnectForm = ({
   integration,
   onAdded,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   onAdded: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -85,7 +85,7 @@ const ConnectForm = ({
   );
 };
 
-export const ConnectIntegration = ({ integration }: { integration: CoreIntegration }) => {
+export const ConnectIntegration = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { name } = useIntegrationText()(integration);
   const [open, setOpen] = useState(false);

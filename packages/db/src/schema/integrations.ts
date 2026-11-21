@@ -1,8 +1,10 @@
-import { INTEGRATION_CONNECTION_STATUSES } from '../enums';
-import { foreignKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
-import { orgIdColumn, pgTable } from '../table';
+import { INTEGRATION_CONNECTION_STATUSES, INTEGRATION_STATES } from '../enums';
+import { sql } from 'drizzle-orm';
+import { check, foreignKey, integer, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { pluginInstallations } from './plugins';
 import { secrets } from './secrets';
 
 export const integrationConnections = pgTable(
@@ -30,5 +32,40 @@ export const integrationConnections = pgTable(
       foreignColumns: [secrets.id],
       name: 'core_integration_connections_secret_id_fkey',
     }),
+  ],
+);
+
+/**
+ * The state a plugin last reported for one of the integrations its manifest declares
+ * (`integrations.report`), shown on its tile. None: not set up.
+ */
+export const pluginIntegrationStates = pgTable(
+  'plugin_integration_states',
+  {
+    orgId: orgIdColumn(),
+    plugin: text().notNull(),
+    key: text().notNull(),
+    state: text({ enum: INTEGRATION_STATES }).notNull(),
+    /** How many are connected (pages, accounts), when the plugin says. */
+    count: integer(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.orgId, table.plugin, table.key],
+      name: 'core_plugin_integration_states_pkey',
+    }),
+    check('core_plugin_integration_states_state_check', inList(table.state, INTEGRATION_STATES)),
+    check('core_plugin_integration_states_count_check', sql`${table.count} >= 0`),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_plugin_integration_states_org_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId, table.plugin],
+      foreignColumns: [pluginInstallations.orgId, pluginInstallations.plugin],
+      name: 'core_plugin_integration_states_installation_fkey',
+    }).onDelete('cascade'),
   ],
 );
