@@ -52,3 +52,17 @@ Checked against frontline's own subgraph schema only, 318 parseable documents pr
 - `getStatusesChoicesByTeam` queried without a selection set. Operation changed it from `JSON` to `[StatusChoice]`. That broke the convert-to-task status picker on officenext, and #9595 fixed it. Codegen against the composed schema would have failed frontline's build before the deploy.
 
 Another 11 documents didn't parse because of `${fragment}` interpolation, so step 2 comes first.
+
+## Probe report: an argument the resolver ignores
+
+`ignored  products(categoryId: String)` means the query returned the same result with a filter value that matches nothing as with no filter. Open the resolver where it builds its query and sort the argument:
+
+- **Misnamed read.** The resolver reads another name, such as `categoryIds` for `categoryId`. Rename one side to match the other, keeping the name UI documents already send.
+- **Unwired filter.** The resolver never reads it. Wire it into the query when a UI document sends it or its name promises behavior. Otherwise delete it from the SDL.
+- **Moved data.** The filter targets a store the module no longer writes, such as conformities after the move to relations. Point it at the current store or delete it.
+
+Before deleting an argument, find the UI documents that pass it (`rg -n "<arg>:" frontend`) and drop it there in the same PR, so codegen stays green.
+
+`check  conversations(startDate: String)` is a date bound the probe set alone. Call the query with both bounds; it is drift only if the result still doesn't change.
+
+The probe sets only String, ID and date arguments on queries without required arguments. For `exclude*`, Boolean, number, enum and JSON arguments, read the resolver to confirm each one is used.

@@ -1,6 +1,6 @@
 ---
 name: graphql-codegen-migration
-description: Codegen for erxes GraphQL against the composed schema. Use when migrating a plugin UI to `gql()` from `~/gql`, fixing a codegen or `schema:compose` error, or adding a backend to the composed schema.
+description: Codegen for erxes GraphQL against the composed schema. Use when migrating a plugin UI to `gql()` from `~/gql`, fixing a codegen or `schema:compose` error, adding a backend to the composed schema, or a declared argument the resolver ignores.
 ---
 
 # GraphQL codegen migration
@@ -9,7 +9,7 @@ Each backend prints its subgraph SDL offline with the `schema:print` Nx target. 
 
 The composed schema is the repo-wide codegen schema. No single deployment serves it. Each deployment's router composes core plus its enabled plugins at runtime. `@apollo/composition` is pinned to 2.9.3, the federation version the runtime router composes with, so a set of subgraphs that fails offline compose also fails in the router.
 
-**Drift** is any mismatch between a document and the composed schema. Fix drift at its source: the query, or the backend SDL and resolver that own the field. Keep every type as strict as the composed schema says.
+**Drift** is any mismatch between a document, the composed schema and the resolver behind it: a document asks for a field the schema lacks, or a resolver ignores or misnames an argument the schema declares. Fix drift at its source: the query, or the backend SDL and resolver that own the field. Keep every type as strict as the composed schema says.
 
 `operation_ui` is the finished reference. Copy its `codegen.ts`, the `codegen`, `codegen:watch`, `build` and `serve` targets in its `project.json`, its `eslint.config.js`, and its `src/modules/task/types/index.ts` for types derived from generated queries.
 
@@ -45,7 +45,21 @@ Operation names are unique repo-wide and named after the plugin and module (`fro
 
 Done when `nx run <name>_ui:codegen --skip-nx-cache` exits 0, or every remaining error is listed in the PR as drift in another team's subgraph with that owner's issue linked.
 
-### 4. Convert modules
+### 4. Make resolvers honor their arguments
+
+The schema checks that an argument is declared and typed, then hands the resolver an `args` object it is free to ignore. Codegen sees only the schema, so a filter the resolver drops, or reads under another name, passes every check and returns unfiltered results.
+
+Run the probe as an admin against a gateway that serves this plugin with tenant data:
+
+```bash
+ERXES_AUTH_TOKEN=<auth-token cookie> node scripts/graphql-drift-probe.mjs <name>
+```
+
+It prints each `ignored` argument and each date bound to `check`. Sort them with [errors.md](errors.md#probe-report-an-argument-the-resolver-ignores).
+
+Done when the probe exits 0 for this plugin and every `check` line is confirmed with both bounds set.
+
+### 5. Convert modules
 
 Convert one module per PR, largest first. In each module:
 
@@ -69,11 +83,11 @@ rg -U -l "graphql-tag|\bgql\b[^}]*\}\s*from\s*['\"]@apollo/client['\"]|use(Query
   frontend/plugins/<name>_ui/src/modules/<module>
 ```
 
-### 5. Enforce
+### 6. Enforce
 
 Copy the `no-restricted-imports` and `no-restricted-syntax` rules and the `src/gql/**` ignore from operation's `eslint.config.js`.
 
-Done when the step 4 `rg` over all of `frontend/plugins/<name>_ui/src` prints nothing, so every document in the plugin goes through `gql()` from `~/gql`, and `nx lint <name>_ui` reports no new errors.
+Done when the step 5 `rg` over all of `frontend/plugins/<name>_ui/src` prints nothing, so every document in the plugin goes through `gql()` from `~/gql`, and `nx lint <name>_ui` reports no new errors.
 
 Also verify a build from an empty `src/gql/` and the enabled plugin's `pnpm dev:uis` startup. Generation must finish before compilation, and source changes must regenerate documents. Accounting uses its existing Rspack compiler hooks for host-managed builds and watch compilations; those hooks compose the gateway schema before codegen.
 
@@ -106,6 +120,7 @@ pnpm nx run <name>_ui:codegen --skip-nx-cache --parallel=2
 npx tsc -p frontend/plugins/<name>_ui/tsconfig.app.json --noEmit | rg <name>_ui
 pnpm nx build <name>_ui --parallel=2
 pnpm nx lint <name>_ui
+ERXES_AUTH_TOKEN=<auth-token cookie> node scripts/graphql-drift-probe.mjs <name>
 ```
 
 `--skip-nx-cache` keeps Nx from replaying a cached codegen pass. The `rg` filter hides type errors that belong to `erxes-ui` and `ui-modules`.
