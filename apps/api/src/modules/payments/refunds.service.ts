@@ -1,4 +1,3 @@
-import { PAYMENT_GATEWAYS } from '@erxes/core-contract';
 import { actorOf, caller, type Db, newId, paymentInvoices, paymentRefunds } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -7,6 +6,7 @@ import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { gatewayOf } from '~/modules/integrations/registry';
 import { driverOf, type GatewayRow } from './gateways.service';
 import { eventPayload, type InvoiceRow, invoiceWithGateway, shownInvoice } from './invoiceState';
 
@@ -71,7 +71,7 @@ const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow | null, input: Re
     );
   }
 
-  const { refunds } = PAYMENT_GATEWAYS[gateway.kind];
+  const { refunds } = gatewayOf(gateway.key).payments;
 
   if (refunds === 'none')
     throw fail(

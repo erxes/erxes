@@ -10,8 +10,7 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
-import { AddGateway } from './AddGateway';
-import { GatewayList, NoGateways, PluginGatewaySettings } from './Gateways';
+import { ConnectGateways, NoGateways, PluginGatewaySettings } from './PluginGateways';
 import { InvoiceDetails } from './InvoiceDetails';
 import { STATUS_BADGE } from './invoiceStatus';
 
@@ -136,7 +135,7 @@ const CurrencyNote = () => {
   );
 };
 
-/** Settings › Payments: gateway connections, and invoices plugins made through them. */
+/** Settings › Payments: which gateways plugins use, and the invoices they made. */
 export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const canManage = useCan()('payments.manage');
@@ -156,7 +155,7 @@ export const PaymentsSettingsPage = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          <AddGateway />
+          <ConnectGateways />
         </PageHeader.End>
       </PageHeader>
       <ScrollArea className="flex-1">
@@ -172,15 +171,7 @@ export const PaymentsSettingsPage = () => {
               </section>
             }
           >
-            {({ data }) => (
-              <>
-                <section className="space-y-2">
-                  <h2 className="text-sm font-medium">{t('gateways', 'Gateways')}</h2>
-                  <GatewayList gateways={data} />
-                </section>
-                <PluginGatewaySettings gateways={data} />
-              </>
-            )}
+            {({ data }) => <PluginGatewaySettings gateways={data} />}
           </QueryState>
           <Invoices />
         </div>

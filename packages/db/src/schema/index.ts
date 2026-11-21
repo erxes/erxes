@@ -28,6 +28,8 @@ export * from './authTokens';
 
 export * from './oauth';
 
+export * from './integrations';
+
 export * from './payments';
 
 export * from './trash';

@@ -7,7 +7,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
-import type { Integration } from './catalog';
+import type { CoreIntegration } from './catalog';
 import { useIntegrationsSaved } from './useIntegrationsSaved';
 import { DangerSection } from './DangerSection';
 import { EbarimtActivity } from './EbarimtActivity';
@@ -19,7 +19,6 @@ import {
   OverviewSection,
   useIntegrationTab,
 } from './IntegrationLayout';
-import { useIntegrationStatus } from './useIntegrationStatus';
 
 const useRefreshFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
@@ -142,14 +141,14 @@ const EbarimtPage = ({
   integration,
   saved,
 }: {
-  integration: Integration;
+  integration: CoreIntegration;
   saved: EbarimtSettings | null;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const canPayments = useCan()('payments.manage');
   const [tab, setTab] = useIntegrationTab('overview');
-  const status = useIntegrationStatus().statusOf(integration);
-  const failed = status?.state === 'attention' ? (status.count ?? 0) : 0;
+  const { status } = integration;
+  const failed = status.state === 'attention' ? (status.count ?? 0) : 0;
 
   const tabs = [
     {
@@ -193,7 +192,7 @@ const EbarimtPage = ({
 };
 
 /** eBarimt's page: what it does, its settings, and the receipts it sent. */
-export const EbarimtIntegration = ({ integration }: { integration: Integration }) => {
+export const EbarimtIntegration = ({ integration }: { integration: CoreIntegration }) => {
   const settings = useQuery(orpc.ebarimt.settings.queryOptions());
 
   return (

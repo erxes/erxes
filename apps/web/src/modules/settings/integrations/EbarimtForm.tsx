@@ -146,6 +146,7 @@ const useSave = (onSaved?: () => void) => {
     orpc.ebarimt.saveSettings.mutationOptions({
       onSuccess: () => {
         void client.invalidateQueries({ queryKey: orpc.ebarimt.settings.key() });
+        void client.invalidateQueries({ queryKey: orpc.integrations.list.key() });
         toast({ title: t('saved', 'eBarimt settings saved') });
         onSaved?.();
       },

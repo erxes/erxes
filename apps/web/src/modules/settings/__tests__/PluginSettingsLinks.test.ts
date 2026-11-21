@@ -117,6 +117,19 @@ vi.mock('~/modules/auth/session', () => ({
   useSession: () => ({ organization: { country: 'MN' } }),
 }));
 
+const EBARIMT = {
+  key: 'ebarimt',
+  name: 'eBarimt',
+  summary: 'Mongolian tax receipts for paid invoices, sent through your PosAPI.',
+  category: 'tax',
+  countries: ['MN'],
+  permission: 'integrations.manage',
+  dashboard: null,
+  fields: [],
+  payments: null,
+  status: { state: 'not-set-up', count: null },
+};
+
 let root: Root | undefined;
 let SettingsLayout: typeof Layout;
 let IntegrationsSettingsPage: typeof Catalog;
@@ -130,8 +143,12 @@ beforeAll(async () => {
       .map((name) => `${name}@http://plugins.test/${name}.js`)
       .join(),
   );
-  // No core here: the registry fails and the local plugins still load.
-  vi.stubGlobal('fetch', async () => Promise.reject(new Error('offline')));
+  // Core lists only what this member may manage; the registry fails and the local plugins still load.
+  vi.stubGlobal('fetch', async (request: Request) => {
+    if (new URL(request.url).pathname !== '/core/v1/integrations') throw new Error('offline');
+
+    return Response.json({ data: [EBARIMT] });
+  });
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
   ({ SettingsLayout } = await import('../SettingsLayout'));
   ({ IntegrationsSettingsPage } = await import('../integrations/IntegrationsSettingsPage'));
@@ -232,7 +249,7 @@ describe('plugins in core’s settings', () => {
     );
     expect(section('Other regions')?.textContent).toContain('Zalo');
     expect(section('Other regions')?.textContent).toContain('Made for Vietnam');
-    // Payment gateways need payments.manage; the vault its own permission; a malformed tile drops.
+    // Core lists no gateway without payments.manage; the vault needs its own permission; a malformed tile drops.
     expect(container.textContent).not.toContain('Payment gateways');
     expect(container.textContent).not.toContain('Vault');
     expect(container.textContent).not.toContain('Telegram');

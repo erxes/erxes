@@ -25,7 +25,6 @@
     "@earendil-works/pi-durable": "1.5.2",
     "@erxes/core-contract": "workspace:*",
     "@erxes/core-db": "workspace:*",
-    "@erxes/payment-gateways": "workspace:*",
     "@gscode1/pi-durable-postgres": "0.3.0",
     "@jitl/quickjs-wasmfile-release-sync": "^0.32.0",
     "@maily-to/render": "2.0.0-beta.19",

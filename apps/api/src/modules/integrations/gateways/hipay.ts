@@ -9,13 +9,21 @@ import {
   Text,
   toTugrug,
 } from './http';
+import { defineIntegration, field, httpsUrl, secret } from '../define';
 import {
   type CreateInvoiceInput,
   type DriverOptions,
   type GatewayDriver,
   GatewayError,
-  type HiPayConfig,
 } from './types';
+
+const keys = z.object({
+  entityId: field('Entity ID (client_id)'),
+  clientSecret: secret('Client secret'),
+  apiUrl: field('API address', httpsUrl()),
+});
+
+type HiPayConfig = z.output<typeof keys>;
 
 /** HiPay answers an array of one object (or the object alone). */
 const one = <T extends z.ZodType>(schema: T) =>
@@ -112,7 +120,7 @@ const createCheckout = async (
  * and app deeplink; checked by checkout id; a payment refunds whole, on the
  * day it was made. Its webhook and the form's return both reach core.
  */
-export const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): GatewayDriver => {
+const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): GatewayDriver => {
   const client = hipayClient(config, options);
 
   return {
@@ -163,3 +171,15 @@ export const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): G
     },
   };
 };
+
+export const hipay = defineIntegration({
+  key: 'hipay',
+  name: 'HiPay',
+  summary: 'Checkouts payers pay by card, QR code or the HiPay app.',
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => hipayDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'full', pays: 'card', driver: hipayDriver },
+});

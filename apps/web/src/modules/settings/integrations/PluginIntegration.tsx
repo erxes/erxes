@@ -2,15 +2,11 @@ import { Spinner } from 'erxes-ui';
 import { Suspense } from 'react';
 import { PluginBoundary } from '~/modules/plugins/PluginBoundary';
 import { usePluginText } from '~/modules/plugins/pluginText';
-import type { Integration } from './catalog';
+import type { PluginIntegration as PluginTile } from './catalog';
 import { IntegrationLayout, useIntegrationTab } from './IntegrationLayout';
 
 /** A plugin's integration: core's header and tabs, the plugin's content in each tab. */
-export const PluginIntegration = ({
-  integration,
-}: {
-  integration: Extract<Integration, { kind: 'plugin' }>;
-}) => {
+export const PluginIntegration = ({ integration }: { integration: PluginTile }) => {
   const text = usePluginText();
   const [tab, setTab] = useIntegrationTab(integration.tabs[0]?.value ?? '');
 

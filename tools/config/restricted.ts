@@ -146,12 +146,7 @@ export const restrictedRules = {
 
 export const restrictedOverrides = [
   {
-    files: [
-      'packages/contract/**',
-      'packages/db/**',
-      'packages/plugin-sdk/**',
-      'packages/payment-gateways/**',
-    ],
+    files: ['packages/contract/**', 'packages/db/**', 'packages/plugin-sdk/**'],
     rules: {
       'no-restricted-imports': [
         'error',

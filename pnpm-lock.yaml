@@ -112,9 +112,6 @@ importers:
       '@erxes/core-db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@erxes/payment-gateways':
-        specifier: workspace:*
-        version: link:../../packages/payment-gateways
       '@gscode1/pi-durable-postgres':
         specifier: 0.3.0
         version: 0.3.0(patch_hash=68629a4c418644df8875a8a48a0843968c515fefb9bb450a5583d2bea1a72f43)(@earendil-works/chord@1.5.2(esbuild@0.28.2)(react@19.3.1))(@earendil-works/pi-durable@1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(esbuild@0.28.2)(react@19.3.1)(undici@8.12.3)(zod@4.6.7))
@@ -543,19 +540,6 @@ importers:
       vite-plus:
         specifier: ^1.6.0
         version: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
-
-  packages/payment-gateways:
-    dependencies:
-      qrcode:
-        specifier: ^1.5.4
-        version: 1.5.4
-      zod:
-        specifier: ^4.6.7
-        version: 4.6.7
-    devDependencies:
-      '@types/qrcode':
-        specifier: ^1.5.5
-        version: 1.5.6
 
   packages/plugin-sdk:
     dependencies:

@@ -1,10 +1,12 @@
+import { z } from 'zod';
+import { defineIntegration } from '../define';
 import { type GatewayDriver, GatewayError } from './types';
 
 /**
  * Development and tests: nothing leaves the server. Core's `test-pay` sets
  * `testPaid` on the invoice; `testRefundFails` makes refunds fail.
  */
-export const testDriver = (): GatewayDriver => ({
+const testDriver = (): GatewayDriver => ({
   kind: 'test',
   async verify() {},
   async createInvoice(input) {
@@ -29,4 +31,16 @@ export const testDriver = (): GatewayDriver => ({
 
     return { refundId: `refund_${input.paymentId}_${input.amount}` };
   },
+});
+
+export const test = defineIntegration({
+  key: 'test',
+  name: 'Test',
+  summary: 'Nothing is charged: for trying out plugins.',
+  category: 'payments',
+  countries: [],
+  permission: 'payments.manage',
+  keys: z.object({}),
+  verify: () => testDriver().verify(),
+  payments: { currencies: [], refunds: 'partial', pays: 'test', driver: testDriver },
 });

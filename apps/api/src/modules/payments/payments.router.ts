@@ -1,10 +1,5 @@
 import { db } from '@erxes/core-db';
-import {
-  addGateway,
-  listGateways,
-  removeGateway,
-  updateGateway,
-} from '~/modules/payments/gateways.service';
+import { listGateways } from '~/modules/payments/gateways.service';
 import {
   cancelInvoice,
   createInvoice,
@@ -22,13 +17,6 @@ import { scoped, unscoped } from '~/orpc';
 
 export const paymentsRouter = {
   gateways: scoped.payments.gateways.handler(() => listGateways(db())),
-  addGateway: scoped.payments.addGateway.handler(({ input }) => addGateway(db(), input)),
-  updateGateway: scoped.payments.updateGateway.handler(({ input: { id, ...changes } }) =>
-    updateGateway(db(), id, changes),
-  ),
-  removeGateway: scoped.payments.removeGateway.handler(({ input }) =>
-    removeGateway(db(), input.id),
-  ),
   createInvoice: unscoped.payments.createInvoice.handler(({ input }) => createInvoice(input)),
   recordPayment: scoped.payments.recordPayment.handler(({ input }) => recordPayment(db(), input)),
   getInvoice: unscoped.payments.getInvoice.handler(({ input }) => getInvoice(input.id)),

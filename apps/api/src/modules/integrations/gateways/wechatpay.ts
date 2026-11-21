@@ -1,12 +1,27 @@
-import { createPrivateKey, createSign, type KeyObject, randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import { createPrivateKey, type KeyObject, randomToken, randomUUID, sign } from '~/lib/crypto';
+import { defineIntegration, digits, field, secret } from '../define';
 import { gatewayHttp, json, parse, qrInstructions, type Send } from './http';
-import {
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-  type WeChatPayConfig,
-} from './types';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({
+  appId: field('App ID'),
+  mchId: field('Merchant ID (mchid)', digits()),
+  serialNo: field('Certificate serial number'),
+  privateKey: secret(
+    'API private key (apiclient_key.pem)',
+    z.string().trim().min(1).max(5000).includes('PRIVATE KEY'),
+  ),
+  merchantCategoryCode: field(
+    'Merchant category code (MCC)',
+    z
+      .string()
+      .trim()
+      .regex(/^\d{4}$/, 'a 4-digit code'),
+  ),
+});
+
+type WeChatPayConfig = z.output<typeof keys>;
 
 const NativeOrder = z.object({ code_url: z.string().min(1) });
 
@@ -47,11 +62,13 @@ const authorization = (
   body: string,
 ) => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
-  const nonce = randomBytes(16).toString('hex');
+  const nonce = randomToken(16, 'hex');
 
-  const signature = createSign('RSA-SHA256')
-    .update(`${method}\n${path}\n${timestamp}\n${nonce}\n${body}\n`)
-    .sign(key, 'base64');
+  const signature = sign(
+    'sha256',
+    Buffer.from(`${method}\n${path}\n${timestamp}\n${nonce}\n${body}\n`),
+    key,
+  ).toString('base64');
 
   return `WECHATPAY2-SHA256-RSA2048 mchid="${config.mchId}",nonce_str="${nonce}",signature="${signature}",timestamp="${timestamp}",serial_no="${config.serialNo}"`;
 };
@@ -84,10 +101,7 @@ const orderPath = (outTradeNo: string) =>
  * any part. The callback address carries its signature in the path, as
  * WeChat takes no query in `notify_url`.
  */
-export const wechatpayDriver = (
-  config: WeChatPayConfig,
-  options: DriverOptions = {},
-): GatewayDriver => {
+const wechatpayDriver = (config: WeChatPayConfig, options: DriverOptions = {}): GatewayDriver => {
   const call = wechatClient(config, options);
   const query = new URLSearchParams({ mchid: config.mchId }).toString();
 
@@ -167,3 +181,39 @@ export const wechatpayDriver = (
     },
   };
 };
+
+export const wechatpay = defineIntegration({
+  key: 'wechatpay',
+  name: 'WeChat Pay',
+  summary: 'Cross-border payments: a QR code payers scan in WeChat.',
+  category: 'payments',
+  countries: [],
+  permission: 'payments.manage',
+  dashboard: 'https://pay.weixin.qq.com',
+  keys,
+  verify: (config, options) => wechatpayDriver(config, options).verify(),
+  payments: {
+    currencies: [
+      'AUD',
+      'CAD',
+      'CHF',
+      'DKK',
+      'EUR',
+      'GBP',
+      'HKD',
+      'JPY',
+      'KRW',
+      'MOP',
+      'MYR',
+      'NOK',
+      'NZD',
+      'SEK',
+      'SGD',
+      'THB',
+      'USD',
+    ],
+    refunds: 'partial',
+    pays: 'wechat',
+    driver: wechatpayDriver,
+  },
+});

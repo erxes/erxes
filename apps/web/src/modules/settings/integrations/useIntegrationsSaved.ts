@@ -1,4 +1,4 @@
-import { messageOf } from '@erxes/core-contract/client';
+import { messageOf, orpc } from '@erxes/core-contract/client';
 import { type QueryKey, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 
@@ -14,7 +14,10 @@ export const useIntegrationsSaved = (
     onSuccess: () => {
       onSaved?.();
 
-      return client.invalidateQueries({ queryKey });
+      return Promise.all([
+        client.invalidateQueries({ queryKey }),
+        client.invalidateQueries({ queryKey: orpc.integrations.list.key() }),
+      ]);
     },
     onError: (error: Error) =>
       toast({ variant: 'destructive', title: failedTitle, description: messageOf(error) }),

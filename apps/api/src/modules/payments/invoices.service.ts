@@ -8,13 +8,14 @@ import {
   sourceOf,
   withOrg,
 } from '@erxes/core-db';
-import { type CreateInvoiceInput, GatewayError } from '@erxes/payment-gateways';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { test } from '~/modules/integrations/gateways/test';
+import { type CreateInvoiceInput, GatewayError } from '~/modules/integrations/gateways/types';
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { driverOf, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
@@ -245,7 +246,7 @@ export const payTestInvoice = async (id: string) => {
   await withOrg(orgId, async (tx) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
-    if (gateway?.kind !== 'test')
+    if (gateway?.key !== test.key)
       throw fail('NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
     await tx

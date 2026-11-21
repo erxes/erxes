@@ -10,7 +10,16 @@ import {
   Text,
   toTugrug,
 } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError, type TdbConfig } from './types';
+import { defineIntegration, field, httpsUrl, secret } from '../define';
+import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+
+const keys = z.object({
+  username: field('Username'),
+  password: secret('Password'),
+  apiUrl: field('API address', httpsUrl().default('https://www.bankcard.mn:8000')),
+});
+
+type TdbConfig = z.output<typeof keys>;
 
 const OrderAnswer = z.object({
   order: z.object({
@@ -35,7 +44,7 @@ const PAID = new Set(['FULLYPAID', 'PAID']);
  * payment page (`hppUrl?id=…&password=…`), which sends the payer to the
  * callback address; read back by id and password. Basic auth.
  */
-export const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): GatewayDriver => {
+const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): GatewayDriver => {
   const send = gatewayHttp('TDB', config.apiUrl.replace(/\/+$/, ''), options);
   const headers = { Authorization: basic(config.username, config.password) };
 
@@ -112,3 +121,15 @@ export const tdbDriver = (config: TdbConfig, options: DriverOptions = {}): Gatew
     },
   };
 };
+
+export const tdb = defineIntegration({
+  key: 'tdb',
+  name: 'TDB',
+  summary: "Card payments on the Trade and Development Bank's page.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  verify: (config, options) => tdbDriver(config, options).verify(),
+  payments: { currencies: ['MNT'], refunds: 'none', pays: 'card', driver: tdbDriver },
+});

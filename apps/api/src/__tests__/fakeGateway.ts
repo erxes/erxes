@@ -1,4 +1,4 @@
-import type { CreateInvoiceInput } from '@erxes/payment-gateways';
+import type { CreateInvoiceInput } from '~/modules/integrations/gateways/types';
 
 /** The address a `fetch` call asks for. */
 export const urlOf = (input: string | URL | Request) =>

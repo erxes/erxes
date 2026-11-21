@@ -62,7 +62,7 @@ const roleAfter = (changes: Entry['changes']) => {
   return Array.isArray(role) ? role[1] : role?.after;
 };
 
-const GatewayUpdate = z.object({ credentialsChanged: z.boolean().optional() });
+const ConnectionUpdate = z.object({ credentialsChanged: z.boolean().optional() });
 
 const streamChanged: OwnerRule = (label, entry) => ({
   title: `Audit log streaming to ${label} was ${entry.action.slice('audit.stream_'.length)}`,
@@ -108,18 +108,18 @@ export const OWNER_RULES: Record<string, OwnerRule> = {
   'audit.stream_paused': streamChanged,
   'audit.stream_resumed': streamChanged,
   'audit.stream_removed': streamChanged,
-  'payment.gateway_added': (label) => ({
-    title: `A payment gateway was connected: ${label}`,
-    body: (by) => `By ${by}. Payments from now on may go to it.`,
-    link: '/settings/payments',
+  'integration.connected': (label) => ({
+    title: `An integration was connected: ${label}`,
+    body: (by) => `By ${by}. Payments and data from now on may go to it.`,
+    link: '/settings/integrations',
     email: true,
   }),
-  'payment.gateway_updated': (label, entry) =>
-    GatewayUpdate.safeParse(entry.metadata).data?.credentialsChanged
+  'integration.updated': (label, entry) =>
+    ConnectionUpdate.safeParse(entry.metadata).data?.credentialsChanged
       ? {
-          title: `${label}'s payment credentials were changed`,
-          body: (by) => `By ${by}. Check that payments still go to your account.`,
-          link: '/settings/payments',
+          title: `${label}'s credentials were changed`,
+          body: (by) => `By ${by}. Check that it still goes to your account.`,
+          link: '/settings/integrations',
           email: true,
         }
       : null,

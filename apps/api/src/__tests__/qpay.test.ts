@@ -1,8 +1,7 @@
-import { withOrg } from '@erxes/core-db';
-import { createGateway } from '@erxes/payment-gateways';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { addGateway } from '~/modules/payments/gateways.service';
+import { gatewayDriver } from '~/modules/integrations/registry';
 import { useTestDatabase } from './db';
+import { urlOf } from './fakeGateway';
 import { useTwoOrgs } from './support';
 
 /** What the fake QPay answers for each endpoint. */
@@ -46,14 +45,9 @@ describe('QPay driver', () => {
     );
 
     try {
-      const driver = createGateway(
-        {
-          kind: 'qpay',
-          clientId: 'id',
-          clientSecret: 'secret',
-          invoiceCode: 'CODE',
-          sandbox: true,
-        },
+      const driver = gatewayDriver(
+        'qpay',
+        { clientId: 'id', clientSecret: 'secret', invoiceCode: 'CODE', sandbox: true },
         { cacheKey: 'g-1' },
       );
 
@@ -110,28 +104,22 @@ describe('QPay gateways', () => {
   const t = useTwoOrgs();
 
   it('refuses QPay credentials the gateway rejects', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => Promise.resolve(new Response('{"error":"NO_CREDENDIALS"}', { status: 401 }))),
+    const realFetch = globalThis.fetch;
+
+    vi.stubGlobal('fetch', (input: string | URL | Request, init?: RequestInit) =>
+      urlOf(input).startsWith('https://merchant-sandbox.qpay.mn/')
+        ? Promise.resolve(new Response('{"error":"NO_CREDENDIALS"}', { status: 401 }))
+        : realFetch(input, init),
     );
 
     try {
-      const orgId = t.ids.org;
-
       await expect(
-        withOrg(orgId, (tx) =>
-          addGateway(tx, {
-            name: 'QPay',
-            config: {
-              kind: 'qpay',
-              clientId: 'bad',
-              clientSecret: 'bad',
-              invoiceCode: 'X',
-              sandbox: true,
-            },
-          }),
-        ),
-      ).rejects.toMatchObject({ code: 'GATEWAY_REFUSED' });
+        t.owner().integrations.connect({
+          key: 'qpay',
+          name: 'QPay',
+          keys: { clientId: 'bad', clientSecret: 'bad', invoiceCode: 'X', sandbox: true },
+        }),
+      ).rejects.toMatchObject({ status: 400, code: 'GATEWAY_REFUSED' });
     } finally {
       vi.unstubAllGlobals();
     }

@@ -33,6 +33,7 @@ import { pluginPropertyTypes } from '~/modules/plugins/pluginProperties';
 import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { usePlan } from '~/modules/saas/usePlan';
+import { useMayOpenIntegrations } from '../integrations/catalog';
 
 interface SettingsPath {
   name: string;
@@ -44,6 +45,7 @@ interface SettingsPath {
 const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
+  const mayOpenIntegrations = useMayOpenIntegrations();
   const plan = usePlan().data;
 
   return [
@@ -65,8 +67,10 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
       : []),
     ...(can('integrations.manage')
+      ? [{ name: t('email-sending', 'Email sending'), to: paths.settings.email, icon: IconMail }]
+      : []),
+    ...(mayOpenIntegrations
       ? [
-          { name: t('email-sending', 'Email sending'), to: paths.settings.email, icon: IconMail },
           {
             name: t('integrations', 'Integrations'),
             to: paths.settings.integrations,

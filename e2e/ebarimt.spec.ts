@@ -20,13 +20,13 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   ).toBeVisible();
   await expectAccessibleInBothThemes(page);
 
-  // Search and categories narrow the catalog; gateways are connected on Settings › Payments.
-  const gateways = page.getByRole('link', { name: /Payment gateways/ });
+  // Search and categories narrow the catalog; each gateway is its own tile, connected on its page.
+  const gateways = page.getByRole('link', { name: /QPay/ });
 
   await page.getByRole('searchbox', { name: 'Search integrations…' }).fill('qpay');
   await expect(gateways).toBeVisible();
   await expect(tile).toBeHidden();
-  await expect(gateways).toHaveAttribute('href', '/settings/payments');
+  await expect(gateways).toHaveAttribute('href', '/settings/integrations/qpay');
   await page.getByRole('searchbox', { name: 'Search integrations…' }).fill('');
   await page.getByRole('button', { name: 'Tax receipts' }).click();
   await expect(tile).toBeVisible();
@@ -67,7 +67,7 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
 
   await api.ebarimt.saveSettings({ ...settings, plugins: ['core'] });
 
-  const gateway = await api.payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+  const gateway = await api.integrations.connect({ key: 'test', name: 'Test', keys: {} });
   const ref = unique();
 
   const invoice = await api.payments.createInvoice({

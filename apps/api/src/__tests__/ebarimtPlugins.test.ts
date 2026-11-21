@@ -13,7 +13,7 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
   const { fake, settings } = usePosApi();
 
   beforeAll(async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
     await t.owner().ebarimt.saveSettings(settings());
   });
 

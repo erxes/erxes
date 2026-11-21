@@ -1,4 +1,4 @@
-import { newId, paymentGateways, withOrg } from '@erxes/core-db';
+import { integrationConnections, newId, withOrg } from '@erxes/core-db';
 import { describe, expect, it } from 'vite-plus/test';
 import { saveSecret } from '~/modules/secrets/vault';
 import { useTestDatabase } from './db';
@@ -24,11 +24,11 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
     };
 
     await withOrg(t.ids.org, async (tx) => {
-      await tx.insert(paymentGateways).values({
+      await tx.insert(integrationConnections).values({
         id,
-        kind: 'qpay',
+        key: 'qpay',
         name: 'QPay',
-        configSecretId: await saveSecret(tx, JSON.stringify(config)),
+        secretId: await saveSecret(tx, JSON.stringify(config)),
       });
     });
 
@@ -94,7 +94,7 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
     });
 
     // A gateway that takes dollars is picked over the first one.
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     expect(await t.hr().payments.createInvoice(order)).toMatchObject({
       currency: 'USD',

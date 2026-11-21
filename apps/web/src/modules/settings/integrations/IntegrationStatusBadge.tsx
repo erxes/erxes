@@ -1,8 +1,8 @@
+import type { Integration as ListedIntegration, IntegrationStatus } from '@erxes/core-contract';
 import { Badge, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePluginText } from '~/modules/plugins/pluginText';
 import type { Integration } from './catalog';
-import type { IntegrationStatus } from './useIntegrationStatus';
 
 const VARIANT = {
   connected: 'success',
@@ -12,7 +12,11 @@ const VARIANT = {
 } as const;
 
 /** "Connected", "Off", "Needs attention" or "Not set up"; nothing while it loads. */
-export const IntegrationStatusBadge = ({ status }: { status: IntegrationStatus | null }) => {
+export const IntegrationStatusBadge = ({
+  status,
+}: {
+  status: Pick<IntegrationStatus, 'state'> | null;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
 
   if (!status) return null;
@@ -32,8 +36,8 @@ export const useIntegrationText = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const text = usePluginText();
 
-  return (integration: Integration) =>
-    integration.kind === 'plugin'
+  return (integration: Integration | ListedIntegration) =>
+    'plugin' in integration
       ? {
           name: text(integration.plugin, integration.name),
           summary: text(integration.plugin, integration.summary),

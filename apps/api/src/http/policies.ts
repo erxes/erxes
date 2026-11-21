@@ -278,6 +278,12 @@ export const ACCESS = {
   'secrets.read': { plugin: 'secrets:write' },
   'secrets.remove': { plugin: 'secrets:write' },
 
+  'integrations.list': MEMBER,
+  'integrations.connections': MEMBER,
+  'integrations.connect': MEMBER,
+  'integrations.update': MEMBER,
+  'integrations.remove': MEMBER,
+
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),
   'webhooks.create': needs('webhooks.manage'),

@@ -1,14 +1,5 @@
-import {
-  GATEWAY_REFUND_KINDS,
-  PAYMENT_GATEWAY_STATUSES,
-  RECORDED_PAYMENT_METHODS,
-} from '@erxes/core-db/enums';
-import {
-  paymentGateways,
-  paymentInvoices,
-  paymentPluginSettings,
-  paymentRefunds,
-} from '@erxes/core-db/schema';
+import { GATEWAY_REFUND_KINDS, RECORDED_PAYMENT_METHODS } from '@erxes/core-db/enums';
+import { paymentInvoices, paymentPluginSettings, paymentRefunds } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
@@ -19,16 +10,7 @@ import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { TaxBuyer } from './ebarimt';
 import { InvoiceLine, InvoiceLineInput } from './invoiceLines';
-import { GatewayConfig, PaymentGatewayKind } from './paymentGateways';
-
-export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
-  .pick({ id: true, kind: true, name: true, status: true, createdAt: true })
-  .extend({
-    /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
-    settings: z.record(z.string(), z.unknown()),
-  });
-
-export type PaymentGateway = z.infer<typeof PaymentGateway>;
+import { IntegrationConnection } from './integrations';
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z
@@ -106,7 +88,7 @@ export const Invoice = createSelectSchema(paymentInvoices, {
   })
   .extend({
     /** The gateway's kind, joined in the query; null without a gateway. */
-    gatewayKind: PaymentGatewayKind.nullable(),
+    gatewayKind: z.string().nullable(),
     /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
     refundable: z.object({ amount: z.int(), gateway: z.enum(GATEWAY_REFUND_KINDS) }),
   });
@@ -153,12 +135,10 @@ export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
 const {
   CURRENCY_NOT_SUPPORTED,
   DEFAULT_NOT_ALLOWED,
-  GATEWAY_IN_USE,
   GATEWAY_NOT_ALLOWED,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
-  KIND_CHANGED,
   LIMIT_EXCEEDED,
   LINES_MISMATCH,
   NOTHING_TO_RETRY,
@@ -175,12 +155,10 @@ const base = oc.errors({
   ...COMMON_ERRORS,
   CURRENCY_NOT_SUPPORTED,
   DEFAULT_NOT_ALLOWED,
-  GATEWAY_IN_USE,
   GATEWAY_NOT_ALLOWED,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
-  KIND_CHANGED,
   LIMIT_EXCEEDED,
   LINES_MISMATCH,
   NOTHING_TO_RETRY,
@@ -194,36 +172,12 @@ const base = oc.errors({
 
 export const paymentsContract = {
   gateways: base
-    .route({ method: 'GET', path: '/payments/gateways' })
-    .output(listOf(PaymentGateway)),
-  addGateway: base
     .route({
-      method: 'POST',
+      method: 'GET',
       path: '/payments/gateways',
-      successStatus: 201,
-      summary: 'Connect a gateway (checked against it first)',
+      summary: 'The payment gateways connected on Settings › Integrations',
     })
-    .input(z.object({ name: z.string().trim().min(1).max(80), config: GatewayConfig }))
-    .output(PaymentGateway),
-  updateGateway: base
-    .route({ method: 'PATCH', path: '/payments/gateways/{id}' })
-    .input(
-      z.object({
-        id: Id,
-        name: z.string().trim().min(1).max(80).optional(),
-        config: GatewayConfig.optional(),
-        status: z.enum(PAYMENT_GATEWAY_STATUSES).optional(),
-      }),
-    )
-    .output(PaymentGateway),
-  removeGateway: base
-    .route({
-      method: 'DELETE',
-      path: '/payments/gateways/{id}',
-      summary: 'Remove a gateway without invoices (turn it off otherwise)',
-    })
-    .input(z.object({ id: Id }))
-    .output(z.object({ ok: z.literal(true) })),
+    .output(listOf(IntegrationConnection)),
   createInvoice: base
     .route({
       method: 'POST',
