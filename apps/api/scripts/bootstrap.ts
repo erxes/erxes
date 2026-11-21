@@ -3,9 +3,10 @@
  * until the sign-in slice exists:
  *   pnpm bootstrap --subdomain acme --name "Acme" --email owner@acme.mn --password '…'
  */
-import { configureDb, runMigrations } from '@erxes/core-db';
+import { configureDb } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
+import { migrate } from '~/lib/migrate';
 import { runCli, say } from './cli';
 import { signAccessToken } from '~/http/session';
 import { hashPassword } from '~/lib/crypto';
@@ -28,8 +29,8 @@ const main = async () => {
     );
   }
 
+  await migrate();
   configureDb(config.data);
-  await runMigrations();
 
   const { organization, owner } = await createOrganization({
     subdomain: values.subdomain,

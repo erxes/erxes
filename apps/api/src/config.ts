@@ -48,8 +48,9 @@ export const config = {
     sslInsecure: env.DATA_SSL_INSECURE ?? false,
     poolMax: env.DATA_POOL_MAX,
     /**
-     * The owner role for migrations (`pnpm db:migrate`): DDL rights the API's
-     * runtime role (DATA_URL) must not have. Falls back to DATA_URL.
+     * The owner role for migrations (`pnpm db:migrate` and migrate-on-start)
+     * and role scripts: DDL rights the API's runtime role (DATA_URL) must not
+     * have. Falls back to DATA_URL.
      */
     migrationUrl: env.DATA_MIGRATION_URL,
     /** The API's runtime role, granted access to core's tables after `pnpm db:migrate`. */

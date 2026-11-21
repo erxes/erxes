@@ -4,9 +4,10 @@
  * redeployed with the new one without downtime:
  *   pnpm plugin:secret hr
  */
-import { configureDb, runMigrations } from '@erxes/core-db';
+import { configureDb } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
+import { migrate } from '~/lib/migrate';
 import { runCli, say } from './cli';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 
@@ -17,8 +18,8 @@ const main = async () => {
     throw new Error('Usage: pnpm plugin:secret <plugin name>');
   }
 
+  await migrate();
   configureDb(config.data);
-  await runMigrations();
 
   const secret = await rotatePluginSecret(name);
 

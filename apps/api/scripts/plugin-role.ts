@@ -12,11 +12,11 @@
  * are made elsewhere (Ansible, a secret store), so it can run on every
  * deploy:  node dist/plugin-role.js hr sales --keep-password
  */
-import { configureDb, rootDb } from '@erxes/core-db';
+import { rootDb } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { parseArgs } from 'node:util';
-import { config } from '~/config';
 import { randomToken } from '~/lib/crypto';
+import { connectAsOwner } from '~/lib/migrate';
 import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { runCli, say } from './cli';
 
@@ -33,11 +33,7 @@ const main = async () => {
   const passwords = new Map(names.map((name) => [name, keep ? undefined : randomToken(24)]));
   const roleSql = names.map((name) => pluginRoleSql(name, passwords.get(name))).join('\n');
 
-  configureDb({
-    ...config.data,
-    url: config.data.migrationUrl ?? config.data.url,
-    role: undefined,
-  });
+  connectAsOwner();
   await rootDb().execute(sql.raw(roleSql));
 
   for (const [name, password] of passwords) {
