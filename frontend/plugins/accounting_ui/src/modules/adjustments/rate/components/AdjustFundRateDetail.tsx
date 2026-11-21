@@ -40,6 +40,7 @@ import { AdjustDetailField } from '@/adjustments/components/AdjustDetailField';
 import { AdjustRateDetailHeader } from '@/adjustments/components/AdjustRateDetailHeader';
 import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AdjustWarning } from '@/adjustments/components/AdjustWarning';
 
 const formatAmount = (amount?: number) =>
   typeof amount === 'number' ? amount.toLocaleString() : '-';
@@ -433,9 +434,7 @@ export const AdjustFundRateDetail = () => {
           }: ${adjustFundRate.error}`}
         </div>
       )}
-      {adjustFundRate.warning && (
-        <div className="text-sm text-warning">{adjustFundRate.warning}</div>
-      )}
+      <AdjustWarning warning={adjustFundRate.warning} />
 
       <Tabs defaultValue="calculation" className="flex flex-col gap-3">
         <Tabs.List className="w-fit">

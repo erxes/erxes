@@ -10,7 +10,7 @@ export type TTransactionDecision = 'APPROVE' | 'DECLINE';
 
 const uniqueIds = (ids: string[] = []) => [...new Set(ids.filter(Boolean))];
 
-const isAddressed = (status?: string) =>
+const isAddressed = (status?: string): status is string =>
   status === TR_STATUSES.MENTIONED || status === TR_STATUSES.REQUESTED;
 
 export const resolveTrStatusWorkflow = ({
@@ -30,7 +30,8 @@ export const resolveTrStatusWorkflow = ({
   const mentionOwnerId = next.mentionOwnerId || old?.mentionOwnerId || userId;
 
   if (decision) {
-    if (!isAddressed(old?.status) || !oldMentionUserIds.includes(userId)) {
+    const oldStatus = old?.status;
+    if (!isAddressed(oldStatus) || !oldMentionUserIds.includes(userId)) {
       throw new Error(
         'Only a listed approver can decide an open transaction request',
       );
@@ -45,7 +46,7 @@ export const resolveTrStatusWorkflow = ({
     const remainingUserIds = declined
       ? oldMentionUserIds
       : oldMentionUserIds.filter((id) => id !== userId);
-    const isRequest = old?.status === TR_STATUSES.REQUESTED;
+    const isRequest = oldStatus === TR_STATUSES.REQUESTED;
     const doneStatus = isRequest ? TR_STATUSES.COMPLETE : TR_STATUSES.DRAFT;
     const declinedStatus = isRequest
       ? TR_STATUSES.EXECUTING
@@ -55,7 +56,7 @@ export const resolveTrStatusWorkflow = ({
       status: declined
         ? declinedStatus
         : remainingUserIds.length
-        ? old?.status || status
+        ? oldStatus
         : doneStatus,
       mentionOwnerId: old?.mentionOwnerId || mentionOwnerId,
       mentionUserIds: remainingUserIds,

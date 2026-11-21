@@ -15,7 +15,7 @@ import {
 import { ITransaction, ITrDetail } from '../@types/transaction';
 import {
   assertNoUnsettledTransaction,
-  UnsettledTransactionError,
+  getAdjustmentFailure,
 } from './unsettledTransactions';
 
 type TDebtBalance = {
@@ -637,10 +637,6 @@ export const calculateAdjustDebtRate = async (
   } catch (error) {
     const validationError =
       error instanceof DebtRateValidationError ? error : undefined;
-    const unsettled =
-      error instanceof UnsettledTransactionError ? error : undefined;
-    const message =
-      error instanceof Error ? error.message : 'Validation failed.';
     const updatedAdjust = await models.AdjustDebtRates.updateAdjustDebtRate(
       adjust._id || '',
       {
@@ -650,11 +646,9 @@ export const calculateAdjustDebtRate = async (
           validationError?.beginDate ||
           adjust.beginDate ||
           getPureDate(adjust.date),
-        successDate: unsettled?.date || validationError?.date,
+        ...getAdjustmentFailure(error, validationError?.date),
         checkedAt: new Date(),
         status: 'process',
-        error: unsettled ? '' : message,
-        warning: unsettled ? message : '',
         modifiedBy: userId,
       },
     );

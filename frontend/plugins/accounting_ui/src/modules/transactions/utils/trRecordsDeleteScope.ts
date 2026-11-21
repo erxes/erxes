@@ -1,4 +1,4 @@
-import { TR_POSTED_STATUSES } from '@/transactions/types/constants';
+import { TR_COMMITTED_STATUSES } from '@/transactions/types/constants';
 
 type TrRecordRef = {
   parentId?: string | null;
@@ -69,7 +69,7 @@ export const buildTrRecordsDeleteScope = (
     transactions,
     lineCount: transactions.reduce((sum, tr) => sum + tr.lineCount, 0),
     hasPublished: removedTrs.some((tr) =>
-      TR_POSTED_STATUSES.includes(tr.status ?? ''),
+      TR_COMMITTED_STATUSES.includes(tr.status ?? ''),
     ),
   };
 };

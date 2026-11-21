@@ -41,7 +41,10 @@ import {
   TFxaCorrection,
 } from './fxaRules';
 import { getFxaRevaluationStates } from './fxaRevaluationState';
-import { UNSETTLED_TR_STATUSES } from './unsettledTransactions';
+import {
+  findUnsettledTransaction,
+  getUnsettledTransactionMessage,
+} from './unsettledTransactions';
 
 type TDailyValidationResult = {
   successDate?: Date;
@@ -104,12 +107,12 @@ const getFirstAcquisitionDate = async (models: IModels, endDate: Date) => {
   return undefined;
 };
 
-const getUncompletedFixedAssetTransaction = async (
+const getUncompletedFixedAssetTransaction = (
   models: IModels,
   beginDate: Date,
   endDate: Date,
-) => {
-  return models.Transactions.findOne({
+) =>
+  findUnsettledTransaction(models, {
     date: { $gte: beginDate, $lt: endDate },
     journal: {
       $in: [
@@ -119,11 +122,7 @@ const getUncompletedFixedAssetTransaction = async (
       ],
     },
     'details.fixedAssetId': { $exists: true, $ne: '' },
-    status: { $in: UNSETTLED_TR_STATUSES },
-  })
-    .sort({ date: 1 })
-    .lean();
-};
+  });
 
 const getFxaMovements = async (models: IModels, endDate: Date) => {
   const transactions = await models.Transactions.find({
@@ -456,9 +455,7 @@ const validateFxaAdjustmentByDay = async ({
       // addressed draft and planned rows never count and are skipped.
       return {
         successDate: addDays(currentDate, -1),
-        warning: `Transactions must be complete before adjusting. Transaction: ${
-          uncompletedTr.number || uncompletedTr._id
-        } (${uncompletedTr.status})`,
+        warning: getUnsettledTransactionMessage(uncompletedTr),
       };
     }
 
@@ -713,7 +710,6 @@ export const runAdjustFixedAsset = async (
     adjust,
   );
   const endDate = getPureDate(adjust.date);
-
   const fixedAssets = await getFxaLedgerAssets(models, endDate);
   const movements = await getFxaMovements(models, endDate);
   const depreciationMovements = await getDepreciationMovements(

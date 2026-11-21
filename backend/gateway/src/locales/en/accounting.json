@@ -414,7 +414,6 @@
   "select-approvers": "Select approvers",
   "select-approvers-description": "The selected users will be asked to approve this transaction.",
   "send-request": "Send request",
-  "awaiting-my-action": "Awaiting my action",
   "tr-status-committed": "Committed",
   "tr-status-estimated": "Estimated",
   "tr-status-complete": "Completed",

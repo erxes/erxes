@@ -17,7 +17,6 @@ jest.mock('@tabler/icons-react', () => ({
   IconNumber: () => null,
   IconSearch: () => null,
   IconToggleRightFilled: () => null,
-  IconUserCheck: () => null,
 }));
 
 jest.mock('ui-modules', () => {
@@ -38,10 +37,7 @@ jest.mock('ui-modules', () => {
       ) : null,
   });
 
-  const { atom } = jest.requireActual('jotai');
-
   return {
-    currentUserState: atom({ _id: 'current-user' }),
     SelectBranches: mockSelect('branch'),
     SelectDepartments: mockSelect('department'),
     SelectMember: mockSelect('member'),
@@ -88,8 +84,6 @@ jest.mock('@/settings/account/components/filters/FilterHelpers', () => {
 jest.mock('erxes-ui', () => ({
   parseDateRangeFromString: jest.fn(),
   useRecordTableCursor: () => ({ cursor: '' }),
-  useFilterContext: () => ({ sessionKey: '' }),
-  useFilterQueryState: () => [null, jest.fn()],
   useMultiQueryState: (keys: string[]) => [
     Object.fromEntries(keys.map((key) => [key, mockParams[key] ?? null])),
     jest.fn(),
@@ -114,9 +108,6 @@ jest.mock('erxes-ui', () => ({
       DialogDateView: () => null,
       DialogStringView: () => null,
       CommandInput: () => null,
-      CommandItem: ({ children }: { children: React.ReactNode }) => (
-        <button>{children}</button>
-      ),
       Trigger: ({ isFiltered }: { isFiltered: boolean }) => (
         <button>{isFiltered ? 'filter active' : 'filter idle'}</button>
       ),

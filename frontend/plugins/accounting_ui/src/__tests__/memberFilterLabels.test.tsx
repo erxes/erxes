@@ -69,23 +69,10 @@ jest.mock('erxes-ui', () => {
           {children}
         </div>
       ),
-      CommandItem: ({
-        children,
-        value,
-      }: {
-        children?: React.ReactNode;
-        value: string;
-      }) => (
-        <div role="option" aria-label={value} aria-selected={false}>
-          {children}
-        </div>
-      ),
       Popover: Passthrough,
       Trigger: nothing,
       View: Passthrough,
     }),
-    useFilterContext: () => ({ sessionKey: '' }),
-    useFilterQueryState: () => [null, jest.fn()],
     useMultiQueryState: () => [{}],
   };
 });
@@ -108,10 +95,7 @@ jest.mock('ui-modules', () => {
   }) => <div data-testid={`chip-${queryKey ?? filterKey}`}>{label}</div>;
   const select = { FilterBar, FilterItem, FilterView: nothing };
 
-  const { atom } = jest.requireActual('jotai');
-
   return {
-    currentUserState: atom({ _id: 'current-user' }),
     SelectBranches: select,
     SelectDepartments: select,
     SelectMember: select,
@@ -186,14 +170,6 @@ describe.each([
 
       const labels = menuLabels();
       expect(new Set(labels).size).toBe(labels.length);
-    });
-
-    it('offers a one-step filter for requests awaiting the current user', () => {
-      render(<TransactionsFilter />);
-
-      expect(optionText('awaitingMyAction')).toBe(
-        mockLocales[language]['awaiting-my-action'],
-      );
     });
 
     it('keeps the labels distinct next to the branch, department and journal filters of the receipts page', () => {

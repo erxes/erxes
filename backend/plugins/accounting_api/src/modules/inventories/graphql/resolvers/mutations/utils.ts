@@ -6,6 +6,7 @@ import { ADJ_INV_STATUSES } from '~/modules/accounting/@types/adjustInventory';
 import {
   ACCOUNT_JOURNALS,
   TRANSACTION_STATUS_TYPES,
+  getTransactionStatusType,
   TR_SIDES,
   TR_STATUSES,
 } from '~/modules/accounting/@types/constants';
@@ -53,18 +54,6 @@ const emptyInventoryInfo = (): TInventoryInfo => ({
   soonOut: 0,
 });
 
-const getInventoryStatusType = (status?: string) => {
-  if (TRANSACTION_STATUS_TYPES.REAL_STATUSES.includes(status || '')) {
-    return TRANSACTION_STATUS_TYPES.REAL;
-  }
-
-  if (TRANSACTION_STATUS_TYPES.SOON_STATUSES.includes(status || '')) {
-    return TRANSACTION_STATUS_TYPES.SOON;
-  }
-
-  return TRANSACTION_STATUS_TYPES.OMIT;
-};
-
 const ensureInventoryInfo = (
   inventoryByProductId: Record<string, TInventoryInfo>,
   productId: string,
@@ -87,7 +76,7 @@ const applyTransactionDetailToInventory = (
     return;
   }
 
-  const statusType = getInventoryStatusType(status);
+  const statusType = getTransactionStatusType(status);
 
   if (statusType === TRANSACTION_STATUS_TYPES.OMIT) {
     return;

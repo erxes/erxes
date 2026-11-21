@@ -3,6 +3,7 @@ import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { IAccountDocument } from '../../@types/account';
 import { ActivityLogInput } from 'erxes-api-shared/core-modules';
+import type { TTransactionDecision } from '../../utils/trStatusWorkflow';
 
 const getAccountIdsOnTr = async (
   models: IModels,
@@ -225,7 +226,7 @@ export const generateTrStatusActivityLog = (param: {
   oldStatus?: string;
   oldMentionOwnerId?: string;
   oldMentionUserIds?: string[];
-  decision?: 'APPROVE' | 'DECLINE';
+  decision?: TTransactionDecision;
 }): ActivityLogInput | undefined => {
   const {
     parentId,

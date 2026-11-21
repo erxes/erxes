@@ -40,6 +40,7 @@ import { AdjustDetailField } from '@/adjustments/components/AdjustDetailField';
 import { AdjustRateDetailHeader } from '@/adjustments/components/AdjustRateDetailHeader';
 import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
+import { AdjustWarning } from '@/adjustments/components/AdjustWarning';
 
 const DebtRateCustomer = ({
   customerType,
@@ -358,9 +359,7 @@ export const AdjustDebtRateDetail = () => {
       {adjustDebtRate.error && (
         <div className="text-sm text-destructive">{adjustDebtRate.error}</div>
       )}
-      {adjustDebtRate.warning && (
-        <div className="text-sm text-warning">{adjustDebtRate.warning}</div>
-      )}
+      <AdjustWarning warning={adjustDebtRate.warning} />
 
       {adjustDebtRate.details && adjustDebtRate.details.length > 0 && (
         <div className="flex flex-col gap-3">

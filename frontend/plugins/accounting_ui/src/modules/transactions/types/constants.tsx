@@ -285,7 +285,7 @@ const TRANSACTION_STATUS = {
   PLAN: 'plan',
 };
 
-export const TR_POSTED_STATUSES = [
+export const TR_COMMITTED_STATUSES = [
   TRANSACTION_STATUS.ESTIMATED,
   TRANSACTION_STATUS.COMPLETE,
 ];
@@ -297,7 +297,7 @@ export const TR_STATUS_GROUPS = [
   {
     key: 'committed',
     label: 'tr-status-committed',
-    values: TR_POSTED_STATUSES,
+    values: TR_COMMITTED_STATUSES,
   },
   {
     key: 'pending',

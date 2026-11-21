@@ -93,6 +93,15 @@ export const TRANSACTION_STATUS_TYPES = {
   REAL_STATUSES,
 };
 
+/** The accounting tier of a status; unknown or missing statuses are omitted. */
+export const getTransactionStatusType = (status?: string) => {
+  if (REAL_STATUSES.includes(status || ''))
+    return TRANSACTION_STATUS_TYPES.REAL;
+  if (SOON_STATUSES.includes(status || ''))
+    return TRANSACTION_STATUS_TYPES.SOON;
+  return TRANSACTION_STATUS_TYPES.OMIT;
+};
+
 export const PTR_STATUSES = {
   UNKNOWN: 'unknown',
   DIFF: 'diff',

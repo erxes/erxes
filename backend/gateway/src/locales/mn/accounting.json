@@ -414,7 +414,6 @@
   "select-approvers": "Зөвшөөрөгч сонгох",
   "select-approvers-description": "Сонгосон хэрэглэгчдээс энэ гүйлгээг зөвшөөрөхийг хүснэ.",
   "send-request": "Хүсэлт илгээх",
-  "awaiting-my-action": "Миний шийдвэр хүлээж буй",
   "tr-status-committed": "Хэрэгжсэн",
   "tr-status-estimated": "Баримжаалсан",
   "tr-status-complete": "Бүрэн дууссан",

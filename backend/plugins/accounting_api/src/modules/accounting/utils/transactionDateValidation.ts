@@ -1,7 +1,11 @@
 import { getFullDate } from 'erxes-api-shared/utils';
 import type { IModels } from '~/connectionResolvers';
 import type { ITransaction } from '../@types/transaction';
-import { JOURNALS, TRANSACTION_STATUS_TYPES } from '../@types/constants';
+import {
+  getTransactionStatusType,
+  JOURNALS,
+  TRANSACTION_STATUS_TYPES,
+} from '../@types/constants';
 
 type TAdjustmentModel = Pick<
   IModels,
@@ -148,7 +152,8 @@ export const validateTransactionDate = async (
   // saved or removed inside a closed period; the check runs when a save makes
   // the row real there (an approval included) or takes a real row out of it.
   const isReal = (tr?: ITransaction) =>
-    !!tr && TRANSACTION_STATUS_TYPES.REAL_STATUSES.includes(tr.status || '');
+    !!tr &&
+    getTransactionStatusType(tr.status) === TRANSACTION_STATUS_TYPES.REAL;
   const newReal = isReal(transaction);
   const oldReal = isReal(oldTransaction);
   if (!newReal && !oldReal) return;

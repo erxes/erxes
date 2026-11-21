@@ -25,7 +25,7 @@ const statusFilters = (userId: string): Record<string, object> => ({
   [TR_STATUSES.PLAN]: { status: TR_STATUSES.PLAN },
 });
 
-export const TR_NAV_STATUS_GROUPS: Record<string, string[]> = {
+const TR_NAV_STATUS_GROUPS: Record<string, string[]> = {
   committed: [TR_STATUSES.ESTIMATED, TR_STATUSES.COMPLETE],
   pending: [TR_STATUSES.EXECUTING, TR_STATUSES.REQUESTED],
   drafts: [TR_STATUSES.DRAFT, TR_STATUSES.MENTIONED],

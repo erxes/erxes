@@ -21,7 +21,7 @@ import { useAtomValue } from 'jotai';
 import { ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TR_POSTED_STATUSES, TR_SIDES } from '../../types/constants';
+import { TR_COMMITTED_STATUSES, TR_SIDES } from '../../types/constants';
 import { getTransactionReturnPath } from '../../utils/transactionNavigation';
 import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
 import { followTrDocsState } from '../states/trStates';
@@ -92,8 +92,8 @@ export const Summary = ({
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
   const diffAmount = fixNum(sumCredit - sumDebit, 4);
   const hasHiddenTransaction = (trDocs || []).some(isHiddenTransaction);
-  // Anything not posted has no real accounting effect yet.
-  const isDraftedStatus = !TR_POSTED_STATUSES.includes(status || '');
+  // Anything not committed has no real accounting effect yet.
+  const isDraftedStatus = !TR_COMMITTED_STATUSES.includes(status || '');
   const SubmitIcon = isDraftedStatus ? IconFilePencil : IconGavel;
 
   const saveDisabledReason =

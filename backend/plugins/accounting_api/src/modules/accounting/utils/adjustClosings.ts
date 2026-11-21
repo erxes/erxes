@@ -15,7 +15,7 @@ import {
 import { ITransaction, ITrDetail } from '../@types/transaction';
 import {
   assertNoUnsettledTransaction,
-  UnsettledTransactionError,
+  getAdjustmentFailure,
 } from './unsettledTransactions';
 
 type TAccountMeta = {
@@ -614,10 +614,6 @@ export const calculateAdjustClosing = async (
   } catch (error) {
     const validationError =
       error instanceof ClosingValidationError ? error : undefined;
-    const unsettled =
-      error instanceof UnsettledTransactionError ? error : undefined;
-    const message =
-      error instanceof Error ? error.message : 'Validation failed.';
 
     return models.AdjustClosings.updateAdjustClosing(adjust._id || '', {
       details: [],
@@ -625,11 +621,9 @@ export const calculateAdjustClosing = async (
         validationError?.beginDate ||
         adjust.beginDate ||
         getPureDate(adjust.date),
-      successDate: unsettled?.date || validationError?.date,
+      ...getAdjustmentFailure(error, validationError?.date),
       checkedAt: new Date(),
       status: 'process',
-      error: unsettled ? '' : message,
-      warning: unsettled ? message : '',
       closePeriodTrId: '',
       earningTrId: '',
       taxPayableTrId: '',
