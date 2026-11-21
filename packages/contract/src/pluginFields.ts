@@ -65,6 +65,20 @@ const PluginValue = z.object({
     .nullable(),
 });
 
+/** Values of a plugin's own fields on core's records, by the manifest's codes. */
+export const PluginValuesInput = z.object({
+  contentType: z.enum(CONTENT_TYPES),
+  values: z.array(PluginValue).min(1).max(PLUGIN_VALUES_MAX),
+});
+
+/** What a write of a plugin's values did. */
+export const PluginValuesWritten = z.object({
+  /** Values written or cleared. */
+  written: z.int(),
+  /** Ids of records that don't exist here (deleted, or never this organisation's). */
+  skipped: z.array(Id),
+});
+
 const { INVALID_FIELD, INVALID_FIELD_VALUE } = ERRORS;
 
 const base = oc.errors({ ...COMMON_ERRORS, INVALID_FIELD, INVALID_FIELD_VALUE });
@@ -78,20 +92,8 @@ export const pluginFieldsContract = {
       summary:
         "Write values of the calling plugin's own fields (by manifest `code`), up to 500; null clears one. Quiet: no timeline entry, event, audit row or notification. Records not found are skipped. 400 INVALID_FIELD for a code the manifest doesn't declare, INVALID_FIELD_VALUE for a value that doesn't fit",
     })
-    .input(
-      z.object({
-        contentType: z.enum(CONTENT_TYPES),
-        values: z.array(PluginValue).min(1).max(PLUGIN_VALUES_MAX),
-      }),
-    )
-    .output(
-      z.object({
-        /** Values written or cleared. */
-        written: z.int(),
-        /** Ids of records that don't exist here (deleted, or never this organisation's). */
-        skipped: z.array(Id),
-      }),
-    ),
+    .input(PluginValuesInput)
+    .output(PluginValuesWritten),
   check: base
     .route({
       method: 'POST',

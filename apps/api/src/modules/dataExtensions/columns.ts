@@ -119,6 +119,7 @@ const SCALAR: Partial<Record<FieldType, ColumnType>> = {
   date: 'date',
   dateTime: 'timestamptz',
   multiSelect: 'text[]',
+  textList: 'text[]',
   files: 'jsonb',
   json: 'jsonb',
   autoNumber: 'bigint',

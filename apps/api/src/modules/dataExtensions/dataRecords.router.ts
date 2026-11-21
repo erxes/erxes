@@ -1,6 +1,7 @@
 import { db } from '@erxes/core-db';
 import { scoped, audited, recordOf } from '~/orpc';
 import { getValues, lookupValues, updateValues } from './hostValues.service';
+import { setPluginDataValues } from './pluginFieldValues';
 import { checkValues } from './pluginValues.service';
 import { createRecord, setRecordDeleted, updateRecord } from './recordWrites';
 import { getRecord, listRecords } from './records.service';
@@ -62,4 +63,8 @@ export const dataValuesRouter = {
     ),
   ),
   check: scoped.dataValues.check.handler(({ input }) => checkValues(db(), input)),
+  // Not audited: values a plugin works out and rewrites on every change (the service says why).
+  setPluginValues: scoped.dataValues.setPluginValues.handler(({ input }) =>
+    setPluginDataValues(db(), input),
+  ),
 };

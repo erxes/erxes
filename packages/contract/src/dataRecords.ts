@@ -1,12 +1,20 @@
 import { DATA_EXTENSION_SORT_COLUMNS } from '@erxes/core-db/dataExtensionEnums';
 import { SORT_DIRECTIONS } from '@erxes/core-db/enums';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id, IdList, isoDate, listOf, QueryBoolean } from './common';
 import {
-  DataExtensionFieldKey,
-  DataExtensionObjectKey,
-  DataExtensionRecordType,
-} from './dataExtensionFields';
+  AppliesTo,
+  CursorQuery,
+  cursorPageOf,
+  Id,
+  IdList,
+  isoDate,
+  listOf,
+  QueryBoolean,
+} from './common';
+import { ERRORS } from './errors';
+import { PluginValuesInput, PluginValuesWritten } from './pluginFields';
+import { DataExtensionFieldKey } from './dataExtensionConditions';
+import { DataExtensionObjectKey, DataExtensionRecordType } from './dataExtensionFields';
 import { dataExtensionsBase as base } from './dataExtensions';
 import { DataExtensionValues, DataExtensionValuesInput } from './dataExtensionValues';
 
@@ -175,7 +183,25 @@ export const dataValuesContract = {
         create: z.boolean().default(false),
         /** The member who made the change: their role must be allowed to change these fields. */
         userId: Id.optional(),
+        /**
+         * What the record is in, by the keys groups' `appliesTo` name (`{ team: [id] }`): a field
+         * whose group doesn't apply is skipped, so it isn't required and a patch can't set it.
+         */
+        appliesTo: AppliesTo.default({}),
       }),
     )
     .output(z.object({ values: ValuesById })),
+  setPluginValues: base
+    .errors({
+      INVALID_FIELD: ERRORS.INVALID_FIELD,
+      INVALID_FIELD_VALUE: ERRORS.INVALID_FIELD_VALUE,
+    })
+    .route({
+      method: 'POST',
+      path: '/data-values/plugin-values',
+      summary:
+        "Write values of the calling plugin's own fields on customers or companies (by manifest `code`), up to 500; null clears one. Quiet: no history entry, event, audit row or notification. Records not found are skipped. 400 INVALID_FIELD for a code the manifest doesn't declare, INVALID_FIELD_VALUE for a value that doesn't fit",
+    })
+    .input(PluginValuesInput)
+    .output(PluginValuesWritten),
 };

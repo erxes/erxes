@@ -13,6 +13,7 @@ import { eventsContract } from './events';
 import { customersContract } from './customers';
 import { dataFieldsContract, dataObjectsContract } from './dataExtensions';
 import { dataChangesContract } from './dataChanges';
+import { dataFieldGroupsContract } from './dataFieldGroups';
 import { dataPluginsContract } from './dataPlugins';
 import { dataRecordsContract, dataValuesContract } from './dataRecords';
 import { favoritesContract } from './favorites';
@@ -55,6 +56,7 @@ export type CoreContract = {
   customers: typeof customersContract;
   dataFields: typeof dataFieldsContract;
   dataObjects: typeof dataObjectsContract;
+  dataFieldGroups: typeof dataFieldGroupsContract;
   dataPlugins: typeof dataPluginsContract;
   dataChanges: typeof dataChangesContract;
   dataRecords: typeof dataRecordsContract;
@@ -106,6 +108,7 @@ export const coreContract: CoreContract = {
   customers: customersContract,
   dataFields: dataFieldsContract,
   dataObjects: dataObjectsContract,
+  dataFieldGroups: dataFieldGroupsContract,
   dataPlugins: dataPluginsContract,
   dataChanges: dataChangesContract,
   dataRecords: dataRecordsContract,
@@ -182,6 +185,10 @@ export * from './dataExtensions';
 export * from './dataChanges';
 
 export * from './dataPlugins';
+
+export * from './dataExtensionConditions';
+
+export * from './dataFieldGroups';
 
 export * from './recordNativeFields';
 

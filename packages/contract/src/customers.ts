@@ -5,6 +5,11 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CompanyId, CustomerId } from './records';
+import {
+  DataExtensionValues,
+  DataExtensionValuesInput,
+  DataSortQuery,
+} from './dataExtensionValues';
 import { ContactState, CustomerSex } from './values';
 import {
   CursorQuery,
@@ -68,6 +73,9 @@ export const Customer = createSelectSchema(customers, {
 
 export type Customer = z.infer<typeof Customer>;
 
+/** A customer as its get, list, create and update answer: with the Data Extensions values the caller may read. */
+export const CustomerWithValues = Customer.extend({ values: DataExtensionValues });
+
 export const CustomerFields = createUpdateSchema(customers, {
   firstName: (name) => name.trim().max(100),
   middleName: (name) => name.trim().max(100),
@@ -109,6 +117,8 @@ export const CustomerFields = createUpdateSchema(customers, {
     tagIds: z.array(Id).max(50).optional(),
     /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
     customFields: CustomFieldsPatch.optional(),
+    /** Sets the given Data Extensions values by field key; `null` clears one. Others stay. */
+    values: DataExtensionValuesInput.optional(),
   });
 
 export type CustomerInput = z.infer<typeof CustomerFields>;
@@ -218,9 +228,9 @@ export const customersContract = {
         ids: IdList.optional(),
         /** An advanced filter: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
-      }),
+      }).extend(DataSortQuery.shape),
     )
-    .output(cursorPageOf(Customer)),
+    .output(cursorPageOf(CustomerWithValues)),
   findOrCreate: base
     .route({
       method: 'POST',
@@ -254,7 +264,7 @@ export const customersContract = {
       summary: 'A customer; ids merged into another customer resolve to it',
     })
     .input(ID)
-    .output(Customer),
+    .output(CustomerWithValues),
   create: base
     .route({
       method: 'POST',
@@ -263,11 +273,11 @@ export const customersContract = {
       summary: 'Create a customer. 409 TAKEN (data.field) when the primary email or phone is taken',
     })
     .input(CustomerFields.refine(identifies, 'a name, an email or a phone is required'))
-    .output(Customer),
+    .output(CustomerWithValues),
   update: base
     .route({ method: 'PATCH', path: '/customers/{id}' })
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
-    .output(Customer),
+    .output(CustomerWithValues),
   remove: base
     .route({
       method: 'POST',

@@ -43,6 +43,7 @@ import {
   dataPluginsRouter,
 } from '~/modules/dataExtensions/dataModel.router';
 import { dataRecordsRouter, dataValuesRouter } from '~/modules/dataExtensions/dataRecords.router';
+import { dataFieldGroupsRouter } from '~/modules/dataExtensions/fieldGroups.router';
 import { recordTypesRouter } from '~/modules/recordTypes/recordTypes.router';
 import { unscoped } from '~/orpc';
 
@@ -92,6 +93,7 @@ export const coreRouter = unscoped.router({
   dataObjects: dataObjectsRouter,
   dataPlugins: dataPluginsRouter,
   dataFields: dataFieldsRouter,
+  dataFieldGroups: dataFieldGroupsRouter,
   dataRecords: dataRecordsRouter,
   dataValues: dataValuesRouter,
   dataChanges: dataChangesRouter,

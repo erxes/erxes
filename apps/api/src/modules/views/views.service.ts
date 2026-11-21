@@ -6,6 +6,8 @@ import { wholeList } from '~/lib/keyset';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
+import { DATA_PATH } from '~/modules/dataExtensions/hostFilters';
+import { dataSort } from './dataFilterFields';
 import { filterFields } from './filterFields';
 import { listSharedViews } from './pluginViews';
 import { compileRecordFilter } from './recordFilter';
@@ -102,6 +104,13 @@ const assertFilter = async (
   if (isCoreList(recordType)) await compileRecordFilter(client, recordType, filter);
 };
 
+/** A core list's sort by a Data Extensions field (`data.<key>`) names one it can sort by. */
+const assertSort = async (client: Db, recordType: ViewListType, sort: ViewInput['sort']) => {
+  if (isCoreList(recordType) && sort?.field.startsWith(DATA_PATH)) {
+    await dataSort(client, recordType, { sortField: sort.field, sortDirection: sort.direction });
+  }
+};
+
 /** Saves a view after checking its filter. */
 export const createView = async (
   client: Db,
@@ -110,6 +119,7 @@ export const createView = async (
   assertSees(input.recordType);
   assertShareable(input.recordType, input.shared);
   await assertFilter(client, input.recordType, input.filter ?? null);
+  await assertSort(client, input.recordType, input.sort);
 
   const row = oneRow(
     await client
@@ -156,6 +166,8 @@ export const updateView = async (client: Db, id: string, { search, ...input }: V
   assertShareable(row.recordType, input.shared);
 
   if (input.filter !== undefined) await assertFilter(client, row.recordType, input.filter);
+
+  await assertSort(client, row.recordType, input.sort);
 
   const next = oneRow(
     await client

@@ -1,56 +1,23 @@
-import type {
-  DataExtensionField,
-  DataExtensionFieldSettings,
-  DataExtensionValues,
-} from '@erxes/core-contract';
+import type { DataExtensionField, DataExtensionValues } from '@erxes/core-contract';
+import { conditionHolds, fieldShows } from '@erxes/core-contract/dataExtensionConditions';
 import { isApiError } from '@erxes/core-contract/client';
 import { isComputedType } from './fieldTypes';
 
 /** One value as the API holds it: JSON, or null when cleared. */
 export type Value = DataExtensionValues[string];
 
-type Condition = NonNullable<DataExtensionFieldSettings['visibleWhen']>;
-
-/** No value: null, blank text, an empty list, or a composite with every part empty (as the API reads it). */
-const isEmptyValue = (value: Value | undefined): boolean => {
-  if (value === null || value === undefined || value === '') return true;
-
-  if (Array.isArray(value)) return value.length === 0;
-
-  return typeof value === 'object' && Object.values(value).every(isEmptyValue);
-};
-
 const same = (a: Value | undefined, b: Value | undefined) =>
   JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
-/** `value` matches `wanted`; a list matches when one of its items does. */
-const matches = (value: Value | undefined, wanted: Value | undefined) =>
-  Array.isArray(value) ? value.some((item) => same(item, wanted)) : same(value, wanted);
-
-/** Whether the record's values meet a field's condition, as the API checks it on each write. */
-const conditionHolds = (condition: Condition, values: DataExtensionValues) => {
-  const value = values[condition.field] ?? null;
-
-  switch (condition.operator) {
-    case 'isNotEmpty':
-      return !isEmptyValue(value);
-    case 'eq':
-      return matches(value, condition.value);
-    case 'neq':
-      return !matches(value, condition.value);
-    case 'in':
-      return (
-        Array.isArray(condition.value) && condition.value.some((wanted) => matches(value, wanted))
-      );
-  }
-};
-
-/** How a field shows on a form, given the record's values now. */
+/**
+ * How a field shows on a form, given the record's values now, as the API checks it on each
+ * write: hidden fields never show.
+ */
 export const fieldState = (field: DataExtensionField, values: DataExtensionValues) => {
-  const { visibleWhen, requiredWhen, required, readOnly } = field.settings;
+  const { requiredWhen, required, readOnly, hidden } = field.settings;
 
   return {
-    visible: !visibleWhen || conditionHolds(visibleWhen, values),
+    visible: !hidden && fieldShows(field.settings, values),
     required: Boolean(required) || Boolean(requiredWhen && conditionHolds(requiredWhen, values)),
     /** Computed, numbered or read-only: shown, never typed in. */
     locked: isComputedType(field.type) || Boolean(readOnly),

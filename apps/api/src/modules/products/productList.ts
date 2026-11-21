@@ -4,6 +4,7 @@ import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
+import { type DataSortInput, dataSort } from '~/modules/views/dataFilterFields';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { productColumns } from './productChecks';
 
@@ -48,7 +49,10 @@ export const productSearch = (search: string) => {
   );
 };
 
-export const listProducts = async (client: Db, query: CursorQuery & ProductQuery) => {
+export const listProducts = async (
+  client: Db,
+  query: CursorQuery & ProductQuery & DataSortInput,
+) => {
   const filter = await compileRecordFilter(client, 'product', query.filter);
 
   return keysetPage(
@@ -57,6 +61,7 @@ export const listProducts = async (client: Db, query: CursorQuery & ProductQuery
       table: products,
       id: products.id,
       createdAt: products.createdAt,
+      sort: await dataSort(client, 'product', query),
     },
     and(
       eq(products.status, query.status),

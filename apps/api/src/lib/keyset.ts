@@ -4,6 +4,7 @@ import type { SQL } from 'drizzle-orm';
 import { and, count, eq, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { fail } from '~/http/errors';
+import { sortedWalk } from './sortedWalk';
 
 export interface KeysetSource {
   table: PgTable;
@@ -16,6 +17,8 @@ export interface KeysetSource {
    * large logs page fast.
    */
   countCap?: number;
+  /** Order by this instead of newest first: records without a value last, then by id. */
+  sort?: { expr: SQL; descending: boolean };
 }
 
 type Fetch<Row> = (where: SQL | undefined, orderBy: SQL[], limit: number) => Promise<Row[]>;
@@ -42,7 +45,34 @@ export const wholeList = async <Row>(fetch: (limit: number) => Promise<Row[]>) =
 };
 
 /**
- * Newest-first keyset paging over (created_at, id). The cursor is a record id;
+ * Newest first over (created_at, id): "forward" walks to older rows, "backward" to newer ones.
+ * The lists' indexes are `(org_id, created_at DESC, id DESC)`, which Drizzle writes NULLS LAST:
+ * the order spells that out (or its reverse) so Postgres reads the page from the index instead
+ * of sorting every row of the organisation.
+ */
+const newestFirst = (
+  { table, id, createdAt }: KeysetSource,
+  forward: boolean,
+  inclusive: boolean,
+  cursor: string | undefined,
+) => {
+  const position = (operator: '<' | '<=' | '>' | '>=') =>
+    sql`(${createdAt}, ${id}) ${sql.raw(operator)} (select ${createdAt}, ${id} from ${table} where ${id} = ${cursor})`;
+
+  const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
+  const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
+
+  return {
+    order: forward
+      ? [sql`${createdAt} desc nulls last`, sql`${id} desc nulls last`]
+      : [sql`${createdAt} asc nulls first`, sql`${id} asc nulls first`],
+    page: cursor ? position(pageSide) : undefined,
+    back: cursor ? position(otherSide) : undefined,
+  };
+};
+
+/**
+ * Newest-first keyset paging over (created_at, id), or over `sort` and id. The cursor is a record id;
  * comparisons read its position from the table itself, so timestamps keep full
  * precision. `fetch` runs the typed select with the page condition and order.
  */
@@ -53,7 +83,7 @@ export const keysetPage = async <Row extends { id: string }>(
   query: CursorQuery,
   fetch: Fetch<Row>,
 ): Promise<{ data: Row[]; pageInfo: PageInfo; totalCount: number; totalCapped: boolean }> => {
-  const { table, id, createdAt, scope } = source;
+  const { table, id, scope } = source;
   const where = and(scope, filters);
   const forward = query.direction === 'forward';
   const inclusive = query.cursorMode === 'inclusive';
@@ -77,24 +107,21 @@ export const keysetPage = async <Row extends { id: string }>(
     }
   }
 
-  const position = (operator: '<' | '<=' | '>' | '>=') =>
-    sql`(${createdAt}, ${id}) ${sql.raw(operator)} (select ${createdAt}, ${id} from ${table} where ${id} = ${cursor})`;
-
-  // Newest first: "forward" walks to older rows, "backward" to newer ones.
-  const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
-  const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
+  const walk = source.sort
+    ? sortedWalk(
+        {
+          id: sql`${id}`,
+          from: sql`${table}`,
+          sort: source.sort.expr,
+          descending: source.sort.descending,
+        },
+        query,
+        cursor,
+      )
+    : newestFirst(source, forward, inclusive, cursor);
 
   // One after another: inside a request `client` is its transaction, a single connection.
-  // The lists' indexes are `(org_id, created_at DESC, id DESC)`, which Drizzle writes NULLS LAST:
-  // the order spells that out (or its reverse) so Postgres reads the page from the index instead
-  // of sorting every row of the organisation.
-  const rows = await fetch(
-    cursor ? and(where, position(pageSide)) : where,
-    forward
-      ? [sql`${createdAt} desc nulls last`, sql`${id} desc nulls last`]
-      : [sql`${createdAt} asc nulls first`, sql`${id} asc nulls first`],
-    query.limit + 1,
-  );
+  const rows = await fetch(and(where, walk.page), walk.order, query.limit + 1);
 
   const totals = source.countCap
     ? (
@@ -104,12 +131,8 @@ export const keysetPage = async <Row extends { id: string }>(
       ).rows
     : await client.select({ total: count() }).from(table).where(where);
 
-  const before = cursor
-    ? await client
-        .select({ id })
-        .from(table)
-        .where(and(where, position(otherSide)))
-        .limit(1)
+  const before = walk.back
+    ? await client.select({ id }).from(table).where(and(where, walk.back)).limit(1)
     : [];
 
   const more = rows.length > query.limit;

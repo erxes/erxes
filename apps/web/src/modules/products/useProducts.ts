@@ -1,4 +1,4 @@
-import type { Product } from '@erxes/core-contract';
+import type { Product, ProductWithValues } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useListFilterParams, useToast } from 'erxes-ui';
 import { parseAsBoolean, useQueryState } from 'nuqs';
@@ -60,7 +60,7 @@ export const useOpenProduct = () => {
 export const useStoreProduct = () => {
   const client = useQueryClient();
 
-  return (product: Product) => {
+  return (product: ProductWithValues) => {
     patchCachedRecord(client, orpc.products.list.key(), product);
     client.setQueryData(orpc.products.get.queryKey({ input: { id: product.id } }), product);
     void client.invalidateQueries({ queryKey: orpc.products.list.key() });

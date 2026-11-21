@@ -1,7 +1,9 @@
 import type { DataExtensionField, DataExtensionValues } from '@erxes/core-contract';
+import { useQuery } from '@tanstack/react-query';
 import { PanelFormRow, PanelSection } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
+import { groupsQuery } from '../dataQueries';
 import { FIELD_TYPES } from '../fieldTypes';
 import { fieldState, type Value } from '../values';
 import { ValueInput } from './ValueInput';
@@ -67,13 +69,21 @@ export const ValuesForm = ({
   disabled,
 }: ValuesFormProps) => {
   const shown = fields.filter((field) => fieldState(field, values).visible);
-  const groups = [...new Set(shown.map((field) => field.settings.group ?? ''))];
+  // Ungrouped fields first, then each group's in the groups' order.
+  const listed = useQuery(groupsQuery(fields[0]?.recordType ?? null)).data?.data ?? [];
+  const labels = new Map(listed.map((group) => [group.id, group.label]));
+
+  const groupOf = (field: DataExtensionField) =>
+    field.groupId && labels.has(field.groupId) ? field.groupId : '';
+
+  const used = new Set(shown.map(groupOf));
+  const groups = ['', ...listed.map((group) => group.id)].filter((id) => used.has(id));
 
   return (
     <div className="flex flex-col gap-4">
       {groups.map((group) => {
         const rows = shown
-          .filter((field) => (field.settings.group ?? '') === group)
+          .filter((field) => groupOf(field) === group)
           .map((field) => (
             <FieldRow
               key={field.id}
@@ -86,7 +96,7 @@ export const ValuesForm = ({
           ));
 
         return group ? (
-          <PanelSection key={group} title={group}>
+          <PanelSection key={group} title={labels.get(group) ?? ''}>
             {rows}
           </PanelSection>
         ) : (

@@ -31,6 +31,14 @@ export const DATA_EXTENSION_ACCESS = {
   'dataFields.restore': needs('properties.manage'),
   'dataFields.remove': needs('properties.manage'),
 
+  'dataFieldGroups.list': { member: 'any', plugin: 'installed' },
+  'dataFieldGroups.create': needs('properties.manage'),
+  'dataFieldGroups.update': needs('properties.manage'),
+  'dataFieldGroups.reorder': needs('properties.manage'),
+  'dataFieldGroups.archive': needs('properties.manage'),
+  'dataFieldGroups.restore': needs('properties.manage'),
+  'dataFieldGroups.remove': needs('properties.manage'),
+
   'dataRecords.list': needs('objects.view'),
   'dataRecords.get': needs('objects.view'),
   'dataRecords.create': needs('objects.edit'),
@@ -44,6 +52,8 @@ export const DATA_EXTENSION_ACCESS = {
   'dataValues.lookup': { member: 'any', plugin: 'installed' },
   'dataValues.update': { member: 'any', plugin: 'installed' },
   'dataValues.check': { plugin: 'installed' },
+  // A plugin writes its own fields' values on customers and companies (manifest `fields`).
+  'dataValues.setPluginValues': { plugin: 'fields:write' },
   'dataChanges.history': { member: 'any', plugin: 'installed' },
   'dataChanges.convert': needs('properties.manage'),
   'dataChanges.remove': { plugin: 'installed' },

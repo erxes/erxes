@@ -2,11 +2,11 @@ import type { CursorQuery, PageInfo } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
 import { and, type SQL, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
+import { sortedWalk } from '~/lib/sortedWalk';
 
 /**
  * Keyset paging over a custom object's records in any order: (sort value, id), with records
- * that have no value last. The cursor is a record id; the page reads its sort value from the
- * table, so values keep full precision.
+ * that have no value last (`sortedWalk`).
  */
 
 export interface PageSource {
@@ -23,34 +23,20 @@ export interface PageSource {
 
 type Row = Record<string, unknown> & { id: string };
 
-/** Rows on the far side of the anchor, the way the page walks: `walk` is its comparison. */
-const beyond = (source: PageSource, anchor: string, walk: '<' | '>', nullsAhead: boolean) => {
-  const { table, sort, from } = source;
-  const op = sql.raw(walk);
-  const id = sql`${table}.id`;
-  const value = sql`(select ${sort} from ${from} where ${id} = ${anchor})`;
-  const tie = sql`(${sort} = ${value} and ${id} ${op} ${anchor})`;
-
-  // Records without a value sit after those with one walking forward, before them walking back.
-  return nullsAhead
-    ? sql`(case when ${value} is null then (${sort} is null and ${id} ${op} ${anchor}) else (${sort} ${op} ${value} or ${tie} or ${sort} is null) end)`
-    : sql`(case when ${value} is null then (${sort} is not null or ${id} ${op} ${anchor}) else (${sort} ${op} ${value} or ${tie}) end)`;
-};
-
 const select = (
   client: Db,
   source: PageSource,
   where: SQL | undefined,
-  order: SQL,
+  order: SQL[],
   limit: number,
 ) =>
   client.execute<Row>(
-    sql`select ${source.table}.id, ${sql.join(source.columns, sql`, `)} from ${source.from} where ${where ?? sql`true`} order by ${order} limit ${limit}`,
+    sql`select ${source.table}.id, ${sql.join(source.columns, sql`, `)} from ${source.from} where ${where ?? sql`true`} order by ${sql.join(order, sql`, `)} limit ${limit}`,
   );
 
 export const recordPage = async (client: Db, source: PageSource, query: CursorQuery) => {
   const forward = query.direction === 'forward';
-  const { table, sort, from } = source;
+  const { table, from } = source;
   let cursor = query.cursor;
 
   if (cursor) {
@@ -65,32 +51,18 @@ export const recordPage = async (client: Db, source: PageSource, query: CursorQu
     if (!rows.length) cursor = undefined;
   }
 
-  // Forward walks the list's order; backward walks it the other way, then turns the page round.
-  const ahead = forward === source.descending ? '<' : '>';
-  const behind = ahead === '<' ? '>' : '<';
-  const walk = forward ? ahead : behind;
-  const direction = sql.raw(walk === '<' ? 'desc' : 'asc');
-  const nulls = sql.raw(forward ? 'nulls last' : 'nulls first');
-  const order = sql`${sort} ${direction} ${nulls}, ${table}.id ${direction}`;
+  const walk = sortedWalk({ ...source, id: sql`${table}.id` }, query, cursor);
 
-  const inclusive = (condition: SQL) =>
-    query.cursorMode === 'inclusive' && cursor
-      ? sql`(${condition} or ${table}.id = ${cursor})`
-      : condition;
+  const { rows } = await select(
+    client,
+    source,
+    and(source.where, walk.page),
+    walk.order,
+    query.limit + 1,
+  );
 
-  const page = cursor ? inclusive(beyond(source, cursor, walk, forward)) : undefined;
-  const { rows } = await select(client, source, and(source.where, page), order, query.limit + 1);
-
-  const back = cursor
-    ? (
-        await select(
-          client,
-          source,
-          and(source.where, beyond(source, cursor, walk === '<' ? '>' : '<', !forward)),
-          order,
-          1,
-        )
-      ).rows
+  const back = walk.back
+    ? (await select(client, source, and(source.where, walk.back), walk.order, 1)).rows
     : [];
 
   const { rows: totals } = await client.execute<{ total: number }>(

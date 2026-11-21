@@ -729,6 +729,13 @@
       "when": 1795252644895,
       "tag": "0103_data_extensions",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1795257220696,
+      "tag": "0104_data_field_groups",
+      "breakpoints": true
     }
   ]
 }

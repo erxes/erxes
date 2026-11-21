@@ -1,6 +1,14 @@
 import { CUSTOM_OBJECT_PREFIX, customObjectType } from '@erxes/core-contract';
-import { type Db, dataFields, dataObjects, dataTables, requestOrgId } from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import {
+  type Db,
+  dataFieldGroups,
+  dataFields,
+  dataObjects,
+  dataTables,
+  pluginInstallations,
+  requestOrgId,
+} from '@erxes/core-db';
+import { and, asc, eq, inArray, not, or, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { hostTable, objectTable, pluginOf, schemaOf } from './columns';
 import { createTable } from './ddl';
@@ -52,14 +60,31 @@ export const findField = async (client: Db, id: string) => {
   return row;
 };
 
+/** A field in an archived group: hidden with it, its values kept. */
+const inArchivedGroup = sql`exists (select 1 from ${dataFieldGroups} where ${dataFieldGroups.id} = ${dataFields.groupId} and ${dataFieldGroups.archivedAt} is not null)`;
+
+/**
+ * A plugin's field the plugin may fill: it is installed here with `fields:write`. Otherwise
+ * the field would only ever show empty, so it is out of use until then.
+ */
+const fillable = sql`(${dataFields.plugin} is null or exists (
+  select 1 from ${pluginInstallations}
+  where ${pluginInstallations.plugin} = ${dataFields.plugin}
+    and ${pluginInstallations.status} = 'active'
+    and 'fields:write' = any(${pluginInstallations.grantedScopes})))`;
+
+/** A field in use: active, not in an archived group, and a plugin's only while it fills it. */
+export const activeField = and(eq(dataFields.status, 'active'), not(inArchivedGroup), fillable);
+
+/** A field out of use: archived itself, or with its group. */
+export const archivedField = or(eq(dataFields.status, 'archived'), inArchivedGroup);
+
 /** A record type's fields, in order: the active ones, or every one with `all`. */
 export const fieldsOf = (client: Db, recordType: string, all = false) =>
   client
     .select()
     .from(dataFields)
-    .where(
-      and(eq(dataFields.recordType, recordType), all ? undefined : eq(dataFields.status, 'active')),
-    )
+    .where(and(eq(dataFields.recordType, recordType), all ? undefined : activeField))
     .orderBy(asc(dataFields.position), asc(dataFields.createdAt));
 
 export const fieldsById = (client: Db, ids: string[]) =>

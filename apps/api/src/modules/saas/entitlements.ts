@@ -19,6 +19,7 @@ import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { syncPluginDataFields } from '~/modules/dataExtensions/pluginFieldSync';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { accessOf, type EntitlementRow, NOT_IN_PLAN } from './access';
 import { readStripe, type StripeEntitlements } from './stripe';
@@ -107,6 +108,7 @@ const reconcilePlugins = async (tx: Db, row: EntitlementRow, now = new Date()) =
 
   await inOrder(toInstall, async (plugin) => {
     await syncPluginFields(tx, plugin.name, plugin.manifest?.fields);
+    await syncPluginDataFields(tx, plugin.name, plugin.manifest?.fields);
     await grantDefaultPermissions(tx, plugin.name, plugin.manifest?.permissionSets);
   });
 

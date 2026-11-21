@@ -31,7 +31,8 @@ describe('plugin fields members see', { timeout: 120_000 }, () => {
         .map((field) => field.label),
     });
 
-    const listed = { fields: ['total_spent'], filter: ['Total spent'] };
+    // The filter has the custom field and its Data Extensions field, `subject.data.total_spent`.
+    const listed = { fields: ['total_spent'], filter: ['Total spent', 'Total spent'] };
     const hidden = { fields: [], filter: [] };
 
     expect(await shown()).toEqual(listed);

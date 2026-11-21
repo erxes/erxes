@@ -1453,6 +1453,78 @@
       }
     }
   },
+  "dataFieldGroups": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-field-groups"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-field-groups/{id}"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups/reorder"
+        }
+      }
+    },
+    "archive": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups/{id}/archive"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups/{id}/restore"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-field-groups/{id}"
+        }
+      }
+    }
+  },
   "dataPlugins": {
     "list": {
       "~orpc": {
@@ -1617,6 +1689,16 @@
         "route": {
           "method": "POST",
           "path": "/data-values/{recordType}/check"
+        }
+      }
+    },
+    "setPluginValues": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/plugin-values"
         }
       }
     }

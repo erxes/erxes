@@ -15,10 +15,20 @@ import { inOrder } from '~/lib/sequence';
 import { columnsOf, freeColumn, isComputed, pluginOf } from './columns';
 import { assertUnread, checkComputed } from './computedRules';
 import { addColumns, changeSchema, setUnique } from './ddl';
-import { customKeyOf, type DataFieldRow, ensureTable, findField, qualified } from './definitions';
 import { assertSettings } from './writeRules';
+import { assertGroupOf } from './fieldGroups.service';
+import {
+  activeField,
+  archivedField,
+  customKeyOf,
+  type DataFieldRow,
+  ensureTable,
+  findField,
+  qualified,
+} from './definitions';
 import {
   assertFieldDefinition,
+  assertMemberField,
   assertPluginKeeps,
   assertPluginReads,
   assertRoom,
@@ -40,12 +50,7 @@ export const listFields = async (client: Db, recordType: string, archived = fals
     client
       .select()
       .from(dataFields)
-      .where(
-        and(
-          eq(dataFields.recordType, recordType),
-          eq(dataFields.status, archived ? 'archived' : 'active'),
-        ),
-      )
+      .where(and(eq(dataFields.recordType, recordType), archived ? archivedField : activeField))
       .orderBy(asc(dataFields.position), asc(dataFields.createdAt))
       .limit(limit),
   );
@@ -64,11 +69,14 @@ export const createField = async (
     type: Exclude<DataFieldRow['type'], 'relation'>;
     options?: DataFieldOption[];
     settings?: DataFieldSettings;
+    groupId?: string;
   },
 ) => {
   const recordType = await extendableType(client, input.recordType);
 
   await assertRoom(client, input.recordType);
+
+  if (input.groupId) await assertGroupOf(client, input.recordType, input.groupId);
 
   if (recordType.nativeFields.some((native) => native.key === input.key)) {
     throw fail('TAKEN', `${recordType.singularLabel} has its own ${input.key} field`, {
@@ -170,6 +178,9 @@ export const reorderFields = async (client: Db, recordType: string, ids: string[
  */
 export const setFieldStatus = async (client: Db, id: string, status: Status) => {
   const field = await findField(client, id);
+
+  assertMemberField(field);
+
   const ids = (await withPair(client, field)).map((row) => row.id);
 
   if (status === 'active') await extendableType(client, field.recordType);
@@ -194,6 +205,8 @@ export const setFieldStatus = async (client: Db, id: string, status: Status) => 
 /** Drops an archived field and its values; a relation's two sides go together. */
 export const removeField = async (client: Db, id: string) => {
   const field = await findField(client, id);
+
+  assertMemberField(field);
 
   if (field.status === 'active') {
     throw fail('ARCHIVE_FIRST', `Archive ${field.label} before deleting it`);

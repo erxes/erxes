@@ -7,6 +7,7 @@ import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { linkColumns, linkOrder } from '~/modules/customers/customerLinks';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
+import { type DataSortInput, dataSort } from '~/modules/views/dataFilterFields';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { findCompany, selectCompanies } from './companyRows';
 
@@ -67,16 +68,16 @@ export const companyListWhere = async (client: Db, query: CompanyQuery) => {
   return and(...filters);
 };
 
-export const listCompanies = (client: Db, query: CursorQuery & CompanyQuery) =>
-  boundedList(Boolean(query.filter || query.search), async () =>
+export const listCompanies = (client: Db, query: CursorQuery & CompanyQuery & DataSortInput) =>
+  boundedList(Boolean(query.filter || query.search || query.sortField), async () =>
     keysetPage(
       client,
       {
         table: companies,
         id: companies.id,
         createdAt: companies.createdAt,
-
         countCap: LIST_COUNT_CAP,
+        sort: await dataSort(client, query.state === 'lead' ? 'company_lead' : 'company', query),
       },
       await companyListWhere(client, query),
       query,

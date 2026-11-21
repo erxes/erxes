@@ -8,7 +8,17 @@ import { Input, StringArrayInput } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { numberOf, type ValueInputProps } from './inputProps';
+import { numberOf, stringsOf, type ValueInputProps } from './inputProps';
+
+/** Text items of their own, in order (old properties' lists). */
+export const TextListValueInput = ({ field, value, onChange, id, disabled }: ValueInputProps) => (
+  <StringArrayInput
+    id={id}
+    value={stringsOf(value)}
+    placeholder={field.settings.placeholder}
+    onValueChange={(next) => !disabled && onChange(next.length ? next : null)}
+  />
+);
 
 /** An amount and its currency (the field's, or USD). */
 export const CurrencyValueInput = ({ field, value, onChange, id, disabled }: ValueInputProps) => {

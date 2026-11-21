@@ -8,6 +8,7 @@ import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { writeCoreValues } from '~/modules/dataExtensions/hostValues.service';
 import { applyCustomFields } from '~/modules/fields/customValues';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { setRecordTags } from '~/modules/tags/tagLinks';
@@ -27,7 +28,12 @@ import { lookupProducts } from './productList';
 type ProductFields = Omit<
   Partial<typeof products.$inferInsert>,
   'id' | 'orgId' | 'status' | 'createdBy' | 'createdAt' | 'updatedAt' | 'archivedAt'
-> & { customFields?: Record<string, CustomValue | null>; tagIds?: string[] };
+> & {
+  customFields?: Record<string, CustomValue | null>;
+  tagIds?: string[];
+  /** Data Extensions values by field key. */
+  values?: Record<string, unknown>;
+};
 
 /**
  * Checks what the caller sends: the columns to write, and the product's
@@ -35,7 +41,7 @@ type ProductFields = Omit<
  */
 const writable = async (
   client: Db,
-  { customFields: patch, tagIds: tags, ...input }: ProductFields,
+  { customFields: patch, tagIds: tags, values: _values, ...input }: ProductFields,
   before?: ProductRow,
 ) => {
   await checkCategory(client, input.categoryId);
@@ -141,6 +147,8 @@ export const createProduct = async (
 
   await saveCustomFields(client, 'product', id, customFields, Object.keys(customFields));
 
+  if (input.values) await writeCoreValues(client, 'core.product', id, input.values, true);
+
   if (tagIds?.length) await setRecordTags(client, 'product', id, tagIds);
 
   const row = await findProduct(client, id);
@@ -164,6 +172,8 @@ export const updateProduct = async (client: Db, id: string, changes: ProductFiel
     .where(eq(products.id, id));
 
   await saveCustomFields(client, 'product', id, customFields, changedFields);
+
+  if (changes.values) await writeCoreValues(client, 'core.product', id, changes.values);
 
   if (tagIds) await setRecordTags(client, 'product', id, tagIds);
 

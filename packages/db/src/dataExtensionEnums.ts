@@ -17,6 +17,7 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'dateTime',
   'select',
   'multiSelect',
+  'textList',
   'email',
   'phone',
   'url',
@@ -119,8 +120,21 @@ export const DATA_EXTENSION_RELATION_SIDES = ['source', 'inverse'] as const;
 /** What happens to a link when the linked custom record is deleted for good. */
 export const DATA_EXTENSION_ON_DELETE = ['setNull', 'cascade'] as const;
 
-/** How a field's `visibleWhen` compares another field's value. */
-export const DATA_EXTENSION_VISIBLE_OPERATORS = ['eq', 'neq', 'in', 'isNotEmpty'] as const;
+/**
+ * How a field's condition (`visibleWhen`, `hiddenWhen`, `requiredWhen`) compares another field's
+ * value. A list value matches when one of its items does; `contains` ignores case, and
+ * `greaterThan` and `lessThan` compare numbers, or dates and text in order.
+ */
+export const DATA_EXTENSION_VISIBLE_OPERATORS = [
+  'eq',
+  'neq',
+  'in',
+  'isNotEmpty',
+  'isEmpty',
+  'contains',
+  'greaterThan',
+  'lessThan',
+] as const;
 
 /** A custom object's own columns its records can be sorted by, besides its fields. */
 export const DATA_EXTENSION_SORT_COLUMNS = ['createdAt', 'updatedAt', 'position'] as const;

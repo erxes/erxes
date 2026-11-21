@@ -4,9 +4,9 @@ import {
 } from '@erxes/core-db/dataExtensionEnums';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
+import { DataExtensionFieldKey } from './dataExtensionConditions';
 import {
   DataExtensionField,
-  DataExtensionFieldKey,
   DataExtensionFieldType,
   DataExtensionOptions,
   DataExtensionRecordType,

@@ -14,15 +14,21 @@
     "visible-to-hint": "Other roles don’t see its values, nor formulas that read it."
   },
   "conditions": {
+    "all-rules": "{{count}} rules, all of them",
     "always": "Always",
+    "any-rule": "{{count}} rules, any one of them",
     "clear": "Remove condition",
     "field": "Field",
     "no": "No",
     "operator": "Compare",
     "operators": {
+      "contains": "contains",
       "eq": "is",
+      "greaterThan": "is more than",
       "in": "is one of",
+      "isEmpty": "is empty",
       "isNotEmpty": "has a value",
+      "lessThan": "is less than",
       "neq": "is not"
     },
     "value": "Value",
@@ -71,13 +77,14 @@
     "digits": "Digits",
     "edit": "Edit {{label}}",
     "group": "Group",
-    "group-placeholder": "Shown under this heading",
+    "hidden-when": "Hide while",
     "key-hint": "camelCase: the name its value has in the API, formulas and imports.",
     "label": "Label",
     "max": "Largest",
     "max-length": "Longest text",
     "min": "Smallest",
     "multiple": "Several members",
+    "no-group": "No group",
     "option-color": "Colour",
     "option-label": "Option",
     "option-value": "Stored value",
@@ -288,6 +295,7 @@
     "rollup": "Rollup",
     "select": "Select",
     "text": "Text",
+    "textList": "Text list",
     "url": "Link"
   },
   "values": {

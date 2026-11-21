@@ -1,6 +1,8 @@
+import { SORT_DIRECTIONS } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import { EmailAddress, httpUrl, Id, PhoneNumber } from './common';
-import { DataExtensionFieldKey, type DataExtensionField } from './dataExtensionFields';
+import { DataExtensionFieldKey } from './dataExtensionConditions';
+import type { DataExtensionField } from './dataExtensionFields';
 
 /** Longest text a text field takes, and a long text field. */
 const TEXT_MAX = 2000;
@@ -131,6 +133,11 @@ const typedValue = (rules: DataExtensionValueRules): z.ZodType => {
       return choice(rules);
     case 'multiSelect':
       return z.array(choice(rules)).max(MANY_MAX);
+    case 'textList':
+      return z
+        .array(text(rules, TEXT_MAX))
+        .max(MANY_MAX)
+        .transform((items) => items.filter(Boolean));
     case 'email':
       return EmailAddress;
     case 'phone':
@@ -177,3 +184,17 @@ export const DataExtensionValuesInput = z.record(DataExtensionFieldKey, z.json()
 export const DataExtensionValues = z.record(z.string(), z.json().nullable());
 
 export type DataExtensionValues = z.infer<typeof DataExtensionValues>;
+
+/**
+ * A core record's Data Extensions fields as its list and saved views name them: `data.<key>`
+ * sorts the list, `subject.data.<key>` is a filter's path.
+ */
+export const DataSortField = z
+  .string()
+  .regex(/^data\.[a-z][a-zA-Z0-9_]{0,49}$/, 'data.<field key>');
+
+/** A core list ordered by one of its Data Extensions fields, records without a value last. */
+export const DataSortQuery = z.object({
+  sortField: DataSortField.optional(),
+  sortDirection: z.enum(SORT_DIRECTIONS).default('asc'),
+});

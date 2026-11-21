@@ -26,6 +26,7 @@ const {
   INVALID_TYPE,
   LIMIT_EXCEEDED,
   NOT_ACTIVE,
+  PLUGIN_FIELD,
   SCHEMA_BUSY,
   TAKEN,
 } = ERRORS;
@@ -41,6 +42,7 @@ export const dataExtensionsBase = oc.errors({
   INVALID_TYPE,
   LIMIT_EXCEEDED,
   NOT_ACTIVE,
+  PLUGIN_FIELD,
   SCHEMA_BUSY,
   TAKEN,
 });

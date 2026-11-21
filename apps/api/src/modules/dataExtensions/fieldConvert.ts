@@ -11,7 +11,7 @@ import { columnsOf, type FieldColumn, freeColumn, pluginOf } from './columns';
 import { assertUnread } from './computedRules';
 import { addColumns, changeSchema, dropColumns, setUnique } from './ddl';
 import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
-import { assertFieldDefinition, takenColumns } from './fieldRules';
+import { assertFieldDefinition, assertMemberField, takenColumns } from './fieldRules';
 
 /**
  * Converting a field to another type: its values go to a new column of that type, each one
@@ -30,11 +30,13 @@ const NO = ['false', 'no', 'n', '0', 'off'];
 /** Settings every type takes, kept through a conversion. */
 const KEPT_SETTINGS = [
   'required',
-  'group',
   'showInCreate',
   'placeholder',
   'readOnly',
+  'hidden',
+  'filterable',
   'visibleWhen',
+  'hiddenWhen',
   'requiredWhen',
   'visibleTo',
   'editableBy',
@@ -196,6 +198,9 @@ export const convertField = async (
   },
 ) => {
   const field = await findField(client, input.id);
+
+  assertMemberField(field);
+
   const from = convertedColumn(field, input.type);
   const table = await tableOf(client, field.recordType);
   const choosing = input.type === 'select' || input.type === 'multiSelect';

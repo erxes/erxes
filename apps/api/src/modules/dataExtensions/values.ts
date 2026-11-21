@@ -31,6 +31,13 @@ const GIVEN_TYPES: ReadonlySet<string> = new Set(['autoNumber', 'formula', 'roll
 /** Whether the caller may change a read-only field: a data model manager, or the plugin itself. */
 const mayChangeReadOnly = () => caller().type === 'plugin' || callerCan('properties.manage');
 
+/** Whether the caller is this plugin, which alone writes the fields its manifest declares. */
+const isCallingPlugin = (plugin: string) => {
+  const who = caller();
+
+  return who.type === 'plugin' && who.plugin === plugin;
+};
+
 const idsIn = (value: unknown) =>
   (Array.isArray(value) ? value : [value]).filter((id) => typeof id === 'string');
 
@@ -111,6 +118,11 @@ export const prepareValues = async (
       issues.push({ path: at(field), message: `${field.label} is kept on the linked records` });
     } else if (field.settings.readOnly && key in input && !mayChangeReadOnly()) {
       throw fail('NOT_ALLOWED', `${field.label} is read-only`);
+    } else if (field.plugin && key in input && !isCallingPlugin(field.plugin)) {
+      throw fail('PLUGIN_FIELD', `${field.plugin} writes ${field.label}`, {
+        fieldId: field.id,
+        plugin: field.plugin,
+      });
     } else {
       if (key in input) assertEditable(field);
       values[key] = checkOne(field, value, issues, at);

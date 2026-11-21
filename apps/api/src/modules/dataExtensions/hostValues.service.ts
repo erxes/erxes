@@ -1,3 +1,4 @@
+import type { DataExtensionValues } from '@erxes/core-contract';
 import { callerUserId, type Db } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { sql } from 'drizzle-orm';
@@ -82,7 +83,7 @@ const readValues = async (
   everything: boolean,
 ) => {
   const all = await fieldsOf(client, input.recordType);
-  const from = await valuesRow(client, input.recordType);
+  const from = all.length ? await valuesRow(client, input.recordType) : null;
   const sides = await relationSides(client, all, from?.natives);
   const ids = [...new Set(input.recordIds)];
   const id = sql`${IDS}.id`;
@@ -149,6 +150,46 @@ export const getValues = (client: Db, input: { recordType: string; recordId: str
   oneOf(client, input.recordType, input.recordId, 'read');
 
 /**
+ * The values the caller may read of core records the caller already reads (a customers list's
+ * page), by record id, in one query.
+ */
+export const valuesByRecord = async (
+  client: Db,
+  recordType: string,
+  recordIds: string[],
+): Promise<Map<string, DataExtensionValues>> =>
+  recordIds.length
+    ? new Map(
+        (await readValues(client, { recordType, recordIds }, false)).map((row) => [
+          row.recordId,
+          row.values,
+        ]),
+      )
+    : new Map();
+
+/** Core records (customers, companies, products) with the values the caller may read of each. */
+export const withDataValues = async <Row extends { id: string }>(
+  client: Db,
+  recordType: string,
+  rows: Row[],
+) => {
+  const values = await valuesByRecord(
+    client,
+    recordType,
+    rows.map((row) => row.id),
+  );
+
+  return rows.map((row) => ({ ...row, values: values.get(row.id) ?? {} }));
+};
+
+/** One core record with the values the caller may read. */
+export const withDataValuesOf = async <Row extends { id: string }>(
+  client: Db,
+  recordType: string,
+  row: Row,
+) => ({ ...row, values: (await valuesByRecord(client, recordType, [row.id])).get(row.id) ?? {} });
+
+/**
  * Changes some of a core record's values; null clears one. 400 INVALID_REFERENCE for a
  * plugin's record type, whose plugin keeps the values.
  */
@@ -168,11 +209,29 @@ export const updateValues = async (
 
   await hostType(client, input.recordType, 'update');
   await assertRecordsExist(client, input.recordType, [input.recordId], 'recordId');
+  await writeCoreValues(client, input.recordType, input.recordId, input.values);
 
+  return oneOf(client, input.recordType, input.recordId, 'update');
+};
+
+/**
+ * Writes a core record's values (its own procedure checked the caller may change the record):
+ * each checked against its field, `requiredWhen` after, and the value history. With
+ * `creating`, defaults fill what the input leaves out and required fields need a value.
+ */
+export const writeCoreValues = async (
+  client: Db,
+  recordType: string,
+  recordId: string,
+  values: Record<string, unknown>,
+  creating = false,
+) => {
+  const input = { recordType, recordId, values };
   const fields = await fieldsOf(client, input.recordType);
   const sides = await relationSides(client, fields);
-  const before = await allValues(client, input.recordType, input.recordId);
-  const prepared = await prepareValues(client, fields, sides, input.values, false);
+  // A new record's own timeline says it was made: its values show as set, not as a new record.
+  const before = creating ? {} : await allValues(client, input.recordType, input.recordId);
+  const prepared = await prepareValues(client, fields, sides, input.values, creating);
   const table = await ensureTable(client, input.recordType);
   const names = prepared.own.map(({ column }) => sql.identifier(column.name));
   const params = prepared.own.map(({ column, value }) => columnParam(column, value));
@@ -200,6 +259,4 @@ export const updateValues = async (
     before,
     after: await allValues(client, input.recordType, input.recordId),
   });
-
-  return oneOf(client, input.recordType, input.recordId, 'update');
 };

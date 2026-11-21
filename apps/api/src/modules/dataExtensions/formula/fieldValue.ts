@@ -58,6 +58,7 @@ export const storedValue = (field: DataFieldRow, row: SQL | null, at: number): T
     case 'phones':
       return { sql: read('primary'), type: 'text' };
     case 'multiSelect':
+    case 'textList':
       return { sql: sql`array_to_string(${read()}, ', ')`, type: 'text' };
     case 'member':
       if (field.settings.multiple) break;
