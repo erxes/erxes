@@ -75,8 +75,11 @@ export const cursorPageOf = <T extends z.ZodType>(item: T) =>
   z.object({
     data: z.array(item),
     pageInfo: PageInfo,
-    /** Records matching the filters, across all pages. */
-    totalCount: z.int(),
+    /**
+     * Records matching the filters, across all pages. Only on a list's first page (no
+     * cursor, or reopening at one with `inclusive`): the pages after it don't count again.
+     */
+    totalCount: z.int().optional(),
     /** Big lists stop counting: `totalCount` is the cap and there are more ("10,000+"). */
     totalCapped: z.boolean().optional(),
   });

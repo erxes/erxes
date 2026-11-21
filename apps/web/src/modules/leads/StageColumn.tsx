@@ -62,7 +62,7 @@ export const StageColumn = memo(function StageColumn({
       id={stage.id}
       title={stageName(stage.name)}
       color={stage.color}
-      count={first ? fmt.count(first.totalCount, first.totalCapped) : '·'}
+      count={first?.totalCount === undefined ? '·' : fmt.count(first.totalCount, first.totalCapped)}
       add={{ label: t('board.add-here'), onClick: () => onAdd(stage.id) }}
       loading={query.isPending}
       error={query.error ? messageOf(query.error) : undefined}

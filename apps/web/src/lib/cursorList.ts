@@ -15,7 +15,8 @@ import { useEffect, useState } from 'react';
 export interface CursorPage<T> {
   data: T[];
   pageInfo: PageInfo;
-  totalCount: number;
+  /** Only on the page a list opened with: the pages loaded while scrolling don't count. */
+  totalCount?: number;
   /** Big lists stop counting at `totalCount`: there are more. */
   totalCapped?: boolean;
 }
@@ -62,7 +63,7 @@ export const forwardPaging = (
 export const useCursorList = <T extends { id: string }>({
   sessionKey,
   filters,
-  limit = 30,
+  limit = 100,
   options,
 }: {
   sessionKey: string;
@@ -123,6 +124,8 @@ export const useCursorList = <T extends { id: string }>({
   });
 
   const pages = query.data?.pages ?? [];
+  // The page the list opened with; pages loaded above it (scrolling back) have no count.
+  const counted = pages.find((page) => page.totalCount !== undefined);
 
   const handleFetchMore = ({ direction }: { direction: EnumCursorDirection }) => {
     if (direction === EnumCursorDirection.FORWARD) {
@@ -135,8 +138,8 @@ export const useCursorList = <T extends { id: string }>({
   return {
     sessionKey,
     list: pages.flatMap((page) => page.data),
-    totalCount: pages[0]?.totalCount,
-    totalCapped: pages[0]?.totalCapped ?? false,
+    totalCount: counted?.totalCount,
+    totalCapped: counted?.totalCapped ?? false,
     hasNextPage: query.hasNextPage,
     hasPreviousPage: query.hasPreviousPage,
     loading: query.isPending,

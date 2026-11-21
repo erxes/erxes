@@ -170,7 +170,7 @@ const useRuntimeRole = async (url: string) => {
   });
 };
 
-type List = () => Promise<{ totalCount: number; totalCapped: boolean }>;
+type List = () => Promise<{ totalCount?: number; totalCapped?: boolean }>;
 
 /** One table row: the label, the matches and the median time. */
 const measure = async (label: string, list: List) => {
@@ -180,8 +180,8 @@ const measure = async (label: string, list: List) => {
   const ms = await time(async () => {
     const page = await list();
 
-    count = page.totalCount;
-    capped = page.totalCapped;
+    count = page.totalCount ?? 0;
+    capped = page.totalCapped ?? false;
   });
 
   return `| ${label} | ${count.toLocaleString('en')}${capped ? '+' : ''} | ${ms.toFixed(0)} |`;

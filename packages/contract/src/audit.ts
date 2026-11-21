@@ -126,12 +126,7 @@ export const auditContract = {
         q: z.string().trim().max(100).optional(),
       }),
     )
-    .output(
-      cursorPageOf(AuditEntry).extend({
-        /** `totalCount` stopped counting at this many. */
-        totalCapped: z.boolean(),
-      }),
-    ),
+    .output(cursorPageOf(AuditEntry)),
   record: base
     .route({
       method: 'POST',

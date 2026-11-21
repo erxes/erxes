@@ -40,7 +40,11 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
   start under 18: `pg_dumpall` it on 16 and restore into the new volume.
 - Managed Postgres (Supabase, RDS): drop the `postgres` service and point
   `DATA_URL` / `DATA_MIGRATION_URL` at it, with `DATA_SSL=true` and its CA. The
-  owner in `DATA_MIGRATION_URL` must be able to create a BYPASSRLS role.
+  owner in `DATA_MIGRATION_URL` must be able to create a BYPASSRLS role. Without a
+  superuser, `pnpm db:migrate` can't mark `lower`, `LIKE` and `ILIKE` LEAKPROOF, so
+  search, "contains" filters and email lookups read every row (the API warns at
+  start): run `ALTER FUNCTION lower(text) LEAKPROOF` and the same for
+  `textlike(text,text)` and `texticlike(text,text)` as a superuser where the host has one.
 
 ## Automatic deploys
 

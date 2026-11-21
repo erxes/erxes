@@ -32,3 +32,6 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
   transaction lock. Production runs it with `pnpm db:migrate`; the API runs it at startup only when
   `DATA_MIGRATE_ON_START` is on, the default outside production.
 - Released migrations never change (`db:check-applied` in CI). Never use `drizzle-kit push`.
+- Under row level security an index serves a condition only when its functions are LEAKPROOF.
+  `runMigrations()` marks `LEAKPROOF_FUNCTIONS` (`lower`, `LIKE`, `ILIKE`) when it runs as a
+  superuser; the API warns at start when `blockedIndexFunctions()` names any left unmarked.

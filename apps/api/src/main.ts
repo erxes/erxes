@@ -1,9 +1,10 @@
 // Already loaded by `node --import` (see the file), which is what lets it patch http, express and pg.
 import { stopTracing } from '~/instrumentation';
-import { closeDb, configureDb, runMigrations, runtimeRole } from '@erxes/core-db';
+import { blockedIndexFunctions, closeDb, configureDb, runtimeRole } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { startDraining } from '~/lib/lifecycle';
+import { migrateAsOwner } from '~/lib/migrateDb';
 import { loadSigningKeys } from '~/lib/signing';
 import { closeAgents } from '~/modules/agents/host';
 import { recoverAgents } from '~/modules/agents/recovery';
@@ -16,23 +17,23 @@ import { logger } from '~/logger';
 const log = logger.child({ component: 'main' });
 
 const start = async () => {
-  configureDb({
-    ...config.data,
-    applicationName: 'erxes-core',
-    onIdleError: (error) => log.warn({ err: error }, 'idle database connection failed'),
-  });
-
   loadSigningKeys();
 
   // Production migrates with its own command and role (`pnpm db:migrate`);
-  // development migrates on start for convenience.
+  // development migrates on start for convenience, the same way.
   if (config.data.migrateOnStart) {
-    const applied = await runMigrations();
+    const { applied } = await migrateAsOwner('erxes-core-migrate');
 
     if (applied.length) {
       log.info({ migrations: applied }, 'applied migrations');
     }
   }
+
+  configureDb({
+    ...config.data,
+    applicationName: 'erxes-core',
+    onIdleError: (error) => log.warn({ err: error }, 'idle database connection failed'),
+  });
 
   // Tenant isolation relies on row level security: a role that bypasses it
   // (superuser, BYPASSRLS) turns it off. Refused in production.
@@ -44,6 +45,15 @@ const start = async () => {
     if (config.isProduction) throw new Error(message);
 
     log.warn(message);
+  }
+
+  const blocked = role.bypassesRls ? [] : await blockedIndexFunctions();
+
+  if (blocked.length) {
+    log.warn(
+      { functions: blocked },
+      'search, "contains" filters and email lookups read every row: row level security keeps these functions off their indexes until a superuser runs pnpm db:migrate, which marks them LEAKPROOF',
+    );
   }
 
   await syncPluginSecrets();

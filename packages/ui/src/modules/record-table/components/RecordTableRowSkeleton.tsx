@@ -4,15 +4,22 @@ import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTableState } from './RecordTableProvider';
 
-/** Placeholder rows; `handleInView` runs when the first one scrolls into view. */
+/**
+ * Placeholder rows; `handleInView` runs when the first one scrolls into view, and again each
+ * time `loaded` changes while it stays in view: a fast scroll that outruns a page still gets
+ * the next one, instead of waiting for the row to leave the screen and come back.
+ */
 export const RecordTableRowSkeleton = ({
   rows = 1,
   handleInView,
+  loaded,
   backward,
   root,
 }: {
   rows?: number;
   handleInView?: () => void;
+  /** Rows loaded so far. */
+  loaded?: number;
   backward?: boolean;
   root?: Element | null;
 }) => {
@@ -28,7 +35,8 @@ export const RecordTableRowSkeleton = ({
 
   return (
     <>
-      <SkeletonRow ref={ref} />
+      {/* A new row per `loaded`: its new observer reports at once when it is still in view. */}
+      <SkeletonRow key={`watched-${loaded ?? 0}`} ref={ref} />
       {restRows.map((position) => (
         <SkeletonRow
           key={position}

@@ -82,12 +82,56 @@ BEGIN
 END $lock$;
 `;
 
+/**
+ * Under row level security Postgres checks the policies before a query's own conditions,
+ * unless their functions are LEAKPROOF, so no index can serve `lower(email) = …`, `LIKE` or
+ * `ILIKE`: an email lookup, the search box and a "contains" filter read every row of the
+ * organisation. These functions reveal nothing but their result (a malformed pattern's error
+ * depends on the pattern alone).
+ */
+export const LEAKPROOF_FUNCTIONS = ['lower(text)', 'textlike(text,text)', 'texticlike(text,text)'];
+
+const leakproofList = `ARRAY[${LEAKPROOF_FUNCTIONS.map((fn) => `'${fn}'`).join(', ')}]::regprocedure[]`;
+
+/**
+ * Marks `LEAKPROOF_FUNCTIONS` on every run, since a restore or a major upgrade resets
+ * built-in functions. Only a superuser may; a host without one keeps them as they are
+ * (`blockedIndexFunctions` names them).
+ */
+const MARK_LEAKPROOF = `
+DO $leak$
+DECLARE
+  f regprocedure;
+BEGIN
+  IF NOT (SELECT rolsuper FROM pg_roles WHERE rolname = current_user) THEN
+    RETURN;
+  END IF;
+  FOREACH f IN ARRAY ${leakproofList} LOOP
+    IF NOT (SELECT proleakproof FROM pg_proc WHERE oid = f) THEN
+      EXECUTE format('ALTER FUNCTION %s LEAKPROOF', f);
+    END IF;
+  END LOOP;
+END $leak$;
+`;
+
+/** The `LEAKPROOF_FUNCTIONS` this server has not marked: searches on them can't use an index. */
+export const blockedIndexFunctions = async (): Promise<string[]> => {
+  const { rows } = await drizzle(getPool()).execute<{ fn: string }>(
+    sql.raw(
+      `SELECT f::text AS fn FROM unnest(${leakproofList}) f JOIN pg_proc p ON p.oid = f WHERE NOT p.proleakproof`,
+    ),
+  );
+
+  return rows.map((row) => row.fn);
+};
+
 /** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
 /**
  * Applies pending migrations and returns their tags. pg-boss's schema comes
- * first, so a migration can move rows into its tables.
+ * first, so a migration can move rows into its tables. Marks
+ * `LEAKPROOF_FUNCTIONS` on every run.
  *
  * One transaction under a transaction-scoped advisory lock: safe with several
  * replicas starting at once and through transaction poolers (PgBouncer,
@@ -130,6 +174,8 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
         ? [{ migration, tag: entries[index]?.tag ?? String(migration.folderMillis) }]
         : [],
     );
+
+    await tx.execute(sql.raw(MARK_LEAKPROOF));
 
     if (!pending.length) return [];
 

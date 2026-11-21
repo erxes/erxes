@@ -76,14 +76,13 @@ const Total = ({ first }: { first: CursorPage<AuditEntry> | undefined }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const fmt = useFormat();
 
-  if (!first) return null;
+  const total = first?.totalCount;
 
-  return first.totalCapped
-    ? t('count-capped', {
-        count: first.totalCount,
-        defaultValue: `${fmt.count(first.totalCount, true)} entries`,
-      })
-    : t('count', { count: first.totalCount, defaultValue: `${first.totalCount} entries` });
+  if (total === undefined) return null;
+
+  return first?.totalCapped
+    ? t('count-capped', { count: total, defaultValue: `${fmt.count(total, true)} entries` })
+    : t('count', { count: total, defaultValue: `${total} entries` });
 };
 
 /** Settings › Audit log: who changed what, in core and every plugin (owners and admins). */

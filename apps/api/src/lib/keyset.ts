@@ -43,6 +43,27 @@ export const wholeList = async <Row>(fetch: (limit: number) => Promise<Row[]>) =
 };
 
 /**
+ * The records matching `where`, on a list's first page only: no cursor, or reopening at one
+ * (`inclusive`). The pages loaded while scrolling leave it out, so they never count again.
+ */
+const countRows = async (
+  client: Db,
+  source: KeysetSource,
+  where: SQL | undefined,
+  query: CursorQuery,
+) => {
+  if (query.cursor && query.cursorMode === 'exclusive') return undefined;
+
+  return source.countCap
+    ? (
+        await client.execute<{ total: number }>(
+          sql`select count(*)::int as total from (select 1 from ${source.table} where ${where ?? sql`true`} limit ${source.countCap + 1}) capped`,
+        )
+      ).rows
+    : client.select({ total: count() }).from(source.table).where(where);
+};
+
+/**
  * Newest-first keyset paging over (created_at, id). The cursor is a record id;
  * comparisons read its position from the table itself, so timestamps keep full
  * precision. `fetch` runs the typed select with the page condition and order.
@@ -53,7 +74,7 @@ export const keysetPage = async <Row extends { id: string }>(
   filters: SQL | undefined,
   query: CursorQuery,
   fetch: Fetch<Row>,
-): Promise<{ data: Row[]; pageInfo: PageInfo; totalCount: number; totalCapped: boolean }> => {
+): Promise<{ data: Row[]; pageInfo: PageInfo; totalCount?: number; totalCapped?: boolean }> => {
   const { table, id, createdAt, scope } = source;
   const where = and(scope, filters);
   const forward = query.direction === 'forward';
@@ -97,13 +118,7 @@ export const keysetPage = async <Row extends { id: string }>(
     query.limit + 1,
   );
 
-  const totals = source.countCap
-    ? (
-        await client.execute<{ total: number }>(
-          sql`select count(*)::int as total from (select 1 from ${table} where ${where ?? sql`true`} limit ${source.countCap + 1}) capped`,
-        )
-      ).rows
-    : await client.select({ total: count() }).from(table).where(where);
+  const totals = await countRows(client, source, where, query);
 
   const before = cursor
     ? await client
@@ -128,7 +143,9 @@ export const keysetPage = async <Row extends { id: string }>(
       startCursor: page[0]?.id ?? null,
       endCursor: page[page.length - 1]?.id ?? null,
     },
-    totalCount: Math.min(totals[0]?.total ?? 0, source.countCap ?? Infinity),
-    totalCapped: source.countCap !== undefined && (totals[0]?.total ?? 0) > source.countCap,
+    ...(totals && {
+      totalCount: Math.min(totals[0]?.total ?? 0, source.countCap ?? Infinity),
+      totalCapped: source.countCap !== undefined && (totals[0]?.total ?? 0) > source.countCap,
+    }),
   };
 };

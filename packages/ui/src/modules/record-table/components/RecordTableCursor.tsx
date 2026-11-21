@@ -23,6 +23,8 @@ interface CursorContext {
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
   loading?: boolean;
+  /** Rows loaded: the forward skeleton asks for more each time it grows while in view. */
+  dataLength?: number;
 }
 
 const RecordTableCursorContext = createContext<CursorContext | null>(null);
@@ -94,8 +96,8 @@ export const RecordTableCursorProvider = ({
   }, [loading, dataLength, scrollRef, sessionKey, store]);
 
   const cursor = useMemo(
-    () => ({ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading }),
-    [viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading],
+    () => ({ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading, dataLength }),
+    [viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading, dataLength],
   );
 
   return (
@@ -137,7 +139,7 @@ export const RecordTableBackwardSkeleton = ({
 };
 
 export const RecordTableForwardSkeleton = ({ handleFetchMore }: { handleFetchMore: FetchMore }) => {
-  const { hasNextPage, loading, viewport } = useRecordTableCursorContext();
+  const { hasNextPage, loading, viewport, dataLength } = useRecordTableCursorContext();
 
   if (!hasNextPage || loading) return null;
 
@@ -145,6 +147,7 @@ export const RecordTableForwardSkeleton = ({ handleFetchMore }: { handleFetchMor
     <RecordTableRowSkeleton
       rows={1}
       root={viewport}
+      loaded={dataLength}
       handleInView={() => handleFetchMore({ direction: EnumCursorDirection.FORWARD })}
     />
   );

@@ -29,11 +29,23 @@ const ui = `http://localhost:${stack.ports.ui}`;
 const state = resolve(root, '.scratch/dev-stack');
 const envFile = resolve(root, '.env.local');
 
+/**
+ * The API acts as this role, under row level security like production's runtime role, so
+ * a query that is slow or refused there is slow or refused here. It migrates as `erxes`.
+ */
+const RUNTIME_ROLE = 'erxes_dev_runtime';
+
 /** The dev servers `up` starts, each in its own process group, so `down` stops exactly it. */
 const servers = {
   api: {
     filter: '@erxes/api',
-    env: { PORT: String(stack.ports.api), DATA_URL: `${postgres}/erxes`, APP_URL: ui },
+    env: {
+      PORT: String(stack.ports.api),
+      DATA_URL: `${postgres}/erxes`,
+      DATA_ROLE: RUNTIME_ROLE,
+      DATA_RUNTIME_ROLE: RUNTIME_ROLE,
+      APP_URL: ui,
+    },
     ready: `${api}/ready`,
   },
   ui: {
@@ -152,7 +164,7 @@ const startServer = (server: Server) => {
   child.unref();
 };
 
-/** The organisation and owner (migrating first), then example data through the API. */
+/** The organisation and owner (migrating first) and the API's role; example data comes after. */
 const seed = () => {
   const printed = run(
     'pnpm',
@@ -167,6 +179,11 @@ const seed = () => {
   const token = /^token\s+(\S+)/m.exec(printed)?.[1];
 
   if (!token) throw new Error(`bootstrap printed no token:\n${printed}`);
+
+  run('pnpm', ['--silent', 'db:grant', RUNTIME_ROLE], {
+    NODE_ENV: 'development',
+    DATA_URL: `${postgres}/erxes`,
+  });
 
   return token;
 };
