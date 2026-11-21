@@ -198,6 +198,11 @@
  *   // For its own work (a reply, a webhook check); an action's POST carries `account` and `setup` already:
  *   const account = await core.forOrg(orgId).pluginAccounts.open({ id });   // { secret, config, setup }
  *   await core.forOrg(orgId).pluginAccounts.report({ id, error: 'The page removed the app' });
+ *   // Accounts the plugin kept itself, copied in once under their ids (no hooks; setup only if none):
+ *   await core.forOrg(orgId).pluginAccounts.import({ integration: 'meta', setup, accounts });
+ *   // Other secrets, sealed for this organisation and plugin; core keeps nothing:
+ *   const { sealed } = await core.forOrg(orgId).pluginSecrets.seal({ values: { password } });
+ *   const { values } = await core.forOrg(orgId).pluginSecrets.open({ sealed });
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can

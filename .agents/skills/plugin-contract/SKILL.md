@@ -87,7 +87,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      service takes the account) and `disconnect`. A 4xx answer's `{ message }` is shown to the
      member. A sign-in page ends with `pluginAccounts.offer` and a redirect to the `url` it
      answers. The plugin's server reads its accounts with `pluginAccounts.list`, `open` (the
-     secret and the organisation's setup), `update`, `report` and `setup`; a plugin reaches only
+     secret and the organisation's setup), `update`, `report` and `setup`, and copies accounts it
+     kept itself in once with `import` (their own ids, no hooks, the setup only where none is
+     saved). `pluginSecrets.seal` and `open` seal its other secrets for its organisation and
+     itself, and core stores nothing; a plugin reaches only
      the accounts of its own integrations (`<plugin>.<key>`). An action with `integration`
      (and `accountKind`) gets an account input: its POST carries `account` (`id`, `kind`,
      `externalId`, `name`, `config`, `secret`) and `setup`, and `input` leaves the pick out. A

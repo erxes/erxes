@@ -3,7 +3,7 @@ import { callerUserId, type Db, integrationSetups } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { managedDefinition } from './definitions';
+import { managedDefinition, type PluginDefinition } from './definitions';
 import { openValues, sealValues } from './vault';
 
 type SetupRow = typeof integrationSetups.$inferSelect;
@@ -107,30 +107,49 @@ export const removeSetup = async (client: Db, ref: string) => {
   return { ok: true as const };
 };
 
-export const saveSetup = async (client: Db, ref: string, values: IntegrationFormValues) => {
-  const fields = await setupFields(client, ref);
-  const existing = await findSetup(client, ref);
+const setupRow = (fields: IntegrationFormField[], values: Record<string, unknown>) => {
+  assertForm(fields, values);
 
   const secretKeys = new Set(
     fields.filter((field) => field.type === 'secret').map((field) => field.key),
   );
 
-  const known = new Set(fields.map((field) => field.key));
-  const merged = { ...only({ ...existing?.values, ...sealedOf(existing) }, known), ...values };
-
-  assertForm(fields, merged);
-
-  const kept = filled(merged);
+  const kept = filled(values);
   const secrets = only(kept, secretKeys);
   const sealedNames = Object.keys(secrets).toSorted();
 
-  const row = {
+  return {
     values: Object.fromEntries(Object.entries(kept).filter(([key]) => !secretKeys.has(key))),
     secretSealed: sealedNames.length ? sealValues(secrets) : null,
     sealedNames,
     updatedBy: callerUserId(),
     updatedAt: sql`now()`,
   };
+};
+
+export const seedSetup = async (
+  client: Db,
+  definition: PluginDefinition,
+  values: Record<string, unknown>,
+) => {
+  if (!definition.spec.setup) {
+    const message = `${definition.spec.name} has no setup`;
+
+    throw fail('INVALID_INPUT', message, { issues: [{ path: ['setup'], message }] });
+  }
+
+  await client
+    .insert(integrationSetups)
+    .values({ integration: definition.ref, ...setupRow(definition.spec.setup.fields, values) })
+    .onConflictDoNothing({ target: [integrationSetups.orgId, integrationSetups.integration] });
+};
+
+export const saveSetup = async (client: Db, ref: string, values: IntegrationFormValues) => {
+  const fields = await setupFields(client, ref);
+  const existing = await findSetup(client, ref);
+  const known = new Set(fields.map((field) => field.key));
+  const merged = { ...only({ ...existing?.values, ...sealedOf(existing) }, known), ...values };
+  const row = setupRow(fields, merged);
 
   return oneRow(
     await client

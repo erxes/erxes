@@ -50,6 +50,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   integrationAccounts: null,
   integrations: null,
   pluginAccounts: null,
+  pluginSecrets: null,
   leads: 'contacts',
   notifications: null,
   organizations: { lookup: true, writes: 'settings' },

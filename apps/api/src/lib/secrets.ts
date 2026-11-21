@@ -18,7 +18,12 @@ export const unseal = (sealed: string) => decrypt(sealKey(), sealed);
 
 const vaultKey = () => coreKey('erxes-core-integration-vault-v1');
 
-/** An integration's secrets, sealed for one organisation: a row copied to another doesn't open. */
-export const sealFor = (orgId: string, plain: string) => encrypt(vaultKey(), plain, orgId);
+/**
+ * An integration's secrets, sealed for one organisation (and plugin, when `binding` names one):
+ * a row or text copied to another doesn't open.
+ */
+export const sealFor = (binding: readonly string[], plain: string) =>
+  encrypt(vaultKey(), plain, binding.join(':'));
 
-export const unsealFor = (orgId: string, sealed: string) => decrypt(vaultKey(), sealed, orgId);
+export const unsealFor = (binding: readonly string[], sealed: string) =>
+  decrypt(vaultKey(), sealed, binding.join(':'));

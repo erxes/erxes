@@ -26,4 +26,7 @@ export const INTEGRATION_ACCOUNT_ACCESS = {
   'pluginAccounts.update': { plugin: 'installed' },
   'pluginAccounts.report': { plugin: 'installed' },
   'pluginAccounts.setup': { plugin: 'installed' },
+  'pluginAccounts.import': { plugin: 'installed' },
+  'pluginSecrets.seal': { plugin: 'installed' },
+  'pluginSecrets.open': { plugin: 'installed' },
 } as const;

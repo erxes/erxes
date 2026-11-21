@@ -3240,6 +3240,16 @@
         }
       }
     },
+    "import": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugin/integration-accounts/import"
+        }
+      }
+    },
     "list": {
       "~orpc": {
         "errorMap": {},
@@ -3287,6 +3297,28 @@
         "route": {
           "method": "GET",
           "path": "/plugin/integration-setups/{integration}"
+        }
+      }
+    }
+  },
+  "pluginSecrets": {
+    "seal": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugin/secrets/seal"
+        }
+      }
+    },
+    "open": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/plugin/secrets/open"
         }
       }
     }

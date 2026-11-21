@@ -32,7 +32,8 @@ interface Failure {
   message: string;
 }
 
-const keyOf = (item: { kind: string; externalId: string }) => `${item.kind}:${item.externalId}`;
+export const keyOf = (item: { kind: string; externalId: string }) =>
+  `${item.kind}:${item.externalId}`;
 
 const scopeFor = async (tx: Db, definition: PluginDefinition, userId: string | null) => ({
   orgId: requestOrgId(),
@@ -40,7 +41,7 @@ const scopeFor = async (tx: Db, definition: PluginDefinition, userId: string | n
   setup: await getSetupValues(tx, definition.ref),
 });
 
-const assertKinds = (definition: PluginDefinition, candidates: IntegrationCandidate[]) => {
+export const assertKinds = (definition: PluginDefinition, candidates: IntegrationCandidate[]) => {
   const kinds = new Set(definition.spec.accounts.map((item) => item.kind));
   const unknown = candidates.find((candidate) => !kinds.has(candidate.kind));
 

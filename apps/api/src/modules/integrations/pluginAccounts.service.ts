@@ -1,11 +1,13 @@
-import { pluginIntegrationRef } from '@erxes/core-contract';
+import { type ImportedIntegrationAccount, pluginIntegrationRef } from '@erxes/core-contract';
 import { caller, type Db, integrationAccounts } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { accountsOf, findAccount, recordCheck } from './accounts.service';
-import { ownDefinition } from './definitions';
-import { getSetupValues } from './setups.service';
+import { recordAudit } from '~/modules/audit/audit.service';
+import { accountsOf, assertRoomFor, findAccount, recordCheck } from './accounts.service';
+import { assertKinds, keyOf } from './connect';
+import { kindLabel, ownDefinition } from './definitions';
+import { getSetupValues, seedSetup } from './setups.service';
 import { openValues, sealValues } from './vault';
 
 const ownAccount = async (client: Db, id: string) => {
@@ -19,6 +21,83 @@ const ownAccount = async (client: Db, id: string) => {
 export const pluginAccounts = async (client: Db, key: string, kind?: string) => ({
   data: await accountsOf(client, pluginIntegrationRef(caller('plugin').plugin, key), kind),
 });
+
+const insertImported = (client: Db, ref: string, accounts: ImportedIntegrationAccount[]) =>
+  client
+    .insert(integrationAccounts)
+    .values(
+      accounts.map(({ secret, ...account }) => ({
+        ...account,
+        integration: ref,
+        secretSealed: sealValues(secret),
+        sealedNames: Object.keys(secret).toSorted(),
+        checkedAt: sql`now()`,
+      })),
+    )
+    .onConflictDoUpdate({
+      target: [
+        integrationAccounts.orgId,
+        integrationAccounts.integration,
+        integrationAccounts.kind,
+        integrationAccounts.externalId,
+      ],
+      set: {
+        name: sql`excluded.name`,
+        detail: sql`excluded.detail`,
+        config: sql`excluded.config`,
+        secretSealed: sql`excluded.secret_sealed`,
+        sealedNames: sql`excluded.sealed_names`,
+        status: 'healthy',
+        error: null,
+        checkedAt: sql`now()`,
+        updatedAt: sql`now()`,
+      },
+    })
+    .returning();
+
+export const importAccounts = async (
+  client: Db,
+  input: {
+    integration: string;
+    setup?: Record<string, unknown>;
+    accounts: ImportedIntegrationAccount[];
+  },
+) => {
+  const definition = await ownDefinition(client, input.integration);
+
+  assertKinds(definition, input.accounts);
+
+  const known = new Set((await accountsOf(client, definition.ref)).map(keyOf));
+
+  await assertRoomFor(
+    client,
+    definition.ref,
+    input.accounts.filter((account) => !known.has(keyOf(account))).length,
+  );
+
+  if (input.setup) await seedSetup(client, definition, input.setup);
+
+  if (!input.accounts.length) return { data: [] };
+
+  const rows = await insertImported(client, definition.ref, input.accounts);
+
+  await recordAudit(
+    client,
+    rows.map((account) => ({
+      action: 'integration_account.imported',
+      targetType: 'integration_account',
+      targetId: account.id,
+      targetLabel: account.name,
+      metadata: {
+        integration: definition.ref,
+        kind: kindLabel(definition, account.kind),
+        externalId: account.externalId,
+      },
+    })),
+  );
+
+  return { data: rows };
+};
 
 export const openAccount = async (client: Db, id: string) => {
   const row = await ownAccount(client, id);

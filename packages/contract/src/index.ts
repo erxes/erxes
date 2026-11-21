@@ -27,6 +27,7 @@ import { productCategoriesContract, productsContract } from './products';
 import { integrationAccountsContract } from './integrationAccounts';
 import { integrationsContract } from './integrations';
 import { pluginAccountsContract } from './pluginAccounts';
+import { pluginSecretsContract } from './pluginSecrets';
 import { rolesContract } from './roles';
 import { searchContract } from './search';
 import { tagsContract } from './tags';
@@ -77,6 +78,7 @@ export type CoreContract = {
   integrationAccounts: typeof integrationAccountsContract;
   integrations: typeof integrationsContract;
   pluginAccounts: typeof pluginAccountsContract;
+  pluginSecrets: typeof pluginSecretsContract;
   units: typeof unitsContract;
   unitTypes: typeof unitTypesContract;
   trash: typeof trashContract;
@@ -124,6 +126,7 @@ export const coreContract: CoreContract = {
   integrationAccounts: integrationAccountsContract,
   integrations: integrationsContract,
   pluginAccounts: pluginAccountsContract,
+  pluginSecrets: pluginSecretsContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
   trash: trashContract,
@@ -256,6 +259,8 @@ export * from './integrationValues';
 export * from './integrationAccounts';
 
 export * from './pluginAccounts';
+
+export * from './pluginSecrets';
 
 export * from './pluginIntegrations';
 

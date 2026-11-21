@@ -9,6 +9,7 @@ import { IntegrationKey } from './integrationValues';
 import {
   INTEGRATION_ACCOUNT_MAX,
   INTEGRATION_CANDIDATE_MAX,
+  IntegrationCandidate,
   IntegrationCandidates,
 } from './pluginIntegrations';
 
@@ -39,6 +40,17 @@ export const OpenIntegrationAccount = PluginIntegrationAccount.extend({
 
 export type OpenIntegrationAccount = z.infer<typeof OpenIntegrationAccount>;
 
+export const ImportedIntegrationAccounts = z
+  .array(IntegrationCandidate.extend({ id: Id, createdBy: Id.nullable() }))
+  .max(INTEGRATION_ACCOUNT_MAX)
+  .refine((list) => new Set(list.map((item) => item.id)).size === list.length, 'each id once')
+  .refine(
+    (list) => new Set(list.map((item) => `${item.kind}:${item.externalId}`)).size === list.length,
+    'each account once',
+  );
+
+export type ImportedIntegrationAccount = z.infer<typeof ImportedIntegrationAccounts>[number];
+
 const { LIMIT_EXCEEDED, INTEGRATION_REFUSED, PLUGIN_UNREACHABLE } = ERRORS;
 
 const base = oc.errors({
@@ -59,6 +71,20 @@ export const pluginAccountsContract = {
     .output(
       z.object({ url: z.string(), pickId: Id.nullable(), connected: z.int(), failed: z.int() }),
     ),
+  import: base
+    .route({
+      method: 'POST',
+      path: '/plugin/integration-accounts/import',
+      summary: `A plugin copies in accounts it kept itself (at most ${INTEGRATION_ACCOUNT_MAX}), each under its own id, and calls no hook. An account already there keeps its id and takes the new name, detail, settings and secret. The setup is saved only when the organisation has none. 409 TAKEN when another account has the id`,
+    })
+    .input(
+      z.object({
+        integration: IntegrationKey,
+        setup: SecretValues.optional(),
+        accounts: ImportedIntegrationAccounts,
+      }),
+    )
+    .output(z.object({ data: z.array(PluginIntegrationAccount) })),
   list: base
     .route({
       method: 'GET',
