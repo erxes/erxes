@@ -30,7 +30,7 @@ export interface Definition extends Place {
 }
 
 /** An `as const` list, a `z.enum([...])` or a hand-written string union. */
-export interface ValueList extends Place {
+interface ValueList extends Place {
   values: Set<string>;
   zod: boolean;
 }
