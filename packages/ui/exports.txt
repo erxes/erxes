@@ -38,6 +38,8 @@ type PluginLiveMessage
 type PluginRuntime
 type PluginSession
 type ProductChoice
+type ProductQueries
+type ProductRecord
 type ProductSearchQueries
 type RecordListGroup
 type RecordPageProps
@@ -80,6 +82,8 @@ type TRelationTabProps
 type TViewTabsProps
 type Tag
 type TagsQuery
+type UnitChoice
+type UnitQueries
 value Accordion
 value Alert
 value AlertDialog
@@ -90,6 +94,8 @@ value Avatar
 value BackgroundGradientAnimation
 value Badge
 value Board
+value BranchBadge
+value BranchesInline
 value Breadcrumb
 value Button
 value CONNECTION_CONTENT_TYPE
@@ -106,6 +112,7 @@ value ColorPicker
 value Combobox
 value Command
 value CommandBar
+value CompaniesInline
 value ConditionsEditor
 value ConnectionPicker
 value ContactLink
@@ -115,10 +122,14 @@ value CopyText
 value CurrencyDisplay
 value CurrencyField
 value CurrencyFormatedDisplay
+value CustomerType
+value CustomersInline
 value DASHBOARD_WIDGET_PREVIEWS
 value DateField
 value DateInput
 value DatePicker
+value DepartmentBadge
+value DepartmentsInline
 value Dialog
 value DisplayMenu
 value DragHandle
@@ -172,6 +183,7 @@ value PhoneField
 value PhoneInput
 value Popover
 value PopoverScoped
+value ProductsInline
 value RadioGroup
 value RecordChip
 value RecordList
@@ -190,8 +202,15 @@ value ReportTable
 value Resizable
 value ScrollArea
 value Select
+value SelectBranches
+value SelectCategory
+value SelectCompany
 value SelectContactContent
+value SelectCustomer
+value SelectDepartments
 value SelectMember
+value SelectProduct
+value SelectProductsBulk
 value SelectTree
 value Separator
 value SexCode
@@ -298,5 +317,6 @@ value useSortList
 value useSortRoleDescription
 value useTagOptions
 value useToast
+value useUnits
 value useUpload
 value zoneOffset

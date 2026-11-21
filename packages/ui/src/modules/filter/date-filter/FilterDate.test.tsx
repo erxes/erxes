@@ -1,44 +1,14 @@
 // @vitest-environment happy-dom
-import { createInstance } from 'i18next';
-import { Provider as JotaiProvider, createStore } from 'jotai';
-import { type OnUrlUpdateFunction, withNuqsTestingAdapter } from 'nuqs/adapters/testing';
-import { act, createElement, type ReactNode } from 'react';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
+import type { OnUrlUpdateFunction } from 'nuqs/adapters/testing';
+import { act, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { setupDomRender } from '../../../lib/render-in-dom';
+import { settle, setupPageRender } from '../../../lib/render-page';
 import { Filter } from '../components/Filter';
 
-const render = setupDomRender();
-
-const settle = () =>
-  act(
-    () =>
-      new Promise<void>((resolve) => {
-        setTimeout(resolve, 50);
-      }),
-  );
-
-const i18n = createInstance();
-
-void i18n.use(initReactI18next).init({
-  lng: 'en',
-  resources: {},
-  interpolation: { escapeValue: false },
-  initAsync: false,
-});
+const page = setupPageRender();
 
 const atAddress = (node: ReactNode, searchParams: string, onUrlUpdate?: OnUrlUpdateFunction) =>
-  render(
-    createElement(
-      withNuqsTestingAdapter({ searchParams, onUrlUpdate }),
-      null,
-      <I18nextProvider i18n={i18n}>
-        <JotaiProvider store={createStore()}>
-          <Filter id="transactions">{node}</Filter>
-        </JotaiProvider>
-      </I18nextProvider>,
-    ),
-  );
+  page(<Filter id="transactions">{node}</Filter>, searchParams, onUrlUpdate);
 
 const rows = () => [...document.querySelectorAll('[cmdk-item]')].map((item) => item.textContent);
 

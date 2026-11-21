@@ -12,7 +12,7 @@ import {
   isCurrencyCode,
 } from 'erxes-ui/constants/CurrencyCodes';
 import { cn } from 'erxes-ui/lib/utils';
-import { CurrencyDisplay } from 'erxes-ui/modules/display/components/CurrencyDisplay';
+import { CurrencyDisplay } from 'erxes-ui/modules/display/components/Currency';
 
 const DEFAULT_DISPLAY_SCALE = 2;
 const DEFAULT_EDIT_SCALE = 12;

@@ -176,10 +176,7 @@ export { RelativeDateDisplay } from './modules/display/components/RelativeDateDi
 
 export { SexDisplay } from './modules/display/components/SexDisplay';
 
-export {
-  CurrencyDisplay,
-  CurrencyFormatedDisplay,
-} from './modules/display/components/CurrencyDisplay';
+export { CurrencyDisplay, CurrencyFormatedDisplay } from './modules/display/components/Currency';
 
 export { useSexLabels } from './constants/SexCodes';
 
@@ -226,9 +223,7 @@ export {
   NavigationMenuLinkItem,
 } from './modules/navigation-menu/components/NavigationMenu';
 
-export { ReportPageContainer } from './modules/report/ReportPageContainer';
-
-export { ReportTable } from './modules/report/ReportTable';
+export { ReportPageContainer, ReportTable } from './modules/report/Report';
 
 export { EntityPicker } from './modules/pickers/EntityPicker';
 
@@ -254,6 +249,8 @@ export {
 
 export {
   type ProductChoice,
+  type ProductQueries,
+  type ProductRecord,
   type ProductSearchQueries,
   productTitle,
 } from './modules/records/products';
@@ -293,6 +290,30 @@ export {
 } from './modules/record-table/components/RecordTableHotkeys';
 
 export { SelectTree } from './modules/pickers/SelectTree';
+
+export {
+  BranchBadge,
+  BranchesInline,
+  DepartmentBadge,
+  DepartmentsInline,
+  SelectBranches,
+  SelectDepartments,
+  useUnits,
+} from './modules/pickers/SelectUnits';
+
+export type { UnitChoice, UnitQueries } from './modules/records/units';
+
+export { ProductsInline, SelectCategory, SelectProduct } from './modules/pickers/SelectProducts';
+
+export { SelectProductsBulk } from './modules/pickers/SelectProductsBulk';
+
+export {
+  CompaniesInline,
+  CustomersInline,
+  CustomerType,
+  SelectCompany,
+  SelectCustomer,
+} from './modules/pickers/SelectContacts';
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 

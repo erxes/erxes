@@ -1,52 +1,25 @@
 // @vitest-environment happy-dom
-import { createInstance } from 'i18next';
-import { Provider as JotaiProvider, createStore } from 'jotai';
-import { type OnUrlUpdateFunction, withNuqsTestingAdapter } from 'nuqs/adapters/testing';
-import { act, createElement } from 'react';
-import { I18nextProvider, initReactI18next } from 'react-i18next';
+import type { OnUrlUpdateFunction } from 'nuqs/adapters/testing';
+import { act } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { setupDomRender } from '../../lib/render-in-dom';
-import { ReportPageContainer } from './ReportPageContainer';
-import { ReportTable } from './ReportTable';
+import { settle, setupPageRender } from '../../lib/render-page';
+import { ReportPageContainer, ReportTable } from './Report';
 
-const render = setupDomRender();
-
-const i18n = createInstance();
-
-void i18n.use(initReactI18next).init({
-  lng: 'en',
-  resources: {},
-  interpolation: { escapeValue: false },
-  initAsync: false,
-});
-
-const settle = () =>
-  act(
-    () =>
-      new Promise<void>((resolve) => {
-        setTimeout(resolve, 50);
-      }),
-  );
+const render = setupPageRender();
 
 const page = (searchParams: string, onUrlUpdate?: OnUrlUpdateFunction, onExport?: () => void) =>
   render(
-    createElement(
-      withNuqsTestingAdapter({ searchParams, onUrlUpdate }),
-      null,
-      <I18nextProvider i18n={i18n}>
-        <JotaiProvider store={createStore()}>
-          <ReportPageContainer onExport={onExport}>
-            <ReportTable>
-              <ReportTable.Body>
-                <ReportTable.Row>
-                  <ReportTable.Cell>Cash</ReportTable.Cell>
-                </ReportTable.Row>
-              </ReportTable.Body>
-            </ReportTable>
-          </ReportPageContainer>
-        </JotaiProvider>
-      </I18nextProvider>,
-    ),
+    <ReportPageContainer onExport={onExport}>
+      <ReportTable>
+        <ReportTable.Body>
+          <ReportTable.Row>
+            <ReportTable.Cell>Cash</ReportTable.Cell>
+          </ReportTable.Row>
+        </ReportTable.Body>
+      </ReportTable>
+    </ReportPageContainer>,
+    searchParams,
+    onUrlUpdate,
   );
 
 const button = (name: string) =>

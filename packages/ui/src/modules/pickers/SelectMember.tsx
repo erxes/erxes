@@ -13,6 +13,7 @@ import { PopoverScoped } from '../hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { MemberLink } from '../records/MemberLink';
 import { EntityPicker } from './EntityPicker';
+import { memberFamily } from './memberFamily';
 import {
   type Member,
   type MemberQueries,
@@ -289,9 +290,19 @@ const SelectMemberLinked = ({
   );
 };
 
-/** The member picker: a table cell, a field, or a row opening the member. */
+/**
+ * The member picker: a table cell, a field, or a row opening the member.
+ * 3.x's `FormItem` and filter parts (`FilterItem`, `FilterView`, `FilterBar`) take `members`,
+ * `value` and `onValueChange` with a `mode`, as the branch and product pickers do.
+ */
 export const SelectMember = {
   InlineCell: SelectMemberInlineCell,
   Field: SelectMemberField,
   Linked: SelectMemberLinked,
+  FormItem: memberFamily.FormItem,
+  FilterItem: memberFamily.FilterItem,
+  FilterView: memberFamily.FilterView,
+  FilterBar: memberFamily.FilterBar,
+  Content: memberFamily.Content,
+  Value: memberFamily.Value,
 };

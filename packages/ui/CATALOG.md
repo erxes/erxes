@@ -97,6 +97,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
 - `type ProductChoice { id, name, code }` A product as a picker shows it.
+- `type ProductQueries { page, byIds, categories }` Where the product pickers read the catalog.
+- `type ProductRecord { price, currency, unit, categoryId }` A product as product pickers list it: core's `Product` has more.
 - `type ProductSearchQueries { search, byIds }` Where a filter's `product` fields search products and load picked ones.
 - `productTitle(product)` A product's name, with its code when it has one: "iPhone 15 · IP15".
 - `<RecordChip record name avatarUrl loading failed>` A record as a chip: its avatar and name.
@@ -114,6 +116,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
 - `type TContactKind` Which contacts a picker lists: core's customers or its companies.
+- `type UnitChoice { id, name, code, parentId }` A branch or department as pickers show one: core's `Unit` has more.
+- `type UnitQueries { list }` Where branch and department pickers read core's units, a kind at a time.
 - `useCurrentRecord()` The record core's panel shows now: null when it shows none or a draft.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
@@ -121,11 +125,18 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Fields and pickers
 
+- `<BranchBadge branch branchId>` A branch as a badge: its code and name.
+- `<BranchesInline branchIds>` Branches by id as their names, joined.
+- `<CompaniesInline companyIds contacts placeholder>` Companies by id: their avatars, and the name.
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
 - `<CurrencyDisplay code variant>` A currency by its code: its icon and name, its icon alone, or its code.
 - `CurrencyField.{ValueInput, SelectCurrency, SelectCurrencyCommand}` An amount and its currency: an amount input and a currency picker.
 - `<CurrencyFormatedDisplay currencyValue kind>` An amount after its currency's icon, through `formatAmount`.
+- `<CustomersInline customerIds contacts placeholder>` Customers by id: their avatars, and the name.
+- `CustomerType` Who a plugin record is about: a customer, a company or a team member.
 - `<DateField value min max placeholder scope>` A day in a table cell or panel row, edited in a popover with a calendar.
+- `<DepartmentBadge department departmentId>` A department as a badge: its code and name.
+- `<DepartmentsInline departmentIds>` Departments by id as their names, joined.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.
@@ -147,8 +158,16 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PhoneDisplay maxVisible primaryPhone phones phoneValidationStatus>` A record's phones as chips, the primary one with its validation mark.
 - `<PhoneField recordId onValueChange onValidationStatusChange primaryPhone phones>` An editable list of a record's phones, each with its own menu.
 - `<PhoneInput value onChange defaultCountry placeholder onEnter>` A phone input with a country flag picker that formats as you type.
+- `<ProductsInline productIds products productQueries placeholder>` Products by id: the first one's code and name, "+N more" after it.
 - `RelativeDateDisplay.{Value}` A date as how long ago it was, with the date and time on hover.
+- `SelectBranches` Picks core's branches in a table cell, a form field or a filter.
+- `SelectCategory` Picks core's product categories from a tree that folds.
+- `SelectCompany` Picks core's companies in a table cell, a form field or a filter.
+- `SelectCustomer` Picks core's customers in a table cell, a form field or a filter.
+- `SelectDepartments` Picks core's departments in a table cell, a form field or a filter.
 - `SelectMember` The member picker: a table cell, a field, or a row opening the member.
+- `SelectProduct` Picks core products in a table cell, a form field or a filter.
+- `<SelectProductsBulk open onOpenChange title description>` A sheet that picks many products at once, as 3.x's did.
 - `SelectTree.{Item, Provider}` A picker's items as a tree, indented with arrows that fold.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.
 - `<SexField value onValueChange>` A searchable list to pick a sex code, for a popover or cell editor.
@@ -164,6 +183,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useMembersById(ids, members)` Members by id, any status.
 - `useProductOptions(products, enabled, picked, search)` Products matching `search` as picker options, the `picked` ones first.
 - `useTagOptions(tags, enabled)` A record type's tags as picker options; none without `tags`.
+- `useUnits(units, kind)` Core's branches or departments: parents first, siblings by code.
 
 ## Components
 

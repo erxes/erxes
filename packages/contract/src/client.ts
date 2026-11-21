@@ -136,6 +136,38 @@ export const productSearchQueries = {
     orpc.products.lookup.queryOptions({ input: { ids: ids.join(',') }, staleTime: 5 * 60_000 }),
 };
 
+/**
+ * Where erxes-ui's product pickers read the catalog: `<SelectProduct.InlineCell
+ * products={productQueries} … />`. A page of products after `cursor` (archived ones too, as a
+ * picker's search lists them), products by id, and every category.
+ */
+export const productQueries = {
+  page: ({
+    search,
+    categoryId,
+    cursor,
+  }: {
+    search?: string;
+    categoryId?: string;
+    cursor?: string;
+  }) =>
+    orpc.products.list.queryOptions({
+      input: { limit: 20, search, categoryId, cursor, all: true },
+      staleTime: 60_000,
+    }),
+  byIds: (ids: string[]) => productSearchQueries.byIds(ids),
+  categories: orpc.productCategories.list.queryOptions({ staleTime: 60_000 }),
+};
+
+/**
+ * Where erxes-ui's branch and department pickers read core's units:
+ * `<SelectBranches.InlineCell units={unitQueries} … />`. One request per kind, parents first.
+ */
+export const unitQueries = {
+  list: (kind: 'branch' | 'department') =>
+    orpc.units.list.queryOptions({ input: { kind }, staleTime: 60_000 }),
+};
+
 /** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */
 type ApiError = ORPCErrorFromErrorMap<typeof ERRORS>;
 

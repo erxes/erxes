@@ -16,9 +16,20 @@
     "size": "Barcode size",
     "width": "Width (px)"
   },
+  "branch": {
+    "count": "{{count}} branches",
+    "search": "Search branches",
+    "select": "Select branches",
+    "selected": "{{count}} branches selected"
+  },
   "breadcrumb": {
     "label": "Breadcrumb",
     "more": "More"
+  },
+  "category": {
+    "search": "Search categories",
+    "select": "Choose category",
+    "selected": "{{count}} categories"
   },
   "color": {
     "custom": "Custom color",
@@ -40,6 +51,11 @@
       "violet": "Violet",
       "yellow": "Yellow"
     }
+  },
+  "company": {
+    "search": "Search companies",
+    "select": "Select Companies",
+    "selected": "{{count}} companies"
   },
   "confirm": {
     "cancel": "Cancel",
@@ -70,6 +86,11 @@
     "search": "Search currency",
     "select": "Select currency"
   },
+  "customer": {
+    "search": "Search customers",
+    "select": "Select Customers",
+    "selected": "{{count}} customers"
+  },
   "date": {
     "clear": "Clear",
     "days_one": "{{count}} day",
@@ -94,6 +115,12 @@
     "today": "Today",
     "unknown": "Unknown",
     "year": "Year"
+  },
+  "department": {
+    "count": "{{count}} departments",
+    "search": "Search departments",
+    "select": "Select departments",
+    "selected": "{{count}} departments selected"
   },
   "document": {
     "placeholder": "Document placeholder",
@@ -169,6 +196,8 @@
     "inactive": "Inactive",
     "none": "Not specified",
     "select": "Select a member",
+    "search": "Search team members",
+    "selected": "{{count}} members",
     "unnamed": "Unnamed user"
   },
   "multiselect": {
@@ -189,6 +218,17 @@
     "search-country": "Search country…",
     "too-long": "Phone number must not exceed 16 characters",
     "too-short": "Phone number must be at least 8 characters"
+  },
+  "product": {
+    "add-many": "Add Many Products",
+    "added": "Added",
+    "cancel": "Cancel",
+    "more": "{{name}} +{{count}} more",
+    "results": "{{count}} results",
+    "search": "Search products",
+    "select": "Select Products",
+    "select-many": "Select Products",
+    "selected": "{{count}} products"
   },
   "report": {
     "every-page": "Show table layout on every page",
