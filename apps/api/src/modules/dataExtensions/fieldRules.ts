@@ -9,7 +9,7 @@ import {
 import { count, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { listRecordTypes } from '~/modules/recordTypes/recordTypes.service';
-import { isComputed } from './columns';
+import { isComputed, pluginOf } from './columns';
 import { customKeyOf, FIELDS_MAX, activeObject } from './definitions';
 import { UNIQUE_TYPES } from './unique';
 
@@ -67,6 +67,27 @@ export const assertFieldDefinition = (field: FieldDefinition) => {
     !dataExtensionValueSchema({ ...field, relation: null }).safeParse(defaultValue).success
   ) {
     throw invalid('settings.defaultValue', 'The default is not a value of this field');
+  }
+};
+
+/**
+ * 400 INVALID_INPUT for an auto number or a unique field on a plugin's record type: the plugin
+ * keeps the values, so core sees no other record's to number or compare with.
+ */
+export const assertPluginKeeps = (
+  recordType: string,
+  field: Pick<FieldDefinition, 'type' | 'settings'>,
+) => {
+  const plugin = pluginOf(recordType);
+
+  if (!plugin) return;
+
+  if (field.type === 'autoNumber') {
+    throw invalid('type', `${plugin} keeps these records’ values, so core can't number them`);
+  }
+
+  if (field.settings.unique) {
+    throw invalid('settings.unique', `${plugin} keeps these records’ values, so none is unique`);
   }
 };
 

@@ -16,8 +16,9 @@ import { RoleKey } from './values';
 /**
  * Data Extensions: objects and fields an organisation defines at runtime, for its own records
  * (custom objects) and for core's and plugins' (`core.customer`, `hr.employee`). Core keeps
- * each organisation's in its own schema, a table per object and a column per field, as Twenty
- * does; web draws every screen from the definitions.
+ * each organisation's values in its own schema, a table per object and a column per field, as
+ * Twenty does; a plugin keeps its records' values itself, by field id. Web draws every screen
+ * from the definitions.
  */
 
 /** The first half of a custom object's record type: `custom.project`. */

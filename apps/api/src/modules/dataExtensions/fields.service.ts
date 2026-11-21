@@ -12,13 +12,14 @@ import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
-import { columnsOf, freeColumn, isComputed } from './columns';
+import { columnsOf, freeColumn, isComputed, pluginOf } from './columns';
 import { assertUnread, checkComputed } from './computedRules';
 import { addColumns, changeSchema, setUnique } from './ddl';
 import { customKeyOf, type DataFieldRow, ensureTable, findField, qualified } from './definitions';
 import { assertSettings } from './writeRules';
 import {
   assertFieldDefinition,
+  assertPluginKeeps,
   assertPluginReads,
   assertRoom,
   extendableType,
@@ -75,6 +76,8 @@ export const createField = async (
     });
   }
 
+  assertPluginKeeps(input.recordType, { type: input.type, settings: input.settings ?? {} });
+
   if (input.type === 'autoNumber' && !customKeyOf(input.recordType)) {
     throw fail('INVALID_TYPE', 'Only custom objects number their records');
   }
@@ -106,6 +109,9 @@ export const createField = async (
       })
       .returning(),
   );
+
+  // A plugin keeps its records' values: core makes no table for them.
+  if (pluginOf(input.recordType)) return row;
 
   await changeSchema(client, async () => {
     const table = await ensureTable(client, input.recordType);

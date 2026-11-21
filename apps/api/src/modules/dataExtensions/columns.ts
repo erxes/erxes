@@ -1,3 +1,4 @@
+import { CUSTOM_OBJECT_PREFIX } from '@erxes/core-contract';
 import { sha256 } from '~/lib/crypto';
 import type {
   DATA_EXTENSION_COLUMN_TYPES,
@@ -68,7 +69,17 @@ export const freeColumn = (key: string, taken: ReadonlySet<string>) => {
 /** A custom object's table: `obj_<key>`. */
 export const objectTable = (key: string) => `obj_${key}`.slice(0, TABLE_MAX);
 
-/** A core or plugin record type's table: `ext_<plugin>_<type>`, a suffix when that's taken. */
+/**
+ * The plugin that keeps a record type's records and their values (`frontline.ticket` →
+ * `frontline`), or null for core's and custom objects', whose values core keeps.
+ */
+export const pluginOf = (recordType: string) => {
+  const [owner = ''] = recordType.split('.');
+
+  return owner === 'core' || owner === CUSTOM_OBJECT_PREFIX ? null : owner;
+};
+
+/** A core record type's table: `ext_core_<type>`, a suffix when that's taken. */
 export const hostTable = (recordType: string, suffix = '') =>
   `ext_${snake(recordType.replace('.', '_'))}`.slice(0, TABLE_MAX - suffix.length) + suffix;
 
@@ -149,21 +160,43 @@ const COMPOSITE: Partial<Record<FieldType, [string, string, ColumnType][]>> = {
   ],
 };
 
+type HeldRelation = Pick<DataFieldRelation, 'kind' | 'side' | 'targetRecordType' | 'pairsTable'>;
+
 /**
- * Whether this side of a relation keeps the link in its own table: the "many" side of a
- * many-to-one (its source, or a one-to-many's inverse) and a one-to-one's source. The other
- * side reads it from there; a many-to-many keeps pairs in their own table.
+ * Whether this side of a relation (a field of `recordType`) keeps the link with its record:
+ * the "many" side of a many-to-one (its source, or a one-to-many's inverse) and a one-to-one's
+ * source. The other side reads it from there. A many-to-many keeps pairs in their own table,
+ * except with a plugin's records: then the plugin's side keeps the ids (the source's, when
+ * both sides are plugins'), as core can't write a plugin's records.
  */
-export const holdsLink = ({ kind, side }: Pick<DataFieldRelation, 'kind' | 'side'>) =>
-  (kind === 'manyToOne' && side === 'source') ||
-  (kind === 'oneToMany' && side === 'inverse') ||
-  (kind === 'oneToOne' && side === 'source');
+export const holdsLink = (recordType: string, relation: HeldRelation) => {
+  const { kind, side } = relation;
+
+  if (kind === 'manyToMany') {
+    return (
+      !relation.pairsTable &&
+      pluginOf(recordType) !== null &&
+      (side === 'source' || pluginOf(relation.targetRecordType) === null)
+    );
+  }
+
+  return (
+    (kind === 'manyToOne' && side === 'source') ||
+    (kind === 'oneToMany' && side === 'inverse') ||
+    (kind === 'oneToOne' && side === 'source')
+  );
+};
 
 /** A relation side's id column: `<column>_id`. */
 export const linkColumn = (column: string) => `${column}_id`;
 
-/** The columns a field keeps in its record type's table, for `column` as its name or prefix. */
+/**
+ * The columns a field keeps in its record type's table, for `column` as its name or prefix. A
+ * plugin's record type has no table: its fields' columns name the parts of their values in
+ * the plugin's `custom_fields` as core reads them.
+ */
 export const columnsOf = (field: {
+  recordType: string;
   type: FieldType;
   column: string | null;
   relation: DataFieldRelation | null;
@@ -174,7 +207,9 @@ export const columnsOf = (field: {
   if (!column || isComputed(type)) return [];
 
   if (type === 'relation') {
-    return relation && holdsLink(relation) ? one(linkColumn(column), 'text') : [];
+    if (!relation || !holdsLink(field.recordType, relation)) return [];
+
+    return one(linkColumn(column), relation.kind === 'manyToMany' ? 'text[]' : 'text');
   }
 
   if (type === 'member') return one(column, settings.multiple ? 'text[]' : 'text');

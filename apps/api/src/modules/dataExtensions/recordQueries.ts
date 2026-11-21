@@ -57,7 +57,7 @@ export const valueColumns = (
     }
 
     return columnsOf(field).map(
-      (column) => sql`${readColumn(table, column)} as ${sql.identifier(column.name)}`,
+      (column) => sql`${readColumn(field, table, column)} as ${sql.identifier(column.name)}`,
     );
   });
 
@@ -230,5 +230,5 @@ export const sortExpression = (
   if (value) return value.sql;
   const [first] = field ? columnsOf(field) : [];
 
-  return first ? readColumn(table, first) : null;
+  return field && first ? readColumn(field, table, first) : null;
 };

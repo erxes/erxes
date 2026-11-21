@@ -10,8 +10,9 @@ import { pluginObjectViews, viewProblem } from './nativeSources';
 
 /**
  * Plugins connected to Data Extensions. An installed plugin's manifest `objects` are its
- * record types members may extend; connecting one makes them extendable here, and its views
- * give formulas and rollups its records' own fields.
+ * record types members may extend; connecting one makes them extendable here. Its views give
+ * formulas and rollups its records' own fields, and core the values members' fields have on
+ * them (`custom_fields`), which the plugin keeps.
  */
 
 const typesOf = (owner: ObjectsPlugin) => owner.objects.map((object) => object.type);
@@ -27,9 +28,12 @@ const fieldCounts = async (client: Db, owners: ObjectsPlugin[]) => {
     .groupBy(dataFields.recordType);
 
   const counts = new Map(rows.map((row) => [row.recordType, row.total]));
+  const ofType = (type: string) => counts.get(type) ?? 0;
 
-  return (owner: ObjectsPlugin) =>
-    typesOf(owner).reduce((sum, type) => sum + (counts.get(type) ?? 0), 0);
+  return {
+    ofType,
+    ofOwner: (owner: ObjectsPlugin) => typesOf(owner).reduce((sum, type) => sum + ofType(type), 0),
+  };
 };
 
 const describe = async (client: Db, owners: ObjectsPlugin[]) => {
@@ -57,13 +61,13 @@ const describe = async (client: Db, owners: ObjectsPlugin[]) => {
           singularLabel: type.singularLabel,
           icon: type.icon,
           nativeFields: type.nativeFields,
-          problem: viewProblem(object, columns.get(object.type)),
+          problem: viewProblem(object, columns.get(object.type), fieldCount.ofType(type.type) > 0),
         };
       }),
       connected: Boolean(link),
       connectedAt: link?.connectedAt ?? null,
       connectedBy: link?.connectedBy ?? null,
-      fieldCount: fieldCount(owner),
+      fieldCount: fieldCount.ofOwner(owner),
     };
   });
 };
@@ -108,7 +112,7 @@ export const connectPlugin = async (client: Db, plugin: string) => {
 /** Disconnects a plugin once its record types have no active fields (409 ARCHIVE_FIRST). */
 export const disconnectPlugin = async (client: Db, plugin: string) => {
   const owner = await ownerOf(client, plugin);
-  const fields = (await fieldCounts(client, [owner]))(owner);
+  const fields = (await fieldCounts(client, [owner])).ofOwner(owner);
 
   if (fields) {
     throw fail(

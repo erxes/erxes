@@ -5,7 +5,8 @@ import { z } from 'zod';
 import { keysetPage } from '~/lib/keyset';
 import { recordActivity } from '~/modules/activities/activities.service';
 import { assertRecordRight, findRecordType } from '~/modules/recordTypes/recordTypes.service';
-import { isComputed } from './columns';
+import { fail } from '~/http/errors';
+import { isComputed, pluginOf } from './columns';
 import { type DataFieldRow, fieldsById, qualified, tableOf } from './definitions';
 import { canViewField, fieldsRuled } from './fieldAccess';
 import { assertRecordsExist } from './references';
@@ -13,7 +14,8 @@ import { assertRecordsExist } from './references';
 /**
  * A record's value history, kept on its timeline (`core_activities`): customers' and
  * companies' changes show on their own timelines, other records' under their record type. An
- * entry keeps each field's key, label and type as they were, so renames don't rewrite it.
+ * entry keeps each field's key, label and type as they were, so renames don't rewrite it. A
+ * plugin's records have none here: the plugin writes their values and keeps their timeline.
  */
 
 const KINDS = { created: 'data.record.created', updated: 'data.values.changed' } as const;
@@ -80,11 +82,6 @@ const historyOf = (recordType: string, ids?: string[]) =>
     inArray(activities.type, Object.values(KINDS)),
   );
 
-/** Removes these records' value history (their other timeline entries stay). */
-export const removeHistory = async (client: Db, recordType: string, ids: string[]) => {
-  if (ids.length) await client.delete(activities).where(historyOf(recordType, ids));
-};
-
 /** Removes the value history of a custom object's records no longer in its table (purged). */
 export const removeOrphanHistory = async (client: Db, recordType: string) => {
   const table = await tableOf(client, recordType);
@@ -135,12 +132,21 @@ export const visibleEntries = async <T extends { type: string; data: Record<stri
 
 /**
  * A record's value history, newest first: 403 without the record type's read right, 400
- * INVALID_REFERENCE for a record that isn't there (as `dataValues.get`).
+ * INVALID_REFERENCE for a record that isn't there (as `dataValues.get`), or of a plugin's
+ * record type, whose values core never writes (the plugin keeps their timeline).
  */
 export const listHistory = async (
   client: Db,
   input: CursorQuery & { recordType: string; recordId: string },
 ) => {
+  const plugin = pluginOf(input.recordType);
+
+  if (plugin) {
+    throw fail('INVALID_REFERENCE', `${plugin} keeps the history of its records’ values`, {
+      field: 'recordType',
+    });
+  }
+
   assertRecordRight(await findRecordType(client, input.recordType), 'read');
   await assertRecordsExist(client, input.recordType, [input.recordId], 'recordId');
 

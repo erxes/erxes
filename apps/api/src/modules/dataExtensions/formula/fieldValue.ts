@@ -1,12 +1,12 @@
 import type { DataResultType } from '@erxes/core-db';
 import { type SQL, sql } from 'drizzle-orm';
+import { storedColumn } from '../codec';
+import { columnsOf } from '../columns';
 import type { DataFieldRow } from '../definitions';
 import { FormulaError } from './parse';
 import type { Typed } from './types';
 
 /** A stored field's value as formulas read it, and computed values as the API sends them. */
-
-const column = (row: SQL, name: string) => sql`${row}.${sql.identifier(name)}`;
 
 /** An auto number as members see it: `PRJ-0042`. */
 export const autoNumberText = (field: Pick<DataFieldRow, 'settings'>, value: SQL) =>
@@ -28,12 +28,19 @@ const TYPE_OF: Partial<Record<DataFieldRow['type'], DataResultType>> = {
 };
 
 /**
- * A stored field's value over `row` (its record's table, or null when the record has no row):
- * the type formulas see it as. Types a formula can't use throw FormulaError.
+ * A stored field's value over `row` (its record's table or a plugin's view row, or null when
+ * the record has no row): the type formulas see it as. Types a formula can't use throw
+ * FormulaError.
  */
 export const storedValue = (field: DataFieldRow, row: SQL | null, at: number): Typed => {
-  const base = field.column ?? '';
-  const read = (suffix = '') => (row ? column(row, `${base}${suffix}`) : sql`null`);
+  const columns = columnsOf(field);
+
+  const read = (part: string | null = null) => {
+    const stored = columns.find((one) => one.part === part);
+
+    return row && stored ? storedColumn(field, row, stored) : sql`null`;
+  };
+
   const simple = TYPE_OF[field.type];
 
   if (simple)
@@ -41,15 +48,15 @@ export const storedValue = (field: DataFieldRow, row: SQL | null, at: number): T
 
   switch (field.type) {
     case 'currency':
-      return { sql: read('_amount'), type: 'number' };
+      return { sql: read('amount'), type: 'number' };
     case 'fullName':
       return {
-        sql: sql`nullif(concat_ws(' ', ${read('_first_name')}, ${read('_last_name')}), '')`,
+        sql: sql`nullif(concat_ws(' ', ${read('firstName')}, ${read('lastName')}), '')`,
         type: 'text',
       };
     case 'emails':
     case 'phones':
-      return { sql: read('_primary'), type: 'text' };
+      return { sql: read('primary'), type: 'text' };
     case 'multiSelect':
       return { sql: sql`array_to_string(${read()}, ', ')`, type: 'text' };
     case 'member':

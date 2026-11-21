@@ -2,8 +2,8 @@ import { MEMBER, needs } from './policyRules';
 
 /**
  * Data Extensions in the access map (`./policies`): members shape objects and fields with
- * properties.manage and work custom records with the objects.* rights; plugins read and write
- * the values of their own record types.
+ * properties.manage and work custom records with the objects.* rights; plugins read the values
+ * of their own record types, and check the ones they keep.
  */
 export const DATA_EXTENSION_ACCESS = {
   'recordTypes.list': MEMBER,
@@ -39,10 +39,11 @@ export const DATA_EXTENSION_ACCESS = {
   'dataRecords.restore': needs('objects.delete'),
 
   // Values and history follow their record type's own rights; a plugin reaches only its own
-  // records (the services check).
+  // records (the services check). A plugin keeps its records' values and checks them first.
   'dataValues.get': { member: 'any', plugin: 'installed' },
   'dataValues.lookup': { member: 'any', plugin: 'installed' },
   'dataValues.update': { member: 'any', plugin: 'installed' },
+  'dataValues.check': { plugin: 'installed' },
   'dataChanges.history': { member: 'any', plugin: 'installed' },
   'dataChanges.convert': needs('properties.manage'),
   'dataChanges.remove': { plugin: 'installed' },

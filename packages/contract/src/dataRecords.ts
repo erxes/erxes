@@ -115,16 +115,21 @@ export const dataRecordsContract = {
     .output(DataExtensionRecord),
 };
 
+/** Values by field id, as a plugin keeps them in its records' `custom_fields`. */
+const ValuesById = z.record(Id, z.json());
+
 /**
  * Values on core's and plugins' records. They follow the record's own rights: reading needs
- * what reads the record (`contacts.view`, `hr.employee.view`), changing what changes it.
+ * what reads the record (`contacts.view`, `hr.employee.view`), changing what changes it. Core
+ * keeps its own records' values; a plugin keeps its records' in its `custom_fields` (by field
+ * id), checks them with `check` before it saves them, and core reads them from its view.
  */
 export const dataValuesContract = {
   get: base
     .route({
       method: 'GET',
       path: '/data-values/{recordType}/{recordId}',
-      summary: 'A record’s values',
+      summary: 'A record’s values, with its formulas’ and rollups’; a plugin’s read from its view',
     })
     .input(z.object({ recordType: DataExtensionRecordType, recordId: Id }))
     .output(DataExtensionHostValues),
@@ -142,7 +147,8 @@ export const dataValuesContract = {
     .route({
       method: 'PATCH',
       path: '/data-values/{recordType}/{recordId}',
-      summary: 'Change some of a record’s values; null clears one. 409 TAKEN for a unique value',
+      summary:
+        'Change some of a core record’s values; null clears one. 409 TAKEN for a unique value; 400 INVALID_REFERENCE for a plugin’s record type, whose plugin keeps the values',
     })
     .input(
       z.object({
@@ -152,4 +158,24 @@ export const dataValuesContract = {
       }),
     )
     .output(DataExtensionHostValues),
+  check: base
+    .route({
+      method: 'POST',
+      path: '/data-values/{recordType}/check',
+      summary:
+        'A plugin checks its own record’s values before it saves them: the record’s values after `patch` (null clears one), checked and normalised. 400 INVALID_INPUT names each value that isn’t valid or field id that isn’t active; 403 NOT_ALLOWED for another’s record type',
+    })
+    .input(
+      z.object({
+        recordType: DataExtensionRecordType,
+        /** The values the record holds now, by field id; empty for a new record. */
+        current: ValuesById.default({}),
+        patch: z.record(Id, z.json().nullable()),
+        /** A new record: every value is checked, and defaults fill the rest. */
+        create: z.boolean().default(false),
+        /** The member who made the change: their role must be allowed to change these fields. */
+        userId: Id.optional(),
+      }),
+    )
+    .output(z.object({ values: ValuesById })),
 };

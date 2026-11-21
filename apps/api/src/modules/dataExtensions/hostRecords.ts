@@ -14,14 +14,15 @@ import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { assertRecordRight, findRecordType } from '~/modules/recordTypes/recordTypes.service';
-import { columnsOf, holdsLink, linkColumn } from './columns';
+import { columnsOf, holdsLink, linkColumn, pluginOf } from './columns';
 import { fieldsOf, qualified, tableOf } from './definitions';
-import { removeHistory, removeOrphanHistory } from './valueHistory';
+import { removeOrphanHistory } from './valueHistory';
 
 /**
- * Values on core's and plugins' records once the record is gone: a plugin says so, core's
- * merged records hand theirs to the one kept, and core's records deleted for good (out of the
- * recycle bin) are swept up hourly. Their links from other records go with them.
+ * Values and links once a record is gone: core's merged records hand theirs to the one kept,
+ * core's records deleted for good (out of the recycle bin) are swept up hourly, and a plugin
+ * says when its records are gone, so the links core keeps to them go. Links a plugin's
+ * records hold are the plugin's to change.
  */
 
 /** Which record ids a cleanup is about, as a test on an id column. */
@@ -71,37 +72,46 @@ const eachLink = async (
       return;
     }
 
-    const table = holdsLink(relation) && name ? await tableOf(client, from) : null;
+    const core = holdsLink(from, relation) && name && !pluginOf(from);
+    const table = core ? await tableOf(client, from) : null;
 
     if (table && name) await column(qualified(table), sql`${sql.identifier(linkColumn(name))}`);
   });
 };
 
-const clearLinks = (client: Db, recordType: string, gone: Gone) =>
-  eachLink(
+/** Clears the links core keeps to the records `gone` names: how many links and pairs went. */
+const clearLinks = async (client: Db, recordType: string, gone: Gone) => {
+  let cleared = 0;
+
+  const count = (result: { rowCount: number | null }) => {
+    cleared += result.rowCount ?? 0;
+  };
+
+  await eachLink(
     client,
     recordType,
-    (table, { theirs }) => client.execute(sql`delete from ${table} where ${gone(theirs)}`),
-    (table, link) => client.execute(sql`update ${table} set ${link} = null where ${gone(link)}`),
+    async (table, { theirs }) =>
+      count(await client.execute(sql`delete from ${table} where ${gone(theirs)}`)),
+    async (table, link) =>
+      count(await client.execute(sql`update ${table} set ${link} = null where ${gone(link)}`)),
   );
+
+  return cleared;
+};
 
 const removeRows = async (client: Db, recordType: string, gone: Gone) => {
   const table = await tableOf(client, recordType);
 
-  if (!table) return 0;
-
-  const result = await client.execute(
-    sql`delete from ${qualified(table)} where ${gone(sql`record_id`)}`,
-  );
-
-  return result.rowCount ?? 0;
+  if (table)
+    await client.execute(sql`delete from ${qualified(table)} where ${gone(sql`record_id`)}`);
 };
 
 /**
- * A plugin's records are gone: their values, links and value history go too. 400
- * INVALID_REFERENCE for a type that isn't a plugin's; 403 unless the caller is its plugin.
+ * A plugin's records are gone: the links core keeps to them (on core's records and custom
+ * records, and their pairs) go too. 400 INVALID_REFERENCE for a type that isn't a plugin's;
+ * 403 unless the caller is its plugin.
  */
-export const removePluginValues = async (
+export const removePluginRecords = async (
   client: Db,
   input: { recordType: string; recordIds: string[] },
 ) => {
@@ -115,13 +125,7 @@ export const removePluginValues = async (
 
   assertRecordRight(recordType, 'update');
 
-  const gone = byIds(input.recordIds);
-  const removed = await removeRows(client, input.recordType, gone);
-
-  await clearLinks(client, input.recordType, gone);
-  await removeHistory(client, input.recordType, input.recordIds);
-
-  return { removed };
+  return { removed: await clearLinks(client, input.recordType, byIds(input.recordIds)) };
 };
 
 /**

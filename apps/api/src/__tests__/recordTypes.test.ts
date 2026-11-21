@@ -1,31 +1,11 @@
 import type { PluginManifest } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { adminDb, useTestDatabase } from './db';
+import { EMPLOYEE, EMPLOYEE_WITH_FIELDS, hrManifest, saveCustomFields, setUpHr } from './hrPlugin';
 import { useTwoOrgs } from './support';
 
-const EMPLOYEE = {
-  type: 'hr.employee',
-  label: 'Employees',
-  singularLabel: 'Employee',
-  icon: 'IconUserCheck',
-  permission: 'hr.employee.view',
-  updatePermission: 'hr.employee.edit',
-} as const;
-
 type ManifestObject = NonNullable<PluginManifest['objects']>[number];
-
-/** Employees with their own fields, read from HR's view. */
-const EMPLOYEE_WITH_FIELDS: ManifestObject = {
-  ...EMPLOYEE,
-  view: 'hr_employee_fields',
-  fields: [
-    { key: 'name', label: 'Name', type: 'text' },
-    { key: 'salary', label: 'Salary', type: 'number' },
-    { key: 'hired_on', label: 'Hired', type: 'date' },
-  ],
-};
 
 /** Positions name a view HR never made. */
 const POSITION: ManifestObject = {
@@ -36,36 +16,21 @@ const POSITION: ManifestObject = {
   fields: [{ key: 'title', label: 'Title', type: 'text' }],
 };
 
-/** HR with employees, which members may see but not change. */
-const hrManifest = (objects: PluginManifest['objects'] = [EMPLOYEE]) =>
-  ({
-    title: 'HR',
-    version: '1',
-    api: { url: 'https://hr.example.com/api' },
-    scopes: [],
-    permissions: [
-      { action: 'hr.employee.view', group: 'HR', label: 'See employees' },
-      { action: 'hr.employee.edit', group: 'HR', label: 'Change employees' },
-    ],
-    permissionSets: [
-      {
-        key: 'viewer',
-        label: 'Viewer',
-        permissions: ['hr.employee.view'],
-        defaultRoles: ['member'],
-      },
-    ],
-    objects,
-  }) satisfies PluginManifest;
+/** Teams' view has no `custom_fields`, so the values of fields added to them can't be read. */
+const TEAM: ManifestObject = {
+  type: 'hr.team',
+  label: 'Teams',
+  singularLabel: 'Team',
+  view: 'hr_team_fields',
+  fields: [{ key: 'title', label: 'Title', type: 'text' }],
+};
 
-/** HR's employees table and the view core reads, made as its database role. */
-const PLUGIN_SQL = `
-  GRANT erxes_plugin_hr TO current_user;
+const TEAM_SQL = `
   SET ROLE erxes_plugin_hr;
-  CREATE TABLE hr_employees (id text PRIMARY KEY, org_id text NOT NULL, name text, salary numeric, hired_on date);
-  SELECT core_enable_tenant_rls('hr_employees');
-  CREATE VIEW hr_employee_fields AS SELECT id, org_id, name, salary, hired_on FROM hr_employees;
-  GRANT SELECT ON hr_employee_fields TO erxes_core_reader;
+  CREATE TABLE hr_teams (id text PRIMARY KEY, org_id text NOT NULL, title text);
+  SELECT core_enable_tenant_rls('hr_teams');
+  CREATE VIEW hr_team_fields AS SELECT id, org_id, title FROM hr_teams;
+  GRANT SELECT ON hr_team_fields TO erxes_core_reader;
   RESET ROLE;
 `;
 
@@ -132,20 +97,9 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
   const t = useTwoOrgs();
 
   beforeAll(async () => {
-    await adminDb().execute(sql.raw(pluginRoleSql('hr')));
-    await adminDb().execute(sql.raw(PLUGIN_SQL));
-    await t
-      .client(await t.pluginToken())
-      .plugins.registerManifest(hrManifest([EMPLOYEE_WITH_FIELDS, POSITION]));
-
-    for (const [id, org, name, salary, days] of [
-      ['e1', t.ids.org, 'Bat', 2000, 10],
-      ['e2', t.ids.otherOrg, 'Saraa', 9000, 1],
-    ] as const) {
-      await adminDb().execute(
-        sql`insert into hr_employees values (${id}, ${org}, ${name}, ${salary}, current_date - ${days}::int)`,
-      );
-    }
+    await setUpHr(t, [EMPLOYEE_WITH_FIELDS, POSITION, TEAM]);
+    await adminDb().execute(sql.raw(TEAM_SQL));
+    await adminDb().execute(sql`insert into hr_teams values ('t1', ${t.ids.org}, 'Sales')`);
   });
 
   it('shows each object’s own fields, and why one can’t be read', async () => {
@@ -170,21 +124,24 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
             type: 'hr.position',
             problem: "The plugin's view hr_position_fields isn't ready for core to read",
           },
+          { type: 'hr.team', problem: null },
         ],
       },
     ]);
   });
 
-  it('works out a formula from the plugin’s fields and the stored ones', async () => {
+  it('works out a formula from the plugin’s fields and the values it keeps', async () => {
     const owner = t.owner();
 
     await owner.dataPlugins.connect({ plugin: 'hr' });
-    await owner.dataFields.create({
+
+    const bonus = await owner.dataFields.create({
       recordType: 'hr.employee',
       key: 'bonus',
       label: 'Bonus',
       type: 'number',
     });
+
     await expect(
       owner.dataFields.create({
         recordType: 'hr.employee',
@@ -215,11 +172,8 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
         formula: { expression: 'CONCAT(UPPER({name}), " · ", TEXT(DAYS({hired_on}, TODAY())))' },
       },
     });
-    await owner.dataValues.update({
-      recordType: 'hr.employee',
-      recordId: 'e1',
-      values: { bonus: 500 },
-    });
+    // HR keeps the bonus in the employee's `custom_fields`, by field id.
+    await saveCustomFields('e1', { [bonus.id]: 500 });
 
     const { data } = await t.member().dataValues.lookup({
       recordType: 'hr.employee',
@@ -233,12 +187,10 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
     await expect(
       t.member().dataValues.lookup({ recordType: 'hr.employee', recordIds: ['e2'] }),
     ).rejects.toMatchObject({ code: 'INVALID_REFERENCE' });
+    // HR writes its records' values, not core.
     await expect(
-      owner.dataValues.update({ recordType: 'hr.employee', recordId: 'e2', values: { bonus: 1 } }),
-    ).rejects.toMatchObject({ code: 'INVALID_REFERENCE' });
-    await expect(
-      owner.dataValues.update({ recordType: 'hr.employee', recordId: 'e1', values: { yearly: 1 } }),
-    ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+      owner.dataValues.update({ recordType: 'hr.employee', recordId: 'e1', values: { bonus: 1 } }),
+    ).rejects.toMatchObject({ code: 'INVALID_REFERENCE', data: { field: 'recordType' } });
   });
 
   it('previews a formula before it is saved, and points at a mistake', async () => {
@@ -247,10 +199,10 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
     await expect(
       owner.dataFields.preview({
         recordType: 'hr.employee',
-        formula: { expression: 'ROUND({salary} / 3, 2)' },
+        formula: { expression: 'ROUND({salary} / 3 + {bonus}, 2)' },
         recordId: 'e1',
       }),
-    ).resolves.toEqual({ result: 'number', value: 666.67 });
+    ).resolves.toEqual({ result: 'number', value: 1166.67 });
     await expect(
       owner.dataFields.preview({
         recordType: 'hr.employee',
@@ -262,21 +214,27 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
     });
   });
 
-  it('drops the values of records the plugin says are gone', async () => {
-    const hr = t.hr();
+  it('tells when a plugin’s view has no custom_fields for the fields added', async () => {
+    const owner = t.owner();
 
+    await owner.dataFields.create({
+      recordType: 'hr.team',
+      key: 'goal',
+      label: 'Goal',
+      type: 'text',
+    });
+
+    const { data } = await owner.dataPlugins.list({});
+
+    expect(data[0]?.objects.map((object) => object.problem)).toEqual([
+      null,
+      "The plugin's view hr_position_fields isn't ready for core to read",
+      'hr_team_fields has no jsonb column custom_fields for the fields added here',
+    ]);
+    // Its own fields still read, and the added one has no value.
     await expect(
-      t.owner().dataChanges.remove({ recordType: 'hr.employee', recordIds: ['e1'] }),
-    ).rejects.toMatchObject({ status: 403 });
-    await expect(
-      hr.dataChanges.remove({ recordType: 'core.customer', recordIds: ['e1'] }),
-    ).rejects.toMatchObject({ code: 'INVALID_REFERENCE' });
-    await expect(
-      hr.dataChanges.remove({ recordType: 'hr.employee', recordIds: ['e1'] }),
-    ).resolves.toEqual({ removed: 1 });
-    await expect(
-      t.owner().dataValues.get({ recordType: 'hr.employee', recordId: 'e1' }),
-    ).resolves.toMatchObject({ values: { bonus: null }, updatedAt: null });
+      owner.dataValues.get({ recordType: 'hr.team', recordId: 't1' }),
+    ).resolves.toMatchObject({ values: { goal: null } });
   });
 
   it('keeps a plugin connected while its records have fields', async () => {
@@ -285,6 +243,6 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
     await expect(owner.dataPlugins.disconnect({ plugin: 'hr' })).rejects.toMatchObject({
       code: 'ARCHIVE_FIRST',
     });
-    expect((await owner.dataPlugins.list({})).data[0]).toMatchObject({ fieldCount: 3 });
+    expect((await owner.dataPlugins.list({})).data[0]).toMatchObject({ fieldCount: 4 });
   });
 });

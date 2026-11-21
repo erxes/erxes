@@ -9,7 +9,7 @@ import {
 import type { DATA_EXTENSION_ON_DELETE } from '@erxes/core-db/dataExtensionEnums';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
-import { freeColumn, holdsLink, linkColumn, objectTable, pairsTable } from './columns';
+import { freeColumn, holdsLink, linkColumn, objectTable, pairsTable, pluginOf } from './columns';
 import { addColumns, addReference, changeSchema, createTable, setUnique } from './ddl';
 import { customKeyOf, ensureTable } from './definitions';
 import { assertRoom, extendableType, nextPosition, takenColumns } from './fieldRules';
@@ -17,6 +17,8 @@ import { assertRoom, extendableType, nextPosition, takenColumns } from './fieldR
 /**
  * Relations: a field on each of two record types, made together. The "many" side (or a
  * one-to-one's source) keeps the link in an id column; a many-to-many keeps pairs in a table.
+ * A plugin's side that keeps the link keeps it in its record's `custom_fields`, a many-to-many
+ * with a plugin's records included, so core makes no table for it.
  * A link to a custom object's records has a foreign key, so deleting the record for good
  * clears it (or deletes this side's record, for `cascade` between custom objects).
  */
@@ -38,14 +40,19 @@ const linkStorage = async (
   taken: Set<string>,
   onDelete: (typeof DATA_EXTENSION_ON_DELETE)[number],
 ) => {
-  if (!holdsLink(side.relation)) return null;
+  if (!holdsLink(side.recordType, side.relation)) return null;
 
   const column = freeColumn(side.key, taken);
+
+  taken.add(column);
+
+  // A plugin keeps the link in its record's `custom_fields`.
+  if (pluginOf(side.recordType)) return column;
+
   const table = await ensureTable(client, side.recordType);
   const link = linkColumn(column);
   const targetKey = customKeyOf(side.relation.targetRecordType);
 
-  taken.add(column);
   await addColumns(client, table, [{ part: null, name: link, type: 'text' }], true);
 
   if (side.relation.kind === 'oneToOne') await setUnique(client, table, link, true);
@@ -92,11 +99,18 @@ interface RelationInput {
   onDelete: (typeof DATA_EXTENSION_ON_DELETE)[number];
 }
 
+/**
+ * Whether a relation keeps a table of pairs: a many-to-many between records core keeps. With a
+ * plugin's records, the plugin's side keeps the ids (`holdsLink`).
+ */
+const keepsPairs = (input: Pick<RelationInput, 'kind' | 'recordType' | 'targetRecordType'>) =>
+  input.kind === 'manyToMany' && !pluginOf(input.recordType) && !pluginOf(input.targetRecordType);
+
 /** The relation's two sides, each pointing at the other. */
 const sidesOf = (input: RelationInput): [source: Side, inverse: Side] => {
   const sourceId = newId();
   const inverseId = newId();
-  const pairs = input.kind === 'manyToMany' ? pairsTable(sourceId) : null;
+  const pairs = keepsPairs(input) ? pairsTable(sourceId) : null;
   const base = { kind: input.kind, onDelete: input.onDelete, pairsTable: pairs };
 
   const source: Side = {
@@ -151,10 +165,12 @@ export const createRelation = async (client: Db, input: RelationInput) => {
     const sourceColumn = await linkStorage(client, source, sourceTaken, input.onDelete);
     const inverseColumn = await linkStorage(client, inverse, inverseTaken, input.onDelete);
 
-    await ensureTable(client, input.recordType);
-    await ensureTable(client, input.targetRecordType);
+    await inOrder(
+      [input.recordType, input.targetRecordType].filter((type) => !pluginOf(type)),
+      (type) => ensureTable(client, type),
+    );
 
-    if (input.kind === 'manyToMany') await pairsStorage(client, source);
+    if (source.relation.pairsTable) await pairsStorage(client, source);
 
     return { source: sourceColumn, inverse: inverseColumn };
   });

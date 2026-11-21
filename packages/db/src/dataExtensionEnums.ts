@@ -103,7 +103,8 @@ export const DATA_EXTENSION_OPTION_COLORS = [
 
 /**
  * How many records each side of a relation links. The "many" side of `manyToOne` and
- * `oneToMany` holds the link; `manyToMany` keeps a table of pairs.
+ * `oneToMany` holds the link; `manyToMany` keeps a table of pairs, or with a plugin's records
+ * the plugin's side holds the ids.
  */
 export const DATA_EXTENSION_RELATION_KINDS = [
   'manyToOne',
@@ -129,8 +130,8 @@ export const DATA_EXTENSION_STATUSES = ['active', 'archived'] as const;
 
 /**
  * The tables Data Extensions keeps in an organisation's schema: a custom object's records
- * (`obj_<key>`), a core or plugin record type's values (`ext_<plugin>_<type>`), and a
- * many-to-many relation's pairs (`rel_<field id>`).
+ * (`obj_<key>`), a core record type's values (`ext_core_<type>`), and a many-to-many
+ * relation's pairs (`rel_<field id>`). A plugin keeps its records' values in its own tables.
  */
 export const DATA_EXTENSION_TABLE_KINDS = ['object', 'host', 'pairs'] as const;
 

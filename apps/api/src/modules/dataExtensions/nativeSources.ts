@@ -21,7 +21,8 @@ import { customKeyOf } from './definitions';
 
 /**
  * Where a record type's own fields are read: core's tables, a custom object's own table, a
- * plugin's view. Formulas and rollups read them by key (`{firstName}`, `{amount}`).
+ * plugin's view. Formulas and rollups read them by key (`{firstName}`, `{amount}`). A plugin's
+ * view also has its records' Data Extensions values, in `custom_fields`.
  */
 
 interface NativeColumn {
@@ -31,7 +32,10 @@ interface NativeColumn {
 }
 
 export interface NativeSource {
-  /** The table or view to join; null for a custom object, whose own table has them. */
+  /**
+   * The table or view to join; null for a custom object, whose own table has them. A plugin's
+   * rows always have `custom_fields`, empty when its view has none.
+   */
   from: SQL | null;
   /** Its column of record ids. */
   id: string;
@@ -107,20 +111,51 @@ const customSource = (): NativeSource => ({
 const dateKind = (columns: ViewColumns, key: string): DataResultType =>
   columns.get(key)?.type === 'date' ? 'date' : 'dateTime';
 
-/**
- * Why a plugin object's own fields can't be read (its view isn't the plugin's, isn't granted
- * to core, or lacks a column), or null when they can.
- */
-export const viewProblem = (object: PluginObject, columns: ViewColumns | undefined) => {
-  if (!object.view || !object.fields?.length) return null;
+/** Why core can't read a plugin object's records from its view at all, or null when it can. */
+const readProblem = (object: PluginObject, columns: ViewColumns | undefined) => {
+  if (!object.view) return `${object.label} name no view for core to read`;
 
   if (!columns?.size) return `The plugin's view ${object.view} isn't ready for core to read`;
 
   if (columns.get('id')?.category !== 'S') return `${object.view} has no id column`;
 
-  const wrong = object.fields.find((field) => !columnFits(columns.get(field.key), field));
+  const wrong = object.fields?.find((field) => !columnFits(columns.get(field.key), field));
 
   return wrong ? `${object.view} has no ${wrong.type} column ${wrong.key}` : null;
+};
+
+/** Whether a view has the `custom_fields` map its records' Data Extensions values are in. */
+const hasCustomFields = (columns: ViewColumns | undefined) =>
+  columns?.get('custom_fields')?.type === 'jsonb';
+
+/**
+ * Why a plugin object's own fields, or the values of the fields members added (`extended`),
+ * can't be read: its view isn't the plugin's, isn't granted to core, or lacks a column. Null
+ * when they can, or when there is nothing to read.
+ */
+export const viewProblem = (
+  object: PluginObject,
+  columns: ViewColumns | undefined,
+  extended: boolean,
+) => {
+  if (!object.fields?.length && !extended) return null;
+
+  const problem = readProblem(object, columns);
+
+  if (problem || !extended || hasCustomFields(columns)) return problem;
+
+  return `${object.view} has no jsonb column custom_fields for the fields added here`;
+};
+
+/** The view's rows, with an empty `custom_fields` when the view has no jsonb one. */
+const viewRows = (view: string, columns: ViewColumns) => {
+  if (hasCustomFields(columns)) return sql`${sql.identifier(view)}`;
+
+  const others = [...columns.keys()]
+    .filter((name) => name !== 'custom_fields')
+    .map((name) => sql`${sql.identifier(name)}`);
+
+  return sql`(select ${sql.join(others, sql`, `)}, null::jsonb as custom_fields from ${sql.identifier(view)})`;
 };
 
 const pluginSource = (
@@ -128,10 +163,10 @@ const pluginSource = (
   columns: ViewColumns,
   currency: string,
 ): NativeSource | null => {
-  if (!object.view || viewProblem(object, columns)) return null;
+  if (!object.view || readProblem(object, columns)) return null;
 
   return {
-    from: sql`${sql.identifier(object.view)}`,
+    from: viewRows(object.view, columns),
     id: 'id',
     columns: new Map(
       (object.fields ?? []).map((field): [string, NativeColumn] => {

@@ -123,7 +123,7 @@ export const dataFieldsContract = {
       path: '/data-fields',
       successStatus: 201,
       summary:
-        'Add a field and its column. 409 TAKEN when the key is; 400 LIMIT_EXCEEDED past 100; 400 INVALID_REFERENCE for an unknown record type',
+        'Add a field and its column (none for a plugin’s record type, whose plugin keeps the values). 409 TAKEN when the key is; 400 LIMIT_EXCEEDED past 100; 400 INVALID_REFERENCE for an unknown record type; 400 INVALID_INPUT for a unique field or an auto number on a plugin’s record type',
     })
     .input(DataExtensionFieldCreate)
     .output(DataExtensionField),

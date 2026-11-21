@@ -45,7 +45,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   dataPlugins: { lookup: true, writes: 'settings' },
   // History follows its record type's rights; converting is a data model change.
   dataChanges: null,
-  // Records and values follow their record type's rights, which a key's areas don't map.
+  // Records and values follow their record type's rights, which a key's areas don't map; a
+  // plugin's checks of the values it keeps are its own.
   dataRecords: null,
   dataValues: null,
   emails: null,

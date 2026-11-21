@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { assertRecordRight } from '~/modules/recordTypes/recordTypes.service';
 import { extendableType } from './fieldRules';
-import { Computer } from './computed';
+import { pluginOf } from './columns';
+import { Computer, type TypeModel } from './computed';
 import { alias, customKeyOf, type DataFieldRow, qualified } from './definitions';
 import { resultOf } from './formula/compile';
 import { outputOf } from './formula/fieldValue';
@@ -30,20 +31,32 @@ const problemPath = (field: Computed, at: number) =>
 
 /**
  * A formula or rollup checked against its record type, as SQL over a query of that type alone
- * (`t` its Data Extensions row, `ids.id` a core or plugin record's id). 400 INVALID_INPUT names
- * the problem, and for a formula the character it is at (the issue path's last part).
+ * (`t` its Data Extensions row or a plugin's view row, `ids.id` a core or plugin record's id).
+ * 400 INVALID_INPUT names the problem, and for a formula the character it is at (the issue
+ * path's last part).
  */
 const compile = async (client: Db, recordType: string, field: Computed) => {
   const computer = await Computer.create(client);
   const model = await computer.model(recordType);
   const own = computer.alias('own');
-  const custom = customKeyOf(recordType) !== null;
-  const id = custom ? sql`${T}.id` : sql`${IDS}.id`;
+  const id = customKeyOf(recordType) ? sql`${T}.id` : sql`${IDS}.id`;
   const row = { ext: T, native: computer.nativeRow(model, T, own), id };
   const value = resultOf(await computer.ofSettings(model, row, field, [field.id]));
-  const join = custom ? sql`` : computer.nativeJoin(model, own, id);
 
-  return { value, model, join, uses: computer.uses };
+  return { value, model, join: computer.ownJoin(model, own, id), uses: computer.uses };
+};
+
+/** A core or plugin record's row, `t`, for the one id `ids.id`. */
+const hostRow = (model: TypeModel) => {
+  if (pluginOf(model.recordType)) {
+    return model.native?.from
+      ? sql` left join ${model.native.from} ${T} on ${T}.id = ${IDS}.id`
+      : sql` left join (select null::text as id, null::jsonb as custom_fields) ${T} on false`;
+  }
+
+  return model.table
+    ? sql` left join ${qualified(model.table)} ${T} on ${T}.record_id = ${IDS}.id`
+    : sql``;
 };
 
 const compiled = async (client: Db, recordType: string, field: Computed) => {
@@ -140,13 +153,11 @@ export const previewComputed = async (
   await assertRecordsExist(client, input.recordType, [input.recordId], 'recordId');
 
   const read = sql`${outputOf(value)} as value`;
-  const table = model.table ? qualified(model.table) : null;
 
-  const query = customKeyOf(input.recordType)
-    ? sql`select ${read} from ${table} ${T} where ${T}.id = ${input.recordId}`
-    : sql`select ${read} from (select ${input.recordId}::text as id) ${IDS}${
-        table ? sql` left join ${table} ${T} on ${T}.record_id = ${IDS}.id` : sql``
-      }${join}`;
+  const query =
+    customKeyOf(input.recordType) && model.table
+      ? sql`select ${read} from ${qualified(model.table)} ${T} where ${T}.id = ${input.recordId}`
+      : sql`select ${read} from (select ${input.recordId}::text as id) ${IDS}${hostRow(model)}${join}`;
 
   const { rows } = await client.execute<{ value: unknown }>(query);
 
