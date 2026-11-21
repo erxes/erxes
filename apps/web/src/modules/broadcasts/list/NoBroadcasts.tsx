@@ -1,13 +1,10 @@
 import { IconSpeakerphone } from '@tabler/icons-react';
 import { Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useCan } from '~/modules/auth/session';
-import { NewBroadcastButtons } from './BroadcastsListHeader';
 
-/** No broadcasts at all yet: what they are for, and the way to write the first. */
+/** No broadcasts at all yet: what they are for. The header has the way to write the first. */
 export const NoBroadcasts = () => {
   const { t } = useTranslation('broadcasts');
-  const manage = useCan()('broadcasts.manage');
 
   return (
     <Empty className="absolute inset-x-0 top-1/4">
@@ -23,11 +20,6 @@ export const NoBroadcasts = () => {
           )}
         </Empty.Description>
       </Empty.Header>
-      {manage && (
-        <Empty.Content className="flex-row justify-center">
-          <NewBroadcastButtons />
-        </Empty.Content>
-      )}
     </Empty>
   );
 };

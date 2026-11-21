@@ -118,14 +118,16 @@ export const EmailEditor = ({
     root.current?.getEditor().chain().focus().insertVariable(fieldOf(name)).run();
 
   return (
-    <div className="space-y-1.5">
+    <fieldset aria-label={label} className="min-w-0 space-y-1.5">
       <LabelRow label={label} onPick={insertField} />
       <div className="min-h-64 overflow-hidden rounded-md bg-white text-sm shadow-xs scheme-light focus-within:shadow-focus">
         <Editor.Root
           ref={root}
           content={value ?? undefined}
           extensions={extensions}
-          editorProps={{ attributes: { 'aria-label': label } }}
+          editorProps={{
+            attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-label': label },
+          }}
           onUpdate={() => {
             const content = root.current?.getJSON();
 
@@ -139,6 +141,6 @@ export const EmailEditor = ({
           </Editor.Frame>
         </Editor.Root>
       </div>
-    </div>
+    </fieldset>
   );
 };

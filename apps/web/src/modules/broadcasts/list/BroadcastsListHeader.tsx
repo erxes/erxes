@@ -36,7 +36,7 @@ const useNewBroadcast = () => {
   };
 };
 
-export const NewBroadcastButtons = () => {
+const NewBroadcastButtons = () => {
   const { t } = useTranslation('broadcasts');
   const { pending, start } = useNewBroadcast();
 
