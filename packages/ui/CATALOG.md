@@ -27,10 +27,13 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<AppLayout id sidebar footer title>` An app's full-height layout under core's top bar, with its own sidebar.
 - `<AppLayoutFooterLink to name icon>` A link pinned to the foot of an app sidebar, in `AppLayout`'s `footer`.
 - `type Crumb { label, to, icon }` One level of the page's place.
+- `<NavigationMenuGroup name separate defaultOpen actions>` A titled group of sidebar links that folds open and shut, open at first.
 - `<NavigationMenuLinkItem name icon to isActive label>` A sidebar link that lights up while the address is under its `to`.
 - `<PageContainer>` A page's outer box, full height, with `PageHeader` first inside it.
 - `PageHeader.{Start, End}` A page's title bar, with the breadcrumb and its one primary action.
 - `<PageSubHeader variant>` A bar under the page header with a rule below it, for tabs or controls.
+- `<ReportPageContainer onExport>` A printable report page: a toolbar to zoom and print, then the sheet.
+- `ReportTable.{Header, Body, Footer, Head, Row, …}` A printable report's table, bordered, sized in em.
 
 ## Lists
 
@@ -48,6 +51,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
+- `<RecordTableHotKeyControl rowId rowIndex colIndex enableOnFormTags onClickCapture>` Makes its one child, a table cell, a stop of the grid's arrow keys.
+- `<RecordTableHotkeyProvider columnLength rowLength scope>` A grid of form cells that the arrow keys move through.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
 - `RecordTableTree.{Indentation, Arrow, Trigger, Row}` A record table whose rows are a tree, indented with arrows that fold.
 - `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
@@ -216,6 +221,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Sheet.{Trigger, View, Backdrop, Content, Header, …}` A panel that slides in from a page edge over a dimmed page.
 - `Sidebar.{Content, Footer, Group, GroupAction, GroupContent, …}` A collapsible side navigation with groups, menus and sub-menus.
 - `<Skeleton radius>` A pulsing grey block that holds the place of content while it loads.
+- `<SkeletonArray count>` `count` skeletons of the same size, for a list's rows while it loads.
 - `<Slider>` A draggable slider for one number or a range.
 - `<Spinner size show area containerClassName>` A spinning loader; `area` pads it to stand in for a section or page.
 - `<StringArrayInput id value onValueChange placeholder>` A list of short strings as removable badges.
@@ -232,6 +238,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Tooltip.{Provider, Trigger, Content}` A short label that shows on hover or focus of its trigger.
 - `Upload` An image upload: a preview tile, an upload button and a remove button.
 - `useFieldControl()` A form row's label, error and state for its control.
+- `useSidebarPanelOpen()` Whether an app's sidebar panel is open, and a setter.
 
 ## Plugin runtime
 
@@ -312,6 +319,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `usePhoneFormatter()` `formatPhoneNumber` for a component, re-rendered once the library loads.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
+- `useSetHotkeyScope()` Switches the hotkey scope, so the `useScopedHotkeys` of that scope run.
 - `useSexLabels()` Each sex code's label in the UI's language.
 - `useSortAccessibility(nameOf, { pointer })` What a screen reader says as a sorted item moves, in the UI's language.
 - `useSortList(nameOf, options)` The id and screen reader words a sortable list's `DndContext` takes.

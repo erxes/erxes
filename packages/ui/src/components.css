@@ -117,3 +117,11 @@
 @utility goo {
   filter: url(#blurMe) blur(40px);
 }
+
+/* The page itself prints only from a report (ReportPageContainer): edge to edge, with the
+   browser's header and footer off and a little room at the top. Receipts print in their own
+   frame (printHtml). */
+@page {
+  margin: 0;
+  margin-top: 5mm;
+}

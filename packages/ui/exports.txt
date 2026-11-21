@@ -152,6 +152,7 @@ value MEMBER_CONTENT_TYPE
 value MemberInline
 value MemberLink
 value MultipleSelector
+value NavigationMenuGroup
 value NavigationMenuLinkItem
 value NumberField
 value PageContainer
@@ -178,10 +179,14 @@ value RecordOpenerProvider
 value RecordPage
 value RecordPanelProvider
 value RecordTable
+value RecordTableHotKeyControl
+value RecordTableHotkeyProvider
 value RecordTableInlineCell
 value RecordTableTree
 value RecordTimeline
 value RelativeDateDisplay
+value ReportPageContainer
+value ReportTable
 value Resizable
 value ScrollArea
 value Select
@@ -195,6 +200,7 @@ value SexField
 value Sheet
 value Sidebar
 value Skeleton
+value SkeletonArray
 value Slider
 value Spinner
 value StringArrayInput
@@ -284,7 +290,9 @@ value usePreviousHotkeyScope
 value useProductOptions
 value useRecordPanel
 value useScopedHotkeys
+value useSetHotkeyScope
 value useSexLabels
+value useSidebarPanelOpen
 value useSortAccessibility
 value useSortList
 value useSortRoleDescription

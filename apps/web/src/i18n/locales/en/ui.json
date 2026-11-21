@@ -190,6 +190,19 @@
     "too-long": "Phone number must not exceed 16 characters",
     "too-short": "Phone number must be at least 8 characters"
   },
+  "report": {
+    "every-page": "Show table layout on every page",
+    "export-excel": "Export to excel",
+    "hide-sidebar": "hide sidebar",
+    "larger": "Larger",
+    "print": "Print",
+    "print-settings": "Print settings",
+    "print-size": "Print size",
+    "report": "Report",
+    "show-sidebar": "show sidebar",
+    "smaller": "Smaller",
+    "table": "Table"
+  },
   "selection-actions": "Actions for the selected records",
   "sex": {
     "female": "Female",

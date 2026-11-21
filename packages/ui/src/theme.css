@@ -274,6 +274,29 @@
   font: inherit;
 }
 
+/* A report's table cells, sized in em: they follow the report page's print size. */
+@utility report-head {
+  height: 2.5em;
+  padding-inline: 0.5em;
+}
+@utility report-cell {
+  padding: 0.3em;
+}
+@utility report-caption {
+  margin-top: 1em;
+}
+/* A printed report keeps each table row on one page. */
+@utility report-sheet {
+  & table {
+    page-break-after: auto;
+  }
+  & tr,
+  & td {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
+
 @utility hide-scroll {
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {

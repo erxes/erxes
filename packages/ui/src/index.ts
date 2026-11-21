@@ -91,7 +91,9 @@ export { Sheet } from './components/sheet';
 
 export { Sidebar } from './components/sidebar';
 
-export { Skeleton } from './components/skeleton';
+export { useSidebarPanelOpen } from './components/sidebar/panel';
+
+export { Skeleton, SkeletonArray } from './components/skeleton';
 
 export { Spinner } from './components/spinner';
 
@@ -193,6 +195,8 @@ export { usePreviousHotkeyScope } from './modules/hotkey/hooks/usePreviousHotkey
 
 export { useScopedHotkeys } from './modules/hotkey/hooks/useScopedHotkeys';
 
+export { useSetHotkeyScope } from './modules/hotkey/hooks/useSetHotkeyScope';
+
 export { IconComponent } from './modules/icons/components/IconComponent';
 
 export { IconPicker } from './modules/icons/components/IconPicker';
@@ -217,7 +221,14 @@ export { AppBreadcrumb, type Crumb } from './modules/layout/components/AppBreadc
 
 export { PageHeader } from './modules/layout/components/PageHeader';
 
-export { NavigationMenuLinkItem } from './modules/navigation-menu/components/NavigationMenu';
+export {
+  NavigationMenuGroup,
+  NavigationMenuLinkItem,
+} from './modules/navigation-menu/components/NavigationMenu';
+
+export { ReportPageContainer } from './modules/report/ReportPageContainer';
+
+export { ReportTable } from './modules/report/ReportTable';
 
 export { EntityPicker } from './modules/pickers/EntityPicker';
 
@@ -275,6 +286,11 @@ export type {
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
 export { RecordTableTree } from './modules/record-table/components/RecordTableTree';
+
+export {
+  RecordTableHotKeyControl,
+  RecordTableHotkeyProvider,
+} from './modules/record-table/components/RecordTableHotkeys';
 
 export { SelectTree } from './modules/pickers/SelectTree';
 

@@ -88,7 +88,7 @@ for (const [, components = '', screen = ''] of pages) {
 
 // Where each export is listed, by the folder under packages/ui/src it lives in. First match wins.
 const sections = [
-  ['Page', ['modules/layout/', 'modules/navigation-menu/']],
+  ['Page', ['modules/layout/', 'modules/navigation-menu/', 'modules/report/']],
   [
     'Lists',
     [
