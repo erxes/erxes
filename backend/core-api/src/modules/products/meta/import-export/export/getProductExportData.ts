@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
+import { readFileUrl } from '@/products/meta/document/productReplacer';
 import { buildProductExportRow } from './buildProductExportRow';
 
 export async function getProductExportData(
@@ -105,6 +106,7 @@ export async function getProductExportData(
       categoryMap,
       vendorMap,
       brandMap,
+      fileUrl: (key) => readFileUrl(key, subdomain),
     }),
   );
 }
