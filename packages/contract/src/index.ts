@@ -4,6 +4,7 @@ import { assistantContract } from './assistant';
 import { apiKeysContract } from './apiKeys';
 import { automationsContract } from './automations';
 import { broadcastsContract } from './broadcasts';
+import { broadcastSchedulesContract } from './broadcastSchedules';
 import { suppressionsContract } from './suppressions';
 import { auditContract } from './audit';
 import { authContract } from './auth';
@@ -46,6 +47,7 @@ export type CoreContract = {
   audit: typeof auditContract;
   auth: typeof authContract;
   broadcasts: typeof broadcastsContract;
+  broadcastSchedules: typeof broadcastSchedulesContract;
   companies: typeof companiesContract;
   customers: typeof customersContract;
   favorites: typeof favoritesContract;
@@ -90,6 +92,7 @@ export const coreContract: CoreContract = {
   audit: auditContract,
   auth: authContract,
   broadcasts: broadcastsContract,
+  broadcastSchedules: broadcastSchedulesContract,
   companies: companiesContract,
   customers: customersContract,
   favorites: favoritesContract,
@@ -146,6 +149,12 @@ export * from './auth';
 
 export * from './broadcasts';
 
+export * from './broadcastRecipients';
+
+export * from './emailDocument';
+
+export * from './broadcastSchedules';
+
 export * from './suppressions';
 
 export * from './common';
@@ -198,7 +207,13 @@ export * from './ebarimtPrint';
 
 export * from './emailSettings';
 
-export * from './emailSenders';
+export * from './emailReplyTos';
+
+export * from './emailDeliveries';
+
+export * from './emailAddresses';
+
+export * from './emailLimits';
 
 export * from './pluginJobs';
 
@@ -243,6 +258,8 @@ export * from './transfer';
 export * from './users';
 
 export * from './values';
+
+export * from './notificationGroups';
 
 export * from './views';
 

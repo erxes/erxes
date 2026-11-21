@@ -56,6 +56,13 @@ const baseUrl = (fallback: string) =>
     .transform((value) => value ?? fallback)
     .transform((value) => value.replace(/\/+$/, ''));
 
+const list = optional(z.string()).transform((value) =>
+  (value ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean),
+);
+
 const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
 
 /**
@@ -130,6 +137,10 @@ const Env = z
     EMAIL_DRIVER: optional(z.enum(EMAIL_DRIVERS)),
     EMAIL_SMTP_URL: text,
     EMAIL_FROM: text,
+    SENDGRID_WEBHOOK_PUBLIC_KEY: text,
+    SES_CONFIGURATION_SET: text,
+    SES_EVENTS_TOPIC_ARNS: list,
+    EMAIL_AUTH_HOURLY_CAP: positive(300),
 
     SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
 

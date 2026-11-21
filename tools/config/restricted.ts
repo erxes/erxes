@@ -109,6 +109,7 @@ const noDriver = {
     '!../table',
     '!../enums',
     '!../assistantEnums',
+    '!../emailEnums',
     '!../integrationEnums',
     '!../automationDefinition',
   ],
@@ -156,6 +157,7 @@ export const restrictedOverrides = [
       'packages/db/src/table.ts',
       'packages/db/src/enums.ts',
       'packages/db/src/assistantEnums.ts',
+      'packages/db/src/emailEnums.ts',
       'packages/db/src/integrationEnums.ts',
     ],
     rules: {

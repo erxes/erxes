@@ -17,6 +17,8 @@ export const CORE_ACTIVITY_TYPES = [
   'customer.merged',
   'customer.company_linked',
   'customer.company_unlinked',
+  /** An email to the customer was sent or failed: `{ deliveryId, subject, source, sourceId, status, error }`. */
+  'customer.emailed',
   'company.created',
   'company.updated',
   'company.tagged',

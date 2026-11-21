@@ -96,12 +96,27 @@ export const createRateLimits = () => ({
    * for many organisations from the same addresses).
    */
   pluginPublic: [
-    rateLimit({ windowSeconds: 60, max: 3000, key: (req) => `plugin-public:${ip(req)}` }),
+    rateLimit({
+      windowSeconds: 60,
+      max: 3000,
+      key: (req) => `plugin-public:${ip(req)}`,
+    }),
     rateLimit({
       windowSeconds: 60,
       max: 600,
       key: (req) =>
         `plugin-public:${ip(req)}:${String(req.params.name)}:${String(req.params.orgId)}`,
+    }),
+  ],
+  /**
+   * Email providers' event webhooks: 3000 a minute per address (SendGrid batches its events, SNS
+   * posts one a message, both from shared addresses and both retry what was refused).
+   */
+  emailEvents: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 3000,
+      key: (req) => `email-events:${ip(req)}`,
     }),
   ],
   integrationIncoming: [

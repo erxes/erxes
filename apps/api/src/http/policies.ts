@@ -1,4 +1,5 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
+import { MESSAGING_ACCESS } from './messagingPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
@@ -31,6 +32,7 @@ export const ACCESS = {
   'agents.models': needs('assistant.chat'),
   'agents.setModel': needs('assistant.manage'),
   ...ASSISTANT_ACCESS,
+  ...MESSAGING_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
   'apiKeys.list': MEMBER,
   'apiKeys.create': needs('api_keys.create'),
@@ -134,17 +136,6 @@ export const ACCESS = {
   'customers.linkCompany': { member: 'contacts.edit', plugin: 'customers:write' },
   'customers.unlinkCompany': needs('contacts.edit'),
 
-  'emails.send': { plugin: 'emails:write' },
-  'emails.settings': needs('integrations.manage'),
-  'emails.saveSettings': needs('integrations.manage'),
-  'emails.removeSettings': needs('integrations.manage'),
-  'emails.sendTest': needs('integrations.manage'),
-  // Broadcast and automation editors pick from them.
-  'emails.senders': MEMBER,
-  'emails.addSender': needs('integrations.manage'),
-  'emails.resendConfirmation': needs('integrations.manage'),
-  'emails.removeSender': needs('integrations.manage'),
-
   'events.publish': { plugin: 'events:write' },
   'events.list': needs('events.view'),
   'events.failures': needs('events.view'),
@@ -245,27 +236,6 @@ export const ACCESS = {
   'users.setPassword': needs('team.manage'),
   'users.disable': { member: 'team.manage', plugin: 'users:write' },
   'users.enable': { member: 'team.manage', plugin: 'users:write' },
-
-  'broadcasts.list': needs('broadcasts.view'),
-  'broadcasts.get': needs('broadcasts.view'),
-  'broadcasts.recipients': needs('broadcasts.view'),
-  // An estimate and a preview read customers through the audience, like the list does.
-  'broadcasts.audience': needs('broadcasts.view'),
-  'broadcasts.preview': needs('broadcasts.view'),
-  'broadcasts.create': needs('broadcasts.manage'),
-  'broadcasts.update': needs('broadcasts.manage'),
-  'broadcasts.remove': needs('broadcasts.manage'),
-  'broadcasts.duplicate': needs('broadcasts.manage'),
-  'broadcasts.test': needs('broadcasts.manage'),
-  'broadcasts.send': needs('broadcasts.send'),
-  'broadcasts.schedule': needs('broadcasts.send'),
-  'broadcasts.unschedule': needs('broadcasts.send'),
-  'broadcasts.pause': needs('broadcasts.send'),
-  'broadcasts.resume': needs('broadcasts.send'),
-  'broadcasts.cancel': needs('broadcasts.send'),
-  'suppressions.list': needs('broadcasts.view'),
-  'suppressions.add': needs('broadcasts.manage'),
-  'suppressions.remove': needs('broadcasts.manage'),
 
   'automations.catalog': needs('automations.view'),
   'automations.list': needs('automations.view'),

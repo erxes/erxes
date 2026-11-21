@@ -1,7 +1,8 @@
 import { cn, Combobox, Command, Popover } from 'erxes-ui';
-import { type ComponentProps, useState } from 'react';
+import { type ComponentProps, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { countryOptions, currencyOptions, type RegionOption } from '~/lib/region';
+import { timeZoneOptions } from '~/lib/timeZones';
 
 interface SelectProps {
   id?: string;
@@ -80,6 +81,20 @@ export const CountrySelect = (props: SelectProps) => {
       {...props}
       options={countryOptions(i18n.language)}
       placeholder={t('choose-country', 'Choose a country')}
+    />
+  );
+};
+
+/** Every IANA time zone, with today's UTC offset. */
+export const TimeZoneSelect = (props: SelectProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'region' });
+  const options = useMemo(() => timeZoneOptions(props.value), [props.value]);
+
+  return (
+    <SearchSelect
+      {...props}
+      options={options}
+      placeholder={t('choose-time-zone', 'Choose a time zone')}
     />
   );
 };

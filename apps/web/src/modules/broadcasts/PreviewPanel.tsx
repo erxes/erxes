@@ -21,8 +21,8 @@ a { color: #1d4ed8; }`;
 
 /**
  * The email's HTML in a shadow root, so its inline styles and the app's stay apart. Core renders
- * it from Markdown with raw HTML escaped and only web, mail and phone links; DOMPurify strips
- * anything that could run all the same, since the copy shows in the app's own page.
+ * it from the saved email document, with no raw HTML and only web, mail and phone links;
+ * DOMPurify strips anything that could run all the same, since the copy shows in the app's page.
  */
 const EmailHtml = ({ html, label }: { html: string; label: string }) => (
   <div
@@ -45,9 +45,11 @@ const EmailHtml = ({ html, label }: { html: string; label: string }) => (
 const TestSend = ({
   broadcast,
   beforeSend,
+  blocked,
 }: {
   broadcast: Broadcast;
   beforeSend?: () => Promise<void>;
+  blocked: boolean;
 }) => {
   const { t } = useTranslation('broadcasts');
   const { toast } = useToast();
@@ -89,7 +91,7 @@ const TestSend = ({
         <Button
           type="submit"
           variant="outline"
-          disabled={!addresses.length || addresses.length > 5 || test.isPending}
+          disabled={blocked || !addresses.length || addresses.length > 5 || test.isPending}
         >
           {test.isPending ? <Spinner size="sm" /> : <IconSend />}
           {t('test-send', 'Send')}
@@ -107,12 +109,15 @@ export const PreviewPanel = ({
   broadcast,
   beforeTest,
   canTest,
+  testBlocked = false,
   stale,
 }: {
   broadcast: Broadcast;
   /** Saves unsaved changes, so the test shows them. */
   beforeTest?: () => Promise<void>;
   canTest: boolean;
+  /** Email can't be delivered: the test is shown but can't be sent. */
+  testBlocked?: boolean;
   /** The editor has changes the preview doesn't show yet. */
   stale?: boolean;
 }) => {
@@ -153,7 +158,7 @@ export const PreviewPanel = ({
           </div>
         )}
       </QueryState>
-      {canTest && <TestSend broadcast={broadcast} beforeSend={beforeTest} />}
+      {canTest && <TestSend broadcast={broadcast} beforeSend={beforeTest} blocked={testBlocked} />}
     </aside>
   );
 };

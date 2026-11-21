@@ -1,4 +1,5 @@
 import { emailSettings, withOrg } from '@erxes/core-db';
+import type { EMAIL_DELIVERY_PROVIDERS } from '@erxes/core-db/emailEnums';
 import { createTransport, type Transporter } from 'nodemailer';
 import { config } from '~/config';
 import { hmacSha256Bytes } from '~/lib/crypto';
@@ -6,6 +7,19 @@ import { publicAddressOf } from '~/lib/outbound';
 import { unseal } from '~/lib/secrets';
 
 export type EmailSettingsRow = typeof emailSettings.$inferSelect;
+
+export type DeliveryProvider = (typeof EMAIL_DELIVERY_PROVIDERS)[number];
+
+/** What the server's `EMAIL_SMTP_URL` is, by its host: SendGrid's, SES's, or another SMTP server. */
+export const serverProvider = (): DeliveryProvider => {
+  if (config.email.driver === 'log') return 'log';
+
+  const host = URL.parse(config.email.smtpUrl ?? '')?.hostname ?? '';
+
+  if (host === 'smtp.sendgrid.net') return 'sendgrid';
+
+  return /^email-smtp\.[a-z0-9-]+\.amazonaws\.com$/.test(host) ? 'ses' : 'smtp';
+};
 
 /** Amazon SES's SMTP password for an IAM secret access key (AWS's published derivation, version 4). */
 export const sesSmtpPassword = (secretAccessKey: string, region: string) => {
