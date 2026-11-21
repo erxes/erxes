@@ -1,34 +1,8 @@
-import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
-import { agentNamed, countRun, withHarness } from '~/modules/agents/host';
-import { answerText } from '~/modules/agents/pluginAgents';
+import { agentNamed, askAgent } from '~/modules/agents/host';
 import { type CoreAction, idempotencyKey, text } from './context';
 
 /** The agent `core.agent.ask` asks, registered at start (`~/modules/agents/automationAgent`). */
 export const AUTOMATION_AGENT = 'automation';
-
-const ANSWER_LOOKBACK = 20;
-
-/** Asks the step's agent and waits for its answer; a retried step lands in the same conversation. */
-const askAgent = async (orgId: string, key: string, requestId: string, prompt: string) => {
-  await countRun(orgId);
-
-  return withHarness(agentNamed(AUTOMATION_AGENT), { orgId, key }, async (harness) => {
-    const root = await harness.root(BACKGROUND_CONTEXT);
-
-    const submission = await root.submit(
-      { type: 'input', content: prompt, requestId },
-      BACKGROUND_CONTEXT,
-    );
-
-    const settled = await submission.wait(BACKGROUND_CONTEXT);
-    const { items } = await root.entries({}, ANSWER_LOOKBACK, undefined, BACKGROUND_CONTEXT);
-    const answer = answerText(items.find((entry) => entry.kind === 'pi.assistant'));
-
-    if (settled.status !== 'done' || !answer) throw new Error('The agent did not answer');
-
-    return answer;
-  });
-};
 
 export const AGENT_ACTIONS: CoreAction[] = [
   {
@@ -52,11 +26,12 @@ export const AGENT_ACTIONS: CoreAction[] = [
 
       if (!prompt) throw new Error('Say what the agent should do');
 
+      // A retried step lands in the same conversation and asks once.
       const answer = await askAgent(
-        ctx.orgId,
-        `${ctx.run.id}-${ctx.step.id}`,
-        idempotencyKey(ctx),
+        agentNamed(AUTOMATION_AGENT),
+        { orgId: ctx.orgId, key: `${ctx.run.id}-${ctx.step.id}` },
         prompt,
+        idempotencyKey(ctx),
       );
 
       return { answer };

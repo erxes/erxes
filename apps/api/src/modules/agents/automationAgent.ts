@@ -8,7 +8,7 @@ import { modelsFor } from '~/modules/assistant/providers';
 import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { AUTOMATION_AGENT } from '~/modules/automations/actions/agent';
 import type { Agent, AgentScope } from './agent';
-import { agentModelKey } from './agentModels';
+import { modelKey } from './agents.service';
 
 const INSTRUCTIONS = `You carry out one step of an erxes automation. Find what you need with searchApi and do it with callApi, within the role of the member who turned the automation on. Nobody reads along and nobody can answer questions: when something is missing, do what you can and say what you could not. End with a short plain answer, which later steps of the automation read.`;
 
@@ -40,11 +40,11 @@ export const automationAgent: Agent = {
 
     return enterScope(member, scope.orgId, () =>
       withOrg(scope.orgId, async (tx) => {
-        const key = await agentModelKey(tx, AUTOMATION_AGENT);
+        const key = await modelKey(tx);
         const plugins = await installedPlugins(tx);
 
         const tools = apiTools({
-          member,
+          caller: () => memberOf(scope.orgId, member.userId),
           orgId: scope.orgId,
           threadId: null,
           codeMode: false,

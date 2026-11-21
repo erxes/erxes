@@ -233,27 +233,6 @@ const CallClaims = z
 export const verifyCoreCall = (token: string, options: VerifyOptions): Promise<CoreCall> =>
   verifyCoreToken(token, options, 'erxes-core-call+jwt', CallClaims);
 
-/** Who is calling a plugin's procedure as an agent's tool: core, running one of its conversations. */
-export interface AgentCall {
-  orgId: string;
-  /** The plugin's agent, `<plugin>.<name>` from its manifest's `agents`. */
-  agent: string;
-  /** The conversation's key, as the plugin sent it to `agents.submit`. */
-  key: string;
-}
-
-const AgentCallClaims = z
-  .object({ org: z.string().min(1), agent: z.string().min(1), key: z.string().min(1) })
-  .transform((claims): AgentCall => ({ orgId: claims.org, agent: claims.agent, key: claims.key }));
-
-/**
- * Verifies the token core sends when one of the plugin's agents calls its tool
- * (`<api.url>/rpc/<procedure>`): issued by core, for this plugin, unexpired (5 minutes). The
- * call acts for the plugin, not for a member.
- */
-export const verifyAgentCall = (token: string, options: VerifyOptions): Promise<AgentCall> =>
-  verifyCoreToken(token, options, 'erxes-agent-call+jwt', AgentCallClaims);
-
 const AccessTokenClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),

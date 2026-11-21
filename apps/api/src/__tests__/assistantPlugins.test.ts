@@ -40,14 +40,6 @@ const manifestFor = (apiUrl: string) =>
         },
       ],
     },
-    agents: [
-      {
-        name: 'helper',
-        description: 'Answers questions about leave',
-        instructions: AGENT_INSTRUCTIONS,
-        tools: ['leave.balances'],
-      },
-    ],
   }) satisfies z.input<typeof PluginManifest>;
 
 describe('assistant plugin contributions', () => {
@@ -214,32 +206,42 @@ describe('assistant plugin contributions', () => {
     expect(hr.calls.length).toBe(before);
   });
 
-  it("runs the plugin's agent on the organisation's key: its tools call the plugin as the agent, and the answer comes back as an event", async () => {
+  it("runs an agent an admin made by its key's rules, and its answer goes back to the plugin that sent the message", async () => {
+    const agent = await t.owner().agents.create({
+      name: 'Leave helper',
+      instructions: AGENT_INSTRUCTIONS,
+      access: { areas: {}, pluginAccess: { hr: 'read' } },
+    });
+
     model.script(
-      inSteps({ tool: 'leave_balances', input: {} }, { text: 'Bat-Erdene has 12 days.' }),
+      inSteps(
+        { tool: 'searchApi', input: { query: 'leave balances' } },
+        { tool: 'callApi', input: { procedure: 'hr:leave.balances', input: {} } },
+        { text: 'Bat-Erdene has 12 days.' },
+      ),
     );
 
     const before = hr.calls.length;
 
-    await t
-      .hr()
-      .agents.submit({ agent: 'hr.helper', key: 'chat-1', text: 'Leave for Bat-Erdene?' });
+    await t.hr().agents.submit({ id: agent.id, key: 'chat-1', text: 'Leave for Bat-Erdene?' });
 
     await expect.poll(async () => (await finished()).length, { timeout: 10_000 }).toBe(1);
 
     expect((await finished())[0]?.payload).toEqual({
-      agent: 'hr.helper',
+      agentId: agent.id,
+      plugin: 'hr',
       key: 'chat-1',
       answer: 'Bat-Erdene has 12 days.',
     });
     expect(hr.calls.slice(before)).toEqual([
-      { procedure: 'leave.balances', userId: 'agent:hr.helper', orgId: t.ids.org, input: {} },
+      { procedure: 'leave.balances', userId: t.ids.owner, orgId: t.ids.org, input: {} },
     ]);
     expect(systemOf(model.chats().at(-1) ?? { model: '', messages: [] })).toContain(
       AGENT_INSTRUCTIONS,
     );
+    expect((await t.owner().apiKeys.list()).data.map((key) => key.id)).not.toContain(agent.keyId);
     await expect(
-      t.hr().agents.submit({ agent: 'hr.nobody', key: 'chat-1', text: 'Hello' }),
+      t.hr().agents.submit({ id: 'no-such-agent', key: 'chat-1', text: 'Hello' }),
     ).rejects.toMatchObject({ status: 404 });
   });
 

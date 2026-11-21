@@ -722,6 +722,20 @@
       "when": 1795250097244,
       "tag": "0102_live_topic_ids",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1795255894589,
+      "tag": "0103_agents",
+      "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1795255896425,
+      "tag": "0104_drop_agent_models",
+      "breakpoints": true
     }
   ]
 }

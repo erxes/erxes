@@ -1,0 +1,1 @@
+DROP TABLE "core_agent_models" CASCADE;

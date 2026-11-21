@@ -58,6 +58,8 @@ export * from './assistant';
 
 export * from './agent';
 
+export * from './agents';
+
 export * from './orgUnits';
 
 export * from './apiKeys';
