@@ -59,6 +59,8 @@ const IntegrationsSettingsPage = lazyNamed(
   'IntegrationsSettingsPage',
 );
 
+const EmailSettingsPage = lazyNamed(() => import('./email/EmailSettingsPage'), 'EmailSettingsPage');
+
 const IntegrationPage = lazyNamed(
   () => import('./integrations/IntegrationPage'),
   'IntegrationPage',
@@ -92,6 +94,7 @@ export const SettingsRoutes = () => (
       <Route path="structure" element={<StructurePage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
+      <Route path="email" element={<EmailSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />
       <Route path="integrations/:key" element={<IntegrationPage />} />
       <Route path="recycle-bin" element={<RecycleBinPage />} />

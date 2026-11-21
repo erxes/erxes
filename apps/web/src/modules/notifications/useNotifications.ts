@@ -10,7 +10,7 @@ import { useToast } from 'erxes-ui';
 import type { ComponentType } from 'react';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { forwardPaging } from '~/lib/cursorList';
-import { useLivePolling } from '~/lib/live';
+import { liveOptions } from '~/lib/live';
 import { pluginLabel } from '~/lib/members';
 import { savedOrderState, useSavedOrder } from '~/lib/savedOrder';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
@@ -30,12 +30,10 @@ export const useInboxOrder = () => useSavedOrder(inboxOrderState);
  * and whenever the window regains focus.
  */
 export const useUnreadCounts = () => {
-  const refetchInterval = useLivePolling();
-
   const query = useQuery(
     orpc.notifications.unreadCount.queryOptions({
       input: {},
-      refetchInterval,
+      ...liveOptions(['inbox']),
       refetchOnWindowFocus: true,
     }),
   );
@@ -56,8 +54,6 @@ export const useNotificationList = ({
   important,
   enabled = true,
 }: NotificationFilters & { enabled?: boolean }) => {
-  const refetchInterval = useLivePolling();
-
   const query = useInfiniteQuery(
     orpc.notifications.list.infiniteOptions({
       input: enabled
@@ -69,7 +65,7 @@ export const useNotificationList = ({
           })
         : skipToken,
       ...forwardPaging(20),
-      refetchInterval,
+      ...liveOptions(['inbox']),
     }),
   );
 

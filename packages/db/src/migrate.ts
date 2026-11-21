@@ -76,7 +76,7 @@ BEGIN
   END LOOP;
   FOREACH r IN ARRAY ARRAY['anon', 'authenticated'] LOOP
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = r) THEN
-      EXECUTE format('REVOKE EXECUTE ON FUNCTION core_publish_event, core_record_audit, core_live_signal FROM %I', r);
+      EXECUTE format('REVOKE EXECUTE ON FUNCTION core_publish_event, core_record_audit, core_live_signal, core_live_topic FROM %I', r);
     END IF;
   END LOOP;
 END $lock$;

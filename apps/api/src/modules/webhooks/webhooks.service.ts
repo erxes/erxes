@@ -9,6 +9,7 @@ import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { integrationEventTypes } from '~/modules/integrations/actions';
 
 /** Core's events and those of the plugins installed here. */
 export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => {
@@ -39,6 +40,7 @@ export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => 
         fields: item.fields ?? [],
       })),
     ),
+    ...(await integrationEventTypes(client)),
   ];
 };
 

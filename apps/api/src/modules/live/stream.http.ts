@@ -1,3 +1,4 @@
+import type { StreamChanged, StreamTopic } from '@erxes/core-contract';
 import type { LIVE_MODES } from '@erxes/core-db/enums';
 import { caller, requestOrgId, users, withOrg } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
@@ -13,22 +14,13 @@ const REVALIDATE_MS = 60_000;
 /** Signals arriving close together go out as one message. */
 const FLUSH_MS = 200;
 
-/** More distinct timelines than this in one flush: tell the browser to refetch everything. */
-const MAX_TIMELINES_PER_FLUSH = 50;
+/** More distinct topics than this in one flush: tell the browser to refetch everything. */
+const MAX_TOPICS_PER_FLUSH = 100;
 
 const openStreams = new Map<string, number>();
 
-interface Target {
-  targetType: string;
-  targetId: string;
-}
-
-/** The data of one stream message (`{}` for `inbox` and `resync`). */
-type StreamData =
-  | Record<string, never>
-  | { mode: (typeof LIVE_MODES)[number] }
-  | { targets: Target[] }
-  | { plugin: string; topics: string[] };
+/** The data of one stream message (`{}` for `resync`). */
+type StreamData = Record<string, never> | { mode: (typeof LIVE_MODES)[number] } | StreamChanged;
 
 type Send = (event: string, data?: StreamData) => void;
 
@@ -47,61 +39,26 @@ type Listener = ReturnType<typeof listenerOf>;
 
 /** Collects the member's signals and sends them as one message every `FLUSH_MS`. */
 const signalBatcher = (actor: Listener, send: Send) => {
-  let inbox = false;
-  let assistant = false;
   let resync = false;
-  const pluginTopics = new Map<string, Set<string>>();
-  const timelines = new Map<string, Target>();
+  const topics = new Set<StreamTopic>();
   let flushTimer: NodeJS.Timeout | null = null;
 
   const flush = () => {
     flushTimer = null;
 
-    if (resync || timelines.size > MAX_TIMELINES_PER_FLUSH) {
-      send('resync');
-    } else {
-      if (inbox) send('inbox');
+    if (resync || topics.size > MAX_TOPICS_PER_FLUSH) send('resync');
+    else send('changed', { topics: [...topics] });
 
-      if (assistant) send('assistant');
-
-      if (timelines.size) send('timeline', { targets: [...timelines.values()] });
-    }
-
-    // Plugin UIs keep their own caches: their topics go out even on resync.
-    for (const [plugin, topics] of pluginTopics) send('plugin', { plugin, topics: [...topics] });
-
-    inbox = false;
-    assistant = false;
     resync = false;
-    pluginTopics.clear();
-    timelines.clear();
+    topics.clear();
   };
 
   const onSignal = (signal: LiveSignal) => {
-    if (signal.o !== actor.orgId) return;
+    if (signal.o !== actor.orgId || signal.k === 'agent-stop') return;
 
-    if (signal.k === 'resync') {
-      resync = true;
-    } else if (signal.k === 'plugin') {
-      if (signal.u && !signal.u.includes(actor.userId)) return;
-
-      const topics = pluginTopics.get(signal.p) ?? new Set<string>();
-
-      topics.add(signal.t);
-      pluginTopics.set(signal.p, topics);
-    } else if (signal.k === 'inbox') {
-      if (signal.u !== actor.userId) return;
-
-      inbox = true;
-    } else if (signal.k === 'assistant') {
-      if (signal.u !== actor.userId) return;
-
-      assistant = true;
-    } else if (signal.k === 'agent-stop') {
-      return;
-    } else {
-      timelines.set(`${signal.t}:${signal.i}`, { targetType: signal.t, targetId: signal.i });
-    }
+    if (signal.k === 'resync') resync = true;
+    else if (!signal.u || signal.u.includes(actor.userId)) topics.add(signal.t);
+    else return;
 
     flushTimer ??= setTimeout(flush, FLUSH_MS);
   };
@@ -140,12 +97,12 @@ const endReason = async (req: Request, actor: Listener) => {
 
 /**
  * `GET /core/v1/stream`: Server-Sent Events for the signed-in member. It
- * carries only "this changed" signals — `inbox` (their notifications),
- * `timeline` (a customer's or company's) and `plugin { plugin, topics }`
- * (from `core_live_signal` / `POST /plugins/live`) — never data: the browser refetches
+ * carries only "this changed" signals, never data: the browser refetches
  * through the normal API, so every permission check stays where it is.
  *
  * - `hello { mode }`: `live`, or `polling` while the server can't listen;
+ * - `changed { topics }`: the `StreamTopic`s that changed (plugins' come from
+ *   `core_live_signal` / `POST /plugins/live` as `plugin:<name>:<topic>`);
  * - `resync`: something may have been missed (reconnects, big bursts): refetch;
  * - `bye`: the session ended (signed out everywhere, member disabled); don't reconnect.
  *

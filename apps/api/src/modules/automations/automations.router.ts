@@ -11,11 +11,8 @@ import {
   restoreVersion,
   updateAutomation,
 } from '~/modules/automations/automations.service';
-import {
-  automationCatalog,
-  automationFields,
-  definitionProblems,
-} from '~/modules/automations/definitions';
+import { automationCatalog } from '~/modules/automations/automationCatalog';
+import { automationFields, definitionProblems } from '~/modules/automations/definitions';
 import { testAutomation } from '~/modules/automations/dryRun';
 import {
   automationStats,

@@ -6,13 +6,16 @@ import {
   runAs,
   withOrg,
 } from '@erxes/core-db';
+import { isIntegrationType } from '@erxes/core-contract';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { defineJob } from '~/modules/jobs/jobs';
 import { coreAction } from './actions/catalog';
 import type { CallContext } from './actions/context';
+import { integrationForAction, runIntegrationAction } from '~/modules/integrations/actions';
 import { pluginForAction, runPluginAction } from './actions/plugin';
 import { automationChecker } from './conditionCheck';
+import { rememberActionOutput } from './eventData';
 import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';
 import {
   ADVANCE_QUEUE,
@@ -95,6 +98,8 @@ export const callJob = defineJob({
     const output = await prepared.call();
 
     await withOrg(job.orgId, async (tx) => {
+      if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);
+
       const run = await lockLiveRun(tx, job.payload.runId);
 
       if (run?.status !== 'running' || !sameCursor(run.cursor, job.payload.cursor)) return;
@@ -154,11 +159,18 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
   if (action && 'call' in action)
     return { ...prepared, call: () => runAs(member, () => action.call(ctx)) };
 
+  if (isIntegrationType(step.action)) {
+    const program = await integrationForAction(tx, step.action);
+
+    return { ...prepared, call: () => runAs(member, () => runIntegrationAction(ctx, program)) };
+  }
+
   const plugin = await pluginForAction(tx, step.action);
 
   return {
     ...prepared,
     call: () => runAs(member, () => runPluginAction(ctx, plugin, step.action)),
+    learnsOutput: true,
   };
 };
 

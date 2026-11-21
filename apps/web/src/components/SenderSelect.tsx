@@ -11,7 +11,7 @@ const DEFAULT = 'default';
 
 /**
  * Who an email goes out as: the sending address, or one of the confirmed
- * senders (Settings › Integrations › Email sending › Senders).
+ * senders (Settings › Email sending › Senders).
  */
 export const SenderSelect = ({
   id,

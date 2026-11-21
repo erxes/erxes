@@ -4,43 +4,16 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import {
-  CONTENT_TYPES,
-  type ContentType,
-  type Db,
-  emailSenders,
-  fields,
-  pluginInstallations,
-  plugins,
-} from '@erxes/core-db';
+import { CONTENT_TYPES, type ContentType, type Db, emailSenders, fields } from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { subjectCompiler } from '~/modules/views/recordFilter';
-import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
-import { actionCatalog } from './actions/catalog';
+import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { dateConditions } from './conditions';
-
-const installedPlugins = (client: Db) =>
-  client
-    .select({ name: plugins.name, manifest: plugins.manifest })
-    .from(plugins)
-    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
-
-/** The triggers and actions an organisation's automations can use. */
-export const automationCatalog = async (client: Db) => {
-  const triggers = await eventTypeCatalog(client);
-  const installed = await installedPlugins(client);
-
-  return {
-    triggers,
-    actions: actionCatalog(installed),
-  };
-};
 
 type Catalog = Awaited<ReturnType<typeof automationCatalog>>;
 

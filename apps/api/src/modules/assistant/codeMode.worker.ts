@@ -1,4 +1,3 @@
-import { ASSISTANT_PROGRAM_HOST_FUNCTIONS } from '@erxes/core-db/assistantEnums';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import {
   newQuickJSWASMModuleFromVariant,
@@ -13,6 +12,8 @@ import type { FromProgram } from './codeMode';
 
 const ProgramJob = z.object({
   code: z.string(),
+  prelude: z.string(),
+  hosts: z.array(z.string()),
   memoryBytes: z.int().min(1),
   stackBytes: z.int().min(1),
   outputChars: z.int().min(1),
@@ -33,8 +34,6 @@ export type HostAnswer = z.infer<typeof HostAnswer>;
 const PRELUDE = `
 const __logs = [];
 globalThis.console = { log: (...items) => { if (__logs.length < 20) __logs.push(items.map((item) => typeof item === 'string' ? item : JSON.stringify(item)).join(' ').slice(0, 500)); } };
-globalThis.searchApi = async (query, limit) => JSON.parse(await __host_searchApi(String(query), String(limit ?? '')));
-globalThis.callApi = async (procedure, input) => JSON.parse(await __host_callApi(String(procedure), JSON.stringify(input ?? {})));
 `;
 
 const wrap = (code: string) =>
@@ -93,10 +92,7 @@ const outputOf = (json: string, outputChars: number): FromProgram => {
 
 const calls = { made: 0, pending: new Map<number, QuickJSDeferredPromise>() };
 
-const exposeHost = (
-  vm: QuickJSContext,
-  name: (typeof ASSISTANT_PROGRAM_HOST_FUNCTIONS)[number],
-) => {
+const exposeHost = (vm: QuickJSContext, name: string) => {
   const fn = vm.newFunction(`__host_${name}`, (...handles) => {
     const deferred = vm.newPromise();
 
@@ -143,9 +139,9 @@ const run = async (job: ProgramJob): Promise<FromProgram> => {
 
   parentPort?.on('message', (message: unknown) => deliver(runtime, vm, message));
 
-  for (const name of ASSISTANT_PROGRAM_HOST_FUNCTIONS) exposeHost(vm, name);
+  for (const name of job.hosts) exposeHost(vm, name);
 
-  vm.unwrapResult(vm.evalCode(PRELUDE, 'prelude.js')).dispose();
+  vm.unwrapResult(vm.evalCode(`${PRELUDE}\n${job.prelude}`, 'prelude.js')).dispose();
 
   const started = vm.evalCode(wrap(job.code), 'program.js');
 

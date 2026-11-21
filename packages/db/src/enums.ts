@@ -327,14 +327,28 @@ export const ACTOR_TYPES = ['user', 'plugin', 'customer', 'system'] as const;
 /** `deleting`: removed, waiting for storage to confirm the bytes are gone (retried until it does). */
 export const FILE_STATUSES = ['pending', 'ready', 'deleting'] as const;
 
-/** Where files are kept. */
-export const FILE_STORAGES = ['local', 's3'] as const;
+/** Where the server keeps uploads (FILES_STORAGE): its disk, an S3 bucket, or Cloudflare R2. */
+export const FILE_STORAGES = ['local', 's3', 'cloudflare'] as const;
+
+/**
+ * Where one file's bytes are: a server storage, the organisation's own bucket
+ * (`core_file_buckets`), or Cloudflare Images and Stream, where core moves
+ * images and videos uploaded to R2 (CLOUDFLARE_USE_CDN).
+ */
+export const FILE_STORES = [
+  ...FILE_STORAGES,
+  'bucket',
+  'cloudflare_images',
+  'cloudflare_stream',
+] as const;
 
 /** What a signed local-storage link allows. */
 export const FILE_GRANT_OPS = ['put', 'get'] as const;
 
 /** How a browser gets live updates: a stream, or polling when streams are off. */
 export const LIVE_MODES = ['live', 'polling'] as const;
+
+export const STREAM_TOPICS = ['inbox', 'assistant', 'automations.catalog'] as const;
 
 export const NOTIFICATION_PRIORITIES = ['normal', 'high'] as const;
 
@@ -404,6 +418,12 @@ export const AUTOMATION_FIELD_TYPES = [
   'tags',
   'select',
 ] as const;
+
+/**
+ * What core remembers of an event type's payload: `seen` marks that the type happened at all,
+ * the others how a key's values compare (each is one of `AUTOMATION_FIELD_TYPES`).
+ */
+export const EVENT_DATA_KINDS = ['seen', 'text', 'number', 'boolean', 'list'] as const;
 
 /** The inputs an action's form shows. */
 export const ACTION_FIELD_TYPES = [

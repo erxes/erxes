@@ -15,6 +15,7 @@ import { BoardCardShell } from './BoardCardShell';
 import { type BoardCardEntry, BoardCards, BoardContext, type BoardTarget } from './boardContext';
 import { useBoardAccessibility } from './boardAnnouncements';
 import { boardKeyboard, glideToCard, pointerSlot } from './boardDrag';
+import { useBoardScroll } from './useBoardScroll';
 
 /** A dropped card: its old and new column, and the card it now sits above. */
 export type BoardMove = BoardTarget & { id: string; fromColumnId: string };
@@ -78,6 +79,7 @@ export const BoardRoot = ({
   const id = useId();
 
   useLayoutEffect(() => cards.setBoard(board), [cards, board]);
+  useBoardScroll(board);
 
   const end = () => {
     setDragging(null);
@@ -119,7 +121,7 @@ export const BoardRoot = ({
         <div
           ref={setBoard}
           className={cn(
-            'flex min-h-0 flex-1 gap-3 overflow-x-auto p-3',
+            'board-scroll flex min-h-0 flex-1 gap-3 overflow-x-auto p-3',
             dragging && 'cursor-grabbing',
           )}
         >

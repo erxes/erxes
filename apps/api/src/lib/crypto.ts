@@ -1,4 +1,6 @@
+import { compare as compareBcrypt } from 'bcryptjs';
 import {
+  argon2,
   createCipheriv,
   createDecipheriv,
   createHash,
@@ -6,6 +8,7 @@ import {
   hkdfSync,
   randomBytes,
   scrypt,
+  type ScryptOptions,
   timingSafeEqual,
 } from 'node:crypto';
 
@@ -60,46 +63,81 @@ export const newSigningSecret = () => `whsec_${randomToken(24)}`;
 
 // ─── Passwords ──────────────────────────────────────────────────────────────
 
-const N = 16384;
-const R = 8;
-const P = 1;
-const KEY_LENGTH = 64;
+type Argon2Cost = { memory: number; passes: number; parallelism: number };
 
-const derive = (password: string, salt: Buffer, n: number, r: number, p: number) =>
+// OWASP's argon2id settings: 19 MiB, 2 passes, 1 lane, a 16-byte salt and a 32-byte tag.
+const ARGON2: Argon2Cost = { memory: 19456, passes: 2, parallelism: 1 };
+const SALT_LENGTH = 16;
+const TAG_LENGTH = 32;
+
+/** What every hash made with today's settings starts with (the PHC string format). */
+const CURRENT = `$argon2id$v=19$m=${ARGON2.memory},t=${ARGON2.passes},p=${ARGON2.parallelism}$`;
+
+const PHC = /^\$argon2id\$v=19\$m=(\d+),t=(\d+),p=(\d+)\$([A-Za-z0-9+/]+)\$([A-Za-z0-9+/]+)$/;
+
+const argon2id = (password: string, nonce: Buffer, cost: Argon2Cost, tagLength: number) =>
   new Promise<Buffer>((resolve, reject) => {
-    scrypt(password, salt, KEY_LENGTH, { N: n, r, p, maxmem: 64 * 1024 * 1024 }, (error, key) =>
+    argon2('argon2id', { message: password, nonce, tagLength, ...cost }, (error, key) =>
       error ? reject(error) : resolve(key),
     );
   });
 
-/** `scrypt$N$r$p$salt$hash` (base64url); parameters are stored so they can change later. */
-export const hashPassword = async (password: string): Promise<string> => {
-  const salt = randomBytes(16);
-  const key = await derive(password, salt, N, R, P);
+/** PHC strings carry base64 without padding. */
+const phcBase64 = (value: Buffer) => value.toString('base64').replace(/=+$/, '');
 
-  return ['scrypt', N, R, P, salt.toString('base64url'), key.toString('base64url')].join('$');
+/** `$argon2id$v=19$m=19456,t=2,p=1$<salt>$<hash>`; the cost is stored so it can change later. */
+export const hashPassword = async (password: string) => {
+  const salt = randomBytes(SALT_LENGTH);
+  const key = await argon2id(password, salt, ARGON2, TAG_LENGTH);
+
+  return `${CURRENT}${phcBase64(salt)}$${phcBase64(key)}`;
 };
 
-export const verifyPassword = async (password: string, stored: string | null): Promise<boolean> => {
-  const parts = (stored ?? '').split('$');
-  const [scheme, n, r, p, salt, hash] = parts;
+/** False for a hash sign-in should replace: an older format or older argon2id settings. */
+export const isCurrentPasswordHash = (stored: string) => stored.startsWith(CURRENT);
 
-  if (parts.length !== 6 || scheme !== 'scrypt' || salt === undefined || hash === undefined) {
-    // Same work as a real check, so timing does not reveal unknown accounts.
-    await derive(password, randomBytes(16), N, R, P);
+const scryptKey = (password: string, salt: Buffer, cost: ScryptOptions, keyLength: number) =>
+  new Promise<Buffer>((resolve, reject) => {
+    scrypt(password, salt, keyLength, { ...cost, maxmem: 64 * 1024 * 1024 }, (error, key) =>
+      error ? reject(error) : resolve(key),
+    );
+  });
 
-    return false;
+/**
+ * Checks a password against any format core has stored: argon2id, core's
+ * earlier `scrypt$N$r$p$salt$hash` (base64url), and old erxes' bcrypt of the
+ * password's hex SHA-256 (`$2a$`/`$2b$`), which imported members keep.
+ */
+export const verifyPassword = async (password: string, stored: string | null) => {
+  const value = stored ?? '';
+  const phc = PHC.exec(value);
+
+  if (phc) {
+    const [, m, t, p, salt = '', hash = ''] = phc;
+    const expected = Buffer.from(hash, 'base64');
+    const cost = { memory: Number(m), passes: Number(t), parallelism: Number(p) };
+    const actual = await argon2id(password, Buffer.from(salt, 'base64'), cost, expected.length);
+
+    return safeEqual(actual, expected);
   }
 
-  const actual = await derive(
-    password,
-    Buffer.from(salt, 'base64url'),
-    Number(n),
-    Number(r),
-    Number(p),
-  );
+  const parts = value.split('$');
+  const [scheme, n, r, p, salt, hash] = parts;
 
-  return safeEqual(actual, Buffer.from(hash, 'base64url'));
+  if (parts.length === 6 && scheme === 'scrypt' && salt && hash) {
+    const expected = Buffer.from(hash, 'base64url');
+    const cost = { N: Number(n), r: Number(r), p: Number(p) };
+    const actual = await scryptKey(password, Buffer.from(salt, 'base64url'), cost, expected.length);
+
+    return safeEqual(actual, expected);
+  }
+
+  if (/^\$2[ab]\$\d\d\$/.test(value)) return compareBcrypt(sha256(password), value);
+
+  // Same work as a real check, so timing does not reveal unknown accounts.
+  await argon2id(password, randomBytes(SALT_LENGTH), ARGON2, TAG_LENGTH);
+
+  return false;
 };
 
 // ─── Sealed secrets ─────────────────────────────────────────────────────────

@@ -44,7 +44,7 @@ const IntegrationHeader = ({
       <IntegrationMark integration={integration} size="lg" />
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-semibold">{name}</h1>
+          <h1 className="min-w-0 break-words text-xl font-semibold">{name}</h1>
           <IntegrationStatusBadge status={status} />
         </div>
         <p className="text-sm text-muted-foreground">{summary}</p>
@@ -98,7 +98,7 @@ export const IntegrationLayout = ({
           />
         </PageHeader.Start>
       </PageHeader>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" fitWidth>
         <div className="mx-auto max-w-4xl space-y-6 p-6">
           <IntegrationHeader integration={integration} actions={actions} />
           <Tabs value={current?.value} onValueChange={onTab}>
