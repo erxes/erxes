@@ -2,6 +2,7 @@ import { format, formatDistance, formatDistanceStrict, parseISO } from 'date-fns
 import { enUS } from 'react-day-picker/locale/en-US';
 import { mn } from 'react-day-picker/locale/mn';
 import { useTranslation } from 'react-i18next';
+import { fixNum } from './numbers';
 
 /*
  * Every date, time and number people read goes through here, in the UI's language. Dates
@@ -112,4 +113,32 @@ export const zoneOffset = (zone: string) => {
   } catch {
     return '';
   }
+};
+
+/**
+ * A number with separators and exactly `p` decimals (2 by default).
+ * It rounds with `fixNum` first: 1234.5 → "1,234.50", in every language, as 3.x showed it.
+ */
+export const displayNum = (value: number | string | null | undefined, p = 2) =>
+  new Intl.NumberFormat('en-US', { minimumFractionDigits: p, maximumFractionDigits: p }).format(
+    fixNum(value, p),
+  );
+
+/** One decimal, without a trailing ".0". */
+const shortAmount = (value: number) => value.toFixed(1).replace(/\.?0+$/, '');
+
+/**
+ * An amount to read: 2 decimals, or with `short` "1.2k", "3m", "4b".
+ * The long form uses the browser's separators ("1,234.5"), as 3.x did.
+ */
+export const formatAmount = (amount: number, kind?: 'short' | 'finance') => {
+  if (kind !== 'short') return Number(amount.toFixed(2)).toLocaleString();
+
+  if (amount < 1000) return shortAmount(amount);
+
+  if (amount < 1_000_000) return `${shortAmount(amount / 1000)}k`;
+
+  if (amount < 1_000_000_000) return `${shortAmount(amount / 1_000_000)}m`;
+
+  return `${shortAmount(amount / 1_000_000_000)}b`;
 };

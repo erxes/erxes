@@ -115,6 +115,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 ## Fields and pickers
 
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
+- `<CurrencyDisplay code variant>` A currency by its code: its icon and name, its icon alone, or its code.
+- `CurrencyField.{ValueInput, SelectCurrency, SelectCurrencyCommand}` An amount and its currency: an amount input and a currency picker.
+- `<CurrencyFormatedDisplay currencyValue kind>` An amount after its currency's icon, through `formatAmount`.
 - `<DateField value min max placeholder scope>` A day in a table cell or panel row, edited in a popover with a calendar.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
@@ -266,10 +269,16 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `amountStep(currency)` A number input's `step` for a currency: 0.01 for USD, 1 for JPY.
 - `cn` Joins classes and drops the ones a later class overrides.
+- `CURRENCY_CODES` Every currency `CurrencyField` picks from, by ISO 4217 code.
+- `type CurrencyCode` An ISO 4217 code `CURRENCY_CODES` lists (`'MNT'`, `'USD'`).
+- `displayNum(value, p)` A number with separators and exactly `p` decimals (2 by default).
+- `fixNum(value, p)` A number, or "1,234.5" text, rounded to `p` decimals (4 by default).
+- `formatAmount(amount, kind)` An amount to read: 2 decimals, or with `short` "1.2k", "3m", "4b".
 - `formatMoney(amount, currency, language)` An amount as people read it in `language`: 150000 MNT → "MNT 1,500.00".
 - `formatPhoneNumber({ defaultCountry, value })` A phone number formatted as people write it, even half typed.
 - `formatter(language)` The formatters for `language` (an i18next code), for code outside React.
 - `fromAmountInput(text, currency)` A number input's text as an amount in minor units: "12.5" USD → 1250.
+- `isCurrencyCode(code)` Whether `code` is a currency `CURRENCY_CODES` lists; narrows its type.
 - `isUndefinedOrNull(value)` True for `null` and `undefined`, and narrows the value's type.
 - `jsonOf(schema)` A zod schema for a JSON string that decodes to `schema`.
 - `LANGUAGES` The UI's languages, each with its own name and date-fns locale.

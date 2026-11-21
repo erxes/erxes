@@ -26,6 +26,7 @@ type ContactQueries
 type ContactSearch
 type ContactSearchQueries
 type Crumb
+type CurrencyCode
 type CustomerContact
 type FileStorageAdapter
 type IUIConfig
@@ -92,6 +93,7 @@ value Board
 value Breadcrumb
 value Button
 value CONNECTION_CONTENT_TYPE
+value CURRENCY_CODES
 value Calendar
 value Card
 value ChartContainer
@@ -110,6 +112,9 @@ value ContactLink
 value ContactRelationInput
 value ContextMenu
 value CopyText
+value CurrencyDisplay
+value CurrencyField
+value CurrencyFormatedDisplay
 value DASHBOARD_WIDGET_PREVIEWS
 value DateField
 value DateInput
@@ -213,13 +218,17 @@ value buttonVariants
 value cn
 value companyTitle
 value customerTitle
+value displayNum
 value editorText
+value fixNum
+value formatAmount
 value formatMoney
 value formatPhoneNumber
 value formatter
 value fromAmountInput
 value getPluginAssetsUrl
 value getPluginRuntime
+value isCurrencyCode
 value isRule
 value isUndefinedOrNull
 value jsonOf

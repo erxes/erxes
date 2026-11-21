@@ -65,6 +65,11 @@
     "copied": "Copied!",
     "hint": "Click to copy"
   },
+  "currency": {
+    "empty": "No currency found",
+    "search": "Search currency",
+    "select": "Select currency"
+  },
   "date": {
     "clear": "Clear",
     "days_one": "{{count}} day",
