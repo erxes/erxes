@@ -101,13 +101,16 @@ export const View = createSelectSchema(views, {
 
 export type View = z.infer<typeof View>;
 
-const ViewFields = createUpdateSchema(views, {
+/** What a view create or update may set. */
+export const ViewFields = createUpdateSchema(views, {
   name: (name) => name.trim().min(1).max(80),
   filter: () => ConditionGroup,
   search: (search) => search.trim().max(100),
   columns: () => z.array(z.string().max(100)).max(100),
   sort: () => ViewSort,
 }).pick({ name: true, filter: true, search: true, columns: true, sort: true, shared: true });
+
+export type ViewFields = z.infer<typeof ViewFields>;
 
 /** The most record ids one `views.matches` call checks. */
 export const VIEW_MATCHES_MAX = 500;

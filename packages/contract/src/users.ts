@@ -95,7 +95,8 @@ const Email = z.string().trim().check(z.email()).max(254);
  * What a member's update may set. The names are never cleared; the profile
  * details (old erxes `users.details`) are, with `null`.
  */
-const UserFields = createUpdateSchema(users, {
+/** What a member's profile create or update may set. */
+export const UserFields = createUpdateSchema(users, {
   fullName: z.string().trim().min(1).max(200).optional(),
   username: z
     .string()
@@ -136,6 +137,8 @@ const UserFields = createUpdateSchema(users, {
   role: true,
 });
 
+export type UserFields = z.infer<typeof UserFields>;
+
 const InviteEntry = z.object({
   email: Email,
   role: InviteRole.default('member'),
@@ -145,7 +148,7 @@ const InviteEntry = z.object({
 });
 
 /** Someone on the team who doesn't sign in: their name, and optionally how to reach them. */
-const NewMember = UserFields.pick({
+export const NewMember = UserFields.pick({
   fullName: true,
   firstName: true,
   middleName: true,
@@ -159,6 +162,8 @@ const NewMember = UserFields.pick({
   description: true,
   role: true,
 }).required({ fullName: true });
+
+export type NewMember = z.infer<typeof NewMember>;
 
 /** Something to change: at least one field besides `id`. */
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');

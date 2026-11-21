@@ -130,6 +130,11 @@ export const RefundRequest = z.object({
 
 export type RefundRequest = z.infer<typeof RefundRequest>;
 
+/** A payment taken outside a gateway, recorded as a paid invoice. */
+export const RecordedPayment = InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) });
+
+export type RecordedPayment = z.infer<typeof RecordedPayment>;
+
 /**
  * Payments: an organisation's gateway connections (QPay, …) and invoices
  * made through them for plugins' records. Paid invoices publish
@@ -217,7 +222,7 @@ export const paymentsContract = {
       description:
         'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT',
     })
-    .input(InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) }))
+    .input(RecordedPayment)
     .output(Invoice),
   getInvoice: base
     .route({

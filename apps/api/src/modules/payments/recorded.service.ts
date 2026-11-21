@@ -1,6 +1,5 @@
-import type { InvoiceLineInput, TaxBuyer } from '@erxes/core-contract';
+import type { RecordedPayment } from '@erxes/core-contract';
 import { caller, type Db, newId, paymentInvoices, sourceOf } from '@erxes/core-db';
-import type { RECORDED_PAYMENT_METHODS } from '@erxes/core-db/enums';
 import { sql } from 'drizzle-orm';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -9,28 +8,13 @@ import { resolveInvoiceLines } from './invoiceLines';
 import { invoiceByDedupeKey } from './invoices.service';
 import { eventPayload, shownInvoice } from './invoiceState';
 
-interface RecordedPaymentInput {
-  method: (typeof RECORDED_PAYMENT_METHODS)[number];
-  amount: number;
-  /** The organisation's unless given. */
-  currency?: string;
-  description: string;
-  referenceType: string;
-  referenceId: string;
-  dedupeKey?: string;
-  metadata?: Record<string, unknown>;
-  lines?: InvoiceLineInput[];
-  taxBuyer?: TaxBuyer;
-  taxReceipt?: boolean;
-}
-
 /**
  * Records a payment taken outside a gateway (cash, a card terminal, a bank
  * transfer) as an invoice paid in full now. It publishes `core.payment.paid`
  * like a gateway payment, so its subscribers (eBarimt, webhooks,
  * automations, the plugin) treat both alike. Retry-safe with `dedupeKey`.
  */
-export const recordPayment = async (client: Db, input: RecordedPaymentInput) => {
+export const recordPayment = async (client: Db, input: RecordedPayment) => {
   const existing = input.dedupeKey ? await invoiceByDedupeKey(client, input.dedupeKey) : null;
 
   if (existing) return existing;

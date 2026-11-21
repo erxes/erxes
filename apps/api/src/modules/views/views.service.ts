@@ -1,5 +1,10 @@
-import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
-import type { ConditionGroup, ViewListType, ViewRecordType } from '@erxes/core-contract';
+import { VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
+import type {
+  ConditionGroup,
+  ViewFields,
+  ViewListType,
+  ViewRecordType,
+} from '@erxes/core-contract';
 import { broadcasts, caller, type Db, newId, views } from '@erxes/core-db';
 import { and, asc, count, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -75,15 +80,6 @@ export const listViews = async (client: Db, recordType: ViewListType) => {
   return { data: rows };
 };
 
-interface ViewInput {
-  name?: string;
-  filter?: ConditionGroup | null;
-  search?: string | null;
-  columns?: string[] | null;
-  sort?: { field: string; direction: (typeof SORT_DIRECTIONS)[number] } | null;
-  shared?: boolean;
-}
-
 /** Sharing a view needs the list's share permission. */
 const assertShareable = (recordType: ViewListType, shared: boolean | undefined) => {
   const { share } = permissionsOf(recordType);
@@ -105,7 +101,7 @@ const assertFilter = async (
 /** Saves a view after checking its filter. */
 export const createView = async (
   client: Db,
-  input: ViewInput & { recordType: ViewListType; name: string },
+  input: ViewFields & { recordType: ViewListType; name: string },
 ) => {
   assertSees(input.recordType);
   assertShareable(input.recordType, input.shared);
@@ -148,7 +144,7 @@ const notEditable = (what: string) =>
     `Only its creator (or, when shared, members who may share views) can ${what} this view`,
   );
 
-export const updateView = async (client: Db, id: string, { search, ...input }: ViewInput) => {
+export const updateView = async (client: Db, id: string, { search, ...input }: ViewFields) => {
   const row = await viewOrThrow(client, id);
 
   if (!row.editable) throw notEditable('change');
