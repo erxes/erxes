@@ -38,8 +38,12 @@ export const DATA_EXTENSION_ACCESS = {
   'dataRecords.remove': needs('objects.delete'),
   'dataRecords.restore': needs('objects.delete'),
 
-  // Values follow their record type's own rights; a plugin reaches only its own (the service checks).
+  // Values and history follow their record type's own rights; a plugin reaches only its own
+  // records (the services check).
   'dataValues.get': { member: 'any', plugin: 'installed' },
   'dataValues.lookup': { member: 'any', plugin: 'installed' },
   'dataValues.update': { member: 'any', plugin: 'installed' },
+  'dataChanges.history': { member: 'any', plugin: 'installed' },
+  'dataChanges.convert': needs('properties.manage'),
+  'dataChanges.remove': { plugin: 'installed' },
 } as const;

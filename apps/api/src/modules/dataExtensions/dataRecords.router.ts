@@ -1,13 +1,8 @@
 import { db } from '@erxes/core-db';
 import { scoped, audited, recordOf } from '~/orpc';
 import { getValues, lookupValues, updateValues } from './hostValues.service';
-import {
-  createRecord,
-  getRecord,
-  listRecords,
-  setRecordDeleted,
-  updateRecord,
-} from './records.service';
+import { createRecord, setRecordDeleted, updateRecord } from './recordWrites';
+import { getRecord, listRecords } from './records.service';
 
 const entry = (
   action: string,

@@ -13,6 +13,7 @@ import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
+import { mergeHostValues } from '~/modules/dataExtensions/hostRecords';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CustomerRow, findCustomer, inOrg, selectCustomers } from './customerRows';
@@ -136,6 +137,7 @@ export const mergeCustomers = async (input: { ids: string[]; keepId: string }) =
   const otherIds = others.map((other) => other.id);
 
   await moveRelations(tx, keep.id, otherIds);
+  await mergeHostValues(tx, 'core.customer', keep.id, otherIds);
   // Deleting first frees their primary email and phone for the kept customer.
   await tx.delete(customers).where(inArray(customers.id, otherIds));
 

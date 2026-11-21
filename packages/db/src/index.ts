@@ -127,6 +127,7 @@ export type {
   PropertyContentType,
   CustomValue,
   OrganizationSettings,
+  DataFieldCondition,
   DataFieldOption,
   DataFieldRelation,
   DataFieldSettings,

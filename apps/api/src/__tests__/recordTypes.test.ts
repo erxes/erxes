@@ -223,14 +223,19 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
 
     const { data } = await t.member().dataValues.lookup({
       recordType: 'hr.employee',
-      recordIds: ['e1', 'e2'],
+      recordIds: ['e1'],
     });
 
     expect(data.map((row) => [row.recordId, row.values])).toEqual([
       ['e1', { bonus: 500, yearly: 24_500, badge: 'BAT · 10' }],
-      // Another organisation's employee: core can't see it, so its fields read as blank.
-      ['e2', { bonus: null, yearly: null, badge: ' · ' }],
     ]);
+    // Another organisation's employee isn't in the plugin's view core reads.
+    await expect(
+      t.member().dataValues.lookup({ recordType: 'hr.employee', recordIds: ['e2'] }),
+    ).rejects.toMatchObject({ code: 'INVALID_REFERENCE' });
+    await expect(
+      owner.dataValues.update({ recordType: 'hr.employee', recordId: 'e2', values: { bonus: 1 } }),
+    ).rejects.toMatchObject({ code: 'INVALID_REFERENCE' });
     await expect(
       owner.dataValues.update({ recordType: 'hr.employee', recordId: 'e1', values: { yearly: 1 } }),
     ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
@@ -255,6 +260,23 @@ describe('formulas over a connected plugin’s records', { timeout: 300_000 }, (
       code: 'INVALID_INPUT',
       data: { issues: [{ path: ['settings', 'formula', 'expression', 11] }] },
     });
+  });
+
+  it('drops the values of records the plugin says are gone', async () => {
+    const hr = t.hr();
+
+    await expect(
+      t.owner().dataChanges.remove({ recordType: 'hr.employee', recordIds: ['e1'] }),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      hr.dataChanges.remove({ recordType: 'core.customer', recordIds: ['e1'] }),
+    ).rejects.toMatchObject({ code: 'INVALID_REFERENCE' });
+    await expect(
+      hr.dataChanges.remove({ recordType: 'hr.employee', recordIds: ['e1'] }),
+    ).resolves.toEqual({ removed: 1 });
+    await expect(
+      t.owner().dataValues.get({ recordType: 'hr.employee', recordId: 'e1' }),
+    ).resolves.toMatchObject({ values: { bonus: null }, updatedAt: null });
   });
 
   it('keeps a plugin connected while its records have fields', async () => {

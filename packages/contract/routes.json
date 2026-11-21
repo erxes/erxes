@@ -1485,6 +1485,38 @@
       }
     }
   },
+  "dataChanges": {
+    "history": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-history/{recordType}/{recordId}"
+        }
+      }
+    },
+    "convert": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/{id}/convert"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/{recordType}/remove"
+        }
+      }
+    }
+  },
   "dataRecords": {
     "list": {
       "~orpc": {

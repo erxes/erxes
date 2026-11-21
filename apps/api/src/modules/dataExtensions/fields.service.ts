@@ -16,6 +16,7 @@ import { columnsOf, freeColumn, isComputed } from './columns';
 import { assertUnread, checkComputed } from './computedRules';
 import { addColumns, changeSchema, setUnique } from './ddl';
 import { customKeyOf, type DataFieldRow, ensureTable, findField, qualified } from './definitions';
+import { assertSettings } from './writeRules';
 import {
   assertFieldDefinition,
   assertPluginReads,
@@ -82,6 +83,7 @@ export const createField = async (
   const draft = { ...input, options: input.options ?? [], settings: input.settings ?? {} };
 
   assertFieldDefinition(draft);
+  await assertSettings(client, draft);
 
   const settings = isComputed(draft.type)
     ? await checkComputed(client, input.recordType, { ...draft, id })

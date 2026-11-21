@@ -6,6 +6,7 @@ import { inOrder } from '~/lib/sequence';
 import { columnsWithValues } from './codec';
 import type { FieldColumn } from './columns';
 import type { DataFieldRow } from './definitions';
+import { assertEditable } from './fieldAccess';
 import { assertRecordsExist } from './references';
 import type { RelationSide } from './relationValues';
 
@@ -91,6 +92,7 @@ export const prepareValues = async (
     } else if (field.settings.readOnly && key in input && !mayChangeReadOnly()) {
       throw fail('NOT_ALLOWED', `${field.label} is read-only`);
     } else {
+      if (key in input) assertEditable(field);
       values[key] = checkOne(field, value, issues);
     }
   }

@@ -11,6 +11,7 @@ import {
 } from '@erxes/core-db/dataExtensionEnums';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
+import { RoleKey } from './values';
 
 /**
  * Data Extensions: objects and fields an organisation defines at runtime, for its own records
@@ -76,7 +77,7 @@ export const DataExtensionOption = z.object({
 export type DataExtensionOption = z.infer<typeof DataExtensionOption>;
 
 /** A select's options, each value once. */
-const Options = z
+export const DataExtensionOptions = z
   .array(DataExtensionOption)
   .max(100)
   .refine(
@@ -96,6 +97,12 @@ export const DataExtensionRelation = z.object({
 });
 
 export type DataExtensionRelation = z.infer<typeof DataExtensionRelation>;
+
+/** Roles by key (`admin`, `r_…`), each once. */
+const RoleKeys = z
+  .array(RoleKey)
+  .max(50)
+  .refine((list) => new Set(list).size === list.length, 'each role once');
 
 /** Shown on a form only while another field's value matches. */
 const VisibleWhen = z.object({
@@ -170,6 +177,12 @@ export const DataExtensionFieldSettings = z.object({
   /** Only members who manage the data model may change the value. */
   readOnly: z.boolean().optional(),
   visibleWhen: VisibleWhen.optional(),
+  /** Required while another field's value matches: `stage` is `lost` → a lost reason. */
+  requiredWhen: VisibleWhen.optional(),
+  /** The roles (keys) that see the field's values; empty or absent: everyone. */
+  visibleTo: RoleKeys.optional(),
+  /** The roles that change its values, among those that see them; empty or absent: everyone. */
+  editableBy: RoleKeys.optional(),
   formula: DataExtensionFormula.optional(),
   rollup: DataExtensionRollup.optional(),
   /** An auto number's text before the number: `PRJ-` gives PRJ-0042. */
@@ -215,7 +228,7 @@ export const DataExtensionFieldCreate = z.object({
   description: Description.optional(),
   icon: Icon.optional(),
   type: DataExtensionFieldType.exclude(['relation']),
-  options: Options.optional(),
+  options: DataExtensionOptions.optional(),
   settings: DataExtensionFieldSettings.optional(),
 });
 
@@ -230,7 +243,7 @@ export const DataExtensionFieldUpdate = z.object({
   description: Description.nullable().optional(),
   icon: Icon.nullable().optional(),
   type: DataExtensionFieldType.exclude(['relation']).optional(),
-  options: Options.optional(),
+  options: DataExtensionOptions.optional(),
   settings: DataExtensionFieldSettings.optional(),
 });
 
