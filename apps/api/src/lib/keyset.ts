@@ -74,6 +74,25 @@ const countRows = async (
 };
 
 /**
+ * Whether the cursor's record is still among the list's rows (`anchor`), and whether any row lies
+ * on the page's other side of it (`before`), in one statement: a scrolled page used to ask each
+ * in a round trip of its own. With the record gone, its position is null and `before` is false.
+ */
+const aroundCursor = async (
+  client: Db,
+  table: KeysetSource['table'],
+  anchor: SQL | undefined,
+  other: SQL | undefined,
+) => {
+  const result = await client.execute<{ anchor: boolean; before: boolean }>(
+    sql`select exists (select 1 from ${table} where ${anchor ?? sql`true`}) as anchor,
+      exists (select 1 from ${table} where ${other ?? sql`true`}) as before`,
+  );
+
+  return result.rows[0] ?? { anchor: false, before: false };
+};
+
+/**
  * Newest-first keyset paging over (created_at, id). The cursor is a record id;
  * comparisons read its position from the table itself, so timestamps keep full
  * precision. `fetch` runs the typed select with the page condition and order.
@@ -92,14 +111,25 @@ export const keysetPage = async <Row extends { id: string }>(
 
   let cursor = query.cursor;
 
-  if (cursor) {
-    const [anchor] = await client
-      .select({ id })
-      .from(table)
-      .where(and(scope, eq(sql`${id}`, cursor)))
-      .limit(1);
+  const position = (operator: '<' | '<=' | '>' | '>=') =>
+    sql`(${createdAt}, ${id}) ${sql.raw(operator)} (select ${createdAt}, ${id} from ${table} where ${id} = ${cursor})`;
 
-    if (!anchor) {
+  // Newest first: "forward" walks to older rows, "backward" to newer ones.
+  const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
+  const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
+
+  // Rows on the other side of the cursor: the page has a neighbour that way.
+  let before = false;
+
+  if (cursor) {
+    const around = await aroundCursor(
+      client,
+      table,
+      and(scope, eq(sql`${id}`, cursor)),
+      and(where, position(otherSide)),
+    );
+
+    if (!around.anchor) {
       // A list reopening at a remembered record that is gone starts from the top.
       if (!inclusive) {
         throw fail('INVALID_CURSOR', 'The cursor record no longer exists');
@@ -107,14 +137,9 @@ export const keysetPage = async <Row extends { id: string }>(
 
       cursor = undefined;
     }
+
+    before = around.before;
   }
-
-  const position = (operator: '<' | '<=' | '>' | '>=') =>
-    sql`(${createdAt}, ${id}) ${sql.raw(operator)} (select ${createdAt}, ${id} from ${table} where ${id} = ${cursor})`;
-
-  // Newest first: "forward" walks to older rows, "backward" to newer ones.
-  const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
-  const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
 
   // One after another: inside a request `client` is its transaction, a single connection.
   // Newest first, or its exact reverse, so the page reads from the index either way.
@@ -128,14 +153,6 @@ export const keysetPage = async <Row extends { id: string }>(
 
   const totals = await countRows(client, source, where, query);
 
-  const before = cursor
-    ? await client
-        .select({ id })
-        .from(table)
-        .where(and(where, position(otherSide)))
-        .limit(1)
-    : [];
-
   const more = rows.length > query.limit;
   const page = rows.slice(0, query.limit);
 
@@ -146,8 +163,8 @@ export const keysetPage = async <Row extends { id: string }>(
   return {
     data: page,
     pageInfo: {
-      hasNextPage: forward ? more : before.length > 0,
-      hasPreviousPage: forward ? before.length > 0 : more,
+      hasNextPage: forward ? more : before,
+      hasPreviousPage: forward ? before : more,
       startCursor: page[0]?.id ?? null,
       endCursor: page[page.length - 1]?.id ?? null,
     },
