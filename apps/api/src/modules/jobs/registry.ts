@@ -1,10 +1,13 @@
 import { MAINTENANCE } from '~/lib/maintenance';
 import { auditStreamJob, auditStreamsSchedule } from '~/modules/audit/streamDelivery';
 import { advanceJob, callJob } from '~/modules/automations/engine';
+import { broadcastRepeat } from '~/modules/broadcasts/repeating';
 import { BROADCAST_JOBS } from '~/modules/broadcasts/starting';
 import { fireJob } from '~/modules/automations/triggers';
 import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
+import { rampSchedule } from '~/modules/email/rampEvaluation';
+import { rampNoticeJob } from '~/modules/email/rampNotices';
 import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
 import { accountCheckJob, accountChecksSchedule } from '~/modules/integrations/accountChecks';
@@ -27,6 +30,8 @@ export const JOBS = [
   callJob,
   fireJob,
   emailJob,
+  rampSchedule,
+  rampNoticeJob,
   smsJob,
   paymentCheckJob,
   ebarimtSyncJob,
@@ -47,6 +52,7 @@ export const JOBS = [
   accountCheckJob,
   accountChecksSchedule,
   ...BROADCAST_JOBS,
+  broadcastRepeat,
   ...CONSUMER_JOBS,
   ...MAINTENANCE,
   auditStreamsSchedule,

@@ -1,13 +1,26 @@
 import { NOTIFICATION_DELIVERIES } from '@erxes/core-db/enums';
 import { z } from 'zod';
 
-/** Security notices a member can't mute. */
+// Which notifications a member can choose about, and how. Values only (no
+// table), so the browser imports them at runtime like `values.ts`.
+
+/** What the email sending ramp tells admins as it happens; all but `resumed` are important. */
+export const EMAIL_NOTIFICATION_KINDS = [
+  'core.email.halted',
+  'core.email.capped',
+  'core.email.limit_reached',
+  'core.email.events_refused',
+  'core.email.resumed',
+] as const;
+
+/** Security notices, and the email sending ramp's, that a member can't mute. */
 export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
   'core.user.role_changed',
   'core.user.password_set',
   'core.security.mass_deletion',
   'core.security.alert',
   'core.security.new_sign_in',
+  ...EMAIL_NOTIFICATION_KINDS,
 ];
 
 /** Where a group of notifications goes: the inbox and email, the inbox only, or nowhere. */

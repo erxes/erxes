@@ -1,7 +1,7 @@
 import { broadcastRecipients } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
-import { emailsTo, linkIn, useBroadcasts } from './broadcasts.fixture';
+import { emailsTo, linkIn, linkTo, say, useBroadcasts } from './broadcasts.fixture';
 import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 
@@ -16,7 +16,7 @@ describe('broadcast links and bounces', { timeout: 300_000 }, () => {
 
     await t.customersIn('unsub', [{ firstName: 'Saraa', primaryEmail: 'saraa@unsub.mn' }]);
 
-    const broadcast = await t.emailTo('unsub', { subject: 'Promo', body: 'Sale' });
+    const broadcast = await t.emailTo('unsub', { subject: 'Promo', content: say('Sale') });
 
     await owner.broadcasts.send({ id: broadcast.id });
     await settle();
@@ -65,7 +65,7 @@ describe('broadcast links and bounces', { timeout: 300_000 }, () => {
     await t.customersIn('track', [{ firstName: 'Oyun', primaryEmail: 'oyun@track.mn' }]);
 
     const broadcast = await t.emailTo('track', {
-      body: 'See [the shop](https://shop.acme.mn/new)',
+      content: say('See ', linkTo('the shop', 'https://shop.acme.mn/new')),
     });
 
     await owner.broadcasts.send({ id: broadcast.id });

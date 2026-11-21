@@ -726,8 +726,15 @@
     {
       "idx": 103,
       "version": "7",
-      "when": 1795256602646,
-      "tag": "0103_integration_accounts",
+      "when": 1795251799285,
+      "tag": "0103_email_sending",
+      "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1795267066248,
+      "tag": "0104_integration_accounts",
       "breakpoints": true
     }
   ]

@@ -8,7 +8,7 @@ import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { CountrySelect, CurrencySelect } from '~/components/RegionSelect';
+import { CountrySelect, CurrencySelect, TimeZoneSelect } from '~/components/RegionSelect';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 
@@ -23,6 +23,7 @@ const organizationSchema = (t: Translate) =>
       .max(100, t('name-too-long', 'Use at most 100 characters')),
     country: z.string(),
     currency: z.string(),
+    timezone: z.string(),
   });
 
 type OrganizationValues = z.infer<ReturnType<typeof organizationSchema>>;
@@ -31,6 +32,7 @@ const valuesOf = (organization: Organization): OrganizationValues => ({
   name: organization.name,
   country: organization.country ?? '',
   currency: organization.currency,
+  timezone: organization.timezone,
 });
 
 /** Saves the organisation and gives the whole app its new name, country and currency. */
@@ -109,6 +111,33 @@ const RegionFields = ({ disabled }: { disabled: boolean }) => {
   );
 };
 
+/** The clock every schedule runs by. */
+const TimeZoneField = ({ disabled }: { disabled: boolean }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'general' });
+  const { control } = useFormContext<OrganizationValues>();
+
+  return (
+    <Form.Field
+      control={control}
+      name="timezone"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('timezone', 'Time zone')}</Form.Label>
+          <Form.Control>
+            <TimeZoneSelect value={field.value} disabled={disabled} onChange={field.onChange} />
+          </Form.Control>
+          <Form.Description>
+            {t(
+              'timezone-help',
+              'Automation schedules, scheduled broadcasts and the daily email limit run by this clock. A new zone moves automation schedules to the same time on its clock.',
+            )}
+          </Form.Description>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 /** The organisation's name and where it works; read-only without `settings.manage`. */
 const OrganizationForm = ({
   organization,
@@ -131,6 +160,7 @@ const OrganizationForm = ({
       name: values.name,
       country: values.country || undefined,
       currency: values.currency,
+      timezone: values.timezone,
     }),
   );
 
@@ -158,6 +188,7 @@ const OrganizationForm = ({
             )}
           />
           <RegionFields disabled={!canEdit} />
+          <TimeZoneField disabled={!canEdit} />
         </Form.Section>
         {canEdit && <Form.SaveBar saving={save.isPending} />}
       </form>

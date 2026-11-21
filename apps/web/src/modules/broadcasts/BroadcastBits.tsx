@@ -1,5 +1,5 @@
 import type { Broadcast } from '@erxes/core-contract';
-import { IconMail, IconMessage, IconSearch } from '@tabler/icons-react';
+import { IconMail, IconMessage, IconRepeat, IconSearch } from '@tabler/icons-react';
 import { Badge, Button, cn, InputGroup, Select, Spinner, useFormat } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -87,13 +87,17 @@ const STATUS_BADGE = {
   sent: 'success',
   cancelled: 'muted',
   failed: 'destructive',
+  recurring: 'info',
 } as const satisfies Record<Broadcast['status'], string>;
 
 export const StatusBadge = ({ status }: { status: Broadcast['status'] }) => {
   const { t } = useTranslation('broadcasts');
 
   return (
-    <Badge variant={STATUS_BADGE[status]}>{t(`status.${status}`, { defaultValue: status })}</Badge>
+    <Badge variant={STATUS_BADGE[status]}>
+      {status === 'recurring' && <IconRepeat className="size-3" />}
+      {t(`status.${status}`, { defaultValue: status })}
+    </Badge>
   );
 };
 

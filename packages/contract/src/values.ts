@@ -34,6 +34,14 @@ import {
   ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
 } from '@erxes/core-db/assistantEnums';
+import {
+  EMAIL_DELIVERY_PROVIDERS,
+  EMAIL_DELIVERY_STATUSES,
+  EMAIL_LANES,
+  EMAIL_SOURCES,
+  REPEAT_FREQUENCIES,
+  REPEAT_STATES,
+} from '@erxes/core-db/emailEnums';
 import { z } from 'zod';
 
 // The constants and schemas a browser uses at runtime. Nothing here builds on a
@@ -336,6 +344,32 @@ export const BroadcastRecipientStatus = z.enum(BROADCAST_RECIPIENT_STATUSES);
 
 export const SuppressionReason = z.enum(SUPPRESSION_REASONS);
 
+/** Files an email broadcast attaches to every copy: at most this many… */
+export const BROADCAST_ATTACHMENTS_MAX = 5;
+
+/** …and this many MB together. */
+export const BROADCAST_ATTACHMENTS_MAX_MB = 10;
+
+/** A recurring broadcast repeats every N days, weeks or months. */
+export const RepeatFrequency = z.enum(REPEAT_FREQUENCIES);
+
+/** A recurring broadcast's schedule: saved, running, held, or done. */
+export const RepeatState = z.enum(REPEAT_STATES);
+
+// ─── Email delivery log ─────────────────────────────────────────────────────
+
+/** What an email was for (`core_email_deliveries.source`). */
+export const EmailSource = z.enum(EMAIL_SOURCES);
+
+/** Where an email stands: queued, sent, failed, reported by the provider, or not sent (suppressed, held, capped). */
+export const EmailDeliveryStatus = z.enum(EMAIL_DELIVERY_STATUSES);
+
+/** How an email goes out: SMTP, SendGrid, Amazon SES, or only into the server's log. */
+export const EmailProvider = z.enum(EMAIL_DELIVERY_PROVIDERS);
+
+/** An address's standing: `proven`, `unknown` or `suppressed`. */
+export const EmailLane = z.enum(EMAIL_LANES);
+
 /** What `{{ firstName | there }}` in a broadcast fills in: each customer's value, or the organisation's name. */
 export const BROADCAST_PLACEHOLDERS = [
   'firstName',
@@ -349,6 +383,9 @@ export const BROADCAST_PLACEHOLDERS = [
 ] as const;
 
 export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
+
+/** The nodes and marks an email's document may hold; the email editor offers only these. */
+export { EMAIL_MARK_TYPES, EMAIL_NODE_TYPES } from '@erxes/core-db/emailEnums';
 
 // ─── eBarimt ────────────────────────────────────────────────────────────────
 
@@ -369,7 +406,8 @@ export const EbarimtPaperSize = z.enum(EBARIMT_PAPER_SIZES);
 
 export type EbarimtPaperSize = z.infer<typeof EbarimtPaperSize>;
 
-export * from './notificationGroups';
+// ─── Live updates and the assistant ─────────────────────────────────────────
+// (Notification groups and kinds are in `notificationGroups.ts`.)
 
 /** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
 export const LiveMode = z.enum(LIVE_MODES);

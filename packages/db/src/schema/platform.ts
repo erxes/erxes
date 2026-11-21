@@ -5,6 +5,7 @@ import {
   FILE_STORES,
   NOTIFICATION_PRIORITIES,
 } from '../enums';
+import { EMAIL_IMAGE_TYPES } from '../emailEnums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -53,6 +54,11 @@ export const files = pgTable(
     status: text({ enum: FILE_STATUSES }).default('pending').notNull(),
     /** `core` or the plugin that uploaded it. */
     source: text().default('core').notNull(),
+    /**
+     * A picture for emails: served to anyone at `/core/v1/files/public/<id>`, since mail
+     * clients fetch pictures without signing in. Set when the upload starts, never after.
+     */
+    public: boolean().default(false).notNull(),
     actorType: text({ enum: ACTOR_TYPES }).notNull(),
     actorId: text(),
     createdAt: createdAt(),
@@ -75,6 +81,10 @@ export const files = pgTable(
       .on(table.updatedAt)
       .where(sql`${table.status} = 'deleting'`),
     check('core_files_size_check', sql`${table.size} >= 0`),
+    check(
+      'core_files_public_check',
+      sql`not ${table.public} or ${inList(table.contentType, EMAIL_IMAGE_TYPES)}`,
+    ),
   ],
 );
 

@@ -1,7 +1,6 @@
 import { broadcastRecipients, broadcasts, type Db, newId, suppressions } from '@erxes/core-db';
 import { and, asc, eq, inArray, lt, notExists, or, sql } from 'drizzle-orm';
 import { randomToken } from '~/lib/crypto';
-import { confirmedSender, type Sender } from '~/modules/email/addressing';
 import { appLink } from '~/modules/email/email';
 import { organizationName, valuesOf } from './broadcasts.service';
 import type { PlaceholderValues } from './placeholders';
@@ -28,8 +27,6 @@ export interface Claimed {
   rows: { id: string; customerId: string; address: string }[];
   values: Map<string, PlaceholderValues>;
   origin: string;
-  /** The confirmed sender the copies go out as; null: the sending address. */
-  sender: Sender | null;
 }
 
 /** Queued rows, and rows whose claim lapsed. */
@@ -123,7 +120,6 @@ export const claimBlock = async (
     rows,
     values: await valuesOf(tx, customerIds, organization),
     origin: await appLink(tx, ''),
-    sender: broadcast.fromEmail ? await confirmedSender(tx, broadcast.fromEmail) : null,
   };
 };
 

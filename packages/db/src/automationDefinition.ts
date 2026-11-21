@@ -191,18 +191,6 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
 /** `HH:MM`, 24-hour. */
 const TimeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'HH:MM');
 
-/** An IANA time zone (`Asia/Ulaanbaatar`). */
-const TimeZone = z
-  .string()
-  .max(60)
-  .refine((zone) => {
-    try {
-      return Boolean(new Intl.DateTimeFormat('en', { timeZone: zone }).resolvedOptions().timeZone);
-    } catch {
-      return false;
-    }
-  }, 'a time zone like Asia/Ulaanbaatar');
-
 /** Which records a scheduled or manual run goes through: none (one run), or each matching customer/company. */
 export const Audience = z.object({
   type: z.enum(CONTENT_TYPES),
@@ -219,7 +207,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     event: z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/),
     conditions: ConditionGroup.optional(),
   }),
-  /** On a schedule: every hour, day, week (on weekdays) or month (on a day), at a time, in a time zone. */
+  /** On a schedule: every hour, day, week (on weekdays) or month (on a day), at a time in the organisation's time zone. */
   z.object({
     kind: z.literal('schedule'),
     every: z.enum(SCHEDULE_INTERVALS),
@@ -227,7 +215,6 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     /** 1 = Monday … 7 = Sunday (week). */
     weekdays: z.array(z.int().min(1).max(7)).max(7).optional(),
     dayOfMonth: z.int().min(1).max(31).optional(),
-    timezone: TimeZone.default('Asia/Ulaanbaatar'),
     audience: Audience.optional(),
   }),
   /** Around a date on each record: "3 days before contract end", "on the birthday" (every year). */
@@ -240,8 +227,8 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     offsetDays: z.int().min(-365).max(365).default(0),
     /** Every year on the day (birthdays, anniversaries). */
     yearly: z.boolean().default(false),
+    /** In the organisation's time zone, as is the day. */
     at: TimeOfDay.default('09:00'),
-    timezone: TimeZone.default('Asia/Ulaanbaatar'),
     conditions: ConditionGroup.optional(),
   }),
   /** Started by a member: on chosen records, or on every record that matches. */

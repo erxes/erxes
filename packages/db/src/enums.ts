@@ -247,6 +247,7 @@ export const BROADCAST_CHANNELS = ['email', 'sms'] as const;
  * Where a broadcast stands: written (`draft`), waiting for its time
  * (`scheduled`), going out (`sending`), stopped by a member (`paused`), done
  * (`sent`), stopped for good (`cancelled`), or stopped by an error (`failed`).
+ * A `recurring` one never sends itself: each run of its schedule sends a copy.
  */
 export const BROADCAST_STATUSES = [
   'draft',
@@ -256,6 +257,7 @@ export const BROADCAST_STATUSES = [
   'sent',
   'cancelled',
   'failed',
+  'recurring',
 ] as const;
 
 /** One recipient's copy: waiting, being sent, sent, refused by the server, or not sent (with why). */
@@ -439,9 +441,9 @@ export const ACTION_FIELD_TYPES = [
   'custom_field',
   'lead_stage',
   'recipients',
-  'email_sender',
   'plugin_record',
   'integration_account',
+  'reply_to',
 ] as const;
 
 // ─── Payments ───────────────────────────────────────────────────────────────
@@ -536,11 +538,6 @@ export const EBARIMT_PRINT_BLOCKS = [
 
 /** The receipt printer's paper: 58 mm or 80 mm rolls, or A4. */
 export const EBARIMT_PAPER_SIZES = ['58mm', '80mm', 'a4'] as const;
-
-// ─── Email sending ──────────────────────────────────────────────────────────
-
-/** How an organisation sends its emails, when not through the server's (`EMAIL_SMTP_URL`). */
-export const EMAIL_PROVIDERS = ['smtp', 'sendgrid', 'ses'] as const;
 
 // ─── Settings ───────────────────────────────────────────────────────────────
 

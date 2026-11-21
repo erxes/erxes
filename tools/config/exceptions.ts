@@ -60,6 +60,7 @@ export const exceptions = [
     files: [
       'packages/db/src/enums.ts',
       'packages/db/src/assistantEnums.ts',
+      'packages/db/src/emailEnums.ts',
       'packages/db/src/integrationEnums.ts',
     ],
     rules: { 'core/no-inline-enum': 'off' },
