@@ -1,4 +1,9 @@
 {
+  "actor": {
+    "member": "Ажилтан",
+    "plugin": "Нэмэлт",
+    "customer": "Харилцагч"
+  },
   "navigation": {
     "visited-pages": "Зочилсон хуудсууд",
     "details": "Дэлгэрэнгүй",

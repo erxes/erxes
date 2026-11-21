@@ -7,7 +7,7 @@ import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
-import { usePluginText } from '~/modules/plugins/pluginText';
+import { usePluginSentence, usePluginText } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
@@ -280,9 +280,16 @@ const EmailedSentence = ({ activity }: { activity: Activity }) => {
   );
 };
 
+/** A plugin entry's own summary, in the member's language when the plugin translates it. */
+const PluginSummary = ({ activity }: { activity: Activity }) => {
+  const sentence = usePluginSentence();
+
+  return <>{activity.summary ? sentence(activity.source, activity.summary) : null}</>;
+};
+
 /** One line about a core entry: who did what; plugin entries bring their own summary. */
 export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
-  if (activity.source !== 'core') return <>{activity.summary}</>;
+  if (activity.source !== 'core') return <PluginSummary activity={activity} />;
 
   const verb = verbOf(activity);
   // "this customer", "this company", or "this record" for any other target.
