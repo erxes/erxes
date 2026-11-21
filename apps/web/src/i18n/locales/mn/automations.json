@@ -69,6 +69,7 @@
   "every-month": "сар",
   "on-day": "өдөр",
   "at": "цагт",
+  "org-zone": "{{zone}}, байгууллагын timezone",
   "every-hour-hint": "Цаг бүрийн доорх минутад.",
   "for-each-record": "Таарах бичлэг бүрд ажиллуулах",
   "customers": "Харилцагчид",

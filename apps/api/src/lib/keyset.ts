@@ -1,15 +1,16 @@
 import { type CursorQuery, LIST_MAX, type PageInfo } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
-import type { SQL } from 'drizzle-orm';
+import type { SQL, Subquery } from 'drizzle-orm';
 import { and, count, eq, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { fail } from '~/http/errors';
 import { sortedWalk } from './sortedWalk';
 
 export interface KeysetSource {
-  table: PgTable;
-  id: PgColumn;
-  createdAt: PgColumn;
+  /** A table, or a subquery whose `id` and `createdAt` are its own fields. */
+  table: PgTable | Subquery;
+  id: PgColumn | SQL.Aliased<string>;
+  createdAt: PgColumn | SQL.Aliased<Date>;
   /** Rows the list draws from, when fewer than the organisation's; the cursor must be one of them. */
   scope?: SQL;
   /**
@@ -94,7 +95,7 @@ export const keysetPage = async <Row extends { id: string }>(
     const [anchor] = await client
       .select({ id })
       .from(table)
-      .where(and(scope, eq(id, cursor)))
+      .where(and(scope, eq(sql`${id}`, cursor)))
       .limit(1);
 
     if (!anchor) {

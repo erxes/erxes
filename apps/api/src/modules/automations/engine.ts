@@ -178,7 +178,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
  * One step of a run, in the organisation's transaction together with the
  * run's progress and the next step's job: a step is never half done. A step
  * that throws rolls back and the job retries; after the last attempt the run
- * fails at that step. Before each step the goal is checked: met, the record
+ * fails at that step, or at once when no retry can help. Before each step the goal is checked: met, the record
  * leaves. Steps that call other systems hand over to `callJob`.
  */
 export const advanceJob = defineJob({
@@ -220,6 +220,12 @@ export const advanceJob = defineJob({
 
     const startedAt = new Date();
     const outcome = await runStep({ tx, run, automation, steps, context, arms }, step);
+
+    if (outcome.kind === 'failed') {
+      await failRun(tx, job, outcome.error);
+
+      return;
+    }
 
     if (outcome.kind === 'call') {
       // Keyed by this job: its retries queue one call, a later retry of the run a new one.

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { FIELDS, ORG, useOldPropertiesDatabase } from './propertiesCopy.fixture';
 
 /**
- * 0105 copies old custom properties into Data Extensions with the same ids, and 0106 drops
+ * 0107 copies old custom properties into Data Extensions with the same ids, and 0108 drops
  * them: on a database that had them before those migrations ran.
  */
 describe('copying custom properties into Data Extensions', { timeout: 300_000 }, () => {

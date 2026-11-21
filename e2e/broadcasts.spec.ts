@@ -39,13 +39,15 @@ test('a member writes an email broadcast, sends it to a filter and reads its num
   // Sending saves what is typed first.
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(`News ${suffix}`);
   await page.getByRole('textbox', { name: 'Subject' }).fill('Hello {{ firstName | friend }}');
-  const body = page.getByRole('combobox', { name: 'Message', exact: true });
+  const message = page.getByRole('group', { name: 'Message', exact: true });
+  const editor = message.getByRole('textbox', { name: 'Message', exact: true });
 
-  await body.click();
-  await page.keyboard.type('Hi {first');
-  await expect(body).toHaveAttribute('aria-expanded', 'true');
-  await page.getByRole('button', { name: 'First name' }).click();
-  await expect(body).toHaveAttribute('aria-expanded', 'false');
+  await editor.click();
+  await page.keyboard.type('Hi ');
+  await message.getByRole('button', { name: 'Insert a field' }).click();
+  await page.getByRole('menuitem', { name: 'First name' }).click();
+  await editor.focus();
+  await page.keyboard.press('End');
   await page.keyboard.type(', read the news.');
   await expect(page.getByText('Unsaved changes')).toBeVisible();
   await expectAccessible(page);
@@ -59,7 +61,7 @@ test('a member writes an email broadcast, sends it to a filter and reads its num
   await expect
     .poll(async () => (await api.broadcasts.get({ id })).status, { timeout: 30_000 })
     .toBe('sent');
-  expect((await api.broadcasts.get({ id })).body).toBe('Hi {{ firstName }}, read the news.');
+  expect((await api.broadcasts.get({ id })).body).toContain('Hi {{ firstName }}, read the news.');
   await page.reload();
   await expect(page.getByRole('link', { name: `Ada ${suffix}` })).toBeVisible();
   await expect(page.getByText('Recipients', { exact: true })).toBeVisible();

@@ -1,28 +1,10 @@
-import { IconChevronLeft, IconMaximize, IconMinimize, IconX } from '@tabler/icons-react';
-import { type RefObject, useContext, useRef } from 'react';
+import { IconChevronLeft, IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Button, cn, PanelExpansionContext, usePageHotkey } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
+import { PanelExpandButton } from './PanelExpandButton';
 import type { RecordSidePanelHeaderProps } from './recordSidePanelTypes';
 
-/** Whether the button is the last expand button shown, the topmost panel's. */
-const isActivePanel = (button: HTMLButtonElement | null) => {
-  const shown = [...document.querySelectorAll('[data-panel-expand]')].filter(
-    (expand) => !expand.closest('[hidden], [inert]'),
-  );
-
-  return !!button && shown.at(-1) === button;
-};
-
-/** Ctrl/⌘ + Shift + Enter expands the topmost panel unless an editor or dialog owns the key. */
-const useExpandShortcut = (
-  expand: (() => void) | undefined,
-  buttonRef: RefObject<HTMLButtonElement | null>,
-) =>
-  usePageHotkey('mod+shift+enter', () => expand?.(), {
-    when: () => expand !== undefined && isActivePanel(buttonRef.current),
-  });
-
-/** Renders record navigation, actions, and the guarded expansion shortcut. */
+/** Renders record navigation, actions, and the button switching to the record's own page. */
 export const RecordSidePanelHeader = ({
   className,
   variant = 'panel',
@@ -32,17 +14,10 @@ export const RecordSidePanelHeader = ({
   actions,
   onBack,
   onExpand,
-  expanded: controlledExpanded,
+  expanded,
   onClose,
 }: RecordSidePanelHeaderProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const expansion = useContext(PanelExpansionContext);
-  const expandButtonRef = useRef<HTMLButtonElement>(null);
-  const expand = onExpand ?? expansion?.toggle;
-  const expanded = controlledExpanded ?? (!onExpand && expansion?.expanded);
-  const expandLabel = expanded ? t('collapse', 'Collapse record') : t('expand', 'Expand record');
-
-  useExpandShortcut(expand, expandButtonRef);
 
   return (
     // Lines up with a page's breadcrumb row: h-10 plus its 1px rule.
@@ -73,22 +48,7 @@ export const RecordSidePanelHeader = ({
         <div className="flex-1 min-w-0 px-1 text-sm font-medium truncate">{title}</div>
       )}
       {actions && <div className="flex flex-none items-center gap-1">{actions}</div>}
-      {expand && (
-        <Button
-          ref={expandButtonRef}
-          data-panel-expand
-          variant="ghost"
-          size="icon"
-          className="size-7"
-          onClick={expand}
-          title={`${expandLabel} (Ctrl/⌘ + Shift + Enter)`}
-          aria-label={expandLabel}
-          aria-expanded={Boolean(expanded)}
-          aria-keyshortcuts="Control+Shift+Enter Meta+Shift+Enter"
-        >
-          {expanded ? <IconMinimize className="size-4" /> : <IconMaximize className="size-4" />}
-        </Button>
-      )}
+      <PanelExpandButton onExpand={onExpand} expanded={expanded} />
       {onClose && (
         <Button
           variant="ghost"

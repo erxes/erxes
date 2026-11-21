@@ -3,21 +3,31 @@ import { IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, Input, ScrollArea, Separator, Spinner, useFormat } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmailSetupBanner, useEmailUndeliverable } from '~/components/EmailSetupBanner';
 import { useCan } from '~/modules/auth/session';
+import { AttachmentsField } from './AttachmentsField';
 import { type AudienceMode, AudienceSection, isAudienceMissing, modeOf } from './AudienceSection';
 import { BroadcastActions } from './BroadcastActions';
 import { BroadcastHeader } from './BroadcastHeader';
 import { ContentSection } from './ContentSection';
+import { DraftWithAssistant } from './DraftWithAssistant';
+import { hasEmailContent } from './emailDocument';
 import { PreviewPanel } from './PreviewPanel';
+import { RepeatPanel } from './repeat/RepeatPanel';
 import { useBroadcastDraft } from './useBroadcastDraft';
 
 /** Why it can't go yet, in the member's words; null when it can. */
-const useBlocked = (broadcast: Broadcast, missingAudience: boolean) => {
+const useBlocked = (broadcast: Broadcast, missingAudience: boolean, undeliverable: boolean) => {
   const { t } = useTranslation('broadcasts');
+
+  if (undeliverable) return t('blocked-email', 'Email sending isn’t set up');
 
   if (missingAudience) return t('blocked-audience', 'Pick who gets it first');
 
-  if (!broadcast.body.trim()) return t('blocked-body', 'Write the message first');
+  const written =
+    broadcast.channel === 'email' ? hasEmailContent(broadcast.content) : broadcast.body.trim();
+
+  if (!written) return t('blocked-body', 'Write the message first');
 
   if (broadcast.channel === 'email' && !broadcast.subject?.trim()) {
     return t('blocked-subject', 'Add a subject first');
@@ -36,7 +46,8 @@ export const BroadcastEditor = ({ broadcast }: { broadcast: Broadcast }) => {
   const [mode, setMode] = useState<AudienceMode>(() => modeOf(broadcast));
   // What sending or scheduling uses: the editor's copy, which `prepare` saves first.
   const current = { ...broadcast, ...draft };
-  const blocked = useBlocked(current, isAudienceMissing(mode, draft));
+  const undeliverable = useEmailUndeliverable(broadcast.channel === 'email');
+  const blocked = useBlocked(current, isAudienceMissing(mode, draft), undeliverable);
 
   return (
     <>
@@ -46,6 +57,7 @@ export const BroadcastEditor = ({ broadcast }: { broadcast: Broadcast }) => {
             ? t('unsaved', 'Unsaved changes')
             : t('saved-at', 'Saved {{when}}', { when: fmt.relative(broadcast.updatedAt) })}
         </span>
+        <DraftWithAssistant broadcast={broadcast} prepare={editor.ensureSaved} />
         <Button
           variant="outline"
           disabled={!editor.dirty || editor.saving}
@@ -60,6 +72,8 @@ export const BroadcastEditor = ({ broadcast }: { broadcast: Broadcast }) => {
       <ScrollArea className="flex-1">
         <div className="mx-auto grid max-w-7xl gap-8 p-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
+            {broadcast.channel === 'email' && <EmailSetupBanner />}
+            {broadcast.status === 'recurring' && <RepeatPanel broadcast={broadcast} />}
             <Input
               aria-label={t('name', 'Name')}
               value={draft.name}
@@ -80,12 +94,19 @@ export const BroadcastEditor = ({ broadcast }: { broadcast: Broadcast }) => {
               onChange={editor.change}
               unknownPlaceholders={editor.unknownPlaceholders}
             />
+            {broadcast.channel === 'email' && (
+              <AttachmentsField
+                value={draft.attachmentIds}
+                onChange={(attachmentIds) => editor.change({ attachmentIds })}
+              />
+            )}
           </div>
           <PreviewPanel
             broadcast={broadcast}
             beforeTest={editor.ensureSaved}
             stale={editor.dirty}
             canTest={can('broadcasts.manage')}
+            testBlocked={undeliverable}
           />
         </div>
       </ScrollArea>

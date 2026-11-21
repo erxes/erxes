@@ -4,13 +4,14 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { CONTENT_TYPES, type ContentType, type Db, emailSenders } from '@erxes/core-db';
+import { CONTENT_TYPES, type ContentType, type Db } from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
-import { and, inArray, isNotNull, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { subjectCompiler } from '~/modules/views/recordFilter';
+import { coreAction } from './actions/catalog';
 import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { dateConditions } from './conditions';
@@ -73,6 +74,9 @@ const actionProblems = (
     .filter((field) => field.required && isBlank(step.input[field.key]))
     .map((field) => `Step ${step.id} (${action.label}): ${field.label} is required`);
 
+  for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
+    problems.push(`Step ${step.id} (${action.label}): ${problem}`);
+
   if (action.subject && action.subject !== 'any' && subject && action.subject !== subject)
     problems.push(
       `Step ${step.id} (${action.label}) needs a ${action.subject}, but runs are about a ${subject}`,
@@ -84,47 +88,6 @@ const actionProblems = (
     );
 
   return problems;
-};
-
-/** A sender a step names must be one of the organisation's confirmed senders. */
-const senderProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
-  const named: { step: string; label: string; email: string }[] = [];
-
-  walk(definition.steps, (step) => {
-    if (step.type !== 'action') return;
-
-    const action = catalog.actions.find((item) => item.type === step.action);
-
-    action?.fields
-      .filter((field) => field.type === 'email_sender')
-      .forEach((field) => {
-        const value = step.input[field.key];
-
-        if (typeof value === 'string' && value.trim())
-          named.push({ step: step.id, label: action.label, email: value.trim().toLowerCase() });
-      });
-  });
-
-  if (!named.length) return [];
-
-  const confirmed = await client
-    .select({ email: emailSenders.email })
-    .from(emailSenders)
-    .where(
-      and(
-        inArray(
-          emailSenders.email,
-          named.map((item) => item.email),
-        ),
-        isNotNull(emailSenders.confirmedAt),
-      ),
-    );
-
-  const emails = new Set(confirmed.map((row) => row.email));
-
-  return named
-    .filter((item) => !emails.has(item.email))
-    .map((item) => `Step ${item.step} (${item.label}): ${item.email} is not a confirmed sender`);
 };
 
 /** Problems with one step of any kind. */
@@ -318,7 +281,6 @@ export const definitionProblems = async (client: Db, definition: AutomationDefin
   });
   problems.push(...templateProblems(definition));
   problems.push(...(await conditionProblems(client, definition, subject)));
-  problems.push(...(await senderProblems(client, definition, catalog)));
 
   return problems;
 };

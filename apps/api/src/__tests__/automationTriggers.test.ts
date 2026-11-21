@@ -26,6 +26,10 @@ describe(
 
     it('runs on a schedule for each record of its audience, and on birthdays every year', async () => {
       const owner = t.owner();
+
+      // Schedules and birthdays run on the organisation's clock.
+      await owner.organizations.update({ timezone: 'Asia/Ulaanbaatar' });
+
       const lead = await owner.customers.create({ firstName: 'Lead', state: 'lead' });
 
       const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ulaanbaatar' }).format(
@@ -44,7 +48,6 @@ describe(
           kind: 'schedule',
           every: 'day',
           at: '09:00',
-          timezone: 'Asia/Ulaanbaatar',
           audience: {
             type: 'customer',
             conditions: {
@@ -71,7 +74,6 @@ describe(
           yearly: true,
           offsetDays: 0,
           at: '00:01',
-          timezone: 'Asia/Ulaanbaatar',
         },
         steps: [
           {
@@ -131,7 +133,6 @@ describe(
           yearly: false,
           offsetDays: -3,
           at: '00:01',
-          timezone: 'UTC',
         },
         steps: [
           {

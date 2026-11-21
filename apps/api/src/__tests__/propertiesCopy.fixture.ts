@@ -10,7 +10,7 @@ import { inOrder } from '~/lib/sequence';
 import { admin, databaseUrl, dropDatabase, testServerUrl } from './globalSetup';
 
 const DRIZZLE = resolve(import.meta.dirname, '../../../../packages/db/drizzle');
-const LAST_OLD = '0104_data_field_groups';
+const LAST_OLD = '0106_data_field_groups';
 
 export const ORG = 'orgPropsCopy01';
 
@@ -263,7 +263,7 @@ const seed = async (client: Client) => {
 };
 
 /**
- * A fresh database migrated up to 0104, seeded with old properties, then migrated the rest of
+ * A fresh database migrated up to 0106, seeded with old properties, then migrated the rest of
  * the way; the returned `rows` reads it as its owner.
  */
 export const useOldPropertiesDatabase = () => {

@@ -1,13 +1,14 @@
 import type { Automation, AutomationDefinition } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer, Tabs, usePageHotkey } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
+import { useLeaveWarning } from '~/lib/useLeaveWarning';
 import { messageOf } from '@erxes/core-contract/client';
-import { useCan } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
 import {
@@ -41,18 +42,6 @@ const subjectOf = (trigger: AutomationDefinition['trigger'], triggers: Catalog['
 
   return { subject: audience?.type ?? 'customer', hasSubject: Boolean(audience) };
 };
-
-/** Leaving with unsaved changes asks first. */
-const useLeaveWarning = (dirty: boolean) =>
-  useEffect(() => {
-    if (!dirty) return;
-
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-
-    window.addEventListener('beforeunload', warn);
-
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [dirty]);
 
 /** ⌘S saves; Delete removes the selected step; Escape goes back to the settings. */
 const useShortcuts = ({
@@ -214,12 +203,13 @@ const BuildCanvas = ({
   onZoom: (zoom: number) => void;
 }) => {
   const { definition } = draft;
+  const { timezone } = useSession().organization;
 
   return (
     <FlowCanvas
       trigger={{
         kind: definition.trigger.kind,
-        ...describeTrigger(definition.trigger, catalog.triggers, built.fields),
+        ...describeTrigger(definition.trigger, catalog.triggers, built.fields, timezone),
       }}
       steps={definition.steps}
       actions={built.actions}

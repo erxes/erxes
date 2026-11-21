@@ -6,17 +6,30 @@ type Shown = Pick<Notification, 'source' | 'kind' | 'title' | 'body' | 'data'>;
 
 /**
  * A notification's title and body in the member's language. Core's own kinds are translated by
- * kind. A plugin's are translated when it sent `data.text`: its English text is looked up in the
- * plugin's namespace, where its manifest's `translations` are, and takes the values it came with.
- * Without `data.text` a plugin's notification reads as it was sent.
+ * kind, their bodies filled from `data`. A plugin's are translated when it sent `data.text`: its
+ * English text is looked up in the plugin's namespace, where its manifest's `translations` are,
+ * and takes the values it came with. Without `data.text` a plugin's notification reads as sent.
  */
 export const useNotificationText = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'notifications.kinds' });
+  const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
   const { t: plugin } = useTranslation(undefined, { bindI18nStore: 'added' });
 
   return (notification: Shown) => {
     if (notification.source === 'core') {
-      return { title: t(notification.kind, notification.title), body: notification.body };
+      // Only a kind with a translated body: another's (a note's text) is never read as a template.
+      const translated =
+        notification.body &&
+        i18n.exists(`notifications.bodies.${notification.kind}`, { ns: 'common' });
+
+      return {
+        title: t(`kinds.${notification.kind}`, notification.title),
+        body: translated
+          ? t(`bodies.${notification.kind}`, {
+              ...notification.data,
+              defaultValue: notification.body,
+            })
+          : notification.body,
+      };
     }
 
     const text = NotificationText.safeParse(notification.data.text);

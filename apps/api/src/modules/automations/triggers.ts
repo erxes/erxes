@@ -1,7 +1,8 @@
 import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
 import { automations, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
-import { and, eq, inArray, lte, type SQL, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { addDays, isoDay, orgTimezone, zonedDate } from '~/lib/orgTime';
 import { inOrder } from '~/lib/sequence';
 import { defineJob } from '~/modules/jobs/jobs';
 import { automationChecker } from './conditionCheck';
@@ -9,7 +10,7 @@ import { dateConditions } from './conditions';
 import { dateKeyOf, onDate } from './dateFields';
 import { startRun, startRuns } from './consumer';
 import { definitionOf, log } from './runs';
-import { nextOccurrence, zonedDate } from './schedule';
+import { nextOccurrence } from './schedule';
 import {
   loadSubjects,
   SUBJECT_PAGE,
@@ -26,11 +27,35 @@ type DateTrigger = Extract<AutomationDefinition['trigger'], { kind: 'date' }>;
 export const triggerKey = (definition: AutomationDefinition) =>
   definition.trigger.kind === 'event' ? definition.trigger.event : `${definition.trigger.kind}:`;
 
-/** When a scheduled or date trigger first fires (null for the others). */
-export const firstRunAt = (definition: AutomationDefinition, now = new Date()) =>
+/** When a scheduled or date trigger next fires on the organisation's clock (null for the others). */
+export const firstRunAt = (definition: AutomationDefinition, timeZone: string, now = new Date()) =>
   definition.trigger.kind === 'schedule' || definition.trigger.kind === 'date'
-    ? nextOccurrence(definition.trigger, now)
+    ? nextOccurrence(definition.trigger, timeZone, now)
     : null;
+
+/**
+ * The organisation's time zone changed: its active scheduled and date
+ * automations get their next time on the new clock, in the caller's scope.
+ */
+export const rescheduleAutomations = async (tx: Db, timeZone: string) => {
+  const timed = await tx
+    .select({ id: automations.id, activeVersion: automations.activeVersion })
+    .from(automations)
+    .where(and(eq(automations.status, 'active'), isNotNull(automations.nextRunAt)));
+
+  await inOrder(timed, async (automation) => {
+    const definition = automation.activeVersion
+      ? await definitionOf(tx, automation.id, automation.activeVersion)
+      : null;
+
+    if (!definition) return;
+
+    await tx
+      .update(automations)
+      .set({ nextRunAt: firstRunAt(definition, timeZone) })
+      .where(eq(automations.id, automation.id));
+  });
+};
 
 /** An event a firing starts runs with. */
 type FiringEvent = { type: string; occurredAt: string; payload: Record<string, unknown> };
@@ -60,13 +85,17 @@ const audienceEnrollment = (
 
 const DataValues = z.record(z.string(), z.unknown());
 
-/** The records whose date (moved by the offset) is today in the trigger's time zone. */
-const dateEnrollment = async (tx: Db, trigger: DateTrigger, at: string): Promise<Enrollment> => {
-  const today = zonedDate(new Date(at), trigger.timezone);
+/** The records whose date (moved by the offset) is today in the organisation's time zone. */
+const dateEnrollment = async (
+  tx: Db,
+  trigger: DateTrigger,
+  at: string,
+  timeZone: string,
+): Promise<Enrollment> => {
+  const today = zonedDate(new Date(at), timeZone);
   // The record's date + offset = today → the record's date = today − offset.
-  const target = new Date(Date.UTC(today.year, today.month - 1, today.day - trigger.offsetDays));
-  const iso = target.toISOString().slice(0, 10);
-  const day = new Date(Date.UTC(today.year, today.month - 1, today.day)).toISOString().slice(0, 10);
+  const iso = isoDay(addDays(today, -trigger.offsetDays));
+  const day = isoDay(today);
 
   const payload = { field: trigger.field, offsetDays: trigger.offsetDays, day };
   const event = { type: 'date', occurredAt: at, payload };
@@ -148,7 +177,7 @@ const enrollmentFor = async (tx: Db, definition: AutomationDefinition, payload: 
   const { trigger } = definition;
   const at = payload.scheduledFor;
 
-  if (trigger.kind === 'date') return dateEnrollment(tx, trigger, at);
+  if (trigger.kind === 'date') return dateEnrollment(tx, trigger, at, await orgTimezone(tx));
 
   if (trigger.kind !== 'schedule' && trigger.kind !== 'manual') return null;
 
@@ -254,7 +283,7 @@ export const tickAutomations = () =>
 
         await sp
           .update(automations)
-          .set({ nextRunAt: firstRunAt(definition, new Date()) })
+          .set({ nextRunAt: firstRunAt(definition, await orgTimezone(sp), new Date()) })
           .where(eq(automations.id, automation.id));
         await queueFire(sp, automation, {
           automationId: automation.id,

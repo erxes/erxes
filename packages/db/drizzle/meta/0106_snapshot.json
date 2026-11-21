@@ -1,6 +1,6 @@
 {
-  "id": "ec42d6e5-3aac-45e0-9c34-692d009bb606",
-  "prevId": "4b60effc-33dc-4ba8-ba0c-e4ccbfa03f93",
+  "id": "9af6409c-ab46-4ead-a859-68d8575d1316",
+  "prevId": "0d5af019-ee17-460a-a3f5-c3115966e86b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1214,6 +1214,518 @@
       },
       "isRLSEnabled": false
     },
+    "public.core_field_groups": {
+      "name": "core_field_groups",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "applies_to": {
+          "name": "applies_to",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_field_groups_org_type_code_key": {
+          "name": "core_field_groups_org_type_code_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"code\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_field_groups_org_type_idx": {
+          "name": "core_field_groups_org_type_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_field_groups_org_id_fkey": {
+          "name": "core_field_groups_org_id_fkey",
+          "tableFrom": "core_field_groups",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_field_groups_content_type_check": {
+          "name": "core_field_groups_content_type_check",
+          "value": "\"core_field_groups\".\"content_type\" IN ('customer', 'company', 'product') OR \"core_field_groups\".\"content_type\" ~ '^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_fields": {
+      "name": "core_fields",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "validation": {
+          "name": "validation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "options": {
+          "name": "options",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "is_visible": {
+          "name": "is_visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "is_required": {
+          "name": "is_required",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_visible_to_create": {
+          "name": "is_visible_to_create",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "logic": {
+          "name": "logic",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "filterable": {
+          "name": "filterable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "plugin": {
+          "name": "plugin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_fields_org_type_label_key": {
+          "name": "core_fields_org_type_label_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"label\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"core_fields\".\"plugin\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_fields_org_type_code_key": {
+          "name": "core_fields_org_type_code_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"code\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"core_fields\".\"code\" IS NOT NULL AND \"core_fields\".\"plugin\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_fields_org_type_plugin_code_key": {
+          "name": "core_fields_org_type_plugin_code_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "plugin",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"core_fields\".\"plugin\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_fields_plugin_idx": {
+          "name": "core_fields_plugin_idx",
+          "columns": [
+            {
+              "expression": "plugin",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_fields\".\"plugin\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_fields_org_type_idx": {
+          "name": "core_fields_org_type_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_fields_group_id_idx": {
+          "name": "core_fields_group_id_idx",
+          "columns": [
+            {
+              "expression": "group_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_fields_org_id_fkey": {
+          "name": "core_fields_org_id_fkey",
+          "tableFrom": "core_fields",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_fields_plugin_fkey": {
+          "name": "core_fields_plugin_fkey",
+          "tableFrom": "core_fields",
+          "tableTo": "core_plugins",
+          "columnsFrom": [
+            "plugin"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_fields_group_id_fkey": {
+          "name": "core_fields_group_id_fkey",
+          "tableFrom": "core_fields",
+          "tableTo": "core_field_groups",
+          "columnsFrom": [
+            "group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_fields_plugin_code_check": {
+          "name": "core_fields_plugin_code_check",
+          "value": "\"core_fields\".\"plugin\" IS NULL OR \"core_fields\".\"code\" IS NOT NULL"
+        },
+        "core_fields_content_type_check": {
+          "name": "core_fields_content_type_check",
+          "value": "\"core_fields\".\"content_type\" IN ('customer', 'company', 'product') OR \"core_fields\".\"content_type\" ~ '^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$'"
+        },
+        "core_fields_type_check": {
+          "name": "core_fields_type_check",
+          "value": "\"core_fields\".\"type\" IN ('text', 'textarea', 'number', 'date', 'boolean', 'select', 'multiselect', 'radio', 'check', 'phone', 'list')"
+        },
+        "core_fields_validation_check": {
+          "name": "core_fields_validation_check",
+          "value": "\"core_fields\".\"validation\" IS NULL OR \"core_fields\".\"validation\" IN ('number', 'email', 'date')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.core_organizations": {
       "name": "core_organizations",
       "schema": "",
@@ -1248,6 +1760,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'USD'"
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'UTC'"
         },
         "settings": {
           "name": "settings",
@@ -2872,6 +3391,13 @@
           "notNull": true,
           "default": "'core'"
         },
+        "public": {
+          "name": "public",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "actor_type": {
           "name": "actor_type",
           "type": "text",
@@ -3005,6 +3531,10 @@
         "core_files_size_check": {
           "name": "core_files_size_check",
           "value": "\"core_files\".\"size\" >= 0"
+        },
+        "core_files_public_check": {
+          "name": "core_files_public_check",
+          "value": "not \"core_files\".\"public\" or \"core_files\".\"content_type\" IN ('image/png', 'image/jpeg', 'image/gif', 'image/webp')"
         }
       },
       "isRLSEnabled": false
@@ -7087,6 +7617,891 @@
         "core_imports_status_check": {
           "name": "core_imports_status_check",
           "value": "\"core_imports\".\"status\" IN ('parsing', 'mapping', 'checking', 'checked', 'running', 'done', 'failed', 'undone')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_company_field_values": {
+      "name": "core_company_field_values",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "record_id": {
+          "name": "record_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "text_value": {
+          "name": "text_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number_value": {
+          "name": "number_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_value": {
+          "name": "date_value",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bool_value": {
+          "name": "bool_value",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "core_company_field_values_field_idx": {
+          "name": "core_company_field_values_field_idx",
+          "columns": [
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "record_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_company_field_values_text_idx": {
+          "name": "core_company_field_values_text_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"text_value\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_company_field_values\".\"text_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_company_field_values_text_trgm_idx": {
+          "name": "core_company_field_values_text_trgm_idx",
+          "columns": [
+            {
+              "expression": "text_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "core_company_field_values_number_idx": {
+          "name": "core_company_field_values_number_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "number_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_company_field_values\".\"number_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_company_field_values_date_idx": {
+          "name": "core_company_field_values_date_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "date_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_company_field_values\".\"date_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_company_field_values_month_day_idx": {
+          "name": "core_company_field_values_month_day_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "((extract(month from \"date_value\") * 100 + extract(day from \"date_value\"))::smallint)",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_company_field_values\".\"date_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_company_field_values_bool_idx": {
+          "name": "core_company_field_values_bool_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "bool_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_company_field_values\".\"bool_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_company_field_values_record_id_fkey": {
+          "name": "core_company_field_values_record_id_fkey",
+          "tableFrom": "core_company_field_values",
+          "tableTo": "core_companies",
+          "columnsFrom": [
+            "record_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_company_field_values_field_id_fkey": {
+          "name": "core_company_field_values_field_id_fkey",
+          "tableFrom": "core_company_field_values",
+          "tableTo": "core_fields",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_company_field_values_org_id_fkey": {
+          "name": "core_company_field_values_org_id_fkey",
+          "tableFrom": "core_company_field_values",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_company_field_values_pkey": {
+          "name": "core_company_field_values_pkey",
+          "columns": [
+            "record_id",
+            "field_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_company_field_values_one_value_check": {
+          "name": "core_company_field_values_one_value_check",
+          "value": "num_nonnulls(\"core_company_field_values\".\"text_value\", \"core_company_field_values\".\"number_value\", \"core_company_field_values\".\"date_value\", \"core_company_field_values\".\"bool_value\") = 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_customer_field_values": {
+      "name": "core_customer_field_values",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "record_id": {
+          "name": "record_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "text_value": {
+          "name": "text_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number_value": {
+          "name": "number_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_value": {
+          "name": "date_value",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bool_value": {
+          "name": "bool_value",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "core_customer_field_values_field_idx": {
+          "name": "core_customer_field_values_field_idx",
+          "columns": [
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "record_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_customer_field_values_text_idx": {
+          "name": "core_customer_field_values_text_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"text_value\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_customer_field_values\".\"text_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_customer_field_values_text_trgm_idx": {
+          "name": "core_customer_field_values_text_trgm_idx",
+          "columns": [
+            {
+              "expression": "text_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "core_customer_field_values_number_idx": {
+          "name": "core_customer_field_values_number_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "number_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_customer_field_values\".\"number_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_customer_field_values_date_idx": {
+          "name": "core_customer_field_values_date_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "date_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_customer_field_values\".\"date_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_customer_field_values_month_day_idx": {
+          "name": "core_customer_field_values_month_day_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "((extract(month from \"date_value\") * 100 + extract(day from \"date_value\"))::smallint)",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_customer_field_values\".\"date_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_customer_field_values_bool_idx": {
+          "name": "core_customer_field_values_bool_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "bool_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_customer_field_values\".\"bool_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_customer_field_values_record_id_fkey": {
+          "name": "core_customer_field_values_record_id_fkey",
+          "tableFrom": "core_customer_field_values",
+          "tableTo": "core_customers",
+          "columnsFrom": [
+            "record_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_customer_field_values_field_id_fkey": {
+          "name": "core_customer_field_values_field_id_fkey",
+          "tableFrom": "core_customer_field_values",
+          "tableTo": "core_fields",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_customer_field_values_org_id_fkey": {
+          "name": "core_customer_field_values_org_id_fkey",
+          "tableFrom": "core_customer_field_values",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_customer_field_values_pkey": {
+          "name": "core_customer_field_values_pkey",
+          "columns": [
+            "record_id",
+            "field_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_customer_field_values_one_value_check": {
+          "name": "core_customer_field_values_one_value_check",
+          "value": "num_nonnulls(\"core_customer_field_values\".\"text_value\", \"core_customer_field_values\".\"number_value\", \"core_customer_field_values\".\"date_value\", \"core_customer_field_values\".\"bool_value\") = 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_product_field_values": {
+      "name": "core_product_field_values",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "record_id": {
+          "name": "record_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "text_value": {
+          "name": "text_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number_value": {
+          "name": "number_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_value": {
+          "name": "date_value",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bool_value": {
+          "name": "bool_value",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "core_product_field_values_field_idx": {
+          "name": "core_product_field_values_field_idx",
+          "columns": [
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "record_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_product_field_values_text_idx": {
+          "name": "core_product_field_values_text_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"text_value\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_product_field_values\".\"text_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_product_field_values_text_trgm_idx": {
+          "name": "core_product_field_values_text_trgm_idx",
+          "columns": [
+            {
+              "expression": "text_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "core_product_field_values_number_idx": {
+          "name": "core_product_field_values_number_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "number_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_product_field_values\".\"number_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_product_field_values_date_idx": {
+          "name": "core_product_field_values_date_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "date_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_product_field_values\".\"date_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_product_field_values_month_day_idx": {
+          "name": "core_product_field_values_month_day_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "((extract(month from \"date_value\") * 100 + extract(day from \"date_value\"))::smallint)",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_product_field_values\".\"date_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_product_field_values_bool_idx": {
+          "name": "core_product_field_values_bool_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "field_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "bool_value",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_product_field_values\".\"bool_value\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_product_field_values_record_id_fkey": {
+          "name": "core_product_field_values_record_id_fkey",
+          "tableFrom": "core_product_field_values",
+          "tableTo": "core_products",
+          "columnsFrom": [
+            "record_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_product_field_values_field_id_fkey": {
+          "name": "core_product_field_values_field_id_fkey",
+          "tableFrom": "core_product_field_values",
+          "tableTo": "core_fields",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_product_field_values_org_id_fkey": {
+          "name": "core_product_field_values_org_id_fkey",
+          "tableFrom": "core_product_field_values",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_product_field_values_pkey": {
+          "name": "core_product_field_values_pkey",
+          "columns": [
+            "record_id",
+            "field_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_product_field_values_one_value_check": {
+          "name": "core_product_field_values_one_value_check",
+          "value": "num_nonnulls(\"core_product_field_values\".\"text_value\", \"core_product_field_values\".\"number_value\", \"core_product_field_values\".\"date_value\", \"core_product_field_values\".\"bool_value\") = 1"
         }
       },
       "isRLSEnabled": false
@@ -12179,14 +13594,20 @@
           "notNull": true,
           "default": "''"
         },
-        "from_name": {
-          "name": "from_name",
+        "content": {
+          "name": "content",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "html": {
+          "name": "html",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "from_email": {
-          "name": "from_email",
+        "from_name": {
+          "name": "from_name",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -12196,6 +13617,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "attachment_ids": {
+          "name": "attachment_ids",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
         },
         "scheduled_at": {
           "name": "scheduled_at",
@@ -12227,6 +13655,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occurrence_at": {
+          "name": "occurrence_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_by": {
           "name": "created_by",
@@ -12292,6 +13732,27 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "core_broadcasts_occurrence_key": {
+          "name": "core_broadcasts_occurrence_key",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurrence_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -12314,6 +13775,19 @@
           "tableTo": "core_views",
           "columnsFrom": [
             "view_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "core_broadcasts_parent_id_fkey": {
+          "name": "core_broadcasts_parent_id_fkey",
+          "tableFrom": "core_broadcasts",
+          "tableTo": "core_broadcasts",
+          "columnsFrom": [
+            "parent_id"
           ],
           "columnsTo": [
             "id"
@@ -12345,7 +13819,7 @@
         },
         "core_broadcasts_status_check": {
           "name": "core_broadcasts_status_check",
-          "value": "\"core_broadcasts\".\"status\" IN ('draft', 'scheduled', 'sending', 'paused', 'sent', 'cancelled', 'failed')"
+          "value": "\"core_broadcasts\".\"status\" IN ('draft', 'scheduled', 'sending', 'paused', 'sent', 'cancelled', 'failed', 'recurring')"
         }
       },
       "isRLSEnabled": false
@@ -12519,6 +13993,191 @@
         "core_suppressions_reason_check": {
           "name": "core_suppressions_reason_check",
           "value": "\"core_suppressions\".\"reason\" IN ('unsubscribed', 'bounced', 'complained', 'manual')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_broadcast_schedules": {
+      "name": "core_broadcast_schedules",
+      "schema": "",
+      "columns": {
+        "broadcast_id": {
+          "name": "broadcast_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "frequency": {
+          "name": "frequency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interval": {
+          "name": "interval",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "weekdays": {
+          "name": "weekdays",
+          "type": "smallint[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::smallint[]"
+        },
+        "day_of_month": {
+          "name": "day_of_month",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "at": {
+          "name": "at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starts_on": {
+          "name": "starts_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ends_on": {
+          "name": "ends_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_runs": {
+          "name": "max_runs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "next_run_at": {
+          "name": "next_run_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "runs": {
+          "name": "runs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_run_at": {
+          "name": "last_run_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_broadcast_schedules_due_idx": {
+          "name": "core_broadcast_schedules_due_idx",
+          "columns": [
+            {
+              "expression": "next_run_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_broadcast_schedules\".\"state\" = 'active'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_broadcast_schedules_org_id_fkey": {
+          "name": "core_broadcast_schedules_org_id_fkey",
+          "tableFrom": "core_broadcast_schedules",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_broadcast_schedules_broadcast_id_fkey": {
+          "name": "core_broadcast_schedules_broadcast_id_fkey",
+          "tableFrom": "core_broadcast_schedules",
+          "tableTo": "core_broadcasts",
+          "columnsFrom": [
+            "broadcast_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_broadcast_schedules_frequency_check": {
+          "name": "core_broadcast_schedules_frequency_check",
+          "value": "\"core_broadcast_schedules\".\"frequency\" IN ('day', 'week', 'month')"
+        },
+        "core_broadcast_schedules_state_check": {
+          "name": "core_broadcast_schedules_state_check",
+          "value": "\"core_broadcast_schedules\".\"state\" IN ('draft', 'active', 'paused', 'ended')"
+        },
+        "core_broadcast_schedules_interval_check": {
+          "name": "core_broadcast_schedules_interval_check",
+          "value": "\"core_broadcast_schedules\".\"interval\" between 1 and 99"
+        },
+        "core_broadcast_schedules_day_of_month_check": {
+          "name": "core_broadcast_schedules_day_of_month_check",
+          "value": "\"core_broadcast_schedules\".\"day_of_month\" between 1 and 31"
+        },
+        "core_broadcast_schedules_at_check": {
+          "name": "core_broadcast_schedules_at_check",
+          "value": "\"core_broadcast_schedules\".\"at\" ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'"
+        },
+        "core_broadcast_schedules_max_runs_check": {
+          "name": "core_broadcast_schedules_max_runs_check",
+          "value": "\"core_broadcast_schedules\".\"max_runs\" > 0"
         }
       },
       "isRLSEnabled": false
@@ -13074,8 +14733,8 @@
       },
       "isRLSEnabled": false
     },
-    "public.core_email_senders": {
-      "name": "core_email_senders",
+    "public.core_email_addresses": {
+      "name": "core_email_addresses",
       "schema": "",
       "columns": {
         "id": {
@@ -13097,14 +14756,489 @@
           "primaryKey": false,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "sent_count": {
+          "name": "sent_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_sent_at": {
+          "name": "last_sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delivered_count": {
+          "name": "delivered_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_delivered_at": {
+          "name": "last_delivered_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "soft_bounces": {
+          "name": "soft_bounces",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_bounced_at": {
+          "name": "last_bounced_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_email_addresses_org_email_key": {
+          "name": "core_email_addresses_org_email_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_email_addresses_org_id_fkey": {
+          "name": "core_email_addresses_org_id_fkey",
+          "tableFrom": "core_email_addresses",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_email_addresses_email_check": {
+          "name": "core_email_addresses_email_check",
+          "value": "\"core_email_addresses\".\"email\" = lower(\"core_email_addresses\".\"email\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_email_deliveries": {
+      "name": "core_email_deliveries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "source": {
+          "name": "source",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "confirmed_at": {
-          "name": "confirmed_at",
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to": {
+          "name": "to",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reported_at": {
+          "name": "reported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deferrals": {
+          "name": "deferrals",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_email_deliveries_org_created_idx": {
+          "name": "core_email_deliveries_org_created_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_email_deliveries_source_idx": {
+          "name": "core_email_deliveries_source_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_email_deliveries_org_id_fkey": {
+          "name": "core_email_deliveries_org_id_fkey",
+          "tableFrom": "core_email_deliveries",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_email_deliveries_source_check": {
+          "name": "core_email_deliveries_source_check",
+          "value": "\"core_email_deliveries\".\"source\" IN ('account', 'security', 'notification', 'customer', 'customer_account', 'broadcast', 'automation', 'plugin', 'ebarimt', 'settings')"
+        },
+        "core_email_deliveries_status_check": {
+          "name": "core_email_deliveries_status_check",
+          "value": "\"core_email_deliveries\".\"status\" IN ('queued', 'sent', 'delivered', 'bounced', 'complained', 'failed', 'suppressed', 'held', 'capped')"
+        },
+        "core_email_deliveries_provider_check": {
+          "name": "core_email_deliveries_provider_check",
+          "value": "\"core_email_deliveries\".\"provider\" IN ('smtp', 'sendgrid', 'ses', 'log')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_email_ramps": {
+      "name": "core_email_ramps",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "tier": {
+          "name": "tier",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "day": {
+          "name": "day",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "(now() at time zone 'utc')::date"
+        },
+        "sent_today": {
+          "name": "sent_today",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "tier_changed_at": {
+          "name": "tier_changed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "evaluated_at": {
+          "name": "evaluated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "halted_at": {
+          "name": "halted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "halt_reason": {
+          "name": "halt_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resumed_at": {
+          "name": "resumed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resumed_by": {
+          "name": "resumed_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resume_reason": {
+          "name": "resume_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "capped_notice_at": {
+          "name": "capped_notice_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "limit_notice_day": {
+          "name": "limit_notice_day",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "events_notice_at": {
+          "name": "events_notice_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_email_ramps_org_id_fkey": {
+          "name": "core_email_ramps_org_id_fkey",
+          "tableFrom": "core_email_ramps",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_email_ramps_tier_check": {
+          "name": "core_email_ramps_tier_check",
+          "value": "\"core_email_ramps\".\"tier\" >= 0 and \"core_email_ramps\".\"tier\" < 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_email_reply_tos": {
+      "name": "core_email_reply_tos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "secret_hash": {
+          "name": "secret_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
@@ -13131,8 +15265,8 @@
         }
       },
       "indexes": {
-        "core_email_senders_org_email_key": {
-          "name": "core_email_senders_org_email_key",
+        "core_email_reply_tos_org_email_key": {
+          "name": "core_email_reply_tos_org_email_key",
           "columns": [
             {
               "expression": "org_id",
@@ -13141,9 +15275,9 @@
               "nulls": "last"
             },
             {
-              "expression": "email",
-              "isExpression": false,
+              "expression": "lower(\"email\")",
               "asc": true,
+              "isExpression": true,
               "nulls": "last"
             }
           ],
@@ -13154,9 +15288,9 @@
         }
       },
       "foreignKeys": {
-        "core_email_senders_org_id_fkey": {
-          "name": "core_email_senders_org_id_fkey",
-          "tableFrom": "core_email_senders",
+        "core_email_reply_tos_org_id_fkey": {
+          "name": "core_email_reply_tos_org_id_fkey",
+          "tableFrom": "core_email_reply_tos",
           "tableTo": "core_organizations",
           "columnsFrom": [
             "org_id"
@@ -13166,25 +15300,17 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
-        },
-        "core_email_senders_created_by_fkey": {
-          "name": "core_email_senders_created_by_fkey",
-          "tableFrom": "core_email_senders",
-          "tableTo": "core_users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "core_email_reply_tos_status_check": {
+          "name": "core_email_reply_tos_status_check",
+          "value": "\"core_email_reply_tos\".\"status\" IN ('pending', 'verified')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.core_email_settings": {
@@ -13257,6 +15383,27 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "events_key": {
+          "name": "events_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "configuration_set": {
+          "name": "configuration_set",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "events_topic_arn": {
+          "name": "events_topic_arn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
         },
         "updated_by": {
           "name": "updated_by",

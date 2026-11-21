@@ -2,18 +2,23 @@ import type { BroadcastStats, CursorQuery } from '@erxes/core-contract';
 import {
   type BroadcastStatus,
   broadcastRecipients,
+  broadcastSchedules,
   broadcasts,
   callerUserId,
   customers,
   type Db,
+  type EmailNode,
   newId,
   organizations,
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, ilike, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { containsPattern, keysetPage } from '~/lib/keyset';
-import { assertConfirmedSender } from '~/modules/email/addressing';
+import { isVerifiedReplyTo, requireReplyTo } from '~/modules/email/replyTos.service';
+import { requireDelivery } from '~/modules/email/sender';
+import { assertAttachments } from './attachments';
 import { type Audience, audienceWhere, estimateAudience } from './audience';
+import { contentColumns } from './emailBody';
 import { assertPlaceholders, type PlaceholderValues } from './placeholders';
 
 type BroadcastRow = typeof broadcasts.$inferSelect;
@@ -37,8 +42,12 @@ const stats = sql<BroadcastStats>`(select json_build_object(
     'unsubscribed', count(r.unsubscribed_at))
   from ${broadcastRecipients} r where r.broadcast_id = ${outerId})`;
 
+/** A recurring broadcast's next run, while its schedule is active. */
+const nextRunAt = sql<Date | null>`(select s.next_run_at from ${broadcastSchedules} s
+  where s.broadcast_id = ${outerId})`.mapWith(broadcastSchedules.nextRunAt);
+
 const selectBroadcasts = (client: Db) =>
-  client.select({ ...getTableColumns(broadcasts), stats }).from(broadcasts);
+  client.select({ ...getTableColumns(broadcasts), stats, nextRunAt }).from(broadcasts);
 
 export const getBroadcast = async (client: Db, id: string) => {
   const [row] = await selectBroadcasts(client).where(eq(broadcasts.id, id)).limit(1);
@@ -48,12 +57,18 @@ export const getBroadcast = async (client: Db, id: string) => {
   return row;
 };
 
+/** When a broadcast went out, or goes: null for a draft with no schedule. */
+const goesAt = sql`coalesce(${broadcasts.startedAt}, ${broadcasts.scheduledAt})`;
+
 export const listBroadcasts = (
   client: Db,
   query: CursorQuery & {
     status?: BroadcastStatus;
     channel?: BroadcastRow['channel'];
     search?: string;
+    parentId?: string;
+    from?: string;
+    to?: string;
   },
 ) =>
   keysetPage(
@@ -61,8 +76,11 @@ export const listBroadcasts = (
     { table: broadcasts, id: broadcasts.id, createdAt: broadcasts.createdAt },
     and(
       query.status ? eq(broadcasts.status, query.status) : undefined,
+      query.parentId ? eq(broadcasts.parentId, query.parentId) : undefined,
       query.channel ? eq(broadcasts.channel, query.channel) : undefined,
       query.search ? ilike(broadcasts.name, containsPattern(query.search)) : undefined,
+      query.from ? sql`${goesAt} >= ${query.from}` : undefined,
+      query.to ? sql`${goesAt} < ${query.to}` : undefined,
     ),
     query,
     (where, orderBy, limit) =>
@@ -76,6 +94,7 @@ interface Content {
   subject?: string | null;
   preheader?: string | null;
   body?: string;
+  content?: EmailNode | null;
 }
 
 /** Placeholders must be ones erxes fills; the audience must compile (a view of people, a valid filter). */
@@ -91,16 +110,19 @@ export const createBroadcast = async (
       name: string;
       channel: BroadcastRow['channel'];
       fromName?: string | null;
-      fromEmail?: string | null;
       replyTo?: string | null;
+      attachmentIds?: string[];
     },
 ) => {
-  await assertWritable(client, input, input);
-  await assertConfirmedSender(client, input.fromEmail);
+  const columns = await contentColumns(client, input.channel, input);
+
+  await assertWritable(client, { ...input, ...columns }, input);
+  await requireReplyTo(client, input.replyTo);
+  await assertAttachments(client, input.channel, input.attachmentIds ?? []);
 
   const id = newId();
 
-  await client.insert(broadcasts).values({ ...input, id, createdBy: callerUserId() });
+  await client.insert(broadcasts).values({ ...input, ...columns, id, createdBy: callerUserId() });
 
   return getBroadcast(client, id);
 };
@@ -137,8 +159,8 @@ export const moveBroadcast = async (
   });
 };
 
-/** Before sending starts. */
-const EDITABLE = ['draft', 'scheduled'] as const;
+/** Before sending starts; a recurring one's changes reach its later runs, not those made. */
+const EDITABLE = ['draft', 'scheduled', 'recurring'] as const;
 
 export const updateBroadcast = async (
   client: Db,
@@ -147,22 +169,19 @@ export const updateBroadcast = async (
     Audience & {
       name?: string;
       fromName?: string | null;
-      fromEmail?: string | null;
       replyTo?: string | null;
+      attachmentIds?: string[];
     },
 ) => {
   const current = await getBroadcast(client, id);
-
-  // Checked when it changes: a sender removed since still lets the rest be edited.
-  if (changes.fromEmail !== current.fromEmail)
-    await assertConfirmedSender(client, changes.fromEmail);
+  const columns = await contentColumns(client, current.channel, changes);
 
   await assertWritable(
     client,
     {
       subject: changes.subject === undefined ? current.subject : changes.subject,
       preheader: changes.preheader === undefined ? current.preheader : changes.preheader,
-      body: changes.body ?? current.body,
+      body: columns.body ?? current.body,
     },
     {
       viewId: changes.viewId === undefined ? current.viewId : changes.viewId,
@@ -170,22 +189,35 @@ export const updateBroadcast = async (
     },
   );
 
+  if (changes.replyTo !== undefined) await requireReplyTo(client, changes.replyTo);
+
+  if (changes.attachmentIds) {
+    await assertAttachments(client, current.channel, changes.attachmentIds);
+  }
+
   // A view and a filter don't go together: setting one clears the other.
   const audience = changes.viewId ? { filter: null } : changes.filter ? { viewId: null } : {};
 
-  await moveBroadcast(client, id, EDITABLE, { ...changes, ...audience });
+  await moveBroadcast(client, id, EDITABLE, { ...changes, ...columns, ...audience });
 
   return getBroadcast(client, id);
 };
 
-/** Not while it goes out: pause or cancel first. */
+/** Not while it goes out: pause or cancel first. A recurring one's runs stay. */
 export const removeBroadcast = async (client: Db, id: string) => {
   const deleted = await client
     .delete(broadcasts)
     .where(
       and(
         eq(broadcasts.id, id),
-        inArray(broadcasts.status, ['draft', 'scheduled', 'sent', 'cancelled', 'failed']),
+        inArray(broadcasts.status, [
+          'draft',
+          'scheduled',
+          'sent',
+          'cancelled',
+          'failed',
+          'recurring',
+        ]),
       ),
     )
     .returning({ name: broadcasts.name });
@@ -197,9 +229,16 @@ export const removeBroadcast = async (client: Db, id: string) => {
   throw fail('BROADCAST_STATUS', `The broadcast is ${status}: cancel it first`, { status });
 };
 
+/**
+ * A new draft with the source's audience and content. Run state (status, schedule, counts, times,
+ * error) starts fresh; a Reply-To taken off the verified list since is dropped, so the copy saves.
+ */
 export const duplicateBroadcast = async (client: Db, id: string) => {
   const source = await getBroadcast(client, id);
   const copy = newId();
+
+  const replyTo =
+    source.replyTo && (await isVerifiedReplyTo(client, source.replyTo)) ? source.replyTo : null;
 
   await client.insert(broadcasts).values({
     id: copy,
@@ -210,19 +249,21 @@ export const duplicateBroadcast = async (client: Db, id: string) => {
     subject: source.subject,
     preheader: source.preheader,
     body: source.body,
+    content: source.content,
+    html: source.html,
     fromName: source.fromName,
-    fromEmail: source.fromEmail,
-    replyTo: source.replyTo,
+    replyTo,
+    attachmentIds: source.attachmentIds,
     createdBy: callerUserId(),
   });
 
   return getBroadcast(client, copy);
 };
 
-/** What sending needs and the broadcast lacks: `subject` (email), `body`. */
+/** What sending needs and the broadcast lacks: `subject` (email), `body` (an email's content). */
 export const missingContent = (broadcast: BroadcastRow) => [
   ...(broadcast.channel === 'email' && !broadcast.subject?.trim() ? ['subject'] : []),
-  ...(!broadcast.body.trim() ? ['body'] : []),
+  ...((broadcast.channel === 'email' ? !broadcast.html : !broadcast.body.trim()) ? ['body'] : []),
 ];
 
 /** 400 BROADCAST_INCOMPLETE naming what sending needs and the broadcast lacks. */
@@ -234,6 +275,17 @@ export const assertComplete = (broadcast: BroadcastRow) => {
       missing,
     });
   }
+};
+
+/**
+ * 409 EMAIL_NOT_CONFIGURED for an email broadcast while email would only reach the log;
+ * 400 BROADCAST_ATTACHMENT_UNAVAILABLE when an attached file was deleted since.
+ */
+export const assertDeliverable = async (client: Db, broadcast: BroadcastRow) => {
+  if (broadcast.channel !== 'email') return;
+
+  await requireDelivery(client);
+  await assertAttachments(client, broadcast.channel, broadcast.attachmentIds);
 };
 
 /** 409 NO_RECIPIENTS when the audience reaches nobody on the channel now. */

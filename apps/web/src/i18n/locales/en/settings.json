@@ -944,7 +944,9 @@
     "retried": "Retrying {{count}} events",
     "failed": "Something went wrong"
   },
-  "webhooks": { "title": "Webhooks" },
+  "webhooks": {
+    "title": "Webhooks"
+  },
   "audit-log": {
     "title": "Audit log",
     "verify-checkpoint-mismatch": "The log no longer matches signed checkpoint #{{position}}: entries were rewritten or removed outside erxes.",
@@ -1068,8 +1070,14 @@
         "name": "Owner",
         "description": "Everything, including plugins and the audit log's retention"
       },
-      "admin": { "name": "Admin", "description": "Everything except owner-only actions" },
-      "member": { "name": "Member", "description": "Works with contacts and tags" }
+      "admin": {
+        "name": "Admin",
+        "description": "Everything except owner-only actions"
+      },
+      "member": {
+        "name": "Member",
+        "description": "Works with contacts and tags"
+      }
     }
   },
   "general": {
@@ -1079,12 +1087,14 @@
     "country": "Country",
     "currency": "Currency",
     "currency-help": "New products and invoices take this currency. Products and invoices keep the currency they were made in.",
+    "timezone": "Time zone",
+    "timezone-help": "Automation schedules, scheduled broadcasts and the daily email limit run by this clock. A new zone moves automation schedules to the same time on its clock.",
     "read-only": "Only owners and admins can change these settings.",
     "save": "Save",
     "saved": "Organisation saved",
     "save-failed": "Could not save",
     "organization": "Organisation",
-    "organization-description": "Its name, and the country and currency new records start from.",
+    "organization-description": "Its name, the country and currency new records start from, and the time zone schedules run by.",
     "name-too-long": "Use at most 100 characters"
   },
   "payments": {
@@ -1369,10 +1379,11 @@
       "overview": "Overview",
       "settings": "Settings",
       "activity": "Activity",
+      "addresses": "Addresses",
+      "limits": "Limits",
       "print": "Print",
       "keys": "Keys",
-      "programs": "Programs",
-      "senders": "Senders"
+      "programs": "Programs"
     },
     "name": {
       "ebarimt": "eBarimt",
@@ -1519,12 +1530,15 @@
           "smtpSecure": "TLS from the start (port 465)"
         },
         "sendgrid": {
-          "secret": "API key"
+          "secret": "API key",
+          "eventsKey": "Verification key"
         },
         "ses": {
           "region": "AWS region",
           "username": "Access key id",
-          "secret": "Secret access key"
+          "secret": "Secret access key",
+          "configurationSet": "Configuration set",
+          "eventsTopicArn": "SNS topic ARN"
         }
       },
       "provider": {
@@ -1536,12 +1550,20 @@
         "sender": "Sender",
         "sender-description": "Who your emails come from.",
         "connection": "Connection",
-        "connection-description": "Your own SMTP server, or a SendGrid or Amazon SES account that may send from the address above."
+        "connection-description": "Your own SMTP server, or a SendGrid or Amazon SES account that may send from the address above.",
+        "reply-tos": "Reply-To addresses",
+        "reply-tos-description": "Where replies to your emails may go. Each address confirms by a link we email to it.",
+        "reply-tos-description-self": "Where replies to your emails may go.",
+        "events": "Bounces and complaints",
+        "events-description": {
+          "sendgrid": "The Signed Event Webhook’s verification key, from SendGrid’s Mail Settings.",
+          "ses": "The configuration set every email names, and the SNS topic of its event destination."
+        }
       },
-      "secret-kept": {
-        "smtp": "Leave the password empty to keep the saved one.",
-        "sendgrid": "Leave the API key empty to keep the saved one.",
-        "ses": "Leave the secret access key empty to keep the saved one."
+      "secret-saved": {
+        "smtp": "The password is saved. Type a new one only to replace it.",
+        "sendgrid": "The API key is saved. Type a new one only to replace it.",
+        "ses": "The secret access key is saved. Type a new one only to replace it."
       },
       "test": "Send test email",
       "test-sent": "Test email sent to you",
@@ -1550,42 +1572,146 @@
       "remove-description": "Emails go out from erxes’s address again.",
       "remove": "Remove",
       "sending-as": "Sending as",
+      "sending-line": "{{name}} <{{address}}> · via {{provider}}",
       "server": "Server",
       "set-up-hint": "Emails go out from erxes’s address. Set up your own server or account to send from yours.",
       "how": "How it works",
       "how-all": "Invitations, password resets, notifications, automations and broadcasts all use it.",
-      "how-senders": "Broadcasts and automations can send as a confirmed sender instead (the Senders tab).",
       "how-verify": "SendGrid and Amazon SES only send from addresses or domains you verified with them.",
       "how-none": "Without it, emails go out from erxes’s address.",
-      "senders": {
-        "add": "Add sender",
-        "add-title": "Add a sender",
-        "add-description": "We email the address a link. It can be picked once someone opens the link.",
-        "name": "Name people see",
-        "name-placeholder": "Sales team",
-        "email": "Address",
-        "name-required": "Enter the name people see",
-        "email-required": "Enter the address",
-        "invalid-email": "Enter a valid email address.",
-        "taken": "This address is a sender already.",
-        "add-failed": "Could not add the sender",
+      "events-help": {
+        "sendgrid": "Post SendGrid’s Event Webhook (signed) here: bounced and complained addresses get no more email.",
+        "ses": "Subscribe this address over HTTPS to the configuration set’s SNS topic: bounced and complained addresses get no more email."
+      },
+      "events-missing": {
+        "sendgrid": "Events are refused until you add the verification key in Settings.",
+        "ses": "Events are refused until you add the SNS topic in Settings."
+      },
+      "how-reply-to": "Replies go only to the Reply-To addresses you confirmed.",
+      "how-server-all": "Invitations, password resets, notifications, automations and broadcasts all use it.",
+      "how-server-server": "Every email goes out from erxes’ address under your organisation’s name.",
+      "how-server-label": "A broadcast or automation adds a label after the name, such as “Marketing”.",
+      "how-server-reply-to": "Replies go only to the Reply-To addresses you confirmed.",
+      "server-sender-hint": "Emails go out from erxes’ address under your organisation’s name. A broadcast or automation adds a label after it, such as “{{name}} · Marketing”; replies go to your Reply-To address.",
+      "reply-to-verified": "{{email}} is ready to use",
+      "reply-to-sent": "We emailed a link to {{email}}: it works once confirmed",
+      "reply-to-status-verified": "Verified",
+      "reply-to-status-pending": "Waiting for the link",
+      "reply-to-remove": "Remove {{email}}",
+      "reply-to-remove-confirm": "Emails can no longer ask replies to go to {{email}}.",
+      "reply-to-new": "New Reply-To address",
+      "reply-to-add": "Add address",
+      "deliveries": {
+        "search": "Search addresses",
+        "status-filter": "Status",
+        "source-filter": "Sent for",
+        "status-retrying": "Trying again ({{count}})",
+        "status": {
+          "queued": "Waiting",
+          "sent": "Sent",
+          "delivered": "Delivered",
+          "bounced": "Bounced",
+          "complained": "Marked as spam",
+          "failed": "Failed",
+          "suppressed": "Suppressed",
+          "held": "Held",
+          "capped": "Over the cap"
+        },
+        "hold": {
+          "daily_limit": "Held: today’s sending limit is used; it goes out when the next day’s allowance opens",
+          "halted": "Held: sending is halted until an admin resumes it",
+          "unproven_hourly": "Not sent: over the hourly cap of sign-in emails to addresses no delivery proved yet"
+        },
+        "reported": {
+          "delivered": "delivered",
+          "bounced": "bounced",
+          "complained": "marked as spam"
+        },
+        "suppressed-because": "Not sent: the address is suppressed ({{reason}})",
+        "reason": {
+          "unsubscribed": "unsubscribed",
+          "bounced": "bounced",
+          "complained": "marked as spam",
+          "manual": "added by the team"
+        },
+        "deferrals_one": "Delayed once",
+        "deferrals_other": "Delayed {{count}} times",
+        "provider": {
+          "smtp": "SMTP",
+          "sendgrid": "SendGrid",
+          "ses": "Amazon SES",
+          "log": "Log only (not sent)"
+        },
+        "source": {
+          "account": "Account",
+          "security": "Security alert",
+          "notification": "Notification",
+          "customer": "Customer",
+          "customer_account": "Customer sign-in",
+          "broadcast": "Broadcast",
+          "automation": "Automation",
+          "plugin": "Plugin",
+          "ebarimt": "eBarimt",
+          "settings": "Settings"
+        },
+        "empty": "No emails yet",
+        "empty-description": "Every email the organisation sends shows here for 90 days."
+      },
+      "addresses": {
+        "intro": "Proven: your provider delivered to it in the last 180 days. Unknown: no recent delivery. Suppressed: it gets no email (an unsubscribe stops only broadcasts).",
+        "search": "Search addresses",
+        "lane-filter": "Standing",
+        "lane": {
+          "proven": "Proven",
+          "unknown": "Unknown",
+          "suppressed": "Suppressed"
+        },
+        "last-delivered": "Last delivered {{date}}",
+        "never-delivered": "Never delivered",
+        "last-sent": "Last sent {{date}}",
+        "sent_one": "{{count}} sent",
+        "sent_other": "{{count}} sent",
+        "delivered_one": "{{count}} delivered",
+        "delivered_other": "{{count}} delivered",
+        "soft-bounces_one": "{{count}} soft bounce",
+        "soft-bounces_other": "{{count}} soft bounces",
+        "closed": "Closed {{date}}",
+        "reopen": "Reopen",
+        "reopen-confirm": "Let every email reach {{address}} again?",
+        "reopened": "Reopened",
+        "reopen-failed": "Could not reopen",
+        "empty": "No addresses yet",
+        "empty-description": "An address shows here once an email goes to it, or once it is suppressed."
+      },
+      "limits": {
+        "failed": "Could not change sending",
+        "resumed": "Sending resumed",
+        "resume": "Resume sending",
+        "resume-title": "Resume sending?",
+        "resume-description": "Held emails go out, the daily limit goes down a step and the rates count from now. Clean the addresses that bounced first.",
+        "resume-reason": "Why it is safe now",
         "cancel": "Cancel",
-        "send-link": "Send confirmation link",
-        "added": "Confirmation link sent to {{email}}",
-        "added-description": "The sender can be picked once the link is opened.",
-        "confirmed": "Confirmed",
-        "waiting": "Waiting for the link",
-        "as-from": "Emails come from this address.",
-        "as-reply-to": "Emails come from your sending address under this name; replies come here.",
-        "resend": "Send the link again",
-        "resent": "Confirmation link sent again",
-        "remove": "Remove",
-        "remove-confirm": "Remove {{email}}? Broadcasts and automations using it send from your sending address.",
-        "failed": "Something went wrong",
-        "empty": "No senders yet",
-        "empty-description": "Add addresses like sales@ or support@ that broadcasts and automations can send as.",
-        "how-own": "A sender on {{domain}} is the From. Any other sender gets the replies, and the email comes from {{address}} under its name.",
-        "how-server": "Emails come from erxes’s address under the sender’s name, and replies go to the sender. Set up your own sending to send from your domain."
+        "halted-title": "Sending is halted",
+        "halted-body": "Since {{when}}. Only sign-in and account emails go out; {{count}} emails are held until an admin resumes sending.",
+        "today": "Today ({{zone}})",
+        "today-usage": "{{sent}} of {{limit}} emails",
+        "held-note": "{{count}} held; the next allowance opens {{when}}",
+        "ladder": "Daily limit",
+        "step": "Step {{step}}",
+        "top-step": "This is the top step.",
+        "next-step": "It goes up a step once the window holds {{needed}} emails ({{sent}} so far) with under {{below}} bounces and complaints, at most once a day.",
+        "not-before": "Not before {{when}}.",
+        "rates": "Bounces and complaints",
+        "rates-window": "since {{since}}",
+        "rates-lines": "Under {{advance}}: goes up a step · {{down}}: goes down a step · {{halt}}: sending halts",
+        "rates-counts": "{{sent}} sent · {{bounced}} bounced · {{complained}} marked as spam",
+        "rates-few": "too few to judge yet (under {{count}})",
+        "auth-cap": "Sign-in, invitation and password reset emails are never held. To addresses no delivery proved yet, {{used}} of {{cap}} went out in the last hour; past the cap they are not sent and admins are told.",
+        "ramp": "Pace and halt sending",
+        "ramp-off": "Turn off",
+        "ramp-off-warning": "Your provider may suspend your account if bounces rise; erxes will no longer pace or halt sending.",
+        "off": "The ramp is off: erxes counts emails but neither paces nor halts sending.",
+        "off-smtp": "Your SMTP server reports no bounces, so erxes counts emails but neither paces nor halts sending."
       }
     },
     "custom": {

@@ -1,6 +1,7 @@
 import { type Db, requestOrgId } from '@erxes/core-db';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { sendEmail } from '~/modules/email/email';
+import { requireDelivery } from '~/modules/email/sender';
 import { type PrintData, QR_CID, qrPng, renderReceipt } from './print';
 import { printableReceipt } from './printTemplates.service';
 
@@ -35,22 +36,30 @@ const textOf = (data: PrintData) =>
  */
 export const emailReceipt = async (client: Db, { id, to }: { id: string; to: string }) => {
   const { receipt, template, data } = await printableReceipt(client, id);
+
+  await requireDelivery(client);
+
   const html = await renderReceipt(template, data, 'email');
   const qr = data.qrData ? await qrPng(data.qrData) : null;
 
-  await sendEmail(client, requestOrgId(), {
-    to,
-    template: 'rendered',
-    fromName: data.companyName,
-    data: {
-      subject: `И-баримт · ${data.companyName}${data.billId ? ` · ${data.billId}` : ''}`,
-      html,
-      text: textOf(data),
+  await sendEmail(
+    client,
+    requestOrgId(),
+    {
+      to,
+      template: 'rendered',
+      fromName: data.companyName,
+      data: {
+        subject: `И-баримт · ${data.companyName}${data.billId ? ` · ${data.billId}` : ''}`,
+        html,
+        text: textOf(data),
+      },
+      attachments: qr
+        ? [{ cid: QR_CID, filename: 'ebarimt-qr.png', base64: qr.toString('base64') }]
+        : undefined,
     },
-    attachments: qr
-      ? [{ cid: QR_CID, filename: 'ebarimt-qr.png', base64: qr.toString('base64') }]
-      : undefined,
-  });
+    { source: 'ebarimt', sourceId: receipt.id },
+  );
 
   await recordAudit(client, {
     action: 'ebarimt.receipt_emailed',

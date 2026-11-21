@@ -8,10 +8,10 @@ import {
   useMemo,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { usePluginText } from '~/modules/plugins/pluginText';
 import { PanelRecordOpener } from './PanelRecordOpener';
-import { recordPageHref } from './panelNavigation';
+import { useRecordPageNavigation } from './panelNavigation';
 import { recordPagePath, usePanelRecordType } from './panelRecordTypes';
 import { type RecordPanelControls, RecordPanelProvider, Spinner } from 'erxes-ui';
 import { RecordSidePanel } from './RecordSidePanel';
@@ -208,7 +208,7 @@ const SidePanelColumn = () => {
   const [width, setWidth] = useAtom(sidePanelWidthState);
   const [expanded] = useQueryState('panelExpanded', parseAsBoolean);
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { openPage } = useRecordPageNavigation();
   const { type } = usePanelRecordType(record?.contentType ?? '');
 
   // Saved records expand into their own pages.
@@ -223,9 +223,9 @@ const SidePanelColumn = () => {
           key="record"
           expanded={false}
           expandable={Boolean(recordPage)}
-          // The page opens on the tab the panel shows.
+          // The page opens on the tab the panel shows, and collapses back here.
           onExpandedChange={() => {
-            if (recordPage) void navigate(recordPageHref(recordPage, tab));
+            if (recordPage) openPage(recordPage, tab);
           }}
           width={width}
           onWidthChange={setWidth}
