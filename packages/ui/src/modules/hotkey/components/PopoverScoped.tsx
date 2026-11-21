@@ -4,8 +4,12 @@ import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys
 import type { Options as HotkeyOptions } from 'react-hotkeys-hook';
 import { useLayoutEffect, useState } from 'react';
 import { currentHotkeyScopeState } from 'erxes-ui/modules/hotkey/states/internal/currentHotkeyScopeState';
-import { useAtomValue, useStore } from 'jotai';
+import { atom, useAtomValue, useStore } from 'jotai';
+import { INITIAL_HOTKEYS_SCOPE } from '../constants/initialHotkeysScope';
 import { useSetHotkeyScope } from '../hooks/useSetHotkeyScope';
+
+/** What a closed popover reads instead of the current scope, which only its open Enter uses. */
+const closedScopeState = atom(INITIAL_HOTKEYS_SCOPE);
 
 /**
  * A `Popover` that takes over the hotkey scope while it is open.
@@ -34,8 +38,10 @@ export const PopoverScoped = ({
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const setHotkeyScope = useSetHotkeyScope();
   const store = useStore();
-  const currentHotkeyScope = useAtomValue(currentHotkeyScopeState);
   const isOpen = open ?? _open;
+  // A table has a closed popover in most cells: they neither re-render when the scope changes
+  // nor listen for Enter.
+  const currentHotkeyScope = useAtomValue(isOpen ? currentHotkeyScopeState : closedScopeState);
 
   useLayoutEffect(() => {
     if (!isOpen || !scope) return undefined;
@@ -68,6 +74,7 @@ export const PopoverScoped = ({
     scope ? scope + '.Popover' : currentHotkeyScope.scope,
     [isOpen, ...(dependencies ?? [])],
     {
+      enabled: isOpen,
       enableOnFormTags: closeOnEnter,
       preventDefault: isOpen && closeOnEnter,
       ...options,
