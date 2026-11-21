@@ -5,16 +5,11 @@ import {
   type coreContract,
 } from '@erxes/core-contract';
 import type { InferContractRouterOutputs } from '@orpc/contract';
+import type { PickedModel } from './assistantState';
 
 type Catalog = InferContractRouterOutputs<typeof coreContract>['assistant']['models']['data'];
 
 type CatalogModel = Catalog[number]['models'][number];
-
-interface Picked {
-  provider?: AssistantProvider;
-  model?: string;
-  thinkingLevel?: AssistantThinkingLevel;
-}
 
 export interface ModelRun {
   provider: AssistantProvider;
@@ -32,7 +27,7 @@ interface Choice {
   catalog: (Omit<Catalog[number], 'models'> & {
     models: Pick<CatalogModel, 'id' | 'name' | 'recommended' | 'thinking'>[];
   })[];
-  picked: Picked;
+  picked: PickedModel;
 }
 
 const rank = (level: AssistantThinkingLevel) => AssistantThinkingLevel.options.indexOf(level);

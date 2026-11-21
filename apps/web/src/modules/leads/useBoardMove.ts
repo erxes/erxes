@@ -1,4 +1,4 @@
-import type { Company, Customer, LeadRecordType } from '@erxes/core-contract';
+import type { Company, CursorPage, Customer, LeadRecordType } from '@erxes/core-contract';
 import {
   type InfiniteData,
   type QueryClient,
@@ -8,7 +8,6 @@ import {
 import { useToast } from 'erxes-ui';
 import { z } from 'zod';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import type { CursorPage } from '~/lib/cursorList';
 import { useLeadsT } from './i18n';
 import { leadStagesQuery } from './useLeads';
 

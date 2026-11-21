@@ -1,9 +1,9 @@
-import type { LeadRecordType, LeadStage } from '@erxes/core-contract';
+import type { CursorPage, LeadRecordType, LeadStage } from '@erxes/core-contract';
 import { type InfiniteData, skipToken, useInfiniteQuery } from '@tanstack/react-query';
 import { Board, useFormat } from 'erxes-ui';
 import { memo } from 'react';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { type CursorPage, forwardPaging } from '~/lib/cursorList';
+import { forwardPaging } from '~/lib/cursorList';
 import { useCompaniesFilters } from '~/modules/contacts/companies/useCompanies';
 import { useCustomersFilters } from '~/modules/contacts/customers/useCustomers';
 import { useLeadsT, useStageName } from './i18n';
