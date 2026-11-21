@@ -220,6 +220,7 @@ export const ACCESS = {
   'exchangeRates.remove': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
   'units.list': { member: 'any', plugin: 'units:read' },
   'units.get': { member: 'any', plugin: 'units:read' },
+  'units.restrictions': { member: 'any', plugin: 'units:read' },
   'units.create': { member: 'structure.manage', plugin: 'units:write' },
   'units.update': { member: 'structure.manage', plugin: 'units:write' },
   'units.remove': { member: 'structure.manage', plugin: 'units:write' },

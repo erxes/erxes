@@ -761,7 +761,10 @@
     "save-failed": "Хадгалж чадсангүй",
     "organization": "Байгууллага",
     "organization-description": "Нэр, шинэ бичлэгт анхдагчаар орох улс, валют, мөн schedule ажиллах timezone.",
-    "name-too-long": "Дээд тал нь 100 тэмдэгт"
+    "name-too-long": "Дээд тал нь 100 тэмдэгт",
+    "with-team-member-restrictions": "Багийн гишүүний хязгаарлалттай",
+    "team-members-every-branches": "Бүх салбарт хандах эрхтэй багийн гишүүд",
+    "team-members-every-departments": "Бүх хэлтэст хандах эрхтэй багийн гишүүд"
   },
   "payments": {
     "currency-note": "Шинэ нэхэмжлэхийн валют: {{currency}} (залгаас өөрөөр заагаагүй бол).",

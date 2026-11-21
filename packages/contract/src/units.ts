@@ -200,6 +200,20 @@ export const unitsContract = {
     })
     .input(z.object({ kind: UnitKind.optional(), userId: Id.optional() }))
     .output(listOf(Unit)),
+  restrictions: base
+    .route({
+      method: 'GET',
+      path: '/units/restrictions',
+      summary:
+        "The branches and departments a member's lists keep to (3.x's team member restrictions): their own units and the ones under them, or null for no limit (restrictions off, an owner, a member listed for every unit of the kind, or one in no unit of it). `userId` is the caller unless given; a plugin gives it",
+    })
+    .input(z.object({ userId: Id.optional() }))
+    .output(
+      z.object({
+        branchIds: z.array(Id).nullable(),
+        departmentIds: z.array(Id).nullable(),
+      }),
+    ),
   get: base
     .route({ method: 'GET', path: '/units/{id}' })
     .input(z.object({ id: Id }))

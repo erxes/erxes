@@ -135,5 +135,6 @@ export type {
   PluginRecordType,
   PropertyContentType,
   CustomValue,
+  MemberRestrictions,
   OrganizationSettings,
 } from './schema';

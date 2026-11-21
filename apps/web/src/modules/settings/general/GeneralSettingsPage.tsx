@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { CountrySelect, CurrencySelect, TimeZoneSelect } from '~/components/RegionSelect';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
+import { MemberRestrictionsFields } from './MemberRestrictionsFields';
 
 type Translate = (key: string, defaultValue: string) => string;
 
@@ -34,6 +35,11 @@ const organizationSchema = (t: Translate) =>
     currency: z.string(),
     currencies: z.array(z.string()),
     timezone: z.string(),
+    memberRestrictions: z.object({
+      enabled: z.boolean(),
+      allBranchesUserIds: z.array(z.string()),
+      allDepartmentsUserIds: z.array(z.string()),
+    }),
   });
 
 type OrganizationValues = z.infer<ReturnType<typeof organizationSchema>>;
@@ -44,6 +50,7 @@ const valuesOf = (organization: Organization): OrganizationValues => ({
   currency: organization.currency,
   currencies: organization.currencies,
   timezone: organization.timezone,
+  memberRestrictions: organization.memberRestrictions,
 });
 
 /** Saves the organisation and gives the whole app its new name, country and currency. */
@@ -216,6 +223,7 @@ const OrganizationForm = ({
       currency: values.currency,
       currencies: values.currencies,
       timezone: values.timezone,
+      memberRestrictions: values.memberRestrictions,
     }),
   );
 
@@ -245,6 +253,7 @@ const OrganizationForm = ({
           <RegionFields disabled={!canEdit} />
           <OtherCurrenciesField disabled={!canEdit} />
           <TimeZoneField disabled={!canEdit} />
+          <MemberRestrictionsFields disabled={!canEdit} />
         </Form.Section>
         {canEdit && <Form.SaveBar saving={save.isPending} />}
       </form>

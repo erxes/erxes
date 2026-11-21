@@ -56,6 +56,12 @@
  *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
  *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
  *
+ * With the organisation's team member restrictions on (Settings › General, 3.x's "With team member
+ * restrictions"), keep a member's lists to the units `units.restrictions` answers; null is no limit.
+ *
+ *   const { branchIds, departmentIds } = await core.forOrg(orgId).units.restrictions({ userId });
+ *   if (branchIds) where.push(inArray(transactions.branchId, branchIds));
+ *
  * Exchange rates (scopes `exchange_rates:read`, `exchange_rates:write`): the ones members keep in
  * Settings › Exchange rates. A rate counts from its day until the pair's next one; `getActiveRate`
  * answers the rate in force on a day (a moment counts on its day in the organisation's time zone),

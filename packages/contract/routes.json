@@ -3254,6 +3254,16 @@
         }
       }
     },
+    "restrictions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/restrictions"
+        }
+      }
+    },
     "get": {
       "~orpc": {
         "errorMap": {},

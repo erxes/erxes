@@ -766,7 +766,10 @@
     "save-failed": "Could not save",
     "organization": "Organisation",
     "organization-description": "Its name, the country and currency new records start from, and the time zone schedules run by.",
-    "name-too-long": "Use at most 100 characters"
+    "name-too-long": "Use at most 100 characters",
+    "with-team-member-restrictions": "With team member restrictions",
+    "team-members-every-branches": "Team members who can access all branches",
+    "team-members-every-departments": "Team members who can access all departments"
   },
   "payments": {
     "currency-note": "New invoices are in {{currency}} unless a plugin names another.",

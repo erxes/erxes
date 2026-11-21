@@ -862,6 +862,13 @@
       "when": 1795373047386,
       "tag": "0122_user_code",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1795373056259,
+      "tag": "0123_member_restrictions",
+      "breakpoints": true
     }
   ]
 }
