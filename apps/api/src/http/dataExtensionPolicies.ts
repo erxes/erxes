@@ -6,6 +6,8 @@ import { MEMBER, needs } from './policyRules';
  * the values of their own record types.
  */
 export const DATA_EXTENSION_ACCESS = {
+  'recordTypes.list': MEMBER,
+
   'dataObjects.list': MEMBER,
   'dataObjects.get': MEMBER,
   'dataObjects.create': needs('properties.manage'),

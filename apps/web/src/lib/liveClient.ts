@@ -1,4 +1,4 @@
-import { LiveMode } from '@erxes/core-contract';
+import { StreamChanged, LiveMode } from '@erxes/core-contract';
 import { jsonOf } from 'erxes-ui';
 import { z } from 'zod';
 
@@ -11,9 +11,8 @@ import { z } from 'zod';
  * another tab takes over. (Browsers allow ~6 connections per site over HTTP/1.1;
  * a stream per tab would use them up.)
  *
- * Messages are signals, not data: `inbox`, `timeline { targets }`,
- * `plugin { plugin, topics }` (for plugin UIs, see erxes-ui's plugin runtime),
- * `resync`. Queries refetch through the normal API. While the stream can't push
+ * Messages are signals, not data: `changed { topics }` and `resync`. Queries
+ * refetch through the normal API. While the stream can't push
  * (`mode: polling`, offline, reconnecting) queries fall back to polling.
  */
 
@@ -21,17 +20,8 @@ import { z } from 'zod';
 const liveMode = z.union([z.literal('connecting'), LiveMode]);
 const hello = z.object({ mode: LiveMode });
 
-const timeline = z.object({
-  targets: z.array(z.object({ targetType: z.string(), targetId: z.string() })),
-});
-
-const plugin = z.object({ plugin: z.string(), topics: z.array(z.string()) });
-
 const liveMessage = z.discriminatedUnion('event', [
-  z.object({ event: z.literal('inbox') }),
-  z.object({ event: z.literal('timeline'), data: timeline }),
-  z.object({ event: z.literal('plugin'), data: plugin }),
-  z.object({ event: z.literal('assistant') }),
+  z.object({ event: z.literal('changed'), data: StreamChanged }),
   z.object({ event: z.literal('resync') }),
 ]);
 
@@ -208,18 +198,11 @@ export class LiveClient {
       // Connected (again): whatever happened meanwhile is fetched now.
       this.deliver({ event: 'resync' }, true);
     });
-    source.addEventListener('inbox', () => this.deliver({ event: 'inbox' }, true));
-    source.addEventListener('timeline', (event) => {
-      const data = readEvent(event, timeline);
+    source.addEventListener('changed', (event) => {
+      const data = readEvent(event, StreamChanged);
 
-      if (data) this.deliver({ event: 'timeline', data }, true);
+      if (data) this.deliver({ event: 'changed', data }, true);
     });
-    source.addEventListener('plugin', (event) => {
-      const data = readEvent(event, plugin);
-
-      if (data) this.deliver({ event: 'plugin', data }, true);
-    });
-    source.addEventListener('assistant', () => this.deliver({ event: 'assistant' }, true));
     source.addEventListener('resync', () => this.deliver({ event: 'resync' }, true));
     source.addEventListener('bye', () => {
       // The session ended; the app's own 401 handling takes it from here.

@@ -36,11 +36,11 @@ export const PluginScope = z.enum(PLUGIN_SCOPES);
 
 export type PluginScope = z.infer<typeof PluginScope>;
 
-/** Live update topic: `leave-requests`, `leave:abc123`. */
+/** Live update topic: `leave-requests`, `leave:wKbpQmWs3Aj7WXjc2` (record ids are mixed case). */
 export const LiveTopic = z
   .string()
   .trim()
-  .regex(/^[a-z0-9][a-z0-9._:-]{0,99}$/, 'lower case letters, digits and . _ : -');
+  .regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,99}$/, 'letters, digits and . _ : -');
 
 const HttpsUrl = httpUrl(500);
 

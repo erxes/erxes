@@ -5,7 +5,9 @@ import { BROADCAST_JOBS } from '~/modules/broadcasts/starting';
 import { fireJob } from '~/modules/automations/triggers';
 import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
+import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
 import { CONSUMER_JOBS } from '~/modules/events/consumers';
+import { incomingJob } from '~/modules/integrations/incoming';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import { paymentCheckJob } from '~/modules/payments/invoiceState';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
@@ -39,6 +41,8 @@ export const JOBS = [
   pluginImportRunJob,
   exportRunJob,
   exampleDataJob,
+  cloudflareMoveJob,
+  incomingJob,
   ...BROADCAST_JOBS,
   ...CONSUMER_JOBS,
   ...MAINTENANCE,

@@ -8,7 +8,12 @@ const STALE_TIME = 30_000;
 
 const RECENT_LIMIT = 8;
 
-const count = (page: { totalCount: number }) => page.totalCount;
+export type CountResult = { total: number; capped: boolean };
+
+const count = (page: { totalCount: number; totalCapped?: boolean }): CountResult => ({
+  total: page.totalCount,
+  capped: page.totalCapped ?? false,
+});
 
 export const useContactsOverview = () => {
   const customers = useQuery(

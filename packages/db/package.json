@@ -12,6 +12,7 @@
     "./automationDefinition": "./src/automationDefinition.ts",
     "./dataExtensionEnums": "./src/dataExtensionEnums.ts",
     "./enums": "./src/enums.ts",
+    "./integrationEnums": "./src/integrationEnums.ts",
     "./schema": "./src/schema/index.ts"
   },
   "scripts": {

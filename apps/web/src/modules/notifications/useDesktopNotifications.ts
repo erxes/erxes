@@ -1,8 +1,13 @@
+import type { Notification as InboxItem } from '@erxes/core-contract';
+import { liveOptions } from '~/lib/live';
 import { paths } from '~/lib/paths';
 import { QueryObserver, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orpc } from '@erxes/core-contract/client';
+import { useTranslation } from 'react-i18next';
+import { pluginTranslationsReady } from '~/modules/plugins/pluginText';
+import { useNotificationText } from './notificationText';
 import { useNotificationSettings } from './useNotifications';
 
 export const desktopSupported = () => typeof window !== 'undefined' && 'Notification' in window;
@@ -45,6 +50,11 @@ export const useDesktopNotifications = () => {
   const enabled =
     Boolean(settings?.browser) && desktopSupported() && Notification.permission === 'granted';
 
+  const { i18n } = useTranslation();
+  const text = useNotificationText();
+  // The member's language now, not the one in use when the popups were turned on.
+  const shown = useEffectEvent(text);
+
   // The latest navigate, so moving between pages keeps the popups open.
   const open = useEffectEvent((link: string) => {
     window.focus();
@@ -59,12 +69,27 @@ export const useDesktopNotifications = () => {
       client,
       orpc.notifications.list.queryOptions({
         input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
+        ...liveOptions(['inbox']),
       }),
     );
 
     const popups = new Set<Notification>();
     const clicks = new AbortController();
     let seen: Set<string> | undefined;
+
+    const tell = async (item: InboxItem, fromPlugin: boolean) => {
+      if (fromPlugin) await pluginTranslationsReady(client, i18n);
+
+      if (clicks.signal.aborted) return;
+
+      popups.add(
+        popUp(
+          { id: item.id, ...shown(item) },
+          () => open(item.link ?? paths.notifications),
+          clicks.signal,
+        ),
+      );
+    };
 
     const unsubscribe = latest.subscribe(({ data }) => {
       if (!data) return;
@@ -82,7 +107,8 @@ export const useDesktopNotifications = () => {
 
         if (document.visibilityState === 'visible') continue;
 
-        popups.add(popUp(item, () => open(item.link ?? paths.notifications), clicks.signal));
+        // A popup's words can't change once shown, so a plugin's wait for its translations.
+        void tell(item, item.source !== 'core');
       }
     });
 
@@ -92,5 +118,5 @@ export const useDesktopNotifications = () => {
 
       for (const popup of popups) popup.close();
     };
-  }, [client, enabled]);
+  }, [client, enabled, i18n]);
 };

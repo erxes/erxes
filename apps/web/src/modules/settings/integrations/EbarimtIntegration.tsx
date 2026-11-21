@@ -1,13 +1,15 @@
 import type { EbarimtSettings } from '@erxes/core-contract';
-import { messageOf, orpc } from '@erxes/core-contract/client';
+import { orpc } from '@erxes/core-contract/client';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Label, Spinner, Switch, useConfirm, useToast } from 'erxes-ui';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Label, Switch } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
 import type { Integration } from './catalog';
+import { useIntegrationsSaved } from './customMutation';
+import { DangerSection } from './DangerSection';
 import { EbarimtActivity } from './EbarimtActivity';
 import { EbarimtForm } from './EbarimtForm';
 import { EbarimtPrint } from './EbarimtPrint';
@@ -21,18 +23,8 @@ import { useIntegrationStatus } from './useIntegrationStatus';
 
 const useRefreshFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const { toast } = useToast();
-  const client = useQueryClient();
 
-  return {
-    onSuccess: () => client.invalidateQueries({ queryKey: orpc.ebarimt.key() }),
-    onError: (error: Error) =>
-      toast({
-        variant: 'destructive',
-        title: t('save-failed', 'Could not save'),
-        description: messageOf(error),
-      }),
-  };
+  return useIntegrationsSaved(t('save-failed', 'Could not save'), undefined, orpc.ebarimt.key());
 };
 
 /** Turns receipts on or off, keeping the settings. */
@@ -59,35 +51,23 @@ const EbarimtSwitch = ({ saved }: { saved: EbarimtSettings }) => {
 /** Removes eBarimt, after asking: the danger zone at the end of its settings. */
 const RemoveEbarimt = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const { confirm } = useConfirm();
   const remove = useMutation(orpc.ebarimt.removeSettings.mutationOptions(useRefreshFailed()));
 
   return (
-    <section className="flex flex-wrap items-center gap-4 rounded-lg border border-destructive/30 p-4">
-      <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-sm font-medium">{t('remove-title', 'Remove eBarimt')}</h3>
-        <p className="text-xs text-muted-foreground">
-          {t(
-            'remove-description',
-            'No more receipts are sent. Issued ones stay with their invoices.',
-          )}
-        </p>
-      </div>
-      <Button
-        variant="destructive"
-        disabled={remove.isPending}
-        onClick={() =>
-          void confirm({
-            message: t(
-              'remove-confirm',
-              'Remove eBarimt? Issued receipts stay with their invoices.',
-            ),
-          }).then(() => remove.mutate({}))
-        }
-      >
-        {remove.isPending ? <Spinner size="sm" /> : t('remove', 'Remove')}
-      </Button>
-    </section>
+    <DangerSection
+      title={t('remove-title', 'Remove eBarimt')}
+      description={t(
+        'remove-description',
+        'No more receipts are sent. Issued ones stay with their invoices.',
+      )}
+      confirmMessage={t(
+        'remove-confirm',
+        'Remove eBarimt? Issued receipts stay with their invoices.',
+      )}
+      label={t('remove', 'Remove')}
+      pending={remove.isPending}
+      onConfirm={() => remove.mutate({})}
+    />
   );
 };
 

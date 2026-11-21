@@ -1,4 +1,5 @@
 import { db } from '@erxes/core-db';
+import { removeBucket, saveBucket } from '~/modules/files/bucketSettings';
 import { fileSettingsOf, updateFileSettings } from '~/modules/files/fileSettings';
 import {
   completeUpload,
@@ -7,7 +8,7 @@ import {
   listFiles,
   removeFile,
 } from '~/modules/files/files.service';
-import { scoped } from '~/orpc';
+import { scoped, unscoped } from '~/orpc';
 
 export const filesRouter = {
   createUpload: scoped.files.createUpload.handler(({ input }) => createUpload(db(), input)),
@@ -19,4 +20,7 @@ export const filesRouter = {
   updateSettings: scoped.files.updateSettings.handler(({ input }) =>
     updateFileSettings(db(), input),
   ),
+  // Writes a test file to the bucket: no transaction held meanwhile.
+  saveBucket: unscoped.files.saveBucket.handler(({ input }) => saveBucket(input)),
+  removeBucket: scoped.files.removeBucket.handler(() => removeBucket(db())),
 };

@@ -5,6 +5,7 @@ import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
+import { useStaleBuildReload } from '~/lib/staleBuild';
 import { messageOf } from '@erxes/core-contract/client';
 
 /**
@@ -13,9 +14,32 @@ import { messageOf } from '@erxes/core-contract/client';
  */
 type CrashScope = 'app' | 'page';
 
+/** erxes was updated since the tab opened: it reloads; the button is there if it can't. */
+const UpdatedFallback = ({ scope }: { scope: CrashScope }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'crash' });
+
+  return (
+    <div
+      role="alert"
+      className={`flex flex-col items-center justify-center gap-3 p-6 text-center ${scope === 'app' ? 'h-svh' : 'h-full'}`}
+    >
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{t('updated-title')}</p>
+        <p className="max-w-md text-sm text-muted-foreground">{t('updated-hint')}</p>
+      </div>
+      <Button variant="outline" onClick={() => window.location.reload()}>
+        <IconReload />
+        {t('reload')}
+      </Button>
+    </div>
+  );
+};
+
 const CrashFallback = ({ scope }: { scope: CrashScope }) => {
   const { t } = useTranslation('common', { keyPrefix: 'crash' });
   const { error, resetBoundary } = useErrorBoundary();
+
+  if (useStaleBuildReload(error)) return <UpdatedFallback scope={scope} />;
 
   return (
     <div

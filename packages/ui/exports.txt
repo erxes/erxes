@@ -220,6 +220,7 @@ value isUndefinedOrNull
 value jsonOf
 value listFilterQuery
 value localTimeZone
+value meFirst
 value memberName
 value oneOf
 value pluginFetch
@@ -238,6 +239,7 @@ value themeState
 value toAmountInput
 value toIsoDay
 value toast
+value useBoardScroll
 value useConfirm
 value useFieldControl
 value useFilterContext
@@ -248,6 +250,7 @@ value useListDisplay
 value useListFilterParams
 value useListViews
 value useLiveSignal
+value useMeId
 value useMediaQuery
 value useMemberOptions
 value useMembersById

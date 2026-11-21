@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActivityTarget } from './timelines';
 import { AppLink, DedupeKey, EntityType, EventType } from './platform';
+import { NotificationText } from './pluginTranslations';
 
 /** What a published event asks core to notify (as `POST /notifications`). */
 export const EventNotify = z.object({
@@ -15,6 +16,8 @@ export const EventNotify = z.object({
   body: z.string().trim().max(2000).optional(),
   link: AppLink.optional(),
   priority: z.enum(NOTIFICATION_PRIORITIES).optional(),
+  /** The same in the reader's language: becomes the notification's `data.text`. */
+  text: NotificationText.optional(),
 });
 
 export const EventInput = createUpdateSchema(events, {
