@@ -174,6 +174,29 @@ describe('plugin database roles', { timeout: 240_000 }, () => {
     });
   });
 
+  it('can’t put functions or operators where core looks its own up', async () => {
+    await asPlugin(async (client) => {
+      // A closer argument match than the built-in would win inside core's functions.
+      expect(
+        await fails(
+          client,
+          `create function jsonb_build_object(text, jsonb) returns jsonb language sql as 'select $2'`,
+        ),
+      ).toMatch(/plugin testhr: function .* can't go in schema public/);
+      expect(
+        await fails(
+          client,
+          'create operator === (leftarg = text, rightarg = text, function = texteq)',
+        ),
+      ).toMatch(/plugin testhr: operator .* can't go in schema public/);
+      // Its tables and views are fine.
+      await client.query('create table testhr_notes (id text primary key, org_id text not null)');
+      await client.query('create view testhr_note_ids as select id, org_id from testhr_notes');
+      await client.query('drop view testhr_note_ids');
+      await client.query('drop table testhr_notes');
+    });
+  });
+
   it('can refuse overlapping rows with a btree_gist exclusion constraint', async () => {
     await asPlugin(async (client) => {
       // A reservation per room may not overlap another in the same organisation.
