@@ -157,8 +157,9 @@ export const validateTransactionDate = async (
   const newReal = isReal(transaction);
   const oldReal = isReal(oldTransaction);
   if (!newReal && !oldReal) return;
-  if (!newReal) date.setTime(oldDate.getTime());
-  else if (oldReal && oldDate < date) date.setTime(oldDate.getTime());
+  // Check the earliest real date: the saved one when the row leaves real or
+  // moves later, otherwise the submitted one.
+  if (!newReal || (oldReal && oldDate < date)) date.setTime(oldDate.getTime());
 
   // Closing locks every journal before any journal-specific lookup.
   await validateAdjustmentDate(models, transaction, date, closingLock);

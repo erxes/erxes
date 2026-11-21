@@ -4,6 +4,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 
+const toIds = (value?: string | string[] | null): string[] => {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+};
+
 const DeclineButton = ({
   disabled,
   onDecline,
@@ -94,11 +99,7 @@ const RequestApprovalButton = ({
           <SelectMember
             mode="multiple"
             value={approverIds}
-            onValueChange={(value) =>
-              setApproverIds(
-                Array.isArray(value) ? value : value ? [value] : [],
-              )
-            }
+            onValueChange={(value) => setApproverIds(toIds(value))}
             placeholder={t('select-approvers')}
           />
           <Dialog.Footer className="mt-4">

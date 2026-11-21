@@ -281,8 +281,12 @@ describe('only the real tier is held to locked periods', () => {
     async (status) => {
       const { models } = locked();
       const doc = { ...transaction('main'), status };
-      await validateTransactionDate(models, doc);
-      await validateTransactionDate(models, doc, doc);
+      await expect(
+        validateTransactionDate(models, doc),
+      ).resolves.toBeUndefined();
+      await expect(
+        validateTransactionDate(models, doc, doc),
+      ).resolves.toBeUndefined();
     },
   );
 
@@ -312,10 +316,12 @@ describe('only the real tier is held to locked periods', () => {
 
   it('lets a soon row move from a closed period to an open real date', async () => {
     const { models } = locked();
-    await validateTransactionDate(
-      models,
-      { ...transaction('main', '2026-03-01T00:00:00'), status: 'complete' },
-      { ...transaction('main'), status: 'requested' },
-    );
+    await expect(
+      validateTransactionDate(
+        models,
+        { ...transaction('main', '2026-03-01T00:00:00'), status: 'complete' },
+        { ...transaction('main'), status: 'requested' },
+      ),
+    ).resolves.toBeUndefined();
   });
 });

@@ -273,10 +273,10 @@ export const TransactionsGroupForm = () => {
     const run = () => decide(parentId, decision, note);
 
     if (!isDirty) {
-      run();
+      void run();
       return;
     }
-    form.handleSubmit((data) => onSubmit(data, run), onError)();
+    void form.handleSubmit((data) => onSubmit(data, run), onError)();
   };
 
   // Turning the manage view off restores the saved status and recipients,
@@ -284,9 +284,15 @@ export const TransactionsGroupForm = () => {
   const onManageChange = (open: boolean) => {
     setManageOpen(open);
     if (!open) {
-      form.setValue('status', savedWorkflow.status ?? '', { shouldDirty: true });
-      form.setValue('mentionOwnerId', savedWorkflow.mentionOwnerId, { shouldDirty: true });
-      form.setValue('mentionUserIds', savedWorkflow.mentionUserIds, { shouldDirty: true });
+      form.setValue('status', savedWorkflow.status ?? '', {
+        shouldDirty: true,
+      });
+      form.setValue('mentionOwnerId', savedWorkflow.mentionOwnerId, {
+        shouldDirty: true,
+      });
+      form.setValue('mentionUserIds', savedWorkflow.mentionUserIds, {
+        shouldDirty: true,
+      });
     }
   };
 
