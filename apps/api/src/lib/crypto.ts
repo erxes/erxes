@@ -143,10 +143,10 @@ export const verifyPassword = async (password: string, stored: string | null) =>
 
 // ─── Sealed secrets ─────────────────────────────────────────────────────────
 
-/** AES-256-GCM, as `v1.<iv>.<tag>.<ciphertext>` (base64url). */
-export const encrypt = (key: Buffer, plain: string) => {
+/** AES-256-GCM, as `v1.<iv>.<tag>.<ciphertext>` (base64url); opens only with the same `boundTo`. */
+export const encrypt = (key: Buffer, plain: string, boundTo: string) => {
   const iv = randomBytes(12);
-  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const cipher = createCipheriv('aes-256-gcm', key, iv).setAAD(Buffer.from(boundTo, 'utf8'));
   const data = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
 
   return [
@@ -157,7 +157,7 @@ export const encrypt = (key: Buffer, plain: string) => {
   ].join('.');
 };
 
-export const decrypt = (key: Buffer, sealed: string) => {
+export const decrypt = (key: Buffer, sealed: string, boundTo: string) => {
   const [version, iv, tag, data] = sealed.split('.');
 
   // An empty secret seals to an empty ciphertext; the tag still proves it.
@@ -165,7 +165,7 @@ export const decrypt = (key: Buffer, sealed: string) => {
 
   const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64url'));
 
-  decipher.setAuthTag(Buffer.from(tag, 'base64url'));
+  decipher.setAAD(Buffer.from(boundTo, 'utf8')).setAuthTag(Buffer.from(tag, 'base64url'));
 
   return Buffer.concat([
     decipher.update(Buffer.from(data, 'base64url')),

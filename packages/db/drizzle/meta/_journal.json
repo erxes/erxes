@@ -729,6 +729,20 @@
       "when": 1795251799285,
       "tag": "0103_email_sending",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1795279997799,
+      "tag": "0104_secret_vault",
+      "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1795279998774,
+      "tag": "0105_secret_vault_drop_sealed",
+      "breakpoints": true
     }
   ]
 }

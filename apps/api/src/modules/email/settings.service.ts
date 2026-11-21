@@ -14,8 +14,8 @@ import { config } from '~/config';
 import { fail } from '~/http/errors';
 import { OutboundError, publicAddressOf } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
-import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { saveSecret } from '~/modules/secrets/vault';
 import { queueDeliveries, settleDelivery } from './deliveries';
 import { appLink, routeFor } from './email';
 import { sendgridKey } from './events/sendgrid';
@@ -28,7 +28,7 @@ import type { EmailSettingsRow } from './transport';
  * SES posts the organisation's events (`events/events.http.ts`).
  */
 const shown = async (client: Db, row: EmailSettingsRow) => {
-  const { secretSealed: _secret, orgId, updatedBy: _by, ...rest } = row;
+  const { secretId: _secret, orgId, updatedBy: _by, ...rest } = row;
 
   return {
     ...rest,
@@ -69,16 +69,15 @@ const checkHost = async (host: string) => {
 };
 
 /** The saved secret stays when the provider and who signs in are the same; else a new one is needed. */
-const secretFor = (input: EmailSettingsInput, before: EmailSettingsRow | null) => {
-  if (input.secret) return seal(input.secret);
+const secretFor = (client: Db, input: EmailSettingsInput, before: EmailSettingsRow | null) => {
+  if (input.secret) return saveSecret(client, input.secret, before?.secretId);
 
   const username = input.provider === 'sendgrid' ? '' : input.username;
 
-  if (before?.provider === input.provider && before.username === username)
-    return before.secretSealed;
+  if (before?.provider === input.provider && before.username === username) return before.secretId;
 
   // An SMTP server that takes mail without signing in needs none.
-  if (input.provider === 'smtp' && !username) return seal('');
+  if (input.provider === 'smtp' && !username) return saveSecret(client, '', before?.secretId);
 
   const message = 'Enter the password or key';
 
@@ -124,7 +123,7 @@ export const saveSettings = async (client: Db, input: EmailSettingsInput) => {
     eventsKey: input.provider === 'sendgrid' ? input.eventsKey.replace(/\s+/g, '') : '',
     configurationSet: ses?.configurationSet ?? '',
     eventsTopicArn: ses?.eventsTopicArn ?? '',
-    secretSealed: secretFor(input, before),
+    secretId: await secretFor(client, input, before),
     updatedBy: caller('user').userId,
     updatedAt: sql`now()`,
   };

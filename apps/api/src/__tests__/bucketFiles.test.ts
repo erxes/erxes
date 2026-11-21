@@ -75,7 +75,8 @@ describe('files in the organisation’s own bucket', () => {
     const saved = await t.owner().files.saveBucket(bucketInput());
 
     expect(saved.bucket).toMatchObject({ bucket: 'erxes-files', accessKeyId: ACCESS_KEY_ID });
-    expect(saved.bucket).not.toHaveProperty('secretSealed');
+    expect(saved.bucket).not.toHaveProperty('secret');
+    expect(saved.bucket).not.toHaveProperty('secretId');
     // The test file is gone again.
     expect([...(s3.buckets.get('erxes-files')?.keys() ?? [])]).toEqual([]);
 

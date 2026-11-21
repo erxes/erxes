@@ -22,6 +22,7 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -46,8 +47,7 @@ export const emailSettings = pgTable(
     username: text().default('').notNull(),
     /** `ses`: the AWS region, for example `us-east-1`. */
     region: text().default('').notNull(),
-    /** The password, API key or secret access key, sealed (`lib/secrets`); never sent out. */
-    secretSealed: text().notNull(),
+    secretId: text().notNull(),
     /** `sendgrid`: the Signed Event Webhook's verification key (public), checked on every event batch. */
     eventsKey: text().default('').notNull(),
     /** `ses`: the configuration set every email names, whose event destination is the SNS topic. */
@@ -65,6 +65,11 @@ export const emailSettings = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_email_settings_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.secretId],
+      foreignColumns: [secrets.id],
+      name: 'core_email_settings_secret_id_fkey',
+    }),
   ],
 );
 

@@ -4,8 +4,8 @@ import { count, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { randomToken } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
-import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { openSecret, saveSecret } from '~/modules/secrets/vault';
 import { bucketAllowed, type BucketRow, bucketRow, placeOf, s3SettingsOf } from './bucket';
 import { fileSettingsOf } from './fileSettings';
 import { type S3Settings, s3Storage } from './storage';
@@ -27,7 +27,7 @@ const secretFor = (input: FileBucketInput, before: BucketRow | null) => {
   if (input.secretAccessKey) return input.secretAccessKey;
 
   if (before && placeOf(before) === placeOf(input) && before.accessKeyId === input.accessKeyId) {
-    return unseal(before.secretSealed);
+    return openSecret(before.secret);
   }
 
   const message = 'Enter the secret access key';
@@ -103,7 +103,7 @@ export const saveBucket = async (input: FileBucketInput) => {
       bucket: input.bucket,
       forcePathStyle: input.forcePathStyle,
       accessKeyId: input.accessKeyId,
-      secretSealed: seal(secret),
+      secretId: await saveSecret(tx, secret, current?.secretId),
       updatedBy: caller('user').userId,
       updatedAt: sql`now()`,
     };

@@ -7,9 +7,9 @@ import { fail, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
-import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { integrationEventTypes } from '~/modules/integrations/actions';
+import { saveSecret } from '~/modules/secrets/vault';
 
 /** Core's events and those of the plugins installed here. */
 export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => {
@@ -91,7 +91,7 @@ export const createWebhook = async (
         url: input.url,
         description: input.description ?? null,
         eventTypes: [...new Set(input.eventTypes)],
-        secretSealed: seal(secret),
+        secretId: await saveSecret(client, secret),
         createdBy: caller('user').userId,
       })
       .returning(),
@@ -182,9 +182,10 @@ export const rotateWebhookSecret = async (client: Db, id: string) => {
   const row = await findWebhook(client, id);
   const secret = newSigningSecret();
 
+  await saveSecret(client, secret, row.secretId);
   await client
     .update(webhooks)
-    .set({ secretSealed: seal(secret), updatedAt: sql`now()` })
+    .set({ updatedAt: sql`now()` })
     .where(eq(webhooks.id, id));
   await recordAudit(client, {
     action: 'webhook.secret_rotated',

@@ -49,6 +49,16 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
       api.customerAuth.refresh({ clientId: 'shop', refreshToken: second.refreshToken }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
 
+    // A made-up token for the session is refused, and the session goes on.
+    const [sessionId] = second.refreshToken.split('.');
+
+    await expect(
+      api.customerAuth.refresh({ clientId: 'hr', refreshToken: `${sessionId}.made-up` }),
+    ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
+    expect(
+      (await t.app({ token: second.accessToken }).api.customerAccount.me({})).primaryEmail,
+    ).toBe('rotate@example.com');
+
     // Two minutes on, the first one again: it leaked. The session ends, and its access tokens with it.
     await rotatedTwoMinutesAgo();
     await expect(

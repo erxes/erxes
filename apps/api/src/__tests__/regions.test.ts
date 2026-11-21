@@ -1,7 +1,7 @@
-import { newId, paymentGateways } from '@erxes/core-db';
+import { newId, paymentGateways, withOrg } from '@erxes/core-db';
 import { describe, expect, it } from 'vite-plus/test';
-import { seal } from '~/lib/secrets';
-import { adminDb, useTestDatabase } from './db';
+import { saveSecret } from '~/modules/secrets/vault';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const order = { amount: 1250, description: 'Order #1', referenceType: 'order', referenceId: '1' };
@@ -23,15 +23,14 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
       sandbox: true,
     };
 
-    await adminDb()
-      .insert(paymentGateways)
-      .values({
+    await withOrg(t.ids.org, async (tx) => {
+      await tx.insert(paymentGateways).values({
         id,
-        orgId: t.ids.org,
         kind: 'qpay',
         name: 'QPay',
-        configSealed: seal(JSON.stringify(config)),
+        configSecretId: await saveSecret(tx, JSON.stringify(config)),
       });
+    });
 
     return id;
   };

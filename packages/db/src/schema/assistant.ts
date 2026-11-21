@@ -18,6 +18,7 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 /** The organisation's model provider keys, one per provider, which every agent uses. */
 export const assistantConnections = pgTable(
@@ -26,7 +27,7 @@ export const assistantConnections = pgTable(
     id: text().primaryKey(),
     orgId: orgIdColumn(),
     provider: text({ enum: ASSISTANT_PROVIDERS }).notNull(),
-    sealedKey: text().notNull(),
+    keySecretId: text().notNull(),
     isDefault: boolean().default(false).notNull(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -42,6 +43,11 @@ export const assistantConnections = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_assistant_connections_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.keySecretId],
+      foreignColumns: [secrets.id],
+      name: 'core_assistant_connections_key_secret_id_fkey',
+    }),
   ],
 );
 

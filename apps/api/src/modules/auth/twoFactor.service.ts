@@ -1,9 +1,9 @@
 import { auditLogs, caller, type Db, runAs, users, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
-import { seal, unseal } from '~/lib/secrets';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { readSecret, saveSecret } from '~/modules/secrets/vault';
 import { randomToken, sha256, verifyPassword } from '~/lib/crypto';
 import { z } from 'zod';
 import { asMember } from './account.service';
@@ -55,7 +55,10 @@ export const setupTwoFactor = async (client: Db) => {
 
   await client
     .update(users)
-    .set({ totpPendingSealed: seal(secret), updatedAt: sql`now()` })
+    .set({
+      totpPendingSecretId: await saveSecret(client, secret, member.totpPendingSecretId),
+      updatedAt: sql`now()`,
+    })
     .where(eq(users.id, member.id));
 
   return { secret, uri: otpauthUri(secret, member.email ?? member.id) };
@@ -64,9 +67,9 @@ export const setupTwoFactor = async (client: Db) => {
 export const enableTwoFactor = async (client: Db, code: string) => {
   const member = await findMember(client);
 
-  if (!member.totpPendingSealed) throw fail('NOT_SET_UP', 'Start the setup first');
+  if (!member.totpPendingSecretId) throw fail('NOT_SET_UP', 'Start the setup first');
 
-  const secret = unseal(member.totpPendingSealed);
+  const secret = await readSecret(client, member.totpPendingSecretId);
   const step = matchStep(secret, code);
 
   if (step === null)
@@ -77,8 +80,8 @@ export const enableTwoFactor = async (client: Db, code: string) => {
   await client
     .update(users)
     .set({
-      totpSecretSealed: member.totpPendingSealed,
-      totpPendingSealed: null,
+      totpSecretId: member.totpPendingSecretId,
+      totpPendingSecretId: null,
       totpEnabledAt: sql`now()`,
       totpLastStep: step,
       recoveryCodes: recoveryCodes.map(hashCode),
@@ -103,8 +106,8 @@ export const disableTwoFactor = async (client: Db, password: string) => {
   await client
     .update(users)
     .set({
-      totpSecretSealed: null,
-      totpPendingSealed: null,
+      totpSecretId: null,
+      totpPendingSecretId: null,
       totpEnabledAt: null,
       totpLastStep: null,
       recoveryCodes: null,
@@ -180,11 +183,11 @@ export const completeTwoFactor = async (input: {
       .for('update')
       .limit(1);
 
-    if (!member || member.status !== 'active' || !member.totpSecretSealed)
+    if (!member || member.status !== 'active' || !member.totpSecretId)
       throw fail('UNAUTHORIZED', 'Sign in to continue');
 
     if (input.code) {
-      const step = matchStep(unseal(member.totpSecretSealed), input.code);
+      const step = matchStep(await readSecret(tx, member.totpSecretId), input.code);
 
       if (step === null || (member.totpLastStep !== null && step <= member.totpLastStep)) {
         return { wrong: 'two-factor code', member } as const;

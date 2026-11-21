@@ -24,6 +24,7 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -57,7 +58,7 @@ export interface TaxBuyer {
 
 /**
  * An organisation's payment gateway connection (QPay, …). Credentials are
- * sealed (`src/lib/secrets.ts`); the API never returns them.
+ * in the vault (`core_secrets`); the API never returns them.
  */
 export const paymentGateways = pgTable(
   'payment_gateways',
@@ -66,8 +67,7 @@ export const paymentGateways = pgTable(
     orgId: orgIdColumn(),
     kind: text({ enum: PAYMENT_GATEWAY_KINDS }).notNull(),
     name: text().notNull(),
-    /** Sealed JSON of the gateway's settings (client id, secret, invoice code, …). */
-    configSealed: text().notNull(),
+    configSecretId: text().notNull(),
     status: text({ enum: PAYMENT_GATEWAY_STATUSES }).default('active').notNull(),
     createdBy: text(),
     createdAt: createdAt(),
@@ -81,6 +81,11 @@ export const paymentGateways = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_payment_gateways_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.configSecretId],
+      foreignColumns: [secrets.id],
+      name: 'core_payment_gateways_config_secret_id_fkey',
+    }),
   ],
 );
 

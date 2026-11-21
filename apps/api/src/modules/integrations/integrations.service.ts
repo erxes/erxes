@@ -4,15 +4,15 @@ import { z } from 'zod';
 import { notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
-import { seal, unseal } from '~/lib/secrets';
+import { openSecret, readSecret, saveSecret, type SecretRow } from '~/modules/secrets/vault';
 import { programsOf } from './programs.service';
-
-type IntegrationRow = typeof integrations.$inferSelect;
 
 const SealedValues = z.record(z.string(), z.string());
 
-export const sealedValuesOf = (row: Pick<IntegrationRow, 'secretsSealed'>) =>
-  row.secretsSealed ? SealedValues.parse(JSON.parse(unseal(row.secretsSealed))) : {};
+const parsed = (plain: string) => SealedValues.parse(JSON.parse(plain));
+
+export const sealedValuesOf = (secret: SecretRow | null) =>
+  secret ? parsed(openSecret(secret)) : {};
 
 const findIntegration = async (client: Db, id: string) => {
   const [row] = await client.select().from(integrations).where(eq(integrations.id, id)).limit(1);
@@ -68,12 +68,16 @@ export const updateIntegration = async (
 export const setIntegrationSecrets = async (
   client: Db,
   id: string,
-  secrets: Record<string, string | null>,
+  changes: Record<string, string | null>,
 ) => {
   const integration = await findIntegration(client, id);
 
+  const saved = integration.valuesSecretId
+    ? parsed(await readSecret(client, integration.valuesSecretId))
+    : {};
+
   const values = Object.fromEntries(
-    Object.entries({ ...sealedValuesOf(integration), ...secrets }).flatMap(([name, value]) =>
+    Object.entries({ ...saved, ...changes }).flatMap(([name, value]) =>
       value === null ? [] : [[name, value]],
     ),
   );
@@ -84,7 +88,9 @@ export const setIntegrationSecrets = async (
     await client
       .update(integrations)
       .set({
-        secretsSealed: sealedNames.length ? seal(JSON.stringify(values)) : null,
+        valuesSecretId: sealedNames.length
+          ? await saveSecret(client, JSON.stringify(values), integration.valuesSecretId)
+          : null,
         sealedNames,
         updatedAt: sql`now()`,
       })

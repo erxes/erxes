@@ -22,6 +22,7 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 import { users } from './users';
 
 export type ActorType = (typeof ACTOR_TYPES)[number];
@@ -104,8 +105,7 @@ export const fileBuckets = pgTable(
     /** Addresses the bucket as `<endpoint>/<bucket>` (MinIO) rather than `<bucket>.<endpoint>`. */
     forcePathStyle: boolean().notNull(),
     accessKeyId: text().notNull(),
-    /** The secret access key, sealed (`lib/secrets`); never sent out. */
-    secretSealed: text().notNull(),
+    secretId: text().notNull(),
     updatedBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -116,6 +116,11 @@ export const fileBuckets = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_file_buckets_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.secretId],
+      foreignColumns: [secrets.id],
+      name: 'core_file_buckets_secret_id_fkey',
+    }),
   ],
 );
 

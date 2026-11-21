@@ -28,6 +28,7 @@ const SCOPE_LABELS: Record<string, string> = {
   'payments:write': 'Create invoices and refunds',
   'products:read': 'Read the product catalog',
   'products:write': 'Create and edit products',
+  'secrets:write': 'Keep its passwords and keys in the vault',
   'units:read': 'Read branches and departments',
   'units:write': 'Change branches and departments, and who is in them',
   'users:read': 'Read team members',

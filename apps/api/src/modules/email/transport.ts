@@ -1,10 +1,11 @@
-import { emailSettings, withOrg } from '@erxes/core-db';
+import { emailSettings, secrets, withOrg } from '@erxes/core-db';
 import type { EMAIL_DELIVERY_PROVIDERS } from '@erxes/core-db/emailEnums';
+import { eq } from 'drizzle-orm';
 import { createTransport, type Transporter } from 'nodemailer';
 import { config } from '~/config';
 import { hmacSha256Bytes } from '~/lib/crypto';
 import { publicAddressOf } from '~/lib/outbound';
-import { unseal } from '~/lib/secrets';
+import { openSecret } from '~/modules/secrets/vault';
 
 export type EmailSettingsRow = typeof emailSettings.$inferSelect;
 
@@ -32,9 +33,7 @@ export const sesSmtpPassword = (secretAccessKey: string, region: string) => {
 };
 
 /** The SMTP server of the settings and how to sign in to it: SendGrid and SES take SMTP too. */
-const serverOf = (settings: EmailSettingsRow) => {
-  const secret = unseal(settings.secretSealed);
-
+const serverOf = (settings: EmailSettingsRow, secret: string) => {
   if (settings.provider === 'sendgrid') {
     return {
       host: 'smtp.sendgrid.net',
@@ -66,8 +65,8 @@ const serverOf = (settings: EmailSettingsRow) => {
  * a private one, see `publicAddressOf`) with TLS checked against its name.
  * Mail goes out encrypted, except to a development server.
  */
-const transportFor = async (settings: EmailSettingsRow) => {
-  const { host, ...server } = serverOf(settings);
+const transportFor = async (settings: EmailSettingsRow, secret: string) => {
+  const { host, ...server } = serverOf(settings, secret);
 
   return createTransport({
     ...server,
@@ -87,9 +86,17 @@ const kept = new Map<string, { version: string; until: number; transport: Transp
 
 /** The organisation's settings and a transport for them; null: it sends through the server's. */
 export const orgTransport = async (orgId: string) => {
-  const [settings] = await withOrg(orgId, (tx) => tx.select().from(emailSettings).limit(1));
+  const [found] = await withOrg(orgId, (tx) =>
+    tx
+      .select({ settings: emailSettings, secret: secrets })
+      .from(emailSettings)
+      .innerJoin(secrets, eq(secrets.id, emailSettings.secretId))
+      .limit(1),
+  );
 
-  if (!settings) return null;
+  if (!found) return null;
+
+  const { settings } = found;
 
   const version = settings.updatedAt.toISOString();
   const cached = kept.get(orgId);
@@ -100,7 +107,7 @@ export const orgTransport = async (orgId: string) => {
 
   cached?.transport.close();
 
-  const transport = await transportFor(settings);
+  const transport = await transportFor(settings, openSecret(found.secret));
 
   kept.set(orgId, { version, until: Date.now() + KEEP_MS, transport });
 

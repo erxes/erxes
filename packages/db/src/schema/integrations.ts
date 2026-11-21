@@ -13,6 +13,7 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 export interface IntegrationField {
   key: string;
@@ -52,7 +53,7 @@ export const integrations = pgTable(
     key: text().notNull(),
     name: text().notNull(),
     hosts: text().array().notNull(),
-    secretsSealed: text(),
+    valuesSecretId: text(),
     sealedNames: text()
       .array()
       .default(sql`'{}'::text[]`)
@@ -68,6 +69,11 @@ export const integrations = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_integrations_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.valuesSecretId],
+      foreignColumns: [secrets.id],
+      name: 'core_integrations_values_secret_id_fkey',
+    }),
   ],
 );
 

@@ -1,6 +1,7 @@
-import { type Db, fileBuckets } from '@erxes/core-db';
+import { type Db, fileBuckets, secrets } from '@erxes/core-db';
+import { eq, getTableColumns } from 'drizzle-orm';
 import { config } from '~/config';
-import { unseal } from '~/lib/secrets';
+import { openSecret, type WithSecret } from '~/modules/secrets/vault';
 import {
   type FileStore,
   type S3Settings,
@@ -18,15 +19,23 @@ import {
  * bucket can't move while files are in it (`bucketSettings.ts`).
  */
 
-export type BucketRow = typeof fileBuckets.$inferSelect;
+export type BucketRow = WithSecret<typeof fileBuckets.$inferSelect>;
+
+export const bucketAndSecret = { bucket: fileBuckets, secret: secrets };
+
+const bucketWithSecret = (client: Db) =>
+  client
+    .select({ ...getTableColumns(fileBuckets), secret: secrets })
+    .from(fileBuckets)
+    .innerJoin(secrets, eq(secrets.id, fileBuckets.secretId))
+    .limit(1);
 
 type BucketAddress = Pick<BucketRow, 'endpoint' | 'region' | 'bucket' | 'forcePathStyle'>;
 
 /** On erxes.io, or when the server's configuration names a bucket, that decides. */
 export const bucketAllowed = () => !config.saas.enabled && config.files.driver === 'local';
 
-export const bucketRow = async (client: Db) =>
-  (await client.select().from(fileBuckets).limit(1))[0] ?? null;
+export const bucketRow = async (client: Db) => (await bucketWithSecret(client))[0] ?? null;
 
 export const s3SettingsOf = (
   bucket: BucketAddress & { accessKeyId: string },
@@ -52,7 +61,7 @@ const bucketStorage = (row: BucketRow) => {
 
   if (found?.version === version) return found.storage;
 
-  const next = s3Storage(s3SettingsOf(row, unseal(row.secretSealed)));
+  const next = s3Storage(s3SettingsOf(row, openSecret(row.secret)));
 
   made.set(row.orgId, { version, storage: next });
 
@@ -72,7 +81,7 @@ const required = (row: BucketRow | null) => {
  */
 export const uploadStore = async (client: Db) => {
   const [row] = bucketAllowed()
-    ? await client.select().from(fileBuckets).limit(1).for('share')
+    ? await bucketWithSecret(client).for('share', { of: fileBuckets })
     : [];
 
   if (!row) return { name: config.files.driver, bytes: storage(), place: config.files.driver };

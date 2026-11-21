@@ -92,7 +92,7 @@ describe('email sending settings', () => {
 
     expect(saved).toMatchObject({ provider: 'smtp', fromEmail: 'hello@acme.mn', username: 'acme' });
     expect(JSON.stringify(saved)).not.toContain('pa55word');
-    expect(saved).not.toHaveProperty('secretSealed');
+    expect(saved).not.toHaveProperty('secretId');
 
     // The same server and user: the saved password stays.
     await t.owner().emails.saveSettings({ ...ownServer(), fromName: 'Acme Team' });

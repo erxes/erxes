@@ -6,6 +6,7 @@ import {
   files,
   newId,
   requestOrgId,
+  secrets,
   sourceOf,
   withOrg,
   withSystem,
@@ -23,9 +24,10 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { assertStreamable, queueCloudflareMove } from './cloudflareMove';
 import { fileWithUrl } from './fileColumns';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
-import { storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
+import { bucketAndSecret, storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
 import { canShowInline } from './storage';
 import { logger } from '~/logger';
+import { withSecret } from '~/modules/secrets/vault';
 import { guardDeletions } from '~/lib/deletionGuard';
 
 const log = logger.child({ component: 'files' });
@@ -299,9 +301,10 @@ export const removeFile = async (client: Db, id: string) => {
 export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   const rows = await withSystem('files: deletions to purge', (tx) =>
     tx
-      .select({ id: files.id, key: files.key, storage: files.storage, bucket: fileBuckets })
+      .select({ id: files.id, key: files.key, storage: files.storage, ...bucketAndSecret })
       .from(files)
       .leftJoin(fileBuckets, eq(fileBuckets.orgId, files.orgId))
+      .leftJoin(secrets, eq(secrets.id, fileBuckets.secretId))
       .where(
         and(
           eq(files.status, 'deleting'),
@@ -316,7 +319,7 @@ export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   // One object at a time: the store never gets 500 deletes at once.
   await inOrder(rows, async (row) => {
     try {
-      await storeWith(row.storage, row.bucket).remove(row.key);
+      await storeWith(row.storage, withSecret(row.bucket, row.secret)).remove(row.key);
       removed.push(row.id);
     } catch (error) {
       log.error({ key: row.key, err: error }, 'could not delete stored file; will retry');

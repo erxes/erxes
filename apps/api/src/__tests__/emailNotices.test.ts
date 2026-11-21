@@ -1,7 +1,7 @@
-import { emailRamps, emailSettings, newId, users } from '@erxes/core-db';
+import { emailRamps, emailSettings, newId, users, withOrg } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { seal } from '~/lib/secrets';
+import { saveSecret } from '~/modules/secrets/vault';
 import { adminDb, useTestDatabase } from './db';
 import { useEmailRamp } from './emailRamp.fixture';
 import { settle } from './settle';
@@ -72,14 +72,13 @@ describe('email sending notices', { timeout: 240_000 }, () => {
   });
 
   it('tells admins once when their own SendGrid’s events are refused for want of a key', async () => {
-    await adminDb()
-      .insert(emailSettings)
-      .values({
-        orgId: t.ids.org,
+    await withOrg(t.ids.org, async (tx) => {
+      await tx.insert(emailSettings).values({
         provider: 'sendgrid',
         fromEmail: 'news@acme.mn',
-        secretSealed: seal('SG.key'),
+        secretId: await saveSecret(tx, 'SG.key'),
       });
+    });
 
     const post = () =>
       fetch(t.url(`/core/v1/email/events/sendgrid/${t.ids.org}`), {

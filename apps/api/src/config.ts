@@ -95,8 +95,8 @@ export const config = {
     signingKeyFile: env.CORE_SIGNING_KEY_DEV_FILE ?? './data/keys/signing-key.pem',
     /** Previous keys (PEM, public or private), still published so older signatures verify. */
     retiredSigningKeys: env.CORE_SIGNING_KEYS_RETIRED,
-    /** Seals secrets core reads back (webhook secrets, gateway keys); default: derived from CORE_JWT_SECRET. */
-    encryptionKey: env.CORE_ENCRYPTION_KEY,
+    encryptionKey: env.CORE_ENCRYPTION_KEY ?? 'erxes-core-local-development-encryption-key',
+    retiredEncryptionKeys: (env.CORE_ENCRYPTION_KEYS_RETIRED ?? '').split(/[\s,]+/).filter(Boolean),
   },
   app: {
     /**
