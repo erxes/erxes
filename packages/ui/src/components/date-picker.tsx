@@ -1,8 +1,8 @@
 import type { Matcher, PropsBase } from 'react-day-picker';
 import { useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Calendar } from './calendar';
 import { Button } from './button';
+import { Calendar, preloadCalendar } from './on-demand';
 import { Popover } from './popover';
 import { useFormat } from '../lib/format';
 import { cn } from '../lib/utils';
@@ -121,6 +121,9 @@ const PickerPopover = ({
       <div
         ref={anchorRef}
         className="relative inline-block w-full"
+        // The calendar's code loads on its first use; start it before the click that opens it.
+        onPointerEnter={() => void preloadCalendar()}
+        onFocus={() => void preloadCalendar()}
         // Tabbing from the typed date to another field closes the calendar its click opened.
         onBlur={(e) => {
           if (open && e.relatedTarget && !isInside(e.relatedTarget)) onOpenChange(false);

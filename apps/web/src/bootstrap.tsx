@@ -13,13 +13,12 @@ import { lazyNamed } from './lib/lazyNamed';
 import { pluginLive } from './lib/live';
 import { recheckSession } from './lib/queryClient';
 import { isSignedOut } from './modules/auth/session';
-import { SharedTimeline } from './modules/activity/SharedTimeline';
 
 // erxes-ui's upload hooks (and plugin UIs) store files through core.
 setFileStorage(coreFileStorage);
 
-// Plugin UIs show core's timeline for their own records.
-setRecordTimeline(SharedTimeline);
+// Plugin UIs show core's timeline for their own records; it loads the first time one shows.
+setRecordTimeline(lazyNamed(() => import('./modules/activity/SharedTimeline'), 'SharedTimeline'));
 
 // A plugin record's own page draws like a customer's; it loads the first time a plugin page
 // shows it.

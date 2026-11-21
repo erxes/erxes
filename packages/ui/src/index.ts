@@ -17,7 +17,7 @@ export { Breadcrumb } from './components/breadcrumb';
 
 export { Button, type ButtonProps, buttonVariants } from './components/button';
 
-export { Calendar, type CalendarProps } from './components/calendar';
+export { type CalendarProps } from './components/calendar';
 
 export { Card } from './components/card';
 
@@ -73,7 +73,7 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector, Resizable, Slider } from './components/on-demand';
+export { Calendar, MultipleSelector, Resizable, Slider } from './components/on-demand';
 
 export { type MultiSelectOption } from './components/multiselect';
 

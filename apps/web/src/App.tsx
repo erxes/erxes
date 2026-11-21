@@ -20,8 +20,14 @@ import {
 import { SignInPage } from '~/modules/auth/SignInPage';
 import { i18n } from './i18n';
 
-// Sign-in is the first page signed out; the app and the rarer pages load when needed.
-const AppRoutes = lazyNamed(() => import('~/modules/app/AppRoutes'), 'AppRoutes');
+// Sign-in is the first page signed out; the rarer pages load when needed. The app's code starts
+// loading now, while the session is checked, since most visits are signed in.
+const loadAppRoutes = () => import('~/modules/app/AppRoutes');
+
+// A failed fetch shows where the app renders: `AppRoutes` loads it again there.
+loadAppRoutes().catch(() => undefined);
+
+const AppRoutes = lazyNamed(loadAppRoutes, 'AppRoutes');
 const SetupPage = lazyNamed(() => import('~/modules/auth/SetupPage'), 'SetupPage');
 
 const ForgotPasswordPage = lazyNamed(
