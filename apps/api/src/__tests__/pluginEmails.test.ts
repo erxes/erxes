@@ -10,6 +10,8 @@ describe('emails for plugins', () => {
   const t = useTwoOrgs();
 
   it('queues a plain message to each address once, with a reply-to, and audits it', async () => {
+    await t.owner().emails.addReplyTo({ email: 'support@acme.mn' });
+
     const answer = await t.hr().emails.send({
       to: ['Bold@Mail.mn', 'bold@mail.mn', 'saraa@mail.mn'],
       subject: 'Your ticket #42',
@@ -47,6 +49,10 @@ describe('emails for plugins', () => {
     await expect(
       t.hr().emails.send({ ...message, button: { label: 'Go', link: 'http://acme.mn' } }),
     ).rejects.toMatchObject({ status: 400 });
+    // Replies only to a verified address of the organisation's.
+    await expect(
+      t.hr().emails.send({ ...message, replyTo: 'someone@else.mn' }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
 
     const service = t.client(await t.pluginToken());
 

@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { NotificationDelivery } from './values';
+import { EMAIL_NOTIFICATION_KINDS, NotificationDelivery } from './notificationGroups';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
 import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
@@ -105,6 +105,7 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.import.done',
   'core.export.ready',
   'core.security.new_sign_in',
+  ...EMAIL_NOTIFICATION_KINDS,
 ] as const;
 
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];

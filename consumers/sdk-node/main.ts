@@ -44,6 +44,7 @@ const organization: Organization = {
   name: 'Acme',
   country: 'MN',
   currency: 'MNT',
+  timezone: 'Asia/Ulaanbaatar',
   createdAt: new Date().toISOString(),
 };
 

@@ -3,6 +3,7 @@ import { and, eq, gt, lt, notExists, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
+import { isVerifiedReplyTo } from '~/modules/email/replyTos.service';
 import { defineJob, defineSchedule } from '~/modules/jobs/jobs';
 import { enrolAudience } from './audience';
 import { missingContent, outerId } from './broadcasts.service';
@@ -59,6 +60,16 @@ const startJob = defineJob({
           tx,
           broadcastId,
           `It had no ${missing.join(' and ')} when its time came`,
+        );
+
+        return;
+      }
+
+      if (broadcast.replyTo && !(await isVerifiedReplyTo(tx, broadcast.replyTo))) {
+        await failBroadcast(
+          tx,
+          broadcastId,
+          `Its Reply-To ${broadcast.replyTo} was no longer verified when its time came`,
         );
 
         return;

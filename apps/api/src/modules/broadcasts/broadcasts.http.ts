@@ -11,7 +11,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import { type Request, Router } from 'express';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
-import { escapeHtml, linkPage, linkPageButton } from '~/modules/email/templates';
+import { escapeHtml } from '~/modules/email/templates';
 import { organizationName } from './broadcasts.service';
 import { isRecipientSignature, isTargetSignature } from './links';
 
@@ -78,6 +78,12 @@ const unsubscribe = async (tx: Db, recipientId: string) => {
     });
 };
 
+/** A small page in the organisation's name. */
+const page = (title: string, body: string) => `<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title></head>
+<body style="margin:0;padding:48px 16px;background:#f6f7f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111">
+<main style="max-width:420px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;text-align:center">${body}</main></body></html>`;
+
 const nameOf = (orgId: string) => withOrg(orgId, (tx) => organizationName(tx));
 
 /** A transparent 1×1 GIF. */
@@ -101,11 +107,11 @@ broadcastLinksRouter.get('/b/:recipientId/:sig/unsubscribe', async (req, res) =>
   const organization = found ? await nameOf(found.orgId) : null;
 
   res.type('html').send(
-    linkPage(
+    page(
       'Unsubscribe',
       found && organization
         ? `<p style="margin:0 0 20px">Stop getting these messages from ${escapeHtml(organization)}?</p>
-${linkPageButton('Unsubscribe')}`
+<form method="post"><button type="submit" style="padding:10px 24px;font-size:14px;color:#fff;background:#5629b6;border:0;border-radius:8px;cursor:pointer">Unsubscribe</button></form>`
         : '<p style="margin:0">This link no longer works.</p>',
     ),
   );
@@ -118,7 +124,7 @@ broadcastLinksRouter.post('/b/:recipientId/:sig/unsubscribe', async (req, res) =
     res
       .status(404)
       .type('html')
-      .send(linkPage('Unsubscribe', '<p style="margin:0">This link no longer works.</p>'));
+      .send(page('Unsubscribe', '<p style="margin:0">This link no longer works.</p>'));
 
     return;
   }
@@ -132,7 +138,7 @@ broadcastLinksRouter.post('/b/:recipientId/:sig/unsubscribe', async (req, res) =
   res
     .type('html')
     .send(
-      linkPage(
+      page(
         'Unsubscribed',
         `<p style="margin:0">You won't get these messages from ${escapeHtml(organization)} any more.</p>`,
       ),

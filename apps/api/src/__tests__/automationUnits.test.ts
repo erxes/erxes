@@ -1,5 +1,6 @@
 import type { ConditionRule } from '@erxes/core-contract';
 import { describe, expect, it } from 'vite-plus/test';
+import { localDay, nextMidnight } from '~/lib/orgTime';
 import { daysToAnniversary, evaluateRule } from '~/modules/automations/conditions';
 import { nextOccurrence } from '~/modules/automations/schedule';
 import { render } from '~/modules/automations/templates';
@@ -68,41 +69,76 @@ describe('automation schedules', () => {
     const after = new Date('2026-11-12T03:00:00Z'); // Thursday 11:00 in Ulaanbaatar
 
     expect(
-      nextOccurrence(
-        { kind: 'schedule', every: 'day', at: '09:00', timezone: ub },
-        after,
-      ).toISOString(),
+      nextOccurrence({ kind: 'schedule', every: 'day', at: '09:00' }, ub, after).toISOString(),
     ).toBe('2026-11-13T01:00:00.000Z');
     expect(
-      nextOccurrence(
-        { kind: 'schedule', every: 'day', at: '12:00', timezone: ub },
-        after,
-      ).toISOString(),
+      nextOccurrence({ kind: 'schedule', every: 'day', at: '12:00' }, ub, after).toISOString(),
     ).toBe('2026-11-12T04:00:00.000Z');
     expect(
       nextOccurrence(
-        { kind: 'schedule', every: 'week', weekdays: [1], at: '09:00', timezone: ub },
+        { kind: 'schedule', every: 'week', weekdays: [1], at: '09:00' },
+        ub,
         after,
       ).toISOString(),
     ).toBe('2026-11-16T01:00:00.000Z');
     expect(
       nextOccurrence(
-        { kind: 'schedule', every: 'month', dayOfMonth: 31, at: '09:00', timezone: ub },
+        { kind: 'schedule', every: 'month', dayOfMonth: 31, at: '09:00' },
+        ub,
         after,
       ).toISOString(),
     ).toBe('2026-11-30T01:00:00.000Z');
     expect(
+      nextOccurrence({ kind: 'schedule', every: 'hour', at: '00:15' }, ub, after).toISOString(),
+    ).toBe('2026-11-12T03:15:00.000Z');
+    // A half-hour zone: the minute is on its clock (UTC+5:30, :15 there is :45 in UTC).
+    expect(
       nextOccurrence(
-        { kind: 'schedule', every: 'hour', at: '00:15', timezone: ub },
+        { kind: 'schedule', every: 'hour', at: '00:15' },
+        'Asia/Kolkata',
         after,
       ).toISOString(),
-    ).toBe('2026-11-12T03:15:00.000Z');
+    ).toBe('2026-11-12T03:45:00.000Z');
     // A zone with summer time.
     expect(
       nextOccurrence(
-        { kind: 'schedule', every: 'day', at: '09:00', timezone: 'Europe/Berlin' },
+        { kind: 'schedule', every: 'day', at: '09:00' },
+        'Europe/Berlin',
         new Date('2026-07-01T12:00:00Z'),
       ).toISOString(),
     ).toBe('2026-07-02T07:00:00.000Z');
+    // New York's clocks go back at 02:00 EDT on 2026-11-01: hourly runs keep an hour apart.
+    const hourly = { kind: 'schedule', every: 'hour', at: '00:30' } as const;
+    const firstOneThirty = new Date('2026-11-01T05:30:00Z'); // 01:30 EDT
+    const secondOneThirty = nextOccurrence(hourly, 'America/New_York', firstOneThirty);
+
+    expect(secondOneThirty.toISOString()).toBe('2026-11-01T06:30:00.000Z'); // 01:30 EST
+    expect(nextOccurrence(hourly, 'America/New_York', secondOneThirty).toISOString()).toBe(
+      '2026-11-01T07:30:00.000Z',
+    );
+    // A daily time the spring change skips (02:30 on 2026-03-08) runs at 03:30, once.
+    expect(
+      nextOccurrence(
+        { kind: 'schedule', every: 'day', at: '02:30' },
+        'America/New_York',
+        new Date('2026-03-08T05:00:00Z'),
+      ).toISOString(),
+    ).toBe('2026-03-08T07:30:00.000Z');
+  });
+
+  it('knows an organisation’s day and its next midnight', () => {
+    // 17:00 UTC is already the next day in Ulaanbaatar (UTC+8).
+    const evening = new Date('2026-11-20T17:00:00Z');
+
+    expect(localDay('UTC', evening)).toBe('2026-11-20');
+    expect(localDay('Asia/Ulaanbaatar', evening)).toBe('2026-11-21');
+    expect(nextMidnight('Asia/Ulaanbaatar', evening).toISOString()).toBe(
+      '2026-11-21T16:00:00.000Z',
+    );
+    expect(nextMidnight('UTC', evening).toISOString()).toBe('2026-11-21T00:00:00.000Z');
+    // Across a year's end.
+    expect(nextMidnight('Asia/Ulaanbaatar', new Date('2026-12-31T15:00:00Z')).toISOString()).toBe(
+      '2026-12-31T16:00:00.000Z',
+    );
   });
 });

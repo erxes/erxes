@@ -7,6 +7,9 @@ import { sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { diffRows } from '~/lib/changes';
 import { oneRow } from '~/lib/rows';
+import { rescheduleAutomations } from '~/modules/automations/triggers';
+import { rescheduleBroadcasts } from '~/modules/broadcasts/schedules.service';
+import { carryRampDay } from '~/modules/email/ramp';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
 import { seedRoles } from '~/modules/roles/roles.service';
 
@@ -91,13 +94,33 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
 export const createOrganization = (input: NewOrganization) =>
   withSystem('create organization', (tx) => insertOrganization(tx, input));
 
+/** Postgres reads the zone too (the email ramp's day): one its time zone data lacks is refused. */
+const assertKnownZone = async (tx: Db, timezone: string) => {
+  const { rows } = await tx.execute<{ known: boolean }>(
+    sql`select exists (select 1 from pg_timezone_names where name = ${timezone}) as known`,
+  );
+
+  if (rows[0]?.known) return;
+
+  const message = 'a time zone like Asia/Ulaanbaatar or UTC';
+
+  throw fail('INVALID_INPUT', message, { issues: [{ path: ['timezone'], message }] });
+};
+
 /**
  * Renames the organisation or changes where it works. A new country without
  * a currency also takes that country's currency; products and invoices keep
- * the currency they were made in.
+ * the currency they were made in. A new time zone moves its scheduled and
+ * date automations to the new clock.
  */
-export const updateOrganization = async (tx: Db, input: Region & { name?: string }) => {
+export const updateOrganization = async (
+  tx: Db,
+  input: Region & { name?: string; timezone?: string },
+) => {
   const before = await getOrganization(tx);
+  const timezone = input.timezone ?? before.timezone;
+
+  if (timezone !== before.timezone) await assertKnownZone(tx, timezone);
 
   const row = oneRow(
     await tx
@@ -106,10 +129,17 @@ export const updateOrganization = async (tx: Db, input: Region & { name?: string
         name: input.name ?? before.name,
         country: input.country ?? before.country,
         currency: currencyFor(input, before),
+        timezone,
         updatedAt: sql`now()`,
       })
       .returning(),
   );
+
+  if (timezone !== before.timezone) {
+    await rescheduleAutomations(tx, timezone);
+    await rescheduleBroadcasts(tx, timezone);
+    await carryRampDay(tx, before.timezone, timezone);
+  }
 
   return { organization: row, changes: diffRows(before, row, ['settings']) };
 };

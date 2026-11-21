@@ -1,9 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
-import { BroadcastPage } from './BroadcastPage';
 import { BroadcastsListPage } from './BroadcastsListPage';
 import { SuppressionsPage } from './SuppressionsPage';
+
+// The editor and report load when a broadcast is opened, not with the list.
+const BroadcastPage = lazyNamed(() => import('./BroadcastPage'), 'BroadcastPage');
 
 /** The Broadcasts app, mounted at `broadcasts/*`. */
 export const BroadcastsRoutes = () => {

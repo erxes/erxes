@@ -16,9 +16,13 @@ import { unique } from '~/lib/contacts';
 import { assertPluginNamespace } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches, repeatWhile } from '~/lib/sequence';
+import { logger } from '~/logger';
 import { sendEmail } from '~/modules/email/email';
+import { canDeliverEmail } from '~/modules/email/sender';
 import { clientOf } from '~/modules/oauth/oauthClients';
 import { sendSms } from '~/modules/sms/sms';
+
+const log = logger.child({ component: 'customer-notifications' });
 
 /** The signed-in customer's own notifications. */
 const mine = () => eq(customerNotifications.customerId, caller('customer').customerId);
@@ -96,7 +100,7 @@ const deliver = async (
   client: Db,
   input: Input,
   appOrigin: string | null,
-  created: { email: string | null; phone: string | null }[],
+  created: { id: string; email: string | null; phone: string | null }[],
 ) => {
   if (!input.channels.length || !created.length) return;
 
@@ -112,14 +116,25 @@ const deliver = async (
   const link = origin && input.link ? `${origin}${input.link}` : null;
   const body = input.body ?? null;
 
-  if (input.channels.includes('email')) {
+  // Email that would only reach the log is skipped; the inbox and other channels still get it.
+  const wantsEmail = input.channels.includes('email');
+  const emailing = wantsEmail && (await canDeliverEmail(client));
+
+  if (wantsEmail && !emailing)
+    log.warn(
+      { orgId, kind: input.kind },
+      'customer notification not emailed: sending isn’t set up',
+    );
+
+  if (emailing) {
     await sendEmail(
       client,
       orgId,
-      created.flatMap(({ email }) =>
+      created.flatMap(({ id, email }) =>
         email
           ? [
               {
+                customerId: id,
                 to: email,
                 template: 'customer_notification' as const,
                 data: { organization, title: input.title, body, link },
@@ -127,6 +142,7 @@ const deliver = async (
             ]
           : [],
       ),
+      { source: 'customer' },
     );
   }
 

@@ -68,6 +68,7 @@ const emailAlert = async (client: Db, input: AlertInput, recipients: string[]) =
         template: 'security_alert',
         data: { organization: org.name, title: input.title, body: input.body, link },
       })),
+    { source: 'security' },
   );
 };
 
