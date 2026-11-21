@@ -179,6 +179,7 @@ value RecordPage
 value RecordPanelProvider
 value RecordTable
 value RecordTableInlineCell
+value RecordTableTree
 value RecordTimeline
 value RelativeDateDisplay
 value Resizable
@@ -186,6 +187,7 @@ value ScrollArea
 value Select
 value SelectContactContent
 value SelectMember
+value SelectTree
 value Separator
 value SexCode
 value SexDisplay

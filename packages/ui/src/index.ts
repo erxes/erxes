@@ -272,6 +272,10 @@ export type {
 
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
+export { RecordTableTree } from './modules/record-table/components/RecordTableTree';
+
+export { SelectTree } from './modules/pickers/SelectTree';
+
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
 export {

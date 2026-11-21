@@ -48,6 +48,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
+- `RecordTableTree.{Indentation, Arrow, Trigger, Row}` A record table whose rows are a tree, indented with arrows that fold.
 - `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
 - `type TListDisplayOption { key, label, icon }` A list's own display, such as a cards grid or a chart.
@@ -142,6 +143,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PhoneInput value onChange defaultCountry placeholder onEnter>` A phone input with a country flag picker that formats as you type.
 - `RelativeDateDisplay.{Value}` A date as how long ago it was, with the date and time on hover.
 - `SelectMember` The member picker: a table cell, a field, or a row opening the member.
+- `SelectTree.{Item, Provider}` A picker's items as a tree, indented with arrows that fold.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.
 - `<SexField value onValueChange>` A searchable list to pick a sex code, for a popover or cell editor.
 - `type Tag { id, name }` A tag as the pickers show one: core's `Tag` has these fields and more.
