@@ -1,6 +1,6 @@
 import { Switch as SwitchPrimitives } from '@base-ui/react/switch';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from 'erxes-ui/lib/utils';
+import { cn, hiddenInputInFlow } from 'erxes-ui/lib/utils';
 
 const switchVariants = cva(
   'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-transparent transition-colors focus-visible:outline-hidden focus-visible:shadow-focus data-disabled:cursor-not-allowed data-disabled:opacity-50 data-checked:bg-primary data-unchecked:bg-accent shadow-inner',
@@ -38,7 +38,10 @@ export const Switch = ({
   size,
   ...props
 }: SwitchPrimitives.Root.Props & VariantProps<typeof switchVariants>) => (
-  <SwitchPrimitives.Root className={cn(switchVariants({ size }), className)} {...props}>
+  <SwitchPrimitives.Root
+    className={cn(switchVariants({ size }), hiddenInputInFlow, className)}
+    {...props}
+  >
     <SwitchPrimitives.Thumb className={switchThumbVariants({ size })} />
   </SwitchPrimitives.Root>
 );

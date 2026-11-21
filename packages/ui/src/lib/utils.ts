@@ -17,6 +17,15 @@ declare module 'react' {
  */
 export const cn = createCn(tables);
 
+/**
+ * For a Base UI Checkbox, Radio or Switch root: keeps the hidden `<input>` Base UI renders right
+ * after it `absolute` (as Base UI does for a named one) instead of `fixed`. Each fixed element
+ * in a scrolling list gets its own compositor layer and splits what paints after it into more:
+ * a table made four layers a row, one the size of the viewport, and Chrome dropped their tiles,
+ * leaving blank and half-drawn rows until the next scroll.
+ */
+export const hiddenInputInFlow = '[&+input]:absolute!';
+
 /** One ref callback that sets every given ref, for an element both the component and its caller need. */
 export const mergeRefs =
   <T>(...refs: (Ref<T> | undefined)[]): RefCallback<T> =>
