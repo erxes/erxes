@@ -38,6 +38,10 @@ services:
   postgres:
     image: postgres:18
     restart: unless-stopped
+    # Parallel queries share memory through /dev/shm; Docker's 64 MB default makes big
+    # sorts and hash joins fail ("could not resize shared memory segment"). A ceiling, not a
+    # reservation.
+    shm_size: 1g
     environment:
       POSTGRES_USER: erxes
       POSTGRES_PASSWORD: ${DATA_OWNER_PASSWORD:?set DATA_OWNER_PASSWORD}
