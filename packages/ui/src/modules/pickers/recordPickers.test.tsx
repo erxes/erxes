@@ -7,7 +7,9 @@ import { Filter } from '../filter/components/Filter';
 import type { CustomerContact, ContactSearchQueries } from '../records/contacts';
 import type { ProductQueries, ProductRecord } from '../records/products';
 import type { UnitChoice, UnitQueries } from '../records/units';
+import type { Member, MemberQueries } from './members';
 import { SelectCustomer } from './SelectContacts';
+import { SelectMember } from './SelectMember';
 import { ProductsInline, SelectProduct } from './SelectProducts';
 import { SelectProductsBulk } from './SelectProductsBulk';
 import { BranchesInline, SelectBranches } from './SelectUnits';
@@ -122,6 +124,20 @@ describe('SelectBranches', () => {
 
     pick('02Ulaanbaatar');
     expect(onValueChange).toHaveBeenCalledWith('ub');
+  });
+
+  it('shows the placeholder, not the id, for a branch that is gone', async () => {
+    const container = page(
+      <SelectBranches.Field
+        units={units}
+        value="deleted-branch"
+        placeholder="Choose a branch"
+        onValueChange={() => undefined}
+      />,
+    );
+
+    await settle();
+    expect(container.textContent).toBe('Choose a branch');
   });
 
   it('names several branches, and counts them past two', async () => {
@@ -271,5 +287,72 @@ describe('SelectProductsBulk', () => {
     await settle();
 
     expect(onSelect).toHaveBeenCalledWith(['p3'], [PRODUCTS[2]]);
+  });
+});
+
+const member = (id: string, fullName: string): Member => ({
+  id,
+  email: null,
+  fullName,
+  username: null,
+  avatarUrl: null,
+  status: 'active',
+});
+
+const TEAM = [member('u1', 'Bold'), member('u2', 'Saraa'), member('u3', 'Tuya')];
+
+const members: MemberQueries = {
+  team: { queryKey: ['team'], queryFn: async () => ({ data: TEAM }) },
+  byIds: (ids) => ({
+    queryKey: ['team', ids],
+    queryFn: async () => ({ data: TEAM.filter((row) => ids.includes(row.id)) }),
+  }),
+};
+
+describe('SelectMember', () => {
+  it('picks several members outside a form, and stays open for more', async () => {
+    const onValueChange = vi.fn<(value: string | string[] | undefined) => void>();
+
+    const container = page(
+      <SelectMember
+        members={members}
+        mode="multiple"
+        value={['u1']}
+        onValueChange={onValueChange}
+      />,
+    );
+
+    // The member picker's code loads on first use, then the team.
+    await settle();
+    await settle();
+    expect(container.textContent).toContain('Bold');
+
+    await open(container);
+    expect(rows()).toEqual(['SSaraa', 'TTuya']);
+
+    pick('SSaraa');
+    await settle();
+
+    expect(onValueChange).toHaveBeenCalledWith(['u1', 'u2']);
+    // The list is still open to pick another.
+    expect(rows()).toEqual(['SSaraa', 'TTuya']);
+  });
+
+  it('picks one member and closes', async () => {
+    const onValueChange = vi.fn<(value: string | string[] | undefined) => void>();
+
+    const container = page(
+      <SelectMember members={members} value={undefined} onValueChange={onValueChange} />,
+    );
+
+    await settle();
+    expect(container.textContent).toBe('Select a member');
+
+    await open(container);
+    pick('TTuya');
+    await settle();
+
+    expect(onValueChange).toHaveBeenCalledWith('u3');
+    expect(rows()).toEqual([]);
   });
 });

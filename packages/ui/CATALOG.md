@@ -171,7 +171,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<SelectCompany>` Picks core's companies in a table cell, a form field or a filter.
 - `<SelectCustomer>` Picks core's customers in a table cell, a form field or a filter.
 - `<SelectDepartments>` Picks core's departments in a table cell, a form field or a filter.
-- `SelectMember` The member picker: a table cell, a field, or a row opening the member.
+- `SelectMember.{InlineCell, Field, Linked, FormItem, FilterItem, …}` The member picker: a table cell, a field, or a row opening the member.
 - `<SelectProduct>` Picks core products in a table cell, a form field or a filter.
 - `<SelectProductsBulk>` A sheet that picks many products at once, as 3.x's did.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.

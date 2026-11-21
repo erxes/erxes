@@ -35,6 +35,10 @@ interface Parts<Q> {
   Content: ComponentType<Q & { onPick?: () => void }>;
 }
 
+/** A single pick closes the list; in `multiple` it stays open for more, as 3.x's did. */
+const closeOnPick = (picker: PickerProps, setOpen: (open: boolean) => void) =>
+  picker.mode === 'multiple' ? undefined : () => setOpen(false);
+
 /** The picked records in a table cell; a click opens the list. */
 const PickerInlineCell = <Q extends PickerProps>({
   parts,
@@ -53,7 +57,7 @@ const PickerInlineCell = <Q extends PickerProps>({
         <parts.Value {...picker} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content className="min-w-72">
-        <parts.Content {...picker} onPick={() => setOpen(false)} />
+        <parts.Content {...picker} onPick={closeOnPick(picker, setOpen)} />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
@@ -74,7 +78,7 @@ const PickerField = <Q extends PickerProps>({
   const [open, setOpen] = useState(false);
 
   const trigger = (
-    <Combobox.Trigger className={cn('w-full', className)}>
+    <Combobox.Trigger className={cn('w-full', className)} disabled={picker.disabled}>
       <parts.Value {...picker} />
     </Combobox.Trigger>
   );
@@ -83,7 +87,7 @@ const PickerField = <Q extends PickerProps>({
     <Popover open={open} onOpenChange={setOpen}>
       {inForm ? <Form.Control>{trigger}</Form.Control> : trigger}
       <Combobox.Content>
-        <parts.Content {...picker} onPick={() => setOpen(false)} />
+        <parts.Content {...picker} onPick={closeOnPick(picker, setOpen)} />
       </Combobox.Content>
     </Popover>
   );

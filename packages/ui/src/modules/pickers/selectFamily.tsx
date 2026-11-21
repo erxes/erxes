@@ -48,6 +48,8 @@ export interface PickerProps {
   onValueChange?: (value: string | string[] | undefined) => void;
   mode?: PickerMode;
   placeholder?: string;
+  /** A field that shows the pick and can't be changed (a form the member can only read). */
+  disabled?: boolean;
 }
 
 export const idsOf = (value: PickerValue) => (Array.isArray(value) ? value : value ? [value] : []);
@@ -83,7 +85,10 @@ const Picked = <T,>({
     </Badge>
   );
 
-/** The picked records: one as text, several as badges, past one in `multiple` a count. */
+/**
+ * The picked records: one as text, several as badges, past one in `multiple` a count. A single
+ * pick that no longer loads shows the placeholder.
+ */
 export const PickerValueView = <T,>({
   look,
   texts,
@@ -112,7 +117,12 @@ export const PickerValueView = <T,>({
 
   if (mode === 'multiple') return <Picked id={first} item={item} Item={look.Item} />;
 
-  return item ? <look.Item item={item} /> : <span className="truncate">{first}</span>;
+  // A record that no longer loads (a deleted branch) shows the placeholder, as 3.x showed nothing.
+  return item ? (
+    <look.Item item={item} />
+  ) : (
+    <Combobox.Value placeholder={placeholder ?? texts.placeholder} />
+  );
 };
 
 /** The records to pick, as a tree that folds while the list is unsearched and has one. */
