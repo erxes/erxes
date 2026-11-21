@@ -4,7 +4,7 @@ import { notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
 import { type ConditionChecker, conditionChecker, type SubjectRef } from './conditionCheck';
 import { type Cursor, enterArm, nextCursor, splitPath, stepAt } from './cursor';
-import { automationCatalog } from './definitions';
+import { automationCatalog } from './automationCatalog';
 import { armConditions } from './steps';
 import { subjectOf } from './subjects';
 import { render } from './templates';

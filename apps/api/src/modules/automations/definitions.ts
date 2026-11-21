@@ -4,57 +4,17 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import {
-  CONTENT_TYPES,
-  type ContentType,
-  type Db,
-  fields,
-  pluginInstallations,
-  plugins,
-} from '@erxes/core-db';
+import { CONTENT_TYPES, type ContentType, type Db, fields } from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
-import { integrationActions } from '~/modules/integrations/actions';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { subjectCompiler } from '~/modules/views/recordFilter';
-import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
-import { actionCatalog, coreAction } from './actions/catalog';
-import { learnedEventData } from './eventData';
+import { coreAction } from './actions/catalog';
+import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { dateConditions } from './conditions';
-
-const installedPlugins = (client: Db) =>
-  client
-    .select({ name: plugins.name, manifest: plugins.manifest })
-    .from(plugins)
-    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
-
-/**
- * The triggers and actions an organisation's automations can use. A trigger's data is what its
- * publisher lists, then what its events have carried here that the list leaves out.
- */
-export const automationCatalog = async (client: Db) => {
-  const triggers = await eventTypeCatalog(client);
-  const installed = await installedPlugins(client);
-  const learned = await learnedEventData(client);
-
-  return {
-    triggers: triggers.map((trigger) => {
-      const found = learned.get(trigger.type);
-      const listed = new Set(trigger.fields.map((field) => field.key));
-
-      return {
-        ...trigger,
-        fields: [...trigger.fields, ...(found ?? []).filter((field) => !listed.has(field.key))],
-        seen: found !== undefined,
-      };
-    }),
-    actions: [...actionCatalog(installed), ...(await integrationActions(client))],
-  };
-};
 
 type Catalog = Awaited<ReturnType<typeof automationCatalog>>;
 

@@ -281,6 +281,7 @@
   "choose-date": "Өдөр сонгох",
   "days-later": "хоногийн дараа",
   "records-failed": "Аппын сонголтууд ачаалагдсангүй: {{message}}",
+  "any-record": "Бүх {{label}}",
   "start-from-view": "Хадгалсан харагдацаас эхлэх",
   "view-list": {
     "customer": "Харилцагчид",

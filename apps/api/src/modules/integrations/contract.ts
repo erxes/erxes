@@ -1,67 +1,15 @@
-import { INTEGRATION_FIELD_MAX, IntegrationDataField, IntegrationKey } from '@erxes/core-contract';
+import { INTEGRATION_FIELD_MAX, IntegrationKey } from '@erxes/core-contract';
 import { type Db, integrationPrograms } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
+import { carriedBy, healedFields as healed, labelOf } from '~/modules/automations/dataFields';
 import type { LoadedProgram } from './programs.service';
 
 type Program = LoadedProgram['program'];
 
 type Field = Program['outputs'][number];
 
-type Kind = 'text' | 'number' | 'boolean' | 'list';
-
-const FITS: Record<Kind, readonly Field['type'][]> = {
-  text: ['text', 'date', 'member', 'select'],
-  number: ['number', 'text'],
-  boolean: ['boolean', 'text'],
-  list: ['list', 'tags'],
-};
-
-const widened = (kind: Kind): Kind => (kind === 'list' ? 'list' : 'text');
-
-const kindOf = (value: unknown): Kind | null => {
-  if (typeof value === 'string') return 'text';
-
-  if (typeof value === 'number') return 'number';
-
-  if (typeof value === 'boolean') return 'boolean';
-
-  return Array.isArray(value) ? 'list' : null;
-};
-
-const labelOf = (key: string) => {
-  const words = key
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replaceAll('_', ' ')
-    .toLowerCase();
-
-  return words.charAt(0).toUpperCase() + words.slice(1);
-};
-
-const carriedBy = (real: Record<string, unknown>) =>
-  Object.entries(real).flatMap(([key, value]) => {
-    const kind = IntegrationDataField.shape.key.safeParse(key).success ? kindOf(value) : null;
-
-    return kind ? [{ key, kind }] : [];
-  });
-
-const healedFields = (declared: Field[], real: Record<string, unknown>): Field[] => {
-  const carried = carriedBy(real);
-  const kinds = new Map(carried.map(({ key, kind }) => [key, kind]));
-
-  const corrected = declared.map((field) => {
-    const kind = kinds.get(field.key);
-
-    return kind && !FITS[kind].includes(field.type) ? { ...field, type: widened(kind) } : field;
-  });
-
-  const listed = new Set(declared.map((field) => field.key));
-
-  const added = carried
-    .filter(({ key }) => !listed.has(key))
-    .map(({ key, kind }) => ({ key, label: labelOf(key), type: kind }));
-
-  return [...corrected, ...added].slice(0, INTEGRATION_FIELD_MAX);
-};
+const healedFields = (declared: Field[], real: Record<string, unknown>): Field[] =>
+  healed(declared, carriedBy(real)).slice(0, INTEGRATION_FIELD_MAX);
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 

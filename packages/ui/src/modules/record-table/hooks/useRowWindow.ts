@@ -1,10 +1,18 @@
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 
-/** Rows rendered past each edge of the visible area, so a normal scroll never shows a gap. */
-const OVERSCAN = 15;
+/** Rows rendered past each edge of the visible area when a new slice renders. */
+const OVERSCAN = 40;
+
+/**
+ * A new slice renders once fewer than this many rendered rows are left past an edge of the
+ * visible area. The browser scrolls on its own thread, ahead of the scroll events this hook
+ * hears, so a slice that renders only once the visible rows have left it shows the empty gap
+ * (and half-painted rows) on a fast scroll.
+ */
+const MARGIN = 20;
 
 /** Rows rendered before the first measure: about one screen. */
-const FIRST_RENDER = 2 * OVERSCAN;
+const FIRST_RENDER = OVERSCAN;
 
 const ROW_HEIGHT = 33;
 
@@ -36,9 +44,9 @@ const visibleArea = (scroller: HTMLElement | null) => {
 /**
  * The slice of rows `[start, end)` to render of a list of `count` rows of height
  * `--spacing-cell`, whose first row sits where `listStart` is, while its scroll container (or
- * the page) scrolls. Until `listStart` mounts, the first screen renders. The slice changes only
- * when the visible rows leave it, so a scroll renders a new slice every `OVERSCAN` rows, and it
- * renders before the next paint, so no gap shows.
+ * the page) scrolls. Until `listStart` mounts, the first screen renders. The slice changes once
+ * fewer than `MARGIN` rendered rows are left past an edge of the visible area, so a scroll
+ * renders a new slice every `OVERSCAN - MARGIN` rows, while rows are still left to scroll into.
  */
 export const useRowWindow = ({
   count,
@@ -84,7 +92,10 @@ export const useRowWindow = ({
     const first = clamp(Math.floor(-top / rowHeight), 0, count);
     const last = clamp(Math.ceil((area.height - top) / rowHeight), 0, count);
 
-    if (current.start <= first && current.end >= last && current.end <= count) return current;
+    const topCovered = current.start === 0 || current.start <= first - MARGIN;
+    const bottomCovered = current.end >= Math.min(last + MARGIN, count);
+
+    if (topCovered && bottomCovered && current.end <= count) return current;
 
     rangeRef.current = {
       start: clamp(first - OVERSCAN, 0, count),

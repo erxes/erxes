@@ -120,7 +120,7 @@ export const EmailEditor = ({
   return (
     <fieldset aria-label={label} className="min-w-0 space-y-1.5">
       <LabelRow label={label} onPick={insertField} />
-      <div className="min-h-64 overflow-hidden rounded-md bg-white text-sm shadow-xs scheme-light focus-within:shadow-focus">
+      <div className="min-h-64 overflow-hidden rounded-md bg-white text-sm text-neutral-900 shadow-xs scheme-light focus-within:shadow-focus">
         <Editor.Root
           ref={root}
           content={value ?? undefined}

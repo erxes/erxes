@@ -31,7 +31,9 @@ COPY apps/web apps/web
 RUN pnpm --filter @erxes/web build
 
 FROM nginx:1.30-alpine
-# Alpine fixes reach the package repository before the nginx image is rebuilt.
+# Alpine fixes reach the package repository before the nginx image is rebuilt. A cached layer
+# would keep the old packages, so docker-bake.hcl passes the day and this layer reruns daily.
+ARG APK_UPGRADE_DAY
 RUN apk upgrade --no-cache
 ENV CORE_API_URL=http://api:3400
 # The image's entrypoint reads the DNS servers into NGINX_LOCAL_RESOLVERS for the template.

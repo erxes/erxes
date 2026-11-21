@@ -281,6 +281,7 @@
   "choose-date": "Choose a date",
   "days-later": "days later",
   "records-failed": "The app’s choices didn’t load: {{message}}",
+  "any-record": "Any {{label}}",
   "start-from-view": "Start from a saved view",
   "view-list": {
     "customer": "Customers",
