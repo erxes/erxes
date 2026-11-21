@@ -60,6 +60,8 @@ const selectTriggerVariants = cva(
         bordered: 'border border-input font-normal shadow-none aria-invalid:border-destructive',
         // No border or corners: a cell in a grid that draws its own lines.
         flush: 'rounded-none shadow-none',
+        // Rounded with no drop shadow: a picker inside a cell's editor popover.
+        flat: 'shadow-none',
       },
     },
     defaultVariants: { variant: 'default' },

@@ -79,6 +79,11 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
+  /* A cell or control marked by its ground: a value repeated elsewhere, an option turned on. */
+  --color-tint-repeated: var(--tint-repeated);
+  --color-tint-highlight: var(--tint-highlight);
+  --color-tint-highlight-strong: var(--tint-highlight-strong);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
@@ -114,6 +119,8 @@
   /* An image or video opened full size over the page. */
   --max-width-lightbox: 90vw;
   --max-height-lightbox: 90vh;
+  /* A wide sheet's width below md: the viewport less its 0.5rem margins. */
+  --width-sheet: calc(100vw - 1rem);
   /* A record table's rows fill the page below its header bars. */
   --min-height-table: calc(100vh - 8rem);
 

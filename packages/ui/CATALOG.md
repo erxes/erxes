@@ -202,8 +202,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type BadgeProps { onClose }` Div props plus `variant`, `size` and `onClose`, which adds a remove x.
 - `badgeVariants` The badge's classes by `variant` and `size`, to style another element.
 - `Breadcrumb.{List, Item, Link, Page, Separator, …}` The trail of links to the current page, on the left of a `PageHeader`.
-- `<Button variant tone size>` A button in the theme's variants, tones and sizes; native by default.
-- `type ButtonProps` Base UI button props plus `variant`, `tone` and `size`.
+- `<Button variant tone size fill selected>` A button in the theme's variants, tones and sizes; native by default.
+- `type ButtonProps` Base UI button props plus the button's variants.
 - `buttonVariants(props)` Button classes by `variant`, `tone` and `size`, to style a link as one.
 - `<Calendar classNames>` A month grid to pick a day or range, in the UI's language.
 - `type CalendarProps` react-day-picker's `DayPicker` props.
