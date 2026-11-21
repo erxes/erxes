@@ -106,7 +106,9 @@ const InputMain = ({
 
 /**
  * A number with thousands separators; `onChange` gets the number, or '' when cleared. It keeps
- * `scale` decimal places, 2 unless given (an exchange rate takes more).
+ * `scale` decimal places, 2 unless given (an exchange rate takes more). `min` and `max` bound it
+ * as 3.x's did: a key that would pass a bound is refused (`min={0}` refuses the minus sign), and
+ * a value still outside them on blur is set to the nearest bound.
  */
 const InputNumber = ({
   value,
@@ -115,10 +117,14 @@ const InputNumber = ({
   onInvalid,
   scale = 2,
   ...props
-}: ReactElementProps<HTMLInputElement> & {
+}: Except<ReactElementProps<HTMLInputElement>, 'onChange'> & {
   onChange?: (value?: number | '') => void;
   value?: number;
   scale?: number;
+  /** The smallest value it takes. */
+  min?: number;
+  /** The largest value it takes. */
+  max?: number;
 }) => {
   const field = useFieldControl();
   const handleInvalid = useValidationMessage(onInvalid);
