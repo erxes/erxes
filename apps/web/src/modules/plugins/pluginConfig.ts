@@ -137,6 +137,7 @@ const recordTypeSchema = (name: string, path: string) => {
         `does not start with "${name}:"`,
       ),
     title: z.string().min(1),
+    newTitle: z.string().min(1).optional(),
     icon: z.custom<ElementType>(isComponent),
     detailPath: z
       .custom<(contentId: string) => string>(isFunction)

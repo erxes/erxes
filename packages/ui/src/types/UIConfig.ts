@@ -144,6 +144,11 @@ export type TPanelRecordType = {
   contentType: string;
   /** What one is called, e.g. "Deal": a draft's header reads "New deal". */
   title: string;
+  /**
+   * A draft's whole header, in place of "New <title>", for a record that is an action rather
+   * than a thing ("Transfer asset custody", 3.x's `addLabel`). In the plugin's words, like `title`.
+   */
+  newTitle?: string;
   icon: React.ElementType;
   /**
    * The record's own page, where the panel's expand button leads: a route of the plugin's,
