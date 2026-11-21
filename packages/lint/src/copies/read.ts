@@ -3,18 +3,22 @@
 import {
   type CallExpression,
   type Expression,
-  type ObjectExpression,
   type ParamPattern,
   parseSync,
-  type PropertyKey,
-  type TSSignature,
-  type TSType,
+  type TSAsExpression,
   type TSTypeAliasDeclaration,
   Visitor,
 } from 'oxc-parser';
-
-/** What a field holds, as far as its source tells; null when it can't. */
-export type Kind = 'string' | 'number' | 'boolean' | null;
+import {
+  type Field,
+  type Fields,
+  columnField,
+  keyName,
+  objectFields,
+  resolveRefs,
+  typeFields,
+  zodField,
+} from './fields.ts';
 
 export interface Place {
   file: string;
@@ -24,9 +28,9 @@ export interface Place {
   start: number;
 }
 
-/** A zod object, a table or a hand-written object type: its fields and what they hold. */
+/** A zod object, a table or a hand-written object type: its fields. */
 export interface Definition extends Place {
-  fields: Map<string, Kind>;
+  fields: Fields;
 }
 
 /** An `as const` list, a `z.enum([...])` or a hand-written string union. */
@@ -34,135 +38,6 @@ interface ValueList extends Place {
   values: Set<string>;
   zod: boolean;
 }
-
-const ZOD_KINDS: Record<string, Kind> = {
-  string: 'string',
-  email: 'string',
-  url: 'string',
-  uuid: 'string',
-  enum: 'string',
-  number: 'number',
-  int: 'number',
-  boolean: 'boolean',
-};
-
-const COLUMN_KINDS: Record<string, Kind> = {
-  text: 'string',
-  varchar: 'string',
-  char: 'string',
-  uuid: 'string',
-  integer: 'number',
-  smallint: 'number',
-  real: 'number',
-  doublePrecision: 'number',
-  boolean: 'boolean',
-};
-
-/** The first call of a chain: `z.string().min(1).nullable()` is `z.string`, `text('x').notNull()` is `text`. */
-const chainRoot = (node: Expression) => {
-  let current = node;
-
-  while (current.type === 'CallExpression') {
-    const { callee } = current;
-
-    if (callee.type === 'Identifier') return { owner: null, name: callee.name };
-
-    if (callee.type !== 'MemberExpression' || callee.property.type !== 'Identifier') return null;
-
-    if (callee.object.type === 'Identifier') {
-      return { owner: callee.object.name, name: callee.property.name };
-    }
-
-    current = callee.object;
-  }
-
-  return null;
-};
-
-const zodKind = (node: Expression): Kind => {
-  const root = chainRoot(node);
-
-  return root?.owner === 'z' ? (ZOD_KINDS[root.name] ?? null) : null;
-};
-
-const columnKind = (node: Expression): Kind => {
-  const root = chainRoot(node);
-
-  return root && !root.owner ? (COLUMN_KINDS[root.name] ?? null) : null;
-};
-
-const literalKind = (value: unknown): Kind => {
-  if (typeof value === 'string') return 'string';
-
-  if (typeof value === 'number') return 'number';
-
-  return typeof value === 'boolean' ? 'boolean' : null;
-};
-
-const typeKind = (type: TSType): Kind => {
-  switch (type.type) {
-    case 'TSStringKeyword':
-      return 'string';
-    case 'TSNumberKeyword':
-      return 'number';
-    case 'TSBooleanKeyword':
-      return 'boolean';
-    case 'TSLiteralType':
-      return 'value' in type.literal ? literalKind(type.literal.value) : null;
-    case 'TSUnionType': {
-      const kinds = new Set(
-        type.types
-          .filter((part) => part.type !== 'TSNullKeyword' && part.type !== 'TSUndefinedKeyword')
-          .map(typeKind),
-      );
-
-      return kinds.size === 1 ? ([...kinds][0] ?? null) : null;
-    }
-
-    default:
-      return null;
-  }
-};
-
-const keyName = (key: PropertyKey) => {
-  if (key.type === 'Identifier') return key.name;
-
-  return key.type === 'Literal' && typeof key.value === 'string' ? key.value : null;
-};
-
-/** An object literal's keys and kinds; null when a spread or a computed key hides some. */
-const objectFields = (object: ObjectExpression, kindOf: (value: Expression) => Kind) => {
-  const fields = new Map<string, Kind>();
-
-  for (const property of object.properties) {
-    if (property.type !== 'Property' || property.computed) return null;
-
-    const name = keyName(property.key);
-
-    if (!name) return null;
-
-    fields.set(name, kindOf(property.value));
-  }
-
-  return fields;
-};
-
-/** An object type's fields; null when it has methods or index signatures. */
-const typeFields = (members: TSSignature[]) => {
-  const fields = new Map<string, Kind>();
-
-  for (const member of members) {
-    if (member.type !== 'TSPropertySignature' || member.computed) return null;
-
-    const name = keyName(member.key);
-
-    if (!name) return null;
-
-    fields.set(name, member.typeAnnotation ? typeKind(member.typeAnnotation.typeAnnotation) : null);
-  }
-
-  return fields;
-};
 
 /** The strings of `['a', 'b']`, or null when it holds anything else. */
 const stringList = (node: Expression) => {
@@ -192,7 +67,7 @@ const zodObjectFields = (node: CallExpression) => {
 
   return isZodCall(node, /^(object|strictObject|looseObject)$/) &&
     first?.type === 'ObjectExpression'
-    ? objectFields(first, zodKind)
+    ? objectFields(first)
     : null;
 };
 
@@ -207,7 +82,7 @@ const tableColumns = (node: CallExpression) => {
       const name = property.type === 'Property' ? keyName(property.key) : null;
 
       return property.type === 'Property' && name
-        ? [[name, columnKind(property.value)] as const]
+        ? [[name, columnField(property.value)] as const]
         : [];
     }),
   );
@@ -230,6 +105,37 @@ const unionValues = (alias: TSTypeAliasDeclaration) => {
   return values.length === type.types.length ? new Set(values) : null;
 };
 
+/** `const OptionalText = (max: number) => z.string().max(max).optional()` is a schema too. */
+const schemaOf = (init: Expression) =>
+  zodField(
+    init.type === 'ArrowFunctionExpression' &&
+      init.expression &&
+      init.body.type !== 'BlockStatement'
+      ? init.body
+      : init,
+  );
+
+/** `z.enum(['a', 'b'])`'s values. */
+const zodEnumValues = (node: CallExpression) => {
+  const [first] = node.arguments;
+
+  return isZodCall(node, /^enum$/) && first && first.type !== 'SpreadElement'
+    ? stringList(first)
+    : null;
+};
+
+/** `['a', 'b'] as const`'s values. */
+const constValues = (node: TSAsExpression) => {
+  const { typeAnnotation: type } = node;
+
+  const isConst =
+    type.type === 'TSTypeReference' &&
+    type.typeName.type === 'Identifier' &&
+    type.typeName.name === 'const';
+
+  return isConst ? stringList(node.expression) : null;
+};
+
 /** Everything one file defines and writes by hand. */
 export const readFile = (file: string, text: string) => {
   const lineStarts = [0, ...[...text.matchAll(/\n/g)].map((match) => match.index + 1)];
@@ -241,6 +147,8 @@ export const readFile = (file: string, text: string) => {
   const copies: Definition[] = [];
   const unions: ValueList[] = [];
   const names = new Map<number, string>();
+  // Each `const Money = z.…`, for the zod objects that reuse it.
+  const schemas = new Map<string, Field>();
   const lazy: number[][] = [];
   const at = (start: number, name = '') => ({ file, line: lineOf(start), name, start });
 
@@ -257,17 +165,15 @@ export const readFile = (file: string, text: string) => {
     VariableDeclarator(node) {
       const init = node.init?.type === 'TSAsExpression' ? node.init.expression : node.init;
 
-      if (node.id.type === 'Identifier' && init) names.set(init.start, node.id.name);
+      if (node.id.type !== 'Identifier' || !init) return;
+
+      names.set(init.start, node.id.name);
+      schemas.set(node.id.name, schemaOf(init));
     },
     CallExpression(node) {
-      const [first] = node.arguments;
       const zod = zodObjectFields(node);
       const columns = tableColumns(node);
-
-      const list =
-        isZodCall(node, /^enum$/) && first && first.type !== 'SpreadElement'
-          ? stringList(first)
-          : null;
+      const list = zodEnumValues(node);
 
       if (isZodCall(node, /^lazy$/)) lazy.push([node.start, node.end]);
 
@@ -278,25 +184,23 @@ export const readFile = (file: string, text: string) => {
       if (list) lists.push({ ...at(node.start), values: list, zod: true });
     },
     TSAsExpression(node) {
-      const { typeAnnotation: type } = node;
-
-      const isConst =
-        type.type === 'TSTypeReference' &&
-        type.typeName.type === 'Identifier' &&
-        type.typeName.name === 'const';
-
-      const list = isConst ? stringList(node.expression) : null;
+      const list = constValues(node);
 
       if (list) lists.push({ ...at(node.expression.start), values: list, zod: false });
     },
+    // A generic type is written once for many shapes, so it repeats none of them.
     TSInterfaceDeclaration(node) {
-      const fields = node.extends.length === 0 ? typeFields(node.body.body) : null;
+      const fields =
+        node.extends.length === 0 && !node.typeParameters ? typeFields(node.body.body) : null;
 
       if (fields) copies.push({ ...at(node.start, node.id.name), fields });
     },
     TSTypeAliasDeclaration(node) {
       const type = node.typeAnnotation;
-      const fields = type.type === 'TSTypeLiteral' ? typeFields(type.members) : null;
+
+      const fields =
+        type.type === 'TSTypeLiteral' && !node.typeParameters ? typeFields(type.members) : null;
+
       const values = unionValues(node);
 
       if (fields) copies.push({ ...at(node.start, node.id.name), fields });
@@ -318,10 +222,20 @@ export const readFile = (file: string, text: string) => {
     name: names.get(item.start) ?? `the one at ${item.file}:${item.line}`,
   });
 
+  // A schema this file defines wins over another file's of the same name.
+  const local = (item: Definition) => ({
+    ...item,
+    fields: resolveRefs(item.fields, (ref) => schemas.get(ref)),
+  });
+
   return {
-    zodObjects: zodObjects.filter((item) => !inLazy(item)).map(named),
+    zodObjects: zodObjects
+      .filter((item) => !inLazy(item))
+      .map(local)
+      .map(named),
     tables: tables.map(named),
     lists: lists.map(named),
+    schemas,
     copies,
     unions,
   };

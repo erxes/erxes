@@ -5,7 +5,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
-import { type Definition, type Kind, type Place, readFile } from './copies/read.ts';
+import { type Field, type Fields, resolveRefs } from './copies/fields.ts';
+import { type Definition, type Place, readFile } from './copies/read.ts';
 import { projectFiles } from './project-files.ts';
 
 /** Fewest fields a copy of a zod object, or of a table's columns, needs before it counts. */
@@ -56,13 +57,45 @@ const importability = (root: string, files: string[]) => {
   };
 };
 
+const agree = <T>(a: T | null, b: T | null) => a === null || b === null || a === b;
+
+/**
+ * A copy may leave out what the source requires (a patch is `Partial<…>`). A field it lets be
+ * null where the source can't, or requires where the source may lack, is a shape of its own.
+ */
+const sameNulls = (copy: Field, source: Field) => {
+  const required = copy.optional === false && copy.nullable === false;
+  const sourceMayLack = source.optional === true || source.nullable === true;
+
+  return !(copy.nullable === true && source.nullable === false) && !(required && sourceMayLack);
+};
+
 /** Every field of the copy is in the source, holding the same kind where both tell. */
-const fits = (copy: Map<string, Kind>, source: Map<string, Kind>) =>
-  [...copy].every(([name, kind]) => {
+const fits = (copy: Fields, source: Fields) =>
+  [...copy].every(([name, field]) => {
     const other = source.get(name);
 
-    return other !== undefined && (kind === null || other === null || kind === other);
+    return other !== undefined && agree(field.kind, other.kind) && sameNulls(field, other);
   });
+
+const sameField = (a: Field, b: Field) =>
+  a.kind === b.kind && a.optional === b.optional && a.nullable === b.nullable;
+
+/**
+ * The schemas zod objects reuse by name, across the repo; a name two files give different
+ * schemas tells nothing.
+ */
+const schemasByName = (files: { schemas: Map<string, Field> }[]) => {
+  const byName = new Map<string, Field | null>();
+
+  for (const [name, field] of files.flatMap((file) => [...file.schemas])) {
+    const seen = byName.get(name);
+
+    byName.set(name, seen === undefined || (seen && sameField(seen, field)) ? field : null);
+  }
+
+  return (ref: string) => byName.get(ref);
+};
 
 const sameValues = (a: Set<string>, b: Set<string>) =>
   a.size === b.size && [...a].every((value) => b.has(value));
@@ -84,7 +117,12 @@ export const findCopies = (root: string, excluded: string[] = []) => {
     )
     .map((file) => readFile(file, readFileSync(join(root, file), 'utf8')));
 
-  const zodObjects = read.flatMap((file) => file.zodObjects);
+  const schemas = schemasByName(read);
+
+  const zodObjects = read
+    .flatMap((file) => file.zodObjects)
+    .map((source) => ({ ...source, fields: resolveRefs(source.fields, schemas) }));
+
   const tables = read.flatMap((file) => file.tables);
   const lists = read.flatMap((file) => file.lists);
 

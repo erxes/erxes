@@ -20,10 +20,11 @@ export default defineConfig({
   deps: { onlyImport: ['@shadcn/lint', 'oxc-parser', 'vite-plus', 'zod'] },
   exports: {
     devExports: true,
+    // Sorted, as the formatter sorts package.json.
     bin: {
+      'erxes-check-copies': './src/check-copies.ts',
       'erxes-check-docs': './src/check-docs.ts',
       'erxes-check-escapes': './src/check-escapes.ts',
-      'erxes-check-copies': './src/check-copies.ts',
     },
   },
   publint: true,
