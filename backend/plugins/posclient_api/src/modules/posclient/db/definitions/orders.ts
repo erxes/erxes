@@ -80,6 +80,11 @@ export const orderSchema = schemaHooksWrapper(
       index: true,
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
+    settlingAt: field({
+      type: Date,
+      optional: true,
+      label: 'Settlement claimed at',
+    }),
     dueDate: field({ type: Date, label: 'Due date' }),
     number: field({
       type: String,
