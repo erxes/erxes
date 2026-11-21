@@ -41,7 +41,7 @@ export default defineConfig({
       check: {
         // React Doctor fails on any warning in apps/web and erxes-ui (doctor.config.ts); jscpd on
         // any copy of 80 tokens or more there (.jscpd.json).
-        command: `${tsrs} vp check && ${reactDoctor} && knip && jscpd && node tools/check-docs.ts && node tools/check-escapes.ts`,
+        command: `${tsrs} vp check && ${reactDoctor} && knip && jscpd && node tools/check-docs.ts && node tools/check-escapes.ts && erxes-check-copies`,
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },

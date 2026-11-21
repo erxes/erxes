@@ -63,7 +63,7 @@ importers:
         version: 0.3.25
       react-doctor:
         specifier: 0.9.23
-        version: 0.9.23(@opentelemetry/core@3.1.1(@opentelemetry/api@1.9.1))(eslint@10.15.0(jiti@2.7.0))(oxlint-tsgolint@7.0.2006)(react@19.3.1)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
+        version: 0.9.23(@opentelemetry/core@3.1.1(@opentelemetry/api@1.9.1))(eslint@10.15.0(jiti@2.7.0))(oxlint-tsgolint@7.0.2006)(react@19.3.1)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
       semver:
         specifier: ^7.8.6
         version: 7.8.6
@@ -81,7 +81,7 @@ importers:
         version: 7.0.2
       vite-plus:
         specifier: 1.6.0
-        version: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
+        version: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -589,6 +589,9 @@ importers:
       '@shadcn/lint':
         specifier: 0.2.5
         version: 0.2.5(eslint@10.15.0(jiti@2.7.0))
+      oxc-parser:
+        specifier: ^0.158.0
+        version: 0.158.0
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -14183,12 +14186,25 @@ snapshots:
       '@testing-library/dom': 10.4.2
       '@testing-library/user-event': 14.6.9(@testing-library/dom@10.4.2)
       '@vitest/browser': 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(vitest@5.1.0)
-      vitest: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
+      vitest: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
+
+  '@vitest/browser-preview@5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.1.0)':
+    dependencies:
+      '@testing-library/dom': 10.4.2
+      '@testing-library/user-event': 14.6.9(@testing-library/dom@10.4.2)
+      '@vitest/browser': 5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.1.0)
+      vitest: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(happy-dom@21.0.4)(jsdom@14.1.0)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+    optional: true
 
   '@vitest/browser@5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(vitest@5.1.0)':
     dependencies:
@@ -14200,13 +14216,32 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
+      vitest: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
       ws: 8.22.2
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
+
+  '@vitest/browser@5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.1.0)':
+    dependencies:
+      '@blazediff/core': 1.10.0
+      '@vitest/mocker': 5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+      '@vitest/ui': 5.1.0(vitest@5.1.0)
+      '@vitest/utils': 5.1.0
+      magic-string: 1.4.5
+      pngjs: 7.0.0
+      sirv: 3.0.2
+      tinyrainbow: 3.2.0
+      vitest: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(happy-dom@21.0.4)(jsdom@14.1.0)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+      ws: 8.22.2
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+    optional: true
 
   '@vitest/mocker@5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))':
     dependencies:
@@ -14216,6 +14251,16 @@ snapshots:
       magic-string: 1.4.5
     optionalDependencies:
       vite: '@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)'
+
+  '@vitest/mocker@5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@vitest/spy': 5.1.0
+      estree-walker: 3.0.3
+      magic-string: 1.4.5
+    optionalDependencies:
+      vite: 8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+    optional: true
 
   '@vitest/pretty-format@5.1.0':
     dependencies:
@@ -14238,7 +14283,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
+      vitest: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
 
   '@vitest/utils@5.1.0':
     dependencies:
@@ -16939,6 +16984,31 @@ snapshots:
       '@oxfmt/binding-win32-x64-msvc': 0.78.0
       vite-plus: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
 
+  oxfmt@0.78.0(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
+    dependencies:
+      tinypool: 2.2.0
+    optionalDependencies:
+      '@oxfmt/binding-android-arm-eabi': 0.78.0
+      '@oxfmt/binding-android-arm64': 0.78.0
+      '@oxfmt/binding-darwin-arm64': 0.78.0
+      '@oxfmt/binding-darwin-x64': 0.78.0
+      '@oxfmt/binding-freebsd-x64': 0.78.0
+      '@oxfmt/binding-linux-arm-gnueabihf': 0.78.0
+      '@oxfmt/binding-linux-arm-musleabihf': 0.78.0
+      '@oxfmt/binding-linux-arm64-gnu': 0.78.0
+      '@oxfmt/binding-linux-arm64-musl': 0.78.0
+      '@oxfmt/binding-linux-ppc64-gnu': 0.78.0
+      '@oxfmt/binding-linux-riscv64-gnu': 0.78.0
+      '@oxfmt/binding-linux-riscv64-musl': 0.78.0
+      '@oxfmt/binding-linux-s390x-gnu': 0.78.0
+      '@oxfmt/binding-linux-x64-gnu': 0.78.0
+      '@oxfmt/binding-linux-x64-musl': 0.78.0
+      '@oxfmt/binding-openharmony-arm64': 0.78.0
+      '@oxfmt/binding-win32-arm64-msvc': 0.78.0
+      '@oxfmt/binding-win32-ia32-msvc': 0.78.0
+      '@oxfmt/binding-win32-x64-msvc': 0.78.0
+      vite-plus: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
+
   oxlint-plugin-react-doctor@0.9.23:
     dependencies:
       '@shaderfrog/glsl-parser': 7.0.1
@@ -16957,7 +17027,7 @@ snapshots:
       '@oxlint-tsgolint/win32-arm64': 7.0.2006
       '@oxlint-tsgolint/win32-x64': 7.0.2006
 
-  oxlint@1.81.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
+  oxlint@1.81.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.81.0
       '@oxlint/binding-android-arm64': 1.81.0
@@ -16979,7 +17049,7 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.81.0
       '@oxlint/binding-win32-x64-msvc': 1.81.0
       oxlint-tsgolint: 7.0.2006
-      vite-plus: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
+      vite-plus: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
 
   oxlint@1.93.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
     optionalDependencies:
@@ -17004,6 +17074,30 @@ snapshots:
       '@oxlint/binding-win32-x64-msvc': 1.93.0
       oxlint-tsgolint: 7.0.2006
       vite-plus: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
+
+  oxlint@1.93.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
+    optionalDependencies:
+      '@oxlint/binding-android-arm-eabi': 1.93.0
+      '@oxlint/binding-android-arm64': 1.93.0
+      '@oxlint/binding-darwin-arm64': 1.93.0
+      '@oxlint/binding-darwin-x64': 1.93.0
+      '@oxlint/binding-freebsd-x64': 1.93.0
+      '@oxlint/binding-linux-arm-gnueabihf': 1.93.0
+      '@oxlint/binding-linux-arm-musleabihf': 1.93.0
+      '@oxlint/binding-linux-arm64-gnu': 1.93.0
+      '@oxlint/binding-linux-arm64-musl': 1.93.0
+      '@oxlint/binding-linux-ppc64-gnu': 1.93.0
+      '@oxlint/binding-linux-riscv64-gnu': 1.93.0
+      '@oxlint/binding-linux-riscv64-musl': 1.93.0
+      '@oxlint/binding-linux-s390x-gnu': 1.93.0
+      '@oxlint/binding-linux-x64-gnu': 1.93.0
+      '@oxlint/binding-linux-x64-musl': 1.93.0
+      '@oxlint/binding-openharmony-arm64': 1.93.0
+      '@oxlint/binding-win32-arm64-msvc': 1.93.0
+      '@oxlint/binding-win32-ia32-msvc': 1.93.0
+      '@oxlint/binding-win32-x64-msvc': 1.93.0
+      oxlint-tsgolint: 7.0.2006
+      vite-plus: 1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
 
   p-limit@2.3.0:
     dependencies:
@@ -17466,7 +17560,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-doctor@0.9.23(@opentelemetry/core@3.1.1(@opentelemetry/api@1.9.1))(eslint@10.15.0(jiti@2.7.0))(oxlint-tsgolint@7.0.2006)(react@19.3.1)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
+  react-doctor@0.9.23(@opentelemetry/core@3.1.1(@opentelemetry/api@1.9.1))(eslint@10.15.0(jiti@2.7.0))(oxlint-tsgolint@7.0.2006)(react@19.3.1)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)):
     dependencies:
       '@astrojs/compiler': 4.0.0
       '@sentry/node': 10.78.0(@opentelemetry/core@3.1.1(@opentelemetry/api@1.9.1))
@@ -17480,7 +17574,7 @@ snapshots:
       magicast: 0.5.5
       oxc-parser: 0.148.0
       oxc-resolver: 11.24.2
-      oxlint: 1.81.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
+      oxlint: 1.81.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
       oxlint-plugin-react-doctor: 0.9.23
       playwright-core: 1.65.0
       prompts: 2.4.2
@@ -18561,6 +18655,68 @@ snapshots:
       - vue-tsc
       - yaml
 
+  vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1):
+    dependencies:
+      '@oxc-project/runtime': 0.158.0
+      '@oxc-project/types': 0.158.0
+      '@oxlint/plugins': 1.93.0
+      '@vitest/browser': 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(vitest@5.1.0)
+      '@vitest/browser-preview': 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(vitest@5.1.0)
+      '@vitest/mocker': 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
+      '@vitest/pretty-format': 5.1.0
+      '@vitest/snapshot': 5.1.0
+      '@vitest/spy': 5.1.0
+      '@vitest/utils': 5.1.0
+      oxfmt: 0.78.0(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
+      oxlint: 1.93.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@arethetypeswrong/core@0.18.5)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/ui@5.1.0)(esbuild@0.28.2)(happy-dom@21.0.4)(jiti@2.7.0)(jsdom@14.1.0)(playwright@1.65.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
+      oxlint-tsgolint: 7.0.2006
+      vite: '@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)'
+      vitest: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0)
+    optionalDependencies:
+      '@voidzero-dev/vite-plus-darwin-arm64': 1.6.0
+      '@voidzero-dev/vite-plus-darwin-x64': 1.6.0
+      '@voidzero-dev/vite-plus-linux-arm64-gnu': 1.6.0
+      '@voidzero-dev/vite-plus-linux-arm64-musl': 1.6.0
+      '@voidzero-dev/vite-plus-linux-x64-gnu': 1.6.0
+      '@voidzero-dev/vite-plus-linux-x64-musl': 1.6.0
+      '@voidzero-dev/vite-plus-win32-arm64-msvc': 1.6.0
+      '@voidzero-dev/vite-plus-win32-x64-msvc': 1.6.0
+      playwright: 1.65.0
+    transitivePeerDependencies:
+      - '@arethetypeswrong/core'
+      - '@astrojs/compiler-rs'
+      - '@edge-runtime/vm'
+      - '@opentelemetry/api'
+      - '@types/node'
+      - '@typescript/native-preview'
+      - '@vitejs/devtools'
+      - '@vitest/coverage-istanbul'
+      - '@vitest/coverage-v8'
+      - '@vitest/ui'
+      - '@volar/typescript'
+      - '@vue/language-core'
+      - bufferutil
+      - esbuild
+      - happy-dom
+      - jiti
+      - jsdom
+      - less
+      - msw
+      - publint
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - svelte
+      - terser
+      - tsx
+      - typescript
+      - unplugin-unused
+      - unrun
+      - utf-8-validate
+      - vue-tsc
+      - yaml
+
   vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
@@ -18594,6 +18750,59 @@ snapshots:
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
+      '@types/node': 26.6.6
+      '@vitest/browser-preview': 5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.1.0)
+      '@vitest/ui': 5.1.0(vitest@5.1.0)
+      happy-dom: 21.0.4
+      jsdom: 14.1.0
+    transitivePeerDependencies:
+      - msw
+
+  vitest@5.1.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(happy-dom@21.0.4)(jsdom@14.1.0)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)):
+    dependencies:
+      '@types/chai': 5.2.3
+      '@vitest/mocker': 5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+      chai: 6.3.0
+      es-module-lexer: 2.3.2
+      expect-type: 1.4.0
+      magic-string: 1.4.5
+      obug: 3.0.0
+      picomatch: 4.0.7
+      std-env: 4.3.0
+      tinybench: 6.2.3
+      tinyexec: 1.3.1
+      tinyglobby: 0.2.17
+      vite: 8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      why-is-node-running: 3.2.1
+    optionalDependencies:
+      '@opentelemetry/api': 1.10.0
+      '@types/node': 26.6.6
+      '@vitest/browser-preview': 5.1.0(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.1.0)
+      '@vitest/ui': 5.1.0(vitest@5.1.0)
+      happy-dom: 21.0.4
+      jsdom: 14.1.0
+    transitivePeerDependencies:
+      - msw
+    optional: true
+
+  vitest@5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0(vitest@5.1.0))(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@21.0.4)(jsdom@14.1.0):
+    dependencies:
+      '@types/chai': 5.2.3
+      '@vitest/mocker': 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))
+      chai: 6.3.0
+      es-module-lexer: 2.3.2
+      expect-type: 1.4.0
+      magic-string: 1.4.5
+      obug: 3.0.0
+      picomatch: 4.0.7
+      std-env: 4.3.0
+      tinybench: 6.2.3
+      tinyexec: 1.3.1
+      tinyglobby: 0.2.17
+      vite: '@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)'
+      why-is-node-running: 3.2.1
+    optionalDependencies:
+      '@opentelemetry/api': 1.9.1
       '@types/node': 26.6.6
       '@vitest/browser-preview': 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(publint@0.3.25)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(vitest@5.1.0)
       '@vitest/ui': 5.1.0(vitest@5.1.0)
