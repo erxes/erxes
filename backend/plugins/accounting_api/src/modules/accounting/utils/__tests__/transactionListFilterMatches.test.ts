@@ -38,7 +38,7 @@ const rentVoucher = {
   number: '2026111816_001',
   ptrNumber: '2026111816_001',
   journal: 'main',
-  status: 'active',
+  status: 'complete',
   ptrStatus: 'balanced',
   description: 'Түрээс 48403-А',
   date: new Date('2026-11-19T00:00:00.000Z'),
@@ -130,8 +130,9 @@ describe('a teammate list hears a voucher saved into its filter and lets go of o
     ],
     ['single journal', { journal: 'main' }, { journal: 'bank' }],
     ['several journals', { journals: ['main', 'cash'] }, { journal: 'bank' }],
-    ['statuses', { statuses: ['active'] }, { status: 'draft' }],
-    ['single status', { status: 'active' }, { status: 'draft' }],
+    ['default committed statuses', {}, { status: 'requested' }],
+    ['statuses', { statuses: ['complete'] }, { status: 'draft' }],
+    ['single status', { status: 'complete' }, { status: 'draft' }],
     ['voucher balance', { ptrStatus: 'balanced' }, { ptrStatus: 'diff' }],
     [
       'number prefix',
@@ -248,5 +249,60 @@ describe('a teammate list hears a voucher saved into its filter and lets go of o
         mainReader,
       ),
     ).resolves.toEqual({ matchesOld: false, matchesNew: false });
+  });
+});
+
+describe('sidebar navStatus finds what concerns the signed-in user', () => {
+  const matchesNew = async (filter: TDoc, changes: TDoc) =>
+    (await matchesFor(filter, [], [overRedis(changes)])).matchesNew;
+
+  it('keeps personal drafts to their performer and addressed drafts to recipients', async () => {
+    const drafts = { navStatus: 'drafts' };
+    expect(await matchesNew(drafts, { status: 'draft' })).toBe(true);
+    expect(
+      await matchesNew(drafts, {
+        status: 'draft',
+        mentionOwnerId: 'prdemo-acc-dulmaa',
+      }),
+    ).toBe(false);
+    expect(await matchesNew(drafts, { status: 'mentioned' })).toBe(false);
+    expect(
+      await matchesNew(drafts, {
+        status: 'mentioned',
+        mentionUserIds: ['prdemo-acc-bat'],
+      }),
+    ).toBe(true);
+  });
+
+  it('shows every executing row but only requests waiting on the user', async () => {
+    const pending = { navStatus: 'pending' };
+    expect(
+      await matchesNew(pending, {
+        status: 'executing',
+        mentionOwnerId: 'prdemo-acc-dulmaa',
+      }),
+    ).toBe(true);
+    expect(await matchesNew(pending, { status: 'requested' })).toBe(false);
+    expect(
+      await matchesNew(pending, {
+        status: 'requested',
+        mentionUserIds: ['prdemo-acc-bat'],
+      }),
+    ).toBe(true);
+    expect(await matchesNew({ navStatus: 'committed' }, {})).toBe(true);
+  });
+
+  it('gives way to an explicit status filter', async () => {
+    expect(
+      await matchesNew(
+        { navStatus: 'committed', statuses: ['draft'] },
+        { status: 'draft', mentionOwnerId: 'prdemo-acc-dulmaa' },
+      ),
+    ).toBe(true);
+    expect(
+      await matchesNew({ navStatus: 'committed', status: 'requested' }, {
+        status: 'requested',
+      }),
+    ).toBe(true);
   });
 });

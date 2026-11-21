@@ -22,6 +22,10 @@ import {
   TR_SIDES,
   TR_STATUSES,
 } from '../@types/constants';
+import {
+  findUnsettledTransaction,
+  getUnsettledTransactionMessage,
+} from './unsettledTransactions';
 import { ITransactionDocument, ITrDetail } from '../@types/transaction';
 import { reallocateJobExecutionIncome } from '../../inventories/utils/jobExecutionAdjustment';
 
@@ -1264,16 +1268,12 @@ const getUncompletedInventoryTransaction = (
   models: IModels,
   beginDate: Date,
   endDate: Date,
-) => {
-  return models.Transactions.findOne({
+) =>
+  findUnsettledTransaction(models, {
     date: { $gte: beginDate, $lt: endDate },
     journal: { $in: JOURNALS.ALL_REAL_INV },
-    status: { $ne: TR_STATUSES.COMPLETE },
     'details.productId': { $exists: true, $ne: '' },
-  })
-    .sort({ date: 1 })
-    .lean();
-};
+  });
 
 export const adjustRunning = async (
   subdomain: string,
@@ -1320,9 +1320,7 @@ export const adjustRunning = async (
         );
 
         if (uncompletedTr) {
-          const warning = `Inventory transaction must be complete before adjusting. Transaction: ${
-            uncompletedTr.number || uncompletedTr._id
-          }`;
+          const warning = getUnsettledTransactionMessage(uncompletedTr);
 
           await modifierWrapper(subdomain, models, adjustInventory, {
             checkedAt: new Date(),

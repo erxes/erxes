@@ -58,6 +58,7 @@ import {
   useAdjustClosingDetails,
 } from '../hooks/useAdjustClosingDetail';
 import { useAdjustClosingPublish } from '../hooks/useAdjustClosingPublish';
+import { AdjustWarning } from '@/adjustments/components/AdjustWarning';
 import { useAdjustClosingEntryRemove } from '../hooks/useAdjustClosingRemove';
 import { useAdjustClosingCancel } from '../hooks/useAdjustClosingCancel';
 import { notifyMutationResult } from '@/utils/graphqlMutation';
@@ -667,6 +668,8 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
               }: ${adjustClosingDetail.error}`}
             </div>
           )}
+
+          <AdjustWarning warning={adjustClosingDetail?.warning} />
 
           {typeof adjustClosingDetail?.taxImpactValue === 'number' && (
             <div className="rounded-md border p-3 text-sm">

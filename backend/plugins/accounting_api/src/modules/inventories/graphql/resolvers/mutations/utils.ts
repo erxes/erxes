@@ -5,7 +5,8 @@ import { IModels } from '~/connectionResolvers';
 import { ADJ_INV_STATUSES } from '~/modules/accounting/@types/adjustInventory';
 import {
   ACCOUNT_JOURNALS,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
+  getTransactionStatusType,
   TR_SIDES,
   TR_STATUSES,
 } from '~/modules/accounting/@types/constants';
@@ -53,18 +54,6 @@ const emptyInventoryInfo = (): TInventoryInfo => ({
   soonOut: 0,
 });
 
-const getInventoryStatusType = (status?: string) => {
-  if (TR_INVENTORY_STATUS_TYPES.REAL_STATUSES.includes(status || '')) {
-    return TR_INVENTORY_STATUS_TYPES.REAL;
-  }
-
-  if (TR_INVENTORY_STATUS_TYPES.SOON_STATUSES.includes(status || '')) {
-    return TR_INVENTORY_STATUS_TYPES.SOON;
-  }
-
-  return TR_INVENTORY_STATUS_TYPES.OMIT;
-};
-
 const ensureInventoryInfo = (
   inventoryByProductId: Record<string, TInventoryInfo>,
   productId: string,
@@ -87,16 +76,16 @@ const applyTransactionDetailToInventory = (
     return;
   }
 
-  const statusType = getInventoryStatusType(status);
+  const statusType = getTransactionStatusType(status);
 
-  if (statusType === TR_INVENTORY_STATUS_TYPES.OMIT) {
+  if (statusType === TRANSACTION_STATUS_TYPES.OMIT) {
     return;
   }
 
   const multiplier = side === TR_SIDES.CREDIT ? -1 : 1;
   const inventory = ensureInventoryInfo(inventoryByProductId, productId);
 
-  if (statusType === TR_INVENTORY_STATUS_TYPES.REAL) {
+  if (statusType === TRANSACTION_STATUS_TYPES.REAL) {
     inventory.remainder += multiplier * count;
     inventory.cost += multiplier * amount;
     return;
@@ -170,7 +159,7 @@ export const setSafeRemItems = async (
     'details.accountId': { $in: invAccountIds },
     'details.productId': { $in: allProductIds },
     date: { $lte: safeRemainder.date },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
   };
 
   const lastAdjInv = await models.AdjustInventories.findOne({
@@ -461,8 +450,8 @@ export const updateLiveRemainders = async ({
     'details.productId': { $in: allProductIds },
     status: {
       $in: [
-        ...TR_INVENTORY_STATUS_TYPES.REAL_STATUSES,
-        ...TR_INVENTORY_STATUS_TYPES.SOON_STATUSES,
+        ...TRANSACTION_STATUS_TYPES.REAL_STATUSES,
+        ...TRANSACTION_STATUS_TYPES.SOON_STATUSES,
       ],
     },
   };

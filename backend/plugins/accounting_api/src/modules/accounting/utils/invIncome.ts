@@ -36,6 +36,7 @@ export const InvIncomeExpenseTrs = async (
       number: transaction.number,
       date: transaction.date,
       description: transaction.description,
+      status: transaction.status,
       journal: getSingleJournalByAccount(account.journal, account.kind),
       side: TR_SIDES.CREDIT,
       branchId: transaction.branchId,

@@ -5,7 +5,7 @@ import { ITransaction, ITrDetail } from '@/accounting/@types/transaction';
 import {
   JOURNALS,
   TR_SIDES,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
 } from '@/accounting/@types/constants';
 
 export interface IFxaLedgerAsset extends IFixedAsset {
@@ -225,7 +225,7 @@ export const getFxaLedgerAssets = async (
         JOURNALS.FXA_DEP_OUT,
       ],
     },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     date: { $lt: endDate },
     ...exclusion,
   }).lean();

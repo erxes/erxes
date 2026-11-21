@@ -14,7 +14,7 @@ import { IModels } from '~/connectionResolvers';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import {
   JOURNALS,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
   TR_SIDES,
 } from '../@types/constants';
 import { getFxaCorrections, getFxaRulesAtDate } from './fxaRules';
@@ -59,7 +59,7 @@ export const getFxaCapitalValuation = async (
   const transactions = await models.Transactions.find({
     'details.fixedAssetId': fixedAssetId,
     date: { $lt: endDate },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     ...exclusion,
   }).lean();
   if (
