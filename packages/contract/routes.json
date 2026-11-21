@@ -1075,6 +1075,88 @@
       }
     }
   },
+  "broadcastSchedules": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcasts/{id}/schedule"
+        }
+      }
+    },
+    "start": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/start"
+        }
+      }
+    },
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/broadcasts/{id}/schedule"
+        }
+      }
+    },
+    "pause": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/pause"
+        }
+      }
+    },
+    "resume": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/resume"
+        }
+      }
+    },
+    "stop": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcasts/{id}/schedule/stop"
+        }
+      }
+    },
+    "preview": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/broadcast-schedules/preview"
+        }
+      }
+    },
+    "upcoming": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/broadcast-schedules/upcoming"
+        }
+      }
+    }
+  },
   "companies": {
     "list": {
       "~orpc": {
@@ -1890,43 +1972,113 @@
         }
       }
     },
-    "senders": {
+    "sender": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/email/senders"
+          "path": "/email/sender"
         }
       }
     },
-    "addSender": {
+    "replyTos": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/reply-tos"
+        }
+      }
+    },
+    "addReplyTo": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/email/senders"
+          "path": "/email/reply-tos"
         }
       }
     },
-    "resendConfirmation": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/email/senders/{id}/resend"
-        }
-      }
-    },
-    "removeSender": {
+    "removeReplyTo": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/email/senders/{id}"
+          "path": "/email/reply-tos/{id}"
+        }
+      }
+    },
+    "confirmReplyTo": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/reply-tos/confirm"
+        }
+      }
+    },
+    "deliveries": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/deliveries"
+        }
+      }
+    },
+    "addresses": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/addresses"
+        }
+      }
+    },
+    "limits": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/limits"
+        }
+      }
+    },
+    "pacing": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email/pacing"
+        }
+      }
+    },
+    "resumeSending": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/limits/resume"
+        }
+      }
+    },
+    "setRamp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/email/limits/ramp"
         }
       }
     }

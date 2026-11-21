@@ -13,8 +13,9 @@ import { useMinuteClock } from '~/lib/useMinuteClock';
 import { paths } from '~/lib/paths';
 import { ConditionsEditor } from './ConditionsEditor';
 import { Segmented } from './Segmented';
-import { zoneLabel } from './timezones';
-import { Field, TimeAndZone } from './triggerFields';
+import { zoneLabel } from '~/lib/timeZones';
+import { useSession } from '~/modules/auth/session';
+import { Field, TimeOfDay } from './triggerFields';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type DateTrigger = Extract<AutomationTrigger, { kind: 'date' }>;
@@ -161,6 +162,7 @@ const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: 
   const { t } = useTranslation('automations');
   const fmt = useFormat();
   const now = useMinuteClock();
+  const { timezone } = useSession().organization;
   const when = whenOf(trigger.offsetDays);
   const sample = new Date(now);
 
@@ -195,7 +197,7 @@ const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: 
             record,
             field: fieldName,
             time: trigger.at,
-            zone: zoneLabel(trigger.timezone),
+            zone: zoneLabel(timezone),
             defaultValue: 'Runs {{relation}} {{record}}’s {{field}}, at {{time}} ({{zone}}).',
           })}{' '}
           {trigger.yearly
@@ -257,11 +259,10 @@ export const DateTriggerSettings = (props: Props) => {
         />
       </Field>
       <Field label={t('time', 'Time')}>
-        <TimeAndZone
+        <TimeOfDay
           at={trigger.at}
-          timezone={trigger.timezone}
           disabled={disabled}
-          onChange={(next) => onChange({ ...trigger, ...next })}
+          onChange={(at) => onChange({ ...trigger, at })}
         />
       </Field>
       <DateSummary trigger={trigger} fieldName={fieldName} />

@@ -2,8 +2,9 @@ import type { ConditionGroup } from '@erxes/core-contract';
 import { Input, Select, Switch } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { zoneLabel } from '~/lib/timeZones';
+import { useSession } from '~/modules/auth/session';
 import { ConditionsEditor } from './ConditionsEditor';
-import { zoneChoices, zoneLabel } from './timezones';
 
 /** One labelled setting of the trigger. */
 export const Field = ({
@@ -22,18 +23,18 @@ export const Field = ({
   </div>
 );
 
-export const TimeAndZone = ({
+/** A time of day on the organisation's clock (Settings › General sets its zone). */
+export const TimeOfDay = ({
   at,
-  timezone,
   onChange,
   disabled,
 }: {
   at: string;
-  timezone: string;
-  onChange: (next: { at?: string; timezone?: string }) => void;
+  onChange: (at: string) => void;
   disabled?: boolean;
 }) => {
   const { t } = useTranslation('automations');
+  const zone = zoneLabel(useSession().organization.timezone);
 
   return (
     <div className="flex items-center gap-2">
@@ -42,25 +43,12 @@ export const TimeAndZone = ({
         className="h-8 w-28 shrink-0"
         value={at}
         disabled={disabled}
-        onChange={(event) => onChange({ at: event.target.value })}
+        onChange={(event) => onChange(event.target.value)}
         aria-label={t('at', 'at')}
       />
-      <Select
-        value={timezone}
-        disabled={disabled}
-        onValueChange={(value) => onChange({ timezone: value })}
-      >
-        <Select.Trigger className="h-8 min-w-0 flex-1">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {zoneChoices(timezone).map((zone) => (
-            <Select.Item key={zone} value={zone}>
-              {zoneLabel(zone)}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
+      <span className="min-w-0 truncate text-xs text-muted-foreground">
+        {t('org-zone', '{{zone}}, the organisation’s time zone', { zone })}
+      </span>
     </div>
   );
 };

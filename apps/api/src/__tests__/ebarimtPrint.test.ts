@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
+import { config } from '~/config';
 import { loggedEmails } from '~/modules/email/email';
 import { useTestDatabase } from './db';
 import { usePosApi } from './posApi';
@@ -166,6 +167,13 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
     await expect(
       t.other().ebarimt.emailReceipt({ id: receipt.id, to: 'buyer@example.mn' }),
     ).rejects.toMatchObject({ status: 404 });
+
+    // Production with nothing set up: it would reach only the log.
+    config.isProduction = true;
+    await expect(
+      t.hr().ebarimt.emailReceipt({ id: receipt.id, to: 'buyer@example.mn' }),
+    ).rejects.toMatchObject({ status: 409, code: 'EMAIL_NOT_CONFIGURED' });
+    config.isProduction = false;
 
     expect(await t.hr().ebarimt.emailReceipt({ id: receipt.id, to: 'buyer@example.mn' })).toEqual({
       ok: true,

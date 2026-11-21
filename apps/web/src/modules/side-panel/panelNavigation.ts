@@ -1,5 +1,12 @@
 import { atom, useSetAtom } from 'jotai';
-import { createSerializer, parseAsBoolean, parseAsJson, parseAsString, useQueryStates } from 'nuqs';
+import {
+  createLoader,
+  createSerializer,
+  parseAsBoolean,
+  parseAsJson,
+  parseAsString,
+  useQueryStates,
+} from 'nuqs';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -19,7 +26,10 @@ const MAX_PANEL_HISTORY = 20;
 // newest last; the panel's back button returns to them.
 export const sidePanelHistoryState = atom<string[]>([]);
 
-/** The history entry's state: the panel's tab and the tabs of the records behind it (kept with other state). */
+/**
+ * The history entry's state (kept with other state): the panel's tab and the tabs of the
+ * records behind it, and on a record's own page, the page it expanded from with that page's state.
+ */
 const RouterState = z.looseObject({
   sidePanel: z
     .object({
@@ -27,6 +37,9 @@ const RouterState = z.looseObject({
       tab: z.string(),
       history: z.array(z.object({ path: z.string(), tab: z.string() })),
     })
+    .optional(),
+  recordPageFrom: z
+    .object({ pathname: z.string(), search: z.string(), state: z.unknown() })
     .optional(),
 });
 
@@ -37,6 +50,7 @@ const panelQuery = {
 };
 
 const serializePanelQuery = createSerializer(panelQuery);
+const loadPanelQuery = createLoader(panelQuery);
 
 /** A list with a record open in its side panel: `/contacts/customers?panel=/detail/customer/<id>`. */
 export const panelHref = (list: string, entity: TRelationEntity) =>
@@ -46,8 +60,77 @@ export const panelHref = (list: string, entity: TRelationEntity) =>
 const serializePageQuery = createSerializer({ tab: parseAsString });
 
 /** A record's own page on a tab: `/sales/deals/d1?tab=notes`; empty is its default. */
-export const recordPageHref = (page: string, tab: string) =>
+const recordPageHref = (page: string, tab: string) =>
   serializePageQuery(page, { tab: tab || null });
+
+const recordPageNavigation = (
+  location: ReturnType<typeof useLocation>,
+  navigate: ReturnType<typeof useNavigate>,
+) => {
+  const routerState = RouterState.safeParse(location.state).data;
+
+  const openPage = (page: string, tab: string) => {
+    const { pathname, search } = location;
+
+    void navigate(recordPageHref(page, tab), {
+      state: { recordPageFrom: { pathname, search, state: routerState } },
+    });
+  };
+
+  // Another record's page shown in this one's place keeps the way back.
+  const replacePage = (page: string) => {
+    void navigate(page, { replace: true, state: routerState });
+  };
+
+  const backToPanel = (record: TRelationEntity, tab: string, listPath: string) => {
+    const from = routerState?.recordPageFrom ?? { pathname: listPath, search: '', state: null };
+    const fromState = RouterState.safeParse(from.state).data;
+    const panel = getSidePanelRecordPath(record);
+    const fromQuery = loadPanelQuery(from.search);
+    // The panel it expanded from keeps the records behind it; another opens on its own.
+    const history = fromQuery.panel === panel ? (fromQuery.panelHistory ?? []) : [];
+    const tabs = fromState?.sidePanel?.path === panel ? fromState.sidePanel.history : [];
+
+    void navigate(
+      {
+        pathname: from.pathname,
+        search: serializePanelQuery(from.search, {
+          panel,
+          panelHistory: history.length ? history : null,
+          panelExpanded: null,
+        }),
+      },
+      {
+        state: {
+          ...fromState,
+          sidePanel: {
+            path: panel,
+            tab,
+            history: history.map((path) => ({
+              path,
+              tab: tabs.find((entry) => entry.path === path)?.tab ?? '',
+            })),
+          },
+        },
+      },
+    );
+  };
+
+  return { openPage, replacePage, backToPanel };
+};
+
+/**
+ * Between a record in the side panel and its own page, both ways. `openPage` remembers the
+ * page it leaves; `backToPanel` returns there with the record in the panel on `tab`, its
+ * stack kept, or over `listPath` when the page was opened from a link.
+ */
+export const useRecordPageNavigation = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Stable between renders: `RecordPageView`'s navigator depends on these.
+  return useMemo(() => recordPageNavigation(location, navigate), [location, navigate]);
+};
 
 /** Updates panel history, active route, and per-record tabs in one navigation. */
 type PanelNavigate = (

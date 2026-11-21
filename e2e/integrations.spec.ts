@@ -66,7 +66,8 @@ test('an owner connects a service by hand, seals its keys and changes its hosts'
   await page.getByLabel('Value').fill(SEALED);
   await page.getByRole('button', { name: 'Add key' }).click();
   await expect(page.getByText('Key saved. It is not shown again.')).toBeVisible();
-  await expect(page.getByText('Connected')).toBeVisible();
+  // Exact: the settings sidebar has Data model's "Connected Plugins" too.
+  await expect(page.getByText('Connected', { exact: true })).toBeVisible();
   await expect(page.getByLabel('Value')).toHaveValue('');
   await expectAccessible(page);
 
@@ -93,7 +94,7 @@ test('an owner connects a service by hand, seals its keys and changes its hosts'
   await page.getByRole('button', { name: confirm, exact: true }).click();
   await expect(page.getByText('Key removed')).toBeVisible();
   await expect(page.getByText('spare', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Connected')).toBeVisible();
+  await expect(page.getByText('Connected', { exact: true })).toBeVisible();
 
   await page.getByRole('tab', { name: 'Programs' }).click();
   await expect(page.getByText('No programs yet')).toBeVisible();

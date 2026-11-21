@@ -86,7 +86,6 @@ export const AUTOMATION_TEMPLATES: {
         offsetDays: 0,
         yearly: true,
         at: '10:00',
-        timezone: 'Asia/Ulaanbaatar',
       },
       steps: [
         {
@@ -113,7 +112,6 @@ export const AUTOMATION_TEMPLATES: {
         every: 'week',
         weekdays: [1],
         at: '09:00',
-        timezone: 'Asia/Ulaanbaatar',
         audience: {
           type: 'customer',
           conditions: { match: 'all', rules: [{ path: 'subject.state', op: 'eq', value: 'lead' }] },

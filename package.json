@@ -16,6 +16,7 @@
     "db:plugin-role": "pnpm --filter @erxes/api db:plugin-role",
     "bootstrap": "pnpm --filter @erxes/api bootstrap",
     "plugin:secret": "pnpm --filter @erxes/api plugin:secret",
+    "broadcasts:markdown": "pnpm --filter @erxes/api broadcasts:markdown",
     "bench:filters": "pnpm --filter @erxes/api bench:filters",
     "openapi": "pnpm --filter @erxes/api openapi",
     "check:generated": "tools/check-generated.sh",

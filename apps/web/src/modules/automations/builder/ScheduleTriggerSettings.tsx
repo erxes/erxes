@@ -1,7 +1,7 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
 import { cn, Input, oneOf, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AudienceEditor, Field, TimeAndZone } from './triggerFields';
+import { AudienceEditor, Field, TimeOfDay } from './triggerFields';
 
 type ScheduleTrigger = Extract<AutomationTrigger, { kind: 'schedule' }>;
 
@@ -118,11 +118,10 @@ export const ScheduleTriggerSettings = (props: Props) => {
           hourly ? t('every-hour-hint', 'At the minute of the time below, every hour.') : undefined
         }
       >
-        <TimeAndZone
+        <TimeOfDay
           at={trigger.at}
-          timezone={trigger.timezone}
           disabled={disabled}
-          onChange={(next) => onChange({ ...trigger, ...next })}
+          onChange={(at) => onChange({ ...trigger, at })}
         />
       </Field>
       <AudienceEditor
