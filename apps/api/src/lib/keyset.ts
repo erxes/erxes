@@ -23,6 +23,16 @@ type Fetch<Row> = (where: SQL | undefined, orderBy: SQL[], limit: number) => Pro
 
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
+/**
+ * Newest first, as the lists' indexes are written: `(org_id, created_at DESC, id DESC)`, which
+ * Drizzle makes NULLS LAST. Spelled out so Postgres reads a page from the index instead of
+ * sorting every row of the organisation (`desc()` alone means NULLS FIRST and doesn't match).
+ */
+export const newestFirst = (createdAt: KeysetSource['createdAt'], id: KeysetSource['id']) => [
+  sql`${createdAt} desc nulls last`,
+  sql`${id} desc nulls last`,
+];
+
 /** `%value%` for ILIKE, with the user's own `%`, `_` and `\` taken literally. */
 export const containsPattern = (value: string) => `%${escapeLike(value)}%`;
 
@@ -107,13 +117,11 @@ export const keysetPage = async <Row extends { id: string }>(
   const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
 
   // One after another: inside a request `client` is its transaction, a single connection.
-  // The lists' indexes are `(org_id, created_at DESC, id DESC)`, which Drizzle writes NULLS LAST:
-  // the order spells that out (or its reverse) so Postgres reads the page from the index instead
-  // of sorting every row of the organisation.
+  // Newest first, or its exact reverse, so the page reads from the index either way.
   const rows = await fetch(
     cursor ? and(where, position(pageSide)) : where,
     forward
-      ? [sql`${createdAt} desc nulls last`, sql`${id} desc nulls last`]
+      ? newestFirst(createdAt, id)
       : [sql`${createdAt} asc nulls first`, sql`${id} asc nulls first`],
     query.limit + 1,
   );
