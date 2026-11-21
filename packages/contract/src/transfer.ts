@@ -122,12 +122,31 @@ export const ImportRow = createSelectSchema(importRows, {
   action: () => z.enum(IMPORT_ROW_ACTIONS),
 }).pick({ rowNumber: true, cells: true, action: true, error: true, recordId: true });
 
+/** One value of a plugin list's own filter, as its address keeps it. */
+const ExportParam = z.union([
+  z.string().max(1000),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.array(z.string().max(1000)).max(1000),
+]);
+
 /** What an export reproduces: the list's filters as the member sees them. */
 export const ExportQuery = z.object({
   filter: ConditionGroup.nullable().optional(),
   search: z.string().trim().max(100).optional(),
   tagIds: z.array(Id).max(50).optional(),
   ownerId: Id.optional(),
+  /** Only these records: the rows the member selected. */
+  ids: z.array(Id).min(1).max(1000).optional(),
+  /**
+   * A plugin list's own filter (`{ journal: 'main', status: ['draft'] }`), passed to the plugin
+   * as it is; core's own lists filter by the fields above and ignore it.
+   */
+  params: z
+    .record(z.string().max(100), ExportParam)
+    .refine((params) => Object.keys(params).length <= 50, 'at most 50 params')
+    .optional(),
 });
 
 export type ExportQuery = z.infer<typeof ExportQuery>;

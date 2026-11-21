@@ -91,8 +91,6 @@ export { Sheet } from './components/sheet';
 
 export { Sidebar } from './components/sidebar';
 
-export { useSidebarPanelOpen } from './components/sidebar/panel';
-
 export { Skeleton, SkeletonArray } from './components/skeleton';
 
 export { Spinner } from './components/spinner';
@@ -284,11 +282,6 @@ export { RecordTableInlineCell } from './modules/record-table/components/RecordT
 
 export { RecordTableTree } from './modules/record-table/components/RecordTableTree';
 
-export {
-  RecordTableHotKeyControl,
-  RecordTableHotkeyProvider,
-} from './modules/record-table/components/RecordTableHotkeys';
-
 export { SelectTree } from './modules/pickers/SelectTree';
 
 export {
@@ -386,6 +379,8 @@ export {
 export { MEMBER_CONTENT_TYPE, MemberLink } from './modules/records/MemberLink';
 
 export { RecordChip } from './modules/records/RecordChip';
+
+export { Export, Import, setTransferButtons } from './modules/records/transfer';
 
 export {
   type CompanyContact,

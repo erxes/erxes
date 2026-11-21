@@ -76,7 +76,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `cursor`, answered `PluginExportPage`) and `PluginImportRequest` (a batch of rows, `dryRun`
      for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
      token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
-     be undone. The shapes, the token `typ` and the two paths are the contract;
+     be undone. A plugin page shows erxes-ui's `Import` and `Export` (web registers them with
+     `setTransferButtons`); `Export` sends the selected rows as `query.ids`, else the list's own
+     filter as `query.params`, which the export request hands the plugin as they are. The
+     shapes, the token `typ` and the two paths are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set

@@ -7,6 +7,7 @@ import {
   setPluginRuntime,
   setRecordPage,
   setRecordTimeline,
+  setTransferButtons,
 } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
@@ -31,6 +32,13 @@ setRecordPage(lazyNamed(() => import('./modules/side-panel/RecordPage'), 'Record
 setConnectionPicker(
   lazyNamed(() => import('./modules/settings/vault/ConnectionPicker'), 'ConnectionPicker'),
 );
+
+// Plugin pages import and export their records through core's transfer; the buttons load the
+// first time a plugin page shows one.
+setTransferButtons({
+  Import: lazyNamed(() => import('./modules/transfer/PluginTransfer'), 'PluginImport'),
+  Export: lazyNamed(() => import('./modules/transfer/PluginTransfer'), 'PluginExport'),
+});
 
 // Plugin UIs call their own API with a per-plugin token and hear live signals.
 // A plugin page has its own queries, so core refusing its token is passed on

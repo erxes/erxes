@@ -74,6 +74,7 @@ const whereOf = (client: Db, recordType: CoreRecordType, query: ExportQuery) => 
     search: query.search,
     tagIds: query.tagIds,
     ownerId: query.ownerId,
+    ids: query.ids,
     filter: query.filter ? JSON.stringify(query.filter) : undefined,
   };
 

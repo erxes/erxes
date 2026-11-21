@@ -118,7 +118,8 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
       recordType: 'hr:employee',
       format: 'csv',
       columns: ['name', 'hiredAt'],
-      query: { search: 'b' },
+      // The plugin's own list filter and the selected rows go to it as they are.
+      query: { search: 'b', ids: ['e1', 'e2'], params: { status: ['active'], branchId: 'b1' } },
     });
 
     await settle();
@@ -132,7 +133,7 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
       userId: t.ids.member,
       type: 'hr:employee',
       columns: ['name', 'hiredAt'],
-      query: { search: 'b' },
+      query: { search: 'b', ids: ['e1', 'e2'], params: { status: ['active'], branchId: 'b1' } },
       idempotencyKey: api.transfers[0]?.requestId,
     });
     expect((await t.member().transfer.exports({})).data).toMatchObject([

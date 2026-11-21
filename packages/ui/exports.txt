@@ -140,6 +140,7 @@ value EmailListField
 value Empty
 value EntityPicker
 value EnumCursorDirection
+value Export
 value Filter
 value Form
 value FullNameField
@@ -149,6 +150,7 @@ value IconComponent
 value IconPicker
 value IconTip
 value IconsProvider
+value Import
 value InfoCard
 value Input
 value InputGroup
@@ -191,8 +193,6 @@ value RecordOpenerProvider
 value RecordPage
 value RecordPanelProvider
 value RecordTable
-value RecordTableHotKeyControl
-value RecordTableHotkeyProvider
 value RecordTableInlineCell
 value RecordTableTree
 value RecordTimeline
@@ -276,6 +276,7 @@ value setFileStorage
 value setPluginRuntime
 value setRecordPage
 value setRecordTimeline
+value setTransferButtons
 value stored
 value storedFamily
 value textOf
@@ -311,7 +312,6 @@ value useRecordPanel
 value useScopedHotkeys
 value useSetHotkeyScope
 value useSexLabels
-value useSidebarPanelOpen
 value useSortAccessibility
 value useSortList
 value useSortRoleDescription

@@ -51,8 +51,6 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
-- `<RecordTableHotKeyControl rowId rowIndex colIndex enableOnFormTags onClickCapture>` Makes its one child, a table cell, a stop of the grid's arrow keys.
-- `<RecordTableHotkeyProvider columnLength rowLength scope>` A grid of form cells that the arrow keys move through.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
 - `RecordTableTree.{Indentation, Arrow, Trigger, Row}` A record table whose rows are a tree, indented with arrows that fold.
 - `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
@@ -85,6 +83,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
+- `Export` An Export button for a plugin's records, through core's export.
+- `Import` An Import button for a plugin's records, through core's import.
 - `MEMBER_CONTENT_TYPE` The content type core's side panel opens team members as.
 - `<MemberLink memberId members>` A team member as a chip: their avatar and name.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
@@ -114,6 +114,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setConnectionPicker` Registers core's connection picker.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
+- `setTransferButtons(buttons)` Registers core's import and export buttons; plugins don't call it.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
 - `type TContactKind` Which contacts a picker lists: core's customers or its companies.
 - `type UnitChoice { id, name, code, parentId }` A branch or department as pickers show one: core's `Unit` has more.
@@ -258,7 +259,6 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Tooltip.{Provider, Trigger, Content}` A short label that shows on hover or focus of its trigger.
 - `Upload` An image upload: a preview tile, an upload button and a remove button.
 - `useFieldControl()` A form row's label, error and state for its control.
-- `useSidebarPanelOpen()` Whether an app's sidebar panel is open, and a setter.
 
 ## Plugin runtime
 

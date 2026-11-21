@@ -10,6 +10,7 @@ import {
 } from './RecordTableCursor';
 import { RecordTableHead } from './RecordTableHead';
 import { RecordTableHeader } from './RecordTableHeader';
+import { RecordTableHotKeyControl, RecordTableHotkeyProvider } from './RecordTableHotkeys';
 import { RecordTableInlineHead } from './RecordTableInlineHead';
 import { RecordTableProvider, useRecordTable, useRecordTableState } from './RecordTableProvider';
 import { RecordTableRoot } from './RecordTableRoot';
@@ -22,7 +23,8 @@ import { RecordTableScroll } from './RecordTableScroll';
  * The table every record list uses; never `Table` or a plain `<table>`.
  * `RecordTable.Provider` takes the `columns` and `data`; `checkboxColumn` adds row selection,
  * `ColumnSelector` lets a member pick columns, and `CursorProvider` with its skeletons loads
- * more rows by cursor.
+ * more rows by cursor. `HotkeyProvider` and `HotKeyControl` move through a form table's cells
+ * with the arrow keys (3.x's `RecordTableHotkeyProvider` and `RecordTableHotKeyControl`).
  */
 export const RecordTable = Object.assign(RecordTableRoot, {
   Provider: RecordTableProvider,
@@ -44,4 +46,6 @@ export const RecordTable = Object.assign(RecordTableRoot, {
   CursorForwardSkeleton: RecordTableForwardSkeleton,
   Row: RecordTableRow,
   ColumnSelector: RecordTableColumnSelector,
+  HotkeyProvider: RecordTableHotkeyProvider,
+  HotKeyControl: RecordTableHotKeyControl,
 });
