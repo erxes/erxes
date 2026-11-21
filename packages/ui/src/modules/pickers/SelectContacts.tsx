@@ -16,20 +16,8 @@ import {
 import { useRowsById } from './rowsById';
 import { pickerFamily } from './selectFamilyParts';
 
-/**
- * Who a plugin record is about: a customer, a company or a team member.
- * 3.x's names; a record keeps the kind beside the id (`customerType`, `customerId`).
- */
-export const CustomerType = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  USER: 'user',
-} as const;
-
-/** A kind `CustomerType` lists: `'customer'`, `'company'` or `'user'`. */
-export type CustomerType = (typeof CustomerType)[keyof typeof CustomerType];
-
-interface ContactSource {
+/** Where the contact pickers read core's customers and companies. */
+export interface ContactSource {
   /** `contactSearchQueries` from `@erxes/core-contract/client`. */
   contacts: ContactSearchQueries;
 }

@@ -37,6 +37,15 @@ export const setupPageRender = () => {
     );
 };
 
+/** Waits, a few seconds at most, until a part that loads on first use has drawn something. */
+export const loaded = async (shown: () => boolean, tries = 100): Promise<void> => {
+  if (shown() || tries === 0) return;
+
+  await settle(30);
+
+  return loaded(shown, tries - 1);
+};
+
 /** Lets popovers open, queries answer and the address update, which take a moment. */
 export const settle = (ms = 60) =>
   act(

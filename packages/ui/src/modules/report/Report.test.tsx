@@ -2,12 +2,17 @@
 import type { OnUrlUpdateFunction } from 'nuqs/adapters/testing';
 import { act } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { settle, setupPageRender } from '../../lib/render-page';
+import { loaded, settle, setupPageRender } from '../../lib/render-page';
 import { ReportPageContainer, ReportTable } from './Report';
 
 const render = setupPageRender();
 
-const page = (searchParams: string, onUrlUpdate?: OnUrlUpdateFunction, onExport?: () => void) =>
+/** The report page at an address, once its code (which loads on first use) is in. */
+const page = async (
+  searchParams: string,
+  onUrlUpdate?: OnUrlUpdateFunction,
+  onExport?: () => void,
+) => {
   render(
     <ReportPageContainer onExport={onExport}>
       <ReportTable>
@@ -21,6 +26,9 @@ const page = (searchParams: string, onUrlUpdate?: OnUrlUpdateFunction, onExport?
     searchParams,
     onUrlUpdate,
   );
+  await loaded(() => size() !== undefined);
+  await settle();
+};
 
 const button = (name: string) =>
   [...document.querySelectorAll('button')].find(
@@ -31,8 +39,8 @@ const size = () =>
   document.querySelector<HTMLInputElement>('input[aria-label="Print size"]')?.value;
 
 describe('ReportPageContainer', () => {
-  it('zooms the sheet in steps of 10%, between 60% and 160%', () => {
-    page('?inPreview=true');
+  it('zooms the sheet in steps of 10%, between 60% and 160%', async () => {
+    await page('?inPreview=true');
 
     expect(size()).toBe('100');
 
@@ -46,8 +54,7 @@ describe('ReportPageContainer', () => {
   it('shows the sidebar from the start, and hides it on the toggle', async () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
 
-    page('', onUrlUpdate);
-    await settle();
+    await page('', onUrlUpdate);
 
     expect(onUrlUpdate.mock.lastCall?.[0].queryString).toBe('?inPreview=true');
 
@@ -57,14 +64,14 @@ describe('ReportPageContainer', () => {
     expect(onUrlUpdate.mock.lastCall?.[0].queryString).toBe('?inPreview=false');
   });
 
-  it('offers Excel only with an export', () => {
+  it('offers Excel only with an export', async () => {
     const onExport = vi.fn<() => void>();
 
-    page('?inPreview=true');
+    await page('?inPreview=true');
     expect(button('Export to excel')).toBeUndefined();
 
     document.body.innerHTML = '';
-    page('?inPreview=true', undefined, onExport);
+    await page('?inPreview=true', undefined, onExport);
     act(() => button('Export to excel')?.click());
     expect(onExport).toHaveBeenCalled();
   });

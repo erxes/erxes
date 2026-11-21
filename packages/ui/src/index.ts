@@ -156,7 +156,7 @@ export { amountStep, formatMoney, fromAmountInput, toAmountInput, useMoney } fro
 
 export { fixNum } from './lib/numbers';
 
-export { CURRENCY_CODES, type CurrencyCode, isCurrencyCode } from './constants/CurrencyCodes';
+export { type CurrencyCode, isCurrencyCode } from './constants/currencyCode';
 
 export { stored, storedFamily } from './lib/stored';
 
@@ -173,8 +173,6 @@ export { PhoneDisplay } from './modules/display/components/PhoneDisplay';
 export { RelativeDateDisplay } from './modules/display/components/RelativeDateDisplay';
 
 export { SexDisplay } from './modules/display/components/SexDisplay';
-
-export { CurrencyDisplay, CurrencyFormatedDisplay } from './modules/display/components/Currency';
 
 export { useSexLabels } from './constants/SexCodes';
 
@@ -206,7 +204,7 @@ export { PhoneField } from './modules/inputs/components/PhoneField';
 
 export { SexField } from './modules/inputs/components/SexField';
 
-export { CurrencyField } from './modules/inputs/components/CurrencyField';
+export { CurrencyDisplay, CurrencyField, CurrencyFormatedDisplay } from './modules/inputs/currency';
 
 export { AppLayout, AppLayoutFooterLink } from './modules/layout/components/AppLayout';
 
@@ -280,33 +278,30 @@ export type {
 
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
-export { RecordTableTree } from './modules/record-table/components/RecordTableTree';
-
-export { SelectTree } from './modules/pickers/SelectTree';
+export { RecordTableTree, SelectTree } from './modules/tree/lazyTree';
 
 export {
   BranchBadge,
   BranchesInline,
-  DepartmentBadge,
-  DepartmentsInline,
-  SelectBranches,
-  SelectDepartments,
-  useUnits,
-} from './modules/pickers/SelectUnits';
-
-export type { UnitChoice, UnitQueries } from './modules/records/units';
-
-export { ProductsInline, SelectCategory, SelectProduct } from './modules/pickers/SelectProducts';
-
-export { SelectProductsBulk } from './modules/pickers/SelectProductsBulk';
-
-export {
   CompaniesInline,
   CustomersInline,
-  CustomerType,
+  DepartmentBadge,
+  DepartmentsInline,
+  ProductsInline,
+  SelectBranches,
+  SelectCategory,
   SelectCompany,
   SelectCustomer,
-} from './modules/pickers/SelectContacts';
+  SelectDepartments,
+  SelectProduct,
+  SelectProductsBulk,
+} from './modules/pickers/lazyPickers';
+
+export { useUnits } from './modules/pickers/useUnits';
+
+export { CustomerType } from './modules/pickers/customerType';
+
+export type { UnitChoice, UnitQueries } from './modules/records/units';
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 

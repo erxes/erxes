@@ -17,8 +17,17 @@ import {
   FilterView,
 } from './FilterPopover';
 import { FilterProvider } from './FilterProvider';
-import { FilterDialogDateView } from '../date-filter/DateRangeDialog';
-import { FilterBarDate, FilterPopoverDateView } from '../date-filter/FilterDate';
+import { onDemand } from 'erxes-ui/components/on-demand';
+
+// The date filter's parts load on first use: only some lists filter by date this way.
+const dateFilter = () => import('../date-filter/FilterDate');
+
+const FilterDialogDateView = onDemand(
+  async () => (await import('../date-filter/DateRangeDialog')).FilterDialogDateView,
+);
+
+const FilterPopoverDateView = onDemand(async () => (await dateFilter()).FilterPopoverDateView);
+const FilterBarDate = onDemand(async () => (await dateFilter()).FilterBarDate);
 
 /**
  * Parts of a filter popover and bar, for a page without saved views.

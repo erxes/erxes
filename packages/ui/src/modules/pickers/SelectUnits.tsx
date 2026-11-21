@@ -1,38 +1,21 @@
 import { IconBuilding, IconGitBranch } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { type ComponentProps, useMemo } from 'react';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from 'erxes-ui/components/badge';
 import { Skeleton } from 'erxes-ui/components/skeleton';
 import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import { Tooltip } from 'erxes-ui/components/tooltip';
 import type { UnitChoice, UnitQueries } from 'erxes-ui/modules/records/units';
-import { treeRows } from 'erxes-ui/modules/tree/treeRows';
 import { pickerFamily } from './selectFamilyParts';
+import { useUnits } from './useUnits';
 
 type UnitKind = 'branch' | 'department';
 
-interface UnitSource {
+/** Where the unit pickers read core's units. */
+export interface UnitSource {
   /** `unitQueries` from `@erxes/core-contract/client`. */
   units: UnitQueries;
 }
-
-/**
- * Core's branches or departments: parents first, siblings by code.
- * Each has its `order` path and whether units sit under it; 3.x's `useBranchesMain` and
- * `useDepartmentsMain`.
- */
-export const useUnits = (units: UnitQueries, kind: UnitKind) => {
-  const query = useQuery(units.list(kind));
-  const list = query.data?.data;
-
-  const rows = useMemo(
-    () => treeRows(list ?? [], (unit) => `${unit.code ?? ''} ${unit.name}`),
-    [list],
-  );
-
-  return { units: rows, loading: query.isPending, error: query.error };
-};
 
 /** A unit's code, muted, then its name, as 3.x drew one. */
 const UnitLabel = ({ item }: { item: UnitChoice }) => (

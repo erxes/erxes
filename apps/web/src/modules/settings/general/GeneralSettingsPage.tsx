@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconSettings } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  CURRENCY_CODES,
   Form,
   Input,
   MultipleSelector,
@@ -14,6 +13,7 @@ import {
   useToast,
   AppBreadcrumb,
 } from 'erxes-ui';
+import { CURRENCY_CODES } from 'erxes-ui/constants/CurrencyCodes';
 import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';

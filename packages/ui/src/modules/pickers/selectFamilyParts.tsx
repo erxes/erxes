@@ -1,4 +1,5 @@
 import { parseAsArrayOf, parseAsString, useQueryState } from 'nuqs';
+import type { FilterProps, PickerFamily } from './pickerFamilyType';
 import { type ComponentType, type ReactNode, useState } from 'react';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Form } from 'erxes-ui/components/form';
@@ -12,7 +13,6 @@ import {
   idsOf,
   type ListState,
   type PickerLook,
-  type PickerMode,
   type PickerProps,
   type PickerTexts,
   PickerListView,
@@ -102,11 +102,6 @@ const toAddress = (value: string | string[] | undefined) => {
   return ids.length ? ids : null;
 };
 
-interface FilterProps {
-  filterKey: string;
-  mode?: PickerMode;
-}
-
 /** The picker as the filter popover's view of `filterKey`; a pick closes the popover. */
 const PickerFilterView = <P,>({
   parts,
@@ -181,7 +176,9 @@ const PickerFilterBar = <P,>({
 };
 
 /** Builds the parts of a picker family from how it reads its records. */
-export const pickerFamily = <P extends object, T>(spec: PickerFamilySpec<P, T>) => {
+export const pickerFamily = <P extends object, T>(
+  spec: PickerFamilySpec<P, T>,
+): PickerFamily<P> => {
   const Value = (props: P & PickerProps) => {
     const texts = spec.useTexts();
     const { byId, loading } = spec.useById(props, idsOf(props.value));

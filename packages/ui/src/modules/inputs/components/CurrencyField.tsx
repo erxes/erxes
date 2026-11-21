@@ -6,13 +6,11 @@ import { Command } from 'erxes-ui/components/command';
 import { inputVariants } from 'erxes-ui/components/input';
 import { MaskInput } from 'erxes-ui/components/on-demand';
 import { Popover } from 'erxes-ui/components/popover';
-import {
-  CURRENCY_CODES,
-  type CurrencyCode,
-  isCurrencyCode,
-} from 'erxes-ui/constants/CurrencyCodes';
+import { type CurrencyCode, isCurrencyCode } from 'erxes-ui/constants/currencyCode';
+import { CURRENCY_CODES } from 'erxes-ui/constants/CurrencyCodes';
 import { cn } from 'erxes-ui/lib/utils';
 import { CurrencyDisplay } from 'erxes-ui/modules/display/components/Currency';
+import { IconComponent } from 'erxes-ui/modules/icons/components/IconComponent';
 
 const DEFAULT_DISPLAY_SCALE = 2;
 const DEFAULT_EDIT_SCALE = 12;
@@ -117,11 +115,11 @@ const SelectCurrencyCommand = ({
       <Command.List>
         <Command.Empty>{t('empty', 'No currency found')}</Command.Empty>
         {pickedFirst(currencies, value).map((code) => {
-          const { label, Icon } = CURRENCY_CODES[code];
+          const { label, icon } = CURRENCY_CODES[code];
 
           return (
             <Command.Item key={code} value={`${code} ${label}`} onSelect={() => onSelect(code)}>
-              <Icon />
+              <IconComponent name={icon} />
               {label}
               <Combobox.Check checked={value === code} />
             </Command.Item>

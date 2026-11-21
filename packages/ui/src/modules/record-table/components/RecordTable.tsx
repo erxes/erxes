@@ -10,7 +10,7 @@ import {
 } from './RecordTableCursor';
 import { RecordTableHead } from './RecordTableHead';
 import { RecordTableHeader } from './RecordTableHeader';
-import { RecordTableHotKeyControl, RecordTableHotkeyProvider } from './RecordTableHotkeys';
+import { onDemand } from 'erxes-ui/components/on-demand';
 import { RecordTableInlineHead } from './RecordTableInlineHead';
 import { RecordTableProvider, useRecordTable, useRecordTableState } from './RecordTableProvider';
 import { RecordTableRoot } from './RecordTableRoot';
@@ -18,6 +18,12 @@ import { RecordTableRow } from './RecordTableRow';
 import { RecordTableRowList } from './RecordTableRowList';
 import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 import { RecordTableScroll } from './RecordTableScroll';
+
+// A form table's arrow keys load on first use: only some plugin forms move through cells.
+const hotkeys = () => import('./RecordTableHotkeys');
+
+const RecordTableHotkeyProvider = onDemand(async () => (await hotkeys()).RecordTableHotkeyProvider);
+const RecordTableHotKeyControl = onDemand(async () => (await hotkeys()).RecordTableHotKeyControl);
 
 /**
  * The table every record list uses; never `Table` or a plain `<table>`.

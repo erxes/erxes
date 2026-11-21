@@ -28,7 +28,8 @@ type RemainderQuery = (
   productIds: string[],
 ) => UseQueryOptions<Record<string, number>, Error, Record<string, number>>;
 
-interface BulkProps {
+/** What `SelectProductsBulk` picks from and hands back. */
+export interface BulkProps {
   /** `productQueries` from `@erxes/core-contract/client`. */
   products: ProductQueries;
   onSelect: (productIds: string[], products: ProductRecord[]) => void | Promise<void>;

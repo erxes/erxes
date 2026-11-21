@@ -99,7 +99,6 @@ value BranchesInline
 value Breadcrumb
 value Button
 value CONNECTION_CONTENT_TYPE
-value CURRENCY_CODES
 value Calendar
 value Can
 value Card

@@ -2,7 +2,7 @@
 import { act } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { setupDomRender } from '../../../lib/render-in-dom';
-import type { CurrencyCode } from '../../../constants/CurrencyCodes';
+import type { CurrencyCode } from '../../../constants/currencyCode';
 import { CurrencyField } from './CurrencyField';
 
 const render = setupDomRender();

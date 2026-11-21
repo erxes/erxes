@@ -13,7 +13,11 @@ import { PopoverScoped } from '../hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { MemberLink } from '../records/MemberLink';
 import { EntityPicker } from './EntityPicker';
-import { memberFamily } from './memberFamily';
+import { lazyFamily } from './lazyPickers';
+
+/** 3.x's form and filter parts of the member picker; they load on first use. */
+const memberFamily = lazyFamily(async () => (await import('./memberFamily')).memberFamily);
+
 import {
   type Member,
   type MemberQueries,

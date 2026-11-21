@@ -13,7 +13,8 @@ import { treeRows } from 'erxes-ui/modules/tree/treeRows';
 import { useRowsById } from './rowsById';
 import { pickerFamily } from './selectFamilyParts';
 
-interface ProductSource {
+/** Where the product pickers read core's catalog. */
+export interface ProductSource {
   /** `productQueries` from `@erxes/core-contract/client`. */
   products: ProductQueries;
 }

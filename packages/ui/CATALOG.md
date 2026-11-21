@@ -32,7 +32,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PageContainer>` A page's outer box, full height, with `PageHeader` first inside it.
 - `PageHeader.{Start, End}` A page's title bar, with the breadcrumb and its one primary action.
 - `<PageSubHeader variant>` A bar under the page header with a rule below it, for tabs or controls.
-- `<ReportPageContainer onExport>` A printable report page: a toolbar to zoom and print, then the sheet.
+- `<ReportPageContainer>` A printable report page: a toolbar to zoom and print, then the sheet.
 - `ReportTable.{Header, Body, Footer, Head, Row, …}` A printable report's table, bordered, sized in em.
 
 ## Lists
@@ -53,6 +53,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
 - `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
 - `RecordTableTree.{Indentation, Arrow, Trigger, Row}` A record table whose rows are a tree, indented with arrows that fold.
+- `SelectTree.{Item, Provider}` A picker's items as a tree, indented with arrows that fold.
 - `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
 - `type TListDisplayOption { key, label, icon }` A list's own display, such as a cards grid or a chart.
@@ -130,18 +131,18 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Fields and pickers
 
-- `<BranchBadge branch branchId>` A branch as a badge: its code and name.
-- `<BranchesInline branchIds>` Branches by id as their names, joined.
-- `<CompaniesInline companyIds contacts placeholder>` Companies by id: their avatars, and the name.
+- `<BranchBadge>` A branch as a badge: its code and name.
+- `<BranchesInline>` Branches by id as their names, joined.
+- `<CompaniesInline>` Companies by id: their avatars, and the name.
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
-- `<CurrencyDisplay code variant>` A currency by its code: its icon and name, its icon alone, or its code.
+- `<CurrencyDisplay>` A currency by its code: its icon and name, its icon alone, or its code.
 - `CurrencyField.{ValueInput, SelectCurrency, SelectCurrencyCommand}` An amount and its currency: an amount input and a currency picker.
-- `<CurrencyFormatedDisplay currencyValue kind>` An amount after its currency's icon, through `formatAmount`.
-- `<CustomersInline customerIds contacts placeholder>` Customers by id: their avatars, and the name.
+- `<CurrencyFormatedDisplay>` An amount after its currency's icon, through `formatAmount`.
+- `<CustomersInline>` Customers by id: their avatars, and the name.
 - `CustomerType` Who a plugin record is about: a customer, a company or a team member.
 - `<DateField value min max placeholder scope>` A day in a table cell or panel row, edited in a popover with a calendar.
-- `<DepartmentBadge department departmentId>` A department as a badge: its code and name.
-- `<DepartmentsInline departmentIds>` Departments by id as their names, joined.
+- `<DepartmentBadge>` A department as a badge: its code and name.
+- `<DepartmentsInline>` Departments by id as their names, joined.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.
@@ -163,17 +164,16 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PhoneDisplay maxVisible primaryPhone phones phoneValidationStatus>` A record's phones as chips, the primary one with its validation mark.
 - `<PhoneField recordId onValueChange onValidationStatusChange primaryPhone phones>` An editable list of a record's phones, each with its own menu.
 - `<PhoneInput value onChange defaultCountry placeholder onEnter>` A phone input with a country flag picker that formats as you type.
-- `<ProductsInline productIds products productQueries placeholder>` Products by id: the first one's code and name, "+N more" after it.
+- `<ProductsInline>` Products by id: the first one's code and name, "+N more" after it.
 - `RelativeDateDisplay.{Value}` A date as how long ago it was, with the date and time on hover.
-- `SelectBranches` Picks core's branches in a table cell, a form field or a filter.
-- `SelectCategory` Picks core's product categories from a tree that folds.
-- `SelectCompany` Picks core's companies in a table cell, a form field or a filter.
-- `SelectCustomer` Picks core's customers in a table cell, a form field or a filter.
-- `SelectDepartments` Picks core's departments in a table cell, a form field or a filter.
+- `<SelectBranches>` Picks core's branches in a table cell, a form field or a filter.
+- `<SelectCategory>` Picks core's product categories from a tree that folds.
+- `<SelectCompany>` Picks core's companies in a table cell, a form field or a filter.
+- `<SelectCustomer>` Picks core's customers in a table cell, a form field or a filter.
+- `<SelectDepartments>` Picks core's departments in a table cell, a form field or a filter.
 - `SelectMember` The member picker: a table cell, a field, or a row opening the member.
-- `SelectProduct` Picks core products in a table cell, a form field or a filter.
-- `<SelectProductsBulk open onOpenChange title description>` A sheet that picks many products at once, as 3.x's did.
-- `SelectTree.{Item, Provider}` A picker's items as a tree, indented with arrows that fold.
+- `<SelectProduct>` Picks core products in a table cell, a form field or a filter.
+- `<SelectProductsBulk>` A sheet that picks many products at once, as 3.x's did.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.
 - `<SexField value onValueChange>` A searchable list to pick a sex code, for a popover or cell editor.
 - `type Tag { id, name }` A tag as the pickers show one: core's `Tag` has these fields and more.
@@ -303,7 +303,6 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `amountStep(currency)` A number input's `step` for a currency: 0.01 for USD, 1 for JPY.
 - `cn` Joins classes and drops the ones a later class overrides.
-- `CURRENCY_CODES` Every currency `CurrencyField` picks from, by ISO 4217 code.
 - `type CurrencyCode` An ISO 4217 code `CURRENCY_CODES` lists (`'MNT'`, `'USD'`).
 - `displayNum(value, p)` A number with separators and exactly `p` decimals (2 by default).
 - `fixNum(value, p)` A number, or "1,234.5" text, rounded to `p` decimals (4 by default).

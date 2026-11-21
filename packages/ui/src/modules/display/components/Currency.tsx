@@ -1,7 +1,9 @@
 import type { ComponentProps } from 'react';
-import { CURRENCY_CODES, type CurrencyCode } from 'erxes-ui/constants/CurrencyCodes';
-import { cn } from 'erxes-ui/lib/utils';
+import type { CurrencyCode } from 'erxes-ui/constants/currencyCode';
+import { CURRENCY_CODES } from 'erxes-ui/constants/CurrencyCodes';
 import { formatAmount } from 'erxes-ui/lib/format';
+import { cn } from 'erxes-ui/lib/utils';
+import { IconComponent } from 'erxes-ui/modules/icons/components/IconComponent';
 
 /**
  * A currency by its code: its icon and name, its icon alone, or its code.
@@ -17,15 +19,15 @@ export const CurrencyDisplay = ({
   variant?: 'icon' | 'label' | 'code';
 }) => {
   const currency = code ? CURRENCY_CODES[code] : undefined;
-  const CurrencyIcon = currency?.Icon;
 
-  if (variant === 'icon' && CurrencyIcon) return <CurrencyIcon className="size-4" />;
+  if (variant === 'icon' && currency)
+    return <IconComponent name={currency.icon} className="size-4" />;
 
   if (variant !== 'label') return <span className="mr-auto text-muted-foreground">{code}</span>;
 
   return (
     <div className={cn('flex items-center gap-2', className)} {...props}>
-      {CurrencyIcon && <CurrencyIcon className="size-4" />}
+      {currency && <IconComponent name={currency.icon} className="size-4" />}
       <span className="mr-auto">{currency?.label}</span>
     </div>
   );
@@ -45,13 +47,12 @@ export const CurrencyFormatedDisplay = ({
 }) => {
   const code = currencyValue?.currencyCode;
   const amount = currencyValue?.amountMicros;
-  const CurrencyIcon = code ? CURRENCY_CODES[code].Icon : undefined;
 
   return (
     <div className="flex w-full max-w-full items-center overflow-hidden text-ellipsis whitespace-nowrap">
       {!code && 0}
-      {code && CurrencyIcon && amount != null && (
-        <CurrencyIcon className="size-4 text-muted-foreground" />
+      {code && amount != null && (
+        <IconComponent name={CURRENCY_CODES[code].icon} className="size-4 text-muted-foreground" />
       )}
       {code && amount != null && formatAmount(amount, kind)}
     </div>

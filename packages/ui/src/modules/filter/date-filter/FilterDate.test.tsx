@@ -2,13 +2,23 @@
 import type { OnUrlUpdateFunction } from 'nuqs/adapters/testing';
 import { act, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { settle, setupPageRender } from '../../../lib/render-page';
+import { loaded, settle, setupPageRender } from '../../../lib/render-page';
 import { Filter } from '../components/Filter';
 
 const page = setupPageRender();
 
-const atAddress = (node: ReactNode, searchParams: string, onUrlUpdate?: OnUrlUpdateFunction) =>
-  page(<Filter id="transactions">{node}</Filter>, searchParams, onUrlUpdate);
+/** The filter at an address, once its date parts (which load on first use) are in. */
+const atAddress = async (
+  node: ReactNode,
+  searchParams: string,
+  onUrlUpdate?: OnUrlUpdateFunction,
+) => {
+  const container = page(<Filter id="transactions">{node}</Filter>, searchParams, onUrlUpdate);
+
+  await loaded(() => Boolean(document.body.textContent));
+
+  return container;
+};
 
 const rows = () => [...document.querySelectorAll('[cmdk-item]')].map((item) => item.textContent);
 
@@ -23,7 +33,7 @@ describe('Filter.DateView', () => {
   it('offers the presets and a custom range, and writes the one picked', async () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
 
-    atAddress(<Filter.DateView filterKey="createdAt" />, '', onUrlUpdate);
+    await atAddress(<Filter.DateView filterKey="createdAt" />, '', onUrlUpdate);
 
     expect(rows()).toEqual([
       'Today',
@@ -43,14 +53,14 @@ describe('Filter.DateView', () => {
 });
 
 describe('Filter.Date', () => {
-  it('names the filter’s value on its bar chip', () => {
-    const quarter = atAddress(<Filter.Date filterKey="date" />, '?date=2026-quarter-3');
+  it('names the filter’s value on its bar chip', async () => {
+    const quarter = await atAddress(<Filter.Date filterKey="date" />, '?date=2026-quarter-3');
 
     expect(quarter.textContent).toBe('2026 Q3');
 
     document.body.innerHTML = '';
 
-    const preset = atAddress(<Filter.Date filterKey="date" />, '?date=3-days-from-now');
+    const preset = await atAddress(<Filter.Date filterKey="date" />, '?date=3-days-from-now');
 
     expect(preset.textContent).toBe('Last 3 days');
   });
@@ -61,7 +71,7 @@ describe('Filter.DialogDateView', () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
     const year = new Date().getFullYear() - 1;
 
-    atAddress(
+    await atAddress(
       <Filter.Dialog open>
         <Filter.DialogDateView filterKey="date" label="Date" />
       </Filter.Dialog>,

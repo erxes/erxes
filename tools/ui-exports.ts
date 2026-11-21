@@ -96,6 +96,7 @@ const sections = [
       'modules/board/',
       'modules/record-list/',
       'modules/record-table/',
+      'modules/tree/',
       'modules/filter/',
     ],
   ],

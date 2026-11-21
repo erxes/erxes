@@ -20,6 +20,20 @@ import type { SliderProps } from './slider';
 // react-resizable-panels for Resizable, imask for masked inputs, and react-day-picker (21 kB
 // gzipped) for the calendar.
 
+/**
+ * A component whose code loads the first time one renders, showing nothing until then: for
+ * parts only some pages use (a plugin's record pickers, its report page).
+ */
+export const onDemand = <P extends object>(load: () => Promise<ComponentType<P>>) => {
+  const Loaded = lazy(async () => ({ default: await load() }));
+
+  return (props: P) => (
+    <Suspense fallback={null}>
+      <Loaded {...props} />
+    </Suspense>
+  );
+};
+
 type MaskInputProps = ComponentProps<typeof IMaskInput>;
 
 const LoadedMaskInput: LazyExoticComponent<ComponentType<MaskInputProps>> = lazy(async () => ({
