@@ -71,6 +71,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Records
 
+- `<Can action actions fallback>` Its children for a member who may do `action`, else `fallback`.
 - `type CompanyContact { id, primaryName, primaryEmail, primaryPhone, avatarUrl }` What a company reads as: core's `Company` has these fields and more.
 - `companyTitle(company)` A company's name, else its email or phone.
 - `CONNECTION_CONTENT_TYPE` The content type core's side panel opens a vault connection as.
@@ -84,6 +85,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
 - `Export` An Export button for a plugin's records, through core's export.
+- `<HostSessionProvider session>` Gives plugin pages the signed-in session; web mounts it, plugins don't.
 - `Import` An Import button for a plugin's records, through core's import.
 - `MEMBER_CONTENT_TYPE` The content type core's side panel opens team members as.
 - `<MemberLink memberId members>` A team member as a chip: their avatar and name.
@@ -120,8 +122,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type UnitChoice { id, name, code, parentId }` A branch or department as pickers show one: core's `Unit` has more.
 - `type UnitQueries { list }` Where branch and department pickers read core's units, a kind at a time.
 - `useCurrentRecord()` The record core's panel shows now: null when it shows none or a draft.
+- `useHostSession()` The signed-in member, organisation and permissions; null outside erxes.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
+- `usePermissionCheck()` Whether the signed-in member may do an action.
 - `useRecordPanel()` The record a slot is in, and what the slot can do to it.
 
 ## Fields and pickers

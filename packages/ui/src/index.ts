@@ -382,6 +382,8 @@ export { RecordChip } from './modules/records/RecordChip';
 
 export { Export, Import, setTransferButtons } from './modules/records/transfer';
 
+export { Can, HostSessionProvider, useHostSession, usePermissionCheck } from './utils/session';
+
 export {
   type CompanyContact,
   companyTitle,

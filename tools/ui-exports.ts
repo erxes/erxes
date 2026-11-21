@@ -99,7 +99,10 @@ const sections = [
       'modules/filter/',
     ],
   ],
-  ['Records', ['modules/record-panel/', 'modules/records/', 'utils/record-timeline']],
+  [
+    'Records',
+    ['modules/record-panel/', 'modules/records/', 'utils/record-timeline', 'utils/session'],
+  ],
   [
     'Fields and pickers',
     [

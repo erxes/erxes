@@ -101,6 +101,7 @@ value Button
 value CONNECTION_CONTENT_TYPE
 value CURRENCY_CODES
 value Calendar
+value Can
 value Card
 value ChartContainer
 value ChartLegendContent
@@ -145,6 +146,7 @@ value Filter
 value Form
 value FullNameField
 value FullNameValue
+value HostSessionProvider
 value HoverCard
 value IconComponent
 value IconPicker
@@ -291,6 +293,7 @@ value useFieldControl
 value useFilterContext
 value useFocusFirstField
 value useFormat
+value useHostSession
 value useItemKeys
 value useListDisplay
 value useListFilterParams
@@ -305,6 +308,7 @@ value useMoney
 value useOpenRecord
 value usePageHotkey
 value usePanelExpanded
+value usePermissionCheck
 value usePhoneFormatter
 value usePreviousHotkeyScope
 value useProductOptions
