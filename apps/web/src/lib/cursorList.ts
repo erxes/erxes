@@ -28,7 +28,7 @@ export interface CursorParams {
   cursorMode: 'inclusive' | 'exclusive';
 }
 
-type CursorCache<T> = InfiniteData<CursorPage<T>, CursorParams>;
+export type CursorCache<T> = InfiniteData<CursorPage<T>, CursorParams>;
 
 /** What `useCursorList` adds to a list procedure's `infiniteOptions`. */
 interface CursorPaging<T> {
@@ -165,6 +165,26 @@ export const patchCachedRecord = <T extends { id: string }>(
         }
       : cache,
   );
+
+/**
+ * A record from a list's cached pages, when the list holds the same shape its `get` returns:
+ * what a side panel shows while it loads the record itself.
+ * `recordInPages(client.getQueriesData<CursorCache<Customer>>({ queryKey: orpc.customers.list.key() }), id)`.
+ */
+export const recordInPages = <T extends { id: string }>(
+  caches: [QueryKey, CursorCache<T> | undefined][],
+  id: string,
+): T | undefined => {
+  for (const [, cache] of caches) {
+    for (const page of cache?.pages ?? []) {
+      const record = page.data.find((item) => item.id === id);
+
+      if (record) return record;
+    }
+  }
+
+  return undefined;
+};
 
 /** Drops records from the cached pages of a list (`orpc.<group>.list.key()`). */
 export const removeCachedRecords = (client: QueryClient, listKey: QueryKey, ids: string[]) =>
