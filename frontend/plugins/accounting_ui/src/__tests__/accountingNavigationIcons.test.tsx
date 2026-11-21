@@ -13,6 +13,11 @@ const mockSidebarEntries: TSidebarEntry[] = [];
 
 const mockTrim = (path: string) => path.replace(/^\//, '');
 
+// Status links filter the Transactions list and add no sidebar page.
+jest.mock('@/transactions/components/TransactionStatusNavigation', () => ({
+  TransactionStatusNavigation: () => null,
+}));
+
 jest.mock('@/NavigationSection', () => ({
   NavigationSection: ({
     icon,

@@ -225,6 +225,7 @@ export const generateTrStatusActivityLog = (param: {
   oldStatus?: string;
   oldMentionOwnerId?: string;
   oldMentionUserIds?: string[];
+  decision?: 'APPROVE' | 'DECLINE';
 }): ActivityLogInput | undefined => {
   const {
     parentId,
@@ -235,6 +236,7 @@ export const generateTrStatusActivityLog = (param: {
     oldStatus,
     oldMentionOwnerId,
     oldMentionUserIds = [],
+    decision,
   } = param;
 
   const isCreate = oldStatus === undefined;
@@ -250,6 +252,7 @@ export const generateTrStatusActivityLog = (param: {
     JSON.stringify(previousMentionUserIds);
 
   if (
+    !decision &&
     !isCreate &&
     !statusChanged &&
     !mentionOwnerChanged &&
@@ -261,7 +264,12 @@ export const generateTrStatusActivityLog = (param: {
   let actionType = 'mention_changed';
   let description = 'changed transaction mention';
 
-  if (isCreate) {
+  if (decision) {
+    // The responder leaves `mentionUserIds`; the row names who decided and
+    // any status the decision moved the transaction to.
+    actionType = decision === 'APPROVE' ? 'approved' : 'declined';
+    description = `${actionType} the transaction request`;
+  } else if (isCreate) {
     actionType = 'created';
     description = `created transaction with ${status || 'unknown'} status`;
   } else if (statusChanged) {

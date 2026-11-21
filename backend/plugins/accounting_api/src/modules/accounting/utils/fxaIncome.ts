@@ -23,7 +23,7 @@ import {
   TR_DETAIL_FOLLOW_TYPES,
   TR_FOLLOW_TYPES,
   TR_SIDES,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
 } from '../@types/constants';
 import {
   cleanFxaFollowTr,
@@ -587,7 +587,7 @@ const prepareFxaIncomeAcquisition = async (
   const priorIncomes = existingIds.length
     ? await models.Transactions.find({
         journal: JOURNALS.FXA_INCOME,
-        status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+        status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
         _id: { $ne: transaction._id },
         'details.fixedAssetId': { $in: existingIds },
       }).lean()

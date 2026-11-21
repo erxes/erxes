@@ -116,6 +116,11 @@ export const AdjustFixedAssetDetail = () => {
               )}: ${adjustFixedAsset.error}`}
             </span>
           )}
+          {adjustFixedAsset.warning && (
+            <span className="text-sm text-warning">
+              {adjustFixedAsset.warning}
+            </span>
+          )}
           {canRun && (
             <Button onClick={() => runAdjustFixedAsset()} disabled={busy}>
               {runLoading ? <Spinner /> : <IconCrane />}

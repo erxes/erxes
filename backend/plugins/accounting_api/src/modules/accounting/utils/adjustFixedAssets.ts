@@ -24,7 +24,7 @@ import {
 } from '../@types/adjustFixedAsset';
 import {
   JOURNALS,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
   TR_SIDES,
   TR_STATUSES,
 } from '../@types/constants';
@@ -41,10 +41,12 @@ import {
   TFxaCorrection,
 } from './fxaRules';
 import { getFxaRevaluationStates } from './fxaRevaluationState';
+import { UNSETTLED_TR_STATUSES } from './unsettledTransactions';
 
 type TDailyValidationResult = {
   successDate?: Date;
   error?: string;
+  warning?: string;
 };
 
 type TFixedAssetLocationDepreciationRow = {
@@ -89,7 +91,7 @@ const getFirstAcquisitionDate = async (models: IModels, endDate: Date) => {
   const firstTransaction = await models.Transactions.findOne({
     journal: JOURNALS.FXA_INCOME,
     date: { $lt: addDays(endDate, 1) },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     'details.fixedAssetId': { $exists: true, $ne: '' },
   })
     .sort({ date: 1 })
@@ -117,7 +119,7 @@ const getUncompletedFixedAssetTransaction = async (
       ],
     },
     'details.fixedAssetId': { $exists: true, $ne: '' },
-    status: { $nin: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: UNSETTLED_TR_STATUSES },
   })
     .sort({ date: 1 })
     .lean();
@@ -127,7 +129,7 @@ const getFxaMovements = async (models: IModels, endDate: Date) => {
   const transactions = await models.Transactions.find({
     journal: { $in: FXA_MOVEMENT_JOURNALS },
     date: { $lt: addDays(endDate, 1) },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     'details.fixedAssetId': { $exists: true, $ne: '' },
   })
     .sort({ date: 1, createdAt: 1 })
@@ -175,7 +177,7 @@ const getDepreciationMovements = async (
     journal: {
       $in: [JOURNALS.FXA_DEP, JOURNALS.FXA_DEP_IN, JOURNALS.FXA_DEP_OUT],
     },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     date: {
       $lt: addDays(endDate, 1),
     },
@@ -450,11 +452,13 @@ const validateFxaAdjustmentByDay = async ({
     );
 
     if (uncompletedTr) {
+      // Real or pending but not complete: stop here as a warning. Draft,
+      // addressed draft and planned rows never count and are skipped.
       return {
         successDate: addDays(currentDate, -1),
-        error: `Fixed asset transaction must be in an active accounting status before adjusting. Transaction: ${
+        warning: `Transactions must be complete before adjusting. Transaction: ${
           uncompletedTr.number || uncompletedTr._id
-        } (${uncompletedTr.status || 'unknown'})`,
+        } (${uncompletedTr.status})`,
       };
     }
 
@@ -709,6 +713,7 @@ export const runAdjustFixedAsset = async (
     adjust,
   );
   const endDate = getPureDate(adjust.date);
+
   const fixedAssets = await getFxaLedgerAssets(models, endDate);
   const movements = await getFxaMovements(models, endDate);
   const depreciationMovements = await getDepreciationMovements(
@@ -729,7 +734,7 @@ export const runAdjustFixedAsset = async (
   });
   const details: IAdjustFxaDetail[] = [];
 
-  if (validationResult.error) {
+  if (validationResult.error || validationResult.warning) {
     await models.AdjustFxaDetails.replaceAdjustFxaDetails({
       adjustId: adjust._id,
       details,
@@ -740,8 +745,8 @@ export const runAdjustFixedAsset = async (
       successDate: validationResult.successDate,
       checkedAt: new Date(),
       status: ADJ_FXA_STATUSES.PROCESS,
-      error: validationResult.error,
-      warning: '',
+      error: validationResult.error || '',
+      warning: validationResult.warning || '',
       modifiedBy: userId,
     });
   }

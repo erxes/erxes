@@ -1,120 +1,92 @@
-import { IconDots } from '@tabler/icons-react';
-import { Button, Dialog, DropdownMenu, useConfirm } from 'erxes-ui';
+import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
+import { Button, Dialog, Popover, Textarea, Toggle } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
-import {
-  getTrWorkflowActions,
-  TTrWorkflowAction,
-  TTrWorkflowFields,
-} from '../utils/statusWorkflow';
 
-type TSavedWorkflowState = {
-  status?: string;
-  mentionOwnerId?: string;
-  mentionUserIds?: string[];
-};
-
-export const TrWorkflowActions = ({
-  currentUserId,
-  saved,
+const DeclineButton = ({
   disabled,
-  onAction,
+  onDecline,
 }: {
-  currentUserId?: string;
-  saved: TSavedWorkflowState;
   disabled?: boolean;
-  onAction: (fields: TTrWorkflowFields) => void;
+  onDecline: (note: string) => void;
 }) => {
   const { t } = useTranslation('accounting');
-  const { confirm } = useConfirm();
-  const [approverAction, setApproverAction] = useState<TTrWorkflowAction>();
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState('');
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setNote('');
+      }}
+    >
+      <Popover.Trigger asChild>
+        <Button
+          type="button"
+          variant="secondary"
+          className="text-destructive"
+          disabled={disabled}
+        >
+          {t('reject')}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content align="end" className="flex w-80 flex-col gap-2 p-3">
+        <Textarea
+          autoFocus
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          placeholder={t('decline-reason-placeholder')}
+          aria-label={t('decline-reason-placeholder')}
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          className="self-end text-destructive"
+          disabled={disabled}
+          onClick={() => {
+            onDecline(note);
+            setOpen(false);
+            setNote('');
+          }}
+        >
+          {t('reject')}
+        </Button>
+      </Popover.Content>
+    </Popover>
+  );
+};
+
+const RequestApprovalButton = ({
+  disabled,
+  onRequest,
+}: {
+  disabled?: boolean;
+  onRequest: (approverIds: string[]) => void;
+}) => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
   const [approverIds, setApproverIds] = useState<string[]>([]);
-
-  const { primary, more } = getTrWorkflowActions({ currentUserId, ...saved });
-
-  const run = (action: TTrWorkflowAction) => {
-    if (action.needsApprovers) {
-      setApproverIds([]);
-      setApproverAction(action);
-      return;
-    }
-
-    if (action.confirmMessage) {
-      confirm({
-        message: t(action.confirmMessage),
-        options: { okLabel: t(action.label), cancelLabel: t('cancel-label') },
-      }).then(() => onAction(action.getFields()));
-      return;
-    }
-
-    onAction(action.getFields());
-  };
-
-  const submitApprovers = () => {
-    if (!approverAction || !approverIds.length) {
-      return;
-    }
-
-    onAction(approverAction.getFields(approverIds));
-    setApproverAction(undefined);
-  };
-
-  if (!primary.length && !more.length) {
-    return null;
-  }
 
   return (
     <>
-      {primary.map((action) => (
-        <Button
-          key={action.key}
-          type="button"
-          variant={action.destructive ? 'secondary' : 'default'}
-          className={action.destructive ? 'text-destructive' : undefined}
-          disabled={disabled}
-          onClick={() => run(action)}
-        >
-          {t(action.label)}
-        </Button>
-      ))}
-      {more.length > 0 && (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon"
-              disabled={disabled}
-              title={t('more-actions')}
-            >
-              <IconDots />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end" className="min-w-48">
-            {more.map((action) => (
-              <DropdownMenu.Item
-                key={action.key}
-                onClick={() => run(action)}
-                className={
-                  action.destructive
-                    ? 'text-destructive focus:text-destructive'
-                    : undefined
-                }
-              >
-                {t(action.label)}
-              </DropdownMenu.Item>
-            ))}
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      )}
-      <Dialog
-        open={!!approverAction}
-        onOpenChange={(open) => !open && setApproverAction(undefined)}
+      <Button
+        type="button"
+        variant="secondary"
+        disabled={disabled}
+        onClick={() => {
+          setApproverIds([]);
+          setOpen(true);
+        }}
       >
+        {t('request-approval')}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content>
           <Dialog.Header>
-            <Dialog.Title>{t(approverAction?.label || '')}</Dialog.Title>
+            <Dialog.Title>{t('request-approval')}</Dialog.Title>
             <Dialog.Description>
               {t('select-approvers-description')}
             </Dialog.Description>
@@ -133,20 +105,83 @@ export const TrWorkflowActions = ({
             <Button
               type="button"
               variant="secondary"
-              onClick={() => setApproverAction(undefined)}
+              onClick={() => setOpen(false)}
             >
               {t('cancel-label')}
             </Button>
             <Button
               type="button"
               disabled={!approverIds.length || disabled}
-              onClick={submitApprovers}
+              onClick={() => {
+                onRequest(approverIds);
+                setOpen(false);
+              }}
             >
               {t('send-request')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
+    </>
+  );
+};
+
+/**
+ * A listed user gets Approve and Decline while the form still holds the
+ * saved status and recipients, followed by the manage toggle that reveals
+ * the ordinary record controls. Everyone else may request approval.
+ */
+export const TrWorkflowActions = ({
+  responder,
+  showDecision,
+  manageOpen,
+  onManageChange,
+  canRequestApproval,
+  disabled,
+  onApprove,
+  onDecline,
+  onRequestApproval,
+}: {
+  responder: boolean;
+  showDecision: boolean;
+  manageOpen: boolean;
+  onManageChange: (open: boolean) => void;
+  canRequestApproval: boolean;
+  disabled?: boolean;
+  onApprove: () => void;
+  onDecline: (note: string) => void;
+  onRequestApproval: (approverIds: string[]) => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  if (!responder) {
+    return canRequestApproval ? (
+      <RequestApprovalButton
+        disabled={disabled}
+        onRequest={onRequestApproval}
+      />
+    ) : null;
+  }
+
+  return (
+    <>
+      {showDecision && (
+        <>
+          <Button type="button" disabled={disabled} onClick={onApprove}>
+            {t('approve-request')}
+          </Button>
+          <DeclineButton disabled={disabled} onDecline={onDecline} />
+        </>
+      )}
+      <Toggle
+        variant="outline"
+        pressed={manageOpen}
+        onPressedChange={onManageChange}
+        aria-label={t('full-control')}
+        title={t('full-control')}
+      >
+        <IconAdjustmentsHorizontal />
+      </Toggle>
     </>
   );
 };

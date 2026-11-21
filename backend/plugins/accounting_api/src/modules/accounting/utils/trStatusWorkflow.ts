@@ -1,76 +1,76 @@
 import { TR_STATUSES } from '../@types/constants';
+import { ITransaction } from '../@types/transaction';
 
-type TWorkflowState = {
-  status?: string;
-  mentionOwnerId?: string;
-  mentionUserIds?: string[];
-};
+type TWorkflowState = Pick<
+  ITransaction,
+  'status' | 'mentionOwnerId' | 'mentionUserIds'
+>;
 
-const RESPONDER_DECISIONS = [
-  TR_STATUSES.APPROVED,
-  TR_STATUSES.REJECED,
-  TR_STATUSES.RETURNED,
-];
+export type TTransactionDecision = 'APPROVE' | 'DECLINE';
 
 const uniqueIds = (ids: string[] = []) => [...new Set(ids.filter(Boolean))];
 
-const sameIds = (left: string[], right: string[]) =>
-  left.length === right.length && left.every((id) => right.includes(id));
+const isAddressed = (status?: string) =>
+  status === TR_STATUSES.MENTIONED || status === TR_STATUSES.REQUESTED;
 
-/**
- * Resolves the parent workflow status and mention fields for a save and
- * enforces who may make a conversation-level decision. Business and posted
- * statuses remain governed by journal permissions only.
- */
 export const resolveTrStatusWorkflow = ({
   next,
   old,
   userId,
+  decision,
 }: {
   next: TWorkflowState;
   old?: TWorkflowState;
   userId: string;
+  decision?: TTransactionDecision;
 }): TWorkflowState => {
-  const status = next.status;
-  let mentionOwnerId = next.mentionOwnerId || old?.mentionOwnerId;
-  let mentionUserIds = uniqueIds(next.mentionUserIds ?? old?.mentionUserIds);
+  const status = next.status ?? old?.status ?? TR_STATUSES.DRAFT;
+  const oldMentionUserIds = uniqueIds(old?.mentionUserIds);
+  const mentionUserIds = uniqueIds(next.mentionUserIds ?? oldMentionUserIds);
+  const mentionOwnerId = next.mentionOwnerId || old?.mentionOwnerId || userId;
 
-  const oldStatus = old?.status;
-  const oldUserIds = uniqueIds(old?.mentionUserIds);
-  const wasMentioned = oldStatus === TR_STATUSES.MENTIONED;
-  const isResponder = oldUserIds.includes(userId);
+  if (decision) {
+    if (!isAddressed(old?.status) || !oldMentionUserIds.includes(userId)) {
+      throw new Error(
+        'Only a listed approver can decide an open transaction request',
+      );
+    }
 
-  if (
-    wasMentioned &&
-    status &&
-    RESPONDER_DECISIONS.includes(status) &&
-    oldUserIds.length &&
-    !isResponder
-  ) {
+    // A request waits for every listed user; one decline ends it. Each
+    // approval removes the responder, so `mentionUserIds` is who still owes
+    // a decision. A request reaches `complete` (real) or falls back to
+    // `executing` (soon); an addressed draft only ever returns to the
+    // owner's own draft, so a draft review never posts anything.
+    const declined = decision === 'DECLINE';
+    const remainingUserIds = declined
+      ? oldMentionUserIds
+      : oldMentionUserIds.filter((id) => id !== userId);
+    const isRequest = old?.status === TR_STATUSES.REQUESTED;
+    const doneStatus = isRequest ? TR_STATUSES.COMPLETE : TR_STATUSES.DRAFT;
+    const declinedStatus = isRequest
+      ? TR_STATUSES.EXECUTING
+      : TR_STATUSES.DRAFT;
+
+    return {
+      status: declined
+        ? declinedStatus
+        : remainingUserIds.length
+        ? old?.status || status
+        : doneStatus,
+      mentionOwnerId: old?.mentionOwnerId || mentionOwnerId,
+      mentionUserIds: remainingUserIds,
+    };
+  }
+
+  if (!TR_STATUSES.ALL.includes(status)) {
+    throw new Error('Invalid transaction status');
+  }
+  if (isAddressed(status) && !mentionUserIds.length) {
     throw new Error(
-      'Only the mentioned approvers can approve, reject or return this transaction',
+      status === TR_STATUSES.REQUESTED
+        ? 'Select at least one approver to request approval'
+        : 'Select at least one user to address this draft',
     );
-  }
-
-  if (status === TR_STATUSES.RETURNED && oldStatus !== TR_STATUSES.RETURNED) {
-    // The responder asks the requester back; the request reverses direction.
-    mentionOwnerId = userId;
-    mentionUserIds = old?.mentionOwnerId ? [old.mentionOwnerId] : [];
-  }
-
-  if (
-    wasMentioned &&
-    status === TR_STATUSES.MENTIONED &&
-    isResponder &&
-    userId !== old?.mentionOwnerId &&
-    !sameIds(mentionUserIds, oldUserIds)
-  ) {
-    // An approver forwarding to the next approver becomes the requester.
-    mentionOwnerId = userId;
-  }
-
-  if (status === TR_STATUSES.MENTIONED && !mentionUserIds.length) {
-    throw new Error('Select at least one approver to request approval');
   }
 
   return { status, mentionOwnerId, mentionUserIds };

@@ -55,9 +55,10 @@ import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 import { useTranslation } from 'react-i18next';
 import { TR_STATUSES } from '../types/constants';
 
-// Requests waiting on the current user: approvals mentioned to them and
-// returned questions sent back to them.
-const AWAITING_MY_ACTION_STATUSES = [TR_STATUSES.MENTIONED, TR_STATUSES.RETURNED];
+const AWAITING_MY_ACTION_STATUSES = [
+  TR_STATUSES.MENTIONED,
+  TR_STATUSES.REQUESTED,
+];
 
 const AwaitingMyActionItem = () => {
   const { t } = useTranslation('accounting');
@@ -72,6 +73,11 @@ const AwaitingMyActionItem = () => {
     sessionKey,
   );
 
+  const [, setStatus] = useFilterQueryState<string | null>(
+    'status',
+    sessionKey,
+  );
+
   if (!currentUser?._id) {
     return null;
   }
@@ -80,6 +86,7 @@ const AwaitingMyActionItem = () => {
     <Filter.CommandItem
       value="awaitingMyAction"
       onSelect={() => {
+        setStatus(null);
         setMentionUserId(currentUser._id);
         setStatuses(AWAITING_MY_ACTION_STATUSES);
       }}

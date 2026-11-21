@@ -68,11 +68,14 @@ export const Summary = ({
   form,
   saving,
   workflowActions,
+  hideRecordActions,
 }: {
   errorMessage?: string;
   form: ITransactionGroupForm;
   saving?: boolean;
   workflowActions?: ReactNode;
+  /** The approver decision view hides Save and Delete until managed. */
+  hideRecordActions?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [showMore, setShowMore] = useState(false);
@@ -224,27 +227,31 @@ export const Summary = ({
         )}
       </div>
       {workflowActions}
-      {saveDisabledReason ? (
-        <Tooltip>
-          <Tooltip.Trigger asChild>
-            <span>{saveButton}</span>
-          </Tooltip.Trigger>
-          <Tooltip.Content side="bottom" className="max-w-64">
-            {saveDisabledReason}
-          </Tooltip.Content>
-        </Tooltip>
-      ) : (
-        saveButton
+      {!hideRecordActions && (
+        <>
+          {saveDisabledReason ? (
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <span>{saveButton}</span>
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom" className="max-w-64">
+                {saveDisabledReason}
+              </Tooltip.Content>
+            </Tooltip>
+          ) : (
+            saveButton
+          )}
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            disabled={!!errorMessage || removing}
+            onClick={handleDelete}
+          >
+            {removing ? <Spinner /> : <IconTrashX />}
+            {t('delete')}
+          </Button>
+        </>
       )}
-      <Button
-        variant="secondary"
-        className="text-destructive"
-        disabled={!!errorMessage || removing}
-        onClick={handleDelete}
-      >
-        {removing ? <Spinner /> : <IconTrashX />}
-        {t('delete')}
-      </Button>
       <TrRightSidebar />
     </div>
   );

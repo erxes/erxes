@@ -10,13 +10,13 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { memo, useEffect, useMemo } from 'react';
-import { FieldErrors, useForm } from 'react-hook-form';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { FieldErrors, useForm, useWatch } from 'react-hook-form';
 import { currentUserState, IUser, SelectMember } from 'ui-modules';
 import {
   TR_STATUS_GROUPS,
+  TR_STATUS_LABELS,
   TR_STATUSES,
-  TR_STATUS_OPTIONS,
   TrJournalEnum,
 } from '../../types/constants';
 import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
@@ -30,46 +30,29 @@ import { Summary } from './Summary';
 import { TransactionsTabsList } from './TransactionTabs';
 import { cleanTrDocs, isHiddenTransaction } from './utils';
 import {
-  getAvailableTrStatusOptions,
-  getNextMentionFields,
+  canRequestTrApproval,
+  hasSavedWorkflow,
   isAddressedTrStatus,
-  TTrWorkflowFields,
+  isTrResponder,
 } from '../utils/statusWorkflow';
 import { TrWorkflowActions } from './TrWorkflowActions';
+import type { AccountingTransactionDecision } from '~/gql/graphql';
+import { TRANSACTIONS_DETAIL_QUERY } from '../graphql/queries/accTransactionsDetail';
+import { useTransactionsDecide } from '../hooks/useTransactionsDecide';
 
 // Memoize form fields to prevent unnecessary re-renders
 const FormFields = memo(
   ({
     form,
-    currentUserId,
+    hideWorkflowFields,
   }: {
     form: ReturnType<typeof useForm<TAddTransactionGroup>>;
-    currentUserId?: string;
+    /** The approver decision view hides status, performer and recipients. */
+    hideWorkflowFields?: boolean;
   }) => {
     const { t } = useTranslation('accounting');
-    const status = form.watch('status');
-    const mentionOwnerId = form.watch('mentionOwnerId');
-    const mentionUserIds = form.watch('mentionUserIds');
-    const statusOptions = getAvailableTrStatusOptions(
-      {
-        currentUserId,
-        mentionOwnerId,
-        mentionUserIds,
-        status,
-      },
-      TR_STATUS_OPTIONS,
-    );
-    const statusOptionsByValue = new Map(
-      statusOptions.map((option) => [option.value, option]),
-    );
-    const statusGroups = TR_STATUS_GROUPS.map((group) => ({
-      ...group,
-      options: group.values
-        .map((value) => statusOptionsByValue.get(value))
-        .filter((option): option is (typeof statusOptions)[number] =>
-          Boolean(option),
-        ),
-    })).filter((group) => group.options.length);
+    const status = useWatch({ control: form.control, name: 'status' });
+    const addressed = isAddressedTrStatus(status);
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 py-6">
@@ -101,102 +84,82 @@ const FormFields = memo(
             </Form.Item>
           )}
         />
-        <Form.Field
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('status')}</Form.Label>
-              <Form.Control>
-                <Select
-                  value={field.value}
-                  onValueChange={(nextStatus) => {
-                    field.onChange(nextStatus);
-
-                    const nextMentionFields = getNextMentionFields({
-                      currentUserId,
-                      nextStatus,
-                      mentionOwnerId,
-                      mentionUserIds,
-                    });
-
-                    form.setValue(
-                      'mentionOwnerId',
-                      nextMentionFields.mentionOwnerId,
-                    );
-                    form.setValue(
-                      'mentionUserIds',
-                      nextMentionFields.mentionUserIds,
-                    );
-                  }}
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  {/* The grouped status list is taller than the menu; Radix
+        {!hideWorkflowFields && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('status')}</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      {/* The grouped status list is taller than the menu; Radix
                       scroll buttons mount mid-scroll and shift the list, so
                       hide them and keep native scrolling within the screen. */}
-                  <Select.Content className="max-h-[min(24rem,var(--radix-select-content-available-height))] [&>[aria-hidden=true]]:hidden">
-                    {statusGroups.map((group, groupIndex) => (
-                      <Select.Group key={group.label}>
-                        {group.label && (
-                          <Select.Label>
-                            {t(group.label, { nsSeparator: false })}
-                          </Select.Label>
-                        )}
-                        {group.options.map((side) => (
-                          <Select.Item key={side.value} value={side.value}>
-                            {t(side.label || '', { nsSeparator: false })}
-                          </Select.Item>
+                      <Select.Content className="max-h-[min(24rem,var(--radix-select-content-available-height))] [&>[aria-hidden=true]]:hidden">
+                        {TR_STATUS_GROUPS.map((group, groupIndex) => (
+                          <Select.Group key={group.label}>
+                            {group.values.length > 1 && (
+                              <Select.Label>{t(group.label)}</Select.Label>
+                            )}
+                            {group.values.map((value) => (
+                              <Select.Item key={value} value={value}>
+                                {t(TR_STATUS_LABELS[value])}
+                              </Select.Item>
+                            ))}
+                            {groupIndex < TR_STATUS_GROUPS.length - 1 && (
+                              <Select.Separator />
+                            )}
+                          </Select.Group>
                         ))}
-                        {groupIndex < statusGroups.length - 1 && (
-                          <Select.Separator />
-                        )}
-                      </Select.Group>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="mentionOwnerId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('performed-by')}</Form.Label>
-              <Form.Control>
-                <SelectMember.FormItem
-                  onValueChange={(user) => field.onChange(user || '')}
-                  value={field.value}
-                  mode="single"
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        {/* Only statuses addressed to someone show the mention list; the
-            saved values stay in the form so other saves keep them. */}
-        {isAddressedTrStatus(status) && (
-          <Form.Field
-            control={form.control}
-            name="mentionUserIds"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('approve')}</Form.Label>
-                <Form.Control>
-                  <SelectMember.FormItem
-                    onValueChange={(users) => field.onChange(users || [])}
-                    value={field.value}
-                    mode="multiple"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="mentionOwnerId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('performed-by')}</Form.Label>
+                  <Form.Control>
+                    <SelectMember.FormItem
+                      onValueChange={(user) => field.onChange(user || '')}
+                      value={field.value}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            {addressed && (
+              <Form.Field
+                control={form.control}
+                name="mentionUserIds"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('approver')}</Form.Label>
+                    <SelectMember.FormItem
+                      onValueChange={(users) =>
+                        field.onChange(Array.isArray(users) ? users : [])
+                      }
+                      value={field.value ?? []}
+                      mode="multiple"
+                      placeholder={t('select-approvers')}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             )}
-          />
+          </>
         )}
       </div>
     );
@@ -231,14 +194,30 @@ export const TransactionsGroupForm = () => {
 
   const { createTransaction, loading: createLoading } = useTransactionsCreate();
   const { updateTransaction, loading: updateLoading } = useTransactionsUpdate();
+  const { decide, loading: deciding } = useTransactionsDecide();
+  const [manageOpen, setManageOpen] = useState(false);
+  const { isDirty } = form.formState;
+  const [currentStatus, currentMentionUserIds] = useWatch({
+    control: form.control,
+    name: ['status', 'mentionUserIds'],
+  });
 
-  // The status select already applies the mention changes for `returned`,
-  // so submit the form's mention fields as they are.
-  const onSubmit = (data: TAddTransactionGroup) => {
+  const onSubmit = (data: TAddTransactionGroup, onSaved?: () => void) => {
     if (error) {
       return;
     }
     if (data.trDocs?.some(isHiddenTransaction)) {
+      return;
+    }
+
+    if (isAddressedTrStatus(data.status) && !data.mentionUserIds?.length) {
+      form.setError('mentionUserIds', {
+        message: t(
+          data.status === TR_STATUSES.REQUESTED
+            ? 'select-approvers'
+            : 'select-addressees',
+        ),
+      });
       return;
     }
 
@@ -247,6 +226,10 @@ export const TransactionsGroupForm = () => {
     if (parentId) {
       updateTransaction({
         variables: { parentId, trDocs },
+        refetchQueries: [
+          { query: TRANSACTIONS_DETAIL_QUERY, variables: { _id: parentId } },
+        ],
+        onCompleted: () => onSaved?.(),
       });
     } else {
       createTransaction({
@@ -264,6 +247,14 @@ export const TransactionsGroupForm = () => {
     }),
     [savedTr?.status, savedTr?.mentionOwnerId, savedTr?.mentionUserIds],
   );
+  const responder = !!parentId && isTrResponder(savedWorkflow, currentUser._id);
+  const decisionView = responder && !manageOpen;
+  const showDecision =
+    responder &&
+    hasSavedWorkflow(savedWorkflow, {
+      status: currentStatus,
+      mentionUserIds: currentMentionUserIds,
+    });
 
   const onError = (errors: FieldErrors<TAddTransactionGroup>) => {
     const trDocErrors = errors.trDocs;
@@ -273,11 +264,43 @@ export const TransactionsGroupForm = () => {
     }
   };
 
-  // Workflow actions save the current form with the action's status and
-  // mention fields without touching the form, so a failed save loses nothing.
-  const onWorkflowAction = (fields: TTrWorkflowFields) =>
+  // A decision applies to the saved voucher. Edits made in the form are
+  // saved first through the ordinary update, then the decision follows.
+  const onDecide = (decision: AccountingTransactionDecision, note?: string) => {
+    if (!parentId) {
+      return;
+    }
+    const run = () => decide(parentId, decision, note);
+
+    if (!isDirty) {
+      run();
+      return;
+    }
+    form.handleSubmit((data) => onSubmit(data, run), onError)();
+  };
+
+  // Turning the manage view off restores the saved status and recipients,
+  // which brings Approve and Decline back.
+  const onManageChange = (open: boolean) => {
+    setManageOpen(open);
+    if (!open) {
+      form.setValue('status', savedWorkflow.status ?? '', { shouldDirty: true });
+      form.setValue('mentionOwnerId', savedWorkflow.mentionOwnerId, { shouldDirty: true });
+      form.setValue('mentionUserIds', savedWorkflow.mentionUserIds, { shouldDirty: true });
+    }
+  };
+
+  // Request approval saves the current form with the chosen approvers
+  // without touching it, so a failed save loses nothing.
+  const onRequestApproval = (approverIds: string[]) =>
     form.handleSubmit(
-      (data) => onSubmit({ ...data, ...fields }),
+      (data) =>
+        onSubmit({
+          ...data,
+          status: TR_STATUSES.REQUESTED,
+          mentionOwnerId: currentUser._id,
+          mentionUserIds: approverIds,
+        }),
       onError,
     )();
 
@@ -295,9 +318,7 @@ export const TransactionsGroupForm = () => {
     }
 
     if (activeTrs?.length && parentId) {
-      const currentTr = trId
-        ? activeTrs.find((tr) => tr._id === trId)
-        : activeTrs[0];
+      const currentTr = activeTrs.find((tr) => tr._id === trId) ?? activeTrs[0];
       // setting form values
       form.reset({
         ...form.getValues(),
@@ -315,7 +336,7 @@ export const TransactionsGroupForm = () => {
         ),
       });
     }
-    if (defaultJournal) {
+    if (!parentId && defaultJournal) {
       form.reset({
         ...form.getValues(),
         date: new Date(),
@@ -326,8 +347,17 @@ export const TransactionsGroupForm = () => {
     }
 
     setFollowTrDocs(followTrs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTrs, defaultJournal, followTrs, form, loading, parentId, trId]);
+  }, [
+    activeTrs,
+    currentUser._id,
+    defaultJournal,
+    followTrs,
+    form,
+    loading,
+    parentId,
+    setFollowTrDocs,
+    trId,
+  ]);
 
   if (configsLoading || loading) {
     return <Spinner />;
@@ -337,7 +367,7 @@ export const TransactionsGroupForm = () => {
     <Form {...form}>
       <form
         className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        onSubmit={form.handleSubmit((data) => onSubmit(data), onError)}
       >
         <div className="flex justify-between">
           <h3 className="text-lg font-bold">
@@ -348,18 +378,28 @@ export const TransactionsGroupForm = () => {
               errorMessage={error?.message}
               form={form}
               saving={createLoading || updateLoading}
+              hideRecordActions={decisionView}
               workflowActions={
                 <TrWorkflowActions
-                  currentUserId={currentUser._id}
-                  saved={parentId ? savedWorkflow : {}}
-                  disabled={!!error || createLoading || updateLoading}
-                  onAction={onWorkflowAction}
+                  responder={responder}
+                  showDecision={showDecision}
+                  manageOpen={manageOpen}
+                  onManageChange={onManageChange}
+                  canRequestApproval={canRequestTrApproval(
+                    parentId ? savedWorkflow.status : undefined,
+                  )}
+                  disabled={
+                    !!error || createLoading || updateLoading || deciding
+                  }
+                  onApprove={() => onDecide('APPROVE')}
+                  onDecline={(note) => onDecide('DECLINE', note)}
+                  onRequestApproval={onRequestApproval}
                 />
               }
             />
           </div>
         </div>
-        <FormFields form={form} currentUserId={currentUser._id} />
+        <FormFields form={form} hideWorkflowFields={decisionView} />
         <TransactionsTabsList form={form} />
       </form>
     </Form>

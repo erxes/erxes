@@ -358,6 +358,9 @@ export const AdjustDebtRateDetail = () => {
       {adjustDebtRate.error && (
         <div className="text-sm text-destructive">{adjustDebtRate.error}</div>
       )}
+      {adjustDebtRate.warning && (
+        <div className="text-sm text-warning">{adjustDebtRate.warning}</div>
+      )}
 
       {adjustDebtRate.details && adjustDebtRate.details.length > 0 && (
         <div className="flex flex-col gap-3">

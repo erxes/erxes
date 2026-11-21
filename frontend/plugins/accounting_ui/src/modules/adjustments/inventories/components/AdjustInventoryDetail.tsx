@@ -183,6 +183,11 @@ export const AdjustInventoryDetail = () => {
               {adjustInventory.error}
             </span>
           )}
+          {adjustInventory?.warning && (
+            <span className="text-sm text-warning">
+              {adjustInventory.warning}
+            </span>
+          )}
           {renderEvents()}
         </div>
       </div>

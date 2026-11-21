@@ -13,6 +13,10 @@ import {
   IAdjustDebtRateDetail,
 } from '../@types/adjustDebtRate';
 import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  assertNoUnsettledTransaction,
+  UnsettledTransactionError,
+} from './unsettledTransactions';
 
 type TDebtBalance = {
   accountId: string;
@@ -425,6 +429,10 @@ const buildAdjustmentResult = async (
 
   const accountIds = accounts.map((account) => account._id);
   const period = await getAdjustmentPeriod(models, adjust, accountIds);
+  await assertNoUnsettledTransaction(
+    models,
+    getBaseTransactionFilter(adjust, accountIds, period.endDate),
+  );
   const movements = await getDebtMovements(
     models,
     adjust,
@@ -629,6 +637,10 @@ export const calculateAdjustDebtRate = async (
   } catch (error) {
     const validationError =
       error instanceof DebtRateValidationError ? error : undefined;
+    const unsettled =
+      error instanceof UnsettledTransactionError ? error : undefined;
+    const message =
+      error instanceof Error ? error.message : 'Validation failed.';
     const updatedAdjust = await models.AdjustDebtRates.updateAdjustDebtRate(
       adjust._id || '',
       {
@@ -638,11 +650,11 @@ export const calculateAdjustDebtRate = async (
           validationError?.beginDate ||
           adjust.beginDate ||
           getPureDate(adjust.date),
-        successDate: validationError?.date,
+        successDate: unsettled?.date || validationError?.date,
         checkedAt: new Date(),
         status: 'process',
-        error: error instanceof Error ? error.message : 'Validation failed.',
-        warning: '',
+        error: unsettled ? '' : message,
+        warning: unsettled ? message : '',
         modifiedBy: userId,
       },
     );

@@ -1,107 +1,152 @@
-import {
-  TR_INVENTORY_STATUS_TYPES,
-  TR_STATUSES,
-} from '../../@types/constants';
+import { TRANSACTION_STATUS_TYPES, TR_STATUSES } from '../../@types/constants';
 import { resolveTrStatusWorkflow } from '../trStatusWorkflow';
 
-const mentioned = {
-  status: TR_STATUSES.MENTIONED,
+const requested = {
+  status: TR_STATUSES.REQUESTED,
   mentionOwnerId: 'owner',
-  mentionUserIds: ['approver'],
+  mentionUserIds: ['first', 'second'],
 };
 
 describe('transaction status tiers', () => {
-  it('omits conversation and cancelled, reserves business, posts ongoing and complete', () => {
-    expect(TR_INVENTORY_STATUS_TYPES.OMIT_STATUSES).toEqual(
-      expect.arrayContaining([
-        ...TR_STATUSES.CONVERSATION,
-        TR_STATUSES.CANELLED,
-      ]),
-    );
-    expect(TR_INVENTORY_STATUS_TYPES.SOON_STATUSES).toEqual([
-      TR_STATUSES.PROGRESS,
-      TR_STATUSES.ASSIGNED,
-      TR_STATUSES.CONFIRMED,
+  it('classifies all transaction statuses', () => {
+    expect(TRANSACTION_STATUS_TYPES.REAL_STATUSES).toEqual([
+      'estimated',
+      'complete',
     ]);
-    expect(TR_INVENTORY_STATUS_TYPES.REAL_STATUSES).toEqual([
-      TR_STATUSES.ONGOING,
-      TR_STATUSES.COMPLETE,
+    expect(TRANSACTION_STATUS_TYPES.SOON_STATUSES).toEqual([
+      'executing',
+      'requested',
     ]);
-    expect(TR_STATUSES.ACTIVE).toEqual(TR_INVENTORY_STATUS_TYPES.REAL_STATUSES);
-    expect(TR_STATUSES.ALL).toContain(TR_STATUSES.ONGOING);
+    expect(TRANSACTION_STATUS_TYPES.OMIT_STATUSES).toEqual([
+      'draft',
+      'mentioned',
+      'plan',
+    ]);
+    expect(TR_STATUSES.ACTIVE).toEqual(TRANSACTION_STATUS_TYPES.REAL_STATUSES);
   });
 });
 
 describe('resolveTrStatusWorkflow', () => {
-  it('requires an approver when requesting approval', () => {
+  it('requires someone to approve an approval request', () => {
     expect(() =>
       resolveTrStatusWorkflow({
-        next: { status: TR_STATUSES.MENTIONED, mentionUserIds: [] },
+        next: { ...requested, mentionUserIds: [] },
         userId: 'owner',
       }),
     ).toThrow('Select at least one approver');
   });
 
-  it('lets only a mentioned approver approve, reject or return', () => {
+  it('waits for every distinct approver and ignores form changes to approver ids during a decision', () => {
+    const first = resolveTrStatusWorkflow({
+      next: { ...requested, mentionUserIds: ['first'] },
+      old: { ...requested, mentionUserIds: ['first', 'second', 'second'] },
+      userId: 'first',
+      decision: 'APPROVE',
+    });
+    expect(first).toEqual({ ...requested, mentionUserIds: ['second'] });
+
     expect(() =>
       resolveTrStatusWorkflow({
-        next: { ...mentioned, status: TR_STATUSES.APPROVED },
-        old: mentioned,
-        userId: 'owner',
+        next: first,
+        old: first,
+        userId: 'first',
+        decision: 'APPROVE',
       }),
-    ).toThrow('Only the mentioned approvers');
+    ).toThrow('Only a listed approver');
 
     expect(
       resolveTrStatusWorkflow({
-        next: { ...mentioned, status: TR_STATUSES.REJECED },
-        old: mentioned,
-        userId: 'approver',
-      }),
-    ).toEqual({ ...mentioned, status: TR_STATUSES.REJECED });
-  });
-
-  it('makes a forwarding approver the requester of the next stage', () => {
-    expect(
-      resolveTrStatusWorkflow({
-        next: { ...mentioned, mentionUserIds: ['next', 'next'] },
-        old: mentioned,
-        userId: 'approver',
+        next: first,
+        old: first,
+        userId: 'second',
+        decision: 'APPROVE',
       }),
     ).toEqual({
-      status: TR_STATUSES.MENTIONED,
-      mentionOwnerId: 'approver',
-      mentionUserIds: ['next'],
-    });
-  });
-
-  it('reverses the request once when returned and keeps it on later saves', () => {
-    const returned = resolveTrStatusWorkflow({
-      next: { ...mentioned, status: TR_STATUSES.RETURNED },
-      old: mentioned,
-      userId: 'approver',
-    });
-
-    expect(returned).toEqual({
-      status: TR_STATUSES.RETURNED,
-      mentionOwnerId: 'approver',
-      mentionUserIds: ['owner'],
-    });
-    expect(
-      resolveTrStatusWorkflow({ next: returned, old: returned, userId: 'owner' }),
-    ).toEqual(returned);
-  });
-
-  it('leaves business and posted transitions to journal permissions', () => {
-    expect(
-      resolveTrStatusWorkflow({
-        next: { status: TR_STATUSES.COMPLETE },
-        old: { status: TR_STATUSES.CONFIRMED, mentionOwnerId: 'owner' },
-        userId: 'someone',
-      }),
-    ).toEqual({
+      ...requested,
       status: TR_STATUSES.COMPLETE,
-      mentionOwnerId: 'owner',
       mentionUserIds: [],
     });
+  });
+
+  it('moves to executing immediately after any listed approver declines', () => {
+    expect(
+      resolveTrStatusWorkflow({
+        next: requested,
+        old: { ...requested, mentionUserIds: ['second'] },
+        userId: 'second',
+        decision: 'DECLINE',
+      }),
+    ).toEqual({
+      ...requested,
+      status: TR_STATUSES.EXECUTING,
+      mentionUserIds: ['second'],
+    });
+  });
+
+  it('returns an addressed draft to the owner once answered and rejects outsiders', () => {
+    const mentioned = { ...requested, status: TR_STATUSES.MENTIONED };
+    const first = resolveTrStatusWorkflow({
+      next: mentioned,
+      old: mentioned,
+      userId: 'first',
+      decision: 'APPROVE',
+    });
+    expect(first).toEqual({ ...mentioned, mentionUserIds: ['second'] });
+    expect(
+      resolveTrStatusWorkflow({
+        next: first,
+        old: first,
+        userId: 'second',
+        decision: 'APPROVE',
+      }),
+    ).toEqual({ ...mentioned, status: TR_STATUSES.DRAFT, mentionUserIds: [] });
+    expect(
+      resolveTrStatusWorkflow({
+        next: mentioned,
+        old: mentioned,
+        userId: 'second',
+        decision: 'DECLINE',
+      }).status,
+    ).toBe(TR_STATUSES.DRAFT);
+    expect(() =>
+      resolveTrStatusWorkflow({
+        next: { ...mentioned, mentionUserIds: [] },
+        userId: 'owner',
+      }),
+    ).toThrow('Select at least one user');
+
+    expect(() =>
+      resolveTrStatusWorkflow({
+        next: mentioned,
+        old: mentioned,
+        userId: 'owner',
+        decision: 'DECLINE',
+      }),
+    ).toThrow('Only a listed approver');
+  });
+
+  it('preserves remaining recipients when omitted and permits direct edits to recipients and status', () => {
+    const old = { ...requested, mentionUserIds: ['second'] };
+    expect(
+      resolveTrStatusWorkflow({
+        next: { status: requested.status },
+        old,
+        userId: 'second',
+      }),
+    ).toEqual(old);
+    expect(
+      resolveTrStatusWorkflow({
+        next: { ...requested, mentionUserIds: ['third'] },
+        old,
+        userId: 'owner',
+      }).mentionUserIds,
+    ).toEqual(['third']);
+    expect(
+      resolveTrStatusWorkflow({
+        next: { status: TR_STATUSES.ESTIMATED },
+        old,
+        userId: 'second',
+      }).status,
+    ).toBe(TR_STATUSES.ESTIMATED);
   });
 });

@@ -161,7 +161,7 @@ describe('product inventory synchronization', () => {
     await syncProductsInventory(
       'tenant',
       transaction(),
-      transaction({ status: TR_STATUSES.PROGRESS }),
+      transaction({ status: TR_STATUSES.EXECUTING }),
     );
     expect(send.mock.calls[0][0].input).toEqual({
       branchId: 'branch',
@@ -185,7 +185,7 @@ describe('product inventory synchronization', () => {
     send.mockClear();
     await removeSyncProductsInventory(
       'tenant',
-      transaction({ status: TR_STATUSES.PROGRESS }),
+      transaction({ status: TR_STATUSES.EXECUTING }),
       -1,
     );
     expect(send.mock.calls[0][0].input).toEqual({

@@ -433,6 +433,9 @@ export const AdjustFundRateDetail = () => {
           }: ${adjustFundRate.error}`}
         </div>
       )}
+      {adjustFundRate.warning && (
+        <div className="text-sm text-warning">{adjustFundRate.warning}</div>
+      )}
 
       <Tabs defaultValue="calculation" className="flex flex-col gap-3">
         <Tabs.List className="w-fit">
