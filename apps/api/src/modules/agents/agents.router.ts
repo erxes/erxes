@@ -1,7 +1,7 @@
 import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import { db, requestOrgId, withOrg } from '@erxes/core-db';
 import { fail } from '~/http/errors';
-import { sessionMember } from '~/modules/apiKeys/apiKeys.service';
+import { agentKey, sessionMember } from '~/modules/apiKeys/apiKeys.service';
 import { scoped, unscoped } from '~/orpc';
 import {
   agentOrThrow,
@@ -81,7 +81,11 @@ const tryAgent = async (id: string, text: string, restart: boolean) => {
 
 export const agentsRouter = {
   list: scoped.agents.list.handler(() => listAgents(db())),
-  get: scoped.agents.get.handler(({ input }) => agentOrThrow(db(), input.id)),
+  get: scoped.agents.get.handler(async ({ input }) => {
+    const agent = await agentOrThrow(db(), input.id);
+
+    return { ...agent, key: await agentKey(db(), agent.keyId) };
+  }),
   create: scoped.agents.create.handler(({ input }) => createAgent(db(), input)),
   update: scoped.agents.update.handler(({ input: { id, ...input } }) =>
     updateAgent(db(), id, input),

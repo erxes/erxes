@@ -59,6 +59,10 @@ const withMember = (client: Db) =>
     .from(apiKeys)
     .innerJoin(users, eq(users.id, apiKeys.userId));
 
+/** An agent's key, with its maker's name, for the agent's page. */
+export const agentKey = async (client: Db, id: string) =>
+  oneRow(await withMember(client).where(eq(apiKeys.id, id)).limit(1));
+
 /** A key the caller may see (their own, or any with api_keys.manage), or 404. */
 export const visibleKey = async (client: Db, id: string, userId: string) => {
   const [row] = await withMember(client).where(eq(apiKeys.id, id)).limit(1);

@@ -4,6 +4,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AssistantModelId } from './assistant';
+import { ApiKey } from './apiKeys';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { ApiKeyActions, ApiKeyAreas, ApiKeyPlugins, AssistantProvider, PluginName } from './values';
@@ -82,9 +83,13 @@ export const agentsContract = {
     .route({ method: 'GET', path: '/agents', summary: "The organisation's agents" })
     .output(listOf(Agent)),
   get: base
-    .route({ method: 'GET', path: '/agents/{id}', summary: 'One agent' })
+    .route({
+      method: 'GET',
+      path: '/agents/{id}',
+      summary: 'One agent, with the key whose rules it acts by',
+    })
     .input(z.object({ id: Id }))
-    .output(Agent),
+    .output(Agent.extend({ key: ApiKey })),
   create: base
     .errors({ BEYOND_OWN_PERMISSIONS })
     .route({
