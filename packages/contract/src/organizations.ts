@@ -3,7 +3,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate } from './common';
+import { EmailAddress, Id, isoDate, PhoneNumber } from './common';
 import { Country, Currency, TimeZone } from './money';
 
 /**
@@ -37,6 +37,10 @@ export const Organization = createSelectSchema(organizations, {
   currencies: true,
   /** IANA (`Asia/Ulaanbaatar`): the wall clock and the day every schedule runs by. */
   timezone: true,
+  /** Its phone number, as its documents print it (3.x's structure phone number); null if none. */
+  phone: true,
+  /** Its email address, as its documents print it (3.x's structure email); null if none. */
+  email: true,
   memberRestrictions: true,
   createdAt: true,
 });
@@ -54,6 +58,8 @@ const OrganizationFields = createUpdateSchema(organizations, {
       .refine((codes) => new Set(codes).size === codes.length, 'each currency once'),
   name: (name) => name.trim().min(1).max(100),
   timezone: () => TimeZone,
+  phone: () => PhoneNumber.nullable(),
+  email: () => EmailAddress.nullable(),
   memberRestrictions: () => MemberRestrictions,
 });
 
@@ -109,7 +115,7 @@ export const organizationsContract = {
       method: 'PATCH',
       path: '/organization',
       summary:
-        "Rename the organisation or change its country, currency, other currencies, time zone or team member restrictions. Products and invoices keep the currency they were made in; a new country without a currency also sets the country's currency. Scheduled and date automations move to the new time zone's wall clock",
+        "Rename the organisation or change its country, currency, other currencies, time zone, phone, email or team member restrictions. Products and invoices keep the currency they were made in; a new country without a currency also sets the country's currency. Scheduled and date automations move to the new time zone's wall clock",
     })
     .input(
       OrganizationFields.pick({
@@ -119,6 +125,10 @@ export const organizationsContract = {
         currencies: true,
         name: true,
         timezone: true,
+        /** null clears it. */
+        phone: true,
+        /** null clears it. */
+        email: true,
         /** Replaces the restrictions; INVALID_REFERENCE (`memberRestrictions`) for someone not on the team. */
         memberRestrictions: true,
       }).refine(

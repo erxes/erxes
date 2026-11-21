@@ -120,6 +120,9 @@ export const updateOrganization = async (
     name?: string;
     timezone?: string;
     currencies?: string[];
+    /** null clears it. */
+    phone?: string | null;
+    email?: string | null;
     memberRestrictions?: MemberRestrictions;
   },
 ) => {
@@ -144,6 +147,8 @@ export const updateOrganization = async (
         currency: currencyFor(input, before),
         currencies: input.currencies ?? before.currencies,
         timezone,
+        phone: input.phone === undefined ? before.phone : input.phone,
+        email: input.email === undefined ? before.email : input.email,
         memberRestrictions: input.memberRestrictions ?? before.memberRestrictions,
         updatedAt: sql`now()`,
       })

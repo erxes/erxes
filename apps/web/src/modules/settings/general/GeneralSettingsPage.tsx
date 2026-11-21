@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { CountrySelect, CurrencySelect, TimeZoneSelect } from '~/components/RegionSelect';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
+import { ContactFields } from './ContactFields';
 import { MemberRestrictionsFields } from './MemberRestrictionsFields';
 
 type Translate = (key: string, defaultValue: string) => string;
@@ -35,6 +36,14 @@ const organizationSchema = (t: Translate) =>
     currency: z.string(),
     currencies: z.array(z.string()),
     timezone: z.string(),
+    phone: z.string().trim(),
+    email: z
+      .string()
+      .trim()
+      .refine(
+        (email) => !email || z.email().safeParse(email).success,
+        t('invalid-email', 'Enter an email address'),
+      ),
     memberRestrictions: z.object({
       enabled: z.boolean(),
       allBranchesUserIds: z.array(z.string()),
@@ -50,6 +59,8 @@ const valuesOf = (organization: Organization): OrganizationValues => ({
   currency: organization.currency,
   currencies: organization.currencies,
   timezone: organization.timezone,
+  phone: organization.phone ?? '',
+  email: organization.email ?? '',
   memberRestrictions: organization.memberRestrictions,
 });
 
@@ -223,6 +234,8 @@ const OrganizationForm = ({
       currency: values.currency,
       currencies: values.currencies,
       timezone: values.timezone,
+      phone: values.phone || null,
+      email: values.email || null,
       memberRestrictions: values.memberRestrictions,
     }),
   );
@@ -253,6 +266,7 @@ const OrganizationForm = ({
           <RegionFields disabled={!canEdit} />
           <OtherCurrenciesField disabled={!canEdit} />
           <TimeZoneField disabled={!canEdit} />
+          <ContactFields disabled={!canEdit} />
           <MemberRestrictionsFields disabled={!canEdit} />
         </Form.Section>
         {canEdit && <Form.SaveBar saving={save.isPending} />}
