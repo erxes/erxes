@@ -182,6 +182,10 @@ describe('live updates (/core/v1/stream)', () => {
       await t.hr().plugins.signal({ topics: ['leave.requests'] });
       await owner.hears('plugin:hr:leave.requests');
 
+      // A topic names a record by its id, and ids are mixed case.
+      await t.hr().plugins.signal({ topics: ['leave:wKbpQmWs3Aj7WXjc2'] });
+      await owner.hears('plugin:hr:leave:wKbpQmWs3Aj7WXjc2');
+
       const { id: automationId } = await t.owner().automations.create({
         name: 'Note',
         definition: {
