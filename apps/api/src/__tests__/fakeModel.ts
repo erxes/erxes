@@ -131,7 +131,8 @@ export const connectProvider = (
   client: CoreClient,
   apiKey: string,
   provider: AssistantProvider = 'kimi',
-) => client.integrations.connect({ key: provider, name: `${provider} (tests)`, keys: { apiKey } });
+  name = `${provider} (tests)`,
+) => client.integrations.connect({ key: provider, name, keys: { apiKey } });
 
 export const fakeModel = async (apiKey: string, port = 0) => {
   const requests: ChatRequest[] = [];

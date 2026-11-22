@@ -49,7 +49,7 @@ describe('assistant AI providers, models and settings', () => {
   });
 
   it('refuses a key the provider does not accept, saying so', async () => {
-    const refused = connectProvider(t.owner(), 'not-the-right-key-0000');
+    const refused = connectProvider(t.owner(), 'not-the-right-key-0000', 'kimi', 'kimi (refused)');
 
     await expect(refused).rejects.toMatchObject({ status: 400, code: 'GATEWAY_REFUSED' });
     await expect(refused).rejects.toThrow(
@@ -64,7 +64,7 @@ describe('assistant AI providers, models and settings', () => {
 
     if (!first) throw new Error('kimi is not connected');
 
-    const second = await connectProvider(owner, KEY);
+    const second = await connectProvider(owner, KEY, 'kimi', 'kimi (second)');
 
     expect((await owner.assistant.providers({})).data).toEqual([{ provider: 'kimi' }]);
 
