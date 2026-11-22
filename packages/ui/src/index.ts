@@ -121,6 +121,8 @@ export { useConfirm } from './hooks/use-confirm';
 
 export { useItemKeys } from './hooks/use-item-keys';
 
+export { type NextPage, useLoadOnScroll } from './hooks/use-load-on-scroll';
+
 export { useMediaQuery } from './hooks/use-media-query';
 
 export { usePageHotkey } from './hooks/use-page-hotkey';

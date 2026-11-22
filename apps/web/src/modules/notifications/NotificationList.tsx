@@ -1,7 +1,7 @@
 import type { Notification } from '@erxes/core-contract';
 import { IconBell } from '@tabler/icons-react';
 import { memberQueries, messageOf } from '@erxes/core-contract/client';
-import { Button, Empty, Spinner, formatter, useMembersById } from 'erxes-ui';
+import { Empty, Spinner, formatter, useLoadOnScroll, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useActorLabel } from '~/modules/activity/useActorLabel';
 import { NotificationItem } from './NotificationItem';
@@ -72,7 +72,7 @@ interface NotificationListProps {
   compact?: boolean;
 }
 
-/** Notifications grouped by day, with their senders and inboxes; loads more on demand. */
+/** Notifications grouped by day, with their senders and inboxes; the next 20 load as you scroll. */
 export const NotificationList = ({
   notifications,
   loading,
@@ -92,6 +92,12 @@ export const NotificationList = ({
     notifications.map((item) => (item.actorType === 'user' ? item.actorId : null)),
     memberQueries,
   );
+
+  const sentinel = useLoadOnScroll({
+    hasNextPage: hasMore,
+    isFetchingNextPage: loadingMore,
+    fetchNextPage: loadMore,
+  });
 
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
 
@@ -136,10 +142,8 @@ export const NotificationList = ({
         </section>
       ))}
       {hasMore && (
-        <div className="flex justify-center py-1">
-          <Button variant="ghost" size="sm" disabled={loadingMore} onClick={loadMore}>
-            {loadingMore ? <Spinner size="sm" /> : t('load-more', 'Load more')}
-          </Button>
+        <div ref={sentinel} className="flex h-8 items-center justify-center">
+          {loadingMore && <Spinner size="sm" />}
         </div>
       )}
     </div>
