@@ -1,10 +1,8 @@
 import { coreClient, expect, expectAccessibleInBothThemes, test, unique } from './fixtures';
 
-test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that failed', async ({
-  page,
-  request,
-  baseURL,
-}) => {
+test.describe.configure({ mode: 'serial' });
+
+test('an owner finds eBarimt in the catalog and sets it up', async ({ page, request, baseURL }) => {
   const api = coreClient(request, baseURL);
 
   // A rerun starts from no eBarimt.
@@ -59,6 +57,23 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   await sending.click();
   await expect(sending).toBeChecked();
   await expect(page.getByText('Off', { exact: true })).toBeHidden();
+});
+
+test('an owner sees a receipt that failed, on Integrations and on its invoice', async ({
+  page,
+  request,
+  baseURL,
+}) => {
+  const api = coreClient(request, baseURL);
+
+  await api.ebarimt.saveSettings({
+    posApiUrl: 'https://posapi.example.test',
+    companyName: 'E2E Shop',
+    merchantTin: '37900846788',
+    districtCode: '3505',
+  });
+
+  const tile = page.getByRole('link', { name: /eBarimt/ });
 
   // Core's own invoices get receipts too.
   const gateway = await api.integrations.connect({ key: 'test', name: 'Test', keys: {} });
