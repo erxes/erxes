@@ -162,7 +162,7 @@ const PickerButton = ({
   control: ReturnType<typeof useResolvedProps>['control']['button'];
   shown: string | undefined;
   placeholder: string;
-  variant: DatePickerProps['variant'];
+  variant: 'outline' | 'default' | 'ghost';
   disabled: boolean;
   className?: string;
 }) => {
@@ -259,6 +259,7 @@ export const DatePicker = (props: DatePickerProps) => {
       isDisabled={isDisabled}
       placeholder={o.placeholder}
       className={o.className}
+      flat={o.variant === 'field'}
       control={o.control.input}
       inputRef={picker.inputRef}
       onClear={picker.handleClear}
@@ -308,7 +309,7 @@ export const DatePicker = (props: DatePickerProps) => {
             control={o.control.button}
             shown={describeValue(normalizedValue, fmt.date, o.formatMultiple)}
             placeholder={o.placeholder}
-            variant={o.variant}
+            variant={o.variant === 'field' ? 'ghost' : o.variant}
             disabled={isDisabled}
             className={o.className}
           />

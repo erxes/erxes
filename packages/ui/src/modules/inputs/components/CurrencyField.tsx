@@ -1,5 +1,6 @@
 import { type ComponentProps, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { VariantProps } from 'class-variance-authority';
 import type { ReactElementProps } from 'react-imask';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Command } from 'erxes-ui/components/command';
@@ -27,7 +28,8 @@ const CurrencyFieldRoot = ({ className, ...props }: ComponentProps<'div'>) => (
 
 /**
  * An amount with thousands separators: `displayScale` decimals (2) while it shows, up to
- * `editScale` (12) while it is typed in. `onChange` gets the number.
+ * `editScale` (12) while it is typed in. `onChange` gets the number. `variant` is `Input`'s
+ * (`field` in a side panel row).
  */
 const CurrencyValueInput = ({
   value,
@@ -35,15 +37,17 @@ const CurrencyValueInput = ({
   className,
   onFocus,
   onBlur,
+  variant,
   displayScale = DEFAULT_DISPLAY_SCALE,
   editScale = DEFAULT_EDIT_SCALE,
   ...props
-}: Omit<ReactElementProps<HTMLInputElement>, 'onChange' | 'value'> & {
-  displayScale?: number;
-  editScale?: number;
-  onChange?: (value: number) => void;
-  value?: number;
-}) => {
+}: Omit<ReactElementProps<HTMLInputElement>, 'onChange' | 'value'> &
+  Pick<VariantProps<typeof inputVariants>, 'variant'> & {
+    displayScale?: number;
+    editScale?: number;
+    onChange?: (value: number) => void;
+    value?: number;
+  }) => {
   const [isFocused, setIsFocused] = useState(false);
   const isFocusedRef = useRef(false);
   // Focusing rewrites the shown value to the full one; that rewrite is no edit.
@@ -83,7 +87,7 @@ const CurrencyValueInput = ({
       }}
       value={isFocused ? fullValue : roundedValue}
       autoComplete="off"
-      className={cn(inputVariants({ type: 'default' }), className)}
+      className={cn(inputVariants({ type: 'default', variant }), className)}
       unmask
       {...props}
     />

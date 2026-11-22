@@ -28,7 +28,8 @@ export type DatePickerProps = {
   maxDate?: Date;
   mode?: DatePickerMode;
   formatMultiple?: (count: number) => string;
-  variant?: 'outline' | 'default' | 'ghost';
+  /** The field's look; `field` is a value beside its label in a side panel row, with no shadow. */
+  variant?: 'outline' | 'default' | 'ghost' | 'field';
   allowNull?: boolean;
   clearable?: boolean;
   clearLabel?: string;
