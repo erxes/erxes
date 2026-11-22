@@ -1,6 +1,7 @@
 import { db } from '@erxes/core-db';
 import {
   listGateways,
+  listQuickQrDistricts,
   paymentSettings,
   savePaymentSettings,
 } from '~/modules/payments/gateways.service';
@@ -17,6 +18,9 @@ import { scoped, unscoped } from '~/orpc';
 
 export const paymentsRouter = {
   gateways: scoped.payments.gateways.handler(() => listGateways(db())),
+  quickQrDistricts: scoped.payments.quickQrDistricts.handler(({ input }) =>
+    listQuickQrDistricts(input.city),
+  ),
   createInvoice: unscoped.payments.createInvoice.handler(({ input }) => createInvoice(input)),
   recordPayment: scoped.payments.recordPayment.handler(({ input }) => recordPayment(db(), input)),
   getInvoice: unscoped.payments.getInvoice.handler(({ input }) => getInvoice(input.id)),

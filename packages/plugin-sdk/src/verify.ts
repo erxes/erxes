@@ -286,16 +286,19 @@ export const verifyErxesAccessToken = async (
 export interface CustomerSignIn {
   orgId: string;
   customerId: string;
-  /** The plugin whose app the customer signed in to (any app of the organisation may call). */
-  clientId: string;
+  /**
+   * The website the customer signed in to (`websites.save` gave its id). Serve only that
+   * website's data, and refuse a website that isn't one of yours.
+   */
+  websiteId: string;
 }
 
 const CustomerClaims = z
-  .object({ sub: z.string().min(1), org: z.string().min(1), client_id: z.string() })
+  .object({ sub: z.string().min(1), org: z.string().min(1), wid: z.string().min(1) })
   .transform((claims): CustomerSignIn => ({
     orgId: claims.org,
     customerId: claims.sub,
-    clientId: claims.client_id,
+    websiteId: claims.wid,
   }));
 
 /**

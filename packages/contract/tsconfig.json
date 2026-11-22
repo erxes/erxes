@@ -9,6 +9,7 @@
     "../db/src/enums.ts",
     "../db/src/assistantEnums.ts",
     "../db/src/emailEnums.ts",
+    "../db/src/bankEnums.ts",
     "../db/src/automationDefinition.ts"
   ]
 }

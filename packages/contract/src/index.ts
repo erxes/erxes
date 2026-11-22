@@ -24,6 +24,7 @@ import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
+import { banksContract } from './banks';
 import { integrationsContract } from './integrations';
 import { secretsContract } from './secrets';
 import { rolesContract } from './roles';
@@ -33,6 +34,7 @@ import { trashContract } from './trash';
 import { unitTypesContract, unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
+import { customerAccountsContract, websitesContract } from './websites';
 import { saasContract } from './saas';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
@@ -74,6 +76,7 @@ export type CoreContract = {
   suppressions: typeof suppressionsContract;
   tags: typeof tagsContract;
   integrations: typeof integrationsContract;
+  banks: typeof banksContract;
   secrets: typeof secretsContract;
   units: typeof unitsContract;
   unitTypes: typeof unitTypesContract;
@@ -82,6 +85,8 @@ export type CoreContract = {
   users: typeof usersContract;
   views: typeof viewsContract;
   webhooks: typeof webhooksContract;
+  websites: typeof websitesContract;
+  customerAccounts: typeof customerAccountsContract;
 };
 
 /** The whole core API. Core implements it; plugins call it with a typed client. */
@@ -120,6 +125,7 @@ export const coreContract: CoreContract = {
   suppressions: suppressionsContract,
   tags: tagsContract,
   integrations: integrationsContract,
+  banks: banksContract,
   secrets: secretsContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
@@ -128,6 +134,8 @@ export const coreContract: CoreContract = {
   users: usersContract,
   views: viewsContract,
   webhooks: webhooksContract,
+  websites: websitesContract,
+  customerAccounts: customerAccountsContract,
 };
 
 export * from './activities';
@@ -266,4 +274,8 @@ export * from './views';
 
 export * from './webhooks';
 
+export * from './websites';
+
 export * from './apiKeys';
+
+export * from './banks';

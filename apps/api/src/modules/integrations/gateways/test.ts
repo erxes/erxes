@@ -4,7 +4,9 @@ import { GatewayError } from './types';
 
 /**
  * Development and tests: nothing leaves the server. Core's `test-pay` sets
- * `testPaid` on the invoice; `testRefundFails` makes refunds fail.
+ * `testPaid` on the invoice; `testCheckFails` makes checks fail, as an
+ * unreachable gateway does; `testPaymentIds` offers candidate payments, as
+ * transfers matching on a bank statement do; `testRefundFails` makes refunds fail.
  */
 export const test = defineIntegration({
   key: 'test',
@@ -27,12 +29,19 @@ export const test = defineIntegration({
       };
     },
     async check(_client, { gatewayInvoiceId, amount, state }) {
+      if (state.testCheckFails === true) throw new GatewayError('The test gateway is unreachable');
+
       const paid = state.testPaid === true;
+
+      const paymentIds = Array.isArray(state.testPaymentIds)
+        ? state.testPaymentIds.map(String)
+        : undefined;
 
       return {
         paid,
         paidAmount: paid ? amount : 0,
-        paymentId: paid ? `pay_${gatewayInvoiceId}` : null,
+        paymentId: paid ? (paymentIds?.[0] ?? `pay_${gatewayInvoiceId}`) : null,
+        ...(paymentIds && { paymentIds }),
       };
     },
     async cancel() {},

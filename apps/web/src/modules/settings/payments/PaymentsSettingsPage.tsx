@@ -171,7 +171,7 @@ export const PaymentsSettingsPage = () => {
               </section>
             }
           >
-            {({ data }) => <DefaultGateway gateways={data} />}
+            {() => <DefaultGateway />}
           </QueryState>
           <Invoices />
         </div>

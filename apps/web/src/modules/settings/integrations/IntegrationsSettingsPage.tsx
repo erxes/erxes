@@ -38,6 +38,7 @@ const useCategoryLabel = () => {
   return (category: Category) =>
     ({
       payments: t('payments', 'Payment gateways'),
+      banks: t('banks', 'Banks'),
       social: t('social', 'Social media'),
       messaging: t('messaging', 'Messaging'),
       email: t('email', 'Email'),

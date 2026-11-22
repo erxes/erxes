@@ -21,7 +21,7 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   await expectAccessibleInBothThemes(page);
 
   // Search and categories narrow the catalog; each gateway is its own tile, connected on its page.
-  const gateways = page.getByRole('link', { name: /QPay/ });
+  const gateways = page.getByRole('link', { name: /QPay/ }).filter({ hasNotText: 'QuickQR' });
 
   await page.getByRole('searchbox', { name: 'Search integrations…' }).fill('qpay');
   await expect(gateways).toBeVisible();

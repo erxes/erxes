@@ -15,6 +15,7 @@ import {
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
+  IconShieldLock,
   IconCode,
   IconKey,
   IconTrash,
@@ -22,6 +23,7 @@ import {
   IconUserCircle,
   IconUsersGroup,
   IconWebhook,
+  IconWorldWww,
   type Icon,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
@@ -63,6 +65,9 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     ...(can('contacts.delete')
       ? [{ name: t('recycle-bin', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash }]
       : []),
+    ...(can('contacts.view')
+      ? [{ name: t('websites', 'Websites'), to: paths.settings.websites, icon: IconWorldWww }]
+      : []),
     ...(can('payments.manage')
       ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
       : []),
@@ -76,6 +81,7 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
             to: paths.settings.integrations,
             icon: IconPlugConnected,
           },
+          { name: t('vault', 'Vault'), to: paths.settings.vault, icon: IconShieldLock },
         ]
       : []),
     ...(can('audit.view')

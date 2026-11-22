@@ -185,15 +185,17 @@ describe('Toki driver', () => {
     expect(await payments.check(client, invoiceOf('req-1', { tokiTransactionId: 'tx-1' }))).toEqual(
       { paid: true, paidAmount: 150_000, paymentId: 'tx-1' },
     );
-    expect(await payments.check(client, invoiceOf('req-4'))).toEqual(UNPAID);
-    expect((await refusal(payments.check(client, invoiceOf('req-5')))).message).toContain(
+    const requested = (id: string) => invoiceOf(id, { tokiRequestId: id });
+
+    expect(await payments.check(client, requested('req-4'))).toEqual(UNPAID);
+    expect((await refusal(payments.check(client, requested('req-5')))).message).toContain(
       'Unknown request',
     );
-    await expect(payments.check(client, invoiceOf('req-6'))).rejects.toMatchObject({
+    await expect(payments.check(client, requested('req-6'))).rejects.toMatchObject({
       name: 'GatewayError',
       message: 'Toki gave an unreadable check',
     });
-    await payments.cancel(client, invoiceOf('req-1'));
+    await payments.cancel(client, requested('req-1'));
     expect(gateway.calls.at(-1)?.method).toBe('PATCH');
     await expect(payments.refund(client, refund)).rejects.toMatchObject({
       name: 'GatewayError',

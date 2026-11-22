@@ -1,22 +1,13 @@
-import type { IntegrationConnection } from '@erxes/core-contract';
 import { IconCash, IconPlugConnected } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Empty, Select, useToast } from 'erxes-ui';
+import { Button, ConnectionPicker, Empty, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';
 
-const FIRST_CONNECTED = 'first';
-
-const DefaultGatewaySelect = ({
-  value,
-  gateways,
-}: {
-  value: string | null;
-  gateways: IntegrationConnection[];
-}) => {
+const DefaultGatewayPicker = ({ value }: { value: string | null }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const { toast } = useToast();
   const client = useQueryClient();
@@ -34,33 +25,16 @@ const DefaultGatewaySelect = ({
   );
 
   return (
-    <Select
-      value={value ?? FIRST_CONNECTED}
-      disabled={save.isPending}
-      onValueChange={(next) =>
-        save.mutate({ defaultGatewayId: next === FIRST_CONNECTED ? null : next })
-      }
-    >
-      <Select.Trigger aria-label={t('default-gateway', 'Default gateway')}>
-        <Select.Value />
-      </Select.Trigger>
-      <Select.Content>
-        <Select.Item value={FIRST_CONNECTED}>
-          {t('default-first', 'None: the first connected one')}
-        </Select.Item>
-        {gateways
-          .filter((gateway) => gateway.status === 'active' || gateway.id === value)
-          .map((gateway) => (
-            <Select.Item key={gateway.id} value={gateway.id}>
-              {gateway.name}
-            </Select.Item>
-          ))}
-      </Select.Content>
-    </Select>
+    <ConnectionPicker
+      category="payments"
+      value={value}
+      onValueChange={(defaultGatewayId) => save.mutate({ defaultGatewayId })}
+      noneLabel={t('default-first', 'None: the first connected one')}
+    />
   );
 };
 
-export const DefaultGateway = ({ gateways }: { gateways: IntegrationConnection[] }) => {
+export const DefaultGateway = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const settings = useQuery(orpc.payments.settings.queryOptions());
 
@@ -76,7 +50,7 @@ export const DefaultGateway = ({ gateways }: { gateways: IntegrationConnection[]
       <QueryState query={settings}>
         {({ defaultGatewayId }) => (
           <div className="w-72">
-            <DefaultGatewaySelect value={defaultGatewayId} gateways={gateways} />
+            <DefaultGatewayPicker value={defaultGatewayId} />
           </div>
         )}
       </QueryState>

@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
 import { DataField, PluginAction } from './automationRuns';
-import { AppOrigin } from './customerAuth';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginName } from './values';
@@ -87,13 +86,6 @@ export const PluginManifest = z.object({
         .max(20),
     })
     .optional(),
-  /**
-   * The plugin's app for customers (a shop, tracking, booking). It signs
-   * customers in by calling `/customer-auth/*` itself (decision 42); browsers
-   * may call `/customer-auth/*` and `/customer/*` only from these origins.
-   * Apps without an origin (mobile) are limited by rate instead.
-   */
-  customerApp: z.object({ origins: z.array(AppOrigin).min(1).max(20) }).optional(),
   /**
    * Routes for callers outside erxes that can't sign in (a GitHub webhook, an app install's
    * redirect). Core serves `/core/v1/plugins/<name>/public/<orgId>/<path>` and forwards a call

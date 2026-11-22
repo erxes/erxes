@@ -85,7 +85,7 @@ describe('plugins in core’s settings', () => {
         (item) => item.textContent,
       ),
     ).toEqual(['All', 'Social media', 'Messaging', 'Government']);
-    expect(container.textContent).not.toContain('Vault');
+    expect(container.textContent).not.toContain('Archive');
   });
 
   it('opens a plugin’s integration under core’s header, a tab at a time', async () => {
@@ -129,9 +129,9 @@ describe('plugins in core’s settings', () => {
   });
 
   it('sends a member to the catalog from an integration core does not list them', async () => {
-    const container = await renderSettings('/settings/integrations/chat.vault', 'Messenger');
+    const container = await renderSettings('/settings/integrations/chat.archive', 'Messenger');
 
     expect(window.location.pathname).toBe('/settings/integrations');
-    expect(container.textContent).not.toContain('Vault');
+    expect(container.textContent).not.toContain('Archive');
   });
 });

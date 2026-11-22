@@ -18,7 +18,7 @@ import type {
   RefundInput,
 } from './gateways/types';
 
-type FormField = Pick<IntegrationField, 'label' | 'type'>;
+type FormField = Pick<IntegrationField, 'label' | 'type' | 'options'>;
 
 const formFields = z.registry<FormField>();
 
@@ -37,6 +37,14 @@ export const secret = (
   label: string,
   schema: z.ZodType<string> = z.string().trim().min(1).max(2000),
 ) => labelled(schema, { label, type: 'secret' });
+
+/** One of a few values, picked from a list. */
+export const choice = <const T extends readonly [string, ...string[]]>(label: string, options: T) =>
+  labelled(z.enum(options), { label, type: 'select', options: [...options] });
+
+/** Kept with the keys but filled by core (`register`), never asked for. */
+export const kept = (label: string) =>
+  labelled(z.string().trim().min(1).max(200).optional(), { label, type: 'hidden' });
 
 export const toggle = (label: string) =>
   labelled(z.boolean().default(false), { label, type: 'switch' });
@@ -97,6 +105,16 @@ interface Payments<C> {
   refunds: (typeof GATEWAY_REFUND_KINDS)[number];
   pays: string;
   createInvoice(client: C, input: CreateInvoiceInput): Promise<CreatedInvoice>;
+  /**
+   * What the gateway's callback brings that `check` needs (Toki's mini
+   * program: its payment and the payer's token), or null when it brings
+   * nothing for this invoice. Kept in the invoice's state; never trusted
+   * alone, as `check` still asks the gateway.
+   */
+  callback?(
+    body: unknown,
+    invoice: { invoiceId: string; amount: number },
+  ): Record<string, unknown> | null;
   check(client: C, invoice: GatewayInvoice): Promise<PaymentCheck>;
   cancel(client: C, invoice: GatewayInvoice): Promise<void>;
   refund(client: C, refund: RefundInput): Promise<{ refundId: string | null }>;
@@ -114,8 +132,19 @@ interface Listing {
 
 export interface KeyedIntegration<K extends Keys = Keys, C = unknown> extends Listing {
   keys: K;
+  /**
+   * The bank integration whose connection (`keys.connectionId`) this one reads
+   * through: core opens its keys and passes them as `options.bank`.
+   */
+  readsThrough?: string;
   client(keys: z.output<K>, options: ClientOptions): C;
   verify(client: C): Promise<void>;
+  /**
+   * Sets the account up at the service on connecting or changing its keys
+   * (QuickQR: signs the merchant up), returning keys to keep with the rest.
+   * Runs after `verify`.
+   */
+  register?(client: C): Promise<Record<string, string>>;
   payments?: Payments<C>;
   /** Its own actions; the `payments` ability brings the invoice actions to every gateway. */
   actions?: KeyedAction<C>[];
@@ -134,8 +163,15 @@ export interface PagedIntegration extends Listing {
 
 export type Integration = KeyedIntegration | PagedIntegration;
 
+/** The label given with `field()` or `secret()`, also through `.optional()` and `.default()`. */
+const metaOf = (schema: z.core.$ZodType): FormField | undefined =>
+  formFields.get(schema) ??
+  (schema instanceof z.ZodOptional || schema instanceof z.ZodDefault
+    ? metaOf(schema.unwrap())
+    : undefined);
+
 const fieldOf = (key: string, schema: z.ZodType): IntegrationField => {
-  const meta = formFields.get(schema);
+  const meta = metaOf(schema);
 
   if (!meta) throw new Error(`The integration field ${key} has no label: use field() or secret()`);
 

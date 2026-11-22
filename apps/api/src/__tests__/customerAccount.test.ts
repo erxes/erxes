@@ -28,10 +28,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     const first = await t.signedIn('rotate@example.com');
     const { api } = t.app();
 
-    const second = await api.customerAuth.refresh({
-      clientId: 'hr',
-      refreshToken: first.refreshToken,
-    });
+    const second = await api.customerAuth.refresh({ refreshToken: first.refreshToken });
 
     expect(second.refreshToken).not.toBe(first.refreshToken);
     expect(
@@ -40,20 +37,19 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
 
     // Right away, the first one again is a retry whose answer was lost: the same new token.
     expect(
-      (await api.customerAuth.refresh({ clientId: 'hr', refreshToken: first.refreshToken }))
-        .refreshToken,
+      (await api.customerAuth.refresh({ refreshToken: first.refreshToken })).refreshToken,
     ).toBe(second.refreshToken);
 
-    // Another app can't use it.
+    // Another website's page can't use it.
     await expect(
-      api.customerAuth.refresh({ clientId: 'shop', refreshToken: second.refreshToken }),
-    ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
+      t.app({ site: 'outlet' }).api.customerAuth.refresh({ refreshToken: second.refreshToken }),
+    ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
 
     // A made-up token for the session is refused, and the session goes on.
     const [sessionId] = second.refreshToken.split('.');
 
     await expect(
-      api.customerAuth.refresh({ clientId: 'hr', refreshToken: `${sessionId}.made-up` }),
+      api.customerAuth.refresh({ refreshToken: `${sessionId}.made-up` }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
     expect(
       (await t.app({ token: second.accessToken }).api.customerAccount.me({})).primaryEmail,
@@ -62,10 +58,10 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     // Two minutes on, the first one again: it leaked. The session ends, and its access tokens with it.
     await rotatedTwoMinutesAgo();
     await expect(
-      api.customerAuth.refresh({ clientId: 'hr', refreshToken: first.refreshToken }),
+      api.customerAuth.refresh({ refreshToken: first.refreshToken }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
     await expect(
-      api.customerAuth.refresh({ clientId: 'hr', refreshToken: second.refreshToken }),
+      api.customerAuth.refresh({ refreshToken: second.refreshToken }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
     await expect(
       t.app({ token: second.accessToken }).api.customerAccount.me({}),
@@ -76,8 +72,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     const first = await t.signedIn('tabs@example.com');
     const { api } = t.app();
 
-    const refresh = (refreshToken: string) =>
-      api.customerAuth.refresh({ clientId: 'hr', refreshToken });
+    const refresh = (refreshToken: string) => api.customerAuth.refresh({ refreshToken });
 
     const tabs = await Promise.all([refresh(first.refreshToken), refresh(first.refreshToken)]);
 
@@ -90,7 +85,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     expect((await refresh(tab.refreshToken)).refreshToken).not.toBe(tab.refreshToken);
   });
 
-  it('signs the app out with its refresh token', async () => {
+  it('signs the website out with its refresh token', async () => {
     const session = await t.signedIn('leave@example.com');
     const { api } = t.app();
 
@@ -102,7 +97,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
 
     await expect(session.me.customerAccount.me({})).rejects.toMatchObject({ status: 401 });
     await expect(
-      api.customerAuth.refresh({ clientId: 'hr', refreshToken: session.refreshToken }),
+      api.customerAuth.refresh({ refreshToken: session.refreshToken }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
   });
 
@@ -132,11 +127,19 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     expect(added).toMatchObject({ kind: 'phone', value: '+97688112233' });
     expect((await me.customerAccount.me({})).primaryPhone).toBe('+97688112233');
 
-    // Someone else's login can't be added.
+    // Someone else's login can't be added: the same answer, and no code goes to it.
     await t.signedIn('taken@example.com');
+    await aMinuteLater();
+    expect(
+      await me.customerAccount.addLogin({ kind: 'email', value: 'taken@example.com' }),
+    ).toEqual({ expiresInSeconds: 600 });
     await expect(
-      me.customerAccount.addLogin({ kind: 'email', value: 'taken@example.com' }),
-    ).rejects.toMatchObject({ status: 409, code: 'TAKEN' });
+      me.customerAccount.confirmLogin({
+        kind: 'email',
+        value: 'taken@example.com',
+        code: await lastCode('taken@example.com'),
+      }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_CODE' });
 
     // Signs in with the phone too, then drops the email. The last one stays.
     const logins = (await me.customerAccount.logins({})).data;
@@ -151,15 +154,10 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
       code: 'LAST_LOGIN',
     });
 
-    // Two sign-ins to the app: this one and the one elsewhere.
+    // Two sign-ins to the website: this one and the one elsewhere.
     const sessions = (await me.customerAccount.sessions({})).data;
 
-    expect(sessions.map((session) => [session.clientId, session.current])).toEqual(
-      expect.arrayContaining([
-        ['hr', true],
-        ['hr', false],
-      ]),
-    );
+    expect(sessions.filter((session) => session.current)).toHaveLength(1);
     expect(sessions).toHaveLength(2);
 
     const other = sessions.find((session) => !session.current);
@@ -169,5 +167,42 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
 
     await me.customerAccount.signOutEverywhere({});
     await expect(me.customerAccount.me({})).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('joins the accounts of merged customers, one per website, and keeps them signed in', async () => {
+    const kept = await t.signedIn('kept-account@example.com');
+    const other = await t.signedIn('other-account@example.com');
+    const outlet = await t.signedIn('other-account@example.com', 'outlet');
+
+    await t.owner().customers.merge({
+      ids: [kept.customer.id, other.customer.id],
+      keepId: kept.customer.id,
+    });
+
+    const accounts = await t.owner().customerAccounts.list({ customerId: kept.customer.id });
+
+    const loginsOn = (websiteId: string) =>
+      accounts.data
+        .find((account) => account.websiteId === websiteId)
+        ?.logins.toSorted((a, b) => a.localeCompare(b));
+
+    expect(accounts.data).toHaveLength(2);
+    expect(loginsOn(t.sites.acme)).toEqual([
+      'kept-account@example.com',
+      'other-account@example.com',
+    ]);
+    expect(loginsOn(t.sites.outlet)).toEqual(['other-account@example.com']);
+
+    // The other customer's sessions carry on as the kept customer once they refresh.
+    const refreshed = await t
+      .app({ site: 'outlet' })
+      .api.customerAuth.refresh({ refreshToken: outlet.refreshToken });
+
+    expect(
+      (await t.app({ site: 'outlet', token: refreshed.accessToken }).api.customerAccount.me({})).id,
+    ).toBe(kept.customer.id);
+
+    await aMinuteLater();
+    expect((await t.app().signIn('other-account@example.com')).customer.id).toBe(kept.customer.id);
   });
 });

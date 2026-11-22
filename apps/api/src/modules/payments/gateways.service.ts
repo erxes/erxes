@@ -1,6 +1,16 @@
-import { type Db, integrationConnections, organizations, paymentInvoices } from '@erxes/core-db';
+import {
+  type Db,
+  integrationConnections,
+  organizations,
+  paymentInvoices,
+  pluginInstallations,
+  plugins,
+  withOrg,
+} from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { config } from '~/config';
 import { fail } from '~/http/errors';
+import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
@@ -9,6 +19,7 @@ import {
   connectionsWithSecret,
   listConnections,
 } from '~/modules/integrations/connections';
+import { quickQrDistricts } from '~/modules/integrations/gateways/quickqr';
 import { gatewayOf, PAYMENT_KEYS } from '~/modules/integrations/registry';
 import { getOrganization } from '~/modules/organizations/organizations.service';
 
@@ -64,16 +75,42 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
   return gateway;
 };
 
-export const gatewayAt = (row: GatewayRow) => {
+/** The gateway and its client; a transfer gateway's bank connection is read in the gateway's organisation. */
+export const gatewayAt = async (row: GatewayRow) => {
   const gateway = gatewayOf(row.key);
 
   return {
     payments: gateway.payments,
-    client: clientOf(gateway, row),
+    client: await withOrg(row.orgId, (tx) => clientOf(tx, gateway, row)),
   };
 };
 
 export const listGateways = (client: Db) => listConnections(client, PAYMENT_KEYS);
+
+/** The installed plugins that may create invoices (`payments:write`), by title. */
+export const payingPlugins = async (client: Db) =>
+  (
+    await wholeList((limit) =>
+      client
+        .select({
+          title: sql<string>`coalesce(${plugins.manifest} ->> 'title', ${pluginInstallations.plugin})`,
+        })
+        .from(pluginInstallations)
+        .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
+        .where(sql`'payments:write' = any(${pluginInstallations.grantedScopes})`)
+        .orderBy(pluginInstallations.plugin)
+        .limit(limit),
+    )
+  ).map((row) => row.title);
+
+/** QPay QuickQR's districts of a city, for a merchant's address. */
+export const listQuickQrDistricts = async (city: string) => {
+  try {
+    return { data: await quickQrDistricts(city, { quickQr: config.quickQr }) };
+  } catch (error) {
+    throw fail('GATEWAY_REFUSED', error instanceof Error ? error.message : String(error));
+  }
+};
 
 export const releaseGateway = async (client: Db, id: string) => {
   const [used] = await client

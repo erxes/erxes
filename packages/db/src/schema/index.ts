@@ -28,6 +28,8 @@ export * from './authTokens';
 
 export * from './oauth';
 
+export * from './banks';
+
 export * from './integrations';
 
 export * from './payments';
@@ -51,6 +53,8 @@ export * from './leads';
 export * from './products';
 
 export * from './customerAuth';
+
+export * from './websites';
 
 export * from './customerNotifications';
 

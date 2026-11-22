@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { loggedEmails } from '~/modules/email/email';
 import { loggedSms } from '~/modules/sms/sms';
@@ -12,19 +12,12 @@ describe('customer notifications', { timeout: 300_000 }, () => {
 
   const t = useCustomers();
 
-  beforeAll(async () => {
-    await t.client(await t.pluginToken()).plugins.registerManifest({
-      title: 'Shop',
-      version: '2',
-      scopes: ['notifications:write'],
-      customerApp: { origins: ['https://{subdomain}.shop.example.com'] },
-    });
-  });
-
-  it('puts it in the customer inbox, emails it with a link into the app, and is retry-safe', async () => {
+  it('puts it in the customer inbox on its website, emails it with a link there, and is retry-safe', async () => {
     const shopper = await t.signedIn('reader@example.com');
+    const outlet = await t.signedIn('reader@example.com', 'outlet');
 
     const note = {
+      websiteId: t.sites.acme,
       customerIds: [shopper.customer.id],
       kind: 'hr.post.published',
       title: 'A new post',
@@ -46,6 +39,8 @@ describe('customer notifications', { timeout: 300_000 }, () => {
     expect(emails[0]?.text).toContain('https://acme.shop.example.com/posts/abc');
 
     expect(await shopper.me.customerNotifications.unreadCount({})).toEqual({ count: 1 });
+    // The outlet is another website: it isn't shown there.
+    expect(await outlet.me.customerNotifications.unreadCount({})).toEqual({ count: 0 });
 
     const page = await shopper.me.customerNotifications.list({});
 
@@ -126,6 +121,19 @@ describe('customer notifications', { timeout: 300_000 }, () => {
 
     expect(await titles(acme.me)).toContain('News');
     expect(await titles(globex.me)).not.toContain('News');
+
+    // Everyone on one website: its accounts only, shown there only.
+    const outlet = await t.signedIn('everyone-outlet@example.com', 'outlet');
+
+    await t.hr().customerNotifications.create({
+      websiteId: t.sites.outlet,
+      everyone: true,
+      kind: 'hr.outlet.sale',
+      title: 'Outlet sale',
+    });
+
+    expect(await titles(outlet.me)).toContain('Outlet sale');
+    expect(await titles(acme.me)).not.toContain('Outlet sale');
   });
 
   it('checks who sends what to whom', async () => {
@@ -138,10 +146,17 @@ describe('customer notifications', { timeout: 300_000 }, () => {
     await expect(
       t.hr().customerNotifications.create({ ...note, customerIds: ['nobody'] }),
     ).rejects.toMatchObject({ code: 'INVALID_RECIPIENT' });
-    // A customer of another organisation is unknown here.
+    // A customer of another organisation is unknown here, and so is its website.
     await expect(t.hr(t.ids.otherOrg).customerNotifications.create(note)).rejects.toMatchObject({
       code: 'INVALID_RECIPIENT',
     });
+    await expect(
+      t.hr().customerNotifications.create({ ...note, websiteId: t.sites.globex }),
+    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_WEBSITE' });
+    // A link is a path on a website.
+    await expect(
+      t.hr().customerNotifications.create({ ...note, link: '/orders/1' }),
+    ).rejects.toMatchObject({ status: 400 });
     await expect(
       t.hr().customerNotifications.create({
         everyone: true,

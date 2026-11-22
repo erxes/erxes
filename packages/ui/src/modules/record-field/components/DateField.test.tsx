@@ -1,9 +1,12 @@
 // @vitest-environment happy-dom
+import { computeAccessibleName } from 'dom-accessibility-api';
 import { createInstance } from 'i18next';
 import { act, type ReactNode } from 'react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { actUntil, setupDomRender } from '../../../lib/render-in-dom';
+import { PopoverScoped } from '../../hotkey/components/PopoverScoped';
+import { RecordTableInlineCell } from '../../record-table/components/RecordTableCellInline';
 import { DateField } from './DateField';
 
 const renderInDom = setupDomRender();
@@ -27,6 +30,13 @@ const open = async (container: HTMLElement) => {
 /** A day of the shown month in the open calendar, by its date. */
 const dayButton = (isoDay: string) =>
   document.querySelector<HTMLButtonElement>(`[data-day="${isoDay}"] button`);
+
+/** The field's name as a screen reader reads it. */
+const nameOf = (container: HTMLElement) => {
+  const trigger = triggerOf(container);
+
+  return trigger ? computeAccessibleName(trigger) : null;
+};
 
 /** What `onSave` was called with. */
 const saves = () => vi.fn<(value: string | null) => void>();
@@ -73,5 +83,64 @@ describe('DateField', () => {
     act(() => dayButton('2026-11-03')?.click());
 
     expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('keeps what it shows in its name, with or without a label around it', () => {
+    const inRow = render(
+      <>
+        <span id="row-label">Close date</span>
+        <RecordTableInlineCell.LabelledBy value="row-label">
+          <DateField value={null} placeholder="Not set" aria-label="Deal close" onSave={saves()} />
+        </RecordTableInlineCell.LabelledBy>
+      </>,
+    );
+
+    const alone = render(
+      <DateField value={null} placeholder="Not set" aria-label="Close date" onSave={saves()} />,
+    );
+
+    const unnamed = render(<DateField value={null} placeholder="Not set" onSave={saves()} />);
+
+    expect(nameOf(inRow)).toBe('Close date Not set');
+    expect(nameOf(alone)).toBe('Close date Not set');
+    expect(nameOf(unnamed)).toBe('Not set');
+  });
+
+  it('leaves other cells in a row named by their own aria-label', () => {
+    // A cell that says its value in its aria-label (sales' "3, quantity of Chair") keeps it.
+    const container = render(
+      <>
+        <span id="lines-label">Products</span>
+        <RecordTableInlineCell.LabelledBy value="lines-label">
+          <PopoverScoped>
+            <RecordTableInlineCell.Trigger aria-label="3, quantity of Chair">
+              3
+            </RecordTableInlineCell.Trigger>
+          </PopoverScoped>
+        </RecordTableInlineCell.LabelledBy>
+      </>,
+    );
+
+    expect(nameOf(container)).toBe('Products 3, quantity of Chair');
+  });
+
+  it('offers only the days between min and max', async () => {
+    const onSave = saves();
+
+    const container = render(
+      <DateField value="2026-11-10" min="2026-11-05" max="2026-11-20" onSave={onSave} />,
+    );
+
+    await open(container);
+
+    expect(dayButton('2026-11-04')?.disabled).toBe(true);
+    expect(dayButton('2026-11-21')?.disabled).toBe(true);
+    expect(dayButton('2026-11-05')?.disabled).toBe(false);
+
+    act(() => dayButton('2026-11-04')?.click());
+    act(() => dayButton('2026-11-20')?.click());
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith('2026-11-20');
   });
 });

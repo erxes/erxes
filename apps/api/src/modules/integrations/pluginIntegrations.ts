@@ -28,6 +28,7 @@ export const pluginIntegrations = async (client: Db) => {
         plugin: name,
         countries: integration.countries ?? [],
         dashboard: null,
+        keyed: false,
         fields: [],
         payments: null,
         status: stateOf(name, integration.key),

@@ -103,7 +103,7 @@ const GATEWAYS: TokenGateway[] = [
       body: '',
     },
     routes: [['GET /payment-request/status?requestId=r-1', { code: 200, data: { status: 'NEW' } }]],
-    invoice: { gatewayInvoiceId: 'r-1', amount: 150_000, state: {} },
+    invoice: { gatewayInvoiceId: 'r-1', amount: 150_000, state: { tokiRequestId: 'r-1' } },
   },
 ];
 

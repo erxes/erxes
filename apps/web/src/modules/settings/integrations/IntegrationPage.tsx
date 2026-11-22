@@ -4,11 +4,16 @@ import { PageSpinner } from '~/components/PageSpinner';
 import { paths } from '~/lib/paths';
 import { type Integration, useIntegrations, useMayOpenIntegrations } from './catalog';
 import { ConnectionsIntegration } from './ConnectionsIntegration';
+import { BanksIntegration } from './banks/BanksIntegration';
 import { EbarimtIntegration } from './EbarimtIntegration';
 import { PluginIntegration } from './PluginIntegration';
 
 const OWN_PAGES = new Map<string, (integration: Integration) => ReactNode>([
   ['ebarimt', (integration) => <EbarimtIntegration integration={integration} />],
+  ...['khanbank-cgw', 'golomt-cgw', 'tdb-cgw'].map(
+    (key) =>
+      [key, (integration: Integration) => <BanksIntegration integration={integration} />] as const,
+  ),
 ]);
 
 const KeyedPage = ({ slug }: { slug: string | undefined }) => {

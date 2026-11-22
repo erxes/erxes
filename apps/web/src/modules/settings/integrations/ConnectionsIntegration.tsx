@@ -1,15 +1,18 @@
-import type { IntegrationConnection } from '@erxes/core-contract';
-import { orpc } from '@erxes/core-contract/client';
-import { useQuery } from '@tanstack/react-query';
-import { Badge, Button } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { Badge, Button, CONNECTION_CONTENT_TYPE, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
+import { ConnectionList } from '../vault/ConnectionList';
+import { connectionsOf, useConnections } from '../vault/useVault';
 import type { Integration } from './catalog';
 import { CredentialsHelp } from './ConnectionFields';
-import { ConnectIntegration } from './ConnectIntegration';
-import { EditConnection, useConnectionChanges } from './EditConnection';
-import { IntegrationLayout, OverviewSection, useIntegrationTab } from './IntegrationLayout';
+import {
+  IntegrationLayout,
+  type IntegrationTab,
+  OverviewSection,
+  useIntegrationTab,
+} from './IntegrationLayout';
 
 const PaymentFacts = ({ payments }: { payments: NonNullable<Integration['payments']> }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -47,74 +50,23 @@ const PaymentFacts = ({ payments }: { payments: NonNullable<Integration['payment
   );
 };
 
-const ConnectionList = ({
-  integration,
-  connections,
-}: {
-  integration: Integration;
-  connections: IntegrationConnection[];
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
-  const { update } = useConnectionChanges();
-
-  return (
-    <ul className="divide-y rounded-lg border">
-      {connections.map((connection) => (
-        <li key={connection.id} className="flex items-center gap-3 p-3">
-          <span className="flex min-w-0 flex-wrap items-center gap-2">
-            <span
-              className={
-                connection.status === 'active' ? 'font-medium' : 'font-medium text-muted-foreground'
-              }
-            >
-              {connection.name}
-            </span>
-            {connection.status !== 'active' && <Badge>{t('off-badge', 'off')}</Badge>}
-            {connection.settings.sandbox === true && (
-              <Badge variant="warning">{t('sandbox-badge', 'sandbox')}</Badge>
-            )}
-          </span>
-          <span className="ml-auto flex shrink-0 items-center gap-1">
-            <EditConnection integration={integration} connection={connection} />
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={update.isPending}
-              onClick={() =>
-                update.mutate({
-                  key: integration.key,
-                  id: connection.id,
-                  status: connection.status === 'active' ? 'disabled' : 'active',
-                })
-              }
-            >
-              {connection.status === 'active' ? t('turn-off', 'Turn off') : t('turn-on', 'Turn on')}
-            </Button>
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-};
-
 const Overview = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
-
-  const connections = useQuery(
-    orpc.integrations.connections.queryOptions({ input: { key: integration.key } }),
-  );
+  const connections = useConnections();
 
   return (
     <div className="space-y-6">
       <OverviewSection title={t('connections', 'Connections')}>
         <QueryState
           query={connections}
-          isEmpty={({ data }) => !data.length}
+          isEmpty={({ data }) => !connectionsOf(data, [integration]).length}
           empty={
             <p className="rounded-lg border p-4 text-sm">{t('none', 'Nothing connected yet.')}</p>
           }
         >
-          {({ data }) => <ConnectionList integration={integration} connections={data} />}
+          {({ data }) => (
+            <ConnectionList rows={connectionsOf(data, [integration])} showService={false} />
+          )}
         </QueryState>
       </OverviewSection>
       {integration.payments && (
@@ -127,7 +79,26 @@ const Overview = ({ integration }: { integration: Integration }) => {
   );
 };
 
-export const ConnectionsIntegration = ({ integration }: { integration: Integration }) => {
+const Connect = ({ integration }: { integration: Integration }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
+  const { openNew } = useOpenRecord();
+
+  return (
+    <Button onClick={() => openNew(CONNECTION_CONTENT_TYPE, { integration: integration.key })}>
+      <IconPlus />
+      {t('connect', 'Connect')}
+    </Button>
+  );
+};
+
+/** An integration's page: its connections, then any `tabs` of its own (a bank's accounts). */
+export const ConnectionsIntegration = ({
+  integration,
+  tabs = [],
+}: {
+  integration: Integration;
+  tabs?: IntegrationTab[];
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const [tab, setTab] = useIntegrationTab('overview');
 
@@ -136,13 +107,14 @@ export const ConnectionsIntegration = ({ integration }: { integration: Integrati
       integration={integration}
       tab={tab}
       onTab={setTab}
-      actions={<ConnectIntegration integration={integration} />}
+      actions={<Connect integration={integration} />}
       tabs={[
         {
           value: 'overview',
           label: t('tab.overview', 'Overview'),
           content: <Overview integration={integration} />,
         },
+        ...tabs,
       ]}
     />
   );

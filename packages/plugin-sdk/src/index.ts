@@ -69,19 +69,23 @@
  *   const { data } = await core.forOrg(orgId).views.list({ recordType: 'customer' });  // shared only
  *   const { recordIds } = await core.forOrg(orgId).views.matches({ viewId, recordIds: [customerId] });
  *
- * Customers (a shop, tracking, booking): core signs them in; the plugin never builds sign-up or
- * sign-in. Declare `customerApp: { origins: ['https://{subdomain}.shop.example.com'] }` in the
- * manifest. The app's own form makes two calls to core: `POST /core/v1/customer-auth/code`
- * `{ clientId, kind, value }` sends a code, `POST /core/v1/customer-auth/sign-in` with the code
- * returns `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews
- * them. Serve customers under `/customer/*`, keyed by the customer id:
+ * Customers (a shop, hotel or tour site): core signs them in, per website; the plugin never builds
+ * sign-up or sign-in. Each record with a website (a store) saves it in core (scope
+ * `websites:write`) and keeps the id: `await core.forOrg(orgId).websites.save({ recordId: store.id,
+ * name: store.name, origins: ['https://shop.example.mn'] })` → `{ id, … }`; `websites.remove`
+ * when the record goes. The website's own form makes two calls to core:
+ * `POST /core/v1/customer-auth/code` `{ website, kind, value }` sends a code,
+ * `POST /core/v1/customer-auth/sign-in` with the code returns
+ * `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews them.
+ * Serve customers under `/customer/*`, keyed by the customer id and scoped to the website:
  *
  *   app.use('/customer', async (req, res, next) => {
  *     req.customer = await verifyCustomerToken(req.headers.authorization, { coreUrl })
- *       .catch(() => null);                // { orgId, customerId, clientId }
- *     return req.customer ? next() : res.sendStatus(401);
+ *       .catch(() => null);                // { orgId, customerId, websiteId }
+ *     req.store = req.customer && (await storeOfWebsite(req.customer.orgId, req.customer.websiteId));
+ *     return req.store ? next() : res.sendStatus(401);
  *   });
- *   app.get('/customer/orders', (req) => orders.list(req.customer.orgId, req.customer.customerId));
+ *   app.get('/customer/orders', (req) => orders.list(req.store.id, req.customer.customerId));
  *
  * Tiers on SaaS (erxes.io: free / plus / pro; self-hosted: pro, full):
  *

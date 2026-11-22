@@ -98,9 +98,8 @@ const gatewayRefund = async (
   gateway: GatewayRow,
   input: { paymentId: string; amount: number; note: string },
 ) => {
-  const { payments, client } = gatewayAt(gateway);
-
   try {
+    const { payments, client } = await gatewayAt(gateway);
     const result = await payments.refund(client, { ...input, state: invoice.payment });
 
     return { status: 'succeeded' as const, gatewayRefundId: result.refundId, error: null };

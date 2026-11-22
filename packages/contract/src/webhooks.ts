@@ -66,13 +66,13 @@ export const CORE_EVENT_TYPES = [
     type: 'core.customer.signed_up',
     label: 'Customer signed up',
     subject: 'customer',
-    description: 'A person proves their first email address or phone and can sign in to apps',
+    description: 'A person makes an account on one of your websites',
   },
   {
     type: 'core.customer.signed_in',
     label: 'Customer signed in',
     subject: 'customer',
-    description: 'A person signs in with a code',
+    description: 'A person signs in to one of your websites with a code',
   },
   {
     type: 'core.lead.stage_changed',

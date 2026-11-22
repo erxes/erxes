@@ -180,7 +180,8 @@ describe('Mongolian gateways', () => {
 
     expect(created).toMatchObject({
       gatewayInvoiceId: 'req-1',
-      state: { tokiTransactionId: 'tx-1' },
+      payment: { qrText: 'req-1', inApp: { app: 'toki' } },
+      state: { tokiOrderId: 'inv1', tokiRequestId: 'req-1', tokiTransactionId: 'tx-1' },
     });
     expect(
       await payments.check(client, {

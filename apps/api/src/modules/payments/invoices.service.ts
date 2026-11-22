@@ -63,9 +63,9 @@ interface InvoiceInput {
 
 /** The gateway's invoice; a refusal (a payer it can't bill, an amount it won't take) is a 400. */
 const openAtGateway = async (gateway: GatewayRow, input: CreateInvoiceInput) => {
-  const { payments, client } = gatewayAt(gateway);
-
   try {
+    const { payments, client } = await gatewayAt(gateway);
+
     return await payments.createInvoice(client, input);
   } catch (error) {
     if (!(error instanceof GatewayError)) throw error;
@@ -188,14 +188,14 @@ export const cancelInvoice = async (id: string) => {
     throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
   }
 
-  const { payments, client } = gatewayAt(gateway);
-
-  await payments
-    .cancel(client, {
-      gatewayInvoiceId: invoice.gatewayInvoiceId ?? '',
-      amount: invoice.amount,
-      state: invoice.payment,
-    })
+  await gatewayAt(gateway)
+    .then(({ payments, client }) =>
+      payments.cancel(client, {
+        gatewayInvoiceId: invoice.gatewayInvoiceId ?? '',
+        amount: invoice.amount,
+        state: invoice.payment,
+      }),
+    )
     .catch((error: unknown) =>
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );

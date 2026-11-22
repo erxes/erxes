@@ -17,6 +17,7 @@ import {
 import { paymentsRouter } from '~/modules/payments/payments.router';
 import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
 import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
+import { banksRouter } from '~/modules/banks/banks.router';
 import { integrationsRouter } from '~/modules/integrations/integrations.router';
 import { secretsRouter } from '~/modules/secrets/secrets.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
@@ -36,6 +37,7 @@ import {
   customerAuthRouter,
 } from '~/modules/customerAuth/customerAuth.router';
 import { customerNotificationsRouter } from '~/modules/customerNotifications/customerNotifications.router';
+import { customerAccountsRouter, websitesRouter } from '~/modules/websites/websites.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
 import { searchRouter } from '~/modules/search/search.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
@@ -64,6 +66,7 @@ export const coreRouter = unscoped.router({
   products: productsRouter,
   webhooks: webhooksRouter,
   integrations: integrationsRouter,
+  banks: banksRouter,
   secrets: secretsRouter,
   apiKeys: apiKeysRouter,
   trash: trashRouter,
@@ -80,6 +83,8 @@ export const coreRouter = unscoped.router({
   customerAccount: customerAccountRouter,
   customerAuth: customerAuthRouter,
   customerNotifications: customerNotificationsRouter,
+  websites: websitesRouter,
+  customerAccounts: customerAccountsRouter,
   companies: companiesRouter,
   search: searchRouter,
   tags: tagsRouter,

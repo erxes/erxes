@@ -10,8 +10,11 @@ import { adminDb } from './db';
 import { settle } from './settle';
 import { type CoreClient, useTwoOrgs } from './support';
 
-/** Where the test plugin's customer app runs for an organisation. */
-export const appOrigin = (subdomain = 'acme') => `https://${subdomain}.shop.example.com`;
+/** The test plugin's websites: two of Acme's stores and Globex's one. */
+type Site = 'acme' | 'outlet' | 'globex';
+
+/** Where a website's pages run. */
+export const siteOrigin = (site: Site = 'acme') => `https://${site}.shop.example.com`;
 
 let ipCount = 0;
 
@@ -38,20 +41,22 @@ export const lastCode = async (to: string) => {
 };
 
 /**
- * Acme and Globex (`useTwoOrgs`), where the test plugin `hr` has a customer
- * app (`customerApp` in its manifest), and the app as a browser would call core.
+ * Acme and Globex (`useTwoOrgs`), where the test plugin `hr` keeps websites
+ * (Acme's shop and outlet, Globex's shop), and a website as a browser would call core.
  */
 export const useCustomers = () => {
   const t = useTwoOrgs();
+  const sites: Record<Site, string> = { acme: '', outlet: '', globex: '' };
 
   /**
-   * The app in one browser: its own network address (rate limits are per
+   * A website in one browser: its own network address (rate limits are per
    * address), its page's origin (`null`: a mobile app sends none) and, once
    * signed in, the customer's access token.
    */
-  const app = (options: { origin?: string | null; token?: string } = {}) => {
+  const app = (options: { site?: Site; origin?: string | null; token?: string } = {}) => {
+    const site = options.site ?? 'acme';
     const ip = `10.0.0.${++ipCount}`;
-    const origin = options.origin === undefined ? appOrigin() : options.origin;
+    const origin = options.origin === undefined ? siteOrigin(site) : options.origin;
 
     const api: CoreClient = createORPCClient(
       new OpenAPILink(coreContract, {
@@ -64,33 +69,45 @@ export const useCustomers = () => {
       }),
     );
 
-    /** Signs in with a code sent to the address. */
+    /** Signs in to the website with a code sent to the address. */
     const signIn = async (value: string, kind: 'email' | 'phone' = 'email') => {
-      await api.customerAuth.sendCode({ clientId: 'hr', kind, value });
+      await api.customerAuth.sendCode({ website: sites[site], kind, value });
 
-      return api.customerAuth.signIn({ clientId: 'hr', kind, value, code: await lastCode(value) });
+      return api.customerAuth.signIn({
+        website: sites[site],
+        kind,
+        value,
+        code: await lastCode(value),
+      });
     };
 
     return { api, signIn };
   };
 
-  /** Signs in at the organisation's app; `me` is its `/customer/*` client. */
-  const signedIn = async (value: string, subdomain = 'acme') => {
-    const result = await app({ origin: appOrigin(subdomain) }).signIn(value);
+  /** Signs in to a website; `me` is its `/customer/*` client. */
+  const signedIn = async (value: string, site: Site = 'acme') => {
+    const result = await app({ site }).signIn(value);
 
-    return {
-      ...result,
-      me: app({ origin: appOrigin(subdomain), token: result.accessToken }).api,
-    };
+    return { ...result, me: app({ site, token: result.accessToken }).api };
   };
 
   beforeAll(async () => {
     await t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'Shop',
       version: '1',
-      customerApp: { origins: ['https://{subdomain}.shop.example.com'] },
+      scopes: ['websites:write', 'notifications:write'],
     });
+
+    const save = (org: string, recordId: string, site: Site) =>
+      t
+        .hr(org)
+        .websites.save({ recordId, name: `${site} shop`, origins: [siteOrigin(site)] })
+        .then((website) => website.id);
+
+    sites.acme = await save(t.ids.org, 'store-1', 'acme');
+    sites.outlet = await save(t.ids.org, 'store-2', 'outlet');
+    sites.globex = await save(t.ids.otherOrg, 'store-1', 'globex');
   });
 
-  return { ...t, app, signedIn };
+  return { ...t, sites, app, signedIn };
 };

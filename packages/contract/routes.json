@@ -2385,6 +2385,16 @@
           "path": "/payments/invoices/{id}/test-pay"
         }
       }
+    },
+    "quickQrDistricts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/payments/quickqr/districts/{city}"
+        }
+      }
     }
   },
   "ebarimt": {
@@ -2922,7 +2932,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/integrations/{key}/connections"
+          "path": "/integrations/connections"
         }
       }
     },
@@ -2967,7 +2977,99 @@
       }
     }
   },
+  "banks": {
+    "connections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections"
+        }
+      }
+    },
+    "accounts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts"
+        }
+      }
+    },
+    "account": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts/{account}"
+        }
+      }
+    },
+    "statement": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts/{account}/statement"
+        }
+      }
+    },
+    "transfer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/banks/connections/{id}/transfers"
+        }
+      }
+    },
+    "transfers": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/transfers"
+        }
+      }
+    },
+    "taxpayer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/taxes/taxpayer/{registrationNumber}"
+        }
+      }
+    },
+    "taxInvoices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/taxes/invoices"
+        }
+      }
+    }
+  },
   "secrets": {
+    "holdings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/secrets/holdings"
+        }
+      }
+    },
     "save": {
       "~orpc": {
         "errorMap": {},
@@ -3559,6 +3661,70 @@
         "route": {
           "method": "POST",
           "path": "/webhooks/deliveries/{deliveryId}/redeliver"
+        }
+      }
+    }
+  },
+  "websites": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/websites"
+        }
+      }
+    },
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/websites/{recordId}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/websites/{recordId}"
+        }
+      }
+    }
+  },
+  "customerAccounts": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customers/{customerId}/accounts"
+        }
+      }
+    },
+    "setStatus": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/customer-accounts/{id}"
+        }
+      }
+    },
+    "signOut": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer-accounts/{id}/sign-out"
         }
       }
     }

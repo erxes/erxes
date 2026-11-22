@@ -3,6 +3,7 @@ import { orpc } from '@erxes/core-contract/client';
 import {
   type Icon,
   IconBuildingBank,
+  IconBuildingCommunity,
   IconCreditCard,
   IconMail,
   IconMessage,
@@ -19,10 +20,11 @@ export type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_ICONS: Record<Category, Icon> = {
   payments: IconCreditCard,
+  banks: IconBuildingBank,
   social: IconSocial,
   messaging: IconMessage,
   email: IconMail,
-  government: IconBuildingBank,
+  government: IconBuildingCommunity,
 };
 
 /** A listed integration with its address (`qpay`, `frontline.facebook`) and what its UI adds. */

@@ -86,7 +86,7 @@ export const CONFIGS: Record<string, unknown> = {
         tabs: [{ value: 'overview', label: 'Overview', component: ZaloOverview }],
       },
       {
-        key: 'vault',
+        key: 'archive',
         icon: Icon,
         tabs: [{ value: 'overview', label: 'Overview', component: Page }],
       },
@@ -112,6 +112,7 @@ const listed = (
   countries: [],
   permission: 'integrations.manage',
   dashboard: null,
+  keyed: false,
   fields: [],
   payments: null,
   status: NOT_SET_UP,
@@ -119,7 +120,7 @@ const listed = (
   ...row,
 });
 
-// What core lists this member: its own, and the chat plugin's it may manage (not its vault).
+// What core lists this member: its own, and the chat plugin's it may manage (not its archive).
 const LISTED = [
   listed({
     key: 'ebarimt',

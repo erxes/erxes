@@ -37,13 +37,12 @@ const connectionFor = async (tx: Db, integration: KeyedIntegration, requested?: 
   return row;
 };
 
-const open = async (ctx: CallContext, integration: KeyedIntegration) => {
-  const row = await withOrg(ctx.orgId, (tx) =>
-    connectionFor(tx, integration, text(ctx.input.connection)),
-  );
+const open = (ctx: CallContext, integration: KeyedIntegration) =>
+  withOrg(ctx.orgId, async (tx) => {
+    const row = await connectionFor(tx, integration, text(ctx.input.connection));
 
-  return { id: row.id, name: row.name, client: clientOf(integration, row) };
-};
+    return { id: row.id, name: row.name, client: await clientOf(tx, integration, row) };
+  });
 
 const keyedActions = (integration: KeyedIntegration): CoreAction[] => {
   const owner = { key: integration.key, name: integration.name };

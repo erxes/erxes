@@ -37,6 +37,7 @@ describe('plugin integrations', { timeout: 120_000 }, () => {
         plugin: 'hr',
         countries: [],
         dashboard: null,
+        keyed: false,
         fields: [],
         payments: null,
         status: { state: 'not-set-up', count: null },

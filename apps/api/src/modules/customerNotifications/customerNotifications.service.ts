@@ -1,7 +1,7 @@
 import type { CustomerNotificationInput } from '@erxes/core-contract';
 import {
   caller,
-  customerLogins,
+  customerAccounts,
   customerNotifications,
   customers,
   type Db,
@@ -9,8 +9,9 @@ import {
   organizations,
   requestOrgId,
   sourceOf,
+  websites,
 } from '@erxes/core-db';
-import { and, asc, count, eq, exists, gt, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, asc, count, eq, exists, gt, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertPluginNamespace } from '~/lib/guards';
@@ -19,31 +20,50 @@ import { deleteInBatches, repeatWhile } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { sendEmail } from '~/modules/email/email';
 import { canDeliverEmail } from '~/modules/email/sender';
-import { clientOf } from '~/modules/oauth/oauthClients';
+import { unknownWebsite } from '~/modules/customerAuth/customerWebsites';
 import { sendSms } from '~/modules/sms/sms';
 
 const log = logger.child({ component: 'customer-notifications' });
 
-/** The signed-in customer's own notifications. */
-const mine = () => eq(customerNotifications.customerId, caller('customer').customerId);
+/** The signed-in customer's own notifications: their website's, and those for every website. */
+const mine = () => {
+  const { customerId, websiteId } = caller('customer');
 
-/**
- * The address the plugin's customer app runs at, `{subdomain}` still in it,
- * if it has one. Read before the request's transaction (a system lookup).
- */
-export const customerAppOrigin = async (plugin: string) =>
-  (await clientOf(plugin))?.manifest?.customerApp?.origins[0] ?? null;
+  return and(
+    eq(customerNotifications.customerId, customerId),
+    or(isNull(customerNotifications.websiteId), eq(customerNotifications.websiteId, websiteId)),
+  );
+};
 
-/** Every customer who signs in to the organisation's customer apps. */
-const signedUp = () =>
+/** Every customer with an account on the website, or on any website. */
+const signedUp = (websiteId: string | undefined) =>
   exists(
-    sql`(select 1 from ${customerLogins} where ${customerLogins.customerId} = ${customers.id})`,
+    sql`(select 1 from ${customerAccounts} where ${and(
+      eq(customerAccounts.customerId, customers.id),
+      websiteId ? eq(customerAccounts.websiteId, websiteId) : undefined,
+    )})`,
   );
 
 type Input = CustomerNotificationInput;
 
+/** The website a notification is for: one of the sending plugin's. */
+const websiteOf = async (client: Db, source: string, websiteId: string | undefined) => {
+  if (!websiteId) return null;
+
+  const [website] = await client
+    .select({ id: websites.id, origins: websites.origins })
+    .from(websites)
+    .where(and(eq(websites.id, websiteId), eq(websites.plugin, source)))
+    .limit(1);
+
+  if (!website) throw unknownWebsite();
+
+  return website;
+};
+
 /** The row every recipient gets, without its id and customer. */
 const rowOf = (source: string, input: Input) => ({
+  websiteId: input.websiteId ?? null,
   source,
   kind: input.kind,
   title: input.title,
@@ -73,7 +93,7 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
     const batch = await client
       .select({ id: customers.id })
       .from(customers)
-      .where(and(signedUp(), gt(customers.id, after)))
+      .where(and(signedUp(input.websiteId), gt(customers.id, after)))
       .orderBy(asc(customers.id))
       .limit(EVERYONE_BATCH);
 
@@ -99,20 +119,16 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
 const deliver = async (
   client: Db,
   input: Input,
-  appOrigin: string | null,
+  origin: string | null,
   created: { id: string; email: string | null; phone: string | null }[],
 ) => {
   if (!input.channels.length || !created.length) return;
 
   const orgId = requestOrgId();
 
-  const [org] = await client
-    .select({ name: organizations.name, subdomain: organizations.subdomain })
-    .from(organizations)
-    .limit(1);
+  const [org] = await client.select({ name: organizations.name }).from(organizations).limit(1);
 
   const organization = org?.name ?? 'erxes';
-  const origin = org && appOrigin?.replaceAll('{subdomain}', org.subdomain);
   const link = origin && input.link ? `${origin}${input.link}` : null;
   const body = input.body ?? null;
 
@@ -162,10 +178,12 @@ const deliver = async (
  * with `channels`, an email or text to their primary address. Unknown ids
  * are an error. With a `dedupeKey`, a retry creates and sends nothing.
  */
-export const notifyCustomers = async (client: Db, input: Input, appOrigin: string | null) => {
+export const notifyCustomers = async (client: Db, input: Input) => {
   const source = sourceOf(caller());
 
   assertPluginNamespace(source, input.kind);
+
+  const website = await websiteOf(client, source, input.websiteId);
 
   if (input.everyone) return notifyEveryone(client, source, input);
 
@@ -192,7 +210,7 @@ export const notifyCustomers = async (client: Db, input: Input, appOrigin: strin
   await deliver(
     client,
     input,
-    appOrigin,
+    website?.origins[0] ?? null,
     inserted.flatMap(({ customerId }) => contacts.get(customerId) ?? []),
   );
 

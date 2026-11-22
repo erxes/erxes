@@ -789,15 +789,29 @@
     {
       "idx": 112,
       "version": "7",
-      "when": 1795322983070,
-      "tag": "0112_integrations_org_wide",
+      "when": 1795325083178,
+      "tag": "0112_bank_transfers",
       "breakpoints": true
     },
     {
       "idx": 113,
       "version": "7",
-      "when": 1795322983923,
-      "tag": "0113_plugin_integration_states",
+      "when": 1795334169120,
+      "tag": "0113_customer_websites",
+      "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1795337400946,
+      "tag": "0114_integrations_org_wide",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "7",
+      "when": 1795337406316,
+      "tag": "0115_plugin_integration_states",
       "breakpoints": true
     }
   ]

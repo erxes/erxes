@@ -1,8 +1,9 @@
+import { VAULT_HOLDERS } from '@erxes/core-db/enums';
 import { secrets } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id } from './common';
+import { Id, listOf } from './common';
 import { COMMON_ERRORS } from './errors';
 
 export const SecretValue = z.string().min(1).max(65_536);
@@ -11,9 +12,25 @@ export const SecretRef = createSelectSchema(secrets, { id: Id }).pick({ id: true
 
 export type SecretRef = z.infer<typeof SecretRef>;
 
+export const VaultHolding = z.object({
+  holder: z.enum(VAULT_HOLDERS),
+  plugin: z.string().nullable(),
+  count: z.int(),
+});
+
+export type VaultHolding = z.infer<typeof VaultHolding>;
+
 const base = oc.errors(COMMON_ERRORS);
 
 export const secretsContract = {
+  holdings: base
+    .route({
+      method: 'GET',
+      path: '/secrets/holdings',
+      summary:
+        'How many secrets the vault keeps for each feature and plugin, besides integration connections. Never a value',
+    })
+    .output(listOf(VaultHolding)),
   save: base
     .route({
       method: 'POST',

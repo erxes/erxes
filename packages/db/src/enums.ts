@@ -275,6 +275,9 @@ export const SUPPRESSION_REASONS = ['unsubscribed', 'bounced', 'complained', 'ma
 /** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
 export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
 
+/** A customer's account on a website: signs in, or is kept out by staff (`blocked`). */
+export const CUSTOMER_ACCOUNT_STATUSES = ['active', 'blocked'] as const;
+
 export const ORGANIZATION_STATUSES = ['active', 'suspended', 'inactive'] as const;
 export const PLUGIN_TIERS = ['free', 'plus', 'pro'] as const;
 export const PLUGIN_STATUSES = ['active', 'disabled'] as const;
@@ -306,6 +309,7 @@ export const PLUGIN_SCOPES = [
   'users:read',
   'users:write',
   'views:read',
+  'websites:write',
 ] as const;
 
 /** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
@@ -447,23 +451,6 @@ export const ACTION_FIELD_TYPES = [
   'connection',
 ] as const;
 
-// ─── Integrations ───────────────────────────────────────────────────────────
-
-/** In the order Settings › Integrations lists them. */
-export const INTEGRATION_CATEGORIES = [
-  'payments',
-  'social',
-  'messaging',
-  'email',
-  'government',
-] as const;
-
-export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
-
-export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
-
-export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch'] as const;
-
 // ─── Payments ───────────────────────────────────────────────────────────────
 
 /**
@@ -545,3 +532,7 @@ export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', '
 export const LOG_FORMATS = ['json', 'pretty'] as const;
 export const EMAIL_DRIVERS = ['smtp', 'log'] as const;
 export const SMS_DRIVERS = ['log'] as const;
+
+export * from './bankEnums';
+
+export * from './integrationEnums';

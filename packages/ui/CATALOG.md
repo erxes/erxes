@@ -66,6 +66,9 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `type CompanyContact { id, primaryName, primaryEmail, primaryPhone, avatarUrl }` What a company reads as: core's `Company` has these fields and more.
 - `companyTitle(company)` A company's name, else its email or phone.
+- `CONNECTION_CONTENT_TYPE` The content type core's side panel opens a vault connection as.
+- `ConnectionPicker` Picks one of the organisation's vault connections.
+- `type ConnectionPickerProps { integration, category, value, onValueChange, noneLabel, … }` What `ConnectionPicker` takes.
 - `<ContactLink contentType contentId contacts placeholder>` A customer or company as a chip: its avatar and name.
 - `type ContactQueries { customer, company }` Where customers and companies come from, as TanStack query options.
 - `<ContactRelationInput {...RelationProps}>` A record's customers or companies in a side panel field.
@@ -97,6 +100,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `RecordTimeline` Core's timeline of notes, calls and events for a plugin's record.
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
 - `<SelectContactContent kind value onValueChange contacts multiple>` A picker's searchable list of customers or companies, the picked first.
+- `setConnectionPicker` Registers core's connection picker.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
@@ -109,7 +113,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 ## Fields and pickers
 
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
-- `<DateField value placeholder scope onSave variant>` A day in a table cell or panel row, edited in a popover with a calendar.
+- `<DateField value min max placeholder scope>` A day in a table cell or panel row, edited in a popover with a calendar.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.

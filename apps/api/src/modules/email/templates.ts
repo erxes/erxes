@@ -48,7 +48,7 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string(),
     }),
   }),
-  /** A plugin's notification to a customer; the link opens the plugin's customer app. */
+  /** A plugin's notification to a customer; the link opens the plugin's website. */
   z.object({
     to: z.string(),
     template: z.literal('customer_notification'),

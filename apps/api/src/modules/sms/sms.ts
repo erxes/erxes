@@ -19,9 +19,14 @@ const DRIVERS: Record<typeof config.sms.driver, (message: SmsPayload) => Promise
     loggedSms.push(message);
 
     if (loggedSms.length > 100) loggedSms.shift();
-    log.info(message, 'sms (not sent: SMS_DRIVER=log)');
+
+    // Texts hold sign-in codes: a production log never gets them.
+    log.info(config.isProduction ? { to: message.to } : message, 'sms (not sent: SMS_DRIVER=log)');
   },
 };
+
+/** Whether texts reach phones, not only the server's log in production. */
+export const canDeliverSms = () => config.sms.driver !== 'log' || !config.isProduction;
 
 /** Sends one text message now, or throws. */
 export const deliverSms = (message: SmsPayload) => DRIVERS[config.sms.driver](message);

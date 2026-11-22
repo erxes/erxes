@@ -128,6 +128,7 @@
     "plugins": "Плагинууд",
     "roles": "Үүргүүд",
     "webhooks": "Вэбхүүк",
+    "websites": "Вэбсайтууд",
     "api-reference": "API лавлах",
     "api-keys": "API түлхүүр",
     "payments": "Төлбөр",
@@ -141,7 +142,8 @@
     "assistant-code-mode": "Код горим",
     "assistant-appearance": "Төрх",
     "email-sending": "Имэйл илгээлт",
-    "integrations": "Холболтууд"
+    "integrations": "Холболтууд",
+    "vault": "Нууц сан"
   },
   "auth": {
     "welcome": "Тавтай морил",
@@ -672,7 +674,8 @@
       "Customer": "Харилцагч",
       "Company": "Компани",
       "Product": "Бүтээгдэхүүн",
-      "Team member": "Багийн гишүүн"
+      "Team member": "Багийн гишүүн",
+      "Connection": "Холболт"
     }
   },
   "two-factor": {

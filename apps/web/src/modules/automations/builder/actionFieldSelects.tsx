@@ -2,6 +2,7 @@ import type { ActionField, ActionInfo } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
+  ConnectionPicker,
   LookupPicker,
   pluginJson,
   Select,
@@ -123,32 +124,18 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
   );
 };
 
-const DEFAULT_CONNECTION = '__default';
-
-/** One of the integration's active connections (the catalog lists them), or its default one. */
-export const ConnectionSelect = ({ field, value, onChange, disabled }: ActionInputProps) => {
+/** One of the action's integration's active connections, or none for its default one. */
+export const ConnectionSelect = ({ action, value, onChange, disabled }: ActionInputProps) => {
   const { t } = useTranslation('automations');
 
   return (
-    <Select
-      value={textOf(value) || DEFAULT_CONNECTION}
-      onValueChange={(next) => onChange(next === DEFAULT_CONNECTION ? undefined : next)}
+    <ConnectionPicker
+      integration={action.integration ?? undefined}
+      value={textOf(value) || null}
+      onValueChange={(connectionId) => onChange(connectionId ?? undefined)}
+      noneLabel={t('default-connection', 'The default connection')}
       disabled={disabled}
-    >
-      <Select.Trigger aria-label={field.label}>
-        <Select.Value />
-      </Select.Trigger>
-      <Select.Content>
-        <Select.Item value={DEFAULT_CONNECTION}>
-          {t('default-connection', 'The default connection')}
-        </Select.Item>
-        {(field.options ?? []).map((option) => (
-          <Select.Item key={option.value} value={option.value}>
-            {option.label}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+    />
   );
 };
 
