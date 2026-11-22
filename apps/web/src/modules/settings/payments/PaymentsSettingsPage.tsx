@@ -2,11 +2,18 @@ import { paths } from '~/lib/paths';
 import { type Invoice, InvoiceStatus } from '@erxes/core-contract';
 import { IconCash } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Badge, PageContainer, PageHeader, ScrollArea, Select, useMoney } from 'erxes-ui';
+import {
+  Badge,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Select,
+  useMoney,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';

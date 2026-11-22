@@ -9,11 +9,11 @@ import {
   PageHeader,
   ScrollArea,
   useOpenRecord,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';

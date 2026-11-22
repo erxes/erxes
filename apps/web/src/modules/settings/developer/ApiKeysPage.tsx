@@ -2,10 +2,17 @@ import type { ApiKey } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { IconKey, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Empty, PageContainer, PageHeader, PageSubHeader, RecordTable } from 'erxes-ui';
+import {
+  Button,
+  Empty,
+  PageContainer,
+  PageHeader,
+  PageSubHeader,
+  RecordTable,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';

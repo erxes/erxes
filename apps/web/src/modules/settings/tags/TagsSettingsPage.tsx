@@ -9,11 +9,11 @@ import {
   PageHeader,
   PageSubHeader,
   RecordTable,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { FormSheet } from '~/components/FormSheet';
 import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';

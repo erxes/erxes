@@ -3,11 +3,18 @@ import { currencyOfCountry, type Organization } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconSettings } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, Input, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
+import {
+  Form,
+  Input,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { CountrySelect, CurrencySelect, TimeZoneSelect } from '~/components/RegionSelect';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';

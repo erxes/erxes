@@ -11,9 +11,9 @@ import {
   PageHeader,
   buttonVariants,
   useFormat,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '@erxes/core-contract/client';
 import { usePlan } from '~/modules/saas/usePlan';
 

@@ -136,7 +136,10 @@ const SheetHeader = ({ className, children, ...props }: React.HTMLAttributes<HTM
 
 const SheetContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('rounded-b-lg bg-background border-b flex-1 px-5 py-4', className)}
+    className={cn(
+      'rounded-b-lg bg-background border-b flex-1 min-h-0 overflow-y-auto px-5 py-4',
+      className,
+    )}
     {...props}
   />
 );

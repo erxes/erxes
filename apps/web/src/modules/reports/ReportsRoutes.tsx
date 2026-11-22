@@ -11,11 +11,11 @@ import {
   Skeleton,
   Tooltip,
   PageHeader,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 import type { ReactNode } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '@erxes/core-contract/client';
 import {
   LeadOwners,

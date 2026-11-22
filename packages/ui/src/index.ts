@@ -191,6 +191,8 @@ export { AppLayout, AppLayoutFooterLink } from './modules/layout/components/AppL
 
 export { PageContainer, PageSubHeader } from './modules/layout/components/Page';
 
+export { AppBreadcrumb, type Crumb } from './modules/layout/components/AppBreadcrumb';
+
 export { PageHeader } from './modules/layout/components/PageHeader';
 
 export { NavigationMenuLinkItem } from './modules/navigation-menu/components/NavigationMenu';

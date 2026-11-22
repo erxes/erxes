@@ -2,9 +2,17 @@ import { paths } from '~/lib/paths';
 import { type Plugin, pluginReadScope } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Empty, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  Empty,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { countryNames } from '~/lib/region';

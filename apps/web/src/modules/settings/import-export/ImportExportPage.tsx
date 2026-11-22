@@ -10,11 +10,11 @@ import {
   Spinner,
   Tabs,
   useFormat,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { parseAsString, useQueryStates } from 'nuqs';
 import { Link, Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { fileDownloadUrl } from '~/lib/files';
 import { paths } from '~/lib/paths';

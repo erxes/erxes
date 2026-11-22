@@ -8,11 +8,11 @@ import {
   PageSubHeader,
   ScrollArea,
   ToggleGroup,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';

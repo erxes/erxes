@@ -3,10 +3,9 @@ import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
 import type { HTMLAttributes, ReactNode } from 'react';
 
-// The first crumb pads its own icon, so the left edge is small: the icon lands where the page's
-// list rows put theirs. The collapsed padding leaves room for the app sidebar's expand button.
+// The left padding leaves room for the app sidebar's expand button while the sidebar is collapsed.
 const pageHeaderVariants = cva(
-  'box-border flex shrink-0 items-center justify-between bg-background pl-1.5 pr-3 navigation-collapsed:pl-13 styled-scroll',
+  'box-border flex shrink-0 items-center justify-between bg-background px-3 navigation-collapsed:pl-13 styled-scroll',
   {
     variants: {
       variant: {
@@ -37,17 +36,20 @@ const PageHeaderRoot = ({
   </div>
 );
 
-const pageHeaderStartVariants = cva('flex flex-none items-center gap-2', {
-  variants: {
-    variant: {
-      default: '',
-      // The first crumb moves into the header's padding, so its icon lines up with the page content.
-      flush:
-        '[&>nav:first-of-type>ol>li:first-child_a]:-ml-2 [&>nav:first-of-type>ol>li:first-child_a]:pl-2 [&>nav:first-of-type>ol>li:first-child_button]:-ml-2 [&>nav:first-of-type>ol>li:first-child_button]:pl-2',
+const pageHeaderStartVariants = cva(
+  'flex flex-none items-center gap-2 [&>svg]:shrink-0 [&>svg:not([class*=size-])]:size-4',
+  {
+    variants: {
+      variant: {
+        default: '',
+        // The first crumb moves into the header's padding, so its icon lines up with the page content.
+        flush:
+          '[&>nav:first-of-type>ol>li:first-child_a]:-ml-2 [&>nav:first-of-type>ol>li:first-child_a]:pl-2 [&>nav:first-of-type>ol>li:first-child_button]:-ml-2 [&>nav:first-of-type>ol>li:first-child_button]:pl-2',
+      },
     },
+    defaultVariants: { variant: 'default' },
   },
-  defaultVariants: { variant: 'default' },
-});
+);
 
 const PageHeaderStart = ({
   ref,

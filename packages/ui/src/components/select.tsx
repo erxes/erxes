@@ -51,7 +51,7 @@ const SelectGroup = (props: SelectPrimitive.Group.Props) =>
   use(CollectingContext) ? props.children : <SelectPrimitive.Group {...props} />;
 
 const selectTriggerVariants = cva(
-  'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus aria-invalid:shadow-destructive aria-invalid:focus:shadow-focus-destructive data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1',
+  'flex h-7 w-full items-center font-medium justify-between whitespace-nowrap rounded bg-transparent px-3 py-1 transition text-sm shadow-xs data-placeholder:text-accent-foreground focus:outline-hidden focus:shadow-focus aria-invalid:shadow-destructive aria-invalid:focus:shadow-focus-destructive data-disabled:cursor-not-allowed data-disabled:opacity-50 [&>span]:line-clamp-1 gap-2 [&>svg]:shrink-0 [&>svg:not([class*=size-])]:size-4',
   {
     variants: {
       variant: {
@@ -158,7 +158,7 @@ const SelectItem = ({
     <SelectPrimitive.Item
       value={value}
       className={cn(
-        'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden data-highlighted:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50',
+        'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden data-highlighted:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4',
         className,
       )}
       {...props}
