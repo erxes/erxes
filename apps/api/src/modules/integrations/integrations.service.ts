@@ -27,7 +27,7 @@ import { ensureNameFree } from './connectionNames';
 import { fieldsOf } from '@erxes/plugin-sdk/integrations';
 import { type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
-import { callbackUrl, oauthClientSource } from './oauth';
+import { oauthFacts } from './oauth';
 import { pluginIntegrations } from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
 
@@ -63,12 +63,7 @@ export const listIntegrations = async (client: Db) => {
       keyed: Boolean(integration.keys),
       fields: integration.keys && !integration.oauth ? fieldsOf(integration.keys) : [],
       payments: integration.payments ?? null,
-      oauth: integration.oauth
-        ? {
-            client: await oauthClientSource(client, integration.key),
-            callbackUrl: await callbackUrl(client),
-          }
-        : null,
+      oauth: integration.oauth ? await oauthFacts(client, integration.key) : null,
       status: integration.status
         ? await integration.status(client)
         : connectionStatus(counts.get(integration.key)),

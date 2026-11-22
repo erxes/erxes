@@ -27,6 +27,7 @@ import {
 import { connectable } from './connectable';
 import { ensureNameFree } from './connectionNames';
 import { type KeyedIntegration, sealedValues, splitValues } from './define';
+import { metaRelayFor, withoutRelayPrefix } from './metaRelay';
 
 const STATE_MINUTES = 10;
 
@@ -90,10 +91,21 @@ const serverClient = (key: string): AppClient | null => {
   return client ? { ref: SERVER_CLIENT, ...client } : null;
 };
 
-export const oauthClientSource = async (tx: Db, key: string) => {
+const clientSource = async (tx: Db, key: string) => {
   if (serverClient(key)) return 'server' as const;
 
   return (await orgClient(tx, key)) ? ('organization' as const) : null;
+};
+
+export const oauthFacts = async (tx: Db, key: string) => {
+  const relay = metaRelayFor(key);
+
+  return {
+    client: await clientSource(tx, key),
+    callbackUrl: relay?.redirectUrl ?? (await callbackUrl(tx)),
+    serverClientId: serverClient(key)?.clientId ?? null,
+    relayUrl: relay?.url ?? null,
+  };
 };
 
 export const appClientOf = async (tx: Db, key: string) => serverClient(key) ?? orgClient(tx, key);
@@ -120,8 +132,7 @@ export const clientByRef = async (key: string, ref: string) => {
   return client?.ref === ref ? { ...client, orgId: row.orgId } : null;
 };
 
-export const callbackUrl = (tx: Db) =>
-  config.integrations.oauthCallbackUrl ?? appLink(tx, CALLBACK_PATH);
+const callbackUrl = (tx: Db) => config.integrations.oauthCallbackUrl ?? appLink(tx, CALLBACK_PATH);
 
 export const providerLink = (tx: Db, path: string) => {
   const fixed = config.integrations.oauthCallbackUrl;
@@ -144,7 +155,7 @@ const sealState = (state: State) => {
 };
 
 export const openState = (token: string) => {
-  const [body = '', signature = ''] = token.split('.');
+  const [body = '', signature = ''] = withoutRelayPrefix(token).split('.');
 
   if (!safeEqual(signature, signed(body))) return null;
 
@@ -174,18 +185,19 @@ export const authorizeUrl = async (tx: Db, input: { key: string; name: string })
     expiresAt: Date.now() + STATE_MINUTES * 60_000,
   };
 
-  const state = sealState(fields);
   const verifier = verifierOf(fields);
+  const relay = metaRelayFor(integration.key);
+  const callback = await callbackUrl(tx);
 
   const url = new URL(oauth.authorizeUrl);
 
   Object.entries({
     ...oauth.authorizeParams,
     client_id: client.clientId,
-    redirect_uri: await callbackUrl(tx),
+    redirect_uri: relay?.redirectUrl ?? callback,
     response_type: 'code',
     scope: oauth.scopes.join(oauth.scopeSeparator ?? ' '),
-    state,
+    state: relay ? `v1.${await relay.register(callback)}.${sealState(fields)}` : sealState(fields),
     code_challenge: sha256(verifier, 'base64url'),
     code_challenge_method: 'S256',
   }).forEach(([name, value]) => url.searchParams.set(name, value));
@@ -224,7 +236,11 @@ export const signInApp = async (tx: Db, key: string) => {
 
   if (!client) throw new Error(`${integration.name} has no OAuth app`);
 
-  return { integration, client, redirectUri: await callbackUrl(tx) };
+  return {
+    integration,
+    client,
+    redirectUri: metaRelayFor(integration.key)?.redirectUrl ?? (await callbackUrl(tx)),
+  };
 };
 
 type SignInApp = Awaited<ReturnType<typeof signInApp>>;

@@ -82,7 +82,12 @@ export const Integration = z.object({
   fields: z.array(IntegrationField),
   payments: IntegrationPayments.nullable(),
   oauth: z
-    .object({ client: z.enum(OAUTH_CLIENT_SOURCES).nullable(), callbackUrl: z.string() })
+    .object({
+      client: z.enum(OAUTH_CLIENT_SOURCES).nullable(),
+      callbackUrl: z.string(),
+      serverClientId: z.string().nullable(),
+      relayUrl: z.string().nullable(),
+    })
     .nullable(),
   status: IntegrationStatus,
   actions: z.array(IntegrationAction),

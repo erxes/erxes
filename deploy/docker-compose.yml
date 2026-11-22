@@ -28,6 +28,10 @@ x-api-env: &api-env
   EMAIL_DRIVER: ${EMAIL_DRIVER:-}
   EMAIL_SMTP_URL: ${EMAIL_SMTP_URL:-}
   EMAIL_FROM: ${EMAIL_FROM:-}
+  META_APP_ID: ${META_APP_ID:-}
+  META_APP_SECRET: ${META_APP_SECRET:-}
+  META_RELAY_URL: ${META_RELAY_URL:-}
+  META_RELAY_KEY: ${META_RELAY_KEY:-}
 
 x-api-secrets: &api-secrets
   - core_jwt_secret
