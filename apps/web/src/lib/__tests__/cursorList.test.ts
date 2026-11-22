@@ -119,7 +119,7 @@ describe('paged lists shown again', () => {
     requests.length = 0;
     client = new QueryClient();
     keepFirstPageOnLeave(client);
-    store.set(tablePositionState(SESSION), { filters: '', row: '', scroll: 0 });
+    store.set(tablePositionState(SESSION), { filters: '', row: '', rowOffset: 0, scroll: 0 });
   });
 
   afterEach(() => {
@@ -176,7 +176,12 @@ describe('paged lists shown again', () => {
     expect(seen.cursor?.list).toHaveLength(400);
 
     // RecordTable remembers the first row in view and the scroll offset.
-    store.set(tablePositionState(SESSION), { filters: '{}', row: 'r250', scroll: 8250 });
+    store.set(tablePositionState(SESSION), {
+      filters: '{}',
+      row: 'r250',
+      rowOffset: 12,
+      scroll: 8250,
+    });
     leave();
     requests.length = 0;
     rows[260] = { id: 'r260', name: 'Renamed while away' };
@@ -192,6 +197,7 @@ describe('paged lists shown again', () => {
     expect(store.get(tablePositionState(SESSION))).toEqual({
       filters: '{}',
       row: 'r250',
+      rowOffset: 12,
       scroll: 0,
     });
 
