@@ -11,11 +11,10 @@ import {
 import { and, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
-import { findCustomer } from '~/modules/customers/customerRows';
-import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
-import { addLogin, findLogin, lockLogin } from './customerLogins';
+import { profileOf } from './customerFields';
+import { findLogin } from './customerLogins';
 import {
   accountBlocked,
   createSession,
@@ -23,7 +22,7 @@ import {
   rotateSession,
   sessionOf,
 } from './customerSessions';
-import { websiteFor, websiteServes } from './customerWebsites';
+import { type LiveWebsite, websiteFor, websiteServes } from './customerWebsites';
 
 /** Where a sign-in call comes from: a browser sends its page's origin; a mobile app or server, none. */
 export interface SignInRequest {
@@ -31,7 +30,7 @@ export interface SignInRequest {
 }
 
 /** The customer's account on the website, made the first time. */
-const accountOf = async (tx: Db, websiteId: string, customerId: string) => {
+export const accountOf = async (tx: Db, websiteId: string, customerId: string) => {
   const [found] = await tx
     .select({ id: customerAccounts.id, status: customerAccounts.status })
     .from(customerAccounts)
@@ -53,65 +52,64 @@ const accountOf = async (tx: Db, websiteId: string, customerId: string) => {
 };
 
 /**
- * The account that signs in to the website with this proven address: its
- * login's, else the account of the customer who has the address (made on
- * their first sign-in here), else a new customer's.
+ * A new session for the account that proved the address, with its tokens; `signedUp`
+ * publishes `core.customer.signed_up` too. Runs as core: nobody is signed in yet.
  */
-const accountForLogin = async (tx: Db, websiteId: string, address: Address) => {
-  await lockLogin(tx, websiteId, address);
-
-  const login = await findLogin(tx, websiteId, address);
-
-  if (login) {
-    if (login.status === 'blocked') throw accountBlocked();
-
-    await tx
-      .update(customerLogins)
-      .set({ lastUsedAt: sql`now()` })
-      .where(eq(customerLogins.id, login.id));
-
-    return {
-      accountId: login.accountId,
-      customerId: login.customerId,
-      signedUp: false,
-      created: false,
-    };
-  }
-
-  const { customer, created } = await findOrCreateCustomer(tx, {
-    ...(address.kind === 'email'
-      ? { primaryEmail: address.value }
-      : { primaryPhone: address.value }),
-    source: 'sign_in',
-  });
-
-  const account = await accountOf(tx, websiteId, customer.id);
-
-  if (account.status === 'blocked') throw accountBlocked();
-
-  const saved = await addLogin(tx, { id: account.id, websiteId, customerId: customer.id }, address);
+export const openSession = async (
+  tx: Db,
+  website: LiveWebsite,
+  address: Address,
+  account: { accountId: string; customerId: string; signedUp: boolean; created: boolean },
+) => {
+  const { accountId, customerId } = account;
 
   await tx
-    .update(customerLogins)
-    .set({ lastUsedAt: sql`now()` })
-    .where(eq(customerLogins.id, saved.id));
+    .update(customerAccounts)
+    .set({ lastSignedInAt: sql`now()` })
+    .where(eq(customerAccounts.id, accountId));
 
-  return { accountId: account.id, customerId: customer.id, signedUp: account.signedUp, created };
+  const { ip, userAgent } = requestInfo();
+
+  const tokens = await createSession(tx, {
+    orgId: website.orgId,
+    customerId,
+    accountId,
+    websiteId: website.id,
+    userAgent,
+    ip,
+  });
+
+  const subject = { subjectType: 'customer' as const, subjectId: customerId };
+  const payload = { kind: address.kind, websiteId: website.id };
+
+  await publishCoreEvents(tx, [
+    ...(account.signedUp ? [{ type: 'core.customer.signed_up', ...subject, payload }] : []),
+    { type: 'core.customer.signed_in', ...subject, payload },
+  ]);
+
+  return { ...tokens, customer: await profileOf(tx, customerId), created: account.created };
 };
 
-/** Sends a sign-in code for the website; the answer is the same whether or not the address has an account. */
+/**
+ * Sends a sign-in code for an account on the website. An address with no account gets none,
+ * with the same answer, so nobody learns who has one: the website offers sign-up instead.
+ */
 export const sendSignInCode = async (
   input: Address & { website: string },
   request: SignInRequest,
 ) => {
   const website = await websiteFor(input.website, request.origin);
+  const address = addressOf(input);
 
-  return withOrg(website.orgId, (tx) =>
-    sendCode(tx, website, addressOf(input), 'sign_in', { ip: requestInfo().ip }),
+  return withOrg(website.orgId, async (tx) =>
+    sendCode(tx, website, address, 'sign_in', {
+      ip: requestInfo().ip,
+      deliver: Boolean(await findLogin(tx, website.id, address)),
+    }),
   );
 };
 
-/** Signs in (or up) to the website with a code: a new session for the account, and its tokens. */
+/** Signs in to the website's account with a code: a new session, and its tokens. */
 export const signInWithCode = async (
   input: Address & { website: string; code: string },
   request: SignInRequest,
@@ -126,40 +124,26 @@ export const signInWithCode = async (
 
   if (!valid) throw invalidCode();
 
-  // Core signs the customer in (or up) on its own: nobody is signed in yet.
   return withOrg(website.orgId, (tx) =>
     runAs(system('customer sign-in'), async () => {
-      const { accountId, customerId, signedUp, created } = await accountForLogin(
-        tx,
-        website.id,
-        address,
-      );
+      const login = await findLogin(tx, website.id, address);
+
+      // The login went after the code was sent (removed, or merged away).
+      if (!login) throw invalidCode();
+
+      if (login.status === 'blocked') throw accountBlocked();
 
       await tx
-        .update(customerAccounts)
-        .set({ lastSignedInAt: sql`now()` })
-        .where(eq(customerAccounts.id, accountId));
+        .update(customerLogins)
+        .set({ lastUsedAt: sql`now()` })
+        .where(eq(customerLogins.id, login.id));
 
-      const { ip, userAgent } = requestInfo();
-
-      const tokens = await createSession(tx, {
-        orgId: website.orgId,
-        customerId,
-        accountId,
-        websiteId: website.id,
-        userAgent,
-        ip,
+      return openSession(tx, website, address, {
+        accountId: login.accountId,
+        customerId: login.customerId,
+        signedUp: false,
+        created: false,
       });
-
-      const subject = { subjectType: 'customer' as const, subjectId: customerId };
-      const payload = { kind: address.kind, websiteId: website.id };
-
-      await publishCoreEvents(tx, [
-        ...(signedUp ? [{ type: 'core.customer.signed_up', ...subject, payload }] : []),
-        { type: 'core.customer.signed_in', ...subject, payload },
-      ]);
-
-      return { ...tokens, customer: await findCustomer(tx, customerId), created };
     }),
   );
 };

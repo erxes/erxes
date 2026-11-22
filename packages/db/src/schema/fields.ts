@@ -105,6 +105,11 @@ export const fields = pgTable(
     isRequired: boolean().default(false).notNull(),
     /** Asked for on the form that makes a record, not only on the record once made. */
     isVisibleToCreate: boolean().default(true).notNull(),
+    /**
+     * Customers fill it in themselves on websites: at sign-up (where required, they must) and on
+     * their profile (decision 42). Customer fields only.
+     */
+    customerEditable: boolean().default(false).notNull(),
     /** Shows or hides the field by other fields' values: every rule must match. Null: always shown. */
     logic: jsonb().$type<FieldLogic>(),
     /** Listed in list filters; a plugin's rollup a relation filters by better is a column only. */

@@ -3,7 +3,17 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber, listOf } from './common';
+import {
+  CustomFields,
+  CustomFieldsPatch,
+  EmailAddress,
+  Id,
+  ImageAddress,
+  isoDate,
+  PhoneNumber,
+  listOf,
+} from './common';
+import { Field } from './fields';
 
 /** The fields a request sends along with the address. */
 type AlongWith = NonNullable<Parameters<typeof z.object>[0]>;
@@ -24,17 +34,22 @@ const Code = z
   .regex(/^\d{6}$/, 'the 6-digit code');
 
 /** What a signed-in customer sees and edits of themselves. */
-export const CustomerProfile = createSelectSchema(customers, { id: Id, createdAt: isoDate }).pick({
-  id: true,
-  firstName: true,
-  lastName: true,
-  avatarUrl: true,
-  /** `YYYY-MM-DD` */
-  birthDate: true,
-  primaryEmail: true,
-  primaryPhone: true,
-  createdAt: true,
-});
+export const CustomerProfile = createSelectSchema(customers, { id: Id, createdAt: isoDate })
+  .pick({
+    id: true,
+    firstName: true,
+    lastName: true,
+    avatarUrl: true,
+    /** `YYYY-MM-DD` */
+    birthDate: true,
+    primaryEmail: true,
+    primaryPhone: true,
+    createdAt: true,
+  })
+  .extend({
+    /** Values of the fields customers fill in (`GET /customer-auth/fields`), by field id. */
+    customFields: CustomFields,
+  });
 
 export type CustomerProfile = z.infer<typeof CustomerProfile>;
 
@@ -44,6 +59,34 @@ const CustomerProfileFields = createUpdateSchema(customers, {
   avatarUrl: () => ImageAddress,
   birthDate: (date) => date.regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
 }).pick({ firstName: true, lastName: true, avatarUrl: true, birthDate: true });
+
+/** A field customers fill in themselves, as a sign-up or profile form shows it. */
+export const CustomerField = Field.pick({
+  id: true,
+  code: true,
+  label: true,
+  description: true,
+  type: true,
+  validation: true,
+  options: true,
+  /** Sign-up needs a value. */
+  isRequired: true,
+});
+
+export type CustomerField = z.infer<typeof CustomerField>;
+
+/** A new customer's sign-up form: their name, and the fields customers may fill. */
+const SignUpForm = {
+  firstName: z.string().trim().min(1).max(100),
+  lastName: z.string().trim().max(100).optional(),
+  /** `YYYY-MM-DD` */
+  birthDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD')
+    .optional(),
+  /** Values of `GET /customer-auth/fields`, by field id. */
+  customFields: CustomFields.optional(),
+};
 
 /** An email address or phone the customer signs in with. */
 export const CustomerLogin = createSelectSchema(customerLogins, {
@@ -93,6 +136,7 @@ export type CustomerTokens = z.infer<typeof CustomerTokens>;
 const {
   ACCOUNT_BLOCKED,
   INVALID_CODE,
+  INVALID_FIELD,
   INVALID_TOKEN,
   LAST_LOGIN,
   ORIGIN_NOT_ALLOWED,
@@ -106,6 +150,7 @@ const base = oc.errors({
   ...COMMON_ERRORS,
   ACCOUNT_BLOCKED,
   INVALID_CODE,
+  INVALID_FIELD,
   INVALID_TOKEN,
   LAST_LOGIN,
   ORIGIN_NOT_ALLOWED,
@@ -114,14 +159,45 @@ const base = oc.errors({
   UNKNOWN_WEBSITE,
 });
 
+/** Tokens for a signed-in account, its customer, and whether erxes made the customer just now. */
+const SignedIn = CustomerTokens.extend({ customer: CustomerProfile, created: z.boolean() });
+
 export const customerAuthContract = {
+  fields: base
+    .route({
+      method: 'GET',
+      path: '/customer-auth/fields',
+      summary:
+        "The fields the website's organisation lets customers fill in, for its sign-up and profile forms. 400 UNKNOWN_WEBSITE",
+    })
+    .input(z.object({ website }))
+    .output(listOf(CustomerField)),
+  signUp: base
+    .route({
+      method: 'POST',
+      path: '/customer-auth/sign-up',
+      successStatus: 202,
+      summary:
+        'Make an account on the website: checks the form and sends a code to confirm the address. An address with an account gets a code too, which signs it in. 400 INVALID_FIELD, 400 UNKNOWN_WEBSITE, 400 SIGN_IN_UNAVAILABLE, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
+    })
+    .input(addressWith({ website, ...SignUpForm }))
+    .output(CodeSent),
+  confirmSignUp: base
+    .route({
+      method: 'POST',
+      path: '/customer-auth/sign-up/confirm',
+      summary:
+        'Confirm a sign-up with its code: makes the account, saves the form on the customer and signs in. 400 INVALID_CODE, 400 INVALID_FIELD, 400 UNKNOWN_WEBSITE, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
+    })
+    .input(addressWith({ website, code: Code }))
+    .output(SignedIn),
   sendCode: base
     .route({
       method: 'POST',
       path: '/customer-auth/code',
       successStatus: 202,
       summary:
-        'Send a code for signing in to the website to an email address or phone; the same answer whether or not it has an account. 400 UNKNOWN_WEBSITE, 400 SIGN_IN_UNAVAILABLE (no SMS provider for phones), 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
+        'Send a code for signing in to an account on the website. An address with no account gets no code, with the same answer: sign up first. 400 UNKNOWN_WEBSITE, 400 SIGN_IN_UNAVAILABLE (no SMS provider for phones), 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
     .input(addressWith({ website }))
     .output(CodeSent),
@@ -130,10 +206,10 @@ export const customerAuthContract = {
       method: 'POST',
       path: '/customer-auth/sign-in',
       summary:
-        'Sign in (or up) to the website with the code and get its tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_WEBSITE, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
+        'Sign in to an account on the website with the code and get its tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_WEBSITE, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(addressWith({ website, code: Code }))
-    .output(CustomerTokens.extend({ customer: CustomerProfile, created: z.boolean() })),
+    .output(SignedIn),
   refresh: base
     .route({
       method: 'POST',
@@ -159,8 +235,13 @@ export const customerAccountContract = {
     .route({ method: 'GET', path: '/customer/me', summary: "The signed-in customer's profile" })
     .output(CustomerProfile),
   update: base
-    .route({ method: 'PATCH', path: '/customer/me', summary: 'Change name, picture or birth date' })
-    .input(CustomerProfileFields)
+    .route({
+      method: 'PATCH',
+      path: '/customer/me',
+      summary:
+        'Change name, picture, birth date or the fields customers fill in (`null` clears one). 400 INVALID_FIELD',
+    })
+    .input(CustomerProfileFields.extend({ customFields: CustomFieldsPatch.optional() }))
     .output(CustomerProfile),
   logins: base
     .route({ method: 'GET', path: '/customer/me/logins', summary: 'Addresses I sign in with' })

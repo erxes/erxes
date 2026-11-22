@@ -1,6 +1,6 @@
 {
-  "id": "95dc4035-dbeb-491d-8f23-b6f82d4fe4a4",
-  "prevId": "d960ce4d-446f-4218-a011-abd5cf24177a",
+  "id": "3cec2b33-07bc-4dbb-b8c5-fa0fac48d728",
+  "prevId": "d3f69463-9800-4197-8470-82bdbf295875",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1464,6 +1464,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "customer_editable": {
+          "name": "customer_editable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "logic": {
           "name": "logic",
@@ -6376,104 +6383,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.core_plugin_integration_states": {
-      "name": "core_plugin_integration_states",
-      "schema": "",
-      "columns": {
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "plugin": {
-          "name": "plugin",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "state": {
-          "name": "state",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "core_plugin_integration_states_org_id_fkey": {
-          "name": "core_plugin_integration_states_org_id_fkey",
-          "tableFrom": "core_plugin_integration_states",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_plugin_integration_states_installation_fkey": {
-          "name": "core_plugin_integration_states_installation_fkey",
-          "tableFrom": "core_plugin_integration_states",
-          "tableTo": "core_plugin_installations",
-          "columnsFrom": [
-            "org_id",
-            "plugin"
-          ],
-          "columnsTo": [
-            "org_id",
-            "plugin"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "core_plugin_integration_states_pkey": {
-          "name": "core_plugin_integration_states_pkey",
-          "columns": [
-            "org_id",
-            "plugin",
-            "key"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_plugin_integration_states_state_check": {
-          "name": "core_plugin_integration_states_state_check",
-          "value": "\"core_plugin_integration_states\".\"state\" IN ('connected', 'off', 'attention', 'not-set-up')"
-        },
-        "core_plugin_integration_states_count_check": {
-          "name": "core_plugin_integration_states_count_check",
-          "value": "\"core_plugin_integration_states\".\"count\" >= 0"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.core_payment_invoices": {
       "name": "core_payment_invoices",
       "schema": "",
@@ -10045,6 +9954,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "sign_up": {
+          "name": "sign_up",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "code_hash": {
           "name": "code_hash",
           "type": "text",
@@ -10176,7 +10091,7 @@
         },
         "core_customer_codes_purpose_check": {
           "name": "core_customer_codes_purpose_check",
-          "value": "\"core_customer_codes\".\"purpose\" IN ('sign_in', 'add_login')"
+          "value": "\"core_customer_codes\".\"purpose\" IN ('sign_up', 'sign_in', 'add_login')"
         }
       },
       "isRLSEnabled": false

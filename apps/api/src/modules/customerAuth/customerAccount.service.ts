@@ -2,8 +2,8 @@ import type { CustomerProfile } from '@erxes/core-contract';
 import {
   caller,
   customerLogins,
-  customers,
   customerSessions,
+  type CustomValue,
   type Db,
   requestOrgId,
   websites,
@@ -14,33 +14,34 @@ import { fail, notFound } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
-import { contactUpdated } from '~/modules/activities/contactHistory';
 import { findCustomer } from '~/modules/customers/customerRows';
+import { updateCustomer } from '~/modules/customers/customers.service';
 import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
+import { checkTheirFields, profileOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
 
 // The signed-in customer (`caller('customer')`): their profile, and their account on the website.
 
 export const myProfile = () =>
-  withOrg(requestOrgId(), (tx) => findCustomer(tx, caller('customer').customerId));
+  withOrg(requestOrgId(), (tx) => profileOf(tx, caller('customer').customerId));
 
+/** Their name, picture, birth date and the fields customers fill in; nothing staff keep. */
 export const updateMyProfile = (
-  changes: Partial<Pick<CustomerProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'birthDate'>>,
+  changes: Partial<Pick<CustomerProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'birthDate'>> & {
+    customFields?: Record<string, CustomValue | null>;
+  },
 ) =>
   withOrg(requestOrgId(), async (tx) => {
     const { customerId } = caller('customer');
-    const before = await findCustomer(tx, customerId);
+    const { customFields, ...own } = changes;
 
-    await tx
-      .update(customers)
-      .set({ ...changes, updatedAt: sql`now()` })
-      .where(eq(customers.id, customerId));
+    if (customFields) {
+      await checkTheirFields(tx, (await findCustomer(tx, customerId)).customFields, customFields);
+    }
 
-    const after = await findCustomer(tx, customerId);
+    await updateCustomer(tx, customerId, { ...own, ...(customFields && { customFields }) });
 
-    await contactUpdated(tx, 'customer', before, after);
-
-    return after;
+    return profileOf(tx, customerId);
   });
 
 /** The signed-in account's logins. */

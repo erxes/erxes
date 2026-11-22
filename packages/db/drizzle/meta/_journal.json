@@ -803,15 +803,22 @@
     {
       "idx": 114,
       "version": "7",
-      "when": 1795337400946,
-      "tag": "0114_integrations_org_wide",
+      "when": 1795339754489,
+      "tag": "0114_customer_sign_up",
       "breakpoints": true
     },
     {
       "idx": 115,
       "version": "7",
-      "when": 1795337406316,
-      "tag": "0115_plugin_integration_states",
+      "when": 1795341994984,
+      "tag": "0115_integrations_org_wide",
+      "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "7",
+      "when": 1795341995871,
+      "tag": "0116_plugin_integration_states",
       "breakpoints": true
     }
   ]

@@ -1526,6 +1526,36 @@
     }
   },
   "customerAuth": {
+    "fields": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customer-auth/fields"
+        }
+      }
+    },
+    "signUp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer-auth/sign-up"
+        }
+      }
+    },
+    "confirmSignUp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer-auth/sign-up/confirm"
+        }
+      }
+    },
     "sendCode": {
       "~orpc": {
         "errorMap": {},
