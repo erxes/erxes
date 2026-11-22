@@ -1,6 +1,7 @@
 import type { VaultConnection } from '@erxes/core-contract';
 import { IconChevronRight } from '@tabler/icons-react';
 import { Badge, cn, CONNECTION_CONTENT_TYPE, useCurrentRecord, useOpenRecord } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
@@ -8,9 +9,11 @@ import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
 export const ConnectionList = ({
   rows,
   showService,
+  children,
 }: {
   rows: { connection: VaultConnection; integration: Integration }[];
   showService: boolean;
+  children?: ReactNode;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });
   const { t: connectionT } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -66,6 +69,7 @@ export const ConnectionList = ({
           </li>
         );
       })}
+      {children}
     </ul>
   );
 };

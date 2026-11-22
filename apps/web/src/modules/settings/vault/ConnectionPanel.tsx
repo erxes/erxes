@@ -1,5 +1,5 @@
 import type { VaultConnection } from '@erxes/core-contract';
-import { IconLock, IconShieldLock } from '@tabler/icons-react';
+import { IconLock, IconPlugConnected } from '@tabler/icons-react';
 import {
   Badge,
   Button,
@@ -109,8 +109,12 @@ const ConnectionView = ({
           breadcrumb={
             <AppBreadcrumb
               items={[
-                { label: t('title', 'Vault'), to: paths.settings.vault, icon: IconShieldLock },
-                { label: connection.name, to: paths.settings.vaultConnection(connection.id) },
+                {
+                  label: t('integrations', 'Integrations'),
+                  to: paths.settings.integrations,
+                  icon: IconPlugConnected,
+                },
+                { label: connection.name, to: paths.settings.integrationConnection(connection.id) },
               ]}
             />
           }
