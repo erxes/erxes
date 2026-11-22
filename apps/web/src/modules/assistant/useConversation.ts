@@ -1,4 +1,4 @@
-import type { AssistantMessagePart, AssistantPage } from '@erxes/core-contract';
+import type { AssistantAction, AssistantMessagePart, AssistantPage } from '@erxes/core-contract';
 import { matchQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -113,7 +113,7 @@ export const useConversation = (
     if (text) sendAsked(text);
   }, [asked, blank, takeAsk]);
 
-  const block: ComposerBlock = model.noKey ? 'no-key' : transcript.pending;
+  const block: ComposerBlock = model.noKey ? 'no-key' : null;
 
   return {
     model,
@@ -132,6 +132,13 @@ export const useConversation = (
       if (send.isPending) stopWanted.current = true;
       else if (tab.threadId) stopThread.mutate({ id: tab.threadId });
     },
-    actions: { busy, onAnswer: (text: string) => sendParts([{ type: 'text', text }]) },
+    actions: {
+      busy,
+      onAction: (action: AssistantAction, label: string) =>
+        sendParts([
+          { type: 'text', text: label },
+          { type: 'data-action', data: action },
+        ]),
+    },
   };
 };

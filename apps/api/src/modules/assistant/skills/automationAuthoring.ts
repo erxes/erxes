@@ -14,8 +14,8 @@ export const AUTOMATION_SKILL: Skill = {
    - core.email.send goes to "subject" (the record's email) or to comma-separated addresses; its optional cc takes at most 5 comma-separated addresses, copied on each email. Broadcasts have no Cc or Bcc.
    - Text in an action's input may use placeholders written like {{subject.firstName}}, with a fallback {{subject.firstName | default: "there"}}. Use only paths automations.fields lists.
    - reentry: "always", "once" or "daily" for how often the same record may run through again. goal: conditions that end the run once they hold.
-3. Never invent values that point at workspace records: tag, member, product or company ids, email senders, custom field ids. Look them up with searchApi and callApi. Use the only match; ask with ask_user when there are several; say what to set up first when there is none.
-4. Check the whole definition with automations.check before saving and fix every problem it lists. A problem only the member can settle goes to ask_user.
+3. Never invent values that point at workspace records: tag, member, product or company ids, email senders, custom field ids. Look them up with searchApi and callApi. Use the only match; ask the member with a form when there are several; say what to set up first when there is none.
+4. Check the whole definition with automations.check before saving and fix every problem it lists. Ask the member, with a form, about a problem only they can settle.
 5. Save a new automation with automations.create (name, a one-line description, definition). It is saved as a draft and stays off. Change an existing automation with automations.update only while it is a draft or paused: an active automation publishes a change at once, so tell the member and leave it for the builder.
 6. Never turn an automation on, pause it or start a run. Turning it on is the member's decision, made in the builder after they review it.
 7. If saving is refused, fix what the error names and try once more; after that, explain what is missing instead of retrying.

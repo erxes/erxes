@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
 import { fakeModel, lastToolResult, type Script } from './fakeModel';
-import { callsTo, chat, resultsOf, textOf, userMessage } from './assistantChat';
+import { chat, resultsOf, textOf, userMessage } from './assistantChat';
 import { type CoreClient, useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0003';
@@ -18,6 +18,8 @@ const searchThen: Script = (request) =>
   lastToolResult(request) === null
     ? { tool: 'searchApi', input: { query: 'audit log' } }
     : { text: 'Found.' };
+
+const block = (root: string) => `<a2ui>\nsurface("totals")\nroot = ${root}\n</a2ui>`;
 
 describe('assistant tools', () => {
   useTestDatabase();
@@ -98,28 +100,57 @@ describe('assistant tools', () => {
     expect(model.lastToolResult()).toContain('"procedure":"companies.list"');
   });
 
-  it("asks the member a question, ends the run, and carries on with the member's answer", async () => {
-    model.script((request) =>
-      lastToolResult(request) === null
-        ? { tool: 'ask_user', input: { questions: [{ question: 'Which period?' }] } }
-        : { text: 'Thanks.' },
+  it('tells the model which button the member pressed and what they entered', async () => {
+    model.script(() => ({ text: 'Created.' }));
+
+    await chat(t.owner(), {
+      model: 'kimi-k3',
+      message: {
+        parts: [
+          { type: 'text', text: 'Create task' },
+          {
+            type: 'data-action',
+            data: { surfaceId: 'new-task', name: 'create_task', context: { priority: ['urgent'] } },
+          },
+        ],
+      },
+    });
+
+    const sent = JSON.stringify(model.chats().at(-1)?.messages.at(-1)?.content);
+
+    expect(sent).toContain('Create task');
+    expect(sent).toContain('[UI action]');
+    expect(sent).toContain(
+      JSON.stringify(
+        JSON.stringify({ event: 'create_task', context: { priority: ['urgent'] } }),
+      ).slice(1, -1),
     );
+  });
+
+  it('asks the model once to fix an interface block the panel cannot draw', async () => {
+    model.script((request) => ({
+      text: JSON.stringify(request.messages.at(-1)?.content).includes('[UI check]')
+        ? block('Stat("Orders", "312")')
+        : `Here you go.\n\n${block('Gauge("Orders", "312")')}`,
+    }));
 
     const before = model.chats().length;
-    const { threadId, view } = await ask('Make a report');
+    const { view } = await ask('How many orders?');
 
-    expect(callsTo(view, 'ask_user')).toEqual([{ questions: [{ question: 'Which period?' }] }]);
-    expect(resultsOf(view, 'ask_user')).toEqual([{ asked: true }]);
-    expect(model.chats().length - before).toBe(1);
+    expect(model.chats().length - before).toBe(2);
+    expect(JSON.stringify(model.chats().at(-1)?.messages.at(-1)?.content)).toContain(
+      "Component 'Gauge' is not defined in the catalog",
+    );
+    expect(textOf(view)).toContain('Stat("Orders", "312")');
+  });
 
-    model.script(() => ({ text: 'Here is last month.' }));
+  it('stops asking when the fix cannot be drawn either', async () => {
+    model.script(() => ({ text: block('Gauge("Orders", "312")') }));
 
-    const answered = await ask('Last month', t.owner(), threadId);
+    const before = model.chats().length;
 
-    expect(textOf(answered.view)).toBe('Here is last month.');
-    expect(model.chats().at(-1)?.messages.at(-1)).toMatchObject({
-      role: 'user',
-      content: [{ type: 'text', text: 'Last month' }],
-    });
+    await ask('How many orders?');
+
+    expect(model.chats().length - before).toBe(2);
   });
 });

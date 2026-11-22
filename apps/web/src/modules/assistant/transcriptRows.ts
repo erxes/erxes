@@ -1,10 +1,6 @@
-import {
-  AssistantArtifact,
-  type AssistantMessagePart,
-  AssistantQuestionComponent,
-  AssistantQuestionMode,
-} from '@erxes/core-contract';
+import { AssistantArtifact, type AssistantMessagePart } from '@erxes/core-contract';
 import { z } from 'zod';
+import { withoutUi } from './ui/blocks';
 
 /** The entry kind the server writes for a member's message; its `data` is the parts as sent. */
 const MEMBER_ENTRY = 'assistant.user';
@@ -31,20 +27,6 @@ const LoadSkillInput = z.object({ name: z.string() });
 const Refusal = z.object({ ok: z.literal(false), message: z.string() });
 
 const ChangedRecords = z.object({ changed: z.literal(true) });
-
-const Question = z.object({
-  question: z.string(),
-  options: z
-    .array(z.object({ label: z.string(), description: z.string().optional() }))
-    .optional()
-    .transform((options) => options ?? []),
-  selectionMode: AssistantQuestionMode.optional(),
-  component: AssistantQuestionComponent.optional(),
-});
-
-const AskUserInput = z.object({ questions: z.array(Question).min(1) });
-
-export type Question = z.infer<typeof Question>;
 
 const TextPart = z.object({ type: z.literal('text'), text: z.string() });
 
@@ -122,7 +104,6 @@ export type TranscriptRow =
   | { kind: 'text'; key: string; text: string; streaming: boolean }
   | { kind: 'thinking'; key: string; text: string; streaming: boolean }
   | { kind: 'steps'; key: string; steps: Step[] }
-  | { kind: 'question'; key: string; questions: Question[] }
   | { kind: 'artifact'; key: string; artifact: AssistantArtifact };
 
 export type TranscriptMessage =
@@ -188,18 +169,9 @@ interface ReplyPart {
   streaming: boolean;
 }
 
-interface Context {
-  results: Map<string, ToolResult>;
-  latest: boolean;
-}
+type Results = Map<string, ToolResult>;
 
-const rowOfCall = (call: ToolCall, { results, latest }: Context): TranscriptRow | Step | null => {
-  if (call.name === 'ask_user') {
-    const asked = AskUserInput.safeParse(call.arguments).data;
-
-    return latest && asked ? { kind: 'question', key: call.id, questions: asked.questions } : null;
-  }
-
+const rowOfCall = (call: ToolCall, results: Results): TranscriptRow | Step => {
   const step = stepOf(call, results.get(call.id));
 
   if (call.name === 'createArtifact') {
@@ -213,9 +185,9 @@ const rowOfCall = (call: ToolCall, { results, latest }: Context): TranscriptRow 
 
 const rowOf = (
   { part, key, streaming }: ReplyPart,
-  context: Context,
+  results: Results,
 ): TranscriptRow | Step | null => {
-  if (part.type === 'toolCall') return rowOfCall(part, context);
+  if (part.type === 'toolCall') return rowOfCall(part, results);
 
   if (part.type === 'text') {
     return part.text.trim() ? { kind: 'text', key, text: part.text, streaming } : null;
@@ -226,12 +198,12 @@ const rowOf = (
 
 const isStep = (row: TranscriptRow | Step): row is Step => !('kind' in row);
 
-const rowsOf = (parts: ReplyPart[], context: Context) => {
+const rowsOf = (parts: ReplyPart[], results: Results) => {
   const rows: TranscriptRow[] = [];
   let thought: Extract<TranscriptRow, { kind: 'thinking' }> | undefined;
 
   for (const part of parts) {
-    const row = rowOf(part, context);
+    const row = rowOf(part, results);
 
     if (!row) continue;
 
@@ -319,7 +291,7 @@ const changedRecords = (message: TranscriptMessage | undefined) =>
 /**
  * A conversation view as the panel draws it: the member's messages, and one reply for each run of
  * assistant and tool messages between them, with the message being streamed now at the end. A
- * reply with nothing to show, such as questions the next member message answered, is left out.
+ * reply with nothing to show is left out.
  */
 export const transcriptOf = (view: ViewLike) => {
   const live = Live.safeParse(view.docs['pi.live'] ?? {}).data;
@@ -331,11 +303,10 @@ export const transcriptOf = (view: ViewLike) => {
 
   const { items, results } = itemsOf(view, streamed);
 
-  const messages = items.flatMap((item, index): TranscriptMessage[] => {
+  const messages = items.flatMap((item): TranscriptMessage[] => {
     if (item.role === 'user') return [item];
 
-    const context = { results, latest: index === items.length - 1 };
-    const rows = rowsOf(replyParts(item.key, item.messages), context);
+    const rows = rowsOf(replyParts(item.key, item.messages), results);
 
     return rows.length ? [{ role: 'assistant', key: item.key, rows }] : [];
   });
@@ -346,10 +317,6 @@ export const transcriptOf = (view: ViewLike) => {
   return {
     messages,
     running,
-    pending:
-      last?.role === 'assistant' && last.rows.some((row) => row.kind === 'question')
-        ? ('question' as const)
-        : null,
     changed: changedRecords(last),
     failure: failure && failure.reason !== 'aborted' ? failureText(failure) : null,
   };
@@ -363,15 +330,7 @@ export const userText = (parts: AssistantMessagePart[]) =>
 
 export const replyText = (rows: TranscriptRow[]) =>
   rows
-    .flatMap((row) => (row.kind === 'text' ? [row.text] : []))
+    .flatMap((row) => (row.kind === 'text' ? [withoutUi(row.text)] : []))
+    .filter(Boolean)
     .join('\n\n')
     .trim();
-
-const answerText = (answer: string | string[] | undefined) =>
-  Array.isArray(answer) ? answer.join(', ') : (answer ?? '');
-
-/** The message that answers the assistant's questions: one `question: answer` line each. */
-export const answerMessage = (questions: Question[], answers: (string | string[])[]) =>
-  questions
-    .map((question, index) => `${question.question}: ${answerText(answers[index])}`)
-    .join('\n');

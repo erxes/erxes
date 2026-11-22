@@ -169,3 +169,42 @@ test('the assistant reads a skill before it plans an automation, and says so', a
   await expect(panel.getByText('automation triggers')).toBeVisible();
   await expectAccessible(page);
 });
+
+test('a reply draws its figures, and a pressed button is answered and then goes off', async ({
+  page,
+}) => {
+  const panel = await openAssistant(page);
+
+  await ask(panel, 'Show sales this quarter');
+  await expect(panel.getByText('₮118.9M')).toBeVisible();
+  await expect(panel.getByRole('table')).toContainText('Ulaanbaatar');
+  await expect(panel.getByText('Revenue by month')).toBeVisible();
+  await expectAccessible(page);
+
+  await panel.getByRole('button', { name: 'Break down by channel' }).click();
+  await expect(panel.getByText('Web brought ₮71.2M, stores ₮47.7M.')).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Break down by channel' })).toBeDisabled();
+});
+
+test('the assistant asks with a form, and what the member enters reaches it', async ({ page }) => {
+  const panel = await openAssistant(page);
+
+  await ask(panel, 'Draft a welcome message');
+  await panel.getByRole('radio', { name: 'SMS' }).click();
+  await panel
+    .getByRole('textbox', { name: 'Anything the message must mention?' })
+    .fill('Code WELCOME10');
+  await expectAccessible(page);
+
+  await panel.getByRole('button', { name: 'Draft message' }).click();
+  await expect(panel.getByText('Thanks. I will draft the welcome message for sms.')).toBeVisible();
+  await expect(panel.getByRole('definition').filter({ hasText: 'Code WELCOME10' })).toBeVisible();
+});
+
+test('a part the panel cannot draw says so once, after one try to fix it', async ({ page }) => {
+  const panel = await openAssistant(page);
+
+  await ask(panel, 'Show a gauge');
+  await expect(panel.getByText('This part of the reply could not be shown.')).toHaveCount(1);
+  await expect(panel.getByRole('button', { name: 'Send', exact: true })).toBeVisible();
+});

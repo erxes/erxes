@@ -167,12 +167,14 @@ const exported = (title: string, entries: Fields[]) =>
   threadMarkdown(title, transcriptOf({ entries, docs: {} }).messages, 'https://acme.erxes.io');
 
 describe('threadMarkdown', () => {
-  it('writes the conversation as Markdown, with the answers given and without tool calls', () => {
+  it('writes the conversation as Markdown, with interface blocks named and without tool calls', () => {
     const markdown = exported('Top customers', [
       member(1, { type: 'text', text: 'Who are our top customers?' }),
-      said(2, call('q', 'ask_user', { questions: [{ question: 'Which period?' }] })),
-      result('q', { asked: true }),
-      member(3, { type: 'text', text: 'Which period?: This quarter' }),
+      said(2, {
+        type: 'text',
+        text: 'Which period?\n\n<a2ui>\nsurface("period")\nroot = Text("x")\n</a2ui>',
+      }),
+      member(3, { type: 'text', text: 'This quarter' }),
       said(4, call('c', 'callApi', { procedure: 'customers.list', input: {} })),
       result('c', { ok: true }),
       said(5, { type: 'text', text: '| Name |\n| --- |\n| Ada |' }),
@@ -186,9 +188,13 @@ describe('threadMarkdown', () => {
         '',
         'Who are our top customers?',
         '',
+        '## Assistant',
+        '',
+        'Which period?\n\n_(interactive view)_',
+        '',
         '## You',
         '',
-        'Which period?: This quarter',
+        'This quarter',
         '',
         '## Assistant',
         '',

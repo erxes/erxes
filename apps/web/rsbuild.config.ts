@@ -122,5 +122,6 @@ export default defineConfig({
   },
   tools: {
     postcss: (_options, { addPlugins }) => addPlugins([tailwindcss(), scopeBlockNoteProseMirror]),
+    rspack: { resolve: { fallback: { fs: false, path: false } } },
   },
 });

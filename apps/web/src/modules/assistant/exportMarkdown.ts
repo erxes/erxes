@@ -4,6 +4,7 @@ import { csvRows } from './artifacts/csvRows';
 import { sizeLabel, typeLabel } from './attachments';
 import { attachmentsOf } from './MessageAttachments';
 import { type TranscriptMessage, type TranscriptRow, userText } from './transcriptRows';
+import { withoutUi } from './ui/blocks';
 
 const cell = (text: string) => text.replaceAll('|', '\\|').replaceAll('\n', ' ');
 
@@ -44,7 +45,7 @@ const userBlocks = (parts: AssistantMessagePart[], origin: string) => {
 
 const replyBlocks = (rows: TranscriptRow[]) =>
   rows.flatMap((row) => {
-    if (row.kind === 'text') return [row.text.trim()];
+    if (row.kind === 'text') return [withoutUi(row.text, '_(interactive view)_')];
 
     return row.kind === 'artifact' ? [artifactBlock(row.artifact)] : [];
   });

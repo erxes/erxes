@@ -31,8 +31,6 @@ import {
   ASSISTANT_AVATAR_COLORS,
   ASSISTANT_AVATAR_EXPRESSIONS,
   ASSISTANT_PROVIDERS,
-  ASSISTANT_QUESTION_COMPONENTS,
-  ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
 } from '@erxes/core-db/assistantEnums';
 import {
@@ -434,12 +432,6 @@ export type AssistantProvider = z.infer<typeof AssistantProvider>;
 export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
 
 export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
-
-export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
-
-export const AssistantQuestionComponent = z.enum(ASSISTANT_QUESTION_COMPONENTS);
-
-export type AssistantQuestionComponent = z.infer<typeof AssistantQuestionComponent>;
 
 export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
 

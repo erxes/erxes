@@ -53,16 +53,6 @@ const SendFailure = ({ error, onRetry }: { error: Error; onRetry: () => void }) 
   );
 };
 
-const Announcement = ({ pending }: { pending: 'question' | null }) => {
-  const { t } = useTranslation('assistant');
-
-  return (
-    <output className="sr-only">
-      {pending ? t('needs-answer', 'The assistant needs your answer') : ''}
-    </output>
-  );
-};
-
 const Centered = ({ children }: { children: React.ReactNode }) => (
   <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center text-sm">
     {children}
@@ -146,7 +136,6 @@ export const Conversation = ({
       ) : (
         <Transcript messages={transcript.messages} footer={footer} actions={view.actions} />
       )}
-      <Announcement pending={transcript.pending} />
       <Composer
         open={open}
         model={model}
