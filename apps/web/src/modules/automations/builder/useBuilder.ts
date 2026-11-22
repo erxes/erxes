@@ -2,6 +2,7 @@ import type { AutomationDefinition } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { type Catalog, statsQuery } from '../automationQueries';
+import { startingEventType } from './AppTriggerSettings';
 import { flowProblems, REPLY_ACTION, stepOutputFields } from './flowChecks';
 import { useAutomationFields } from './useAutomationFields';
 
@@ -15,7 +16,7 @@ const subjectOf = (trigger: AutomationDefinition['trigger'], triggers: Catalog['
 
   if (trigger.kind === 'date') return { subject: trigger.subject, hasSubject: true };
 
-  if (trigger.kind === 'webhook')
+  if (trigger.kind === 'webhook' || trigger.kind === 'app')
     return { subject: trigger.subject?.type ?? 'customer', hasSubject: Boolean(trigger.subject) };
 
   const audience = 'audience' in trigger ? trigger.audience : undefined;
@@ -62,10 +63,8 @@ export const useBuilder = (
     const events = catalog.triggers.filter((item) => item.subject);
     const { trigger } = definition;
 
-    const started =
-      trigger.kind === 'event'
-        ? catalog.triggers.find((item) => item.type === trigger.event)
-        : undefined;
+    const type = startingEventType(trigger);
+    const started = type ? catalog.triggers.find((item) => item.type === type) : undefined;
 
     return {
       automationId,

@@ -4,18 +4,28 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { CONTENT_TYPES, type ContentType, type Db, fields } from '@erxes/core-db';
+import {
+  CONTENT_TYPES,
+  type ContentType,
+  type Db,
+  fields,
+  integrationConnections,
+} from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
+import { manages } from '~/modules/integrations/connectable';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
+import { resolveAppTrigger } from '~/modules/integrations/subscriptions';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { coreAction } from './actions/catalog';
 import { REPLY_ACTION } from './actions/reply';
 import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { triggerConditions } from './conditions';
+import { connectionProblems } from './connectionChecks';
 import { eachStep } from './cursor';
 import { hookFields } from './hooks';
 import { MAX_HOURS, MIN_MINUTES } from './schedule';
@@ -34,6 +44,7 @@ const subjectOfTrigger = (trigger: Trigger, triggers: Catalog['triggers']): Subj
     case 'date':
       return trigger.subject;
     case 'webhook':
+    case 'app':
       return trigger.subject?.type ?? null;
     case 'schedule':
     case 'manual':
@@ -46,6 +57,13 @@ const isBlank = (value: unknown) =>
   value === null ||
   value === '' ||
   (Array.isArray(value) && value.length === 0);
+
+const appsNotAllowed = (action: Catalog['actions'][number]) =>
+  action.fields.flatMap((field) => {
+    const integration = INTEGRATIONS.find((item) => item.key === field.integration);
+
+    return integration && !manages(integration) ? [integration.name] : [];
+  });
 
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
 const actionProblems = (
@@ -61,6 +79,9 @@ const actionProblems = (
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))
     .map((field) => `Step ${step.id} (${action.label}): ${field.label} is required`);
+
+  for (const name of appsNotAllowed(action))
+    problems.push(`Step ${step.id} (${action.label}): your role can't use ${name}`);
 
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
@@ -125,6 +146,25 @@ const scheduleProblems = (trigger: Extract<Trigger, { kind: 'schedule' }>) => {
   return interval ? ['Only schedules in minutes or hours take “every N”'] : [];
 };
 
+const appTriggerProblems = async (client: Db, trigger: Extract<Trigger, { kind: 'app' }>) => {
+  const resolved = resolveAppTrigger(trigger);
+
+  if (!resolved.ok) return [resolved.problem];
+
+  if (!manages(resolved.app)) return [`Your role can't use ${resolved.app.name} for the trigger`];
+
+  const [connection] = await client
+    .select({ key: integrationConnections.key, status: integrationConnections.status })
+    .from(integrationConnections)
+    .where(eq(integrationConnections.id, trigger.connectionId))
+    .limit(1);
+
+  if (connection?.key !== resolved.app.key)
+    return [`Pick a ${resolved.app.name} connection for the trigger`];
+
+  return connection.status === 'active' ? [] : [`The ${resolved.app.name} connection is off`];
+};
+
 const triggerProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
   const trigger = definition.trigger;
 
@@ -132,6 +172,8 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
     return [`Unknown trigger ${trigger.event}`];
 
   if (trigger.kind === 'schedule') return scheduleProblems(trigger);
+
+  if (trigger.kind === 'app') return appTriggerProblems(client, trigger);
 
   if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
 
@@ -302,6 +344,7 @@ export const definitionProblems = async (client: Db, definition: AutomationDefin
     problems.push(...stepProblems(step, catalog, subject, definition.trigger));
   });
   problems.push(...templateProblems(definition));
+  problems.push(...(await connectionProblems(client, definition, catalog.actions)));
   problems.push(...(await conditionProblems(client, definition, subject)));
 
   return problems;

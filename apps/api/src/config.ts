@@ -147,6 +147,10 @@ export const config = {
      */
     allowPrivate: env.OUTBOUND_ALLOW_PRIVATE ?? !isProduction,
   },
+  integrations: {
+    oauthApps: env.INTEGRATION_OAUTH_APPS,
+    oauthCallbackUrl: env.INTEGRATION_OAUTH_CALLBACK_URL,
+  },
   ebarimt: {
     /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */
     taxpayerUrl: env.EBARIMT_TAXPAYER_URL,

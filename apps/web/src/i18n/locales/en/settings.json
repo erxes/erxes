@@ -866,7 +866,12 @@
       "payments": "Payments",
       "tax": "Tax receipts",
       "email": "Email",
-      "messaging": "Messaging"
+      "messaging": "Messaging",
+      "sales": "Sales",
+      "marketing": "Marketing",
+      "developer": "Developer tools",
+      "productivity": "Productivity",
+      "social": "Social"
     },
     "section": {
       "connected": "Connected",
@@ -896,6 +901,16 @@
     "catalog": {
       "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI.",
       "email": "Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES."
+    },
+    "triggers": {
+      "title": "Automation triggers",
+      "listening": "Listening",
+      "syncing": "Setting up",
+      "broken": "Stopped",
+      "last-event": "Last event {{when}}",
+      "no-events": "No events yet",
+      "none": "None of your automations use {{name}} yet.",
+      "open-automations": "Open automations"
     },
     "connection": {
       "connect": "Connect",

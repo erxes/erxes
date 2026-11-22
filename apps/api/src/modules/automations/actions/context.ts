@@ -33,7 +33,7 @@ export interface ActionContext extends CallContext {
  * `idempotencyKey(ctx)` so the other side does the work once.
  */
 export type CoreAction = Omit<ActionInfo, 'source' | 'outputs'> &
-  Partial<Pick<ActionInfo, 'outputs'>> & {
+  Partial<Pick<ActionInfo, 'source' | 'outputs'>> & {
     /** Problems with the step's input found when the automation is saved, beyond required fields. */
     check?: (input: Record<string, unknown>) => string[];
   } & (

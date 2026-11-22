@@ -131,6 +131,25 @@ export const createRateLimits = () => ({
       key: (req) => `automation-hooks:${ip(req)}:${String(req.params.id)}`,
     }),
   ],
+  appWideHooks: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 6000,
+      key: (req) => `app-wide-hooks:${ip(req)}:${String(req.params.app)}`,
+    }),
+  ],
+  appHooks: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 6000,
+      key: (req) => `app-hooks:${ip(req)}`,
+    }),
+    rateLimit({
+      windowSeconds: 60,
+      max: 1200,
+      key: (req) => `app-hooks:${ip(req)}:${String(req.params.id)}`,
+    }),
+  ],
   /** Uploads through signed links: 120 a minute per address. */
   upload: rateLimit({
     windowSeconds: 60,

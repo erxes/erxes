@@ -1,10 +1,10 @@
 import {
   BANK_KINDS,
-  INTEGRATION_CONNECTION_STATUSES,
   BANK_TRANSFER_STATUSES,
   BANK_TRANSFER_TYPES,
   TAX_INQUIRY_KINDS,
 } from '@erxes/core-db/enums';
+import { INTEGRATION_CONNECTION_STATUSES } from '@erxes/core-db/integrationEnums';
 import { bankTransfers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';

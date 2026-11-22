@@ -1,21 +1,30 @@
-import type { Integration as ListedIntegration, IntegrationStatus } from '@erxes/core-contract';
+import {
+  IntegrationCategory,
+  type Integration as ListedIntegration,
+  type IntegrationStatus,
+} from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import {
   type Icon,
   IconBuildingBank,
+  IconChecklist,
+  IconCode,
   IconCreditCard,
   IconMail,
   IconMessage,
   IconReceiptTax,
+  IconShoppingCart,
+  IconSpeakerphone,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { INTEGRATION_CATEGORIES, type TPluginIntegration } from 'erxes-ui';
+import type { TPluginIntegration } from 'erxes-ui';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
-export const CATEGORIES = INTEGRATION_CATEGORIES;
+export const CATEGORIES = IntegrationCategory.options;
 
-export type Category = (typeof CATEGORIES)[number];
+export type Category = IntegrationCategory;
 
 const CATEGORY_ICONS: Record<Category, Icon> = {
   email: IconMail,
@@ -23,6 +32,11 @@ const CATEGORY_ICONS: Record<Category, Icon> = {
   payments: IconCreditCard,
   banks: IconBuildingBank,
   tax: IconReceiptTax,
+  sales: IconShoppingCart,
+  marketing: IconSpeakerphone,
+  developer: IconCode,
+  productivity: IconChecklist,
+  social: IconUsersGroup,
 };
 
 export type CoreIntegration = ListedIntegration & { kind: 'core'; icon: Icon };

@@ -170,6 +170,7 @@ export const triggerConditions = (trigger: AutomationDefinition['trigger']) => {
   switch (trigger.kind) {
     case 'event':
     case 'webhook':
+    case 'app':
       return trigger.conditions;
     case 'date':
       return dateConditions(trigger);

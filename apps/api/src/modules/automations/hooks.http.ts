@@ -16,14 +16,8 @@ import { safeEqual } from '~/lib/crypto';
 import { repeatWhile } from '~/lib/sequence';
 import { type LiveSignal, liveHub } from '~/modules/live/hub';
 import { Reply } from './actions/reply';
-import {
-  HookRequest,
-  hookSignature,
-  noHookSubject,
-  replySteps,
-  saveHookSample,
-  startHookRun,
-} from './hooks';
+import { HookRequest, hookSignature, replySteps, saveHookSample, startHookRun } from './hooks';
+import { noHookSubject } from './hookSubject';
 import { definitionOf } from './runs';
 
 const MAX_BYTES = '1mb';

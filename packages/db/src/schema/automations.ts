@@ -20,6 +20,7 @@ import {
 import type { AutomationDefinition } from '../automationDefinition';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
+import { integrationSubscriptions } from './integrations';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -57,6 +58,7 @@ export const automations = pgTable(
     activeVersion: integer(),
     /** The member it acts as: its actions need their permissions, checked at run time. */
     activatedBy: text(),
+    subscriptionId: text(),
     createdBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -75,6 +77,14 @@ export const automations = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_automations_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.subscriptionId],
+      foreignColumns: [integrationSubscriptions.id],
+      name: 'core_automations_subscription_id_fkey',
+    }).onDelete('set null'),
+    index('core_automations_subscription_idx')
+      .on(table.subscriptionId)
+      .where(sql`${table.subscriptionId} IS NOT NULL`),
   ],
 );
 

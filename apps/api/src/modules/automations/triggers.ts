@@ -23,10 +23,6 @@ type AutomationRow = typeof automations.$inferSelect;
 
 type DateTrigger = Extract<AutomationDefinition['trigger'], { kind: 'date' }>;
 
-/** What `core_automations.trigger_event` holds: the event type, or the trigger's kind. */
-export const triggerKey = (definition: AutomationDefinition) =>
-  definition.trigger.kind === 'event' ? definition.trigger.event : `${definition.trigger.kind}:`;
-
 /** When a scheduled or date trigger next fires on the organisation's clock (null for the others). */
 export const firstRunAt = (definition: AutomationDefinition, timeZone: string, now = new Date()) =>
   definition.trigger.kind === 'schedule' || definition.trigger.kind === 'date'

@@ -399,26 +399,6 @@ export const IMPORT_MATCH_KEYS = ['email', 'phone', 'code', 'id', 'name'] as con
 /** What an import does with one row. */
 export const IMPORT_ROW_ACTIONS = ['create', 'update', 'skip', 'error'] as const;
 
-// ─── Integrations ───────────────────────────────────────────────────────────
-
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'banks', 'tax'] as const;
-
-export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
-
-export const VAULT_HOLDERS = [
-  'email',
-  'file-bucket',
-  'webhook',
-  'assistant',
-  'audit-stream',
-  'two-step',
-  'plugin',
-] as const;
-
-export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
-
-export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch', 'select', 'hidden'] as const;
-
 // ─── Payments ───────────────────────────────────────────────────────────────
 
 /**

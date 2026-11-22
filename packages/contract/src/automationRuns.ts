@@ -10,6 +10,7 @@ import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
+import { IntegrationKey } from './integrations';
 import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
@@ -88,6 +89,11 @@ export const ActionField = z
      * (`?parent=<value>`), and changing it clears this one.
      */
     dependsOn: z.string().optional(),
+    integration: IntegrationKey.optional(),
+  })
+  .refine((field) => (field.type === 'connection') === (field.integration !== undefined), {
+    message: 'a connection input names its integration, and no other input does',
+    path: ['integration'],
   })
   .refine((field) => (field.type === 'plugin_record') === (field.recordType !== undefined), {
     message: 'a plugin_record input names its recordType, and no other input does',

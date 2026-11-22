@@ -29,7 +29,7 @@ import {
   subjectRefOf,
 } from './runs';
 import { subjectOf } from './subjects';
-import { armConditions, renderInput, runStep } from './steps';
+import { armConditions, finalError, renderInput, runStep } from './steps';
 
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
 const MAX_STEPS_PER_RUN = 500;
@@ -73,6 +73,8 @@ const stepCount = async (tx: Db, runId: string) => {
   return row?.count ?? 0;
 };
 
+const FAILED = Symbol('failed');
+
 const CallPayload = RunPayload.extend({ cursor: z.array(z.union([z.number(), z.string()])) });
 
 /**
@@ -93,7 +95,17 @@ export const callJob = defineJob({
 
     if (!prepared) return;
 
-    const output = await prepared.call();
+    const output = await prepared.call().catch(async (error: unknown) => {
+      const final = finalError(error);
+
+      if (final === null) throw error;
+
+      await withOrg(job.orgId, (tx) => failRun(tx, job, final));
+
+      return FAILED;
+    });
+
+    if (output === FAILED) return;
 
     await withOrg(job.orgId, async (tx) => {
       if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);

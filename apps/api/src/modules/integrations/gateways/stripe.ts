@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { gatewayHttp, NO_INSTRUCTIONS, pageInstructions, parse } from './http';
 import { defineIntegration, secret } from '../define';
+import { createCustomer } from './stripeActions';
+import { STRIPE_TRIGGERS, stripeHooks } from './stripeHooks';
 import type { DriverOptions, GatewayDriver } from './types';
 
 const keys = z.object({ secretKey: secret('Secret key') });
@@ -113,4 +115,7 @@ export const stripe = defineIntegration({
   keys,
   verify: (config, options) => stripeDriver(config, options).verify(),
   payments: { currencies: [], refunds: 'partial', pays: 'card-wallet', driver: stripeDriver },
+  hooks: stripeHooks,
+  triggers: STRIPE_TRIGGERS,
+  actions: [createCustomer],
 });

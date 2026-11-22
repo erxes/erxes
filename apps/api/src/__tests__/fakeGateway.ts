@@ -9,6 +9,7 @@ interface GatewayCall {
   url: string;
   body: string;
   auth: string | null;
+  headers: Headers;
 }
 
 /**
@@ -28,6 +29,7 @@ export const fakeGateway = (routes: [string, unknown][]) => {
       url,
       body: typeof init.body === 'string' ? init.body : '',
       auth: new Headers(init.headers).get('authorization'),
+      headers: new Headers(init.headers),
     });
 
     const route = routes.find(([match]) => {

@@ -799,6 +799,20 @@
       "when": 1795334169120,
       "tag": "0113_customer_websites",
       "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1795335400699,
+      "tag": "0114_integration_subscriptions",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "7",
+      "when": 1795335514294,
+      "tag": "0115_integration_subscription_routes",
+      "breakpoints": true
     }
   ]
 }
