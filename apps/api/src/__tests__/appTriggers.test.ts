@@ -135,4 +135,16 @@ describe('app triggers', { timeout: 300_000 }, () => {
     expect(stripeCalls('DELETE', '/v1/webhook_endpoints/we_1')).toHaveLength(1);
     expect(data.map((automation) => automation.id)).toContain(failed);
   });
+
+  it('an app event as a plain event trigger is refused: it starts runs only under App', async () => {
+    await expect(
+      t.active('Paid, as a plain event', {
+        trigger: { kind: 'event', event: 'app.stripe.payment_succeeded' },
+        steps: [{ id: 'wait', type: 'delay', amount: 1, unit: 'days' }],
+      }),
+    ).rejects.toMatchObject({
+      code: 'INVALID_AUTOMATION',
+      data: { problems: ['An app’s event starts an automation under App, with its connection'] },
+    });
+  });
 });

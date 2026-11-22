@@ -4,6 +4,7 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
+import { isAppEvent } from '@erxes/core-contract';
 import {
   CONTENT_TYPES,
   type ContentType,
@@ -188,6 +189,9 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
   if (trigger.kind === 'event' && !catalog.triggers.some((item) => item.type === trigger.event))
     return [`Unknown trigger ${trigger.event}`];
+
+  if (trigger.kind === 'event' && isAppEvent(trigger.event))
+    return ['An app’s event starts an automation under App, with its connection'];
 
   if (trigger.kind === 'schedule') return scheduleProblems(trigger);
 

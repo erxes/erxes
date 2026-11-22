@@ -1,4 +1,4 @@
-import type { AutomationTrigger, DataField } from '@erxes/core-contract';
+import { type AutomationTrigger, type DataField, isAppEvent } from '@erxes/core-contract';
 import { IconHandFinger } from '@tabler/icons-react';
 import { Badge, Button, ChoiceboxGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -212,7 +212,7 @@ export const TriggerEditor = ({
       {trigger.kind === 'event' && (
         <EventTriggerSettings
           trigger={trigger}
-          events={events}
+          events={events.filter((event) => !isAppEvent(event.type))}
           disabled={disabled}
           onChange={onChange}
         />

@@ -1,4 +1,9 @@
-import { type AutomationApp, type AutomationTrigger, appEventType } from '@erxes/core-contract';
+import {
+  type AutomationApp,
+  type AutomationTrigger,
+  appEventType,
+  isAppEvent,
+} from '@erxes/core-contract';
 import { ConnectionPicker, Input, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from '../automationQueries';
@@ -124,7 +129,7 @@ export const AppTriggerSettings = ({
   const type = startingEventType(trigger);
   const started = catalog.triggers.find((item) => item.type === type);
   const fields = eventDataFields(started);
-  const items = catalog.triggers.filter((item) => item.type.startsWith('app.'));
+  const items = catalog.triggers.filter((item) => isAppEvent(item.type));
 
   return (
     <>

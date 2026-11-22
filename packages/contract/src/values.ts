@@ -348,6 +348,9 @@ export const IntegrationKey = z
 export const appEventType = (app: string, trigger: string) =>
   `app.${app.replaceAll('-', '_')}.${trigger}`;
 
+/** An app trigger's event: picked under App, never as a plain event. */
+export const isAppEvent = (type: string) => type.startsWith('app.');
+
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 
 export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);
