@@ -1,6 +1,5 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
-import { cn, Input, InputGroup, oneOf, Select } from 'erxes-ui';
-import { useState } from 'react';
+import { cn, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AudienceEditor, Field, TimeOfDay } from './triggerFields';
 
@@ -14,74 +13,37 @@ type Props = {
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const EVERY = ['minute', 'hour', 'day', 'week', 'month'] as const;
+const REPEATS = [
+  ...[5, 10, 15, 20, 30, 45].map((n) => ({
+    key: `minute:${n}`,
+    every: 'minute' as const,
+    interval: n,
+    label: `Every ${n} minutes`,
+  })),
+  { key: 'hour:1', every: 'hour' as const, interval: undefined, label: 'Every hour' },
+  ...[2, 3, 4, 6, 8, 12].map((n) => ({
+    key: `hour:${n}`,
+    every: 'hour' as const,
+    interval: n,
+    label: `Every ${n} hours`,
+  })),
+  { key: 'day', every: 'day' as const, interval: undefined, label: 'Every day' },
+  { key: 'week', every: 'week' as const, interval: undefined, label: 'Every week' },
+  { key: 'month', every: 'month' as const, interval: undefined, label: 'Every month' },
+];
 
-const INTERVALS = {
-  minute: { min: 5, max: 59 },
-  hour: { min: 1, max: 23 },
-} as const;
+const repeatKey = (trigger: ScheduleTrigger) => {
+  if (trigger.every === 'minute') return `minute:${trigger.interval ?? 15}`;
 
-const withEvery = (trigger: ScheduleTrigger, every: ScheduleTrigger['every']): ScheduleTrigger => ({
-  ...trigger,
-  every,
-  interval: every === 'minute' ? 15 : undefined,
-});
+  if (trigger.every === 'hour') return `hour:${trigger.interval ?? 1}`;
 
-const IntervalInput = ({
-  trigger,
-  every,
-  onChange,
-  disabled,
-}: Props & { every: keyof typeof INTERVALS }) => {
-  const { t } = useTranslation('automations');
-  const { min, max } = INTERVALS[every];
-  const [text, setText] = useState(() => trigger.interval?.toString() ?? '');
-  const optional = every === 'hour';
-
-  const type = (next: string) => {
-    const value = Number(next);
-
-    setText(next);
-
-    if (!next && optional) onChange({ ...trigger, interval: undefined });
-    else if (Number.isInteger(value) && value >= min && value <= max)
-      onChange({ ...trigger, interval: value });
-  };
-
-  const settle = () => {
-    if (!text && optional) return;
-
-    const interval = Math.min(max, Math.max(min, Math.trunc(Number(text) || min)));
-
-    setText(String(interval));
-    onChange({ ...trigger, interval });
-  };
-
-  return (
-    <InputGroup>
-      <InputGroup.Input
-        type="number"
-        min={min}
-        max={max}
-        value={text}
-        placeholder={optional ? '1' : undefined}
-        disabled={disabled}
-        aria-label={
-          optional
-            ? t('every-n-hours', 'Hours between runs')
-            : t('every-n-minutes', 'Minutes between runs')
-        }
-        onChange={(event) => type(event.target.value)}
-        onBlur={settle}
-      />
-      <InputGroup.Addon align="end">
-        {optional ? t('interval-hours', 'hours apart') : t('interval-minutes', 'minutes apart')}
-      </InputGroup.Addon>
-    </InputGroup>
-  );
+  return trigger.every;
 };
 
-/** Days of the week (1 = Monday), at least one. */
+const MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, '0'));
+
+const DAYS = Array.from({ length: 31 }, (_, index) => String(index + 1));
+
 const WeekdayPicker = ({ trigger, onChange, disabled }: Props) => {
   const { t } = useTranslation('automations');
   const current = trigger.weekdays ?? [1];
@@ -118,51 +80,94 @@ const WeekdayPicker = ({ trigger, onChange, disabled }: Props) => {
   );
 };
 
+const Choice = ({
+  value,
+  options,
+  label,
+  disabled,
+  onChange,
+}: {
+  value: string;
+  options: { value: string; label: string }[];
+  label: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) => (
+  <Select value={value} disabled={disabled} onValueChange={(next) => next && onChange(next)}>
+    <Select.Trigger className="h-8 w-full" aria-label={label}>
+      <Select.Value />
+    </Select.Trigger>
+    <Select.Content>
+      {options.map((option) => (
+        <Select.Item key={option.value} value={option.value}>
+          {option.label}
+        </Select.Item>
+      ))}
+    </Select.Content>
+  </Select>
+);
+
 const Repeats = ({ trigger, onChange, disabled }: Props) => {
   const { t } = useTranslation('automations');
 
   return (
-    <div className="flex items-center gap-2">
-      <Select
-        value={trigger.every}
-        disabled={disabled}
-        onValueChange={(next) => {
-          const every = oneOf(EVERY, next);
+    <Choice
+      value={repeatKey(trigger)}
+      label={t('repeats', 'Repeats')}
+      disabled={disabled}
+      options={REPEATS.map((repeat) => ({
+        value: repeat.key,
+        label: t(`repeat.${repeat.key}`, repeat.label),
+      }))}
+      onChange={(key) => {
+        const repeat = REPEATS.find((item) => item.key === key);
 
-          if (every && every !== trigger.every) onChange(withEvery(trigger, every));
-        }}
-      >
-        <Select.Trigger className="h-8 min-w-0 flex-1">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {EVERY.map((every) => (
-            <Select.Item key={every} value={every}>
-              {t(`every-${every}-option`, `Every ${every}`)}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-      {trigger.every === 'month' && (
-        <>
-          <span className="shrink-0 text-sm text-muted-foreground">{t('on-day', 'on day')}</span>
-          <Input
-            type="number"
-            min={1}
-            max={31}
-            className="h-8 w-16 shrink-0"
-            value={trigger.dayOfMonth ?? 1}
+        if (repeat) onChange({ ...trigger, every: repeat.every, interval: repeat.interval });
+      }}
+    />
+  );
+};
+
+const When = ({ trigger, onChange, disabled }: Props) => {
+  const { t } = useTranslation('automations');
+  const { every } = trigger;
+
+  if (every === 'minute') return null;
+
+  if (every === 'hour')
+    return (
+      <Field label={t('minute', 'At minute')}>
+        <Choice
+          value={trigger.at.slice(3)}
+          label={t('minute', 'At minute')}
+          disabled={disabled}
+          options={MINUTES.map((minute) => ({ value: minute, label: `:${minute}` }))}
+          onChange={(minute) => onChange({ ...trigger, at: `00:${minute}` })}
+        />
+      </Field>
+    );
+
+  return (
+    <>
+      {every === 'month' && (
+        <Field label={t('on-day', 'On day')}>
+          <Choice
+            value={String(trigger.dayOfMonth ?? 1)}
+            label={t('on-day', 'On day')}
             disabled={disabled}
-            onChange={(event) =>
-              onChange({
-                ...trigger,
-                dayOfMonth: Math.min(31, Math.max(1, Number(event.target.value) || 1)),
-              })
-            }
+            options={DAYS.map((day) => ({ value: day, label: day }))}
+            onChange={(day) => onChange({ ...trigger, dayOfMonth: Number(day) })}
           />
-        </>
+        </Field>
       )}
-    </div>
+      <Field label={t('time', 'Time')}>
+        <TimeOfDay
+          at={trigger.at}
+          disabled={disabled}
+          onChange={(at) => onChange({ ...trigger, at })}
+        />
+      </Field>
+    </>
   );
 };
 
@@ -173,39 +178,14 @@ const Repeats = ({ trigger, onChange, disabled }: Props) => {
 export const ScheduleTriggerSettings = (props: Props) => {
   const { t } = useTranslation('automations');
   const { trigger, onChange, disabled } = props;
-  const { every } = trigger;
-  const hourly = every === 'hour';
 
   return (
     <>
-      <Field
-        label={t('repeats', 'Repeats')}
-        hint={
-          hourly
-            ? t('every-hours-hint', 'Empty: every hour. Hours count from midnight.')
-            : undefined
-        }
-      >
+      <Field label={t('repeats', 'Repeats')}>
         <Repeats {...props} />
-        {every === 'week' && <WeekdayPicker {...props} />}
-        {(every === 'minute' || hourly) && <IntervalInput key={every} {...props} every={every} />}
+        {trigger.every === 'week' && <WeekdayPicker {...props} />}
       </Field>
-      {every !== 'minute' && (
-        <Field
-          label={hourly ? t('minute', 'At minute') : t('time', 'Time')}
-          hint={
-            hourly
-              ? t('every-hour-hint', 'Only the minutes count: 09:30 runs at half past.')
-              : undefined
-          }
-        >
-          <TimeOfDay
-            at={trigger.at}
-            disabled={disabled}
-            onChange={(at) => onChange({ ...trigger, at })}
-          />
-        </Field>
-      )}
+      <When {...props} />
       <AudienceEditor
         value={trigger.audience}
         disabled={disabled}

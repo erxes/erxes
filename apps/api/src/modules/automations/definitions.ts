@@ -88,6 +88,9 @@ const stepProblems = (
   subject: SubjectKind,
   trigger: Trigger,
 ) => {
+  if (step.type === 'delay' && step.until === '')
+    return [`Step ${step.id}: choose the date to wait until`];
+
   if (step.type === 'delay' && !step.until && !step.amount)
     return [`Step ${step.id}: how long to wait?`];
 

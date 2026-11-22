@@ -183,6 +183,12 @@ export const describeTrigger = (
 const valueText = (value: unknown, fields: FieldInfo[]): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';
 
+  if (typeof value === 'object' && value !== null) {
+    const count = Object.keys(value).length;
+
+    return count ? plural(count, 'field') : '';
+  }
+
   if (value === true) return 'yes';
 
   if (value === false || value === undefined || value === null) return '';
@@ -263,12 +269,12 @@ export const describeStep = (
     }
 
     case 'delay': {
-      const length = unitWord(step.amount ?? 1, step.unit ?? 'minutes');
+      const length =
+        step.until === undefined
+          ? unitWord(step.amount ?? 1, step.unit ?? 'minutes')
+          : `Until ${readableTemplate(step.until, context.fields).replaceAll(/[[\]]/g, '') || 'a date'}`;
 
-      return {
-        title: step.label || (step.until ? `Until ${step.until}` : length),
-        detail: step.label ? (step.until ?? length) : null,
-      };
+      return { title: step.label || length, detail: step.label ? length : null };
     }
 
     case 'wait_for': {

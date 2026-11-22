@@ -54,6 +54,8 @@ const stepProblems = (
       return step.cases.some((item) => !item.conditions.rules.length)
         ? ['Every case needs a condition']
         : [];
+    case 'delay':
+      return step.until === '' ? ['Choose the date to wait until'] : [];
     default:
       return [];
   }
