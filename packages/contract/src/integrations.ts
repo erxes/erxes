@@ -119,12 +119,6 @@ export const AppSubscription = createSelectSchema(integrationSubscriptions, {
 
 export type AppSubscription = z.infer<typeof AppSubscription>;
 
-const appScoped = (app: string, key: string) => `app.${app.replaceAll('-', '_')}.${key}`;
-
-export const appEventType = (app: string, trigger: string) => appScoped(app, trigger);
-
-export const appActionType = (app: string, action: string) => appScoped(app, action);
-
 export const IntegrationKey = z.string().regex(/^[a-z][a-z0-9-]{0,39}$/);
 
 const ConnectionName = z.string().trim().min(1).max(80);

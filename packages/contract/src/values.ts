@@ -339,6 +339,12 @@ export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
 
 export type IntegrationCategory = z.infer<typeof IntegrationCategory>;
 
+const appScoped = (app: string, key: string) => `app.${app.replaceAll('-', '_')}.${key}`;
+
+export const appEventType = (app: string, trigger: string) => appScoped(app, trigger);
+
+export const appActionType = (app: string, action: string) => appScoped(app, action);
+
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 
 export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);
