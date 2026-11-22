@@ -301,7 +301,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/token',
-      summary:
+      summary: 'Get a plugin token',
+      description:
         'Client credentials → a 15-minute token (ES256). With `org`: to act in an organisation that installed the plugin; without: to update the manifest',
     })
     .input(
@@ -317,7 +318,8 @@ export const pluginsContract = {
     .route({
       method: 'PUT',
       path: '/plugins/manifest',
-      summary:
+      summary: 'Register a plugin manifest',
+      description:
         "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills. 400 INVALID_SCHEDULE when a job's cron doesn't parse",
     })
     .input(PluginManifest)
@@ -335,14 +337,16 @@ export const pluginsContract = {
     .route({
       method: 'GET',
       path: '/plugins',
-      summary: 'Plugins of this deployment, and which are installed here',
+      summary: 'List plugins',
+      description: 'Plugins of this deployment, and which are installed here',
     })
     .output(listOf(Plugin)),
   install: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/install',
-      summary: 'Install (or approve the new scopes of) a plugin (owners)',
+      summary: 'Install a plugin',
+      description: 'Install (or approve the new scopes of) a plugin (owners)',
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
@@ -350,7 +354,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/{name}/uninstall',
-      summary: 'Uninstall a plugin: its tokens stop working at once (owners)',
+      summary: 'Uninstall a plugin',
+      description: 'Uninstall a plugin: its tokens stop working at once (owners)',
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
@@ -358,7 +363,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/{name}/session',
-      summary:
+      summary: 'Get a plugin session token',
+      description:
         "A 5-minute token for one plugin's API, for the signed-in member (plugin UIs send it as Bearer)",
     })
     .input(z.object({ name: PluginName }))
@@ -374,7 +380,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/live',
-      summary:
+      summary: 'Tell a plugin’s screens to refresh',
+      description:
         "Tell the plugin's open UIs something changed (plugins with live:write); no data, UIs refetch",
     })
     .input(

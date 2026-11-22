@@ -116,14 +116,16 @@ export const emailSettingsContract = {
     .route({
       method: 'GET',
       path: '/email/settings',
-      summary: 'How the organisation sends its emails; null: through the server’s',
+      summary: 'Get email sending settings',
+      description: 'How the organisation sends its emails; null: through the server’s',
     })
     .output(EmailSettings.nullable()),
   saveSettings: base
     .route({
       method: 'PUT',
       path: '/email/settings',
-      summary:
+      summary: 'Change email sending settings',
+      description:
         'Send the organisation’s emails this way. 400 INVALID_URL for an SMTP server core may not reach, INVALID_INPUT without the secret the first time',
     })
     .input(EmailSettingsInput)
@@ -132,7 +134,8 @@ export const emailSettingsContract = {
     .route({
       method: 'DELETE',
       path: '/email/settings',
-      summary: 'Send the organisation’s emails through the server’s again',
+      summary: 'Reset email sending settings',
+      description: 'Send the organisation’s emails through the server’s again',
     })
     .output(z.object({ ok: z.literal(true) })),
   sendTest: base
@@ -140,7 +143,8 @@ export const emailSettingsContract = {
     .route({
       method: 'POST',
       path: '/email/settings/test',
-      summary:
+      summary: 'Send a test email',
+      description:
         'Send a test email with the saved settings, to me or to `to`, and say how it went. 409 EMAIL_NOT_CONFIGURED when email can’t be delivered',
     })
     .input(z.object({ to: z.string().trim().check(z.email()).max(254).optional() }))

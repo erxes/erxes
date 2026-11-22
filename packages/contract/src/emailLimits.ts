@@ -104,7 +104,8 @@ export const emailLimitsContract = {
     .route({
       method: 'GET',
       path: '/email/limits',
-      summary:
+      summary: 'Get email sending limits',
+      description:
         'The sending ramp: today’s limit and count, the rates, and whether sending is halted',
     })
     .output(EmailLimits),
@@ -113,7 +114,8 @@ export const emailLimitsContract = {
     .route({
       method: 'GET',
       path: '/email/pacing',
-      summary: 'Whether emails are held now: sending halted, or today’s limit used',
+      summary: 'Check whether emails are held',
+      description: 'Whether emails are held now: sending halted, or today’s limit used',
     })
     .output(EmailPacing),
   resumeSending: oc
@@ -121,7 +123,8 @@ export const emailLimitsContract = {
     .route({
       method: 'POST',
       path: '/email/limits/resume',
-      summary:
+      summary: 'Resume email sending',
+      description:
         'Resume halted sending, saying why: the limit goes down a step, held emails go out, and the rates count from now',
     })
     .input(z.object({ reason: z.string().trim().min(1).max(500) }))
@@ -131,7 +134,8 @@ export const emailLimitsContract = {
     .route({
       method: 'PUT',
       path: '/email/limits/ramp',
-      summary:
+      summary: 'Turn the sending ramp on or off',
+      description:
         'Turn the sending ramp off or on. Self-hosted with its own SendGrid or SES only: 402 NOT_IN_PLAN on SaaS, 400 INVALID_INPUT otherwise',
     })
     .input(z.object({ enabled: z.boolean() }))

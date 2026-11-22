@@ -195,7 +195,8 @@ export const productsContract = {
     .route({
       method: 'GET',
       path: '/products',
-      summary:
+      summary: 'List products',
+      description:
         'Products, newest first. A plugin gets the products it uses unless `all`; members filter by `plugin`',
     })
     .input(
@@ -217,14 +218,16 @@ export const productsContract = {
     )
     .output(cursorPageOf(Product)),
   get: base
-    .route({ method: 'GET', path: '/products/{id}' })
+    .route({ method: 'GET', path: '/products/{id}', summary: 'Get a product' })
     .input(z.object({ id: Id }))
     .output(Product),
   lookup: base
     .route({
       method: 'GET',
       path: '/products/lookup',
-      summary: 'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
+      summary: 'Get products by id',
+      description:
+        'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
     })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(Product).max(100) })),
@@ -233,8 +236,9 @@ export const productsContract = {
       method: 'POST',
       path: '/products',
       successStatus: 201,
-      summary:
-        "Add a product. 409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
+      summary: 'Add a product',
+      description:
+        "409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
     .input(ProductFields.required({ kind: true, name: true }))
     .output(Product),
@@ -242,7 +246,8 @@ export const productsContract = {
     .route({
       method: 'PATCH',
       path: '/products/{id}',
-      summary: 'Change a product (`plugins`: members only). Errors as for create',
+      summary: 'Change a product',
+      description: 'Change a product (`plugins`: members only). Errors as for create',
     })
     .input(
       ProductFields.extend({ id: Id }).refine(
@@ -255,7 +260,8 @@ export const productsContract = {
     .route({
       method: 'POST',
       path: '/products/use',
-      summary:
+      summary: 'Use or stop using products in a plugin',
+      description:
         'A plugin starts (`used`) or stops using products, so they appear in its lists (plugins only)',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100), used: z.boolean() }))
@@ -264,12 +270,17 @@ export const productsContract = {
     .route({
       method: 'POST',
       path: '/products/{id}/archive',
-      summary: 'Take a product out of lists and pickers; orders and invoices keep it',
+      summary: 'Archive a product',
+      description: 'Take a product out of lists and pickers; orders and invoices keep it',
     })
     .input(z.object({ id: Id }))
     .output(Product),
   restore: base
-    .route({ method: 'POST', path: '/products/{id}/restore' })
+    .route({
+      method: 'POST',
+      path: '/products/{id}/restore',
+      summary: 'Restore an archived product',
+    })
     .input(z.object({ id: Id }))
     .output(Product),
 };
@@ -277,14 +288,20 @@ export const productsContract = {
 /** Groups of products, nested by `parentId`. */
 export const productCategoriesContract = {
   list: base
-    .route({ method: 'GET', path: '/product-categories', summary: 'Every category, by name' })
+    .route({
+      method: 'GET',
+      path: '/product-categories',
+      summary: 'List product categories',
+      description: 'Every category, by name',
+    })
     .output(listOf(ProductCategory)),
   create: base
     .route({
       method: 'POST',
       path: '/product-categories',
       successStatus: 201,
-      summary: '409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY',
+      summary: 'Add a product category',
+      description: '409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY',
     })
     .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),
@@ -292,7 +309,8 @@ export const productCategoriesContract = {
     .route({
       method: 'PATCH',
       path: '/product-categories/{id}',
-      summary: '409 TAKEN; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
+      summary: 'Change a product category',
+      description: '409 TAKEN; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
     })
     .input(
       CategoryFields.extend({ id: Id }).refine(
@@ -305,7 +323,8 @@ export const productCategoriesContract = {
     .route({
       method: 'DELETE',
       path: '/product-categories/{id}',
-      summary:
+      summary: 'Delete a product category',
+      description:
         'Delete an empty category; its products lose it. 409 CATEGORY_HAS_CHILDREN while it has subcategories',
     })
     .input(z.object({ id: Id }))

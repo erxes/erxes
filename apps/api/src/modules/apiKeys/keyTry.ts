@@ -20,7 +20,7 @@ export const keyCalls = () => ({
 
     if (!isContractProcedure(procedure)) return [];
 
-    const { method = 'POST', path = '', summary } = procedure['~orpc'].route;
+    const { method = 'POST', path = '', summary, description } = procedure['~orpc'].route;
     const need = keyNeed(name);
 
     return [
@@ -29,6 +29,7 @@ export const keyCalls = () => ({
         method,
         path,
         summary: summary ?? null,
+        description: description ?? null,
         area: need?.area ?? null,
         access: need?.access ?? 'read',
         permission: callPermission(name),

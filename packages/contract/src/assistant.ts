@@ -137,7 +137,8 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/connections',
-      summary:
+      summary: 'List AI provider keys',
+      description:
         "The organisation's model provider keys, which every agent uses; keys are never returned",
     })
     .output(listOf(AssistantConnection)),
@@ -145,7 +146,8 @@ export const assistantContract = {
     .route({
       method: 'PUT',
       path: '/assistant/connections/{provider}',
-      summary:
+      summary: 'Save an AI provider key',
+      description:
         "Save or replace the organisation's key for a provider; the first saved provider becomes the default",
     })
     .input(ProviderInput.extend({ apiKey: z.string().trim().min(8).max(500) }))
@@ -154,7 +156,8 @@ export const assistantContract = {
     .route({
       method: 'DELETE',
       path: '/assistant/connections/{provider}',
-      summary: 'Forget the key for a provider. 404 NOT_FOUND when none is saved',
+      summary: 'Remove an AI provider key',
+      description: 'Forget the key for a provider. 404 NOT_FOUND when none is saved',
     })
     .input(ProviderInput)
     .output(z.object({ ok: z.literal(true) })),
@@ -162,7 +165,8 @@ export const assistantContract = {
     .route({
       method: 'PUT',
       path: '/assistant/default-provider',
-      summary:
+      summary: 'Set the default AI provider',
+      description:
         'The provider a turn uses when it names none; null clears it. 404 NOT_FOUND when no key is saved for it',
     })
     .input(z.object({ provider: AssistantProvider.nullable() }))
@@ -171,7 +175,8 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/models',
-      summary:
+      summary: 'List chat models',
+      description:
         'Chat models each saved provider offers, best first; `error` says why a list is empty without revealing the key',
     })
     .output(
@@ -181,7 +186,8 @@ export const assistantContract = {
     .route({
       method: 'POST',
       path: '/assistant/models/verify',
-      summary: 'Send one tiny request to check a model works with the saved key',
+      summary: 'Test a model',
+      description: 'Send one tiny request to check a model works with the saved key',
     })
     .input(ProviderInput.extend({ model: AssistantModelId }))
     .output(
@@ -196,19 +202,21 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/threads',
-      summary: "The signed-in member's conversations, most recently active first",
+      summary: 'List my conversations',
+      description: "The signed-in member's conversations, most recently active first",
     })
     .input(CursorQuery.extend({ pinned: QueryBoolean.optional() }))
     .output(cursorPageOf(AssistantThread)),
   thread: base
-    .route({ method: 'GET', path: '/assistant/threads/{id}', summary: 'A conversation' })
+    .route({ method: 'GET', path: '/assistant/threads/{id}', summary: 'Get a conversation' })
     .input(z.object({ id: Id }))
     .output(AssistantThread),
   send: sending
     .route({
       method: 'POST',
       path: '/assistant/send',
-      summary:
+      summary: 'Send a message to the assistant',
+      description:
         'Send the member a message in a conversation, starting one without a threadId. The reply runs on the server; follow it with watch',
     })
     .input(AssistantSendRequest)
@@ -217,7 +225,8 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/threads/{id}/watch',
-      summary:
+      summary: 'Follow a conversation live',
+      description:
         "The conversation's view, then the changes of each commit, while this server runs it. A server that does not run it sends the view and ends; watch again a moment later",
     })
     .input(z.object({ id: Id }))
@@ -245,7 +254,8 @@ export const assistantContract = {
     .route({
       method: 'POST',
       path: '/assistant/threads/{id}/stop',
-      summary: 'Stop the reply being written in a conversation; what it wrote so far stays',
+      summary: 'Stop a reply',
+      description: 'Stop the reply being written in a conversation; what it wrote so far stays',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -257,7 +267,8 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/references/{handle}',
-      summary:
+      summary: 'Read a record a reply refers to',
+      description:
         'The record a reply refers to, read now with your permissions; `available: false` when the handle was not issued to you or you cannot read the record',
     })
     .input(z.object({ handle: ReferenceHandle }))
@@ -266,7 +277,8 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/records/{type}/{id}',
-      summary:
+      summary: 'Read a record for the assistant',
+      description:
         'A record to mention or show as page context, read now with your permissions; `available: false` when you cannot read it',
     })
     .input(z.object({ type: AssistantRecordType, id: Id }))
@@ -275,14 +287,16 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/settings',
-      summary: "The organisation's assistant settings",
+      summary: 'Get assistant settings',
+      description: "The organisation's assistant settings",
     })
     .output(AssistantSettings),
   updateSettings: base
     .route({
       method: 'PATCH',
       path: '/assistant/settings',
-      summary: 'Whether the assistant may run code in a sandbox to compute over API results',
+      summary: 'Change assistant settings',
+      description: 'Whether the assistant may run code in a sandbox to compute over API results',
     })
     .input(z.object({ codeMode: z.boolean() }))
     .output(AssistantSettings),
@@ -290,14 +304,16 @@ export const assistantContract = {
     .route({
       method: 'GET',
       path: '/assistant/appearance',
-      summary: "How the assistant's avatar looks to the signed-in member",
+      summary: 'Get the assistant’s avatar',
+      description: "How the assistant's avatar looks to the signed-in member",
     })
     .output(AssistantAppearance),
   updateAppearance: base
     .route({
       method: 'PUT',
       path: '/assistant/appearance',
-      summary: "Set the avatar's body, colour and resting expression for the signed-in member",
+      summary: 'Change the assistant’s avatar',
+      description: "Set the avatar's body, colour and resting expression for the signed-in member",
     })
     .input(AssistantAppearance)
     .output(AssistantAppearance),

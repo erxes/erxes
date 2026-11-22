@@ -256,21 +256,24 @@ export const rolesContract = {
     .route({
       method: 'GET',
       path: '/roles',
-      summary: 'Roles of the organisation, with member counts',
+      summary: 'List roles',
+      description: 'Roles of the organisation, with member counts',
     })
     .output(listOf(Role)),
   permissions: base
     .route({
       method: 'GET',
       path: '/permissions',
-      summary: "Every action a role can include: core's and installed plugins'",
+      summary: 'List permissions',
+      description: "Every action a role can include: core's and installed plugins'",
     })
     .output(listOf(PermissionInfo)),
   permissionSets: base
     .route({
       method: 'GET',
       path: '/permission-sets',
-      summary: "Installed plugins' ready-made bundles of their permissions, to add to a role",
+      summary: 'List permission sets',
+      description: "Installed plugins' ready-made bundles of their permissions, to add to a role",
     })
     .output(listOf(PermissionSet)),
   create: base
@@ -278,7 +281,8 @@ export const rolesContract = {
       method: 'POST',
       path: '/roles',
       successStatus: 201,
-      summary: 'Create a role (roles.manage)',
+      summary: 'Create a role',
+      description: 'Create a role (roles.manage)',
     })
     .input(RoleFields.required({ name: true, permissions: true }))
     .output(Role),
@@ -286,7 +290,8 @@ export const rolesContract = {
     .route({
       method: 'PATCH',
       path: '/roles/{key}',
-      summary: 'Rename a role or change its permissions (roles.manage; not Owner or Admin)',
+      summary: 'Change a role',
+      description: 'Rename a role or change its permissions (roles.manage; not Owner or Admin)',
     })
     .input(RoleFields.extend({ key: RoleKey }))
     .output(Role),
@@ -294,7 +299,8 @@ export const rolesContract = {
     .route({
       method: 'DELETE',
       path: '/roles/{key}',
-      summary: 'Delete a custom role nobody has (roles.manage); 409 ROLE_IN_USE',
+      summary: 'Delete a role',
+      description: 'Delete a custom role nobody has (roles.manage); 409 ROLE_IN_USE',
     })
     .input(z.object({ key: RoleKey }))
     .output(z.object({ ok: z.literal(true) })),

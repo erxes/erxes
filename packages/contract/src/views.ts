@@ -123,7 +123,8 @@ export const viewsContract = {
     .route({
       method: 'GET',
       path: '/views',
-      summary:
+      summary: 'List saved views',
+      description:
         "Views of a list (core's, or a plugin's `<plugin>:<record>`): the member's own and the team's shared ones. A plugin (`views:read`) gets the shared ones",
     })
     .input(z.object({ recordType: ViewListType }))
@@ -133,7 +134,8 @@ export const viewsContract = {
       method: 'POST',
       path: '/views',
       successStatus: 201,
-      summary:
+      summary: 'Save a view',
+      description:
         "Save a view (sharing it with the team needs contacts.edit; for products, products.manage; a plugin's list, none)",
     })
     .input(ViewFields.required({ name: true }).extend({ recordType: ViewListType }))
@@ -142,7 +144,8 @@ export const viewsContract = {
     .route({
       method: 'PATCH',
       path: '/views/{id}',
-      summary:
+      summary: 'Change a view',
+      description:
         'Change a view (its creator; a shared one also members who may share: contacts.edit, products.manage)',
     })
     .input(ViewFields.extend({ id: Id }))
@@ -151,7 +154,8 @@ export const viewsContract = {
     .route({
       method: 'DELETE',
       path: '/views/{id}',
-      summary: '409 VIEW_IN_USE while a draft or scheduled broadcast sends to the view',
+      summary: 'Delete a view',
+      description: '409 VIEW_IN_USE while a draft or scheduled broadcast sends to the view',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -159,7 +163,8 @@ export const viewsContract = {
     .route({
       method: 'GET',
       path: '/views/fields',
-      summary: 'What a list can be filtered by: fields, custom fields, the company, activity',
+      summary: 'List filterable fields',
+      description: 'What a list can be filtered by: fields, custom fields, the company, activity',
     })
     .input(z.object({ recordType: ViewRecordType }))
     .output(listOf(FilterField)),
@@ -167,7 +172,8 @@ export const viewsContract = {
     .route({
       method: 'POST',
       path: '/views/{viewId}/matches',
-      summary:
+      summary: 'Match records against a view',
+      description:
         "Which of the given records a shared view's filter and search match now (plugins with `views:read`; a segment for prices, audiences). Customer, lead, company and company lead views; up to 500 ids, others' and unknown ones never match. 403 VIEW_NOT_SHARED for a member's own view, 400 INVALID_TYPE for another list's",
     })
     .input(z.object({ viewId: Id, recordIds: z.array(Id).min(1).max(VIEW_MATCHES_MAX) }))

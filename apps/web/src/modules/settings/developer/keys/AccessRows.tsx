@@ -132,6 +132,7 @@ const useAreaCalls = (area: ApiKeyArea, draft: KeyDraft, onChange: (draft: KeyDr
       .map((call) => ({
         name: call.name,
         label: call.label,
+        description: call.description,
         tag: call.method,
         detail: call.path,
         allowed: allowed(call),
