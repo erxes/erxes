@@ -1,6 +1,6 @@
 import { IconCash, IconPlugConnected } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, ConnectionPicker, Empty, useToast } from 'erxes-ui';
+import { Button, ConnectionPicker, Empty, Skeleton, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
@@ -47,7 +47,7 @@ export const DefaultGateway = () => {
           'Invoices from core and every plugin go through it, unless they name a gateway or it doesn’t take their currency.',
         )}
       </p>
-      <QueryState query={settings}>
+      <QueryState query={settings} loading={<Skeleton className="h-8 w-72" />}>
         {({ defaultGatewayId }) => (
           <div className="w-72">
             <DefaultGatewayPicker value={defaultGatewayId} />

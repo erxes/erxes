@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { expect, vi } from 'vite-plus/test';
 import type { IntegrationPage as KeyPage } from '../integrations/IntegrationPage';
 import type { IntegrationsSettingsPage as Catalog } from '../integrations/IntegrationsSettingsPage';
+import type { PaymentsSettingsPage as Payments } from '../payments/PaymentsSettingsPage';
 import type { SettingsLayout as Layout } from '../SettingsLayout';
 
 const Icon = () => null;
@@ -165,6 +166,7 @@ let root: Root | undefined;
 let SettingsLayout: typeof Layout;
 let IntegrationsSettingsPage: typeof Catalog;
 let IntegrationPage: typeof KeyPage;
+let PaymentsSettingsPage: typeof Payments;
 
 export const setUpSettings = async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
@@ -186,6 +188,7 @@ export const setUpSettings = async () => {
   ({ SettingsLayout } = await import('../SettingsLayout'));
   ({ IntegrationsSettingsPage } = await import('../integrations/IntegrationsSettingsPage'));
   ({ IntegrationPage } = await import('../integrations/IntegrationPage'));
+  ({ PaymentsSettingsPage } = await import('../payments/PaymentsSettingsPage'));
 };
 
 /** Back to a member who manages integrations but not payments, and a list core answers at once. */
@@ -234,6 +237,7 @@ export const renderSettings = async (path = '/settings/general', text = 'Tms') =
             path: 'integrations/:key',
             element: createElement(IntegrationPage),
           }),
+          createElement(Route, { path: 'payments', element: createElement(PaymentsSettingsPage) }),
         ),
       ),
     ),
