@@ -27,11 +27,13 @@ const ofApp = (app: App) =>
     eq(integrationSubscriptions.channel, HOOK_CHANNEL),
   );
 
-export const eventsInUse = (
+const proven = isNotNull(integrationSubscriptions.externalId);
+
+export const eventsInUse = async (
   app: App,
   where: { client: string; orgId: string; routeKey?: string },
-) =>
-  inScope(where.client === SERVER_CLIENT ? null : where.orgId, async (tx) => {
+) => {
+  const triggersOf = (onlyProven: boolean) => async (tx: Db) => {
     const rows = await tx
       .select({ triggers: integrationSubscriptions.triggers })
       .from(integrationSubscriptions)
@@ -41,14 +43,18 @@ export const eventsInUse = (
           where.routeKey === undefined
             ? isNotNull(integrationSubscriptions.routeKey)
             : eq(integrationSubscriptions.routeKey, where.routeKey),
+          onlyProven ? proven : undefined,
         ),
       );
 
-    return hookEvents(
-      app,
-      rows.flatMap((row) => row.triggers),
-    ).toSorted();
-  });
+    return rows.flatMap((row) => row.triggers);
+  };
+
+  const own = await withOrg(where.orgId, triggersOf(false));
+  const others = where.client === SERVER_CLIENT ? await inScope(null, triggersOf(true)) : [];
+
+  return hookEvents(app, [...own, ...others]).toSorted();
+};
 
 export const routedSubscriptions = (app: App, client: { orgId: string | null }, routes: string[]) =>
   inScope(client.orgId, async (tx) =>
@@ -60,6 +66,6 @@ export const routedSubscriptions = (app: App, client: { orgId: string | null }, 
             routeKey: integrationSubscriptions.routeKey,
           })
           .from(integrationSubscriptions)
-          .where(and(ofApp(app), inArray(integrationSubscriptions.routeKey, routes)))
+          .where(and(ofApp(app), inArray(integrationSubscriptions.routeKey, routes), proven))
       : [],
   );

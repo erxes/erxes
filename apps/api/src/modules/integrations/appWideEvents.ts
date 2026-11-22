@@ -1,7 +1,7 @@
-import { integrationSubscriptions, withOrg } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
+import { withOrg } from '@erxes/core-db';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
+import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { type App, publishedEvents } from './apps';
@@ -10,10 +10,11 @@ import {
   connectionKeys,
   connectionOn,
   delivered,
-  markFailed,
   type Subscription,
   subscriptionState,
 } from './subscriptionState';
+
+const log = logger.child({ component: 'integration-app-events' });
 
 const appWideOf = (app: App) => (app.hooks?.appWide ? app.hooks : null);
 
@@ -69,14 +70,19 @@ const eventEnrich = defineJob({
   payload: Enrich,
   retry: { attempts: 4, delay: 20, maxDelay: 300 },
   handle: (job) => enrichAndPublish(job.orgId, job.payload),
-  async onDead(job, error, tx) {
-    const [subscription] = await tx
-      .select()
-      .from(integrationSubscriptions)
-      .where(eq(integrationSubscriptions.id, job.payload.subscriptionId))
-      .limit(1);
+  onDead(job, error) {
+    log.warn(
+      {
+        orgId: job.orgId,
+        subscription: job.payload.subscriptionId,
+        event: job.payload.type,
+        eventId: job.payload.id,
+        err: error,
+      },
+      'app event dropped: its details could not be fetched',
+    );
 
-    if (subscription) await markFailed(tx, subscription, error);
+    return Promise.resolve();
   },
 });
 

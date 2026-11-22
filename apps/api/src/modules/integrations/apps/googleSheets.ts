@@ -22,7 +22,10 @@ const COLUMNS_NOTE = "Each column arrives under its name in the sheet's first ro
 
 const Seen = z.object({ rows: z.int().nonnegative() });
 
-const Hashes = z.object({ hashes: z.array(z.string()).max(MAX_WATCHED_ROWS) });
+const Hashes = z.object({
+  hashes: z.array(z.string()).max(MAX_WATCHED_ROWS),
+  round: z.int().nonnegative(),
+});
 
 const rowAdded = pollTrigger<OAuthKeys, typeof sheetParams>({
   key: 'row_added',
@@ -45,7 +48,9 @@ const rowAdded = pollTrigger<OAuthKeys, typeof sheetParams>({
       cursor: { rows: upTo },
       items: data
         .slice(from, upTo)
-        .flatMap((row, offset) => (isBlank(row) ? [] : [rowEvent(names, row, from + offset)])),
+        .flatMap((row, offset) =>
+          isBlank(row) ? [] : [rowEvent(names, row, from + offset, rowHash(row))],
+        ),
     };
   },
 });
@@ -70,9 +75,11 @@ const rowChanged = pollTrigger<OAuthKeys, typeof sheetParams>({
     const rows = data.map((row, index) => ({ row, index, hash: rowHash(row) }));
     const before = Hashes.safeParse(cursor);
 
-    if (!before.success) return { cursor: { hashes: rows.map((row) => row.hash) }, items: [] };
+    if (!before.success)
+      return { cursor: { hashes: rows.map((row) => row.hash), round: 0 }, items: [] };
 
     const left = unchangedCounts(before.data.hashes);
+    const round = before.data.round + 1;
 
     const changed = rows.filter(({ row, hash }) => {
       const unchanged = left.get(hash) ?? 0;
@@ -86,10 +93,13 @@ const rowChanged = pollTrigger<OAuthKeys, typeof sheetParams>({
     const names = columnNames(header);
 
     return {
-      cursor: { hashes: rows.filter((row) => !later.has(row.index)).map((row) => row.hash) },
+      cursor: {
+        hashes: rows.filter((row) => !later.has(row.index)).map((row) => row.hash),
+        round,
+      },
       items: changed
         .slice(0, MAX_EVENTS_PER_POLL)
-        .map(({ row, index }) => rowEvent(names, row, index)),
+        .map(({ row, index, hash }) => rowEvent(names, row, index, `${hash}:${round}`)),
     };
   },
 });

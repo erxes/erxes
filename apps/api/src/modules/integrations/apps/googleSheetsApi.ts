@@ -124,7 +124,7 @@ export const isBlank = (row: Row) => row.every((cell) => String(cell).trim() ===
 
 export const rowHash = (row: Row) => sha256(JSON.stringify(row), 'base64url').slice(0, 11);
 
-export const rowEvent = (names: string[], row: Row, index: number) => {
+export const rowEvent = (names: string[], row: Row, index: number, version: string) => {
   const rowNumber = index + 2;
   const width = Math.max(names.length, row.length);
 
@@ -134,7 +134,7 @@ export const rowEvent = (names: string[], row: Row, index: number) => {
   ]);
 
   return {
-    id: `${rowNumber}:${rowHash(row)}`,
+    id: `${rowNumber}:${version}`,
     payload: { ...Object.fromEntries(cells), rowNumber },
   };
 };

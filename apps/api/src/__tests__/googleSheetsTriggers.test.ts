@@ -1,6 +1,7 @@
 import { integrationSubscriptions } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import { SESSION_COOKIE } from '~/http/cookies';
 import { pollSchedule } from '~/modules/integrations/polls';
 import { useAutomations } from './automations.fixture';
 import { adminDb, useTestDatabase } from './db';
@@ -78,7 +79,7 @@ describe('Google Sheets triggers', { timeout: 300_000 }, () => {
 
     const back = await fetch(
       t.url(`/core/v1/integrations/oauth/callback?code=code-${name}&state=${state}`),
-      { redirect: 'manual' },
+      { redirect: 'manual', headers: { cookie: `${SESSION_COOKIE}=${await t.token()}` } },
     );
 
     return { url: new URL(url), back };
@@ -251,5 +252,21 @@ describe('Google Sheets triggers', { timeout: 300_000 }, () => {
     await pollNow();
 
     expect(await t.runsOf(opsAutomation)).toHaveLength(1);
+  });
+
+  it('a row edited back and forth starts a run on every edit; polling it unchanged starts none', async () => {
+    sheet.values[1] = ['Dana', 'dana@acme.mn'];
+    await pollNow();
+    sheet.values[1] = ['Dana', 'dana@shop.mn'];
+    await pollNow();
+    sheet.values[1] = ['Dana', 'dana@acme.mn'];
+    await pollNow();
+
+    expect(await t.runsOf(opsAutomation)).toHaveLength(4);
+
+    await pollNow();
+    await pollNow();
+
+    expect(await t.runsOf(opsAutomation)).toHaveLength(4);
   });
 });

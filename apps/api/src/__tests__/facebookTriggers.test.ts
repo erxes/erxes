@@ -1,25 +1,22 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
+import { SESSION_COOKIE } from '~/http/cookies';
 import { hmacSha256 } from '~/lib/crypto';
 import { useAutomations } from './automations.fixture';
 import { useTestDatabase } from './db';
+import {
+  APP_ID,
+  APP_SECRET,
+  AppSubscription,
+  comment,
+  entry,
+  GRAPH,
+  matches,
+  PAGE,
+  settleRetries,
+} from './facebook.fixture';
 import { fakeGateway, urlOf } from './fakeGateway';
 import { settle } from './settle';
-
-const GRAPH = 'https://graph.facebook.com/v23.0';
-
-const APP_ID = '1234567890';
-
-const APP_SECRET = 'fb-app-secret';
-
-const PAGE = '111';
-
-const AppSubscription = z.object({
-  object: z.string(),
-  callback_url: z.string(),
-  verify_token: z.string(),
-  fields: z.string(),
-});
 
 const PageSubscription = z.object({ subscribed_fields: z.string() });
 
@@ -34,40 +31,13 @@ const lead = {
   ],
 };
 
-const entry = (page: string, changes: unknown[]) =>
-  JSON.stringify({ object: 'page', entry: [{ id: page, time: 1_763_800_000, changes }] });
-
-const leadgen = (page: string) =>
+const leadgen = (page: string, leadId = 'L1') =>
   entry(page, [
     {
       field: 'leadgen',
-      value: { leadgen_id: 'L1', form_id: 'F1', ad_id: 'A1', page_id: page, created_time: 1 },
+      value: { leadgen_id: leadId, form_id: 'F1', ad_id: 'A1', page_id: page, created_time: 1 },
     },
   ]);
-
-const comment = (id: string, from: string) =>
-  entry(PAGE, [
-    {
-      field: 'feed',
-      value: {
-        item: 'comment',
-        verb: 'add',
-        comment_id: id,
-        post_id: `${PAGE}_9`,
-        message: 'How much is it?',
-        from: { id: from, name: 'Someone' },
-        created_time: 1_763_800_000,
-      },
-    },
-  ]);
-
-const matches = (path: string, value: string) => ({
-  id: 'check',
-  type: 'branch' as const,
-  conditions: { match: 'all' as const, rules: [{ path, op: 'eq' as const, value }] },
-  then: [{ id: 'wait', type: 'delay' as const, amount: 1, unit: 'days' as const }],
-  else: [],
-});
 
 describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
   useTestDatabase();
@@ -82,6 +52,7 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
     [`POST ${GRAPH}/${PAGE}/subscribed_apps`, { success: true }],
     [`DELETE ${GRAPH}/${PAGE}/subscribed_apps`, { success: true }],
     [`GET ${GRAPH}/L1?fields=`, lead],
+    [`GET ${GRAPH}/L3?fields=`, { ...lead, id: 'L3' }],
   ]);
 
   const lasting = fakeGateway([
@@ -168,7 +139,7 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
       t.url(
         `/core/v1/integrations/oauth/callback?code=fb-code&state=${authorize.searchParams.get('state') ?? ''}`,
       ),
-      { redirect: 'manual' },
+      { redirect: 'manual', headers: { cookie: `${SESSION_COOKIE}=${await t.token()}` } },
     );
 
     expect(back.status).toBe(302);
@@ -285,6 +256,26 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
 
     expect(facebook.calls.slice(before)).toEqual([]);
     expect(await t.runsOf(leadsId)).toHaveLength(1);
+  });
+
+  it('a lead Facebook won’t hand over starts no run and leaves the page listening for the next one', async () => {
+    expect((await deliver(leadgen(PAGE, 'L2'))).status).toBe(200);
+
+    await settle();
+    await settleRetries();
+
+    expect(calls('GET', '/L2?fields=').length).toBeGreaterThan(1);
+    expect(await t.runsOf(leadsId)).toHaveLength(1);
+
+    const { data } = await t.owner().integrations.subscriptions({ key: 'facebook' });
+
+    expect(data.map((row) => [row.status, row.failures])).toEqual([['listening', 0]]);
+
+    expect((await deliver(leadgen(PAGE, 'L3'))).status).toBe(200);
+
+    await settle();
+
+    expect(await t.runsOf(leadsId)).toHaveLength(2);
   });
 
   it('pausing one automation narrows the page’s fields; pausing the last removes the page subscription', async () => {
