@@ -921,6 +921,8 @@
     "connection": {
       "connect": "Холбох",
       "connect-named": "{{name}} холбох",
+      "add-another": "Өөр нэгийг нэмэх",
+      "name-taken": "Ийм нэртэй өөр {{name}} холболт байна",
       "connections": "Холболтууд",
       "none": "Одоогоор холбоогүй байна.",
       "payments": "Төлөгч хэрхэн төлөх вэ",

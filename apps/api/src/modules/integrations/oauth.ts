@@ -25,6 +25,7 @@ import {
   type OAuthSetup,
 } from '@erxes/plugin-sdk/integrations';
 import { connectable } from './connectable';
+import { ensureNameFree } from './connectionNames';
 import { type KeyedIntegration, sealedValues, splitValues } from './define';
 
 const STATE_MINUTES = 10;
@@ -159,6 +160,8 @@ export const authorizeUrl = async (tx: Db, input: { key: string; name: string })
   const client = await appClientOf(tx, integration.key);
 
   if (!client) throw fail('NOT_SET_UP', `Add your ${integration.name} app's client id and secret`);
+
+  await ensureNameFree(tx, integration, input.name);
 
   const { oauth } = integration;
 

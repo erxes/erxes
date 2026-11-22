@@ -6,6 +6,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { ConnectionNameInput, useConnectionName } from './ConnectionName';
 
 type OAuthIntegration = Integration & { oauth: NonNullable<Integration['oauth']> };
 
@@ -87,7 +88,7 @@ export const SignInForm = ({
   const id = useId();
   const { toast } = useToast();
   const brand = useIntegrationText()(integration).name;
-  const [name, setName] = useState(brand);
+  const { name, setName, taken, ready } = useConnectionName(integration);
 
   const authorize = useMutation(
     orpc.integrations.authorize.mutationOptions({
@@ -103,16 +104,19 @@ export const SignInForm = ({
         <span className="font-medium">{brand}</span>
       </div>
       {integration.oauth.client === null && <OAuthAppForm integration={integration} />}
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-name`}>{t('name', 'Name')}</Label>
-        <Input id={`${id}-name`} value={name} onChange={(event) => setName(event.target.value)} />
-      </div>
+      <ConnectionNameInput
+        id={`${id}-name`}
+        integration={integration}
+        name={name}
+        taken={taken}
+        onChange={setName}
+      />
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onCancel}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button
-          disabled={!integration.oauth.client || !name.trim() || authorize.isPending}
+          disabled={!integration.oauth.client || !ready || authorize.isPending}
           onClick={() => authorize.mutate({ key: integration.key, name: name.trim() })}
         >
           <IconLogin2 />

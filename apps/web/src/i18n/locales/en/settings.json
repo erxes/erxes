@@ -912,6 +912,8 @@
     "connection": {
       "connect": "Connect",
       "connect-named": "Connect {{name}}",
+      "add-another": "Add another",
+      "name-taken": "Another {{name}} connection has this name",
       "connections": "Connections",
       "none": "Nothing connected yet.",
       "payments": "How payers pay",

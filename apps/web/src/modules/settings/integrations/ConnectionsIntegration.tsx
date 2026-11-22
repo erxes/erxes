@@ -84,11 +84,15 @@ const Overview = ({ integration }: { integration: Integration }) => {
 const Connect = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { openNew } = useOpenRecord();
+  const connected = (useConnections().data?.data ?? []).some(({ key }) => key === integration.key);
 
   return (
-    <Button onClick={() => openNew(CONNECTION_CONTENT_TYPE, { integration: integration.key })}>
+    <Button
+      variant={connected ? 'outline' : 'default'}
+      onClick={() => openNew(CONNECTION_CONTENT_TYPE, { integration: integration.key })}
+    >
       <IconPlus />
-      {t('connect', 'Connect')}
+      {connected ? t('add-another', 'Add another') : t('connect', 'Connect')}
     </Button>
   );
 };
