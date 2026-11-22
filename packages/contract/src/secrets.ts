@@ -1,4 +1,4 @@
-import { VAULT_HOLDERS } from '@erxes/core-db/enums';
+import { VAULT_HOLDERS } from '@erxes/core-db/integrationEnums';
 import { secrets } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';

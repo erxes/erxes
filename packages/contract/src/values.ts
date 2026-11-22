@@ -17,7 +17,6 @@ import {
   EBARIMT_TAX_TYPES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
-  INTEGRATION_CATEGORIES,
   INVOICE_STATUSES,
   LIVE_MODES,
   ORG_UNIT_KINDS,
@@ -26,6 +25,7 @@ import {
   SEARCH_RECORD_TYPES,
   SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
+import { INTEGRATION_CATEGORIES } from '@erxes/core-db/integrationEnums';
 import {
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
@@ -336,6 +336,8 @@ export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 
 export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
+
+export type IntegrationCategory = z.infer<typeof IntegrationCategory>;
 
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 

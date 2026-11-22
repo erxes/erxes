@@ -13,10 +13,12 @@ import { wholeList } from '~/lib/keyset';
 import { orgTimezone } from '~/lib/orgTime';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { listenFor } from '~/modules/integrations/subscriptions';
 import { checkDefinition } from './definitions';
 import { forgetHookData } from './eventData';
 import { saveHookSample, withHookUrls } from './hooks';
-import { firstRunAt, triggerKey } from './triggers';
+import { triggerKey } from './triggerKey';
+import { firstRunAt } from './triggers';
 
 type AutomationRow = typeof automations.$inferSelect;
 
@@ -146,6 +148,9 @@ export const updateAutomation = async (
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));
+
+  if (published) await listenFor(client, id, published);
+
   await recordAudit(client, {
     action: 'automation.updated',
     targetType: 'automation',
@@ -176,6 +181,7 @@ export const activateAutomation = async (client: Db, id: string) => {
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));
+  await listenFor(client, id, definition);
   await recordAudit(client, {
     action: 'automation.activated',
     targetType: 'automation',
@@ -195,6 +201,7 @@ export const pauseAutomation = async (client: Db, id: string) => {
     .update(automations)
     .set({ status: 'paused', nextRunAt: null, updatedAt: sql`now()` })
     .where(eq(automations.id, id));
+  await listenFor(client, id, null);
   await recordAudit(client, {
     action: 'automation.paused',
     targetType: 'automation',
@@ -208,6 +215,7 @@ export const pauseAutomation = async (client: Db, id: string) => {
 export const removeAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
 
+  await listenFor(client, id, null);
   await client.delete(automations).where(eq(automations.id, id));
   await forgetHookData(client, id);
   await recordAudit(client, {

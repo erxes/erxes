@@ -43,6 +43,11 @@ const useCategoryLabel = () => {
       payments: t('payments', 'Payments'),
       banks: t('banks', 'Banks'),
       tax: t('tax', 'Tax receipts'),
+      sales: t('sales', 'Sales'),
+      marketing: t('marketing', 'Marketing'),
+      developer: t('developer', 'Developer tools'),
+      productivity: t('productivity', 'Productivity'),
+      social: t('social', 'Social'),
     })[category];
 };
 

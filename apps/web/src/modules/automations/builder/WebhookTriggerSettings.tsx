@@ -12,6 +12,8 @@ import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type WebhookTrigger = Extract<AutomationTrigger, { kind: 'webhook' }>;
 
+type AppTrigger = Extract<AutomationTrigger, { kind: 'app' }>;
+
 export type Hook = { url: string; on: boolean; sample: HookSample | null };
 
 type HookKeys<T extends HookSubject['type']> = Record<
@@ -132,24 +134,21 @@ const RequestFieldSelect = ({
   );
 };
 
-const HookSubjectEditor = ({
+export const HookSubjectEditor = <T extends WebhookTrigger | AppTrigger>({
   trigger,
+  fields: requestFields,
   sample,
   onChange,
   disabled,
 }: {
-  trigger: WebhookTrigger;
+  trigger: T;
+  fields: FieldInfo[];
   sample: HookSample | null;
-  onChange: (trigger: AutomationTrigger) => void;
+  onChange: (trigger: T) => void;
   disabled?: boolean;
 }) => {
   const { t } = useTranslation('automations');
-  const { automationId } = useContext(BuilderContext);
   const { subject } = trigger;
-
-  const requestFields = useAutomationFields(null, automationId).fields.filter((field) =>
-    /^event\.payload\.(body|query)\./.test(field.path),
-  );
 
   const keys = Object.entries(subject?.type === 'company' ? COMPANY_KEYS : CUSTOMER_KEYS);
 
@@ -227,6 +226,11 @@ export const WebhookTriggerSettings = ({
   disabled?: boolean;
 }) => {
   const { t } = useTranslation('automations');
+  const { automationId } = useContext(BuilderContext);
+
+  const requestFields = useAutomationFields(null, automationId).fields.filter((field) =>
+    /^event\.payload\.(body|query)\./.test(field.path),
+  );
 
   return (
     <>
@@ -234,6 +238,7 @@ export const WebhookTriggerSettings = ({
       <HookSampleCall sample={hook.sample} on={hook.on} />
       <HookSubjectEditor
         trigger={trigger}
+        fields={requestFields}
         sample={hook.sample}
         disabled={disabled}
         onChange={onChange}

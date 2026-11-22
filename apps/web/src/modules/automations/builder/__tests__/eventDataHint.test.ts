@@ -22,7 +22,7 @@ const textFor = (event: EventDataSource, subject: 'customer' | null) => {
   const client = new QueryClient();
   const container = document.createElement('div');
 
-  client.setQueryData(catalogQuery().queryKey, { triggers: [], actions: [] });
+  client.setQueryData(catalogQuery().queryKey, { triggers: [], actions: [], apps: [] });
   document.body.append(container);
 
   const mounted = createRoot(container);

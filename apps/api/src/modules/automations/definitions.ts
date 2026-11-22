@@ -4,12 +4,19 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { CONTENT_TYPES, type ContentType, type Db, fields } from '@erxes/core-db';
+import {
+  CONTENT_TYPES,
+  type ContentType,
+  type Db,
+  fields,
+  integrationConnections,
+} from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
+import { resolveAppTrigger } from '~/modules/integrations/subscriptions';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { coreAction } from './actions/catalog';
 import { REPLY_ACTION } from './actions/reply';
@@ -34,6 +41,7 @@ const subjectOfTrigger = (trigger: Trigger, triggers: Catalog['triggers']): Subj
     case 'date':
       return trigger.subject;
     case 'webhook':
+    case 'app':
       return trigger.subject?.type ?? null;
     case 'schedule':
     case 'manual':
@@ -125,6 +133,23 @@ const scheduleProblems = (trigger: Extract<Trigger, { kind: 'schedule' }>) => {
   return interval ? ['Only schedules in minutes or hours take “every N”'] : [];
 };
 
+const appTriggerProblems = async (client: Db, trigger: Extract<Trigger, { kind: 'app' }>) => {
+  const resolved = resolveAppTrigger(trigger);
+
+  if (!resolved.ok) return [resolved.problem];
+
+  const [connection] = await client
+    .select({ key: integrationConnections.key, status: integrationConnections.status })
+    .from(integrationConnections)
+    .where(eq(integrationConnections.id, trigger.connectionId))
+    .limit(1);
+
+  if (connection?.key !== resolved.app.key)
+    return [`Pick a ${resolved.app.name} connection for the trigger`];
+
+  return connection.status === 'active' ? [] : [`The ${resolved.app.name} connection is off`];
+};
+
 const triggerProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
   const trigger = definition.trigger;
 
@@ -132,6 +157,8 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
     return [`Unknown trigger ${trigger.event}`];
 
   if (trigger.kind === 'schedule') return scheduleProblems(trigger);
+
+  if (trigger.kind === 'app') return appTriggerProblems(client, trigger);
 
   if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
 

@@ -1,5 +1,6 @@
 import type {
   CorePermission,
+  DataField,
   Integration as IntegrationListing,
   IntegrationField,
   IntegrationStatus,
@@ -57,6 +58,91 @@ interface GatewayPayments<K> {
   driver(keys: K, options: DriverOptions): GatewayDriver;
 }
 
+export interface Delivery {
+  method: string;
+  headers: Record<string, string>;
+  query: Record<string, unknown>;
+  raw: string;
+  body: unknown;
+}
+
+export interface AppEvent {
+  id: string;
+  type: string;
+  payload: Record<string, unknown>;
+}
+
+export interface Received {
+  reply?: { status: number; body: unknown };
+  events: AppEvent[];
+}
+
+export class DeliveryRefused extends Error {}
+
+export interface AppHooks<C, S extends Keys = Keys> {
+  scope: S;
+  subscribe(input: {
+    keys: C;
+    scope: z.output<S>;
+    url: string;
+    secret: string;
+    events: string[];
+    externalId: string | null;
+  }): Promise<{ externalId: string; secret?: string }>;
+  unsubscribe(input: { keys: C; scope: z.output<S>; externalId: string }): Promise<void>;
+  receive(delivery: Delivery, secret: string): Received;
+}
+
+interface TriggerInfo {
+  key: string;
+  label: string;
+  description: string;
+  outputs: DataField[];
+}
+
+export interface HookTrigger extends TriggerInfo {
+  via: 'hook';
+  on: string;
+  when?: (payload: Record<string, unknown>) => boolean;
+}
+
+export interface Polled {
+  cursor: unknown;
+  items: { id: string; payload: Record<string, unknown> }[];
+}
+
+export interface PollTrigger<C> extends TriggerInfo {
+  via: 'poll';
+  params: Keys;
+  everyMinutes: number;
+  poll(input: { keys: C; params: unknown; cursor: unknown }): Promise<Polled>;
+}
+
+export type AppTrigger<C> = HookTrigger | PollTrigger<C>;
+
+export const pollTrigger = <C, P extends Keys>(
+  definition: TriggerInfo & {
+    params: P;
+    everyMinutes?: number;
+    poll(input: { keys: C; params: z.output<P>; cursor: unknown }): Promise<Polled>;
+  },
+): PollTrigger<C> => ({
+  ...definition,
+  via: 'poll',
+  everyMinutes: definition.everyMinutes ?? 5,
+  poll: (input) => definition.poll({ ...input, params: definition.params.parse(input.params) }),
+});
+
+export const hookTrigger = (definition: Omit<HookTrigger, 'via'>): HookTrigger => ({
+  ...definition,
+  via: 'hook',
+});
+
+interface Apps<C> {
+  hooks?: AppHooks<C>;
+  triggers?: AppTrigger<C>[];
+}
+
 interface Connection {
   key: string;
   name: string;
@@ -67,7 +153,7 @@ interface Connection {
   dashboard?: string;
 }
 
-export interface KeyedIntegration<K extends Keys = Keys> extends Connection {
+export interface KeyedIntegration<K extends Keys = Keys> extends Connection, Apps<z.output<K>> {
   keys: K;
   /**
    * The bank integration whose connection (`keys.connectionId`) this one reads
@@ -90,6 +176,8 @@ export interface PagedIntegration extends Connection {
   keys?: never;
   verify?: never;
   payments?: never;
+  hooks?: never;
+  triggers?: never;
 }
 
 export type Integration = KeyedIntegration | PagedIntegration;

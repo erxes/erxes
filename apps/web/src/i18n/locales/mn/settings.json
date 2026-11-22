@@ -861,7 +861,12 @@
       "payments": "Төлбөр",
       "tax": "Татварын баримт",
       "email": "Имэйл",
-      "messaging": "Мессеж"
+      "messaging": "Мессеж",
+      "sales": "Борлуулалт",
+      "marketing": "Маркетинг",
+      "developer": "Хөгжүүлэгчийн хэрэгсэл",
+      "productivity": "Бүтээмж",
+      "social": "Сошиал"
     },
     "section": {
       "connected": "Холбогдсон",

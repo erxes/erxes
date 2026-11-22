@@ -1,9 +1,10 @@
+import { GATEWAY_REFUND_KINDS } from '@erxes/core-db/enums';
 import {
-  GATEWAY_REFUND_KINDS,
+  APP_TRIGGER_DELIVERIES,
   INTEGRATION_CONNECTION_STATUSES,
   INTEGRATION_FIELD_TYPES,
   INTEGRATION_STATES,
-} from '@erxes/core-db/enums';
+} from '@erxes/core-db/integrationEnums';
 import { integrationConnections } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
@@ -69,6 +70,28 @@ export const Integration = z.object({
 });
 
 export type Integration = z.infer<typeof Integration>;
+
+export const AutomationAppTrigger = z.object({
+  key: z.string(),
+  type: z.string(),
+  label: z.string(),
+  description: z.string(),
+  via: z.enum(APP_TRIGGER_DELIVERIES),
+  params: z.array(IntegrationField),
+});
+
+export const AutomationApp = z.object({
+  key: z.string(),
+  name: z.string(),
+  category: IntegrationCategory,
+  triggers: z.array(AutomationAppTrigger),
+  connections: z.array(IntegrationConnection.pick({ id: true, name: true, status: true })),
+});
+
+export type AutomationApp = z.infer<typeof AutomationApp>;
+
+export const appEventType = (app: string, trigger: string) =>
+  `app.${app.replaceAll('-', '_')}.${trigger}`;
 
 const IntegrationKey = z.string().regex(/^[a-z][a-z0-9-]{0,39}$/);
 

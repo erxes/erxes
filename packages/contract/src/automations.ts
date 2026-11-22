@@ -5,6 +5,7 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Automation, HookSample } from './automation';
+import { AutomationApp } from './integrations';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
 import {
@@ -94,6 +95,7 @@ export const automationsContract = {
           }),
         ),
         actions: z.array(ActionInfo),
+        apps: z.array(AutomationApp),
       }),
     ),
   list: base

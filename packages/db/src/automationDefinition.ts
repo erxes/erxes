@@ -253,6 +253,15 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     subject: HookSubject.optional(),
     conditions: ConditionGroup.optional(),
   }),
+  z.object({
+    kind: z.literal('app'),
+    app: z.string().regex(/^[a-z][a-z0-9-]{0,39}$/),
+    trigger: z.string().regex(/^[a-z][a-z0-9_]{0,59}$/),
+    connectionId: z.string().min(1).max(64),
+    params: z.record(z.string(), z.json()).default({}),
+    subject: HookSubject.optional(),
+    conditions: ConditionGroup.optional(),
+  }),
 ]);
 
 export type AutomationTrigger = z.infer<typeof AutomationTrigger>;

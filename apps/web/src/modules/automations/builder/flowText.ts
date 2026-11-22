@@ -1,10 +1,11 @@
-import type {
-  ActionField,
-  ActionInfo,
-  AutomationStep,
-  AutomationTrigger,
-  ConditionGroup,
-  HookSubject,
+import {
+  type ActionField,
+  type ActionInfo,
+  type AutomationStep,
+  type AutomationTrigger,
+  appEventType,
+  type ConditionGroup,
+  type HookSubject,
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from '~/lib/timeZones';
@@ -167,6 +168,16 @@ export const describeTrigger = (
       return {
         title: 'When its webhook is called',
         detail: [about, only && `Only if ${only}`].filter(Boolean).join(' · ') || null,
+      };
+    }
+
+    case 'app': {
+      const type = appEventType(trigger.app, trigger.trigger);
+      const only = describeConditions(trigger.conditions, fields);
+
+      return {
+        title: events.find((item) => item.type === type)?.label ?? 'When a connected app reports',
+        detail: only ? `Only if ${only}` : null,
       };
     }
 

@@ -866,7 +866,12 @@
       "payments": "Payments",
       "tax": "Tax receipts",
       "email": "Email",
-      "messaging": "Messaging"
+      "messaging": "Messaging",
+      "sales": "Sales",
+      "marketing": "Marketing",
+      "developer": "Developer tools",
+      "productivity": "Productivity",
+      "social": "Social"
     },
     "section": {
       "connected": "Connected",
