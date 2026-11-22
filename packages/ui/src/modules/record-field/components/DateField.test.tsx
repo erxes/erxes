@@ -5,6 +5,7 @@ import { act, type ReactNode } from 'react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { actUntil, setupDomRender } from '../../../lib/render-in-dom';
+import { PopoverScoped } from '../../hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from '../../record-table/components/RecordTableCellInline';
 import { DateField } from './DateField';
 
@@ -103,6 +104,24 @@ describe('DateField', () => {
     expect(nameOf(inRow)).toBe('Close date Not set');
     expect(nameOf(alone)).toBe('Close date Not set');
     expect(nameOf(unnamed)).toBe('Not set');
+  });
+
+  it('leaves other cells in a row named by their own aria-label', () => {
+    // A cell that says its value in its aria-label (sales' "3, quantity of Chair") keeps it.
+    const container = render(
+      <>
+        <span id="lines-label">Products</span>
+        <RecordTableInlineCell.LabelledBy value="lines-label">
+          <PopoverScoped>
+            <RecordTableInlineCell.Trigger aria-label="3, quantity of Chair">
+              3
+            </RecordTableInlineCell.Trigger>
+          </PopoverScoped>
+        </RecordTableInlineCell.LabelledBy>
+      </>,
+    );
+
+    expect(nameOf(container)).toBe('Products 3, quantity of Chair');
   });
 
   it('offers only the days between min and max', async () => {
