@@ -60,6 +60,7 @@ const DefaultModelPicker = ({ chosen }: { chosen: Chosen }) => {
   const { t } = useTranslation('assistant', { keyPrefix: 'settings' });
   const [open, setOpen] = useState(false);
   const labelId = useId();
+  const valueId = useId();
   const catalog = useQuery(orpc.assistant.models.queryOptions());
   const save = useSaveDefault();
 
@@ -89,10 +90,12 @@ const DefaultModelPicker = ({ chosen }: { chosen: Chosen }) => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           disabled={save.isPending}
-          aria-labelledby={labelId}
+          aria-labelledby={`${labelId} ${valueId}`}
           render={<Button variant="outline" className="w-full justify-between" />}
         >
-          <span className="truncate">{name}</span>
+          <span id={valueId} className="truncate">
+            {name}
+          </span>
           <IconChevronDown aria-hidden className="size-4 shrink-0" />
         </Popover.Trigger>
         <Popover.Content variant="flush" align="start" className="w-80">
@@ -142,7 +145,7 @@ const Connected = ({ providers }: { providers: AssistantProvider[] }) => {
       {t('connected-providers', 'Connected: {{providers}}.', {
         providers: providers.map((provider) => PROVIDER_LABELS[provider]).join(', '),
       })}{' '}
-      <Link to={paths.settings.aiIntegrations} className="text-primary-text hover:underline">
+      <Link to={paths.settings.aiIntegrations} className="text-primary-text underline">
         {t('manage-providers', 'Manage AI providers')}
       </Link>
     </p>

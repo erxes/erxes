@@ -106,7 +106,7 @@ export const AgentApiKeyInput = ({ field, value, onChange, disabled }: ActionInp
         <Link
           to={paths.settings.apiKeyNew}
           target="_blank"
-          className="inline-flex items-center gap-0.5 text-primary-text hover:underline"
+          className="inline-flex items-center gap-0.5 text-primary-text underline"
         >
           {t('agent-api-create', 'Create a key')}
           <IconExternalLink aria-hidden className="size-3" />
