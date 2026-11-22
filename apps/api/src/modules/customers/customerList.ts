@@ -1,7 +1,7 @@
 import type { ConditionGroup, CursorQuery } from '@erxes/core-contract';
 import { customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
-import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
+import { boundedList } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
@@ -63,8 +63,6 @@ export const listCustomers = (client: Db, query: CursorQuery & CustomerQuery) =>
         table: customers,
         id: customers.id,
         createdAt: customers.createdAt,
-
-        countCap: LIST_COUNT_CAP,
       },
       await customerListWhere(client, query),
       query,
