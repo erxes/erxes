@@ -13,11 +13,11 @@ import {
   useToast,
   AppBreadcrumb,
 } from 'erxes-ui';
-import { CURRENCY_CODES } from 'erxes-ui/constants/CurrencyCodes';
 import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { CountrySelect, CurrencySelect, TimeZoneSelect } from '~/components/RegionSelect';
+import { currencyOptions } from '~/lib/region';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { ContactFields } from './ContactFields';
@@ -140,15 +140,14 @@ const RegionFields = ({ disabled }: { disabled: boolean }) => {
   );
 };
 
-const CURRENCY_OPTIONS = Object.entries(CURRENCY_CODES).map(([value, { label }]) => ({
-  value,
-  label,
-}));
-
-/** The other currencies it trades in, which plugins offer beside the main one. */
+/**
+ * The other currencies it trades in, which plugins offer beside the main one. The same list as the
+ * main currency's ("USD · US Dollar", in the UI's language), so a code finds its currency.
+ */
 const OtherCurrenciesField = ({ disabled }: { disabled: boolean }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'general' });
+  const { t, i18n } = useTranslation('settings', { keyPrefix: 'general' });
   const { control } = useFormContext<OrganizationValues>();
+  const currencies = currencyOptions(i18n.language);
 
   return (
     <Form.Field
@@ -159,11 +158,11 @@ const OtherCurrenciesField = ({ disabled }: { disabled: boolean }) => {
           <Form.Label>{t('currencies', 'Other currencies')}</Form.Label>
           <Form.Control>
             <MultipleSelector
-              options={CURRENCY_OPTIONS}
+              options={currencies}
               disabled={disabled}
               value={field.value.map(
                 (code) =>
-                  CURRENCY_OPTIONS.find((option) => option.value === code) ?? {
+                  currencies.find((option) => option.value === code) ?? {
                     value: code,
                     label: code,
                   },
