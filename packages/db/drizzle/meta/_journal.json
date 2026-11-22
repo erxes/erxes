@@ -841,6 +841,13 @@
       "when": 1795354468504,
       "tag": "0119_connection_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1795366942004,
+      "tag": "0120_connection_unique_names",
+      "breakpoints": true
     }
   ]
 }
