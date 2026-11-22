@@ -210,16 +210,26 @@ const keysFrom = (tokens: z.infer<typeof Tokens>, before?: OAuthKeys): OAuthKeys
     : before?.expiresAt,
 });
 
-export const exchangeCode = async (tx: Db, state: State, code: string) => {
-  const integration = oauthOf(state.key);
+export const signInApp = async (tx: Db, key: string) => {
+  const integration = oauthOf(key);
   const client = await clientOf(tx, integration.key);
 
   if (!client) throw new Error(`${integration.name} has no OAuth app`);
 
+  return { integration, client, redirectUri: await callbackUrl(tx) };
+};
+
+type SignInApp = Awaited<ReturnType<typeof signInApp>>;
+
+export const exchangeCode = async (
+  { integration, client, redirectUri }: SignInApp,
+  state: State,
+  code: string,
+) => {
   const tokens = await requestTokens(integration, {
     grant_type: 'authorization_code',
     code,
-    redirect_uri: await callbackUrl(tx),
+    redirect_uri: redirectUri,
     client_id: client.clientId,
     client_secret: client.clientSecret,
     code_verifier: verifierOf(state),
@@ -237,24 +247,35 @@ export const exchangeCode = async (tx: Db, state: State, code: string) => {
 
   const account = await integration.oauth.account(keys.accessToken);
 
-  return { integration, keys: { ...keys, account } };
+  return { keys: { ...keys, account } };
 };
 
+const storedKeys = async (tx: Db, row: ConnectionRow): Promise<unknown> =>
+  JSON.parse(await readSecret(tx, row.secretId));
+
+const renewable = (keys: OAuthKeys): keys is OAuthKeys & { refreshToken: string } =>
+  Boolean(
+    keys.refreshToken &&
+    keys.expiresAt &&
+    keys.expiresAt - REFRESH_MARGIN_SECONDS < Date.now() / 1000,
+  );
+
 export const freshKeys = async (tx: Db, integration: KeyedIntegration, row: ConnectionRow) => {
-  const keys: unknown = JSON.parse(await readSecret(tx, row.secretId));
+  if (!isOAuth(integration)) return integration.keys.parse(await storedKeys(tx, row));
 
-  if (!isOAuth(integration)) return integration.keys.parse(keys);
+  const seen = oauthKeys.parse(await storedKeys(tx, row));
 
-  const current = oauthKeys.parse(keys);
-  const due = current.expiresAt && current.expiresAt - REFRESH_MARGIN_SECONDS < Date.now() / 1000;
-
-  if (!due || !current.refreshToken) return current;
+  if (!renewable(seen)) return seen;
 
   await tx
     .select({ id: integrationConnections.id })
     .from(integrationConnections)
     .where(eq(integrationConnections.id, row.id))
     .for('update');
+
+  const current = oauthKeys.parse(await storedKeys(tx, row));
+
+  if (!renewable(current)) return current;
 
   const client = await clientOf(tx, integration.key);
 
