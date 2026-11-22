@@ -243,6 +243,13 @@ export const activities = pgTable(
       table.targetId,
       table.actorId,
     ),
+    // What a member did, newest first (their profile's activity).
+    index('core_activities_org_actor_occurred_idx').on(
+      table.orgId,
+      table.actorId,
+      table.occurredAt.desc(),
+      table.id.desc(),
+    ),
   ],
 );
 
@@ -293,6 +300,12 @@ export const auditLogs = pgTable(
     ),
     index('core_audit_logs_target_idx').on(table.orgId, table.targetType, table.targetId),
     index('core_audit_logs_actor_idx').on(table.orgId, table.actorId),
+    // The log's text search: "contains" on the action and the target's name.
+    index('core_audit_logs_action_trgm_idx').using('gin', table.action.op('gin_trgm_ops')),
+    index('core_audit_logs_target_label_trgm_idx').using(
+      'gin',
+      table.targetLabel.op('gin_trgm_ops'),
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

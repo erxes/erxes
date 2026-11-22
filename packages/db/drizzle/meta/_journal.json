@@ -771,6 +771,13 @@
       "when": 1795315793856,
       "tag": "0109_key_row_role",
       "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1795315814724,
+      "tag": "0110_list_search_indexes",
+      "breakpoints": true
     }
   ]
 }
