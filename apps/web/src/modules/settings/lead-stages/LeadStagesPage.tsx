@@ -12,10 +12,10 @@ import {
   ScrollArea,
   Spinner,
   useSortList,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { paths } from '~/lib/paths';

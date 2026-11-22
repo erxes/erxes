@@ -15,11 +15,11 @@ import {
   useConfirm,
   useMembersById,
   useToast,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
 import { useActorLabel } from '~/modules/activity/useActorLabel';

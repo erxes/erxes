@@ -9,10 +9,10 @@ import {
   Spinner,
   useConfirm,
   useToast,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';
 import { importQuery, useTransferLabel } from '~/modules/transfer/useTransfer';

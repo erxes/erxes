@@ -1,9 +1,8 @@
 import { IconPlugConnected } from '@tabler/icons-react';
-import { PageContainer, PageHeader, ScrollArea, Tabs } from 'erxes-ui';
+import { PageContainer, PageHeader, ScrollArea, Tabs, AppBreadcrumb } from 'erxes-ui';
 import { parseAsString, useQueryState } from 'nuqs';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
 import { usePluginText } from '~/modules/plugins/pluginText';

@@ -275,9 +275,6 @@ export const SUPPRESSION_REASONS = ['unsubscribed', 'bounced', 'complained', 'ma
 /** What a code is for: making an account, signing in to one, or adding a login to a signed-in one. */
 export const CUSTOMER_CODE_PURPOSES = ['sign_up', 'sign_in', 'add_login'] as const;
 
-/** A customer's account on a website: signs in, or is kept out by staff (`blocked`). */
-export const CUSTOMER_ACCOUNT_STATUSES = ['active', 'blocked'] as const;
-
 export const ORGANIZATION_STATUSES = ['active', 'suspended', 'inactive'] as const;
 export const PLUGIN_TIERS = ['free', 'plus', 'pro'] as const;
 export const PLUGIN_STATUSES = ['active', 'disabled'] as const;

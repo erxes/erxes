@@ -8,13 +8,13 @@ import {
   ScrollArea,
   Spinner,
   ToggleGroup,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NoMatches } from '~/components/NoMatches';
 import { Link, Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
 import { useSession } from '~/modules/auth/session';

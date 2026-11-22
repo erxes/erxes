@@ -2,10 +2,17 @@ import type { WebsiteListItem } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { IconWorldWww } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Badge, Empty, PageContainer, PageHeader, ScrollArea, useFormat } from 'erxes-ui';
+import {
+  Badge,
+  Empty,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  useFormat,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';

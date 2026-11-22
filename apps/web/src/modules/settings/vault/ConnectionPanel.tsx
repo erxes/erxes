@@ -1,9 +1,16 @@
 import type { VaultConnection } from '@erxes/core-contract';
 import { IconLock, IconShieldLock } from '@tabler/icons-react';
-import { Badge, Button, Skeleton, Spinner, usePanelExpanded, useRecordPanel } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  Skeleton,
+  Spinner,
+  usePanelExpanded,
+  useRecordPanel,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';

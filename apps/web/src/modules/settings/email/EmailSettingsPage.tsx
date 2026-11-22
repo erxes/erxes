@@ -2,10 +2,18 @@ import type { EmailSender, EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconMail } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
-import { Button, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast } from 'erxes-ui';
+import {
+  Button,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Spinner,
+  Tabs,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { EmailSetupBanner, useProviderName } from '~/components/EmailSetupBanner';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';

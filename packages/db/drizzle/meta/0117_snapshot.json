@@ -1,5 +1,5 @@
 {
-  "id": "d4fd9f0f-30c8-45bd-9111-d6a1934cf9e3",
+  "id": "a3352411-90a9-4c1c-bde6-24991ac30ddf",
   "prevId": "ba993d2a-0a60-4054-9c2a-493c63adb399",
   "version": "7",
   "dialect": "postgresql",
@@ -5603,12 +5603,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "subscription_id": {
-          "name": "subscription_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_by": {
           "name": "created_by",
           "type": "text",
@@ -5689,22 +5683,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "core_automations_subscription_idx": {
-          "name": "core_automations_subscription_idx",
-          "columns": [
-            {
-              "expression": "subscription_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"core_automations\".\"subscription_id\" IS NOT NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -5719,19 +5697,6 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_automations_subscription_id_fkey": {
-          "name": "core_automations_subscription_id_fkey",
-          "tableFrom": "core_automations",
-          "tableTo": "core_integration_subscriptions",
-          "columnsFrom": [
-            "subscription_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -6333,13 +6298,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "auth": {
-          "name": "auth",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'keys'"
-        },
         "status": {
           "name": "status",
           "type": "text",
@@ -6422,393 +6380,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "core_integration_connections_auth_check": {
-          "name": "core_integration_connections_auth_check",
-          "value": "\"core_integration_connections\".\"auth\" IN ('keys', 'oauth')"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.core_integration_oauth_apps": {
-      "name": "core_integration_oauth_apps",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "secret_id": {
-          "name": "secret_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_integration_oauth_apps_org_id_key_key": {
-          "name": "core_integration_oauth_apps_org_id_key_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_integration_oauth_apps_org_id_fkey": {
-          "name": "core_integration_oauth_apps_org_id_fkey",
-          "tableFrom": "core_integration_oauth_apps",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_integration_oauth_apps_secret_id_fkey": {
-          "name": "core_integration_oauth_apps_secret_id_fkey",
-          "tableFrom": "core_integration_oauth_apps",
-          "tableTo": "core_secrets",
-          "columnsFrom": [
-            "secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.core_integration_subscriptions": {
-      "name": "core_integration_subscriptions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "connection_id": {
-          "name": "connection_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "app": {
-          "name": "app",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "channel": {
-          "name": "channel",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "params": {
-          "name": "params",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "params_key": {
-          "name": "params_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "triggers": {
-          "name": "triggers",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'syncing'"
-        },
-        "external_id": {
-          "name": "external_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "route_key": {
-          "name": "route_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "secret_id": {
-          "name": "secret_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cursor": {
-          "name": "cursor",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "next_poll_at": {
-          "name": "next_poll_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "failures": {
-          "name": "failures",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_delivery_at": {
-          "name": "last_delivery_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_integration_subscriptions_org_id_id_key": {
-          "name": "core_integration_subscriptions_org_id_id_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_integration_subscriptions_identity_key": {
-          "name": "core_integration_subscriptions_identity_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "connection_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "channel",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "params_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_integration_subscriptions_due_idx": {
-          "name": "core_integration_subscriptions_due_idx",
-          "columns": [
-            {
-              "expression": "next_poll_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"core_integration_subscriptions\".\"next_poll_at\" IS NOT NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_integration_subscriptions_route_idx": {
-          "name": "core_integration_subscriptions_route_idx",
-          "columns": [
-            {
-              "expression": "app",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "route_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"core_integration_subscriptions\".\"route_key\" IS NOT NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_integration_subscriptions_org_id_fkey": {
-          "name": "core_integration_subscriptions_org_id_fkey",
-          "tableFrom": "core_integration_subscriptions",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_integration_subscriptions_connection_id_fkey": {
-          "name": "core_integration_subscriptions_connection_id_fkey",
-          "tableFrom": "core_integration_subscriptions",
-          "tableTo": "core_integration_connections",
-          "columnsFrom": [
-            "org_id",
-            "connection_id"
-          ],
-          "columnsTo": [
-            "org_id",
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_integration_subscriptions_secret_id_fkey": {
-          "name": "core_integration_subscriptions_secret_id_fkey",
-          "tableFrom": "core_integration_subscriptions",
-          "tableTo": "core_secrets",
-          "columnsFrom": [
-            "secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_integration_subscriptions_status_check": {
-          "name": "core_integration_subscriptions_status_check",
-          "value": "\"core_integration_subscriptions\".\"status\" IN ('syncing', 'listening', 'broken')"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.core_plugin_integration_states": {
@@ -10289,13 +9861,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'active'"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -10425,12 +9990,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "core_customer_accounts_status_check": {
-          "name": "core_customer_accounts_status_check",
-          "value": "\"core_customer_accounts\".\"status\" IN ('active', 'blocked')"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.core_customer_codes": {

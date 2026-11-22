@@ -1,9 +1,8 @@
 import type { Broadcast } from '@erxes/core-contract';
 import { IconSpeakerphone } from '@tabler/icons-react';
-import { PageHeader } from 'erxes-ui';
+import { PageHeader, AppBreadcrumb } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { StatusBadge } from './BroadcastBits';
 

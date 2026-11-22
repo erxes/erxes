@@ -20,7 +20,7 @@ const tabsListVariants = cva('h-auto text-accent-foreground', {
 });
 
 const tabsTriggerVariants = cva(
-  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 font-medium ring-offset-background transition-all motion-reduce:transition-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-disabled:pointer-events-none data-disabled:opacity-50',
+  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 font-medium ring-offset-background transition-all motion-reduce:transition-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4',
   {
     variants: {
       variant: {
@@ -74,7 +74,7 @@ const tabButtonVariants = cva(
       variant: {
         pill: 'px-2 transition-colors outline-none hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring/50 data-popup-open:bg-accent/60 [&_svg]:size-4',
         raised:
-          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition hover:bg-accent/70',
+          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition hover:bg-accent/70 [&_svg:not([class*=size-])]:size-4',
       },
       active: { true: 'text-foreground' },
       /** Lifted while it is dragged to a new place. */

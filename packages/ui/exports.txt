@@ -25,12 +25,14 @@ type ConnectionPickerProps
 type ContactQueries
 type ContactSearch
 type ContactSearchQueries
+type Crumb
 type CustomerContact
 type FileStorageAdapter
 type IUIConfig
 type Member
 type MemberQueries
 type MultiSelectOption
+type NextPage
 type PluginLiveMessage
 type PluginRuntime
 type PluginSession
@@ -79,6 +81,7 @@ type TagsQuery
 value Accordion
 value Alert
 value AlertDialog
+value AppBreadcrumb
 value AppLayout
 value AppLayoutFooterLink
 value Avatar
@@ -254,6 +257,7 @@ value useListDisplay
 value useListFilterParams
 value useListViews
 value useLiveSignal
+value useLoadOnScroll
 value useMeId
 value useMediaQuery
 value useMemberOptions

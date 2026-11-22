@@ -8,11 +8,11 @@ import {
   ScrollArea,
   Switch,
   buttonVariants,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { InboxNav } from './InboxNav';
 import { NotificationList } from './NotificationList';
 import { type NotificationTab, NotificationTabs } from './NotificationTabs';

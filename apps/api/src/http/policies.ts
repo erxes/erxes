@@ -206,8 +206,6 @@ export const ACCESS = {
   'websites.save': { plugin: 'websites:write' },
   'websites.remove': { plugin: 'websites:write' },
   'customerAccounts.list': needs('contacts.view'),
-  'customerAccounts.setStatus': needs('contacts.edit'),
-  'customerAccounts.signOut': needs('contacts.edit'),
 
   'tags.list': { member: 'any', plugin: 'products:read' },
   'tags.create': needs('tags.manage'),

@@ -23,8 +23,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Page
 
+- `<AppBreadcrumb items>` The page's trail: the app's icon and name, then each level, as links.
 - `<AppLayout id sidebar footer title>` An app's full-height layout under core's top bar, with its own sidebar.
 - `<AppLayoutFooterLink to name icon>` A link pinned to the foot of an app sidebar, in `AppLayout`'s `footer`.
+- `type Crumb { label, to, icon }` One level of the page's place.
 - `<NavigationMenuLinkItem name icon to isActive label>` A sidebar link that lights up while the address is under its `to`.
 - `<PageContainer>` A page's outer box, full height, with `PageHeader` first inside it.
 - `PageHeader.{Start, End}` A page's title bar, with the breadcrumb and its one primary action.
@@ -272,6 +274,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `LANGUAGES` The UI's languages, each with its own name and date-fns locale.
 - `loadPhoneFormatter()` Loads the phone library, once.
 - `localTimeZone()` The browser's time zone ("Asia/Ulaanbaatar"), when it says.
+- `type NextPage { hasNextPage, isFetchingNextPage, fetchNextPage }` The next page of a list, as an infinite query has it.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
 - `printHtml(html)` Prints a whole HTML page through the browser's print dialog.
@@ -289,6 +292,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useFocusFirstField(ref)` Puts the cursor in the first field under `ref` when the form opens.
 - `useFormat()` Date, number and money formatters in the UI's language, for components.
 - `useItemKeys(length)` Stable React keys for an editable list whose items have no id.
+- `useLoadOnScroll(pages)` Loads a list's next page as its end scrolls into view.
 - `useMediaQuery(query)` Whether a CSS media query matches now, right from the first render.
 - `useMoney()` `formatMoney` in the UI's language.
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.

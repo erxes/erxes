@@ -1,10 +1,9 @@
 import { AssistantProvider } from '@erxes/core-contract';
 import { IconKey } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
+import { PageContainer, PageHeader, ScrollArea, AppBreadcrumb } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';

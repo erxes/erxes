@@ -1,10 +1,9 @@
 import { type PluginApiAudience } from '@erxes/core-contract';
 import { messageOf } from '@erxes/core-contract/client';
 import { IconSourceCode } from '@tabler/icons-react';
-import { PageContainer, PageHeader } from 'erxes-ui';
+import { PageContainer, PageHeader, AppBreadcrumb } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { type ApiGroup, ApiReferencePicker } from './ApiReferencePicker';

@@ -9,10 +9,17 @@ import {
   IconHistory,
   IconTrash,
 } from '@tabler/icons-react';
-import { Button, DropdownMenu, Input, PageHeader, Switch, useConfirm } from 'erxes-ui';
+import {
+  Button,
+  DropdownMenu,
+  Input,
+  PageHeader,
+  Switch,
+  useConfirm,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import type { AutomationMutations, useAutomationDraft } from './useAutomationEditor';
 import { VersionsPanel } from './VersionsPanel';
 

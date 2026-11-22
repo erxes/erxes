@@ -1,5 +1,4 @@
 import {
-  type CustomerAccountStatus,
   caller,
   customerAccounts,
   customerLogins,
@@ -9,9 +8,7 @@ import {
   websites,
 } from '@erxes/core-db';
 import { and, asc, count, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
-import { notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
-import { revokeAccountSessions } from '~/modules/customerAuth/customerSessions';
 import { unknownWebsite } from '~/modules/customerAuth/customerWebsites';
 
 /** The plugin calling (`websites.save` and `.remove` are plugins' only). */
@@ -99,14 +96,6 @@ const accountRows = (client: Db) =>
     .from(customerAccounts)
     .innerJoin(websites, eq(websites.id, customerAccounts.websiteId));
 
-const findAccount = async (client: Db, id: string) => {
-  const [row] = await accountRows(client).where(eq(customerAccounts.id, id)).limit(1);
-
-  if (!row) throw notFound('Account');
-
-  return row;
-};
-
 /** A customer's accounts, one per website, newest first. */
 export const listCustomerAccounts = async (client: Db, customerId: string) => ({
   data: await wholeList((limit) =>
@@ -116,27 +105,3 @@ export const listCustomerAccounts = async (client: Db, customerId: string) => ({
       .limit(limit),
   ),
 });
-
-/** Blocks an account (signed out at once) or lets it sign in again. */
-export const setAccountStatus = async (client: Db, id: string, status: CustomerAccountStatus) => {
-  const [updated] = await client
-    .update(customerAccounts)
-    .set({ status })
-    .where(eq(customerAccounts.id, id))
-    .returning({ id: customerAccounts.id });
-
-  if (!updated) throw notFound('Account');
-
-  if (status === 'blocked') await revokeAccountSessions(client, id);
-
-  return findAccount(client, id);
-};
-
-/** Ends an account's sessions on its website. */
-export const signOutAccount = async (client: Db, id: string) => {
-  const account = await findAccount(client, id);
-
-  await revokeAccountSessions(client, id);
-
-  return account;
-};

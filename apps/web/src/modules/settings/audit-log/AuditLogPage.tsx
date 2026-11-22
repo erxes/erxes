@@ -9,12 +9,12 @@ import {
   PageHeader,
   ScrollArea,
   useFormat,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import type { AuditEntry } from '@erxes/core-contract';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { type CursorPage, forwardPaging } from '~/lib/cursorList';

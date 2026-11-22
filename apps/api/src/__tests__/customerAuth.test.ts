@@ -128,7 +128,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
           websiteId: t.sites.acme,
           websiteName: 'acme shop',
           plugin: 'hr',
-          status: 'active',
           logins: ['saraa@example.com'],
           sessions: 1,
         }),
@@ -138,44 +137,28 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(accounts.data).toHaveLength(2);
   });
 
-  it('lets staff block an account on one website and sign it out', async () => {
-    const shop = await t.signedIn('blocked@example.com');
-    const outlet = await t.signedIn('blocked@example.com', 'outlet');
+  it("shows staff a customer's accounts, which only the customer signs out", async () => {
+    const shop = await t.signedIn('leaving@example.com');
+    const outlet = await t.signedIn('leaving@example.com', 'outlet');
 
-    const accounts = await t.owner().customerAccounts.list({ customerId: shop.customer.id });
-    const onShop = accounts.data.find((account) => account.websiteId === t.sites.acme);
+    // Reading accounts is the member's organisation's: another one sees none.
+    expect((await t.other().customerAccounts.list({ customerId: shop.customer.id })).data).toEqual(
+      [],
+    );
 
-    if (!onShop) throw new Error('no account on the shop');
-
-    // Viewing accounts is contacts.view; blocking is contacts.edit, in the member's organisation.
-    await expect(
-      t.other().customerAccounts.setStatus({ id: onShop.id, status: 'blocked' }),
-    ).rejects.toMatchObject({ status: 404 });
-    expect(
-      await t.owner().customerAccounts.setStatus({ id: onShop.id, status: 'blocked' }),
-    ).toMatchObject({ status: 'blocked', sessions: 0 });
-
-    // Signed out at once, and kept out; the outlet still works.
+    // The customer signs out of the shop everywhere; the outlet stays signed in.
+    await shop.me.customerAccount.signOutEverywhere({});
     await expect(shop.me.customerAccount.me({})).rejects.toMatchObject({ status: 401 });
-    await expect(
-      t.app().api.customerAuth.refresh({ refreshToken: shop.refreshToken }),
-    ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
-    await aMinuteLater();
-    await expect(t.app().signIn('blocked@example.com')).rejects.toMatchObject({
-      status: 403,
-      code: 'ACCOUNT_BLOCKED',
-    });
     expect(await outlet.me.customerAccount.me({})).toMatchObject({ id: shop.customer.id });
 
-    await t.owner().customerAccounts.setStatus({ id: onShop.id, status: 'active' });
-    await t.owner().customerAccounts.signOut({ id: onShop.id });
+    const accounts = await t.owner().customerAccounts.list({ customerId: shop.customer.id });
 
-    const after = await t.owner().customerAccounts.list({ customerId: shop.customer.id });
+    const sessionsOn = (websiteId: string) =>
+      accounts.data.find((account) => account.websiteId === websiteId)?.sessions;
 
-    expect(after.data.find((account) => account.id === onShop.id)).toMatchObject({
-      status: 'active',
-      sessions: 0,
-    });
+    expect(accounts.data).toHaveLength(2);
+    expect(sessionsOn(t.sites.acme)).toBe(0);
+    expect(sessionsOn(t.sites.outlet)).toBe(1);
   });
 
   it('counts wrong codes: five, then even the right one fails', async () => {
