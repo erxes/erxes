@@ -4,7 +4,6 @@
     "label": "Message",
     "placeholder": "Ask anything, @ to mention a record",
     "no-key": "Add a provider key to start",
-    "question": "Answer the questions above first",
     "send": "Send",
     "stop": "Stop"
   },
@@ -31,7 +30,6 @@
   "reload": "Reload conversation",
   "retry": "Try again",
   "failed": "The reply stopped",
-  "needs-answer": "The assistant needs your answer",
   "gone": "This conversation was deleted.",
   "close-tab-short": "Close tab",
   "working": "Working on it…",
@@ -91,12 +89,10 @@
   "close-tab": "Close tab (the conversation stays in history)",
   "open-conversations": "Open conversations",
   "close-panel": "Close assistant",
-  "question": {
-    "title": "The assistant needs your answer",
-    "own": "Your own answer",
-    "own-placeholder": "Or write your own answer",
-    "answer-placeholder": "Your answer",
-    "send": "Send answers",
+  "ui": {
+    "drawing": "Drawing…",
+    "undrawn": "This part of the reply could not be shown. Ask again to see it.",
+    "time": "Time",
     "member-placeholder": "Choose a team member…",
     "date-placeholder": "Choose a date"
   },

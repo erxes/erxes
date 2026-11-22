@@ -14,6 +14,7 @@ COPY patches patches
 # Every workspace manifest, so the frozen lockfile matches.
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY packages/assistant-catalog/package.json packages/assistant-catalog/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
 COPY packages/lint/package.json packages/lint/
@@ -21,6 +22,7 @@ COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --filter @erxes/api...
 COPY tsconfig.base.json ./
+COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
 COPY packages/db packages/db
 COPY packages/plugin-sdk packages/plugin-sdk

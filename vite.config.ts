@@ -65,6 +65,7 @@ export default defineConfig({
       'coverage/**',
       'packages/db/drizzle/**',
       'packages/contract/routes.json',
+      'packages/assistant-catalog/catalog.json',
       'packages/ui/src/lib/cn-tables.ts',
       'packages/create-erxes/templates/**',
       'pnpm-lock.yaml',

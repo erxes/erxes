@@ -15,6 +15,7 @@ COPY patches patches
 # Every workspace manifest, so the frozen lockfile matches.
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY packages/assistant-catalog/package.json packages/assistant-catalog/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
 COPY packages/lint/package.json packages/lint/
@@ -22,6 +23,7 @@ COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --filter @erxes/web...
 COPY tsconfig.base.json ./
+COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
 # The contract builds its schemas from the table definitions (@erxes/core-db/schema).
 COPY packages/db/src packages/db/src

@@ -4,15 +4,9 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AssistantAvatar } from './AssistantAvatar';
 import { CopyButton } from './CopyButton';
-import { QuestionCard } from './QuestionCard';
-import { Reply } from './Reply';
+import { type OnUiAction, Reply } from './Reply';
 import { StepsGroup, ThinkingBlock } from './Steps';
-import {
-  answerMessage,
-  replyText,
-  type TranscriptMessage,
-  type TranscriptRow,
-} from './transcriptRows';
+import { replyText, type TranscriptMessage, type TranscriptRow } from './transcriptRows';
 import { UserMessage } from './UserMessage';
 
 const ArtifactCard = lazy(() =>
@@ -21,33 +15,42 @@ const ArtifactCard = lazy(() =>
 
 export interface TranscriptActions {
   busy: boolean;
-  onAnswer: (text: string) => void;
+  onAction: OnUiAction;
+}
+
+interface RowPlace {
+  live: boolean;
+  last: boolean;
+  superseded: boolean;
 }
 
 const Row = ({
   row,
-  live,
+  place,
   actions,
 }: {
   row: TranscriptRow;
-  live: boolean;
+  place: RowPlace;
   actions: TranscriptActions;
 }) => {
   switch (row.kind) {
     case 'text':
-      return <Reply text={row.text} streaming={row.streaming} />;
+      return (
+        <Reply
+          text={row.text}
+          state={{
+            streaming: row.streaming,
+            working: place.last && actions.busy,
+            live: place.last && !actions.busy,
+            superseded: place.superseded,
+          }}
+          onAction={actions.onAction}
+        />
+      );
     case 'thinking':
       return <ThinkingBlock text={row.text} streaming={row.streaming} />;
     case 'steps':
-      return <StepsGroup steps={row.steps} live={live} />;
-    case 'question':
-      return (
-        <QuestionCard
-          questions={row.questions}
-          disabled={actions.busy}
-          onAnswer={(answers) => actions.onAnswer(answerMessage(row.questions, answers))}
-        />
-      );
+      return <StepsGroup steps={row.steps} live={place.live} />;
     case 'artifact':
       return (
         <Suspense fallback={<Spinner />}>
@@ -68,12 +71,18 @@ const AssistantMessage = ({
 }) => {
   const { t } = useTranslation('assistant');
   const text = replyText(rows);
-  const waiting = rows.some((row) => row.kind === 'question');
   const working = last && actions.busy;
   const thinking = working && !rows.some((row) => row.kind === 'text');
   const [first] = rows;
   const lead = first?.kind === 'steps' || first?.kind === 'thinking' ? first : null;
   const liveKey = working ? rows.at(-1)?.key : undefined;
+  const lastText = rows.findLast((row) => row.kind === 'text')?.key;
+
+  const placeOf = (row: TranscriptRow): RowPlace => ({
+    live: row.key === liveKey,
+    last,
+    superseded: row.kind === 'text' && row.key !== lastText,
+  });
 
   return (
     <div className="flex flex-col gap-2">
@@ -86,7 +95,7 @@ const AssistantMessage = ({
         />
         {lead ? (
           <div className="min-w-0 flex-1">
-            <Row row={lead} live={lead.key === liveKey} actions={actions} />
+            <Row row={lead} place={placeOf(lead)} actions={actions} />
           </div>
         ) : (
           thinking && (
@@ -97,9 +106,9 @@ const AssistantMessage = ({
         )}
       </div>
       {rows.slice(lead ? 1 : 0).map((row) => (
-        <Row key={row.key} row={row} live={row.key === liveKey} actions={actions} />
+        <Row key={row.key} row={row} place={placeOf(row)} actions={actions} />
       ))}
-      {last && !working && !waiting && text && (
+      {last && !working && text && (
         <div className="flex items-center gap-0.5">
           <CopyButton text={text} />
         </div>

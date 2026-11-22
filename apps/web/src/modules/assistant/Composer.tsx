@@ -18,7 +18,7 @@ import { useComposerMentions } from './useComposerMentions';
 import type { ModelRunState } from './useModelRun';
 import { usePagePicker } from './usePagePicker';
 
-export type ComposerBlock = 'no-key' | 'question' | null;
+export type ComposerBlock = 'no-key' | null;
 
 const usePlaceholder = (block: ComposerBlock) => {
   const { t } = useTranslation('assistant');
@@ -26,8 +26,6 @@ const usePlaceholder = (block: ComposerBlock) => {
   switch (block) {
     case 'no-key':
       return t('composer.no-key', 'Add a provider key to start');
-    case 'question':
-      return t('composer.question', 'Answer the questions above first');
     case null:
       return t('composer.placeholder', 'Ask anything, @ to mention a record');
   }

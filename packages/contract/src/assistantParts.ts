@@ -95,11 +95,27 @@ export const AssistantSelections = z.object({
 
 export type AssistantSelections = z.infer<typeof AssistantSelections>;
 
+const ASSISTANT_ACTION_CONTEXT_MAX = 8000;
+
+export const AssistantAction = z.object({
+  surfaceId: z.string().min(1).max(128),
+  name: z.string().min(1).max(128),
+  context: z
+    .record(z.string(), z.unknown())
+    .refine(
+      (context) => JSON.stringify(context).length <= ASSISTANT_ACTION_CONTEXT_MAX,
+      'too many values',
+    ),
+});
+
+export type AssistantAction = z.infer<typeof AssistantAction>;
+
 export const ASSISTANT_DATA_PARTS = {
   mentions: AssistantMentions,
   page: AssistantPage,
   files: AssistantFiles,
   selections: AssistantSelections,
+  action: AssistantAction,
 };
 
 export const AssistantArtifactFormat = z.enum(ASSISTANT_ARTIFACT_FORMATS);
