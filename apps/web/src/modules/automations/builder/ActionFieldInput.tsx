@@ -15,6 +15,7 @@ import { z } from 'zod';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
   type ActionInputProps,
+  ConnectionSelect,
   CustomFieldSelect,
   customFieldsOf,
   fieldIdOf,
@@ -250,6 +251,8 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <PluginRecordSelect {...props} />;
     case 'select':
       return <OptionSelect {...props} />;
+    case 'connection':
+      return <ConnectionSelect {...props} />;
     case 'members':
     case 'tags':
       return <LookupMultiSelect {...props} />;

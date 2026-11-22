@@ -37,11 +37,11 @@ const useCategoryLabel = () => {
 
   return (category: Category) =>
     ({
-      email: t('email', 'Email'),
-      messaging: t('messaging', 'Messaging'),
+      payments: t('payments', 'Payment gateways'),
       social: t('social', 'Social media'),
-      payments: t('payments', 'Payments'),
-      tax: t('tax', 'Tax receipts'),
+      messaging: t('messaging', 'Messaging'),
+      email: t('email', 'Email'),
+      government: t('government', 'Government'),
     })[category];
 };
 
@@ -50,11 +50,10 @@ const IntegrationTile = ({
   foreign,
 }: {
   integration: Integration;
-  /** Listed under other regions: say where it works. */
+  /** Not set up and made for other countries: say where it works. */
   foreign: boolean;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
-  const categoryLabel = useCategoryLabel();
   const { name, summary } = useIntegrationText()(integration);
   const { status } = integration;
 
@@ -66,12 +65,7 @@ const IntegrationTile = ({
       >
         <span className="flex items-start gap-3">
           <IntegrationMark integration={integration} />
-          <span className="min-w-0 flex-1">
-            <span className="block font-medium">{name}</span>
-            <span className="block text-xs text-muted-foreground">
-              {categoryLabel(integration.category)}
-            </span>
-          </span>
+          <span className="min-w-0 flex-1 font-medium">{name}</span>
           {/* Only what is connected carries a state; the rest are simply available. */}
           <IntegrationStatusBadge status={status.state === 'not-set-up' ? null : status} />
         </span>
@@ -88,18 +82,8 @@ const IntegrationTile = ({
   );
 };
 
-const Section = ({
-  title,
-  items,
-  foreign = false,
-}: {
-  title: string;
-  items: Integration[];
-  foreign?: boolean;
-}) => {
+const Section = ({ title, items }: { title: string; items: Placed[] }) => {
   const id = useId();
-
-  if (!items.length) return null;
 
   return (
     <section aria-labelledby={id} className="space-y-3">
@@ -107,8 +91,12 @@ const Section = ({
         {title}
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((integration) => (
-          <IntegrationTile key={integration.slug} integration={integration} foreign={foreign} />
+        {items.map(({ integration, rank }) => (
+          <IntegrationTile
+            key={integration.slug}
+            integration={integration}
+            foreign={rank === 'elsewhere'}
+          />
         ))}
       </ul>
     </section>
@@ -164,11 +152,14 @@ const Filters = ({
   );
 };
 
-const isSetUp = (integration: Integration) => integration.status.state !== 'not-set-up';
+/** Where a tile goes in its category: connected, then local, then made for other regions. */
+const RANKS = ['connected', 'local', 'elsewhere'] as const;
+
+type Placed = { integration: Integration; rank: (typeof RANKS)[number] };
 
 /**
- * The catalog cut by the search and category, then into connected, local and other regions.
- * A category no integration is in is no filter.
+ * The catalog cut by the search and category, one section per category with an integration
+ * in it, in the categories' order. A category no integration is in is no filter.
  */
 const useSections = (search: string, chosen: Category | null) => {
   const { country } = useSession().organization;
@@ -191,20 +182,29 @@ const useSections = (search: string, chosen: Category | null) => {
     );
   };
 
-  const shown = integrations.filter(
-    (integration) => (!category || integration.category === category) && matches(integration),
-  );
+  const rankOf = (integration: Integration): Placed['rank'] => {
+    if (integration.status.state !== 'not-set-up') return 'connected';
 
-  const local = (integration: Integration) => !country || servesCountry(integration, country);
+    return !country || servesCountry(integration, country) ? 'local' : 'elsewhere';
+  };
+
+  const shown = integrations
+    .filter(
+      (integration) => (!category || integration.category === category) && matches(integration),
+    )
+    .map((integration): Placed => ({ integration, rank: rankOf(integration) }))
+    .toSorted((a, b) => RANKS.indexOf(a.rank) - RANKS.indexOf(b.rank));
 
   return {
     listed,
     categories,
     category,
     shown,
-    connected: shown.filter(isSetUp),
-    available: shown.filter((integration) => !isSetUp(integration) && local(integration)),
-    elsewhere: shown.filter((integration) => !isSetUp(integration) && !local(integration)),
+    sections: categories.flatMap((item) => {
+      const items = shown.filter(({ integration }) => integration.category === item);
+
+      return items.length ? [{ category: item, title: categoryLabel(item), items }] : [];
+    }),
   };
 };
 
@@ -258,15 +258,9 @@ const Catalog = () => {
           description={t('no-match-description', 'Try another word or category.')}
         />
       ) : (
-        <>
-          <Section title={t('section.connected', 'Connected')} items={sections.connected} />
-          <Section title={t('section.available', 'Available')} items={sections.available} />
-          <Section
-            title={t('section.elsewhere', 'Other regions')}
-            items={sections.elsewhere}
-            foreign
-          />
-        </>
+        sections.sections.map((section) => (
+          <Section key={section.category} title={section.title} items={section.items} />
+        ))
       )}
     </div>
   );

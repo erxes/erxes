@@ -178,6 +178,7 @@
     "stop": "End the run"
   },
   "choose": "Choose…",
+  "default-connection": "The default connection",
   "trigger-type": "Starts",
   "trigger-event-title": "Event",
   "trigger-schedule-title": "Schedule",

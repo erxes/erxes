@@ -39,6 +39,7 @@ describe('plugin integrations', { timeout: 120_000 }, () => {
         fields: [],
         payments: null,
         status: { state: 'not-set-up', count: null },
+        actions: [],
       },
     ]);
 

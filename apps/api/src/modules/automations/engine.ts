@@ -3,7 +3,7 @@ import {
   automationRunSteps,
   automations,
   type Db,
-  runAs,
+  enterScope,
   withOrg,
 } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
@@ -29,7 +29,7 @@ import {
   subjectRefOf,
 } from './runs';
 import { subjectOf } from './subjects';
-import { armConditions, renderInput, runStep } from './steps';
+import { armConditions, finalError, renderInput, runStep } from './steps';
 
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
 const MAX_STEPS_PER_RUN = 500;
@@ -93,7 +93,24 @@ export const callJob = defineJob({
 
     if (!prepared) return;
 
-    const output = await prepared.call();
+    const answer = await prepared.call().then(
+      (output) => ({ output }),
+      (error: unknown) => {
+        const final = finalError(error);
+
+        if (!final) throw error;
+
+        return { final };
+      },
+    );
+
+    if ('final' in answer) {
+      await withOrg(job.orgId, (tx) => failRun(tx, job, answer.final));
+
+      return;
+    }
+
+    const { output } = answer;
 
     await withOrg(job.orgId, async (tx) => {
       if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);
@@ -155,13 +172,13 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
   const action = coreAction(step.action);
 
   if (action && 'call' in action)
-    return { ...prepared, call: () => runAs(member, () => action.call(ctx)) };
+    return { ...prepared, call: () => enterScope(member, orgId, () => action.call(ctx)) };
 
   const plugin = await pluginForAction(tx, step.action);
 
   return {
     ...prepared,
-    call: () => runAs(member, () => runPluginAction(ctx, plugin, step.action)),
+    call: () => enterScope(member, orgId, () => runPluginAction(ctx, plugin, step.action)),
     learnsOutput: true,
   };
 };

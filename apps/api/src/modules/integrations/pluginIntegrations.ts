@@ -31,6 +31,13 @@ export const pluginIntegrations = async (client: Db) => {
         fields: [],
         payments: null,
         status: stateOf(name, integration.key),
+        actions: (manifest?.actions ?? [])
+          .filter((action) => action.integration === integration.key)
+          .map(({ type, label, description }) => ({
+            type,
+            label,
+            description: description ?? null,
+          })),
       })),
   );
 };

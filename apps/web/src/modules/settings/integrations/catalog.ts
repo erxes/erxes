@@ -2,10 +2,10 @@ import { type Integration as ListedIntegration, IntegrationCategory } from '@erx
 import { orpc } from '@erxes/core-contract/client';
 import {
   type Icon,
+  IconBuildingBank,
   IconCreditCard,
   IconMail,
   IconMessage,
-  IconReceiptTax,
   IconSocial,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -18,11 +18,11 @@ export const CATEGORIES = IntegrationCategory.options;
 export type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_ICONS: Record<Category, Icon> = {
-  email: IconMail,
-  messaging: IconMessage,
-  social: IconSocial,
   payments: IconCreditCard,
-  tax: IconReceiptTax,
+  social: IconSocial,
+  messaging: IconMessage,
+  email: IconMail,
+  government: IconBuildingBank,
 };
 
 /** A listed integration with its address (`qpay`, `frontline.facebook`) and what its UI adds. */

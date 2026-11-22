@@ -21,6 +21,7 @@ import {
   visibleSettings,
   withSettings,
 } from './connections';
+import { INTEGRATION_ACTIONS } from './actions';
 import { fieldsOf, type Integration, type KeyedIntegration } from './define';
 import { pluginIntegrations } from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
@@ -73,6 +74,9 @@ export const listIntegrations = async (client: Db) => {
       status: integration.status
         ? await integration.status(client)
         : connectionStatus(counts.get(integration.key)),
+      actions: INTEGRATION_ACTIONS.filter(
+        (action) => action.integration?.key === integration.key,
+      ).map(({ type, label, description }) => ({ type, label, description })),
     })),
   );
 

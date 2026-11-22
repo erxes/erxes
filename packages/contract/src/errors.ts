@@ -111,6 +111,8 @@ export const ERRORS = {
   NOT_ACTIVE: { status: 409 },
   NOT_FAILED: { status: 409 },
   NOT_RUNNING: { status: 409 },
+  // An integration's step with no active connection of that integration to run on.
+  NOT_CONNECTED: { status: 409 },
 
   // Contacts, leads, tags, custom fields.
   NOT_A_LEAD: { status: 400 },
@@ -210,6 +212,8 @@ export const ERRORS = {
   READ_NOT_APPROVED: { status: 403 },
   INVALID_SUBDOMAIN: { status: 400 },
   UNKNOWN_PERMISSION: { status: 400, data: Permissions },
+  // A manifest's action names an integration the manifest's `integrations` don't declare.
+  UNKNOWN_INTEGRATION: { status: 400 },
   DUPLICATE_PERMISSION_SET: { status: 400 },
   OWNER_ONLY_PERMISSION: { status: 400, data: Permissions },
   BEYOND_OWN_PERMISSIONS: { status: 403, data: Permissions.optional() },

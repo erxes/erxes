@@ -813,19 +813,15 @@
     "categories": "Categories",
     "all": "All",
     "category": {
-      "payments": "Payments",
-      "tax": "Tax receipts",
-      "email": "Email",
+      "payments": "Payment gateways",
+      "social": "Social media",
       "messaging": "Messaging",
-      "social": "Social media"
-    },
-    "section": {
-      "connected": "Connected",
-      "available": "Available",
-      "elsewhere": "Other regions"
+      "email": "Email",
+      "government": "Government"
     },
     "made-for": "Made for {{countries}}",
     "anywhere": "Works in any country",
+    "in-automations": "In automations",
     "no-match": "No integrations match",
     "no-match-description": "Try another word or category.",
     "load-failed": "Could not load the integrations: {{message}}",

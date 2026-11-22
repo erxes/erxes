@@ -116,6 +116,7 @@ const listed = (
   fields: [],
   payments: null,
   status: NOT_SET_UP,
+  actions: [],
   ...row,
 });
 
@@ -125,7 +126,7 @@ const LISTED = [
     key: 'ebarimt',
     name: 'eBarimt',
     summary: 'Mongolian tax receipts for paid invoices, sent through your PosAPI.',
-    category: 'tax',
+    category: 'government',
     countries: ['MN'],
   }),
   listed({
@@ -134,6 +135,13 @@ const LISTED = [
     name: 'Messenger',
     summary: 'Facebook and Instagram messages in your inbox.',
     category: 'social',
+    actions: [
+      {
+        type: 'chat.reply',
+        label: 'Reply on Messenger',
+        description: 'Send a message to the conversation',
+      },
+    ],
   }),
   listed({
     key: 'zalo',
@@ -257,32 +265,39 @@ describe('plugins in core’s settings', () => {
     expect(container.textContent).not.toContain('Properties');
   });
 
-  it('lists a plugin’s integrations beside core’s, by state and region, with filters for their categories', async () => {
+  it('lists a plugin’s integrations beside core’s, a section per category with the connected first', async () => {
     const container = await renderSettings('/settings/integrations', 'Messenger');
 
-    const section = (title: string) =>
-      [...container.querySelectorAll('section')].find(
-        (element) => element.querySelector('h2')?.textContent === title,
-      );
+    const sections = [...container.querySelectorAll('section')];
 
-    expect(section('Connected') && links(section('Connected') ?? container)).toEqual([
-      [expect.stringContaining('LINE'), '/settings/integrations/chat.line'],
+    const section = (title: string) =>
+      sections.find((element) => element.querySelector('h2')?.textContent === title);
+
+    expect(sections.map((element) => element.querySelector('h2')?.textContent)).toEqual([
+      'Social media',
+      'Messaging',
+      'Government',
     ]);
-    expect(section('Connected')?.textContent).toContain('Connected');
-    expect(section('Available') && links(section('Available') ?? container)).toEqual([
-      [expect.stringContaining('eBarimt'), '/settings/integrations/ebarimt'],
+    expect(links(section('Social media') ?? container)).toEqual([
       [expect.stringContaining('Messenger'), '/settings/integrations/chat.meta'],
     ]);
-    expect(section('Available')?.textContent).toContain(
+    expect(section('Social media')?.textContent).toContain(
       'Facebook and Instagram messages in your inbox.',
     );
-    expect(section('Other regions')?.textContent).toContain('Zalo');
-    expect(section('Other regions')?.textContent).toContain('Made for Vietnam');
+    expect(links(section('Messaging') ?? container)).toEqual([
+      [expect.stringContaining('LINE'), '/settings/integrations/chat.line'],
+      [expect.stringContaining('Zalo'), '/settings/integrations/chat.zalo'],
+    ]);
+    expect(section('Messaging')?.textContent).toContain('Connected');
+    expect(section('Messaging')?.textContent).toContain('Made for Vietnam');
+    expect(links(section('Government') ?? container)).toEqual([
+      [expect.stringContaining('eBarimt'), '/settings/integrations/ebarimt'],
+    ]);
     expect(
       [...container.querySelectorAll('[aria-label="Categories"] button')].map(
         (item) => item.textContent,
       ),
-    ).toEqual(['All', 'Messaging', 'Social media', 'Tax receipts']);
+    ).toEqual(['All', 'Social media', 'Messaging', 'Government']);
     expect(container.textContent).not.toContain('Vault');
   });
 
@@ -294,6 +309,8 @@ describe('plugins in core’s settings', () => {
     expect(container.textContent).toContain('Works in any country');
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Meta app']);
     expect(container.textContent).not.toContain('App id and secret');
+    expect(container.textContent).toContain('In automations');
+    expect(container.textContent).toContain('Reply on Messenger');
 
     await act(async () => {
       tabs[1]?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -302,6 +319,7 @@ describe('plugins in core’s settings', () => {
     // The address names the tab, so a reload opens it again.
     await vi.waitFor(() => expect(window.location.search).toBe('?tab=app'));
     expect(container.textContent).not.toContain('Conversations from Facebook pages');
+    expect(container.textContent).not.toContain('Reply on Messenger');
   });
 
   it('sends a member to the catalog from an integration core does not list them', async () => {

@@ -4,9 +4,9 @@ import { fail } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
+  clientOf,
   type ConnectionRow,
   connectionsWithSecret,
-  keysOf,
   listConnections,
 } from '~/modules/integrations/connections';
 import { gatewayOf, PAYMENT_KEYS } from '~/modules/integrations/registry';
@@ -69,7 +69,7 @@ export const gatewayAt = (row: GatewayRow) => {
 
   return {
     payments: gateway.payments,
-    client: gateway.client(keysOf(gateway, row), { cacheKey: row.id }),
+    client: clientOf(gateway, row),
   };
 };
 

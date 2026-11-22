@@ -808,19 +808,15 @@
     "categories": "Ангилал",
     "all": "Бүгд",
     "category": {
-      "payments": "Төлбөр",
-      "tax": "Татварын баримт",
-      "email": "Имэйл",
+      "payments": "Төлбөрийн гарц",
+      "social": "Сошиал медиа",
       "messaging": "Мессеж",
-      "social": "Сошиал медиа"
-    },
-    "section": {
-      "connected": "Холбогдсон",
-      "available": "Холбох боломжтой",
-      "elsewhere": "Бусад бүс нутаг"
+      "email": "Имэйл",
+      "government": "Төрийн үйлчилгээ"
     },
     "made-for": "{{countries}}-д зориулсан",
     "anywhere": "Аль ч улсад ажиллана",
+    "in-automations": "Автоматжуулалтад",
     "no-match": "Тохирох холболт алга",
     "no-match-description": "Өөр үг эсвэл ангилал сонгоно уу.",
     "load-failed": "Холболтуудыг ачаалж чадсангүй: {{message}}",

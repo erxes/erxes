@@ -7,6 +7,7 @@ import { integrationConnections, pluginIntegrationStates } from '@erxes/core-db/
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { ActionInfo } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { Country } from './money';
@@ -49,6 +50,9 @@ export const IntegrationPayments = z.object({
   pays: z.string(),
 });
 
+/** An action it brings to automations (`qpay.invoice.create`), as the builder lists it. */
+export const IntegrationAction = ActionInfo.pick({ type: true, label: true, description: true });
+
 export const Integration = z.object({
   key: z.string(),
   /** The plugin whose manifest declares it; null for core's own. */
@@ -62,6 +66,7 @@ export const Integration = z.object({
   fields: z.array(IntegrationField),
   payments: IntegrationPayments.nullable(),
   status: IntegrationStatus,
+  actions: z.array(IntegrationAction),
 });
 
 export type Integration = z.infer<typeof Integration>;

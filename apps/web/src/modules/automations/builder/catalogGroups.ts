@@ -15,6 +15,7 @@ import {
   IconMessageCircle,
   IconNote,
   IconPhone,
+  IconPlugConnected,
   IconPuzzle,
   IconSparkles,
   IconTicket,
@@ -36,6 +37,9 @@ export interface CatalogItem {
   description?: string | null;
   /** `core` or the plugin. */
   source: string;
+  /** The integration an action belongs to (`qpay`, `frontline.facebook`), and its name. */
+  integration?: string | null;
+  integrationName?: string | null;
 }
 
 export interface CatalogGroup {
@@ -61,6 +65,16 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
 };
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {
+  if (item.integration) {
+    return {
+      key: `integration:${item.integration}`,
+      source: item.source,
+      label: item.integrationName ?? item.integration,
+      icon: IconPlugConnected,
+      order: 60,
+    };
+  }
+
   if (item.source !== 'core') {
     return {
       key: `plugin:${item.source}`,
@@ -143,7 +157,7 @@ export const useCatalogLabels = (kind: string) => {
   const { t } = useTranslation('automations');
 
   const groupName = (group: CatalogGroup) =>
-    group.source === 'core' ? t(`catalog-group.${group.label}`, group.label) : group.label;
+    group.key.startsWith('core:') ? t(`catalog-group.${group.label}`, group.label) : group.label;
 
   const countLabel = (count: number) =>
     kind === 'action'

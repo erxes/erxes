@@ -32,7 +32,10 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
      member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
-     that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
+     that depend on it. An action may name one of the manifest's `integrations` (`integration`,
+     else 400 `UNKNOWN_INTEGRATION`): the catalog's `ActionInfo` carries it as
+     `integration: '<plugin>.<key>'` with `integrationName`, and the builder groups it there and
+     lists it on the integration's page. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
      `type`, `recordType?`) name what its answer or payload holds, under the event's `record`
      ("The order"); `registerManifest` answers `warnings` for what is missing. The builder offers
      them in "Insert data" as

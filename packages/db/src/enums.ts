@@ -444,11 +444,19 @@ export const ACTION_FIELD_TYPES = [
   'recipients',
   'plugin_record',
   'reply_to',
+  'connection',
 ] as const;
 
 // ─── Integrations ───────────────────────────────────────────────────────────
 
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'social', 'payments', 'tax'] as const;
+/** In the order Settings › Integrations lists them. */
+export const INTEGRATION_CATEGORIES = [
+  'payments',
+  'social',
+  'messaging',
+  'email',
+  'government',
+] as const;
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
 

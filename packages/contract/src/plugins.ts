@@ -1,9 +1,4 @@
-import {
-  AUTOMATION_SUBJECTS,
-  CONTENT_TYPES,
-  PLUGIN_SCOPES,
-  TAX_RECEIPT_ISSUERS,
-} from '@erxes/core-db/enums';
+import { CONTENT_TYPES, PLUGIN_SCOPES, TAX_RECEIPT_ISSUERS } from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -11,10 +6,11 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
-import { ActionFields, DataField } from './automationRuns';
+import { DataField, PluginAction } from './automationRuns';
 import { AppOrigin } from './customerAuth';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginName } from './values';
 import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
@@ -28,7 +24,6 @@ import { PluginTranslations } from './pluginTranslations';
 import { PluginApiDocs } from './pluginApiDocs';
 import { PluginSearchSource } from './search';
 import { PluginRead, pluginReadsContract } from './pluginReads';
-import { PluginName } from './values';
 
 export { PLUGIN_SCOPES };
 
@@ -154,28 +149,8 @@ export const PluginManifest = z.object({
     )
     .max(200)
     .optional(),
-  /**
-   * Actions automations can run (`hr.leave.create`): core POSTs
-   * `{ input, context }` to `<api.url>/automations/actions/<type>` with a
-   * core token and an `Idempotency-Key`; the JSON answer is the step's output.
-   * A `plugin_record` field's choices come from
-   * `GET <api.url>/automations/records/<recordType>?parent=<its dependsOn value>`,
-   * called with the member's session token, answering `[{ value, label }]`.
-   */
-  actions: z
-    .array(
-      z.object({
-        type: EventType,
-        label: z.string().trim().min(1).max(100),
-        description: z.string().trim().max(300).optional(),
-        subject: z.enum(AUTOMATION_SUBJECTS).optional(),
-        fields: ActionFields.default([]),
-        /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
-        outputs: z.array(DataField).max(50).optional(),
-      }),
-    )
-    .max(200)
-    .optional(),
+  /** Actions automations can run (`PluginAction`). */
+  actions: z.array(PluginAction).max(200).optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
   timelines: z.array(PluginTimeline).max(50).optional(),
   /**
@@ -310,6 +285,7 @@ const {
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_INTEGRATION,
   UNKNOWN_PERMISSION,
 } = ERRORS;
 
@@ -324,6 +300,7 @@ const base = oc.errors({
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_INTEGRATION,
   UNKNOWN_PERMISSION,
 });
 

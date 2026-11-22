@@ -32,14 +32,21 @@ export interface ActionContext extends CallContext {
  * system: it runs outside any transaction, may run more than once, and sends
  * `idempotencyKey(ctx)` so the other side does the work once.
  */
-export type CoreAction = Omit<ActionInfo, 'source' | 'outputs'> &
-  Partial<Pick<ActionInfo, 'outputs'>> & {
-    /** Problems with the step's input found when the automation is saved, beyond required fields. */
-    check?: (input: Record<string, unknown>) => string[];
-  } & (
+export type CoreAction = ActionSpec & {
+  type: string;
+  /** The integration it belongs to (`qpay`): listed only while that integration is connected. */
+  integration?: { key: string; name: string };
+} & (
     | { run: (ctx: ActionContext) => Promise<unknown> }
     | { call: (ctx: CallContext) => Promise<unknown> }
   );
+
+/** What an action is, apart from its type and how it runs. */
+export type ActionSpec = Pick<ActionInfo, 'label' | 'description' | 'subject' | 'fields'> &
+  Partial<Pick<ActionInfo, 'outputs'>> & {
+    /** Problems with the step's input found when the automation is saved, beyond required fields. */
+    check?: (input: Record<string, unknown>) => string[];
+  };
 
 export const idempotencyKey = (ctx: CallContext) => `${ctx.run.id}:${ctx.step.id}`;
 
@@ -112,8 +119,25 @@ export const parseBody = (body: string) => {
 
 /** The subject's fields some actions read (its owner, its email). */
 const SubjectFields = z
-  .object({ ownerId: z.string().nullish(), primaryEmail: z.string().nullish() })
+  .object({
+    ownerId: z.string().nullish(),
+    primaryEmail: z.string().nullish(),
+    primaryPhone: z.string().nullish(),
+  })
   .nullish();
 
 export const subjectFields = (ctx: CallContext) =>
   SubjectFields.safeParse(ctx.context.subject).data ?? null;
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** A `recipients` input's addresses: the record's own email (`subject`), or those given. */
+export const recipientsOf = (ctx: CallContext, key: string) => {
+  const to = (text(ctx.input[key]) ?? '').trim();
+  const addresses = to === 'subject' ? [subjectFields(ctx)?.primaryEmail ?? ''] : to.split(',');
+
+  return addresses
+    .map((address) => address.trim())
+    .filter((address) => EMAIL.test(address))
+    .slice(0, 50);
+};

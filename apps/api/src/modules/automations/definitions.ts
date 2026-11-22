@@ -76,6 +76,13 @@ const actionProblems = (
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
 
+  for (const field of action.fields.filter((item) => item.type === 'connection')) {
+    const value = step.input[field.key];
+
+    if (!isBlank(value) && !field.options?.some((option) => option.value === value))
+      problems.push(`Step ${step.id} (${action.label}): that connection is not active`);
+  }
+
   if (action.subject && action.subject !== 'any' && subject && action.subject !== subject)
     problems.push(
       `Step ${step.id} (${action.label}) needs a ${action.subject}, but runs are about a ${subject}`,

@@ -78,7 +78,7 @@ const ownTransfers = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
-/** Its integrations need one of its own permissions. */
+/** Its integrations need one of its own permissions; its actions name only its own integrations. */
 const ownIntegrations = (manifest: PluginManifest) => {
   const declared = new Set(manifest.permissions?.map((item) => item.action));
   const integration = manifest.integrations?.find((item) => !declared.has(item.permission));
@@ -88,6 +88,16 @@ const ownIntegrations = (manifest: PluginManifest) => {
       'UNKNOWN_PERMISSION',
       `Integration "${integration.key}" needs ${integration.permission}, which the manifest's permissions don't declare`,
       { permissions: [integration.permission] },
+    );
+  }
+
+  const keys = new Set(manifest.integrations?.map((item) => item.key));
+  const action = manifest.actions?.find((item) => item.integration && !keys.has(item.integration));
+
+  if (action) {
+    throw fail(
+      'UNKNOWN_INTEGRATION',
+      `Action "${action.type}" names the integration "${action.integration}", which the manifest's integrations don't declare`,
     );
   }
 };

@@ -14,9 +14,9 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
 
   const tile = page.getByRole('link', { name: /eBarimt/ });
 
-  // Not set up: listed as available for this organisation, which works in Mongolia.
+  // Not set up: listed under its category, Government.
   await expect(
-    page.getByRole('region', { name: 'Available' }).getByRole('link', { name: /eBarimt/ }),
+    page.getByRole('region', { name: 'Government' }).getByRole('link', { name: /eBarimt/ }),
   ).toBeVisible();
   await expectAccessibleInBothThemes(page);
 
@@ -28,7 +28,7 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   await expect(tile).toBeHidden();
   await expect(gateways).toHaveAttribute('href', '/settings/integrations/qpay');
   await page.getByRole('searchbox', { name: 'Search integrations…' }).fill('');
-  await page.getByRole('button', { name: 'Tax receipts' }).click();
+  await page.getByRole('button', { name: 'Government' }).click();
   await expect(tile).toBeVisible();
   await expect(gateways).toBeHidden();
 

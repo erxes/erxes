@@ -123,6 +123,35 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
   );
 };
 
+const DEFAULT_CONNECTION = '__default';
+
+/** One of the integration's active connections (the catalog lists them), or its default one. */
+export const ConnectionSelect = ({ field, value, onChange, disabled }: ActionInputProps) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Select
+      value={textOf(value) || DEFAULT_CONNECTION}
+      onValueChange={(next) => onChange(next === DEFAULT_CONNECTION ? undefined : next)}
+      disabled={disabled}
+    >
+      <Select.Trigger aria-label={field.label}>
+        <Select.Value />
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value={DEFAULT_CONNECTION}>
+          {t('default-connection', 'The default connection')}
+        </Select.Item>
+        {(field.options ?? []).map((option) => (
+          <Select.Item key={option.value} value={option.value}>
+            {option.label}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
+};
+
 const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
 
 /**

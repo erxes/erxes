@@ -152,6 +152,7 @@ export interface StoredPluginManifest {
     label: string;
     description?: string;
     subject?: (typeof AUTOMATION_SUBJECTS)[number];
+    integration?: string;
     fields: {
       key: string;
       label: string;

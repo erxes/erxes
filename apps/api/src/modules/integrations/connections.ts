@@ -2,7 +2,7 @@ import { type Db, integrationConnections, secrets } from '@erxes/core-db';
 import { eq, getTableColumns, inArray } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { openSecret, type WithSecret } from '~/modules/secrets/vault';
-import { fieldsOf, type KeyedIntegration } from './define';
+import { fieldsOf, type KeyedIntegration, type Keys } from './define';
 import { keyedOf } from './registry';
 
 export type ConnectionRow = WithSecret<typeof integrationConnections.$inferSelect>;
@@ -15,6 +15,10 @@ export const connectionsWithSecret = (client: Db) =>
 
 export const keysOf = (integration: KeyedIntegration, row: ConnectionRow) =>
   integration.keys.parse(JSON.parse(openSecret(row.secret)));
+
+/** The integration's client for the connection's keys. */
+export const clientOf = <C>(integration: KeyedIntegration<Keys, C>, row: ConnectionRow) =>
+  integration.client(keysOf(integration, row), { cacheKey: row.id });
 
 export const visibleSettings = (integration: KeyedIntegration, keys: Record<string, unknown>) =>
   Object.fromEntries(
