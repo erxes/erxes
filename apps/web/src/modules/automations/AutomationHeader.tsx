@@ -1,11 +1,18 @@
 import { paths } from '~/lib/paths';
 import type { Automation } from '@erxes/core-contract';
-import { IconBolt, IconDeviceFloppy, IconDots, IconHistory, IconTrash } from '@tabler/icons-react';
+import {
+  IconAdjustmentsHorizontal,
+  IconBolt,
+  IconDeviceFloppy,
+  IconDots,
+  IconFlask,
+  IconHistory,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Button, DropdownMenu, Input, PageHeader, Switch, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { TestPanel } from './TestPanel';
 import type { AutomationMutations, useAutomationDraft } from './useAutomationEditor';
 import { VersionsPanel } from './VersionsPanel';
 
@@ -13,19 +20,19 @@ const EditorActions = ({
   automation,
   draft,
   mutations,
-  subject,
   problemCount,
+  onTest,
+  onSettings,
 }: {
   automation: Automation;
   draft: ReturnType<typeof useAutomationDraft>;
   mutations: AutomationMutations;
-  subject: 'customer' | 'company' | null;
   problemCount: number;
+  onTest: () => void;
+  onSettings: () => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { confirm } = useConfirm();
   const { save, activate, pause, remove } = mutations;
-  const [versionsOpen, setVersionsOpen] = useState(false);
   const id = { id: automation.id };
   const isOn = automation.status === 'active';
   const blocked = !isOn && problemCount > 0;
@@ -44,7 +51,10 @@ const EditorActions = ({
         />
         {isOn ? t('switch-on', 'On') : t('switch-off', 'Off')}
       </label>
-      <TestPanel automation={automation} subject={subject} />
+      <Button variant="outline" onClick={onTest}>
+        <IconFlask />
+        {t('test', 'Test')}
+      </Button>
       <Button
         disabled={save.isPending || !draft.dirty}
         onClick={() => save.mutate(draft.input)}
@@ -53,6 +63,26 @@ const EditorActions = ({
         <IconDeviceFloppy />
         {t('save', 'Save')}
       </Button>
+      <MoreMenu automation={automation} remove={remove} onSettings={onSettings} />
+    </PageHeader.End>
+  );
+};
+
+const MoreMenu = ({
+  automation,
+  remove,
+  onSettings,
+}: {
+  automation: Automation;
+  remove: AutomationMutations['remove'];
+  onSettings: () => void;
+}) => {
+  const { t } = useTranslation('automations');
+  const { confirm } = useConfirm();
+  const [versionsOpen, setVersionsOpen] = useState(false);
+
+  return (
+    <>
       <DropdownMenu>
         <DropdownMenu.Trigger
           aria-label={t('more-actions', 'More')}
@@ -61,6 +91,10 @@ const EditorActions = ({
           <IconDots />
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end" className="w-52">
+          <DropdownMenu.Item onClick={onSettings}>
+            <IconAdjustmentsHorizontal />
+            {t('settings', 'Settings')}
+          </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => setVersionsOpen(true)}>
             <IconHistory />
             {t('versions', 'Earlier versions')}
@@ -73,7 +107,7 @@ const EditorActions = ({
                 message: t('delete-confirm', 'Delete “{{name}}”? Runs in progress stop.', {
                   name: automation.name,
                 }),
-              }).then(() => remove.mutate(id))
+              }).then(() => remove.mutate({ id: automation.id }))
             }
           >
             <IconTrash />
@@ -87,7 +121,7 @@ const EditorActions = ({
         open={versionsOpen}
         onOpenChange={setVersionsOpen}
       />
-    </PageHeader.End>
+    </>
   );
 };
 

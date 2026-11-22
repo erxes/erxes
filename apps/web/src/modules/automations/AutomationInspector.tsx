@@ -1,159 +1,105 @@
-import type { ActionInfo, Automation } from '@erxes/core-contract';
-import { IconAdjustmentsHorizontal, IconBolt } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
-import { useContext } from 'react';
+import type { Automation } from '@erxes/core-contract';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
-import { AutomationSettings, ProblemList } from './AutomationSettings';
-import type { FieldInfo } from './builder/useAutomationFields';
 import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
-import { describeStep } from './builder/flowText';
-import { BuilderContext } from './builder/BuilderContext';
 import { TriggerEditor } from './builder/TriggerEditor';
+import type { useBuilder } from './builder/useBuilder';
 import { type Selection, StepInspector } from './StepInspector';
-import type { useAutomationDraft } from './useAutomationEditor';
+import { TestPanel } from './TestPanel';
+import type { AutomationMutations, useAutomationDraft } from './useAutomationEditor';
 
 export interface InspectorProps {
   automation: Automation;
   draft: ReturnType<typeof useAutomationDraft>;
+  mutations: AutomationMutations;
   catalog: Catalog;
-  actions: ActionInfo[];
-  fields: FieldInfo[];
-  fieldsError: Error | null;
-  subject: 'customer' | 'company';
-  hasSubject: boolean;
+  built: ReturnType<typeof useBuilder>;
   editable: boolean;
-  problems: Map<string, string[]>;
-  serverProblems: string[];
-  skippedByLimit: number;
   selected: Selection;
   onSelect: (selection: Selection) => void;
-  onStartNow: (() => void) | undefined;
+  onTested: () => void;
 }
 
-const InspectorTabs = ({
-  selected,
-  onSelect,
-  stepType,
-}: {
-  selected: Selection;
-  onSelect: (selection: Selection) => void;
-  stepType: keyof typeof STEP_TITLES | undefined;
-}) => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <div className="flex h-10 shrink-0 items-center gap-1 border-b px-3">
-      <Button
-        size="sm"
-        variant={selected === 'settings' ? 'secondary' : 'ghost'}
-        className="h-7"
-        onClick={() => onSelect('settings')}
-      >
-        <IconAdjustmentsHorizontal />
-        {t('settings', 'Settings')}
-      </Button>
-      <Button
-        size="sm"
-        variant={selected === 'trigger' ? 'secondary' : 'ghost'}
-        className="h-7"
-        onClick={() => onSelect('trigger')}
-      >
-        <IconBolt />
-        {t('trigger-kind', 'Trigger')}
-      </Button>
-      {stepType && (
-        <span className="ml-1 truncate text-xs text-muted-foreground">
-          › {t(`step-type.${stepType}`, STEP_TITLES[stepType])}
-        </span>
-      )}
-    </div>
-  );
-};
-
-const SettingsPanel = (props: InspectorProps) => {
-  const { draft, fields, problems, onSelect } = props;
-  const { events, outputsBefore, knownActions } = useContext(BuilderContext);
-
-  const stepProblems = [...problems.entries()].flatMap(([stepId, list]) => {
-    const step = findStep(draft.definition.steps, stepId);
-
-    return step
-      ? [
-          {
-            stepId,
-            first: list[0],
-            title: describeStep(step, {
-              actions: knownActions,
-              events,
-              fields: [...fields, ...outputsBefore(stepId)],
-            }).title,
-          },
-        ]
-      : [];
-  });
-
-  return (
-    <>
-      <ProblemList
-        serverProblems={props.serverProblems}
-        stepProblems={stepProblems}
-        onSelect={onSelect}
-      />
-      <AutomationSettings
-        draft={draft}
-        editable={props.editable}
-        subject={props.hasSubject ? props.subject : null}
-        skippedByLimit={props.skippedByLimit}
-        fieldsError={props.fieldsError}
-      />
-    </>
-  );
-};
-
-/** The right-hand panel: the automation's settings, its trigger, or the selected step. */
-export const AutomationInspector = (props: InspectorProps) => {
-  const { t } = useTranslation('automations');
-  const { draft, selected, onSelect, editable } = props;
+const TriggerPanel = (props: InspectorProps) => {
+  const { automation, draft, mutations, editable } = props;
   const { definition } = draft;
 
-  const selectedStep =
-    selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
+  return (
+    <TriggerEditor
+      trigger={definition.trigger}
+      events={props.catalog.triggers}
+      hook={{
+        url: automation.hookUrl,
+        on: automation.status === 'active',
+        sample: automation.hookSample,
+      }}
+      disabled={!editable}
+      onChange={(trigger) => {
+        const next = { ...definition, trigger };
+
+        draft.setDefinition(next);
+
+        if (trigger.kind !== definition.trigger.kind && automation.status !== 'active')
+          mutations.save.mutate({ ...draft.input, definition: next });
+      }}
+      onStartNow={
+        automation.status === 'active' && editable
+          ? () => mutations.start.mutate({ id: automation.id })
+          : undefined
+      }
+    />
+  );
+};
+
+/** The right-hand panel: the trigger, the selected step, or the test. */
+export const AutomationInspector = (props: InspectorProps) => {
+  const { t } = useTranslation('automations');
+  const { draft, selected, onSelect, editable, automation, mutations, built } = props;
+  const { definition } = draft;
+
+  const step =
+    selected !== 'trigger' && selected !== 'test' ? findStep(definition.steps, selected) : null;
+
+  const heading =
+    selected === 'trigger'
+      ? t('trigger-kind', 'Trigger')
+      : selected === 'test'
+        ? t('test', 'Test')
+        : step
+          ? t(`step-type.${step.type}`, STEP_TITLES[step.type])
+          : '';
 
   return (
     <aside className="flex w-110 shrink-0 flex-col border-l bg-background">
-      <InspectorTabs selected={selected} onSelect={onSelect} stepType={selectedStep?.type} />
+      <div className="flex h-10 shrink-0 items-center border-b px-4 text-sm font-medium">
+        {heading}
+      </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-5 p-4">
-          {selected === 'settings' && <SettingsPanel {...props} />}
-          {selected === 'trigger' && (
-            <TriggerEditor
-              trigger={definition.trigger}
-              events={props.catalog.triggers}
-              hook={{
-                url: props.automation.hookUrl,
-                on: props.automation.status === 'active',
-                sample: props.automation.hookSample,
-              }}
-              disabled={!editable}
-              onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}
-              onStartNow={props.onStartNow}
+          {selected === 'trigger' && <TriggerPanel {...props} />}
+          {selected === 'test' && (
+            <TestPanel
+              automation={automation}
+              subject={built.hasSubject ? built.subject : null}
+              dirty={draft.dirty}
+              onSave={() => mutations.save.mutateAsync(draft.input)}
+              onTested={props.onTested}
             />
           )}
-          {selectedStep && (
+          {step && (
             <StepInspector
-              step={selectedStep}
-              actions={props.actions}
-              subject={props.subject}
+              step={step}
+              actions={built.actions}
+              subject={built.subject}
               disabled={!editable}
-              problems={props.problems.get(selectedStep.id) ?? []}
+              problems={built.problems.get(step.id) ?? []}
               steps={definition.steps}
               onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
               onSteps={draft.setSteps}
               onSelect={onSelect}
             />
           )}
-          {selected !== 'settings' && selected !== 'trigger' && !selectedStep && (
+          {selected !== 'trigger' && selected !== 'test' && !step && (
             <p className="text-sm text-muted-foreground">
               {t('nothing-selected', 'Choose a step on the canvas.')}
             </p>
