@@ -1,5 +1,5 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
-import { cn, Select } from 'erxes-ui';
+import { Select, ToggleGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AudienceEditor, Field, TimeOfDay } from './triggerFields';
 
@@ -49,34 +49,28 @@ const WeekdayPicker = ({ trigger, onChange, disabled }: Props) => {
   const current = trigger.weekdays ?? [1];
 
   return (
-    <div className="flex gap-1">
-      {WEEKDAYS.map((day, index) => {
-        const weekday = index + 1;
-        const on = current.includes(weekday);
+    <ToggleGroup
+      multiple
+      variant="outline"
+      className="w-full"
+      disabled={disabled}
+      aria-label={t('weekdays', 'Days of the week')}
+      value={current.map(String)}
+      onValueChange={(next) => {
+        const weekdays = next
+          .map(Number)
+          .filter((day) => day >= 1 && day <= 7)
+          .toSorted((a, b) => a - b);
 
-        const next = on
-          ? current.filter((item) => item !== weekday)
-          : [...current, weekday].toSorted((a, b) => a - b);
-
-        return (
-          <button
-            key={day}
-            type="button"
-            disabled={disabled}
-            aria-pressed={on}
-            className={cn(
-              'h-7 min-w-0 flex-1 rounded-md border text-xs transition-colors',
-              on
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted',
-            )}
-            onClick={() => onChange({ ...trigger, weekdays: next.length ? next : [weekday] })}
-          >
-            {t(`weekday.${day}`, day)}
-          </button>
-        );
-      })}
-    </div>
+        if (weekdays.length) onChange({ ...trigger, weekdays });
+      }}
+    >
+      {WEEKDAYS.map((day, index) => (
+        <ToggleGroup.Item key={day} value={String(index + 1)} className="min-w-0 flex-1">
+          {t(`weekday.${day}`, day)}
+        </ToggleGroup.Item>
+      ))}
+    </ToggleGroup>
   );
 };
 

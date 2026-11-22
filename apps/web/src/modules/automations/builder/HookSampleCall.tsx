@@ -6,6 +6,7 @@ import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { Listening } from '~/components/Listening';
 import { automationQuery } from '../automationQueries';
 import { BuilderContext } from './BuilderContext';
 import { JsonEditor } from './JsonEditor';
@@ -109,14 +110,15 @@ export const HookSampleCall = ({ sample, on }: { sample: HookSample | null; on: 
             </RelativeDateDisplay>
           </p>
         ) : (
-          <p className="flex items-center gap-2 text-sm">
-            <span className="size-2 shrink-0 animate-pulse rounded-full bg-success" />
-            {on
-              ? t('hook-sample-on', 'It is on: calls start runs. Paste a sample to try changes.')
-              : t(
-                  'hook-sample-waiting',
-                  'Waiting for a call to the address. Nothing runs while it is off.',
-                )}
+          <p className="text-sm">
+            <Listening>
+              {on
+                ? t('hook-sample-on', 'It is on: calls start runs. Paste a sample to try changes.')
+                : t(
+                    'hook-sample-waiting',
+                    'Waiting for a call to the address. Nothing runs while it is off.',
+                  )}
+            </Listening>
           </p>
         )}
         {keys.length > 0 && (

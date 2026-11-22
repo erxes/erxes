@@ -1,6 +1,6 @@
 import type { Automation } from '@erxes/core-contract';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Badge, Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { countSteps } from './builder/flowChecks';
 import type { Selection } from './StepInspector';
@@ -129,28 +129,22 @@ export const SetupRail = ({
       <ol className="space-y-0.5">
         {items.map((item, index) => (
           <li key={item.key}>
-            <button
-              type="button"
+            <Button
+              variant={selected === item.select ? 'secondary' : 'ghost'}
               aria-current={selected === item.select ? 'step' : undefined}
-              className={cn(
-                'flex w-full items-start gap-2.5 rounded-md p-2 text-left transition-colors hover:bg-muted',
-                selected === item.select && 'bg-primary/5',
-              )}
+              className="h-auto w-full justify-start"
               onClick={() => onSelect(item.select)}
             >
-              <span
-                className={cn(
-                  'mt-px flex size-5 shrink-0 items-center justify-center rounded-full border text-2xs',
-                  item.done && 'border-success bg-success text-background',
-                )}
-              >
-                {item.done ? <IconCheck className="size-3" /> : index + 1}
+              <Badge variant={item.done ? 'success' : 'muted'} size="sm">
+                {item.done ? <IconCheck /> : index + 1}
+              </Badge>
+              <span className="min-w-0 text-left">
+                <span className="block">{item.title}</span>
+                <span className="block truncate text-xs font-normal text-muted-foreground">
+                  {item.detail}
+                </span>
               </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-medium">{item.title}</span>
-                <span className="block truncate text-xs text-muted-foreground">{item.detail}</span>
-              </span>
-            </button>
+            </Button>
           </li>
         ))}
       </ol>

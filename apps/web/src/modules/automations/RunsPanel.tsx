@@ -7,6 +7,7 @@ import {
   Badge,
   Button,
   cn,
+  Collapsible,
   Empty,
   RelativeDateDisplay,
   ScrollArea,
@@ -20,6 +21,7 @@ import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { catalogQuery, runQuery, runsQuery } from './automationQueries';
+import { JsonView } from './builder/JsonView';
 
 const STATUS_VARIANT = {
   running: 'info',
@@ -87,14 +89,17 @@ const StepEntry = ({ step }: { step: RunStep }) => {
       </div>
       {step.error && <p className="mt-1 font-mono text-xs text-destructive-text">{step.error}</p>}
       {(step.input !== null || step.output !== null) && (
-        <details className="mt-1">
-          <summary className="cursor-pointer text-xs text-muted-foreground">
+        <Collapsible className="mt-1">
+          <Collapsible.Trigger
+            render={<Button variant="ghost" size="sm" tone="muted" className="-ml-2" />}
+          >
+            <Collapsible.TriggerIcon className="size-3" />
             {t('details', 'Input and output')}
-          </summary>
-          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-2xs">
-            {JSON.stringify({ input: step.input, output: step.output }, null, 2)}
-          </pre>
-        </details>
+          </Collapsible.Trigger>
+          <Collapsible.Panel>
+            <JsonView value={{ input: step.input, output: step.output }} />
+          </Collapsible.Panel>
+        </Collapsible>
       )}
     </li>
   );

@@ -1,6 +1,6 @@
 import type { AutomationTrigger, DataField } from '@erxes/core-contract';
 import { IconHandFinger } from '@tabler/icons-react';
-import { Badge, Button, cn } from 'erxes-ui';
+import { Badge, Button, ChoiceboxGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { TriggerIcon } from '../TemplatePicker';
 import { CatalogPicker } from './CatalogPicker';
@@ -66,37 +66,30 @@ const KindPicker = ({
   const { t } = useTranslation('automations');
 
   return (
-    <div className="grid auto-rows-fr grid-cols-2 gap-2">
+    <ChoiceboxGroup
+      value={value}
+      disabled={disabled}
+      className="grid grid-cols-2"
+      onValueChange={(next) => {
+        const kind = KINDS.find((item) => item.kind === next)?.kind;
+
+        if (kind && kind !== value) onChange(defaults(kind));
+      }}
+    >
       {KINDS.map(({ kind, label, hint }) => (
-        <button
-          key={kind}
-          type="button"
-          disabled={disabled}
-          aria-pressed={value === kind}
-          onClick={() => value !== kind && onChange(defaults(kind))}
-          className={cn(
-            'flex min-w-0 items-start gap-2.5 rounded-lg border p-2.5 text-left transition-colors hover:bg-muted/60 disabled:opacity-60',
-            value === kind &&
-              'border-primary bg-primary/5 ring-1 ring-primary/20 hover:bg-primary/5',
-          )}
-        >
-          <span
-            className={cn(
-              'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
-              value === kind && 'bg-primary text-primary-foreground',
-            )}
-          >
-            <TriggerIcon kind={kind} className="size-4" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-medium">{t(`trigger-${kind}-title`, label)}</span>
-            <span className="line-clamp-2 block text-xs leading-snug text-muted-foreground">
-              {t(`trigger-${kind}-hint`, hint)}
+        <ChoiceboxGroup.Item key={kind} value={kind} disabled={disabled}>
+          <span className="flex items-start gap-2">
+            <TriggerIcon kind={kind} className="mt-0.5 size-4 shrink-0" />
+            <span className="min-w-0">
+              <span className="block">{t(`trigger-${kind}-title`, label)}</span>
+              <span className="block text-xs font-normal text-muted-foreground">
+                {t(`trigger-${kind}-hint`, hint)}
+              </span>
             </span>
           </span>
-        </button>
+        </ChoiceboxGroup.Item>
       ))}
-    </div>
+    </ChoiceboxGroup>
   );
 };
 

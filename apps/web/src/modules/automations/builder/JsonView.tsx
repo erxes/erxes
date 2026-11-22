@@ -1,47 +1,66 @@
+import {
+  IconBraces,
+  IconHash,
+  IconLetterCase,
+  IconList,
+  IconToggleRight,
+} from '@tabler/icons-react';
+import { PanelField } from 'erxes-ui';
 import { z } from 'zod';
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
+type Row = { label: string; value: unknown };
 
-const Leaf = ({ value }: { value: unknown }) => {
-  if (value === null || value === undefined)
-    return <span className="text-muted-foreground">—</span>;
+const Json = z.record(z.string(), z.unknown());
 
-  if (typeof value === 'boolean') return <span>{value ? 'Yes' : 'No'}</span>;
+const List = z.array(z.unknown());
 
-  if (typeof value === 'string' || typeof value === 'number')
-    return <span className="break-all">{String(value)}</span>;
+const rowsOf = (value: unknown, prefix = ''): Row[] => {
+  const object = Json.safeParse(value).data;
 
-  return null;
+  if (object && !Array.isArray(value))
+    return Object.entries(object).flatMap(([key, item]) =>
+      rowsOf(item, prefix ? `${prefix} › ${key}` : key),
+    );
+
+  return [{ label: prefix, value }];
+};
+
+const iconOf = (value: unknown) => {
+  if (typeof value === 'number') return IconHash;
+
+  if (typeof value === 'boolean') return IconToggleRight;
+
+  if (List.safeParse(value).success) return IconList;
+
+  return typeof value === 'string' ? IconLetterCase : IconBraces;
+};
+
+const textOf = (value: unknown): string => {
+  if (value === null || value === undefined) return '—';
+
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+
+  const list = List.safeParse(value).data;
+
+  return list ? list.map(textOf).join(', ') : JSON.stringify(value);
 };
 
 export const JsonView = ({ value }: { value: unknown }) => {
-  const list = z.array(z.unknown()).safeParse(value).data;
+  const rows = rowsOf(value);
 
-  const entries = list
-    ? list.map((item, index) => [String(index + 1), item] as const)
-    : isObject(value)
-      ? Object.entries(value)
-      : null;
-
-  if (!entries) return <Leaf value={value} />;
+  if (rows.length === 1 && !rows[0]?.label) return <span className="text-xs">{textOf(value)}</span>;
 
   return (
-    <dl className="space-y-0.5 text-xs">
-      {entries.map(([key, item]) => (
-        <div key={key} className="flex min-w-0 gap-2">
-          <dt className="w-28 shrink-0 truncate text-muted-foreground">{key}</dt>
-          <dd className="min-w-0 flex-1">
-            {Array.isArray(item) || isObject(item) ? (
-              <div className="border-l pl-2">
-                <JsonView value={item} />
-              </div>
-            ) : (
-              <Leaf value={item} />
-            )}
-          </dd>
-        </div>
+    <div>
+      {rows.map((row) => (
+        <PanelField key={row.label} label={row.label} icon={iconOf(row.value)} cell={false}>
+          <span className="block truncate text-xs" title={textOf(row.value)}>
+            {textOf(row.value)}
+          </span>
+        </PanelField>
       ))}
-    </dl>
+    </div>
   );
 };
