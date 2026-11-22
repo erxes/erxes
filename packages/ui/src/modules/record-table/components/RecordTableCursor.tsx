@@ -40,6 +40,29 @@ const useRecordTableCursorContext = () => {
   return context;
 };
 
+/** Where rows start to show in the scrolling element: under its sticky header. */
+const rowsTop = (scroll: HTMLElement) =>
+  scroll.getBoundingClientRect().top +
+  (scroll.querySelector('thead')?.getBoundingClientRect().height ?? 0);
+
+/** The drawn rows with a record's cursor or id, which skeleton and spacer rows lack. */
+const recordRows = (scroll: HTMLElement) => [
+  ...scroll.querySelectorAll<HTMLElement>('tbody > tr[id]'),
+];
+
+/** The first record row the header doesn't cover, and how many pixels of it are under it. */
+const firstVisibleRow = (scroll: HTMLElement) => {
+  const top = rowsTop(scroll);
+
+  for (const row of recordRows(scroll)) {
+    const box = row.getBoundingClientRect();
+
+    if (box.bottom > top) return { row, offset: top - box.top };
+  }
+
+  return null;
+};
+
 /**
  * Scrolls a cursor-paged table. With a `sessionKey` it remembers the first visible row and the
  * scroll position for the session, and restores the position when the rows come back.
@@ -71,17 +94,17 @@ export const RecordTableCursorProvider = ({
   // Read and written through the store, so scrolling re-renders nothing.
   const store = useStore();
 
-  const remember = (part: { row: string } | { scroll: number }) => {
-    if (sessionKey) store.set(tablePositionState(sessionKey), (saved) => ({ ...saved, ...part }));
-  };
-
   // Once the scrolling pauses, not on every scroll event: a scroll fires one per frame.
   const rememberPosition = useDebouncedCallback((scroll: HTMLDivElement) => {
-    const firstVisibleRow = scroll.querySelector('.in-view');
+    if (!sessionKey) return;
+    const first = firstVisibleRow(scroll);
 
-    if (firstVisibleRow) remember({ row: firstVisibleRow.id });
-
-    remember({ scroll: scroll.scrollTop });
+    store.set(tablePositionState(sessionKey), (saved) => ({
+      ...saved,
+      row: first?.row.id ?? '',
+      rowOffset: first?.offset ?? 0,
+      scroll: scroll.scrollTop,
+    }));
   }, 150);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => rememberPosition(event.currentTarget);
@@ -99,9 +122,16 @@ export const RecordTableCursorProvider = ({
 
     restoredFor.current = sessionKey;
 
-    const saved = store.get(tablePositionState(sessionKey)).scroll;
+    const saved = store.get(tablePositionState(sessionKey));
+    const row = recordRows(scroll).find((element) => saved.row && element.id === saved.row);
 
-    if (saved) scroll.scrollTop = saved;
+    // The list may reopen at the remembered row rather than at the top, so the row places it;
+    // the offset does when the row isn't drawn.
+    if (row) {
+      scroll.scrollTop += row.getBoundingClientRect().top - rowsTop(scroll) + saved.rowOffset;
+    } else if (saved.scroll) {
+      scroll.scrollTop = saved.scroll;
+    }
   }, [loading, dataLength, scrollRef, sessionKey, store]);
 
   const cursor = useMemo(

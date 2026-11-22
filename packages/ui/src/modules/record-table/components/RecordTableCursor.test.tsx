@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { act, useState } from 'react';
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import { setupDomRender } from '../../../lib/render-in-dom';
 import { RecordTableCursorProvider } from './RecordTableCursor';
 
@@ -25,7 +25,70 @@ const boxesOf = (container: HTMLElement) =>
     box.contains(container.querySelector('button')),
   );
 
+const ROW = 32;
+
+/** Rows `ids`, ROW pixels each under a ROW-high header, in the list's scrolling element. */
+const Rows = ({ ids }: { ids: string[] }) => (
+  <RecordTableCursorProvider dataLength={ids.length} sessionKey="row-test" hasNextPage>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        {ids.map((id) => (
+          <tr key={id} id={id}>
+            <td>{id}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </RecordTableCursorProvider>
+);
+
+const scrollerOf = (element: Element | null) =>
+  element?.closest<HTMLElement>('[style*="overflow: scroll"]') ?? null;
+
+/** Lays the rows out as a browser would: the header at the top, rows by index and scroll. */
+const layOut = () =>
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    const index = this.matches('tbody > tr')
+      ? [...(this.parentElement?.children ?? [])].indexOf(this)
+      : -1;
+
+    const top = index < 0 ? 0 : ROW + index * ROW - (scrollerOf(this)?.scrollTop ?? 0);
+    const height = this.tagName === 'THEAD' || index >= 0 ? ROW : 600;
+
+    return DOMRect.fromRect({ x: 0, y: top, width: 100, height });
+  });
+
 describe('RecordTableCursorProvider', () => {
+  it('reopens at the first row the header covered no more of, even when the list starts there', async () => {
+    const rects = layOut();
+    const ids = Array.from({ length: 50 }, (_, index) => `row-${index}`);
+    const first = render(<Rows ids={ids} />);
+    const scroller = scrollerOf(first.querySelector('tbody'));
+
+    // Ten rows and a third of the next are scrolled under the header.
+    act(() => {
+      if (!scroller) return;
+      scroller.scrollTop = 10 * ROW + 10;
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 300)));
+
+    // The list reopens from that row: row-10 shows under the header, 10 px of it scrolled past.
+    first.remove();
+    const again = render(<Rows ids={ids.slice(10)} />);
+    const reopened = scrollerOf(again.querySelector('tbody'));
+
+    expect(reopened?.scrollTop).toBe(10);
+    rects.mockRestore();
+  });
+
   it('reopens where the member left the list, and stays where they scroll as pages load', async () => {
     const first = render(<List />);
 

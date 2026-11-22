@@ -98,7 +98,7 @@ export const useCursorList = <T extends { id: string }>({
   // RecordTable's remembered row and scroll belong to the filters recorded with them.
   useEffect(() => {
     if (store.get(position).filters !== filtersKey) {
-      store.set(position, { filters: filtersKey, row: '', scroll: 0 });
+      store.set(position, { filters: filtersKey, row: '', rowOffset: 0, scroll: 0 });
     }
   }, [store, position, filtersKey]);
 
