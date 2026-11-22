@@ -78,6 +78,8 @@ export const paths = {
     integrations: '/settings/integrations',
     integration: (key: string) => `/settings/integrations/${id(key)}`,
     paymentIntegrations: '/settings/integrations?category=payments',
+    vault: '/settings/vault',
+    vaultConnection: (connectionId: string) => `/settings/vault/${id(connectionId)}`,
     email: '/settings/email',
     webhooks: '/settings/webhooks',
     auditLog: '/settings/audit-log',

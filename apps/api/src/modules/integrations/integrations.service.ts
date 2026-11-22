@@ -13,6 +13,7 @@ import { fail, invalidInput, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { releaseGateway } from '~/modules/payments/gateways.service';
+import { listPluginSettings } from '~/modules/payments/pluginSettings.service';
 import { saveSecret } from '~/modules/secrets/vault';
 import {
   connectionsWithSecret,
@@ -67,6 +68,7 @@ export const listIntegrations = async (client: Db) => {
       INTEGRATIONS.filter(manages).map(async (integration) => ({
         ...integration,
         dashboard: integration.dashboard ?? null,
+        keyed: Boolean(integration.keys),
         fields: integration.keys ? fieldsOf(integration.keys) : [],
         payments: integration.payments ?? null,
         status: integration.status
@@ -77,8 +79,27 @@ export const listIntegrations = async (client: Db) => {
   };
 };
 
-export const integrationConnectionsOf = (client: Db, key: string) =>
-  listConnections(client, [connectable(key).key]);
+const managedKeys = () =>
+  INTEGRATIONS.flatMap((integration) =>
+    integration.keys && manages(integration) ? [integration.key] : [],
+  );
+
+export const integrationConnectionsOf = async (client: Db, key?: string) => {
+  const { data } = await listConnections(client, key ? [connectable(key).key] : managedKeys());
+  const { data: plugins } = await listPluginSettings(client);
+
+  return {
+    data: data.map((connection) => ({
+      ...connection,
+      usedBy:
+        connection.status === 'active' && keyedOf(connection.key).payments
+          ? plugins.flatMap(({ title, allowedGatewayIds }) =>
+              !allowedGatewayIds.length || allowedGatewayIds.includes(connection.id) ? [title] : [],
+            )
+          : [],
+    })),
+  };
+};
 
 const parsedKeys = (integration: KeyedIntegration, keys: unknown) => {
   const parsed = integration.keys.safeParse(keys);

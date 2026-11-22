@@ -211,4 +211,54 @@ describe('integrations', { timeout: 120_000 }, () => {
       code: 'NOT_FOUND',
     });
   });
+
+  it('lists the connections of every integration the member manages, and none to another role or organisation', async () => {
+    const till = await both().integrations.connect({ key: 'test', name: 'Vault till', keys: {} });
+
+    const shop = await both().integrations.connect({
+      key: 'qpay',
+      name: 'Vault QPay',
+      keys: QPAY_KEYS,
+    });
+
+    const listed = await both().integrations.connections({});
+    const keys = new Map(listed.data.map((row) => [row.id, row.key]));
+
+    expect(keys.get(till.id)).toBe('test');
+    expect(keys.get(shop.id)).toBe('qpay');
+    expect(JSON.stringify(listed)).not.toContain('qpay-top-secret');
+    expect((await integrationsOnly().integrations.connections({})).data).toEqual([]);
+    expect((await t.other().integrations.connections({})).data).toEqual([]);
+  });
+
+  it('names the plugins that take payments through a gateway, and none for one left out or turned off', async () => {
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '2',
+      scopes: ['payments:read', 'payments:write'],
+    });
+
+    const owner = t.owner();
+    const open = await owner.integrations.connect({ key: 'test', name: 'Open till', keys: {} });
+    const spare = await owner.integrations.connect({ key: 'test', name: 'Spare till', keys: {} });
+
+    const usedBy = async (id: string) =>
+      (await owner.integrations.connections({})).data.find((row) => row.id === id)?.usedBy;
+
+    expect(await usedBy(open.id)).toEqual(['HR']);
+    expect(await usedBy(spare.id)).toEqual(['HR']);
+
+    await owner.payments.updatePluginSettings({
+      plugin: 'hr',
+      defaultGatewayId: null,
+      allowedGatewayIds: [open.id],
+    });
+
+    expect(await usedBy(open.id)).toEqual(['HR']);
+    expect(await usedBy(spare.id)).toEqual([]);
+
+    await owner.integrations.update({ key: 'test', id: open.id, status: 'disabled' });
+
+    expect(await usedBy(open.id)).toEqual([]);
+  });
 });

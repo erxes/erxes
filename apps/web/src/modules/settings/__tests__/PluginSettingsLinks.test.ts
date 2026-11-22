@@ -93,12 +93,12 @@ const CONFIGS: Record<string, unknown> = {
         tabs: [{ value: 'overview', label: 'Overview', component: Page }],
       },
       {
-        key: 'vault',
-        name: 'Vault',
-        summary: 'Secrets only some members see.',
+        key: 'archive',
+        name: 'Archive',
+        summary: 'Old chats only some members see.',
         icon: Icon,
         category: 'messaging',
-        permission: 'chat.vault.manage',
+        permission: 'chat.archive.manage',
         tabs: [{ value: 'overview', label: 'Overview', component: Page }],
       },
       { key: 'Telegram bot', name: 'Telegram', summary: 'Broken.', icon: Icon, tabs: [] },
@@ -111,9 +111,10 @@ vi.mock('@module-federation/enhanced/runtime', () => ({
   loadRemote: async (id: string) => ({ CONFIG: CONFIGS[id] }),
 }));
 
-// A member who may manage integrations, but not payments or the chat plugin's vault.
+// A member who may manage integrations, but not payments or the chat plugin's archive.
 vi.mock('~/modules/auth/session', () => ({
-  useCan: () => (action: string) => action !== 'payments.manage' && action !== 'chat.vault.manage',
+  useCan: () => (action: string) =>
+    action !== 'payments.manage' && action !== 'chat.archive.manage',
   useSession: () => ({ organization: { country: 'MN' } }),
 }));
 
@@ -251,9 +252,9 @@ describe('plugins in core’s settings', () => {
     );
     expect(section('Other regions')?.textContent).toContain('Zalo');
     expect(section('Other regions')?.textContent).toContain('Made for Vietnam');
-    // Core lists no gateway without payments.manage; the vault needs its own permission; a malformed tile drops.
+    // Core lists no gateway without payments.manage; the archive needs its own permission; a malformed tile drops.
     expect(container.textContent).not.toContain('Payment gateways');
-    expect(container.textContent).not.toContain('Vault');
+    expect(container.textContent).not.toContain('Archive');
     expect(container.textContent).not.toContain('Telegram');
   });
 
@@ -276,9 +277,9 @@ describe('plugins in core’s settings', () => {
   });
 
   it('sends a member without the integration’s permission back to the catalog', async () => {
-    const container = await renderSettings('/settings/integrations/chat.vault', 'Messenger');
+    const container = await renderSettings('/settings/integrations/chat.archive', 'Messenger');
 
     expect(window.location.pathname).toBe('/settings/integrations');
-    expect(container.textContent).not.toContain('Vault');
+    expect(container.textContent).not.toContain('Archive');
   });
 });

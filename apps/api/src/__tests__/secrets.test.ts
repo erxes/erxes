@@ -189,6 +189,41 @@ describe('secret vault', { timeout: 120_000 }, () => {
     expect((await stored('zz-legacy-1'))[0]?.sealed).toBe(moved[0]?.sealed);
   });
 
+  it('counts what the vault keeps for each feature and plugin, in the member’s organisation only', async () => {
+    const counts = async (client: ReturnType<typeof t.owner>) =>
+      new Map(
+        (await client.secrets.holdings()).data.map((row) => [
+          `${row.holder}:${row.plugin ?? ''}`,
+          row.count,
+        ]),
+      );
+
+    const before = await counts(t.owner());
+    const elsewhere = await counts(t.other());
+
+    const hook = await t
+      .owner()
+      .webhooks.create({ url: 'https://example.com/held', eventTypes: ['*'] });
+
+    await t.hr().secrets.save({ value: 'held-token' });
+
+    const after = await counts(t.owner());
+
+    expect(after.get('webhook:')).toBe((before.get('webhook:') ?? 0) + 1);
+    expect(after.get('plugin:hr')).toBe((before.get('plugin:hr') ?? 0) + 1);
+    expect(await counts(t.other())).toEqual(elsewhere);
+
+    const answer = JSON.stringify(await t.owner().secrets.holdings());
+
+    expect(answer).not.toContain(hook.secret);
+    expect(answer).not.toContain('held-token');
+
+    await expect(t.member().secrets.holdings()).rejects.toMatchObject({
+      status: 403,
+      code: 'NOT_ALLOWED',
+    });
+  });
+
   it('is for plugins with secrets:write only, and takes no empty value', async () => {
     await expect(t.owner().secrets.save({ value: 'x' })).rejects.toMatchObject({
       code: 'PLUGIN_ONLY',

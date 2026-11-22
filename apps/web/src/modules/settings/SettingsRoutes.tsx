@@ -1,8 +1,10 @@
+import { CONNECTION_CONTENT_TYPE } from 'erxes-ui';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { usePlan } from '~/modules/saas/usePlan';
+import { RecordPage } from '~/modules/side-panel/RecordPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -59,6 +61,8 @@ const IntegrationsSettingsPage = lazyNamed(
   'IntegrationsSettingsPage',
 );
 
+const VaultPage = lazyNamed(() => import('./vault/VaultPage'), 'VaultPage');
+
 const EmailSettingsPage = lazyNamed(() => import('./email/EmailSettingsPage'), 'EmailSettingsPage');
 
 const IntegrationPage = lazyNamed(
@@ -97,6 +101,8 @@ export const SettingsRoutes = () => (
       <Route path="email" element={<EmailSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />
       <Route path="integrations/:key" element={<IntegrationPage />} />
+      <Route path="vault" element={<VaultPage />} />
+      <Route path="vault/:id" element={<RecordPage contentType={CONNECTION_CONTENT_TYPE} />} />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />

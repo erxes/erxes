@@ -1,11 +1,11 @@
-import type { IntegrationConnection } from '@erxes/core-contract';
+import type { VaultConnection } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Dialog, Input, Label, Spinner, Switch, useConfirm, useToast } from 'erxes-ui';
+import { Button, Input, Label, Spinner, Switch, useConfirm, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CoreIntegration } from './catalog';
+import type { CoreIntegration } from '../integrations/catalog';
 import {
   ConnectionFieldInputs,
   connectionKeys,
@@ -13,18 +13,12 @@ import {
   CredentialsHelp,
   shownValues,
   useConnectionsChanged,
-} from './ConnectionFields';
-import { useIntegrationText } from './IntegrationStatusBadge';
+} from '../integrations/ConnectionFields';
 
-export const useConnectionChanges = (onDone?: () => void) => {
+export const useConnectionChanges = (onRemoved?: () => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { toast } = useToast();
   const changed = useConnectionsChanged();
-
-  const done = () => {
-    void changed();
-    onDone?.();
-  };
 
   const failed = (title: string) => (error: Error) =>
     toast({ variant: 'destructive', title, description: messageOf(error) });
@@ -32,13 +26,19 @@ export const useConnectionChanges = (onDone?: () => void) => {
   return {
     update: useMutation(
       orpc.integrations.update.mutationOptions({
-        onSuccess: done,
+        onSuccess: () => {
+          void changed();
+          toast({ title: t('saved', 'Saved') });
+        },
         onError: failed(t('save-failed', 'Could not save')),
       }),
     ),
     remove: useMutation(
       orpc.integrations.remove.mutationOptions({
-        onSuccess: done,
+        onSuccess: () => {
+          void changed();
+          onRemoved?.();
+        },
         onError: failed(t('remove-failed', 'Could not remove')),
       }),
     ),
@@ -52,7 +52,7 @@ const RemoveConnection = ({
   onRemove,
 }: {
   integration: CoreIntegration;
-  connection: IntegrationConnection;
+  connection: VaultConnection;
   pending: boolean;
   onRemove: () => void;
 }) => {
@@ -87,14 +87,14 @@ const RemoveConnection = ({
   );
 };
 
-const EditConnectionForm = ({
+export const ConnectionEdit = ({
   integration,
   connection,
-  onDone,
+  onRemoved,
 }: {
   integration: CoreIntegration;
-  connection: IntegrationConnection;
-  onDone: () => void;
+  connection: VaultConnection;
+  onRemoved: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const id = useId();
@@ -103,7 +103,7 @@ const EditConnectionForm = ({
   const [typed, setTyped] = useState<ConnectionValues>({});
   const name = typedName ?? connection.name;
   const values = { ...shownValues(connection), ...typed };
-  const { update, remove } = useConnectionChanges(onDone);
+  const { update, remove } = useConnectionChanges(onRemoved);
   const { keys, ready: complete } = connectionKeys(integration, values);
   const ready = name.trim() !== '' && (!replacing || complete);
   const target = { key: integration.key, id: connection.id };
@@ -116,7 +116,15 @@ const EditConnectionForm = ({
 
         if (!ready) return;
 
-        update.mutate({ ...target, name: name.trim(), ...(replacing ? { keys } : {}) });
+        update.mutate(
+          { ...target, name: name.trim(), ...(replacing ? { keys } : {}) },
+          {
+            onSuccess: () => {
+              setReplacing(false);
+              setTyped({});
+            },
+          },
+        );
       }}
     >
       <div className="space-y-1.5">
@@ -153,46 +161,5 @@ const EditConnectionForm = ({
         </Button>
       </div>
     </form>
-  );
-};
-
-export const EditConnection = ({
-  integration,
-  connection,
-}: {
-  integration: CoreIntegration;
-  connection: IntegrationConnection;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
-  const { name } = useIntegrationText()(integration);
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger
-        render={
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label={t('edit-named', 'Edit {{name}}', { name: connection.name })}
-          />
-        }
-      >
-        <IconPencil />
-      </Dialog.Trigger>
-      <Dialog.Content>
-        <Dialog.HeaderCombined
-          title={t('edit-title', 'Edit {{name}}', { name })}
-          description={t('edit-description', 'Rename it, replace its credentials or remove it.')}
-        />
-        {open && (
-          <EditConnectionForm
-            integration={integration}
-            connection={connection}
-            onDone={() => setOpen(false)}
-          />
-        )}
-      </Dialog.Content>
-    </Dialog>
   );
 };

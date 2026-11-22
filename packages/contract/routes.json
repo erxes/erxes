@@ -2932,7 +2932,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/integrations/{key}/connections"
+          "path": "/integrations/connections"
         }
       }
     },
@@ -2968,6 +2968,16 @@
     }
   },
   "secrets": {
+    "holdings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/secrets/holdings"
+        }
+      }
+    },
     "save": {
       "~orpc": {
         "errorMap": {},

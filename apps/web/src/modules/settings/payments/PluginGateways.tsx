@@ -1,7 +1,7 @@
 import type { IntegrationConnection, PluginPaymentSettings } from '@erxes/core-contract';
 import { IconCash, IconPlug, IconPlugConnected } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Checkbox, Empty, Select, useToast } from 'erxes-ui';
+import { Button, Checkbox, ConnectionPicker, Empty, useToast } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -92,32 +92,15 @@ const PluginSettingsRow = ({
         <IconPlug className="size-4 text-muted-foreground" />
         <span className="font-medium">{settings.title}</span>
         <div className="ml-auto w-56">
-          <Select
-            value={settings.defaultGatewayId ?? 'auto'}
-            onValueChange={(value) =>
-              save.mutate({
-                plugin: settings.plugin,
-                allowedGatewayIds: allowed,
-                defaultGatewayId: value === 'auto' ? null : value,
-              })
+          <ConnectionPicker
+            category="payments"
+            value={settings.defaultGatewayId}
+            onValueChange={(defaultGatewayId) =>
+              save.mutate({ plugin: settings.plugin, allowedGatewayIds: allowed, defaultGatewayId })
             }
-          >
-            <Select.Trigger aria-label={t('default-gateway-label', 'Default gateway')}>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="auto">
-                {t('default-auto', 'Default: first active gateway')}
-              </Select.Item>
-              {gateways
-                .filter((gateway) => !allowed.length || allowed.includes(gateway.id))
-                .map((gateway) => (
-                  <Select.Item key={gateway.id} value={gateway.id}>
-                    {t('default-gateway', 'Default: {{name}}', { name: gateway.name })}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select>
+            noneLabel={t('default-auto', 'Default: first active gateway')}
+            only={allowed.length ? allowed : undefined}
+          />
         </div>
       </div>
       <AllowedGateways allowed={allowed} gateways={gateways} onToggle={toggleAllowed} />
