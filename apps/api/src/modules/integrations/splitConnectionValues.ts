@@ -1,4 +1,4 @@
-import { integrationConnections, type MigrationTx, secrets } from '@erxes/core-db';
+import { integrationConnections, type Transaction, secrets } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
@@ -30,7 +30,7 @@ const split = ({ id, key, secret }: { id: string; key: string; secret: SecretRow
   }
 };
 
-export const splitConnectionValues = async (tx: MigrationTx) => {
+export const splitConnectionValues = async (tx: Transaction) => {
   const rows = await tx
     .select({ id: integrationConnections.id, key: integrationConnections.key, secret: secrets })
     .from(integrationConnections)

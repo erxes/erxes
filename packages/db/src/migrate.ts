@@ -5,7 +5,8 @@ import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { PgBoss } from 'pg-boss';
-import { connectionSettings, getPool } from './client';
+import { connectionSettings, getPool, rootDb } from './client';
+import type { Transaction } from './types';
 
 /**
  * The job queue's schema: pg-boss's tables (`apps/api/src/modules/jobs`).
@@ -128,9 +129,7 @@ export const blockedIndexFunctions = async (): Promise<string[]> => {
 /** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
-export type MigrationTx = Parameters<Parameters<ReturnType<typeof drizzle>['transaction']>[0]>[0];
-
-export type MigrationSteps = Record<string, (tx: MigrationTx) => Promise<void>>;
+export type MigrationSteps = Record<string, (tx: Transaction) => Promise<void>>;
 
 /**
  * Applies pending migrations and returns their tags. pg-boss's schema comes
@@ -158,7 +157,7 @@ export const runMigrations = async (
 
   await migrateQueue();
 
-  return drizzle(getPool()).transaction(async (tx) => {
+  return rootDb().transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);
     await tx.execute(sql`
       CREATE TABLE IF NOT EXISTS ${migrationsTable} (
