@@ -9,7 +9,7 @@ export const InviteRowRemoveButton = ({
   remove: (index: number | number[]) => void;
 }) => {
   const { selectedUsers, setSelectedUsers, fields } = useUserInviteContext();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   if (selectedUsers.length === 0) return null;
 

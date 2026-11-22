@@ -24,7 +24,7 @@ const PropertyFormGroupField = ({
   form: PropertyFormApi;
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const client = useQueryClient();
   const { groups, error } = useFieldGroups(contentType);
 
@@ -88,7 +88,7 @@ const PropertyFormGroupField = ({
 
 /** Icon, name, code and description. */
 const PropertyBasics = ({ form }: { form: PropertyFormApi }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <>
@@ -185,7 +185,7 @@ const PropertySwitchField = ({
 
 /** Where the property shows, and whether a record needs it. */
 const PropertySwitches = ({ form }: { form: PropertyFormApi }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <>
@@ -209,7 +209,7 @@ const PropertyFormFooter = ({
   isEdit?: boolean;
   onCancel: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
 
   return (

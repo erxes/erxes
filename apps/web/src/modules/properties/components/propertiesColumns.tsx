@@ -81,7 +81,7 @@ const PropertiesHeaderCheckboxCell = ({ ids, label }: { ids: string[]; label: st
 };
 
 const PropertiesMoreColumnCell = ({ field }: { field: Field }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
   const setArchiveTarget = useSetAtom(archiveTargetState);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);

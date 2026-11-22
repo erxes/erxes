@@ -49,7 +49,7 @@ const MemberView = ({
   onBack,
   onClose,
 }: Omit<IRecordViewProps, 'record'> & { user: User }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
   const { tab: selectedTab, setTab } = useSidePanel();

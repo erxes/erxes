@@ -32,7 +32,7 @@ const TeamMemberDeactivate = ({
   const { toast } = useToast();
   const { user: me } = useSession();
   const can = useCan();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   const teamMemberIds = teamMembers
     .filter(
@@ -71,7 +71,7 @@ const TeamMemberDeactivate = ({
 };
 
 export const TeamMemberCommandBar = ({ rows }: { rows: User[] }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const [open, setOpen] = useState(false);
   const can = useCan();
   const teamMembers = useSelectedRows(rows);

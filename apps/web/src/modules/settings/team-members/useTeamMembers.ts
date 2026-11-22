@@ -58,7 +58,7 @@ const useStoreMember = () => {
 export const useTeamMemberEdit = () => {
   const store = useStoreMember();
   const { toast } = useToast();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   return useMutation(
     orpc.users.update.mutationOptions({
@@ -77,7 +77,7 @@ export const useTeamMemberDisable = () => {
   const client = useQueryClient();
   const store = useStoreMember();
   const { toast } = useToast();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   return useMutation({
     mutationFn: ({ id, disabled }: { id: string; disabled: boolean }) =>
@@ -150,7 +150,7 @@ export const useTeamMemberAdd = () => {
 export const useTeamMemberSignIn = () => {
   const store = useStoreMember();
   const { toast } = useToast();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   return useMutation({
     mutationFn: ({ id, allow }: { id: string; allow: boolean }) =>

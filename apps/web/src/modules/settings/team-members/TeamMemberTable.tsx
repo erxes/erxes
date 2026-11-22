@@ -7,7 +7,7 @@ import { useTeamMembers } from './useTeamMembers';
 
 export const TeamMemberTable = () => {
   const cursor = useTeamMembers();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const columns = useMemo(() => teamMemberColumns(t), [t]);
 
   return (

@@ -29,7 +29,7 @@ const LimitField = ({
   plugin: string;
   limit: TPropertyLimit;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const text = usePluginText();
   const choices = useQuery(limit.options);
   const options = choices.data ?? [];
@@ -75,7 +75,7 @@ export const PropertyGroupLimits = ({
   form: GroupForm;
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const { plugin, limits } = usePropertyLimits(contentType);
 
   if (!plugin || !limits.length) return null;

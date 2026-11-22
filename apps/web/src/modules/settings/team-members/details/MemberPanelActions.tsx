@@ -9,7 +9,7 @@ import { TeamMemberActionItems } from './TeamMemberActionItems';
 
 /** The dots menu in a member's header; hidden when there is nothing you may do. */
 export const MemberPanelActions = ({ user }: { user: User }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const [menuOpen, setMenuOpen] = useState(false);
   const [resettingPassword, setResettingPassword] = useState(false);
   const permissions = useMemberPermissions(user);

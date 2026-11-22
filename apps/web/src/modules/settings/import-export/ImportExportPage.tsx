@@ -67,7 +67,7 @@ const Nothing = ({ icon: Icon, title }: { icon: typeof IconFileImport; title: st
 );
 
 const ImportRow = ({ item }: { item: Import }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const fmt = useFormat();
   const labelOf = useTransferLabel();
 
@@ -91,7 +91,7 @@ const ImportRow = ({ item }: { item: Import }) => {
 };
 
 const ExportRow = ({ item }: { item: Export }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const fmt = useFormat();
   const labelOf = useTransferLabel();
 
@@ -120,7 +120,7 @@ const ExportRow = ({ item }: { item: Export }) => {
 };
 
 const ImportsList = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
 
   return (
     <QueryState
@@ -140,7 +140,7 @@ const ImportsList = () => {
 };
 
 const ExportsList = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
 
   return (
     <QueryState
@@ -186,7 +186,7 @@ const PluginRecords = ({ types }: { types: TransferType[] }) => {
  * exports (download), and the Import and Export of installed plugins' records.
  */
 export const ImportExportPage = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const types = useTransferTypes();
 
   const [params, setParams] = useQueryStates({

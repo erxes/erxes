@@ -6,7 +6,7 @@ import { InviteForm } from './InviteForm';
 
 export function InviteTeamMember() {
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

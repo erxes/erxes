@@ -6,7 +6,7 @@ import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields } from '../usePropertyMutations';
 
 export const PropertiesCommandBar = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(selectedFieldIdsState);
   const setArchiveTarget = useSetAtom(archiveTargetState);
   const manager = useCanManageFields();

@@ -44,7 +44,7 @@ const StatusBadge = ({ row }: { row: EmailDelivery }) => {
 
 /** Where it came from, linked when core has a page for it. */
 const SourceLabel = ({ row }: { row: EmailDelivery }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email.deliveries' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'email-deliveries' });
   const label = t(`source.${row.source}`, row.source);
 
   if (row.source === 'broadcast' && row.sourceId) {
@@ -69,6 +69,8 @@ const ProviderLabel = ({ provider }: { provider: NonNullable<EmailDelivery['prov
 
 const DeliveryRow = ({ row }: { row: EmailDelivery }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email.deliveries' });
+  // Why it was not sent: words the activity timeline shares.
+  const { t: tWhy } = useTranslation('workspace', { keyPrefix: 'email-deliveries' });
   const fmt = useFormat();
 
   return (
@@ -87,12 +89,12 @@ const DeliveryRow = ({ row }: { row: EmailDelivery }) => {
         {row.status === 'suppressed' ? (
           <p className="text-xs text-muted-foreground">
             {t('suppressed-because', 'Not sent: the address is suppressed ({{reason}})', {
-              reason: t(`reason.${row.error ?? ''}`, row.error ?? ''),
+              reason: tWhy(`reason.${row.error ?? ''}`, row.error ?? ''),
             })}
           </p>
         ) : row.status === 'held' || row.status === 'capped' ? (
           <p className="text-xs text-muted-foreground">
-            {t(`hold.${row.error ?? ''}`, row.error ?? '')}
+            {tWhy(`hold.${row.error ?? ''}`, row.error ?? '')}
           </p>
         ) : (
           row.error && <p className="text-xs break-words text-destructive-text">{row.error}</p>
@@ -127,6 +129,7 @@ const NoDeliveries = () => {
  */
 export const EmailDeliveriesTab = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email.deliveries' });
+  const { t: tSource } = useTranslation('workspace', { keyPrefix: 'email-deliveries' });
   const [status, setStatus] = useState<EmailDelivery['status'] | null>(null);
   const [source, setSource] = useState<EmailDelivery['source'] | null>(null);
   const [q, setQ] = useState('');
@@ -164,7 +167,7 @@ export const EmailDeliveriesTab = () => {
           value={source}
           options={EmailSource.options}
           onChange={setSource}
-          text={(option) => t(`source.${option}`, option)}
+          text={(option) => tSource(`source.${option}`, option)}
         />
       </SearchBar>
       <QueryState

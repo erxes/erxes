@@ -78,7 +78,7 @@ export const MemberPhoneField = ({
   disabled?: boolean;
   onSave: (phone: string | null) => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const { toast } = useToast();
   const formatPhoneNumber = usePhoneFormatter();
   const [open, setOpen] = useState(false);
@@ -141,7 +141,7 @@ export const MemberDescriptionField = ({
   disabled?: boolean;
   onSave: (description: string) => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const [description, setDescription] = useState(value);
   const [prevValue, setPrevValue] = useState(value);
 

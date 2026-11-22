@@ -165,6 +165,8 @@ const renderSettings = async (path = '/settings/general', text = 'Tms') => {
   const { i18n, i18nReady } = await import('~/i18n');
 
   await i18nReady;
+  // The settings routes load their words before they render (AppRoutes); so does this test.
+  await i18n.loadNamespaces('settings');
 
   const container = document.createElement('div');
 

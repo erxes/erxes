@@ -12,7 +12,7 @@ import { usePlan } from './usePlan';
  * plan (red), a payment retrying (amber). Nothing otherwise, never self-hosted.
  */
 export const PlanBanner = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'plan' });
   const fmt = useFormat();
   const { data } = usePlan();
   const now = useMinuteClock();

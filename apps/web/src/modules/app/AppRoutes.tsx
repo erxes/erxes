@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
+import { i18n } from '~/i18n';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { paths } from '~/lib/paths';
 import { pluginBasePath } from '~/modules/plugins/pluginConfig';
@@ -33,10 +34,15 @@ const BroadcastsRoutes = lazyNamed(
 
 const ReportsRoutes = lazyNamed(() => import('~/modules/reports/ReportsRoutes'), 'ReportsRoutes');
 
-const SettingsRoutes = lazyNamed(
-  () => import('~/modules/settings/SettingsRoutes'),
-  'SettingsRoutes',
-);
+// The settings pages' words load beside their code, so they never show untranslated.
+const SettingsRoutes = lazyNamed(async () => {
+  const [routes] = await Promise.all([
+    import('~/modules/settings/SettingsRoutes'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return routes;
+}, 'SettingsRoutes');
 
 const NotificationsPage = lazyNamed(
   () => import('~/modules/notifications/NotificationsPage'),

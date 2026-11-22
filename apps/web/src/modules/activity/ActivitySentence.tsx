@@ -247,7 +247,7 @@ const EMAILED_SENTENCE = {
 
 /** An email to the customer: its subject, what sent it (a broadcast links to it), and a failure's reason. */
 const EmailedSentence = ({ activity }: { activity: Activity }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email.deliveries' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'email-deliveries' });
   const email = readEmailed(activity);
 
   if (!email) return <SentenceLine name="other" values={{ actor: '', type: activity.type }} />;

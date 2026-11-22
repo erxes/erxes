@@ -8,7 +8,7 @@ export const AddInviteRowButton = ({
 }: {
   append: (entry: IUserEntry | IUserEntry[]) => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
 
   return (
     <>

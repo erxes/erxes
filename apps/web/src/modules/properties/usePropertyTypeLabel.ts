@@ -7,7 +7,7 @@ import { PROPERTY_TYPES } from './constants';
 
 /** A record type's name in the member's language: core's own, or the plugin's record title. */
 export const usePropertyTypeLabel = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const { plugins } = usePlugins();
   const text = usePluginText();
   const pluginTypes = pluginPropertyTypes(plugins);

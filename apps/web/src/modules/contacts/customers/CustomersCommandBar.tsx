@@ -25,7 +25,7 @@ import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCus
 const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const { t: tContact } = useTranslation('contact', { keyPrefix: 'customer' });
   const remove = useCustomersRemove();
   const [open, setOpen] = useState(false);

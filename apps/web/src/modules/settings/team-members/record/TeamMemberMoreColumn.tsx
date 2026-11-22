@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useMemberPermissions } from '../useTeamMembers';
 
 const TeamMemberMoreColumnCell = ({ user }: { user: User }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const [menuOpen, setMenuOpen] = useState(false);
   const openRecord = useOpenPanelRecord();
   const permissions = useMemberPermissions(user);
