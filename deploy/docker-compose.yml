@@ -42,6 +42,24 @@ services:
     # sorts and hash joins fail ("could not resize shared memory segment"). A ceiling, not a
     # reservation.
     shm_size: 1g
+    # Postgres' defaults fit 128 MB of RAM and spinning disks. These fit a server with 4 GB
+    # or more and an SSD: a 200,000-customer organisation is about 760 MB, so it stays in
+    # memory, and the planner prices an index read close to a sequential one. Lower
+    # shared_buffers and effective_cache_size on a smaller host.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
     environment:
       POSTGRES_USER: erxes
       POSTGRES_PASSWORD: ${DATA_OWNER_PASSWORD:?set DATA_OWNER_PASSWORD}
