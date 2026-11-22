@@ -2,6 +2,7 @@ import { appActionType } from '@erxes/core-contract';
 import { withOrg } from '@erxes/core-db';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
+import { manages } from '~/modules/integrations/connectable';
 import type { AppAction, Integration, KeyedIntegration } from '~/modules/integrations/define';
 import { GatewayError } from '~/modules/integrations/gateways/types';
 import { INTEGRATIONS } from '~/modules/integrations/registry';
@@ -38,6 +39,14 @@ const appCall = (integration: KeyedIntegration, action: AppAction<unknown>): Cor
   outputs: action.outputs ?? [],
   call: async (ctx) => {
     const { connectionId, ...input } = parseInput(ctx, StepInput);
+
+    if (!manages(integration))
+      throw fail(
+        'NOT_ALLOWED',
+        `The member who turned this automation on may no longer use ${integration.name}`,
+        { permission: integration.permission },
+      );
+
     const keys = await withOrg(ctx.orgId, (tx) => connectionKeys(tx, integration, connectionId));
 
     try {

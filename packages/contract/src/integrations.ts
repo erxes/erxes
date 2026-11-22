@@ -234,7 +234,7 @@ export const integrationsContract = {
       method: 'DELETE',
       path: '/integrations/{key}/connections/{id}',
       summary:
-        'Remove a connection. 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead; 409 CONNECTION_IN_USE while active automations listen on it',
+        'Remove a connection. 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead; 409 CONNECTION_IN_USE while active automations listen on it or its webhooks are still being removed',
     })
     .input(z.object({ key: IntegrationKey, id: Id }))
     .output(z.object({ ok: z.literal(true) })),

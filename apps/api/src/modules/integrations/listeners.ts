@@ -77,6 +77,22 @@ export const listenersOf = async (client: Db, connectionIds: string[]) => {
     rows.flatMap((row) => (row.connectionId === connectionId ? [row.name] : []));
 };
 
+export const hooksSyncing = async (client: Db, connectionId: string) => {
+  const [row] = await client
+    .select({ id: integrationSubscriptions.id })
+    .from(integrationSubscriptions)
+    .where(
+      and(
+        eq(integrationSubscriptions.connectionId, connectionId),
+        eq(integrationSubscriptions.channel, HOOK_CHANNEL),
+        eq(integrationSubscriptions.status, 'syncing'),
+      ),
+    )
+    .limit(1);
+
+  return Boolean(row);
+};
+
 export const connectionTurned = async (
   tx: Db,
   connectionId: string,

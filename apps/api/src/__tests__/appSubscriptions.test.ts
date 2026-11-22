@@ -29,15 +29,25 @@ describe('app trigger state in settings', { timeout: 300_000 }, () => {
   let connectionId = '';
   let automationId = '';
   let vaultBefore = 0;
+  let midCall: { method: string; path: string; run: () => Promise<unknown> } | null = null;
 
   beforeAll(async () => {
     const realFetch = globalThis.fetch;
 
-    vi.stubGlobal('fetch', (input: string | URL | Request, init?: RequestInit) =>
-      urlOf(input).startsWith('https://api.stripe.com/')
-        ? stripe.fetch(input, init)
-        : realFetch(input, init),
-    );
+    vi.stubGlobal('fetch', async (input: string | URL | Request, init?: RequestInit) => {
+      const url = urlOf(input);
+
+      if (!url.startsWith('https://api.stripe.com/')) return realFetch(input, init);
+
+      const pending = midCall;
+
+      if (pending && pending.method === (init?.method ?? 'GET') && url.endsWith(pending.path)) {
+        midCall = null;
+        await pending.run();
+      }
+
+      return stripe.fetch(input, init);
+    });
 
     connectionId = (
       await t.owner().integrations.connect({
@@ -119,6 +129,11 @@ describe('app trigger state in settings', { timeout: 300_000 }, () => {
 
   it('removes the connection once its automations are paused, after the webhook is gone', async () => {
     await t.owner().automations.pause({ id: automationId });
+
+    await expect(
+      t.owner().integrations.remove({ key: 'stripe', id: connectionId }),
+    ).rejects.toMatchObject({ status: 409, code: 'CONNECTION_IN_USE', data: { automations: [] } });
+
     await settle();
 
     expect(stripeCalls('DELETE', '/v1/webhook_endpoints/we_1')).toHaveLength(1);
@@ -131,5 +146,50 @@ describe('app trigger state in settings', { timeout: 300_000 }, () => {
 
     expect(data.map((connection) => connection.id)).not.toContain(connectionId);
     expect(await vaultSize()).toBe(vaultBefore - 1);
+  });
+
+  it('pausing while the webhook is being made removes it once made, and turning on while it is being removed makes it again', async () => {
+    const shop = (
+      await t.owner().integrations.connect({
+        key: 'stripe',
+        name: 'Second shop',
+        keys: { secretKey: 'sk_test_second' },
+      })
+    ).id;
+
+    const id = await t.active('Thank the second buyer', {
+      trigger: { kind: 'app', app: 'stripe', trigger: 'payment_succeeded', connectionId: shop },
+      steps: [{ id: 'wait', type: 'delay', amount: 1, unit: 'days' }],
+    });
+
+    const deletes = stripeCalls('DELETE', '/v1/webhook_endpoints/we_1').length;
+
+    midCall = {
+      method: 'POST',
+      path: '/v1/webhook_endpoints',
+      run: () => t.owner().automations.pause({ id }),
+    };
+    await settle();
+
+    expect(stripeCalls('DELETE', '/v1/webhook_endpoints/we_1')).toHaveLength(deletes + 1);
+    expect(await subscriptions()).toEqual([]);
+
+    await t.owner().automations.activate({ id });
+    await settle();
+    await t.owner().automations.pause({ id });
+
+    const creates = stripeCalls('POST', '/v1/webhook_endpoints').length;
+
+    midCall = {
+      method: 'DELETE',
+      path: '/v1/webhook_endpoints/we_1',
+      run: () => t.owner().automations.activate({ id }),
+    };
+    await settle();
+
+    expect(stripeCalls('POST', '/v1/webhook_endpoints')).toHaveLength(creates + 1);
+    expect(await subscriptions()).toEqual([
+      expect.objectContaining({ connectionId: shop, status: 'listening' }),
+    ]);
   });
 });

@@ -17,13 +17,14 @@ export type StepOutcome =
   /** The step can't succeed on a retry: the run fails now. */
   | { kind: 'failed'; error: string };
 
-/** Errors a retry can't fix: setup a member has to change (email, the step's input, an automation that is off). */
+/** Errors a retry can't fix: setup a member has to change (email, the step's input, an automation that is off, a role). */
 const FINAL_ERRORS: ReadonlySet<string> = new Set([
   'EMAIL_NOT_CONFIGURED',
   'GATEWAY_REFUSED',
   'INVALID_STEP_INPUT',
   'LIMIT_EXCEEDED',
   'NOT_ACTIVE',
+  'NOT_ALLOWED',
 ]);
 
 export const finalError = (error: unknown) =>

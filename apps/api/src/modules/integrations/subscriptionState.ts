@@ -54,6 +54,13 @@ export const connectionKeys = async (
   return freshKeys(tx, integration, row);
 };
 
+export const sameTriggers = (a: string[], b: string[]) => {
+  const left = a.toSorted();
+  const right = b.toSorted();
+
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+};
+
 export const removeSubscription = async (tx: Db, subscription: Subscription) => {
   await tx.delete(integrationSubscriptions).where(eq(integrationSubscriptions.id, subscription.id));
 };

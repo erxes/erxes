@@ -7,7 +7,7 @@ import { randomToken, sha256 } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
 import { removeSecretAs, saveSecret } from '~/modules/secrets/vault';
 import { appOf, channelOf, HOOK_CHANNEL, paramsSchema, triggerOf } from './apps';
-import { removeSubscription } from './subscriptionState';
+import { removeSubscription, sameTriggers } from './subscriptionState';
 import { enqueueSync } from './subscriptionSync';
 
 type AppTrigger = Extract<AutomationDefinition['trigger'], { kind: 'app' }>;
@@ -121,9 +121,6 @@ const triggersInUse = async (tx: Db, id: string) => {
   return rows.flatMap((row) => row.event.split('.').slice(2)).toSorted();
 };
 
-const sameList = (a: string[], b: string[]) =>
-  a.length === b.length && a.every((item, index) => item === b[index]);
-
 const refresh = (tx: Db, ids: string[]) =>
   inOrder(ids, async (id) => {
     const [subscription] = await tx
@@ -136,7 +133,7 @@ const refresh = (tx: Db, ids: string[]) =>
 
     const triggers = await triggersInUse(tx, id);
 
-    if (sameList(triggers, subscription.triggers.toSorted())) return;
+    if (sameTriggers(triggers, subscription.triggers)) return;
 
     if (subscription.channel !== HOOK_CHANNEL && !triggers.length) {
       await removeSubscription(tx, subscription);

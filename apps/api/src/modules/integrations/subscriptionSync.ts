@@ -13,6 +13,7 @@ import {
   connectionKeys,
   markFailed,
   removeSubscription,
+  sameTriggers,
   subscriptionState,
 } from './subscriptionState';
 
@@ -29,33 +30,58 @@ export const enqueueSync = (tx: Db, id: string) =>
     dedupeKey: `integration-subscription:${id}`,
   });
 
-const finishRemoval = async (tx: Db, id: string) => {
+const MAX_ROUNDS = 5;
+
+const locked = async (tx: Db, id: string) => {
   const [subscription] = await tx
     .select()
     .from(integrationSubscriptions)
     .where(eq(integrationSubscriptions.id, id))
     .for('update');
 
-  if (!subscription) return;
+  return subscription;
+};
+
+const keepExternalId = (tx: Db, id: string, externalId: string | null) =>
+  tx
+    .update(integrationSubscriptions)
+    .set({ externalId, updatedAt: sql`now()` })
+    .where(eq(integrationSubscriptions.id, id));
+
+const finishRemoval = async (tx: Db, id: string) => {
+  const subscription = await locked(tx, id);
+
+  if (!subscription) return false;
 
   if (!subscription.triggers.length) {
     await removeSubscription(tx, subscription);
 
-    return;
+    return false;
+  }
+
+  await keepExternalId(tx, id, null);
+
+  return true;
+};
+
+const finishListening = async (tx: Db, id: string, synced: string[], externalId: string) => {
+  const subscription = await locked(tx, id);
+
+  if (!subscription) return false;
+
+  if (!sameTriggers(subscription.triggers, synced)) {
+    await keepExternalId(tx, id, externalId);
+
+    return true;
   }
 
   await tx
     .update(integrationSubscriptions)
-    .set({ externalId: null, updatedAt: sql`now()` })
-    .where(eq(integrationSubscriptions.id, id));
-  await enqueueSync(tx, id);
-};
-
-const listening = (tx: Db, id: string, externalId: string) =>
-  tx
-    .update(integrationSubscriptions)
     .set({ externalId, status: 'listening', failures: 0, lastError: null, updatedAt: sql`now()` })
     .where(eq(integrationSubscriptions.id, id));
+
+  return false;
+};
 
 const loaded = (orgId: string, id: string) =>
   withOrg(orgId, async (tx) => {
@@ -102,23 +128,20 @@ const syncAppWide = async (orgId: string, state: Loaded, hooks: AppWide) => {
     });
   else if (subscription.externalId) await hooks.unsubscribe({ keys, scope });
 
-  await withOrg(orgId, async (tx) => {
-    if (subscription.triggers.length) await listening(tx, id, routeKey);
-    else await finishRemoval(tx, id);
-  });
+  return withOrg(orgId, (tx) =>
+    subscription.triggers.length
+      ? finishListening(tx, id, subscription.triggers, routeKey)
+      : finishRemoval(tx, id),
+  );
 };
 
-const sync = async (orgId: string, id: string) => {
+const syncRound = async (orgId: string, id: string) => {
   const state = await loaded(orgId, id);
   const hooks = state?.app.hooks;
 
-  if (!state || !hooks) return;
+  if (!state || !hooks) return false;
 
-  if (hooks.appWide) {
-    await syncAppWide(orgId, state, hooks);
-
-    return;
-  }
+  if (hooks.appWide) return syncAppWide(orgId, state, hooks);
 
   const { subscription, app, keys, secret } = state;
   const scope = hooks.scope.parse(subscription.params);
@@ -127,9 +150,7 @@ const sync = async (orgId: string, id: string) => {
     if (subscription.externalId)
       await hooks.unsubscribe({ keys, scope, externalId: subscription.externalId });
 
-    await withOrg(orgId, (tx) => finishRemoval(tx, id));
-
-    return;
+    return withOrg(orgId, (tx) => finishRemoval(tx, id));
   }
 
   const made = await hooks.subscribe({
@@ -141,11 +162,19 @@ const sync = async (orgId: string, id: string) => {
     externalId: subscription.externalId,
   });
 
-  await withOrg(orgId, async (tx) => {
+  return withOrg(orgId, async (tx) => {
     if (made.secret) await saveSecret(tx, made.secret, subscription.secretId);
 
-    await listening(tx, id, made.externalId);
+    return finishListening(tx, id, subscription.triggers, made.externalId);
   });
+};
+
+const sync = async (orgId: string, id: string, rounds = MAX_ROUNDS): Promise<void> => {
+  if (!(await syncRound(orgId, id))) return;
+
+  if (rounds <= 1) throw new Error('the triggers kept changing while they synced');
+
+  await sync(orgId, id, rounds - 1);
 };
 
 export const subscriptionSync = defineJob({

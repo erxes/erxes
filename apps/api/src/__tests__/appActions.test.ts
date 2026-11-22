@@ -1,7 +1,9 @@
+import { newId, roles, users } from '@erxes/core-db';
+import { and, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
 import { useAutomations } from './automations.fixture';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { fakeGateway, urlOf } from './fakeGateway';
 import { settle } from './settle';
 
@@ -30,6 +32,12 @@ const onCreated = (firstName: string) =>
       rules: [{ path: 'subject.firstName', op: 'eq', value: firstName }],
     },
   }) as const;
+
+const refusedWith = (problem: string) => ({
+  status: 400,
+  code: 'INVALID_AUTOMATION',
+  data: { problems: [problem] },
+});
 
 describe('app actions', { timeout: 300_000 }, () => {
   useTestDatabase();
@@ -224,5 +232,97 @@ describe('app actions', { timeout: 300_000 }, () => {
     expect(created[0]?.headers.get('idempotency-key')).toBe(`${run.id}:stripe`);
     expect(created[0]?.auth).toBe('Bearer sk_test_shop');
     expect(new URLSearchParams(created[0]?.body).get('name')).toBe('Saran');
+  });
+
+  it('a member whose role may build automations but not use Stripe can’t turn on a Stripe trigger or step, nor publish one', async () => {
+    const builderId = newId();
+
+    await adminDb()
+      .insert(roles)
+      .values({
+        orgId: t.ids.org,
+        key: 'r_builder',
+        name: 'Builder',
+        permissions: ['automations.view', 'automations.manage'],
+      });
+    await adminDb().insert(users).values({
+      id: builderId,
+      orgId: t.ids.org,
+      email: 'builder@acme.mn',
+      role: 'r_builder',
+      status: 'active',
+    });
+
+    const builder = t.client({ user: builderId, org: t.ids.org });
+
+    const stripeStep = {
+      trigger: onCreated('Builder'),
+      steps: [
+        {
+          id: 'stripe',
+          type: 'action' as const,
+          action: 'app.stripe.create_customer',
+          input: { connectionId: stripeId, name: 'x', email: '' },
+        },
+      ],
+    };
+
+    const step = await builder.automations.create({ name: 'Builder step', definition: stripeStep });
+
+    await expect(builder.automations.activate({ id: step.id })).rejects.toMatchObject(
+      refusedWith("Step stripe (Stripe: Create a customer): your role can't use Stripe"),
+    );
+
+    const trigger = await builder.automations.create({
+      name: 'Builder trigger',
+      definition: {
+        trigger: {
+          kind: 'app',
+          app: 'stripe',
+          trigger: 'payment_succeeded',
+          connectionId: stripeId,
+        },
+        steps: [{ id: 'wait', type: 'delay', amount: 1, unit: 'days' }],
+      },
+    });
+
+    await expect(builder.automations.activate({ id: trigger.id })).rejects.toMatchObject(
+      refusedWith("Your role can't use Stripe for the trigger"),
+    );
+
+    const owned = await t.active('Owner step', sendStep(telegramId));
+
+    await expect(
+      builder.automations.update({ id: owned, definition: stripeStep }),
+    ).rejects.toMatchObject(
+      refusedWith("Step stripe (Stripe: Create a customer): your role can't use Stripe"),
+    );
+    expect((await t.owner().automations.get({ id: owned })).definition.steps[0]).toMatchObject({
+      action: 'app.telegram.send_message',
+    });
+
+    const builderRole = and(eq(roles.orgId, t.ids.org), eq(roles.key, 'r_builder'));
+
+    await adminDb()
+      .update(roles)
+      .set({ permissions: ['automations.view', 'automations.manage', 'payments.manage'] })
+      .where(builderRole);
+    await builder.automations.activate({ id: step.id });
+    await adminDb()
+      .update(roles)
+      .set({ permissions: ['automations.view', 'automations.manage'] })
+      .where(builderRole);
+
+    const customersBefore = stripe.calls.filter((call) => call.url.endsWith('/customers')).length;
+
+    await t.owner().customers.create({ firstName: 'Builder' });
+    await settle();
+
+    const { run } = await onlyRun(step.id);
+
+    expect(run.status).not.toBe('succeeded');
+    expect(stripe.calls.filter((call) => call.url.endsWith('/customers'))).toHaveLength(
+      customersBefore,
+    );
   });
 });

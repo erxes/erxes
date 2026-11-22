@@ -55,7 +55,8 @@ const requestId = (req: IncomingMessage, res: ServerResponse) => {
 };
 
 /** A signed file link or webhook address is the permission itself, so its token stays out of the logs. */
-const SIGNED_LINK = /^(\/core\/v1\/(?:files\/signed\/|automations\/hooks\/[^/?]+\/))[^/?]+/;
+const SIGNED_LINK =
+  /^(\/core\/v1\/(?:files\/signed\/|automations\/hooks\/[^/?]+\/|integrations\/hooks\/[^/?]+\/|integrations\/apps\/[^/?]+\/hook\/[^/?]+\/))[^/?]+/;
 
 /**
  * One line per request when it ends, plus `req.log` for the route: a child

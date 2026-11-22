@@ -25,7 +25,7 @@ import {
 } from './connections';
 import { connectable, manages } from './connectable';
 import { fieldsOf, type KeyedIntegration } from './define';
-import { connectionTurned, listenersOf } from './listeners';
+import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
 import { callbackUrl, oauthClientSource } from './oauth';
 import { driverOptions } from './options';
 import { INTEGRATIONS, keyedOf } from './registry';
@@ -286,6 +286,13 @@ export const removeConnection = async (client: Db, key: string, id: string) => {
       'CONNECTION_IN_USE',
       `Automations listen on ${row.name}: pause ${listening.join(', ')} first`,
       { automations: listening },
+    );
+
+  if (await hooksSyncing(client, id))
+    throw fail(
+      'CONNECTION_IN_USE',
+      `${row.name} is still removing its webhooks: try again in a minute`,
+      { automations: [] },
     );
 
   if (integration.payments) await releaseGateway(client, id);

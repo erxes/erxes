@@ -16,6 +16,8 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
+import { manages } from '~/modules/integrations/connectable';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
 import { resolveAppTrigger } from '~/modules/integrations/subscriptions';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { coreAction } from './actions/catalog';
@@ -56,6 +58,13 @@ const isBlank = (value: unknown) =>
   value === '' ||
   (Array.isArray(value) && value.length === 0);
 
+const appsNotAllowed = (action: Catalog['actions'][number]) =>
+  action.fields.flatMap((field) => {
+    const integration = INTEGRATIONS.find((item) => item.key === field.integration);
+
+    return integration && !manages(integration) ? [integration.name] : [];
+  });
+
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
 const actionProblems = (
   step: Extract<AutomationStep, { type: 'action' }>,
@@ -70,6 +79,9 @@ const actionProblems = (
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))
     .map((field) => `Step ${step.id} (${action.label}): ${field.label} is required`);
+
+  for (const name of appsNotAllowed(action))
+    problems.push(`Step ${step.id} (${action.label}): your role can't use ${name}`);
 
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
@@ -138,6 +150,8 @@ const appTriggerProblems = async (client: Db, trigger: Extract<Trigger, { kind: 
   const resolved = resolveAppTrigger(trigger);
 
   if (!resolved.ok) return [resolved.problem];
+
+  if (!manages(resolved.app)) return [`Your role can't use ${resolved.app.name} for the trigger`];
 
   const [connection] = await client
     .select({ key: integrationConnections.key, status: integrationConnections.status })
