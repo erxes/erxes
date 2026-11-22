@@ -14,6 +14,12 @@ export interface Arm {
 
 const newStepId = () => Math.random().toString(36).slice(2, 10);
 
+export const pathShare = (paths: { weight: number }[], index: number) => {
+  const total = paths.reduce((sum, path) => sum + path.weight, 0);
+
+  return total ? Math.round(((paths[index]?.weight ?? 0) / total) * 100) : 0;
+};
+
 /** The lists of steps a branching step holds, in display order. */
 export const armsOf = (step: AutomationStep): Arm[] => {
   switch (step.type) {
@@ -34,7 +40,7 @@ export const armsOf = (step: AutomationStep): Arm[] => {
     case 'split':
       return step.paths.map((path, index) => ({
         key: `path:${index}`,
-        label: `${path.label || String.fromCharCode(65 + index)} · ${path.weight}%`,
+        label: `${path.label || String.fromCharCode(65 + index)} · ${pathShare(step.paths, index)}%`,
         steps: path.steps,
       }));
     default:

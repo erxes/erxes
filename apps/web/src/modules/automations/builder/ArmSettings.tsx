@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
+import { pathShare } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
 
 type SwitchStep = Extract<AutomationStep, { type: 'switch' }>;
@@ -116,8 +117,6 @@ export const SplitPaths = ({
   const setPath = (index: number, next: SplitStep['paths'][number]) =>
     onChange({ ...step, paths: replaceAt(step.paths, index, next) });
 
-  const total = step.paths.reduce((sum, path) => sum + path.weight, 0);
-
   return (
     <div className="space-y-2">
       {step.paths.map((path, index) => (
@@ -146,7 +145,7 @@ export const SplitPaths = ({
             }
           />
           <Badge variant="secondary" className="w-12 shrink-0 justify-center">
-            {Math.round((path.weight / total) * 100)}%
+            {pathShare(step.paths, index)}%
           </Badge>
           {step.paths.length > 2 && (
             <Button
