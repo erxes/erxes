@@ -24,6 +24,7 @@ import { customerCors } from '~/modules/customerAuth/customerWebsites';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { emailEventsRouter } from '~/modules/email/events/events.http';
+import { automationHooksRouter } from '~/modules/automations/hooks.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -50,8 +51,8 @@ const requestId = (req: IncomingMessage, res: ServerResponse) => {
   return id;
 };
 
-/** A signed file link is the permission itself, so its token stays out of the logs. */
-const SIGNED_LINK = /^(\/core\/v1\/files\/signed\/)[^/?]+/;
+/** A signed file link or webhook address is the permission itself, so its token stays out of the logs. */
+const SIGNED_LINK = /^(\/core\/v1\/(?:files\/signed\/|automations\/hooks\/[^/?]+\/))[^/?]+/;
 
 /**
  * One line per request when it ends, plus `req.log` for the route: a child
@@ -144,6 +145,8 @@ export const createApp = (log: Logger = logger): Express => {
 
   // Email providers report bounces, complaints and deliveries: signed raw bodies, no sign-in.
   app.use('/core/v1', emailEventsRouter(limit.emailEvents));
+
+  app.use('/core/v1', automationHooksRouter(limit.automationHooks));
 
   app.use(express.json({ limit: '1mb' }));
 

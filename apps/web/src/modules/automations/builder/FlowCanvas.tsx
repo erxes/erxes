@@ -1,13 +1,6 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import {
-  IconBolt,
-  IconCalendarEvent,
-  IconClock,
-  IconFlag,
-  IconHandFinger,
-  IconZoomIn,
-  IconZoomOut,
-} from '@tabler/icons-react';
+import { IconFlag, IconZoomIn, IconZoomOut } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { Button, cn } from 'erxes-ui';
 import { Fragment, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,13 +11,8 @@ import { armsOf, type ListAddress, STEP_TITLES, type StepType } from './flowMode
 import { describeStep } from './flowText';
 import { Connector, LOOK, Node } from './FlowNode';
 import type { FieldInfo } from './useAutomationFields';
-
-const TRIGGER_ICONS = {
-  event: IconBolt,
-  schedule: IconClock,
-  date: IconCalendarEvent,
-  manual: IconHandFinger,
-} as const;
+import { automationsQuery } from '../automationQueries';
+import { TRIGGER_ICONS } from '../TemplatePicker';
 
 interface FlowProps {
   actions: ActionInfo[];
@@ -80,12 +68,14 @@ const StepNode = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => 
   const { t } = useTranslation('automations');
   const { events, stats, outputsBefore, knownActions } = useContext(BuilderContext);
   const { stages } = useLeadStages();
+  const automations = useQuery(automationsQuery()).data?.data;
 
   const { title, detail } = describeStep(step, {
     actions: knownActions,
     events,
     fields: [...flow.fields, ...outputsBefore(step.id)],
     stages,
+    automations,
   });
 
   const action =

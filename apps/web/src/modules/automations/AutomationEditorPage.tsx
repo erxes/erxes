@@ -1,7 +1,7 @@
-import type { Automation, AutomationDefinition } from '@erxes/core-contract';
+import type { Automation } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer, Tabs, usePageHotkey } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -11,37 +11,16 @@ import { messageOf } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
-import {
-  automationQuery,
-  type Catalog,
-  catalogQuery,
-  runsQuery,
-  statsQuery,
-} from './automationQueries';
+import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
 import { FlowCanvas } from './builder/FlowCanvas';
-import { countSteps, flowProblems, stepOutputFields } from './builder/flowChecks';
+import { countSteps } from './builder/flowChecks';
 import { insertStep, newStep, removeStep } from './builder/flowModel';
 import { describeTrigger } from './builder/flowText';
 import { BuilderContext } from './builder/BuilderContext';
-import { useAutomationFields } from './builder/useAutomationFields';
+import { useBuilder } from './builder/useBuilder';
 import { RunsPanel } from './RunsPanel';
 import type { Selection } from './StepInspector';
 import { useAutomationDraft, useAutomationMutations } from './useAutomationEditor';
-
-/** The record type runs are about, and whether the trigger gives one at all. */
-const subjectOf = (trigger: AutomationDefinition['trigger'], triggers: Catalog['triggers']) => {
-  if (trigger.kind === 'event') {
-    const event = triggers.find((item) => item.type === trigger.event);
-
-    return { subject: event?.subject ?? 'customer', hasSubject: Boolean(event?.subject) };
-  }
-
-  if (trigger.kind === 'date') return { subject: trigger.subject, hasSubject: true };
-
-  const audience = 'audience' in trigger ? trigger.audience : undefined;
-
-  return { subject: audience?.type ?? 'customer', hasSubject: Boolean(audience) };
-};
 
 /** ⌘S saves; Delete removes the selected step; Escape goes back to the settings. */
 const useShortcuts = ({
@@ -61,54 +40,6 @@ const useShortcuts = ({
   });
   usePageHotkey('escape', onEscape);
   usePageHotkey('delete, backspace', () => onRemove?.());
-};
-
-/**
- * The builder's derived data: actions for this subject, each step's problems,
- * and what the builder parts share (events, per-step stats, earlier outputs).
- */
-const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automationId: string) => {
-  const stats = useQuery(statsQuery(automationId));
-
-  const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
-  const { fields, error: fieldsError } = useAutomationFields(hasSubject ? subject : null);
-
-  const actions = useMemo(
-    () =>
-      catalog.actions.filter(
-        (action) =>
-          !action.subject ||
-          (hasSubject && (action.subject === 'any' || action.subject === subject)),
-      ),
-    [catalog.actions, hasSubject, subject],
-  );
-
-  const problems = useMemo(
-    () => flowProblems(definition.steps, actions, catalog.actions),
-    [definition, actions, catalog.actions],
-  );
-
-  const builder = useMemo(() => {
-    const events = catalog.triggers.filter((item) => item.subject);
-    const { trigger } = definition;
-
-    const started =
-      trigger.kind === 'event'
-        ? catalog.triggers.find((item) => item.type === trigger.event)
-        : undefined;
-
-    return {
-      events,
-      stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
-      outputsBefore: (stepId: string) =>
-        stepOutputFields(definition.steps, stepId, { events, actions, trigger: started }),
-      trigger: started,
-      hasSubject,
-      knownActions: catalog.actions,
-    };
-  }, [catalog.triggers, catalog.actions, stats.data, definition, actions, hasSubject]);
-
-  return { stats, subject, hasSubject, fields, fieldsError, actions, problems, builder };
 };
 
 /** The draft, what is selected, the save and start mutations, and the editor's keys. */

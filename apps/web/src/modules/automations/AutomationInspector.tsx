@@ -130,6 +130,10 @@ export const AutomationInspector = (props: InspectorProps) => {
             <TriggerEditor
               trigger={definition.trigger}
               events={props.catalog.triggers}
+              hook={{
+                url: props.automation.hookUrl,
+                on: props.automation.status === 'active',
+              }}
               disabled={!editable}
               onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}
               onStartNow={props.onStartNow}

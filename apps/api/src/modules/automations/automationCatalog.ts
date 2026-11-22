@@ -3,7 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { type Carried, healedFields, labelOf } from './dataFields';
-import { isOutputType, learnedEventData, outputType } from './eventData';
+import { isEventType, learnedEventData, outputType } from './eventData';
 
 const installedPlugins = (client: Db) =>
   client
@@ -20,7 +20,7 @@ const unexpectedTriggers = (
   [...learned.entries()].flatMap(([type, carried]) => {
     const [source = '', ...rest] = type.split('.');
 
-    if (declared.has(type) || isOutputType(type) || !installed.has(source)) return [];
+    if (declared.has(type) || !isEventType(type) || !installed.has(source)) return [];
 
     return [
       {

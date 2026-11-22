@@ -1,7 +1,8 @@
 import type { AutomationTrigger, DataField } from '@erxes/core-contract';
-import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
+import { IconHandFinger } from '@tabler/icons-react';
 import { Badge, Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { TriggerIcon } from '../TemplatePicker';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
@@ -11,12 +12,14 @@ import { RecordPicks } from './RecordPicks';
 import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
 import { AudienceEditor, Field } from './triggerFields';
+import { WebhookTriggerSettings } from './WebhookTriggerSettings';
 
 const KINDS = [
-  { kind: 'event', icon: IconBolt, label: 'Event', hint: 'When something happens' },
-  { kind: 'schedule', icon: IconClock, label: 'Schedule', hint: 'Every hour, day, week or month' },
-  { kind: 'date', icon: IconCalendarEvent, label: 'Date', hint: 'Before or after a record’s date' },
-  { kind: 'manual', icon: IconHandFinger, label: 'Manual', hint: 'You start it on chosen records' },
+  { kind: 'event', label: 'Event', hint: 'When something happens' },
+  { kind: 'schedule', label: 'Schedule', hint: 'Every few minutes, hours, days, weeks or months' },
+  { kind: 'date', label: 'Date', hint: 'Before or after a record’s date' },
+  { kind: 'manual', label: 'Manual', hint: 'You start it on chosen records' },
+  { kind: 'webhook', label: 'Webhook', hint: 'When another system calls its address' },
 ] as const;
 
 const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
@@ -34,8 +37,10 @@ const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
         yearly: true,
         at: '09:00',
       };
-    default:
-      return { kind: 'manual', audience: { type: 'customer' } };
+    case 'webhook':
+      return { kind };
+    case 'manual':
+      return { kind, audience: { type: 'customer' } };
   }
 };
 
@@ -62,7 +67,7 @@ const KindPicker = ({
 
   return (
     <div className="grid auto-rows-fr grid-cols-2 gap-2">
-      {KINDS.map(({ kind, icon: Icon, label, hint }) => (
+      {KINDS.map(({ kind, label, hint }) => (
         <button
           key={kind}
           type="button"
@@ -81,7 +86,7 @@ const KindPicker = ({
               value === kind && 'bg-primary text-primary-foreground',
             )}
           >
-            <Icon className="size-4" />
+            <TriggerIcon kind={kind} className="size-4" />
           </span>
           <span className="min-w-0">
             <span className="block text-sm font-medium">{t(`trigger-${kind}-title`, label)}</span>
@@ -183,16 +188,18 @@ const EventTriggerSettings = ({
   );
 };
 
-/** The trigger: an event, a schedule, a date on each record, or a manual start. */
+/** The trigger: an event, a schedule, a date on each record, a manual start, or a webhook. */
 export const TriggerEditor = ({
   trigger,
   events,
+  hook,
   onChange,
   disabled,
   onStartNow,
 }: {
   trigger: AutomationTrigger;
   events: EventInfo[];
+  hook: { url: string | null; on: boolean };
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;
@@ -217,6 +224,14 @@ export const TriggerEditor = ({
       )}
       {trigger.kind === 'date' && (
         <DateTriggerSettings trigger={trigger} disabled={disabled} onChange={onChange} />
+      )}
+      {trigger.kind === 'webhook' && (
+        <WebhookTriggerSettings
+          trigger={trigger}
+          hook={hook}
+          disabled={disabled}
+          onChange={onChange}
+        />
       )}
       {trigger.kind === 'manual' && (
         <>

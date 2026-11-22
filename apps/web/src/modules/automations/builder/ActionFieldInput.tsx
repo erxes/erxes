@@ -15,6 +15,7 @@ import { z } from 'zod';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
   type ActionInputProps,
+  AutomationSelect,
   CustomFieldSelect,
   customFieldsOf,
   fieldIdOf,
@@ -248,6 +249,8 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <LeadStageSelect {...props} />;
     case 'plugin_record':
       return <PluginRecordSelect {...props} />;
+    case 'automation':
+      return <AutomationSelect {...props} />;
     case 'select':
       return <OptionSelect {...props} />;
     case 'members':

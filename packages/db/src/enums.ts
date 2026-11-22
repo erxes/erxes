@@ -412,7 +412,11 @@ export const REENTRY_RULES = ['always', 'once', 'daily'] as const;
 export const DELAY_UNITS = ['minutes', 'hours', 'days'] as const;
 
 /** How often a scheduled trigger fires. */
-export const SCHEDULE_INTERVALS = ['hour', 'day', 'week', 'month'] as const;
+export const SCHEDULE_INTERVALS = ['minute', 'hour', 'day', 'week', 'month'] as const;
+
+export const HOOK_CUSTOMER_KEYS = ['id', 'primaryEmail', 'primaryPhone'] as const;
+
+export const HOOK_COMPANY_KEYS = ['id', 'primaryName'] as const;
 
 /** How the values of a path conditions and placeholders read compare. */
 export const AUTOMATION_FIELD_TYPES = [
@@ -448,6 +452,7 @@ export const ACTION_FIELD_TYPES = [
   'recipients',
   'plugin_record',
   'reply_to',
+  'automation',
 ] as const;
 
 // ─── Integrations ───────────────────────────────────────────────────────────

@@ -50,7 +50,7 @@ export const automationsRouter = {
     restoreVersion(db(), input.id, input.version),
   ),
   templates: scoped.automations.templates.handler(() => ({ data: AUTOMATION_TEMPLATES })),
-  fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input.subject)),
+  fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input)),
   runs: scoped.automations.runs.handler(({ input }) => listRuns(db(), input)),
   run: scoped.automations.run.handler(({ input }) => getRun(db(), input.runId)),
   retryRun: scoped.automations.retryRun.handler(({ input }) =>

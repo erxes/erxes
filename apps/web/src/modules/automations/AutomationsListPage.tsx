@@ -23,7 +23,7 @@ import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
 import { DescribeAutomation } from './DescribeAutomation';
-import { catalogQuery } from './automationQueries';
+import { automationsQuery, catalogQuery } from './automationQueries';
 import { countSteps } from './builder/flowChecks';
 import { describeTrigger } from './builder/flowText';
 import { TemplatePicker, TriggerIcon } from './TemplatePicker';
@@ -242,7 +242,7 @@ export const AutomationsListPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [picking, setPicking] = useState(false);
-  const automations = useQuery(orpc.automations.list.queryOptions({ input: {} }));
+  const automations = useQuery(automationsQuery());
 
   const create = useMutation(
     orpc.automations.create.mutationOptions({

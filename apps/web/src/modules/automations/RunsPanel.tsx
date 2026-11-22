@@ -19,7 +19,7 @@ import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { runQuery, runsQuery } from './automationQueries';
+import { catalogQuery, runQuery, runsQuery } from './automationQueries';
 
 const STATUS_VARIANT = {
   running: 'info',
@@ -30,6 +30,28 @@ const STATUS_VARIANT = {
 } as const;
 
 const STEP_VARIANT = { succeeded: 'success', failed: 'destructive' } as const;
+
+const useStartedBy = () => {
+  const { t } = useTranslation('automations');
+  const triggers = useQuery(catalogQuery()).data?.triggers ?? [];
+
+  return (run: AutomationRun) => {
+    if (run.eventId.startsWith('run:')) return t('started-by.automation', 'Another automation');
+
+    switch (run.eventType) {
+      case 'webhook':
+        return t('started-by.webhook', 'Webhook call');
+      case 'manual':
+        return t('started-by.manual', 'Started by hand');
+      case 'schedule':
+        return t('started-by.schedule', 'Schedule');
+      case 'date':
+        return t('started-by.date', 'Date');
+      default:
+        return triggers.find((item) => item.type === run.eventType)?.label ?? run.eventType;
+    }
+  };
+};
 
 const When = ({ value }: { value: string }) => (
   <RelativeDateDisplay value={value} render={<span />}>
@@ -132,6 +154,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
   const { t } = useTranslation('automations');
   const fmt = useFormat();
   const canManage = useCan()('automations.manage');
+  const startedBy = useStartedBy();
 
   const detail = useQuery(runQuery(run));
 
@@ -153,7 +176,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
           </Link>
         )}
         <span className="text-xs text-muted-foreground">
-          {t('version', 'version {{version}}', { version: run.version })} · {run.eventType}
+          {t('version', 'version {{version}}', { version: run.version })} · {startedBy(run)}
         </span>
         {canManage && <RunActions run={run} />}
       </div>
@@ -204,6 +227,7 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
   const { t } = useTranslation('automations');
   const [selected, setSelected] = useState<string | null>(null);
   const current = runs.find((run) => run.id === selected) ?? runs[0];
+  const startedBy = useStartedBy();
 
   return (
     <div className="flex min-h-0 flex-1">
@@ -227,7 +251,7 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
                     {run.subjectType
                       ? (run.subjectName ??
                         t('deleted-subject', 'A deleted {{type}}', { type: run.subjectType }))
-                      : run.eventType}
+                      : startedBy(run)}
                   </span>
                   <span className="ml-auto text-xs text-muted-foreground">
                     <When value={run.startedAt} />

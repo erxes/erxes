@@ -81,7 +81,7 @@ const runLocalAction = async (
     tx,
     orgId: state.run.orgId,
     automation: { id: automation.id, name: automation.name },
-    run: { id: state.run.id },
+    run: { id: state.run.id, depth: state.run.depth },
     step: { id: step.id },
     subject: subjectRefOf(state.run),
     input,

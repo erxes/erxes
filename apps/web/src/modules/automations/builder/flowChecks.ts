@@ -19,8 +19,13 @@ const NEEDS = {
   any: 'a customer or company',
 } as const;
 
+export const REPLY_ACTION = 'core.webhook.reply';
+
 const missingAction = (type: string, known: ActionInfo[]) => {
   const elsewhere = known.find((item) => item.type === type);
+
+  if (elsewhere && type === REPLY_ACTION)
+    return `“${elsewhere.label}” works only when a webhook starts the automation`;
 
   if (elsewhere?.subject)
     return `“${elsewhere.label}” needs ${NEEDS[elsewhere.subject]}, and this trigger is not about one`;

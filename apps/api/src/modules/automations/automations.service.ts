@@ -14,6 +14,8 @@ import { orgTimezone } from '~/lib/orgTime';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkDefinition } from './definitions';
+import { forgetHookData } from './eventData';
+import { withHookUrls } from './hooks';
 import { firstRunAt, triggerKey } from './triggers';
 
 type AutomationRow = typeof automations.$inferSelect;
@@ -66,11 +68,14 @@ export const listAutomations = async (client: Db, query: { status?: AutomationRo
       .limit(limit),
   );
 
-  return { data: rows };
+  return { data: await withHookUrls(client, rows) };
 };
 
 export const getAutomation = async (client: Db, id: string) => {
-  const [row] = await selectAutomations(client).where(eq(automations.id, id)).limit(1);
+  const [row] = await withHookUrls(
+    client,
+    await selectAutomations(client).where(eq(automations.id, id)).limit(1),
+  );
 
   if (!row) throw notFound('Automation');
 
@@ -194,6 +199,7 @@ export const removeAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
 
   await client.delete(automations).where(eq(automations.id, id));
+  await forgetHookData(client, id);
   await recordAudit(client, {
     action: 'automation.deleted',
     targetType: 'automation',

@@ -13,10 +13,13 @@ export type FieldInfo = AutomationFieldPath & { recordType?: string; source?: st
  * Fields conditions and placeholders can use, for a record type: its fields as its lists filter
  * them, and the event's. The editor page shows `error`; the builder parts share its cache.
  */
-export const useAutomationFields = (subject: 'customer' | 'company' | null) => {
+export const useAutomationFields = (
+  subject: 'customer' | 'company' | null,
+  automation?: string,
+) => {
   const query = useQuery(
     orpc.automations.fields.queryOptions({
-      input: subject ? { subject } : {},
+      input: { ...(subject ? { subject } : {}), ...(automation ? { automation } : {}) },
       staleTime: 60_000,
     }),
   );

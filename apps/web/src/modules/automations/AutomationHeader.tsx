@@ -44,7 +44,7 @@ const EditorActions = ({
         />
         {isOn ? t('switch-on', 'On') : t('switch-off', 'Off')}
       </label>
-      <TestPanel automationId={automation.id} subject={subject} />
+      <TestPanel automation={automation} subject={subject} />
       <Button
         disabled={save.isPending || !draft.dirty}
         onClick={() => save.mutate(draft.input)}

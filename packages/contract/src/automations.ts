@@ -43,6 +43,7 @@ export const Automation = createSelectSchema(automations, {
       succeeded: z.int(),
       failed: z.int(),
     }),
+    hookUrl: z.string().nullable(),
   });
 
 export type Automation = z.infer<typeof Automation>;
@@ -196,7 +197,10 @@ export const automationsContract = {
           /** The record to run for: send both, or neither for a run without one. */
           subjectType: z.enum(CONTENT_TYPES).optional(),
           subjectId: Id.optional(),
-          /** Event fields for the trigger (type, payload); defaults to the trigger's event. */
+          /**
+           * Event fields for the trigger (type, payload); defaults to the trigger's event. For a
+           * webhook trigger, the sample request: `{ method, query, headers, body }`.
+           */
           payload: z.record(z.string(), z.unknown()).optional(),
           /** Pretend waits for events end with the event happening. */
           assumeEventHappens: z.boolean().default(false),
@@ -285,9 +289,9 @@ export const automationsContract = {
       method: 'GET',
       path: '/automations/fields',
       summary:
-        'Paths conditions and placeholders can use, with their types (custom fields included)',
+        'Paths conditions and placeholders can use, with their types (custom fields included; with `automation`, what its webhook requests carried)',
     })
-    .input(z.object({ subject: z.enum(CONTENT_TYPES).optional() }))
+    .input(z.object({ subject: z.enum(CONTENT_TYPES).optional(), automation: Id.optional() }))
     .output(listOf(AutomationFieldPath)),
   remove: base
     .route({ method: 'DELETE', path: '/automations/{id}' })

@@ -14,6 +14,8 @@ export const catalogQuery = () =>
 
 export const automationQuery = (id: string) => orpc.automations.get.queryOptions({ input: { id } });
 
+export const automationsQuery = () => orpc.automations.list.queryOptions({ input: {} });
+
 /** The newest runs and how many there are: the Runs tab counts what its list shows. */
 export const runsQuery = (id: string) =>
   orpc.automations.runs.queryOptions({

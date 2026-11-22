@@ -1,5 +1,5 @@
 import type { ActionField, ActionInfo } from '@erxes/core-contract';
-import { memberQueries } from '@erxes/core-contract/client';
+import { memberQueries, messageOf } from '@erxes/core-contract/client';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
   LookupPicker,
@@ -9,6 +9,7 @@ import {
   useMemberOptions,
   useTagOptions,
 } from 'erxes-ui';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
@@ -16,6 +17,8 @@ import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { tagsQuery } from '~/modules/tags/useTags';
+import { automationsQuery } from '../automationQueries';
+import { BuilderContext } from './BuilderContext';
 import type { FieldInfo } from './useAutomationFields';
 
 export type ActionInputProps = {
@@ -101,6 +104,69 @@ export const LeadStageSelect = ({ value, onChange, disabled }: ActionInputProps)
         ))}
       </Select.Content>
     </Select>
+  );
+};
+
+export const AutomationSelect = ({ value, onChange, disabled }: ActionInputProps) => {
+  const { t } = useTranslation('automations');
+  const { automationId } = useContext(BuilderContext);
+  const automations = useQuery(automationsQuery());
+
+  const startable = (automations.data?.data ?? [])
+    .filter(
+      (automation) =>
+        automation.id !== automationId && automation.definition.trigger.kind === 'manual',
+    )
+    .toSorted((a, b) => Number(b.status === 'active') - Number(a.status === 'active'));
+
+  if (automations.isError)
+    return <p className="text-xs text-destructive-text">{messageOf(automations.error)}</p>;
+
+  if (automations.isSuccess && !startable.length)
+    return (
+      <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+        {t(
+          'no-startable-automations',
+          'No other automation starts by hand yet. Make one with the Manual trigger.',
+        )}
+      </p>
+    );
+
+  const chosen = startable.find((automation) => automation.id === value);
+
+  return (
+    <div className="space-y-1.5">
+      <Select value={textOf(value)} disabled={disabled} onValueChange={onChange}>
+        <Select.Trigger>
+          <Select.Value placeholder={t('choose-automation', 'Choose an automation')} />
+        </Select.Trigger>
+        <Select.Content>
+          {startable.map((automation) => (
+            <Select.Item
+              key={automation.id}
+              value={automation.id}
+              disabled={automation.status !== 'active'}
+            >
+              <span className="truncate">{automation.name}</span>
+              {automation.status !== 'active' && (
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {t(`automation-status.${automation.status}`, automation.status)}
+                </span>
+              )}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+      {chosen && chosen.status !== 'active' ? (
+        <p className="text-xs text-destructive-text">
+          {t('chosen-automation-off', 'It is off: this step fails until you turn it on.')}
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          {t('startable-hint', 'Automations with the Manual trigger that are on.')}
+        </p>
+      )}
+    </div>
   );
 };
 

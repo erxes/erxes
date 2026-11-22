@@ -58,29 +58,31 @@ const TriggerGroup = ({
   const { t } = useTranslation('automations');
 
   // Core's customer and company events carry that record, listed below as the record.
-  if (!trigger || (!fields.length && trigger.source === 'core' && hasSubject)) return null;
+  if (!trigger && !fields.length) return null;
 
-  const heading = trigger.record
+  if (trigger && !fields.length && trigger.source === 'core' && hasSubject) return null;
+
+  const heading = trigger?.record
     ? t('the-record', 'The {{record}}', { record: inSentence(trigger.record) })
-    : trigger.label;
+    : (trigger?.label ?? fields[0]?.groupLabel ?? t('trigger-data', 'From the trigger'));
 
   return (
     <Command.Group heading={heading}>
-      {fields.length ? (
-        fields.map((field) => (
-          <DataRow
-            key={field.path}
-            icon={IconBolt}
-            label={field.label}
-            path={field.path}
-            onPick={onPick}
-          />
-        ))
-      ) : (
-        <div className="px-2 py-1.5">
-          <EventDataHint event={trigger} subject={hasSubject ? subject : null} compact />
-        </div>
-      )}
+      {fields.length
+        ? fields.map((field) => (
+            <DataRow
+              key={field.path}
+              icon={IconBolt}
+              label={field.label}
+              path={field.path}
+              onPick={onPick}
+            />
+          ))
+        : trigger && (
+            <div className="px-2 py-1.5">
+              <EventDataHint event={trigger} subject={hasSubject ? subject : null} compact />
+            </div>
+          )}
     </Command.Group>
   );
 };
