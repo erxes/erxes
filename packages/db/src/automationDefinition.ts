@@ -207,10 +207,20 @@ export const HookField = z
   .max(200)
   .regex(/^(body|query)(\.[A-Za-z][A-Za-z0-9_]{0,59}){1,4}$/, 'body.<key> or query.<key>');
 
-export const HookSubject = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('customer'), by: z.enum(HOOK_CUSTOMER_KEYS), field: HookField }),
-  z.object({ type: z.literal('company'), by: z.enum(HOOK_COMPANY_KEYS), field: HookField }),
-]);
+const AppField = z
+  .string()
+  .max(200)
+  .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}(\.[A-Za-z][A-Za-z0-9_]{0,59}){0,4}$/, '<key> of the event');
+
+const subjectFrom = (field: z.ZodString) =>
+  z.discriminatedUnion('type', [
+    z.object({ type: z.literal('customer'), by: z.enum(HOOK_CUSTOMER_KEYS), field }),
+    z.object({ type: z.literal('company'), by: z.enum(HOOK_COMPANY_KEYS), field }),
+  ]);
+
+export const HookSubject = subjectFrom(HookField);
+
+const AppSubject = subjectFrom(AppField);
 
 export type HookSubject = z.infer<typeof HookSubject>;
 
@@ -259,7 +269,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     trigger: z.string().regex(/^[a-z][a-z0-9_]{0,59}$/),
     connectionId: z.string().min(1).max(64),
     params: z.record(z.string(), z.json()).default({}),
-    subject: HookSubject.optional(),
+    subject: AppSubject.optional(),
     conditions: ConditionGroup.optional(),
   }),
 ]);

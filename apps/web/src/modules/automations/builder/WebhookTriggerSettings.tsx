@@ -42,7 +42,8 @@ const GUESS: Record<HookSubject['by'], RegExp> = {
 };
 
 const guessField = (by: HookSubject['by'], fields: FieldInfo[], fallback: string) =>
-  fields.find((field) => GUESS[by].test(field.path))?.path.slice(PAYLOAD.length) ?? fallback;
+  (fields.find((field) => GUESS[by].test(field.path)) ?? fields[0])?.path.slice(PAYLOAD.length) ??
+  fallback;
 
 const subjectOf = (type: HookSubject['type'], fields: FieldInfo[]): HookSubject =>
   type === 'company'
