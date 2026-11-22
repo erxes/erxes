@@ -87,23 +87,48 @@ const layOut = () =>
     return DOMRect.fromRect({ x: 0, y: top, width: 100, height });
   });
 
+const ids = Array.from({ length: 50 }, (_, index) => `row-${index}`);
+
+/**
+ * Shows the 50 rows, scrolls ten rows and 10 px of the next under the header, waits for the
+ * position to be kept, and takes the list away.
+ */
+const scrollPastTenRows = async () => {
+  const first = render(<Rows ids={ids} />);
+  const scroller = scrollerOf(first.querySelector('tbody'));
+
+  act(() => {
+    if (!scroller) return;
+    scroller.scrollTop = 10 * ROW + 10;
+    scroller.dispatchEvent(new Event('scroll'));
+  });
+  await act(() => new Promise<void>((resolve) => setTimeout(resolve, 300)));
+  first.remove();
+};
+
+/**
+ * The list reopened at row-10 under three skeleton rows; its button stands in for learning,
+ * after, that there are earlier rows.
+ */
+const Reopened = () => {
+  const [known, setKnown] = useState<boolean>();
+
+  return (
+    <>
+      <button type="button" onClick={() => setKnown(true)}>
+        Earlier rows
+      </button>
+      <Rows ids={ids.slice(10)} skeletons={3} hasPreviousPage={known} />
+    </>
+  );
+};
+
 describe('RecordTableCursorProvider', () => {
   it('reopens at the first row the header covered no more of, even when the list starts there', async () => {
     const rects = layOut();
-    const ids = Array.from({ length: 50 }, (_, index) => `row-${index}`);
-    const first = render(<Rows ids={ids} />);
-    const scroller = scrollerOf(first.querySelector('tbody'));
-
-    // Ten rows and a third of the next are scrolled under the header.
-    act(() => {
-      if (!scroller) return;
-      scroller.scrollTop = 10 * ROW + 10;
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 300)));
+    await scrollPastTenRows();
 
     // The list reopens from that row: row-10 shows under the header, 10 px of it scrolled past.
-    first.remove();
     const again = render(<Rows ids={ids.slice(10)} />);
     const reopened = scrollerOf(again.querySelector('tbody'));
 
@@ -113,31 +138,7 @@ describe('RecordTableCursorProvider', () => {
 
   it('keeps the restored row in place when the list learns it has earlier rows', async () => {
     const rects = layOut();
-    const ids = Array.from({ length: 50 }, (_, index) => `row-${index}`);
-    const first = render(<Rows ids={ids} />);
-    const scroller = scrollerOf(first.querySelector('tbody'));
-
-    act(() => {
-      if (!scroller) return;
-      scroller.scrollTop = 10 * ROW + 10;
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 300)));
-    first.remove();
-
-    // Reopened at row-10 under three skeleton rows; that there are earlier rows comes after.
-    const Reopened = () => {
-      const [known, setKnown] = useState<boolean>();
-
-      return (
-        <>
-          <button type="button" onClick={() => setKnown(true)}>
-            Earlier rows
-          </button>
-          <Rows ids={ids.slice(10)} skeletons={3} hasPreviousPage={known} />
-        </>
-      );
-    };
+    await scrollPastTenRows();
 
     const again = render(<Reopened />);
     const reopened = scrollerOf(again.querySelector('tbody'));
