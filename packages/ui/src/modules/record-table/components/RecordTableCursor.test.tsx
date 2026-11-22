@@ -27,9 +27,26 @@ const boxesOf = (container: HTMLElement) =>
 
 const ROW = 32;
 
-/** Rows `ids`, ROW pixels each under a ROW-high header, in the list's scrolling element. */
-const Rows = ({ ids }: { ids: string[] }) => (
-  <RecordTableCursorProvider dataLength={ids.length} sessionKey="row-test" hasNextPage>
+/**
+ * Rows `ids`, ROW pixels each under a ROW-high header, in the list's scrolling element, after
+ * `skeletons` rows without an id, as the backward skeleton draws above a list with earlier rows.
+ */
+const Rows = ({
+  ids,
+  skeletons = 0,
+  hasPreviousPage,
+}: {
+  ids: string[];
+  skeletons?: number;
+  hasPreviousPage?: boolean;
+}) => (
+  <RecordTableCursorProvider
+    dataLength={ids.length}
+    sessionKey="row-test"
+    hasNextPage
+    hasPreviousPage={hasPreviousPage}
+    offset={skeletons * ROW}
+  >
     <table>
       <thead>
         <tr>
@@ -37,6 +54,11 @@ const Rows = ({ ids }: { ids: string[] }) => (
         </tr>
       </thead>
       <tbody>
+        {Array.from({ length: skeletons }, (_, index) => (
+          <tr key={`skeleton-${index}`}>
+            <td>…</td>
+          </tr>
+        ))}
         {ids.map((id) => (
           <tr key={id} id={id}>
             <td>{id}</td>
@@ -86,6 +108,44 @@ describe('RecordTableCursorProvider', () => {
     const reopened = scrollerOf(again.querySelector('tbody'));
 
     expect(reopened?.scrollTop).toBe(10);
+    rects.mockRestore();
+  });
+
+  it('keeps the restored row in place when the list learns it has earlier rows', async () => {
+    const rects = layOut();
+    const ids = Array.from({ length: 50 }, (_, index) => `row-${index}`);
+    const first = render(<Rows ids={ids} />);
+    const scroller = scrollerOf(first.querySelector('tbody'));
+
+    act(() => {
+      if (!scroller) return;
+      scroller.scrollTop = 10 * ROW + 10;
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 300)));
+    first.remove();
+
+    // Reopened at row-10 under three skeleton rows; that there are earlier rows comes after.
+    const Reopened = () => {
+      const [known, setKnown] = useState<boolean>();
+
+      return (
+        <>
+          <button type="button" onClick={() => setKnown(true)}>
+            Earlier rows
+          </button>
+          <Rows ids={ids.slice(10)} skeletons={3} hasPreviousPage={known} />
+        </>
+      );
+    };
+
+    const again = render(<Reopened />);
+    const reopened = scrollerOf(again.querySelector('tbody'));
+
+    act(() => again.querySelector('button')?.click());
+
+    // row-10 still shows under the header with 10 px of it scrolled past.
+    expect(reopened?.scrollTop).toBe(3 * ROW + 10);
     rects.mockRestore();
   });
 
