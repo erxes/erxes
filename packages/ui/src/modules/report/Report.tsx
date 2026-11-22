@@ -1,7 +1,6 @@
-import type { ComponentProps } from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type ComponentProps, Suspense, use } from 'react';
 import { onDemand } from 'erxes-ui/components/on-demand';
-import { cn } from 'erxes-ui/lib/utils';
+import type * as PartsModule from './ReportTableParts';
 
 /**
  * A printable report page: a toolbar to zoom and print, then the sheet.
@@ -14,111 +13,75 @@ export const ReportPageContainer = onDemand(
   async () => (await import('./ReportPage')).ReportPageContainer,
 );
 
-// The report's table: its sizes are in em, so it grows and shrinks with the print size. Each
-// part names itself in `data-slot` (`table`, `table-row`, `table-cell`, …), so code that reads
-// a rendered report back (its totals, an Excel export) finds its parts.
+// Only plugins' report pages draw report tables, so their code loads with the first one. The
+// table suspends until it has; its parts render inside it, so by then use() reads the settled
+// promise without suspending again, and the whole table appears at once.
+let partsModule: Promise<typeof PartsModule> | undefined;
 
-const ReportTableRoot = ({ className, ...props }: ComponentProps<'table'>) => (
-  <table
-    data-slot="table"
-    className={cn('w-full caption-bottom overflow-hidden', className)}
-    {...props}
-  />
+const useModule = () => use((partsModule ??= import('./ReportTableParts')));
+
+const useParts = () => useModule().ReportTableParts;
+
+type Parts = typeof PartsModule.ReportTableParts;
+
+const LoadedRoot = (props: ComponentProps<Parts>) => {
+  const { ReportTableRoot: Root } = useModule();
+
+  return <Root {...props} />;
+};
+
+const ReportTableRoot = (props: ComponentProps<Parts>) => (
+  <Suspense fallback={null}>
+    <LoadedRoot {...props} />
+  </Suspense>
 );
 
-const ReportTableHeader = ({ className, ...props }: ComponentProps<'thead'>) => (
-  <thead data-slot="table-header" className={cn('[&_tr]:border', className)} {...props} />
-);
+const ReportTableHeader = (props: ComponentProps<Parts['Header']>) => {
+  const { Header } = useParts();
 
-const ReportTableBody = ({ className, ...props }: ComponentProps<'tbody'>) => (
-  <tbody
-    data-slot="table-body"
-    className={cn('[&_tr:last-child]:border-0', className)}
-    {...props}
-  />
-);
+  return <Header {...props} />;
+};
 
-const ReportTableFooter = ({ className, ...props }: ComponentProps<'tfoot'>) => (
-  <tfoot
-    data-slot="table-footer"
-    className={cn('border-t font-medium [&>tr]:last:border-b-0', className)}
-    {...props}
-  />
-);
+const ReportTableBody = (props: ComponentProps<Parts['Body']>) => {
+  const { Body } = useParts();
 
-const reportRowVariants = cva('border transition-colors hover:bg-muted/50 data-selected:bg-muted', {
-  variants: {
-    variant: {
-      default: '',
-      /** A group over the rows it adds up: bold. */
-      group: 'font-semibold',
-      /** A top group: bold on a pale yellow ground. */
-      highlight: 'bg-tint-highlight font-semibold',
-      /** The totals line under the rows. */
-      total: 'bg-muted/50',
-      /** A line under a row that breaks it down (its amounts in a currency): muted, italic. */
-      sub: 'bg-muted/40 italic',
-    },
-  },
-  defaultVariants: { variant: 'default' },
-});
+  return <Body {...props} />;
+};
 
-const ReportTableRow = ({
-  className,
-  variant,
-  ...props
-}: ComponentProps<'tr'> & VariantProps<typeof reportRowVariants>) => (
-  <tr data-slot="table-row" className={cn(reportRowVariants({ variant }), className)} {...props} />
-);
+const ReportTableFooter = (props: ComponentProps<Parts['Footer']>) => {
+  const { Footer } = useParts();
 
-const ReportTableHead = ({ className, ...props }: ComponentProps<'th'>) => (
-  <th
-    data-slot="table-head"
-    className={cn('report-head border align-middle font-medium text-foreground', className)}
-    {...props}
-  />
-);
+  return <Footer {...props} />;
+};
 
-const reportCellVariants = cva('border align-middle break-all whitespace-normal', {
-  variants: {
-    /** `none` for a cell that holds a table of its own (a row's breakdown). */
-    inset: { default: 'report-cell', none: 'p-0' },
-    /**
-     * The text starts further in, by `--report-indent` in the cell's `style` (a group's level,
-     * known when it renders).
-     */
-    indent: { false: '', true: 'pl-(--report-indent)' },
-    /** `unused` greys a cell the row has no figure for (a debit row's credit). */
-    tint: { none: '', unused: 'bg-foreground/10' },
-  },
-  defaultVariants: { inset: 'default', indent: false, tint: 'none' },
-});
+const ReportTableHead = (props: ComponentProps<Parts['Head']>) => {
+  const { Head } = useParts();
 
-const ReportTableCell = ({
-  className,
-  inset,
-  indent,
-  tint,
-  ...props
-}: ComponentProps<'td'> & VariantProps<typeof reportCellVariants>) => (
-  <td
-    data-slot="table-cell"
-    className={cn(reportCellVariants({ inset, indent, tint }), className)}
-    {...props}
-  />
-);
+  return <Head {...props} />;
+};
 
-const ReportTableCaption = ({ className, ...props }: ComponentProps<'caption'>) => (
-  <caption
-    data-slot="table-caption"
-    className={cn('report-caption text-muted-foreground', className)}
-    {...props}
-  />
-);
+const ReportTableRow = (props: ComponentProps<Parts['Row']>) => {
+  const { Row } = useParts();
+
+  return <Row {...props} />;
+};
+
+const ReportTableCell = (props: ComponentProps<Parts['Cell']>) => {
+  const { Cell } = useParts();
+
+  return <Cell {...props} />;
+};
+
+const ReportTableCaption = (props: ComponentProps<Parts['Caption']>) => {
+  const { Caption } = useParts();
+
+  return <Caption {...props} />;
+};
 
 /**
  * A printable report's table, bordered, sized in em.
- * Put it in a `ReportPageContainer`, which scales it with the page's print size.
+ * Put it in a `ReportPageContainer`, which scales it with the page's print size. Its parts are
+ * named by `data-slot` (`table`, `table-row`, `table-cell`, …); its code loads with the first one.
  */
 export const ReportTable = Object.assign(ReportTableRoot, {
   Header: ReportTableHeader,

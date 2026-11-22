@@ -305,6 +305,33 @@
 @utility report-caption {
   margin-top: 1em;
 }
+/* `Sidebar.MenuButton size="multiline"`: its label wraps instead of being cut. */
+@utility menu-button-multiline {
+  /* Doubled, so it outweighs the button's own `[&>span:last-child]:truncate`. */
+  && > span:last-child {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+/* `Table variant="paper"`'s cells: every head ruled, white with black text, long text wrapping,
+   and its head repeated on each printed page. */
+@utility table-paper {
+  & th {
+    @apply border-t border-r border-b bg-white text-black whitespace-normal wrap-anywhere;
+  }
+  & th:first-child {
+    @apply border-l;
+  }
+  & td {
+    @apply h-auto bg-white px-2 py-1 whitespace-normal wrap-anywhere;
+  }
+  @media print {
+    & thead {
+      display: table-header-group;
+    }
+  }
+}
 /* A printed report keeps each table row on one page. */
 @utility report-sheet {
   & table {

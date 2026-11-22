@@ -37,7 +37,7 @@ const sidebarMenuButtonVariants = cva(
         lg: 'h-8 text-sm group-data-[collapsible=icon]:p-0!',
         /** A long label that wraps onto more lines, in normal weight, its icon on the first. */
         multiline:
-          'h-auto min-h-7 items-start overflow-visible py-1.5 text-sm font-normal whitespace-normal [&>span:last-child]:overflow-visible [&>span:last-child]:text-clip [&>span:last-child]:whitespace-normal',
+          'menu-button-multiline h-auto min-h-7 items-start overflow-visible py-1.5 text-sm font-normal whitespace-normal',
       },
     },
     defaultVariants: {
