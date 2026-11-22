@@ -132,8 +132,7 @@ export const clientByRef = async (key: string, ref: string) => {
   return client?.ref === ref ? { ...client, orgId: row.orgId } : null;
 };
 
-export const callbackUrl = (tx: Db) =>
-  config.integrations.oauthCallbackUrl ?? appLink(tx, CALLBACK_PATH);
+const callbackUrl = (tx: Db) => config.integrations.oauthCallbackUrl ?? appLink(tx, CALLBACK_PATH);
 
 export const providerLink = (tx: Db, path: string) => {
   const fixed = config.integrations.oauthCallbackUrl;
