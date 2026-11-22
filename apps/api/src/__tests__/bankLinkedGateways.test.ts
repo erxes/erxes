@@ -58,7 +58,7 @@ describe('payments by transfer through a bank connection', { timeout: 120_000 },
       keys: { connectionId: connection.id, accountNumber: '4600123' },
     });
 
-    // Settings › Vault shows the bank connection used by the payment.
+    // Settings › Integrations › Connected shows the bank connection used by the payment.
     expect((await t.owner().integrations.connections({ key: 'tdb-cgw' })).data).toMatchObject([
       { id: connection.id, usedBy: ['TDB by transfer'] },
     ]);

@@ -101,8 +101,8 @@ const ALL_BUT_PAYMENTS = (action: string) => action !== 'payments.manage';
 /** What the signed-in member may do (`useCan`); a test may change it. */
 export const member: { can: (action: string) => boolean } = { can: ALL_BUT_PAYMENTS };
 
-/** Core answers the integrations list once `ready` settles. */
-export const listing = { ready: Promise.resolve() };
+/** Core answers the integrations list once `ready` settles; `nothingSetUp` is a new organisation. */
+export const listing = { ready: Promise.resolve(), nothingSetUp: false };
 
 const NOT_SET_UP = { state: 'not-set-up', count: null } as const;
 
@@ -179,11 +179,19 @@ export const setUpSettings = async () => {
   );
   // Core lists only what this member may manage; the registry fails and the local plugins still load.
   vi.stubGlobal('fetch', async (request: Request) => {
-    if (new URL(request.url).pathname !== '/core/v1/integrations') throw new Error('offline');
+    const { pathname } = new URL(request.url);
+
+    if (['/core/v1/integrations/connections', '/core/v1/secrets/holdings'].includes(pathname)) {
+      return Response.json({ data: [] });
+    }
+
+    if (pathname !== '/core/v1/integrations') throw new Error('offline');
 
     await listing.ready;
 
-    return Response.json({ data: LISTED });
+    return Response.json({
+      data: listing.nothingSetUp ? LISTED.map((row) => ({ ...row, status: NOT_SET_UP })) : LISTED,
+    });
   });
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
   ({ SettingsLayout } = await import('../SettingsLayout'));
@@ -196,6 +204,7 @@ export const setUpSettings = async () => {
 export const resetSettings = () => {
   member.can = ALL_BUT_PAYMENTS;
   listing.ready = Promise.resolve();
+  listing.nothingSetUp = false;
 };
 
 export const unmount = () => {

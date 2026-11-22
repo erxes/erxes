@@ -10,7 +10,7 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
   // A rerun starts from no eBarimt.
   await api.ebarimt.removeSettings({});
 
-  await page.goto('/settings/integrations');
+  await page.goto('/settings/integrations?tab=browse');
 
   const tile = page.getByRole('link', { name: /eBarimt/ });
 
@@ -80,8 +80,9 @@ test('an owner finds eBarimt in the catalog, sets it up, and sees a receipt that
     })
     .toBe('failed');
 
-  // The catalog flags it, and Activity lists the failed receipt with a retry.
+  // Connected lists it, flagged, and Activity lists the failed receipt with a retry.
   await page.goto('/settings/integrations');
+  await expect(page.getByRole('tab', { name: /Connected/, selected: true })).toBeVisible();
   await expect(tile.getByText('Needs attention')).toBeVisible();
   await tile.click();
   await page.getByRole('tab', { name: 'Activity' }).click();

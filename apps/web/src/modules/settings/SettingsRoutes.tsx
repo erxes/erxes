@@ -61,8 +61,6 @@ const IntegrationsSettingsPage = lazyNamed(
   'IntegrationsSettingsPage',
 );
 
-const VaultPage = lazyNamed(() => import('./vault/VaultPage'), 'VaultPage');
-
 const WebsitesSettingsPage = lazyNamed(
   () => import('./websites/WebsitesSettingsPage'),
   'WebsitesSettingsPage',
@@ -107,8 +105,10 @@ export const SettingsRoutes = () => (
       <Route path="email" element={<EmailSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />
       <Route path="integrations/:key" element={<IntegrationPage />} />
-      <Route path="vault" element={<VaultPage />} />
-      <Route path="vault/:id" element={<RecordPage contentType={CONNECTION_CONTENT_TYPE} />} />
+      <Route
+        path="integrations/connections/:id"
+        element={<RecordPage contentType={CONNECTION_CONTENT_TYPE} />}
+      />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />

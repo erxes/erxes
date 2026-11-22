@@ -111,8 +111,8 @@ const PANEL_RECORD_TYPES = {
     label: 'Connection',
     View: ConnectionPanel,
     New: ConnectionPanelNew,
-    listPath: () => paths.settings.vault,
-    pagePath: paths.settings.vaultConnection,
+    listPath: () => paths.settings.integrations,
+    pagePath: paths.settings.integrationConnection,
   },
 } satisfies Record<string, IPanelRecordType>;
 

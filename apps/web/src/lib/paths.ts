@@ -77,9 +77,9 @@ export const paths = {
     payments: '/settings/payments',
     integrations: '/settings/integrations',
     integration: (key: string) => `/settings/integrations/${id(key)}`,
-    paymentIntegrations: '/settings/integrations?category=payments',
-    vault: '/settings/vault',
-    vaultConnection: (connectionId: string) => `/settings/vault/${id(connectionId)}`,
+    paymentIntegrations: '/settings/integrations?tab=browse&category=payments',
+    integrationConnection: (connectionId: string) =>
+      `/settings/integrations/connections/${id(connectionId)}`,
     email: '/settings/email',
     webhooks: '/settings/webhooks',
     websites: '/settings/websites',
