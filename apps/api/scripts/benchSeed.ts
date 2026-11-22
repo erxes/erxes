@@ -92,6 +92,11 @@ const recordsSql = (orgId: string, ownerId: string, rows: number) => {
   `;
 };
 
-/** The bench organisation's records in plain SQL (run as the owner, without row level security). */
+/**
+ * The bench organisation's records in plain SQL (run as the owner, without row level security).
+ * Vacuum after it (`VACUUM (ANALYZE)`, a statement of its own): a bulk load leaves trigram
+ * indexes' new entries in their pending lists and the visibility map empty, which autovacuum
+ * has long cleared on a real organisation.
+ */
 export const seedSql = (orgId: string, ownerId: string, rows: number) =>
-  `${contactsSql(orgId, rows)}${recordsSql(orgId, ownerId, rows)} ANALYZE;`;
+  `${contactsSql(orgId, rows)}${recordsSql(orgId, ownerId, rows)}`;

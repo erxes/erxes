@@ -74,6 +74,7 @@ const prepare = async (url: string): Promise<Bench> => {
   const started = performance.now();
 
   await run(url, seedSql(org.organization.id, org.owner.id, rows));
+  await run(url, 'VACUUM (ANALYZE)');
   say(`seeded in ${((performance.now() - started) / 1000).toFixed(1)} s`);
 
   return {
