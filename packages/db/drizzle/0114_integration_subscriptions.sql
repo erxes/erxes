@@ -55,3 +55,9 @@ ALTER TABLE core_integration_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE core_integration_subscriptions FORCE ROW LEVEL SECURITY;
 --> statement-breakpoint
 CREATE POLICY core_tenant ON core_integration_subscriptions USING (core_tenant_visible(org_id)) WITH CHECK (core_tenant_visible(org_id));
+--> statement-breakpoint
+CREATE TRIGGER core_integration_oauth_apps_drop_secrets AFTER DELETE OR UPDATE OF secret_id ON core_integration_oauth_apps
+  FOR EACH ROW EXECUTE FUNCTION core_drop_secrets('secret_id');
+--> statement-breakpoint
+CREATE TRIGGER core_integration_subscriptions_drop_secrets AFTER DELETE OR UPDATE OF secret_id ON core_integration_subscriptions
+  FOR EACH ROW EXECUTE FUNCTION core_drop_secrets('secret_id');

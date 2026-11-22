@@ -1,8 +1,12 @@
+import { secrets } from '@erxes/core-db';
+import { count } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { useAutomations } from './automations.fixture';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { fakeGateway, urlOf } from './fakeGateway';
 import { settle } from './settle';
+
+const vaultSize = async () => (await adminDb().select({ n: count() }).from(secrets))[0]?.n ?? 0;
 
 describe('app trigger state in settings', { timeout: 300_000 }, () => {
   useTestDatabase();
@@ -24,6 +28,7 @@ describe('app trigger state in settings', { timeout: 300_000 }, () => {
 
   let connectionId = '';
   let automationId = '';
+  let vaultBefore = 0;
 
   beforeAll(async () => {
     const realFetch = globalThis.fetch;
@@ -41,6 +46,7 @@ describe('app trigger state in settings', { timeout: 300_000 }, () => {
         keys: { secretKey: 'sk_test_shop' },
       })
     ).id;
+    vaultBefore = await vaultSize();
   });
 
   afterAll(() => {
@@ -117,11 +123,13 @@ describe('app trigger state in settings', { timeout: 300_000 }, () => {
 
     expect(stripeCalls('DELETE', '/v1/webhook_endpoints/we_1')).toHaveLength(1);
     expect(await subscriptions()).toEqual([]);
+    expect(await vaultSize()).toBe(vaultBefore);
 
     await t.owner().integrations.remove({ key: 'stripe', id: connectionId });
 
     const { data } = await t.owner().integrations.connections({ key: 'stripe' });
 
     expect(data.map((connection) => connection.id)).not.toContain(connectionId);
+    expect(await vaultSize()).toBe(vaultBefore - 1);
   });
 });

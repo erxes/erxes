@@ -16,7 +16,7 @@ import { coreKey } from '~/lib/coreKey';
 import { hmacSha256, randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink } from '~/modules/email/email';
-import { readSecret, removeSecretAs, saveSecret } from '~/modules/secrets/vault';
+import { readSecret, saveSecret } from '~/modules/secrets/vault';
 import type { ConnectionRow } from './connections';
 import { type KeyedIntegration, type OAuthKeys, oauthKeys, type OAuthSetup } from './define';
 import { gatewayHttp } from './gateways/http';
@@ -315,12 +315,7 @@ export const setOAuthApp = async (tx: Db, input: { key: string } & Client) => {
 export const removeOAuthApp = async (tx: Db, key: string) => {
   const integration = oauthOf(key);
 
-  const [row] = await tx
-    .delete(integrationOAuthApps)
-    .where(eq(integrationOAuthApps.key, integration.key))
-    .returning({ secretId: integrationOAuthApps.secretId });
-
-  if (row) await removeSecretAs(tx, 'core', row.secretId);
+  await tx.delete(integrationOAuthApps).where(eq(integrationOAuthApps.key, integration.key));
 
   return { ok: true as const };
 };

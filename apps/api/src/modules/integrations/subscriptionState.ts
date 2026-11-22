@@ -2,7 +2,7 @@ import { type Db, integrationConnections, integrationSubscriptions } from '@erxe
 import { eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { readSecret, removeSecretAs } from '~/modules/secrets/vault';
+import { readSecret } from '~/modules/secrets/vault';
 import { appOf, HOOK_CHANNEL } from './apps';
 import { connectionsWithSecret } from './connections';
 import type { KeyedIntegration } from './define';
@@ -56,7 +56,6 @@ export const connectionKeys = async (
 
 export const removeSubscription = async (tx: Db, subscription: Subscription) => {
   await tx.delete(integrationSubscriptions).where(eq(integrationSubscriptions.id, subscription.id));
-  await removeSecretAs(tx, 'core', subscription.secretId);
 };
 
 export const delivered = (tx: Db, id: string) =>
