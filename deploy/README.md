@@ -25,7 +25,8 @@ deploy/smoke.sh http://localhost:8080   # on an empty install only (it runs setu
 
 - `migrate` runs `node dist/migrate.js` as the owner before the API starts,
   and grants `erxes_app` (the API's role, no BYPASSRLS) core's tables and the right to
-  act as `erxes_core_system`, the BYPASSRLS role background jobs run as.
+  act as `erxes_core_system`, the BYPASSRLS role background jobs run as, and as
+  `erxes_core_keyed`, the role an API key with row limits runs as.
 - Put TLS in front of the `ui` container (port 8080); it serves the UI and
   forwards `/core` to the API, live updates included. It looks the API's address up
   every 10 s, so a recreated `api` container needs no `ui` restart. `CORE_API_URL` is
