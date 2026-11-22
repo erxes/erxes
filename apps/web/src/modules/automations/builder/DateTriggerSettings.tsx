@@ -1,7 +1,9 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
 import {
+  IconArrowRight,
   IconBuilding,
   IconCalendarEvent,
+  IconPlayerPlay,
   IconRepeat,
   IconRepeatOnce,
   IconUser,
@@ -12,10 +14,9 @@ import { Link } from 'react-router-dom';
 import { useMinuteClock } from '~/lib/useMinuteClock';
 import { paths } from '~/lib/paths';
 import { ConditionsEditor } from './ConditionsEditor';
+import { Field } from './Field';
 import { Segmented } from './Segmented';
-import { zoneLabel } from '~/lib/timeZones';
-import { useSession } from '~/modules/auth/session';
-import { Field, TimeOfDay } from './triggerFields';
+import { TimeOfDay } from './triggerFields';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type DateTrigger = Extract<AutomationTrigger, { kind: 'date' }>;
@@ -157,13 +158,9 @@ const WhenField = ({ trigger, onChange, disabled, fieldName }: Props & { fieldNa
   );
 };
 
-/** The whole rule in a sentence, with an example: a date five weeks from now and its run. */
-const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: string }) => {
-  const { t } = useTranslation('automations');
+const DateExample = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: string }) => {
   const fmt = useFormat();
   const now = useMinuteClock();
-  const { timezone } = useSession().organization;
-  const when = whenOf(trigger.offsetDays);
   const sample = new Date(now);
 
   sample.setDate(sample.getDate() + 35);
@@ -174,46 +171,17 @@ const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: 
 
   const dayText = (date: Date) => fmt.date(date, trigger.yearly ? 'MMMM d' : 'PPP');
 
-  const relation =
-    when === 'on'
-      ? t('date-on-the-day', 'on the day of')
-      : t(when === 'before' ? 'date-days-before' : 'date-days-after', {
-          count: Math.abs(trigger.offsetDays),
-          defaultValue: when === 'before' ? '{{count}} days before' : '{{count}} days after',
-        });
-
-  const record =
-    trigger.subject === 'company'
-      ? t('each-company', 'each company')
-      : t('each-customer', 'each customer');
-
   return (
-    <div className="flex gap-2.5 rounded-lg bg-primary/5 p-3 text-sm">
-      <IconCalendarEvent className="mt-0.5 size-4 shrink-0 text-primary-text" />
-      <div className="min-w-0 space-y-1">
-        <p>
-          {t('date-summary', {
-            relation,
-            record,
-            field: fieldName,
-            time: trigger.at,
-            zone: zoneLabel(timezone),
-            defaultValue: 'Runs {{relation}} {{record}}’s {{field}}, at {{time}} ({{zone}}).',
-          })}{' '}
-          {trigger.yearly
-            ? t('date-summary-yearly', 'Every year.')
-            : t('date-summary-once', 'Once.')}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {t('date-example', {
-            field: fieldName,
-            date: dayText(sample),
-            run: dayText(runDay),
-            time: trigger.at,
-            defaultValue: 'For example: {{field}} {{date}} → runs {{run}} at {{time}}.',
-          })}
-        </p>
-      </div>
+    <div className="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 text-sm">
+      <IconCalendarEvent className="size-4 shrink-0 text-primary-text" />
+      <span className="min-w-0 truncate text-muted-foreground first-letter:uppercase">
+        {fieldName} {dayText(sample)}
+      </span>
+      <IconArrowRight className="size-3.5 shrink-0 text-muted-foreground" />
+      <IconPlayerPlay className="size-3.5 shrink-0 text-primary-text" />
+      <span className="shrink-0 font-medium">
+        {dayText(runDay)}, {trigger.at}
+      </span>
     </div>
   );
 };
@@ -240,14 +208,7 @@ export const DateTriggerSettings = (props: Props) => {
         <DateFieldSelect {...props} dateFields={dateFields} known={Boolean(current)} />
       </Field>
       <WhenField {...props} fieldName={fieldName} />
-      <Field
-        label={t('repeat', 'Repeat')}
-        hint={
-          trigger.yearly
-            ? t('yearly-hint', 'Birthdays and anniversaries: the year of the date is ignored.')
-            : t('once-hint', 'Renewals, due dates, trial ends: runs once for each date.')
-        }
-      >
+      <Field label={t('repeat', 'Repeat')}>
         <Segmented
           value={trigger.yearly ? 'yearly' : 'once'}
           disabled={disabled}
@@ -265,7 +226,7 @@ export const DateTriggerSettings = (props: Props) => {
           onChange={(at) => onChange({ ...trigger, at })}
         />
       </Field>
-      <DateSummary trigger={trigger} fieldName={fieldName} />
+      <DateExample trigger={trigger} fieldName={fieldName} />
       <Field label={t('only-if', 'Only if')}>
         <ConditionsEditor
           subject={trigger.subject}

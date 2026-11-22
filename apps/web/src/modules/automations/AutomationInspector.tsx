@@ -4,7 +4,7 @@ import type { Catalog } from './automationQueries';
 import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
 import { TriggerEditor } from './builder/TriggerEditor';
 import type { useBuilder } from './builder/useBuilder';
-import { type Selection, StepInspector } from './StepInspector';
+import { type Selection, StepHeader, StepInspector } from './StepInspector';
 import { TestPanel } from './TestPanel';
 import type { AutomationMutations } from './useAutomationEditor';
 import type { useFlowGuard } from './useFlowGuard';
@@ -76,8 +76,18 @@ export const AutomationInspector = (props: InspectorProps) => {
 
   return (
     <aside className="flex w-110 shrink-0 flex-col border-l bg-background">
-      <div className="flex h-10 shrink-0 items-center border-b px-4 text-sm font-medium">
-        {heading}
+      <div className="flex h-10 shrink-0 items-center gap-2 border-b pr-2 pl-4 text-sm font-medium">
+        <span className="min-w-0 flex-1 truncate">{heading}</span>
+        {step && (
+          <StepHeader
+            step={step}
+            steps={definition.steps}
+            disabled={!editable}
+            problems={built.problems.get(step.id)?.length ?? 0}
+            onSteps={draft.setSteps}
+            onSelect={onSelect}
+          />
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-5 p-4">
@@ -97,10 +107,7 @@ export const AutomationInspector = (props: InspectorProps) => {
               subject={built.subject}
               disabled={!editable}
               problems={built.problems.get(step.id) ?? []}
-              steps={definition.steps}
               onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
-              onSteps={draft.setSteps}
-              onSelect={onSelect}
             />
           )}
           {selected !== 'trigger' && selected !== 'test' && !step && (

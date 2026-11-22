@@ -124,7 +124,7 @@ export const Connector = ({
 );
 
 /** Runs of the last 30 days: succeeded, and failed when any. */
-const NodeStats = ({ stats }: { stats: { succeeded: number; failed: number } }) => (
+export const NodeStats = ({ stats }: { stats: { succeeded: number; failed: number } }) => (
   <>
     <span className="flex items-center gap-1">
       <IconCircleCheck className="size-3.5 text-success" />

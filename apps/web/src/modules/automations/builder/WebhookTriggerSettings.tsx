@@ -5,9 +5,9 @@ import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
+import { Field } from './Field';
 import { HookSampleCall } from './HookSampleCall';
 import { Segmented } from './Segmented';
-import { Field } from './triggerFields';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type WebhookTrigger = Extract<AutomationTrigger, { kind: 'webhook' }>;
@@ -67,7 +67,7 @@ const HookAddress = ({ url, on }: { url: string; on: boolean }) => {
   return (
     <Field
       label={t('hook-address', 'Address')}
-      hint={
+      info={
         on
           ? t(
               'hook-address-hint',
@@ -155,17 +155,15 @@ export const HookSubjectEditor = <T extends WebhookTrigger | AppTrigger>({
 
   return (
     <Field
-      label={t('hook-subject', 'Who the run is about')}
-      hint={
-        subject
-          ? t('hook-subject-hint', 'When no one matches, the call starts no run.')
-          : t('hook-subject-none', 'Runs aren’t about a customer or company.')
+      label={t('hook-subject', 'About')}
+      info={
+        subject ? t('hook-subject-hint', 'When no one matches, the call starts no run.') : undefined
       }
     >
       <Segmented
         value={subject?.type ?? 'none'}
         disabled={disabled}
-        label={t('hook-subject', 'Who the run is about')}
+        label={t('hook-subject', 'About')}
         onChange={(type) =>
           onChange({
             ...trigger,
@@ -244,14 +242,7 @@ export const WebhookTriggerSettings = ({
         disabled={disabled}
         onChange={onChange}
       />
-      <Field
-        label={t('only-if', 'Only if')}
-        hint={
-          trigger.conditions?.rules.length
-            ? undefined
-            : t('hook-only-if-empty', 'No conditions: every call starts a run.')
-        }
-      >
+      <Field label={t('only-if', 'Only if')}>
         <ConditionsEditor
           subject={trigger.subject?.type ?? null}
           value={trigger.conditions}
@@ -259,12 +250,6 @@ export const WebhookTriggerSettings = ({
           onChange={(conditions) => onChange({ ...trigger, conditions })}
         />
       </Field>
-      <p className="text-xs text-muted-foreground">
-        {t(
-          'hook-answer',
-          'The caller hears “accepted” at once. To send data back, add a “Reply to the webhook” step.',
-        )}
-      </p>
     </>
   );
 };

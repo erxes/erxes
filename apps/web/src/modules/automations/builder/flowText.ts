@@ -10,6 +10,7 @@ import {
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from '~/lib/timeZones';
+import { pathShare } from './flowModel';
 import { readableTemplate } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -328,7 +329,8 @@ export const describeStep = (
           step.label ||
           step.paths
             .map(
-              (path, index) => `${path.label || String.fromCharCode(65 + index)} ${path.weight}%`,
+              (path, index) =>
+                `${path.label || String.fromCharCode(65 + index)} ${pathShare(step.paths, index)}%`,
             )
             .join(' · '),
         detail: 'Each run takes one path',

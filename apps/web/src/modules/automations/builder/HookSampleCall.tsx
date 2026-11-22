@@ -10,7 +10,7 @@ import { Listening } from '~/components/Listening';
 import { automationQuery } from '../automationQueries';
 import { BuilderContext } from './BuilderContext';
 import { JsonEditor } from './JsonEditor';
-import { Field } from './triggerFields';
+import { Field } from './Field';
 import { useAutomationFields } from './useAutomationFields';
 
 const PasteSample = ({ sample }: { sample: HookSample | null }) => {

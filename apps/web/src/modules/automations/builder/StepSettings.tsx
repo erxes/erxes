@@ -1,5 +1,5 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import { IconChevronUp, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { Button, Input, Switch } from 'erxes-ui';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { SplitPaths, SwitchCases } from './ArmSettings';
 import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
-import { FieldLabel } from './FieldLabel';
+import { Field, InfoTip } from './Field';
 import { emptyRequired, isEmpty } from './flowChecks';
 import { actionDefaults } from './flowModel';
 import type { SettingsProps } from './stepSettingsProps';
@@ -24,8 +24,7 @@ const NameField = ({
   const { t } = useTranslation('automations');
 
   return (
-    <div className="space-y-1.5">
-      <FieldLabel>{t('step-label', 'Name on the canvas')}</FieldLabel>
+    <Field label={t('step-label', 'Name on the canvas')}>
       <Input
         value={step.label ?? ''}
         disabled={disabled}
@@ -33,58 +32,59 @@ const NameField = ({
         maxLength={80}
         onChange={(event) => onChange({ ...step, label: event.target.value || undefined })}
       />
-    </div>
+    </Field>
   );
 };
 
-/** Choices that read fine empty ("Every action", "Don't use the erxes API", "Organisation's default"), so they never fold away. */
 const ALWAYS_SHOWN: ReadonlySet<string> = new Set(['agent_tools', 'agent_api_key', 'agent_model']);
 
-const useDetails = (step: Extract<AutomationStep, { type: 'action' }>, action: ActionInfo) => {
-  const filledKeys = () =>
-    new Set(action.fields.filter((field) => !isEmpty(step.input[field.key])).map(({ key }) => key));
+const NAME = '__name';
 
-  const [showAll, setShowAll] = useState(() => !action.fields.some((field) => field.required));
-  const [kept, setKept] = useState(filledKeys);
+const useOptional = (step: Extract<AutomationStep, { type: 'action' }>, action: ActionInfo) => {
+  const { t } = useTranslation('automations');
 
-  const shown = action.fields.filter(
-    (field) => showAll || field.required || ALWAYS_SHOWN.has(field.type) || kept.has(field.key),
+  const [added, setAdded] = useState(() =>
+    action.fields.some((field) => field.required)
+      ? new Set([
+          ...action.fields.filter((field) => !isEmpty(step.input[field.key])).map(({ key }) => key),
+          ...(step.label ? [NAME] : []),
+        ])
+      : new Set([...action.fields.map(({ key }) => key), NAME]),
   );
 
-  const labelShown = showAll || Boolean(step.label);
-  const hiddenCount = action.fields.length - shown.length + Number(!labelShown);
-
-  const emptyOptional = action.fields.some(
-    (field) => !field.required && !ALWAYS_SHOWN.has(field.type) && isEmpty(step.input[field.key]),
+  const shown = action.fields.filter(
+    (field) => field.required || ALWAYS_SHOWN.has(field.type) || added.has(field.key),
   );
 
   return {
     shown,
-    showAll,
-    labelShown,
-    hiddenCount,
-    foldable: showAll ? emptyOptional || !step.label : hiddenCount > 0,
-    toggle: () => {
-      setKept(filledKeys());
-      setShowAll(!showAll);
-    },
+    nameShown: added.has(NAME),
+    hidden: [
+      ...action.fields.filter((field) => !shown.includes(field)),
+      ...(added.has(NAME) ? [] : [{ key: NAME, label: t('step-label-short', 'Name') }]),
+    ],
+    add: (key: string) => setAdded((current) => new Set([...current, key])),
   };
 };
 
-const DetailsToggle = ({ details }: { details: ReturnType<typeof useDetails> }) => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <Button variant="ghost" size="sm" tone="muted" className="-ml-2" onClick={details.toggle}>
-      {details.showAll ? <IconChevronUp /> : <IconPlus />}
-      {details.showAll
-        ? t('fewer-details', 'Show fewer details')
-        : t('more-details', 'Add more details ({{count}})', { count: details.hiddenCount })}
-    </Button>
+const AddChips = ({
+  items,
+  onAdd,
+}: {
+  items: { key: string; label: string }[];
+  onAdd: (key: string) => void;
+}) =>
+  items.length > 0 && (
+    <div className="flex flex-wrap gap-1.5">
+      {items.map(({ key, label }) => (
+        <Button key={key} variant="outline" size="sm" tone="muted" onClick={() => onAdd(key)}>
+          <IconPlus />
+          {label}
+        </Button>
+      ))}
+    </div>
   );
-};
 
-/** The chosen action's inputs: switches as rows, everything else labelled above. */
 const ActionInputs = ({
   step,
   action,
@@ -93,10 +93,6 @@ const ActionInputs = ({
   disabled,
   onChange,
 }: SettingsProps<'action'> & { action: ActionInfo; dataFields: FieldInfo[] }) => {
-  const { t } = useTranslation('automations');
-
-  // The inputs that follow `key` (a status follows its pipeline), and the ones that follow those.
-  // An app's records belong to the connection: another one has other pages.
   const dependents = (key: string): string[] =>
     action.fields
       .filter((field) =>
@@ -117,21 +113,19 @@ const ActionInputs = ({
     });
 
   const empty = new Set(emptyRequired(step.input, action).map((field) => field.key));
-  const details = useDetails(step, action);
+  const optional = useOptional(step, action);
 
   return (
-    <div className="space-y-4 border-t pt-4">
-      {details.shown.map((field) =>
+    <>
+      {optional.shown.map((field) =>
         field.type === 'boolean' ? (
           <label
             key={field.key}
             className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5"
           >
-            <span className="min-w-0">
-              <span className="block text-sm">{field.label}</span>
-              {field.description && (
-                <span className="block text-xs text-muted-foreground">{field.description}</span>
-              )}
+            <span className="flex min-w-0 items-center gap-1 text-sm">
+              {field.label}
+              {field.description && <InfoTip text={field.description} />}
             </span>
             <Switch
               checked={step.input[field.key] === true}
@@ -140,11 +134,13 @@ const ActionInputs = ({
             />
           </label>
         ) : (
-          <div key={field.key} className="space-y-1.5">
-            <FieldLabel>
-              {field.label}
-              {field.required && <span className="text-destructive-text"> *</span>}
-            </FieldLabel>
+          <Field
+            key={field.key}
+            label={field.label}
+            required={field.required}
+            info={field.description}
+            invalid={empty.has(field.key)}
+          >
             <ActionFieldInput
               action={action}
               field={field}
@@ -155,20 +151,12 @@ const ActionInputs = ({
               disabled={disabled}
               onChange={(value) => setInput(field.key, value)}
             />
-            {field.description && (
-              <p className="text-xs text-muted-foreground">{field.description}</p>
-            )}
-            {empty.has(field.key) && (
-              <p className="text-xs text-destructive-text">
-                {t('fill-in-field', 'Fill in {{field}}', { field: field.label.toLowerCase() })}
-              </p>
-            )}
-          </div>
+          </Field>
         ),
       )}
-      {details.labelShown && <NameField step={step} disabled={disabled} onChange={onChange} />}
-      {details.foldable && <DetailsToggle details={details} />}
-    </div>
+      {optional.nameShown && <NameField step={step} disabled={disabled} onChange={onChange} />}
+      {!disabled && <AddChips items={optional.hidden} onAdd={optional.add} />}
+    </>
   );
 };
 
@@ -177,7 +165,6 @@ const ActionSettings = ({
   outputs,
   ...props
 }: SettingsProps<'action'> & { actions: ActionInfo[]; outputs: FieldInfo[] }) => {
-  const { t } = useTranslation('automations');
   const { step, subject, disabled, onChange } = props;
   const action = actions.find((item) => item.type === step.action);
   const { hasSubject, automationId } = useContext(BuilderContext);
@@ -189,26 +176,20 @@ const ActionSettings = ({
 
   return (
     <>
-      <div className="space-y-1.5">
-        <FieldLabel>{t('action', 'Action')}</FieldLabel>
-        <CatalogPicker
-          kind="action"
-          items={actions}
-          value={step.action}
-          disabled={disabled}
-          onChange={(type) =>
-            type !== step.action &&
-            onChange({
-              ...step,
-              action: type,
-              input: actionDefaults(actions.find((item) => item.type === type)),
-            })
-          }
-        />
-        {action?.description && (
-          <p className="text-xs text-muted-foreground">{action.description}</p>
-        )}
-      </div>
+      <CatalogPicker
+        kind="action"
+        items={actions}
+        value={step.action}
+        disabled={disabled}
+        onChange={(type) =>
+          type !== step.action &&
+          onChange({
+            ...step,
+            action: type,
+            input: actionDefaults(actions.find((item) => item.type === type)),
+          })
+        }
+      />
       {action && (
         <ActionInputs
           key={`${step.id}:${step.action}`}
@@ -239,8 +220,7 @@ const StepBody = ({
       return <WaitForSettings {...props} step={step} />;
     case 'branch':
       return (
-        <div className="space-y-1.5">
-          <FieldLabel>{t('branch-if', 'Take the Yes path when')}</FieldLabel>
+        <Field label={t('branch-if', 'Take the Yes path when')}>
           <ConditionsEditor
             subject={hasSubject ? subject : null}
             extraFields={outputs}
@@ -250,28 +230,17 @@ const StepBody = ({
               onChange({ ...step, conditions: conditions ?? { match: 'all', rules: [] } })
             }
           />
-        </div>
+        </Field>
       );
     case 'switch':
       return <SwitchCases {...props} step={step} outputs={outputs} />;
     case 'split':
       return <SplitPaths step={step} disabled={disabled} onChange={onChange} />;
-    case 'stop':
-      return (
-        <p className="text-sm text-muted-foreground">
-          {t('stop-hint', 'The run ends here, even if steps follow.')}
-        </p>
-      );
     default:
       return null;
   }
 };
 
-/**
- * One step's own settings (the inspector): the action and its inputs, a
- * wait, a branch's conditions, a switch's cases, a split's paths. The steps
- * inside arms are edited on the canvas.
- */
 export const StepSettings = ({
   actions,
   ...props

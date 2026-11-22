@@ -1,6 +1,5 @@
-import { cn, Kbd } from 'erxes-ui';
+import { cn } from 'erxes-ui';
 import { useRef, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
 import { InsertData } from './DataPicker';
 import { readableTemplate, templateParts } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
@@ -45,21 +44,6 @@ const Example = ({
     )}
   </span>
 );
-
-const BraceHint = () => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <span className="flex items-center gap-1 pr-1 text-xs text-muted-foreground">
-      <Trans
-        t={t}
-        i18nKey="insert-data-key"
-        defaults="or type <key>{</key>"
-        components={{ key: <Kbd variant="foreground" /> }}
-      />
-    </span>
-  );
-};
 
 /** Typing `{` opens the data picker at the caret; closing it without a pick types the `{`. */
 const usePickedData = ({
@@ -110,7 +94,7 @@ export const TemplateInput = (props: FieldProps) => {
   const { ref, ...picking } = usePickedData(props);
   const box = multiline ? 'px-3 pt-1.5 pb-0.5' : 'py-0.5';
 
-  const picker = <InsertData fields={fields} subject={subject} labelled={multiline} {...picking} />;
+  const picker = <InsertData fields={fields} subject={subject} {...picking} />;
 
   return (
     <div
@@ -141,14 +125,7 @@ export const TemplateInput = (props: FieldProps) => {
         />
       </div>
       {!disabled &&
-        (multiline ? (
-          <div className="flex items-center justify-between gap-2 px-1 pb-1">
-            {picker}
-            <BraceHint />
-          </div>
-        ) : (
-          picker
-        ))}
+        (multiline ? <div className="flex justify-end px-1 pb-1">{picker}</div> : picker)}
     </div>
   );
 };

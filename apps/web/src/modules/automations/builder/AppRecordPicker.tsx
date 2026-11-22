@@ -1,6 +1,7 @@
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
+import { IconPlugConnected } from '@tabler/icons-react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Combobox, Command, EntityPicker, Popover } from 'erxes-ui';
+import { buttonVariants, Combobox, Command, EntityPicker, IconTip, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -122,8 +123,16 @@ export const AppRecordPicker = ({
       />
     ) : null;
 
+  const placeholder = () => {
+    if (notConnected) return t('connect-first', 'Connect first');
+
+    return wanted.waitingFor === undefined
+      ? t('choose', 'Choose…')
+      : t('choose-parent-first', 'Choose {{field}} first', { field: wanted.waitingFor });
+  };
+
   return (
-    <div className="space-y-1.5">
+    <div className="flex items-center gap-1.5">
       <Popover
         open={open}
         onOpenChange={(next) => {
@@ -131,15 +140,11 @@ export const AppRecordPicker = ({
           setSearch('');
         }}
       >
-        <Combobox.Trigger disabled={Boolean(disabled) || wanted.waitingFor !== undefined}>
-          <Combobox.Value
-            value={labels.join(', ')}
-            placeholder={
-              wanted.waitingFor === undefined
-                ? t('choose', 'Choose…')
-                : t('choose-parent-first', 'Choose {{field}} first', { field: wanted.waitingFor })
-            }
-          />
+        <Combobox.Trigger
+          disabled={Boolean(disabled) || Boolean(notConnected) || wanted.waitingFor !== undefined}
+          className="min-w-0 flex-1"
+        >
+          <Combobox.Value value={labels.join(', ')} placeholder={placeholder()} />
         </Combobox.Trigger>
         <Combobox.Content>
           <EntityPicker
@@ -197,12 +202,15 @@ const NotConnected = ({ integration, message }: { integration: string; message: 
   const { t } = useTranslation('automations');
 
   return (
-    <p className="text-xs text-destructive-text">
-      {message}{' '}
-      <Link to={paths.settings.integration(integration)} className="text-primary-text underline">
-        {t('open-integration', 'Open the integration')}
+    <IconTip label={message}>
+      <Link
+        to={paths.settings.integration(integration)}
+        aria-label={t('open-integration', 'Open the integration')}
+        className={buttonVariants({ variant: 'outline', size: 'icon' })}
+      >
+        <IconPlugConnected />
       </Link>
-    </p>
+    </IconTip>
   );
 };
 

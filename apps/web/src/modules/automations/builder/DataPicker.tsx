@@ -179,42 +179,30 @@ const DataPicker = ({
   );
 };
 
-/**
- * The "Insert data" button that opens the data picker; `onPick` gets the path picked. `labelled`
- * shows its name next to the icon, for fields with room under the text.
- */
+/** The "Insert data" button that opens the data picker; `onPick` gets the path picked. */
 export const InsertData = ({
   fields,
   subject,
   onPick,
   open,
   onOpenChange,
-  labelled,
 }: {
   fields: FieldInfo[];
   subject: 'customer' | 'company';
   onPick: (path: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  labelled?: boolean;
 }) => {
   const { t } = useTranslation('automations');
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <Popover.Trigger
-        title={t('insert-data', 'Insert data')}
-        aria-label={labelled ? undefined : t('insert-data', 'Insert data')}
-        render={
-          labelled ? (
-            <Button variant="ghost" size="sm" tone="muted" />
-          ) : (
-            <Button variant="ghost" size="icon" tone="muted" className="size-6" />
-          )
-        }
+        title={t('insert-data-or-brace', 'Insert data, or type {')}
+        aria-label={t('insert-data', 'Insert data')}
+        render={<Button variant="ghost" size="icon" tone="muted" className="size-6" />}
       >
         <IconVariablePlus className="size-4" />
-        {labelled && t('insert-data', 'Insert data')}
       </Popover.Trigger>
       <Popover.Content
         aria-label={t('insert-data', 'Insert data')}
