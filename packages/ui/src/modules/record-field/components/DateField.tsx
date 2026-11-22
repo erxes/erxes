@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns';
 import { DatePicker } from 'erxes-ui/components/date-picker';
 import { toIsoDay, useFormat } from 'erxes-ui/lib/format';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
@@ -7,6 +8,10 @@ import React, { useState } from 'react';
 type DateFieldProps = Omit<React.ComponentProps<typeof RecordTableInlineCell.Trigger>, 'value'> & {
   /** The saved day, `YYYY-MM-DD`. */
   value: string | null;
+  /** The first day the calendar offers, `YYYY-MM-DD`. */
+  min?: string;
+  /** The last day the calendar offers, `YYYY-MM-DD`. */
+  max?: string;
   placeholder?: string;
   scope?: string;
   onSave: (value: string | null) => void;
@@ -15,11 +20,13 @@ type DateFieldProps = Omit<React.ComponentProps<typeof RecordTableInlineCell.Tri
 /**
  * A day in a table cell or panel row, edited in a popover with a calendar.
  * The popover opens on a typed date and the calendar at once; picking or typing a day saves it
- * through `onSave` and closes it.
+ * through `onSave` and closes it. `min` and `max` bound the days it offers.
  */
 export const DateField = ({
   ref,
   value,
+  min,
+  max,
   placeholder,
   scope,
   onSave,
@@ -41,6 +48,8 @@ export const DateField = ({
         <DatePicker
           inline
           value={value}
+          minDate={min ? parseISO(min) : undefined}
+          maxDate={max ? parseISO(max) : undefined}
           onChange={(date) => {
             const next = date instanceof Date ? toIsoDay(date) : null;
 

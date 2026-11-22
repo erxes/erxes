@@ -74,4 +74,24 @@ describe('DateField', () => {
 
     expect(onSave).not.toHaveBeenCalled();
   });
+
+  it('offers only the days between min and max', async () => {
+    const onSave = saves();
+
+    const container = render(
+      <DateField value="2026-11-10" min="2026-11-05" max="2026-11-20" onSave={onSave} />,
+    );
+
+    await open(container);
+
+    expect(dayButton('2026-11-04')?.disabled).toBe(true);
+    expect(dayButton('2026-11-21')?.disabled).toBe(true);
+    expect(dayButton('2026-11-05')?.disabled).toBe(false);
+
+    act(() => dayButton('2026-11-04')?.click());
+    act(() => dayButton('2026-11-20')?.click());
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith('2026-11-20');
+  });
 });
