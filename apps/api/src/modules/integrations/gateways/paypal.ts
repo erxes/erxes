@@ -9,9 +9,14 @@ import {
   parse,
   tokenCache,
   withBearer,
-} from './http';
-import { defineIntegration, field, secret, toggle } from '../define';
-import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
+  defineIntegration,
+  field,
+  secret,
+  toggle,
+  type ClientOptions,
+  type CreateInvoiceInput,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   clientId: field('Client ID'),

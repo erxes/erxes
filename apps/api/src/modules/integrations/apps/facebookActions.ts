@@ -1,8 +1,7 @@
 import { FACEBOOK_MESSAGE_RECIPIENTS } from '@erxes/core-db/integrationEnums';
 import { z } from 'zod';
-import { type OAuthKeys } from '../define';
-import { appAction } from '../appDefinition';
-import { Text } from '../gateways/http';
+import { type OAuthKeys } from '@erxes/plugin-sdk/integrations';
+import { appAction, Text } from '@erxes/plugin-sdk/integrations';
 import { graph, pageToken } from './facebookGraph';
 
 const MessageInput = z.object({

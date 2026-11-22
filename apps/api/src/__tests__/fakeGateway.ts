@@ -1,4 +1,4 @@
-import { type CreateInvoiceInput, GatewayError } from '~/modules/integrations/gateways/types';
+import { type CreateInvoiceInput, GatewayError } from '@erxes/plugin-sdk/integrations';
 
 /** The address a `fetch` call asks for. */
 export const urlOf = (input: string | URL | Request) =>

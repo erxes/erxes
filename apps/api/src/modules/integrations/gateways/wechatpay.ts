@@ -1,8 +1,18 @@
 import { z } from 'zod';
 import { createPrivateKey, type KeyObject, randomToken, randomUUID, sign } from '~/lib/crypto';
-import { defineIntegration, digits, field, secret } from '../define';
-import { gatewayHttp, json, parse, qrInstructions, type Send } from './http';
-import { type ClientOptions, GatewayError } from './types';
+import {
+  defineIntegration,
+  digits,
+  field,
+  secret,
+  gatewayHttp,
+  json,
+  parse,
+  qrInstructions,
+  type Send,
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   appId: field('App ID'),

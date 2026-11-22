@@ -18,6 +18,7 @@ COPY apps/web/package.json apps/web/
 COPY packages/assistant-catalog/package.json packages/assistant-catalog/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
+COPY packages/integrations/package.json packages/integrations/
 COPY packages/lint/package.json packages/lint/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
@@ -27,6 +28,7 @@ COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
 # The contract builds its schemas from the table definitions (@erxes/core-db/schema).
 COPY packages/db/src packages/db/src
+COPY packages/integrations packages/integrations
 COPY packages/ui packages/ui
 COPY apps/web apps/web
 RUN pnpm --filter @erxes/web build

@@ -1,3 +1,4 @@
+import { INTEGRATION_UIS } from '@erxes/integrations/ui';
 import { cn } from 'erxes-ui';
 import type { ComponentType } from 'react';
 
@@ -7,9 +8,12 @@ const FILES = import.meta.glob<string>('./logos/*.{png,svg,webp}', {
   import: 'default',
 });
 
-const BY_BRAND = new Map(
-  Object.entries(FILES).map(([path, url]) => [path.replace(/^.*\/|\.\w+$/g, ''), url]),
-);
+const BY_BRAND = new Map([
+  ...Object.entries(FILES).map(([path, url]) => [path.replace(/^.*\/|\.\w+$/g, ''), url] as const),
+  ...INTEGRATION_UIS.map(({ key, logo }) => [key, logo] as const),
+]);
+
+export const packageUiOf = (key: string) => INTEGRATION_UIS.find((ui) => ui.key === key);
 
 const BRAND_OF: Record<string, string> = {
   'golomt-cgw': 'golomt',

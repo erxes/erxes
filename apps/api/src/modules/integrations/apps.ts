@@ -1,6 +1,6 @@
 import { appEventType } from '@erxes/core-contract';
 import type { KeyedIntegration } from './define';
-import type { AppEvent } from './appDefinition';
+import type { AppEvent } from '@erxes/plugin-sdk/integrations';
 import { INTEGRATIONS } from './registry';
 
 type Triggers = NonNullable<KeyedIntegration['triggers']>;

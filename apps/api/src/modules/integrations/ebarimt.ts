@@ -2,9 +2,9 @@ import { CursorQuery } from '@erxes/core-contract';
 import { settingsOf } from '~/modules/ebarimt/plan';
 import { RECEIPT_ACTIONS } from '~/modules/ebarimt/receiptActions';
 import { listReceipts } from '~/modules/ebarimt/receipts.service';
-import { defineIntegration } from './define';
+import type { PagedIntegration } from './define';
 
-export const ebarimt = defineIntegration({
+export const ebarimt: PagedIntegration = {
   key: 'ebarimt',
   name: 'eBarimt',
   summary: 'Mongolian tax receipts for paid invoices, sent through your PosAPI.',
@@ -24,4 +24,4 @@ export const ebarimt = defineIntegration({
 
     return count ? { state: 'attention', count } : { state: 'connected', count: null };
   },
-});
+};

@@ -1,18 +1,6 @@
 import type { ActionField, DataField } from '@erxes/core-contract';
 import type { z } from 'zod';
-import { fail } from '~/http/errors';
-import { idempotencyKey, parseInput } from '~/modules/automations/actions/context';
-import { CONNECTION_FIELD, type KeyedAction, type Keys } from './define';
-import { GatewayError } from './gateways/types';
-
-const RETRIED = new Set([408, 409, 425, 429]);
-
-const refused = (error: unknown): error is GatewayError =>
-  error instanceof GatewayError &&
-  error.status !== null &&
-  error.status >= 400 &&
-  error.status < 500 &&
-  !RETRIED.has(error.status);
+import type { Keys } from './fields';
 
 export interface Delivery {
   method: string;
@@ -136,6 +124,16 @@ interface ActionCall<C, I> {
   idempotencyKey: string;
 }
 
+export interface AppAction<C> {
+  key: string;
+  label: string;
+  description: string;
+  fields: ActionField[];
+  outputs?: DataField[];
+  input: z.ZodType;
+  run(call: ActionCall<C, unknown>): Promise<Record<string, unknown>>;
+}
+
 export const appAction = <C, T>(definition: {
   key: string;
   label: string;
@@ -144,30 +142,10 @@ export const appAction = <C, T>(definition: {
   outputs?: DataField[];
   input: z.ZodType<T>;
   run(call: ActionCall<C, T>): Promise<Record<string, unknown>>;
-}): KeyedAction<C> => {
-  const { key, label, description, fields, outputs, input: schema } = definition;
-
-  return {
-    key,
-    label,
-    description,
-    outputs,
-    subject: null,
-    fields: [CONNECTION_FIELD, ...fields],
-    async call(ctx) {
-      const input = parseInput(ctx, schema);
-      const { client } = await ctx.connection();
-
-      try {
-        return await definition.run({ client, input, idempotencyKey: idempotencyKey(ctx) });
-      } catch (error) {
-        if (refused(error)) throw fail('GATEWAY_REFUSED', error.message);
-
-        throw error;
-      }
-    },
-  };
-};
+}): AppAction<C> => ({
+  ...definition,
+  run: (call) => definition.run({ ...call, input: definition.input.parse(call.input) }),
+});
 
 export interface Apps<K> {
   hooks?: AppHooks<K> | AppWideHooks<K>;

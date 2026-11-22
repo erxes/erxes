@@ -118,6 +118,9 @@ importers:
       '@erxes/core-db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@erxes/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@gscode1/pi-durable-postgres':
         specifier: 0.3.0
         version: 0.3.0(patch_hash=68629a4c418644df8875a8a48a0843968c515fefb9bb450a5583d2bea1a72f43)(@earendil-works/chord@1.5.2(esbuild@0.28.2)(react@19.3.1))(@earendil-works/pi-durable@1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(esbuild@0.28.2)(react@19.3.1)(undici@8.12.3)(zod@4.6.7))
@@ -314,6 +317,9 @@ importers:
       '@erxes/core-contract':
         specifier: workspace:*
         version: link:../../packages/contract
+      '@erxes/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@hookform/resolvers':
         specifier: 7.0.6
         version: 7.0.6(@standard-schema/spec@1.1.0)(ajv-formats@3.0.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.92.0(@types/react@19.3.0)(react@19.3.1))(zod@4.6.7)
@@ -565,6 +571,19 @@ importers:
         specifier: ^4.19.2
         version: 4.23.15
 
+  packages/integrations:
+    dependencies:
+      '@erxes/plugin-sdk':
+        specifier: workspace:*
+        version: link:../plugin-sdk
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      erxes-ui:
+        specifier: workspace:@erxes/ui@*
+        version: link:../ui
+
   packages/lint:
     dependencies:
       '@shadcn/lint':
@@ -601,10 +620,16 @@ importers:
       jose:
         specifier: ^6.2.17
         version: 6.2.17
+      qrcode:
+        specifier: ^1.5.4
+        version: 1.5.4
       zod:
         specifier: ^4.6.7
         version: 4.6.7
     devDependencies:
+      '@types/qrcode':
+        specifier: ^1.5.6
+        version: 1.5.6
       drizzle-orm:
         specifier: 0.45.4
         version: 0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(pg@8.23.1)

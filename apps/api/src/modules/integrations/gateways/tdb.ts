@@ -9,9 +9,13 @@ import {
   parse,
   Text,
   toTugrug,
-} from './http';
-import { defineIntegration, field, httpsUrl, secret } from '../define';
-import { type ClientOptions, GatewayError } from './types';
+  defineIntegration,
+  field,
+  httpsUrl,
+  secret,
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   username: field('Username'),

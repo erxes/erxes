@@ -1,10 +1,19 @@
 import { TELEGRAM_PARSE_MODES } from '@erxes/core-db/integrationEnums';
 import { z } from 'zod';
 import { safeEqual } from '~/lib/crypto';
-import { defineIntegration, secret } from '../define';
-import { type AppHooks, appAction, DeliveryRefused, hookTrigger } from '../appDefinition';
-import { gatewayHttp, json, parse, Text } from '../gateways/http';
-import { GatewayError } from '../gateways/types';
+import {
+  defineIntegration,
+  secret,
+  type AppHooks,
+  appAction,
+  DeliveryRefused,
+  hookTrigger,
+  gatewayHttp,
+  json,
+  parse,
+  Text,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 import {
   BUTTON_OUTPUTS,
   CONTACT_OUTPUTS,

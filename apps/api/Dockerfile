@@ -17,6 +17,7 @@ COPY apps/web/package.json apps/web/
 COPY packages/assistant-catalog/package.json packages/assistant-catalog/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
+COPY packages/integrations/package.json packages/integrations/
 COPY packages/lint/package.json packages/lint/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
@@ -25,6 +26,7 @@ COPY tsconfig.base.json ./
 COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
 COPY packages/db packages/db
+COPY packages/integrations packages/integrations
 COPY packages/plugin-sdk packages/plugin-sdk
 COPY apps/api apps/api
 RUN pnpm --filter @erxes/api build \

@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { aes128CbcDecrypt, aes128CbcEncrypt, hmacSha1Bytes, sha256 } from '~/lib/crypto';
-import { gatewayHttp, json, parse, Text, tokenCache } from '../gateways/http';
-import { GatewayError } from '../gateways/types';
+import {
+  gatewayHttp,
+  json,
+  parse,
+  Text,
+  tokenCache,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 import {
   type BankAccount,
   type BankClient,

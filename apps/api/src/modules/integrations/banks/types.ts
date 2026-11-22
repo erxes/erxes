@@ -1,5 +1,5 @@
-import { currencyDigits } from '../gateways/http';
-import type { ClientOptions } from '../gateways/types';
+import { currencyDigits } from '@erxes/plugin-sdk/integrations';
+import type { ClientOptions } from '@erxes/plugin-sdk/integrations';
 
 export type BankKind = 'khanbank' | 'golomt' | 'tdb';
 

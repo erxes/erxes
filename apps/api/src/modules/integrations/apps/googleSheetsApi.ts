@@ -1,8 +1,13 @@
 import { z } from 'zod';
 import { sha256 } from '~/lib/crypto';
-import { field, type OAuthKeys } from '../define';
-import { gatewayHttp, parse } from '../gateways/http';
-import { type ClientOptions, GatewayError } from '../gateways/types';
+import {
+  field,
+  type OAuthKeys,
+  gatewayHttp,
+  parse,
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const NAME = 'Google Sheets';
 

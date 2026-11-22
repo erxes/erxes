@@ -15,7 +15,7 @@ import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { test } from '~/modules/integrations/gateways/test';
-import { type CreateInvoiceInput, GatewayError } from '~/modules/integrations/gateways/types';
+import { type CreateInvoiceInput, GatewayError } from '@erxes/plugin-sdk/integrations';
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { gatewayAt, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';

@@ -54,6 +54,7 @@ type TContactKind
 type TDashboardWidget
 type TDashboardWidgetPreview
 type TIntegrationTab
+type TIntegrationUI
 type TListDisplay
 type TListDisplayOption
 type TListFilterField

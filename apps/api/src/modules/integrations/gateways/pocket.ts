@@ -1,7 +1,19 @@
 import { z } from 'zod';
-import { gatewayHttp, json, parse, qrInstructions, Text, tokenCache, toTugrug } from './http';
-import { defineIntegration, digits, field, secret } from '../define';
-import { type ClientOptions, GatewayError } from './types';
+import {
+  gatewayHttp,
+  json,
+  parse,
+  qrInstructions,
+  Text,
+  tokenCache,
+  toTugrug,
+  defineIntegration,
+  digits,
+  field,
+  secret,
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   terminalId: field('Terminal ID', digits()),

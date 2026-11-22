@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { hmacSha256 } from '~/lib/crypto';
-import { defineIntegration, secret } from '../define';
 import {
+  defineIntegration,
+  secret,
   Amount,
   fromTugrug,
   gatewayHttp,
@@ -10,8 +11,9 @@ import {
   probeId,
   qrInstructions,
   toTugrug,
-} from './http';
-import { type ClientOptions, GatewayError } from './types';
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({ checksumKey: secret('Checksum key'), token: secret('Token') });
 

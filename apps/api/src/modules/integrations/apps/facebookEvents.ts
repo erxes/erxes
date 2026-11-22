@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { AppEvent } from '../appDefinition';
-import { Text } from '../gateways/http';
+import type { AppEvent } from '@erxes/plugin-sdk/integrations';
+import { Text } from '@erxes/plugin-sdk/integrations';
 
 const fromSeconds = (seconds: number | undefined) =>
   seconds === undefined ? undefined : new Date(seconds * 1000).toISOString();

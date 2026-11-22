@@ -27,6 +27,7 @@
     "@erxes/assistant-catalog": "workspace:*",
     "@erxes/core-contract": "workspace:*",
     "@erxes/core-db": "workspace:*",
+    "@erxes/integrations": "workspace:*",
     "@gscode1/pi-durable-postgres": "0.3.0",
     "@jitl/quickjs-wasmfile-release-sync": "^0.32.0",
     "@maily-to/render": "2.0.0-beta.19",

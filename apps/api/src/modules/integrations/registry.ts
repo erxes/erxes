@@ -1,9 +1,10 @@
+import { INTEGRATIONS as PACKAGED } from '@erxes/integrations/server';
 import { fail, notFound } from '~/http/errors';
 import { facebook } from './apps/facebook';
 import { github } from './apps/github';
 import { googleSheets } from './apps/googleSheets';
 import { telegram } from './apps/telegram';
-import type { Integration } from './define';
+import type { ClientOptions, Integration } from './define';
 import { golomtBank, khanbankBank, tdbBank } from './banks';
 import { ebarimt } from './ebarimt';
 import { golomt } from './gateways/golomt';
@@ -11,21 +12,18 @@ import { hipay } from './gateways/hipay';
 import { monpay } from './gateways/monpay';
 import { paypal } from './gateways/paypal';
 import { pocket } from './gateways/pocket';
-import { qpay } from './gateways/qpay';
 import { quickqr } from './gateways/quickqr';
 import { socialpay } from './gateways/socialpay';
 import { storepay } from './gateways/storepay';
-import { stripe } from './gateways/stripe';
 import { tdb } from './gateways/tdb';
 import { test } from './gateways/test';
 import { toki } from './gateways/toki';
 import { golomtTransfer, khanbankTransfer, tdbTransfer } from './gateways/transfers';
-import type { ClientOptions } from './gateways/types';
 import { wechatpay } from './gateways/wechatpay';
 
 export const INTEGRATIONS: readonly Integration[] = [
   ebarimt,
-  qpay,
+  ...PACKAGED,
   quickqr,
   socialpay,
   monpay,
@@ -38,7 +36,6 @@ export const INTEGRATIONS: readonly Integration[] = [
   tdbTransfer,
   golomtTransfer,
   hipay,
-  stripe,
   paypal,
   wechatpay,
   github,

@@ -5,7 +5,7 @@ import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { type App, publishedEvents } from './apps';
-import type { AppEvent } from './appDefinition';
+import type { AppEvent } from '@erxes/plugin-sdk/integrations';
 import {
   connectionKeys,
   connectionOn,

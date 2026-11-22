@@ -19,15 +19,13 @@ import { appLink } from '~/modules/email/email';
 import { readSecret, saveSecret } from '~/modules/secrets/vault';
 import type { ConnectionRow } from './connections';
 import {
-  type KeyedIntegration,
+  gatewayHttp,
   type OAuthKeys,
   oauthKeys,
   type OAuthSetup,
-  sealedValues,
-  splitValues,
-} from './define';
-import { gatewayHttp } from './gateways/http';
+} from '@erxes/plugin-sdk/integrations';
 import { connectable } from './connectable';
+import { type KeyedIntegration, sealedValues, splitValues } from './define';
 
 const STATE_MINUTES = 10;
 

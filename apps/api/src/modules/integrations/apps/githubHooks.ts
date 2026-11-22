@@ -1,9 +1,16 @@
 import { z } from 'zod';
 import { hmacSha256, safeEqual } from '~/lib/crypto';
-import { field } from '../define';
-import { type AppHooks, DeliveryRefused } from '../appDefinition';
-import { gatewayHttp, json, parse, Text } from '../gateways/http';
-import { type ClientOptions, GatewayError } from '../gateways/types';
+import {
+  field,
+  type AppHooks,
+  DeliveryRefused,
+  gatewayHttp,
+  json,
+  parse,
+  Text,
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 import { githubPayload } from './githubEvents';
 
 type GithubKeys = { accessToken: string };

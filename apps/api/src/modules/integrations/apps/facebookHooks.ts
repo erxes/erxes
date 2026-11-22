@@ -1,8 +1,13 @@
 import { z } from 'zod';
 import { hmacSha256, safeEqual } from '~/lib/crypto';
-import { digits, field, type OAuthKeys } from '../define';
-import { type AppWideHooks, DeliveryRefused } from '../appDefinition';
-import { GatewayError } from '../gateways/types';
+import {
+  type AppWideHooks,
+  DeliveryRefused,
+  digits,
+  field,
+  GatewayError,
+  type OAuthKeys,
+} from '@erxes/plugin-sdk/integrations';
 import { Lead, LEAD_FIELDS, leadPayload, pageEvents } from './facebookEvents';
 import { appToken, Done, graph, pageToken } from './facebookGraph';
 

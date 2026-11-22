@@ -2,18 +2,22 @@ import { z } from 'zod';
 import {
   Amount,
   basic,
+  type ClientOptions,
+  type CreateInvoiceInput,
+  defineIntegration,
+  field,
   fromTugrug,
   gatewayHttp,
   json,
   parse,
+  secret,
   type Send,
   Text,
   tokenCache,
+  toggle,
   toTugrug,
   withBearer,
-} from './http';
-import { defineIntegration, field, secret, toggle } from '../define';
-import type { ClientOptions, CreateInvoiceInput } from './types';
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   clientId: field('Client ID'),

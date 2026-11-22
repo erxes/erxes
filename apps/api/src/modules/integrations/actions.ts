@@ -1,13 +1,60 @@
 import { type Db, integrationConnections, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
+import { type AppAction, GatewayError } from '@erxes/plugin-sdk/integrations';
 import { fail } from '~/http/errors';
-import { type CallContext, type CoreAction, text } from '~/modules/automations/actions/context';
+import {
+  type CallContext,
+  checked,
+  type CoreAction,
+  filledInput,
+  idempotencyKey,
+  text,
+} from '~/modules/automations/actions/context';
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { INVOICE_ACTIONS } from '~/modules/payments/invoiceActions';
 import { manages } from './connectable';
 import { clientOf, connectionsWithSecret } from './connections';
-import type { Integration, KeyedAction, KeyedIntegration, PagedIntegration } from './define';
+import {
+  CONNECTION_FIELD,
+  type Integration,
+  type KeyedAction,
+  type KeyedIntegration,
+  type PagedIntegration,
+} from './define';
 import { INTEGRATIONS } from './registry';
+
+const RETRIED = new Set([408, 409, 425, 429]);
+
+const refused = (error: unknown): error is GatewayError =>
+  error instanceof GatewayError &&
+  error.status !== null &&
+  error.status >= 400 &&
+  error.status < 500 &&
+  !RETRIED.has(error.status);
+
+const keyedAction = (action: AppAction<unknown>): KeyedAction<unknown> => ({
+  key: action.key,
+  label: action.label,
+  description: action.description,
+  outputs: action.outputs,
+  subject: null,
+  fields: [CONNECTION_FIELD, ...action.fields],
+  async call(ctx) {
+    const input = filledInput(ctx);
+
+    checked(action.input, input);
+
+    const { client } = await ctx.connection();
+
+    try {
+      return await action.run({ client, input, idempotencyKey: idempotencyKey(ctx) });
+    } catch (error) {
+      if (refused(error)) throw fail('GATEWAY_REFUSED', error.message);
+
+      throw error;
+    }
+  },
+});
 
 /**
  * The connection a step runs on: the one its `connection` input names, else the organisation's
@@ -67,7 +114,7 @@ const keyedActions = (integration: KeyedIntegration): CoreAction[] => {
 
   return [
     ...(integration.payments ? INVOICE_ACTIONS : []),
-    ...(integration.actions ?? []).map((action) => permitted(integration, action)),
+    ...(integration.actions ?? []).map((action) => permitted(integration, keyedAction(action))),
   ].map((action) => ({
     type: `${integration.key}.${action.key}`,
     label: action.label,

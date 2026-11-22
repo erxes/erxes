@@ -7,7 +7,7 @@ import { deliveryOf, MAX_HOOK_BYTES, noHook } from './appHooks.http';
 import { appOf } from './apps';
 import { appHookSignature, appVerifyToken, routedSubscriptions } from './appWide';
 import { deliverToOrg } from './appWideEvents';
-import { type AppEvent, DeliveryRefused } from './appDefinition';
+import { type AppEvent, DeliveryRefused } from '@erxes/plugin-sdk/integrations';
 import { clientByRef } from './oauth';
 
 const Params = z.object({

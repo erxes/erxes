@@ -358,6 +358,7 @@ export {
   type TDashboardWidget,
   type TDashboardWidgetPreview,
   type TIntegrationTab,
+  type TIntegrationUI,
   type TPanelRecordType,
   type TPluginIntegration,
   type TPluginSettingsPage,

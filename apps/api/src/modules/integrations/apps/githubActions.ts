@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { appAction } from '../appDefinition';
-import { parse, Text } from '../gateways/http';
+import { appAction, parse, Text } from '@erxes/plugin-sdk/integrations';
 import { githubSend } from './githubHooks';
 
 type GithubKeys = { accessToken: string };

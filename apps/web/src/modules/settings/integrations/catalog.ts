@@ -5,7 +5,7 @@ import type { ComponentType } from 'react';
 import type { TIntegrationTab } from 'erxes-ui';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
-import { initialMark, logoOf } from './logos';
+import { initialMark, logoOf, packageUiOf } from './logos';
 
 export const CATEGORIES = IntegrationCategory.options;
 
@@ -43,7 +43,7 @@ export const useIntegrations = () => {
       slug: integration.plugin ? `${integration.plugin}.${integration.key}` : integration.key,
       icon: ui?.icon ?? logo ?? initialMark(integration.name),
       logo: !ui?.icon && logo !== null,
-      tabs: ui?.tabs ?? [],
+      tabs: (integration.plugin ? ui?.tabs : packageUiOf(integration.key)?.tabs) ?? [],
     };
   });
 

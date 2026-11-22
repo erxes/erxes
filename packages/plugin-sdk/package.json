@@ -1,8 +1,8 @@
 {
   "name": "@erxes/plugin-sdk",
-  "version": "0.1.0-v2.35",
+  "version": "0.1.0-v2.36",
   "private": false,
-  "description": "For erxes plugin servers: a typed core client with automatic plugin tokens, verification of members' plugin session tokens and of core's deliveries, and plugin jobs",
+  "description": "For erxes plugin servers: a typed core client with automatic plugin tokens, verification of members' plugin session tokens and of core's deliveries, plugin jobs, and the tools to write integrations",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
@@ -18,6 +18,7 @@
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
     "./filter": "./src/filter.ts",
+    "./integrations": "./src/integrations.ts",
     "./jobs": "./src/jobs.ts",
     "./logger": "./src/logger.ts",
     "./openapi": "./src/openapi.ts",
@@ -30,6 +31,7 @@
       ".": "./dist/index.js",
       "./client": "./dist/client.js",
       "./filter": "./dist/filter.js",
+      "./integrations": "./dist/integrations.js",
       "./jobs": "./dist/jobs.js",
       "./logger": "./dist/logger.js",
       "./openapi": "./dist/openapi.js",
@@ -52,9 +54,11 @@
     "@orpc/openapi-client": "1.16.2",
     "@orpc/zod": "1.16.2",
     "jose": "^6.2.17",
+    "qrcode": "^1.5.4",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/qrcode": "^1.5.6",
     "drizzle-orm": "0.45.4"
   },
   "peerDependencies": {
