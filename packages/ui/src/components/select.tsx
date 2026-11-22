@@ -15,17 +15,24 @@ const RegisterLabelContext = createContext<(value: string, label: React.ReactNod
 
 const CollectingContext = createContext(false);
 
-/** An empty string means nothing is selected, as it did under Radix. Clearing isn't reported. */
-const SelectRoot = <Value extends string>({
-  value,
-  defaultValue,
-  onValueChange,
-  ...props
-}: Omit<SelectPrimitive.Root.Props<Value>, 'value' | 'defaultValue' | 'onValueChange' | 'items'> & {
+type SelectRootProps<Value extends string> = Omit<
+  SelectPrimitive.Root.Props<Value>,
+  'value' | 'defaultValue' | 'onValueChange' | 'items'
+> & {
   value?: Value | '';
   defaultValue?: Value | '';
   onValueChange?: (value: Value) => void;
-}) => {
+};
+
+/**
+ * An empty string means nothing is selected, as it did under Radix. Clearing isn't reported.
+ * Passing `value` at all makes it controlled, as Radix was: a form's value that is still
+ * undefined on the first render (it comes with a reset) shows once it arrives.
+ */
+const SelectRoot = <Value extends string>(allProps: SelectRootProps<Value>) => {
+  const { value, defaultValue, onValueChange, ...props } = allProps;
+  const controlled = Object.hasOwn(allProps, 'value');
+
   const [labels, setLabels] = useState<Record<string, React.ReactNode>>({});
 
   const register = useCallback((itemValue: string, label: React.ReactNode) => {
@@ -36,7 +43,7 @@ const SelectRoot = <Value extends string>({
     <RegisterLabelContext value={register}>
       <SelectPrimitive.Root
         items={labels}
-        value={value === '' ? null : value}
+        value={controlled ? value || null : undefined}
         defaultValue={defaultValue === '' ? null : defaultValue}
         onValueChange={(next) => {
           if (next !== null) onValueChange?.(next);
