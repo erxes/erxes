@@ -60,7 +60,7 @@ const step = (value: unknown, key: string | number) =>
 
 const valueOf = (field: StripeField, root: unknown) => {
   for (const path of field.from) {
-    const read = READERS[field.read].safeParse(path.reduce(step, root));
+    const read = READERS[field.read].safeParse(path.reduce((value, key) => step(value, key), root));
 
     if (read.success) return read.data;
   }
