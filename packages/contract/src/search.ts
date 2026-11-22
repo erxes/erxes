@@ -29,7 +29,8 @@ export const searchContract = {
     .route({
       method: 'GET',
       path: '/search',
-      summary:
+      summary: 'Search everything',
+      description:
         'Records matching every word of `q`, the first `limit` of each type the member may see: people and companies with contacts.view, team members with team.view, products, branches and departments',
     })
     .input(

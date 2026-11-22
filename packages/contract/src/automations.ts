@@ -71,7 +71,8 @@ export const automationsContract = {
     .route({
       method: 'GET',
       path: '/automations/catalog',
-      summary: "Triggers (event types) and actions: core's and installed plugins'",
+      summary: 'List triggers and actions',
+      description: "Triggers (event types) and actions: core's and installed plugins'",
     })
     .output(
       z.object({
@@ -99,23 +100,28 @@ export const automationsContract = {
       }),
     ),
   list: base
-    .route({ method: 'GET', path: '/automations' })
+    .route({ method: 'GET', path: '/automations', summary: 'List automations' })
     .input(z.object({ status: AutomationStatus.optional() }))
     .output(listOf(Automation)),
   get: base
-    .route({ method: 'GET', path: '/automations/{id}' })
+    .route({ method: 'GET', path: '/automations/{id}', summary: 'Get an automation' })
     .input(z.object({ id: Id }))
     .output(Automation),
   create: base
-    .route({ method: 'POST', path: '/automations', successStatus: 201 })
+    .route({
+      method: 'POST',
+      path: '/automations',
+      successStatus: 201,
+      summary: 'Create an automation',
+    })
     .input(Fields.required({ name: true, definition: true }))
     .output(Automation),
   update: base
     .route({
       method: 'PATCH',
       path: '/automations/{id}',
-      summary:
-        'Change an automation; an active one publishes a new version (runs in progress keep theirs)',
+      summary: 'Change an automation',
+      description: 'An active one publishes a new version; runs in progress keep theirs',
     })
     .input(Fields.extend({ id: Id }))
     .output(Automation),
@@ -123,7 +129,8 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/check',
-      summary:
+      summary: 'Check an automation before turning it on',
+      description:
         'What would stop a definition from being turned on (unknown steps, missing fields, broken templates); nothing is saved',
     })
     .input(z.object({ definition: AutomationDefinition }))
@@ -132,19 +139,21 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/{id}/activate',
-      summary: 'Check and turn on (as the member, whose permissions its actions use)',
+      summary: 'Turn on an automation',
+      description: 'Check and turn on (as the member, whose permissions its actions use)',
     })
     .input(z.object({ id: Id }))
     .output(Automation),
   pause: base
-    .route({ method: 'POST', path: '/automations/{id}/pause' })
+    .route({ method: 'POST', path: '/automations/{id}/pause', summary: 'Pause an automation' })
     .input(z.object({ id: Id }))
     .output(Automation),
   start: base
     .route({
       method: 'POST',
       path: '/automations/{id}/start',
-      summary: 'Run a manual (or any) automation now: on the given records, or on its audience',
+      summary: 'Run an automation now',
+      description: 'Run a manual (or any) automation now: on the given records, or on its audience',
     })
     .input(z.object({ id: Id, subjects: z.array(Id).max(1000).optional() }))
     .output(
@@ -159,7 +168,8 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/{id}/test',
-      summary:
+      summary: 'Test an automation',
+      description:
         'Dry run of the working copy: what each step would do for a record (nothing is changed)',
     })
     .input(
@@ -187,7 +197,8 @@ export const automationsContract = {
     .route({
       method: 'PUT',
       path: '/automations/{id}/sample',
-      summary:
+      summary: 'Save a webhook sample',
+      description:
         'Keep a webhook request as the sample: its fields fill the editor’s lists and the test uses it',
     })
     .input(HookSample.pick({ body: true, query: true }).extend({ id: Id }))
@@ -196,7 +207,8 @@ export const automationsContract = {
     .route({
       method: 'GET',
       path: '/automations/{id}/stats',
-      summary: 'How runs went, overall and step by step (last 30 days)',
+      summary: 'Get automation run stats',
+      description: 'How runs went, overall and step by step (last 30 days)',
     })
     .input(z.object({ id: Id }))
     .output(
@@ -224,7 +236,8 @@ export const automationsContract = {
     .route({
       method: 'GET',
       path: '/automations/{id}/versions',
-      summary: 'The 100 latest published versions, newest first',
+      summary: 'List automation versions',
+      description: 'The 100 latest published versions, newest first',
     })
     .input(z.object({ id: Id }))
     .output(
@@ -245,7 +258,9 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/{id}/versions/{version}/restore',
-      summary: 'Make an older version the working copy (and publish it if the automation is on)',
+      summary: 'Restore an automation version',
+      description:
+        'Make an older version the working copy (and publish it if the automation is on)',
     })
     .input(z.object({ id: Id, version: z.coerce.number().int().min(1) }))
     .output(Automation),
@@ -253,7 +268,8 @@ export const automationsContract = {
     .route({
       method: 'GET',
       path: '/automations/templates',
-      summary: 'Ready-made automations to start from',
+      summary: 'List automation templates',
+      description: 'Ready-made automations to start from',
     })
     .output(
       listOf(
@@ -269,28 +285,30 @@ export const automationsContract = {
     .route({
       method: 'GET',
       path: '/automations/fields',
-      summary:
+      summary: 'List fields automations can use',
+      description:
         'Paths conditions and placeholders can use, with their types (custom fields included; with `automation`, what its webhook requests carried)',
     })
     .input(z.object({ subject: z.enum(CONTENT_TYPES).optional(), automation: Id.optional() }))
     .output(listOf(AutomationFieldPath)),
   remove: base
-    .route({ method: 'DELETE', path: '/automations/{id}' })
+    .route({ method: 'DELETE', path: '/automations/{id}', summary: 'Delete an automation' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   runs: base
-    .route({ method: 'GET', path: '/automations/{id}/runs' })
+    .route({ method: 'GET', path: '/automations/{id}/runs', summary: 'List automation runs' })
     .input(CursorQuery.extend({ id: Id, status: RunStatus.optional() }))
     .output(cursorPageOf(AutomationRun)),
   run: base
-    .route({ method: 'GET', path: '/automations/runs/{runId}' })
+    .route({ method: 'GET', path: '/automations/runs/{runId}', summary: 'Get an automation run' })
     .input(z.object({ runId: Id }))
     .output(z.object({ run: AutomationRun, steps: z.array(RunStep) })),
   retryRun: base
     .route({
       method: 'POST',
       path: '/automations/runs/{runId}/retry',
-      summary: 'Continue a failed run from the step that failed',
+      summary: 'Retry a failed run',
+      description: 'Continue a failed run from the step that failed',
     })
     .input(z.object({ runId: Id }))
     .output(AutomationRun),
@@ -298,7 +316,8 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/runs/{runId}/cancel',
-      summary: 'Stop a running or waiting run',
+      summary: 'Cancel a run',
+      description: 'Stop a running or waiting run',
     })
     .input(z.object({ runId: Id }))
     .output(AutomationRun),

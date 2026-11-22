@@ -160,6 +160,8 @@ export * from './audit';
 
 export * from './auth';
 
+export * from './broadcast';
+
 export * from './broadcasts';
 
 export * from './broadcastRecipients';

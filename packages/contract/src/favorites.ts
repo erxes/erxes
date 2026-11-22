@@ -36,30 +36,37 @@ const base = oc.errors({ ...COMMON_ERRORS, FAVORITE_LIMIT });
 /** The signed-in member's starred pages; nobody else sees them. */
 export const favoritesContract = {
   list: base
-    .route({ method: 'GET', path: '/favorites', summary: "The member's favorites, in their order" })
+    .route({
+      method: 'GET',
+      path: '/favorites',
+      summary: 'List my favorites',
+      description: "The member's favorites, in their order",
+    })
     .output(listOf(Favorite)),
   add: base
     .route({
       method: 'POST',
       path: '/favorites',
       successStatus: 201,
-      summary: `Star a page, last in the list; a starred one keeps its place and takes the new label. 409 FAVORITE_LIMIT past ${FAVORITES_MAX}`,
+      summary: 'Add a favorite',
+      description: `Star a page, last in the list; a starred one keeps its place and takes the new label. 409 FAVORITE_LIMIT past ${FAVORITES_MAX}`,
     })
     .input(FavoriteFields.required({ path: true, label: true }))
     .output(Favorite),
   rename: base
-    .route({ method: 'PATCH', path: '/favorites/{id}' })
+    .route({ method: 'PATCH', path: '/favorites/{id}', summary: 'Rename a favorite' })
     .input(FavoriteFields.pick({ label: true }).required().extend({ id: Id }))
     .output(Favorite),
   remove: base
-    .route({ method: 'DELETE', path: '/favorites/{id}' })
+    .route({ method: 'DELETE', path: '/favorites/{id}', summary: 'Remove a favorite' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   reorder: base
     .route({
       method: 'PUT',
       path: '/favorites/order',
-      summary: 'Put the favorites in this order; ones not named keep their order after them',
+      summary: 'Reorder favorites',
+      description: 'Put the favorites in this order; ones not named keep their order after them',
     })
     .input(z.object({ ids: z.array(Id).max(FAVORITES_MAX) }))
     .output(listOf(Favorite)),

@@ -173,14 +173,16 @@ export const ebarimtContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/settings',
-      summary: 'The organisation’s eBarimt settings; null when it is not set up',
+      summary: 'Get eBarimt settings',
+      description: 'The organisation’s eBarimt settings; null when it is not set up',
     })
     .output(EbarimtSettings.nullable()),
   saveSettings: base
     .route({
       method: 'PUT',
       path: '/ebarimt/settings',
-      summary:
+      summary: 'Change eBarimt settings',
+      description:
         'Set up eBarimt or change its settings. 400 INVALID_URL for a PosAPI address core may not call',
     })
     .input(EbarimtSettingsInput)
@@ -189,14 +191,16 @@ export const ebarimtContract = {
     .route({
       method: 'DELETE',
       path: '/ebarimt/settings',
-      summary: 'Remove eBarimt; issued receipts stay',
+      summary: 'Remove eBarimt',
+      description: 'Remove eBarimt; issued receipts stay',
     })
     .output(z.object({ ok: z.literal(true) })),
   testConnection: base
     .route({
       method: 'POST',
       path: '/ebarimt/settings/test',
-      summary: 'Ask a PosAPI for its state, before saving it. 400 INVALID_URL',
+      summary: 'Test a PosAPI connection',
+      description: 'Ask a PosAPI for its state, before saving it. 400 INVALID_URL',
     })
     .input(z.object({ posApiUrl: z.string().trim().min(1).max(500) }))
     .output(
@@ -212,7 +216,8 @@ export const ebarimtContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/receipts',
-      summary: 'Receipts, newest first; a plugin sees its own invoices’ only',
+      summary: 'List eBarimt receipts',
+      description: 'Receipts, newest first; a plugin sees its own invoices’ only',
     })
     .input(
       CursorQuery.extend({
@@ -227,7 +232,8 @@ export const ebarimtContract = {
     .route({
       method: 'POST',
       path: '/ebarimt/invoices/{invoiceId}/sync',
-      summary:
+      summary: 'Sync an invoice’s receipt',
+      description:
         'Bring the invoice’s receipt up to date in the background: send a failed one again, issue a missing one. 409 EBARIMT_NOT_SET_UP',
     })
     .input(InvoiceRef)
@@ -236,7 +242,8 @@ export const ebarimtContract = {
     .route({
       method: 'PUT',
       path: '/ebarimt/invoices/{invoiceId}/buyer',
-      summary:
+      summary: 'Change a receipt’s buyer',
+      description:
         'Change who the invoice’s receipt is for (an issued one is replaced), or whether it gets one (`taxReceipt: false` returns an issued one). 404 COMPANY_NOT_FOUND, 503 TAX_OFFICE_UNAVAILABLE, 409 EBARIMT_NOT_SET_UP',
     })
     .input(InvoiceRef.extend({ taxBuyer: TaxBuyer.optional(), taxReceipt: z.boolean().optional() }))
@@ -245,7 +252,8 @@ export const ebarimtContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/companies/{no}',
-      summary:
+      summary: 'Find a company by tax number',
+      description:
         'A company’s tax number and name from its registration or tax number. 404 COMPANY_NOT_FOUND, 503 TAX_OFFICE_UNAVAILABLE',
     })
     .input(z.object({ no: z.string().trim().min(7).max(14) }))

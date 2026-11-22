@@ -27,7 +27,8 @@ export const secretsContract = {
     .route({
       method: 'GET',
       path: '/secrets/holdings',
-      summary:
+      summary: 'Count vault secrets',
+      description:
         'How many secrets the vault keeps for each feature and plugin, besides integration connections. Never a value',
     })
     .output(listOf(VaultHolding)),
@@ -36,7 +37,8 @@ export const secretsContract = {
       method: 'POST',
       path: '/secrets',
       successStatus: 201,
-      summary:
+      summary: 'Save a secret',
+      description:
         'Seal a password, token or key in the vault and get its id (plugins with secrets:write). The plugin stores only the id',
     })
     .input(z.object({ value: SecretValue }))
@@ -45,7 +47,8 @@ export const secretsContract = {
     .route({
       method: 'PUT',
       path: '/secrets/{id}',
-      summary: "Replace a secret's value; the id stays. 404 when the plugin did not save it",
+      summary: 'Replace a secret',
+      description: "Replace a secret's value; the id stays. 404 when the plugin did not save it",
     })
     .input(z.object({ id: Id, value: SecretValue }))
     .output(SecretRef),
@@ -53,7 +56,8 @@ export const secretsContract = {
     .route({
       method: 'GET',
       path: '/secrets/{id}',
-      summary: 'The value of a secret the calling plugin saved. 404 for any other',
+      summary: 'Read a secret',
+      description: 'The value of a secret the calling plugin saved. 404 for any other',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ value: SecretValue })),
@@ -61,7 +65,8 @@ export const secretsContract = {
     .route({
       method: 'DELETE',
       path: '/secrets/{id}',
-      summary: 'Delete a secret the calling plugin saved',
+      summary: 'Delete a secret',
+      description: 'Delete a secret the calling plugin saved',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),

@@ -73,7 +73,8 @@ export const agentsContract = {
     .route({
       method: 'POST',
       path: '/agents/{agent}/conversations/{key}/messages',
-      summary:
+      summary: 'Send a message to a plugin agent',
+      description:
         'A plugin sends a message into one conversation of its own agent, starting it on first use. The run happens on the server; core.agent.finished brings its answer. requestId makes a retry land once. 404 NOT_FOUND when the manifest declares no such agent',
     })
     .input(
@@ -89,7 +90,8 @@ export const agentsContract = {
     .route({
       method: 'GET',
       path: '/agents/models',
-      summary:
+      summary: 'List the model each agent runs on',
+      description:
         'The model each agent runs on, where an admin chose one; the others use the default provider and its default model',
     })
     .output(listOf(AgentModel)),
@@ -97,7 +99,8 @@ export const agentsContract = {
     .route({
       method: 'PUT',
       path: '/agents/{agent}/model',
-      summary:
+      summary: 'Choose an agent’s model',
+      description:
         'Choose the provider and model an agent runs on. 404 NOT_FOUND when no key is saved for the provider',
     })
     .input(z.object({ agent: AgentName, provider: AssistantProvider, model: AssistantModelId }))

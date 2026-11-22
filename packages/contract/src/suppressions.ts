@@ -35,7 +35,12 @@ const Detail = z.string().trim().max(500).optional();
 /** Addresses that get no broadcasts (decision 47). */
 export const suppressionsContract = {
   list: base
-    .route({ method: 'GET', path: '/suppressions', summary: 'Suppressed addresses, newest first' })
+    .route({
+      method: 'GET',
+      path: '/suppressions',
+      summary: 'List suppressed addresses',
+      description: 'Suppressed addresses, newest first',
+    })
     .input(
       CursorQuery.extend({
         channel: BroadcastChannel.optional(),
@@ -48,7 +53,8 @@ export const suppressionsContract = {
     .route({
       method: 'POST',
       path: '/suppressions',
-      summary:
+      summary: 'Suppress addresses',
+      description:
         'Stop broadcasts and every other email to addresses (reason `manual`); an address already suppressed keeps its reason',
     })
     .input(
@@ -70,7 +76,8 @@ export const suppressionsContract = {
     .route({
       method: 'DELETE',
       path: '/suppressions/{id}',
-      summary:
+      summary: 'Unsuppress an address',
+      description:
         'Let broadcasts and every other email reach the address again. 403 NOT_ALLOWED for an unsubscribe or a complaint: only the person can undo those',
     })
     .input(z.object({ id: Id }))

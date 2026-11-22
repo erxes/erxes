@@ -210,7 +210,8 @@ export const usersContract = {
     .route({
       method: 'GET',
       path: '/users',
-      summary: 'Team members of the organisation, newest first',
+      summary: 'List team members',
+      description: 'Team members of the organisation, newest first',
     })
     .input(
       CursorQuery.extend({
@@ -231,12 +232,13 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/invitation',
-      summary: 'Email an invited member a new invitation link (earlier links stop working)',
+      summary: 'Resend an invitation',
+      description: 'Email an invited member a new invitation link (earlier links stop working)',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   get: base
-    .route({ method: 'GET', path: '/users/{id}' })
+    .route({ method: 'GET', path: '/users/{id}', summary: 'Get a team member' })
     .input(z.object({ id: Id }))
     .output(User),
   invite: base
@@ -244,7 +246,8 @@ export const usersContract = {
       method: 'POST',
       path: '/users',
       successStatus: 201,
-      summary: 'Invite a team member (owners and admins)',
+      summary: 'Invite a team member',
+      description: 'Invite a team member (owners and admins)',
     })
     .input(InviteEntry)
     .output(User),
@@ -253,7 +256,8 @@ export const usersContract = {
       method: 'POST',
       path: '/users/invitations',
       successStatus: 201,
-      summary: 'Invite several team members at once, all or none (owners and admins)',
+      summary: 'Invite team members',
+      description: 'Invite several team members at once, all or none (owners and admins)',
     })
     .input(z.object({ entries: z.array(InviteEntry).min(1).max(50) }))
     .output(z.object({ data: z.array(User).max(50) })),
@@ -262,7 +266,8 @@ export const usersContract = {
       method: 'POST',
       path: '/users/without-sign-in',
       successStatus: 201,
-      summary:
+      summary: 'Add a member who doesn’t sign in',
+      description:
         'Add someone to the team who doesn’t sign in (no seat): a worker who uses a plugin’s own app, such as HR’s. Members with team.invite; plugins with users:write. 409 TAKEN when the email is a member’s',
     })
     .input(NewMember)
@@ -271,7 +276,8 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/sign-in',
-      summary:
+      summary: 'Let a member sign in',
+      description:
         'Let a member who doesn’t sign in join: they are invited at their email (or the one given). 400 EMAIL_REQUIRED without one',
     })
     .input(z.object({ id: Id, email: Email.optional() }))
@@ -280,7 +286,8 @@ export const usersContract = {
     .route({
       method: 'DELETE',
       path: '/users/{id}/sign-in',
-      summary:
+      summary: 'Stop a member signing in',
+      description:
         'Keep a member on the team without sign-in: their sessions, password and API keys stop working, and they no longer take a seat. 409 OWNER_SIGNS_IN for an owner',
     })
     .input(z.object({ id: Id }))
@@ -289,7 +296,8 @@ export const usersContract = {
     .route({
       method: 'PATCH',
       path: '/users/{id}',
-      summary:
+      summary: 'Change a team member',
+      description:
         'Update a team member (self: own profile; owners/admins: anyone’s profile and role; only owners change an owner’s email). Plugins with users:write change the profile of members who don’t sign in',
     })
     .input(UserFields.extend({ id: Id }).refine(changes, 'nothing to update'))
@@ -298,7 +306,8 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/password',
-      summary:
+      summary: 'Set a member’s password',
+      description:
         'Set another member’s password (owners and admins; an invited member becomes active)',
     })
     .input(z.object({ id: Id, password: NewPassword }))
@@ -307,12 +316,18 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/disable',
-      summary: 'Plugins with users:write disable and enable members who don’t sign in',
+      summary: 'Disable a member',
+      description: 'Plugins with users:write disable and enable members who don’t sign in',
     })
     .input(z.object({ id: Id }))
     .output(User),
   enable: base
-    .route({ method: 'POST', path: '/users/{id}/enable' })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/enable',
+      summary: 'Enable a member',
+      description: 'Plugins with users:write disable and enable members who don’t sign in',
+    })
     .input(z.object({ id: Id }))
     .output(User),
 };

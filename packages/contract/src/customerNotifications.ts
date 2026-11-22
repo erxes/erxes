@@ -106,7 +106,8 @@ export const customerNotificationsContract = {
       method: 'POST',
       path: '/customer-notifications',
       successStatus: 201,
-      summary:
+      summary: 'Notify customers',
+      description:
         'Notify customers (plugins only), in their inbox and, with `channels`, by email or SMS. 400 INVALID_RECIPIENT for unknown customers',
     })
     .input(CustomerNotificationInput)
@@ -115,7 +116,8 @@ export const customerNotificationsContract = {
     .route({
       method: 'GET',
       path: '/customer/notifications',
-      summary: "The signed-in customer's notifications, newest first",
+      summary: 'List customer notifications',
+      description: "The signed-in customer's notifications, newest first",
     })
     .input(
       CursorQuery.extend({
@@ -128,7 +130,8 @@ export const customerNotificationsContract = {
     .route({
       method: 'GET',
       path: '/customer/notifications/unread-count',
-      summary: "The signed-in customer's unread notifications; `source` for one plugin's",
+      summary: 'Count unread customer notifications',
+      description: "The signed-in customer's unread notifications; `source` for one plugin's",
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
     .output(z.object({ count: z.int() })),
@@ -136,7 +139,9 @@ export const customerNotificationsContract = {
     .route({
       method: 'POST',
       path: '/customer/notifications/read',
-      summary: 'Mark some (`ids`) or all of my notifications read, or unread with `read: false`',
+      summary: 'Mark customer notifications read',
+      description:
+        'Mark some (`ids`) or all of my notifications read, or unread with `read: false`',
     })
     .input(
       z.object({

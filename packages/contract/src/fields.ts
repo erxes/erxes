@@ -108,7 +108,8 @@ export const fieldsContract = {
     .route({
       method: 'GET',
       path: '/fields',
-      summary:
+      summary: 'List custom fields',
+      description:
         "Custom fields of a record type, in order. Archived ones (or those of an archived group) only with `archived=true`. Plugins read product fields (`products:read`) and their own record types'",
     })
     .input(
@@ -123,7 +124,8 @@ export const fieldsContract = {
     .route({
       method: 'GET',
       path: '/fields/usage',
-      summary:
+      summary: 'Count records using fields',
+      description:
         'How many records hold values of the given fields (or of a group’s fields). A plugin keeps its record types’ values, so their fields count none',
     })
     .input(
@@ -140,7 +142,8 @@ export const fieldsContract = {
       method: 'POST',
       path: '/fields',
       successStatus: 201,
-      summary:
+      summary: 'Add a custom field',
+      description:
         'Add a custom field (owners and admins). 409 TAKEN for a taken label or code; 400 PLUGIN_NOT_INSTALLED for a `<plugin>.<type>` whose plugin this organisation has not installed',
     })
     .input(
@@ -153,7 +156,8 @@ export const fieldsContract = {
     .route({
       method: 'PATCH',
       path: '/fields/{id}',
-      summary:
+      summary: 'Change a custom field',
+      description:
         "Change a field. The type changes only within types sharing a stored value while records hold values (409 FIELD_IN_USE). A plugin's field takes only `isVisible` (403 PLUGIN_FIELD)",
     })
     .input(
@@ -166,7 +170,8 @@ export const fieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/order',
-      summary: 'Set the order of fields (owners and admins)',
+      summary: 'Reorder custom fields',
+      description: 'Set the order of fields (owners and admins)',
     })
     .input(Orders)
     .output(Ok),
@@ -174,7 +179,8 @@ export const fieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/archive',
-      summary:
+      summary: 'Archive custom fields',
+      description:
         "Archive fields: hidden everywhere, values kept (owners and admins). 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
@@ -183,7 +189,8 @@ export const fieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/{id}/restore',
-      summary:
+      summary: 'Restore a custom field',
+      description:
         "Restore an archived field (owners and admins). 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ id: Id }))
@@ -192,7 +199,8 @@ export const fieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/remove',
-      summary:
+      summary: 'Delete unused custom fields',
+      description:
         "Delete fields no record holds a value of (owners and admins). 409 FIELD_IN_USE otherwise, 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
@@ -201,7 +209,8 @@ export const fieldsContract = {
     .route({
       method: 'DELETE',
       path: '/fields/{id}',
-      summary:
+      summary: 'Delete a custom field',
+      description:
         "Delete a custom field and its values (owners and admins); on a plugin's record type only the definition, as the plugin keeps the values. 403 PLUGIN_FIELD for a plugin's field",
     })
     .input(z.object({ id: Id }))

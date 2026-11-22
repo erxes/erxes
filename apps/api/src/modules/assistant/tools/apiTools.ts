@@ -61,7 +61,7 @@ const stemmed = (text: string) => tokensOf(text).join(' ');
 const scoreOf = (procedure: ApiProcedure, tokens: string[]) => {
   const name = stemmed(procedure.name);
   const path = stemmed(procedure.path);
-  const summary = stemmed(procedure.summary);
+  const summary = stemmed(`${procedure.summary} ${procedure.description}`);
 
   return tokens.reduce((score, token) => {
     const inName = name.includes(token) ? 3 : 0;
@@ -97,6 +97,7 @@ export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_
       method: procedure.method,
       path: procedure.path,
       summary: procedure.summary,
+      description: procedure.description,
       input: procedure.input,
     }));
 
@@ -164,7 +165,7 @@ export const apiTools = (scope: ToolScope) => [
   agentTool({
     name: 'searchApi',
     description:
-      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary and input JSON schema.',
+      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary, description (its rules and errors) and input JSON schema.',
     input: z.object({
       query: z.string().trim().min(1).max(200),
       limit: z.int().min(1).max(SEARCH_MAX).optional(),
