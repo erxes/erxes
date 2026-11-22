@@ -272,8 +272,8 @@ export const BROADCAST_RECIPIENT_STATUSES = [
 /** Why an address gets no more broadcasts. */
 export const SUPPRESSION_REASONS = ['unsubscribed', 'bounced', 'complained', 'manual'] as const;
 
-/** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
-export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
+/** What a code is for: making an account, signing in to one, or adding a login to a signed-in one. */
+export const CUSTOMER_CODE_PURPOSES = ['sign_up', 'sign_in', 'add_login'] as const;
 
 /** A customer's account on a website: signs in, or is kept out by staff (`blocked`). */
 export const CUSTOMER_ACCOUNT_STATUSES = ['active', 'blocked'] as const;

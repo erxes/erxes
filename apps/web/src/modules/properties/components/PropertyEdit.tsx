@@ -68,6 +68,7 @@ export const PropertyEdit = ({ contentType }: { contentType: PropertyContentType
         isVisible: field.isVisible,
         isRequired: field.isRequired,
         isVisibleToCreate: field.isVisibleToCreate,
+        customerEditable: field.customerEditable,
         logic: field.logic ?? { action: 'show', rules: [] },
         options: field.options.map((value) => ({ value })),
       }}

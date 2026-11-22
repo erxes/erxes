@@ -45,6 +45,7 @@ export const propertySchema = z
     isVisible: z.boolean().default(true),
     isRequired: z.boolean().default(false),
     isVisibleToCreate: z.boolean().default(true),
+    customerEditable: z.boolean().default(false),
     // Edited as a list that may be empty; a property without rules saves no logic. The form
     // starts with both keys: its rules list fills in `logic` as `{ rules }`, so a schema default
     // would never apply and the missing action would block the save.
@@ -99,5 +100,6 @@ export const fieldInputOf = (data: IPropertyValues) => ({
   isVisible: data.isVisible,
   isRequired: data.isRequired,
   isVisibleToCreate: data.isVisibleToCreate,
+  customerEditable: data.customerEditable,
   logic: data.logic.rules.length ? data.logic : null,
 });

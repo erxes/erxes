@@ -799,6 +799,13 @@
       "when": 1795334169120,
       "tag": "0113_customer_websites",
       "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1795339754489,
+      "tag": "0114_customer_sign_up",
+      "breakpoints": true
     }
   ]
 }

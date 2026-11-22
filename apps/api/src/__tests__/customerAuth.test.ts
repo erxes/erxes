@@ -17,14 +17,16 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     const { api } = t.app();
 
     expect(
-      await api.customerAuth.sendCode({
+      await api.customerAuth.signUp({
         website: t.sites.acme,
         kind: 'email',
         value: 'Shopper@Example.com',
+        firstName: 'Bold',
+        lastName: 'Bat',
       }),
     ).toEqual({ expiresInSeconds: 600 });
 
-    const signedIn = await api.customerAuth.signIn({
+    const signedIn = await api.customerAuth.confirmSignUp({
       website: t.sites.acme,
       kind: 'email',
       value: 'shopper@example.com',
@@ -34,7 +36,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(signedIn).toMatchObject({
       created: true,
       expiresIn: 900,
-      customer: { primaryEmail: 'shopper@example.com' },
+      customer: { primaryEmail: 'shopper@example.com', firstName: 'Bold', lastName: 'Bat' },
     });
 
     // Plugins check the token with core's public keys; it names the website.
@@ -177,9 +179,11 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
   });
 
   it('counts wrong codes: five, then even the right one fails', async () => {
-    const { api } = t.app();
+    const { api, join } = t.app();
     const address = { website: t.sites.acme, kind: 'email', value: 'guess@example.com' } as const;
 
+    await join('guess@example.com');
+    await aMinuteLater();
     await api.customerAuth.sendCode(address);
 
     const right = await lastCode('guess@example.com');
@@ -198,14 +202,15 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
   });
 
   it("takes a website's code on that website only", async () => {
-    await t.app().api.customerAuth.sendCode({
+    await t.app().api.customerAuth.signUp({
       website: t.sites.acme,
       kind: 'email',
       value: 'elsewhere@example.com',
+      firstName: 'Elsewhere',
     });
 
     await expect(
-      t.app({ site: 'outlet' }).api.customerAuth.signIn({
+      t.app({ site: 'outlet' }).api.customerAuth.confirmSignUp({
         website: t.sites.outlet,
         kind: 'email',
         value: 'elsewhere@example.com',
@@ -214,13 +219,33 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_CODE' });
   });
 
+  it('signs in accounts only: an address without one gets no code, with the same answer', async () => {
+    const { api, signIn, join } = t.app();
+    const address = { website: t.sites.acme, kind: 'email', value: 'nobody@example.com' } as const;
+
+    expect(await api.customerAuth.sendCode(address)).toEqual({ expiresInSeconds: 600 });
+    await expect(lastCode('nobody@example.com')).rejects.toThrow(/no code was sent/);
+
+    // Signed up, the same address signs in; signing up again signs in too.
+    const joined = await join('nobody@example.com');
+
+    await aMinuteLater();
+    expect((await signIn('nobody@example.com')).customer.id).toBe(joined.customer.id);
+    await aMinuteLater();
+    expect(await join('nobody@example.com')).toMatchObject({
+      created: false,
+      customer: { id: joined.customer.id },
+    });
+  });
+
   it('limits codes per address and requests per network address', async () => {
     const address = { website: t.sites.acme, kind: 'phone', value: '+97699112233' } as const;
     const { api } = t.app();
+    const signUp = { ...address, firstName: 'Limit' };
 
-    await api.customerAuth.sendCode(address);
-    // Right after: wait first. Unknown and known addresses answer alike.
-    await expect(api.customerAuth.sendCode(address)).rejects.toMatchObject({
+    await api.customerAuth.signUp(signUp);
+    // Right after: wait first.
+    await expect(api.customerAuth.signUp(signUp)).rejects.toMatchObject({
       status: 429,
       code: 'TOO_MANY_CODES',
     });
@@ -282,18 +307,9 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
 
     // A mobile app or the website's server sends no origin.
-    const mobile = t.app({ origin: null }).api;
+    const mobile = t.app({ origin: null });
 
-    await mobile.customerAuth.sendCode({ ...send, value: 'mobile@example.com' });
-
-    expect(
-      await mobile.customerAuth.signIn({
-        website: t.sites.acme,
-        kind: 'email',
-        value: 'mobile@example.com',
-        code: await lastCode('mobile@example.com'),
-      }),
-    ).toMatchObject({ created: true });
+    expect(await mobile.join('mobile@example.com')).toMatchObject({ created: true });
   });
 
   it("follows the plugin's websites: changed addresses, removed websites, uninstalls", async () => {
