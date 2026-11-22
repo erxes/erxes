@@ -1,14 +1,7 @@
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import {
-  CONNECTION_CONTENT_TYPE,
-  Input,
-  Label,
-  PanelFormLayout,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { CONNECTION_CONTENT_TYPE, PanelFormLayout, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
@@ -22,6 +15,7 @@ import {
   useConnectionsChanged,
 } from '../integrations/ConnectionFields';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { ConnectionNameInput, useConnectionName } from './ConnectionName';
 import { isOAuthIntegration, SignInForm } from './SignInForm';
 import { useConnectionDraft, useKeyedIntegrations } from './useVault';
 
@@ -72,7 +66,7 @@ const ConnectForm = ({
   const id = useId();
   const { toast } = useToast();
   const brand = useIntegrationText()(integration).name;
-  const [name, setName] = useState(brand);
+  const { name, setName, taken, ready: named } = useConnectionName(integration);
   const [values, setValues] = useState<ConnectionValues>({});
   const connect = useConnect(onConnected);
   const { keys, ready } = connectionKeys(integration, values);
@@ -83,7 +77,9 @@ const ConnectForm = ({
       onSubmit={(event) => {
         event.preventDefault();
 
-        if (ready && name.trim()) {
+        if (taken) return;
+
+        if (ready && named) {
           connect.mutate({ key: integration.key, name: name.trim(), keys });
         } else {
           toast({
@@ -104,14 +100,13 @@ const ConnectForm = ({
             <span className="font-medium">{brand}</span>
           </div>
           <CredentialsHelp integration={integration} />
-          <div className="space-y-1.5">
-            <Label htmlFor={`${id}-name`}>{t('name', 'Name')}</Label>
-            <Input
-              id={`${id}-name`}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </div>
+          <ConnectionNameInput
+            id={`${id}-name`}
+            integration={integration}
+            name={name}
+            taken={taken}
+            onChange={setName}
+          />
           <ConnectionFieldInputs
             integration={integration}
             values={values}

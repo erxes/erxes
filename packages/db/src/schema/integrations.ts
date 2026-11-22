@@ -41,6 +41,11 @@ export const integrationConnections = pgTable(
   },
   (table) => [
     uniqueIndex('core_integration_connections_org_id_id_key').on(table.orgId, table.id),
+    uniqueIndex('core_integration_connections_org_key_name_key').on(
+      table.orgId,
+      table.key,
+      sql`lower(${table.name})`,
+    ),
     check('core_integration_connections_auth_check', inList(table.auth, INTEGRATION_AUTH_KINDS)),
     foreignKey({
       columns: [table.orgId],

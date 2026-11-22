@@ -175,6 +175,37 @@ describe('integrations', { timeout: 120_000 }, () => {
     });
   });
 
+  it('keeps many connections of one integration, each under a name no other of them has', async () => {
+    const owner = t.owner().integrations;
+    const shopA = await owner.connect({ key: 'test', name: 'Shop A', keys: {} });
+    const shopB = await owner.connect({ key: 'test', name: 'Shop B', keys: {} });
+    const taken = { status: 409, code: 'TAKEN', data: { field: 'name' } };
+
+    await expect(owner.connect({ key: 'test', name: 'shop a', keys: {} })).rejects.toMatchObject(
+      taken,
+    );
+    await expect(owner.update({ key: 'test', id: shopB.id, name: 'SHOP A' })).rejects.toMatchObject(
+      taken,
+    );
+    await expect(
+      owner.update({ key: 'test', id: shopA.id, name: 'Shop A' }),
+    ).resolves.toMatchObject({ name: 'Shop A' });
+
+    const elsewhere = await t
+      .other()
+      .integrations.connect({ key: 'test', name: 'Shop A', keys: {} });
+
+    expect(elsewhere.name).toBe('Shop A');
+    await t.other().integrations.remove({ key: 'test', id: elsewhere.id });
+
+    const names = (await owner.connections({ key: 'test' })).data.map((row) => row.name);
+
+    expect(names.filter((name) => name.toLowerCase().startsWith('shop '))).toEqual(
+      expect.arrayContaining(['Shop A', 'Shop B']),
+    );
+    expect(names.filter((name) => name.toLowerCase() === 'shop a')).toHaveLength(1);
+  });
+
   it('refuses a connection under another integration’s key, and an integration that does not exist', async () => {
     const gateway = await t.owner().integrations.connect({ key: 'test', name: 'Spare', keys: {} });
     const owner = t.owner().integrations;

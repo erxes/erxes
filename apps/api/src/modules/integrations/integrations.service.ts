@@ -23,6 +23,7 @@ import {
   sealValues,
 } from './connections';
 import { connectable, manages } from './connectable';
+import { ensureNameFree } from './connectionNames';
 import { fieldsOf } from '@erxes/plugin-sdk/integrations';
 import { type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
@@ -230,6 +231,8 @@ export const connect = async (input: {
   const id = newId();
   const orgId = requestOrgId();
 
+  await withOrg(orgId, (tx) => ensureNameFree(tx, integration, input.name));
+
   const keys = await verified(
     orgId,
     integration,
@@ -249,7 +252,13 @@ export const updateConnection = async (input: {
 }) => {
   const integration = connectable(input.key);
   const orgId = requestOrgId();
-  const before = await withOrg(orgId, (tx) => connectionOf(tx, integration, input.id));
+
+  const before = await withOrg(orgId, async (tx) => {
+    if (input.name !== undefined) await ensureNameFree(tx, integration, input.name, input.id);
+
+    return connectionOf(tx, integration, input.id);
+  });
+
   const kept: Record<string, unknown> = keysOf(integration, before);
 
   const given =
