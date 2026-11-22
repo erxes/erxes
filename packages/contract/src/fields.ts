@@ -39,6 +39,8 @@ export const Field = createSelectSchema(fields, {
     isRequired: true,
     /** Asked for on the form that makes a record. */
     isVisibleToCreate: true,
+    /** Customers fill it in on websites: at sign-up and on their profile (customer fields only). */
+    customerEditable: true,
     /** Shows or hides it by other fields' values (`logicShows`); null: always shown. */
     logic: true,
     order: true,
@@ -94,6 +96,7 @@ const FieldFields = createUpdateSchema(fields, {
   isVisible: true,
   isRequired: true,
   isVisibleToCreate: true,
+  customerEditable: true,
   logic: true,
 });
 

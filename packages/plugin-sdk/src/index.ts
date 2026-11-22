@@ -73,10 +73,11 @@
  * sign-up or sign-in. Each record with a website (a store) saves it in core (scope
  * `websites:write`) and keeps the id: `await core.forOrg(orgId).websites.save({ recordId: store.id,
  * name: store.name, origins: ['https://shop.example.mn'] })` → `{ id, … }`; `websites.remove`
- * when the record goes. The website's own form makes two calls to core:
- * `POST /core/v1/customer-auth/code` `{ website, kind, value }` sends a code,
- * `POST /core/v1/customer-auth/sign-in` with the code returns
- * `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews them.
+ * when the record goes. The website's own forms call core: `POST /core/v1/customer-auth/sign-up`
+ * `{ website, kind, value, firstName, … }` then `/sign-up/confirm` with the emailed code makes the
+ * account; `POST /core/v1/customer-auth/code` `{ website, kind, value }` then `/sign-in` with the
+ * code signs an account in. Both return `{ accessToken, refreshToken, expiresIn, customer }`;
+ * `/customer-auth/refresh` renews them.
  * Serve customers under `/customer/*`, keyed by the customer id and scoped to the website:
  *
  *   app.use('/customer', async (req, res, next) => {

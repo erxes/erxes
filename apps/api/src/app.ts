@@ -33,8 +33,10 @@ import { legacyFilesRouter } from './modules/files/legacyFiles.http';
 
 const REQUEST_ID = /^[\w.:-]{8,100}$/;
 
-/** Where customers ask for and type sign-in codes. */
+/** Where customers ask for and type sign-up and sign-in codes. */
 const CUSTOMER_CODE_PATHS = [
+  '/core/v1/customer-auth/sign-up',
+  '/core/v1/customer-auth/sign-up/confirm',
   '/core/v1/customer-auth/code',
   '/core/v1/customer-auth/sign-in',
   '/core/v1/customer/me/logins',

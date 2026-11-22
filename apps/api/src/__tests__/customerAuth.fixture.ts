@@ -69,7 +69,7 @@ export const useCustomers = () => {
       }),
     );
 
-    /** Signs in to the website with a code sent to the address. */
+    /** Signs in to the website's account of the address, with a code sent to it. */
     const signIn = async (value: string, kind: 'email' | 'phone' = 'email') => {
       await api.customerAuth.sendCode({ website: sites[site], kind, value });
 
@@ -81,12 +81,34 @@ export const useCustomers = () => {
       });
     };
 
-    return { api, signIn };
+    /** Signs up on the website (an address with an account there signs in) and confirms the code. */
+    const join = async (
+      value: string,
+      kind: 'email' | 'phone' = 'email',
+      form: { firstName?: string; customFields?: Record<string, string> } = {},
+    ) => {
+      await api.customerAuth.signUp({
+        website: sites[site],
+        kind,
+        value,
+        firstName: form.firstName ?? 'Test',
+        ...(form.customFields && { customFields: form.customFields }),
+      });
+
+      return api.customerAuth.confirmSignUp({
+        website: sites[site],
+        kind,
+        value,
+        code: await lastCode(value),
+      });
+    };
+
+    return { api, signIn, join };
   };
 
-  /** Signs in to a website; `me` is its `/customer/*` client. */
+  /** Signs up on (or in to) a website; `me` is its `/customer/*` client. */
   const signedIn = async (value: string, site: Site = 'acme') => {
-    const result = await app({ site }).signIn(value);
+    const result = await app({ site }).join(value);
 
     return { ...result, me: app({ site, token: result.accessToken }).api };
   };

@@ -17,12 +17,22 @@ import {
   signOut,
   type SignInRequest,
 } from './customerAuth.service';
+import { confirmSignUp, sendSignUpCode, signUpFields } from './customerSignUp';
 
 const signInRequest = (context: CoreContext): SignInRequest => ({
   origin: httpOf(context).req.get('origin'),
 });
 
 export const customerAuthRouter = {
+  fields: unscoped.customerAuth.fields.handler(({ input, context }) =>
+    signUpFields(input, signInRequest(context)),
+  ),
+  signUp: unscoped.customerAuth.signUp.handler(({ input, context }) =>
+    sendSignUpCode(input, signInRequest(context)),
+  ),
+  confirmSignUp: unscoped.customerAuth.confirmSignUp.handler(({ input, context }) =>
+    confirmSignUp(input, signInRequest(context)),
+  ),
   sendCode: unscoped.customerAuth.sendCode.handler(({ input, context }) =>
     sendSignInCode(input, signInRequest(context)),
   ),

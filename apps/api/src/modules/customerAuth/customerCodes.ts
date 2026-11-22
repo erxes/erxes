@@ -1,6 +1,7 @@
 import type { CUSTOMER_CODE_PURPOSES } from '@erxes/core-db/enums';
 import {
   type CustomerLoginKind,
+  type CustomerSignUpData,
   customerCodes,
   type Db,
   newId,
@@ -81,7 +82,13 @@ export const sendCode = async (
   website: CodeWebsite,
   address: Address,
   purpose: Purpose,
-  options: { accountId?: string; ip?: string | null; deliver?: boolean } = {},
+  options: {
+    accountId?: string;
+    /** `sign_up`: the checked form, saved once the code is confirmed. */
+    signUp?: CustomerSignUpData;
+    ip?: string | null;
+    deliver?: boolean;
+  } = {},
 ) => {
   await assertDeliverable(tx, address);
   await lockAddress(tx, website.id, address);
@@ -127,6 +134,7 @@ export const sendCode = async (
     value: address.value,
     purpose,
     accountId: options.accountId ?? null,
+    signUp: options.signUp ?? null,
     codeHash: hashOf(id, code),
     ip: options.ip ?? null,
     expiresAt: sql`now() + make_interval(mins => ${CODE_MINUTES})`,
@@ -154,9 +162,9 @@ export const sendCode = async (
 };
 
 /**
- * Uses the address's latest code for the website: true once for the right
- * code, within 10 minutes and 5 tries (a wrong try counts, so commit before
- * failing the request). `add_login` codes only work for the account that asked.
+ * Uses the address's latest code for the website: the code's row once for the
+ * right code, within 10 minutes and 5 tries, else null (a wrong try counts, so
+ * commit before failing the request). `add_login` codes only work for the account that asked.
  */
 export const useCode = async (
   tx: Db,
@@ -183,7 +191,7 @@ export const useCode = async (
     .limit(1);
 
   if (!row || row.attempts >= MAX_TRIES || (row.accountId ?? undefined) !== accountId) {
-    return false;
+    return null;
   }
 
   if (!safeEqual(row.codeHash, hashOf(row.id, code))) {
@@ -192,7 +200,7 @@ export const useCode = async (
       .set({ attempts: sql`${customerCodes.attempts} + 1` })
       .where(eq(customerCodes.id, row.id));
 
-    return false;
+    return null;
   }
 
   await tx
@@ -200,7 +208,7 @@ export const useCode = async (
     .set({ usedAt: sql`now()` })
     .where(eq(customerCodes.id, row.id));
 
-  return true;
+  return row;
 };
 
 export const invalidCode = () =>

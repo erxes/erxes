@@ -125,6 +125,7 @@ export type {
   ContentType,
   CustomerAccountStatus,
   CustomerLoginKind,
+  CustomerSignUpData,
   FieldContentType,
   PluginListType,
   PluginRecordType,

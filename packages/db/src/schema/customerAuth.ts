@@ -4,12 +4,13 @@ import {
   foreignKey,
   index,
   integer,
+  jsonb,
   text,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
-import { createdAt } from './common';
+import { createdAt, type CustomValue } from './common';
 import { customers } from './customers';
 import { organizations } from './organizations';
 import { websites } from './websites';
@@ -19,6 +20,16 @@ const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 export type CustomerLoginKind = (typeof CUSTOMER_LOGIN_KINDS)[number];
 
 export type CustomerAccountStatus = (typeof CUSTOMER_ACCOUNT_STATUSES)[number];
+
+/** A sign-up form, checked when sent: the customer's name and the fields customers may fill. */
+export interface CustomerSignUpData {
+  firstName: string;
+  lastName?: string | null;
+  /** `YYYY-MM-DD` */
+  birthDate?: string | null;
+  /** By field id, as `customers.update` takes them. */
+  customFields?: Record<string, CustomValue>;
+}
 
 /**
  * A customer's sign-up on one website (decision 42). The same person on two
@@ -119,6 +130,8 @@ export const customerCodes = pgTable(
     purpose: text({ enum: CUSTOMER_CODE_PURPOSES }).notNull(),
     /** `add_login`: the signed-in account the address will belong to. */
     accountId: text(),
+    /** `sign_up`: what the sign-up form sent, saved on the customer once the code is confirmed. */
+    signUp: jsonb().$type<CustomerSignUpData>(),
     codeHash: text().notNull(),
     attempts: integer().default(0).notNull(),
     ip: text(),

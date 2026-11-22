@@ -62,8 +62,8 @@ describe('customer notifications', { timeout: 300_000 }, () => {
   });
 
   it('texts customers who signed in with a phone', async () => {
-    const { signIn } = t.app();
-    const signedIn = await signIn('+97699112233', 'phone');
+    const { join } = t.app();
+    const signedIn = await join('+97699112233', 'phone');
 
     await t.hr().customerNotifications.create({
       customerIds: [signedIn.customer.id],

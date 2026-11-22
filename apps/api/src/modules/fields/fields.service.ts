@@ -137,6 +137,17 @@ const checkLogic = async (
   }
 };
 
+/** Customers fill in customer fields only: anything else they can't reach. */
+const customersFill = (contentType: PropertyContentType, customerEditable = false) => {
+  if (customerEditable && contentType !== 'customer') {
+    throw fail('INVALID_INPUT', 'Only customer fields can be filled in by customers', {
+      issues: [{ path: ['customerEditable'], message: 'Customer fields only' }],
+    });
+  }
+
+  return customerEditable;
+};
+
 export const createField = async (
   client: Db,
   input: {
@@ -152,6 +163,7 @@ export const createField = async (
     isVisible?: boolean;
     isRequired?: boolean;
     isVisibleToCreate?: boolean;
+    customerEditable?: boolean;
     logic?: FieldLogic | null;
   },
 ) => {
@@ -178,6 +190,7 @@ export const createField = async (
         isVisible: input.isVisible ?? true,
         isRequired: input.isRequired ?? false,
         isVisibleToCreate: input.isVisibleToCreate ?? true,
+        customerEditable: customersFill(input.contentType, input.customerEditable),
         logic: input.logic ?? null,
         order,
       })
@@ -200,6 +213,7 @@ interface FieldChanges {
   isVisible?: boolean;
   isRequired?: boolean;
   isVisibleToCreate?: boolean;
+  customerEditable?: boolean;
   logic?: FieldLogic | null;
 }
 
@@ -240,6 +254,8 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
 
   const typed = await typeChange(client, field, input);
   const { code, description, icon, ...rest } = input;
+
+  customersFill(field.contentType, input.customerEditable);
 
   if (input.groupId !== undefined && input.groupId !== field.groupId) {
     await checkGroup(client, field.contentType, input.groupId);
