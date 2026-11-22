@@ -70,7 +70,7 @@
   "on-day": "on day",
   "at": "at",
   "org-zone": "{{zone}}, the organisation’s time zone",
-  "every-hour-hint": "At the minute of the time below.",
+  "every-hour-hint": "Only the minutes count: 09:30 runs at half past.",
   "for-each-record": "Run for each matching record",
   "customers": "Customers",
   "companies": "Companies",

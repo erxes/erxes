@@ -5,7 +5,7 @@ import { findAutomation } from './automations.service';
 import { type ConditionChecker, conditionChecker, type SubjectRef } from './conditionCheck';
 import { type Cursor, enterArm, nextCursor, splitPath, stepAt } from './cursor';
 import { automationCatalog } from './automationCatalog';
-import { findHookSubject, HookRequest, hookEvent } from './hooks';
+import { findHookSubject, HookRequest, hookEvent, noHookSubject } from './hooks';
 import { armConditions } from './steps';
 import { subjectOf } from './subjects';
 import { render } from './templates';
@@ -212,10 +212,15 @@ const testSubject = async (
 ) => {
   const { subjectType = null, subjectId = null } = input;
 
-  if (!subjectId)
-    return trigger.kind === 'webhook' && trigger.subject
-      ? findHookSubject(client, trigger.subject, { event })
-      : null;
+  if (!subjectId) {
+    if (trigger.kind !== 'webhook' || !trigger.subject) return null;
+
+    const found = await findHookSubject(client, trigger.subject, { event });
+
+    if (!found) throw noHookSubject();
+
+    return found;
+  }
 
   const subject = await subjectOf(client, subjectType, subjectId);
 

@@ -193,7 +193,11 @@ export const ScheduleTriggerSettings = (props: Props) => {
       {every !== 'minute' && (
         <Field
           label={hourly ? t('minute', 'At minute') : t('time', 'Time')}
-          hint={hourly ? t('every-hour-hint', 'At the minute of the time below.') : undefined}
+          hint={
+            hourly
+              ? t('every-hour-hint', 'Only the minutes count: 09:30 runs at half past.')
+              : undefined
+          }
         >
           <TimeOfDay
             at={trigger.at}

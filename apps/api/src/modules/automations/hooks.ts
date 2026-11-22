@@ -2,6 +2,7 @@ import type { AutomationDefinition, AutomationFieldPath, HookSubject } from '@er
 import { automations, companies, customers, type Db } from '@erxes/core-db';
 import { eq, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { fail } from '~/http/errors';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { coreKey } from '~/lib/coreKey';
 import { hmacSha256 } from '~/lib/crypto';
@@ -85,6 +86,9 @@ export const findHookSubject = async (
 
   return found ?? null;
 };
+
+export const noHookSubject = () =>
+  fail('SUBJECT_NOT_FOUND', 'No customer or company matches this request');
 
 export const replySteps = (definition: AutomationDefinition) => {
   const ids: string[] = [];

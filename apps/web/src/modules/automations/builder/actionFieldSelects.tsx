@@ -147,12 +147,14 @@ export const AutomationSelect = ({ value, onChange, disabled }: ActionInputProps
               value={automation.id}
               disabled={automation.status !== 'active'}
             >
-              <span className="truncate">{automation.name}</span>
-              {automation.status !== 'active' && (
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {t(`automation-status.${automation.status}`, automation.status)}
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                <span className="truncate">{automation.name}</span>
+                {automation.status !== 'active' && (
+                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                    {t(`automation-status.${automation.status}`, automation.status)}
+                  </span>
+                )}
+              </span>
             </Select.Item>
           ))}
         </Select.Content>

@@ -1,6 +1,7 @@
 import type { AutomationFieldPath } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { orpc } from '@erxes/core-contract/client';
+import { liveOptions } from '~/lib/live';
 
 /**
  * A field conditions and placeholders can use: the record's or the event's (from the API), an
@@ -21,6 +22,7 @@ export const useAutomationFields = (
     orpc.automations.fields.queryOptions({
       input: { ...(subject ? { subject } : {}), ...(automation ? { automation } : {}) },
       staleTime: 60_000,
+      ...(automation ? liveOptions([`automations.runs:${automation}`], false) : {}),
     }),
   );
 

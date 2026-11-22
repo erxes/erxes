@@ -16,7 +16,7 @@ import { safeEqual } from '~/lib/crypto';
 import { repeatWhile } from '~/lib/sequence';
 import { type LiveSignal, liveHub } from '~/modules/live/hub';
 import { Reply } from './actions/reply';
-import { HookRequest, hookSignature, replySteps, startHookRun } from './hooks';
+import { HookRequest, hookSignature, noHookSubject, replySteps, startHookRun } from './hooks';
 import { definitionOf } from './runs';
 
 const MAX_BYTES = '1mb';
@@ -214,8 +214,7 @@ const receive: RequestHandler = async (req, res) => {
   const eventId = `webhook:${key.success ? key.data : newId()}`;
   const { outcome, replies } = await start(hook, requestOf(req), eventId);
 
-  if (outcome.kind === 'no-subject')
-    throw fail('SUBJECT_NOT_FOUND', 'No customer or company matches this request');
+  if (outcome.kind === 'no-subject') throw noHookSubject();
 
   res.set(SANDBOXED_ANSWER);
 
