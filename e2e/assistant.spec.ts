@@ -14,7 +14,7 @@ test('an admin connects an AI provider in Integrations, asks for a change and se
 
   await page.goto('/settings/integrations?tab=browse&category=ai');
   await page.getByRole('link', { name: /Kimi Moonshot API/ }).click();
-  await page.getByRole('button', { name: 'Connect', exact: true }).click();
+  await page.getByRole('button', { name: 'Add another', exact: true }).click();
   await page.getByLabel('Name').fill(connection);
   await page.getByLabel('API key').fill(MODEL_KEY);
   await page.getByRole('button', { name: 'Connect Kimi Moonshot API' }).click();
