@@ -283,5 +283,6 @@ export type DryRunStep = z.infer<typeof DryRunStep>;
 export const DryRun = z.object({
   triggerMatches: z.boolean(),
   goalMetAtStart: z.boolean(),
+  problems: z.array(z.string()),
   trace: z.array(DryRunStep),
 });

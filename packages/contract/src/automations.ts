@@ -30,40 +30,23 @@ const Fields = createUpdateSchema(automations, {
  * actions from core and plugins, delays and branches — for its customer or
  * company. Every run and step is logged.
  */
-const {
-  CROSS_SITE,
-  INVALID_AUTOMATION,
-  INVALID_FILE,
-  INVALID_LEAD_STAGE,
-  INVALID_RECIPIENT,
-  INVALID_STEP_INPUT,
-  INVALID_URL,
-  LIMIT_EXCEEDED,
-  NOT_ACTIVE,
-  NOT_AUTHOR,
-  NOT_FAILED,
-  NOT_RUNNING,
-  NO_MEMBERS,
-  NO_SUBJECT,
-} = ERRORS;
-
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  CROSS_SITE,
-  INVALID_AUTOMATION,
-  INVALID_FILE,
-  INVALID_LEAD_STAGE,
-  INVALID_RECIPIENT,
-  INVALID_STEP_INPUT,
-  INVALID_URL,
-  LIMIT_EXCEEDED,
-  NOT_ACTIVE,
-  NOT_AUTHOR,
-  NOT_FAILED,
-  NOT_RUNNING,
-  NO_MEMBERS,
-  NO_SUBJECT,
+  CROSS_SITE: ERRORS.CROSS_SITE,
+  INVALID_AUTOMATION: ERRORS.INVALID_AUTOMATION,
+  INVALID_FILE: ERRORS.INVALID_FILE,
+  INVALID_LEAD_STAGE: ERRORS.INVALID_LEAD_STAGE,
+  INVALID_RECIPIENT: ERRORS.INVALID_RECIPIENT,
+  INVALID_STEP_INPUT: ERRORS.INVALID_STEP_INPUT,
+  INVALID_URL: ERRORS.INVALID_URL,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOT_ACTIVE: ERRORS.NOT_ACTIVE,
+  NOT_AUTHOR: ERRORS.NOT_AUTHOR,
+  NOT_FAILED: ERRORS.NOT_FAILED,
+  NOT_RUNNING: ERRORS.NOT_RUNNING,
+  NO_MEMBERS: ERRORS.NO_MEMBERS,
+  NO_SUBJECT: ERRORS.NO_SUBJECT,
 });
 
 export const automationsContract = {
@@ -170,12 +153,13 @@ export const automationsContract = {
       path: '/automations/{id}/test',
       summary: 'Test an automation',
       description:
-        'Dry run of the working copy: what each step would do for a record (nothing is changed)',
+        'Dry run of the working copy (or a draft definition): what each step would do for a record (nothing is changed)',
     })
     .input(
       z
         .object({
           id: Id,
+          definition: AutomationDefinition.optional(),
           /** The record to run for: send both, or neither for a run without one. */
           subjectType: z.enum(CONTENT_TYPES).optional(),
           subjectId: Id.optional(),
