@@ -10,7 +10,7 @@ import { TRANSFER_RECORD_TYPES } from '@erxes/core-db/enums';
 import { eq } from 'drizzle-orm';
 import type { z } from 'zod';
 import { callerCan } from '~/http/access';
-import { fail, notFound } from '~/http/errors';
+import { notAllowed, notFound } from '~/http/errors';
 import { deliverToPlugin, installedWhere } from '~/modules/plugins/pluginDelivery';
 
 const CORE_TRANSFER_TYP = 'erxes-core-transfer+jwt';
@@ -85,9 +85,6 @@ type Type = Awaited<ReturnType<typeof allTypes>>[number];
 
 const allows = (type: Type, direction: Direction) =>
   direction === 'import' ? type.canImport : type.canExport;
-
-const notAllowed = (permission: string) =>
-  fail('NOT_ALLOWED', "Your role doesn't allow this", { permission });
 
 const typeOf = async (client: Db, recordType: TransferRecordType) => {
   const type = (await allTypes(client)).find((item) => item.recordType === recordType);
