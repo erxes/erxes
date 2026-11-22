@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { ACCOUNT_STATUSES } from '../../@types/constants';
 import { ICtaxRowDocument, ICtaxRow } from '../../@types/ctaxRow';
+import { cleanTaxRowReportFields } from '../../utils/taxReports/rowValidation';
 import { ctaxRowSchema } from '../definitions/ctaxRow';
 
 export interface ICtaxRowModel extends Model<ICtaxRowDocument> {
@@ -36,7 +37,10 @@ export const loadCtaxRowClass = (models: IModels, subdomain: string) => {
      * Create a accounting
      */
     public static async createCtaxRow(doc: ICtaxRow) {
-      return models.CtaxRows.create({ ...doc, createdAt: new Date() });
+      return models.CtaxRows.create({
+        ...cleanTaxRowReportFields(doc),
+        createdAt: new Date(),
+      });
     }
 
     /**
@@ -45,7 +49,10 @@ export const loadCtaxRowClass = (models: IModels, subdomain: string) => {
     public static async updateCtaxRow(_id: string, doc: ICtaxRow) {
       await models.CtaxRows.getCtaxRow({ _id });
 
-      await models.CtaxRows.updateOne({ _id }, { $set: doc });
+      await models.CtaxRows.updateOne(
+        { _id },
+        { $set: cleanTaxRowReportFields(doc) },
+      );
 
       return await models.CtaxRows.findOne({ _id }).lean();
     }

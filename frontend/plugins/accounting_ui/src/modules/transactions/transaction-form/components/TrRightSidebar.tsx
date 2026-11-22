@@ -4,6 +4,7 @@ import { useQuery } from '@apollo/client';
 import { IconActivity, IconExternalLink } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { TR_STATUS_LABELS } from '@/transactions/types/constants';
+import { isAddressedTrStatus } from '../utils/statusWorkflow';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
 import {
   ISettingsPanelViewProps,
@@ -121,6 +122,29 @@ const TrMentionActivityRow = ({ activity }: { activity: TActivityLog }) => {
   );
 };
 
+const TrDecisionActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('accounting');
+  const prev = activity.changes?.prev || {};
+  const current = activity.changes?.current || {};
+  const approved = activity.activityType === 'transaction.approved';
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">
+        {t(approved ? 'approved-the-request' : 'declined-the-request')}
+      </span>
+      {prev.status !== current.status && (
+        <>
+          <StatusBadge status={prev.status} />
+          <span className="text-muted-foreground">-&gt;</span>
+          <StatusBadge status={current.status} />
+        </>
+      )}
+    </Sentence>
+  );
+};
+
 const transactionCustomActivities: ActivityLogCustomActivity[] = [
   {
     type: 'transaction.created',
@@ -133,6 +157,14 @@ const transactionCustomActivities: ActivityLogCustomActivity[] = [
   {
     type: 'transaction.mention_changed',
     render: (activity) => <TrMentionActivityRow activity={activity} />,
+  },
+  {
+    type: 'transaction.approved',
+    render: (activity) => <TrDecisionActivityRow activity={activity} />,
+  },
+  {
+    type: 'transaction.declined',
+    render: (activity) => <TrDecisionActivityRow activity={activity} />,
   },
 ];
 
@@ -227,6 +259,13 @@ const TransactionPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
               <StatusBadge status={transaction.status ?? undefined} />
             </PanelValue>
           </PanelField>
+          {isAddressedTrStatus(transaction.status) && (
+            <PanelField label={t('approver')}>
+              <PanelValue>
+                <MentionMembers memberIds={transaction.mentionUserIds} />
+              </PanelValue>
+            </PanelField>
+          )}
           <PanelField label={t('description')}>
             <PanelValue>{transaction.description}</PanelValue>
           </PanelField>

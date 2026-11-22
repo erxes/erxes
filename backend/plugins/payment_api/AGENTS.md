@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-18`
 ## Scope
 
 ### Owns
@@ -61,6 +61,29 @@
 - The widget renders Pocket payments with a dedicated `PocketForm`. On phones
   it opens the Pocket app automatically through the `deeplink` returned by
   Pocket's `createInvoice`; desktops and tablets get the QR only.
+- Toki is one payment method with two flows (`apis/toki/api.ts`):
+  - Mini program: the shop page runs inside the Toki app and calls Toki's
+    `buy()` bridge (`JSReceiver.buyfromShoppy` / `webkit.messageHandlers.buyfromShoppy`)
+    with the `miniProgram` data `createInvoice` returns. Toki POSTs
+    `{ orderID, transRequestId, token, amount, ... }` to `/pl:payment/callback/toki`,
+    and erxes confirms it with `<apps host>/jump/v1/shoppy/transaction-status`
+    using the customer's `token` plus the fixed `im_api_key: shoppy123`. Needs
+    only the merchant ID; `tokiEnvironment: 'staging'` switches to Toki's
+    staging host and test merchant.
+  - Merchant QR: only when both QR username and password are set. Logs in to
+    `ms-api.toki.mn/third-party-service` (GET `auth/token`, Basic auth) and
+    creates the QR with `payment-request/merchant-qr`. A QR failure is returned
+    as `qrError` next to the still-valid `miniProgram` data.
+  The widget's `TokiForm` uses the bridge when the Toki app injected it,
+  otherwise shows the QR, otherwise tells the customer to open the shop in Toki.
+
+- Settles Khanbank (Corporate Gateway) invoices from the account statement:
+  the customer transfers by hand, and `apis/khanbank/api.ts` `checkInvoice`
+  looks for the transfer with `StatementsApi.findTransactions`
+  (`modules/corporateGateway/khanbank/khanbank/api/statements.ts`). It reads
+  every statement page from the transaction's creation day (Ulaanbaatar time)
+  to today and matches on the amount plus the words of the invoice
+  description, compared lowercased with punctuation removed.
 
 ## Architecture
 
@@ -76,6 +99,8 @@
 | Invoice re-check | `src/workers/invoiceRecheck.ts`                       | Per-invoice delayed provider re-checks and paid-notification retries |
 | Permissions      | `src/meta/permissions.ts`                             | `invoice` permission module, actions, and default permission groups  |
 | Widget Pocket UI | `src/widget/src/components/payments/PocketForm.tsx`   | Pocket QR; phone-only deeplink auto-open with fallback buttons       |
+| Widget Toki UI   | `src/widget/src/components/payments/TokiForm.tsx`     | Toki app `buy()` bridge inside Toki, QR elsewhere, retry on failure  |
+| Paid hand-off    | `src/utils/transactionCallback.ts`                    | Once-per-transaction claim for `transactionCallback`                 |
 
 ## Contracts
 
@@ -141,6 +166,57 @@
   once, and shows "Pocket апп-аар төлөх" / "QR кодоор төлөх" as a fallback.
   iPads, Android tablets, desktops, and responses without a deeplink show the
   QR only, so POS tablets never try to launch the app.
+- Khanbank description matching is by whole words, never by prefix or
+  substring: the description that reaches the statement can lose characters
+  such as "—", and a substring match would let `Installment 1` settle
+  `Installment 10`. The sender suffix the bank appends (`<BANK>ААС: <6-digit
+  bank code> <sender>`) is cut off first, and the invoice words must appear
+  in it in order without gaps, so sender details can never supply a missing
+  invoice word.
+- One Khanbank statement line settles one transaction. A line is skipped when
+  it is older than the transaction (5 minutes of slack), has no readable
+  date/time, or is already saved on another transaction of any Khanbank
+  payment method on the same account (`response.matched.record`, or the
+  legacy `response.record`). A line is then claimed atomically in Redis
+  (`payment:khanbank:statement:<account>:<record>`, `SET NX`) before the
+  check returns `paid`, so concurrent checks cannot both use it. The match is
+  saved on the transaction as `response.matched`.
+- The Khanbank access token is cached for its lifetime minus 60 seconds and
+  not cached at all when that is not positive; token errors surface the
+  bank's `code`/`message`.
+- `transactionCallback` goes to the owning plugin at most once per
+  transaction, only through `sendTransactionCallbackOnce`
+  (`utils/transactionCallback.ts`), called after the plugin is resolved and
+  `isEnabled`. It takes a 60-second lease (`payment:transactionCallback:<id>`,
+  `SET NX`), queues the job with `sendWorkerQueue(...).add` (not
+  `sendWorkerMessage`, whose timeout can fire after the job was accepted),
+  then marks the key `done` for 30 days. If `add` fails it deletes only its
+  own lease; a crashed request's lease simply expires. Both the callback
+  route and the Golomt notification use it, because providers retry.
+- A Toki mini-program payment is paid only after Toki's `transaction-status`
+  says `COMPLETED`. The callback `amount` is required and must equal the
+  transaction amount, and any order, amount or merchant in Toki's reply must
+  match. Toki's documented reply carries only `status`, so it cannot prove
+  which order a payment was for; the binding below is what stops reuse.
+- One Toki `transRequestId` settles one transaction. `settleMiniProgramPayment`
+  is the only place it happens: after Toki confirms and before the
+  transaction is marked paid, it claims `toki_mp_claim_<transRequestId>`
+  (`SET NX`, 365 days), rejects ids already saved on another transaction, and
+  saves `response.tokiTransRequestId`. The callback and status polling both
+  go through it; a rejected or still-pending payment claims nothing.
+- The Toki customer token stays in Redis (`toki_mp_<transactionId>`, 7 days),
+  never in `transaction.response`, which GraphQL can read. An unverified
+  callback never overwrites a stored one.
+- Toki mini-program callbacks are server-to-server: reply
+  `{ status: 'success' }`, never redirect. Toki QR redirects whose payment is
+  cancelled, failed or expired record that status on a pending transaction
+  (never on a paid one) and land on the widget's payment-failed page.
+- A transaction whose `response` has `error` or `qrError` is never reused:
+  `findReusableTransaction` excludes it and the widget requests a new one.
+- Toki's gateway rejects request bodies containing `localhost` URLs with an
+  HTML 403, so Toki QR cannot be created from a local backend; production
+  callback URLs are unaffected.
+
 ## Validation
 
 - `pnpm nx run payment_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
@@ -157,3 +233,12 @@
   to the browser shows the fallback buttons. On desktop, an iPad, and an
   Android tablet, confirm only the QR is shown and no deeplink launch is
   attempted.
+- Smoke (Toki): open the shop inside the Toki app (staging), pay 5₮, and
+  confirm the transaction turns `paid` and saves `response.tokiTransRequestId`.
+  Replaying that callback with another pending transaction's `orderID` must
+  fail with "already used for another order". In a normal browser the Toki
+  option must show the "open in the Toki app" message, not a QR.
+- Smoke (Khanbank): create two invoices with the same amount and a
+  description like `TEST — Deposit`, transfer that amount once with the
+  description typed as `test deposit`, then run `invoicesCheck` on both:
+  exactly one is `paid`, the other stays `pending`.

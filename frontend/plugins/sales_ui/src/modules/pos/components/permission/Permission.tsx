@@ -1,10 +1,12 @@
-import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
-import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
+import { PosSaveAction } from '@/pos/components/pos-edit/PosSaveAction';
+import { RolePermissions } from '@/pos/components/permission/RolePermissions';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { Form, isDefined, toast } from 'erxes-ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +55,7 @@ const Permission: React.FC<PermissionProps> = ({
   onSaveActionChange,
 }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PermissionFormData>({
@@ -148,16 +151,11 @@ const Permission: React.FC<PermissionProps> = ({
     }
 
     onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={PERMISSION_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
+      <PosSaveAction
+        isDirty={isDirty}
+        saving={saving}
+        form={PERMISSION_FORM_ID}
+      />,
     );
 
     return () => onSaveActionChange(null);
@@ -191,29 +189,26 @@ const Permission: React.FC<PermissionProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          <section className="space-y-4">
-            <Label>{t('admins')}</Label>
+          <PosSettingsSection
+            title={t('admins')}
+            description={labels.adminsDescription}
+          >
+            <RolePermissions control={control} kind="admin" />
+          </PosSettingsSection>
 
-            <AdminPermissions control={control} />
-          </section>
-
-          <section className="pt-6 space-y-4 border-t">
-            <Label>{t('cashiers')}</Label>
-
-            <CashierPermissions control={control} />
-          </section>
+          <PosSettingsSection
+            separated
+            title={t('cashiers')}
+            description={labels.cashiersDescription}
+          >
+            <RolePermissions control={control} kind="cashier" />
+          </PosSettingsSection>
         </form>
       </Form>
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('permission-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { Permission };

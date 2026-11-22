@@ -35,3 +35,18 @@ mutation AccountingAdjustClosingDoTransaction($_id: String!) {
   }
 }
 `);
+
+export const ADJUST_CLOSING_CLEAR_TRANSACTIONS = gql(`
+mutation AccountingAdjustClosingClearTransactions($_id: String!) {
+  adjustClosingClearTransactions(_id: $_id) {
+    _id
+    status
+    error
+    warning
+    taxImpactValue
+    closePeriodTrId
+    earningTrId
+    taxPayableTrId
+  }
+}
+`);

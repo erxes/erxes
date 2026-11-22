@@ -54,8 +54,9 @@ const setup = () => {
     | 'updatePTransaction'
     | 'removePTransaction'
     | 'removeTransaction'
+    | 'decidePTransaction'
   >;
-  return { models, methods, find, deleteMany };
+  return { models, methods, find, deleteMany, events };
 };
 
 describe('transaction model validation phases', () => {
@@ -239,6 +240,7 @@ describe('multiple pointers in one parent workflow', () => {
       const docs = rows.map((row, index) => ({
         ...row,
         journal: 'main',
+        status: index === 0 ? 'estimated' : 'draft',
         ptrId: index === 0 ? 'book-pointer' : 'tax-pointer',
       }));
       const options = { skipAccountPermission: true, preservePtrIds };
@@ -246,6 +248,10 @@ describe('multiple pointers in one parent workflow', () => {
         operation === 'create'
           ? await methods.createPTransaction(docs, 'user', options)
           : await methods.updatePTransaction('parent', docs, 'user', options);
+      expect(save.mock.calls.map((call) => call[3].status)).toEqual([
+        'estimated',
+        'estimated',
+      ]);
       const pointers = save.mock.calls.map((call) => call[3].ptrId);
       if (preservePtrIds)
         expect(pointers).toEqual(['book-pointer', 'tax-pointer']);
@@ -258,4 +264,67 @@ describe('multiple pointers in one parent workflow', () => {
       );
     },
   );
+});
+
+describe('approval decisions', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  const requestedRows = rows.map((row) => ({
+    ...row,
+    status: 'requested',
+    mentionOwnerId: 'owner',
+    mentionUserIds: ['approver'],
+  }));
+
+  const prepare = () => {
+    const context = setup();
+    context.find.mockImplementation(() => query(requestedRows));
+    Object.assign(context.methods, {
+      getPtrNumber: jest.fn().mockResolvedValue('number'),
+      syncParentWorkflowIdentifiers: jest.fn().mockResolvedValue(undefined),
+    });
+    jest.spyOn(connection, 'startSession').mockResolvedValue({
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      abortTransaction: jest.fn(),
+      endSession: jest.fn(),
+    } as never);
+    jest.spyOn(saveUtils, 'commonSaveValidation').mockResolvedValue(undefined);
+    jest.spyOn(modelUtils, 'setPtrStatus').mockResolvedValue('ok');
+    jest.spyOn(graphqlPubsub, 'publish').mockResolvedValue(undefined);
+    const save = jest
+      .spyOn(saveUtils, 'commonSave')
+      .mockImplementation(async (_tenant, _models, _user, doc) => ({
+        mainTr: doc as never,
+        otherTrs: [],
+      }));
+    return { ...context, save };
+  };
+
+  test('the last approval re-saves every journal as complete and logs who approved', async () => {
+    const { methods, save, events } = prepare();
+
+    await methods.decidePTransaction('parent', 'APPROVE', 'approver');
+
+    expect(save.mock.calls.map((call) => call[3].status)).toEqual([
+      'complete',
+      'complete',
+    ]);
+    expect(save.mock.calls.map((call) => call[3].mentionUserIds)).toEqual([
+      [],
+      [],
+    ]);
+    expect(events.createActivityLog).toHaveBeenCalledWith(
+      expect.objectContaining({ activityType: 'transaction.approved' }),
+    );
+  });
+
+  test('only a listed user can decide, before anything is saved', async () => {
+    const { methods, save } = prepare();
+
+    await expect(
+      methods.decidePTransaction('parent', 'DECLINE', 'owner'),
+    ).rejects.toThrow('Only a listed approver');
+    expect(save).not.toHaveBeenCalled();
+  });
 });

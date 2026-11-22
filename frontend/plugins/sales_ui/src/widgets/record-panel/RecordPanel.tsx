@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import { DealActivityTab } from '@/deals/cards/components/detail/DealActivityTab';
 import { DealPipelineProperties } from '@/deals/cards/components/detail/DealPipelineProperties';
 import { Products } from '@/deals/cards/components/detail/product/components/Products';
@@ -6,11 +7,43 @@ import { useDealCustomFieldEdit } from '@/deals/cards/hooks/useDealCustomFieldEd
 import { DealsProvider } from '@/deals/context/DealContext';
 import { DealIdProvider } from '@/deals/context/DealIdContext';
 import {
+  PosCreatePanel,
+  PosCreatePanelTitle,
+} from '@/pos/components/pos-create/PosCreatePanel';
+import {
+  PosCustomerFieldPanel,
+  PosCustomerFieldPanelTitle,
+} from '@/pos/components/customerCreate/PosCustomerFieldPanel';
+import {
+  PosCustomerLayoutPanel,
+  PosCustomerLayoutPanelTitle,
+} from '@/pos/components/customerCreate/PosCustomerLayoutPanel';
+import {
+  PosCategoryMappingPanel,
+  PosCategoryMappingPanelTitle,
+} from '@/pos/components/products/PosCategoryMappingPanel';
+import {
+  PosCardConfigPanel,
+  PosCardConfigPanelTitle,
+} from '@/pos/components/syncCard/PosCardConfigPanel';
+import {
+  PosPanelHeaderTitle,
+  PosSettingsTabContent,
+} from '@/pos/components/pos-edit/PosSettingsPanel';
+import { POS_GENERAL_TAB } from '@/pos/constants';
+import {
+  POS_CARD_CONFIG_CONTENT_TYPE,
+  POS_CATEGORY_MAPPING_CONTENT_TYPE,
+  POS_CONTENT_TYPE,
   POS_COVER_CONTENT_TYPE,
+  POS_CREATE_CONTENT_TYPE,
+  POS_CUSTOMER_FIELD_CONTENT_TYPE,
+  POS_CUSTOMER_LAYOUT_CONTENT_TYPE,
   POS_ORDER_CONTENT_TYPE,
+  POS_PANEL_FIELDS_CLASS_NAME,
 } from '@/pos/constants/posPanel';
 import { usePosOrderQuery } from '@/pos/orders/detail/hooks/usePosOrderQuery';
-import { ScrollArea, Skeleton } from 'erxes-ui';
+import { cn, ScrollArea, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { NEW_RECORD_ID, type IRecordPanelProps } from 'ui-modules';
 import { DealConnectionPanel } from '~/widgets/contact/DealConnectionPanel';
@@ -218,6 +251,58 @@ const renderPosCoverView = (
   return null;
 };
 
+const renderPosSettingsView = (
+  posId: string,
+  view: IRecordPanelProps['view'],
+  tab?: string,
+) => {
+  if (view === 'title') {
+    return <PosPanelHeaderTitle posId={posId} />;
+  }
+
+  if (view === 'detail') {
+    return (
+      <PosSettingsTabContent posId={posId} tab={POS_GENERAL_TAB} compact />
+    );
+  }
+
+  if (view === 'tab' && tab) {
+    return <PosSettingsTabContent posId={posId} tab={tab} compact />;
+  }
+
+  if (view === 'activity') {
+    return <PosPanelActivity contentId={posId} />;
+  }
+
+  return null;
+};
+
+const POS_FORM_PANELS: Record<
+  string,
+  { Title: ComponentType; Form: ComponentType }
+> = {
+  [POS_CREATE_CONTENT_TYPE]: {
+    Title: PosCreatePanelTitle,
+    Form: PosCreatePanel,
+  },
+  [POS_CARD_CONFIG_CONTENT_TYPE]: {
+    Title: PosCardConfigPanelTitle,
+    Form: PosCardConfigPanel,
+  },
+  [POS_CATEGORY_MAPPING_CONTENT_TYPE]: {
+    Title: PosCategoryMappingPanelTitle,
+    Form: PosCategoryMappingPanel,
+  },
+  [POS_CUSTOMER_FIELD_CONTENT_TYPE]: {
+    Title: PosCustomerFieldPanelTitle,
+    Form: PosCustomerFieldPanel,
+  },
+  [POS_CUSTOMER_LAYOUT_CONTENT_TYPE]: {
+    Title: PosCustomerLayoutPanelTitle,
+    Form: PosCustomerLayoutPanel,
+  },
+};
+
 export const RecordPanel = ({
   contentType,
   contentId,
@@ -235,6 +320,28 @@ export const RecordPanel = ({
 
   if (contentType === POS_COVER_CONTENT_TYPE) {
     return renderPosCoverView(contentId, view);
+  }
+
+  if (contentType === POS_CONTENT_TYPE) {
+    return renderPosSettingsView(contentId, view, tab);
+  }
+
+  const formPanel = POS_FORM_PANELS[contentType];
+
+  if (formPanel) {
+    if (view === 'title') return <formPanel.Title />;
+    if (view !== 'new') return null;
+
+    return (
+      <div
+        className={cn(
+          'flex flex-1 min-h-0 flex-col',
+          POS_PANEL_FIELDS_CLASS_NAME,
+        )}
+      >
+        <formPanel.Form />
+      </div>
+    );
   }
 
   if (contentType !== DEAL_CONTENT_TYPE) {

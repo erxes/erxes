@@ -20,7 +20,14 @@ import {
   TTaxRowPanelChange,
 } from '@/settings/components/TaxRowCommonFields';
 import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsPanelActions';
-import { SettingsPanelTitleField } from '@/settings/components/panel/SettingsPanelFields';
+import {
+  SettingsPanelNumberField,
+  SettingsPanelSwitch,
+  SettingsPanelTitleField,
+} from '@/settings/components/panel/SettingsPanelFields';
+import { TaxRowReportPanelFields } from '@/settings/components/TaxRowReportPanelFields';
+import { TTaxRowReportChange } from '@/settings/types/taxRowReport';
+import { PanelField } from 'ui-modules';
 import {
   ISettingsPanelViewProps,
   ISettingsPanelViews,
@@ -108,23 +115,54 @@ const CtaxRowPanelTitle = ({ contentId }: ISettingsPanelViewProps) => {
 
 const CtaxRowPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
   const { ctaxRowDetail: ctaxRow, loading } = useCtaxRowDetail(contentId);
-  const { editCtaxRow } = useCtaxRowEdit();
+  const { t } = useTranslation('accounting');
+  const { editCtaxRow, loading: saving } = useCtaxRowEdit();
 
-  const save = (fields: TTaxRowPanelChange) =>
-    editCtaxRow({ variables: { _id: contentId, ...fields } });
+  const save = async (
+    fields: TTaxRowPanelChange &
+      TTaxRowReportChange & { tabCount?: number; isBold?: boolean },
+  ) => {
+    const result = await editCtaxRow({
+      variables: { _id: contentId, ...fields },
+    });
+    return !result.errors && !!result.data;
+  };
 
   return (
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!ctaxRow}>
       {ctaxRow && (
-        <TaxRowCommonPanelFields
-          scope={SCOPE}
-          row={ctaxRow}
-          kinds={Object.values(CtaxKind)}
-          kindLabels={CTAX_KIND_LABELS}
-          statuses={Object.values(CtaxStatus)}
-          statusLabels={CTAX_STATUS_LABELS}
-          onSave={save}
-        />
+        <>
+          <TaxRowCommonPanelFields
+            scope={SCOPE}
+            row={ctaxRow}
+            kinds={Object.values(CtaxKind)}
+            kindLabels={CTAX_KIND_LABELS}
+            statuses={Object.values(CtaxStatus)}
+            statusLabels={CTAX_STATUS_LABELS}
+            onSave={save}
+          />
+          <PanelField label={t('indentation-level')}>
+            <SettingsPanelNumberField
+              scope={`${SCOPE}.tabCount`}
+              value={ctaxRow.tabCount}
+              min={0}
+              placeholder={t('indentation-level')}
+              onSave={(tabCount) => save({ tabCount })}
+            />
+          </PanelField>
+          <PanelField label={t('bold-text')} cell={false}>
+            <SettingsPanelSwitch
+              checked={!!ctaxRow.isBold}
+              onCheckedChange={(isBold) => save({ isBold })}
+            />
+          </PanelField>
+          <TaxRowReportPanelFields
+            scope={SCOPE}
+            row={ctaxRow}
+            saving={saving}
+            onSave={save}
+          />
+        </>
       )}
     </SettingsPanelDetailLayout>
   );

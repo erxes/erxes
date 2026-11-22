@@ -234,6 +234,22 @@ test('turnovers group by account, side and effective opposite codes without poin
   expect(pipeline).toContain('relAccounts.ct');
   expect(pipeline).not.toContain('ptrId');
 });
+test('a balance over the between period is the net period change on the natural side', async () => {
+  const { models, aggregate } = setup();
+  const report = definition();
+  report.sections[0].columns[0].getDate = 'between';
+  report.sections[0].formulas = [
+    { ...report.sections[0].formulas[0], debitAccountId: 'b' },
+  ];
+  aggregate.mockResolvedValue([{ _id: 'b', amount: -40 }]);
+  const [cell] = await generateTunableReport(models, report, settings, user);
+  // Passive account: 40 more credit than debit within the period is +40.
+  expect(cell.value).toBe(40);
+  expect(aggregate.mock.calls[0][0][0].$match.date).toEqual({
+    $gte: new Date('2026-01-11T00:00:00Z'),
+    $lt: new Date('2026-01-21T00:00:00Z'),
+  });
+});
 test('transaction formulas follow the inherited column period and name cells without one', async () => {
   const { models, aggregate } = setup();
   const report = definition();

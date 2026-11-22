@@ -45,6 +45,8 @@ export interface ISupportGrant {
   status: SupportGrantStatus;
   // Let in by the allow window, not by a person
   autoApproved: boolean;
+  // A trusted staff member: acts as an owner instead of through permissionGroupIds
+  fullAccess?: boolean;
   permissionGroupIds: string[];
   decidedBy?: string;
   decidedAt?: Date;
@@ -89,6 +91,7 @@ export const supportGrantSchema = new Schema(
       required: true,
     },
     autoApproved: { type: Boolean, label: 'Auto approved', default: false },
+    fullAccess: { type: Boolean, label: 'Full access', default: false },
     permissionGroupIds: {
       type: [String],
       label: 'Permission group ids',

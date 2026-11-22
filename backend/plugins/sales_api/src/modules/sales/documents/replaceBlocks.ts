@@ -73,6 +73,9 @@ export const replaceBlocks = ({
       ...rest,
       type: 'text',
       text: text || '-',
+      ...(props?.fontSize && {
+        styles: { ...rest.styles, fontSize: props.fontSize },
+      }),
     };
   };
 

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-18`
+- **Last synchronized:** `2026-11-22`
 
 ## Scope
 
@@ -140,7 +140,7 @@
 | Segment evaluation         | `src/modules/sales/meta/segments/evaluate`                | Resolve a batch of deals against the value refs a segment plan assigns to this plugin.               |
 | Relation measures          | `src/modules/sales/meta/segments/evaluate/relations.ts`   | Fold a relation into deals for a batch, over a core-resolved edge table or a stored join.            |
 | Stage-derived filters      | `src/modules/sales/meta/segments/evaluate/stageFilter.ts` | Rewrite pipeline, board and probability conditions into the stage ids they name.                     |
-| Documents                  | `src/modules/sales/documents`                             | Generate sales document content and amount mappings.                                                 |
+| Documents                  | `src/modules/sales/documents`                             | Generate sales document content and amount mappings, preserving font sizes on replaced text attributes. |
 | Export                     | `src/meta/export`, `src/modules/{sales,pos}/meta/export`  | Route export collections, build export headers and rows, and resolve core names per batch.           |
 | POS and ecommerce          | `src/modules/pos`, `src/modules/ecommerce`                | Provide sales-owned POS and ecommerce behavior.                                                      |
 | Benchmark data             | `scripts/benchmarks/seed-deals.js`                        | Seed resumable, deterministic high-volume deal data directly through mongosh.                        |

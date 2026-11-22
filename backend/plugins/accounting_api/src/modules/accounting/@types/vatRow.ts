@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { ITaxRowLedgerFormula, TaxRowValueSide } from './taxRow';
 
 export const VAT_ROW_STATUS = {
   ACTIVE: 'active',
@@ -13,7 +14,7 @@ export const VatRowKinds = {
   HIDDEN: 'hidden',
   FREE: 'free',
   ALL: ['normal', 'formula', 'title', 'hidden', 'free'],
-}
+};
 
 export interface IVatRow {
   name: string;
@@ -25,6 +26,8 @@ export interface IVatRow {
   isBold: boolean;
   status: string;
   percent: number;
+  valueSide?: TaxRowValueSide | '';
+  ledgerFormulas?: ITaxRowLedgerFormula[];
 }
 
 export interface IVatRowDocument extends IVatRow, Document {

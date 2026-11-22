@@ -12,6 +12,10 @@ import {
   IAdjustFundRateDetail,
 } from '../@types/adjustRateFundDetails';
 import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  assertNoUnsettledTransaction,
+  getAdjustmentFailure,
+} from './unsettledTransactions';
 
 type TAccountBalance = {
   accountId: string;
@@ -312,7 +316,9 @@ const buildBalanceByDay = (
 
     if (negativeBalance) {
       throw new FundRateValidationError(
-        `Fund currency balance cannot be negative before adjustment. Date: ${currentDate.toISOString().slice(0, 10)}, Account: ${negativeBalance.accountId}`,
+        `Fund currency balance cannot be negative before adjustment. Date: ${currentDate
+          .toISOString()
+          .slice(0, 10)}, Account: ${negativeBalance.accountId}`,
         currentDate,
         beginDate,
       );
@@ -353,6 +359,10 @@ const buildAdjustmentResult = async (
 
   const accountIds = accounts.map((account) => account._id);
   const period = await getAdjustmentPeriod(models, adjust, accountIds);
+  await assertNoUnsettledTransaction(models, {
+    date: { $lt: getNextDate(period.endDate) },
+    'details.accountId': { $in: accountIds },
+  });
   const movements = await getBalanceMovements(
     models,
     adjust,
@@ -546,11 +556,9 @@ export const calculateAdjustFundRate = async (
           validationError?.beginDate ||
           adjust.beginDate ||
           getPureDate(adjust.date),
-        successDate: validationError?.date,
+        ...getAdjustmentFailure(error, validationError?.date),
         checkedAt: new Date(),
         status: 'process',
-        error: error instanceof Error ? error.message : 'Validation failed.',
-        warning: '',
         modifiedBy: userId,
       },
     );

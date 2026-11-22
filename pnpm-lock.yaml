@@ -1165,6 +1165,9 @@ importers:
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
+      sift:
+        specifier: ^17.1.3
+        version: 17.1.3
       underscore:
         specifier: ^1.13.7
         version: 1.13.7

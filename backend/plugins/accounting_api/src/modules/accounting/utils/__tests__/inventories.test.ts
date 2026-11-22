@@ -25,7 +25,7 @@ const makeModels = (transactions: Record<string, unknown>[] = []) =>
       find: jest.fn().mockReturnValue(queryResult(transactions)),
       updateOne: jest.fn().mockResolvedValue(undefined),
     },
-  }) as unknown as IModels;
+  } as unknown as IModels);
 
 describe('getInventoryOutAdjustment', () => {
   const details = {
@@ -344,6 +344,63 @@ describe('fixRelatedMainJournal', () => {
 });
 
 describe('adjustRunning', () => {
+  it('stops on a real or pending row that is not complete and skips drafts', async () => {
+    const findOne = jest.fn((selector: { status?: { $in?: string[] } }) => ({
+      sort: jest.fn().mockReturnValue(
+        queryResult(
+          selector.status?.$in
+            ? { _id: 'tr-a', number: 'N-1', status: 'executing' }
+            : null,
+        ),
+      ),
+    }));
+    const updateAdjustInventory = jest.fn().mockResolvedValue(undefined);
+    const models = {
+      Transactions: { findOne, aggregate: jest.fn().mockResolvedValue([]) },
+      AdjustInventories: {
+        updateAdjustInventory,
+        getAdjustInventory: jest.fn(),
+      },
+      AdjustInvDetails: {
+        deleteMany: jest.fn().mockResolvedValue(undefined),
+        find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+      },
+    };
+    const day = new Date('2025-12-31T00:00:00.000Z');
+
+    await adjustRunning(
+      'test',
+      models as unknown as IModels,
+      { _id: 'user-a' } as never,
+      {
+        adjustInventory: {
+          _id: 'adj-a',
+          date: new Date('2026-01-02T00:00:00.000Z'),
+          status: 'draft',
+          beginDate: new Date('2025-12-30T00:00:00.000Z'),
+          successDate: day,
+        } as never,
+        beginDate: new Date('2025-12-30T00:00:00.000Z'),
+      },
+    );
+
+    const uncompletedQuery = findOne.mock.calls
+      .map(([selector]) => selector)
+      .find((selector) => selector.status?.$in);
+    expect(uncompletedQuery?.status?.$in).toEqual([
+      'estimated',
+      'executing',
+      'requested',
+    ]);
+    expect(updateAdjustInventory).toHaveBeenCalledWith(
+      'adj-a',
+      expect.objectContaining({
+        successDate: day,
+        warning: expect.stringContaining('N-1 (executing)'),
+      }),
+    );
+  });
+
   it('groups inventory costs by detail location before falling back to transaction location', async () => {
     const aggregate = jest.fn(
       async (pipeline: PipelineStage[], options?: AggregateOptions) => {

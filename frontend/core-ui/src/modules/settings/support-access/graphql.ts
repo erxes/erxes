@@ -9,6 +9,7 @@ const AUTH_SUPPORT_GRANT_FIELDS = gql`
     reason
     status
     autoApproved
+    fullAccess
     permissionGroupIds
     decidedBy
     endsAt

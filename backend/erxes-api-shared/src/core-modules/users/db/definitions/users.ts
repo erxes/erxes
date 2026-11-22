@@ -76,6 +76,11 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: mongooseField({ type: Date }),
     resetPasswordExpires: mongooseField({ type: Date }),
     isOwner: mongooseField({ type: Boolean, label: 'Is owner' }),
+    // An erxes support user on a full access grant: acts as an owner until the grant ends
+    supportFullAccess: mongooseField({
+      type: Boolean,
+      label: 'Support full access',
+    }),
     onboardedPlugins: mongooseField({
       type: [String],
       label: 'Onboarded plugins',

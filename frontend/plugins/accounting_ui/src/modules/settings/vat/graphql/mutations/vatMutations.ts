@@ -1,7 +1,7 @@
 import { gql } from '~/gql';
 
 export const VAT_ROWS_ADD = gql(`
-mutation accountingVatRowsAdd($name: String, $number: String, $kind: String, $formula: String, $formulaText: String, $tabCount: Float, $isBold: Boolean, $status: String, $percent: Float) {
+mutation accountingVatRowsAdd($name: String, $number: String, $kind: String, $formula: String, $formulaText: String, $tabCount: Float, $isBold: Boolean, $status: String, $percent: Float, $valueSide: String, $ledgerFormulas: JSON) {
   vatRowsAdd(
     name: $name
     number: $number
@@ -12,6 +12,8 @@ mutation accountingVatRowsAdd($name: String, $number: String, $kind: String, $fo
     isBold: $isBold
     status: $status
     percent: $percent
+    valueSide: $valueSide
+    ledgerFormulas: $ledgerFormulas
   ) {
     _id
     name
@@ -23,12 +25,14 @@ mutation accountingVatRowsAdd($name: String, $number: String, $kind: String, $fo
     isBold
     status
     percent
+    valueSide
+    ledgerFormulas
   }
 }
 `);
 
 export const VAT_ROWS_EDIT = gql(`
-mutation accountingVatRowsEdit($_id: String!, $name: String, $number: String, $kind: String, $formula: String, $formulaText: String, $tabCount: Float, $isBold: Boolean, $status: String, $percent: Float) {
+mutation accountingVatRowsEdit($_id: String!, $name: String, $number: String, $kind: String, $formula: String, $formulaText: String, $tabCount: Float, $isBold: Boolean, $status: String, $percent: Float, $valueSide: String, $ledgerFormulas: JSON) {
   vatRowsEdit(
     _id: $_id
     name: $name
@@ -40,6 +44,8 @@ mutation accountingVatRowsEdit($_id: String!, $name: String, $number: String, $k
     isBold: $isBold
     status: $status
     percent: $percent
+    valueSide: $valueSide
+    ledgerFormulas: $ledgerFormulas
   ) {
     _id
     name
@@ -51,6 +57,8 @@ mutation accountingVatRowsEdit($_id: String!, $name: String, $number: String, $k
     isBold
     status
     percent
+    valueSide
+    ledgerFormulas
   }
 }
 `);

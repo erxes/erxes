@@ -51,6 +51,7 @@ const transaction = (
 ): ITransaction => ({
   _id: 'income',
   journal,
+  status: 'complete',
   date: new Date(date),
   side: 'dt',
   details: [{ accountId: 'asset-account', fixedAssetId: 'asset', amount: 100 }],
@@ -266,4 +267,61 @@ it('allows its own closing workflow but respects a later closing', async () => {
   await expect(validateTransactionDate(models, doc)).rejects.toThrow(
     'closing adjustment',
   );
+});
+
+describe('only the real tier is held to locked periods', () => {
+  const locked = () => {
+    const context = setup();
+    context.records.AdjustClosings = [adjustment('publish')];
+    return context;
+  };
+
+  it.each(['draft', 'mentioned', 'plan', 'executing', 'requested'])(
+    'saves and removes a %s row inside a closed period',
+    async (status) => {
+      const { models } = locked();
+      const doc = { ...transaction('main'), status };
+      await expect(
+        validateTransactionDate(models, doc),
+      ).resolves.toBeUndefined();
+      await expect(
+        validateTransactionDate(models, doc, doc),
+      ).resolves.toBeUndefined();
+    },
+  );
+
+  it('rejects the save that makes a row real in a closed period, as an approval does', async () => {
+    const { models } = locked();
+    const requested = { ...transaction('main'), status: 'requested' };
+    await expect(
+      validateTransactionDate(
+        models,
+        { ...requested, status: 'complete' },
+        requested,
+      ),
+    ).rejects.toThrow('closing adjustment');
+  });
+
+  it('rejects taking a real row out of a closed period even into a later soon date', async () => {
+    const { models } = locked();
+    const real = transaction('main');
+    await expect(
+      validateTransactionDate(
+        models,
+        { ...real, status: 'executing', date: new Date('2026-03-01') },
+        real,
+      ),
+    ).rejects.toThrow('closing adjustment');
+  });
+
+  it('lets a soon row move from a closed period to an open real date', async () => {
+    const { models } = locked();
+    await expect(
+      validateTransactionDate(
+        models,
+        { ...transaction('main', '2026-03-01T00:00:00'), status: 'complete' },
+        { ...transaction('main'), status: 'requested' },
+      ),
+    ).resolves.toBeUndefined();
+  });
 });

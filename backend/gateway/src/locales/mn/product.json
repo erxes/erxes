@@ -471,15 +471,22 @@
   "bulk": {
     "tags": "Шошго",
     "change-category": "Ангилал солих",
-    "no-movable-products": "Устгагдсан бүтээгдэхүүнийг өөр ангилалд шилжүүлэх боломжгүй",
     "confirm-change-category_one": "Сонгосон {{count}} бүтээгдэхүүнийг энэ ангилалд шилжүүлэх үү? Одоогийн ангилал нь солигдоно.",
     "confirm-change-category_other": "Сонгосон {{count}} бүтээгдэхүүнийг энэ ангилалд шилжүүлэх үү? Одоогийн ангиллууд нь солигдоно.",
     "category-change-failed_one": "{{count}} бүтээгдэхүүнийг шилжүүлж чадсангүй",
     "category-change-failed_other": "{{count}} бүтээгдэхүүнийг шилжүүлж чадсангүй",
-    "deleted-skipped_one": "Устгагдсан {{count}} бүтээгдэхүүнийг алгасав",
-    "deleted-skipped_other": "Устгагдсан {{count}} бүтээгдэхүүнийг алгасав",
     "category-changed_one": "{{count}} бүтээгдэхүүнийг шинэ ангилалд шилжүүллээ",
-    "category-changed_other": "{{count}} бүтээгдэхүүнийг шинэ ангилалд шилжүүллээ"
+    "category-changed_other": "{{count}} бүтээгдэхүүнийг шинэ ангилалд шилжүүллээ",
+    "deleted-will-restore_one": "Устгагдсан {{count}} бүтээгдэхүүн сэргээгдэнэ.",
+    "deleted-will-restore_other": "Устгагдсан {{count}} бүтээгдэхүүн сэргээгдэнэ.",
+    "deleted-restored_one": "Устгагдсан {{count}} бүтээгдэхүүнийг сэргээлээ",
+    "deleted-restored_other": "Устгагдсан {{count}} бүтээгдэхүүнийг сэргээлээ",
+    "restored_one": "{{count}} бүтээгдэхүүнийг сэргээлээ",
+    "restored_other": "{{count}} бүтээгдэхүүнийг сэргээлээ",
+    "restore-failed_one": "{{count}} бүтээгдэхүүнийг сэргээж чадсангүй",
+    "restore-failed_other": "{{count}} бүтээгдэхүүнийг сэргээж чадсангүй",
+    "restore-change-category-hint": "Ангилал нь устсан бол ангиллыг нь солиход сэргээгдэнэ.",
+    "refresh-failed": "Бүтээгдэхүүний жагсаалтыг шинэчилж чадсангүй. Сүүлийн өөрчлөлтийг харахын тулд хуудсаа дахин ачаална уу."
   },
   "bundle-rules": {
     "edit": "Засах",

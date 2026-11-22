@@ -103,6 +103,8 @@ const accountImportMap = {
       { label: 'Is bold', key: 'is_b' },
       { label: 'Percent', key: 'percent' },
       { label: 'Status', key: 'status' },
+      { label: 'Value side', key: 'value_side' },
+      { label: 'Ledger formulas', key: 'ledger_formulas' },
     ],
     processRows: (
       subdomain: string,

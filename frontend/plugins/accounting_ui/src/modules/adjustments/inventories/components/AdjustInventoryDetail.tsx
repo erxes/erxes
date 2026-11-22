@@ -36,6 +36,7 @@ import { useAdjustInventoryRunFinished } from '@/adjustments/inventories/hooks/u
 import { ADJ_INV_STATUSES, IAdjustInventory } from '../types/AdjustInventory';
 import { adjustDetailTableColumns } from './AdjustInventoryDetailColumns';
 import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
+import { AdjustWarning } from '@/adjustments/components/AdjustWarning';
 
 const toValidDate = (value?: Date | string | null) => {
   if (!value) {
@@ -183,6 +184,7 @@ export const AdjustInventoryDetail = () => {
               {adjustInventory.error}
             </span>
           )}
+          <AdjustWarning warning={adjustInventory?.warning} />
           {renderEvents()}
         </div>
       </div>

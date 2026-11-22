@@ -1,4 +1,9 @@
-import { Combobox, Tooltip, isUndefinedOrNull } from 'erxes-ui';
+import {
+  Combobox,
+  TextOverflowTooltip,
+  Tooltip,
+  isUndefinedOrNull,
+} from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -126,11 +131,12 @@ export const AccountsInlineTitle = ({ className }: { className?: string }) => {
 
     const account = accounts[0];
 
-    if (accounts.length === 1) {
-      return `${account.code} - ${account.name}`;
-    }
+    const label =
+      accounts.length === 1
+        ? `${account.code} - ${account.name}`
+        : `${account.code}... (+${accounts.length - 1} accounts)`;
 
-    return `${account.code}... (+${accounts.length - 1} accounts)`;
+    return <TextOverflowTooltip value={label} className="block" />;
   };
 
   return (

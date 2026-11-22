@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { ReportRunSheet } from '@/tunable-reports/ReportRunSheet';
 import { useQuery } from '@apollo/client';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { REPORT_DETAIL } from '@/tunable-reports/graphql';
 import { ReportEditor } from '@/tunable-reports/ReportEditor';
 import { ReportPreview } from '@/tunable-reports/ReportPreview';
 import { useReportTranslation } from '@/tunable-reports/locales';
+import { useReportOrganization } from '@/tunable-reports/useReportOrganization';
 import { useReportActions } from '@/tunable-reports/useReports';
 
 export const TunableReportDetailPage = ({
@@ -22,68 +23,86 @@ export const TunableReportDetailPage = ({
   const navigate = useNavigate();
   const { t } = useReportTranslation();
   const { canManage, canRemove, removing, removeReport } = useReportActions();
+  const { organization } = useReportOrganization();
   const { data, loading, error, refetch } = useQuery(REPORT_DETAIL, {
     variables: { _id: id || '' },
     skip: mode === 'new',
     fetchPolicy: 'cache-and-network',
   });
   const report = data?.accountingTunableReportDetail;
+  const header = (editorActions?: ReactNode) => (
+    <AccountingHeader
+      returnLink="/accounting/tunable-reports"
+      returnText={t('title')}
+      icon={IconReportAnalytics}
+    >
+      {report && mode === 'show' && canManage && (
+        <Button asChild variant="outline">
+          <Link to={`/accounting/tunable-reports/${report._id}/edit`}>
+            {t('edit')}
+          </Link>
+        </Button>
+      )}
+      {report && mode !== 'new' && (
+        <Button variant="outline" onClick={() => setRunOpen(true)}>
+          {t('run')}
+        </Button>
+      )}
+      {report && mode !== 'new' && canRemove && (
+        <Button
+          type="button"
+          variant="destructive"
+          disabled={removing}
+          onClick={async () => {
+            if (await removeReport(report))
+              navigate('/accounting/tunable-reports');
+          }}
+        >
+          {removing ? <Spinner /> : <IconTrash />}
+          {t('remove')}
+        </Button>
+      )}
+      {editorActions}
+    </AccountingHeader>
+  );
+  const editorReport = mode === 'edit' ? report : undefined;
+  const showEditor = !error && (mode === 'new' || !!editorReport);
   return (
     <AccountingLayout>
-      <AccountingHeader
-        returnLink="/accounting/tunable-reports"
-        returnText={t('title')}
-        icon={IconReportAnalytics}
-      >
-        {report && mode === 'show' && canManage && (
-          <Button asChild variant="outline">
-            <Link to={`/accounting/tunable-reports/${report._id}/edit`}>
-              {t('edit')}
-            </Link>
-          </Button>
-        )}
-        {report && mode !== 'new' && (
-          <Button variant="outline" onClick={() => setRunOpen(true)}>
-            {t('run')}
-          </Button>
-        )}
-        {report && mode !== 'new' && canRemove && (
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={removing}
-            onClick={async () => {
-              if (await removeReport(report))
-                navigate('/accounting/tunable-reports');
-            }}
-          >
-            {removing ? <Spinner /> : <IconTrash />}
-            {t('remove')}
-          </Button>
-        )}
-      </AccountingHeader>
-      <div className="flex-auto overflow-auto">
-        {loading && !report && (
-          <div className="p-6">
-            <Spinner />
+      {showEditor ? (
+        <ReportEditor
+          key={editorReport?._id ?? 'new'}
+          report={editorReport}
+          renderLayout={(actions, body) => (
+            <>
+              {header(actions)}
+              <div className="flex-auto overflow-auto">{body}</div>
+            </>
+          )}
+        />
+      ) : (
+        <>
+          {header()}
+          <div className="flex-auto overflow-auto">
+            {loading && !report && (
+              <div className="p-6">
+                <Spinner />
+              </div>
+            )}
+            {error && (
+              <div role="alert" className="p-6">
+                {error.message}
+                <Button variant="outline" onClick={() => void refetch()}>
+                  {t('retry')}
+                </Button>
+              </div>
+            )}
+            {!error && report && mode === 'show' && (
+              <ReportPreview report={report} organization={organization} />
+            )}
           </div>
-        )}
-        {error && (
-          <div role="alert" className="p-6">
-            {error.message}
-            <Button variant="outline" onClick={() => void refetch()}>
-              {t('retry')}
-            </Button>
-          </div>
-        )}
-        {!error && mode === 'new' && <ReportEditor key="new" />}
-        {!error && report && mode === 'show' && (
-          <ReportPreview report={report} />
-        )}
-        {!error && report && mode === 'edit' && (
-          <ReportEditor key={report._id} report={report} />
-        )}
-      </div>
+        </>
+      )}
       {report && runOpen && (
         <ReportRunSheet
           report={report}

@@ -1,11 +1,19 @@
+import {
+  IconForms,
+  IconLayoutKanban,
+  IconStairs,
+  IconTimelineEvent,
+} from '@tabler/icons-react';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
 import { Control, Controller, useWatch } from 'react-hook-form';
-import { Label, Select } from 'erxes-ui';
+import { Select } from 'erxes-ui';
 import { SelectBoardFormItem } from '@/pos/hooks/useSelectBoard';
 import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
 import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
 import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
 import type { DeliveryConfigFormData } from './DeliveryConfig';
 import { useTranslation } from 'react-i18next';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 interface StageProps {
   control: Control<DeliveryConfigFormData>;
@@ -19,16 +27,16 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
   const boardId = useWatch({ control, name: 'boardId' });
   const pipelineId = useWatch({ control, name: 'pipelineId' });
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-1">
         <Controller
           name="boardId"
           control={control}
           render={({ field }) => (
-            <div className="space-y-2">
-              <Label>{t('board')}</Label>
+            <PosPanelRow label={t('board')} icon={IconLayoutKanban}>
               <SelectBoardFormItem
                 value={field.value}
                 onValueChange={(val) => {
@@ -36,7 +44,7 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
                 }}
                 placeholder={t('choose-board')}
               />
-            </div>
+            </PosPanelRow>
           )}
         />
 
@@ -44,15 +52,14 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           name="pipelineId"
           control={control}
           render={({ field }) => (
-            <div className="space-y-2">
-              <Label>{t('PIPELINE')}</Label>
+            <PosPanelRow label={labels.pipeline} icon={IconTimelineEvent}>
               <SelectPipelineFormItem
                 value={field.value}
                 onValueChange={field.onChange}
                 boardId={boardId}
                 placeholder={t('choose-pipeline')}
               />
-            </div>
+            </PosPanelRow>
           )}
         />
 
@@ -60,15 +67,14 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           name="stageId"
           control={control}
           render={({ field }) => (
-            <div className="space-y-2">
-              <Label>{t('STAGE')}</Label>
+            <PosPanelRow label={labels.stage} icon={IconStairs}>
               <SelectStageFormItem
                 value={field.value}
                 onValueChange={field.onChange}
                 pipelineId={pipelineId}
                 placeholder={t('choose-stage')}
               />
-            </div>
+            </PosPanelRow>
           )}
         />
       </div>
@@ -77,10 +83,9 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
         name="mapCustomField"
         control={control}
         render={({ field }) => (
-          <div className="space-y-2">
-            <Label>{t('CHOOSE-MAP-FIELD')}</Label>
+          <PosPanelRow label={labels.mapField} icon={IconForms}>
             <Select value={field.value} onValueChange={field.onChange}>
-              <Select.Trigger className="w-48" disabled={fieldsLoading}>
+              <Select.Trigger disabled={fieldsLoading}>
                 <Select.Value
                   placeholder={fieldsLoading ? t('loading') : t('select-field')}
                 />
@@ -93,7 +98,10 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
                 ))}
               </Select.Content>
             </Select>
-          </div>
+            <p className="text-xs text-accent-foreground">
+              {labels.mapFieldDescription}
+            </p>
+          </PosPanelRow>
         )}
       />
     </div>

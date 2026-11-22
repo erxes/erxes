@@ -34,7 +34,7 @@ export const useReserveRemQueryParams = () => {
 
 export const useReserveRemVariables = () => {
   const queryParams = useReserveRemQueryParams() || {};
-  const variables: Record<string, any> = {};
+  const variables: AccountingReserveRemsQueryVariables = {};
 
   if (queryParams.searchValue) variables.searchValue = queryParams.searchValue;
   if (queryParams.branchId) variables.branchId = queryParams.branchId;

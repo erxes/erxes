@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-11-16`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -173,7 +173,7 @@ propertiesData? } })`
   are saved under; renaming one drops saved choices, and the meta lists only
   events that have a sender.
 - `createTask` / `updateTask`, `createProject` / `updateProject` and `operationAddTriage` / `operationUpdateTriage` accept `customerId` / `companyId` (one of each) and save them on the record; `getTasks`, `getProjects` and `operationGetTriageList` filter by them (a contact's records). `Task`, `Project` and `Triage` expose both fields.
-- `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: a triage then starts in the team's backlog, any other task in its first to-do (`UNSTARTED`) status by `order`.
+- `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: it then starts in the team's first to-do (`UNSTARTED`) status by `order`, including a triage accepted without a requested status.
 - Operation owns its records' contacts: change them only through its own mutations (and `contactFields.sync` for merges and removals); never create core relations for record ↔ contact links.
 - `applyDataExtensionsNamespace` strips `dataExtensions` from inserts, updates
   and bulk writes made through the models, and rejects a `save()` that changed

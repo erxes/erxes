@@ -177,7 +177,10 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
       return models.SupportGrants.getPolicy();
     }
 
-    /** A verified staff member: enters on an active grant, the allow window or as trusted, otherwise asks the owner. */
+    /**
+     * A verified staff member: enters on an active grant, the allow window or as trusted, otherwise asks the owner.
+     * Trusted staff (erxes support) act as an owner, so they can fix anything the workspace needs.
+     */
     public static async enter(staff: ISupportStaff): Promise<SupportVisit> {
       const policy = await models.SupportGrants.getPolicy();
 
@@ -186,9 +189,11 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
       }
 
       const userId = await models.AuthIdentities.provisionSupportUser(staff);
+      // A grant with fewer rights, approved earlier, doesn't hold trusted staff back
       let grant = await models.SupportGrants.findOne({
         staffId: staff.staffId,
         ...active(),
+        ...(staff.trusted ? { fullAccess: true } : {}),
       });
 
       if (!grant && (policy.mode === 'allow' || staff.trusted)) {
@@ -197,9 +202,11 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
           userId,
           status: 'approved',
           autoApproved: true,
-          permissionGroupIds: policy.permissionGroupIds.length
-            ? policy.permissionGroupIds
-            : await getAdminGroupIds(),
+          fullAccess: staff.trusted,
+          permissionGroupIds:
+            !staff.trusted && policy.permissionGroupIds.length
+              ? policy.permissionGroupIds
+              : await getAdminGroupIds(),
           decidedAt: new Date(),
           endsAt: hoursFromNow(AUTO_GRANT_HOURS),
         });
@@ -228,6 +235,7 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
       await models.AuthIdentities.activateSupportUser(
         userId,
         grant.permissionGroupIds,
+        grant.fullAccess === true,
       );
       await notifyOwners(grant, 'entered');
 
@@ -362,7 +370,7 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
 
       await models.Users.updateOne(
         { _id: userId },
-        { $set: { isActive: false } },
+        { $set: { isActive: false, supportFullAccess: false } },
       );
       await revokeUserSessions(subdomain, userId);
       await models.OAuthRefreshTokens.updateMany(
@@ -391,7 +399,8 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
 
     // Owners see every visit in progress, a support user its own, everyone else none
     public static async activeFor(user: IUserDocument) {
-      if (user.isOwner) {
+      // A full access support user is an owner only by its grant, and sees just that grant
+      if (user.isOwner && !user.supportFullAccess) {
         return models.SupportGrants.find(active()).sort({ endsAt: 1 });
       }
 

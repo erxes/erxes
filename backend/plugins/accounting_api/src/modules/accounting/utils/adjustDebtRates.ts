@@ -13,6 +13,10 @@ import {
   IAdjustDebtRateDetail,
 } from '../@types/adjustDebtRate';
 import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  assertNoUnsettledTransaction,
+  getAdjustmentFailure,
+} from './unsettledTransactions';
 
 type TDebtBalance = {
   accountId: string;
@@ -386,7 +390,9 @@ const buildBalanceByDay = (
 
     if (invalidBalance) {
       throw new DebtRateValidationError(
-        `${validateDebtBalance(invalidBalance, accountById)} Date: ${currentDate.toISOString().slice(0, 10)}, Account: ${invalidBalance.accountId}`,
+        `${validateDebtBalance(invalidBalance, accountById)} Date: ${currentDate
+          .toISOString()
+          .slice(0, 10)}, Account: ${invalidBalance.accountId}`,
         currentDate,
         beginDate,
       );
@@ -423,6 +429,10 @@ const buildAdjustmentResult = async (
 
   const accountIds = accounts.map((account) => account._id);
   const period = await getAdjustmentPeriod(models, adjust, accountIds);
+  await assertNoUnsettledTransaction(
+    models,
+    getBaseTransactionFilter(adjust, accountIds, period.endDate),
+  );
   const movements = await getDebtMovements(
     models,
     adjust,
@@ -636,11 +646,9 @@ export const calculateAdjustDebtRate = async (
           validationError?.beginDate ||
           adjust.beginDate ||
           getPureDate(adjust.date),
-        successDate: validationError?.date,
+        ...getAdjustmentFailure(error, validationError?.date),
         checkedAt: new Date(),
         status: 'process',
-        error: error instanceof Error ? error.message : 'Validation failed.',
-        warning: '',
         modifiedBy: userId,
       },
     );

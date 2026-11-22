@@ -1,7 +1,8 @@
 export type OrgPair = { source: string; target: string };
 
 export const ORG_PAIRS: OrgPair[] = [
-  // { source: 'belty', target: 'bbelty' }, done
+  { source: '62df6bb10acdd1dafff8a462', target: '6afd6d5bb3f62d874fe6f4bf' },
+  { source: '680a31a54aec8d13ae7482dd', target: '69d768d0ad705c2a494a962f' },
 ];
 
 export function resolveOrgPairs(args: string[]): OrgPair[] {

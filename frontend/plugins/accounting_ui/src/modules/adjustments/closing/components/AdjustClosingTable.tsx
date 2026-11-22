@@ -7,7 +7,6 @@ import { adjustClosingTableColumns } from '@/adjustments/closing/components/Adju
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIsAdjustClosingLeadSessionKey } from '@/adjustments/closing/hooks/useAdjustClosingSessionKey';
-import { AdjustClosingCommandBar } from '@/adjustments/closing/components/adjust-closing-command-bar/AdjustClosingCommandBar';
 
 export const AdjustClosingTable = () => {
   const { adjustClosing, loading, error, handleFetchMore, pageInfo } =
@@ -26,7 +25,7 @@ export const AdjustClosingTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={adjustClosing || []}
-      stickyColumns={['more', 'checkbox', 'avatar']}
+      stickyColumns={['more']}
       className="relative m-3"
     >
       <RecordTable.CursorProvider
@@ -53,7 +52,6 @@ export const AdjustClosingTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <AdjustClosingCommandBar />
       {isEmpty && (
         <AccountingEmptyState
           overlay

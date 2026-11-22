@@ -4,7 +4,7 @@ export type Organization = { _id: string | ObjectId; subdomain?: string };
 
 const OBJECT_ID_PATTERN = /^[0-9a-f]{24}$/i;
 
-export const findOrganization = async (
+export const findRegisteredOrganization = async (
   coreDb: Db,
   subdomainOrId: string | undefined,
 ): Promise<Organization | null> => {
@@ -40,28 +40,34 @@ const databaseExists = async (coreDb: Db, name: string): Promise<boolean> => {
   return databases.some((database) => database.name === name);
 };
 
-export const findSourceOrganization = async (
+export const findOrganization = async (
   coreDb: Db,
   subdomainOrId: string | undefined,
 ): Promise<Organization | null> => {
-  const organization = await findOrganization(coreDb, subdomainOrId);
+  if (!subdomainOrId) {
+    return null;
+  }
 
-  if (organization || !subdomainOrId) {
-    return organization;
+  if (!OBJECT_ID_PATTERN.test(subdomainOrId)) {
+    return coreDb
+      .collection<Organization>('organizations')
+      .findOne(
+        { subdomain: subdomainOrId },
+        { projection: { _id: 1, subdomain: 1 } },
+      );
   }
 
   const databaseName = `erxes_${subdomainOrId}`;
 
-  if (
-    !OBJECT_ID_PATTERN.test(subdomainOrId) ||
-    !(await databaseExists(coreDb, databaseName))
-  ) {
-    return null;
+  if (!(await databaseExists(coreDb, databaseName))) {
+    console.warn(`Database ${databaseName} does not exist yet.`);
   }
 
-  console.warn(
-    `Organization "${subdomainOrId}" is not in ${coreDb.databaseName}.organizations; reading its existing database ${databaseName}.`,
+  console.log(
+    `Using database ${databaseName} directly for "${subdomainOrId}".`,
   );
 
   return { _id: subdomainOrId };
 };
+
+export const findSourceOrganization = findOrganization;

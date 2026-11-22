@@ -1,7 +1,11 @@
 import { getFullDate } from 'erxes-api-shared/utils';
 import type { IModels } from '~/connectionResolvers';
 import type { ITransaction } from '../@types/transaction';
-import { JOURNALS } from '../@types/constants';
+import {
+  getTransactionStatusType,
+  JOURNALS,
+  TRANSACTION_STATUS_TYPES,
+} from '../@types/constants';
 
 type TAdjustmentModel = Pick<
   IModels,
@@ -143,7 +147,19 @@ export const validateTransactionDate = async (
   if (!Number.isFinite(date.getTime()) || !Number.isFinite(oldDate.getTime())) {
     throw new Error('Invalid transaction date.');
   }
-  if (oldDate < date) date.setTime(oldDate.getTime());
+
+  // Only the real tier touches a locked period. Omit and soon rows may be
+  // saved or removed inside a closed period; the check runs when a save makes
+  // the row real there (an approval included) or takes a real row out of it.
+  const isReal = (tr?: ITransaction) =>
+    !!tr &&
+    getTransactionStatusType(tr.status) === TRANSACTION_STATUS_TYPES.REAL;
+  const newReal = isReal(transaction);
+  const oldReal = isReal(oldTransaction);
+  if (!newReal && !oldReal) return;
+  // Check the earliest real date: the saved one when the row leaves real or
+  // moves later, otherwise the submitted one.
+  if (!newReal || (oldReal && oldDate < date)) date.setTime(oldDate.getTime());
 
   // Closing locks every journal before any journal-specific lookup.
   await validateAdjustmentDate(models, transaction, date, closingLock);

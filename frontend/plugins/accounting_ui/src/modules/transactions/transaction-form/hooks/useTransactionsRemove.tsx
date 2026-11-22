@@ -5,8 +5,7 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { ACC_TRANSACTIONS_REMOVE } from '../../graphql/accTransactionsRemove';
-import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
-import { useTransactionsVariables } from '../../hooks/useTransactionVars';
+import { removeTransactionParentFromCache } from '@/transactions/utils/transactionListChange';
 import {
   getCurrentTransactionReturnPath,
   getTransactionReturnPath,
@@ -22,8 +21,6 @@ export const useTransactionsRemove = (
   const returnPath = getTransactionReturnPath(
     searchParams.get('returnTo') || getCurrentTransactionReturnPath(location),
   );
-  const variables = useTransactionsVariables();
-
   const [_removeTransactions, { loading }] = useMutation(
     ACC_TRANSACTIONS_REMOVE,
     options,
@@ -31,8 +28,9 @@ export const useTransactionsRemove = (
   const { toast } = useToast();
 
   const removeTransactions = (parentId?: string) => {
-    return _removeTransactions({
+    const removing = _removeTransactions({
       variables: { parentId },
+      optimisticResponse: { accTransactionsRemove: { parentId } },
       onError: (error: ApolloError) => {
         toast({
           title: t('error'),
@@ -47,19 +45,14 @@ export const useTransactionsRemove = (
           variant: 'success',
         });
       },
-      refetchQueries: [
-        {
-          query: TRANSACTIONS_QUERY,
-          variables,
-        },
-      ],
-      awaitRefetchQueries: true,
       update: (cache) => {
-        cache.evict({ fieldName: 'accTrRecordsMain' });
-        cache.gc();
-        navigate(returnPath);
+        removeTransactionParentFromCache(cache, parentId);
       },
     });
+
+    navigate(returnPath);
+
+    return removing;
   };
 
   return {

@@ -40,6 +40,7 @@ import {
 } from '@/adjustments/fxa/types/AdjustFixedAsset';
 import { adjustFxaDetailColumns } from '@/adjustments/fxa/components/AdjustFxaDetailColumns';
 import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
+import { AdjustWarning } from '@/adjustments/components/AdjustWarning';
 
 export const AdjustFixedAssetDetail = () => {
   const { t } = useTranslation('accounting');
@@ -116,6 +117,7 @@ export const AdjustFixedAssetDetail = () => {
               )}: ${adjustFixedAsset.error}`}
             </span>
           )}
+          <AdjustWarning warning={adjustFixedAsset.warning} />
           {canRun && (
             <Button onClick={() => runAdjustFixedAsset()} disabled={busy}>
               {runLoading ? <Spinner /> : <IconCrane />}

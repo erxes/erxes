@@ -117,27 +117,23 @@ export const FormulaRow = ({
         </Table.Cell>
       ))}
       {(kind === 'from_row' || kind === 'ratio') && (
-        <Table.Cell className="whitespace-normal align-top p-2">
+        <FormulaReferenceFields
+          form={form}
+          sectionIndex={sectionIndex}
+          formulaIndex={formulaIndex}
+          operand="source"
+          reportId={reportId}
+        />
+      )}
+      {kind === 'ratio' && (
+        <>
           <FormulaReferenceFields
             form={form}
             sectionIndex={sectionIndex}
             formulaIndex={formulaIndex}
-            operand="source"
+            operand="ratioSource"
             reportId={reportId}
           />
-        </Table.Cell>
-      )}
-      {kind === 'ratio' && (
-        <>
-          <Table.Cell className="whitespace-normal align-top p-2">
-            <FormulaReferenceFields
-              form={form}
-              sectionIndex={sectionIndex}
-              formulaIndex={formulaIndex}
-              operand="ratioSource"
-              reportId={reportId}
-            />
-          </Table.Cell>
           <Table.Cell>
             <ChoiceSetting
               inline
@@ -203,12 +199,10 @@ export const FormulaRow = ({
           form={form}
           name={`${path}.getDate`}
           label={t('period')}
-          options={['__inherit', 'first', 'last', 'between']
-            .filter((value) => kind !== 'balance' || value !== 'between')
-            .map((value) => ({
-              value,
-              label: t(value === '__inherit' ? 'inherit' : value),
-            }))}
+          options={['__inherit', 'first', 'last', 'between'].map((value) => ({
+            value,
+            label: t(value === '__inherit' ? 'inherit' : value),
+          }))}
         />
       </Table.Cell>
       <Table.Cell>

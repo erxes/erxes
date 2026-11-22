@@ -34,23 +34,18 @@ export const reportPeriod = (
 };
 
 // A cell's period resolves formula → column → row; a cell where none of them
-// sets one cannot be calculated. Balances need an opening or closing boundary.
+// sets one cannot be calculated. Every kind accepts every period: a balance over
+// `between` is the net period change (closing minus opening, natural side).
 export const reportPeriodIssue = (
-  kind: IReportFormula['kind'],
   getDate: IReportFormula['getDate'],
-): string | undefined => {
-  if (!getDate) return 'Set a period on the formula, column or row';
-  if (kind === 'balance' && getDate === 'between')
-    return 'Balance formulas need an opening or closing date';
-  return undefined;
-};
+): string | undefined =>
+  getDate ? undefined : 'Set a period on the formula, column or row';
 
 export const validateReportFormulaPeriod = (
-  kind: IReportFormula['kind'],
   getDate: IReportFormula['getDate'],
   cellLabel: string,
 ): void => {
-  const issue = reportPeriodIssue(kind, getDate);
+  const issue = reportPeriodIssue(getDate);
   if (issue) throw new Error(`${issue}: ${cellLabel}`);
 };
 

@@ -1,10 +1,19 @@
 import { IconComponent, NavigationMenuGroup, Sidebar } from 'erxes-ui';
-import { IconReport } from '@tabler/icons-react';
+import { IconReceiptTax, IconReport } from '@tabler/icons-react';
+import {
+  getTaxReportListKey,
+  TAX_REPORT_KINDS,
+  TAX_REPORT_TITLES,
+} from '@/tax-reports/types';
 import { ReportRuleGroups, ReportRules } from '../types/reportsMap';
 
 import { activeReportState } from '../states/renderingReportsStates';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+
+const MENU_BUTTON_CLASS =
+  'h-auto min-h-7 items-start gap-2 overflow-visible py-1.5 font-normal whitespace-normal [&>span:last-child]:overflow-visible [&>span:last-child]:text-clip [&>span:last-child]:whitespace-normal';
+const MENU_LABEL_CLASS = 'min-w-0 flex-1 break-words font-normal leading-snug';
 
 export const ReportsList = () => {
   const { t } = useTranslation('accounting');
@@ -28,7 +37,7 @@ export const ReportsList = () => {
               <Sidebar.MenuButton
                 isActive={activeReport === repKey}
                 onClick={() => setActiveReport(repKey)}
-                className="h-auto min-h-7 items-start gap-2 overflow-visible py-1.5 font-normal whitespace-normal [&>span:last-child]:overflow-visible [&>span:last-child]:text-clip [&>span:last-child]:whitespace-normal"
+                className={MENU_BUTTON_CLASS}
               >
                 {ReportRules[repKey].icon ? (
                   <IconComponent
@@ -38,7 +47,7 @@ export const ReportsList = () => {
                 ) : (
                   <IconReport className="mt-0.5 shrink-0" />
                 )}
-                <span className="min-w-0 flex-1 break-words font-normal leading-snug">
+                <span className={MENU_LABEL_CLASS}>
                   {t(ReportRules[repKey].title || '')}
                 </span>
               </Sidebar.MenuButton>
@@ -46,6 +55,30 @@ export const ReportsList = () => {
           ))}
         </NavigationMenuGroup>
       ))}
+      <NavigationMenuGroup
+        name={t('tax-reports')}
+        separate={false}
+        defaultOpen={false}
+        className="py-1.5"
+      >
+        {TAX_REPORT_KINDS.map((kind) => {
+          const key = getTaxReportListKey(kind);
+          return (
+            <Sidebar.MenuItem key={key} className="flex">
+              <Sidebar.MenuButton
+                isActive={activeReport === key}
+                onClick={() => setActiveReport(key)}
+                className={MENU_BUTTON_CLASS}
+              >
+                <IconReceiptTax className="mt-0.5 shrink-0" />
+                <span className={MENU_LABEL_CLASS}>
+                  {t(TAX_REPORT_TITLES[kind])}
+                </span>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+          );
+        })}
+      </NavigationMenuGroup>
     </Sidebar.Panel>
   );
 };

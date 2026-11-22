@@ -1,7 +1,15 @@
-import { Control, Controller } from 'react-hook-form';
-import { Label, Switch, Select, Input } from 'erxes-ui';
+import { IconClock, IconLink, IconRefresh } from '@tabler/icons-react';
+import { PosPanelRow } from '@/pos/components/pos-edit/PosFieldRow';
+import { POS_PANEL_INPUT_CLASS_NAME } from '@/pos/constants/posPanel';
+import { Control, Controller, useWatch } from 'react-hook-form';
+import { Input, Select } from 'erxes-ui';
 import type { ScreenConfigFormData } from './ScreenConfig';
 import { useTranslation } from 'react-i18next';
+import {
+  PosSwitchList,
+  PosSwitchRow,
+} from '@/pos/components/pos-edit/PosSwitchRow';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
 
 interface WaitingScreenProps {
   control: Control<ScreenConfigFormData>;
@@ -9,102 +17,80 @@ interface WaitingScreenProps {
 
 export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
   const { t } = useTranslation('sales');
+  const labels = usePosSettingsLabels();
+  const waitingType = useWatch({ control, name: 'waitingType' });
+  const isTime = waitingType === 'time';
   const changeTypeOptions = [
     { value: 'time', label: t('time') },
     { value: 'count', label: t('count') },
   ];
+
   return (
-    <div className="space-y-4">
-      <Controller
-        name="waitingIsActive"
+    <PosSwitchList>
+      <PosSwitchRow
         control={control}
-        render={({ field }) => (
-          <div className="flex gap-2 items-center">
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('WAITING-SCREEN')}</Label>
-          </div>
-        )}
-      />
-
-      <Controller
         name="waitingIsActive"
-        control={control}
-        render={({ field }) =>
-          field.value ? (
-            <div className="pt-2 space-y-4">
-              <Controller
-                name="waitingType"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-2">
-                    <Label>{t('CHANGE-TYPE')}</Label>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {changeTypeOptions.map((opt) => (
-                          <Select.Item key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </div>
-                )}
-              />
-
-              <Controller
-                name="waitingType"
-                control={control}
-                render={({ field: typeField }) => (
-                  <Controller
-                    name="waitingValue"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        <Label>
-                          {typeField.value === 'time'
-                            ? t('CHANGE-TIME-MIN')
-                            : t('CHANGE-COUNT')}
-                        </Label>
-                        <Input
-                          type="number"
-                          {...field}
-                          value={field.value || ''}
-                          placeholder={
-                            typeField.value === 'time'
-                              ? t('enter-time-in-minutes')
-                              : t('enter-count')
-                          }
-                        />
-                      </div>
-                    )}
-                  />
-                )}
-              />
-
-              <Controller
-                name="waitingContentUrl"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-2">
-                    <Label>{t('CONTENT-URL')}</Label>
-                    <Input
-                      type="text"
-                      {...field}
-                      value={field.value || ''}
-                      placeholder={t('enter-content-url')}
-                    />
-                  </div>
-                )}
-              />
-            </div>
-          ) : (
-            <></>
-          )
-        }
-      />
-    </div>
+        label={t('waiting-screen')}
+        description={labels.waitingScreenDescription}
+      >
+        <div className="flex flex-col gap-1">
+          <Controller
+            name="waitingType"
+            control={control}
+            render={({ field }) => (
+              <PosPanelRow label={labels.changeType} icon={IconRefresh}>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {changeTypeOptions.map((opt) => (
+                      <Select.Item key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </PosPanelRow>
+            )}
+          />
+          <Controller
+            name="waitingValue"
+            control={control}
+            render={({ field }) => (
+              <PosPanelRow
+                label={isTime ? labels.changeTime : labels.changeCount}
+                icon={IconClock}
+              >
+                <Input
+                  className={POS_PANEL_INPUT_CLASS_NAME}
+                  type="number"
+                  {...field}
+                  value={field.value || ''}
+                  placeholder={
+                    isTime ? t('enter-time-in-minutes') : t('enter-count')
+                  }
+                />
+              </PosPanelRow>
+            )}
+          />
+          <Controller
+            name="waitingContentUrl"
+            control={control}
+            render={({ field }) => (
+              <PosPanelRow label={labels.contentUrl} icon={IconLink}>
+                <Input
+                  className={POS_PANEL_INPUT_CLASS_NAME}
+                  type="text"
+                  {...field}
+                  value={field.value || ''}
+                  placeholder={t('enter-content-url')}
+                />
+              </PosPanelRow>
+            )}
+          />
+        </div>
+      </PosSwitchRow>
+    </PosSwitchList>
   );
 };

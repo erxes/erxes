@@ -53,7 +53,7 @@ test('period inheritance respects explicit false and formula overrides', () => {
     ),
   ).toEqual({ getDate: 'last', isPre: true });
 });
-test('rejects unresolved date selections and a movement period for balances', () => {
+test('rejects unresolved date selections and accepts a movement period for balances', () => {
   const report = definition();
   delete report.sections[0].columns[0].getDate;
   report.sections[0].formulas.push({
@@ -73,9 +73,7 @@ test('rejects unresolved date selections and a movement period for balances', ()
   );
   report.sections[0].formulas.pop();
   report.sections[0].columns[0].getDate = 'between';
-  expect(() => validateReportDefinitions([report])).toThrow(
-    'opening or closing',
-  );
+  expect(() => validateReportDefinitions([report])).not.toThrow();
 });
 test('supports independent section columns and explicit source cells', () => {
   const report = definition();

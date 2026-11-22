@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { CTAX_ROW_STATUS, CtaxRowKinds } from '../../@types/ctaxRow';
+import { taxRowReportFields } from './vatRow';
 
 export const ctaxRowSchema = schemaWrapper(
   new Schema({
@@ -18,5 +19,8 @@ export const ctaxRowSchema = schemaWrapper(
       index: true,
     },
     percent: { type: Number, default: 0 },
+    tabCount: { type: Number, default: 0 },
+    isBold: { type: Boolean, default: false },
+    ...taxRowReportFields,
   }),
 );

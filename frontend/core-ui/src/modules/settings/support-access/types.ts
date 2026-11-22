@@ -26,6 +26,8 @@ export interface ISupportGrant {
   reason: string;
   status: TSupportGrantStatus;
   autoApproved: boolean;
+  // erxes support: acts as an owner instead of through permissionGroupIds
+  fullAccess?: boolean | null;
   permissionGroupIds: string[];
   decidedBy?: string | null;
   endsAt?: string | null;

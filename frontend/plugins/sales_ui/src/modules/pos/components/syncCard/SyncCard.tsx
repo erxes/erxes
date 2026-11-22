@@ -1,166 +1,73 @@
-import { SyncList } from '@/pos/components/syncCard/SyncList';
+import { IconRefresh } from '@tabler/icons-react';
+import { PosItemList } from '@/pos/components/pos-edit/PosItemList';
+import { PosSettingsSection } from '@/pos/components/pos-edit/PosSettingsSection';
+import { usePosSettingsLabels } from '@/pos/hooks/usePosSettingsLabels';
+import {
+  type CardConfigDraft,
+  toCardConfigs,
+  toCardsConfigInput,
+} from '@/pos/components/syncCard/cardConfig';
+import { POS_CARD_CONFIG_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { toast, useConfirm } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CardConfig } from './AddConfigSheet';
+import { useSidePanel } from 'ui-modules';
 
 interface SyncCardProps {
   posId?: string;
-  posType?: string;
-  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
-export interface SyncCardFormData {
-  configs: CardConfig[];
-}
-
-const SYNC_CARD_FORM_ID = 'pos-sync-card-form';
-
-const DEFAULT_FORM_VALUES: SyncCardFormData = {
-  configs: [],
-};
-
-const SyncCard: React.FC<SyncCardProps> = ({
-  posId,
-  posType,
-  onSaveActionChange,
-}) => {
+const SyncCard: React.FC<SyncCardProps> = ({ posId }) => {
   const { t } = useTranslation('sales');
-  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
-  const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
-  const [editingConfig, setEditingConfig] = useState<CardConfig | null>(null);
+  const labels = usePosSettingsLabels();
+  const { posDetail, loading, error } = usePosDetail(posId);
+  const [posEdit, { loading: deleting }] = useMutation(mutations.posEdit);
+  const { openNewRecord } = useSidePanel();
+  const { confirm } = useConfirm();
 
-  const form = useForm<SyncCardFormData>({
-    defaultValues: DEFAULT_FORM_VALUES,
-  });
-  const { control, handleSubmit, reset, formState } = form;
-  const { isDirty } = formState;
+  const configs = useMemo(
+    () => toCardConfigs(posDetail?.cardsConfig),
+    [posDetail?.cardsConfig],
+  );
 
-  const { fields, append, remove, update } = useFieldArray({
-    control,
-    name: 'configs',
-  });
+  const openConfig = (configKey?: string) => {
+    const draft: CardConfigDraft = { posId, configKey };
+    openNewRecord(POS_CARD_CONFIG_CONTENT_TYPE, { ...draft }, { stack: true });
+  };
 
-  useEffect(() => {
-    if (!posDetail?.cardsConfig) {
-      return;
-    }
+  const handleDelete = (configId: string) => {
+    if (!posId) return;
 
-    const cardsConfig = posDetail.cardsConfig;
-    const configList: CardConfig[] = Object.entries(cardsConfig).map(
-      ([key, value]) => ({
-        _id: key,
-        branchId: value.branchId || '',
-        boardId: value.boardId || '',
-        pipelineId: value.pipelineId || '',
-        stageId: value.stageId || '',
-        assignedUserIds: (value.assignedUserIds ?? []).filter(isDefined),
-        deliveryMapField: value.deliveryMapField || '',
-        title: value.title || key,
-      }),
-    );
-
-    reset({ configs: configList });
-  }, [posDetail, reset]);
-
-  const handleSaveChanges = useCallback(
-    async (data: SyncCardFormData) => {
-      if (!posId) {
-        toast({
-          title: t('error'),
-          description: t('pos-id-required'),
-          variant: 'destructive',
-        });
-        return;
-      }
-
+    confirm({
+      message: t('confirm-remove-selected'),
+    }).then(async () => {
       try {
-        const cardsConfig: Record<string, Omit<CardConfig, '_id'>> = {};
-        data.configs.forEach((config) => {
-          const key =
-            config.title ||
-            config._id ||
-            `config_${data.configs.indexOf(config)}`;
-          cardsConfig[key] = {
-            branchId: config.branchId,
-            boardId: config.boardId,
-            pipelineId: config.pipelineId,
-            stageId: config.stageId,
-            assignedUserIds: config.assignedUserIds,
-            deliveryMapField: config.deliveryMapField,
-            title: config.title,
-          };
-        });
-
         await posEdit({
           variables: {
             _id: posId,
-            cardsConfig,
+            cardsConfig: toCardsConfigInput(
+              configs.filter(({ _id }) => _id !== configId),
+            ),
           },
+          refetchQueries: ['salesPosSettingsDetail'],
         });
-
-        toast({
-          title: t('success'),
-          description: t('cards-config-saved'),
-        });
-        reset(data);
-      } catch {
+        toast({ title: t('success'), description: t('cards-config-saved') });
+      } catch (e) {
         toast({
           title: t('error'),
-          description: t('cards-config-save-failed'),
+          description:
+            e instanceof Error ? e.message : t('cards-config-save-failed'),
           variant: 'destructive',
         });
       }
-    },
-    [posEdit, posId, reset],
-  );
-
-  useEffect(() => {
-    if (!onSaveActionChange) {
-      return;
-    }
-
-    onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form={SYNC_CARD_FORM_ID}
-          size="sm"
-          disabled={saving}
-        >
-          {saving ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
-    );
-
-    return () => onSaveActionChange(null);
-  }, [isDirty, onSaveActionChange, saving]);
-
-  const handleConfigAdded = (config: CardConfig) => {
-    append(config);
-  };
-
-  const handleConfigUpdated = (config: CardConfig) => {
-    const index = fields.findIndex((f) => f._id === config._id);
-    if (index >= 0) {
-      update(index, config);
-    }
-  };
-
-  const handleDelete = (index: number) => {
-    remove(index);
-  };
-
-  const handleEdit = (config: CardConfig) => {
-    setEditingConfig(config);
+    });
   };
 
   const renderContent = () => {
-    if (detailLoading) {
+    if (loading) {
       return (
         <div className="space-y-4">
           {[1, 2].map((i) => (
@@ -181,36 +88,29 @@ const SyncCard: React.FC<SyncCardProps> = ({
     }
 
     return (
-      <Form {...form}>
-        <form
-          id={SYNC_CARD_FORM_ID}
-          onSubmit={handleSubmit(handleSaveChanges)}
-          className="space-y-8"
-        >
-          <section className="space-y-4">
-            <Label>{t('sync-cards')}</Label>
-            <SyncList
-              fields={fields}
-              onConfigAdded={handleConfigAdded}
-              onConfigUpdated={handleConfigUpdated}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-              editingConfig={editingConfig}
-              onEditComplete={() => setEditingConfig(null)}
-            />
-          </section>
-        </form>
-      </Form>
+      <PosSettingsSection
+        title={t('sync-cards')}
+        description={labels.syncCardsDescription}
+      >
+        <PosItemList
+          items={configs.map((config) => ({
+            id: config._id,
+            title: config.title || t('untitled'),
+          }))}
+          emptyIcon={IconRefresh}
+          emptyText={t('no-configs-yet')}
+          addLabel={t('add-config')}
+          addDisabled={!posId}
+          deleting={deleting}
+          onAdd={() => openConfig()}
+          onEdit={openConfig}
+          onDelete={handleDelete}
+        />
+      </PosSettingsSection>
     );
   };
 
-  return (
-    <div className="p-6">
-      <InfoCard title={t('sync-configuration')}>
-        <InfoCard.Content>{renderContent()}</InfoCard.Content>
-      </InfoCard>
-    </div>
-  );
+  return <>{renderContent()}</>;
 };
 
 export { SyncCard };

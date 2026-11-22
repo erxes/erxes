@@ -1,32 +1,13 @@
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ProjectProperties } from '@/project/components/details/ProjectProperties';
 import { useGetProject } from '@/project/hooks/useGetProject';
-import { useUpdateProject } from '@/project/hooks/useUpdateProject';
-import { IProjectDetail } from '@/project/types';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { Button, Empty, Skeleton, Spinner, TextField } from 'erxes-ui';
+import { Button, Empty, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IRecordPanelProps } from 'ui-modules';
 import { ProjectPanelActions } from './ProjectPanelActions';
 import { ProjectPanelDetail } from './ProjectPanelDetail';
 import { ProjectPanelNew } from './ProjectPanelNew';
-
-export const ProjectPanelTitle = ({ project }: { project: IProjectDetail }) => {
-  const { t } = useTranslation('operation');
-  const { updateProject } = useUpdateProject();
-  return (
-    <TextField
-      scope={`side-panel-project.${project._id}.name`}
-      value={project.name || ''}
-      placeholder={t('project-name')}
-      className="rounded-sm px-1 font-medium shadow-none"
-      onSave={(name) =>
-        name.trim() &&
-        updateProject({ variables: { _id: project._id, name: name.trim() } })
-      }
-    />
-  );
-};
 
 // Loading failed or the project is gone; offers Retry after an error.
 const ProjectPanelUnavailable = ({
@@ -67,27 +48,14 @@ const ProjectPanelUnavailable = ({
   );
 };
 
-const ProjectPanelTitleView = ({
-  project,
-  loading,
-}: {
-  project?: IProjectDetail | null;
-  loading: boolean;
-}) => {
-  const { t } = useTranslation('operation');
-  if (loading && !project) return <Skeleton className="h-4 w-32" />;
-  if (!project) return t('project', 'Project');
-  return <ProjectPanelTitle project={project} />;
-};
-
 export const ProjectPanel = ({ contentId, view }: IRecordPanelProps) => {
+  const { t } = useTranslation('operation');
   const { project, loading, error, refetch } = useGetProject(
-    view === 'new' ? undefined : contentId,
+    view === 'new' || view === 'title' ? undefined : contentId,
   );
 
   if (view === 'new') return <ProjectPanelNew />;
-  if (view === 'title')
-    return <ProjectPanelTitleView project={project} loading={loading} />;
+  if (view === 'title') return t('project-details');
   if (view === 'actions')
     return project ? <ProjectPanelActions project={project} /> : null;
   if (loading && !project) return <Spinner containerClassName="py-12" />;

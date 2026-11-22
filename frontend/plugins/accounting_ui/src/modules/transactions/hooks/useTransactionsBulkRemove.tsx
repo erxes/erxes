@@ -2,13 +2,11 @@ import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ACC_TRANSACTIONS_REMOVE } from '../graphql/accTransactionsRemove';
-import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
 import { ITransaction } from '../types/Transaction';
-import { useTransactionsVariables } from './useTransactionVars';
+import { removeTransactionParentFromCache } from '@/transactions/utils/transactionListChange';
 
 export const useTransactionsBulkRemove = () => {
   const { t } = useTranslation('accounting');
-  const variables = useTransactionsVariables();
   const [_removeTransactions, { loading }] = useMutation(
     ACC_TRANSACTIONS_REMOVE,
   );
@@ -23,15 +21,9 @@ export const useTransactionsBulkRemove = () => {
         uniqueParentIds.map((parentId) =>
           _removeTransactions({
             variables: { parentId },
-            refetchQueries: [
-              {
-                query: TRANSACTIONS_QUERY,
-                variables,
-              },
-            ],
+            optimisticResponse: { accTransactionsRemove: { parentId } },
             update: (cache) => {
-              cache.evict({ fieldName: 'accTrRecordsMain' });
-              cache.gc();
+              removeTransactionParentFromCache(cache, parentId);
             },
           }),
         ),

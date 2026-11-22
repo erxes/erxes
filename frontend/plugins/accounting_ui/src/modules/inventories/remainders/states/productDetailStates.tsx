@@ -4,8 +4,8 @@ export const renderingProductDetailAtom = atom(false);
 
 export const selectedRemainderProductAtom = atom<{
   productId: string;
-  productName: string;
-  productCode: string;
-  inventories: any;
-  remainder: any;
+  productName?: string;
+  productCode?: string;
+  inventories: unknown;
+  remainder: unknown;
 } | null>(null);

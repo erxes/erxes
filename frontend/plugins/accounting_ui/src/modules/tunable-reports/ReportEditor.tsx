@@ -1,12 +1,13 @@
 import { ReportIdentityField } from '@/tunable-reports/ReportIdentityField';
 import { TextareaSetting } from '@/tunable-reports/fields';
 import { ReportSettingsSheet } from '@/tunable-reports/ReportSettingsSheet';
-import { useState } from 'react';
+import { ReportPreviewSheet } from '@/tunable-reports/ReportPreviewSheet';
+import { ReactNode, useId, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useBeforeUnload } from 'react-router-dom';
 import { Button, Form, Spinner, useConfirm } from 'erxes-ui';
-import { IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconEye, IconPlus, IconSettings } from '@tabler/icons-react';
 import { AccountingTunableReportFieldsFragment } from '~/gql/graphql';
 import { reportFormSchema, ReportValues } from '@/tunable-reports/schema';
 import {
@@ -21,11 +22,23 @@ import { useReportActions } from '@/tunable-reports/useReports';
 import { useReportTranslation } from '@/tunable-reports/locales';
 import { notifyMutationResult } from '@/utils/graphqlMutation';
 
+// Save/cancel act on this editor's form, but the page places them in its top
+// bar beside the other report actions; the default keeps them below the body.
+const defaultLayout = (actions: ReactNode, body: ReactNode) => (
+  <>
+    {body}
+    <div className="flex justify-end gap-2 p-4 pt-0">{actions}</div>
+  </>
+);
+
 export const ReportEditor = ({
   report,
+  renderLayout = defaultLayout,
 }: {
   report?: AccountingTunableReportFieldsFragment;
+  renderLayout?: (actions: ReactNode, body: ReactNode) => ReactNode;
 }) => {
+  const formId = useId();
   const { t } = useReportTranslation();
   const navigate = useNavigate();
   const { confirm } = useConfirm();
@@ -39,6 +52,7 @@ export const ReportEditor = ({
   });
   const sections = useFieldArray({ control: form.control, name: 'sections' });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   useBeforeUnload((event) => {
     if (form.formState.isDirty) {
       event.preventDefault();
@@ -111,9 +125,31 @@ export const ReportEditor = ({
     if (remaining.length > 1 && currentIndex >= 0)
       sections.remove(currentIndex);
   };
-  return (
+  const actionButtons = (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        disabled={actions.saving}
+        onClick={() => void cancel()}
+      >
+        {t('cancel')}
+      </Button>
+      {canEdit && (
+        <Button
+          type="submit"
+          form={formId}
+          disabled={actions.saving || actions.removing}
+        >
+          {actions.saving && <Spinner />}
+          {t('save')}
+        </Button>
+      )}
+    </>
+  );
+  const body = (
     <Form {...form}>
-      <form onSubmit={save} className="space-y-6 p-4">
+      <form id={formId} onSubmit={save} className="space-y-6 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <fieldset
@@ -123,14 +159,24 @@ export const ReportEditor = ({
               <ReportIdentityField form={form} />
             </fieldset>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setSettingsOpen(true)}
-          >
-            <IconSettings />
-            {t('reportSettings')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPreviewOpen(true)}
+            >
+              <IconEye />
+              {t('preview')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <IconSettings />
+              {t('reportSettings')}
+            </Button>
+          </div>
         </div>
         <fieldset
           disabled={!canEdit || actions.saving || actions.removing}
@@ -172,28 +218,13 @@ export const ReportEditor = ({
           </Button>
           <TextareaSetting form={form} name="footer" label={t('footer')} />
         </fieldset>
-        <div className="sticky bottom-0 z-10 flex justify-end gap-2 border-t bg-background py-3">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={actions.saving}
-            onClick={() => void cancel()}
-          >
-            {t('cancel')}
-          </Button>
-          {canEdit && (
-            <Button type="submit" disabled={actions.saving || actions.removing}>
-              {actions.saving && <Spinner />}
-              {t('save')}
-            </Button>
-          )}
-        </div>
         <ReportSettingsSheet
           form={form}
           open={settingsOpen}
           onOpenChange={setSettingsOpen}
           onSave={save}
           canEdit={canEdit}
+          reportId={report?._id}
           busy={actions.saving || actions.removing}
           onRemove={
             report && actions.canRemove
@@ -204,7 +235,15 @@ export const ReportEditor = ({
               : undefined
           }
         />
+        {previewOpen && (
+          <ReportPreviewSheet
+            form={form}
+            open={previewOpen}
+            onOpenChange={setPreviewOpen}
+          />
+        )}
       </form>
     </Form>
   );
+  return renderLayout(actionButtons, body);
 };

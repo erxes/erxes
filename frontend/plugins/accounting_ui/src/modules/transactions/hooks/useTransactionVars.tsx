@@ -67,6 +67,7 @@ export const useTransactionsQueryParams = () => {
     currency: string;
     journal: string;
     statuses: string;
+    navStatus: string;
     mentionOwnerId: string;
     mentionUserId: string;
     createdUserId: string;
@@ -99,6 +100,7 @@ export const useTransactionsQueryParams = () => {
     'currency',
     'journal',
     'statuses',
+    'navStatus',
     'mentionOwnerId',
     'mentionUserId',
     'createdUserId',
@@ -124,6 +126,7 @@ export const buildTransactionsFilterVariables = (
 export const useTransactionsFilterVariables = () => {
   const queryParams = useTransactionsQueryParams();
 
+  // The backend resolves the default (real) and `navStatus` precedence.
   return buildTransactionsFilterVariables(queryParams);
 };
 

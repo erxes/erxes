@@ -1440,7 +1440,7 @@ describe('fixed asset adjustment', () => {
     );
   });
 
-  it('stops on the first day with an incomplete fixed asset transaction', async () => {
+  it('stops with a warning on the first day with an unsettled fixed asset transaction', async () => {
     const models = makeModels();
     const fixedAsset = {
       _id: 'asset-a',
@@ -1463,11 +1463,16 @@ describe('fixed asset adjustment', () => {
           });
         }
 
-        if (selector.status) {
+        // Only unsettled tiers are queried; drafts never reach this check.
+        if (
+          (selector.status as { $in?: string[] } | undefined)?.$in?.includes(
+            TR_STATUSES.EXECUTING,
+          )
+        ) {
           return queryResult({
-            _id: 'tr-draft',
+            _id: 'tr-executing',
             number: '20260102_001',
-            status: TR_STATUSES.DRAFT,
+            status: TR_STATUSES.EXECUTING,
           });
         }
 
@@ -1500,7 +1505,8 @@ describe('fixed asset adjustment', () => {
       'adjust-a',
       expect.objectContaining({
         status: ADJ_FXA_STATUSES.PROCESS,
-        error: expect.stringContaining('20260102_001'),
+        error: '',
+        warning: expect.stringContaining('20260102_001 (executing)'),
       }),
     );
   });

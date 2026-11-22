@@ -1,9 +1,11 @@
 import { initTRPC } from '@trpc/server';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import sift from 'sift';
 import { z } from 'zod';
 import { AccountingTRPCContext } from '~/init-trpc';
-import { generateFilter } from '../graphql/resolvers/queries/transactionsCommon';
+import {
+  getListChangeRows,
+  getListFilterMatches,
+  LIST_CHANGE_ROWS_LIMIT,
+} from '@/accounting/utils/transactionListRows';
 
 const t = initTRPC.context<AccountingTRPCContext>().create();
 
@@ -20,6 +22,7 @@ export const transactionTrpcRouter = t.router({
     getFilterMatches: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
         const {
           filter,
           oldTransaction,
@@ -28,32 +31,35 @@ export const transactionTrpcRouter = t.router({
           transactions = [],
           userId,
         } = input;
+
+        return await getListFilterMatches({
+          models,
+          subdomain,
+          userId,
+          filter: filter || {},
+          oldDocs: [oldTransaction, ...oldTransactions],
+          newDocs: [transaction, ...transactions],
+        });
+      }),
+    getListChangeRows: t.procedure
+      .input(
+        z.object({
+          userId: z.string().min(1),
+          list: z.enum(['transactions', 'trRecords']),
+          trIds: z.array(z.string()).min(1).max(LIST_CHANGE_ROWS_LIMIT),
+          trJournals: z.record(z.string(), z.array(z.string())).default({}),
+          filter: z.record(z.string(), z.unknown()).nullish(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
-        const user = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'users',
-          action: 'findOne',
-          input: { query: { _id: userId } },
-          defaultValue: { _id: userId },
-        });
-
-        const filterParams = await generateFilter(
-          subdomain,
+        return await getListChangeRows({
           models,
-          filter || {},
-          user,
-        );
-
-        const oldDocs = [oldTransaction, ...oldTransactions].filter(Boolean);
-        const newDocs = [transaction, ...transactions].filter(Boolean);
-
-        const matchesOld = oldDocs.some((tr) => sift(filterParams)(tr));
-        const matchesNew = newDocs.some((tr) => sift(filterParams)(tr));
-
-        return { matchesOld, matchesNew };
+          subdomain,
+          ...input,
+          filter: input.filter ?? undefined,
+        });
       }),
   }),
 });

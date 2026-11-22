@@ -9,10 +9,7 @@ import { ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
-import {
-  ProjectPanel,
-  ProjectPanelTitle,
-} from '~/widgets/record-panel/ProjectPanel';
+import { ProjectPanel } from '~/widgets/record-panel/ProjectPanel';
 import { ProjectPanelActions } from '~/widgets/record-panel/ProjectPanelActions';
 import {
   ProjectPageDescription,
@@ -53,7 +50,7 @@ export const ProjectDetailPage = () => {
           </>
         )
       }
-      title={project && <ProjectPanelTitle project={project} />}
+      title={t('project-details')}
       fields={project && <ProjectPageFields project={project} />}
       description={project && <ProjectPageDescription project={project} />}
       activity={

@@ -10,10 +10,4 @@ export const adjustClosingSchema = z.object({
   periodGLAccountId: z.string().min(1),
   earningAccountId: z.string().min(1),
   taxPayableAccountId: z.string().min(1),
-
-  accountId: z.string().optional(),
-  balance: z.number().optional(),
-  percent: z.number().optional(),
-  mainAccTrId: z.string().optional(),
-  integrateTrId: z.string().optional(),
 });

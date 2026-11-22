@@ -7,10 +7,13 @@ import {
   IconChevronRight,
   IconCircleCheck,
   IconClockEdit,
-  IconCrane,
+  IconEdit,
+  IconEraser,
   IconGavel,
   IconHelpSquareRounded,
+  IconLockOpen,
   IconPlayerPlay,
+  IconRefresh,
   IconRotateClockwise2,
   IconTrashX,
 } from '@tabler/icons-react';
@@ -44,6 +47,7 @@ import { ITBalanceTransaction } from '~/modules/transactions/transaction-form/ty
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
 import {
+  ADJ_CLOSING_STATUSES,
   IAdjustClosing,
   IAdjustClosingDetailItem,
 } from '~/modules/adjustments/closing/types/AdjustClosing';
@@ -54,10 +58,13 @@ import {
   useAdjustClosingDetails,
 } from '../hooks/useAdjustClosingDetail';
 import { useAdjustClosingPublish } from '../hooks/useAdjustClosingPublish';
+import { AdjustWarning } from '@/adjustments/components/AdjustWarning';
 import { useAdjustClosingEntryRemove } from '../hooks/useAdjustClosingRemove';
 import { useAdjustClosingCancel } from '../hooks/useAdjustClosingCancel';
 import { notifyMutationResult } from '@/utils/graphqlMutation';
 import { useAdjustClosingEdit } from '../hooks/useAdjustClosingEdit';
+import { ADJUST_CLOSING_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 interface AdjustClosingDetailProps {
   id?: string;
@@ -135,31 +142,47 @@ const getDepartmentLabel = (
   };
 };
 
+const groupRowsByPointer = (rows: ITBalanceTransaction[]) => {
+  const rowsByPointer = new Map<string, ITBalanceTransaction[]>();
+
+  for (const row of rows) {
+    const pointer = row.ptrId || '';
+    const group = rowsByPointer.get(pointer);
+
+    if (group) group.push(row);
+    else rowsByPointer.set(pointer, [row]);
+  }
+
+  return [...rowsByPointer.values()].flat();
+};
+
 const makeLinkedTransactionRows = (
   transactions: ITransaction[],
   branchMap: TStructureLabelMap,
   departmentMap: TStructureLabelMap,
 ): ITBalanceTransaction[] =>
-  transactions.flatMap((transaction, transactionIndex) =>
-    (transaction.details || []).map((detail) => ({
-      ...transaction,
-      _id: `${transaction._id || transaction.parentId || transactionIndex}:${
-        detail._id || detail.accountId || transactionIndex
-      }`,
-      date: new Date(transaction.date || new Date()),
-      number: transaction.number || transaction.ptrNumber,
-      detail,
-      branch:
-        transaction.branch ||
-        getBranchLabel(detail.branchId || transaction.branchId, branchMap),
-      department:
-        transaction.department ||
-        getDepartmentLabel(
-          detail.departmentId || transaction.departmentId,
-          departmentMap,
-        ),
-      journalIndex: transactionIndex.toString(),
-    })),
+  groupRowsByPointer(
+    transactions.flatMap((transaction, transactionIndex) =>
+      (transaction.details || []).map((detail) => ({
+        ...transaction,
+        _id: `${transaction._id || transaction.parentId || transactionIndex}:${
+          detail._id || detail.accountId || transactionIndex
+        }`,
+        date: new Date(transaction.date || new Date()),
+        number: transaction.number || transaction.ptrNumber,
+        detail,
+        branch:
+          transaction.branch ||
+          getBranchLabel(detail.branchId || transaction.branchId, branchMap),
+        department:
+          transaction.department ||
+          getDepartmentLabel(
+            detail.departmentId || transaction.departmentId,
+            departmentMap,
+          ),
+        journalIndex: transactionIndex.toString(),
+      })),
+    ),
   );
 
 const ClosingAccountCell = ({
@@ -272,84 +295,110 @@ const createClosingEntryColumns = (
   },
 ];
 
-const ClosingActionButtons = ({
-  calculateLoading,
-  error,
-  onCalculate,
-  onCancel,
-  onDelete,
-  onPublish,
-  onRun,
-  removeLoading,
-  runLoading,
-  status,
-}: {
-  calculateLoading: boolean;
+type TClosingActionButtonsProps = {
   error?: string;
+  loading: {
+    calculate: boolean;
+    run: boolean;
+    clear: boolean;
+    publish: boolean;
+    cancel: boolean;
+    remove: boolean;
+  };
   onCalculate: () => void;
   onCancel: () => void;
+  onClear: () => void;
   onDelete: () => void;
   onPublish: () => void;
   onRun: () => void;
-  removeLoading: boolean;
-  runLoading: boolean;
   status?: string;
-}) => {
+};
+
+const ClosingActionButtons = ({
+  error,
+  loading,
+  onCalculate,
+  onCancel,
+  onClear,
+  onDelete,
+  onPublish,
+  onRun,
+  status,
+}: TClosingActionButtonsProps) => {
   const { t } = useTranslation('accounting');
-  const currentStatus = status || ADJ_INV_STATUSES.DRAFT;
+  const currentStatus = status || ADJ_CLOSING_STATUSES.DRAFT;
+
+  const deleteButton = (
+    <Button
+      variant="secondary"
+      className="text-destructive"
+      onClick={onDelete}
+      disabled={loading.remove}
+    >
+      {loading.remove ? <Spinner /> : <IconTrashX />}
+      {t('delete')}
+    </Button>
+  );
 
   switch (currentStatus) {
-    case ADJ_INV_STATUSES.DRAFT:
-    case ADJ_INV_STATUSES.PROCESS:
+    case ADJ_CLOSING_STATUSES.DRAFT:
       return (
         <>
-          <Button onClick={onCalculate} disabled={calculateLoading}>
-            {calculateLoading ? <Spinner /> : <IconCalculator />}
+          <Button onClick={onCalculate} disabled={loading.calculate}>
+            {loading.calculate ? <Spinner /> : <IconCalculator />}
             {t('Calculate')}
           </Button>
-          {currentStatus === ADJ_INV_STATUSES.PROCESS && !error && (
-            <Button onClick={onRun} disabled={runLoading}>
-              {runLoading ? <Spinner /> : <IconPlayerPlay />}
+          {deleteButton}
+        </>
+      );
+
+    case ADJ_CLOSING_STATUSES.PROCESS:
+    case ADJ_CLOSING_STATUSES.WARNING:
+      return (
+        <>
+          <Button onClick={onCalculate} disabled={loading.calculate}>
+            {loading.calculate ? <Spinner /> : <IconRefresh />}
+            {t('recalc')}
+          </Button>
+          {currentStatus === ADJ_CLOSING_STATUSES.PROCESS && !error && (
+            <Button onClick={onRun} disabled={loading.run}>
+              {loading.run ? <Spinner /> : <IconPlayerPlay />}
               {t('do-transaction')}
             </Button>
           )}
+          {deleteButton}
+        </>
+      );
+
+    case ADJ_CLOSING_STATUSES.COMPLETE:
+      return (
+        <>
           <Button
             variant="secondary"
             className="text-destructive"
-            onClick={onDelete}
-            disabled={removeLoading}
+            onClick={onClear}
+            disabled={loading.clear}
           >
-            {removeLoading ? <Spinner /> : <IconTrashX />}
-            {t('delete')}
+            {loading.clear ? <Spinner /> : <IconEraser />}
+            {t('Clear transactions')}
+          </Button>
+          <Button onClick={onPublish} disabled={loading.publish}>
+            {loading.publish ? <Spinner /> : <IconGavel />}
+            {t('publish')}
           </Button>
         </>
       );
 
-    case ADJ_INV_STATUSES.PUBLISH:
+    case ADJ_CLOSING_STATUSES.PUBLISH:
       return (
         <Button
           variant="secondary"
           className="text-destructive"
           onClick={onCancel}
+          disabled={loading.cancel}
         >
-          <IconTrashX />
-          {t('draft')}
-        </Button>
-      );
-
-    case ADJ_INV_STATUSES.COMPLETE:
-      return (
-        <Button onClick={onPublish}>
-          <IconGavel />
-          {t('publish')}
-        </Button>
-      );
-
-    case ADJ_INV_STATUSES.RUNNING:
-      return (
-        <Button onClick={onRun}>
-          <IconCrane />
-          {t('stop')}
+          {loading.cancel ? <Spinner /> : <IconLockOpen />}
+          {t('Unpublish')}
         </Button>
       );
 
@@ -377,14 +426,21 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   });
 
   const { adjustClosingEdit } = useAdjustClosingEdit();
+  const { openDetail } = useSettingsPanel(ADJUST_CLOSING_CONTENT_TYPE);
   const {
     calculateAdjust,
     calculateLoading,
     runAdjust,
     loading: runLoading,
+    clearTransactions,
+    clearLoading,
   } = useAdjustClosingRun(id ?? '');
-  const { publishAdjust } = useAdjustClosingPublish(id ?? '');
-  const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
+  const { publishAdjust, loading: publishLoading } = useAdjustClosingPublish(
+    id ?? '',
+  );
+  const { cancelAdjust, loading: cancelLoading } = useAdjustClosingCancel(
+    id ?? '',
+  );
   const { removeAdjust, loading: removeLoading } =
     useAdjustClosingEntryRemove();
 
@@ -465,13 +521,26 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const handleRun = () => runAdjust();
   const handlePublish = () => publishAdjust();
   const handleCancel = () => cancelAdjust();
+  const handleClear = () => {
+    if (!clearLoading) {
+      void confirm({
+        message: t(
+          'Are you sure you want to delete the transactions of this closing?',
+        ),
+      }).then(() => clearTransactions());
+    }
+  };
   const handleDelete = () => {
     if (id && !removeLoading) {
       void confirm({
         message: t('Are you sure you want to delete this adjustment?'),
       }).then(() =>
         removeAdjust(id, {
-          onError: (error) => notifyMutationResult(false, error.message),
+          onError: (error) =>
+            notifyMutationResult(
+              false,
+              t(error.message, { nsSeparator: false }),
+            ),
           onCompleted: () =>
             notifyMutationResult(true, t('Adjustment deleted successfully')),
         }),
@@ -538,19 +607,29 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
           <div className="flex gap-2">
             <ClosingActionButtons
-              calculateLoading={calculateLoading}
               error={adjustClosingDetail?.error}
+              loading={{
+                calculate: calculateLoading,
+                run: runLoading,
+                clear: clearLoading,
+                publish: publishLoading,
+                cancel: cancelLoading,
+                remove: removeLoading,
+              }}
               onCalculate={handleCalculate}
               onCancel={handleCancel}
+              onClear={handleClear}
               onDelete={handleDelete}
-              removeLoading={removeLoading}
               onPublish={handlePublish}
               onRun={handleRun}
-              runLoading={runLoading}
-              status={
-                adjustClosingDetail?.status ? t(adjustClosingDetail.status) : ''
-              }
+              status={adjustClosingDetail?.status}
             />
+            {adjustClosingDetail?.status !== ADJ_CLOSING_STATUSES.PUBLISH && (
+              <Button variant="outline" onClick={() => id && openDetail(id)}>
+                <IconEdit />
+                {t('edit')}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -589,6 +668,8 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
               }: ${adjustClosingDetail.error}`}
             </div>
           )}
+
+          <AdjustWarning warning={adjustClosingDetail?.warning} />
 
           {typeof adjustClosingDetail?.taxImpactValue === 'number' && (
             <div className="rounded-md border p-3 text-sm">

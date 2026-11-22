@@ -22,6 +22,22 @@ export const transactionSchema = schemaWrapper(
 
 transactionSchema.index({ invoiceId: 1 });
 
+// Khanbank: finds statement lines already settled by another transaction
+transactionSchema.index(
+  { paymentId: 1, 'response.matched.record': 1 },
+  {
+    partialFilterExpression: {
+      'response.matched.record': { $exists: true },
+    },
+  },
+);
+
+// Khanbank: matches saved before they were nested under `matched`
+transactionSchema.index(
+  { paymentId: 1, 'response.record': 1 },
+  { partialFilterExpression: { 'response.record': { $exists: true } } },
+);
+
 // TODO: readd after server time issue fixed
 // transactionSchema.index(
 //   { createdAt: 1 },

@@ -96,7 +96,9 @@ export const useExecutionActions = () => {
     } finally {
       onProcessed?.(completed);
       try {
-        await client.refetchQueries({ include: ['AccountingJobExecutions'] });
+        await client.refetchQueries({
+          include: ['AccountingJobExecutions', 'AccountingJobExecutionDetail'],
+        });
       } catch (error) {
         toast({
           title: t('error'),

@@ -33,7 +33,7 @@ export const useAdjustClosingDetailWithQuery = (
       if (error) {
         toast({
           title: t('error'),
-          description: error.message,
+          description: t(error.message, { nsSeparator: false }),
           variant: 'destructive',
         });
       }

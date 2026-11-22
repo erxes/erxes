@@ -16,6 +16,7 @@ export enum TrJournalEnum {
   RECEIVABLE = 'receivable',
   PAYABLE = 'payable',
   EXCHANGE_DIFF = 'exchangeDiff',
+  CLOSING = 'closing',
   TAX = 'tax',
 
   INV_INCOME = 'invIncome',
@@ -57,6 +58,7 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.RECEIVABLE]: 'accounts-receivable',
   [TrJournalEnum.PAYABLE]: 'accounts-payable',
   [TrJournalEnum.EXCHANGE_DIFF]: 'exchange-rate-difference',
+  [TrJournalEnum.CLOSING]: 'closing',
 
   [TrJournalEnum.INV_INCOME]: 'inventory-receipt',
   [TrJournalEnum.INV_OUT]: 'inventory-issue',
@@ -188,6 +190,7 @@ export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
       TrJournalEnum.MAIN,
       TrJournalEnum.TAX,
       TrJournalEnum.EXCHANGE_DIFF,
+      TrJournalEnum.CLOSING,
     ],
   },
   {
@@ -272,83 +275,48 @@ export const INV_INCOME_EXPENSE_TYPES = [
   { value: 'weight', label: 'weight' },
 ];
 
-export const TR_STATUSES = {
-  // future level
-  PLAN: 'plan',
-  // conversation level
+const TRANSACTION_STATUS = {
+  ESTIMATED: 'estimated',
+  COMPLETE: 'complete',
+  EXECUTING: 'executing',
+  REQUESTED: 'requested',
   DRAFT: 'draft',
   MENTIONED: 'mentioned',
-  APPROVED: 'approved',
-  REJECED: 'rejeced',
-  RETURNED: 'returned',
-  // business level
-  PROGRESS: 'progress',
-  ASSIGNED: 'assigned',
-  CONFIRMED: 'confirmed',
-  CANELLED: 'canelled',
-  COMPLETE: 'complete',
-
-  ALL: [
-    'plan',
-    'draft',
-    'mentioned',
-    'approved',
-    'rejeced',
-    'returned',
-    'progress',
-    'assigned',
-    'confirmed',
-    'canelled',
-    'complete',
-  ],
+  PLAN: 'plan',
 };
 
-export const TR_STATUS_LABELS: Record<string, string> = {
-  // future level
-  plan: 'planned',
-  // conversation level
-  draft: 'draft',
-  mentioned: 'request',
-  approved: 'authorized',
-  rejeced: 'rejected',
-  returned: 'response-request',
-  // business level
-  progress: 'in-progress',
-  assigned: 'assigned',
-  confirmed: 'approved-label',
-  canelled: 'cancelled',
+export const TR_COMMITTED_STATUSES = [
+  TRANSACTION_STATUS.ESTIMATED,
+  TRANSACTION_STATUS.COMPLETE,
+];
 
-  complete: 'complete',
-};
-
-export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
-  value: status,
-  label: TR_STATUS_LABELS[status] || status,
-}));
-
+// Display order and accounting tier: Committed is real, Pending reserves
+// (soon), Draft is omitted; Planned stands alone and is omitted as well.
+// `key` is the sidebar `navStatus` value the backend resolves per user.
 export const TR_STATUS_GROUPS = [
   {
-    label: 'PUBLISHED',
-    values: [
-      TR_STATUSES.PROGRESS,
-      TR_STATUSES.ASSIGNED,
-      TR_STATUSES.CONFIRMED,
-      TR_STATUSES.CANELLED,
-      TR_STATUSES.COMPLETE,
-    ],
+    key: 'committed',
+    label: 'tr-status-committed',
+    values: TR_COMMITTED_STATUSES,
   },
   {
-    label: 'DRAFTED',
-    values: [
-      TR_STATUSES.DRAFT,
-      TR_STATUSES.MENTIONED,
-      TR_STATUSES.APPROVED,
-      TR_STATUSES.REJECED,
-      TR_STATUSES.RETURNED,
-    ],
+    key: 'pending',
+    label: 'tr-status-pending',
+    values: [TRANSACTION_STATUS.EXECUTING, TRANSACTION_STATUS.REQUESTED],
   },
   {
-    label: '',
-    values: [TR_STATUSES.PLAN],
+    key: 'drafts',
+    label: 'tr-status-drafts',
+    values: [TRANSACTION_STATUS.DRAFT, TRANSACTION_STATUS.MENTIONED],
   },
+  { key: 'plan', label: 'tr-status-plan', values: [TRANSACTION_STATUS.PLAN] },
 ];
+
+export const TR_STATUSES = {
+  ...TRANSACTION_STATUS,
+  ALL: TR_STATUS_GROUPS.flatMap((group) => group.values),
+};
+
+export const TR_STATUS_LABELS: Record<string, string> = Object.fromEntries(
+  TR_STATUSES.ALL.map((status) => [status, `tr-status-${status}`]),
+);

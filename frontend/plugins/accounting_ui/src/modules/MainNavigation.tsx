@@ -9,6 +9,7 @@ import {
 import { NavigationMenuLinkItem, sidebarPanelOpenState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { TransactionStatusNavigation } from '@/transactions/components/TransactionStatusNavigation';
 
 export const MainNavigation = () => {
   const { t } = useTranslation('accounting');
@@ -21,6 +22,7 @@ export const MainNavigation = () => {
         icon={IconListDetails}
         path="main"
         pathPrefix="accounting"
+        action={<TransactionStatusNavigation />}
       />
       <NavigationMenuLinkItem
         name={t('journal-entries')}

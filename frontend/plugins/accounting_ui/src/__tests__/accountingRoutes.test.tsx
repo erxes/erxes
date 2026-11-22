@@ -4,6 +4,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AccountingEntry from '@/AccountingMain';
 import { MainNavigation } from '@/MainNavigation';
+import { CONFIG } from '~/config';
 
 type LocaleTree = { [key: string]: string | LocaleTree };
 
@@ -179,6 +180,46 @@ jest.mock('@/check-synced/AccountingCheckSync', () => ({
 jest.mock('~/pages/SettingsPage', () => ({
   SettingsPage: () => <h2>Accounting settings</h2>,
 }));
+jest.mock('~/searchProviders', () => ({ SEARCH_PROVIDERS: [] }));
+jest.mock('~/pages/AdjustInventoryListPage', () => ({
+  AdjustInventoryListPage: () => <h2>Inventory cost adjustments</h2>,
+}));
+jest.mock('~/pages/AdjustFundRateListPage', () => ({
+  AdjustFundRateListPage: () => <h2>Fund rate adjustments</h2>,
+}));
+jest.mock('~/pages/AdjustDebtRateListPage', () => ({
+  AdjustDebtRateListPage: () => <h2>Debt rate adjustments</h2>,
+}));
+jest.mock('~/pages/AdjustFixedAssetListPage', () => ({
+  AdjustFixedAssetListPage: () => <h2>Fixed asset adjustments</h2>,
+}));
+jest.mock('~/pages/AdjustClosingPage', () => ({
+  AdjustClosingListPage: () => <h2>Closing entries</h2>,
+}));
+jest.mock('~/pages/inventories/RemaindersPage', () => ({
+  RemaindersPage: () => <h2>Inventory remainders</h2>,
+}));
+jest.mock('~/pages/inventories/SafeRemaindersPage', () => ({
+  SafeRemaindersPage: () => <h2>Inventory count</h2>,
+}));
+jest.mock('~/pages/inventories/ReserveRemaindersPage', () => ({
+  ReserveRemaindersPage: () => <h2>Reserve remainders</h2>,
+}));
+jest.mock('~/pages/inventories/JobExecutionsPage', () => ({
+  JobExecutionsPage: () => <h2>Job executions</h2>,
+}));
+jest.mock('~/pages/fixed-assets/FxaRemaindersPage', () => ({
+  FxaRemaindersPage: () => <h2>Fixed asset remainders</h2>,
+}));
+jest.mock('~/pages/FixedAssetsPage', () => ({
+  FixedAssetsPage: () => <h2>Fixed assets</h2>,
+}));
+jest.mock('~/pages/JobsPage', () => ({
+  JobsPage: () => <h2>Inventory jobs</h2>,
+}));
+jest.mock('~/pages/fixed-assets/FxaOwnerRecordsPage', () => ({
+  FxaOwnerRecordsPage: () => <h2>Fixed asset owner records</h2>,
+}));
 
 const renderAccountingAt = (path: string) =>
   render(
@@ -233,6 +274,16 @@ describe('accounting routes', () => {
 
     expect(await screen.findByText('Accounting settings')).toBeTruthy();
   });
+
+  it.each(CONFIG.modules.map(({ name, path }) => ({ name, path })))(
+    'opens a real page for the $name app navigation entry',
+    async ({ path }) => {
+      renderAccountingAt(`/${path}`);
+
+      expect(await screen.findByRole('heading')).toBeTruthy();
+      expect(screen.queryByText('Oops! Page not found.')).toBeNull();
+    },
+  );
 
   it('no longer offers incomplete transactions in the sidebar', () => {
     renderAccountingAt('/accounting/main');

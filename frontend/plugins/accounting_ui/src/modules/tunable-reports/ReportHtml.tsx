@@ -1,33 +1,23 @@
 import { useMemo } from 'react';
-import DOMPurify from 'dompurify';
+import {
+  ReportOrganization,
+  sanitizeReportHtml,
+} from '@/tunable-reports/reportText';
 
 export const ReportHtml = ({
   value,
   fromDate,
   toDate,
+  organization,
 }: {
   value: string;
   fromDate?: string;
   toDate?: string;
+  organization?: ReportOrganization;
 }) => {
   const html = useMemo(
-    () =>
-      DOMPurify.sanitize(
-        value
-          .replace(
-            /\{(?:begin_date|from_date|from-date|fromDate)\}/g,
-            (token) => fromDate ?? token,
-          )
-          .replace(
-            /\{(?:end_date|to_date|to-date|toDate)\}/g,
-            (token) => toDate ?? token,
-          ),
-        {
-          USE_PROFILES: { html: true },
-          FORBID_TAGS: ['style'],
-        },
-      ),
-    [value, fromDate, toDate],
+    () => sanitizeReportHtml(value, { fromDate, toDate, organization }),
+    [value, fromDate, toDate, organization],
   );
   return (
     <div

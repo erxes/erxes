@@ -16,6 +16,7 @@ import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import { generateModels, IModels } from '../connectionResolver';
 import { readSessionCookie, verifySession } from '../util/session';
+import { withSupportFullAccess } from '../util/supportAccess';
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ const hashToken = (token: string) =>
 // Fields forwarded to subgraphs inside the `user` header; shared by the
 // session-JWT branch and the agent-auth branch below.
 const USER_HEADER_PROJECTION =
-  '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions';
+  '_id email details isOwner supportFullAccess groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions';
 
 const debugAuth = (
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
@@ -210,7 +211,7 @@ export default async function userMiddleware(
 
     // The `agent` marker flags the call as agent-initiated for subgraphs.
     req.user = {
-      ...agentUserDoc,
+      ...withSupportFullAccess(agentUserDoc),
       agent: agentAuth.threadId ? { threadId: agentAuth.threadId } : {},
     };
     setUserHeader(req.headers, req.user);
@@ -370,7 +371,7 @@ export default async function userMiddleware(
         : null;
 
       if (userDoc) {
-        req.user = { ...userDoc };
+        req.user = withSupportFullAccess({ ...userDoc });
         req.user.sessionCode = req.headers.sessioncode || '';
 
         setUserHeader(req.headers, req.user);
@@ -451,7 +452,7 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = { ...userDoc };
+    req.user = withSupportFullAccess({ ...userDoc });
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
 

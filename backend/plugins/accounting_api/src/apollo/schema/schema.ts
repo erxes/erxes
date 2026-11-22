@@ -33,6 +33,7 @@ import {
   queries as journalReportQueries,
   types as journalReportTypes,
 } from '@/accounting/graphql/schemas/journalReports';
+import { queries as taxReportQueries } from '@/accounting/graphql/schemas/taxReport';
 import {
   mutations as adjustFixedAssetMutations,
   queries as adjustFixedAssetQueries,
@@ -170,6 +171,7 @@ export const queries = `
   ${adjustFundRateQueries}
   ${adjustDebtRateQueries}
   ${journalReportQueries}
+  ${taxReportQueries}
   ${adjustClosingQueries}
   ${fixedAssetCategoryQueries}
   ${fixedAssetQueries}

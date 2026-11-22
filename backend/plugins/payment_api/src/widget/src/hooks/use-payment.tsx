@@ -7,6 +7,8 @@ type Props = {
     apiDomain: string;
     newTransaction: Transaction;
     transactionLoading?: boolean;
+    // Failed new-transaction requests, by payment method id
+    transactionErrors?: Record<string, string>;
     checkInvoiceLoading?: boolean;
     requestNewTransaction: (paymentId: string, details?: any) => void;
     checkInvoiceHandler: (id: string) => void;

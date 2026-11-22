@@ -149,7 +149,7 @@ describe('transaction side panel', () => {
 
     expect(fieldText('number')).toBe('2026110514_001');
     expect(fieldText('date')).toBe('2026-10-09');
-    expect(fieldText('status')).toBe('complete');
+    expect(fieldText('status')).toBe('tr-status-complete');
     expect(fieldText('description')).toBe('Land purchase');
     expect(
       screen.getByRole('link', { name: 'open-deal' }).getAttribute('href'),
@@ -163,7 +163,7 @@ describe('transaction side panel', () => {
       <Detail contentType="accounting:transaction" contentId="parent-8" />,
     );
 
-    expect(fieldText('status')).toBe('draft');
+    expect(fieldText('status')).toBe('tr-status-draft');
     expect(screen.queryByRole('link')).toBeNull();
   });
 
