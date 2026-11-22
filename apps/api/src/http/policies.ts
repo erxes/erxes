@@ -273,6 +273,7 @@ export const ACCESS = {
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.remove': { member: 'products.manage', plugin: 'products:write' },
 
+  'secrets.holdings': needs('integrations.manage'),
   'secrets.save': { plugin: 'secrets:write' },
   'secrets.replace': { plugin: 'secrets:write' },
   'secrets.read': { plugin: 'secrets:write' },

@@ -132,7 +132,8 @@
     "assistant-code-mode": "Code mode",
     "assistant-appearance": "Appearance",
     "email-sending": "Email sending",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "vault": "Vault"
   },
   "auth": {
     "welcome": "Welcome",
@@ -663,7 +664,8 @@
       "Customer": "Customer",
       "Company": "Company",
       "Product": "Product",
-      "Team member": "Team member"
+      "Team member": "Team member",
+      "Connection": "Connection"
     }
   },
   "two-factor": {

@@ -39,6 +39,24 @@ const MemberDetail = lazyPanelView(async () => {
   return detail.MemberDetail;
 });
 
+const ConnectionPanel = lazyPanelView(async () => {
+  const [panel] = await Promise.all([
+    import('~/modules/settings/vault/ConnectionPanel'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return panel.ConnectionPanel;
+});
+
+const ConnectionPanelNew = lazyPanelView(async () => {
+  const [panel] = await Promise.all([
+    import('~/modules/settings/vault/ConnectionPanelNew'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return panel.ConnectionPanelNew;
+});
+
 const PluginRecordView = lazyPanelView(
   async () => (await import('~/modules/plugins/PluginRecordView')).PluginRecordView,
 );
@@ -88,6 +106,13 @@ const PANEL_RECORD_TYPES = {
     View: MemberDetail,
     listPath: () => paths.settings.teamMembers,
     pagePath: paths.settings.teamMember,
+  },
+  'core:connection': {
+    label: 'Connection',
+    View: ConnectionPanel,
+    New: ConnectionPanelNew,
+    listPath: () => paths.settings.vault,
+    pagePath: paths.settings.vaultConnection,
   },
 } satisfies Record<string, IPanelRecordType>;
 

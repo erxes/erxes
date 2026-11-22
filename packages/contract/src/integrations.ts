@@ -24,6 +24,12 @@ export const IntegrationConnection = createSelectSchema(integrationConnections, 
 
 export type IntegrationConnection = z.infer<typeof IntegrationConnection>;
 
+export const VaultConnection = IntegrationConnection.extend({
+  usedBy: z.array(z.string()),
+});
+
+export type VaultConnection = z.infer<typeof VaultConnection>;
+
 export const IntegrationField = z.object({
   key: z.string(),
   label: z.string(),
@@ -54,6 +60,7 @@ export const Integration = z.object({
   countries: z.array(z.string()),
   permission: z.string(),
   dashboard: z.string().nullable(),
+  keyed: z.boolean(),
   fields: z.array(IntegrationField),
   payments: IntegrationPayments.nullable(),
   status: IntegrationStatus,
@@ -82,11 +89,12 @@ export const integrationsContract = {
   connections: base
     .route({
       method: 'GET',
-      path: '/integrations/{key}/connections',
-      summary: "An integration's connections, with their settings but never their secrets",
+      path: '/integrations/connections',
+      summary:
+        'The connections the member may manage, of one integration or of all, with their settings and what uses them but never their secrets',
     })
-    .input(z.object({ key: IntegrationKey }))
-    .output(listOf(IntegrationConnection)),
+    .input(z.object({ key: IntegrationKey.optional() }))
+    .output(listOf(VaultConnection)),
   connect: base
     .route({
       method: 'POST',

@@ -301,6 +301,13 @@ export { PanelSection } from './modules/record-panel/PanelSection';
 
 export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/panelExpansion';
 
+export {
+  CONNECTION_CONTENT_TYPE,
+  ConnectionPicker,
+  type ConnectionPickerProps,
+  setConnectionPicker,
+} from './modules/records/ConnectionPicker';
+
 export { ContactLink } from './modules/records/ContactLink';
 
 export {

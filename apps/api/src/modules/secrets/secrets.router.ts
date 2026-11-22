@@ -1,10 +1,12 @@
 import { caller, db } from '@erxes/core-db';
 import { scoped } from '~/orpc';
+import { listHoldings } from './holdings.service';
 import { readSecretAs, removeSecretAs, saveSecretAs } from './vault';
 
 const owner = () => caller('plugin').plugin;
 
 export const secretsRouter = {
+  holdings: scoped.secrets.holdings.handler(() => listHoldings(db())),
   save: scoped.secrets.save.handler(async ({ input }) => ({
     id: await saveSecretAs(db(), owner(), input.value),
   })),

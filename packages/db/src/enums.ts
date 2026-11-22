@@ -452,6 +452,16 @@ export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] 
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
 
+export const VAULT_HOLDERS = [
+  'email',
+  'file-bucket',
+  'webhook',
+  'assistant',
+  'audit-stream',
+  'two-step',
+  'plugin',
+] as const;
+
 export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
 
 export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch'] as const;

@@ -141,7 +141,8 @@
     "assistant-code-mode": "Код горим",
     "assistant-appearance": "Төрх",
     "email-sending": "Имэйл илгээлт",
-    "integrations": "Холболтууд"
+    "integrations": "Холболтууд",
+    "vault": "Нууц сан"
   },
   "auth": {
     "welcome": "Тавтай морил",
@@ -672,7 +673,8 @@
       "Customer": "Харилцагч",
       "Company": "Компани",
       "Product": "Бүтээгдэхүүн",
-      "Team member": "Багийн гишүүн"
+      "Team member": "Багийн гишүүн",
+      "Connection": "Холболт"
     }
   },
   "two-factor": {
