@@ -64,7 +64,7 @@ interface InvoiceInput {
 /** The gateway's invoice; a refusal (a payer it can't bill, an amount it won't take) is a 400. */
 const openAtGateway = async (gateway: GatewayRow, input: CreateInvoiceInput) => {
   try {
-    return await driverOf(gateway).createInvoice(input);
+    return await (await driverOf(gateway)).createInvoice(input);
   } catch (error) {
     if (!(error instanceof GatewayError)) throw error;
 
@@ -187,7 +187,9 @@ export const cancelInvoice = async (id: string) => {
   }
 
   await driverOf(gateway)
-    .cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment)
+    .then((driver) =>
+      driver.cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment),
+    )
     .catch((error: unknown) =>
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );

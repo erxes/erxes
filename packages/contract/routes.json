@@ -2385,6 +2385,16 @@
           "path": "/payments/invoices/{id}/test-pay"
         }
       }
+    },
+    "quickQrDistricts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/payments/quickqr/districts/{city}"
+        }
+      }
     }
   },
   "ebarimt": {
@@ -2963,6 +2973,88 @@
         "route": {
           "method": "DELETE",
           "path": "/integrations/{key}/connections/{id}"
+        }
+      }
+    }
+  },
+  "banks": {
+    "connections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections"
+        }
+      }
+    },
+    "accounts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts"
+        }
+      }
+    },
+    "account": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts/{account}"
+        }
+      }
+    },
+    "statement": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts/{account}/statement"
+        }
+      }
+    },
+    "transfer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/banks/connections/{id}/transfers"
+        }
+      }
+    },
+    "transfers": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/transfers"
+        }
+      }
+    },
+    "taxpayer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/taxes/taxpayer/{registrationNumber}"
+        }
+      }
+    },
+    "taxInvoices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/taxes/invoices"
         }
       }
     }

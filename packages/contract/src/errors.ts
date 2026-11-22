@@ -250,6 +250,10 @@ export const ERRORS = {
   INVALID_OPTIONS: { status: 400 },
   IMPORT_LOCKED: { status: 409 },
   NOT_UNDOABLE: { status: 409 },
+  NOT_SUPPORTED: { status: 400 },
+  BANK_REFUSED: { status: 502 },
+  BANK_IN_USE: { status: 409 },
+  TRANSFER_REPEATED: { status: 409 },
 } satisfies ErrorMap;
 
 export type ErrorCode = keyof typeof ERRORS;

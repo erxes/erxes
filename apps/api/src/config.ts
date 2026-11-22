@@ -253,4 +253,9 @@ export const config = {
     /** Runs one organisation may start a minute, counted across every server. */
     runsPerMinute: env.AGENT_RUNS_PER_MINUTE,
   },
+  /** QPay QuickQR's vendor account, which merchants are signed up under; unset: QuickQR can't be connected. */
+  quickQr:
+    env.QUICK_QR_USERNAME && env.QUICK_QR_PASSWORD
+      ? { url: env.QUICK_QR_URL, username: env.QUICK_QR_USERNAME, password: env.QUICK_QR_PASSWORD }
+      : undefined,
 };

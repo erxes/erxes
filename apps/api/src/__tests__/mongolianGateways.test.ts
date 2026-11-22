@@ -158,7 +158,8 @@ describe('Mongolian gateway drivers', () => {
 
     expect(created).toMatchObject({
       gatewayInvoiceId: 'req-1',
-      state: { tokiTransactionId: 'tx-1' },
+      payment: { qrText: 'req-1', inApp: { app: 'toki' } },
+      state: { tokiOrderId: 'inv1', tokiRequestId: 'req-1', tokiTransactionId: 'tx-1' },
     });
     expect(await driver.check('req-1', 150_000, created.state ?? {})).toMatchObject({ paid: true });
     expect(gateway.calls.at(-1)?.auth).toBe('Bearer tk');

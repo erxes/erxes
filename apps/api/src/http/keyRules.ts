@@ -28,6 +28,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   assistant: null,
   apiKeys: 'keys',
   automations: 'automations',
+  // The organisation's bank accounts and money: members only.
+  banks: null,
   // Entries name customers, and streams send the log out.
   audit: null,
   auth: null,
@@ -102,6 +104,7 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'leads.reorderStages': 'settings',
   'leads.removeStage': 'settings',
   'payments.gateways': 'settings',
+  'payments.quickQrDistricts': 'settings',
   'payments.pluginSettings': 'settings',
   'payments.updatePluginSettings': 'settings',
   'payments.payTestInvoice': 'settings',

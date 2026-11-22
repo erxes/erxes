@@ -1,18 +1,22 @@
 import {
   caller,
   type Db,
+  withOrg,
   integrationConnections,
   paymentInvoices,
   paymentPluginSettings,
 } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { config } from '~/config';
 import { fail } from '~/http/errors';
+import { quickQrDistricts } from '~/modules/integrations/gateways/quickqr';
 import {
   type ConnectionRow,
   connectionsWithSecret,
   keysOf,
   listConnections,
 } from '~/modules/integrations/connections';
+import { driverOptions } from '~/modules/integrations/options';
 import { gatewayOf, PAYMENT_KEYS } from '~/modules/integrations/registry';
 
 export type GatewayRow = ConnectionRow;
@@ -96,13 +100,25 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
   return gateway;
 };
 
-export const driverOf = (row: GatewayRow) => {
+/** The gateway's driver; a transfer gateway's bank connection is read in the gateway's organisation. */
+export const driverOf = async (row: GatewayRow) => {
   const gateway = gatewayOf(row.key);
+  const keys = keysOf(gateway, row);
+  const options = await withOrg(row.orgId, (tx) => driverOptions(tx, gateway, row.id, keys));
 
-  return gateway.payments.driver(keysOf(gateway, row), { cacheKey: row.id });
+  return gateway.payments.driver(keys, options);
 };
 
 export const listGateways = (client: Db) => listConnections(client, PAYMENT_KEYS);
+
+/** QPay QuickQR's districts of a city, for a merchant's address. */
+export const listQuickQrDistricts = async (city: string) => {
+  try {
+    return { data: await quickQrDistricts(city, { quickQr: config.quickQr }) };
+  } catch (error) {
+    throw fail('GATEWAY_REFUSED', error instanceof Error ? error.message : String(error));
+  }
+};
 
 export const releaseGateway = async (client: Db, id: string) => {
   const [used] = await client
