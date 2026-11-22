@@ -4,6 +4,19 @@
   "leads": "Leads",
   "description-too-long": "The description is too long. Shorten it to save.",
   "unnamed": "Unnamed",
+  "accounts": {
+    "title": "Website accounts",
+    "blocked": "Blocked",
+    "last-signed-in": "Last signed in {{when}}",
+    "never-signed-in": "Never signed in",
+    "sessions_one": "{{count}} signed in now",
+    "sessions_other": "{{count}} signed in now",
+    "sign-out": "Sign out",
+    "block": "Block",
+    "unblock": "Let sign in",
+    "confirm-block": "Block {{website}}? They are signed out and can’t sign in there.",
+    "failed": "Could not change the account"
+  },
   "lead": {
     "_": "Lead",
     "add": {

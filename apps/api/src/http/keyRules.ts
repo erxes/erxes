@@ -39,6 +39,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   customers: 'contacts',
   favorites: null,
   customerAccount: null,
+  // Staff blocking or signing out a customer's account: a signed-in member's call.
+  customerAccounts: null,
   customerAuth: null,
   customerNotifications: null,
   emails: null,
@@ -70,6 +72,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   users: 'team',
   views: null,
   webhooks: 'webhooks',
+  // Plugins keep websites; members only read them.
+  websites: null,
 };
 
 const GROUPS = new Map<string, GroupRule>(Object.entries(GROUP_RULES));

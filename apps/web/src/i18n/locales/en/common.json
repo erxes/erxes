@@ -119,6 +119,7 @@
     "plugins": "Plugins",
     "roles": "Roles",
     "webhooks": "Webhooks",
+    "websites": "Websites",
     "api-reference": "API reference",
     "api-keys": "API keys",
     "payments": "Payments",

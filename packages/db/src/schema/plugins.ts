@@ -66,8 +66,6 @@ export interface StoredPluginManifest {
   };
   /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */
   oauth?: { redirectUris: string[] };
-  /** Its app for customers: the web origins that may sign customers in (`{subdomain}` allowed). */
-  customerApp?: { origins: string[] };
   /** Paths under its API's `/public` that core forwards outside callers to (webhooks, redirects). */
   publicPaths?: string[];
   scopes: string[];

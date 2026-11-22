@@ -4,7 +4,6 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber, listOf } from './common';
-import { PluginName } from './values';
 
 /** The fields a request sends along with the address. */
 type AlongWith = NonNullable<Parameters<typeof z.object>[0]>;
@@ -16,25 +15,8 @@ const addressWith = <T extends AlongWith>(fields: T) =>
     z.object({ kind: z.literal('phone'), value: PhoneNumber, ...fields }),
   ]);
 
-/**
- * A web origin a customer app runs at (a manifest's `customerApp.origins`): `https://host[:port]`,
- * where `{subdomain}` may stand for a whole label (the organisation's), or
- * `http://localhost[:port]` while developing.
- */
-export const AppOrigin = z
-  .string()
-  .trim()
-  .max(200)
-  .regex(
-    /^(https:\/\/(\{subdomain\}|[a-z0-9-]+)(\.(\{subdomain\}|[a-z0-9-]+))+|http:\/\/(localhost|127\.0\.0\.1))(:\d{1,5})?$/,
-    'an origin: https://shop.example.com, https://{subdomain}.shop.example.com or http://localhost:3000',
-  );
-
-/**
- * The organisation's subdomain, for apps that reach core at an address without
- * one (mobile apps); the subdomain in core's address wins.
- */
-const organization = z.string().trim().toLowerCase().max(63).optional();
+/** The website signing in (`websites.save` gives its id); it names the organisation too. */
+const website = Id;
 
 const Code = z
   .string()
@@ -72,7 +54,7 @@ export const CustomerLogin = createSelectSchema(customerLogins, {
 
 export type CustomerLogin = z.infer<typeof CustomerLogin>;
 
-/** Where the customer is signed in: one row per sign-in to an app. */
+/** Where the account is signed in on its website: one row per device or browser. */
 export const CustomerSession = createSelectSchema(customerSessions, {
   id: Id,
   createdAt: isoDate,
@@ -80,8 +62,6 @@ export const CustomerSession = createSelectSchema(customerSessions, {
 })
   .pick({
     id: true,
-    /** The plugin whose app it is. */
-    clientId: true,
     userAgent: true,
     createdAt: true,
     lastUsedAt: true,
@@ -91,9 +71,6 @@ export const CustomerSession = createSelectSchema(customerSessions, {
 export type CustomerSession = z.infer<typeof CustomerSession>;
 
 const CodeSent = z.object({ expiresInSeconds: z.int() });
-
-/** The plugin whose customer app calls: its name, with `customerApp` in its manifest. */
-const clientId = PluginName;
 
 const RefreshToken = z.string().max(200);
 
@@ -110,37 +87,31 @@ export const CustomerTokens = z.object({
 export type CustomerTokens = z.infer<typeof CustomerTokens>;
 
 /**
- * Customers sign in to a plugin's app with a one-time code (decision 42): the
- * app's own form calls these. Public; browsers only from the app's origins.
+ * Customers sign in to a website with a one-time code (decision 42): the
+ * website's own form calls these. Public; browsers only from the website's origins.
  */
 const {
+  ACCOUNT_BLOCKED,
   INVALID_CODE,
-  INVALID_CREDENTIALS,
   INVALID_TOKEN,
   LAST_LOGIN,
-  NOTHING_TO_RETRY,
-  ORGANIZATION_REQUIRED,
   ORIGIN_NOT_ALLOWED,
-  SUBJECT_REQUIRED,
-  TOO_MANY_ATTEMPTS,
+  SIGN_IN_UNAVAILABLE,
   TOO_MANY_CODES,
-  UNKNOWN_APP,
+  UNKNOWN_WEBSITE,
 } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
+  ACCOUNT_BLOCKED,
   INVALID_CODE,
-  INVALID_CREDENTIALS,
   INVALID_TOKEN,
   LAST_LOGIN,
-  NOTHING_TO_RETRY,
-  ORGANIZATION_REQUIRED,
   ORIGIN_NOT_ALLOWED,
-  SUBJECT_REQUIRED,
-  TOO_MANY_ATTEMPTS,
+  SIGN_IN_UNAVAILABLE,
   TOO_MANY_CODES,
-  UNKNOWN_APP,
+  UNKNOWN_WEBSITE,
 });
 
 export const customerAuthContract = {
@@ -150,27 +121,27 @@ export const customerAuthContract = {
       path: '/customer-auth/code',
       successStatus: 202,
       summary:
-        'Send a sign-in code to an email address or phone; the same answer whether or not it has an account. 400 UNKNOWN_APP, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
+        'Send a code for signing in to the website to an email address or phone; the same answer whether or not it has an account. 400 UNKNOWN_WEBSITE, 400 SIGN_IN_UNAVAILABLE (no SMS provider for phones), 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
-    .input(addressWith({ clientId, organization }))
+    .input(addressWith({ website }))
     .output(CodeSent),
   signIn: base
     .route({
       method: 'POST',
       path: '/customer-auth/sign-in',
       summary:
-        "Sign in (or up) with the code and get the app's tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_APP, 403 ORIGIN_NOT_ALLOWED",
+        'Sign in (or up) to the website with the code and get its tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_WEBSITE, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
     })
-    .input(addressWith({ clientId, organization, code: Code }))
+    .input(addressWith({ website, code: Code }))
     .output(CustomerTokens.extend({ customer: CustomerProfile, created: z.boolean() })),
   refresh: base
     .route({
       method: 'POST',
       path: '/customer-auth/refresh',
       summary:
-        'New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ORIGIN_NOT_ALLOWED',
+        'New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
     })
-    .input(z.object({ clientId, refreshToken: RefreshToken }))
+    .input(z.object({ refreshToken: RefreshToken }))
     .output(CustomerTokens),
   signOut: base
     .route({
@@ -200,7 +171,7 @@ export const customerAccountContract = {
       path: '/customer/me/logins',
       successStatus: 202,
       summary:
-        'Send a code to a new address to sign in with. 409 TAKEN when it is already a login, 429 TOO_MANY_CODES',
+        'Send a code to a new address to sign in to this website with; the same answer when the address is taken. 400 SIGN_IN_UNAVAILABLE, 429 TOO_MANY_CODES',
     })
     .input(addressWith({}))
     .output(CodeSent),
@@ -228,7 +199,7 @@ export const customerAccountContract = {
     .route({
       method: 'DELETE',
       path: '/customer/me/sessions/{id}',
-      summary: 'Sign out one app',
+      summary: 'Sign out one device or browser',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -236,7 +207,7 @@ export const customerAccountContract = {
     .route({
       method: 'POST',
       path: '/customer/me/sign-out-everywhere',
-      summary: 'Sign out of every app (access tokens end within 15 minutes)',
+      summary: 'Sign out of this website everywhere (access tokens end within 15 minutes)',
     })
     .output(z.object({ ok: z.literal(true) })),
 };

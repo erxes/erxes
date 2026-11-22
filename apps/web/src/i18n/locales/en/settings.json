@@ -624,6 +624,16 @@
   "webhooks": {
     "title": "Webhooks"
   },
+  "websites": {
+    "title": "Websites",
+    "intro": "Customers sign up on each website on its own, with a code sent to their email. Each plugin keeps its websites and their web addresses in its own settings, such as a store’s.",
+    "empty": "No websites yet",
+    "empty-description": "A plugin adds one for each store or site customers sign in to, such as an ecommerce store.",
+    "accounts_one": "{{count}} account",
+    "accounts_other": "{{count}} accounts",
+    "no-addresses": "No web addresses: only its server or mobile app can sign customers in.",
+    "updated": "Changed {{when}}"
+  },
   "audit-log": {
     "title": "Audit log",
     "verify-checkpoint-mismatch": "The log no longer matches signed checkpoint #{{position}}: entries were rewritten or removed outside erxes.",
