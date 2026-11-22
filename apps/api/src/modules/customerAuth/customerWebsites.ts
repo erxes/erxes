@@ -8,7 +8,7 @@ import { fail } from '~/http/errors';
  * organisation and the web addresses browsers may call from come with it.
  */
 
-export const originNotAllowed = () =>
+const originNotAllowed = () =>
   fail('ORIGIN_NOT_ALLOWED', 'This web address may not sign customers in to the website');
 
 export const unknownWebsite = () =>

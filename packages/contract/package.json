@@ -89,6 +89,7 @@
     "./values": "./src/values.ts",
     "./views": "./src/views.ts",
     "./webhooks": "./src/webhooks.ts",
+    "./websites": "./src/websites.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -167,6 +168,7 @@
       "./values": "./dist/values.js",
       "./views": "./dist/views.js",
       "./webhooks": "./dist/webhooks.js",
+      "./websites": "./dist/websites.js",
       "./package.json": "./package.json"
     },
     "access": "public",
