@@ -58,7 +58,6 @@ const isBlank = (value: unknown) =>
   value === '' ||
   (Array.isArray(value) && value.length === 0);
 
-/** An integration's own action needs that integration's permission (invoice actions don't). */
 const appsNotAllowed = (action: Catalog['actions'][number]) => {
   const integration = INTEGRATIONS.find((item) => item.key === action.integration);
 

@@ -344,11 +344,9 @@ export const IntegrationKey = z
   .string()
   .regex(/^[a-z][a-z0-9-]{0,39}$/, 'lowercase letters, digits and dashes');
 
-/** The event an app's trigger publishes (`app.stripe.payment_succeeded`). */
 export const appEventType = (app: string, trigger: string) =>
   `app.${app.replaceAll('-', '_')}.${trigger}`;
 
-/** An app trigger's event: picked under App, never as a plain event. */
 export const isAppEvent = (type: string) => type.startsWith('app.');
 
 // ─── Broadcasts ─────────────────────────────────────────────────────────────

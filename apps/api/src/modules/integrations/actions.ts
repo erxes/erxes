@@ -45,7 +45,6 @@ const open = (ctx: CallContext, integration: KeyedIntegration) =>
     return { id: row.id, name: row.name, client: await clientOf(tx, integration, row) };
   });
 
-/** An integration's own action runs only while the member who turned the automation on may use it. */
 const permitted = (
   integration: KeyedIntegration,
   action: KeyedAction<unknown>,

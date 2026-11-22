@@ -54,10 +54,7 @@ export const clientOptions = async (
   return { ...options, bank: bankConfigOf(row.key, keysOf(keyedOf(row.key), row)) };
 };
 
-/**
- * The integration's client for the connection's keys, its bank connection read with `tx`.
- * A sign-in due to expire is renewed first.
- */
+/** The integration's client for the connection's keys, its bank connection read with `tx`. */
 export const clientOf = async <C>(
   tx: Db,
   integration: KeyedIntegration<Keys, C>,

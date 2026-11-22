@@ -7,7 +7,6 @@ import { GatewayError } from './gateways/types';
 
 const RETRIED = new Set([408, 409, 425, 429]);
 
-/** The service's answer to this request, which a retry won't change. */
 const refused = (error: unknown): error is GatewayError =>
   error instanceof GatewayError &&
   error.status !== null &&
@@ -137,10 +136,6 @@ interface ActionCall<C, I> {
   idempotencyKey: string;
 }
 
-/**
- * An app's action (`github.create_issue`): its input checked with `input`, run on the client of
- * the step's `connection`.
- */
 export const appAction = <C, T>(definition: {
   key: string;
   label: string;
