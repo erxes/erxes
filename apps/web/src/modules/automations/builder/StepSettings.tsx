@@ -40,7 +40,7 @@ const useDetails = (step: Extract<AutomationStep, { type: 'action' }>, action: A
   const filledKeys = () =>
     new Set(action.fields.filter((field) => !isEmpty(step.input[field.key])).map(({ key }) => key));
 
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(() => !action.fields.some((field) => field.required));
   const [kept, setKept] = useState(filledKeys);
   const shown = action.fields.filter((field) => showAll || field.required || kept.has(field.key));
   const labelShown = showAll || Boolean(step.label);

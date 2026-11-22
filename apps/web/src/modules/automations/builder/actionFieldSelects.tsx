@@ -178,7 +178,7 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
   return (
     <Select value={textOf(value)} onValueChange={onChange} disabled={disabled}>
       <Select.Trigger>
-        <Select.Value placeholder={t('choose', 'Choose…')} />
+        <Select.Value placeholder={field.placeholder ?? t('choose', 'Choose…')} />
       </Select.Trigger>
       <Select.Content>
         {(field.options ?? []).map((option) => (
