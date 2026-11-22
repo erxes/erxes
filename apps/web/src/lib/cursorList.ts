@@ -42,6 +42,16 @@ interface CursorPaging<T> {
 const firstPageOnLeave = new WeakSet<object>();
 
 /**
+ * Marks an infinite query's `getNextPageParam` so the list keeps only its first page once
+ * nothing shows it (`keepFirstPageOnLeave`). Pass one function made once, not one per render.
+ */
+export const firstPageOnReturn = <F extends object>(getNextPageParam: F): F => {
+  firstPageOnLeave.add(getNextPageParam);
+
+  return getNextPageParam;
+};
+
+/**
  * Paging forward from the top, a page of `limit` at a time. Once nothing shows the list, it
  * keeps only its first page (`keepFirstPageOnLeave`), so coming back to it refetches one page,
  * not every page loaded; `keepPages` keeps them all, for a list that loads all its pages anyway.
@@ -58,7 +68,7 @@ export const forwardPaging = (
       ? { limit, cursor: last.pageInfo.endCursor, direction: 'forward', cursorMode: 'exclusive' }
       : undefined;
 
-  if (!keepPages) firstPageOnLeave.add(getNextPageParam);
+  if (!keepPages) firstPageOnReturn(getNextPageParam);
 
   return {
     initialPageParam: { limit, direction: 'forward', cursorMode: 'exclusive' },

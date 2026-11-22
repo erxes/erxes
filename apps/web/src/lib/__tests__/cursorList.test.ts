@@ -9,6 +9,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vite-plu
 import {
   type CursorPage,
   type CursorParams,
+  firstPageOnReturn,
   forwardPaging,
   keepFirstPageOnLeave,
   useCursorList,
@@ -85,6 +86,31 @@ const ForwardList = ({ keepPages = false }: { keepPages?: boolean }) => {
   return null;
 };
 
+/** The cursor after a page, made once: what a timeline pages with. */
+const nextByCursor = firstPageOnReturn((last: CursorPage<Row>) =>
+  last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
+);
+
+/** A list with paging of its own, by a bare cursor (a record's timeline). */
+const TimelineList = () => {
+  const query = useInfiniteQuery({
+    queryKey: ['rows', 'timeline'],
+    queryFn: async ({ pageParam }: { pageParam: string | undefined }) =>
+      serve({ limit: 100, cursor: pageParam, direction: 'forward', cursorMode: 'exclusive' }),
+    initialPageParam: undefined,
+    getNextPageParam: nextByCursor,
+  });
+
+  useEffect(() => {
+    seen.forward = {
+      rows: query.data?.pages.flatMap((page) => page.data).length ?? 0,
+      fetchNextPage: () => void query.fetchNextPage(),
+    };
+  });
+
+  return null;
+};
+
 const settle = () =>
   act(
     () =>
@@ -147,6 +173,26 @@ describe('paged lists shown again', () => {
     await settle();
     expect(requests).toHaveLength(1);
     expect(requests[0]?.cursor).toBeUndefined();
+  });
+
+  it('refetches one page of a list with paging of its own, marked by firstPageOnReturn', async () => {
+    show(createElement(TimelineList));
+    await settle();
+
+    for (let page = 0; page < 2; page += 1) {
+      act(() => seen.forward?.fetchNextPage());
+      await settle();
+    }
+
+    expect(seen.forward?.rows).toBe(300);
+
+    leave();
+    requests.length = 0;
+    show(createElement(TimelineList));
+
+    expect(seen.forward?.rows).toBe(100);
+    await settle();
+    expect(requests).toHaveLength(1);
   });
 
   it('keeps every page of a list that asks to', async () => {
