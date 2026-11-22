@@ -219,6 +219,7 @@ value isRule
 value isUndefinedOrNull
 value jsonOf
 value listFilterQuery
+value loadPhoneFormatter
 value localTimeZone
 value meFirst
 value memberName
@@ -241,6 +242,7 @@ value toIsoDay
 value toast
 value useBoardScroll
 value useConfirm
+value useCurrentRecord
 value useFieldControl
 value useFilterContext
 value useFocusFirstField
@@ -258,6 +260,7 @@ value useMoney
 value useOpenRecord
 value usePageHotkey
 value usePanelExpanded
+value usePhoneFormatter
 value usePreviousHotkeyScope
 value useProductOptions
 value useRecordPanel

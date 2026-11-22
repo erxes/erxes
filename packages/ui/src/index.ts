@@ -332,6 +332,7 @@ export {
   RecordPanelProvider,
   type RecordRef,
   setRecordPage,
+  useCurrentRecord,
   useOpenRecord,
   useRecordPanel,
 } from './modules/records/openRecord';
@@ -370,7 +371,11 @@ export { readImage } from './utils/core';
 
 export { type FileStorageAdapter, setFileStorage } from './utils/file-storage';
 
-export { formatPhoneNumber } from './utils/format/formatPhoneNumber';
+export {
+  formatPhoneNumber,
+  loadPhoneFormatter,
+  usePhoneFormatter,
+} from './utils/format/formatPhoneNumber';
 
 export { getPluginAssetsUrl } from './utils/getPluginAssetsUrl';
 
