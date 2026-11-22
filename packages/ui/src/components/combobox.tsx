@@ -27,7 +27,7 @@ const ComboboxTriggerBase = ({
   ...props
 }: ComboboxTriggerProps) => {
   // In a table cell or a side panel field, named by the column or the label first.
-  const label = useCellLabel(id);
+  const { control, textId } = useCellLabel(id, props['aria-label']);
   const field = useFieldButtonState();
 
   return (
@@ -35,7 +35,7 @@ const ComboboxTriggerBase = ({
       render={
         <Button
           {...field}
-          {...label}
+          {...control}
           ref={ref}
           variant={variant === 'bordered' ? 'outline' : variant}
           {...props}
@@ -53,7 +53,9 @@ const ComboboxTriggerBase = ({
         />
       }
     >
-      {children}
+      <span id={textId} className="contents">
+        {children}
+      </span>
     </Popover.Trigger>
   );
 };

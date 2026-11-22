@@ -40,13 +40,13 @@ const RecordTableCellTrigger = ({
   empty,
   ...props
 }: RecordTableCellTriggerProps) => {
-  const label = useCellLabel(id);
+  const { control, textId } = useCellLabel(id, props['aria-label']);
 
   return (
     <Popover.Trigger
       render={
         <Button
-          {...label}
+          {...control}
           variant="ghost"
           className={cn(cellTriggerVariants({ variant, empty }), className)}
           ref={ref}
@@ -54,7 +54,9 @@ const RecordTableCellTrigger = ({
         />
       }
     >
-      {children}
+      <span id={textId} className="contents">
+        {children}
+      </span>
     </Popover.Trigger>
   );
 };
