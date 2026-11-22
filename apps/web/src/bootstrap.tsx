@@ -1,6 +1,4 @@
 import 'erxes-ui/fonts.css';
-// BlockNote's own styles for erxes-ui's block editor (menus, toolbar).
-import '@blocknote/shadcn/style.css';
 import './styles.css';
 import { StrictMode } from 'react';
 import { setFileStorage, setPluginRuntime, setRecordPage, setRecordTimeline } from 'erxes-ui';
