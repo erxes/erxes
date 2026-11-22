@@ -118,6 +118,7 @@ const noDriver = {
     '!../enums',
     '!../assistantEnums',
     '!../emailEnums',
+    '!../integrationEnums',
     '!../automationDefinition',
   ],
   message: 'Table definitions ship inside the published contract: no Node, driver or client.',
@@ -162,6 +163,7 @@ export const restrictedOverrides = [
       'packages/db/src/enums.ts',
       'packages/db/src/assistantEnums.ts',
       'packages/db/src/emailEnums.ts',
+      'packages/db/src/integrationEnums.ts',
     ],
     rules: {
       'no-restricted-imports': ['error', { paths: decided, patterns: [noApps, noDriver] }],

@@ -49,6 +49,7 @@ const TEST_INTEGRATION = {
   keyed: true,
   fields: [],
   payments: { currencies: ['MNT'], refunds: 'full', pays: 'at once' },
+  oauth: null,
   status: { state: 'connected', count: 1 },
   actions: [],
 } satisfies Integration;

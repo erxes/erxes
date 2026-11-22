@@ -6,6 +6,7 @@ import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
 import { connectionsOf, useConnections } from '../vault/useVault';
 import type { Integration } from './catalog';
+import { AutomationTriggers } from './AutomationTriggers';
 import { CredentialsHelp } from './ConnectionFields';
 import {
   IntegrationLayout,
@@ -69,6 +70,7 @@ const Overview = ({ integration }: { integration: Integration }) => {
           )}
         </QueryState>
       </OverviewSection>
+      <AutomationTriggers integration={integration} />
       {integration.payments && (
         <OverviewSection title={t('payments', 'How payers pay')}>
           <PaymentFacts payments={integration.payments} />

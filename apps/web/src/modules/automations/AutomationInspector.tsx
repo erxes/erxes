@@ -28,6 +28,7 @@ const TriggerPanel = (props: InspectorProps) => {
     <TriggerEditor
       trigger={definition.trigger}
       events={props.catalog.triggers}
+      apps={props.catalog.apps}
       hook={{
         url: automation.hookUrl,
         on: automation.status === 'active',

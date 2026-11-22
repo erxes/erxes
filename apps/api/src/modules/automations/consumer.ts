@@ -15,6 +15,7 @@ import { enqueueJobs } from '~/modules/jobs/jobs';
 import { checkersByMember } from './conditionCheck';
 import { nextCursor, stepAt } from './cursor';
 import { rememberEventData } from './eventData';
+import { findHookSubject } from './hookSubject';
 import { advanceJob, continueAfter, definitionsOf, finishRun, log, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
 
@@ -236,12 +237,28 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
   await inOrder(eligible, async ({ automation, version }) => {
     const definition = definitions.get(automation.id, version);
 
-    if (definition?.trigger.kind !== 'event') return;
+    const trigger = definition?.trigger;
 
-    const { conditions } = definition.trigger;
+    if (!definition || (trigger?.kind !== 'event' && trigger?.kind !== 'app')) return;
+
+    if (trigger.kind === 'app' && automation.subscriptionId !== event.entityId) return;
+
+    const found =
+      trigger.kind === 'app' && trigger.subject
+        ? await findHookSubject(tx, trigger.subject, { event: dto })
+        : null;
+
+    if (trigger.kind === 'app' && trigger.subject && !found) return;
+
+    const own = found ? { type: found.type, id: found.id } : ref;
+    const loaded = found ?? subject;
 
     const matched = await conditionsHold(
-      () => checkerOf(automation.activatedBy).holds(ref, conditions, context),
+      () =>
+        checkerOf(automation.activatedBy).holds(own, trigger.conditions, {
+          ...context,
+          subject: loaded,
+        }),
       { automation: automation.id, event: event.id },
     );
 
@@ -250,10 +267,10 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
     await startRun(tx, automation, definition, {
       eventId: event.id,
       eventType: event.type,
-      subject: ref,
+      subject: own,
       event: dto,
       depth: event.depth,
-      loaded: subject,
+      loaded,
     });
   });
 };

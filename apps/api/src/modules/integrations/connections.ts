@@ -7,6 +7,7 @@ import { openSecret, type WithSecret } from '~/modules/secrets/vault';
 import { bankConfigOf } from './banks';
 import { fieldsOf, type KeyedIntegration, type Keys } from './define';
 import type { ClientOptions } from './gateways/types';
+import { freshKeys } from './oauth';
 import { keyedOf } from './registry';
 
 export type ConnectionRow = WithSecret<typeof integrationConnections.$inferSelect>;
@@ -53,13 +54,16 @@ export const clientOptions = async (
   return { ...options, bank: bankConfigOf(row.key, keysOf(keyedOf(row.key), row)) };
 };
 
-/** The integration's client for the connection's keys, its bank connection read with `tx`. */
+/**
+ * The integration's client for the connection's keys, its bank connection read with `tx`.
+ * A sign-in due to expire is renewed first.
+ */
 export const clientOf = async <C>(
   tx: Db,
   integration: KeyedIntegration<Keys, C>,
   row: ConnectionRow,
 ) => {
-  const keys = keysOf(integration, row);
+  const keys = integration.oauth ? await freshKeys(tx, integration, row) : keysOf(integration, row);
 
   return integration.client(keys, await clientOptions(tx, integration, row.id, keys));
 };

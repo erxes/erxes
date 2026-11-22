@@ -21,7 +21,7 @@ export type StepOutcome =
  * Errors a retry can't fix: email that would only reach the log stays so until an admin acts,
  * an integration that isn't connected stays so, a service's refusal is its answer, a step's
  * wrong input or a receipt that can't print stays wrong, and an automation that is off or over
- * its limit stays so until a member changes it.
+ * its limit, or turned on by a member who lost the permission, stays so until a member changes it.
  */
 const FINAL_ERRORS: ReadonlySet<string> = new Set([
   'EMAIL_NOT_CONFIGURED',
@@ -31,6 +31,7 @@ const FINAL_ERRORS: ReadonlySet<string> = new Set([
   'RECEIPT_NOT_PRINTABLE',
   'LIMIT_EXCEEDED',
   'NOT_ACTIVE',
+  'NOT_ALLOWED',
 ]);
 
 /** The message of an error a retry can't fix, else null. */

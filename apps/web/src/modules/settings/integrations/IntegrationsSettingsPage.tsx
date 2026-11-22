@@ -43,6 +43,8 @@ const useCategoryLabel = () => {
       messaging: t('messaging', 'Messaging'),
       email: t('email', 'Email'),
       government: t('government', 'Government'),
+      developer: t('developer', 'Developer tools'),
+      productivity: t('productivity', 'Productivity'),
     })[category];
 };
 

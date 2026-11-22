@@ -170,6 +170,7 @@ export const ERRORS = {
   CURRENCY_NOT_SUPPORTED: { status: 400, data: z.object({ currency: z.string() }) },
   GATEWAY_REFUSED: { status: 400 },
   GATEWAY_IN_USE: { status: 409 },
+  CONNECTION_IN_USE: { status: 409, data: z.object({ automations: z.array(z.string()) }) },
   KIND_CHANGED: { status: 400 },
   NO_GATEWAY: { status: 400 },
   NOT_PENDING: { status: 409 },

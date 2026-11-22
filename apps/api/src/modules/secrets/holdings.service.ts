@@ -8,7 +8,7 @@ import {
   users,
   webhooks,
 } from '@erxes/core-db';
-import type { VAULT_HOLDERS } from '@erxes/core-db/enums';
+import type { VAULT_HOLDERS } from '@erxes/core-db/integrationEnums';
 import { ne, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 

@@ -4,6 +4,8 @@ import {
   type Icon,
   IconBuildingBank,
   IconBuildingCommunity,
+  IconChecklist,
+  IconCode,
   IconCreditCard,
   IconMail,
   IconMessage,
@@ -16,7 +18,7 @@ import { usePlugins } from '~/modules/plugins/usePlugins';
 
 export const CATEGORIES = IntegrationCategory.options;
 
-export type Category = (typeof CATEGORIES)[number];
+export type Category = IntegrationCategory;
 
 const CATEGORY_ICONS: Record<Category, Icon> = {
   payments: IconCreditCard,
@@ -25,6 +27,8 @@ const CATEGORY_ICONS: Record<Category, Icon> = {
   messaging: IconMessage,
   email: IconMail,
   government: IconBuildingCommunity,
+  developer: IconCode,
+  productivity: IconChecklist,
 };
 
 /** A listed integration with its address (`qpay`, `frontline.facebook`) and what its UI adds. */

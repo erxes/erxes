@@ -17,7 +17,6 @@ import {
   EBARIMT_TAX_TYPES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
-  INTEGRATION_CATEGORIES,
   INVOICE_STATUSES,
   LIVE_MODES,
   ORG_UNIT_KINDS,
@@ -26,6 +25,7 @@ import {
   SEARCH_RECORD_TYPES,
   SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
+import { INTEGRATION_CATEGORIES } from '@erxes/core-db/integrationEnums';
 import {
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
@@ -337,10 +337,16 @@ export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 
 export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
 
+export type IntegrationCategory = z.infer<typeof IntegrationCategory>;
+
 /** An integration's key, core's (`qpay`) or one a plugin declares (`facebook`). */
 export const IntegrationKey = z
   .string()
   .regex(/^[a-z][a-z0-9-]{0,39}$/, 'lowercase letters, digits and dashes');
+
+/** The event an app's trigger publishes (`app.stripe.payment_succeeded`). */
+export const appEventType = (app: string, trigger: string) =>
+  `app.${app.replaceAll('-', '_')}.${trigger}`;
 
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 

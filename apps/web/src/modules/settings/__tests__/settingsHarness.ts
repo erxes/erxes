@@ -116,6 +116,7 @@ const listed = (
   keyed: false,
   fields: [],
   payments: null,
+  oauth: null,
   status: NOT_SET_UP,
   actions: [],
   ...row,
