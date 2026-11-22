@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { Spinner } from 'erxes-ui';
+import { type ReactNode, Suspense } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
 import { paths } from '~/lib/paths';
@@ -30,7 +31,22 @@ const KeyedPage = ({ slug }: { slug: string | undefined }) => {
 
   const ownPage = OWN_PAGES.get(integration.key);
 
-  return ownPage ? ownPage(integration) : <ConnectionsIntegration integration={integration} />;
+  return ownPage ? (
+    ownPage(integration)
+  ) : (
+    <ConnectionsIntegration
+      integration={integration}
+      tabs={integration.tabs.map(({ value, label, component: Content }) => ({
+        value,
+        label,
+        content: (
+          <Suspense fallback={<Spinner />}>
+            <Content />
+          </Suspense>
+        ),
+      }))}
+    />
+  );
 };
 
 /**

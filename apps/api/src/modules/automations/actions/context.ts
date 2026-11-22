@@ -82,17 +82,17 @@ export const list = (value: unknown): string[] => {
  * The step's input for `schema` (which drops fields it doesn't declare):
  * empty values left out, and a members picker's list read as its first member.
  */
-export const parseInput = <T>(ctx: CallContext, schema: z.ZodType<T>, single: string[] = []) => {
-  const filled = Object.fromEntries(
+export const parseInput = <T>(ctx: CallContext, schema: z.ZodType<T>, single: string[] = []) =>
+  checked(schema, filledInput(ctx, single));
+
+export const filledInput = (ctx: CallContext, single: string[] = []) =>
+  Object.fromEntries(
     Object.entries(ctx.input).flatMap(([key, value]) => {
       if (value === undefined || value === null || value === '') return [];
 
       return [[key, single.includes(key) && Array.isArray(value) ? value[0] : value]];
     }),
   );
-
-  return checked(schema, filled);
-};
 
 /** `value` parsed by `schema`, or the step fails with what was wrong. */
 export const checked = <T>(schema: z.ZodType<T>, value: unknown): T => {

@@ -1,6 +1,5 @@
 import type { DataField } from '@erxes/core-contract';
-import { defineIntegration, oauthKeys } from '../define';
-import { hookTrigger } from '../appDefinition';
+import { defineIntegration, oauthKeys, hookTrigger } from '@erxes/plugin-sdk/integrations';
 import { sendMessage } from './facebookActions';
 import { accountOf, GRAPH_VERSION, longLivedToken } from './facebookGraph';
 import { facebookHooks } from './facebookHooks';

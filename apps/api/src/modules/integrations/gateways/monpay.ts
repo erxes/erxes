@@ -1,7 +1,19 @@
 import { z } from 'zod';
-import { basic, gatewayHttp, json, parse, probeId, qrInstructions, Text, toTugrug } from './http';
-import { defineIntegration, field, secret } from '../define';
-import { type ClientOptions, GatewayError } from './types';
+import {
+  basic,
+  gatewayHttp,
+  json,
+  parse,
+  probeId,
+  qrInstructions,
+  Text,
+  toTugrug,
+  defineIntegration,
+  field,
+  secret,
+  type ClientOptions,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({ username: field('Username'), accountId: secret('Account ID') });
 

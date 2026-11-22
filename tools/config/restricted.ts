@@ -139,6 +139,25 @@ const noTimers = {
   message: 'Periodic work is a schedule: defineSchedule() in apps/api/src/modules/jobs.',
 };
 
+const ownConnection = {
+  group: [
+    '@erxes/core-db',
+    '@erxes/core-db/*',
+    '@erxes/core-contract/client',
+    'pg',
+    'pg/*',
+    'drizzle-orm',
+    'drizzle-orm/*',
+    'node:http',
+    'node:https',
+    'node:net',
+    'undici',
+    '~/*',
+  ],
+  message:
+    'An integration gets its own values and the fetch in ClientOptions (gatewayHttp from @erxes/plugin-sdk/integrations), never a database or another way out.',
+};
+
 const apiPaths = [routerBuilder, ...decided, ...nodeCrypto, bcrypt];
 
 export const restrictedRules = {
@@ -152,6 +171,21 @@ export const restrictedOverrides = [
       'no-restricted-imports': [
         'error',
         { paths: [routerBuilder, ...decided], patterns: [noApps] },
+      ],
+    },
+  },
+  {
+    files: ['packages/integrations/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { paths: [routerBuilder, ...decided], patterns: [noApps, ownConnection] },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'fetch', message: ownConnection.message },
+        { name: 'XMLHttpRequest', message: ownConnection.message },
+        { name: 'WebSocket', message: ownConnection.message },
       ],
     },
   },

@@ -22,6 +22,7 @@
     "@earendil-works/chord": "1.5.2",
     "@erxes/assistant-catalog": "workspace:*",
     "@erxes/core-contract": "workspace:*",
+    "@erxes/integrations": "workspace:*",
     "@hookform/resolvers": "7.0.6",
     "@maily-to/core": "2.0.0-beta.19",
     "@module-federation/enhanced": "2.9.3",

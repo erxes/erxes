@@ -23,7 +23,8 @@ import {
   sealValues,
 } from './connections';
 import { connectable, manages } from './connectable';
-import { fieldsOf, type KeyedIntegration, splitValues } from './define';
+import { fieldsOf } from '@erxes/plugin-sdk/integrations';
+import { type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
 import { callbackUrl, oauthClientSource } from './oauth';
 import { pluginIntegrations } from './pluginIntegrations';

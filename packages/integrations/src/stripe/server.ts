@@ -1,9 +1,14 @@
 import { z } from 'zod';
-import { NO_INSTRUCTIONS, pageInstructions, parse } from './http';
-import { defineIntegration, secret } from '../define';
-import { createCustomer } from './stripeActions';
-import { STRIPE_TRIGGERS, stripeHooks, stripeSend } from './stripeHooks';
-import type { ClientOptions } from './types';
+import {
+  type ClientOptions,
+  defineIntegration,
+  NO_INSTRUCTIONS,
+  pageInstructions,
+  parse,
+  secret,
+} from '@erxes/plugin-sdk/integrations';
+import { createCustomer } from './actions';
+import { STRIPE_TRIGGERS, stripeHooks, stripeSend } from './hooks';
 
 const keys = z.object({ secretKey: secret('Secret key') });
 

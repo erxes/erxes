@@ -1,6 +1,6 @@
 import type { DataField } from '@erxes/core-contract';
 import { z } from 'zod';
-import { Text } from '../gateways/http';
+import { Text } from '@erxes/plugin-sdk/integrations';
 
 const User = z.object({
   id: Text,

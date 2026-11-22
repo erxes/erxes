@@ -1,7 +1,13 @@
 import { z } from 'zod';
-import type { AppClient } from '../appDefinition';
-import { gatewayHttp, json, parse, Text } from '../gateways/http';
-import { type ClientOptions, GatewayError } from '../gateways/types';
+import {
+  type AppClient,
+  type ClientOptions,
+  GatewayError,
+  gatewayHttp,
+  json,
+  parse,
+  Text,
+} from '@erxes/plugin-sdk/integrations';
 
 const NAME = 'Facebook';
 

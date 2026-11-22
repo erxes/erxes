@@ -5,8 +5,8 @@ import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { openSecret, saveSecret, type WithSecret } from '~/modules/secrets/vault';
 import { bankConfigOf } from './banks';
-import { type KeyedIntegration, type Keys, sealedValues, splitValues } from './define';
-import type { ClientOptions } from './gateways/types';
+import type { Keys } from '@erxes/plugin-sdk/integrations';
+import { type ClientOptions, type KeyedIntegration, sealedValues, splitValues } from './define';
 import { freshKeys } from './oauth';
 import { keyedOf } from './registry';
 

@@ -6,8 +6,8 @@ import {
   httpsUrl,
   type KeyedIntegration,
   secret,
-} from '../define';
-import type { ClientOptions } from '../gateways/types';
+  type ClientOptions,
+} from '@erxes/plugin-sdk/integrations';
 import { golomtClient } from './golomt';
 import { khanbankClient } from './khanbank';
 import { tdbClient } from './tdb';

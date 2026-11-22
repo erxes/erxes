@@ -3,15 +3,17 @@ import { golomtClient } from '../banks/golomt';
 import { khanbankClient } from '../banks/khanbank';
 import { tdbClient } from '../banks/tdb';
 import type { BankClient, StatementLine } from '../banks/types';
-import { defineIntegration, digits, field } from '../define';
-import { NO_INSTRUCTIONS } from './http';
-import { matchingTransfers, referenceWords } from './transferMatch';
 import {
-  type ClientOptions,
+  defineIntegration,
+  digits,
+  field,
+  NO_INSTRUCTIONS,
   type CreateInvoiceInput,
   GatewayError,
   type GatewayInvoice,
-} from './types';
+} from '@erxes/plugin-sdk/integrations';
+import type { ClientOptions } from '../define';
+import { matchingTransfers, referenceWords } from './transferMatch';
 
 /**
  * Paid by transfer, as in 3.x: a corporate gateway connection of the bank

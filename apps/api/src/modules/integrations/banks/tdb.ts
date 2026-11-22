@@ -1,6 +1,13 @@
 import { z } from 'zod';
-import { gatewayHttp, json, parse, Text, tokenCache, withBearer } from '../gateways/http';
-import { GatewayError } from '../gateways/types';
+import {
+  gatewayHttp,
+  json,
+  parse,
+  Text,
+  tokenCache,
+  withBearer,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 import {
   type BankAccount,
   type BankClient,

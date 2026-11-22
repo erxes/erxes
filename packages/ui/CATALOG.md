@@ -244,7 +244,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setPluginRuntime(next)` Sets the plugin runtime; web calls it at startup and plugins don't.
 - `type TDashboardWidget { name, title, description, icon, preview, … }` A plugin's tile for core's home dashboard.
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
-- `type TIntegrationTab { value, label, component }` A tab on a plugin integration's page.
+- `type TIntegrationTab { value, label, component }` A tab on an integration's page.
+- `type TIntegrationUI { key, logo, tabs }` An integration package's logo and tabs in Settings › Integrations.
 - `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
 - `type TPluginIntegration { key, icon, tabs }` The icon and tabs of a plugin integration in Settings › Integrations.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.

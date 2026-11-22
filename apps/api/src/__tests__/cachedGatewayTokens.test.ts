@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
-import type { GatewayInvoice } from '~/modules/integrations/gateways/types';
+import type { GatewayInvoice } from '@erxes/plugin-sdk/integrations';
 import { gatewayOf, openGateway } from '~/modules/integrations/registry';
 import { fakeGateway, refusal } from './fakeGateway';
 

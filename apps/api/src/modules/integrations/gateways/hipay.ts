@@ -8,9 +8,14 @@ import {
   qrInstructions,
   Text,
   toTugrug,
-} from './http';
-import { defineIntegration, field, httpsUrl, secret } from '../define';
-import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
+  defineIntegration,
+  field,
+  httpsUrl,
+  secret,
+  type ClientOptions,
+  type CreateInvoiceInput,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   entityId: field('Entity ID (client_id)'),

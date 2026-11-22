@@ -2,7 +2,7 @@ import { type Db, integrationConnections } from '@erxes/core-db';
 import { asc, inArray } from 'drizzle-orm';
 import { appEventType } from '@erxes/core-contract';
 import { APPS, paramsSchema } from './apps';
-import { fieldsOf } from './define';
+import { fieldsOf } from '@erxes/plugin-sdk/integrations';
 
 export const appTriggerTypes = () =>
   APPS.flatMap((app) =>

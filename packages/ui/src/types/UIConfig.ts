@@ -208,13 +208,24 @@ export type TPluginSettingsPage = {
   icon?: React.ElementType;
 };
 
-/** A tab on a plugin integration's page. Its `value` is the address key (`?tab=`). */
+/** A tab on an integration's page. Its `value` is the address key (`?tab=`). */
 export type TIntegrationTab = {
   /** Unique on the page, e.g. `overview`: a link or reload opens the tab it names. */
   value: string;
   label: string;
   /** Drawn under core's tabs; a `lazy` one loads when its tab first shows. */
   component: React.ComponentType;
+};
+
+/**
+ * An integration package's logo and tabs in Settings › Integrations.
+ * `key` is its server definition's key (`defineIntegration`); `tabs` follow Overview.
+ */
+export type TIntegrationUI = {
+  key: string;
+  /** The image's address, e.g. an imported PNG or SVG. */
+  logo: string;
+  tabs?: TIntegrationTab[];
 };
 
 /**

@@ -10,9 +10,14 @@ import {
   tokenCache,
   toTugrug,
   withBearer,
-} from './http';
-import { choice, defineIntegration, digits, field, kept } from '../define';
-import { type ClientOptions, GatewayError } from './types';
+  choice,
+  defineIntegration,
+  digits,
+  field,
+  kept,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
+import type { ClientOptions } from '../define';
 
 /**
  * The merchant, signed up under the platform's QPay vendor account on

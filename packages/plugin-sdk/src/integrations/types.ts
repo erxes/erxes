@@ -1,5 +1,3 @@
-import type { BankConfig } from '../banks/types';
-
 type PaymentLink = {
   name: string;
   logo: string | null;
@@ -108,8 +106,4 @@ export interface ClientOptions {
   /** Caches the gateway's access token under this key (the connection id). */
   cacheKey?: string;
   fetch?: typeof globalThis.fetch;
-  /** The platform's QPay QuickQR vendor account (QUICK_QR_*), unset where it has none. */
-  quickQr?: { url: string; username: string; password: string };
-  /** The bank connection a transfer gateway reads its statement through (its `connectionId`). */
-  bank?: BankConfig;
 }

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { defineIntegration } from '../define';
-import { GatewayError } from './types';
+import { defineIntegration, GatewayError } from '@erxes/plugin-sdk/integrations';
 
 /**
  * Development and tests: nothing leaves the server. Core's `test-pay` sets

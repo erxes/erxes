@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { defineIntegration, secret } from '../define';
-import { hookTrigger } from '../appDefinition';
+import { defineIntegration, secret, hookTrigger } from '@erxes/plugin-sdk/integrations';
 import { createIssue } from './githubActions';
 import { githubHooks, githubSend } from './githubHooks';
 

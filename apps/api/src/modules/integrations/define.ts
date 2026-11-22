@@ -1,64 +1,28 @@
-import type {
-  ActionField,
-  CorePermission,
-  Integration as IntegrationListing,
-  IntegrationField,
-  IntegrationStatus,
-} from '@erxes/core-contract';
+import type { ActionField, IntegrationStatus } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
-import type { GATEWAY_REFUND_KINDS } from '@erxes/core-db/enums';
+import {
+  type ClientOptions as PackageClientOptions,
+  fieldsOf,
+  type Keys,
+  type KeyedIntegration as PackageIntegration,
+  type Listing,
+} from '@erxes/plugin-sdk/integrations';
 import { z } from 'zod';
 import type { ActionContext, ActionSpec, CallContext } from '~/modules/automations/actions/context';
-import type { AppClient, Apps } from './appDefinition';
-import type {
-  ClientOptions,
-  CreatedInvoice,
-  CreateInvoiceInput,
-  GatewayInvoice,
-  PaymentCheck,
-  RefundInput,
-} from './gateways/types';
+import type { BankConfig } from './banks/types';
 
-type FormField = Pick<IntegrationField, 'label' | 'type' | 'options'>;
+export interface ClientOptions extends PackageClientOptions {
+  /** The platform's QPay QuickQR vendor account (QUICK_QR_*), unset where it has none. */
+  quickQr?: { url: string; username: string; password: string };
+  /** The bank connection a transfer gateway reads its statement through (its `connectionId`). */
+  bank?: BankConfig;
+}
 
-const formFields = z.registry<FormField>();
-
-const labelled = <S extends z.ZodType>(schema: S, meta: FormField) => {
-  formFields.add(schema, meta);
-
-  return schema;
-};
-
-export const field = (
-  label: string,
-  schema: z.ZodType<string> = z.string().trim().min(1).max(200),
-) => labelled(schema, { label, type: 'text' });
-
-export const secret = (
-  label: string,
-  schema: z.ZodType<string> = z.string().trim().min(1).max(2000),
-) => labelled(schema, { label, type: 'secret' });
-
-/** One of a few values, picked from a list. */
-export const choice = <const T extends readonly [string, ...string[]]>(label: string, options: T) =>
-  labelled(z.enum(options), { label, type: 'select', options: [...options] });
-
-/** Kept with the keys but filled by core (`register`), never asked for. */
-export const kept = (label: string) =>
-  labelled(z.string().trim().min(1).max(200).optional(), { label, type: 'hidden' });
-
-export const toggle = (label: string) =>
-  labelled(z.boolean().default(false), { label, type: 'switch' });
-
-export const digits = () => z.string().trim().regex(/^\d+$/, 'a number');
-
-export const httpsUrl = () =>
-  z
-    .url({ protocol: /^https$/ })
-    .trim()
-    .max(300);
-
-export type Keys = z.ZodObject;
+export type KeyedIntegration<K extends Keys = Keys, C = unknown> = PackageIntegration<
+  K,
+  C,
+  ClientOptions
+>;
 
 /** The step's `connection` input: one of the integration's active connections, else the default. */
 export const CONNECTION_FIELD: ActionField = {
@@ -87,7 +51,7 @@ export interface IntegrationCall<C> extends CallContext {
 }
 
 /**
- * An action a keyed integration brings to automations (`<integration>.<key>`). It reaches the
+ * An action core runs for a keyed integration (`<integration>.<key>`). It reaches the
  * service outside any transaction and may run more than once: it sends `idempotencyKey(ctx)`.
  */
 export type KeyedAction<C> = ActionSpec & {
@@ -100,80 +64,6 @@ export type PagedAction = ActionSpec & { key: string } & (
     | { run(ctx: ActionContext): Promise<unknown> }
     | { call(ctx: CallContext): Promise<unknown> }
   );
-
-interface Payments<C> {
-  currencies: string[];
-  refunds: (typeof GATEWAY_REFUND_KINDS)[number];
-  pays: string;
-  createInvoice(client: C, input: CreateInvoiceInput): Promise<CreatedInvoice>;
-  /**
-   * What the gateway's callback brings that `check` needs (Toki's mini
-   * program: its payment and the payer's token), or null when it brings
-   * nothing for this invoice. Kept in the invoice's state; never trusted
-   * alone, as `check` still asks the gateway.
-   */
-  callback?(
-    body: unknown,
-    invoice: { invoiceId: string; amount: number },
-  ): Record<string, unknown> | null;
-  check(client: C, invoice: GatewayInvoice): Promise<PaymentCheck>;
-  cancel(client: C, invoice: GatewayInvoice): Promise<void>;
-  refund(client: C, refund: RefundInput): Promise<{ refundId: string | null }>;
-}
-
-interface Listing {
-  key: string;
-  name: string;
-  summary: string;
-  category: IntegrationListing['category'];
-  countries: string[];
-  permission: CorePermission;
-  dashboard?: string;
-}
-
-export const oauthKeys = z.object({
-  accessToken: secret('Access token', z.string().min(1).max(4000)),
-  refreshToken: secret('Refresh token', z.string().min(1).max(4000)).optional(),
-  expiresAt: labelled(z.int().positive(), { label: 'Sign-in expires', type: 'secret' }).optional(),
-  account: field('Account').optional(),
-});
-
-export type OAuthKeys = z.output<typeof oauthKeys>;
-
-export interface OAuthSetup {
-  authorizeUrl: string;
-  tokenUrl: string;
-  scopes: string[];
-  scopeSeparator?: string;
-  authorizeParams?: Record<string, string>;
-  account(accessToken: string): Promise<string>;
-  longLived?(
-    input: { accessToken: string } & AppClient,
-  ): Promise<{ accessToken: string; expiresIn?: number }>;
-}
-
-export interface KeyedIntegration<K extends Keys = Keys, C = unknown>
-  extends Listing, Apps<z.output<K>> {
-  keys: K;
-  /**
-   * The bank integration whose connection (`keys.connectionId`) this one reads
-   * through: core opens its keys and passes them as `options.bank`.
-   */
-  readsThrough?: string;
-  client(keys: z.output<K>, options: ClientOptions): C;
-  verify(client: C): Promise<void>;
-  /**
-   * Sets the account up at the service on connecting or changing its keys
-   * (QuickQR: signs the merchant up), returning keys to keep with the rest.
-   * Runs after `verify`.
-   */
-  register?(client: C): Promise<Record<string, string>>;
-  payments?: Payments<C>;
-  /** Its own actions; the `payments` ability brings the invoice actions to every gateway. */
-  actions?: KeyedAction<C>[];
-  oauth?: OAuthSetup;
-  status?: never;
-}
 
 export interface PagedIntegration extends Listing {
   status(tx: Db): Promise<IntegrationStatus>;
@@ -189,24 +79,6 @@ export interface PagedIntegration extends Listing {
 }
 
 export type Integration = KeyedIntegration | PagedIntegration;
-
-/** The label given with `field()` or `secret()`, also through `.optional()` and `.default()`. */
-const metaOf = (schema: z.core.$ZodType): FormField | undefined =>
-  formFields.get(schema) ??
-  (schema instanceof z.ZodOptional || schema instanceof z.ZodDefault
-    ? metaOf(schema.unwrap())
-    : undefined);
-
-const fieldOf = (key: string, schema: z.ZodType): IntegrationField => {
-  const meta = metaOf(schema);
-
-  if (!meta) throw new Error(`The integration field ${key} has no label: use field() or secret()`);
-
-  return { key, ...meta, optional: schema.safeParse(undefined).success };
-};
-
-export const fieldsOf = (keys: Keys) =>
-  Object.entries<z.ZodType>(keys.shape).map(([key, schema]) => fieldOf(key, schema));
 
 const Values = z.record(z.string(), z.unknown());
 
@@ -224,19 +96,3 @@ export const splitValues = (keys: Keys, values: Record<string, unknown>) => {
     secrets: Object.fromEntries(given.filter(([key]) => sealed.has(key))),
   };
 };
-
-export function defineIntegration<K extends Keys, C>(
-  definition: KeyedIntegration<K, C>,
-): KeyedIntegration<K, C>;
-export function defineIntegration(definition: PagedIntegration): PagedIntegration;
-export function defineIntegration(definition: Integration) {
-  if (definition.oauth && definition.keys !== oauthKeys)
-    throw new Error(`${definition.key} signs in with OAuth: its keys are oauthKeys`);
-
-  if (definition.hooks?.appWide && !definition.oauth)
-    throw new Error(`${definition.key} hears its app's events: it signs in with OAuth`);
-
-  if (definition.keys) fieldsOf(definition.keys);
-
-  return definition;
-}

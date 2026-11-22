@@ -1,6 +1,10 @@
 import { z } from 'zod';
-import { defineIntegration, type OAuthKeys, oauthKeys } from '../define';
-import { pollTrigger } from '../appDefinition';
+import {
+  defineIntegration,
+  type OAuthKeys,
+  oauthKeys,
+  pollTrigger,
+} from '@erxes/plugin-sdk/integrations';
 import {
   accountOf,
   columnNames,

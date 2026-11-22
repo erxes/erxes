@@ -7,7 +7,7 @@ import { forwardedHeaders, SANDBOXED_ANSWER } from '~/http/forwarded';
 import { safeEqual } from '~/lib/crypto';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { publishedEvents } from './apps';
-import { type Delivery, DeliveryRefused } from './appDefinition';
+import { type Delivery, DeliveryRefused } from '@erxes/plugin-sdk/integrations';
 import { connectionOn, delivered, subscriptionState } from './subscriptionState';
 import { hookSignature } from './subscriptionSync';
 

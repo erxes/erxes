@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import { appAction } from '../appDefinition';
-import { parse } from './http';
-import type { StripeClient } from './stripe';
+import { appAction, parse } from '@erxes/plugin-sdk/integrations';
+import type { StripeClient } from './server';
 
 const CustomerInput = z
   .object({

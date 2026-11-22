@@ -11,9 +11,14 @@ import {
   tokenCache,
   toTugrug,
   withBearer,
-} from './http';
-import { defineIntegration, digits, field, secret } from '../define';
-import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
+  defineIntegration,
+  digits,
+  field,
+  secret,
+  type ClientOptions,
+  type CreateInvoiceInput,
+  GatewayError,
+} from '@erxes/plugin-sdk/integrations';
 
 const keys = z.object({
   storeId: field('Store ID', digits()),
