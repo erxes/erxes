@@ -1,12 +1,6 @@
 import { fail, pgCode } from '~/http/errors';
 
 /**
- * Customer and company lists stop counting here: past it the total reads
- * "10,000+" (`totalCapped`), and a count never scans millions of rows.
- */
-export const LIST_COUNT_CAP = 10_000;
-
-/**
  * Runs a list. When a filter or search makes it too slow for the database's
  * statement timeout, the answer is a 400 `FILTER_TOO_SLOW` saying what to do,
  * not a 500.

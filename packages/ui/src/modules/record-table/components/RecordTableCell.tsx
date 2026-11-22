@@ -8,23 +8,16 @@ import { useRecordTable } from './RecordTableProvider';
 export const CellColumnHead = createContext<string | undefined>(undefined);
 
 /**
- * A cell control's id and name: the column head (or a side panel field's label), else the
- * control's own `aria-label`, then the text it shows ("Emails ada@…"), so an empty value is
- * still named and what it shows is always part of its name. Spread `control` before the
- * caller's props, which win, and wrap what it shows in a span with `textId`.
+ * A cell control's id and name: the column head (or a side panel field's label), then the
+ * control's own text ("Emails ada@…"), so an empty value is still named. Spread it before the
+ * caller's props, which win.
  */
-export const useCellLabel = (id?: string, ariaLabel?: string) => {
+export const useCellLabel = (id?: string) => {
   const ownId = useId();
-  const textId = useId();
   const controlId = id ?? ownId;
   const head = use(CellColumnHead);
-  // The control's own id stands for its aria-label in its labelledby list.
-  const label = head ?? (ariaLabel ? controlId : undefined);
 
-  return {
-    control: { id: controlId, 'aria-labelledby': label ? `${label} ${textId}` : undefined },
-    textId,
-  };
+  return { id: controlId, 'aria-labelledby': head ? `${head} ${controlId}` : undefined };
 };
 
 /** A body cell. Its width and pinned offset are CSS variables the table container sets. */

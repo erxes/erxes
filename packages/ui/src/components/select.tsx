@@ -75,19 +75,16 @@ const SelectTrigger = ({
 }: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>) => {
   // The form row's label names it through the cell label below; this is its error and state.
   const field = useFieldState();
-  const { control, textId } = useCellLabel(id, props['aria-label']);
 
   return (
     // In a table cell or a side panel field, named by the column or the label first.
     <SelectPrimitive.Trigger
       {...field}
-      {...control}
+      {...useCellLabel(id)}
       className={cn(selectTriggerVariants({ variant }), className)}
       {...props}
     >
-      <span id={textId} className="contents">
-        {children}
-      </span>
+      {children}
       <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
     </SelectPrimitive.Trigger>
   );
