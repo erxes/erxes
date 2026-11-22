@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { loggedEmails } from '~/modules/email/email';
 import { useTestDatabase } from './db';
@@ -12,9 +12,11 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   const t = useTwoOrgs();
   const { fake, settings } = usePosApi();
 
-  const paidReceipt = async () => {
+  beforeAll(async () => {
     await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
+  });
 
+  const paidReceipt = async () => {
     const invoice = await t.hr().payments.createInvoice({
       amount: 22_000,
       currency: 'MNT',
