@@ -47,3 +47,21 @@ test('a member creates an automation, turns it on and it runs', async ({ page, a
   // first(): on a reused local database, automations from earlier runs add the same note.
   await expect(page.getByText(`Welcome Ada ${suffix}!`).first()).toBeVisible();
 });
+
+test('a reload keeps edits that are not ready to save', async ({ page }) => {
+  const suffix = unique();
+
+  await page.goto('/automations');
+  await page.getByRole('button', { name: 'New automation' }).click();
+  await page.waitForURL(/\/automations\/\w+$/);
+
+  await page.getByRole('textbox', { name: 'Name' }).fill(`Half done ${suffix}`);
+  await page.getByRole('button', { name: /^Do this Add a note/i }).click();
+  await page.getByRole('button', { name: 'Remove step' }).click();
+  await expect(page.getByRole('button', { name: /^Do this Add a note/i })).toHaveCount(0);
+
+  await page.reload();
+
+  await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue(`Half done ${suffix}`);
+  await expect(page.getByRole('button', { name: /^Do this Add a note/i })).toHaveCount(0);
+});

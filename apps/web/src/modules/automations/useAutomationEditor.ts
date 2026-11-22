@@ -13,12 +13,25 @@ import { useNavigate } from 'react-router-dom';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { automationQuery } from './automationQueries';
 
+const UNFINISHED = new Set(['too_small', 'too_big', 'invalid_format', 'not_multiple_of', 'custom']);
+
+const unfinishedOnly = (issues: readonly z.core.$ZodIssue[]): boolean =>
+  issues.every((issue) =>
+    issue.code === 'invalid_union' ? issue.errors.some(unfinishedOnly) : UNFINISHED.has(issue.code),
+  );
+
+const DraftDefinition = z.custom<AutomationDefinition>((value) => {
+  const parsed = AutomationDefinition.safeParse(value);
+
+  return parsed.success || unfinishedOnly(parsed.error.issues);
+});
+
 const StoredDraft = z.object({
   /** The saved automation the edits were made over (`fingerprint` of its content). */
   base: z.string(),
   name: z.string().optional(),
   description: z.string().optional(),
-  definition: AutomationDefinition.optional(),
+  definition: DraftDefinition.optional(),
 });
 
 type StoredDraft = z.infer<typeof StoredDraft>;
