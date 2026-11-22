@@ -3,9 +3,10 @@ import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
 import type { HTMLAttributes, ReactNode } from 'react';
 
-// The left padding leaves room for the app sidebar's expand button while the sidebar is collapsed.
+// The first crumb pads its own icon, so the left edge is small: the icon lands where the page's
+// list rows put theirs. The collapsed padding leaves room for the app sidebar's expand button.
 const pageHeaderVariants = cva(
-  'box-border flex shrink-0 items-center justify-between bg-background px-3 navigation-collapsed:pl-13 styled-scroll',
+  'box-border flex shrink-0 items-center justify-between bg-background pl-1.5 pr-3 navigation-collapsed:pl-13 styled-scroll',
   {
     variants: {
       variant: {
