@@ -8,8 +8,8 @@ export type NextPage = {
 };
 
 /**
- * Loads the next page when the list's end nears the scrolled box (200px early). Put the returned
- * ref on an empty element after the last row.
+ * Loads a list's next page as its end scrolls into view. Put the returned ref on an empty
+ * element after the last row; it fires 200px early.
  */
 export const useLoadOnScroll = (pages: NextPage | undefined) => {
   const sentinel = useRef<HTMLDivElement>(null);
