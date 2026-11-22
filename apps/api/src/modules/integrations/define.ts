@@ -72,7 +72,7 @@ export interface AppEvent {
   payload: Record<string, unknown>;
 }
 
-export interface Received {
+interface Received {
   reply?: { status: number; body: unknown };
   events: AppEvent[];
 }
@@ -106,19 +106,19 @@ export interface HookTrigger extends TriggerInfo {
   when?: (payload: Record<string, unknown>) => boolean;
 }
 
-export interface Polled {
+interface Polled {
   cursor: unknown;
   items: { id: string; payload: Record<string, unknown> }[];
 }
 
-export interface PollTrigger<C> extends TriggerInfo {
+interface PollTrigger<C> extends TriggerInfo {
   via: 'poll';
   params: Keys;
   everyMinutes: number;
   poll(input: { keys: C; params: unknown; cursor: unknown }): Promise<Polled>;
 }
 
-export type AppTrigger<C> = HookTrigger | PollTrigger<C>;
+type AppTrigger<C> = HookTrigger | PollTrigger<C>;
 
 export const pollTrigger = <C, P extends Keys>(
   definition: TriggerInfo & {
@@ -153,6 +153,24 @@ interface Connection {
   dashboard?: string;
 }
 
+export const oauthKeys = z.object({
+  accessToken: secret('Access token', z.string().min(1).max(4000)),
+  refreshToken: secret('Refresh token', z.string().min(1).max(4000)).optional(),
+  expiresAt: z.int().positive().optional(),
+  account: field('Account').optional(),
+});
+
+export type OAuthKeys = z.output<typeof oauthKeys>;
+
+export interface OAuthSetup {
+  authorizeUrl: string;
+  tokenUrl: string;
+  scopes: string[];
+  scopeSeparator?: string;
+  authorizeParams?: Record<string, string>;
+  account(accessToken: string): Promise<string>;
+}
+
 export interface KeyedIntegration<K extends Keys = Keys> extends Connection, Apps<z.output<K>> {
   keys: K;
   /**
@@ -168,6 +186,7 @@ export interface KeyedIntegration<K extends Keys = Keys> extends Connection, App
    */
   register?(keys: z.output<K>, options: DriverOptions): Promise<Record<string, string>>;
   payments?: GatewayPayments<z.output<K>>;
+  oauth?: OAuthSetup;
   status?: never;
 }
 
@@ -176,6 +195,7 @@ export interface PagedIntegration extends Connection {
   keys?: never;
   verify?: never;
   payments?: never;
+  oauth?: never;
   hooks?: never;
   triggers?: never;
 }
@@ -205,6 +225,9 @@ export function defineIntegration<K extends Keys>(
 ): KeyedIntegration<K>;
 export function defineIntegration(definition: PagedIntegration): PagedIntegration;
 export function defineIntegration(definition: Integration) {
+  if (definition.oauth && definition.keys !== oauthKeys)
+    throw new Error(`${definition.key} signs in with OAuth: its keys are oauthKeys`);
+
   if (definition.keys) fieldsOf(definition.keys);
 
   return definition;

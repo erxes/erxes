@@ -4,6 +4,7 @@ import {
   INTEGRATION_CONNECTION_STATUSES,
   INTEGRATION_FIELD_TYPES,
   INTEGRATION_STATES,
+  OAUTH_CLIENT_SOURCES,
 } from '@erxes/core-db/integrationEnums';
 import { integrationConnections } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
@@ -66,6 +67,9 @@ export const Integration = z.object({
   keyed: z.boolean(),
   fields: z.array(IntegrationField),
   payments: IntegrationPayments.nullable(),
+  oauth: z
+    .object({ client: z.enum(OAUTH_CLIENT_SOURCES).nullable(), callbackUrl: z.string() })
+    .nullable(),
   status: IntegrationStatus,
 });
 
@@ -99,7 +103,7 @@ const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
-const { BANK_IN_USE, GATEWAY_IN_USE, GATEWAY_REFUSED, KIND_CHANGED } = ERRORS;
+const { BANK_IN_USE, GATEWAY_IN_USE, GATEWAY_REFUSED, KIND_CHANGED, NOT_SET_UP } = ERRORS;
 
 const base = oc.errors({
   ...COMMON_ERRORS,
@@ -107,9 +111,37 @@ const base = oc.errors({
   GATEWAY_IN_USE,
   GATEWAY_REFUSED,
   KIND_CHANGED,
+  NOT_SET_UP,
 });
 
 export const integrationsContract = {
+  authorize: base
+    .route({
+      method: 'POST',
+      path: '/integrations/{key}/authorize',
+      summary:
+        "Where to send the member to sign in to the app; the app sends them back to the callback, which saves the connection. 400 NOT_SET_UP without the app's client id and secret",
+    })
+    .input(z.object({ key: IntegrationKey, name: ConnectionName }))
+    .output(z.object({ url: z.string() })),
+  setOAuthApp: base
+    .route({
+      method: 'PUT',
+      path: '/integrations/{key}/oauth-app',
+      summary: "The organisation's own OAuth app for this integration, kept in the vault",
+    })
+    .input(
+      z.object({
+        key: IntegrationKey,
+        clientId: z.string().trim().min(1).max(500),
+        clientSecret: z.string().trim().min(1).max(2000),
+      }),
+    )
+    .output(z.object({ ok: z.literal(true) })),
+  removeOAuthApp: base
+    .route({ method: 'DELETE', path: '/integrations/{key}/oauth-app' })
+    .input(z.object({ key: IntegrationKey }))
+    .output(z.object({ ok: z.literal(true) })),
   list: base
     .route({
       method: 'GET',

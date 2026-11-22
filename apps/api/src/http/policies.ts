@@ -293,6 +293,9 @@ export const ACCESS = {
   'integrations.connect': MEMBER,
   'integrations.update': MEMBER,
   'integrations.remove': MEMBER,
+  'integrations.authorize': MEMBER,
+  'integrations.setOAuthApp': MEMBER,
+  'integrations.removeOAuthApp': MEMBER,
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

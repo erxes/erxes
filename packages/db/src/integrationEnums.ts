@@ -19,6 +19,8 @@ export const INTEGRATION_SUBSCRIPTION_STATUSES = ['syncing', 'listening', 'broke
 
 export const APP_TRIGGER_DELIVERIES = ['hook', 'poll'] as const;
 
+export const OAUTH_CLIENT_SOURCES = ['server', 'organization'] as const;
+
 export const VAULT_HOLDERS = [
   'email',
   'file-bucket',

@@ -19,7 +19,8 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { readSecret, removeSecretAs, saveSecret } from '~/modules/secrets/vault';
 import { type App, appOf, channelOf, HOOK_CHANNEL, paramsSchema, triggerOf } from './apps';
-import { connectionsWithSecret, keysOf } from './connections';
+import { connectionsWithSecret } from './connections';
+import { freshKeys } from './oauth';
 
 type AppTrigger = Extract<AutomationDefinition['trigger'], { kind: 'app' }>;
 
@@ -45,7 +46,7 @@ const paramsKeyOf = (params: unknown) => sha256(JSON.stringify(sorted(params)));
 export const hookSignature = (subscriptionId: string) =>
   hmacSha256(coreKey('erxes-integration-hook-v1'), subscriptionId, 'base64url');
 
-export const hookUrl = (client: Db, subscriptionId: string) =>
+const hookUrl = (client: Db, subscriptionId: string) =>
   appLink(client, `/core/v1/integrations/hooks/${subscriptionId}/${hookSignature(subscriptionId)}`);
 
 export const resolveAppTrigger = (trigger: AppTrigger) => {
@@ -225,7 +226,7 @@ export const connectionKeys = async (tx: Db, app: App, connectionId: string) => 
 
   if (!row || row.status !== 'active') throw new Error(`${app.name} connection is off or gone`);
 
-  return keysOf(app, row);
+  return freshKeys(tx, app, row);
 };
 
 export const markFailed = async (tx: Db, subscription: Subscription, error: string) => {
