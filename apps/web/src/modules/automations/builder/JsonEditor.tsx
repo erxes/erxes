@@ -233,10 +233,6 @@ const Entries = ({
   );
 };
 
-/**
- * A JSON value as rows of name, type and value, nested for objects and lists. Text values take
- * the run's data as chips. `flat`: names and text only, as headers are.
- */
 export const JsonEditor = ({
   label,
   value,

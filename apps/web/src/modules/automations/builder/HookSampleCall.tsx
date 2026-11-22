@@ -90,7 +90,6 @@ const PasteSample = ({ sample }: { sample: HookSample | null }) => {
   );
 };
 
-/** The webhook's sample: a call while it is off, or one pasted in, and the fields it carried. */
 export const HookSampleCall = ({ sample, on }: { sample: HookSample | null; on: boolean }) => {
   const { t } = useTranslation('automations');
   const { automationId } = useContext(BuilderContext);

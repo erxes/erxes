@@ -35,7 +35,6 @@ const hookPath = (automationId: string) =>
 const isHook = (row: { definition: AutomationDefinition }) =>
   row.definition.trigger.kind === 'webhook';
 
-/** Each automation's webhook address (it answers only while the trigger is a webhook) and sample call. */
 export const withHookUrls = async <T extends { id: string; state: AutomationRow['state'] }>(
   client: Db,
   rows: T[],
@@ -51,10 +50,6 @@ export const withHookUrls = async <T extends { id: string; state: AutomationRow[
 
 const MAX_SAMPLE_BYTES = 64_000;
 
-/**
- * Keeps a request as the webhook's sample: its fields replace the learned ones, so the
- * editor's lists show what it carried, and the test starts from it.
- */
 export const saveHookSample = async (
   tx: Db,
   automation: { id: string; orgId: string },

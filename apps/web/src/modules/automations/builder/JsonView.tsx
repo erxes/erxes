@@ -15,7 +15,6 @@ const Leaf = ({ value }: { value: unknown }) => {
   return null;
 };
 
-/** A value as rows of name and value, nested objects and lists indented. Read only. */
 export const JsonView = ({ value }: { value: unknown }) => {
   const list = z.array(z.unknown()).safeParse(value).data;
 

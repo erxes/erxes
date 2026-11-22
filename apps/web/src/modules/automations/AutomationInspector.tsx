@@ -51,7 +51,6 @@ const TriggerPanel = (props: InspectorProps) => {
   );
 };
 
-/** The right-hand panel: the trigger, the selected step, or the test. */
 export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
   const { draft, selected, onSelect, editable, automation, mutations, built } = props;

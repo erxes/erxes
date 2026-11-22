@@ -83,7 +83,6 @@ const RunLimit = ({
   );
 };
 
-/** The note, re-entry, hourly limit and goal, in a dialog from the header's menu. */
 export const SettingsDialog = ({
   open,
   onOpenChange,

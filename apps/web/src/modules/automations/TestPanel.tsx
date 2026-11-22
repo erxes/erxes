@@ -115,10 +115,6 @@ const RecordPick = ({
   );
 };
 
-/**
- * Dry run of the saved version: for a webhook, with its sample call; otherwise for a record
- * picked here. Nothing is sent or changed. Unsaved edits are saved first.
- */
 export const TestPanel = ({
   automation,
   subject,

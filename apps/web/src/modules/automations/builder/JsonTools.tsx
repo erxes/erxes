@@ -54,7 +54,6 @@ const PasteJson = ({ onPaste }: { onPaste: (value: unknown) => void }) => {
   );
 };
 
-/** Paste JSON to fill the rows, or see them as JSON. */
 export const JsonTools = ({
   value,
   disabled,

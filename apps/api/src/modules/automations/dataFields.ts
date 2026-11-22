@@ -39,7 +39,6 @@ const KEY = /^[A-Za-z][A-Za-z0-9_]{0,59}$/;
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** The values data carries, nested objects included by dotted key (`user.email`), four deep at most. */
 export const carriedBy = (data: Record<string, unknown>, prefix = '', depth = 1): Carried[] =>
   Object.entries(data).flatMap(([name, value]) => {
     if (!KEY.test(name)) return [];

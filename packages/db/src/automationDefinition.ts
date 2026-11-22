@@ -202,7 +202,6 @@ export const Audience = z.object({
 
 export type Audience = z.infer<typeof Audience>;
 
-/** A value of the webhook request, by its path: `body.email`, `body.user.phone`, `query.ref`. */
 export const HookField = z
   .string()
   .max(200)

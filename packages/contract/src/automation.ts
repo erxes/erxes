@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { isoDate } from './common';
 import { AutomationId } from './records';
 
-/** A webhook request's parts the editor works with. */
 export const HookSample = z.object({
   body: z.json().nullable(),
   query: z.record(z.string(), z.json()),
@@ -39,9 +38,7 @@ export const Automation = createSelectSchema(automations, {
       succeeded: z.int(),
       failed: z.int(),
     }),
-    /** Where other systems call it; calls start runs only while the trigger is a webhook and it is on. */
     hookUrl: z.string(),
-    /** The webhook's sample call: the latest one while it was off, or one pasted in. */
     hookSample: HookSample.nullable(),
   });
 

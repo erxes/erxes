@@ -8,7 +8,6 @@ import { findStep } from './builder/flowModel';
 import { describeStep } from './builder/flowText';
 import type { FieldInfo } from './builder/useAutomationFields';
 
-/** "N to fix": what the server refused and the steps the builder marks, each opening its step. */
 export const ProblemsPopover = ({
   steps,
   fields,

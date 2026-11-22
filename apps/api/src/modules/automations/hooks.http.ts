@@ -84,7 +84,6 @@ const requestOf = (req: Request) => {
   return parsed.data;
 };
 
-/** While it is on, a call starts a run; while it is off, the call is kept as the sample. */
 const start = (hook: Hook, request: HookRequest, eventId: string) =>
   withOrg(hook.orgId, async (tx) => {
     const [automation] = await tx

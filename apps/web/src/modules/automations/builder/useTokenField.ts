@@ -88,10 +88,6 @@ const needsSpace = (range: Range | null) => {
   return before !== undefined && !/[\s([{"'«/@-]/.test(before);
 };
 
-/**
- * A contenteditable field whose placeholders show as chips. The DOM is drawn from `value` only
- * when it differs, so the caret stays put while typing.
- */
 export const useTokenField = ({
   value,
   fields,

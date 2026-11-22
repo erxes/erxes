@@ -86,10 +86,6 @@ const useItems = ({
   ];
 };
 
-/**
- * Setting up a new automation, in order: what starts it, (for a webhook) a sample call and who
- * runs are about, the steps, a test, then turning it on. Shown until it is first turned on.
- */
 export const SetupRail = ({
   automation,
   trigger,
