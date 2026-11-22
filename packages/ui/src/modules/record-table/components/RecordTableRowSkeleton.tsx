@@ -5,9 +5,18 @@ import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTableState } from './RecordTableProvider';
 
 /**
- * Placeholder rows; `handleInView` runs when the first one scrolls into view, and again each
- * time `loaded` changes while it stays in view: a fast scroll that outruns a page still gets
- * the next one, instead of waiting for the row to leave the screen and come back.
+ * How far below the visible area the forward placeholder counts as in view: one screen of rows,
+ * so the next page is on its way while that screen still scrolls, instead of only once the
+ * member reaches the end. Not above: a backward page keeps the rows where they are on screen,
+ * so it loads only once the top is reached.
+ */
+const FORWARD_AHEAD = '0px 0px 100% 0px';
+
+/**
+ * Placeholder rows; `handleInView` runs when the first one comes within a screen below the
+ * visible area (in view, for a `backward` one), and again each time `loaded` changes while it
+ * stays there: a scroll that outruns a page still gets the next one, instead of waiting for the
+ * row to leave and come back. `handleInView` guards against a fetch already running.
  */
 export const RecordTableRowSkeleton = ({
   rows = 1,
@@ -27,7 +36,7 @@ export const RecordTableRowSkeleton = ({
     (inView) => {
       if (inView) handleInView?.();
     },
-    { root: root ?? null },
+    { root: root ?? null, rootMargin: backward ? undefined : FORWARD_AHEAD },
   );
 
   // Positions after the first row: the rows are identical, so a position is their identity.
