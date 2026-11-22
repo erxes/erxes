@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { countSteps, flowProblems, stepOutputFields } from '../flowChecks';
 import {
   actionDefaults,
+  armsOf,
   cloneStep,
   findStep,
   insertStep,
@@ -88,6 +89,22 @@ describe('flow model', () => {
       length: 1,
     });
     expect(countSteps(flow)).toBe(4);
+  });
+
+  it('names a split path by its share of the runs, not its raw weight', () => {
+    const split: AutomationStep = {
+      id: 's',
+      type: 'split',
+      paths: [
+        { weight: 50, steps: [] },
+        { label: 'Offer', weight: 25, steps: [] },
+      ],
+    };
+
+    expect(armsOf(split).map((arm) => arm.label)).toEqual(['A · 67%', 'Offer · 33%']);
+    expect(describeStep(split, { actions: [], events, fields: [] }).title).toBe(
+      'A 67% · Offer 33%',
+    );
   });
 
   it('inserts into an empty arm, moves, replaces and removes without touching other steps', () => {
