@@ -23,6 +23,7 @@ import { REPLY_ACTION } from './actions/reply';
 import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { triggerConditions } from './conditions';
+import { connectionProblems } from './connectionChecks';
 import { eachStep } from './cursor';
 import { hookFields } from './hooks';
 import { MAX_HOURS, MIN_MINUTES } from './schedule';
@@ -329,6 +330,7 @@ export const definitionProblems = async (client: Db, definition: AutomationDefin
     problems.push(...stepProblems(step, catalog, subject, definition.trigger));
   });
   problems.push(...templateProblems(definition));
+  problems.push(...(await connectionProblems(client, definition, catalog.actions)));
   problems.push(...(await conditionProblems(client, definition, subject)));
 
   return problems;

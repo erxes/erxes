@@ -20,10 +20,16 @@ export type StepOutcome =
 /** Errors a retry can't fix: setup a member has to change (email, the step's input, an automation that is off). */
 const FINAL_ERRORS: ReadonlySet<string> = new Set([
   'EMAIL_NOT_CONFIGURED',
+  'GATEWAY_REFUSED',
   'INVALID_STEP_INPUT',
   'LIMIT_EXCEEDED',
   'NOT_ACTIVE',
 ]);
+
+export const finalError = (error: unknown) =>
+  error instanceof ORPCError && typeof error.code === 'string' && FINAL_ERRORS.has(error.code)
+    ? error.message
+    : null;
 
 export interface StepState {
   tx: Db;
@@ -113,12 +119,9 @@ const runLocalAction = async (
 
     return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
   } catch (error) {
-    if (
-      error instanceof ORPCError &&
-      typeof error.code === 'string' &&
-      FINAL_ERRORS.has(error.code)
-    )
-      return { kind: 'failed', error: error.message };
+    const final = finalError(error);
+
+    if (final !== null) return { kind: 'failed', error: final };
 
     throw error;
   }

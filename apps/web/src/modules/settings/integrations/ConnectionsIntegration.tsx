@@ -5,6 +5,7 @@ import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
 import { connectionsOf, useConnections } from '../vault/useVault';
+import { AutomationTriggers } from './AutomationTriggers';
 import type { CoreIntegration } from './catalog';
 import { CredentialsHelp } from './ConnectionFields';
 import {
@@ -69,6 +70,7 @@ const Overview = ({ integration }: { integration: CoreIntegration }) => {
           )}
         </QueryState>
       </OverviewSection>
+      <AutomationTriggers integration={integration} />
       {integration.payments && (
         <OverviewSection title={t('payments', 'How payers pay')}>
           <PaymentFacts payments={integration.payments} />

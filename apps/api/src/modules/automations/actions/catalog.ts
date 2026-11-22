@@ -1,5 +1,6 @@
 import { ActionField, type ActionInfo } from '@erxes/core-contract';
 import { AGENT_ACTIONS } from './agent';
+import { APP_ACTIONS } from './apps';
 import { AUTOMATION_ACTIONS } from './automations';
 import type { CoreAction } from './context';
 import { LEAD_ACTIONS } from './leads';
@@ -15,6 +16,7 @@ const CORE_ACTIONS: CoreAction[] = [
   ...AGENT_ACTIONS,
   ...AUTOMATION_ACTIONS,
   ...REPLY_ACTIONS,
+  ...APP_ACTIONS,
 ];
 
 export const coreAction = (type: string) => CORE_ACTIONS.find((action) => action.type === type);
@@ -28,7 +30,7 @@ export const actionCatalog = (installed: ActionPlugin[]): ActionInfo[] => [
     subject: action.subject,
     fields: action.fields,
     outputs: action.outputs ?? [],
-    source: 'core',
+    source: action.source ?? 'core',
   })),
   ...installed.flatMap((plugin) =>
     (plugin.manifest?.actions ?? []).map((action) => ({

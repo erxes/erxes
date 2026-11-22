@@ -20,6 +20,7 @@ import { defineJob } from '~/modules/jobs/jobs';
 import { readSecret, removeSecretAs, saveSecret } from '~/modules/secrets/vault';
 import { type App, appOf, channelOf, HOOK_CHANNEL, paramsSchema, triggerOf } from './apps';
 import { connectionsWithSecret } from './connections';
+import type { KeyedIntegration } from './define';
 import { freshKeys } from './oauth';
 
 type AppTrigger = Extract<AutomationDefinition['trigger'], { kind: 'app' }>;
@@ -125,7 +126,12 @@ const subscriptionFor = async (tx: Db, trigger: AppTrigger) => {
   return raced.id;
 };
 
-const syncKey = (id: string) => `integration-subscription:${id}`;
+export const enqueueSync = (tx: Db, id: string) =>
+  subscriptionSync.enqueueNow(tx, {
+    orgId: requestOrgId(),
+    payload: { subscriptionId: id },
+    dedupeKey: `integration-subscription:${id}`,
+  });
 
 const removeSubscription = async (tx: Db, subscription: Subscription) => {
   await tx.delete(integrationSubscriptions).where(eq(integrationSubscriptions.id, subscription.id));
@@ -171,12 +177,7 @@ const refresh = (tx: Db, ids: string[]) =>
       .set({ triggers, status: hook ? 'syncing' : subscription.status, updatedAt: sql`now()` })
       .where(eq(integrationSubscriptions.id, id));
 
-    if (hook)
-      await subscriptionSync.enqueueNow(tx, {
-        orgId: requestOrgId(),
-        payload: { subscriptionId: id },
-        dedupeKey: syncKey(id),
-      });
+    if (hook) await enqueueSync(tx, id);
   });
 
 export const listenFor = async (
@@ -219,14 +220,22 @@ export const subscriptionState = async (tx: Db, id: string) => {
   return { subscription, app, secret: await readSecret(tx, subscription.secretId) };
 };
 
-export const connectionKeys = async (tx: Db, app: App, connectionId: string) => {
+export const connectionKeys = async (
+  tx: Db,
+  integration: KeyedIntegration,
+  connectionId: string,
+) => {
   const [row] = await connectionsWithSecret(tx)
     .where(eq(integrationConnections.id, connectionId))
     .limit(1);
 
-  if (!row || row.status !== 'active') throw new Error(`${app.name} connection is off or gone`);
+  if (row?.key !== integration.key)
+    throw fail('INVALID_STEP_INPUT', `Pick a ${integration.name} connection`);
 
-  return freshKeys(tx, app, row);
+  if (row.status !== 'active')
+    throw fail('NOT_ACTIVE', `The ${integration.name} connection is off`);
+
+  return freshKeys(tx, integration, row);
 };
 
 export const markFailed = async (tx: Db, subscription: Subscription, error: string) => {
@@ -281,11 +290,7 @@ const finishRemoval = async (tx: Db, id: string) => {
     .update(integrationSubscriptions)
     .set({ externalId: null, updatedAt: sql`now()` })
     .where(eq(integrationSubscriptions.id, id));
-  await subscriptionSync.enqueueNow(tx, {
-    orgId: requestOrgId(),
-    payload: { subscriptionId: id },
-    dedupeKey: syncKey(id),
-  });
+  await enqueueSync(tx, id);
 };
 
 const hookEvents = (app: App, triggers: string[]) => [

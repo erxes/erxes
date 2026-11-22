@@ -83,7 +83,7 @@ describe('app triggers', { timeout: 300_000 }, () => {
         app: 'stripe',
         trigger: 'payment_succeeded',
         connectionId,
-        subject: { type: 'customer', by: 'primaryEmail', value: '{{event.payload.receipt_email}}' },
+        subject: { type: 'customer', by: 'primaryEmail', field: 'receipt_email' },
       },
       steps: [{ id: 'wait', type: 'delay', amount: 1, unit: 'days' }],
     });

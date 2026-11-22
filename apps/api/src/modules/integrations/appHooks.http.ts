@@ -1,4 +1,10 @@
-import { type Db, integrationSubscriptions, withOrg, withSystem } from '@erxes/core-db';
+import {
+  type Db,
+  integrationConnections,
+  integrationSubscriptions,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import express, { type Request, type RequestHandler, Router } from 'express';
 import { z } from 'zod';
@@ -90,13 +96,24 @@ const deliver = async (tx: Db, id: string, delivery: Delivery) => {
 
   const { app, subscription } = state;
 
+  const [connection] = await tx
+    .select({ status: integrationConnections.status })
+    .from(integrationConnections)
+    .where(eq(integrationConnections.id, subscription.connectionId))
+    .limit(1);
+
+  const on = connection?.status === 'active';
+
   try {
     const received = state.app.hooks.receive(delivery, state.secret);
-    const events = received.events.flatMap((event) => published(app, subscription, event));
+
+    const events = on
+      ? received.events.flatMap((event) => published(app, subscription, event))
+      : [];
 
     await publishCoreEvents(tx, events);
 
-    if (received.events.length)
+    if (on && received.events.length)
       await tx
         .update(integrationSubscriptions)
         .set({ lastDeliveryAt: sql`now()` })

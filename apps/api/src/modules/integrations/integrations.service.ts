@@ -25,6 +25,7 @@ import {
 } from './connections';
 import { connectable, manages } from './connectable';
 import { fieldsOf, type KeyedIntegration } from './define';
+import { connectionTurned, listenersOf } from './listeners';
 import { callbackUrl, oauthClientSource } from './oauth';
 import { driverOptions } from './options';
 import { INTEGRATIONS, keyedOf } from './registry';
@@ -97,17 +98,25 @@ export const integrationConnectionsOf = async (client: Db, key?: string) => {
       )
     : [];
 
+  const listeners = await listenersOf(
+    client,
+    data.map((connection) => connection.id),
+  );
+
   const usedBy = (connection: (typeof data)[number]) => {
     if (isBank(connection.key))
       return readers.flatMap((reader) =>
         reader.settings.connectionId === connection.id ? [reader.name] : [],
       );
 
-    return connection.status === 'active' && keyedOf(connection.key).payments
-      ? plugins.flatMap(({ title, allowedGatewayIds }) =>
-          !allowedGatewayIds.length || allowedGatewayIds.includes(connection.id) ? [title] : [],
-        )
-      : [];
+    return [
+      ...(connection.status === 'active' && keyedOf(connection.key).payments
+        ? plugins.flatMap(({ title, allowedGatewayIds }) =>
+            !allowedGatewayIds.length || allowedGatewayIds.includes(connection.id) ? [title] : [],
+          )
+        : []),
+      ...listeners(connection.id),
+    ];
   };
 
   return { data: data.map((connection) => ({ ...connection, usedBy: usedBy(connection) })) };
@@ -252,6 +261,9 @@ export const updateConnection = async (input: {
 
     if (!row) throw notFound('Connection');
 
+    if (input.status && input.status !== before.status)
+      await connectionTurned(tx, row.id, input.status);
+
     await recordAudit(tx, {
       action: 'integration.updated',
       targetType: 'integration_connection',
@@ -267,6 +279,14 @@ export const updateConnection = async (input: {
 export const removeConnection = async (client: Db, key: string, id: string) => {
   const integration = connectable(key);
   const row = await connectionOf(client, integration, id);
+  const listening = (await listenersOf(client, [id]))(id);
+
+  if (listening.length)
+    throw fail(
+      'CONNECTION_IN_USE',
+      `Automations listen on ${row.name}: pause ${listening.join(', ')} first`,
+      { automations: listening },
+    );
 
   if (integration.payments) await releaseGateway(client, id);
 

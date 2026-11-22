@@ -1,5 +1,13 @@
 import { IconAt, IconBuilding, IconCalendar, IconClockPlus, IconUser } from '@tabler/icons-react';
-import { DatePicker, InputGroup, Select, Switch, textOf, toIsoDay } from 'erxes-ui';
+import {
+  ConnectionPicker,
+  DatePicker,
+  InputGroup,
+  Select,
+  Switch,
+  textOf,
+  toIsoDay,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
@@ -220,6 +228,14 @@ export const ActionFieldInput = (props: ActionInputProps) => {
     case 'json':
     case 'key_values':
       return <JsonInput {...props} />;
+    case 'connection':
+      return (
+        <ConnectionPicker
+          integration={field.integration}
+          value={typeof value === 'string' && value ? value : null}
+          onValueChange={(next) => onChange(next ?? undefined)}
+        />
+      );
     case 'reply_to':
       return (
         <ReplyToSelect

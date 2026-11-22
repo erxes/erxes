@@ -16,7 +16,13 @@ const StripeEvent = z.object({
   data: z.object({ object: z.record(z.string(), z.unknown()) }),
 });
 
-const send = (keys: StripeKeys, method: string, path: string, form?: URLSearchParams) =>
+export const stripeSend = (
+  keys: StripeKeys,
+  method: string,
+  path: string,
+  form?: URLSearchParams,
+  headers: Record<string, string> = {},
+) =>
   gatewayHttp(
     'Stripe',
     'https://api.stripe.com/v1',
@@ -24,6 +30,7 @@ const send = (keys: StripeKeys, method: string, path: string, form?: URLSearchPa
   )(path, {
     method,
     headers: {
+      ...headers,
       Authorization: `Bearer ${keys.secretKey}`,
       ...(form ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
     },
@@ -61,7 +68,7 @@ export const stripeHooks: AppHooks<StripeKeys> = {
         const updated = parse(
           'Stripe',
           Endpoint,
-          await send(
+          await stripeSend(
             keys,
             'POST',
             `/webhook_endpoints/${encodeURIComponent(externalId)}`,
@@ -79,7 +86,7 @@ export const stripeHooks: AppHooks<StripeKeys> = {
     const made = parse(
       'Stripe',
       Endpoint,
-      await send(keys, 'POST', '/webhook_endpoints', endpointForm(url, events)),
+      await stripeSend(keys, 'POST', '/webhook_endpoints', endpointForm(url, events)),
       'no webhook endpoint',
     );
 
@@ -87,7 +94,7 @@ export const stripeHooks: AppHooks<StripeKeys> = {
   },
   async unsubscribe({ keys, externalId }) {
     try {
-      await send(keys, 'DELETE', `/webhook_endpoints/${encodeURIComponent(externalId)}`);
+      await stripeSend(keys, 'DELETE', `/webhook_endpoints/${encodeURIComponent(externalId)}`);
     } catch (error) {
       if (!missing(error)) throw error;
     }

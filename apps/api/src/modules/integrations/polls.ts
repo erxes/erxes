@@ -42,16 +42,10 @@ const claimDue = () =>
   });
 
 const loaded = (tx: Db, id: string) =>
-  subscriptionState(tx, id).then(async (state) => {
+  subscriptionState(tx, id).then((state) => {
     const trigger = state && triggerOf(state.app.key, state.subscription.channel);
 
-    if (!state || trigger?.via !== 'poll') return null;
-
-    return {
-      ...state,
-      trigger,
-      keys: await connectionKeys(tx, state.app, state.subscription.connectionId),
-    };
+    return state && trigger?.via === 'poll' ? { ...state, trigger } : null;
   });
 
 const pollOne = async (orgId: string, id: string) => {
@@ -59,9 +53,11 @@ const pollOne = async (orgId: string, id: string) => {
 
   if (!state) return;
 
-  const { subscription, trigger, app, keys } = state;
+  const { subscription, trigger, app } = state;
 
   try {
+    const keys = await withOrg(orgId, (tx) => connectionKeys(tx, app, subscription.connectionId));
+
     const polled = await trigger.poll({
       keys,
       params: subscription.params,

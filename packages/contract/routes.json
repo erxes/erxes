@@ -2936,6 +2936,36 @@
     }
   },
   "integrations": {
+    "authorize": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/{key}/authorize"
+        }
+      }
+    },
+    "setOAuthApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/{key}/oauth-app"
+        }
+      }
+    },
+    "removeOAuthApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integrations/{key}/oauth-app"
+        }
+      }
+    },
     "list": {
       "~orpc": {
         "errorMap": {},
@@ -2953,6 +2983,16 @@
         "route": {
           "method": "GET",
           "path": "/integrations/connections"
+        }
+      }
+    },
+    "subscriptions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/subscriptions"
         }
       }
     },

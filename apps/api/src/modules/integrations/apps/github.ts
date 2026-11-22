@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { defineIntegration, hookTrigger, secret } from '../define';
+import { createIssue } from './githubActions';
 import { githubHooks, githubSend } from './githubHooks';
 
 const COMMON = [
@@ -177,4 +178,5 @@ export const github = defineIntegration({
   },
   hooks: githubHooks,
   triggers: GITHUB_TRIGGERS,
+  actions: [createIssue],
 });

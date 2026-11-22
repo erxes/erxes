@@ -1,6 +1,14 @@
+import { TELEGRAM_PARSE_MODES } from '@erxes/core-db/integrationEnums';
 import { z } from 'zod';
 import { safeEqual } from '~/lib/crypto';
-import { type AppHooks, DeliveryRefused, defineIntegration, hookTrigger, secret } from '../define';
+import {
+  type AppHooks,
+  appAction,
+  DeliveryRefused,
+  defineIntegration,
+  hookTrigger,
+  secret,
+} from '../define';
 import { gatewayHttp, json, parse, Text } from '../gateways/http';
 import { GatewayError } from '../gateways/types';
 import {
@@ -215,6 +223,50 @@ const TRIGGERS = [
   }),
 ];
 
+const MessageInput = z.object({
+  chatId: Text.pipe(z.string().trim().min(1).max(100)),
+  text: Text.pipe(z.string().min(1).max(4096)),
+  parseMode: z.enum(TELEGRAM_PARSE_MODES).optional(),
+});
+
+const sendMessage = appAction<TelegramKeys, typeof MessageInput>({
+  key: 'send_message',
+  label: 'Send a message',
+  description: 'The bot sends a message to a chat',
+  fields: [
+    {
+      key: 'chatId',
+      label: 'Chat id',
+      type: 'text',
+      required: true,
+      placeholder: '{{event.payload.chatId}}',
+      description: 'A chat id, or @username of a channel',
+    },
+    { key: 'text', label: 'Message', type: 'longtext', required: true },
+    {
+      key: 'parseMode',
+      label: 'Formatting',
+      type: 'select',
+      required: false,
+      options: [
+        { value: 'MarkdownV2', label: 'Markdown' },
+        { value: 'HTML', label: 'HTML' },
+      ],
+    },
+  ],
+  outputs: [{ key: 'messageId', label: 'Message id', type: 'number' }],
+  input: MessageInput,
+  async run({ keys: bot, input }) {
+    const sent = await call(bot, 'sendMessage', z.object({ message_id: z.int() }), {
+      chat_id: input.chatId,
+      text: input.text,
+      parse_mode: input.parseMode,
+    });
+
+    return { messageId: sent.message_id };
+  },
+});
+
 export const telegram = defineIntegration({
   key: 'telegram',
   name: 'Telegram',
@@ -229,4 +281,5 @@ export const telegram = defineIntegration({
   },
   hooks,
   triggers: TRIGGERS,
+  actions: [sendMessage],
 });

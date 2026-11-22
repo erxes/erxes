@@ -1,4 +1,5 @@
 import type {
+  ActionField,
   CorePermission,
   DataField,
   Integration as IntegrationListing,
@@ -8,6 +9,7 @@ import type {
 import type { Db } from '@erxes/core-db';
 import type { GATEWAY_REFUND_KINDS } from '@erxes/core-db/enums';
 import { z } from 'zod';
+import { fail } from '~/http/errors';
 import type { DriverOptions, GatewayDriver } from './gateways/types';
 
 type FormField = Pick<IntegrationField, 'label' | 'type' | 'options'>;
@@ -138,9 +140,51 @@ export const hookTrigger = (definition: Omit<HookTrigger, 'via'>): HookTrigger =
   via: 'hook',
 });
 
+interface ActionCall<C, I> {
+  keys: C;
+  input: I;
+  idempotencyKey: string;
+}
+
+export interface AppAction<C> {
+  key: string;
+  label: string;
+  description: string;
+  fields: ActionField[];
+  outputs?: DataField[];
+  run(call: ActionCall<C, Record<string, unknown>>): Promise<Record<string, unknown>>;
+}
+
+export const appAction = <C, I extends Keys>(
+  definition: Omit<AppAction<C>, 'run'> & {
+    input: I;
+    run(call: ActionCall<C, z.output<I>>): Promise<Record<string, unknown>>;
+  },
+): AppAction<C> => {
+  const { input: schema, ...info } = definition;
+
+  return {
+    ...info,
+    run: (call) => {
+      const parsed = schema.safeParse(call.input);
+
+      if (!parsed.success)
+        throw fail(
+          'INVALID_STEP_INPUT',
+          parsed.error.issues
+            .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+            .join('; '),
+        );
+
+      return definition.run({ ...call, input: parsed.data });
+    },
+  };
+};
+
 interface Apps<C> {
   hooks?: AppHooks<C>;
   triggers?: AppTrigger<C>[];
+  actions?: AppAction<C>[];
 }
 
 interface Connection {
@@ -156,7 +200,7 @@ interface Connection {
 export const oauthKeys = z.object({
   accessToken: secret('Access token', z.string().min(1).max(4000)),
   refreshToken: secret('Refresh token', z.string().min(1).max(4000)).optional(),
-  expiresAt: z.int().positive().optional(),
+  expiresAt: labelled(z.int().positive(), { label: 'Sign-in expires', type: 'secret' }).optional(),
   account: field('Account').optional(),
 });
 
@@ -198,6 +242,7 @@ export interface PagedIntegration extends Connection {
   oauth?: never;
   hooks?: never;
   triggers?: never;
+  actions?: never;
 }
 
 export type Integration = KeyedIntegration | PagedIntegration;

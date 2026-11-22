@@ -1,5 +1,6 @@
 import { fail, notFound } from '~/http/errors';
 import { github } from './apps/github';
+import { googleSheets } from './apps/googleSheets';
 import { telegram } from './apps/telegram';
 import type { Integration } from './define';
 import { golomtBank, khanbankBank, tdbBank } from './banks';
@@ -41,6 +42,7 @@ export const INTEGRATIONS: readonly Integration[] = [
   wechatpay,
   github,
   telegram,
+  googleSheets,
   test,
   khanbankBank,
   golomtBank,

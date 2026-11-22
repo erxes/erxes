@@ -902,6 +902,16 @@
       "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI.",
       "email": "Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES."
     },
+    "triggers": {
+      "title": "Automation triggers",
+      "listening": "Listening",
+      "syncing": "Setting up",
+      "broken": "Stopped",
+      "last-event": "Last event {{when}}",
+      "no-events": "No events yet",
+      "none": "None of your automations use {{name}} yet.",
+      "open-automations": "Open automations"
+    },
     "connection": {
       "connect": "Connect",
       "connect-named": "Connect {{name}}",

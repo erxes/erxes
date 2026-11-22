@@ -290,6 +290,7 @@ export const ACCESS = {
 
   'integrations.list': MEMBER,
   'integrations.connections': MEMBER,
+  'integrations.subscriptions': MEMBER,
   'integrations.connect': MEMBER,
   'integrations.update': MEMBER,
   'integrations.remove': MEMBER,

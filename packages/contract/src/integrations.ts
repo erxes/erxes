@@ -6,7 +6,7 @@ import {
   INTEGRATION_STATES,
   OAUTH_CLIENT_SOURCES,
 } from '@erxes/core-db/integrationEnums';
-import { integrationConnections } from '@erxes/core-db/schema';
+import { integrationConnections, integrationSubscriptions } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -94,20 +94,56 @@ export const AutomationApp = z.object({
 
 export type AutomationApp = z.infer<typeof AutomationApp>;
 
-export const appEventType = (app: string, trigger: string) =>
-  `app.${app.replaceAll('-', '_')}.${trigger}`;
+export const AppSubscription = createSelectSchema(integrationSubscriptions, {
+  id: Id,
+  connectionId: Id,
+  params: z.record(z.string(), z.unknown()),
+  failures: () => z.int(),
+  lastDeliveryAt: isoDate,
+})
+  .pick({
+    id: true,
+    connectionId: true,
+    channel: true,
+    params: true,
+    status: true,
+    lastError: true,
+    failures: true,
+    lastDeliveryAt: true,
+  })
+  .extend({
+    connectionName: z.string(),
+    triggers: z.array(z.object({ key: z.string(), label: z.string() })),
+    automations: z.array(z.object({ id: Id, name: z.string() })),
+  });
 
-const IntegrationKey = z.string().regex(/^[a-z][a-z0-9-]{0,39}$/);
+export type AppSubscription = z.infer<typeof AppSubscription>;
+
+const appScoped = (app: string, key: string) => `app.${app.replaceAll('-', '_')}.${key}`;
+
+export const appEventType = (app: string, trigger: string) => appScoped(app, trigger);
+
+export const appActionType = (app: string, action: string) => appScoped(app, action);
+
+export const IntegrationKey = z.string().regex(/^[a-z][a-z0-9-]{0,39}$/);
 
 const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
-const { BANK_IN_USE, GATEWAY_IN_USE, GATEWAY_REFUSED, KIND_CHANGED, NOT_SET_UP } = ERRORS;
+const {
+  BANK_IN_USE,
+  CONNECTION_IN_USE,
+  GATEWAY_IN_USE,
+  GATEWAY_REFUSED,
+  KIND_CHANGED,
+  NOT_SET_UP,
+} = ERRORS;
 
 const base = oc.errors({
   ...COMMON_ERRORS,
   BANK_IN_USE,
+  CONNECTION_IN_USE,
   GATEWAY_IN_USE,
   GATEWAY_REFUSED,
   KIND_CHANGED,
@@ -158,6 +194,15 @@ export const integrationsContract = {
     })
     .input(z.object({ key: IntegrationKey.optional() }))
     .output(listOf(VaultConnection)),
+  subscriptions: base
+    .route({
+      method: 'GET',
+      path: '/integrations/{key}/subscriptions',
+      summary:
+        "How the app's connections listen for automation triggers: each one's state, the triggers in use and the active automations listening",
+    })
+    .input(z.object({ key: IntegrationKey }))
+    .output(listOf(AppSubscription)),
   connect: base
     .route({
       method: 'POST',
@@ -189,7 +234,7 @@ export const integrationsContract = {
       method: 'DELETE',
       path: '/integrations/{key}/connections/{id}',
       summary:
-        'Remove a connection. 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead',
+        'Remove a connection. 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead; 409 CONNECTION_IN_USE while active automations listen on it',
     })
     .input(z.object({ key: IntegrationKey, id: Id }))
     .output(z.object({ ok: z.literal(true) })),
