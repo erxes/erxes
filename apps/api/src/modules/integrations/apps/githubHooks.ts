@@ -83,9 +83,15 @@ export const githubHooks: AppHooks<GithubKeys, typeof repository> = {
     } catch (error) {
       const status = statusOf(error);
 
-      if (status === 404 || status === 403)
+      if (status === 403)
         throw new GatewayError(
-          `GitHub would not add a webhook to ${scope.owner}/${scope.repository}: check the owner and repository names, and that the token can administer the repository's webhooks`,
+          `GitHub won't let this token add webhooks to ${scope.owner}/${scope.repository}: give the token the Webhooks permission (read and write) on that repository`,
+          status,
+        );
+
+      if (status === 404)
+        throw new GatewayError(
+          `GitHub can't find ${scope.owner}/${scope.repository} for this token: check the owner and repository names, and that the token can reach the repository`,
           status,
         );
 
