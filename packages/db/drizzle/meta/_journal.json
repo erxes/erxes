@@ -834,6 +834,13 @@
       "when": 1795352300884,
       "tag": "0118_integration_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 119,
+      "version": "7",
+      "when": 1795354468504,
+      "tag": "0119_connection_settings",
+      "breakpoints": true
     }
   ]
 }

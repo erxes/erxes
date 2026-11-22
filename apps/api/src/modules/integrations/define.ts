@@ -208,6 +208,23 @@ const fieldOf = (key: string, schema: z.ZodType): IntegrationField => {
 export const fieldsOf = (keys: Keys) =>
   Object.entries<z.ZodType>(keys.shape).map(([key, schema]) => fieldOf(key, schema));
 
+const Values = z.record(z.string(), z.unknown());
+
+export const sealedValues = (opened: string) => Values.parse(JSON.parse(opened));
+
+export const splitValues = (keys: Keys, values: Record<string, unknown>) => {
+  const sealed = new Set(
+    fieldsOf(keys).flatMap((item) => (item.type === 'secret' ? [item.key] : [])),
+  );
+
+  const given = Object.entries(values).filter(([, value]) => value !== undefined);
+
+  return {
+    settings: Object.fromEntries(given.filter(([key]) => !sealed.has(key))),
+    secrets: Object.fromEntries(given.filter(([key]) => sealed.has(key))),
+  };
+};
+
 export function defineIntegration<K extends Keys, C>(
   definition: KeyedIntegration<K, C>,
 ): KeyedIntegration<K, C>;

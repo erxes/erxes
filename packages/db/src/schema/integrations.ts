@@ -31,6 +31,7 @@ export const integrationConnections = pgTable(
     orgId: orgIdColumn(),
     key: text().notNull(),
     name: text().notNull(),
+    settings: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     secretId: text().notNull(),
     auth: text({ enum: INTEGRATION_AUTH_KINDS }).default('keys').notNull(),
     status: text({ enum: INTEGRATION_CONNECTION_STATUSES }).default('active').notNull(),

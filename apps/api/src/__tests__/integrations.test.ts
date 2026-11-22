@@ -237,8 +237,21 @@ describe('integrations', { timeout: 120_000 }, () => {
       )?.settings;
 
     expect(await settingsOf()).toMatchObject({ invoiceCode: 'ACME_INVOICE' });
-    await both().integrations.update({ key: 'qpay', id: shop.id, keys: changed });
-    expect(await settingsOf()).toMatchObject({ invoiceCode: 'NEW_CODE' });
+    await both().integrations.update({
+      key: 'qpay',
+      id: shop.id,
+      keys: { invoiceCode: 'NEW_CODE' },
+    });
+    expect(await settingsOf()).toEqual({
+      clientId: 'acme-client',
+      invoiceCode: 'NEW_CODE',
+      sandbox: true,
+    });
+    await both().integrations.update({
+      key: 'qpay',
+      id: shop.id,
+      keys: { clientSecret: 'rotated-secret' },
+    });
     await both().integrations.update({ key: 'qpay', id: shop.id, status: 'disabled' });
     expect(await both().integrations.remove({ key: 'qpay', id: shop.id })).toEqual({ ok: true });
 
@@ -254,6 +267,11 @@ describe('integrations', { timeout: 120_000 }, () => {
         { key: 'qpay', credentialsChanged: false, status: 'disabled' },
       ],
       ['integration.updated', 'integration_connection', { key: 'qpay', credentialsChanged: true }],
+      [
+        'integration.updated',
+        'integration_connection',
+        { key: 'qpay', credentialsChanged: false, invoiceCode: 'NEW_CODE' },
+      ],
       [
         'integration.connected',
         'integration_connection',

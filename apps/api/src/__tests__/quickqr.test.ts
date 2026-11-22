@@ -200,6 +200,15 @@ describe('QPay QuickQR through core', { timeout: 120_000 }, () => {
     expect(changed.settings).toMatchObject({ merchantId: 'M-1', address: 'Peace avenue 2' });
     expect(gateway.calls.at(-1)?.url).toContain('/merchant/company/M-1');
 
+    const forged = await t.owner().integrations.update({
+      id: added.id,
+      key: 'quickqr',
+      keys: { merchantId: 'M-999', address: 'Peace avenue 3' },
+    });
+
+    expect(forged.settings).toMatchObject({ merchantId: 'M-1', address: 'Peace avenue 3' });
+    expect(gateway.calls.at(-1)?.url).toContain('/merchant/company/M-1');
+
     expect(await t.owner().payments.quickQrDistricts({ city: '11000' })).toEqual({
       data: [{ code: '11010', name: 'Баянзүрх' }],
     });

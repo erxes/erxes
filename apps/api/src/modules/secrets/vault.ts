@@ -70,7 +70,7 @@ export const withSecret = <Row>(
   secret: SecretRow | null,
 ): WithSecret<Row> | null => (row && secret ? { ...row, secret } : null);
 
-const sealFor = (identity: Identity, value: string) => ({
+export const sealFor = (identity: Identity, value: string) => ({
   keyId: current.id,
   sealed: encrypt(current.key, value, boundTo(identity)),
 });

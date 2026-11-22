@@ -13,7 +13,6 @@ import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { releaseBank } from '~/modules/banks/banks.service';
 import { payingPlugins, releaseGateway } from '~/modules/payments/gateways.service';
-import { saveSecret } from '~/modules/secrets/vault';
 import { INTEGRATION_ACTIONS } from './actions';
 import { isBank } from './banks';
 import {
@@ -21,11 +20,10 @@ import {
   connectionsWithSecret,
   keysOf,
   listConnections,
-  visibleSettings,
-  withSettings,
+  sealValues,
 } from './connections';
 import { connectable, manages } from './connectable';
-import { fieldsOf, type KeyedIntegration } from './define';
+import { fieldsOf, type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
 import { callbackUrl, oauthClientSource } from './oauth';
 import { pluginIntegrations } from './pluginIntegrations';
@@ -136,15 +134,13 @@ const parsedKeys = (integration: KeyedIntegration, keys: unknown) => {
   return parsed.data;
 };
 
-/** What core filled (`hidden` fields: QuickQR's merchant id), kept when the keys change. */
-const keptKeys = (integration: KeyedIntegration, keys: Record<string, unknown>) =>
-  Object.fromEntries(
-    fieldsOf(integration.keys).flatMap((field) =>
-      field.type === 'hidden' && keys[field.key] !== undefined
-        ? [[field.key, keys[field.key]]]
-        : [],
-    ),
+const memberValues = (integration: KeyedIntegration, values: Record<string, unknown>) => {
+  const filled = new Set(
+    fieldsOf(integration.keys).flatMap((field) => (field.type === 'hidden' ? [field.key] : [])),
   );
+
+  return Object.fromEntries(Object.entries(values).filter(([key]) => !filled.has(key)));
+};
 
 const refused = (integration: KeyedIntegration, error: unknown) =>
   fail(
@@ -203,7 +199,7 @@ export const insertConnection = async (
         key: integration.key,
         name: input.name,
         auth: integration.oauth ? 'oauth' : 'keys',
-        secretId: await saveSecret(tx, JSON.stringify(input.keys)),
+        ...(await sealValues(tx, integration, input.keys)),
         createdBy: caller('user').userId,
       })
       .returning(),
@@ -214,13 +210,17 @@ export const insertConnection = async (
     targetType: 'integration_connection',
     targetId: input.id,
     targetLabel: input.name,
-    metadata: { key: integration.key, ...visibleSettings(integration, input.keys) },
+    metadata: { key: integration.key, ...row.settings },
   });
 
-  return withSettings(row, input.keys);
+  return row;
 };
 
-export const connect = async (input: { key: string; name: string; keys: unknown }) => {
+export const connect = async (input: {
+  key: string;
+  name: string;
+  keys: Record<string, unknown>;
+}) => {
   const integration = connectable(input.key);
 
   if (integration.oauth)
@@ -228,7 +228,13 @@ export const connect = async (input: { key: string; name: string; keys: unknown 
 
   const id = newId();
   const orgId = requestOrgId();
-  const keys = await verified(orgId, integration, id, parsedKeys(integration, input.keys));
+
+  const keys = await verified(
+    orgId,
+    integration,
+    id,
+    parsedKeys(integration, memberValues(integration, input.keys)),
+  );
 
   return withOrg(orgId, (tx) => insertConnection(tx, integration, { id, name: input.name, keys }));
 };
@@ -237,27 +243,47 @@ export const updateConnection = async (input: {
   key: string;
   id: string;
   name?: string;
-  keys?: unknown;
+  keys?: Record<string, unknown>;
   status?: (typeof integrationConnections.$inferSelect)['status'];
 }) => {
   const integration = connectable(input.key);
   const orgId = requestOrgId();
   const before = await withOrg(orgId, (tx) => connectionOf(tx, integration, input.id));
+  const kept: Record<string, unknown> = keysOf(integration, before);
+
+  const given =
+    input.keys &&
+    Object.fromEntries(
+      Object.entries(memberValues(integration, input.keys)).filter(
+        ([key, value]) => value !== (kept[key] ?? null),
+      ),
+    );
 
   const keys =
-    input.keys === undefined
-      ? undefined
-      : await verified(orgId, integration, input.id, {
-          ...keptKeys(integration, keysOf(integration, before)),
-          ...parsedKeys(integration, input.keys),
-        });
+    given &&
+    (await verified(
+      orgId,
+      integration,
+      input.id,
+      parsedKeys(
+        integration,
+        Object.fromEntries(
+          Object.entries({ ...kept, ...given }).filter(([, value]) => value !== null),
+        ),
+      ),
+    ));
+
+  const changed = given && splitValues(integration.keys, given);
 
   return withOrg(orgId, async (tx) => {
-    if (keys) await saveSecret(tx, JSON.stringify(keys), before.secretId);
-
     const [row] = await tx
       .update(integrationConnections)
-      .set({ name: input.name, status: input.status, updatedAt: sql`now()` })
+      .set({
+        name: input.name,
+        status: input.status,
+        ...(keys && (await sealValues(tx, integration, keys, before.secretId))),
+        updatedAt: sql`now()`,
+      })
       .where(eq(integrationConnections.id, input.id))
       .returning();
 
@@ -271,10 +297,15 @@ export const updateConnection = async (input: {
       targetType: 'integration_connection',
       targetId: row.id,
       targetLabel: row.name,
-      metadata: { key: row.key, credentialsChanged: Boolean(keys), status: input.status },
+      metadata: {
+        key: row.key,
+        status: input.status,
+        credentialsChanged: Boolean(changed && Object.keys(changed.secrets).length),
+        ...changed?.settings,
+      },
     });
 
-    return withSettings(row, keys ?? keysOf(integration, before));
+    return row;
   });
 };
 

@@ -5,7 +5,8 @@ import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { PgBoss } from 'pg-boss';
-import { connectionSettings, getPool } from './client';
+import { connectionSettings, getPool, rootDb } from './client';
+import type { Transaction } from './types';
 
 /**
  * The job queue's schema: pg-boss's tables (`apps/api/src/modules/jobs`).
@@ -128,6 +129,8 @@ export const blockedIndexFunctions = async (): Promise<string[]> => {
 /** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
+export type MigrationSteps = Record<string, (tx: Transaction) => Promise<void>>;
+
 /**
  * Applies pending migrations and returns their tags. pg-boss's schema comes
  * first, so a migration can move rows into its tables. Marks
@@ -139,7 +142,10 @@ export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })
  * `migrate()` is not used: it opens its own transaction. Bookkeeping matches
  * Drizzle's (hash + timestamp), so drizzle-kit keeps working.
  */
-export const runMigrations = async (folder = migrationsFolder()): Promise<string[]> => {
+export const runMigrations = async (
+  steps: MigrationSteps,
+  folder = migrationsFolder(),
+): Promise<string[]> => {
   const migrations = readMigrationFiles({
     migrationsFolder: folder,
     migrationsTable: MIGRATIONS_TABLE,
@@ -151,7 +157,7 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
 
   await migrateQueue();
 
-  return drizzle(getPool()).transaction(async (tx) => {
+  return rootDb().transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);
     await tx.execute(sql`
       CREATE TABLE IF NOT EXISTS ${migrationsTable} (
@@ -181,11 +187,15 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
 
     // One parameterless string runs as a simple query: every statement in order, in this
     // transaction. A newline before each `;` ends a trailing `--` comment first.
-    const script = pending
-      .flatMap(({ migration }) => migration.sql.filter((statement) => statement.trim()))
-      .join('\n;\n');
+    await pending.reduce<Promise<void>>(async (previous, { migration, tag }) => {
+      await previous;
 
-    if (script) await tx.execute(sql.raw(script));
+      const script = migration.sql.filter((statement) => statement.trim()).join('\n;\n');
+
+      if (script) await tx.execute(sql.raw(script));
+
+      await steps[tag]?.(tx);
+    }, Promise.resolve());
 
     await tx.execute(
       sql`INSERT INTO ${migrationsTable} (hash, created_at) VALUES ${sql.join(

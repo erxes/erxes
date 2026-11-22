@@ -2,15 +2,15 @@ import type { VaultConnection } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Input, Label, Spinner, Switch, useConfirm, useToast } from 'erxes-ui';
+import { Button, Input, Label, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import {
+  changedKeys,
   ConnectionFieldInputs,
-  connectionKeys,
   type ConnectionValues,
-  CredentialsHelp,
+  settingsFilled,
   shownValues,
   useConnectionsChanged,
 } from '../integrations/ConnectionFields';
@@ -99,13 +99,13 @@ export const ConnectionEdit = ({
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const id = useId();
   const [typedName, setName] = useState<string | null>(null);
-  const [replacing, setReplacing] = useState(false);
   const [typed, setTyped] = useState<ConnectionValues>({});
   const name = typedName ?? connection.name;
-  const values = { ...shownValues(connection), ...typed };
+  const kept = shownValues(connection);
+  const values = { ...kept, ...typed };
   const { update, remove } = useConnectionChanges(onRemoved);
-  const { keys, ready: complete } = connectionKeys(integration, values);
-  const ready = name.trim() !== '' && (!replacing || complete);
+  const keys = changedKeys(kept, typed);
+  const ready = name.trim() !== '' && settingsFilled(integration, values);
   const target = { key: integration.key, id: connection.id };
 
   return (
@@ -117,13 +117,8 @@ export const ConnectionEdit = ({
         if (!ready) return;
 
         update.mutate(
-          { ...target, name: name.trim(), ...(replacing ? { keys } : {}) },
-          {
-            onSuccess: () => {
-              setReplacing(false);
-              setTyped({});
-            },
-          },
+          { ...target, name: name.trim(), ...(Object.keys(keys).length ? { keys } : {}) },
+          { onSuccess: () => setTyped({}) },
         );
       }}
     >
@@ -132,19 +127,11 @@ export const ConnectionEdit = ({
         <Input id={`${id}-name`} value={name} onChange={(event) => setName(event.target.value)} />
       </div>
       {integration.fields.length > 0 && (
-        <div className="flex items-center gap-2 text-sm">
-          <Switch id={`${id}-replace`} checked={replacing} onCheckedChange={setReplacing} />
-          <Label htmlFor={`${id}-replace`} variant="option">
-            {t('replace-credentials', 'Replace the credentials')}
-          </Label>
-        </div>
-      )}
-      {replacing && (
         <div className="space-y-3 rounded-lg border p-3">
-          <CredentialsHelp integration={integration} />
           <ConnectionFieldInputs
             integration={integration}
             values={values}
+            secretsKept
             onChange={(key, value) => setTyped((current) => ({ ...current, [key]: value }))}
           />
         </div>

@@ -22,12 +22,9 @@ import { IntegrationCategory, IntegrationKey } from './values';
 export const IntegrationConnection = createSelectSchema(integrationConnections, {
   id: Id,
   createdAt: isoDate,
-})
-  .pick({ id: true, key: true, name: true, status: true, createdAt: true })
-  .extend({
-    /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
-    settings: z.record(z.string(), z.unknown()),
-  });
+  /** The values a member reads and changes (`invoiceCode`, `sandbox`); never a secret. */
+  settings: z.record(z.string(), z.unknown()),
+}).pick({ id: true, key: true, name: true, settings: true, status: true, createdAt: true });
 
 export type IntegrationConnection = z.infer<typeof IntegrationConnection>;
 
@@ -255,7 +252,7 @@ export const integrationsContract = {
       method: 'PATCH',
       path: '/integrations/{key}/connections/{id}',
       summary:
-        'Rename, turn off or on, or change the keys (checked first). 400 GATEWAY_REFUSED; 400 KIND_CHANGED when the connection is of another integration',
+        'Rename, turn off or on, or change the values `keys` names: a setting, or a secret typed anew. A value left out stays as kept, `null` empties an optional one, and the whole set is checked with the service first. 400 GATEWAY_REFUSED; 400 KIND_CHANGED when the connection is of another integration',
     })
     .input(
       z.object({

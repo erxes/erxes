@@ -15,6 +15,7 @@ import { appendFileSync } from 'node:fs';
 import { Client } from 'pg';
 import { z } from 'zod';
 import { randomToken } from '~/lib/crypto';
+import { MIGRATION_STEPS } from '~/lib/migrateDb';
 import { inOrder } from '~/lib/sequence';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { type Bench, benchCases } from './benchCases';
@@ -61,7 +62,7 @@ const time = async (fn: () => Promise<unknown>) => {
 /** Migrates the new database, creates the organisation and seeds it; returns its owner. */
 const prepare = async (url: string): Promise<Bench> => {
   configureDb({ url, applicationName: 'erxes-bench-migrate' });
-  await runMigrations();
+  await runMigrations(MIGRATION_STEPS);
 
   const org = await createOrganization({
     subdomain: 'bench',
