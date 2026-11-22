@@ -1,6 +1,6 @@
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { Button, cn, Input, oneOf, Select, Switch } from 'erxes-ui';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   blank,
@@ -266,8 +266,13 @@ export const JsonEditor = ({
     onChange(isEmptyValue(json) ? undefined : json);
   };
 
+  const shared = useMemo(
+    () => ({ fields, subject, disabled, flat, plain }),
+    [fields, subject, disabled, flat, plain],
+  );
+
   return (
-    <Shared.Provider value={{ fields, subject, disabled, flat, plain }}>
+    <Shared.Provider value={shared}>
       <fieldset className="min-w-0 space-y-2 rounded-md border p-2" aria-label={label}>
         {!flat && rootKinds.length > 1 && (
           <KindSelect
