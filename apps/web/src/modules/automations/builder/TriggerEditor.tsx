@@ -82,9 +82,7 @@ const KindPicker = ({
             <TriggerIcon kind={kind} className="mt-0.5 size-4 shrink-0" />
             <span className="min-w-0">
               <span className="block">{t(`trigger-${kind}-title`, label)}</span>
-              <span className="block text-xs font-normal text-muted-foreground">
-                {t(`trigger-${kind}-hint`, hint)}
-              </span>
+              <span className="block text-xs font-normal">{t(`trigger-${kind}-hint`, hint)}</span>
             </span>
           </span>
         </ChoiceboxGroup.Item>
