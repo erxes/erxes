@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { withLifecycleColumns } from '~/modules/leads/leadColumns';
 import { customFieldColumns } from '~/modules/properties/customFieldColumns';
 import { useFields } from '~/modules/properties/useFields';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import {
   ContactEmailsCell,
   ContactFieldCell,
@@ -43,7 +43,7 @@ import { useCompanyEdit } from './useCompanies';
 const SCOPE = 'companies-page';
 
 const useOpenCompany = () => {
-  const { openRecord } = useSidePanel();
+  const openRecord = useOpenPanelRecord();
 
   return (id: string) => openRecord({ contentType: 'core:company', contentId: id });
 };

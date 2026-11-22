@@ -17,7 +17,7 @@ export { Breadcrumb } from './components/breadcrumb';
 
 export { Button, type ButtonProps, buttonVariants } from './components/button';
 
-export { Calendar, type CalendarProps } from './components/calendar';
+export { type CalendarProps } from './components/calendar';
 
 export { Card } from './components/card';
 
@@ -73,7 +73,7 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector, Resizable, Slider } from './components/on-demand';
+export { Calendar, MultipleSelector, Resizable, Slider } from './components/on-demand';
 
 export { type MultiSelectOption } from './components/multiselect';
 
@@ -332,6 +332,7 @@ export {
   RecordPanelProvider,
   type RecordRef,
   setRecordPage,
+  useCurrentRecord,
   useOpenRecord,
   useRecordPanel,
 } from './modules/records/openRecord';
@@ -368,7 +369,11 @@ export { readImage } from './utils/core';
 
 export { type FileStorageAdapter, setFileStorage } from './utils/file-storage';
 
-export { formatPhoneNumber } from './utils/format/formatPhoneNumber';
+export {
+  formatPhoneNumber,
+  loadPhoneFormatter,
+  usePhoneFormatter,
+} from './utils/format/formatPhoneNumber';
 
 export { getPluginAssetsUrl } from './utils/getPluginAssetsUrl';
 

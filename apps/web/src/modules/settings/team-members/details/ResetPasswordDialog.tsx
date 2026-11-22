@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { messageOf } from '@erxes/core-contract/client';
 import { useTeamMemberSetPassword } from '../useTeamMembers';
 
-type T = TFunction<'settings', 'team-member'>;
+type T = TFunction<'workspace', 'team-member'>;
 
 /** The API checks the same rules. */
 const resetPasswordSchema = (t: T) =>

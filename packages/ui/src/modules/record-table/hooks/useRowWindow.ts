@@ -59,6 +59,16 @@ export const useRowWindow = ({
   // Measured once `listStart` mounts, when the gap rows already give the list its full height.
   const scroller = useMemo(() => listStart && scrollParentOf(listStart), [listStart]);
 
+  // Read once, not on every scroll event: reading a computed style forces a style recalc.
+  const rowHeight = useMemo(() => {
+    if (!listStart) return ROW_HEIGHT;
+
+    return (
+      Number.parseFloat(getComputedStyle(listStart).getPropertyValue('--spacing-cell')) ||
+      ROW_HEIGHT
+    );
+  }, [listStart]);
+
   const subscribe = useCallback(
     (onChange: () => void) => {
       const target = scroller ?? window;
@@ -82,10 +92,6 @@ export const useRowWindow = ({
     const current = rangeRef.current;
 
     if (!listStart) return current;
-
-    const rowHeight =
-      Number.parseFloat(getComputedStyle(listStart).getPropertyValue('--spacing-cell')) ||
-      ROW_HEIGHT;
 
     const area = visibleArea(scroller);
     const top = listStart.getBoundingClientRect().top - area.top;

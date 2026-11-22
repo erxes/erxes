@@ -12,7 +12,7 @@ import { PropertyForm } from './PropertyForm';
 
 /** Edit a property (`/:type/:groupId/:id`). */
 export const PropertyEdit = ({ contentType }: { contentType: PropertyContentType }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const { id = '' } = useParams<{ id: string }>();
   const { fields, loading, error } = useAllFields(contentType);
   const field = fields.find((item) => item.id === id);

@@ -1,12 +1,13 @@
 import { AUDIT_EXPORT_FORMATS } from '@erxes/core-db/enums';
 import { auditLogs, requestOrgId, withOrg } from '@erxes/core-db';
 import { stringify } from 'csv-stringify/sync';
-import { and, desc, type SQL, sql } from 'drizzle-orm';
+import { and, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { callerCan, enforceKeyAccess } from '~/http/access';
 import { fail, invalidInput } from '~/http/errors';
 import { defuse } from '~/lib/csv';
+import { newestFirst } from '~/lib/keyset';
 import { repeatWhile } from '~/lib/sequence';
 import { auditFilters, recordAudit } from './audit.service';
 
@@ -91,7 +92,7 @@ const writeEntries = async (
               : undefined,
           ),
         )
-        .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
+        .orderBy(...newestFirst(auditLogs.createdAt, auditLogs.id))
         .limit(limit),
     );
 

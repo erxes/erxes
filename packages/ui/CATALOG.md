@@ -101,6 +101,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
 - `type TContactKind` Which contacts a picker lists: core's customers or its companies.
+- `useCurrentRecord()` The record core's panel shows now: null when it shows none or a draft.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
 - `useRecordPanel()` The record a slot is in, and what the slot can do to it.
@@ -265,6 +266,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `isUndefinedOrNull(value)` True for `null` and `undefined`, and narrows the value's type.
 - `jsonOf(schema)` A zod schema for a JSON string that decodes to `schema`.
 - `LANGUAGES` The UI's languages, each with its own name and date-fns locale.
+- `loadPhoneFormatter()` Loads the phone library, once.
 - `localTimeZone()` The browser's time zone ("Asia/Ulaanbaatar"), when it says.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
@@ -286,6 +288,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useMediaQuery(query)` Whether a CSS media query matches now, right from the first render.
 - `useMoney()` `formatMoney` in the UI's language.
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.
+- `usePhoneFormatter()` `formatPhoneNumber` for a component, re-rendered once the library loads.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
 - `useSexLabels()` Each sex code's label in the UI's language.

@@ -4,7 +4,12 @@
   "leads": "Leads",
   "description-too-long": "The description is too long. Shorten it to save.",
   "unnamed": "Unnamed",
-  "lead": "Lead",
+  "lead": {
+    "_": "Lead",
+    "add": {
+      "_": "Add Lead"
+    }
+  },
   "merge": {
     "title": {
       "customer": "Merge {{total}} customers",
@@ -14,7 +19,10 @@
       "customer": "Choose the customer to keep. Its empty fields are filled from the others; emails, phones, tags and links are combined. The others are deleted, and their links open the kept one.",
       "company": "Choose the company to keep. Its empty fields are filled from the others; emails, phones, tags and links are combined. The others are deleted, and their links open the kept one."
     },
-    "legend": { "customer": "The customer to keep", "company": "The company to keep" },
+    "legend": {
+      "customer": "The customer to keep",
+      "company": "The company to keep"
+    },
     "keep": "Keep",
     "merge": "Merge"
   },
@@ -86,7 +94,8 @@
     "form": {
       "email-invalid": "Enter an email like name@example.com",
       "name-or-contact": "Fill in a name, an email or a phone"
-    }
+    },
+    "actions": "Actions"
   },
   "company": {
     "name": "Name",
@@ -131,11 +140,6 @@
       "company-name-required": "Enter the company name",
       "email-invalid": "Enter an email like name@example.com",
       "size-invalid": "Enter a whole number of people"
-    }
-  },
-  "lead": {
-    "add": {
-      "_": "Add Lead"
     }
   },
   "upload": "Upload",

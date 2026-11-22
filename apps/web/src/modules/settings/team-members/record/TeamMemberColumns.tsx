@@ -19,7 +19,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import { TEAM_MEMBERS_HOTKEY_SCOPE } from '../constants';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 import { TeamMemberEmailField } from './TeamMemberEmailField';
@@ -51,7 +51,7 @@ export const MemberAvatar = ({ user, className }: { user: User; className?: stri
 
 /** Name as a badge that opens the member; editable in place. */
 const NameCell = ({ user }: { user: User }) => {
-  const { openRecord } = useSidePanel();
+  const openRecord = useOpenPanelRecord();
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);
   const { firstName, lastName } = nameParts(user);

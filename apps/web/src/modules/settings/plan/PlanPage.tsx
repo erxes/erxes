@@ -29,7 +29,7 @@ const ACCESS = {
 } as const;
 
 const PluginRow = ({ plugin }: { plugin: Row }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'plan' });
   const fmt = useFormat();
 
   return (
@@ -66,7 +66,7 @@ const PluginRow = ({ plugin }: { plugin: Row }) => {
 };
 
 const SelfHosted = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'plan' });
 
   return (
     <Empty>
@@ -85,7 +85,7 @@ const SelfHosted = () => {
 
 /** The workspace's status on erxes.io and each plugin's row. */
 const SaasPlan = ({ plan }: { plan: SubscriptionInfo }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'plan' });
 
   return (
     <>
@@ -133,7 +133,7 @@ const SaasPlan = ({ plan }: { plan: SubscriptionInfo }) => {
 
 /** Settings › Plan (SaaS): what this workspace has on erxes.io — each plugin's tier, payment status and access. */
 export const PlanPage = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'plan' });
   const { data, isLoading, error } = usePlan();
 
   return (

@@ -1,9 +1,5 @@
-/**
- * The bench organisation's records in plain SQL (run as the owner, without row
- * level security): `rows` customers with properties, tags, owners and
- * activity, and a company for every twenty of them.
- */
-export const seedSql = (orgId: string, rows: number) => {
+/** `rows` customers with properties, tags, owners and activity, and a company for every twenty. */
+const contactsSql = (orgId: string, rows: number) => {
   const companies = Math.max(1, Math.floor(rows / 20));
 
   return `
@@ -53,6 +49,54 @@ export const seedSql = (orgId: string, rows: number) => {
     VALUES ('f_region', '${orgId}', 'company', 'Region', 'select', '{north,south,east,west}', 1);
     INSERT INTO core_company_field_values (org_id, record_id, field_id, text_value)
       SELECT '${orgId}', 'co' || g, 'f_region', (ARRAY['north','south','east','west'])[g % 4 + 1] FROM generate_series(1, ${companies}) g;
-    ANALYZE;
   `;
 };
+
+/**
+ * A product for every ten customers; customer `c1`'s long timeline with notes, written by
+ * `user1`, and every member's edits; the owner's inbox of notifications; an audit entry per two
+ * customers.
+ */
+const recordsSql = (orgId: string, ownerId: string, rows: number) => {
+  const products = Math.max(1, Math.floor(rows / 10));
+  const audit = Math.max(1, Math.floor(rows / 2));
+  const timeline = 5000;
+  const inbox = 20_000;
+
+  return `
+    INSERT INTO core_products (id, org_id, kind, name, code, currency, price, created_at, updated_at)
+      SELECT 'pr' || g, '${orgId}', CASE WHEN g % 5 = 0 THEN 'service' ELSE 'goods' END,
+        'Product ' || substr(md5(g::text), 1, 8), 'P' || g, 'MNT', g * 100,
+        now() - make_interval(mins => g), now()
+      FROM generate_series(1, ${products}) g;
+    INSERT INTO core_activities (id, org_id, target_type, target_id, source, type, summary, actor_type, actor_id, occurred_at, created_at)
+      SELECT 't' || g, '${orgId}', 'customer', 'c1', 'core', 'customer.note', NULL, 'user', 'user1',
+        now() - make_interval(mins => g * 7), now() - make_interval(mins => g * 7)
+      FROM generate_series(1, ${timeline}) g;
+    INSERT INTO core_notes (id, org_id, body)
+      SELECT 't' || g, '${orgId}', 'Called about order ' || g FROM generate_series(1, ${timeline}) g WHERE g % 2 = 0;
+    INSERT INTO core_activities (id, org_id, target_type, target_id, source, type, actor_type, actor_id, occurred_at, created_at)
+      SELECT 'u' || g, '${orgId}', 'customer', 'c' || (g * 17 % ${rows} + 1), 'core', 'customer.updated', 'user', 'user' || (g % 20 + 1),
+        now() - make_interval(mins => g * 3), now() - make_interval(mins => g * 3)
+      FROM generate_series(1, ${rows}) g;
+    INSERT INTO core_notifications (id, org_id, user_id, source, kind, title, actor_type, read_at, created_at)
+      SELECT 'n' || g, '${orgId}', CASE WHEN g % 4 = 0 THEN '${ownerId}' ELSE 'user' || (g % 20 + 1) END,
+        CASE WHEN g % 10 = 0 THEN 'sales' ELSE 'core' END, 'core.note.mentioned', 'Mentioned ' || g, 'system',
+        CASE WHEN g % 3 = 0 THEN NULL ELSE now() END, now() - make_interval(mins => g)
+      FROM generate_series(1, ${inbox * 4}) g;
+    INSERT INTO core_audit_logs (id, org_id, actor_type, actor_id, action, target_type, target_id, target_label, created_at)
+      SELECT 'al' || g, '${orgId}', 'user', 'user' || (g % 20 + 1),
+        (ARRAY['customer.updated','customer.created','company.updated','tag.created'])[g % 4 + 1],
+        'customer', 'c' || g, 'Customer ' || g, now() - make_interval(mins => ${audit} - g)
+      FROM generate_series(1, ${audit}) g;
+  `;
+};
+
+/**
+ * The bench organisation's records in plain SQL (run as the owner, without row level security).
+ * Vacuum after it (`VACUUM (ANALYZE)`, a statement of its own): a bulk load leaves trigram
+ * indexes' new entries in their pending lists and the visibility map empty, which autovacuum
+ * has long cleared on a real organisation.
+ */
+export const seedSql = (orgId: string, ownerId: string, rows: number) =>
+  `${contactsSql(orgId, rows)}${recordsSql(orgId, ownerId, rows)}`;

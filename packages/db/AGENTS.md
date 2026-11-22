@@ -14,7 +14,9 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
 - `src/tenant.ts` scopes every query. `withOrg(orgId, fn)` opens one transaction for that
   organisation, and `db()` inside it returns that transaction. `withSystem(reason, fn)` spans
   organisations as `erxes_core_system`, for jobs and the lookups before one is known; a `withOrg`
-  inside it narrows to that organisation (an event consumer handling one organisation's event). `withOrgDetached` commits on its own
+  inside it narrows to that organisation (an event consumer handling one organisation's event). An API
+  key's row limits (owners, tags) apply as `erxes_core_keyed`, which `withOrg` becomes in the
+  statement that sets them; other callers never read that policy. `withOrgDetached` commits on its own
   even when the surrounding scope rolls back (recording why a request was refused). `savepoint(fn)`
   rolls back only `fn` when it throws, for errors the caller handles.
 - `src/scope.ts` holds the scope a request or job runs in: its `Caller` (a member, plugin,

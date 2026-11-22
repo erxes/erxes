@@ -108,7 +108,11 @@ export const products = pgTable(
     uniqueIndex('core_products_org_barcode_key')
       .on(table.orgId, table.barcode)
       .where(sql`${table.barcode} IS NOT NULL`),
-    index('core_products_org_created_idx').on(table.orgId, table.createdAt, table.id),
+    // In the list's order (newest first, as keysetPage sorts), so a page reads it instead of sorting.
+    index('core_products_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
+    // Search: "contains" on the name and the code.
+    index('core_products_name_trgm_idx').using('gin', table.name.op('gin_trgm_ops')),
+    index('core_products_code_trgm_idx').using('gin', table.code.op('gin_trgm_ops')),
     index('core_products_org_category_idx').on(table.orgId, table.categoryId),
     index('core_products_org_parent_idx')
       .on(table.orgId, table.parentId)

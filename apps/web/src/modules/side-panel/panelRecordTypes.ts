@@ -2,6 +2,7 @@ import { type ComponentType, useCallback } from 'react';
 import { getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
 import { findPluginRecordType, usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import { usePlugins } from '~/modules/plugins/usePlugins';
+import { i18n } from '~/i18n';
 import { paths } from '~/lib/paths';
 import { lazyPanelView } from './lazyPanelView';
 import type { IRecordViewProps } from './recordView';
@@ -28,9 +29,15 @@ const ProductPanelNew = lazyPanelView(
   async () => (await import('~/modules/products/panel/ProductPanelNew')).ProductPanelNew,
 );
 
-const MemberDetail = lazyPanelView(
-  async () => (await import('~/modules/settings/team-members/details/MemberDetail')).MemberDetail,
-);
+// A member opens from any page: the settings pages' words load beside its code.
+const MemberDetail = lazyPanelView(async () => {
+  const [detail] = await Promise.all([
+    import('~/modules/settings/team-members/details/MemberDetail'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return detail.MemberDetail;
+});
 
 const PluginRecordView = lazyPanelView(
   async () => (await import('~/modules/plugins/PluginRecordView')).PluginRecordView,

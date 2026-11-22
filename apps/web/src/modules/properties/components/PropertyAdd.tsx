@@ -9,7 +9,7 @@ import { PropertyForm } from './PropertyForm';
 
 /** Add a property (`/:type/add`, or `/:type/:groupId/add` for a group). */
 export const PropertyAdd = ({ contentType }: { contentType: PropertyContentType }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const { groupId } = useParams<{ groupId: string }>();
   const { toast } = useToast();
   const { mutate, isPending } = useAddProperty();

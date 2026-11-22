@@ -85,7 +85,7 @@ const audienceEnrollment = (
 
 const CustomFields = z.record(z.string(), z.unknown());
 
-/** Month * 100 + day of a `YYYY-MM-DD` day, as the birthday column and value index hold it. */
+/** Month * 100 + day of a `YYYY-MM-DD` day, as the birthday and value month-day columns hold it. */
 const monthDayOf = (iso: string) => Number(iso.slice(5, 7)) * 100 + Number(iso.slice(8, 10));
 
 /** The records whose date is `iso` (any year: its month and day), through the date's index. */
@@ -98,7 +98,7 @@ const onDate = (trigger: DateTrigger, iso: string): SQL => {
   const v = valuesTable(trigger.subject);
 
   const day = trigger.yearly
-    ? sql`((extract(month from ${v.dateValue}) * 100 + extract(day from ${v.dateValue}))::smallint) = ${monthDayOf(iso)}`
+    ? sql`${v.monthDay} = ${monthDayOf(iso)}`
     : sql`${v.dateValue} = ${iso}::date`;
 
   return sql`exists (select 1 from ${v} where ${v.recordId} = ${SUBJECT_TABLES[trigger.subject].id} and ${v.fieldId} = ${trigger.field} and ${v.dateValue} is not null and ${day})`;

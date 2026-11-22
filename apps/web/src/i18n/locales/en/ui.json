@@ -215,7 +215,8 @@
     "failed-reason": "Upload failed",
     "image": "Uploaded image",
     "remove": "Remove",
-    "uploaded": "Image uploaded"
+    "uploaded": "Image uploaded",
+    "upload": "Upload"
   },
   "validation": {
     "email": "Enter an email address.",

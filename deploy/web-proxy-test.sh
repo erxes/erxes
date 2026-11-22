@@ -46,6 +46,15 @@ curl -fsS "$BASE/gateway/pl:core/core-login?token=t" | grep -qx 'api-1 /gateway/
   fail "erxes.io's login link"
 curl -fsS "$BASE/core/v1/stream" | grep -q '^api-1 /core/v1/stream' || fail "the live stream"
 
+echo "== the app's scripts go out gzipped to a browser that takes it, and cached for good"
+script=$(curl -fsS "$BASE/" | grep -o '/static/js/[^"]*\.js' | head -n 1)
+[ -n "$script" ] || fail "index.html names no script"
+headers=$(curl -fsS -o /dev/null -D - -H 'Accept-Encoding: gzip' "$BASE$script")
+echo "$headers" | grep -qi '^content-encoding: gzip' || fail "$script not gzipped: $headers"
+echo "$headers" | grep -qi '^cache-control: .*immutable' || fail "$script not cached: $headers"
+curl -fsS -o /dev/null -D - "$BASE$script" | grep -qi '^content-encoding' &&
+  fail "$script gzipped for a client that did not ask"
+
 echo "== the API is replaced by a container on another address"
 docker rm -f "$NAME-api-1" >/dev/null
 api 2

@@ -31,6 +31,12 @@ const FILTER_TYPE: Record<string, FieldType> = {
   check: 'select',
 };
 
+/**
+ * A column that stores one of fixed lower-case values (a state, a source): "is" compares the
+ * value as stored instead of lower(column), so the column's index applies.
+ */
+const storedValues = (names: string[]) => textArray(names.map((name) => name.toLowerCase()));
+
 export const isCompanyList = (recordType: ViewRecordType) =>
   recordType === 'company' || recordType === 'company_lead';
 
@@ -54,6 +60,7 @@ const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
     ? [
         field('state', 'State', 'select', sql`${customers.state}`, {
           options: ['lead', 'customer'],
+          lookup: storedValues,
         }),
       ]
     : []),
@@ -76,12 +83,14 @@ const lifecycleFields = (recordType: ViewRecordType, stageNames: string[]): Fiel
           field('state', 'State', 'select', sql`${companies.state}`, {
             options: ['lead', 'customer'],
             group: 'lead',
+            lookup: storedValues,
           }),
         ]
       : []),
     field('source', 'Source', 'select', sql`${table.source}`, {
       options: [...LEAD_SOURCES],
       group: 'lead',
+      lookup: storedValues,
     }),
     field('convertedAt', 'Became a customer', 'date', sql`${table.convertedAt}`, {
       group: 'lead',
