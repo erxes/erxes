@@ -14,6 +14,7 @@ export type StartingEvent = {
 
 /** What the builder needs everywhere: event types (for waits) and how each step did (last 30 days). */
 export const BuilderContext = createContext<{
+  automationId: string;
   events: {
     type: string;
     label: string;
@@ -31,6 +32,7 @@ export const BuilderContext = createContext<{
   hasSubject: boolean;
   knownActions: ActionInfo[];
 }>({
+  automationId: '',
   events: [],
   stats: new Map(),
   outputsBefore: () => [],

@@ -6,7 +6,9 @@ import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
 import { eventDataFields } from './flowChecks';
+import { Segmented } from './Segmented';
 import type { SettingsProps } from './stepSettingsProps';
+import { useAutomationFields } from './useAutomationFields';
 
 const UNITS = ['minutes', 'hours', 'days'] as const;
 
@@ -64,24 +66,79 @@ const AmountInput = ({
   />
 );
 
-export const DelaySettings = ({ step, disabled, onChange }: SettingsProps<'delay'>) => {
+const UNTIL = /^\{\{\s*([^{}|]+?)\s*\}\}$/;
+
+const UntilDate = ({ step, subject, disabled, onChange }: SettingsProps<'delay'>) => {
   const { t } = useTranslation('automations');
+  const { automationId, hasSubject, outputsBefore } = useContext(BuilderContext);
+  const { fields } = useAutomationFields(hasSubject ? subject : null, automationId);
+
+  const dates = [...fields, ...outputsBefore(step.id)].filter(
+    (field) => field.type === 'date' && !field.conditionsOnly,
+  );
+
+  const path = UNTIL.exec(step.until ?? '')?.[1];
+
+  return (
+    <Select
+      value={path ?? ''}
+      disabled={disabled}
+      onValueChange={(next) => next && onChange({ ...step, until: `{{${next}}}` })}
+    >
+      <Select.Trigger aria-label={t('wait-until-date', 'Until the date in')}>
+        <Select.Value placeholder={t('choose-date-field', 'Choose a date')} />
+      </Select.Trigger>
+      <Select.Content>
+        {dates.map((field) => (
+          <Select.Item key={field.path} value={field.path}>
+            {field.label}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
+};
+
+export const DelaySettings = (props: SettingsProps<'delay'>) => {
+  const { t } = useTranslation('automations');
+  const { step, disabled, onChange } = props;
+  const until = step.until !== undefined;
 
   return (
     <div className="space-y-1.5">
-      <FieldLabel>{t('wait-for-how-long', 'Wait for')}</FieldLabel>
-      <div className="flex items-center gap-2">
-        <AmountInput
-          value={step.amount ?? 1}
-          disabled={disabled}
-          onChange={(amount) => onChange({ ...step, amount, until: undefined })}
-        />
-        <Units
-          value={step.unit ?? 'minutes'}
-          disabled={disabled}
-          onChange={(unit) => onChange({ ...step, unit })}
-        />
-      </div>
+      <FieldLabel>{t('wait-for-how-long', 'Wait')}</FieldLabel>
+      <Segmented
+        value={until ? 'until' : 'for'}
+        disabled={disabled}
+        label={t('wait-for-how-long', 'Wait')}
+        onChange={(next) =>
+          onChange(
+            next === 'until'
+              ? { ...step, until: '' }
+              : { ...step, until: undefined, amount: step.amount ?? 1 },
+          )
+        }
+        options={[
+          { value: 'for', label: t('wait-a-while', 'For a while') },
+          { value: 'until', label: t('wait-until', 'Until a date') },
+        ]}
+      />
+      {until ? (
+        <UntilDate {...props} />
+      ) : (
+        <div className="flex items-center gap-2">
+          <AmountInput
+            value={step.amount ?? 1}
+            disabled={disabled}
+            onChange={(amount) => onChange({ ...step, amount })}
+          />
+          <Units
+            value={step.unit ?? 'minutes'}
+            disabled={disabled}
+            onChange={(unit) => onChange({ ...step, unit })}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -132,9 +189,11 @@ export const WaitForSettings = ({
           onChange={(conditions) => onChange({ ...step, conditions })}
         />
       </div>
-      <p className="rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
-        {t('wait-for-hint', 'Later steps can check whether it happened:')}{' '}
-        <code>{`steps.${step.id}.output.matched`}</code>
+      <p className="text-xs text-muted-foreground">
+        {t(
+          'wait-for-hint',
+          'Later steps can check whether it happened: add a branch and pick it under Earlier steps.',
+        )}
       </p>
     </>
   );

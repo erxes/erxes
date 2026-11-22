@@ -9,6 +9,7 @@ import {
   pauseAutomation,
   removeAutomation,
   restoreVersion,
+  saveSample,
   updateAutomation,
 } from '~/modules/automations/automations.service';
 import { automationCatalog } from '~/modules/automations/automationCatalog';
@@ -44,13 +45,16 @@ export const automationsRouter = {
   test: scoped.automations.test.handler(({ input: { id, ...rest } }) =>
     testAutomation(db(), id, rest),
   ),
+  saveSample: scoped.automations.saveSample.handler(({ input: { id, ...request } }) =>
+    saveSample(db(), id, request),
+  ),
   stats: scoped.automations.stats.handler(({ input }) => automationStats(db(), input.id)),
   versions: scoped.automations.versions.handler(({ input }) => listVersions(db(), input.id)),
   restoreVersion: scoped.automations.restoreVersion.handler(({ input }) =>
     restoreVersion(db(), input.id, input.version),
   ),
   templates: scoped.automations.templates.handler(() => ({ data: AUTOMATION_TEMPLATES })),
-  fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input.subject)),
+  fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input)),
   runs: scoped.automations.runs.handler(({ input }) => listRuns(db(), input)),
   run: scoped.automations.run.handler(({ input }) => getRun(db(), input.runId)),
   retryRun: scoped.automations.retryRun.handler(({ input }) =>

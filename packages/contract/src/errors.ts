@@ -117,6 +117,7 @@ export const ERRORS = {
   NOT_RUNNING: { status: 409 },
   // An integration's step with no active connection of that integration to run on.
   NOT_CONNECTED: { status: 409 },
+  SUBJECT_NOT_FOUND: { status: 422 },
 
   // Contacts, leads, tags, custom fields.
   NOT_A_LEAD: { status: 400 },

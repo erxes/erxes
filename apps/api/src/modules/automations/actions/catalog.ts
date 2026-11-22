@@ -1,17 +1,21 @@
 import { ActionField, type ActionInfo } from '@erxes/core-contract';
 import { type Connections, INTEGRATION_ACTIONS } from '~/modules/integrations/actions';
 import { AGENT_ACTIONS } from './agent';
+import { AUTOMATION_ACTIONS } from './automations';
 import type { CoreAction } from './context';
 import { LEAD_ACTIONS } from './leads';
 import { MESSAGE_ACTIONS } from './messages';
 import type { ActionPlugin } from './plugin';
 import { RECORD_ACTIONS } from './records';
+import { REPLY_ACTIONS } from './reply';
 
 const CORE_ACTIONS: CoreAction[] = [
   ...RECORD_ACTIONS,
   ...MESSAGE_ACTIONS,
   ...LEAD_ACTIONS,
   ...AGENT_ACTIONS,
+  ...AUTOMATION_ACTIONS,
+  ...REPLY_ACTIONS,
   ...INTEGRATION_ACTIONS,
 ];
 

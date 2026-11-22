@@ -1,11 +1,14 @@
 import type {
+  ActionField,
   ActionInfo,
   AutomationStep,
   AutomationTrigger,
   ConditionGroup,
+  HookSubject,
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from '~/lib/timeZones';
+import { readableTemplate } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
 
 /** Words for the trigger and the cards on the canvas. */
@@ -85,10 +88,23 @@ const audienceText = (prefix: string, audience: NonNullable<Audience>, fields: F
   return `${prefix} ${audience.type}${where ? ` where ${where}` : ''}`;
 };
 
+const HOOK_KEY_WORDS: Record<HookSubject['by'], string> = {
+  id: 'ID',
+  primaryEmail: 'email',
+  primaryPhone: 'phone',
+  primaryName: 'name',
+};
+
 const scheduleText = (trigger: Extract<AutomationTrigger, { kind: 'schedule' }>) => {
   switch (trigger.every) {
-    case 'hour':
-      return 'Every hour';
+    case 'minute':
+      return `Every ${plural(trigger.interval ?? 15, 'minute')}`;
+    case 'hour': {
+      const hours = trigger.interval ?? 1;
+
+      return `Every ${hours > 1 ? plural(hours, 'hour') : 'hour'} at :${trigger.at.slice(3)}`;
+    }
+
     case 'day':
       return `Every day at ${trigger.at}`;
     case 'week': {
@@ -141,7 +157,20 @@ export const describeTrigger = (
       };
     }
 
-    default:
+    case 'webhook': {
+      const only = describeConditions(trigger.conditions, fields);
+
+      const about = trigger.subject
+        ? `For the ${trigger.subject.type} found by ${HOOK_KEY_WORDS[trigger.subject.by]}`
+        : null;
+
+      return {
+        title: 'When its webhook is called',
+        detail: [about, only && `Only if ${only}`].filter(Boolean).join(' · ') || null,
+      };
+    }
+
+    case 'manual':
       return {
         title: 'Started by hand',
         detail: trigger.audience
@@ -151,32 +180,14 @@ export const describeTrigger = (
   }
 };
 
-const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(\|[^{}]*)?\}\}/g;
-const ADD_DAYS = /\|\s*add_days:\s*(-?\d+)/;
-
-/** `{{now | add_days: 7}}` reads "7 days after it runs". */
-const nowText = (filters = '') => {
-  const days = Number(ADD_DAYS.exec(filters)?.[1] ?? 0);
-
-  if (days === 0) return "Today's date";
-
-  return `${plural(Math.abs(days), 'day')} ${days > 0 ? 'after' : 'before'} it runs`;
-};
-
-/**
- * Text with its placeholders named as the data picker names them: "Welcome
- * {{subject.firstName}}!" reads "Welcome [First name]!".
- */
-export const readableTemplate = (text: string, fields: FieldInfo[]) =>
-  text.replace(PLACEHOLDER, (whole, path: string, filters?: string) => {
-    const label =
-      path === 'now' ? nowText(filters) : fields.find((field) => field.path === path)?.label;
-
-    return label ? `[${label.replace(/ \(custom\)$/, '')}]` : whole;
-  });
-
 const valueText = (value: unknown, fields: FieldInfo[]): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';
+
+  if (typeof value === 'object' && value !== null) {
+    const count = Object.keys(value).length;
+
+    return count ? plural(count, 'field') : '';
+  }
 
   if (value === true) return 'yes';
 
@@ -196,6 +207,22 @@ type DescribeContext = {
   fields: FieldInfo[];
   /** Lead stages, to name the one a step moves to. */
   stages?: { id: string; name: string }[];
+  automations?: { id: string; name: string }[];
+};
+
+const namedValue = (type: ActionField['type'], value: unknown, context: DescribeContext) => {
+  switch (type) {
+    case 'custom_field':
+      return context.fields
+        .find((item) => item.path === `subject.customFields.${String(value)}`)
+        ?.label.replace(/ \(custom\)$/, '');
+    case 'lead_stage':
+      return context.stages?.find((stage) => stage.id === value)?.name;
+    case 'automation':
+      return context.automations?.find((automation) => automation.id === value)?.name;
+    default:
+      return undefined;
+  }
 };
 
 /** An action's first two filled inputs: "Stage: Won · Tags: 2 tags". */
@@ -216,16 +243,9 @@ const actionDetail = (
     // Saved by id; its name lives in the plugin.
     if (field.type === 'plugin_record') return [];
 
-    const named =
-      field.type === 'custom_field'
-        ? context.fields
-            .find((item) => item.path === `subject.customFields.${String(value)}`)
-            ?.label.replace(/ \(custom\)$/, '')
-        : field.type === 'lead_stage'
-          ? context.stages?.find((stage) => stage.id === value)?.name
-          : undefined;
+    const named = namedValue(field.type, value, context);
 
-    const text = named ?? valueText(value, context.fields);
+    const text = named ?? (field.type === 'automation' ? '' : valueText(value, context.fields));
 
     return text ? [`${field.label.split(' (')[0]}: ${text}`] : [];
   });
@@ -249,12 +269,12 @@ export const describeStep = (
     }
 
     case 'delay': {
-      const length = unitWord(step.amount ?? 1, step.unit ?? 'minutes');
+      const length =
+        step.until === undefined
+          ? unitWord(step.amount ?? 1, step.unit ?? 'minutes')
+          : `Until ${readableTemplate(step.until, context.fields).replaceAll(/[[\]]/g, '') || 'a date'}`;
 
-      return {
-        title: step.label || (step.until ? `Until ${step.until}` : length),
-        detail: step.label ? (step.until ?? length) : null,
-      };
+      return { title: step.label || length, detail: step.label ? length : null };
     }
 
     case 'wait_for': {

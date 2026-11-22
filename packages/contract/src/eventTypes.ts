@@ -34,6 +34,19 @@ export const INVOICE_REFUNDED_DATA = {
   ],
 } as const;
 
+export const AUTOMATION_FAILED_DATA = {
+  record: 'Automation',
+  fields: [
+    { key: 'automationId', label: 'Automation', type: 'text' },
+    { key: 'automationName', label: 'Automation name', type: 'text' },
+    { key: 'runId', label: 'Run', type: 'text' },
+    { key: 'stepId', label: 'Failed step', type: 'text' },
+    { key: 'error', label: 'Error', type: 'text' },
+    { key: 'recordType', label: 'About (record type)', type: 'text' },
+    { key: 'recordId', label: 'About (record id)', type: 'text' },
+  ],
+} as const satisfies { record: string; fields: readonly DataField[] };
+
 /** One of core's events (`CORE_EVENT_TYPES`). */
 export type CoreEventType = {
   type: string;

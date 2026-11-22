@@ -12,45 +12,33 @@ import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { coreAction } from './actions/catalog';
+import { REPLY_ACTION } from './actions/reply';
 import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
-import { dateConditions } from './conditions';
+import { triggerConditions } from './conditions';
+import { eachStep } from './cursor';
+import { hookFields } from './hooks';
+import { MAX_HOURS, MIN_MINUTES } from './schedule';
 
 type Catalog = Awaited<ReturnType<typeof automationCatalog>>;
 
 type SubjectKind = Catalog['triggers'][number]['subject'];
 
-const walk = (steps: AutomationStep[], visit: (step: AutomationStep) => void) => {
-  for (const step of steps) {
-    visit(step);
-
-    if (step.type === 'branch') {
-      walk(step.then, visit);
-      walk(step.else, visit);
-    }
-
-    if (step.type === 'switch') {
-      step.cases.forEach((item) => walk(item.steps, visit));
-      walk(step.otherwise, visit);
-    }
-
-    if (step.type === 'split') step.paths.forEach((path) => walk(path.steps, visit));
-  }
-};
+type Trigger = AutomationDefinition['trigger'];
 
 /** Which record runs are about, given the trigger (null: none). */
-const subjectOfTrigger = (
-  definition: AutomationDefinition,
-  triggers: Catalog['triggers'],
-): SubjectKind => {
-  const trigger = definition.trigger;
-
-  if (trigger.kind === 'event')
-    return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
-
-  if (trigger.kind === 'date') return trigger.subject;
-
-  return trigger.audience?.type ?? null;
+const subjectOfTrigger = (trigger: Trigger, triggers: Catalog['triggers']): SubjectKind => {
+  switch (trigger.kind) {
+    case 'event':
+      return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
+    case 'date':
+      return trigger.subject;
+    case 'webhook':
+      return trigger.subject?.type ?? null;
+    case 'schedule':
+    case 'manual':
+      return trigger.audience?.type ?? null;
+  }
 };
 
 const isBlank = (value: unknown) =>
@@ -64,6 +52,7 @@ const actionProblems = (
   step: Extract<AutomationStep, { type: 'action' }>,
   catalog: Catalog,
   subject: SubjectKind,
+  trigger: Trigger,
 ) => {
   const action = catalog.actions.find((item) => item.type === step.action);
 
@@ -83,6 +72,9 @@ const actionProblems = (
       problems.push(`Step ${step.id} (${action.label}): that connection is not active`);
   }
 
+  if (step.action === REPLY_ACTION && trigger.kind !== 'webhook')
+    problems.push(`Step ${step.id} (${action.label}) needs the webhook trigger`);
+
   if (action.subject && action.subject !== 'any' && subject && action.subject !== subject)
     problems.push(
       `Step ${step.id} (${action.label}) needs a ${action.subject}, but runs are about a ${subject}`,
@@ -97,7 +89,15 @@ const actionProblems = (
 };
 
 /** Problems with one step of any kind. */
-const stepProblems = (step: AutomationStep, catalog: Catalog, subject: SubjectKind) => {
+const stepProblems = (
+  step: AutomationStep,
+  catalog: Catalog,
+  subject: SubjectKind,
+  trigger: Trigger,
+) => {
+  if (step.type === 'delay' && step.until === '')
+    return [`Step ${step.id}: choose the date to wait until`];
+
   if (step.type === 'delay' && !step.until && !step.amount)
     return [`Step ${step.id}: how long to wait?`];
 
@@ -111,9 +111,25 @@ const stepProblems = (step: AutomationStep, catalog: Catalog, subject: SubjectKi
         : [`Step ${step.id}: unknown event ${step.event}`]),
     ];
 
-  if (step.type === 'action') return actionProblems(step, catalog, subject);
+  if (step.type === 'action') return actionProblems(step, catalog, subject, trigger);
 
   return [];
+};
+
+const scheduleProblems = (trigger: Extract<Trigger, { kind: 'schedule' }>) => {
+  const { every, interval } = trigger;
+
+  if (every === 'minute')
+    return interval && interval >= MIN_MINUTES
+      ? []
+      : [`A schedule in minutes runs every ${MIN_MINUTES} minutes or more`];
+
+  if (every === 'hour')
+    return (interval ?? 1) <= MAX_HOURS
+      ? []
+      : [`A schedule in hours runs every 1 to ${MAX_HOURS} hours`];
+
+  return interval ? ['Only schedules in minutes or hours take “every N”'] : [];
 };
 
 const triggerProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
@@ -121,6 +137,8 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
   if (trigger.kind === 'event' && !catalog.triggers.some((item) => item.type === trigger.event))
     return [`Unknown trigger ${trigger.event}`];
+
+  if (trigger.kind === 'schedule') return scheduleProblems(trigger);
 
   if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
 
@@ -135,10 +153,14 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
 /** Templates may only use filters that exist. */
 const templateProblems = (definition: AutomationDefinition) => {
+  const templates: unknown[] = [];
+
+  eachStep(definition.steps, (step) => {
+    if (step.type === 'action') templates.push(step.input);
+  });
+
   try {
-    walk(definition.steps, (step) => {
-      if (step.type === 'action') render(step.input, {});
-    });
+    templates.forEach((template) => render(template, {}));
 
     return [];
   } catch (error) {
@@ -169,7 +191,11 @@ const COMMON_FIELDS: AutomationFieldPath[] = [
  * lists filter them (built-in, lead, custom, the company's, plugins' relations), so a condition
  * means the same as in a saved view. Placeholders insert only what the record itself holds.
  */
-export const automationFields = async (client: Db, subject?: ContentType) => {
+export const automationFields = async (
+  client: Db,
+  query: { subject?: ContentType; automation?: string },
+) => {
+  const { subject } = query;
   const types = subject ? [subject] : CONTENT_TYPES;
   const seen = new Set<string>();
   const record: AutomationFieldPath[] = [];
@@ -195,23 +221,18 @@ export const automationFields = async (client: Db, subject?: ContentType) => {
     }
   });
 
-  return { data: [...COMMON_FIELDS, ...record] };
+  const request = query.automation ? await hookFields(client, query.automation) : [];
+
+  return { data: [...COMMON_FIELDS, ...request, ...record] };
 };
 
 /** Every condition group of a definition: the trigger's, the goal, and its steps'. */
 const conditionGroups = (definition: AutomationDefinition) => {
   const { trigger } = definition;
 
-  const groups: (ConditionGroup | undefined)[] = [
-    trigger.kind === 'event'
-      ? trigger.conditions
-      : trigger.kind === 'date'
-        ? dateConditions(trigger)
-        : trigger.audience?.conditions,
-    definition.goal,
-  ];
+  const groups: (ConditionGroup | undefined)[] = [triggerConditions(trigger), definition.goal];
 
-  walk(definition.steps, (step) => {
+  eachStep(definition.steps, (step) => {
     if (step.type === 'branch' || step.type === 'wait_for') groups.push(step.conditions);
 
     if (step.type === 'switch') groups.push(...step.cases.map((item) => item.conditions));
@@ -278,14 +299,14 @@ const conditionProblems = async (
  */
 export const definitionProblems = async (client: Db, definition: AutomationDefinition) => {
   const catalog = await automationCatalog(client);
-  const subject = subjectOfTrigger(definition, catalog.triggers);
+  const subject = subjectOfTrigger(definition.trigger, catalog.triggers);
   const problems = await triggerProblems(client, definition, catalog);
   const ids = new Set<string>();
 
-  walk(definition.steps, (step) => {
+  eachStep(definition.steps, (step) => {
     if (ids.has(step.id)) problems.push(`Two steps share the id ${step.id}`);
     ids.add(step.id);
-    problems.push(...stepProblems(step, catalog, subject));
+    problems.push(...stepProblems(step, catalog, subject, definition.trigger));
   });
   problems.push(...templateProblems(definition));
   problems.push(...(await conditionProblems(client, definition, subject)));

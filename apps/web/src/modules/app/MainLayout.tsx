@@ -45,7 +45,7 @@ export const MainLayout = () => {
 
   return (
     <Sidebar.Provider
-      className="relative h-svh w-screen overflow-hidden"
+      className="relative h-svh w-full overflow-hidden"
       sidebarKeyboardShortcut={false}
     >
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">

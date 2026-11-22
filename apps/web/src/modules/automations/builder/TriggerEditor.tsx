@@ -1,7 +1,8 @@
 import type { AutomationTrigger, DataField } from '@erxes/core-contract';
-import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
-import { Badge, Button, cn } from 'erxes-ui';
+import { IconHandFinger } from '@tabler/icons-react';
+import { Badge, Button, ChoiceboxGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { TriggerIcon } from '../TemplatePicker';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
@@ -11,12 +12,14 @@ import { RecordPicks } from './RecordPicks';
 import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
 import { AudienceEditor, Field } from './triggerFields';
+import { type Hook, WebhookTriggerSettings } from './WebhookTriggerSettings';
 
 const KINDS = [
-  { kind: 'event', icon: IconBolt, label: 'Event', hint: 'When something happens' },
-  { kind: 'schedule', icon: IconClock, label: 'Schedule', hint: 'Every hour, day, week or month' },
-  { kind: 'date', icon: IconCalendarEvent, label: 'Date', hint: 'Before or after a record’s date' },
-  { kind: 'manual', icon: IconHandFinger, label: 'Manual', hint: 'You start it on chosen records' },
+  { kind: 'event', label: 'Event', hint: 'When something happens' },
+  { kind: 'schedule', label: 'Schedule', hint: 'Every few minutes, hours, days, weeks or months' },
+  { kind: 'date', label: 'Date', hint: 'Before or after a record’s date' },
+  { kind: 'manual', label: 'Manual', hint: 'You start it on chosen records' },
+  { kind: 'webhook', label: 'Webhook', hint: 'When another system calls its address' },
 ] as const;
 
 const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
@@ -34,8 +37,10 @@ const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
         yearly: true,
         at: '09:00',
       };
-    default:
-      return { kind: 'manual', audience: { type: 'customer' } };
+    case 'webhook':
+      return { kind };
+    case 'manual':
+      return { kind, audience: { type: 'customer' } };
   }
 };
 
@@ -61,37 +66,28 @@ const KindPicker = ({
   const { t } = useTranslation('automations');
 
   return (
-    <div className="grid auto-rows-fr grid-cols-2 gap-2">
-      {KINDS.map(({ kind, icon: Icon, label, hint }) => (
-        <button
-          key={kind}
-          type="button"
-          disabled={disabled}
-          aria-pressed={value === kind}
-          onClick={() => value !== kind && onChange(defaults(kind))}
-          className={cn(
-            'flex min-w-0 items-start gap-2.5 rounded-lg border p-2.5 text-left transition-colors hover:bg-muted/60 disabled:opacity-60',
-            value === kind &&
-              'border-primary bg-primary/5 ring-1 ring-primary/20 hover:bg-primary/5',
-          )}
-        >
-          <span
-            className={cn(
-              'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
-              value === kind && 'bg-primary text-primary-foreground',
-            )}
-          >
-            <Icon className="size-4" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-medium">{t(`trigger-${kind}-title`, label)}</span>
-            <span className="line-clamp-2 block text-xs leading-snug text-muted-foreground">
-              {t(`trigger-${kind}-hint`, hint)}
+    <ChoiceboxGroup
+      value={value}
+      disabled={disabled}
+      className="grid grid-cols-2"
+      onValueChange={(next) => {
+        const kind = KINDS.find((item) => item.kind === next)?.kind;
+
+        if (kind && kind !== value) onChange(defaults(kind));
+      }}
+    >
+      {KINDS.map(({ kind, label, hint }) => (
+        <ChoiceboxGroup.Item key={kind} value={kind} disabled={disabled}>
+          <span className="flex items-start gap-2">
+            <TriggerIcon kind={kind} className="mt-0.5 size-4 shrink-0" />
+            <span className="min-w-0">
+              <span className="block">{t(`trigger-${kind}-title`, label)}</span>
+              <span className="block text-xs font-normal">{t(`trigger-${kind}-hint`, hint)}</span>
             </span>
           </span>
-        </button>
+        </ChoiceboxGroup.Item>
       ))}
-    </div>
+    </ChoiceboxGroup>
   );
 };
 
@@ -183,16 +179,18 @@ const EventTriggerSettings = ({
   );
 };
 
-/** The trigger: an event, a schedule, a date on each record, or a manual start. */
+/** The trigger: an event, a schedule, a date on each record, a manual start, or a webhook. */
 export const TriggerEditor = ({
   trigger,
   events,
+  hook,
   onChange,
   disabled,
   onStartNow,
 }: {
   trigger: AutomationTrigger;
   events: EventInfo[];
+  hook: Hook;
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;
@@ -217,6 +215,14 @@ export const TriggerEditor = ({
       )}
       {trigger.kind === 'date' && (
         <DateTriggerSettings trigger={trigger} disabled={disabled} onChange={onChange} />
+      )}
+      {trigger.kind === 'webhook' && (
+        <WebhookTriggerSettings
+          trigger={trigger}
+          hook={hook}
+          disabled={disabled}
+          onChange={onChange}
+        />
       )}
       {trigger.kind === 'manual' && (
         <>

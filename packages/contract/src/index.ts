@@ -150,6 +150,8 @@ export * from './activityEntries';
 
 export * from '@erxes/core-db/automationDefinition';
 
+export * from './automation';
+
 export * from './automationRuns';
 
 export * from './automations';

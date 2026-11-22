@@ -3,6 +3,8 @@ import {
   CONDITION_OPERATORS,
   CONTENT_TYPES,
   DELAY_UNITS,
+  HOOK_COMPANY_KEYS,
+  HOOK_CUSTOMER_KEYS,
   REENTRY_RULES,
   RELATIVE_DATE_UNITS,
   SCHEDULE_INTERVALS,
@@ -200,6 +202,18 @@ export const Audience = z.object({
 
 export type Audience = z.infer<typeof Audience>;
 
+export const HookField = z
+  .string()
+  .max(200)
+  .regex(/^(body|query)(\.[A-Za-z][A-Za-z0-9_]{0,59}){1,4}$/, 'body.<key> or query.<key>');
+
+export const HookSubject = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('customer'), by: z.enum(HOOK_CUSTOMER_KEYS), field: HookField }),
+  z.object({ type: z.literal('company'), by: z.enum(HOOK_COMPANY_KEYS), field: HookField }),
+]);
+
+export type HookSubject = z.infer<typeof HookSubject>;
+
 export const AutomationTrigger = z.discriminatedUnion('kind', [
   /** When an event happens (`core.customer.created`, `hr.leave.approved`). */
   z.object({
@@ -207,10 +221,11 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     event: z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/),
     conditions: ConditionGroup.optional(),
   }),
-  /** On a schedule: every hour, day, week (on weekdays) or month (on a day), at a time in the organisation's time zone. */
+  /** On a schedule: every N minutes or hours, or every day, week (on weekdays) or month (on a day), at a time in the organisation's time zone. */
   z.object({
     kind: z.literal('schedule'),
     every: z.enum(SCHEDULE_INTERVALS),
+    interval: z.int().min(1).max(59).optional(),
     at: TimeOfDay.default('09:00'),
     /** 1 = Monday … 7 = Sunday (week). */
     weekdays: z.array(z.int().min(1).max(7)).max(7).optional(),
@@ -233,6 +248,11 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   }),
   /** Started by a member: on chosen records, or on every record that matches. */
   z.object({ kind: z.literal('manual'), audience: Audience.optional() }),
+  z.object({
+    kind: z.literal('webhook'),
+    subject: HookSubject.optional(),
+    conditions: ConditionGroup.optional(),
+  }),
 ]);
 
 export type AutomationTrigger = z.infer<typeof AutomationTrigger>;

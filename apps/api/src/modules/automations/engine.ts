@@ -161,7 +161,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
   const ctx: CallContext = {
     orgId,
     automation: { id: automation.id, name: automation.name },
-    run: { id: run.id },
+    run: { id: run.id, depth: run.depth },
     step: { id: step.id },
     subject: subjectRefOf(run),
     input: renderInput(step.input, context),
@@ -203,7 +203,7 @@ export const advanceJob = defineJob({
     if (!run || !loaded) return;
 
     if ((await stepCount(tx, run.id)) >= MAX_STEPS_PER_RUN) {
-      await finishRun(tx, run.id, 'failed', { error: `Stopped after ${MAX_STEPS_PER_RUN} steps` });
+      await failRun(tx, job, `Stopped after ${MAX_STEPS_PER_RUN} steps`);
 
       return;
     }

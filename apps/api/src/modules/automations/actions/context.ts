@@ -12,7 +12,7 @@ import type { RunContext, SubjectRef } from '../runs';
 export interface CallContext {
   orgId: string;
   automation: { id: string; name: string };
-  run: { id: string };
+  run: { id: string; depth: number };
   step: { id: string };
   subject: SubjectRef | null;
   /** The step's input with its placeholders filled. */

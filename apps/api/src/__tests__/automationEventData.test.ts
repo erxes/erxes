@@ -67,6 +67,7 @@ describe('automation data learned from events', () => {
       fields: [
         { key: 'content', label: 'Content', type: 'text' },
         { key: 'labels', label: 'Labels', type: 'list' },
+        { key: 'sender.id', label: 'Sender id', type: 'text' },
         { key: 'unread', label: 'Unread', type: 'number' },
         { key: 'urgent', label: 'Urgent', type: 'boolean' },
       ],
@@ -98,7 +99,15 @@ describe('automation data learned from events', () => {
 
     expect(
       (await triggerOf(t.owner(), 'hr.chat.received'))?.fields.map((field) => field.label),
-    ).toEqual(['Content', 'Labels', 'Unread', 'Urgent', 'Conversation id', 'Reply to id']);
+    ).toEqual([
+      'Content',
+      'Labels',
+      'Sender id',
+      'Unread',
+      'Urgent',
+      'Conversation id',
+      'Reply to id',
+    ]);
   });
 
   it('stops at fifty keys for one event, however many its payloads bring', async () => {

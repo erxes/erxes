@@ -518,6 +518,16 @@
         }
       }
     },
+    "saveSample": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/automations/{id}/sample"
+        }
+      }
+    },
     "stats": {
       "~orpc": {
         "errorMap": {},

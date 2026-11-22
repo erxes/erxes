@@ -2,9 +2,11 @@ import type { ConditionGroup } from '@erxes/core-contract';
 import { memberQueries, messageOf, productSearchQueries } from '@erxes/core-contract/client';
 import { useQueries } from '@tanstack/react-query';
 import { ConditionsEditor as Conditions, pluginJson, type TConditionField } from 'erxes-ui';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { tagsQuery } from '~/modules/tags/useTags';
+import { BuilderContext } from './BuilderContext';
 import { StartFromView } from './StartFromView';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
@@ -83,7 +85,7 @@ export const ConditionsEditor = ({
   /** The event's own values and earlier steps' outputs, offered next to the record's fields. */
   extraFields?: FieldInfo[];
 }) => {
-  const { fields } = useAutomationFields(subject);
+  const { fields } = useAutomationFields(subject, useContext(BuilderContext).automationId);
   // A trigger with no record has no record fields to test.
   const own = subject ? fields : fields.filter((field) => !field.path.startsWith('subject.'));
   const all = [...own, ...extraFields];

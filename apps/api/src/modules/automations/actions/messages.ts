@@ -222,16 +222,15 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       {
         key: 'headers',
         label: 'Headers',
-        type: 'json',
+        type: 'key_values',
         required: false,
-        placeholder: '{ "Authorization": "Bearer …" }',
       },
       {
         key: 'body',
         label: 'Body',
         type: 'json',
         required: false,
-        description: 'JSON; leave empty to send the event and the record',
+        description: 'Empty: sends the event and the record',
       },
     ],
     outputs: [
