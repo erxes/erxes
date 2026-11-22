@@ -81,7 +81,13 @@ interface Received {
 
 export class DeliveryRefused extends Error {}
 
+export interface AppClient {
+  clientId: string;
+  clientSecret: string;
+}
+
 export interface AppHooks<C, S extends Keys = Keys> {
+  appWide?: never;
   scope: S;
   subscribe(input: {
     keys: C;
@@ -93,6 +99,36 @@ export interface AppHooks<C, S extends Keys = Keys> {
   }): Promise<{ externalId: string; secret?: string }>;
   unsubscribe(input: { keys: C; scope: z.output<S>; externalId: string }): Promise<void>;
   receive(delivery: Delivery, secret: string): Received;
+}
+
+type Enrich<C, S> = (input: {
+  keys: C;
+  scope: S;
+  payload: Record<string, unknown>;
+}) => Promise<Record<string, unknown>>;
+
+export interface AppWideHooks<C, S extends Keys = Keys> {
+  appWide: true;
+  scope: S;
+  route(scope: z.output<S>): string;
+  subscribe(input: {
+    keys: C;
+    scope: z.output<S>;
+    client: AppClient;
+    url: string;
+    verifyToken: string;
+    events: string[];
+    appEvents: string[];
+  }): Promise<void>;
+  unsubscribe(input: { keys: C; scope: z.output<S> }): Promise<void>;
+  receive(
+    delivery: Delivery,
+    client: { secret: string; verifyToken: string },
+  ): {
+    reply?: { status: number; body: unknown };
+    routes: { route: string; events: AppEvent[] }[];
+  };
+  enrich?: Partial<Record<string, Enrich<C, z.output<S>>>>;
 }
 
 interface TriggerInfo {
@@ -182,7 +218,7 @@ export const appAction = <C, I extends Keys>(
 };
 
 interface Apps<C> {
-  hooks?: AppHooks<C>;
+  hooks?: AppHooks<C> | AppWideHooks<C>;
   triggers?: AppTrigger<C>[];
   actions?: AppAction<C>[];
 }
@@ -213,6 +249,9 @@ export interface OAuthSetup {
   scopeSeparator?: string;
   authorizeParams?: Record<string, string>;
   account(accessToken: string): Promise<string>;
+  longLived?(
+    input: { accessToken: string } & AppClient,
+  ): Promise<{ accessToken: string; expiresIn?: number }>;
 }
 
 export interface KeyedIntegration<K extends Keys = Keys> extends Connection, Apps<z.output<K>> {
@@ -272,6 +311,9 @@ export function defineIntegration(definition: PagedIntegration): PagedIntegratio
 export function defineIntegration(definition: Integration) {
   if (definition.oauth && definition.keys !== oauthKeys)
     throw new Error(`${definition.key} signs in with OAuth: its keys are oauthKeys`);
+
+  if (definition.hooks?.appWide && !definition.oauth)
+    throw new Error(`${definition.key} hears its app's events: it signs in with OAuth`);
 
   if (definition.keys) fieldsOf(definition.keys);
 

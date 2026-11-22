@@ -5,7 +5,7 @@ import { fail } from '~/http/errors';
 import type { AppAction, Integration, KeyedIntegration } from '~/modules/integrations/define';
 import { GatewayError } from '~/modules/integrations/gateways/types';
 import { INTEGRATIONS } from '~/modules/integrations/registry';
-import { connectionKeys } from '~/modules/integrations/subscriptions';
+import { connectionKeys } from '~/modules/integrations/subscriptionState';
 import { type CoreAction, idempotencyKey, parseInput } from './context';
 
 const RETRIED = new Set([408, 409, 425, 429]);

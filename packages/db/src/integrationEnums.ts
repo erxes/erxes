@@ -36,3 +36,5 @@ export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'
 export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch', 'select', 'hidden'] as const;
 
 export const TELEGRAM_PARSE_MODES = ['MarkdownV2', 'HTML'] as const;
+
+export const FACEBOOK_MESSAGE_RECIPIENTS = ['person', 'commenter'] as const;

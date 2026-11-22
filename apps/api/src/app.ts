@@ -26,6 +26,7 @@ import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { emailEventsRouter } from '~/modules/email/events/events.http';
 import { automationHooksRouter } from '~/modules/automations/hooks.http';
 import { appHooksRouter } from '~/modules/integrations/appHooks.http';
+import { appWideHooksRouter } from '~/modules/integrations/appWideHooks.http';
 import { oauthCallbackRouter } from '~/modules/integrations/oauth.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
@@ -151,6 +152,8 @@ export const createApp = (log: Logger = logger): Express => {
   app.use('/core/v1', automationHooksRouter(limit.automationHooks));
 
   app.use('/core/v1', appHooksRouter(limit.appHooks));
+
+  app.use('/core/v1', appWideHooksRouter(limit.appWideHooks));
 
   app.use('/core/v1', oauthCallbackRouter);
 

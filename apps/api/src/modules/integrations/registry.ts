@@ -1,4 +1,5 @@
 import { fail, notFound } from '~/http/errors';
+import { facebook } from './apps/facebook';
 import { github } from './apps/github';
 import { googleSheets } from './apps/googleSheets';
 import { telegram } from './apps/telegram';
@@ -43,6 +44,7 @@ export const INTEGRATIONS: readonly Integration[] = [
   github,
   telegram,
   googleSheets,
+  facebook,
   test,
   khanbankBank,
   golomtBank,

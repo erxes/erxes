@@ -6,7 +6,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { describeError, defineSchedule } from '~/modules/jobs/jobs';
 import { appEventType } from '@erxes/core-contract';
 import { HOOK_CHANNEL, triggerOf } from './apps';
-import { connectionKeys, markFailed, subscriptionState } from './subscriptions';
+import { connectionKeys, markFailed, subscriptionState } from './subscriptionState';
 
 const log = logger.child({ component: 'integration-polls' });
 

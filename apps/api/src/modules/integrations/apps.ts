@@ -1,4 +1,5 @@
-import type { KeyedIntegration } from './define';
+import { appEventType } from '@erxes/core-contract';
+import type { AppEvent, KeyedIntegration } from './define';
 import { INTEGRATIONS } from './registry';
 
 type Triggers = NonNullable<KeyedIntegration['triggers']>;
@@ -26,3 +27,33 @@ export const channelOf = (trigger: AppTriggerOf) =>
 
 export const paramsSchema = (app: App, trigger: AppTriggerOf) =>
   trigger.via === 'hook' ? (app.hooks?.scope ?? null) : trigger.params;
+
+export const hookEvents = (app: App, triggers: string[]) => [
+  ...new Set(
+    app.triggers.flatMap((trigger) =>
+      trigger.via === 'hook' && triggers.includes(trigger.key) ? [trigger.on] : [],
+    ),
+  ),
+];
+
+export const publishedEvents = (
+  app: App,
+  subscription: { id: string; triggers: string[] },
+  event: AppEvent,
+) =>
+  app.triggers.flatMap((trigger) =>
+    trigger.via === 'hook' &&
+    trigger.on === event.type &&
+    subscription.triggers.includes(trigger.key) &&
+    (trigger.when?.(event.payload) ?? true)
+      ? [
+          {
+            type: appEventType(app.key, trigger.key),
+            entityType: 'integration_subscription',
+            entityId: subscription.id,
+            payload: event.payload,
+            dedupeKey: `${subscription.id}:${trigger.key}:${event.id}`,
+          },
+        ]
+      : [],
+  );

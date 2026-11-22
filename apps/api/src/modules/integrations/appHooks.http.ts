@@ -1,27 +1,21 @@
-import {
-  type Db,
-  integrationConnections,
-  integrationSubscriptions,
-  withOrg,
-  withSystem,
-} from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { type Db, integrationSubscriptions, withOrg, withSystem } from '@erxes/core-db';
+import { eq } from 'drizzle-orm';
 import express, { type Request, type RequestHandler, Router } from 'express';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { forwardedHeaders, SANDBOXED_ANSWER } from '~/http/forwarded';
 import { safeEqual } from '~/lib/crypto';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { appEventType } from '@erxes/core-contract';
-import type { App } from './apps';
-import { type AppEvent, type Delivery, DeliveryRefused } from './define';
-import { hookSignature, subscriptionState } from './subscriptions';
+import { publishedEvents } from './apps';
+import { type Delivery, DeliveryRefused } from './define';
+import { connectionOn, delivered, subscriptionState } from './subscriptionState';
+import { hookSignature } from './subscriptionSync';
 
-const MAX_BYTES = '1mb';
+export const MAX_HOOK_BYTES = '1mb';
 
 const Params = z.object({ id: z.string().min(1).max(64), sig: z.string().min(1).max(128) });
 
-const noHook = () => fail('NOT_FOUND', 'No such webhook');
+export const noHook = () => fail('NOT_FOUND', 'No such webhook');
 
 const ownerOf = async (req: Request) => {
   const params = Params.safeParse(req.params);
@@ -53,7 +47,7 @@ const parsedBody = (raw: string, type: string): unknown => {
   return raw;
 };
 
-const deliveryOf = (req: Request): Delivery => {
+export const deliveryOf = (req: Request): Delivery => {
   const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
 
   const headers = Object.fromEntries(
@@ -71,53 +65,25 @@ const deliveryOf = (req: Request): Delivery => {
   return { method: req.method, headers, query: req.query, raw, body };
 };
 
-const published = (app: App, subscription: { id: string; triggers: string[] }, event: AppEvent) =>
-  app.triggers.flatMap((trigger) =>
-    trigger.via === 'hook' &&
-    trigger.on === event.type &&
-    subscription.triggers.includes(trigger.key) &&
-    (trigger.when?.(event.payload) ?? true)
-      ? [
-          {
-            type: appEventType(app.key, trigger.key),
-            entityType: 'integration_subscription',
-            entityId: subscription.id,
-            payload: event.payload,
-            dedupeKey: `${subscription.id}:${trigger.key}:${event.id}`,
-          },
-        ]
-      : [],
-  );
-
 const deliver = async (tx: Db, id: string, delivery: Delivery) => {
   const state = await subscriptionState(tx, id);
+  const hooks = state?.app.hooks;
 
-  if (!state?.app.hooks) throw noHook();
+  if (!state || !hooks || hooks.appWide) throw noHook();
 
   const { app, subscription } = state;
-
-  const [connection] = await tx
-    .select({ status: integrationConnections.status })
-    .from(integrationConnections)
-    .where(eq(integrationConnections.id, subscription.connectionId))
-    .limit(1);
-
-  const on = connection?.status === 'active';
+  const on = await connectionOn(tx, subscription.connectionId);
 
   try {
-    const received = state.app.hooks.receive(delivery, state.secret);
+    const received = hooks.receive(delivery, state.secret);
 
     const events = on
-      ? received.events.flatMap((event) => published(app, subscription, event))
+      ? received.events.flatMap((event) => publishedEvents(app, subscription, event))
       : [];
 
     await publishCoreEvents(tx, events);
 
-    if (on && received.events.length)
-      await tx
-        .update(integrationSubscriptions)
-        .set({ lastDeliveryAt: sql`now()` })
-        .where(eq(integrationSubscriptions.id, id));
+    if (on && received.events.length) await delivered(tx, id);
 
     return { reply: received.reply ?? null, refused: null, published: events.length };
   } catch (error) {
@@ -157,6 +123,6 @@ export const appHooksRouter = (limits: RequestHandler[]) =>
   Router().all(
     '/integrations/hooks/:id/:sig',
     ...limits,
-    express.raw({ type: () => true, limit: MAX_BYTES }),
+    express.raw({ type: () => true, limit: MAX_HOOK_BYTES }),
     receive,
   );

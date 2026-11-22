@@ -1,0 +1,2 @@
+ALTER TABLE "core_integration_subscriptions" ADD COLUMN "route_key" text;--> statement-breakpoint
+CREATE INDEX "core_integration_subscriptions_route_idx" ON "core_integration_subscriptions" USING btree ("app","route_key") WHERE "core_integration_subscriptions"."route_key" IS NOT NULL;

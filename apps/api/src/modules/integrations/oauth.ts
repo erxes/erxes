@@ -5,8 +5,10 @@ import {
   integrationOAuthApps,
   newId,
   requestOrgId,
+  withOrg,
+  withSystem,
 } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
@@ -60,27 +62,68 @@ const oauthOf = (key: string) => {
   return integration;
 };
 
-const orgClient = async (tx: Db, key: string) => {
+export const SERVER_CLIENT = 'server';
+
+type AppClient = Client & { ref: string };
+
+const orgClient = async (tx: Db, key: string): Promise<AppClient | null> => {
   const [row] = await tx
-    .select({ secretId: integrationOAuthApps.secretId })
+    .select({ id: integrationOAuthApps.id, secretId: integrationOAuthApps.secretId })
     .from(integrationOAuthApps)
     .where(eq(integrationOAuthApps.key, key))
     .limit(1);
 
-  return row ? Client.parse(JSON.parse(await readSecret(tx, row.secretId))) : null;
+  return row
+    ? { ref: row.id, ...Client.parse(JSON.parse(await readSecret(tx, row.secretId))) }
+    : null;
+};
+
+const serverClient = (key: string): AppClient | null => {
+  const client = config.integrations.oauthApps[key];
+
+  return client ? { ref: SERVER_CLIENT, ...client } : null;
 };
 
 export const oauthClientSource = async (tx: Db, key: string) => {
-  if (config.integrations.oauthApps[key]) return 'server' as const;
+  if (serverClient(key)) return 'server' as const;
 
   return (await orgClient(tx, key)) ? ('organization' as const) : null;
 };
 
-const clientOf = async (tx: Db, key: string): Promise<Client | null> =>
-  config.integrations.oauthApps[key] ?? (await orgClient(tx, key));
+export const clientOf = async (tx: Db, key: string) => serverClient(key) ?? orgClient(tx, key);
+
+export const clientByRef = async (key: string, ref: string) => {
+  if (ref === SERVER_CLIENT) {
+    const client = serverClient(key);
+
+    return client ? { ...client, orgId: null } : null;
+  }
+
+  const [row] = await withSystem('integration app lookup', (tx) =>
+    tx
+      .select({ orgId: integrationOAuthApps.orgId })
+      .from(integrationOAuthApps)
+      .where(and(eq(integrationOAuthApps.id, ref), eq(integrationOAuthApps.key, key)))
+      .limit(1),
+  );
+
+  if (!row) return null;
+
+  const client = await withOrg(row.orgId, (tx) => orgClient(tx, key));
+
+  return client?.ref === ref ? { ...client, orgId: row.orgId } : null;
+};
 
 export const callbackUrl = (tx: Db) =>
   config.integrations.oauthCallbackUrl ?? appLink(tx, CALLBACK_PATH);
+
+export const providerLink = (tx: Db, path: string) => {
+  const fixed = config.integrations.oauthCallbackUrl;
+
+  return fixed?.endsWith(CALLBACK_PATH)
+    ? `${fixed.slice(0, -CALLBACK_PATH.length)}${path}`
+    : appLink(tx, path);
+};
 
 const signed = (body: string) =>
   hmacSha256(coreKey('erxes-integration-oauth-state-v1'), body, 'base64url');
@@ -182,7 +225,16 @@ export const exchangeCode = async (tx: Db, state: State, code: string) => {
     code_verifier: verifierOf(state),
   });
 
-  const keys = keysFrom(tokens);
+  const lasting = await integration.oauth.longLived?.({
+    accessToken: tokens.access_token,
+    clientId: client.clientId,
+    clientSecret: client.clientSecret,
+  });
+
+  const keys = keysFrom(
+    lasting ? { access_token: lasting.accessToken, expires_in: lasting.expiresIn } : tokens,
+  );
+
   const account = await integration.oauth.account(keys.accessToken);
 
   return { integration, keys: { ...keys, account } };

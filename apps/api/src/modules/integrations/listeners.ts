@@ -9,7 +9,7 @@ import { wholeList } from '~/lib/keyset';
 import { inOrder } from '~/lib/sequence';
 import { HOOK_CHANNEL, triggerOf } from './apps';
 import { connectable } from './connectable';
-import { enqueueSync } from './subscriptions';
+import { enqueueSync } from './subscriptionSync';
 
 const CONNECTION_OFF = 'The connection is off';
 

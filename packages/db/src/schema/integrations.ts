@@ -93,6 +93,7 @@ export const integrationSubscriptions = pgTable(
       .notNull(),
     status: text({ enum: INTEGRATION_SUBSCRIPTION_STATUSES }).default('syncing').notNull(),
     externalId: text(),
+    routeKey: text(),
     secretId: text().notNull(),
     cursor: jsonb().$type<unknown>(),
     nextPollAt: timestamptz(),
@@ -113,6 +114,9 @@ export const integrationSubscriptions = pgTable(
     index('core_integration_subscriptions_due_idx')
       .on(table.nextPollAt)
       .where(sql`${table.nextPollAt} IS NOT NULL`),
+    index('core_integration_subscriptions_route_idx')
+      .on(table.app, table.routeKey)
+      .where(sql`${table.routeKey} IS NOT NULL`),
     check(
       'core_integration_subscriptions_status_check',
       inList(table.status, INTEGRATION_SUBSCRIPTION_STATUSES),
