@@ -3747,26 +3747,6 @@
           "path": "/customers/{customerId}/accounts"
         }
       }
-    },
-    "setStatus": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PATCH",
-          "path": "/customer-accounts/{id}"
-        }
-      }
-    },
-    "signOut": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/customer-accounts/{id}/sign-out"
-        }
-      }
     }
   }
 }

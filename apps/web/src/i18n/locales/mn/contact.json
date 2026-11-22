@@ -6,7 +6,6 @@
   "unnamed": "Нэргүй",
   "accounts": {
     "title": "Бүртгэлүүд",
-    "blocked": "Хаасан",
     "last-signed-in": "Сүүлд {{when}}-д нэвтэрсэн",
     "never-signed-in": "Нэвтэрч байгаагүй",
     "sessions_one": "Одоо {{count}} төхөөрөмжөөр нэвтэрсэн",

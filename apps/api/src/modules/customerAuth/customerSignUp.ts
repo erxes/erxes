@@ -9,7 +9,6 @@ import { accountOf, openSession, type SignInRequest } from './customerAuth.servi
 import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
 import { checkSignUp, customerFieldsOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
-import { accountBlocked } from './customerSessions';
 import { websiteFor } from './customerWebsites';
 
 /** The fields the website's organisation lets customers fill in, for its forms. */
@@ -82,8 +81,6 @@ export const confirmSignUp = async (
       const login = await findLogin(tx, website.id, address);
 
       if (login) {
-        if (login.status === 'blocked') throw accountBlocked();
-
         await tx
           .update(customerLogins)
           .set({ lastUsedAt: sql`now()` })
@@ -107,8 +104,6 @@ export const confirmSignUp = async (
       await fillEmpty(tx, customer.id, form);
 
       const account = await accountOf(tx, website.id, customer.id);
-
-      if (account.status === 'blocked') throw accountBlocked();
 
       const saved = await addLogin(
         tx,

@@ -15,13 +15,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
 import { profileOf } from './customerFields';
 import { findLogin } from './customerLogins';
-import {
-  accountBlocked,
-  createSession,
-  revokeSessionToken,
-  rotateSession,
-  sessionOf,
-} from './customerSessions';
+import { createSession, revokeSessionToken, rotateSession, sessionOf } from './customerSessions';
 import { type LiveWebsite, websiteFor, websiteServes } from './customerWebsites';
 
 /** Where a sign-in call comes from: a browser sends its page's origin; a mobile app or server, none. */
@@ -32,7 +26,7 @@ export interface SignInRequest {
 /** The customer's account on the website, made the first time. */
 export const accountOf = async (tx: Db, websiteId: string, customerId: string) => {
   const [found] = await tx
-    .select({ id: customerAccounts.id, status: customerAccounts.status })
+    .select({ id: customerAccounts.id })
     .from(customerAccounts)
     .where(
       and(eq(customerAccounts.websiteId, websiteId), eq(customerAccounts.customerId, customerId)),
@@ -44,7 +38,7 @@ export const accountOf = async (tx: Db, websiteId: string, customerId: string) =
   const [made] = await tx
     .insert(customerAccounts)
     .values({ id: newId(), websiteId, customerId })
-    .returning({ id: customerAccounts.id, status: customerAccounts.status });
+    .returning({ id: customerAccounts.id });
 
   if (!made) throw new Error('the account was not saved');
 
@@ -130,8 +124,6 @@ export const signInWithCode = async (
 
       // The login went after the code was sent (removed, or merged away).
       if (!login) throw invalidCode();
-
-      if (login.status === 'blocked') throw accountBlocked();
 
       await tx
         .update(customerLogins)

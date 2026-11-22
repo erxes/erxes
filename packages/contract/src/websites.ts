@@ -54,8 +54,6 @@ export const CustomerAccount = createSelectSchema(customerAccounts, {
     id: true,
     websiteId: true,
     customerId: true,
-    /** `blocked`: staff keep the customer out of this website. */
-    status: true,
     createdAt: true,
     lastSignedInAt: true,
   })
@@ -113,7 +111,10 @@ export const websitesContract = {
     .output(z.object({ ok: z.literal(true) })),
 };
 
-/** Staff see and manage a customer's accounts on the organisation's websites. */
+/**
+ * Staff see a customer's accounts on the organisation's websites. Only the customer signs
+ * their account out (`/customer/me/*`); staff don't act on it.
+ */
 export const customerAccountsContract = {
   list: base
     .route({
@@ -123,20 +124,4 @@ export const customerAccountsContract = {
     })
     .input(z.object({ customerId: Id }))
     .output(listOf(CustomerAccount)),
-  setStatus: base
-    .route({
-      method: 'PATCH',
-      path: '/customer-accounts/{id}',
-      summary: 'Block an account (it is signed out at once) or let it sign in again',
-    })
-    .input(z.object({ id: Id, status: CustomerAccount.shape.status }))
-    .output(CustomerAccount),
-  signOut: base
-    .route({
-      method: 'POST',
-      path: '/customer-accounts/{id}/sign-out',
-      summary: "End the account's sessions on its website (access tokens end within 15 minutes)",
-    })
-    .input(z.object({ id: Id }))
-    .output(z.object({ ok: z.literal(true) })),
 };

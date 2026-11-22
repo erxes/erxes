@@ -123,7 +123,6 @@ export type {
   StoredPluginManifest,
   StoredPluginRelation,
   ContentType,
-  CustomerAccountStatus,
   CustomerLoginKind,
   CustomerSignUpData,
   FieldContentType,
