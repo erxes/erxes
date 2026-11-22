@@ -4,7 +4,9 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import {
   links,
   listing,
+  QPAY_SHOP,
   renderSettings,
+  renderSettingsRoutes,
   resetSettings,
   setUpSettings,
   unmount,
@@ -123,5 +125,66 @@ describe('the integrations page', () => {
     );
     await vi.waitFor(() => expect(container.textContent).toContain('Messenger'));
     await vi.waitFor(() => expect(window.location.search).toBe('?tab=browse'));
+  });
+});
+
+const SHOP_PAGE = `/settings/integrations/connections/${QPAY_SHOP.id}`;
+
+const sidePanel = (container: Element) =>
+  container.querySelector('[data-record-side-panel]:not([data-expanded])');
+
+const labelled = (container: Element | null, label: string) =>
+  [...(container?.querySelectorAll('button') ?? [])].find(
+    (button) => button.getAttribute('aria-label') === label,
+  );
+
+describe('a connection’s own page', () => {
+  it('opens at its address under Integrations, and leads back to the Integrations page', async () => {
+    listing.qpay = true;
+
+    const container = await renderSettingsRoutes(SHOP_PAGE, 'Stored encrypted. Never shown.');
+
+    expect(links(container)).toEqual(
+      expect.arrayContaining([
+        ['Integrations', '/settings/integrations'],
+        ['Main shop', SHOP_PAGE],
+      ]),
+    );
+    expect(sidePanel(container)).toBeNull();
+
+    await click(labelled(container, 'Open in side panel'));
+    await vi.waitFor(() => expect(window.location.pathname).toBe('/settings/integrations'));
+    await vi.waitFor(() =>
+      expect(tab(container, 'Connected')?.getAttribute('aria-selected')).toBe('true'),
+    );
+    await vi.waitFor(() =>
+      expect(sidePanel(container)?.textContent).toContain('Stored encrypted. Never shown.'),
+    );
+    expect(sidePanel(container)?.textContent).toContain('Main shop');
+  });
+
+  it('opens from the Connected tab beside the list, and its full view is its own address', async () => {
+    listing.qpay = true;
+
+    const container = await renderSettingsRoutes('/settings/integrations', 'Main shop');
+
+    await click(
+      [...container.querySelectorAll('button')].find((button) =>
+        button.textContent?.startsWith('Main shop'),
+      ),
+    );
+    await vi.waitFor(() =>
+      expect(sidePanel(container)?.textContent).toContain('Stored encrypted. Never shown.'),
+    );
+
+    await click(labelled(sidePanel(container), 'Open full view'));
+    await vi.waitFor(() => expect(window.location.pathname).toBe(SHOP_PAGE));
+    await vi.waitFor(() =>
+      expect(links(container)).toEqual(
+        expect.arrayContaining([['Integrations', '/settings/integrations']]),
+      ),
+    );
+    expect(sidePanel(container)).toBeNull();
+    expect(container.textContent).toContain('Stored encrypted. Never shown.');
   });
 });

@@ -1,7 +1,7 @@
-import type { Integration } from '@erxes/core-contract';
+import type { Integration, VaultConnection } from '@erxes/core-contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
-import { act, createElement, lazy } from 'react';
+import { act, createElement, lazy, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -101,8 +101,21 @@ const ALL_BUT_PAYMENTS = (action: string) => action !== 'payments.manage';
 /** What the signed-in member may do (`useCan`); a test may change it. */
 export const member: { can: (action: string) => boolean } = { can: ALL_BUT_PAYMENTS };
 
-/** Core answers the integrations list once `ready` settles; `nothingSetUp` is a new organisation. */
-export const listing = { ready: Promise.resolve(), nothingSetUp: false };
+/**
+ * Core answers the integrations list once `ready` settles; `nothingSetUp` is a new organisation,
+ * `qpay` one that connected its QPay shop.
+ */
+export const listing = { ready: Promise.resolve(), nothingSetUp: false, qpay: false };
+
+export const QPAY_SHOP: VaultConnection = {
+  id: 'qpayMainShop00001',
+  key: 'qpay',
+  name: 'Main shop',
+  status: 'active',
+  createdAt: '2026-11-01T00:00:00.000Z',
+  settings: {},
+  usedBy: [],
+};
 
 const NOT_SET_UP = { state: 'not-set-up', count: null } as const;
 
@@ -163,6 +176,15 @@ const LISTED = [
   }),
 ];
 
+const QPAY = listed({
+  key: 'qpay',
+  name: 'QPay',
+  summary: 'QR payments from every Mongolian bank app.',
+  category: 'payments',
+  keyed: true,
+  status: { state: 'connected', count: 1 },
+});
+
 let root: Root | undefined;
 let SettingsLayout: typeof Layout;
 let IntegrationsSettingsPage: typeof Catalog;
@@ -181,16 +203,20 @@ export const setUpSettings = async () => {
   vi.stubGlobal('fetch', async (request: Request) => {
     const { pathname } = new URL(request.url);
 
-    if (['/core/v1/integrations/connections', '/core/v1/secrets/holdings'].includes(pathname)) {
-      return Response.json({ data: [] });
+    if (pathname === '/core/v1/integrations/connections') {
+      return Response.json({ data: listing.qpay ? [QPAY_SHOP] : [] });
     }
+
+    if (pathname === '/core/v1/secrets/holdings') return Response.json({ data: [] });
 
     if (pathname !== '/core/v1/integrations') throw new Error('offline');
 
     await listing.ready;
 
+    const rows = listing.qpay ? [...LISTED, QPAY] : LISTED;
+
     return Response.json({
-      data: listing.nothingSetUp ? LISTED.map((row) => ({ ...row, status: NOT_SET_UP })) : LISTED,
+      data: listing.nothingSetUp ? rows.map((row) => ({ ...row, status: NOT_SET_UP })) : rows,
     });
   });
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -205,6 +231,7 @@ export const resetSettings = () => {
   member.can = ALL_BUT_PAYMENTS;
   listing.ready = Promise.resolve();
   listing.nothingSetUp = false;
+  listing.qpay = false;
 };
 
 export const unmount = () => {
@@ -212,8 +239,7 @@ export const unmount = () => {
   document.body.innerHTML = '';
 };
 
-/** Core's settings at `path`, once `text` shows. */
-export const renderSettings = async (path = '/settings/general', text = 'Tms') => {
+const mount = async (path: string, text: string, routes: ReactNode) => {
   const { i18n, i18nReady } = await import('~/i18n');
 
   await i18nReady;
@@ -226,32 +252,7 @@ export const renderSettings = async (path = '/settings/general', text = 'Tms') =
   root = createRoot(container);
   window.history.replaceState(null, '', path);
 
-  const app = createElement(
-    BrowserRouter,
-    null,
-    createElement(
-      NuqsAdapter,
-      null,
-      createElement(
-        Routes,
-        null,
-        createElement(
-          Route,
-          { path: '/settings', element: createElement(SettingsLayout) },
-          createElement(Route, { path: 'general', element: createElement('p', null, 'General') }),
-          createElement(Route, {
-            path: 'integrations',
-            element: createElement(IntegrationsSettingsPage),
-          }),
-          createElement(Route, {
-            path: 'integrations/:key',
-            element: createElement(IntegrationPage),
-          }),
-          createElement(Route, { path: 'payments', element: createElement(PaymentsSettingsPage) }),
-        ),
-      ),
-    ),
-  );
+  const app = createElement(BrowserRouter, null, createElement(NuqsAdapter, null, routes));
 
   await act(async () => {
     root?.render(
@@ -265,6 +266,50 @@ export const renderSettings = async (path = '/settings/general', text = 'Tms') =
   await vi.waitFor(() => expect(container.textContent).toContain(text));
 
   return container;
+};
+
+/** Core's settings at `path`, once `text` shows. */
+export const renderSettings = async (path = '/settings/general', text = 'Tms') =>
+  mount(
+    path,
+    text,
+    createElement(
+      Routes,
+      null,
+      createElement(
+        Route,
+        { path: '/settings', element: createElement(SettingsLayout) },
+        createElement(Route, { path: 'general', element: createElement('p', null, 'General') }),
+        createElement(Route, {
+          path: 'integrations',
+          element: createElement(IntegrationsSettingsPage),
+        }),
+        createElement(Route, {
+          path: 'integrations/:key',
+          element: createElement(IntegrationPage),
+        }),
+        createElement(Route, { path: 'payments', element: createElement(PaymentsSettingsPage) }),
+      ),
+    ),
+  );
+
+/** Web's own settings routes at `path`, core's side panel beside them, once `text` shows. */
+export const renderSettingsRoutes = async (path: string, text: string) => {
+  const { SettingsRoutes } = await import('../SettingsRoutes');
+  const { PanelRecordOpener } = await import('~/modules/side-panel/PanelRecordOpener');
+  const { SidePanelLayout } = await import('~/modules/side-panel/SidePanelLayout');
+
+  return mount(path, text, [
+    createElement(
+      Routes,
+      { key: 'page' },
+      createElement(Route, {
+        path: '/settings/*',
+        element: createElement(PanelRecordOpener, null, createElement(SettingsRoutes)),
+      }),
+    ),
+    createElement(SidePanelLayout, { key: 'panel' }),
+  ]);
 };
 
 export const links = (container: Element) =>
