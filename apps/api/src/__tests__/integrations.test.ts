@@ -1,15 +1,9 @@
 import { newId, users } from '@erxes/core-db';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { adminDb, useTestDatabase } from './db';
-import { fakeGateway, urlOf } from './fakeGateway';
+import { fakeGateway } from './fakeGateway';
+import { QPAY_KEYS, qpayAnswers, qpayTokens } from './qpaySandbox';
 import { useTwoOrgs } from './support';
-
-const QPAY_KEYS = {
-  clientId: 'acme-client',
-  clientSecret: 'qpay-top-secret',
-  invoiceCode: 'ACME_INVOICE',
-  sandbox: true,
-};
 
 describe('integrations', { timeout: 120_000 }, () => {
   useTestDatabase();
@@ -20,9 +14,7 @@ describe('integrations', { timeout: 120_000 }, () => {
   const paymentsOnly = () => t.client({ user: ids.payments, org: t.ids.org });
   const integrationsOnly = () => t.client({ user: ids.integrations, org: t.ids.org });
 
-  const qpay = fakeGateway([
-    ['/auth/token', { access_token: 'tok', expires_in: Math.floor(Date.now() / 1000) + 3600 }],
-  ]);
+  const qpay = qpayTokens();
 
   const keysOf = async (client: ReturnType<typeof both>) =>
     (await client.integrations.list()).data.map((integration) => integration.key);
@@ -31,13 +23,7 @@ describe('integrations', { timeout: 120_000 }, () => {
     (await client.integrations.list()).data.find((integration) => integration.key === key)?.status;
 
   beforeAll(async () => {
-    const realFetch = globalThis.fetch;
-
-    vi.stubGlobal('fetch', (input: string | URL | Request, init?: RequestInit) =>
-      urlOf(input).startsWith('https://merchant-sandbox.qpay.mn/')
-        ? qpay.fetch(input, init)
-        : realFetch(input, init),
-    );
+    qpayAnswers(qpay.fetch);
 
     const role = async (name: string, permissions: string[]) =>
       (await t.owner().roles.create({ name, permissions })).key;
@@ -210,5 +196,75 @@ describe('integrations', { timeout: 120_000 }, () => {
       status: 404,
       code: 'NOT_FOUND',
     });
+    await expect(owner.connect({ key: 'ebarimt', name: 'Tax', keys: {} })).rejects.toMatchObject({
+      status: 404,
+      code: 'NOT_FOUND',
+    });
+  });
+
+  it('refuses keys that do not fit the integration’s form, naming each field under keys', async () => {
+    await expect(
+      both().integrations.connect({ key: 'qpay', name: 'Half', keys: { clientId: 'acme-client' } }),
+    ).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_INPUT',
+      data: { issues: [{ path: ['keys', 'clientSecret'] }, { path: ['keys', 'invoiceCode'] }] },
+    });
+  });
+
+  it('checks new credentials with the gateway before saving them, and audits each change', async () => {
+    const shop = await both().integrations.connect({
+      key: 'qpay',
+      name: 'QPay audit',
+      keys: QPAY_KEYS,
+    });
+
+    const changed = { ...QPAY_KEYS, invoiceCode: 'NEW_CODE' };
+
+    qpayAnswers(fakeGateway([]).fetch);
+
+    try {
+      await expect(
+        both().integrations.update({ key: 'qpay', id: shop.id, keys: changed }),
+      ).rejects.toMatchObject({ status: 400, code: 'GATEWAY_REFUSED' });
+    } finally {
+      qpayAnswers(qpay.fetch);
+    }
+
+    const settingsOf = async () =>
+      (await both().integrations.connections({ key: 'qpay' })).data.find(
+        (row) => row.id === shop.id,
+      )?.settings;
+
+    expect(await settingsOf()).toMatchObject({ invoiceCode: 'ACME_INVOICE' });
+    await both().integrations.update({ key: 'qpay', id: shop.id, keys: changed });
+    expect(await settingsOf()).toMatchObject({ invoiceCode: 'NEW_CODE' });
+    await both().integrations.update({ key: 'qpay', id: shop.id, status: 'disabled' });
+    expect(await both().integrations.remove({ key: 'qpay', id: shop.id })).toEqual({ ok: true });
+
+    const audited = (await t.owner().audit.list({ targetId: shop.id })).data;
+
+    expect(
+      audited.map(({ action, targetType, metadata }) => [action, targetType, metadata]),
+    ).toEqual([
+      ['integration.removed', 'integration_connection', { key: 'qpay' }],
+      [
+        'integration.updated',
+        'integration_connection',
+        { key: 'qpay', credentialsChanged: false, status: 'disabled' },
+      ],
+      ['integration.updated', 'integration_connection', { key: 'qpay', credentialsChanged: true }],
+      [
+        'integration.connected',
+        'integration_connection',
+        { key: 'qpay', clientId: 'acme-client', invoiceCode: 'ACME_INVOICE', sandbox: true },
+      ],
+    ]);
+  });
+
+  it('refuses a state report from a plugin whose manifest declares no integrations', async () => {
+    await expect(
+      t.hr().integrations.report({ key: 'facebook', state: 'connected' }),
+    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
   });
 });

@@ -53,9 +53,7 @@ const issuesFor = (
 
 /** What the invoice still holds: paid less refunded (nothing unless it was paid). */
 export const keptAmount = (invoice: InvoiceRow) =>
-  invoice.status === 'paid' || invoice.status === 'refunded'
-    ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount
-    : 0;
+  invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
 /** The products of the lines: code, barcode, unit and the categories they sit in. */
 const productInfo = async (tx: Db, ids: string[]) => {

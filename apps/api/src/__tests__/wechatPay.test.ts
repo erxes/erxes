@@ -1,7 +1,10 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
+import { z } from 'zod';
 import { generateKeyPairSync, verify } from '~/lib/crypto';
 import { gatewayOf, openGateway } from '~/modules/integrations/registry';
-import { fakeGateway } from './fakeGateway';
+import { fakeGateway, refusal } from './fakeGateway';
+
+const RefundBody = z.looseObject({ out_refund_no: z.string() });
 
 const keys = generateKeyPairSync('rsa', {
   modulusLength: 2048,
@@ -114,6 +117,149 @@ describe('WeChat Pay', () => {
       transaction_id: '4200000001',
       amount: { refund: 500, total: 1500, currency: 'USD' },
     });
+  });
+
+  it('signs a GET with an empty body and the current time, and reads REFUND as paid', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-22T00:00:00Z'));
+
+    try {
+      const gateway = fakeGateway([
+        ['/out-trade-no/inv3?', { id: '4200000001', trade_state: 'REFUND' }],
+      ]);
+
+      const { payments, client } = openGateway('wechatpay', config, { fetch: gateway.fetch });
+
+      expect(
+        await payments.check(client, { gatewayInvoiceId: 'inv3', amount: 1500, state: {} }),
+      ).toEqual({ paid: true, paidAmount: 1500, paymentId: '4200000001' });
+
+      const call = gateway.calls[0];
+      const auth = authFields(call?.auth);
+      const path = '/v3/global/transactions/out-trade-no/inv3?mchid=1900000109';
+
+      expect([call?.method, call?.url]).toEqual(['GET', `https://apihk.mch.weixin.qq.com${path}`]);
+      expect(auth.timestamp).toBe(String(Date.UTC(2026, 10, 22) / 1000));
+      expect(
+        verify(
+          'RSA-SHA256',
+          Buffer.from(`GET\n${path}\n${auth.timestamp}\n${auth.nonce_str}\n\n`),
+          keys.publicKey,
+          Buffer.from(auth.signature ?? '', 'base64'),
+        ),
+      ).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('pays only a successful order of the whole amount, and fails an unreadable one', async () => {
+    const gateway = fakeGateway([
+      ['/out-trade-no/short?', { id: 'w1', trade_state: 'SUCCESS', amount: { total: 1000 } }],
+      ['/out-trade-no/open?', { trade_state: 'NOTPAY', amount: { total: 1500 } }],
+      ['/out-trade-no/odd?', { state: 'SUCCESS' }],
+    ]);
+
+    const { payments, client } = openGateway('wechatpay', config, { fetch: gateway.fetch });
+
+    const check = (gatewayInvoiceId: string) =>
+      payments.check(client, { gatewayInvoiceId, amount: 1500, state: {} });
+
+    expect(await check('short')).toEqual({ paid: false, paidAmount: 1000, paymentId: 'w1' });
+    expect(await check('open')).toEqual({ paid: false, paidAmount: 0, paymentId: null });
+    expect((await refusal(check('odd'))).message).toBe('WeChat Pay gave an unreadable order');
+  });
+
+  it('opens, closes and refunds orders as WeChat Pay’s API names them', async () => {
+    const gateway = fakeGateway([
+      ['POST /v3/global/transactions/native', { code_url: 'weixin://wxpay/bizpayurl?pr=abc' }],
+      ['POST /v3/global/transactions/out-trade-no/inv3/close', {}],
+      ['POST /v3/global/refunds', { id: '50300000001' }],
+    ]);
+
+    const { payments, client } = openGateway('wechatpay', config, { fetch: gateway.fetch });
+
+    const created = await payments.createInvoice(client, {
+      ...invoice,
+      description: 'd'.repeat(200),
+    });
+
+    expect(created).toMatchObject({
+      payment: { shortUrl: null, links: [] },
+      state: { wechatTotal: 1500, wechatCurrency: 'USD' },
+    });
+    expect(gateway.sent('/native')).toMatchObject({ description: 'd'.repeat(127) });
+
+    await payments.cancel(client, { gatewayInvoiceId: 'inv3', amount: 1500, state: {} });
+    expect(gateway.sent('/close')).toEqual({ mchid: config.mchId });
+
+    await payments.refund(client, {
+      paymentId: '4200000001',
+      amount: 500,
+      note: 'n'.repeat(100),
+      callbackUrl: 'https://erxes.test/cb/refund',
+      state: { wechatTotal: 1500, wechatCurrency: 'USD' },
+    });
+
+    const { out_refund_no: refundNo, ...sent } = RefundBody.parse(gateway.sent('/refunds'));
+
+    expect(refundNo).toMatch(/^[0-9a-f]{32}$/);
+    expect(sent).toEqual({
+      mchid: config.mchId,
+      appid: config.appId,
+      transaction_id: '4200000001',
+      reason: 'n'.repeat(80),
+      notify_url: 'https://erxes.test/cb/refund',
+      amount: { refund: 500, total: 1500, currency: 'USD' },
+    });
+  });
+
+  it('fails with a GatewayError naming WeChat Pay when it gives no order or refund', async () => {
+    const { payments, client } = openGateway('wechatpay', config, {
+      fetch: fakeGateway([
+        ['/native', { code_url: '' }],
+        ['/refunds', { status: 'PROCESSING' }],
+      ]).fetch,
+    });
+
+    expect((await refusal(payments.createInvoice(client, invoice))).message).toBe(
+      'WeChat Pay gave no order',
+    );
+
+    const failed = await refusal(
+      payments.refund(client, {
+        paymentId: 'w1',
+        amount: 1,
+        note: '',
+        state: { wechatTotal: 1500, wechatCurrency: 'USD' },
+      }),
+    );
+
+    expect(failed.message).toBe('WeChat Pay gave no refund');
+  });
+
+  it('verifies with a made-up order that only good credentials answer 404 for', async () => {
+    const unknown = fakeGateway([]);
+
+    await gatewayOf('wechatpay').verify(
+      openGateway('wechatpay', config, { fetch: unknown.fetch }).client,
+    );
+    expect(unknown.calls[0]?.url).toMatch(
+      /^https:\/\/apihk\.mch\.weixin\.qq\.com\/v3\/global\/transactions\/out-trade-no\/[0-9a-f]{32}\?mchid=1900000109$/,
+    );
+
+    for (const status of [401, 500]) {
+      const { client } = openGateway('wechatpay', config, {
+        fetch: fakeGateway([['/out-trade-no/', { code: 'SIGN_ERROR' }, status]]).fetch,
+      });
+
+      const failed = await refusal(gatewayOf('wechatpay').verify(client));
+
+      expect(failed.status).toBe(status);
+      expect(failed.message).toMatch(
+        /^WeChat Pay \/v3\/global\/transactions\/out-trade-no\/\w+ answered/,
+      );
+    }
   });
 
   it('refuses a private key that is not a PEM key', async () => {

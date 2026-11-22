@@ -213,6 +213,26 @@ describe('payments', { timeout: 240_000 }, () => {
     }
   });
 
+  it('expires a pending invoice once its time is up, and announces it once', async () => {
+    const invoice = await t.hr().payments.createInvoice(order('late'));
+
+    expect((await t.hr().payments.getInvoice({ id: invoice.id })).status).toBe('pending');
+
+    await adminDb()
+      .update(paymentInvoices)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(paymentInvoices.id, invoice.id));
+
+    expect((await t.hr().payments.getInvoice({ id: invoice.id })).status).toBe('expired');
+    expect((await t.hr().payments.getInvoice({ id: invoice.id })).status).toBe('expired');
+
+    const expired = (await t.owner().events.list({ type: 'core.payment.expired' })).data;
+
+    expect(expired.map(({ entityType, entityId }) => [entityType, entityId])).toEqual([
+      ['payment_invoice', invoice.id],
+    ]);
+  });
+
   it('refuses tampered or misdirected event deliveries', async () => {
     const createdAt = new Date().toISOString();
     const coreUrl = t.url('');

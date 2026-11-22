@@ -14,6 +14,11 @@ describe('ebarimt', { timeout: 240_000 }, () => {
   const receiptsOf = async (invoiceId: string) =>
     (await t.owner().ebarimt.receipts({ invoiceId })).data;
 
+  /** eBarimt's state on the Integrations page. */
+  const statusOf = async () =>
+    (await t.owner().integrations.list()).data.find((integration) => integration.key === 'ebarimt')
+      ?.status;
+
   it('is set up by the owner and checked against PosAPI', async () => {
     expect(await t.owner().ebarimt.settings({})).toBeNull();
     await expect(t.member().ebarimt.saveSettings(settings())).rejects.toMatchObject({
@@ -213,6 +218,7 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     await settle();
     expect(await receiptsOf(dollars.id)).toEqual([]);
     expect(await receiptsOf(other.id)).toEqual([]);
+    expect(await statusOf()).toEqual({ state: 'off', count: null });
 
     await t.owner().ebarimt.saveSettings({ ...settings(), status: 'active' });
     fake.refuse = 'Invalid merchant';
@@ -223,16 +229,83 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     expect(await receiptsOf(invoice.id)).toMatchObject([
       { status: 'failed', error: 'Invalid merchant', totalAmount: 5_000 },
     ]);
+    expect(await statusOf()).toEqual({ state: 'attention', count: 1 });
 
     fake.refuse = null;
     await t.owner().ebarimt.sync({ invoiceId: invoice.id });
     await settle();
     // The failed try gives way to the one that went through.
     expect(await receiptsOf(invoice.id)).toMatchObject([{ status: 'success' }]);
+    expect(await statusOf()).toEqual({ state: 'connected', count: null });
 
     await t.owner().ebarimt.removeSettings({});
+    expect(await statusOf()).toEqual({ state: 'not-set-up', count: null });
     await expect(t.owner().ebarimt.sync({ invoiceId: invoice.id })).rejects.toMatchObject({
       code: 'EBARIMT_NOT_SET_UP',
+    });
+  });
+
+  it('issues a receipt only for a paid tögrög invoice while eBarimt is on when the sync runs', async () => {
+    await t.owner().ebarimt.saveSettings({ ...settings(), status: 'active' });
+
+    const invoice = (referenceId: string, currency = 'MNT') =>
+      t.hr().payments.createInvoice({
+        amount: 4_000,
+        currency,
+        description: 'Ticket',
+        referenceType: 'order',
+        referenceId,
+      });
+
+    const dollars = await invoice('usd-on', 'USD');
+
+    await t.owner().payments.payTestInvoice({ id: dollars.id });
+    await settle();
+    expect(await receiptsOf(dollars.id)).toEqual([]);
+
+    const unpaid = await invoice('unpaid');
+
+    await t.owner().ebarimt.sync({ invoiceId: unpaid.id });
+    await settle();
+    expect(await receiptsOf(unpaid.id)).toEqual([]);
+
+    const late = await invoice('turned-off-later');
+
+    await t.owner().payments.payTestInvoice({ id: late.id });
+    await t.owner().ebarimt.saveSettings({ ...settings(), status: 'disabled' });
+    await settle();
+    expect(await receiptsOf(late.id)).toEqual([]);
+  });
+
+  it('applies a category’s tax rule to products in its subcategories', async () => {
+    await t.owner().ebarimt.saveSettings({ ...settings(), status: 'active' });
+
+    const books = await t.owner().productCategories.create({ name: 'Printed' });
+    const novels = await t.owner().productCategories.create({ name: 'Novels', parentId: books.id });
+
+    const novel = await t
+      .owner()
+      .products.create({ kind: 'goods', name: 'Novel', categoryId: novels.id });
+
+    await t.owner().ebarimt.saveSettings({
+      ...settings(),
+      rules: [{ productIds: [], categoryIds: [books.id], taxType: 'VAT_FREE', taxCode: '305' }],
+    });
+
+    const invoice = await t.hr().payments.createInvoice({
+      amount: 20_000,
+      currency: 'MNT',
+      description: 'Order #9',
+      referenceType: 'order',
+      referenceId: 'o9',
+      lines: [{ productId: novel.id, quantity: 1, unitPrice: 20_000 }],
+    });
+
+    await t.owner().payments.payTestInvoice({ id: invoice.id });
+    await settle();
+    expect(fake.puts.at(-1)).toMatchObject({
+      totalVAT: 0,
+      receipts: [{ taxType: 'VAT_FREE', items: [{ taxProductCode: '305' }] }],
     });
   });
 });

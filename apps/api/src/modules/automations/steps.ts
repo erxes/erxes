@@ -19,12 +19,15 @@ export type StepOutcome =
 
 /**
  * Errors a retry can't fix: email that would only reach the log stays so until an admin acts,
- * an integration that isn't connected stays so, a service's refusal is its answer.
+ * an integration that isn't connected stays so, a service's refusal is its answer, and a step's
+ * wrong input or a receipt that can't print stays wrong.
  */
 const FINAL_ERRORS: ReadonlySet<string> = new Set([
   'EMAIL_NOT_CONFIGURED',
   'NOT_CONNECTED',
   'GATEWAY_REFUSED',
+  'INVALID_STEP_INPUT',
+  'RECEIPT_NOT_PRINTABLE',
 ]);
 
 /** The message of an error a retry can't fix, else null. */

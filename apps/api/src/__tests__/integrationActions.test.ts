@@ -1,8 +1,9 @@
 import { automationRuns } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import { type DefinitionInput, useAutomations } from './automations.fixture';
 import { adminDb, useTestDatabase } from './db';
+import { QPAY_KEYS, qpayAnswers, qpayTokens } from './qpaySandbox';
 import { makeDue, settle } from './settle';
 
 const INVOICE_ACTIONS = ['test.invoice.create', 'test.invoice.cancel', 'test.invoice.refund'];
@@ -182,5 +183,31 @@ describe('integration actions', { timeout: 180_000 }, () => {
         actions: [{ type: 'hr.chat.reply', label: 'Reply', integration: 'instagram' }],
       }),
     ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_INTEGRATION' });
+  });
+
+  it('offers each gateway’s invoice steps its own connections only', async () => {
+    const [till] = (await t.owner().integrations.connections({ key: 'test' })).data;
+    await t.owner().integrations.update({ key: 'test', id: till?.id ?? '', status: 'active' });
+    qpayAnswers(qpayTokens().fetch);
+
+    try {
+      const shop = await t.owner().integrations.connect({
+        key: 'qpay',
+        name: 'QPay shop',
+        keys: QPAY_KEYS,
+      });
+
+      const { actions } = await t.owner().automations.catalog({});
+
+      const choicesOf = (type: string) =>
+        actions
+          .find((action) => action.type === type)
+          ?.fields.find((field) => field.type === 'connection')?.options;
+
+      expect(choicesOf('test.invoice.create')).toEqual([{ value: till?.id, label: 'Till' }]);
+      expect(choicesOf('qpay.invoice.create')).toEqual([{ value: shop.id, label: 'QPay shop' }]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

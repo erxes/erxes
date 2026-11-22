@@ -1,5 +1,6 @@
+import { pluginInstallations, pluginIntegrationStates, plugins } from '@erxes/core-db';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { type CoreClient, useTwoOrgs } from './support';
 
 const facebook = {
@@ -95,5 +96,52 @@ describe('plugin integrations', { timeout: 120_000 }, () => {
       role: await role('Inbox setup', ['integrations.manage', 'hr.integration.manage']),
     });
     expect((await listed(t.member())).map((integration) => integration.key)).toEqual(['facebook']);
+  });
+
+  it('lists nothing to a member who holds the integration’s permission but may not manage integrations', async () => {
+    const { key } = await t.owner().roles.create({
+      name: 'Inbox only',
+      permissions: ['hr.integration.manage'],
+    });
+
+    await t.owner().users.update({ id: t.ids.member, role: key });
+    expect(await listed(t.member())).toEqual([]);
+  });
+
+  it('shows each state on its own plugin and key, and takes reports for any key the manifest declares', async () => {
+    const instagram = { ...facebook, key: 'instagram', name: 'Instagram', summary: 'DMs' };
+
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '6',
+      permissions: [{ action: 'hr.integration.manage', label: 'Manage integrations' }],
+      integrations: [facebook, instagram],
+    });
+    await adminDb().insert(plugins).values({ name: 'sales' }).onConflictDoNothing();
+    await adminDb()
+      .insert(pluginInstallations)
+      .values({ orgId: t.ids.org, plugin: 'sales', grantedScopes: [] })
+      .onConflictDoNothing();
+    await adminDb().insert(pluginIntegrationStates).values({
+      orgId: t.ids.org,
+      plugin: 'sales',
+      key: 'instagram',
+      state: 'attention',
+      count: 4,
+    });
+
+    const statuses = async () =>
+      (await listed(t.owner())).map(({ key, status }) => ({ key, status }));
+
+    expect(await statuses()).toEqual([
+      { key: 'facebook', status: { state: 'connected', count: 1 } },
+      { key: 'instagram', status: { state: 'not-set-up', count: null } },
+    ]);
+
+    await t.hr().integrations.report({ key: 'instagram', state: 'off' });
+    expect(await statuses()).toEqual([
+      { key: 'facebook', status: { state: 'connected', count: 1 } },
+      { key: 'instagram', status: { state: 'off', count: null } },
+    ]);
   });
 });
