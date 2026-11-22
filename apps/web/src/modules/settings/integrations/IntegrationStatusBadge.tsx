@@ -58,10 +58,16 @@ export const IntegrationMark = ({
 }) => (
   <span
     className={cn(
-      'flex shrink-0 items-center justify-center rounded-lg border bg-muted text-primary-text',
+      'flex shrink-0 items-center justify-center overflow-hidden rounded-lg border',
+      integration.logo ? 'bg-white' : 'bg-muted text-primary-text',
       size === 'lg' ? 'size-14' : 'size-10',
     )}
   >
-    <integration.icon className={size === 'lg' ? 'size-7' : 'size-5'} />
+    <integration.icon
+      className={cn(
+        integration.logo && (size === 'lg' ? 'size-11' : 'size-8'),
+        !integration.logo && (size === 'lg' ? 'size-7 text-xl' : 'size-5 text-base'),
+      )}
+    />
   </span>
 );

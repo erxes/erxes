@@ -28,9 +28,11 @@ import {
 } from '@tabler/icons-react';
 import { storedFamily } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { pluginLabel } from '~/lib/members';
+import { initialMark, logoOf } from '~/modules/settings/integrations/logos';
 
 export interface CatalogItem {
   /** `core.customer.created`, `hr.leave.approved`, `core.email.send` … */
@@ -48,7 +50,8 @@ export interface CatalogGroup {
   key: string;
   source?: string;
   label: string;
-  icon: TablerIcon;
+  icon: ComponentType<{ className?: string }>;
+  logo?: boolean;
   order: number;
 }
 
@@ -73,11 +76,15 @@ const CORE_ICONS: Record<string, TablerIcon> = {
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {
   if (item.integration) {
+    const label = item.integrationName ?? item.integration;
+    const builtIn = !item.integration.includes('.');
+
     return {
       key: `integration:${item.integration}`,
       source: item.source,
-      label: item.integrationName ?? item.integration,
-      icon: IconPlugConnected,
+      label,
+      icon: builtIn ? (logoOf(item.integration) ?? initialMark(label)) : IconPlugConnected,
+      ...(builtIn && { logo: logoOf(item.integration) !== null }),
       order: 60,
     };
   }

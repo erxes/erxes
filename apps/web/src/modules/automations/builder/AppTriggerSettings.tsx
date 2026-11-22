@@ -129,7 +129,14 @@ export const AppTriggerSettings = ({
   const type = startingEventType(trigger);
   const started = catalog.triggers.find((item) => item.type === type);
   const fields = eventDataFields(started);
-  const items = catalog.triggers.filter((item) => isAppEvent(item.type));
+
+  const items = catalog.triggers.flatMap((item) => {
+    const owner = catalog.apps.find((each) => each.triggers.some((one) => one.type === item.type));
+
+    return isAppEvent(item.type) && owner
+      ? [{ ...item, source: 'core', integration: owner.key, integrationName: owner.name }]
+      : [];
+  });
 
   return (
     <>
