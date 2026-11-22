@@ -227,8 +227,7 @@ export const NotificationsBell = () => {
             </div>
           )}
         </div>
-        {/* The viewport scrolls: a height capped on the root alone clips the list instead. */}
-        <ScrollArea viewportClassName="max-h-112">
+        <ScrollArea className="max-h-112">
           <NotificationList
             {...list}
             inboxes={inboxes}
