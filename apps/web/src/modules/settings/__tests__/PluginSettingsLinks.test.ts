@@ -50,7 +50,7 @@ describe('plugins in core’s settings', () => {
   });
 
   it('lists a plugin’s integrations beside core’s, a section per category with the connected first', async () => {
-    const container = await renderSettings('/settings/integrations', 'Messenger');
+    const container = await renderSettings('/settings/integrations?tab=browse', 'Messenger');
 
     const sections = [...container.querySelectorAll('section')];
 
@@ -115,7 +115,7 @@ describe('plugins in core’s settings', () => {
   ])('lets a member who manages only %s open the catalog', async (_case, can) => {
     member.can = can;
 
-    const container = await renderSettings('/settings/integrations', 'Messenger');
+    const container = await renderSettings('/settings/integrations', 'LINE');
 
     expect(links(container)).toContainEqual(['Integrations', '/settings/integrations']);
   });
@@ -129,7 +129,7 @@ describe('plugins in core’s settings', () => {
   });
 
   it('sends a member to the catalog from an integration core does not list them', async () => {
-    const container = await renderSettings('/settings/integrations/chat.archive', 'Messenger');
+    const container = await renderSettings('/settings/integrations/chat.archive', 'LINE');
 
     expect(window.location.pathname).toBe('/settings/integrations');
     expect(container.textContent).not.toContain('Archive');

@@ -583,11 +583,7 @@
     "failed": "Something went wrong"
   },
   "vault": {
-    "title": "Vault",
-    "add": "Add",
-    "intro": "Every password, token and key this organisation keeps. Each is stored encrypted and is never shown again. Pages and plugins pick a connection from here.",
-    "connections": "Connections",
-    "no-connections": "Nothing connected yet. Add opens the list of services.",
+    "integrations": "Integrations",
     "kept-by-features": "Kept by features",
     "held_one": "{{count}} kept",
     "held_other": "{{count}} kept",
@@ -876,6 +872,13 @@
     "in-automations": "In automations",
     "no-match": "No integrations match",
     "no-match-description": "Try another word or category.",
+    "try-another-word": "Try another word.",
+    "nothing-connected": "Nothing is connected yet.",
+    "browse-all": "Browse integrations",
+    "view": {
+      "connected": "Connected",
+      "browse": "Browse"
+    },
     "load-failed": "Could not load the integrations: {{message}}",
     "retry": "Retry",
     "tab": {

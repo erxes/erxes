@@ -15,7 +15,6 @@ import {
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
-  IconShieldLock,
   IconCode,
   IconKey,
   IconTrash,
@@ -81,7 +80,6 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
             to: paths.settings.integrations,
             icon: IconPlugConnected,
           },
-          { name: t('vault', 'Vault'), to: paths.settings.vault, icon: IconShieldLock },
         ]
       : []),
     ...(can('audit.view')
