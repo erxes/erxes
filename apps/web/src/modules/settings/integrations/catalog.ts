@@ -2,6 +2,7 @@ import type { Integration as ListedIntegration, IntegrationStatus } from '@erxes
 import { orpc } from '@erxes/core-contract/client';
 import {
   type Icon,
+  IconBuildingBank,
   IconCreditCard,
   IconMail,
   IconMessage,
@@ -20,6 +21,7 @@ const CATEGORY_ICONS: Record<Category, Icon> = {
   email: IconMail,
   messaging: IconMessage,
   payments: IconCreditCard,
+  banks: IconBuildingBank,
   tax: IconReceiptTax,
 };
 

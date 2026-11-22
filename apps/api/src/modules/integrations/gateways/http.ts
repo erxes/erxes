@@ -107,7 +107,7 @@ export const decimalAmount = (amount: number, currency: string) => {
 export const fromDecimal = (value: string, currency: string) =>
   Math.round(Number(value) * 10 ** currencyDigits(currency));
 
-const currencyDigits = (currency: string) =>
+export const currencyDigits = (currency: string) =>
   new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions()
     .maximumFractionDigits ?? 2;
 

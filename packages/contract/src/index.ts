@@ -24,6 +24,7 @@ import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productCategoriesContract, productsContract } from './products';
+import { banksContract } from './banks';
 import { integrationsContract } from './integrations';
 import { secretsContract } from './secrets';
 import { rolesContract } from './roles';
@@ -74,6 +75,7 @@ export type CoreContract = {
   suppressions: typeof suppressionsContract;
   tags: typeof tagsContract;
   integrations: typeof integrationsContract;
+  banks: typeof banksContract;
   secrets: typeof secretsContract;
   units: typeof unitsContract;
   unitTypes: typeof unitTypesContract;
@@ -120,6 +122,7 @@ export const coreContract: CoreContract = {
   suppressions: suppressionsContract,
   tags: tagsContract,
   integrations: integrationsContract,
+  banks: banksContract,
   secrets: secretsContract,
   units: unitsContract,
   unitTypes: unitTypesContract,
@@ -267,3 +270,5 @@ export * from './views';
 export * from './webhooks';
 
 export * from './apiKeys';
+
+export * from './banks';

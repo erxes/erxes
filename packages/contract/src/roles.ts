@@ -69,6 +69,16 @@ export const CORE_PERMISSIONS = [
     label: "See and revoke everyone's API keys",
   },
   {
+    action: 'banks.view',
+    group: 'Banks',
+    label: "See the organisation's bank accounts, balances and statements",
+  },
+  {
+    action: 'banks.transfer',
+    group: 'Banks',
+    label: "Send money from the organisation's bank accounts",
+  },
+  {
     action: 'integrations.manage',
     group: 'Integrations',
     label: 'Set up, turn on or off and remove integrations (eBarimt)',

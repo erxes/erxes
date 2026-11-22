@@ -41,6 +41,7 @@ const useCategoryLabel = () => {
       email: t('email', 'Email'),
       messaging: t('messaging', 'Messaging'),
       payments: t('payments', 'Payments'),
+      banks: t('banks', 'Banks'),
       tax: t('tax', 'Tax receipts'),
     })[category];
 };

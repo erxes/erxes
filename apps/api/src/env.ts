@@ -30,6 +30,7 @@ const SECRETS = [
   'CLOUDFLARE_ACCESS_KEY_ID',
   'CLOUDFLARE_SECRET_ACCESS_KEY',
   'CLOUDFLARE_API_TOKEN',
+  'QUICK_QR_PASSWORD',
 ] as const;
 
 const readSecret = (name: string) => {
@@ -155,6 +156,10 @@ const Env = z
     ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
     ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
     EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
+    // QPay QuickQR's vendor account: the names erxes 3.x used, so its settings carry over.
+    QUICK_QR_URL: baseUrl('https://quickqr.qpay.mn'),
+    QUICK_QR_USERNAME: text,
+    QUICK_QR_PASSWORD: text,
 
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
