@@ -68,7 +68,11 @@ export const BroadcastsListHeader = () => {
         />
       </PageHeader.Start>
       <PageHeader.End>
-        <Button variant="ghost" render={<Link to={paths.broadcasts.suppressions} />}>
+        <Button
+          variant="ghost"
+          nativeButton={false}
+          render={<Link to={paths.broadcasts.suppressions} />}
+        >
           <IconMailOff />
           {t('suppressions', 'Suppressed addresses')}
         </Button>
