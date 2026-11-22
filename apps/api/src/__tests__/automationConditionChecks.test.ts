@@ -130,7 +130,9 @@ describe('automation condition checks', { timeout: 180_000 }, () => {
   });
 
   it('takes a connection only while it is active here', async () => {
-    expect(await problemsOf(bill({}))).toEqual(['Step bill: unknown action test.invoice.create']);
+    expect(await problemsOf(bill({}))).toEqual([
+      'Step bill: Test is not connected: connect it in Settings › Integrations',
+    ]);
 
     const gateway = await t.owner().integrations.connect({ key: 'test', name: 'Till', keys: {} });
     const second = await t.owner().integrations.connect({ key: 'test', name: 'Online', keys: {} });

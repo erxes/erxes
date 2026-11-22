@@ -77,7 +77,15 @@ const actionProblems = (
 ) => {
   const action = catalog.actions.find((item) => item.type === step.action);
 
-  if (!action) return [`Step ${step.id}: unknown action ${step.action}`];
+  if (!action) {
+    const owner = coreAction(step.action)?.integration;
+
+    return [
+      owner
+        ? `Step ${step.id}: ${owner.name} is not connected: connect it in Settings › Integrations`
+        : `Step ${step.id}: unknown action ${step.action}`,
+    ];
+  }
 
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))

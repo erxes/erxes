@@ -199,7 +199,7 @@ describe('app actions', { timeout: 300_000 }, () => {
 
     try {
       expect(await problemsOf(telegramId)).toEqual([
-        'Step send: unknown action telegram.send_message',
+        'Step send: Telegram is not connected: connect it in Settings › Integrations',
       ]);
     } finally {
       await t.owner().integrations.update({ key: 'telegram', id: telegramId, status: 'active' });
