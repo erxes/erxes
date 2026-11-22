@@ -30,7 +30,9 @@ const GATEWAY = {
   id: 'gateway-1',
   key: 'test',
   name: 'Test gateway',
+  plugin: null,
   status: 'active',
+  problem: null,
   createdAt: CREATED,
   settings: {},
 } satisfies IntegrationConnection;

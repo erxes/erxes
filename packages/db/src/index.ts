@@ -87,7 +87,6 @@ export {
   emailRamps,
   fileBuckets,
   pluginInstallations,
-  pluginIntegrationStates,
   productCategories,
   products,
   productTags,

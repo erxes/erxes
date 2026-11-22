@@ -1,12 +1,10 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Badge, Button, CONNECTION_CONTENT_TYPE, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
-import { ConnectionList } from '../vault/ConnectionList';
-import { connectionsOf, useConnections } from '../vault/useVault';
 import type { Integration } from './catalog';
 import { CredentialsHelp } from './ConnectionFields';
+import { IntegrationConnections } from './IntegrationConnections';
 import {
   IntegrationLayout,
   type IntegrationTab,
@@ -52,23 +50,10 @@ const PaymentFacts = ({ payments }: { payments: NonNullable<Integration['payment
 
 const Overview = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
-  const connections = useConnections();
 
   return (
     <div className="space-y-6">
-      <OverviewSection title={t('connections', 'Connections')}>
-        <QueryState
-          query={connections}
-          isEmpty={({ data }) => !connectionsOf(data, [integration]).length}
-          empty={
-            <p className="rounded-lg border p-4 text-sm">{t('none', 'Nothing connected yet.')}</p>
-          }
-        >
-          {({ data }) => (
-            <ConnectionList rows={connectionsOf(data, [integration])} showService={false} />
-          )}
-        </QueryState>
-      </OverviewSection>
+      <IntegrationConnections integration={integration} />
       {integration.payments && (
         <OverviewSection title={t('payments', 'How payers pay')}>
           <PaymentFacts payments={integration.payments} />

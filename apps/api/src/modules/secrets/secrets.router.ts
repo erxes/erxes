@@ -1,20 +1,21 @@
-import { caller, db } from '@erxes/core-db';
+import { db } from '@erxes/core-db';
+import {
+  listPluginSecrets,
+  markPluginSecret,
+  readPluginSecret,
+  removePluginSecret,
+  replacePluginSecret,
+  savePluginSecret,
+} from '~/modules/integrations/pluginIntegrations';
 import { scoped } from '~/orpc';
 import { listHoldings } from './holdings.service';
-import { readSecretAs, removeSecretAs, saveSecretAs } from './vault';
-
-const owner = () => caller('plugin').plugin;
 
 export const secretsRouter = {
   holdings: scoped.secrets.holdings.handler(() => listHoldings(db())),
-  save: scoped.secrets.save.handler(async ({ input }) => ({
-    id: await saveSecretAs(db(), owner(), input.value),
-  })),
-  replace: scoped.secrets.replace.handler(async ({ input }) => ({
-    id: await saveSecretAs(db(), owner(), input.value, input.id),
-  })),
-  read: scoped.secrets.read.handler(async ({ input }) => ({
-    value: await readSecretAs(db(), owner(), input.id),
-  })),
-  remove: scoped.secrets.remove.handler(({ input }) => removeSecretAs(db(), owner(), input.id)),
+  save: scoped.secrets.save.handler(({ input }) => savePluginSecret(db(), input)),
+  list: scoped.secrets.list.handler(({ input }) => listPluginSecrets(db(), input.key)),
+  read: scoped.secrets.read.handler(({ input }) => readPluginSecret(db(), input.id)),
+  replace: scoped.secrets.replace.handler(({ input }) => replacePluginSecret(db(), input)),
+  mark: scoped.secrets.mark.handler(({ input }) => markPluginSecret(db(), input)),
+  remove: scoped.secrets.remove.handler(({ input }) => removePluginSecret(db(), input.id)),
 };

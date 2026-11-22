@@ -262,12 +262,6 @@ describe('integrations', { timeout: 120_000 }, () => {
     ]);
   });
 
-  it('refuses a state report from a plugin whose manifest declares no integrations', async () => {
-    await expect(
-      t.hr().integrations.report({ key: 'facebook', state: 'connected' }),
-    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
-  });
-
   it('lists the connections of every integration the member manages, and none to another role or organisation', async () => {
     const till = await both().integrations.connect({ key: 'test', name: 'Vault till', keys: {} });
 

@@ -4,7 +4,7 @@ import { fail } from '~/http/errors';
 import { type CallContext, type CoreAction, text } from '~/modules/automations/actions/context';
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { INVOICE_ACTIONS } from '~/modules/payments/invoiceActions';
-import { clientOf, connectionsWithSecret } from './connections';
+import { clientOf, connectionsWithSecret, coreConnection } from './connections';
 import type { Integration, KeyedIntegration, PagedIntegration } from './define';
 import { INTEGRATIONS } from './registry';
 
@@ -13,14 +13,13 @@ import { INTEGRATIONS } from './registry';
  * default gateway when it is one of the integration's, else the integration's oldest active one.
  */
 const connectionFor = async (tx: Db, integration: KeyedIntegration, requested?: string) => {
-  const active = await connectionsWithSecret(tx)
-    .where(
-      and(
-        eq(integrationConnections.key, integration.key),
-        eq(integrationConnections.status, 'active'),
-      ),
-    )
-    .orderBy(integrationConnections.createdAt);
+  const active = await connectionsWithSecret(
+    tx,
+    and(
+      eq(integrationConnections.key, integration.key),
+      eq(integrationConnections.status, 'active'),
+    ),
+  ).orderBy(integrationConnections.createdAt);
 
   const preferred = requested ?? (await getOrganization(tx)).defaultGatewayId;
   const row = active.find((item) => item.id === preferred) ?? (requested ? null : active[0]);
@@ -93,7 +92,7 @@ export const connectedIntegrations = async (client: Db): Promise<Connections> =>
       name: integrationConnections.name,
     })
     .from(integrationConnections)
-    .where(eq(integrationConnections.status, 'active'))
+    .where(and(coreConnection, eq(integrationConnections.status, 'active')))
     .orderBy(integrationConnections.createdAt);
 
   const choicesOf = async (integration: Integration): Promise<Choices | null> => {

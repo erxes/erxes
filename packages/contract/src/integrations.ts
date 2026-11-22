@@ -1,11 +1,12 @@
 import {
+  CORE_CONNECTION_STATUSES,
   GATEWAY_REFUND_KINDS,
-  INTEGRATION_CONNECTION_STATUSES,
   INTEGRATION_FIELD_TYPES,
+  INTEGRATION_STATES,
 } from '@erxes/core-db/enums';
-import { integrationConnections, pluginIntegrationStates } from '@erxes/core-db/schema';
+import { integrationConnections } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ActionInfo } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
@@ -17,7 +18,15 @@ export const IntegrationConnection = createSelectSchema(integrationConnections, 
   id: Id,
   createdAt: isoDate,
 })
-  .pick({ id: true, key: true, name: true, status: true, createdAt: true })
+  .pick({
+    id: true,
+    plugin: true,
+    key: true,
+    name: true,
+    status: true,
+    problem: true,
+    createdAt: true,
+  })
   .extend({
     /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
     settings: z.record(z.string(), z.unknown()),
@@ -42,12 +51,10 @@ export const IntegrationField = z.object({
 
 export type IntegrationField = z.infer<typeof IntegrationField>;
 
-const stateColumns = { count: () => z.int().min(0) };
-
 /** Where an integration stands here; `count`: how many are connected, when known. */
-export const IntegrationStatus = createSelectSchema(pluginIntegrationStates, stateColumns).pick({
-  state: true,
-  count: true,
+export const IntegrationStatus = z.object({
+  state: z.enum(INTEGRATION_STATES),
+  count: z.int().min(0).nullable(),
 });
 
 export type IntegrationStatus = z.infer<typeof IntegrationStatus>;
@@ -83,8 +90,8 @@ export type Integration = z.infer<typeof Integration>;
 /**
  * An integration a plugin brings to Settings › Integrations (`facebook`), listed next to core's
  * for members with `integrations.manage` and `permission`, one of the manifest's own
- * permissions. The plugin keeps its keys in core's vault (`secrets.*`), draws the page's tabs
- * in its UI, and reports where it stands with `integrations.report`.
+ * permissions. The plugin saves its keys as named connections of it (`secrets.*`), shown in Settings › Vault
+ * and on its card, and draws the page's tabs in its UI.
  */
 export const PluginIntegration = z.object({
   /** Unique within the plugin; its page is `/settings/integrations/<plugin>.<key>`. */
@@ -107,11 +114,7 @@ export const PluginIntegrations = z
     'each key once',
   );
 
-const ReportedState = createUpdateSchema(pluginIntegrationStates, stateColumns)
-  .pick({ state: true, count: true })
-  .required({ state: true });
-
-const ConnectionName = z.string().trim().min(1).max(80);
+export const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
@@ -141,7 +144,7 @@ export const integrationsContract = {
       summary:
         'The connections the member may manage, of one integration or of all, with their settings and what uses them but never their secrets',
     })
-    .input(z.object({ key: IntegrationKey.optional() }))
+    .input(z.object({ plugin: z.string().optional(), key: IntegrationKey.optional() }))
     .output(listOf(VaultConnection)),
   connect: base
     .route({
@@ -165,7 +168,7 @@ export const integrationsContract = {
         id: Id,
         name: ConnectionName.optional(),
         keys: ConnectionKeys.optional(),
-        status: z.enum(INTEGRATION_CONNECTION_STATUSES).optional(),
+        status: z.enum(CORE_CONNECTION_STATUSES).optional(),
       }),
     )
     .output(IntegrationConnection),
@@ -174,17 +177,8 @@ export const integrationsContract = {
       method: 'DELETE',
       path: '/integrations/{key}/connections/{id}',
       summary:
-        'Remove a connection. 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead',
+        "Remove a connection, core's or a plugin's (`plugin`; the plugin gets core.integration.connection.removed). 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead",
     })
-    .input(z.object({ key: IntegrationKey, id: Id }))
+    .input(z.object({ plugin: z.string().optional(), key: IntegrationKey, id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  report: base
-    .route({
-      method: 'PUT',
-      path: '/integrations/{key}/state',
-      summary:
-        "The calling plugin says where one of its manifest's integrations stands in this organisation (`count`: how many are connected). 404 when its manifest doesn't declare the key",
-    })
-    .input(ReportedState.extend({ key: IntegrationKey }))
-    .output(IntegrationStatus),
 };

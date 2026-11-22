@@ -827,6 +827,13 @@
       "when": 1795347056984,
       "tag": "0117_customer_accounts_no_status",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1795347717602,
+      "tag": "0118_plugin_connections",
+      "breakpoints": true
     }
   ]
 }

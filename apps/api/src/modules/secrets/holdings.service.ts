@@ -4,17 +4,14 @@ import {
   type Db,
   emailSettings,
   fileBuckets,
-  secrets,
   users,
   webhooks,
 } from '@erxes/core-db';
 import type { VAULT_HOLDERS } from '@erxes/core-db/enums';
-import { ne, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 
-type Holder = Exclude<(typeof VAULT_HOLDERS)[number], 'plugin'>;
-
-const CORE = 'core';
+type Holder = (typeof VAULT_HOLDERS)[number];
 
 const FEATURES: { holder: Holder; table: PgTable; ids: PgColumn[] }[] = [
   { holder: 'email', table: emailSettings, ids: [emailSettings.secretId] },
@@ -48,26 +45,9 @@ export const listHoldings = async (client: Db) => {
     )
     .from(sql`(select 1) as one`);
 
-  const features = FEATURES.map(({ holder }) => ({
-    holder,
-    plugin: null,
-    count: counts?.[holder] ?? 0,
-  }));
-
-  const plugins = await client
-    .select({
-      plugin: secrets.owner,
-      count: sql<number>`count(*)`.mapWith(Number),
-    })
-    .from(secrets)
-    .where(ne(secrets.owner, CORE))
-    .groupBy(secrets.owner)
-    .orderBy(secrets.owner);
-
   return {
-    data: [
-      ...features.filter(({ count }) => count > 0),
-      ...plugins.map((row) => ({ holder: 'plugin' as const, ...row })),
-    ],
+    data: FEATURES.map(({ holder }) => ({ holder, count: counts?.[holder] ?? 0 })).filter(
+      ({ count }) => count > 0,
+    ),
   };
 };

@@ -21,7 +21,7 @@ export const ConnectionList = ({
   return (
     <ul className="divide-y rounded-lg border">
       {rows.map(({ connection, integration }) => {
-        const active = connection.status === 'active';
+        const off = connection.status === 'disabled';
 
         const shown =
           current?.contentType === CONNECTION_CONTENT_TYPE && current.contentId === connection.id;
@@ -42,10 +42,15 @@ export const ConnectionList = ({
               <integration.icon className="size-4 shrink-0 text-muted-foreground" />
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-center gap-2">
-                  <span className={cn('font-medium', !active && 'text-muted-foreground')}>
+                  <span className={cn('font-medium', off && 'text-muted-foreground')}>
                     {connection.name}
                   </span>
-                  {!active && <Badge>{connectionT('off-badge', 'off')}</Badge>}
+                  {off && <Badge>{connectionT('off-badge', 'off')}</Badge>}
+                  {connection.problem && (
+                    <Badge variant="warning">
+                      {connectionT('attention-badge', 'needs attention')}
+                    </Badge>
+                  )}
                   {connection.settings.sandbox === true && (
                     <Badge variant="warning">{connectionT('sandbox-badge', 'sandbox')}</Badge>
                   )}
@@ -54,6 +59,9 @@ export const ConnectionList = ({
                   <span className="block text-xs text-muted-foreground">
                     {text(integration).name}
                   </span>
+                )}
+                {connection.problem && (
+                  <span className="block text-xs text-warning-text">{connection.problem}</span>
                 )}
               </span>
               <span className="hidden max-w-56 truncate text-xs text-muted-foreground sm:block">

@@ -30,7 +30,8 @@ const paymentConcerns = (plugin: string, payload: unknown) => {
  * May this plugin see this event? Payment events: its own invoices and those
  * with a line for it (`payments:read`); customers and companies:
  * `customers:read`; products: `products:read`; branches and departments:
- * `units:read`; an agent's (`core.agent.*`): the plugin it belongs to; anything else from core or
+ * `units:read`; an agent's (`core.agent.*`): the plugin it belongs to; a connection's
+ * (`core.integration.*`): the plugin that saved it; anything else from core or
  * other plugins: `events:read`.
  */
 const pluginMaySee = (
@@ -45,6 +46,12 @@ const pluginMaySee = (
     const parsed = z.object({ agent: z.string() }).safeParse(event.payload);
 
     return parsed.success && parsed.data.agent.startsWith(`${plugin}.`);
+  }
+
+  if (event.type.startsWith('core.integration.')) {
+    const parsed = z.object({ plugin: z.string() }).safeParse(event.payload);
+
+    return parsed.success && parsed.data.plugin === plugin;
   }
 
   if (event.type.startsWith('core.payment.')) {

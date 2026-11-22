@@ -3005,16 +3005,6 @@
           "path": "/integrations/{key}/connections/{id}"
         }
       }
-    },
-    "report": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/integrations/{key}/state"
-        }
-      }
     }
   },
   "banks": {
@@ -3120,13 +3110,13 @@
         }
       }
     },
-    "replace": {
+    "list": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
-          "method": "PUT",
-          "path": "/secrets/{id}"
+          "method": "GET",
+          "path": "/secrets"
         }
       }
     },
@@ -3137,6 +3127,26 @@
         "route": {
           "method": "GET",
           "path": "/secrets/{id}"
+        }
+      }
+    },
+    "replace": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/secrets/{id}"
+        }
+      }
+    },
+    "mark": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/secrets/{id}/problem"
         }
       }
     },

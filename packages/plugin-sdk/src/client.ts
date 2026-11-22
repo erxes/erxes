@@ -1,9 +1,4 @@
-import {
-  CORE_API_PREFIX,
-  type coreContract,
-  type IntegrationStatus,
-  type PluginManifest,
-} from '@erxes/core-contract';
+import { CORE_API_PREFIX, type coreContract, type PluginManifest } from '@erxes/core-contract';
 import { coreRoutes } from '@erxes/core-contract/routes';
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
@@ -228,15 +223,5 @@ export const createCoreClient = (options: CoreClientOptions) => {
     /** Tells the plugin's open UIs that topics changed (needs `live:write`). */
     signal: (orgId: string, topics: string[], userIds?: string[]) =>
       clientFor(orgId).plugins.signal({ topics, userIds }),
-    /**
-     * Says where one of the manifest's `integrations` stands in an organisation, shown on its
-     * tile in Settings › Integrations (`count`: how many are connected, when known).
-     */
-    reportIntegration: (
-      orgId: string,
-      key: string,
-      state: IntegrationStatus['state'],
-      count?: number | null,
-    ) => clientFor(orgId).integrations.report({ key, state, count }),
   };
 };

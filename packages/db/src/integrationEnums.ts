@@ -10,7 +10,11 @@ export const INTEGRATION_CATEGORIES = [
   'government',
 ] as const;
 
-export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
+export const CORE_CONNECTION_STATUSES = ['active', 'disabled'] as const;
+
+export const PLUGIN_CONNECTION_STATUSES = ['active', 'attention'] as const;
+
+export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled', 'attention'] as const;
 
 export const VAULT_HOLDERS = [
   'email',
@@ -19,7 +23,6 @@ export const VAULT_HOLDERS = [
   'assistant',
   'audit-stream',
   'two-step',
-  'plugin',
 ] as const;
 
 export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;

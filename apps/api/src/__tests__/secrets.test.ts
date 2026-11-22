@@ -1,9 +1,9 @@
-import { secrets } from '@erxes/core-db';
+import type { PluginManifest } from '@erxes/core-contract';
+import { integrationConnections, secrets } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
-import { describe, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { deriveKey, encrypt } from '~/lib/crypto';
-import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 import { resealSchedule } from '~/modules/secrets/vault';
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
@@ -20,87 +20,65 @@ const reseal = async () => {
   await resealSchedule.queues[0]?.run();
 };
 
+const HR: PluginManifest = {
+  title: 'HR',
+  version: '1',
+  scopes: ['secrets:write'],
+  permissions: [{ action: 'hr.integration.manage', label: 'Manage integrations' }],
+  integrations: [
+    {
+      key: 'facebook',
+      name: 'Facebook',
+      summary: 'Messenger',
+      category: 'social',
+      permission: 'hr.integration.manage',
+    },
+  ],
+};
+
+const secretIdOf = async (connectionId: string) => {
+  const [row] = await adminDb()
+    .select({ secretId: integrationConnections.secretId })
+    .from(integrationConnections)
+    .where(eq(integrationConnections.id, connectionId));
+
+  if (!row) throw new Error('the connection was not stored');
+
+  return row.secretId;
+};
+
 describe('secret vault', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
 
-  const tms = async () => {
-    const secret = await rotatePluginSecret('tms');
-
-    const token = async (org?: string) =>
-      (
-        await t.client().plugins.token({
-          grant_type: 'client_credentials',
-          client_id: 'tms',
-          client_secret: secret,
-          org,
-        })
-      ).access_token;
-
-    await t.client(await token()).plugins.registerManifest({
-      title: 'TMS',
-      version: '1',
-      scopes: ['secrets:write'],
-    });
-
-    return t.client(await token(t.ids.org));
-  };
-
   const notFound = { status: 404, code: 'NOT_FOUND' };
 
-  it('seals a plugin’s secret, gives it back to that plugin in that organisation only, and replaces it under the same id', async () => {
-    const { id } = await t.hr().secrets.save({ value: 'page-token-1' });
+  const save = (value: string, org = t.ids.org) =>
+    t.hr(org).secrets.save({ key: 'facebook', name: 'Page', value });
 
-    expect(await t.hr().secrets.read({ id })).toEqual({ value: 'page-token-1' });
-
-    const [row] = await stored(id);
-
-    expect(row).toMatchObject({ owner: 'hr', orgId: t.ids.org });
-    expect(JSON.stringify(row)).not.toContain('page-token-1');
-
-    expect(await t.hr().secrets.replace({ id, value: 'page-token-2' })).toEqual({ id });
-    expect(await t.hr().secrets.read({ id })).toEqual({ value: 'page-token-2' });
-    expect(await storedOf(t.ids.org, 'hr')).toHaveLength(1);
-
-    const elsewhere = t.hr(t.ids.otherOrg);
-
-    await expect(elsewhere.secrets.read({ id })).rejects.toMatchObject(notFound);
-    await expect(elsewhere.secrets.replace({ id, value: 'theirs' })).rejects.toMatchObject(
-      notFound,
-    );
-    await expect(elsewhere.secrets.remove({ id })).rejects.toMatchObject(notFound);
-
-    const other = await tms();
-
-    await expect(other.secrets.read({ id })).rejects.toMatchObject(notFound);
-    await expect(other.secrets.replace({ id, value: 'theirs' })).rejects.toMatchObject(notFound);
-    await expect(other.secrets.remove({ id })).rejects.toMatchObject(notFound);
-
-    const theirs = await other.secrets.save({ value: 'tms-key' });
-
-    await expect(t.hr().secrets.read({ id: theirs.id })).rejects.toMatchObject(notFound);
-    expect(await t.hr().secrets.read({ id })).toEqual({ value: 'page-token-2' });
-
-    expect(await t.hr().secrets.remove({ id })).toEqual({ ok: true });
-    await expect(t.hr().secrets.read({ id })).rejects.toMatchObject(notFound);
-    await expect(t.hr().secrets.remove({ id })).rejects.toMatchObject(notFound);
-    expect(await stored(id)).toEqual([]);
-    expect(await other.secrets.read({ id: theirs.id })).toEqual({ value: 'tms-key' });
+  beforeAll(async () => {
+    await t.client(await t.pluginToken()).plugins.registerManifest(HR);
   });
 
-  it('does not open a sealed value moved to another secret or organisation', async () => {
-    const first = await t.hr().secrets.save({ value: 'first' });
-    const second = await t.hr().secrets.save({ value: 'second' });
-    const theirs = await t.hr(t.ids.otherOrg).secrets.save({ value: 'theirs' });
-    const [source] = await stored(first.id);
+  it('does not open a sealed value moved to another secret, organisation or owner', async () => {
+    const first = await save('first');
+    const second = await save('second');
+    const theirs = await save('theirs', t.ids.otherOrg);
+    const [source] = await stored(await secretIdOf(first.id));
 
     if (!source) throw new Error('the secret was not stored');
 
     const moved = { sealed: source.sealed, keyId: source.keyId };
 
-    await adminDb().update(secrets).set(moved).where(eq(secrets.id, second.id));
-    await adminDb().update(secrets).set(moved).where(eq(secrets.id, theirs.id));
+    await adminDb()
+      .update(secrets)
+      .set(moved)
+      .where(eq(secrets.id, await secretIdOf(second.id)));
+    await adminDb()
+      .update(secrets)
+      .set(moved)
+      .where(eq(secrets.id, await secretIdOf(theirs.id)));
 
     await expect(t.hr().secrets.read({ id: second.id })).rejects.toMatchObject({ status: 500 });
     await expect(t.hr(t.ids.otherOrg).secrets.read({ id: theirs.id })).rejects.toMatchObject({
@@ -108,10 +86,11 @@ describe('secret vault', { timeout: 120_000 }, () => {
     });
     expect(await t.hr().secrets.read({ id: first.id })).toEqual({ value: 'first' });
 
-    await adminDb().update(secrets).set({ owner: 'tms' }).where(eq(secrets.id, first.id));
-    await expect((await tms()).secrets.read({ id: first.id })).rejects.toMatchObject({
-      status: 500,
-    });
+    await adminDb()
+      .update(secrets)
+      .set({ owner: 'tms' })
+      .where(eq(secrets.id, await secretIdOf(first.id)));
+    await expect(t.hr().secrets.read({ id: first.id })).rejects.toMatchObject(notFound);
   });
 
   it('removes a feature’s secret with the row that kept it, and keeps one secret through a change', async () => {
@@ -123,7 +102,6 @@ describe('secret vault', { timeout: 120_000 }, () => {
 
     expect(sealed).toMatchObject({ owner: 'core' });
     expect(JSON.stringify(sealed)).not.toContain(hook.secret);
-    await expect(t.hr().secrets.read({ id: sealed?.id ?? '' })).rejects.toMatchObject(notFound);
 
     const rotated = await t.owner().webhooks.rotateSecret({ id: hook.webhook.id });
 
@@ -134,16 +112,25 @@ describe('secret vault', { timeout: 120_000 }, () => {
     expect(await storedOf(t.ids.org, 'core')).toEqual([]);
   });
 
+  it('gives a plugin none of core’s connections', async () => {
+    const till = await t.owner().integrations.connect({ key: 'test', name: 'Till', keys: {} });
+
+    await expect(t.hr().secrets.read({ id: till.id })).rejects.toMatchObject(notFound);
+    await expect(t.hr().secrets.remove({ id: till.id })).rejects.toMatchObject(notFound);
+    expect((await t.hr().secrets.list({})).data.map((row) => row.id)).not.toContain(till.id);
+  });
+
   it('opens secrets sealed before the vault and moves them to the current key', async () => {
     const legacyKey = deriveKey(config.auth.jwtSecret, 'erxes-core-secrets-v1');
-    const current = await t.hr().secrets.save({ value: 'new-value' });
-    const [reference] = await stored(current.id);
+    const current = await save('new-value');
+    const currentSecret = await secretIdOf(current.id);
+    const [reference] = await stored(currentSecret);
 
     if (!reference) throw new Error('the secret was not stored');
 
     // Nothing to move yet.
     await reseal();
-    expect((await stored(current.id))[0]?.sealed).toBe(reference.sealed);
+    expect((await stored(currentSecret))[0]?.sealed).toBe(reference.sealed);
 
     const hr = { orgId: t.ids.org, owner: 'hr' };
 
@@ -165,9 +152,23 @@ describe('secret vault', { timeout: 120_000 }, () => {
     await adminDb()
       .insert(secrets)
       .values([...lost, ...old]);
+    await adminDb()
+      .insert(integrationConnections)
+      .values(
+        ['000-lost-000', 'zz-legacy-1', 'zz-legacy-2'].map((secretId) => ({
+          id: `conn-${secretId}`,
+          orgId: t.ids.org,
+          plugin: 'hr',
+          key: 'facebook',
+          name: secretId,
+          secretId,
+        })),
+      );
 
-    expect(await t.hr().secrets.read({ id: 'zz-legacy-1' })).toEqual({ value: 'old-value-1' });
-    await expect(t.hr().secrets.read({ id: '000-lost-000' })).rejects.toMatchObject({
+    expect(await t.hr().secrets.read({ id: 'conn-zz-legacy-1' })).toEqual({
+      value: 'old-value-1',
+    });
+    await expect(t.hr().secrets.read({ id: 'conn-000-lost-000' })).rejects.toMatchObject({
       status: 500,
     });
 
@@ -179,9 +180,13 @@ describe('secret vault', { timeout: 120_000 }, () => {
     expect(JSON.stringify(moved)).not.toContain('old-value');
     expect(moved[0]?.sealed).not.toBe(moved[1]?.sealed);
     expect((await stored('000-lost-199'))[0]?.keyId).toBe('a-key-not-set');
-    expect((await stored(current.id))[0]?.sealed).toBe(reference.sealed);
-    expect(await t.hr().secrets.read({ id: 'zz-legacy-1' })).toEqual({ value: 'old-value-1' });
-    expect(await t.hr().secrets.read({ id: 'zz-legacy-2' })).toEqual({ value: 'old-value-2' });
+    expect((await stored(currentSecret))[0]?.sealed).toBe(reference.sealed);
+    expect(await t.hr().secrets.read({ id: 'conn-zz-legacy-1' })).toEqual({
+      value: 'old-value-1',
+    });
+    expect(await t.hr().secrets.read({ id: 'conn-zz-legacy-2' })).toEqual({
+      value: 'old-value-2',
+    });
     expect(await t.hr().secrets.read({ id: current.id })).toEqual({ value: 'new-value' });
 
     // Only the ones it can't open are left: the next run moves nothing and still ends well.
@@ -189,14 +194,9 @@ describe('secret vault', { timeout: 120_000 }, () => {
     expect((await stored('zz-legacy-1'))[0]?.sealed).toBe(moved[0]?.sealed);
   });
 
-  it('counts what the vault keeps for each feature and plugin, in the member’s organisation only', async () => {
+  it('counts what the vault keeps for each of core’s features, in the member’s organisation only', async () => {
     const counts = async (client: ReturnType<typeof t.owner>) =>
-      new Map(
-        (await client.secrets.holdings()).data.map((row) => [
-          `${row.holder}:${row.plugin ?? ''}`,
-          row.count,
-        ]),
-      );
+      new Map((await client.secrets.holdings()).data.map((row) => [row.holder, row.count]));
 
     const before = await counts(t.owner());
     const elsewhere = await counts(t.other());
@@ -205,12 +205,12 @@ describe('secret vault', { timeout: 120_000 }, () => {
       .owner()
       .webhooks.create({ url: 'https://example.com/held', eventTypes: ['*'] });
 
-    await t.hr().secrets.save({ value: 'held-token' });
+    await save('held-token');
 
     const after = await counts(t.owner());
 
-    expect(after.get('webhook:')).toBe((before.get('webhook:') ?? 0) + 1);
-    expect(after.get('plugin:hr')).toBe((before.get('plugin:hr') ?? 0) + 1);
+    expect(after.get('webhook')).toBe((before.get('webhook') ?? 0) + 1);
+    expect([...after.keys()]).toEqual([...new Set([...before.keys(), 'webhook'])]);
     expect(await counts(t.other())).toEqual(elsewhere);
 
     const answer = JSON.stringify(await t.owner().secrets.holdings());
@@ -225,22 +225,18 @@ describe('secret vault', { timeout: 120_000 }, () => {
   });
 
   it('is for plugins with secrets:write only, and takes no empty value', async () => {
-    await expect(t.owner().secrets.save({ value: 'x' })).rejects.toMatchObject({
-      code: 'PLUGIN_ONLY',
-    });
-    await expect(t.hr().secrets.save({ value: '' })).rejects.toMatchObject({ status: 400 });
+    await expect(
+      t.owner().secrets.save({ key: 'facebook', name: 'x', value: 'x' }),
+    ).rejects.toMatchObject({ code: 'PLUGIN_ONLY' });
+    await expect(save('')).rejects.toMatchObject({ status: 400 });
 
-    const { id } = await t.hr().secrets.save({ value: 'kept' });
+    const { id } = await save('kept');
 
-    await t.client(await t.pluginToken()).plugins.registerManifest({
-      title: 'HR',
-      version: '1',
-      scopes: ['customers:read'],
-    });
+    await t
+      .client(await t.pluginToken())
+      .plugins.registerManifest({ ...HR, version: '2', scopes: ['customers:read'] });
 
     await expect(t.hr().secrets.read({ id })).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
-    await expect(t.hr().secrets.save({ value: 'x' })).rejects.toMatchObject({
-      code: 'SCOPE_REQUIRED',
-    });
+    await expect(save('x')).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
   });
 });

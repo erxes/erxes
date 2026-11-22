@@ -44,9 +44,9 @@ const activeGateway = (id?: string) =>
  * of those that take the invoice's currency (QPay: MNT only).
  */
 export const resolveGateway = async (client: Db, currency: string, requested?: string) => {
-  const active = await connectionsWithSecret(client)
-    .where(activeGateway(requested))
-    .orderBy(integrationConnections.createdAt);
+  const active = await connectionsWithSecret(client, activeGateway(requested)).orderBy(
+    integrationConnections.createdAt,
+  );
 
   if (!active.length) {
     throw fail(

@@ -1,6 +1,15 @@
 import type { VaultConnection } from '@erxes/core-contract';
-import { IconLock, IconShieldLock } from '@tabler/icons-react';
-import { Badge, Button, Skeleton, Spinner, usePanelExpanded, useRecordPanel } from 'erxes-ui';
+import { IconLock, IconShieldLock, IconTrash } from '@tabler/icons-react';
+import {
+  Badge,
+  Button,
+  RelativeDateDisplay,
+  Skeleton,
+  Spinner,
+  useConfirm,
+  usePanelExpanded,
+  useRecordPanel,
+} from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -12,7 +21,7 @@ import { SidePanelEmpty, SidePanelFailed } from '~/modules/side-panel/SidePanelE
 import type { Integration } from '../integrations/catalog';
 import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { ConnectionEdit, useConnectionChanges } from './ConnectionEdit';
-import { useConnections, useKeyedIntegrations } from './useVault';
+import { integrationOf, useConnections, useVaultIntegrations } from './useVault';
 
 const Fact = ({ label, children }: { label: string; children: ReactNode }) => (
   <div className="flex items-start gap-3 text-sm">
@@ -82,6 +91,83 @@ const ConnectionFacts = ({
   );
 };
 
+const PluginConnection = ({
+  integration,
+  connection,
+  onRemoved,
+}: {
+  integration: Integration;
+  connection: VaultConnection;
+  onRemoved: () => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'vault' });
+  const { t: fieldT } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
+  const { name } = useIntegrationText()(integration);
+  const { remove } = useConnectionChanges(onRemoved);
+  const { confirm } = useConfirm();
+  const plugin = connection.usedBy.join(', ');
+
+  return (
+    <>
+      <dl className="space-y-2 rounded-lg border p-3">
+        <Fact label={t('service', 'Service')}>{name}</Fact>
+        <Fact label={t('kept-by', 'Kept by')}>{plugin}</Fact>
+        <Fact label={t('status', 'Status')}>
+          {connection.problem ? (
+            <Badge variant="warning">{t('attention', 'Needs attention')}</Badge>
+          ) : (
+            <Badge variant="success">{t('active', 'Active')}</Badge>
+          )}
+        </Fact>
+        {connection.problem && <Fact label={t('problem', 'Problem')}>{connection.problem}</Fact>}
+        <Fact label={t('added', 'Added')}>
+          <RelativeDateDisplay value={connection.createdAt} render={<span />}>
+            <RelativeDateDisplay.Value value={connection.createdAt} />
+          </RelativeDateDisplay>
+        </Fact>
+        <Fact label={t('keys', 'Keys')}>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <IconLock className="size-3.5" />
+            {t('plugin-keys-hidden', 'Stored encrypted. Only {{plugin}} reads them.', { plugin })}
+          </span>
+        </Fact>
+      </dl>
+      <p className="text-sm text-muted-foreground">
+        {t('plugin-managed', '{{plugin}} saved this and changes it on its own pages.', { plugin })}
+      </p>
+      <Button
+        type="button"
+        variant="ghost"
+        tone="destructive"
+        disabled={remove.isPending}
+        onClick={() =>
+          void confirm({
+            message: fieldT('remove-confirm', 'Remove “{{name}}”?', { name: connection.name }),
+            options: {
+              description: t(
+                'plugin-remove-description',
+                '{{plugin}} is told and can no longer read its keys.',
+                { plugin },
+              ),
+              okLabel: fieldT('remove', 'Remove'),
+              variants: { ok: 'destructive' },
+            },
+          }).then(() =>
+            remove.mutate({
+              plugin: integration.plugin ?? undefined,
+              key: integration.key,
+              id: connection.id,
+            }),
+          )
+        }
+      >
+        <IconTrash />
+        {fieldT('remove', 'Remove')}
+      </Button>
+    </>
+  );
+};
+
 const ConnectionView = ({
   integration,
   connection,
@@ -117,13 +203,23 @@ const ConnectionView = ({
         />
       )}
       <div className="mx-auto min-h-0 w-full max-w-2xl flex-1 space-y-4 overflow-y-auto p-4">
-        <ConnectionFacts integration={integration} connection={connection} />
-        <ConnectionEdit
-          key={connection.id}
-          integration={integration}
-          connection={connection}
-          onRemoved={() => panel?.dismiss()}
-        />
+        {connection.plugin ? (
+          <PluginConnection
+            integration={integration}
+            connection={connection}
+            onRemoved={() => panel?.dismiss()}
+          />
+        ) : (
+          <>
+            <ConnectionFacts integration={integration} connection={connection} />
+            <ConnectionEdit
+              key={connection.id}
+              integration={integration}
+              connection={connection}
+              onRemoved={() => panel?.dismiss()}
+            />
+          </>
+        )}
       </div>
     </>
   );
@@ -132,9 +228,9 @@ const ConnectionView = ({
 export const ConnectionPanel = ({ record, onBack, onClose }: IRecordViewProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const connections = useConnections();
-  const { integrations, loading } = useKeyedIntegrations();
+  const { integrations, loading } = useVaultIntegrations();
   const connection = connections.data?.data.find(({ id }) => id === record.contentId);
-  const integration = integrations.find(({ key }) => key === connection?.key);
+  const integration = connection && integrationOf(connection, integrations);
 
   if (connection && integration) {
     return (

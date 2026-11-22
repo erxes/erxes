@@ -42,12 +42,13 @@ const ask = async <T>(question: () => Promise<T>) => {
 };
 
 const bankConnections = (client: Db) =>
-  connectionsWithSecret(client).where(inArray(integrationConnections.key, BANK_KEYS));
+  connectionsWithSecret(client, inArray(integrationConnections.key, BANK_KEYS));
 
 const connectionOrThrow = async (client: Db, id: string) => {
-  const [row] = await connectionsWithSecret(client)
-    .where(and(eq(integrationConnections.id, id), inArray(integrationConnections.key, BANK_KEYS)))
-    .limit(1);
+  const [row] = await connectionsWithSecret(
+    client,
+    and(eq(integrationConnections.id, id), inArray(integrationConnections.key, BANK_KEYS)),
+  ).limit(1);
 
   if (!row) throw notFound('Bank connection');
 
@@ -89,7 +90,8 @@ const paymentsUsing = async (client: Db, id: string) => {
     integration.keys && integration.readsThrough ? [integration.key] : [],
   );
 
-  const rows = await connectionsWithSecret(client).where(
+  const rows = await connectionsWithSecret(
+    client,
     and(inArray(integrationConnections.key, readers), eq(integrationConnections.status, 'active')),
   );
 

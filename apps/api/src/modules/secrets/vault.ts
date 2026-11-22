@@ -108,17 +108,6 @@ export const readSecretAs = async (tx: Db, owner: string, id: string) => {
   return openSecret(row);
 };
 
-export const removeSecretAs = async (tx: Db, owner: string, id: string) => {
-  const removed = await tx
-    .delete(secrets)
-    .where(and(eq(secrets.id, id), eq(secrets.owner, owner)))
-    .returning({ id: secrets.id });
-
-  if (!removed.length) throw notFound('Secret');
-
-  return { ok: true as const };
-};
-
 export const saveSecret = (tx: Db, value: string, id?: string | null) =>
   saveSecretAs(tx, CORE, value, id);
 

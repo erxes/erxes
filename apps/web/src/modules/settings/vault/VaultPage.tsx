@@ -19,7 +19,7 @@ import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { useMayOpenIntegrations } from '../integrations/catalog';
 import { ConnectionList } from './ConnectionList';
-import { connectionsOf, useConnections, useKeyedIntegrations } from './useVault';
+import { connectionsOf, useConnections, useVaultIntegrations } from './useVault';
 
 const HOLDER_PAGES: Record<VaultHolding['holder'], string> = {
   email: paths.settings.email,
@@ -28,7 +28,6 @@ const HOLDER_PAGES: Record<VaultHolding['holder'], string> = {
   assistant: paths.settings.assistant,
   'audit-stream': paths.settings.auditLog,
   'two-step': paths.settings.teamMembers,
-  plugin: paths.settings.plugins,
 };
 
 const Section = ({ title, children }: { title: string; children: ReactNode }) => (
@@ -41,7 +40,7 @@ const Section = ({ title, children }: { title: string; children: ReactNode }) =>
 const Connections = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });
   const connections = useConnections();
-  const { integrations } = useKeyedIntegrations();
+  const { integrations } = useVaultIntegrations();
 
   return (
     <Section title={t('connections', 'Connections')}>
@@ -71,7 +70,6 @@ const Holdings = () => {
     assistant: t('holder.assistant', 'AI provider keys'),
     'audit-stream': t('holder.audit-stream', 'Audit log stream keys'),
     'two-step': t('holder.two-step', 'Two-step sign-in codes'),
-    plugin: t('holder.plugin', 'Plugin secrets'),
   };
 
   return (
@@ -79,16 +77,14 @@ const Holdings = () => {
       {({ data }) => (
         <Section title={t('kept-by-features', 'Kept by features')}>
           <ul className="divide-y rounded-lg border">
-            {data.map(({ holder, plugin, count }) => (
-              <li key={`${holder}:${plugin ?? ''}`}>
+            {data.map(({ holder, count }) => (
+              <li key={holder}>
                 <Link
                   to={HOLDER_PAGES[holder]}
                   className="flex items-center gap-3 p-3 text-sm transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-primary"
                 >
                   <IconLock className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 flex-1 font-medium">
-                    {plugin ? `${labels[holder]}: ${plugin}` : labels[holder]}
-                  </span>
+                  <span className="min-w-0 flex-1 font-medium">{labels[holder]}</span>
                   <span className="text-xs text-muted-foreground">
                     {t('held', '{{count}} kept', { count })}
                   </span>

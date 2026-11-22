@@ -78,9 +78,11 @@ automation webhooks).
   row does. A value used inside the scope is read with `readSecret(tx, id)`; a row that leaves
   the scope joins `secrets` and is opened later with `openSecret(row.secret)`. Only the vault
   imports `encrypt` and `decrypt` (lint), and `pnpm check:rls` fails a secret column without its
-  trigger (`tools/check-secrets.sql`). Plugins keep theirs through `secrets.save`,
-  `secrets.read`, `secrets.replace` and `secrets.remove` (scope `secrets:write`), each plugin
-  its own. `CORE_ENCRYPTION_KEY` seals them; a key in `CORE_ENCRYPTION_KEYS_RETIRED` still
+  trigger (`tools/check-secrets.sql`). A plugin saves each of its secrets as a named
+  connection of one of its manifest's integrations (`secrets.*`, scope `secrets:write`,
+  `modules/integrations/pluginIntegrations.ts`): a row of `core_integration_connections` with
+  `plugin` set, shown in Settings › Vault and on its card. Only that plugin reads its value;
+  core's own queries skip these rows (`coreConnection`). `CORE_ENCRYPTION_KEY` seals them; a key in `CORE_ENCRYPTION_KEYS_RETIRED` still
   opens, and `secrets.reseal` moves every secret to the current key each hour.
   `src/lib/coreKey.ts` derives the keys that sign links, from the same setting.
 - Log through pino, `log.info({ fileId }, 'file removed')`, errors under `err`: `context.log` in

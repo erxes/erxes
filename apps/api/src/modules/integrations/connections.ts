@@ -1,5 +1,5 @@
 import { type Db, integrationConnections, secrets } from '@erxes/core-db';
-import { eq, getTableColumns, inArray } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, isNull, type SQL } from 'drizzle-orm';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
@@ -11,11 +11,14 @@ import { keyedOf } from './registry';
 
 export type ConnectionRow = WithSecret<typeof integrationConnections.$inferSelect>;
 
-export const connectionsWithSecret = (client: Db) =>
+export const coreConnection = isNull(integrationConnections.plugin);
+
+export const connectionsWithSecret = (client: Db, where: SQL | undefined) =>
   client
     .select({ ...getTableColumns(integrationConnections), secret: secrets })
     .from(integrationConnections)
-    .innerJoin(secrets, eq(secrets.id, integrationConnections.secretId));
+    .innerJoin(secrets, eq(secrets.id, integrationConnections.secretId))
+    .where(and(coreConnection, where));
 
 export const keysOf = (integration: KeyedIntegration, row: ConnectionRow) =>
   integration.keys.parse(JSON.parse(openSecret(row.secret)));
@@ -43,9 +46,10 @@ export const clientOptions = async (
   const bankName = keyedOf(bankKey).name;
   const connectionId = typeof keys.connectionId === 'string' ? keys.connectionId : '';
 
-  const [row] = await connectionsWithSecret(client)
-    .where(eq(integrationConnections.id, connectionId))
-    .limit(1);
+  const [row] = await connectionsWithSecret(
+    client,
+    eq(integrationConnections.id, connectionId),
+  ).limit(1);
 
   if (row?.key !== bankKey)
     throw fail('GATEWAY_REFUSED', `Pick one of your ${bankName} connections`);
@@ -81,8 +85,7 @@ const shown = (row: ConnectionRow) => withSettings(row, keysOf(keyedOf(row.key),
 export const listConnections = async (client: Db, keys: string[]) => ({
   data: (
     await wholeList((limit) =>
-      connectionsWithSecret(client)
-        .where(inArray(integrationConnections.key, keys))
+      connectionsWithSecret(client, inArray(integrationConnections.key, keys))
         .orderBy(integrationConnections.createdAt)
         .limit(limit),
     )

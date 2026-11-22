@@ -20,13 +20,18 @@ import { isBank } from './banks';
 import {
   clientOptions,
   connectionsWithSecret,
+  coreConnection,
   keysOf,
   listConnections,
   visibleSettings,
   withSettings,
 } from './connections';
 import { fieldsOf, type Integration, type KeyedIntegration } from './define';
-import { pluginIntegrations } from './pluginIntegrations';
+import {
+  pluginConnectionsOf,
+  pluginIntegrations,
+  removePluginConnection,
+} from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
 
 const manages = (integration: Integration) => callerCan(integration.permission);
@@ -53,6 +58,7 @@ const activeCounts = async (client: Db) => {
         ),
     })
     .from(integrationConnections)
+    .where(coreConnection)
     .groupBy(integrationConnections.key);
 
   return new Map(rows.map((row) => [row.key, row.active]));
@@ -98,7 +104,7 @@ const readerKeys = () =>
     integration.keys && integration.readsThrough ? [integration.key] : [],
   );
 
-export const integrationConnectionsOf = async (client: Db, key?: string) => {
+const coreConnectionsOf = async (client: Db, key?: string) => {
   const { data } = await listConnections(client, key ? [connectable(key).key] : managedKeys());
   const plugins = await payingPlugins(client);
 
@@ -119,7 +125,18 @@ export const integrationConnectionsOf = async (client: Db, key?: string) => {
     return connection.status === 'active' && keyedOf(connection.key).payments ? plugins : [];
   };
 
-  return { data: data.map((connection) => ({ ...connection, usedBy: usedBy(connection) })) };
+  return data.map((connection) => ({ ...connection, usedBy: usedBy(connection) }));
+};
+
+export const integrationConnectionsOf = async (
+  client: Db,
+  input: { plugin?: string; key?: string },
+) => {
+  if (input.plugin) return { data: await pluginConnectionsOf(client, input) };
+
+  const own = await coreConnectionsOf(client, input.key);
+
+  return { data: input.key ? own : [...own, ...(await pluginConnectionsOf(client))] };
 };
 
 const parsedKeys = (integration: KeyedIntegration, keys: unknown) => {
@@ -175,9 +192,7 @@ const verified = async (
 };
 
 const connectionOf = async (client: Db, integration: KeyedIntegration, id: string) => {
-  const [row] = await connectionsWithSecret(client)
-    .where(eq(integrationConnections.id, id))
-    .limit(1);
+  const [row] = await connectionsWithSecret(client, eq(integrationConnections.id, id)).limit(1);
 
   if (!row) throw notFound('Connection');
 
@@ -262,7 +277,12 @@ export const updateConnection = async (input: {
   });
 };
 
-export const removeConnection = async (client: Db, key: string, id: string) => {
+export const removeConnection = async (
+  client: Db,
+  { plugin, key, id }: { plugin?: string; key: string; id: string },
+) => {
+  if (plugin) return removePluginConnection(client, { plugin, key, id });
+
   const integration = connectable(key);
   const row = await connectionOf(client, integration, id);
 

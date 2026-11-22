@@ -113,12 +113,19 @@
  *
  * Integrations (Facebook, Instagram): declare them in the manifest, each with one of its own
  * permissions, and core lists them in Settings › Integrations next to its own, for members with
- * `integrations.manage` and that permission. Keep their keys with `secrets.save`; the UI config's
- * `integrations` give each its icon and tabs. Report where each stands after it changes:
+ * `integrations.manage` and that permission. Save each key as a named connection of one of them
+ * (scope `secrets:write`): members see it in Settings › Vault and on the card, which counts them
+ * and says Needs attention while one has a problem. Only the plugin reads the value. A member may
+ * remove one: subscribe to `core.integration.connection.removed` to hear of it. The UI config's
+ * `integrations` give each its icon and tabs:
  *
  *   integrations: [{ key: 'facebook', name: 'Facebook', summary: 'Messenger and page comments in the inbox',
  *     category: 'social', permission: 'frontline.integration.manage' }],
- *   await core.reportIntegration(orgId, 'facebook', 'connected', pages.length);  // or 'off', 'attention', 'not-set-up'
+ *   const app = await core.forOrg(orgId).secrets.save({ key: 'facebook', name: 'Meta app', value: JSON.stringify(keys) });
+ *   const { value } = await core.forOrg(orgId).secrets.read({ id: app.id });
+ *   await core.forOrg(orgId).secrets.mark({ id: app.id, problem: 'Page token expired' });   // null when fixed
+ *   await core.forOrg(orgId).secrets.replace({ id: app.id, value: JSON.stringify(next) });  // clears the problem
+ *   await core.forOrg(orgId).secrets.list({ key: 'facebook' });  // and .remove({ id })
  *
  * A timeline whose records not every member may read declares `recordAccess: true`; core asks the
  * plugin before a member reads or notes on one, and anything but `{ allowed: true }` within 5 s is no:

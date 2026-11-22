@@ -282,8 +282,10 @@ export const ACCESS = {
 
   'secrets.holdings': needs('integrations.manage'),
   'secrets.save': { plugin: 'secrets:write' },
-  'secrets.replace': { plugin: 'secrets:write' },
+  'secrets.list': { plugin: 'secrets:write' },
   'secrets.read': { plugin: 'secrets:write' },
+  'secrets.replace': { plugin: 'secrets:write' },
+  'secrets.mark': { plugin: 'secrets:write' },
   'secrets.remove': { plugin: 'secrets:write' },
 
   'integrations.list': MEMBER,
@@ -291,7 +293,6 @@ export const ACCESS = {
   'integrations.connect': MEMBER,
   'integrations.update': MEMBER,
   'integrations.remove': MEMBER,
-  'integrations.report': { plugin: 'installed' },
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

@@ -1,6 +1,10 @@
-import { INTEGRATION_CONNECTION_STATUSES, INTEGRATION_STATES } from '../enums';
+import {
+  CORE_CONNECTION_STATUSES,
+  INTEGRATION_CONNECTION_STATUSES,
+  PLUGIN_CONNECTION_STATUSES,
+} from '../enums';
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, integer, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import { check, foreignKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -12,60 +16,40 @@ export const integrationConnections = pgTable(
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
+    plugin: text(),
     key: text().notNull(),
     name: text().notNull(),
     secretId: text().notNull(),
     status: text({ enum: INTEGRATION_CONNECTION_STATUSES }).default('active').notNull(),
+    problem: text(),
     createdBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (table) => [
     uniqueIndex('core_integration_connections_org_id_id_key').on(table.orgId, table.id),
+    check(
+      'core_integration_connections_status_check',
+      sql`CASE WHEN ${table.plugin} IS NULL THEN ${inList(table.status, CORE_CONNECTION_STATUSES)} ELSE ${inList(table.status, PLUGIN_CONNECTION_STATUSES)} END`,
+    ),
+    check(
+      'core_integration_connections_problem_check',
+      sql`(${table.status} = 'attention') = (${table.problem} IS NOT NULL)`,
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
       name: 'core_integration_connections_org_id_fkey',
     }).onDelete('cascade'),
     foreignKey({
+      columns: [table.orgId, table.plugin],
+      foreignColumns: [pluginInstallations.orgId, pluginInstallations.plugin],
+      name: 'core_integration_connections_installation_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
       columns: [table.secretId],
       foreignColumns: [secrets.id],
       name: 'core_integration_connections_secret_id_fkey',
     }),
-  ],
-);
-
-/**
- * The state a plugin last reported for one of the integrations its manifest declares
- * (`integrations.report`), shown on its tile. None: not set up.
- */
-export const pluginIntegrationStates = pgTable(
-  'plugin_integration_states',
-  {
-    orgId: orgIdColumn(),
-    plugin: text().notNull(),
-    key: text().notNull(),
-    state: text({ enum: INTEGRATION_STATES }).notNull(),
-    /** How many are connected (pages, accounts), when the plugin says. */
-    count: integer(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    primaryKey({
-      columns: [table.orgId, table.plugin, table.key],
-      name: 'core_plugin_integration_states_pkey',
-    }),
-    check('core_plugin_integration_states_state_check', inList(table.state, INTEGRATION_STATES)),
-    check('core_plugin_integration_states_count_check', sql`${table.count} >= 0`),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_plugin_integration_states_org_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.orgId, table.plugin],
-      foreignColumns: [pluginInstallations.orgId, pluginInstallations.plugin],
-      name: 'core_plugin_integration_states_installation_fkey',
-    }).onDelete('cascade'),
   ],
 );

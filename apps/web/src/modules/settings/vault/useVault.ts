@@ -41,9 +41,21 @@ export const useKeyedIntegrations = (scope: ConnectionScope = {}) => {
   };
 };
 
+export const useVaultIntegrations = () => {
+  const { integrations, listed } = useIntegrations();
+
+  return {
+    loading: listed.isPending,
+    integrations: integrations.filter((integration) => integration.keyed || integration.plugin),
+  };
+};
+
+export const integrationOf = (connection: VaultConnection, integrations: Integration[]) =>
+  integrations.find(({ key, plugin }) => key === connection.key && plugin === connection.plugin);
+
 export const connectionsOf = (connections: VaultConnection[], integrations: Integration[]) =>
   connections.flatMap((connection) => {
-    const integration = integrations.find(({ key }) => key === connection.key);
+    const integration = integrationOf(connection, integrations);
 
     return integration ? [{ connection, integration }] : [];
   });

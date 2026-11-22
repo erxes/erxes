@@ -147,7 +147,7 @@ export const PluginManifest = z.object({
   timelines: z.array(PluginTimeline).max(50).optional(),
   /**
    * Its integrations in Settings › Integrations (`PluginIntegration`), listed next to core's
-   * with the state it reports (`integrations.report`).
+   * with the state its connections give them (`secrets.*`).
    */
   integrations: PluginIntegrations.optional(),
   /**
