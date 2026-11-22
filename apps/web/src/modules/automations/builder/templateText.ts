@@ -32,7 +32,7 @@ export const readableTemplate = (text: string, fields: FieldInfo[]) =>
     return label ? `[${label}]` : whole;
   });
 
-export type TemplatePart = { text: string } | { token: string; path: string; filters?: string };
+type TemplatePart = { text: string } | { token: string; path: string; filters?: string };
 
 /** Text and the placeholders in it, in order. */
 export const templateParts = (text: string) => {

@@ -132,7 +132,7 @@ const RequestFieldSelect = ({
   );
 };
 
-export const HookSubjectEditor = ({
+const HookSubjectEditor = ({
   trigger,
   sample,
   onChange,
