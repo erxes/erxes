@@ -18,12 +18,10 @@ const PasteJson = ({ onPaste }: { onPaste: (value: unknown) => void }) => {
       </Popover.Trigger>
       <Popover.Content align="end" className="w-96">
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">
-            {t('json-paste-hint', 'Paste a sample: it becomes the rows above.')}
-          </p>
           <Textarea
             rows={8}
             text="code"
+            placeholder={'{ "name": "…" }'}
             aria-label={t('json-paste', 'Paste JSON')}
             aria-invalid={Boolean(text.trim()) && !parsed.success}
             value={text}

@@ -2,14 +2,13 @@ import { orpc } from '@erxes/core-contract/client';
 import { AgentStepModel } from '@erxes/core-contract/values';
 import {
   IconCheck,
-  IconChevronDown,
-  IconExternalLink,
   IconListCheck,
   IconPlugConnected,
+  IconPlus,
   IconSparkles,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Command, Popover, Select } from 'erxes-ui';
+import { buttonVariants, cn, Combobox, Command, IconTip, Popover, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
@@ -46,15 +45,11 @@ export const AgentToolsInput = ({ field, value, onChange, disabled }: ActionInpu
           { value: 'some', label: t('agent-tools-some', 'Only these'), icon: IconListCheck },
         ]}
       />
-      {limited && !chosen.length && (
-        <p className="text-xs text-muted-foreground">
-          {t(
-            'agent-tools-pick',
-            'Pick a category or single actions. Until then it can run every action.',
-          )}
-        </p>
+      {limited && !disabled && (
+        <div className={cn(!chosen.length && 'rounded-md ring-1 ring-destructive')}>
+          <AgentActionChecklist chosen={chosen} onChange={onChange} />
+        </div>
       )}
-      {limited && !disabled && <AgentActionChecklist chosen={chosen} onChange={onChange} />}
     </div>
   );
 };
@@ -71,47 +66,45 @@ export const AgentApiKeyInput = ({ field, value, onChange, disabled }: ActionInp
 
   return (
     <div className="space-y-1.5">
-      <Select
-        value={chosen}
-        disabled={disabled}
-        onValueChange={(next) => onChange(next === NO_API ? undefined : next)}
-      >
-        <Select.Trigger aria-label={field.label}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value={NO_API}>{t('agent-api-none', "Don't use the erxes API")}</Select.Item>
-          {listed.map((key) => (
-            <Select.Item key={key.id} value={key.id}>
-              {key.name}
-            </Select.Item>
-          ))}
-          {missing && (
-            <Select.Item value={chosen} disabled>
-              {t('agent-api-gone', 'A removed key')}
-            </Select.Item>
-          )}
-        </Select.Content>
-      </Select>
+      <div className="flex items-center gap-1.5">
+        <Select
+          value={chosen}
+          disabled={disabled}
+          onValueChange={(next) => onChange(next === NO_API ? undefined : next)}
+        >
+          <Select.Trigger aria-label={field.label} className="min-w-0 flex-1">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value={NO_API}>{t('agent-api-none', 'None')}</Select.Item>
+            {listed.map((key) => (
+              <Select.Item key={key.id} value={key.id}>
+                {key.name}
+              </Select.Item>
+            ))}
+            {missing && (
+              <Select.Item value={chosen} disabled>
+                {t('agent-api-gone', 'A removed key')}
+              </Select.Item>
+            )}
+          </Select.Content>
+        </Select>
+        <IconTip label={t('agent-api-create', 'Create a key')}>
+          <Link
+            to={paths.settings.apiKeyNew}
+            target="_blank"
+            aria-label={t('agent-api-create', 'Create a key')}
+            className={buttonVariants({ variant: 'outline', size: 'icon' })}
+          >
+            <IconPlus />
+          </Link>
+        </IconTip>
+      </div>
       {missing && (
         <p className="text-xs text-destructive-text">
           {t('agent-api-gone-hint', 'This key was removed. Choose another, or the step will fail.')}
         </p>
       )}
-      <p className="text-xs text-muted-foreground">
-        {t(
-          'agent-api-hint',
-          'The agent reads and changes erxes with this key’s rules. Make a new key just for this step.',
-        )}{' '}
-        <Link
-          to={paths.settings.apiKeyNew}
-          target="_blank"
-          className="inline-flex items-center gap-0.5 text-primary-text underline"
-        >
-          {t('agent-api-create', 'Create a key')}
-          <IconExternalLink aria-hidden className="size-3" />
-        </Link>
-      </p>
     </div>
   );
 };
@@ -135,9 +128,7 @@ const ModelList = ({
         <Command.Empty>{t('agent-model-no-match', 'No model matches.')}</Command.Empty>
         <Command.Group>
           <Command.Item value="organisation default" onSelect={() => onPick(null)}>
-            <span className="min-w-0 flex-1 truncate">
-              {t('agent-model-default', "Organisation's default")}
-            </span>
+            <span className="min-w-0 flex-1 truncate">{t('agent-model-default', 'Default')}</span>
             {!value && <IconCheck aria-hidden className="size-4" />}
           </Command.Item>
         </Command.Group>
@@ -172,18 +163,13 @@ export const AgentModelInput = ({ field, value, onChange, disabled }: ActionInpu
 
   const name = chosen
     ? `${PROVIDER_LABELS[chosen.provider]} · ${chosen.model}`
-    : t('agent-model-default', "Organisation's default");
+    : t('agent-model-default', 'Default');
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
-        disabled={disabled}
-        aria-label={`${field.label}: ${name}`}
-        render={<Button variant="outline" className="w-full justify-between" />}
-      >
-        <span className="truncate">{name}</span>
-        <IconChevronDown aria-hidden className="size-4 shrink-0" />
-      </Popover.Trigger>
+      <Combobox.Trigger disabled={disabled} aria-label={`${field.label}: ${name}`}>
+        <Combobox.Value value={name} />
+      </Combobox.Trigger>
       <Popover.Content variant="flush" align="start" className="w-80">
         <ModelList
           value={chosen}

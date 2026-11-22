@@ -125,7 +125,6 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         label: 'Replies go to',
         type: 'reply_to',
         required: false,
-        description: 'One of the verified addresses in Settings › Email sending',
       },
     ],
     outputs: [

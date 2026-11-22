@@ -189,12 +189,6 @@ export const WaitForSettings = ({
           onChange={(conditions) => onChange({ ...step, conditions })}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
-        {t(
-          'wait-for-hint',
-          'Later steps can check whether it happened: add a branch and pick it under Earlier steps.',
-        )}
-      </p>
     </>
   );
 };

@@ -158,13 +158,9 @@ export const AutomationSelect = ({ value, onChange, disabled }: ActionInputProps
           ))}
         </Select.Content>
       </Select>
-      {chosen && chosen.status !== 'active' ? (
+      {chosen && chosen.status !== 'active' && (
         <p className="text-xs text-destructive-text">
           {t('chosen-automation-off', 'It is off: this step fails until you turn it on.')}
-        </p>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          {t('startable-hint', 'Automations with the Manual trigger that are on.')}
         </p>
       )}
     </div>

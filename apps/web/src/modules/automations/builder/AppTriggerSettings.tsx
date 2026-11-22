@@ -10,8 +10,8 @@ import type { Catalog } from '../automationQueries';
 import { AppRecordPicker, parentsOf } from './AppRecordPicker';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
+import { Field } from './Field';
 import { eventDataFields } from './flowChecks';
-import { Field } from './triggerFields';
 import { HookSubjectEditor } from './WebhookTriggerSettings';
 
 type AppTrigger = Extract<AutomationTrigger, { kind: 'app' }>;
@@ -133,10 +133,7 @@ const AppSource = ({
 
   return (
     <>
-      <Field
-        label={t('app-connection', 'Connection')}
-        hint={t('app-connection-hint', 'The account whose events start runs.')}
-      >
+      <Field label={t('app-connection', 'Connection')}>
         <ConnectionPicker
           integration={app.key}
           value={trigger.connectionId || null}
@@ -217,14 +214,7 @@ export const AppTriggerSettings = ({
             disabled={disabled}
             onChange={onChange}
           />
-          <Field
-            label={t('only-if', 'Only if')}
-            hint={
-              trigger.conditions?.rules.length
-                ? undefined
-                : t('app-only-if-empty', 'No conditions: every such event starts a run.')
-            }
-          >
+          <Field label={t('only-if', 'Only if')}>
             <ConditionsEditor
               subject={trigger.subject?.type ?? null}
               extraFields={fields}

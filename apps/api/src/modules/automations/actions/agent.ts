@@ -72,20 +72,19 @@ export const AGENT_ACTIONS: CoreAction[] = [
         required: true,
         placeholder:
           'Welcome {{subject.firstName}} on Telegram, tag them VIP if they spent over 1,000,000, and note why',
-        description: 'Say it like you would to a colleague. Insert data to name the record.',
       },
       {
         key: 'tools',
         label: 'Can use',
         type: 'agent_tools',
         required: false,
-        description: 'Every action, or only the categories and actions you pick.',
       },
       {
         key: 'apiKey',
-        label: 'erxes API',
+        label: 'API access',
         type: 'agent_api_key',
         required: false,
+        description: 'The agent reads and changes erxes with this key’s rules',
       },
       {
         key: 'model',
