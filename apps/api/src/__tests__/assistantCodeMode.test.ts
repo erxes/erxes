@@ -76,6 +76,17 @@ describe('assistant code mode', () => {
     expect(offeredTools()).toContain('runCode');
   });
 
+  it('finds a procedure by words in its description and returns its title and rules', async () => {
+    const result = await runCode(`
+      const found = await searchApi('same name under the same parent');
+      const { summary, description } = found.procedures.find((p) => p.procedure === 'productCategories.create');
+      return { summary, description };
+    `);
+
+    expect(result).toContain('"summary":"Add a product category"');
+    expect(result).toContain('409 TAKEN (same name under the same parent)');
+  });
+
   it('makes a change from a program as the member', async () => {
     const result = await runCode(`
       return await callApi('tags.create', { type: 'customer', name: 'From code' });
