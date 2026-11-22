@@ -150,7 +150,7 @@ export const ConnectGateways = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
 
   return (
-    <Button render={<Link to={paths.settings.paymentIntegrations} />}>
+    <Button nativeButton={false} render={<Link to={paths.settings.paymentIntegrations} />}>
       <IconPlugConnected />
       {t('add', 'Connect a gateway')}
     </Button>

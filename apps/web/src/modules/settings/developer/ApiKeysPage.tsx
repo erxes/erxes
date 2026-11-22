@@ -72,7 +72,7 @@ export const ApiKeysPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           {can('api_keys.create') && (
-            <Button render={<Link to={paths.settings.apiKeyNew} />}>
+            <Button nativeButton={false} render={<Link to={paths.settings.apiKeyNew} />}>
               <IconPlus />
               {t('add', 'Create key')}
             </Button>
