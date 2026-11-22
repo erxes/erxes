@@ -27,6 +27,13 @@ const actions: ActionInfo[] = [
   },
 ];
 
+const assign = (id: string): AutomationStep => ({
+  id,
+  type: 'action',
+  action: 'core.customer.assign',
+  input: {},
+});
+
 describe('stepOutputFields', () => {
   it('excludes sibling arm outputs inside branches while keeping ancestor and rejoined outputs', () => {
     const branched: AutomationStep[] = [
@@ -57,6 +64,41 @@ describe('stepOutputFields', () => {
       'steps.before.output.ownerId',
       'steps.t1.output.ownerId',
       'steps.e1.output.ownerId',
+    ]);
+  });
+
+  it('offers a step in a branch inside a branch only its own path', () => {
+    const nested: AutomationStep[] = [
+      {
+        id: 'outer',
+        type: 'branch',
+        conditions: { match: 'all', rules: [] },
+        then: [
+          assign('a1'),
+          {
+            id: 'inner',
+            type: 'branch',
+            conditions: { match: 'all', rules: [] },
+            then: [assign('n1'), assign('n2')],
+            else: [assign('m1')],
+          },
+          assign('a2'),
+        ],
+        else: [assign('o1')],
+      },
+      assign('last'),
+    ];
+
+    const pathsFor = (id: string) =>
+      stepOutputFields(nested, id, { events: [], actions }).map((field) => field.path);
+
+    expect(pathsFor('n2')).toEqual(['steps.a1.output.ownerId', 'steps.n1.output.ownerId']);
+    expect(pathsFor('m1')).toEqual(['steps.a1.output.ownerId']);
+    expect(pathsFor('a2')).toEqual([
+      'steps.a1.output.ownerId',
+      'steps.n1.output.ownerId',
+      'steps.n2.output.ownerId',
+      'steps.m1.output.ownerId',
     ]);
   });
 
