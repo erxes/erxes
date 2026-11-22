@@ -10,12 +10,7 @@ import {
   toTugrug,
 } from './http';
 import { defineIntegration, field, httpsUrl, secret } from '../define';
-import {
-  type CreateInvoiceInput,
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-} from './types';
+import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
 
 const keys = z.object({
   entityId: field('Entity ID (client_id)'),
@@ -55,7 +50,7 @@ const failed = (answer: Result) => answer.description !== 'SUCCESS';
 const why = (answer: Result) => answer.message ?? answer.description ?? 'refused';
 
 /** HiPay's API for one merchant: the client secret is the bearer token. */
-const hipayClient = (config: HiPayConfig, options: DriverOptions) => {
+const hipayClient = (config: HiPayConfig, options: ClientOptions) => {
   const base = config.apiUrl.replace(/\/+$/, '');
   const send = gatewayHttp('HiPay', base, options);
   const headers = { Authorization: `Bearer ${config.clientSecret}` };
@@ -74,12 +69,11 @@ const hipayClient = (config: HiPayConfig, options: DriverOptions) => {
       'an unreadable checkout',
     );
 
-  return { base, post, status };
+  return { config, base, post, status };
 };
 
 const createCheckout = async (
-  { base, post }: ReturnType<typeof hipayClient>,
-  config: HiPayConfig,
+  { config, base, post }: ReturnType<typeof hipayClient>,
   input: CreateInvoiceInput,
 ) => {
   const answer = parse(
@@ -120,21 +114,29 @@ const createCheckout = async (
  * and app deeplink; checked by checkout id; a payment refunds whole, on the
  * day it was made. Its webhook and the form's return both reach core.
  */
-const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): GatewayDriver => {
-  const client = hipayClient(config, options);
-
-  return {
-    kind: 'hipay',
-    async verify() {
-      // No sign-in endpoint: wrong credentials answer 401 even for an unknown checkout.
-      await client.status('0').catch((error: unknown) => {
-        if (error instanceof GatewayError && (error.status === 401 || error.status === 403))
-          throw error;
-      });
-    },
-    createInvoice: (input) => createCheckout(client, config, input),
-    async check(gatewayInvoiceId, amount) {
-      const answer = await client.status(gatewayInvoiceId);
+export const hipay = defineIntegration({
+  key: 'hipay',
+  name: 'HiPay',
+  summary: 'Checkouts payers pay by card, QR code or the HiPay app.',
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: hipayClient,
+  async verify({ status }) {
+    // No sign-in endpoint: wrong credentials answer 401 even for an unknown checkout.
+    await status('0').catch((error: unknown) => {
+      if (error instanceof GatewayError && (error.status === 401 || error.status === 403))
+        throw error;
+    });
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'full',
+    pays: 'card',
+    createInvoice: createCheckout,
+    async check({ status }, { gatewayInvoiceId, amount }) {
+      const answer = await status(gatewayInvoiceId);
       const paid = answer.status === 'paid';
       const paidAmount = paid ? (answer.amount ? fromTugrug(answer.amount) : amount) : 0;
 
@@ -144,24 +146,21 @@ const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): GatewayD
         paymentId: paid ? (answer.paymentId ?? null) : null,
       };
     },
-    async cancel(gatewayInvoiceId) {
+    async cancel({ post }, { gatewayInvoiceId }) {
       const answer = parse(
         'HiPay',
         CheckoutAnswer,
-        await client.post('/checkout/cancel', { checkoutId: gatewayInvoiceId }),
+        await post('/checkout/cancel', { checkoutId: gatewayInvoiceId }),
         'an unreadable answer',
       );
 
       if (failed(answer)) throw new GatewayError(`HiPay kept the checkout: ${why(answer)}`);
     },
-    async refund(input) {
+    async refund({ config, post }, { paymentId }) {
       const answer = parse(
         'HiPay',
         RefundAnswer,
-        await client.post('/payment/cancel', {
-          entityId: config.entityId,
-          paymentId: input.paymentId,
-        }),
+        await post('/payment/cancel', { entityId: config.entityId, paymentId }),
         'an unreadable refund',
       );
 
@@ -169,17 +168,5 @@ const hipayDriver = (config: HiPayConfig, options: DriverOptions = {}): GatewayD
 
       return { refundId: answer.correction_paymentId ?? null };
     },
-  };
-};
-
-export const hipay = defineIntegration({
-  key: 'hipay',
-  name: 'HiPay',
-  summary: 'Checkouts payers pay by card, QR code or the HiPay app.',
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => hipayDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'full', pays: 'card', driver: hipayDriver },
+  },
 });

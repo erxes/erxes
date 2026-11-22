@@ -242,6 +242,16 @@ describe('products', { timeout: 120_000 }, () => {
 
     // tms has a line: it reads the invoice, but only hr may cancel it.
     expect((await other.payments.getInvoice({ id: invoice.id })).id).toBe(invoice.id);
+
+    const hrOnly = await t.hr().payments.createInvoice({
+      ...base,
+      amount: phone.price,
+      lines: [{ productId: phoneRow.id, quantity: 1, unitPrice: phone.price }],
+    });
+
+    await expect(other.payments.getInvoice({ id: hrOnly.id })).rejects.toMatchObject({
+      status: 404,
+    });
     await expect(other.payments.cancelInvoice({ id: invoice.id })).rejects.toMatchObject({
       status: 404,
     });

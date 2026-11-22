@@ -1,5 +1,5 @@
 import { currencyDigits } from '../gateways/http';
-import type { DriverOptions } from '../gateways/types';
+import type { ClientOptions } from '../gateways/types';
 
 export type BankKind = 'khanbank' | 'golomt' | 'tdb';
 
@@ -115,7 +115,7 @@ export interface BankClient {
   transfer(input: TransferInput): Promise<TransferResult>;
 }
 
-export type BankOptions = Pick<DriverOptions, 'fetch' | 'cacheKey'>;
+export type BankOptions = Pick<ClientOptions, 'fetch' | 'cacheKey'>;
 
 /** A bank's decimal amount (12.5 USD) as core's integer (1250). */
 export const toMinor = (amount: number, currency: string) =>

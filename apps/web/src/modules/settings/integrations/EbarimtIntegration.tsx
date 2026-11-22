@@ -7,7 +7,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import { useIntegrationsSaved } from './useIntegrationsSaved';
 import { DangerSection } from './DangerSection';
 import { EbarimtActivity } from './EbarimtActivity';
@@ -71,7 +71,7 @@ const RemoveEbarimt = () => {
 };
 
 const HOW_IT_WORKS = [
-  ['paid', 'Each paid invoice of the plugins you pick gets a receipt, by gateway or in cash.'],
+  ['paid', 'Each paid invoice in tögrög gets a receipt, by gateway or in cash.'],
   ['refunds', 'A partial refund replaces the receipt; a full refund returns it.'],
   ['rules', 'Rules tax chosen products and categories VAT-free, at 0%, or leave them off.'],
   ['own', 'Plugins that send their own receipts are left out.'],
@@ -115,10 +115,6 @@ const Overview = ({
             <dd className="col-span-2">{saved.merchantTin}</dd>
             <dt className="text-muted-foreground">{t('field.posApiUrl', 'PosAPI address')}</dt>
             <dd className="col-span-2 truncate">{saved.posApiUrl}</dd>
-            <dt className="text-muted-foreground">{t('for-plugins', 'Receipts for')}</dt>
-            <dd className="col-span-2">
-              {saved.plugins.length ? saved.plugins.join(', ') : t('no-plugin', 'No plugin yet')}
-            </dd>
           </dl>
         </OverviewSection>
       ) : (
@@ -141,7 +137,7 @@ const EbarimtPage = ({
   integration,
   saved,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   saved: EbarimtSettings | null;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
@@ -192,7 +188,7 @@ const EbarimtPage = ({
 };
 
 /** eBarimt's page: what it does, its settings, and the receipts it sent. */
-export const EbarimtIntegration = ({ integration }: { integration: CoreIntegration }) => {
+export const EbarimtIntegration = ({ integration }: { integration: Integration }) => {
   const settings = useQuery(orpc.ebarimt.settings.queryOptions());
 
   return (

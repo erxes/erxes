@@ -14,7 +14,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CoreIntegration } from '../integrations/catalog';
+import type { Integration } from '../integrations/catalog';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { connectionsOf, useConnections, useKeyedIntegrations } from './useVault';
 
@@ -22,7 +22,7 @@ const NotConnected = ({
   integration,
   onConnect,
 }: {
-  integration: CoreIntegration | undefined;
+  integration: Integration | undefined;
   onConnect: (() => void) | undefined;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });
@@ -59,8 +59,9 @@ const PickConnection = ({
   value,
   onValueChange,
   noneLabel,
+  disabled,
   onConnect,
-}: Pick<ConnectionPickerProps, 'value' | 'onValueChange' | 'noneLabel'> & {
+}: Pick<ConnectionPickerProps, 'value' | 'onValueChange' | 'noneLabel' | 'disabled'> & {
   connections: VaultConnection[];
   onConnect: (() => void) | undefined;
 }) => {
@@ -89,10 +90,11 @@ const PickConnection = ({
             size="icon"
             className="ml-auto w-7 flex-none"
             aria-label={t('change', 'Change the connection')}
+            disabled={disabled}
           />
         </div>
       ) : (
-        <Combobox.Trigger className="h-8">
+        <Combobox.Trigger className="h-8" disabled={disabled}>
           <Combobox.Value placeholder={noneLabel ?? t('choose', 'Choose a connection')} />
         </Combobox.Trigger>
       )}
@@ -125,6 +127,7 @@ export const ConnectionPicker = ({
   onValueChange,
   noneLabel,
   only,
+  disabled,
 }: ConnectionPickerProps) => {
   const { openNew } = useOpenRecord();
   const listed = useConnections();
@@ -139,7 +142,7 @@ export const ConnectionPicker = ({
     );
 
   const connect =
-    integrations.length && !only
+    integrations.length && !only && !disabled
       ? () =>
           openNew(CONNECTION_CONTENT_TYPE, { integration, category, onConnected: onValueChange })
       : undefined;
@@ -156,6 +159,7 @@ export const ConnectionPicker = ({
       value={value}
       onValueChange={onValueChange}
       noneLabel={noneLabel}
+      disabled={disabled}
       onConnect={connect}
     />
   );

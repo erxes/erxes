@@ -2,15 +2,16 @@ import {
   GATEWAY_REFUND_KINDS,
   INTEGRATION_CONNECTION_STATUSES,
   INTEGRATION_FIELD_TYPES,
-  INTEGRATION_STATES,
 } from '@erxes/core-db/enums';
-import { integrationConnections } from '@erxes/core-db/schema';
+import { integrationConnections, pluginIntegrationStates } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { createSelectSchema } from 'drizzle-zod';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { ActionInfo } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { IntegrationCategory } from './values';
+import { Country } from './money';
+import { IntegrationCategory, IntegrationKey } from './values';
 
 export const IntegrationConnection = createSelectSchema(integrationConnections, {
   id: Id,
@@ -41,9 +42,12 @@ export const IntegrationField = z.object({
 
 export type IntegrationField = z.infer<typeof IntegrationField>;
 
-export const IntegrationStatus = z.object({
-  state: z.enum(INTEGRATION_STATES),
-  count: z.int().nullable(),
+const stateColumns = { count: () => z.int().min(0) };
+
+/** Where an integration stands here; `count`: how many are connected, when known. */
+export const IntegrationStatus = createSelectSchema(pluginIntegrationStates, stateColumns).pick({
+  state: true,
+  count: true,
 });
 
 export type IntegrationStatus = z.infer<typeof IntegrationStatus>;
@@ -54,8 +58,13 @@ export const IntegrationPayments = z.object({
   pays: z.string(),
 });
 
+/** An action it brings to automations (`qpay.invoice.create`), as the builder lists it. */
+export const IntegrationAction = ActionInfo.pick({ type: true, label: true, description: true });
+
 export const Integration = z.object({
   key: z.string(),
+  /** The plugin whose manifest declares it; null for core's own. */
+  plugin: z.string().nullable(),
   name: z.string(),
   summary: z.string(),
   category: IntegrationCategory,
@@ -66,11 +75,41 @@ export const Integration = z.object({
   fields: z.array(IntegrationField),
   payments: IntegrationPayments.nullable(),
   status: IntegrationStatus,
+  actions: z.array(IntegrationAction),
 });
 
 export type Integration = z.infer<typeof Integration>;
 
-const IntegrationKey = z.string().regex(/^[a-z][a-z0-9-]{0,39}$/);
+/**
+ * An integration a plugin brings to Settings › Integrations (`facebook`), listed next to core's
+ * for members with `integrations.manage` and `permission`, one of the manifest's own
+ * permissions. The plugin keeps its keys in core's vault (`secrets.*`), draws the page's tabs
+ * in its UI, and reports where it stands with `integrations.report`.
+ */
+export const PluginIntegration = z.object({
+  /** Unique within the plugin; its page is `/settings/integrations/<plugin>.<key>`. */
+  key: IntegrationKey,
+  name: z.string().trim().min(1).max(80),
+  /** One line on its tile and under its name. */
+  summary: z.string().trim().min(1).max(300),
+  category: IntegrationCategory,
+  /** The ISO 3166 countries it serves (`MN`); none: any. */
+  countries: z.array(Country).max(250).optional(),
+  permission: z.string().trim().min(1).max(100),
+});
+
+/** The manifest's `integrations`, each key once, at most 20. */
+export const PluginIntegrations = z
+  .array(PluginIntegration)
+  .max(20)
+  .refine(
+    (list) => new Set(list.map((integration) => integration.key)).size === list.length,
+    'each key once',
+  );
+
+const ReportedState = createUpdateSchema(pluginIntegrationStates, stateColumns)
+  .pick({ state: true, count: true })
+  .required({ state: true });
 
 const ConnectionName = z.string().trim().min(1).max(80);
 
@@ -91,7 +130,8 @@ export const integrationsContract = {
     .route({
       method: 'GET',
       path: '/integrations',
-      summary: 'The integrations the member may manage, with their form fields and state',
+      summary:
+        "The integrations the member may manage, core's with their form fields and those of the plugins installed here, with their state",
     })
     .output(listOf(Integration)),
   connections: base
@@ -138,4 +178,13 @@ export const integrationsContract = {
     })
     .input(z.object({ key: IntegrationKey, id: Id }))
     .output(z.object({ ok: z.literal(true) })),
+  report: base
+    .route({
+      method: 'PUT',
+      path: '/integrations/{key}/state',
+      summary:
+        "The calling plugin says where one of its manifest's integrations stands in this organisation (`count`: how many are connected). 404 when its manifest doesn't declare the key",
+    })
+    .input(ReportedState.extend({ key: IntegrationKey }))
+    .output(IntegrationStatus),
 };

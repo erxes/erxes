@@ -13,12 +13,7 @@ import {
   withBearer,
 } from './http';
 import { defineIntegration, field, secret, toggle } from '../define';
-import {
-  type CreateInvoiceInput,
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-} from './types';
+import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
 
 const keys = z
   .object({
@@ -92,7 +87,7 @@ const MiniProgramCallback = z.object({
 const MINI_PROGRAM_API_KEY = 'shoppy123';
 
 /** Whether a mini-program payment completed, for this order and amount (Toki's answer is checked against both). */
-const miniProgramCheck = (config: TokiConfig, options: DriverOptions) => {
+const miniProgramCheck = (config: TokiConfig, options: ClientOptions) => {
   const send = gatewayHttp(
     'Toki',
     config.sandbox ? 'https://staging-apps.toki.mn' : 'https://apps.toki.mn',
@@ -142,7 +137,7 @@ const miniProgramCheck = (config: TokiConfig, options: DriverOptions) => {
 /** Merchant QR payment requests through Toki's third-party API (username and password). */
 const qrApi = (
   config: TokiConfig & { username: string; password: string },
-  options: DriverOptions,
+  options: ClientOptions,
 ) => {
   const send = gatewayHttp('Toki', 'https://ms-api.toki.mn/third-party-service/v1', options);
 
@@ -210,6 +205,17 @@ const qrApi = (
   };
 };
 
+/** The mini program's check, and the QR API when both the username and password are set. */
+const tokiClient = (config: TokiConfig, options: ClientOptions) => {
+  const { username, password } = config;
+
+  return {
+    config,
+    qr: username && password ? qrApi({ ...config, username, password }, options) : null,
+    miniProgramPaid: miniProgramCheck(config, options),
+  };
+};
+
 /** The payment Toki's mini program posted, if it is this invoice's. */
 const miniProgramCallback = (body: unknown, invoice: { invoiceId: string; amount: number }) => {
   const posted = MiniProgramCallback.safeParse(body);
@@ -233,17 +239,23 @@ const miniProgramCallback = (body: unknown, invoice: { invoiceId: string; amount
  * - Merchant QR: the payer scans the request id in Toki. Needs the third-party
  *   API username and password, so it's made only when both are set.
  */
-const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDriver => {
-  const { username, password } = config;
-  const qr = username && password ? qrApi({ ...config, username, password }, options) : null;
-  const miniProgramPaid = miniProgramCheck(config, options);
-
-  return {
-    kind: 'toki',
-    async verify() {
-      await qr?.verify();
-    },
-    async createInvoice(input) {
+export const toki = defineIntegration({
+  key: 'toki',
+  name: 'Toki',
+  summary: "Unitel's super app: its mini program, or a QR code payers scan in Toki.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: tokiClient,
+  async verify({ qr }) {
+    await qr?.verify();
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'app-qr',
+    async createInvoice({ config, qr }, input) {
       const inApp = {
         app: 'toki',
         data: {
@@ -275,7 +287,7 @@ const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDri
       };
     },
     callback: miniProgramCallback,
-    async check(gatewayInvoiceId, amount, state) {
+    async check({ qr, miniProgramPaid }, { gatewayInvoiceId, amount, state }) {
       const stored = State.parse(state);
 
       if (stored.tokiTransRequestId && stored.tokiPayerToken) {
@@ -294,7 +306,7 @@ const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDri
 
       return { paid: false, paidAmount: 0, paymentId: null };
     },
-    async cancel(gatewayInvoiceId, _amount, state) {
+    async cancel({ qr }, { gatewayInvoiceId, state }) {
       const stored = State.parse(state);
 
       const requestId =
@@ -306,17 +318,5 @@ const tokiDriver = (config: TokiConfig, options: DriverOptions = {}): GatewayDri
     refund() {
       return Promise.reject(new GatewayError('Toki makes no refunds'));
     },
-  };
-};
-
-export const toki = defineIntegration({
-  key: 'toki',
-  name: 'Toki',
-  summary: "Unitel's super app: its mini program, or a QR code payers scan in Toki.",
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => tokiDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'app-qr', driver: tokiDriver },
+  },
 });

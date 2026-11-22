@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { gatewayHttp, NO_INSTRUCTIONS, pageInstructions, parse } from './http';
 import { defineIntegration, secret } from '../define';
-import type { DriverOptions, GatewayDriver } from './types';
+import type { ClientOptions } from './types';
 
 const keys = z.object({ secretKey: secret('Secret key') });
 
@@ -17,16 +17,10 @@ const Session = z.object({
 
 const Refund = z.object({ id: z.string().min(1) });
 
-/**
- * Stripe Checkout: a hosted page for cards and wallets in the invoice's
- * currency, which sends the payer to the callback address; checked by session.
- * Stripe takes amounts in the currency's smallest unit, as core keeps them.
- * Refunds of any part go to the session's payment intent.
- */
-const stripeDriver = (config: StripeConfig, options: DriverOptions = {}): GatewayDriver => {
+const stripeClient = (config: StripeConfig, options: ClientOptions) => {
   const send = gatewayHttp('Stripe', 'https://api.stripe.com/v1', options);
 
-  const call = (path: string, form?: Record<string, string>) =>
+  return (path: string, form?: Record<string, string>) =>
     send(path, {
       method: form ? 'POST' : 'GET',
       headers: {
@@ -35,13 +29,32 @@ const stripeDriver = (config: StripeConfig, options: DriverOptions = {}): Gatewa
       },
       body: form ? new URLSearchParams(form).toString() : undefined,
     });
+};
 
-  return {
-    kind: 'stripe',
-    async verify() {
-      await call('/balance');
-    },
-    async createInvoice(input) {
+/**
+ * Stripe Checkout: a hosted page for cards and wallets in the invoice's
+ * currency, which sends the payer to the callback address; checked by session.
+ * Stripe takes amounts in the currency's smallest unit, as core keeps them.
+ * Refunds of any part go to the session's payment intent.
+ */
+export const stripe = defineIntegration({
+  key: 'stripe',
+  name: 'Stripe',
+  summary: "Cards, Apple Pay and Google Pay on Stripe's page, in any currency it takes.",
+  category: 'payments',
+  countries: [],
+  permission: 'payments.manage',
+  dashboard: 'https://dashboard.stripe.com/apikeys',
+  keys,
+  client: stripeClient,
+  async verify(call) {
+    await call('/balance');
+  },
+  payments: {
+    currencies: [],
+    refunds: 'partial',
+    pays: 'card-wallet',
+    async createInvoice(call, input) {
       const session = parse(
         'Stripe',
         Session,
@@ -65,7 +78,7 @@ const stripeDriver = (config: StripeConfig, options: DriverOptions = {}): Gatewa
         payment: session.url ? await pageInstructions(session.url, 'Stripe') : NO_INSTRUCTIONS,
       };
     },
-    async check(gatewayInvoiceId, amount) {
+    async check(call, { gatewayInvoiceId, amount }) {
       const session = parse(
         'Stripe',
         Session,
@@ -82,35 +95,22 @@ const stripeDriver = (config: StripeConfig, options: DriverOptions = {}): Gatewa
         paymentId: paid ? (session.payment_intent ?? null) : null,
       };
     },
-    async cancel(gatewayInvoiceId) {
+    async cancel(call, { gatewayInvoiceId }) {
       await call(`/checkout/sessions/${encodeURIComponent(gatewayInvoiceId)}/expire`, {});
     },
-    async refund(input) {
+    async refund(call, { paymentId, amount, note }) {
       const refund = parse(
         'Stripe',
         Refund,
         await call('/refunds', {
-          payment_intent: input.paymentId,
-          amount: String(input.amount),
-          'metadata[note]': input.note.slice(0, 500),
+          payment_intent: paymentId,
+          amount: String(amount),
+          'metadata[note]': note.slice(0, 500),
         }),
         'no refund',
       );
 
       return { refundId: refund.id };
     },
-  };
-};
-
-export const stripe = defineIntegration({
-  key: 'stripe',
-  name: 'Stripe',
-  summary: "Cards, Apple Pay and Google Pay on Stripe's page, in any currency it takes.",
-  category: 'payments',
-  countries: [],
-  permission: 'payments.manage',
-  dashboard: 'https://dashboard.stripe.com/apikeys',
-  keys,
-  verify: (config, options) => stripeDriver(config, options).verify(),
-  payments: { currencies: [], refunds: 'partial', pays: 'card-wallet', driver: stripeDriver },
+  },
 });

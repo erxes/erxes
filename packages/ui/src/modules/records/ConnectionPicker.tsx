@@ -1,3 +1,4 @@
+import { Skeleton } from '../../components/skeleton';
 import { hostComponent } from '../../utils/host-component';
 
 /** The content type core's side panel opens a vault connection as. */
@@ -15,9 +16,11 @@ export interface ConnectionPickerProps {
   noneLabel?: string;
   /** Limits the choice to these connections. */
   only?: string[];
+  /** Shows the picked one without letting it change. */
+  disabled?: boolean;
 }
 
-const picker = hostComponent<ConnectionPickerProps>();
+const picker = hostComponent<ConnectionPickerProps>(<Skeleton className="h-8 w-full" />);
 
 /** Registers core's connection picker. Web calls it at startup; plugins don't. */
 export const setConnectionPicker = picker.set;

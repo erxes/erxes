@@ -1,4 +1,4 @@
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { openGateway } from '~/modules/integrations/registry';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { callbackSignature } from '~/modules/payments/invoiceState';
 import { useTestDatabase } from './db';
@@ -29,8 +29,18 @@ const stripeReplies: [string, unknown][] = [
 describe('card gateway drivers', () => {
   it('Stripe opens a Checkout page in the invoice’s currency, checks the session, and refunds part', async () => {
     const stripe = fakeGateway(stripeReplies);
-    const driver = gatewayDriver('stripe', { secretKey: 'sk_test' }, { fetch: stripe.fetch });
-    const created = await driver.createInvoice({ ...dollars, payerEmail: 'payer@acme.mn' });
+
+    const { payments, client } = openGateway(
+      'stripe',
+      { secretKey: 'sk_test' },
+      { fetch: stripe.fetch },
+    );
+
+    const created = await payments.createInvoice(client, {
+      ...dollars,
+      payerEmail: 'payer@acme.mn',
+    });
+
     const form = new URLSearchParams(stripe.calls[0]?.body);
 
     expect(form.get('line_items[0][price_data][currency]')).toBe('usd');
@@ -42,12 +52,21 @@ describe('card gateway drivers', () => {
       gatewayInvoiceId: 'cs_1',
       payment: { shortUrl: 'https://checkout.stripe.com/c/pay/cs_1' },
     });
-    expect(await driver.check('cs_1', 1500, {})).toEqual({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'cs_1', amount: 1500, state: {} }),
+    ).toEqual({
       paid: true,
       paidAmount: 1500,
       paymentId: 'pi_1',
     });
-    expect(await driver.refund({ paymentId: 'pi_1', amount: 500, note: 'One item' }, {})).toEqual({
+    expect(
+      await payments.refund(client, {
+        paymentId: 'pi_1',
+        amount: 500,
+        note: 'One item',
+        state: {},
+      }),
+    ).toEqual({
       refundId: 're_1',
     });
     expect(new URLSearchParams(stripe.calls.at(-1)?.body).get('amount')).toBe('500');
@@ -87,13 +106,13 @@ describe('card gateway drivers', () => {
       ],
     ]);
 
-    const driver = gatewayDriver(
+    const { payments, client } = openGateway(
       'paypal',
       { clientId: 'c', clientSecret: 's', sandbox: true },
       { fetch: paypal.fetch, cacheKey: 'paypal-test' },
     );
 
-    const created = await driver.createInvoice(dollars);
+    const created = await payments.createInvoice(client, dollars);
 
     expect(paypal.sent('/v2/checkout/orders')).toMatchObject({
       purchase_units: [{ custom_id: 'inv2', amount: { currency_code: 'USD', value: '15.00' } }],
@@ -103,12 +122,19 @@ describe('card gateway drivers', () => {
       payment: { shortUrl: 'https://paypal.test/approve' },
       state: { paypalCurrency: 'USD' },
     });
-    expect(await driver.check('O-1', 1500, {})).toEqual({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'O-1', amount: 1500, state: {} }),
+    ).toEqual({
       paid: true,
       paidAmount: 1500,
       paymentId: 'CAP-1',
     });
-    await driver.refund({ paymentId: 'CAP-1', amount: 250, note: 'Late' }, created.state ?? {});
+    await payments.refund(client, {
+      paymentId: 'CAP-1',
+      amount: 250,
+      note: 'Late',
+      state: created.state ?? {},
+    });
     expect(paypal.sent('/refund')).toMatchObject({
       amount: { currency_code: 'USD', value: '2.50' },
     });

@@ -9,7 +9,7 @@ import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import type { IRecordViewProps } from '~/modules/side-panel/recordView';
 import { SidePanelEmpty, SidePanelFailed } from '~/modules/side-panel/SidePanelEmpty';
-import type { CoreIntegration } from '../integrations/catalog';
+import type { Integration } from '../integrations/catalog';
 import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { ConnectionEdit, useConnectionChanges } from './ConnectionEdit';
 import { useConnections, useKeyedIntegrations } from './useVault';
@@ -25,7 +25,7 @@ const ConnectionFacts = ({
   integration,
   connection,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   connection: VaultConnection;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });
@@ -88,7 +88,7 @@ const ConnectionView = ({
   onBack,
   onClose,
 }: Omit<IRecordViewProps, 'record'> & {
-  integration: CoreIntegration;
+  integration: Integration;
   connection: VaultConnection;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });

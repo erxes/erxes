@@ -13,7 +13,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
-import type { CoreIntegration } from '../integrations/catalog';
+import type { Integration } from '../integrations/catalog';
 import {
   ConnectionFieldInputs,
   connectionKeys,
@@ -63,7 +63,7 @@ const ConnectForm = ({
   onConnected,
   onCancel,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   onConnected: ((connectionId: string) => void) | undefined;
   onCancel: () => void;
 }) => {
@@ -126,7 +126,7 @@ const ServiceChooser = ({
   integrations,
   onPick,
 }: {
-  integrations: CoreIntegration[];
+  integrations: Integration[];
   onPick: (key: string) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });

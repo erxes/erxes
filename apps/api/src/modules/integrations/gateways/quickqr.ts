@@ -12,7 +12,7 @@ import {
   withBearer,
 } from './http';
 import { choice, defineIntegration, digits, field, kept } from '../define';
-import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 /**
  * The merchant, signed up under the platform's QPay vendor account on
@@ -106,7 +106,7 @@ const MAX_PAGES = 50;
 const ALREADY_REGISTERED = /MERCHANT_ALREADY_REGISTERED|Бүртгэлтэй мерчант байна/u;
 
 /** Calls through the platform's vendor account. */
-const vendorApi = (options: DriverOptions) => {
+const vendorApi = (options: ClientOptions) => {
   const vendor = options.quickQr;
 
   if (!vendor)
@@ -135,7 +135,7 @@ const vendorApi = (options: DriverOptions) => {
 };
 
 /** The districts (sum/düüreg) of a city or aimag, by its code, for the merchant's address. */
-export const quickQrDistricts = async (city: string, options: DriverOptions = {}) => {
+export const quickQrDistricts = async (city: string, options: ClientOptions = {}) => {
   const { call } = vendorApi(options);
 
   return parse(
@@ -230,18 +230,29 @@ const registrar = (config: QuickQrConfig, call: ReturnType<typeof vendorApi>['ca
  * account (no QPay contract of its own) and paid into its bank account. QR
  * invoices, checked by QuickQR's payment check.
  */
-const quickQrDriver = (config: QuickQrConfig, options: DriverOptions = {}): GatewayDriver => {
-  const vendor = () => vendorApi(options);
+export const quickqr = defineIntegration({
+  key: 'quickqr',
+  name: 'QPay QuickQR',
+  summary: 'QPay QR invoices paid straight into your bank account, no QPay contract of your own.',
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: (config, options) => ({ config, vendor: () => vendorApi(options) }),
+  async verify({ vendor }) {
+    const { cache } = vendor();
 
-  return {
-    kind: 'quickqr',
-    async verify() {
-      const { cache } = vendor();
-
-      cache.forget();
-      await cache.token();
-    },
-    async createInvoice(input) {
+    cache.forget();
+    await cache.token();
+  },
+  register: async ({ config, vendor }) => ({
+    merchantId: await registrar(config, vendor().call)(),
+  }),
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'bank-qr',
+    async createInvoice({ config, vendor }, input) {
       if (!config.merchantId) throw new GatewayError('QuickQR merchant is not registered yet');
 
       const answer = parse(
@@ -287,7 +298,7 @@ const quickQrDriver = (config: QuickQrConfig, options: DriverOptions = {}): Gate
 
       return { gatewayInvoiceId: answer.id, payment };
     },
-    async check(gatewayInvoiceId, amount) {
+    async check({ vendor }, { gatewayInvoiceId, amount }) {
       const answer = parse(
         'QuickQR',
         CheckAnswer,
@@ -308,20 +319,5 @@ const quickQrDriver = (config: QuickQrConfig, options: DriverOptions = {}): Gate
     refund() {
       return Promise.reject(new GatewayError('QuickQR makes no refunds'));
     },
-  };
-};
-
-export const quickqr = defineIntegration({
-  key: 'quickqr',
-  name: 'QPay QuickQR',
-  summary: 'QPay QR invoices paid straight into your bank account, no QPay contract of your own.',
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => quickQrDriver(config, options).verify(),
-  register: async (config, options) => ({
-    merchantId: await registrar(config, vendorApi(options).call)(),
-  }),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'bank-qr', driver: quickQrDriver },
+  },
 });

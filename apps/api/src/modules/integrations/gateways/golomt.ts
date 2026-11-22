@@ -11,7 +11,7 @@ import {
   qrInstructions,
   toTugrug,
 } from './http';
-import { type DriverOptions, type GatewayDriver, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 const keys = z.object({ checksumKey: secret('Checksum key'), token: secret('Token') });
 
@@ -31,13 +31,7 @@ const InquiryAnswer = z.object({
   errorDesc: z.string().nullish(),
 });
 
-/**
- * Golomt Bank card e-commerce: an invoice whose payment page takes cards (and a
- * SocialPay deeplink), checked by inquiry. Requests carry the merchant token;
- * checksums are HMAC-SHA256 with the merchant key. The page sends the payer to
- * the callback address once paid.
- */
-const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}): GatewayDriver => {
+const golomtClient = (config: GolomtConfig, options: ClientOptions) => {
   const send = gatewayHttp('Golomt', `${BASE}/api`, options);
   const headers = { Authorization: `Bearer ${config.token}` };
 
@@ -68,13 +62,33 @@ const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}): Gatewa
     return answer;
   };
 
-  return {
-    kind: 'golomt',
-    async verify() {
-      // No sign-in endpoint: a ₮1 invoice proves the token and key; unpaid, it lapses.
-      await invoice(probeId(), 100, `${BASE}/`);
-    },
-    async createInvoice(input) {
+  return { config, send, headers, invoice };
+};
+
+/**
+ * Golomt Bank card e-commerce: an invoice whose payment page takes cards (and a
+ * SocialPay deeplink), checked by inquiry. Requests carry the merchant token;
+ * checksums are HMAC-SHA256 with the merchant key. The page sends the payer to
+ * the callback address once paid.
+ */
+export const golomt = defineIntegration({
+  key: 'golomt',
+  name: 'Golomt Bank',
+  summary: "Card payments on Golomt Bank's page, with a SocialPay link.",
+  category: 'payments',
+  countries: ['MN'],
+  permission: 'payments.manage',
+  keys,
+  client: golomtClient,
+  async verify({ invoice }) {
+    // No sign-in endpoint: a ₮1 invoice proves the token and key; unpaid, it lapses.
+    await invoice(probeId(), 100, `${BASE}/`);
+  },
+  payments: {
+    currencies: ['MNT'],
+    refunds: 'none',
+    pays: 'card',
+    async createInvoice({ invoice }, input) {
       const answer = await invoice(input.invoiceId, input.amount, input.returnUrl);
       const page = `${BASE}/payment/mn/${answer.invoice}`;
       const links = [{ name: 'Golomt', link: page }];
@@ -86,7 +100,7 @@ const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}): Gatewa
         payment: await qrInstructions(page, links, page),
       };
     },
-    async check(gatewayInvoiceId, amount) {
+    async check({ config, send, headers }, { gatewayInvoiceId, amount }) {
       const answer = parse(
         'Golomt',
         InquiryAnswer,
@@ -118,17 +132,5 @@ const golomtDriver = (config: GolomtConfig, options: DriverOptions = {}): Gatewa
         new GatewayError('Golomt refunds are made in the bank’s merchant portal'),
       );
     },
-  };
-};
-
-export const golomt = defineIntegration({
-  key: 'golomt',
-  name: 'Golomt Bank',
-  summary: "Card payments on Golomt Bank's page, with a SocialPay link.",
-  category: 'payments',
-  countries: ['MN'],
-  permission: 'payments.manage',
-  keys,
-  verify: (config, options) => golomtDriver(config, options).verify(),
-  payments: { currencies: ['MNT'], refunds: 'none', pays: 'card', driver: golomtDriver },
+  },
 });

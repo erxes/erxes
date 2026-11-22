@@ -1,4 +1,4 @@
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { openGateway } from '~/modules/integrations/registry';
 import { describe, expect, it } from 'vite-plus/test';
 import { fakeGateway, tugrugInvoice as invoice } from './fakeGateway';
 
@@ -29,7 +29,7 @@ describe('Khan Bank', () => {
       ],
     ]);
 
-    const driver = gatewayDriver(
+    const { payments, client } = openGateway(
       'khanbank',
       { connectionId: 'bank1', accountNumber: '5005123456', iban: 'MN12000500' },
       {
@@ -39,7 +39,7 @@ describe('Khan Bank', () => {
       },
     );
 
-    const created = await driver.createInvoice({ ...invoice, description: 'Order 123' });
+    const created = await payments.createInvoice(client, { ...invoice, description: 'Order 123' });
 
     expect(created).toMatchObject({
       gatewayInvoiceId: 'inv1',
@@ -63,14 +63,16 @@ describe('Khan Bank', () => {
 
     // "Order 12" is another invoice's, 1400 another amount, and a reference only in
     // the sender text the bank appends isn't the payer's.
-    expect(await driver.check('inv1', 150_000, state)).toEqual({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'inv1', amount: 150_000, state }),
+    ).toEqual({
       paid: true,
       paidAmount: 150_000,
       paymentId: '5005123456:2',
       paymentIds: ['5005123456:2', '5005123456:4'],
     });
     expect(gateway.calls.at(-1)?.auth).toBe('Bearer kb');
-    await expect(driver.createInvoice({ ...invoice, description: '—' })).rejects.toThrow(
+    await expect(payments.createInvoice(client, { ...invoice, description: '—' })).rejects.toThrow(
       /description/,
     );
   });

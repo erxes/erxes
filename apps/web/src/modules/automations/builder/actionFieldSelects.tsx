@@ -2,6 +2,7 @@ import type { ActionField, ActionInfo } from '@erxes/core-contract';
 import { memberQueries, messageOf } from '@erxes/core-contract/client';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
+  ConnectionPicker,
   LookupPicker,
   pluginJson,
   Select,
@@ -188,6 +189,21 @@ export const OptionSelect = ({ field, value, onChange, disabled }: ActionInputPr
         ))}
       </Select.Content>
     </Select>
+  );
+};
+
+/** One of the action's integration's active connections, or none for its default one. */
+export const ConnectionSelect = ({ action, value, onChange, disabled }: ActionInputProps) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <ConnectionPicker
+      integration={action.integration ?? undefined}
+      value={textOf(value) || null}
+      onValueChange={(connectionId) => onChange(connectionId ?? undefined)}
+      noneLabel={t('default-connection', 'The default connection')}
+      disabled={disabled}
+    />
   );
 };
 

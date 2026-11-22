@@ -293,6 +293,7 @@ export const ACCESS = {
   'integrations.connect': MEMBER,
   'integrations.update': MEMBER,
   'integrations.remove': MEMBER,
+  'integrations.report': { plugin: 'installed' },
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

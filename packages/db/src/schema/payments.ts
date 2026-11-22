@@ -14,7 +14,6 @@ import {
   foreignKey,
   index,
   jsonb,
-  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -22,7 +21,6 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { integrationConnections } from './integrations';
-import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -170,34 +168,6 @@ export const paymentRefunds = pgTable(
       columns: [table.orgId, table.invoiceId],
       foreignColumns: [paymentInvoices.orgId, paymentInvoices.id],
       name: 'core_payment_refunds_invoice_fkey',
-    }).onDelete('cascade'),
-  ],
-);
-
-/**
- * How a plugin takes payments in an organisation, set by its owner: the
- * gateway it uses unless it names one, and the only gateways it may use
- * (none listed: any active one).
- */
-export const paymentPluginSettings = pgTable(
-  'payment_plugin_settings',
-  {
-    orgId: orgIdColumn(),
-    plugin: text().notNull(),
-    defaultGatewayId: text(),
-    allowedGatewayIds: text()
-      .array()
-      .default(sql`'{}'::text[]`)
-      .notNull(),
-    updatedBy: text(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    primaryKey({ columns: [table.orgId, table.plugin], name: 'core_payment_plugin_settings_pkey' }),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_payment_plugin_settings_org_id_fkey',
     }).onDelete('cascade'),
   ],
 );

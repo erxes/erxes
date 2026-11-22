@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
-import type { CoreIntegration } from '../catalog';
+import type { Integration } from '../catalog';
 import { ConnectionsIntegration } from '../ConnectionsIntegration';
 import { BankAccounts } from './BankAccounts';
 import { BankTransfers } from './BankTransfers';
@@ -14,7 +14,7 @@ import { BankTransfers } from './BankTransfers';
  * keys the bank gave), then the accounts they read and the money sent from
  * them, for members who may see bank accounts.
  */
-export const BanksIntegration = ({ integration }: { integration: CoreIntegration }) => {
+export const BanksIntegration = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.banks' });
   const can = useCan();
   const mayView = can('banks.view');

@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 import { z } from 'zod';
-import { type DriverOptions, GatewayError } from './types';
+import { type ClientOptions, GatewayError } from './types';
 
 /** Gateways send ids and amounts as strings or numbers. */
 export const Text = z.union([z.string(), z.number()]).transform(String);
@@ -22,7 +22,7 @@ export type Send = (path: string, init?: RequestInit) => Promise<string>;
  * Requests to one gateway: JSON bodies, a 15 s timeout, no redirects, and a
  * GatewayError naming the gateway and its status on anything but a 2xx.
  */
-export const gatewayHttp = (gateway: string, base: string, options: DriverOptions): Send => {
+export const gatewayHttp = (gateway: string, base: string, options: ClientOptions): Send => {
   const fetch = options.fetch ?? globalThis.fetch;
 
   return async (path, init = {}) => {

@@ -47,17 +47,13 @@ export const settingsOf = async (tx: Db) => {
 /** Does the organisation issue receipts for this invoice? */
 const issuesFor = (
   settings: SettingsRow | null,
-  invoice: Pick<InvoiceRow, 'source' | 'currency'>,
+  invoice: Pick<InvoiceRow, 'currency'>,
 ): settings is SettingsRow =>
-  settings?.status === 'active' &&
-  settings.plugins.includes(invoice.source) &&
-  invoice.currency === RECEIPT_CURRENCY;
+  settings?.status === 'active' && invoice.currency === RECEIPT_CURRENCY;
 
 /** What the invoice still holds: paid less refunded (nothing unless it was paid). */
 export const keptAmount = (invoice: InvoiceRow) =>
-  invoice.status === 'paid' || invoice.status === 'refunded'
-    ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount
-    : 0;
+  invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
 /** The products of the lines: code, barcode, unit and the categories they sit in. */
 const productInfo = async (tx: Db, ids: string[]) => {
@@ -116,7 +112,6 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
 
   if (!invoice || !issuesFor(settings, invoice)) return null;
 
-  // Picked before the plugin said it sends its own: the plugin's receipt stands.
   if ((await ownReceiptPlugins(tx, [invoice.source])).size) return null;
 
   const ids = [...new Set(invoice.lines.flatMap((line) => line.productId ?? []))];

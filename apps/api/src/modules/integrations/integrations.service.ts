@@ -12,12 +12,13 @@ import { callerCan } from '~/http/access';
 import { fail, invalidInput, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { releaseGateway } from '~/modules/payments/gateways.service';
 import { releaseBank } from '~/modules/banks/banks.service';
-import { listPluginSettings } from '~/modules/payments/pluginSettings.service';
+import { payingPlugins, releaseGateway } from '~/modules/payments/gateways.service';
 import { saveSecret } from '~/modules/secrets/vault';
+import { INTEGRATION_ACTIONS } from './actions';
 import { isBank } from './banks';
 import {
+  clientOptions,
   connectionsWithSecret,
   keysOf,
   listConnections,
@@ -25,7 +26,7 @@ import {
   withSettings,
 } from './connections';
 import { fieldsOf, type Integration, type KeyedIntegration } from './define';
-import { driverOptions } from './options';
+import { pluginIntegrations } from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
 
 const manages = (integration: Integration) => callerCan(integration.permission);
@@ -66,20 +67,24 @@ const connectionStatus = (active: number | undefined): IntegrationStatus => {
 export const listIntegrations = async (client: Db) => {
   const counts = await activeCounts(client);
 
-  return {
-    data: await Promise.all(
-      INTEGRATIONS.filter(manages).map(async (integration) => ({
-        ...integration,
-        dashboard: integration.dashboard ?? null,
-        keyed: Boolean(integration.keys),
-        fields: integration.keys ? fieldsOf(integration.keys) : [],
-        payments: integration.payments ?? null,
-        status: integration.status
-          ? await integration.status(client)
-          : connectionStatus(counts.get(integration.key)),
-      })),
-    ),
-  };
+  const own = await Promise.all(
+    INTEGRATIONS.filter(manages).map(async (integration) => ({
+      ...integration,
+      plugin: null,
+      dashboard: integration.dashboard ?? null,
+      keyed: Boolean(integration.keys),
+      fields: integration.keys ? fieldsOf(integration.keys) : [],
+      payments: integration.payments ?? null,
+      status: integration.status
+        ? await integration.status(client)
+        : connectionStatus(counts.get(integration.key)),
+      actions: INTEGRATION_ACTIONS.filter(
+        (action) => action.integration?.key === integration.key,
+      ).map(({ type, label, description }) => ({ type, label, description })),
+    })),
+  );
+
+  return { data: [...own, ...(await pluginIntegrations(client))] };
 };
 
 const managedKeys = () =>
@@ -95,7 +100,7 @@ const readerKeys = () =>
 
 export const integrationConnectionsOf = async (client: Db, key?: string) => {
   const { data } = await listConnections(client, key ? [connectable(key).key] : managedKeys());
-  const { data: plugins } = await listPluginSettings(client);
+  const plugins = await payingPlugins(client);
 
   // A bank connection is used by the payments that read their statement through it.
   const readers = data.some((connection) => isBank(connection.key))
@@ -110,11 +115,8 @@ export const integrationConnectionsOf = async (client: Db, key?: string) => {
         reader.settings.connectionId === connection.id ? [reader.name] : [],
       );
 
-    return connection.status === 'active' && keyedOf(connection.key).payments
-      ? plugins.flatMap(({ title, allowedGatewayIds }) =>
-          !allowedGatewayIds.length || allowedGatewayIds.includes(connection.id) ? [title] : [],
-        )
-      : [];
+    // Gateways serve the whole organisation: every plugin taking payments, while it is on.
+    return connection.status === 'active' && keyedOf(connection.key).payments ? plugins : [];
   };
 
   return { data: data.map((connection) => ({ ...connection, usedBy: usedBy(connection) })) };
@@ -159,14 +161,14 @@ const verified = async (
   id: string,
   keys: Record<string, unknown>,
 ) => {
-  const options = await withOrg(orgId, (tx) => driverOptions(tx, integration, id, keys));
+  const options = await withOrg(orgId, (tx) => clientOptions(tx, integration, id, keys));
 
   try {
-    await integration.verify(keys, options);
+    const client = integration.client(keys, options);
 
-    return integration.register
-      ? { ...keys, ...(await integration.register(keys, options)) }
-      : keys;
+    await integration.verify(client);
+
+    return integration.register ? { ...keys, ...(await integration.register(client)) } : keys;
   } catch (error) {
     throw refused(integration, error);
   }

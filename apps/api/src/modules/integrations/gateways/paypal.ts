@@ -11,12 +11,7 @@ import {
   withBearer,
 } from './http';
 import { defineIntegration, field, secret, toggle } from '../define';
-import {
-  type CreateInvoiceInput,
-  type DriverOptions,
-  type GatewayDriver,
-  GatewayError,
-} from './types';
+import { type ClientOptions, type CreateInvoiceInput, GatewayError } from './types';
 
 const keys = z.object({
   clientId: field('Client ID'),
@@ -61,7 +56,7 @@ const Refund = z.object({ id: z.string().min(1) });
 const State = z.object({ paypalCurrency: z.string() });
 
 /** PayPal's REST API with its access token, cached per connection and mode. */
-const paypalClient = (config: PayPalConfig, options: DriverOptions) => {
+const paypalClient = (config: PayPalConfig, options: ClientOptions) => {
   const send = gatewayHttp(
     'PayPal',
     config.sandbox ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com',
@@ -171,41 +166,6 @@ const checkOrder = async ({ order }: Client, orderId: string, amount: number) =>
  * which sends them back through core; the check captures an approved order.
  * Refunds of any part go to the capture.
  */
-const paypalDriver = (config: PayPalConfig, options: DriverOptions = {}): GatewayDriver => {
-  const client = paypalClient(config, options);
-
-  return {
-    kind: 'paypal',
-    async verify() {
-      client.cache.forget();
-      await client.cache.token();
-    },
-    createInvoice: (input) => createOrder(client, input),
-    check: (gatewayInvoiceId, amount) => checkOrder(client, gatewayInvoiceId, amount),
-    async cancel() {
-      // An order nobody approved lapses on its own; PayPal has no call to void it.
-    },
-    async refund(input, state) {
-      const currency = State.parse(state).paypalCurrency;
-
-      const refund = parse(
-        'PayPal',
-        Refund,
-        await client.call(`/v2/payments/captures/${encodeURIComponent(input.paymentId)}/refund`, {
-          method: 'POST',
-          body: json({
-            amount: { currency_code: currency, value: decimalAmount(input.amount, currency) },
-            note_to_payer: input.note.slice(0, 255),
-          }),
-        }),
-        'no refund',
-      );
-
-      return { refundId: refund.id };
-    },
-  };
-};
-
 export const paypal = defineIntegration({
   key: 'paypal',
   name: 'PayPal',
@@ -215,7 +175,11 @@ export const paypal = defineIntegration({
   permission: 'payments.manage',
   dashboard: 'https://developer.paypal.com/dashboard/applications',
   keys,
-  verify: (config, options) => paypalDriver(config, options).verify(),
+  client: paypalClient,
+  async verify({ cache }) {
+    cache.forget();
+    await cache.token();
+  },
   payments: {
     currencies: [
       'AUD',
@@ -245,6 +209,28 @@ export const paypal = defineIntegration({
     ],
     refunds: 'partial',
     pays: 'paypal',
-    driver: paypalDriver,
+    createInvoice: createOrder,
+    check: (client, { gatewayInvoiceId, amount }) => checkOrder(client, gatewayInvoiceId, amount),
+    async cancel() {
+      // An order nobody approved lapses on its own; PayPal has no call to void it.
+    },
+    async refund({ call }, { paymentId, amount, note, state }) {
+      const currency = State.parse(state).paypalCurrency;
+
+      const refund = parse(
+        'PayPal',
+        Refund,
+        await call(`/v2/payments/captures/${encodeURIComponent(paymentId)}/refund`, {
+          method: 'POST',
+          body: json({
+            amount: { currency_code: currency, value: decimalAmount(amount, currency) },
+            note_to_payer: note.slice(0, 255),
+          }),
+        }),
+        'no refund',
+      );
+
+      return { refundId: refund.id };
+    },
   },
 });

@@ -40,7 +40,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   retries until it answers 2xx. A job may run twice: key its effect by `jobId`.
 - An automation action is an entry in the manifest's `actions`; core POSTs
   each run to `/api/automations/actions/<type>`, checked with `verifyCoreCall`.
-  A field that picks one of the plugin's records is
+  An action that acts through one of the manifest's `integrations` names it
+  (`integration: 'facebook'`): the builder lists it under that integration. A field that picks one of the plugin's records is
   `{ key: 'pipelineId', label: 'Pipeline', type: 'plugin_record', recordType: 'pipeline' }`,
   and `dependsOn: 'pipelineId'` on another narrows it to that pipeline's. Web
   fills the list from `GET /api/automations/records/<recordType>?parent=<value>`,

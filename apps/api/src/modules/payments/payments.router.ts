@@ -1,5 +1,10 @@
 import { db } from '@erxes/core-db';
-import { listGateways, listQuickQrDistricts } from '~/modules/payments/gateways.service';
+import {
+  listGateways,
+  listQuickQrDistricts,
+  paymentSettings,
+  savePaymentSettings,
+} from '~/modules/payments/gateways.service';
 import {
   cancelInvoice,
   createInvoice,
@@ -7,10 +12,6 @@ import {
   listInvoices,
   payTestInvoice,
 } from '~/modules/payments/invoices.service';
-import {
-  listPluginSettings,
-  updatePluginSettings,
-} from '~/modules/payments/pluginSettings.service';
 import { recordPayment } from '~/modules/payments/recorded.service';
 import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
 import { scoped, unscoped } from '~/orpc';
@@ -27,9 +28,9 @@ export const paymentsRouter = {
   invoices: scoped.payments.invoices.handler(({ input }) => listInvoices(db(), input)),
   refund: scoped.payments.refund.handler(({ input }) => refundInvoice(db(), input)),
   refunds: scoped.payments.refunds.handler(({ input }) => listRefunds(db(), input.id)),
-  pluginSettings: scoped.payments.pluginSettings.handler(() => listPluginSettings(db())),
-  updatePluginSettings: scoped.payments.updatePluginSettings.handler(({ input }) =>
-    updatePluginSettings(db(), input),
+  settings: scoped.payments.settings.handler(() => paymentSettings(db())),
+  saveSettings: scoped.payments.saveSettings.handler(({ input }) =>
+    savePaymentSettings(db(), input),
   ),
   payTestInvoice: unscoped.payments.payTestInvoice.handler(({ input }) => payTestInvoice(input.id)),
 };

@@ -27,6 +27,26 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
     return (await readFileBytes(t.ids.org, fileId)).body;
   };
 
+  /** Registers one transfer record type of `type`, imported under `importPermission`. */
+  const register = async (type: `${string}:${string}`, importPermission: string) =>
+    t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '4',
+      permissions: [
+        { action: 'hr.employee.export', label: 'Export employees' },
+        { action: 'hr.employee.import', label: 'Import employees' },
+      ],
+      transfer: [
+        {
+          type,
+          label: 'employees',
+          exportPermission: 'hr.employee.export',
+          importPermission,
+          columns: [{ key: 'name', label: 'Name' }],
+        },
+      ],
+    });
+
   it("exports and imports a plugin's records through its API, for members it allows", async () => {
     const api = await pluginApi(t.url(''));
 
@@ -182,5 +202,17 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
       t.member().transfer.createExport({ recordType: 'hr:employee', columns: ['name'] }),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
     await api.close();
+  });
+
+  it('refuses a record type outside the plugin’s name, or one naming a permission it does not declare', async () => {
+    await expect(register('sales:employee', 'hr.employee.import')).rejects.toMatchObject({
+      status: 400,
+      code: 'NAMESPACE_REQUIRED',
+    });
+    await expect(register('hr:employee', 'hr.employee.delete')).rejects.toMatchObject({
+      status: 400,
+      code: 'UNKNOWN_PERMISSION',
+      data: { permissions: ['hr.employee.delete'] },
+    });
   });
 });

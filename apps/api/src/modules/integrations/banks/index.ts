@@ -7,7 +7,7 @@ import {
   type KeyedIntegration,
   secret,
 } from '../define';
-import type { DriverOptions } from '../gateways/types';
+import type { ClientOptions } from '../gateways/types';
 import { golomtClient } from './golomt';
 import { khanbankClient } from './khanbank';
 import { tdbClient } from './tdb';
@@ -81,15 +81,19 @@ export const bankConfigOf = (key: string, keys: unknown): BankConfig => {
 };
 
 const bank = <K extends z.ZodObject>(
-  definition: Omit<KeyedIntegration<K>, 'verify' | 'category' | 'countries' | 'permission'>,
+  definition: Omit<
+    KeyedIntegration<K, BankClient>,
+    'client' | 'verify' | 'category' | 'countries' | 'permission'
+  >,
 ) =>
   defineIntegration({
     ...definition,
     category: 'banks',
     countries: ['MN'],
     permission: 'integrations.manage',
-    verify: (keys: z.output<K>, options: DriverOptions) =>
-      createBankClient(bankConfigOf(definition.key, keys), options).verify(),
+    client: (keys: z.output<K>, options: ClientOptions) =>
+      createBankClient(bankConfigOf(definition.key, keys), options),
+    verify: (client: BankClient) => client.verify(),
   });
 
 export const khanbankBank = bank({

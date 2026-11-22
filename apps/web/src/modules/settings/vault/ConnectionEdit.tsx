@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Button, Input, Label, Spinner, Switch, useConfirm, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CoreIntegration } from '../integrations/catalog';
+import type { Integration } from '../integrations/catalog';
 import {
   ConnectionFieldInputs,
   connectionKeys,
@@ -51,7 +51,7 @@ const RemoveConnection = ({
   pending,
   onRemove,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   connection: VaultConnection;
   pending: boolean;
   onRemove: () => void;
@@ -92,7 +92,7 @@ export const ConnectionEdit = ({
   connection,
   onRemoved,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   connection: VaultConnection;
   onRemoved: () => void;
 }) => {

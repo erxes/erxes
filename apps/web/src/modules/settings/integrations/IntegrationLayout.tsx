@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { countryNames } from '~/lib/region';
-import { type Integration, statusOf } from './catalog';
+import { usePluginText } from '~/modules/plugins/pluginText';
+import type { Integration } from './catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
@@ -35,7 +36,6 @@ const IntegrationHeader = ({
   actions?: ReactNode;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
-  const status = statusOf(integration);
   const { name, summary } = useIntegrationText()(integration);
 
   return (
@@ -44,7 +44,7 @@ const IntegrationHeader = ({
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="min-w-0 break-words text-xl font-semibold">{name}</h1>
-          <IntegrationStatusBadge status={status} />
+          <IntegrationStatusBadge status={integration.status} />
         </div>
         <p className="text-sm text-muted-foreground">{summary}</p>
         <p className="text-xs text-muted-foreground">
@@ -57,6 +57,39 @@ const IntegrationHeader = ({
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </header>
+  );
+};
+
+/** A heading and its content, as the Overview tab lists them. */
+export const OverviewSection = ({ title, children }: { title: string; children: ReactNode }) => (
+  <section className="space-y-2">
+    <h2 className="text-sm font-medium">{title}</h2>
+    {children}
+  </section>
+);
+
+/** The actions it brings to automations, under its first tab. */
+const InAutomations = ({ integration }: { integration: Integration }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
+  const pluginText = usePluginText();
+  const { plugin } = integration;
+  const words = (text: string) => (plugin ? pluginText(plugin, text) : text);
+
+  if (!integration.actions.length) return null;
+
+  return (
+    <OverviewSection title={t('in-automations', 'In automations')}>
+      <ul className="divide-y rounded-lg border text-sm">
+        {integration.actions.map((action) => (
+          <li key={action.type} className="space-y-0.5 p-3">
+            <p className="font-medium">{words(action.label)}</p>
+            {action.description && (
+              <p className="text-muted-foreground">{words(action.description)}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </OverviewSection>
   );
 };
 
@@ -92,7 +125,7 @@ export const IntegrationLayout = ({
                 to: paths.settings.integrations,
                 icon: IconPlugConnected,
               },
-              { label: name, to: paths.settings.integration(integration.key) },
+              { label: name, to: paths.settings.integration(integration.slug) },
             ]}
           />
         </PageHeader.Start>
@@ -112,19 +145,12 @@ export const IntegrationLayout = ({
             </Tabs>
           )}
           {current?.content}
+          {current === tabs[0] && <InAutomations integration={integration} />}
         </div>
       </ScrollArea>
     </PageContainer>
   );
 };
-
-/** A heading and its content, as the Overview tab lists them. */
-export const OverviewSection = ({ title, children }: { title: string; children: ReactNode }) => (
-  <section className="space-y-2">
-    <h2 className="text-sm font-medium">{title}</h2>
-    {children}
-  </section>
-);
 
 /** The overview's "How it works", its lines already translated. */
 export const HowItWorks = ({ title, lines }: { title: string; lines: string[] }) => (

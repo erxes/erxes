@@ -6,6 +6,7 @@ import {
   removeConnection,
   updateConnection,
 } from '~/modules/integrations/integrations.service';
+import { reportIntegrationState } from '~/modules/integrations/pluginIntegrations';
 import { scoped, unscoped } from '~/orpc';
 
 export const integrationsRouter = {
@@ -18,4 +19,5 @@ export const integrationsRouter = {
   remove: scoped.integrations.remove.handler(({ input }) =>
     removeConnection(db(), input.key, input.id),
   ),
+  report: scoped.integrations.report.handler(({ input }) => reportIntegrationState(db(), input)),
 };

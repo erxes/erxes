@@ -5,7 +5,7 @@ import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
 import { connectionsOf, useConnections } from '../vault/useVault';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import { CredentialsHelp } from './ConnectionFields';
 import {
   IntegrationLayout,
@@ -14,7 +14,7 @@ import {
   useIntegrationTab,
 } from './IntegrationLayout';
 
-const PaymentFacts = ({ payments }: { payments: NonNullable<CoreIntegration['payments']> }) => {
+const PaymentFacts = ({ payments }: { payments: NonNullable<Integration['payments']> }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { currency } = useSession().organization;
   const { currencies, refunds, pays } = payments;
@@ -50,7 +50,7 @@ const PaymentFacts = ({ payments }: { payments: NonNullable<CoreIntegration['pay
   );
 };
 
-const Overview = ({ integration }: { integration: CoreIntegration }) => {
+const Overview = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const connections = useConnections();
 
@@ -79,7 +79,7 @@ const Overview = ({ integration }: { integration: CoreIntegration }) => {
   );
 };
 
-const Connect = ({ integration }: { integration: CoreIntegration }) => {
+const Connect = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { openNew } = useOpenRecord();
 
@@ -96,7 +96,7 @@ export const ConnectionsIntegration = ({
   integration,
   tabs = [],
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   tabs?: IntegrationTab[];
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });

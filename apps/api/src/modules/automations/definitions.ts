@@ -65,6 +65,13 @@ const actionProblems = (
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
 
+  for (const field of action.fields.filter((item) => item.type === 'connection')) {
+    const value = step.input[field.key];
+
+    if (!isBlank(value) && !field.options?.some((option) => option.value === value))
+      problems.push(`Step ${step.id} (${action.label}): that connection is not active`);
+  }
+
   if (step.action === REPLY_ACTION && trigger.kind !== 'webhook')
     problems.push(`Step ${step.id} (${action.label}) needs the webhook trigger`);
 

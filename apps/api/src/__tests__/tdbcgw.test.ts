@@ -1,4 +1,4 @@
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { gatewayOf, openGateway } from '~/modules/integrations/registry';
 import { describe, expect, it } from 'vite-plus/test';
 import { fakeGateway, tugrugInvoice as invoice } from './fakeGateway';
 
@@ -26,7 +26,7 @@ describe('TDB by transfer', () => {
       ],
     ]);
 
-    const driver = gatewayDriver(
+    const { payments, client } = openGateway(
       'tdbcgw',
       { connectionId: 'bank1', accountNumber: '4600123', iban: 'MN34' },
       {
@@ -36,9 +36,9 @@ describe('TDB by transfer', () => {
       },
     );
 
-    await driver.verify();
+    await gatewayOf('tdbcgw').verify(client);
 
-    const created = await driver.createInvoice({ ...invoice, description: 'Order 123' });
+    const created = await payments.createInvoice(client, { ...invoice, description: 'Order 123' });
 
     expect(created.payment).toMatchObject({
       qrText: null,
@@ -55,7 +55,9 @@ describe('TDB by transfer', () => {
     const state = created.state ?? {};
 
     // "Order 12" is another invoice's, 1400 another amount, and money out isn't a payment.
-    expect(await driver.check('inv1', 150_000, state)).toEqual({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'inv1', amount: 150_000, state }),
+    ).toEqual({
       paid: true,
       paidAmount: 150_000,
       paymentId: '4600123:2',

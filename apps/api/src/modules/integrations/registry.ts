@@ -16,7 +16,7 @@ import { tdb } from './gateways/tdb';
 import { test } from './gateways/test';
 import { toki } from './gateways/toki';
 import { golomtTransfer, khanbankTransfer, tdbTransfer } from './gateways/transfers';
-import type { DriverOptions } from './gateways/types';
+import type { ClientOptions } from './gateways/types';
 import { wechatpay } from './gateways/wechatpay';
 
 export const INTEGRATIONS: readonly Integration[] = [
@@ -73,8 +73,8 @@ export const gatewayOf = (key: string) => {
   return { ...integration, payments: integration.payments };
 };
 
-export const gatewayDriver = (key: string, keys: unknown, options: DriverOptions = {}) => {
+export const openGateway = (key: string, keys: unknown, options: ClientOptions = {}) => {
   const gateway = gatewayOf(key);
 
-  return gateway.payments.driver(gateway.keys.parse(keys), options);
+  return { payments: gateway.payments, client: gateway.client(gateway.keys.parse(keys), options) };
 };

@@ -20,7 +20,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { INTEGRATIONS } from '~/modules/integrations/registry';
 import { withSecret } from '~/modules/secrets/vault';
-import { driverOf } from './gateways.service';
+import { gatewayAt } from './gateways.service';
 
 const log = logger.child({ component: 'payments' });
 
@@ -155,7 +155,7 @@ const settleWith = async (
  * the same kind already settled another invoice with (a payer token replayed
  * to another order, a transfer two invoices match) leaves this one pending,
  * or settles it with the next of `paymentIds`. `brought` is what the
- * callback brought (`GatewayDriver.callback`), kept now that the gateway
+ * callback brought (`payments.callback`), kept now that the gateway
  * confirmed it.
  */
 const markPaid = async (
@@ -259,8 +259,8 @@ export const invoiceWithGateway = async (tx: Db, id: string, lock = false) => {
  * marking paid or expired is conditional on the invoice still being pending:
  * checks running at once settle it once. Call it outside any scope.
  *
- * `callbackBody` is what the gateway's callback posted: what the driver needs
- * from it (`GatewayDriver.callback`) is kept for later checks without
+ * `callbackBody` is what the gateway's callback posted: what the gateway needs
+ * from it (`payments.callback`) is kept for later checks without
  * replacing what an earlier callback brought, and replaces it once the
  * gateway confirms the payment.
  */
@@ -271,12 +271,12 @@ export const refresh = async (orgId: string, id: string, callbackBody?: unknown)
     return { invoice, gateway };
   }
 
-  const driver = await driverOf(gateway);
+  const { payments, client } = await gatewayAt(gateway);
 
   const brought =
     callbackBody === undefined
       ? null
-      : (driver.callback?.(callbackBody, { invoiceId: invoice.id, amount: invoice.amount }) ??
+      : (payments.callback?.(callbackBody, { invoiceId: invoice.id, amount: invoice.amount }) ??
         null);
 
   if (brought)
@@ -287,9 +287,10 @@ export const refresh = async (orgId: string, id: string, callbackBody?: unknown)
         .where(and(eq(paymentInvoices.id, invoice.id), eq(paymentInvoices.status, 'pending'))),
     );
 
-  const check = await driver.check(invoice.gatewayInvoiceId, invoice.amount, {
-    ...invoice.payment,
-    ...brought,
+  const check = await payments.check(client, {
+    gatewayInvoiceId: invoice.gatewayInvoiceId,
+    amount: invoice.amount,
+    state: { ...invoice.payment, ...brought },
   });
 
   return withOrg(orgId, async (tx) => {

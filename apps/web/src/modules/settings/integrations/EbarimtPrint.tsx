@@ -291,7 +291,7 @@ const Templates = ({ templates }: { templates: EbarimtPrintTemplate[] }) => {
       <p className="rounded-lg border p-4 text-sm">
         {t(
           'no-plugins',
-          'Pick the plugins eBarimt issues receipts for in Settings. Each one gets its own template here.',
+          'Set up eBarimt in Settings first. Core and each plugin that takes payments get their own template here.',
         )}
       </p>
     );

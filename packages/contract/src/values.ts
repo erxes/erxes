@@ -337,6 +337,11 @@ export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 
 export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
 
+/** An integration's key, core's (`qpay`) or one a plugin declares (`facebook`). */
+export const IntegrationKey = z
+  .string()
+  .regex(/^[a-z][a-z0-9-]{0,39}$/, 'lowercase letters, digits and dashes');
+
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 
 export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);

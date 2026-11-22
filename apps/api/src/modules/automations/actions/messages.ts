@@ -12,11 +12,10 @@ import {
   idempotencyKey,
   list,
   parseBody,
+  recipientsOf,
   subjectFields,
   text,
 } from './context';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** An email step's Cc: up to 5 addresses, copied on each of its emails. */
 const CcList = z
@@ -145,13 +144,7 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
     // Queues the emails in the step's transaction; the email job sends them.
     run: async (ctx) => {
       const to = (text(ctx.input.to) ?? '').trim();
-      const subjectEmail = subjectFields(ctx)?.primaryEmail;
-      const addresses = to === 'subject' ? [subjectEmail ?? ''] : to.split(',');
-
-      const recipients = addresses
-        .map((address) => address.trim())
-        .filter((address) => EMAIL.test(address))
-        .slice(0, 50);
+      const recipients = recipientsOf(ctx, 'to');
 
       if (!recipients.length) return { sent: 0, reason: 'no email address' };
 

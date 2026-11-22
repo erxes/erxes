@@ -2,14 +2,14 @@ import type { VaultConnection } from '@erxes/core-contract';
 import { IconChevronRight } from '@tabler/icons-react';
 import { Badge, cn, CONNECTION_CONTENT_TYPE, useCurrentRecord, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import type { CoreIntegration } from '../integrations/catalog';
+import type { Integration } from '../integrations/catalog';
 import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
 
 export const ConnectionList = ({
   rows,
   showService,
 }: {
-  rows: { connection: VaultConnection; integration: CoreIntegration }[];
+  rows: { connection: VaultConnection; integration: Integration }[];
   showService: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'vault' });

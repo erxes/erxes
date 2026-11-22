@@ -11,14 +11,14 @@ import {
   isHiddenBankField,
   waitsForConnection,
 } from './BankLinkedChoices';
-import type { CoreIntegration } from './catalog';
+import type { Integration } from './catalog';
 import { ChoiceSelect } from './ChoiceSelect';
 import { useIntegrationText } from './IntegrationStatusBadge';
 import { isQuickQrChoice, isQuickQrName, QuickQrChoice, quickQrHides } from './QuickQrChoices';
 
 export type ConnectionValues = Record<string, string | boolean>;
 
-export const connectionKeys = (integration: CoreIntegration, values: ConnectionValues) => ({
+export const connectionKeys = (integration: Integration, values: ConnectionValues) => ({
   keys: Object.fromEntries(Object.entries(values).filter(([, value]) => value !== '')),
   ready: integration.fields.every(
     ({ key, type, optional }) =>
@@ -48,7 +48,7 @@ export const useConnectionsChanged = () => {
     ]);
 };
 
-export const CredentialsHelp = ({ integration }: { integration: CoreIntegration }) => {
+export const CredentialsHelp = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { name } = useIntegrationText()(integration);
   const { dashboard } = integration;
@@ -91,8 +91,8 @@ const FieldInput = ({
   onChange,
 }: {
   id: string;
-  integration: CoreIntegration;
-  field: CoreIntegration['fields'][number];
+  integration: Integration;
+  field: Integration['fields'][number];
   values: ConnectionValues;
   onChange: (key: string, value: string | boolean) => void;
 }) => {
@@ -147,7 +147,7 @@ export const ConnectionFieldInputs = ({
   values,
   onChange,
 }: {
-  integration: CoreIntegration;
+  integration: Integration;
   values: ConnectionValues;
   onChange: (key: string, value: string | boolean) => void;
 }) => {

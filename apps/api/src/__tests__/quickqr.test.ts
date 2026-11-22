@@ -1,5 +1,5 @@
 import { quickqr, quickQrDistricts } from '~/modules/integrations/gateways/quickqr';
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { gatewayOf, openGateway } from '~/modules/integrations/registry';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
@@ -55,10 +55,12 @@ describe('QPay QuickQR driver', () => {
   it('signs the merchant up under the vendor account and makes QR invoices for it', async () => {
     const gateway = fakeGateway(replies);
     const options = { fetch: gateway.fetch, quickQr: vendor, cacheKey: 'quickqr-test' };
-    const driver = gatewayDriver('quickqr', { ...merchant }, options);
 
-    await driver.verify();
-    expect(await quickqr.register?.(quickqr.keys.parse(merchant), options)).toEqual({
+    const clientFor = (keys: typeof merchant & { merchantId?: string }) =>
+      quickqr.client(quickqr.keys.parse(keys), options);
+
+    await quickqr.verify(clientFor(merchant));
+    expect(await quickqr.register?.(clientFor(merchant))).toEqual({
       merchantId: 'M-1',
     });
     expect(gateway.sent('/merchant/company')).toMatchObject({
@@ -68,8 +70,13 @@ describe('QPay QuickQR driver', () => {
       mcc_code: '5411',
     });
 
-    const registered = gatewayDriver('quickqr', { ...merchant, merchantId: 'M-1' }, options);
-    const created = await registered.createInvoice(invoice);
+    const { payments, client } = openGateway(
+      'quickqr',
+      { ...merchant, merchantId: 'M-1' },
+      options,
+    );
+
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/invoice')).toMatchObject({
       merchant_id: 'M-1',
@@ -83,7 +90,9 @@ describe('QPay QuickQR driver', () => {
       gatewayInvoiceId: 'QI-1',
       payment: { qrText: '000201QR', qrImage: 'data:image/png;base64,iVBORw0KGgo=' },
     });
-    expect(await registered.check('QI-1', 150_000, {})).toEqual({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'QI-1', amount: 150_000, state: {} }),
+    ).toEqual({
       paid: true,
       paidAmount: 150_000,
       paymentId: 'QI-1',
@@ -91,9 +100,9 @@ describe('QPay QuickQR driver', () => {
     expect(gateway.calls.at(-1)?.auth).toBe('Bearer vt');
 
     // Changing a registered merchant updates it.
-    expect(
-      await quickqr.register?.(quickqr.keys.parse({ ...merchant, merchantId: 'M-1' }), options),
-    ).toEqual({ merchantId: 'M-1' });
+    expect(await quickqr.register?.(clientFor({ ...merchant, merchantId: 'M-1' }))).toEqual({
+      merchantId: 'M-1',
+    });
     expect(gateway.calls.at(-1)).toMatchObject({ method: 'PUT' });
     expect(gateway.calls.at(-1)?.url).toContain('/merchant/company/M-1');
   });
@@ -107,9 +116,9 @@ describe('QPay QuickQR driver', () => {
       cacheKey: 'quickqr-again',
     };
 
-    expect(await quickqr.register?.(quickqr.keys.parse(merchant), options)).toEqual({
-      merchantId: 'M-1',
-    });
+    expect(await quickqr.register?.(quickqr.client(quickqr.keys.parse(merchant), options))).toEqual(
+      { merchantId: 'M-1' },
+    );
     // Registered as a person before: updated where it is.
     expect(gateway.calls.at(-1)?.url).toContain('/merchant/person/M-9');
   });
@@ -130,19 +139,21 @@ describe('QPay QuickQR driver', () => {
   });
 
   it('needs the server’s vendor account, and a registered merchant to invoice', async () => {
-    const driver = gatewayDriver('quickqr', { ...merchant });
-
-    await expect(driver.verify()).rejects.toThrow(/QUICK_QR_USERNAME/);
+    await expect(
+      gatewayOf('quickqr').verify(openGateway('quickqr', { ...merchant }).client),
+    ).rejects.toThrow(/QUICK_QR_USERNAME/);
 
     const gateway = fakeGateway(replies);
 
-    const unregistered = gatewayDriver(
+    const unregistered = openGateway(
       'quickqr',
       { ...merchant },
       { fetch: gateway.fetch, quickQr: vendor },
     );
 
-    await expect(unregistered.createInvoice(invoice)).rejects.toThrow(/not registered/);
+    await expect(unregistered.payments.createInvoice(unregistered.client, invoice)).rejects.toThrow(
+      /not registered/,
+    );
     expect(await quickQrDistricts('11000', { fetch: gateway.fetch, quickQr: vendor })).toEqual([
       { code: '11010', name: 'Баянзүрх' },
     ]);

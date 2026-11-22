@@ -23,7 +23,6 @@ import {
   type Category,
   type Integration,
   servesCountry,
-  statusOf,
   useIntegrations,
   useMayOpenIntegrations,
 } from './catalog';
@@ -38,11 +37,12 @@ const useCategoryLabel = () => {
 
   return (category: Category) =>
     ({
-      email: t('email', 'Email'),
-      messaging: t('messaging', 'Messaging'),
-      payments: t('payments', 'Payments'),
+      payments: t('payments', 'Payment gateways'),
       banks: t('banks', 'Banks'),
-      tax: t('tax', 'Tax receipts'),
+      social: t('social', 'Social media'),
+      messaging: t('messaging', 'Messaging'),
+      email: t('email', 'Email'),
+      government: t('government', 'Government'),
     })[category];
 };
 
@@ -51,30 +51,24 @@ const IntegrationTile = ({
   foreign,
 }: {
   integration: Integration;
-  /** Listed under other regions: say where it works. */
+  /** Not set up and made for other countries: say where it works. */
   foreign: boolean;
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'integrations' });
-  const categoryLabel = useCategoryLabel();
   const { name, summary } = useIntegrationText()(integration);
-  const status = statusOf(integration);
+  const { status } = integration;
 
   return (
     <li>
       <Link
-        to={paths.settings.integration(integration.key)}
+        to={paths.settings.integration(integration.slug)}
         className="flex h-full flex-col gap-3 rounded-lg border p-4 transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <span className="flex items-start gap-3">
           <IntegrationMark integration={integration} />
-          <span className="min-w-0 flex-1">
-            <span className="block font-medium">{name}</span>
-            <span className="block text-xs text-muted-foreground">
-              {categoryLabel(integration.category)}
-            </span>
-          </span>
+          <span className="min-w-0 flex-1 font-medium">{name}</span>
           {/* Only what is connected carries a state; the rest are simply available. */}
-          <IntegrationStatusBadge status={status?.state === 'not-set-up' ? null : status} />
+          <IntegrationStatusBadge status={status.state === 'not-set-up' ? null : status} />
         </span>
         <span className="line-clamp-2 text-sm text-muted-foreground">{summary}</span>
         {foreign && (
@@ -89,18 +83,8 @@ const IntegrationTile = ({
   );
 };
 
-const Section = ({
-  title,
-  items,
-  foreign = false,
-}: {
-  title: string;
-  items: Integration[];
-  foreign?: boolean;
-}) => {
+const Section = ({ title, items }: { title: string; items: Placed[] }) => {
   const id = useId();
-
-  if (!items.length) return null;
 
   return (
     <section aria-labelledby={id} className="space-y-3">
@@ -108,8 +92,12 @@ const Section = ({
         {title}
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((integration) => (
-          <IntegrationTile key={integration.key} integration={integration} foreign={foreign} />
+        {items.map(({ integration, rank }) => (
+          <IntegrationTile
+            key={integration.slug}
+            integration={integration}
+            foreign={rank === 'elsewhere'}
+          />
         ))}
       </ul>
     </section>
@@ -119,10 +107,13 @@ const Section = ({
 const Filters = ({
   search,
   category,
+  categories,
   onChange,
 }: {
   search: string;
   category: Category | null;
+  /** The categories with at least one listed integration. */
+  categories: Category[];
   onChange: (next: { q?: string | null; category?: Category | null }) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
@@ -148,11 +139,11 @@ const Filters = ({
         aria-label={t('categories', 'Categories')}
         value={[category ?? 'all']}
         onValueChange={([next]) =>
-          onChange({ category: CATEGORIES.find((item) => item === next) ?? null })
+          onChange({ category: categories.find((item) => item === next) ?? null })
         }
       >
         <ToggleGroup.Item value="all">{t('all', 'All')}</ToggleGroup.Item>
-        {CATEGORIES.map((item) => (
+        {categories.map((item) => (
           <ToggleGroup.Item key={item} value={item}>
             {categoryLabel(item)}
           </ToggleGroup.Item>
@@ -162,16 +153,27 @@ const Filters = ({
   );
 };
 
-const isSetUp = (integration: Integration) =>
-  (statusOf(integration)?.state ?? 'not-set-up') !== 'not-set-up';
+/** Where a tile goes in its category: connected, then local, then made for other regions. */
+const RANKS = ['connected', 'local', 'elsewhere'] as const;
 
-/** The catalog cut by the search and category, then into connected, local and other regions. */
-const useSections = (search: string, category: Category | null) => {
+type Placed = { integration: Integration; rank: (typeof RANKS)[number] };
+
+/**
+ * The catalog cut by the search and category, one section per category with an integration
+ * in it, in the categories' order. A category no integration is in is no filter.
+ */
+const useSections = (search: string, chosen: Category | null) => {
   const { country } = useSession().organization;
   const categoryLabel = useCategoryLabel();
   const textOf = useIntegrationText();
   const { integrations, listed } = useIntegrations();
   const needle = search.trim().toLocaleLowerCase();
+
+  const categories = CATEGORIES.filter((item) =>
+    integrations.some((integration) => integration.category === item),
+  );
+
+  const category = categories.find((item) => item === chosen) ?? null;
 
   const matches = (integration: Integration) => {
     const { name, summary } = textOf(integration);
@@ -181,18 +183,29 @@ const useSections = (search: string, category: Category | null) => {
     );
   };
 
-  const shown = integrations.filter(
-    (integration) => (!category || integration.category === category) && matches(integration),
-  );
+  const rankOf = (integration: Integration): Placed['rank'] => {
+    if (integration.status.state !== 'not-set-up') return 'connected';
 
-  const local = (integration: Integration) => !country || servesCountry(integration, country);
+    return !country || servesCountry(integration, country) ? 'local' : 'elsewhere';
+  };
+
+  const shown = integrations
+    .filter(
+      (integration) => (!category || integration.category === category) && matches(integration),
+    )
+    .map((integration): Placed => ({ integration, rank: rankOf(integration) }))
+    .toSorted((a, b) => RANKS.indexOf(a.rank) - RANKS.indexOf(b.rank));
 
   return {
     listed,
+    categories,
+    category,
     shown,
-    connected: shown.filter(isSetUp),
-    available: shown.filter((integration) => !isSetUp(integration) && local(integration)),
-    elsewhere: shown.filter((integration) => !isSetUp(integration) && !local(integration)),
+    sections: categories.flatMap((item) => {
+      const items = shown.filter(({ integration }) => integration.category === item);
+
+      return items.length ? [{ category: item, title: categoryLabel(item), items }] : [];
+    }),
   };
 };
 
@@ -220,7 +233,8 @@ const Catalog = () => {
       </div>
       <Filters
         search={search}
-        category={params.category}
+        category={sections.category}
+        categories={sections.categories}
         onChange={(next) => void setParams(next)}
       />
       {sections.listed.isError && (
@@ -245,15 +259,9 @@ const Catalog = () => {
           description={t('no-match-description', 'Try another word or category.')}
         />
       ) : (
-        <>
-          <Section title={t('section.connected', 'Connected')} items={sections.connected} />
-          <Section title={t('section.available', 'Available')} items={sections.available} />
-          <Section
-            title={t('section.elsewhere', 'Other regions')}
-            items={sections.elsewhere}
-            foreign
-          />
-        </>
+        sections.sections.map((section) => (
+          <Section key={section.category} title={section.title} items={section.items} />
+        ))
       )}
     </div>
   );

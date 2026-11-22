@@ -27,6 +27,7 @@ export const organizations = pgTable(
     country: text(),
     /** ISO 4217 (`MNT`): what new products and invoices are in. */
     currency: text().default('USD').notNull(),
+    defaultGatewayId: text(),
     /** IANA (`Asia/Ulaanbaatar`): the wall clock and the day every schedule runs by. */
     timezone: text().default('UTC').notNull(),
     settings: jsonb().$type<OrganizationSettings>().default({}).notNull(),

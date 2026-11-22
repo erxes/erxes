@@ -2386,23 +2386,23 @@
         }
       }
     },
-    "pluginSettings": {
+    "settings": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/payments/plugins"
+          "path": "/payments/settings"
         }
       }
     },
-    "updatePluginSettings": {
+    "saveSettings": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PUT",
-          "path": "/payments/plugins/{plugin}"
+          "path": "/payments/settings"
         }
       }
     },
@@ -2445,16 +2445,6 @@
         "route": {
           "method": "GET",
           "path": "/ebarimt/settings"
-        }
-      }
-    },
-    "plugins": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/ebarimt/plugins"
         }
       }
     },
@@ -3013,6 +3003,16 @@
         "route": {
           "method": "DELETE",
           "path": "/integrations/{key}/connections/{id}"
+        }
+      }
+    },
+    "report": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/{key}/state"
         }
       }
     }

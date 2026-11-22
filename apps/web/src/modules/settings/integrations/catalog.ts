@@ -1,50 +1,38 @@
-import type { Integration as ListedIntegration, IntegrationStatus } from '@erxes/core-contract';
+import { type Integration as ListedIntegration, IntegrationCategory } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import {
   type Icon,
   IconBuildingBank,
+  IconBuildingCommunity,
   IconCreditCard,
   IconMail,
   IconMessage,
-  IconReceiptTax,
+  IconSocial,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { INTEGRATION_CATEGORIES, type TPluginIntegration } from 'erxes-ui';
+import type { TIntegrationTab } from 'erxes-ui';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
-export const CATEGORIES = INTEGRATION_CATEGORIES;
+export const CATEGORIES = IntegrationCategory.options;
 
 export type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_ICONS: Record<Category, Icon> = {
-  email: IconMail,
-  messaging: IconMessage,
   payments: IconCreditCard,
   banks: IconBuildingBank,
-  tax: IconReceiptTax,
+  social: IconSocial,
+  messaging: IconMessage,
+  email: IconMail,
+  government: IconBuildingCommunity,
 };
 
-export type CoreIntegration = ListedIntegration & { kind: 'core'; icon: Icon };
-
-export type PluginIntegration = Omit<TPluginIntegration, 'countries'> & {
-  kind: 'plugin';
-  plugin: string;
-  countries: readonly string[];
+/** A listed integration with its address (`qpay`, `frontline.facebook`) and what its UI adds. */
+export type Integration = ListedIntegration & {
+  slug: string;
+  icon: Icon;
+  tabs: TIntegrationTab[];
 };
-
-export type Integration = CoreIntegration | PluginIntegration;
-
-const pluginIntegration = (
-  plugin: string,
-  { key, countries = [], ...tile }: TPluginIntegration,
-): PluginIntegration => ({
-  ...tile,
-  kind: 'plugin',
-  key: `${plugin.toLowerCase()}.${key}`,
-  plugin,
-  countries,
-});
 
 export const useMayOpenIntegrations = () => {
   const can = useCan();
@@ -54,29 +42,26 @@ export const useMayOpenIntegrations = () => {
 
 export const useIntegrations = () => {
   const { plugins, loading } = usePlugins();
-  const can = useCan();
   const listed = useQuery(orpc.integrations.list.queryOptions());
 
-  const integrations: Integration[] = [
-    ...(listed.data?.data ?? []).map((integration): CoreIntegration => ({
+  const uiOf = (plugin: string, key: string) =>
+    plugins
+      .find(({ config }) => config.name.toLowerCase() === plugin)
+      ?.config.integrations.find((integration) => integration.key === key);
+
+  const integrations = (listed.data?.data ?? []).map((integration): Integration => {
+    const ui = integration.plugin ? uiOf(integration.plugin, integration.key) : undefined;
+
+    return {
       ...integration,
-      kind: 'core',
-      icon: CATEGORY_ICONS[integration.category],
-    })),
-    ...(can('integrations.manage')
-      ? plugins.flatMap(({ config }) =>
-          config.integrations
-            .map((tile) => pluginIntegration(config.name, tile))
-            .filter((integration) => can(integration.permission)),
-        )
-      : []),
-  ];
+      slug: integration.plugin ? `${integration.plugin}.${integration.key}` : integration.key,
+      icon: ui?.icon ?? CATEGORY_ICONS[integration.category],
+      tabs: ui?.tabs ?? [],
+    };
+  });
 
   return { integrations, loading: loading || listed.isPending, listed };
 };
-
-export const statusOf = (integration: Integration): IntegrationStatus | null =>
-  integration.kind === 'core' ? integration.status : null;
 
 /** Serves the organisation's country, or any country. */
 export const servesCountry = (integration: Integration, country: string | null) =>

@@ -1,9 +1,4 @@
-import {
-  AUTOMATION_SUBJECTS,
-  CONTENT_TYPES,
-  PLUGIN_SCOPES,
-  TAX_RECEIPT_ISSUERS,
-} from '@erxes/core-db/enums';
+import { CONTENT_TYPES, PLUGIN_SCOPES, TAX_RECEIPT_ISSUERS } from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -11,12 +6,14 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
-import { ActionFields, DataField } from './automationRuns';
+import { DataField, PluginAction } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
+import { PluginName } from './values';
 import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
+import { PluginIntegrations } from './integrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
@@ -26,7 +23,6 @@ import { PluginTranslations } from './pluginTranslations';
 import { PluginApiDocs } from './pluginApiDocs';
 import { PluginSearchSource } from './search';
 import { PluginRead, pluginReadsContract } from './pluginReads';
-import { PluginName } from './values';
 
 export { PLUGIN_SCOPES };
 
@@ -55,8 +51,8 @@ export const PluginManifest = z.object({
   countries: z.array(Country).max(250).optional(),
   /**
    * Who issues tax receipts for its invoices: core's integration (eBarimt,
-   * the default), or `own` when the plugin sends them itself. An `own`
-   * plugin can't be picked in core's eBarimt settings, so no invoice gets two.
+   * the default), or `own` when the plugin sends them itself. Core issues
+   * none for an `own` plugin's invoices, so no invoice gets two.
    */
   taxReceipts: z.enum(TAX_RECEIPT_ISSUERS).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */
@@ -145,30 +141,15 @@ export const PluginManifest = z.object({
     )
     .max(200)
     .optional(),
-  /**
-   * Actions automations can run (`hr.leave.create`): core POSTs
-   * `{ input, context }` to `<api.url>/automations/actions/<type>` with a
-   * core token and an `Idempotency-Key`; the JSON answer is the step's output.
-   * A `plugin_record` field's choices come from
-   * `GET <api.url>/automations/records/<recordType>?parent=<its dependsOn value>`,
-   * called with the member's session token, answering `[{ value, label }]`.
-   */
-  actions: z
-    .array(
-      z.object({
-        type: EventType,
-        label: z.string().trim().min(1).max(100),
-        description: z.string().trim().max(300).optional(),
-        subject: z.enum(AUTOMATION_SUBJECTS).optional(),
-        fields: ActionFields.default([]),
-        /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
-        outputs: z.array(DataField).max(50).optional(),
-      }),
-    )
-    .max(200)
-    .optional(),
+  /** Actions automations can run (`PluginAction`). */
+  actions: z.array(PluginAction).max(200).optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
   timelines: z.array(PluginTimeline).max(50).optional(),
+  /**
+   * Its integrations in Settings › Integrations (`PluginIntegration`), listed next to core's
+   * with the state it reports (`integrations.report`).
+   */
+  integrations: PluginIntegrations.optional(),
   /**
    * How its timeline entries look: a label, a colour and an icon per type —
    * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,
@@ -296,6 +277,7 @@ const {
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_INTEGRATION,
   UNKNOWN_PERMISSION,
 } = ERRORS;
 
@@ -310,6 +292,7 @@ const base = oc.errors({
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_INTEGRATION,
   UNKNOWN_PERMISSION,
 });
 

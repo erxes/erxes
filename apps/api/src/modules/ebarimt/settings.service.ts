@@ -5,7 +5,6 @@ import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { settingsOf } from './plan';
-import { ownReceiptPlugins } from './plugins';
 import { posApiInfo } from './posapi';
 
 interface SettingsInput {
@@ -19,7 +18,6 @@ interface SettingsInput {
   vatPercent?: number;
   cityTaxPercent?: number;
   classificationCode?: string;
-  plugins?: string[];
   rules?: EbarimtTaxRule[];
 }
 
@@ -35,23 +33,11 @@ const checkUrl = (url: string) => {
   }
 };
 
-/** A plugin that sends its own receipts can't be picked: its invoices would get two. 400 INVALID_INPUT. */
-const checkPlugins = async (client: Db, picked: string[]) => {
-  const own = [...(await ownReceiptPlugins(client, picked))];
-
-  if (!own.length) return;
-
-  const message = `These plugins send their own tax receipts: ${own.join(', ')}`;
-
-  throw fail('INVALID_INPUT', message, { issues: [{ path: ['plugins'], message }] });
-};
-
 export const getSettings = (client: Db) => settingsOf(client);
 
 /** Sets eBarimt up, or changes its settings; audited with what changed. */
 export const saveSettings = async (client: Db, input: SettingsInput) => {
   checkUrl(input.posApiUrl);
-  await checkPlugins(client, input.plugins ?? []);
 
   const before = await settingsOf(client);
   const values = { ...input, updatedBy: caller('user').userId, updatedAt: sql`now()` };
@@ -73,7 +59,6 @@ export const saveSettings = async (client: Db, input: SettingsInput) => {
       status: row.status,
       merchantTin: row.merchantTin,
       posNo: row.posNo,
-      plugins: row.plugins,
       rules: row.rules.length,
     },
   });

@@ -1,4 +1,4 @@
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { gatewayOf, openGateway } from '~/modules/integrations/registry';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { callbackSignature } from '~/modules/payments/invoiceState';
 import { useTestDatabase } from './db';
@@ -20,14 +20,14 @@ describe('Toki mini program', () => {
       ],
     ]);
 
-    const driver = gatewayDriver(
+    const { payments, client } = openGateway(
       'toki',
       { merchantId: 'm', sandbox: true },
       { fetch: gateway.fetch, cacheKey: 'toki-mini-test' },
     );
 
-    await driver.verify();
-    const created = await driver.createInvoice(invoice);
+    await gatewayOf('toki').verify(client);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.calls).toHaveLength(0);
     expect(created).toMatchObject({
@@ -50,16 +50,19 @@ describe('Toki mini program', () => {
     const forThis = { invoiceId: 'inv1', amount: 150_000 };
 
     // Another order's or amount's payment brings nothing for this invoice.
-    expect(driver.callback?.({ ...posted, orderID: 'inv2' }, forThis)).toBeNull();
-    expect(driver.callback?.({ ...posted, amount: 1 }, forThis)).toBeNull();
-    expect(driver.callback?.({ status: 'x' }, forThis)).toBeNull();
+    expect(payments.callback?.({ ...posted, orderID: 'inv2' }, forThis)).toBeNull();
+    expect(payments.callback?.({ ...posted, amount: 1 }, forThis)).toBeNull();
+    expect(payments.callback?.({ status: 'x' }, forThis)).toBeNull();
 
-    const brought = driver.callback?.(posted, forThis);
+    const brought = payments.callback?.(posted, forThis);
+    const unpaid = { gatewayInvoiceId: 'inv1', amount: 150_000, state: created.state ?? {} };
 
-    expect(await driver.check('inv1', 150_000, created.state ?? {})).toMatchObject({ paid: false });
+    expect(await payments.check(client, unpaid)).toMatchObject({ paid: false });
     expect(gateway.calls).toHaveLength(0);
 
-    expect(await driver.check('inv1', 150_000, { ...created.state, ...brought })).toEqual({
+    expect(
+      await payments.check(client, { ...unpaid, state: { ...created.state, ...brought } }),
+    ).toEqual({
       paid: true,
       paidAmount: 150_000,
       paymentId: 'trq-1',
@@ -70,7 +73,7 @@ describe('Toki mini program', () => {
     expect(call?.url).toContain('https://staging-apps.toki.mn/');
     expect(call?.auth).toBe('bearer payer-token');
 
-    await driver.cancel('inv1', 150_000, created.state ?? {});
+    await payments.cancel(client, unpaid);
     expect(gateway.calls).toHaveLength(1);
   });
 
@@ -78,15 +81,15 @@ describe('Toki mini program', () => {
     const state = { tokiOrderId: 'inv1', tokiTransRequestId: 'trq-1', tokiPayerToken: 't' };
 
     for (const data of [{ orderId: 'inv2' }, { amount: 99 }, { merchantId: 'other' }]) {
-      const driver = gatewayDriver(
+      const { payments, client } = openGateway(
         'toki',
         { merchantId: 'm' },
         { fetch: completed(data).fetch, cacheKey: 'toki-mini-mismatch' },
       );
 
-      await expect(driver.check('inv1', 150_000, state)).rejects.toThrow(
-        /another order|amount|merchant/,
-      );
+      await expect(
+        payments.check(client, { gatewayInvoiceId: 'inv1', amount: 150_000, state }),
+      ).rejects.toThrow(/another order|amount|merchant/);
     }
   });
 });

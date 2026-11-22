@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CONNECTION_CONTENT_TYPE } from 'erxes-ui';
 import { z } from 'zod';
 import { useSidePanelDraft } from '~/modules/side-panel/useSidePanel';
-import { type CoreIntegration, useIntegrations } from '../integrations/catalog';
+import { type Integration, useIntegrations } from '../integrations/catalog';
 
 export interface ConnectionScope {
   integration?: string;
@@ -27,7 +27,7 @@ export const useConnectionDraft = (): ConnectionDraft =>
 export const useConnections = () =>
   useQuery(orpc.integrations.connections.queryOptions({ input: {} }));
 
-const inScope = (integration: CoreIntegration, scope: ConnectionScope) =>
+const inScope = (integration: Integration, scope: ConnectionScope) =>
   integration.keyed &&
   (!scope.integration || integration.key === scope.integration) &&
   (!scope.category || integration.category === scope.category);
@@ -37,14 +37,11 @@ export const useKeyedIntegrations = (scope: ConnectionScope = {}) => {
 
   return {
     loading: listed.isPending,
-    integrations: integrations.filter(
-      (integration): integration is CoreIntegration =>
-        integration.kind === 'core' && inScope(integration, scope),
-    ),
+    integrations: integrations.filter((integration) => inScope(integration, scope)),
   };
 };
 
-export const connectionsOf = (connections: VaultConnection[], integrations: CoreIntegration[]) =>
+export const connectionsOf = (connections: VaultConnection[], integrations: Integration[]) =>
   connections.flatMap((connection) => {
     const integration = integrations.find(({ key }) => key === connection.key);
 

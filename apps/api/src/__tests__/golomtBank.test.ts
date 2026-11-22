@@ -1,4 +1,4 @@
-import { gatewayDriver } from '~/modules/integrations/registry';
+import { gatewayOf, openGateway } from '~/modules/integrations/registry';
 import { createBankClient, golomtCipher, golomtTransferCode } from '~/modules/integrations/banks';
 import type { GolomtBankConfig } from '~/modules/integrations/banks/types';
 import { describe, expect, it } from 'vite-plus/test';
@@ -210,15 +210,18 @@ describe('Golomt Bank corporate gateway', () => {
       },
     });
 
-    const driver = gatewayDriver(
+    const { payments, client } = openGateway(
       'golomtcgw',
       { connectionId: 'bank1', accountNumber: '1105000001' },
       { fetch: bank.fetch, cacheKey: 'golomtcgw-test', bank: golomt },
     );
 
-    await driver.verify();
+    await gatewayOf('golomtcgw').verify(client);
 
-    const created = await driver.createInvoice({ ...tugrugInvoice, description: 'Order 123' });
+    const created = await payments.createInvoice(client, {
+      ...tugrugInvoice,
+      description: 'Order 123',
+    });
 
     expect(created.payment.bankTransfer).toMatchObject({
       bank: 'Golomt Bank',
@@ -228,7 +231,13 @@ describe('Golomt Bank corporate gateway', () => {
     });
 
     // "Order 12" is another invoice's, and money out isn't a payment.
-    expect(await driver.check('inv1', 150_000, created.state ?? {})).toMatchObject({
+    expect(
+      await payments.check(client, {
+        gatewayInvoiceId: 'inv1',
+        amount: 150_000,
+        state: created.state ?? {},
+      }),
+    ).toMatchObject({
       paid: true,
       paymentId: '1105000001:T2',
     });
