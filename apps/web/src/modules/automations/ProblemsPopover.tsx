@@ -58,13 +58,14 @@ export const ProblemsPopover = ({
           ))}
           {stepProblems.map(({ stepId, title, first }) => (
             <li key={stepId}>
-              <button
-                type="button"
-                className="w-full text-left text-destructive-text hover:underline"
+              <Button
+                variant="ghost"
+                tone="destructive"
+                className="h-auto w-full justify-start text-left whitespace-normal"
                 onClick={() => onSelect(stepId)}
               >
                 {title}: {first}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
