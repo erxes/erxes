@@ -36,6 +36,13 @@ const assistantEndpoints: Partial<Record<string, string>> = {
   grok: env.ASSISTANT_GROK_URL,
 };
 
+const oauthApps: Record<string, { clientId: string; clientSecret: string }> = {
+  ...env.INTEGRATION_OAUTH_APPS,
+  ...(env.META_APP_ID && env.META_APP_SECRET
+    ? { facebook: { clientId: env.META_APP_ID, clientSecret: env.META_APP_SECRET } }
+    : {}),
+};
+
 export const config = {
   isProduction,
   port: env.PORT,
@@ -157,8 +164,12 @@ export const config = {
     allowPrivate: env.OUTBOUND_ALLOW_PRIVATE ?? !isProduction,
   },
   integrations: {
-    oauthApps: env.INTEGRATION_OAUTH_APPS,
+    oauthApps,
     oauthCallbackUrl: env.INTEGRATION_OAUTH_CALLBACK_URL,
+    metaRelay:
+      env.META_RELAY_URL && env.META_RELAY_KEY
+        ? { url: env.META_RELAY_URL, key: env.META_RELAY_KEY }
+        : null,
   },
   ebarimt: {
     /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */

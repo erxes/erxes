@@ -32,6 +32,8 @@ const SECRETS = [
   'CLOUDFLARE_API_TOKEN',
   'QUICK_QR_PASSWORD',
   'INTEGRATION_OAUTH_APPS',
+  'META_APP_SECRET',
+  'META_RELAY_KEY',
 ] as const;
 
 const readSecret = (name: string) => {
@@ -187,6 +189,10 @@ const Env = z
 
     INTEGRATION_OAUTH_APPS: oauthApps,
     INTEGRATION_OAUTH_CALLBACK_URL: optional(z.url()),
+    META_APP_ID: optional(z.string().regex(/^\d+$/, 'META_APP_ID is the Meta app id, digits only')),
+    META_APP_SECRET: text,
+    META_RELAY_URL: overrideUrl,
+    META_RELAY_KEY: optional(z.string().min(16)),
 
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
@@ -261,6 +267,29 @@ const Env = z
       ctx.addIssue({
         code: 'custom',
         message: 'SAAS=true needs SAAS_PLATFORM_TOKEN (≥ 32 characters) and SAAS_STRIPE_SECRET_KEY',
+      });
+    }
+
+    if (!env.META_APP_ID !== !env.META_APP_SECRET) {
+      ctx.addIssue({ code: 'custom', message: 'Set META_APP_ID and META_APP_SECRET together' });
+    }
+
+    if (!env.META_RELAY_URL !== !env.META_RELAY_KEY) {
+      ctx.addIssue({ code: 'custom', message: 'Set META_RELAY_URL and META_RELAY_KEY together' });
+    }
+
+    if (env.META_RELAY_URL && !env.META_APP_ID) {
+      ctx.addIssue({
+        code: 'custom',
+        message: "META_RELAY_URL needs META_APP_ID and META_APP_SECRET: the relay's Meta app",
+      });
+    }
+
+    if (env.META_APP_ID && env.INTEGRATION_OAUTH_APPS.facebook) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Set the Facebook app once: META_APP_ID and META_APP_SECRET, not INTEGRATION_OAUTH_APPS.facebook',
       });
     }
 

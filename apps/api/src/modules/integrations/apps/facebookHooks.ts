@@ -7,8 +7,10 @@ import {
   GatewayError,
   type OAuthKeys,
   record,
+  Text,
 } from '@erxes/plugin-sdk/integrations';
 import { logger } from '~/logger';
+import { metaRelayFor } from '../metaRelay';
 import { Lead, LEAD_FIELDS, leadPayload, pageEvents } from './facebookEvents';
 import { appToken, Done, graph, pageAccess, pageToken } from './facebookGraph';
 
@@ -29,6 +31,18 @@ const Handshake = z.object({
 const LeadRef = z.object({ leadId: z.string().min(1) });
 
 const pagePath = (page: string) => `/${encodeURIComponent(page)}/subscribed_apps`;
+
+const PageApps = z.object({
+  data: z.array(z.object({ id: Text, subscribed_fields: z.array(z.string()).default([]) })),
+});
+
+const sharedFields = async (token: string, page: string, appId: string) => {
+  const { data } = await graph(`${pagePath(page)}?fields=id,subscribed_fields`, PageApps, {
+    token,
+  });
+
+  return data.find((app) => app.id === appId)?.subscribed_fields ?? [];
+};
 
 const refused = (error: unknown) =>
   error instanceof GatewayError &&
@@ -86,25 +100,38 @@ export const facebookHooks: AppWideHooks<OAuthKeys, typeof pageScope> = {
   scope: pageScope,
   route: (scope) => scope.page,
   async subscribe({ keys, scope, client, url, verifyToken, events, appEvents }) {
-    await graph(`/${encodeURIComponent(client.clientId)}/subscriptions`, Done, {
-      token: appToken(client),
-      method: 'POST',
-      body: {
-        object: 'page',
-        callback_url: url,
-        verify_token: verifyToken,
-        fields: appEvents.join(','),
-        include_values: true,
-      },
-    });
+    const relay = metaRelayFor('facebook');
+    const token = await pageToken(keys.accessToken, scope.page);
+
+    if (relay) await relay.route(scope.page, url);
+    else
+      await graph(`/${encodeURIComponent(client.clientId)}/subscriptions`, Done, {
+        token: appToken(client),
+        method: 'POST',
+        body: {
+          object: 'page',
+          callback_url: url,
+          verify_token: verifyToken,
+          fields: appEvents.join(','),
+          include_values: true,
+        },
+      });
+
+    const fields = relay
+      ? new Set([...(await sharedFields(token, scope.page, client.clientId)), ...events])
+      : events;
 
     await graph(pagePath(scope.page), Done, {
-      token: await pageToken(keys.accessToken, scope.page),
+      token,
       method: 'POST',
-      body: { subscribed_fields: events.join(',') },
+      body: { subscribed_fields: [...fields].join(',') },
     });
   },
   async unsubscribe({ keys, scope }) {
+    const relay = metaRelayFor('facebook');
+
+    if (relay) return relay.unroute(scope.page);
+
     try {
       await graph(pagePath(scope.page), Done, {
         token: await pageToken(keys.accessToken, scope.page),

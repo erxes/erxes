@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
+import { ServerAppFacts } from '../vault/SignInForm';
 import { connectionsOf, useConnections } from '../vault/useVault';
 import type { Integration } from './catalog';
 import { AutomationTriggers } from './AutomationTriggers';
@@ -71,6 +72,11 @@ const Overview = ({ integration }: { integration: Integration }) => {
         </QueryState>
       </OverviewSection>
       <AutomationTriggers integration={integration} />
+      {integration.oauth?.client === 'server' && (
+        <OverviewSection title={t('app', 'App')}>
+          <ServerAppFacts oauth={integration.oauth} />
+        </OverviewSection>
+      )}
       {integration.payments && (
         <OverviewSection title={t('payments', 'How payers pay')}>
           <PaymentFacts payments={integration.payments} />
