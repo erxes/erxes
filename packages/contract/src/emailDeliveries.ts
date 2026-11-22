@@ -53,7 +53,8 @@ export const emailDeliveriesContract = {
     .route({
       method: 'GET',
       path: '/email/deliveries',
-      summary: 'Emails the organisation sent in the last 90 days, newest first',
+      summary: 'List sent emails',
+      description: 'Emails the organisation sent in the last 90 days, newest first',
     })
     .input(
       CursorQuery.extend({

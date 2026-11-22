@@ -52,6 +52,7 @@ export const appCatalog = async (client: Db) => {
         params: params ? fieldsOf(params) : [],
       };
     }),
+    records: Object.keys(app.records ?? {}),
     connections: connections.flatMap(({ key, ...connection }) =>
       key === app.key ? [connection] : [],
     ),

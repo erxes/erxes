@@ -1,7 +1,7 @@
 import type { IntegrationField } from '@erxes/core-contract';
 import { z } from 'zod';
 
-type FormField = Pick<IntegrationField, 'label' | 'type' | 'options'>;
+type FormField = Pick<IntegrationField, 'label' | 'type' | 'options' | 'recordType' | 'dependsOn'>;
 
 const formFields = z.registry<FormField>();
 
@@ -20,6 +20,19 @@ export const secret = (
   label: string,
   schema: z.ZodType<string> = z.string().trim().min(1).max(2000),
 ) => labelled(schema, { label, type: 'secret' });
+
+/**
+ * A trigger setting that is one of the app's records (`page`), picked from its `records` of
+ * `recordType` instead of typed; with `dependsOn`, the ones under that other setting's value.
+ */
+export const record = (
+  label: string,
+  recordType: string,
+  {
+    schema = z.string().trim().min(1).max(200),
+    dependsOn,
+  }: { schema?: z.ZodType<string>; dependsOn?: string } = {},
+) => labelled(schema, { label, type: 'text', recordType, ...(dependsOn && { dependsOn }) });
 
 /** One of a few values, picked from a list. */
 export const choice = <const T extends readonly [string, ...string[]]>(label: string, options: T) =>

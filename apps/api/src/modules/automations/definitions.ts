@@ -69,23 +69,21 @@ const appsNotAllowed = (action: Catalog['actions'][number]) => {
 };
 
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
-const actionProblems = (
+export const actionProblems = (
   step: Extract<AutomationStep, { type: 'action' }>,
   catalog: Catalog,
   subject: SubjectKind,
   trigger: Trigger,
 ) => {
   const action = catalog.actions.find((item) => item.type === step.action);
+  const owner = coreAction(step.action)?.integration;
+  const notConnected = `Step ${step.id}: ${owner?.name} is not connected: connect it in Settings › Integrations`;
 
-  if (!action) {
-    const owner = coreAction(step.action)?.integration;
+  if (!action) return [owner ? notConnected : `Step ${step.id}: unknown action ${step.action}`];
 
-    return [
-      owner
-        ? `Step ${step.id}: ${owner.name} is not connected: connect it in Settings › Integrations`
-        : `Step ${step.id}: unknown action ${step.action}`,
-    ];
-  }
+  const connection = action.fields.find((field) => field.type === 'connection');
+
+  if (owner && connection && !connection.options?.length) return [notConnected];
 
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))

@@ -34,7 +34,8 @@ export const emailsContract = {
       method: 'POST',
       path: '/emails',
       successStatus: 202,
-      summary:
+      summary: 'Send an email',
+      description:
         "Email up to 50 addresses from the organisation's sender (plugins with emails:write). Queued and retried; an address that fails doesn't stop the others. 400 INVALID_INPUT for a replyTo that isn't verified, 409 EMAIL_NOT_CONFIGURED when email can't be delivered",
     })
     .input(EmailMessage)

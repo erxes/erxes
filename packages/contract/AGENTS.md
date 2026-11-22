@@ -25,12 +25,14 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
 
 ## Rules
 
-- A procedure is `base.route({ method, path, successStatus?, summary })`, `.input()` and
-  `.output()`, where the module's `base` is `oc.errors({ ...COMMON_ERRORS, ...its own })`. Every
+- A procedure is `base.route({ method, path, successStatus?, summary, description? })`, `.input()`
+  and `.output()`, where the module's `base` is `oc.errors({ ...COMMON_ERRORS, ...its own })`. Every
   code, with its status and `data` schema, lives once in `ERRORS` (`src/errors.ts`); a new failure
   gets a new code there. Paths are relative to `/core/v1`. Input is one object: path params, query
-  and body merged (`{ id, ...changes }`). The summary says when the procedure's own codes answer
-  (`409 TAKEN when the name is taken`).
+  and body merged (`{ id, ...changes }`). The summary is a short title that starts with a verb
+  (`Add a product`), shown in API key pickers and the assistant's API search (lint
+  `core/route-summary`). The description says the rest, including when the procedure's own codes
+  answer (`409 TAKEN when the name is taken`).
 - List queries extend `CursorQuery` and answer `cursorPageOf(Row)`.
 - A schema that mirrors a table starts from the table. Copy `src/tags.ts`:
   - Output: `createSelectSchema(table, refinements).pick({ ... })`, then `.extend({ ... })` for

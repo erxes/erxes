@@ -59,6 +59,8 @@ const baseUrl = (fallback: string) =>
     .transform((value) => value ?? fallback)
     .transform((value) => value.replace(/\/+$/, ''));
 
+const overrideUrl = optional(z.url()).transform((value) => value?.replace(/\/+$/, ''));
+
 const list = optional(z.string()).transform((value) =>
   (value ?? '')
     .split(',')
@@ -171,10 +173,12 @@ const Env = z
 
     OUTBOUND_ALLOW_PRIVATE: flag,
 
-    ASSISTANT_OPENAI_URL: baseUrl('https://api.openai.com/v1'),
-    ASSISTANT_GROK_URL: baseUrl('https://api.x.ai/v1'),
-    ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
-    ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
+    ASSISTANT_OPENAI_URL: overrideUrl,
+    ASSISTANT_ANTHROPIC_URL: overrideUrl,
+    ASSISTANT_OPENROUTER_URL: overrideUrl,
+    ASSISTANT_KIMI_URL: overrideUrl,
+    ASSISTANT_KIMI_CODE_URL: overrideUrl,
+    ASSISTANT_GROK_URL: overrideUrl,
     EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
     // QPay QuickQR's vendor account: the names erxes 3.x used, so its settings carry over.
     QUICK_QR_URL: baseUrl('https://quickqr.qpay.mn'),

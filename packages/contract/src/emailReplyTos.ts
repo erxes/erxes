@@ -62,22 +62,25 @@ export const emailReplyTosContract = {
     .route({
       method: 'GET',
       path: '/email/sender',
-      summary: 'Who the organisation’s emails come from',
+      summary: 'Get the email sender',
+      description: 'Who the organisation’s emails come from',
     })
     .output(EmailSender),
   replyTos: base
     .route({
       method: 'GET',
       path: '/email/reply-tos',
-      summary: 'Addresses replies may go to, verified and waiting',
+      summary: 'List Reply-To addresses',
+      description: 'Addresses replies may go to, verified and waiting',
     })
     .output(z.array(EmailReplyTo)),
   addReplyTo: base
     .route({
       method: 'POST',
       path: '/email/reply-tos',
-      summary:
-        'Add a Reply-To address. Self-hosted, and a member’s own on SaaS: verified at once. Any other on SaaS gets a link to confirm it; asked again, a new link',
+      summary: 'Add a Reply-To address',
+      description:
+        'Self-hosted, and a member’s own on SaaS: verified at once. Any other on SaaS gets a link to confirm it; asked again, a new link',
     })
     .input(z.object({ email: EmailAddress }))
     .output(EmailReplyTo),
@@ -85,7 +88,8 @@ export const emailReplyTosContract = {
     .route({
       method: 'DELETE',
       path: '/email/reply-tos/{id}',
-      summary: 'Stop using a Reply-To address',
+      summary: 'Remove a Reply-To address',
+      description: 'Stop using a Reply-To address',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -94,7 +98,8 @@ export const emailReplyTosContract = {
     .route({
       method: 'POST',
       path: '/email/reply-tos/confirm',
-      summary:
+      summary: 'Confirm a Reply-To address',
+      description:
         'Confirm a Reply-To address from the link sent to it. 400 INVALID_LINK once used or expired',
     })
     .input(z.object({ token: z.string().min(1).max(200) }))

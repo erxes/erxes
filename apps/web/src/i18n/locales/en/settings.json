@@ -591,7 +591,6 @@
       "email": "Email sending password",
       "file-bucket": "File storage key",
       "webhook": "Webhook signing keys",
-      "assistant": "AI provider keys",
       "audit-stream": "Audit log stream keys",
       "two-step": "Two-step sign-in codes",
       "plugin": "Plugin secrets"
@@ -865,7 +864,8 @@
       "email": "Email",
       "government": "Government",
       "developer": "Developer tools",
-      "productivity": "Productivity"
+      "productivity": "Productivity",
+      "ai": "AI Provider"
     },
     "made-for": "Made for {{countries}}",
     "anywhere": "Works in any country",

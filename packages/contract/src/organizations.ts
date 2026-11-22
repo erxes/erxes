@@ -71,14 +71,16 @@ export const organizationsContract = {
     .route({
       method: 'GET',
       path: '/organization',
-      summary: 'The organisation of the signed-in member or the plugin token',
+      summary: 'Get the organisation',
+      description: 'The organisation of the signed-in member or the plugin token',
     })
     .output(Organization),
   update: base
     .route({
       method: 'PATCH',
       path: '/organization',
-      summary:
+      summary: 'Change the organisation',
+      description:
         "Rename the organisation or change its country, currency or time zone. Products and invoices keep the currency they were made in; a new country without a currency also sets the country's currency. Scheduled and date automations move to the new time zone's wall clock",
     })
     .input(

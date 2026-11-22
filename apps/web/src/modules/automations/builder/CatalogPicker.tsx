@@ -1,8 +1,9 @@
 import { IconArrowLeft, IconBolt } from '@tabler/icons-react';
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { type ReactNode, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CatalogList } from './CatalogList';
+import { BuilderContext } from './BuilderContext';
+import { CatalogList, type Picked } from './CatalogList';
 import {
   type CatalogItem,
   type GroupEntry,
@@ -42,6 +43,12 @@ const currentThenRecent = (
     (type) => items.find((item) => item.type === type && item.type !== selected?.type) ?? [],
   ),
 ];
+
+/** The one chosen item, and its category. */
+const pickedOne = (value: string | undefined, selected: CatalogItem | undefined): Picked => ({
+  item: (item) => item.type === value,
+  category: (key) => (selected ? groupOf(selected).key === key : false),
+});
 
 /** The button showing the chosen item and its area. */
 const PickerTrigger = ({
@@ -85,15 +92,17 @@ const PickerTrigger = ({
   );
 };
 
-/** The open category's name and size, with a way back to all categories. */
-const CategoryHeader = ({
+/** The open category's name and size (or `trailing` in its place), with a way back to all. */
+export const CategoryHeader = ({
   kind,
   current,
   onBack,
+  trailing,
 }: {
   kind: string;
   current: GroupEntry;
   onBack: () => void;
+  trailing?: ReactNode;
 }) => {
   const { t } = useTranslation('automations');
   const { groupName, countLabel } = useCatalogLabels(kind);
@@ -114,7 +123,9 @@ const CategoryHeader = ({
       <span className="min-w-0 flex-1 truncate text-sm font-medium">
         {groupName(current.group)}
       </span>
-      <span className="text-xs text-muted-foreground">{countLabel(current.items.length)}</span>
+      {trailing ?? (
+        <span className="text-xs text-muted-foreground">{countLabel(current.items.length)}</span>
+      )}
     </div>
   );
 };
@@ -133,6 +144,8 @@ export const CatalogPicker = ({
   const [search, setSearch] = useState('');
   const { recent, remember } = useRecent(kind);
   const selected = items.find((item) => item.type === value);
+  const { knownActions } = useContext(BuilderContext);
+  const shown = selected ?? knownActions.find((item) => kind === 'action' && item.type === value);
   const groups = useMemo(() => groupItems(items), [items]);
   const current = groups.find((entry) => entry.group.key === category) ?? null;
   const searching = search.trim().length > 0;
@@ -158,7 +171,7 @@ export const CatalogPicker = ({
     >
       <PickerTrigger
         kind={kind}
-        selected={selected}
+        selected={shown}
         value={value}
         placeholder={placeholder}
         disabled={disabled}
@@ -191,8 +204,7 @@ export const CatalogPicker = ({
             groups={groups}
             current={current}
             searching={searching}
-            value={value}
-            selected={selected}
+            picked={pickedOne(value, selected)}
             recentItems={currentThenRecent(items, selected, recent)}
             onChoose={choose}
             onOpen={openCategory}

@@ -99,10 +99,14 @@ export const longLivedToken = async (input: { accessToken: string } & AppClient)
   return { accessToken: lasting.access_token, expiresIn: lasting.expires_in };
 };
 
-const Page = z.object({ id: Text, access_token: z.string().min(1).optional() });
+const Page = z.object({
+  id: Text,
+  name: z.string().optional(),
+  access_token: z.string().min(1).optional(),
+});
 
-export const pageToken = async (userToken: string, pageId: string) => {
-  const page = await graph(`/${encodeURIComponent(pageId)}?fields=access_token`, Page, {
+export const pageAccess = async (userToken: string, pageId: string) => {
+  const page = await graph(`/${encodeURIComponent(pageId)}?fields=access_token,name`, Page, {
     token: userToken,
   });
 
@@ -112,7 +116,10 @@ export const pageToken = async (userToken: string, pageId: string) => {
       403,
     );
 
-  return page.access_token;
+  return { token: page.access_token, name: page.name };
 };
+
+export const pageToken = async (userToken: string, pageId: string) =>
+  (await pageAccess(userToken, pageId)).token;
 
 export const appToken = (client: AppClient) => `${client.clientId}|${client.clientSecret}`;

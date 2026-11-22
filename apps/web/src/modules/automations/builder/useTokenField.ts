@@ -2,10 +2,10 @@ import { useEffect, useEffectEvent, useLayoutEffect, useRef } from 'react';
 import { placeholderLabel, placeholderOf, templateParts } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
 
-const CHIP =
+export const CHIP =
   'mx-px inline-block rounded-full bg-primary/10 px-1.5 align-baseline text-xs leading-5 text-primary-text ring-1 ring-primary/25 select-none';
 
-const chipLabel = (path: string, filters: string | undefined, fields: FieldInfo[]) =>
+export const chipLabel = (path: string, filters: string | undefined, fields: FieldInfo[]) =>
   placeholderLabel(path, filters, fields) ?? path.split('.').at(-1) ?? path;
 
 const chipOf = (token: string, name: string) => {
@@ -93,11 +93,13 @@ export const useTokenField = ({
   fields,
   multiline,
   onChange,
+  onBrace,
 }: {
   value: string;
   fields: FieldInfo[];
   multiline?: boolean;
   onChange: (value: string) => void;
+  onBrace: () => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const caret = useRef<Range | null>(null);
@@ -135,6 +137,14 @@ export const useTokenField = ({
   });
 
   const onBeforeInput = useEffectEvent((event: InputEvent) => {
+    if (event.inputType === 'insertText' && event.data === '{') {
+      event.preventDefault();
+      remember();
+      onBrace();
+
+      return;
+    }
+
     if (event.inputType !== 'insertParagraph' && event.inputType !== 'insertLineBreak') return;
 
     event.preventDefault();
@@ -181,5 +191,7 @@ export const useTokenField = ({
     put([...space, chipOf(placeholderOf(path), chipLabel(path, undefined, fields))]);
   };
 
-  return { ref, insert };
+  const type = (text: string) => put([document.createTextNode(text)]);
+
+  return { ref, insert, type };
 };

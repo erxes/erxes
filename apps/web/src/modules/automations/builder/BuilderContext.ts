@@ -4,6 +4,8 @@ import type { FieldInfo } from './useAutomationFields';
 
 /** The event that starts runs: what it is about and the values it carries. */
 export type StartingEvent = {
+  /** Its event type; an app's (`app.facebook.message_received`) holds that app's records. */
+  type?: string;
   label: string;
   source: string;
   record?: string | null;

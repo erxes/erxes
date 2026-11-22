@@ -163,7 +163,8 @@ export const paymentsContract = {
     .route({
       method: 'GET',
       path: '/payments/gateways',
-      summary: 'The payment gateways connected on Settings › Integrations',
+      summary: 'List payment gateways',
+      description: 'The payment gateways connected on Settings › Integrations',
     })
     .output(listOf(IntegrationConnection)),
   createInvoice: base
@@ -171,7 +172,8 @@ export const paymentsContract = {
       method: 'POST',
       path: '/payments/invoices',
       successStatus: 201,
-      summary:
+      summary: 'Create an invoice',
+      description:
         "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the organisation's default gateway, else the oldest active one that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
     })
     .input(
@@ -200,7 +202,8 @@ export const paymentsContract = {
       method: 'POST',
       path: '/payments/invoices/recorded',
       successStatus: 201,
-      summary:
+      summary: 'Record an outside payment',
+      description:
         'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT',
     })
     .input(InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) }))
@@ -209,12 +212,13 @@ export const paymentsContract = {
     .route({
       method: 'GET',
       path: '/payments/invoices/{id}',
-      summary: 'An invoice; a pending one is checked with the gateway',
+      summary: 'Get an invoice',
+      description: 'An invoice; a pending one is checked with the gateway',
     })
     .input(z.object({ id: Id }))
     .output(Invoice),
   cancelInvoice: base
-    .route({ method: 'POST', path: '/payments/invoices/{id}/cancel' })
+    .route({ method: 'POST', path: '/payments/invoices/{id}/cancel', summary: 'Cancel an invoice' })
     .input(z.object({ id: Id }))
     .output(Invoice),
   refund: base
@@ -222,7 +226,8 @@ export const paymentsContract = {
       method: 'POST',
       path: '/payments/invoices/{id}/refunds',
       successStatus: 201,
-      summary:
+      summary: 'Refund an invoice',
+      description:
         'Give money back for a paid invoice (all that is left unless `amount`). Through the gateway, or `manual` to record a refund made outside erxes. A refused refund is kept as failed. 409 NOT_REFUNDABLE / PARTIAL_NOT_SUPPORTED',
     })
     .input(
@@ -236,14 +241,15 @@ export const paymentsContract = {
     )
     .output(z.object({ refund: Refund, invoice: Invoice })),
   refunds: base
-    .route({ method: 'GET', path: '/payments/invoices/{id}/refunds' })
+    .route({ method: 'GET', path: '/payments/invoices/{id}/refunds', summary: 'List refunds' })
     .input(z.object({ id: Id }))
     .output(listOf(Refund)),
   settings: base
     .route({
       method: 'GET',
       path: '/payments/settings',
-      summary:
+      summary: 'Get the default gateway',
+      description:
         'The organisation’s default gateway, which an invoice goes through unless it names one; null: the oldest active one that takes its currency',
     })
     .output(PaymentSettings),
@@ -251,13 +257,19 @@ export const paymentsContract = {
     .route({
       method: 'PUT',
       path: '/payments/settings',
-      summary:
+      summary: 'Set the default gateway',
+      description:
         'Set or clear the default gateway, for every invoice of the organisation. 400 NO_GATEWAY when it is not an active gateway here',
     })
     .input(z.object({ defaultGatewayId: Id.nullable() }))
     .output(PaymentSettings),
   invoices: base
-    .route({ method: 'GET', path: '/payments/invoices', summary: 'Invoices, newest first' })
+    .route({
+      method: 'GET',
+      path: '/payments/invoices',
+      summary: 'List invoices',
+      description: 'Invoices, newest first',
+    })
     .input(
       CursorQuery.extend({
         status: InvoiceStatus.optional(),
@@ -270,13 +282,19 @@ export const paymentsContract = {
     .route({
       method: 'POST',
       path: '/payments/invoices/{id}/test-pay',
-      summary: 'Pay an invoice of the test gateway (development)',
+      summary: 'Pay a test invoice',
+      description: 'Pay an invoice of the test gateway (development)',
     })
     .input(z.object({ id: Id }))
     .output(Invoice),
-  /** QPay QuickQR's districts of a city or aimag (by code), for a merchant's address. */
   quickQrDistricts: base
-    .route({ method: 'GET', path: '/payments/quickqr/districts/{city}' })
+    .route({
+      method: 'GET',
+      path: '/payments/quickqr/districts/{city}',
+      summary: 'List QuickQR districts',
+      description:
+        "QPay QuickQR's districts of a city or aimag (by code), for a merchant's address",
+    })
     .input(
       z.object({
         city: z

@@ -1,4 +1,4 @@
-import type { ActionField, DataField } from '@erxes/core-contract';
+import type { ActionField, AppRecord, DataField } from '@erxes/core-contract';
 import type { z } from 'zod';
 import type { Keys } from './fields';
 
@@ -146,6 +146,17 @@ export const appAction = <C, T>(definition: {
   ...definition,
   run: (call) => definition.run({ ...call, input: definition.input.parse(call.input) }),
 });
+
+/**
+ * Lists the service's records of one type (`page`, `repository`) for the builder's pickers, read
+ * with a connection's client. `parents` holds the values of the inputs the picker depends on,
+ * nearest first (a workflow's repository, then its owner). `search` is what the member typed, in
+ * lower case: a service that searches uses it, and core keeps the records whose label holds it.
+ */
+export type AppRecords<C> = Record<
+  string,
+  { list(input: { client: C; parents: string[]; search: string }): Promise<AppRecord[]> }
+>;
 
 export interface Apps<K> {
   hooks?: AppHooks<K> | AppWideHooks<K>;

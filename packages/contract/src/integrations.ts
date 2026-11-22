@@ -13,7 +13,7 @@ import {
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ActionInfo } from './automationRuns';
+import { ActionInfo, RecordType } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { Country } from './money';
@@ -41,6 +41,10 @@ export const IntegrationField = z.object({
   optional: z.boolean(),
   /** A `select` field's values. */
   options: z.array(z.string()).optional(),
+  /** A trigger setting that is one of the app's records, picked from `records` by this type. */
+  recordType: RecordType.optional(),
+  /** The key of another setting: its records are the ones under that setting's value. */
+  dependsOn: z.string().optional(),
 });
 
 export type IntegrationField = z.infer<typeof IntegrationField>;
@@ -131,6 +135,8 @@ export const AutomationApp = z.object({
   name: z.string(),
   category: IntegrationCategory,
   triggers: z.array(AutomationAppTrigger),
+  /** The record types it lists for pickers (`records`); others are the run's values or typed. */
+  records: z.array(RecordType),
   connections: z.array(IntegrationConnection.pick({ id: true, name: true, status: true })),
 });
 
@@ -165,12 +171,18 @@ const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
+/** One of an app's records as a picker offers it: its id, and the name a member reads. */
+export const AppRecord = z.object({ value: z.string(), label: z.string() });
+
+export type AppRecord = z.infer<typeof AppRecord>;
+
 const {
   BANK_IN_USE,
   CONNECTION_IN_USE,
   GATEWAY_IN_USE,
   GATEWAY_REFUSED,
   KIND_CHANGED,
+  NOT_CONNECTED,
   NOT_SET_UP,
 } = ERRORS;
 
@@ -181,6 +193,7 @@ const base = oc.errors({
   GATEWAY_IN_USE,
   GATEWAY_REFUSED,
   KIND_CHANGED,
+  NOT_CONNECTED,
   NOT_SET_UP,
 });
 
@@ -189,7 +202,8 @@ export const integrationsContract = {
     .route({
       method: 'POST',
       path: '/integrations/{key}/authorize',
-      summary:
+      summary: 'Start an app sign-in',
+      description:
         "Where to send the member to sign in to the app; the app sends them back to the callback, which saves the connection. 400 NOT_SET_UP without the app's client id and secret",
     })
     .input(z.object({ key: IntegrationKey, name: ConnectionName }))
@@ -198,7 +212,8 @@ export const integrationsContract = {
     .route({
       method: 'PUT',
       path: '/integrations/{key}/oauth-app',
-      summary: "The organisation's own OAuth app for this integration, kept in the vault",
+      summary: 'Set our own OAuth app',
+      description: "The organisation's own OAuth app for this integration, kept in the vault",
     })
     .input(
       z.object({
@@ -209,14 +224,19 @@ export const integrationsContract = {
     )
     .output(z.object({ ok: z.literal(true) })),
   removeOAuthApp: base
-    .route({ method: 'DELETE', path: '/integrations/{key}/oauth-app' })
+    .route({
+      method: 'DELETE',
+      path: '/integrations/{key}/oauth-app',
+      summary: 'Remove our own OAuth app',
+    })
     .input(z.object({ key: IntegrationKey }))
     .output(z.object({ ok: z.literal(true) })),
   list: base
     .route({
       method: 'GET',
       path: '/integrations',
-      summary:
+      summary: 'List integrations',
+      description:
         "The integrations the member may manage, core's with their form fields and those of the plugins installed here, with their state",
     })
     .output(listOf(Integration)),
@@ -224,7 +244,8 @@ export const integrationsContract = {
     .route({
       method: 'GET',
       path: '/integrations/connections',
-      summary:
+      summary: 'List connections',
+      description:
         'The connections the member may manage, of one integration or of all, with their settings and what uses them but never their secrets',
     })
     .input(z.object({ key: IntegrationKey.optional() }))
@@ -233,17 +254,38 @@ export const integrationsContract = {
     .route({
       method: 'GET',
       path: '/integrations/{key}/subscriptions',
-      summary:
+      summary: 'List trigger subscriptions',
+      description:
         "How the app's connections listen for automation triggers: each one's state, the triggers in use and the active automations listening",
     })
     .input(z.object({ key: IntegrationKey }))
     .output(listOf(AppSubscription)),
+  records: base
+    .route({
+      method: 'GET',
+      path: '/integrations/{key}/records/{recordType}',
+      summary: 'List an app’s records',
+      description:
+        "The records of one type an app lists for the automation builder's pickers (the Facebook pages, a repository's workflows), read with `connection`, else the default one. `parents`: the values of the inputs the picker depends on, nearest first. A type the app doesn't list answers none. 409 NOT_CONNECTED; 400 GATEWAY_REFUSED with the service's own message",
+    })
+    .input(
+      z.object({
+        key: IntegrationKey,
+        recordType: RecordType,
+        connection: Id.optional(),
+        parents: z.array(z.string().trim().min(1).max(500)).max(5).optional(),
+        search: z.string().trim().max(200).optional(),
+      }),
+    )
+    .output(listOf(AppRecord)),
   connect: base
     .route({
       method: 'POST',
       path: '/integrations/{key}/connections',
       successStatus: 201,
-      summary: 'Connect with these keys, checked against the service first. 400 GATEWAY_REFUSED',
+      summary: 'Add a connection',
+      description:
+        'Connect with these keys, checked against the service first. 400 GATEWAY_REFUSED',
     })
     .input(z.object({ key: IntegrationKey, name: ConnectionName, keys: ConnectionKeys }))
     .output(IntegrationConnection),
@@ -251,7 +293,8 @@ export const integrationsContract = {
     .route({
       method: 'PATCH',
       path: '/integrations/{key}/connections/{id}',
-      summary:
+      summary: 'Change a connection',
+      description:
         'Rename, turn off or on, or change the values `keys` names: a setting, or a secret typed anew. A value left out stays as kept, `null` empties an optional one, and the whole set is checked with the service first. 400 GATEWAY_REFUSED; 400 KIND_CHANGED when the connection is of another integration',
     })
     .input(
@@ -268,8 +311,9 @@ export const integrationsContract = {
     .route({
       method: 'DELETE',
       path: '/integrations/{key}/connections/{id}',
-      summary:
-        'Remove a connection. 409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead; 409 CONNECTION_IN_USE while active automations listen on it or its webhooks are still being removed',
+      summary: 'Remove a connection',
+      description:
+        '409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead; 409 CONNECTION_IN_USE while active automations listen on it or its webhooks are still being removed',
     })
     .input(z.object({ key: IntegrationKey, id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -277,7 +321,8 @@ export const integrationsContract = {
     .route({
       method: 'PUT',
       path: '/integrations/{key}/state',
-      summary:
+      summary: 'Report a plugin integration’s state',
+      description:
         "The calling plugin says where one of its manifest's integrations stands in this organisation (`count`: how many are connected). 404 when its manifest doesn't declare the key",
     })
     .input(ReportedState.extend({ key: IntegrationKey }))

@@ -32,6 +32,7 @@ const useCategoryLabel = () => {
       government: t('government', 'Government'),
       developer: t('developer', 'Developer tools'),
       productivity: t('productivity', 'Productivity'),
+      ai: t('ai', 'AI Provider'),
     })[category];
 };
 

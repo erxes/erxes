@@ -1,5 +1,4 @@
 import {
-  assistantConnections,
   auditStreams,
   type Db,
   emailSettings,
@@ -20,7 +19,6 @@ const FEATURES: { holder: Holder; table: PgTable; ids: PgColumn[] }[] = [
   { holder: 'email', table: emailSettings, ids: [emailSettings.secretId] },
   { holder: 'file-bucket', table: fileBuckets, ids: [fileBuckets.secretId] },
   { holder: 'webhook', table: webhooks, ids: [webhooks.secretId] },
-  { holder: 'assistant', table: assistantConnections, ids: [assistantConnections.keySecretId] },
   {
     holder: 'audit-stream',
     table: auditStreams,

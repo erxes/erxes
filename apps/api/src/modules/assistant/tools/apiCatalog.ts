@@ -7,6 +7,7 @@ export interface ApiProcedure {
   method: string;
   path: string;
   summary: string;
+  description: string;
   input: Record<string, unknown>;
   changes: boolean;
   denied: boolean;
@@ -117,6 +118,7 @@ const describe = (name: string, procedure: AnyContractProcedure): ApiProcedure =
     method,
     path: route.path ?? '',
     summary: route.summary ?? '',
+    description: route.description ?? '',
     input,
     changes: method !== 'GET' && !READS_BY_POST.has(name),
     denied:

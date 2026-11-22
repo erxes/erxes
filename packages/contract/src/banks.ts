@@ -158,39 +158,69 @@ const ConnectionId = z.object({ id: Id });
 
 export const banksContract = {
   connections: base
-    .route({ method: 'GET', path: '/banks/connections' })
+    .route({ method: 'GET', path: '/banks/connections', summary: 'List bank connections' })
     .output(listOf(BankConnection)),
   accounts: base
-    .route({ method: 'GET', path: '/banks/connections/{id}/accounts' })
+    .route({
+      method: 'GET',
+      path: '/banks/connections/{id}/accounts',
+      summary: 'List bank accounts',
+    })
     .input(ConnectionId)
     .output(listOf(BankAccount)),
-  /** One account with its balance. */
   account: base
-    .route({ method: 'GET', path: '/banks/connections/{id}/accounts/{account}' })
+    .route({
+      method: 'GET',
+      path: '/banks/connections/{id}/accounts/{account}',
+      summary: 'Get a bank account',
+      description: 'One account with its balance',
+    })
     .input(ConnectionId.extend({ account: digits() }))
     .output(BankAccount),
   statement: base
-    .route({ method: 'GET', path: '/banks/connections/{id}/accounts/{account}/statement' })
+    .route({
+      method: 'GET',
+      path: '/banks/connections/{id}/accounts/{account}/statement',
+      summary: 'Get a bank statement',
+    })
     .input(StatementQuery)
     .output(Statement),
-  /** Sends money, once per `reference`, and keeps the transfer whatever the bank answers. */
   transfer: base
-    .route({ method: 'POST', path: '/banks/connections/{id}/transfers', successStatus: 201 })
+    .route({
+      method: 'POST',
+      path: '/banks/connections/{id}/transfers',
+      successStatus: 201,
+      summary: 'Send a bank transfer',
+      description:
+        'Sends money, once per `reference`, and keeps the transfer whatever the bank answers',
+    })
     .input(TransferInput)
     .output(BankTransfer),
-  /** Transfers sent from the organisation's accounts, newest first. */
   transfers: base
-    .route({ method: 'GET', path: '/banks/transfers' })
+    .route({
+      method: 'GET',
+      path: '/banks/transfers',
+      summary: 'List bank transfers',
+      description: "Transfers sent from the organisation's accounts, newest first",
+    })
     .input(CursorQuery)
     .output(cursorPageOf(BankTransfer)),
-  /** Khan Bank: a taxpayer's TIN and name, by their registration number. */
   taxpayer: base
-    .route({ method: 'GET', path: '/banks/connections/{id}/taxes/taxpayer/{registrationNumber}' })
+    .route({
+      method: 'GET',
+      path: '/banks/connections/{id}/taxes/taxpayer/{registrationNumber}',
+      summary: 'Find a taxpayer',
+      description: "Khan Bank: a taxpayer's TIN and name, by their registration number",
+    })
     .input(ConnectionId.extend({ registrationNumber: field() }))
     .output(z.object({ tin: z.string().nullable(), name: z.string().nullable() })),
-  /** Khan Bank: the tax invoices due, by invoice or capital (property) number. */
   taxInvoices: base
-    .route({ method: 'GET', path: '/banks/connections/{id}/taxes/invoices' })
+    .route({
+      method: 'GET',
+      path: '/banks/connections/{id}/taxes/invoices',
+      summary: 'List tax invoices due',
+      description: 'Khan Bank: the tax invoices due, by invoice or capital (property) number',
+    })
     .input(ConnectionId.extend({ by: z.enum(TAX_INQUIRY_KINDS), value: field() }))
     .output(listOf(TaxInvoice)),
 };

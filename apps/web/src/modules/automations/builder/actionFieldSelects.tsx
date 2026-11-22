@@ -1,10 +1,9 @@
 import type { ActionField, ActionInfo } from '@erxes/core-contract';
 import { memberQueries, messageOf } from '@erxes/core-contract/client';
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   ConnectionPicker,
   LookupPicker,
-  pluginJson,
   Select,
   textOf,
   useMemberOptions,
@@ -13,7 +12,6 @@ import {
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { z } from 'zod';
 import { paths } from '~/lib/paths';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
@@ -42,7 +40,7 @@ export const fieldIdOf = (path: string) => path.replace(CUSTOM_PREFIX, '');
 export const customFieldsOf = (fields: FieldInfo[]) =>
   fields.filter((item) => item.path.startsWith(CUSTOM_PREFIX));
 
-const asList = (value: unknown) =>
+export const asList = (value: unknown) =>
   Array.isArray(value) ? value.map(textOf) : value ? [textOf(value)] : [];
 
 export const CustomFieldSelect = ({ value, onChange, disabled, dataFields }: ActionInputProps) => {
@@ -203,84 +201,6 @@ export const ConnectionSelect = ({ action, value, onChange, disabled }: ActionIn
       onValueChange={(connectionId) => onChange(connectionId ?? undefined)}
       noneLabel={t('default-connection', 'The default connection')}
       disabled={disabled}
-    />
-  );
-};
-
-const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));
-
-/**
- * The run's values that are records of this type (the trigger's task, a deal an earlier step
- * created), as picker options that insert them: "Task created: Task".
- */
-const runRecordOptions = (
-  dataFields: FieldInfo[],
-  source: string,
-  recordType: string | undefined,
-) =>
-  dataFields
-    .filter((item) => recordType && item.recordType === recordType && item.source === source)
-    .map((item) => ({
-      value: `{{${item.path}}}`,
-      label: item.groupLabel ? `${item.groupLabel}: ${item.label}` : item.label,
-    }));
-
-/**
- * The plugin's own records, listed by its API with the member's session, after the run's
- * records of that type. With `dependsOn`, the records under that input's value, once it has
- * one; with `multiple`, several.
- */
-export const PluginRecordSelect = ({
-  action,
-  field,
-  value,
-  onChange,
-  disabled = false,
-  input,
-  dataFields,
-}: ActionInputProps) => {
-  const { t } = useTranslation('automations');
-  const { recordType, dependsOn, multiple } = field;
-  const parent = dependsOn === undefined ? '' : textOf(input[dependsOn]);
-  const waiting = dependsOn !== undefined && !parent;
-  // A parent taken from the run is known only when it runs: then only the run's records fit.
-  // A chosen parent lists its own records: a run's record may sit under another one.
-  const fromRun = parent.startsWith('{{');
-  const listed = Boolean(recordType) && !waiting && !fromRun;
-  const query = new URLSearchParams(parent ? { parent } : {});
-
-  const records = useQuery({
-    queryKey: ['plugin-records', action.source, recordType, parent],
-    queryFn:
-      recordType && listed
-        ? () =>
-            pluginJson(action.source, `/automations/records/${recordType}?${query}`, PluginRecords)
-        : skipToken,
-  });
-
-  const parentLabel = action.fields.find((other) => other.key === dependsOn)?.label;
-
-  return (
-    <LookupPicker
-      multiple={multiple}
-      lookup={{
-        options: [
-          ...(fromRun || dependsOn === undefined
-            ? runRecordOptions(dataFields, action.source, recordType)
-            : []),
-          ...(listed ? (records.data ?? []) : []),
-        ],
-        loading: listed && records.isPending,
-        error: records.error,
-      }}
-      value={asList(value)}
-      onValueChange={(ids) => onChange(multiple ? ids : ids[0])}
-      disabled={disabled || waiting}
-      placeholder={
-        waiting
-          ? t('choose-parent-first', 'Choose {{field}} first', { field: parentLabel })
-          : t('choose', 'Choose…')
-      }
     />
   );
 };

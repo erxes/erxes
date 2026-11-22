@@ -69,7 +69,7 @@ export const pluginAgent = (name: string): Agent => ({
       const tools = routes.map((route) =>
         defineTool({
           name: operationOf(route).replaceAll(/[^\w-]/g, '_'),
-          description: route.summary,
+          description: [route.summary, route.description].filter(Boolean).join('. '),
           parameters: route.input,
           execute: async (args) => {
             const result = await callPluginRoute(route, Args.parse(args), () =>

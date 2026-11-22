@@ -32,7 +32,8 @@ export const tagsContract = {
     .route({
       method: 'GET',
       path: '/tags',
-      summary: 'Tags of a record type, by name. Plugins read product tags (products:read)',
+      summary: 'List tags',
+      description: 'Tags of a record type, by name. Plugins read product tags (products:read)',
     })
     .input(z.object({ type: FieldContentType, search: z.string().trim().max(100).optional() }))
     .output(listOf(Tag)),
@@ -41,13 +42,14 @@ export const tagsContract = {
       method: 'POST',
       path: '/tags',
       successStatus: 201,
-      summary:
-        'Create a tag. 409 TAKEN when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags',
+      summary: 'Create a tag',
+      description:
+        '409 TAKEN when the name is taken for the type, 409 TAG_LIMIT when the type already has LIST_MAX (1000) tags',
     })
     .input(TagFields.required({ type: true, name: true }))
     .output(Tag),
   update: base
-    .route({ method: 'PATCH', path: '/tags/{id}' })
+    .route({ method: 'PATCH', path: '/tags/{id}', summary: 'Change a tag' })
     .input(
       TagFields.omit({ type: true })
         .extend({ id: Id })
@@ -58,7 +60,8 @@ export const tagsContract = {
     .route({
       method: 'DELETE',
       path: '/tags/{id}',
-      summary: 'Delete a tag; it comes off every record (owners and admins)',
+      summary: 'Delete a tag',
+      description: 'Delete a tag; it comes off every record (owners and admins)',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),

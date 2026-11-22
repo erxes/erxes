@@ -1,129 +1,37 @@
 import type { AssistantProvider } from '@erxes/core-contract';
-import { assistantConnections, type Db, newId, requestOrgId, secrets } from '@erxes/core-db';
-import { asc, eq, getTableColumns, sql } from 'drizzle-orm';
-import { fail, notFound } from '~/http/errors';
-import { wholeList } from '~/lib/keyset';
-import { lockKeys } from '~/lib/locks';
-import { openSecret, saveSecret, type SecretRow, type WithSecret } from '~/modules/secrets/vault';
-import { unreadableKey } from './providers';
+import type { Db } from '@erxes/core-db';
+import { fail } from '~/http/errors';
+import { type ConnectedProvider, connectedProviders } from './connectedProviders';
+import { DEFAULT_MODELS, unreadableKey } from './providers';
+import { getSettings } from './settings.service';
 
-type ConnectionRow = WithSecret<typeof assistantConnections.$inferSelect>;
-
-export const openKey = (secret: SecretRow) => {
-  try {
-    return openSecret(secret);
-  } catch {
-    return null;
-  }
-};
-
-const orgRows = (client: Db) =>
-  wholeList((limit) =>
-    client
-      .select({ ...getTableColumns(assistantConnections), secret: secrets })
-      .from(assistantConnections)
-      .innerJoin(secrets, eq(secrets.id, assistantConnections.keySecretId))
-      .orderBy(asc(assistantConnections.createdAt), asc(assistantConnections.id))
-      .limit(limit),
-  );
-
-const effectiveDefault = (rows: ConnectionRow[]) => rows.find((row) => row.isDefault) ?? rows[0];
-
-const present = (rows: ConnectionRow[]) => {
-  const chosen = effectiveDefault(rows);
-
-  return rows.map((row) => ({
-    ...row,
-    isDefault: row === chosen,
-    hasKey: openKey(row.secret) !== null,
-  }));
-};
-
-/** The organisation's keys, which every agent uses. */
-export const listConnections = async (client: Db) => ({ data: present(await orgRows(client)) });
-
-const lockKeysOfOrg = (client: Db) => lockKeys(client, [`assistant-connections:${requestOrgId()}`]);
-
-export const saveConnection = async (client: Db, provider: AssistantProvider, apiKey: string) => {
-  await lockKeysOfOrg(client);
-
-  const [before] = await client
-    .select({ keySecretId: assistantConnections.keySecretId })
-    .from(assistantConnections)
-    .where(eq(assistantConnections.provider, provider))
-    .limit(1);
-
-  const keySecretId = await saveSecret(client, apiKey, before?.keySecretId);
-
-  await client
-    .insert(assistantConnections)
-    .values({ id: newId(), provider, keySecretId })
-    .onConflictDoUpdate({
-      target: [assistantConnections.orgId, assistantConnections.provider],
-      set: { keySecretId, updatedAt: sql`now()` },
-    });
-
-  const rows = present(await orgRows(client));
-  const saved = rows.find((row) => row.provider === provider);
-
-  if (!saved) throw notFound('Connection');
-
-  return saved;
-};
-
-export const removeConnection = async (client: Db, provider: AssistantProvider) => {
-  const removed = await client
-    .delete(assistantConnections)
-    .where(eq(assistantConnections.provider, provider))
-    .returning({ id: assistantConnections.id });
-
-  if (!removed.length) throw notFound('Connection');
-
-  return { ok: true as const };
-};
-
-export const setDefaultProvider = async (client: Db, provider: AssistantProvider | null) => {
-  await lockKeysOfOrg(client);
-
-  const rows = await orgRows(client);
-
-  if (provider && !rows.some((row) => row.provider === provider)) throw notFound('Connection');
-
-  await client
-    .update(assistantConnections)
-    .set({ isDefault: false })
-    .where(eq(assistantConnections.isDefault, true));
-
-  if (provider) {
-    await client
-      .update(assistantConnections)
-      .set({ isDefault: true })
-      .where(eq(assistantConnections.provider, provider));
-  }
-
-  return listConnections(client);
-};
-
-export const findConnection = async (client: Db, provider?: AssistantProvider) => {
-  const rows = await orgRows(client);
-
-  return provider ? rows.find((row) => row.provider === provider) : effectiveDefault(rows);
-};
-
-/** The organisation's key for `provider`, or its default one, opened; fails when there is none. */
-export const usableKey = async (client: Db, provider?: AssistantProvider) => {
-  const connection = await findConnection(client, provider);
-
-  if (!connection) {
+const usable = (connected: ConnectedProvider | undefined) => {
+  if (!connected) {
     throw fail(
       'ASSISTANT_NO_CONNECTION',
-      'An admin has to add a model provider key in Settings to use the assistant',
+      'Connect an AI provider in Settings › Integrations › AI Provider to use the assistant',
     );
   }
 
-  const apiKey = openKey(connection.secret);
+  if (!connected.key) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connected.provider));
 
-  if (apiKey === null) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
+  return connected.key;
+};
 
-  return { provider: connection.provider, apiKey };
+export const modelKey = async (
+  client: Db,
+  asked: { provider?: AssistantProvider | undefined; model?: string | undefined } = {},
+) => {
+  const connected = await connectedProviders(client);
+  const settings = await getSettings(client);
+  const byDefault = connected.find((entry) => entry.provider === settings.defaultProvider);
+  const provider = asked.provider ?? (byDefault ?? connected[0])?.provider;
+  const key = usable(connected.find((entry) => entry.provider === provider));
+
+  const fallback =
+    key.provider === settings.defaultProvider && settings.defaultModel
+      ? settings.defaultModel
+      : DEFAULT_MODELS[key.provider];
+
+  return { ...key, model: asked.model ?? fallback };
 };

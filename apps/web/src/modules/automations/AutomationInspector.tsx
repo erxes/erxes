@@ -1,4 +1,4 @@
-import type { Automation } from '@erxes/core-contract';
+import { type Automation, AutomationTrigger } from '@erxes/core-contract';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
 import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
@@ -6,18 +6,18 @@ import { TriggerEditor } from './builder/TriggerEditor';
 import type { useBuilder } from './builder/useBuilder';
 import { type Selection, StepInspector } from './StepInspector';
 import { TestPanel } from './TestPanel';
-import type { AutomationMutations, useAutomationDraft } from './useAutomationEditor';
+import type { AutomationMutations } from './useAutomationEditor';
+import type { useFlowGuard } from './useFlowGuard';
 
 export interface InspectorProps {
   automation: Automation;
-  draft: ReturnType<typeof useAutomationDraft>;
+  draft: ReturnType<typeof useFlowGuard>;
   mutations: AutomationMutations;
   catalog: Catalog;
   built: ReturnType<typeof useBuilder>;
   editable: boolean;
   selected: Selection;
   onSelect: (selection: Selection) => void;
-  onTested: () => void;
 }
 
 const TriggerPanel = (props: InspectorProps) => {
@@ -35,13 +35,18 @@ const TriggerPanel = (props: InspectorProps) => {
         sample: automation.hookSample,
       }}
       disabled={!editable}
+      costOf={draft.triggerCost}
       onChange={(trigger) => {
-        const next = { ...definition, trigger };
+        const kindChanged = trigger.kind !== definition.trigger.kind;
 
-        draft.setDefinition(next);
-
-        if (trigger.kind !== definition.trigger.kind && automation.status !== 'active')
-          mutations.save.mutate({ ...draft.input, definition: next });
+        draft.setDefinition({ ...definition, trigger }, (applied) => {
+          if (
+            kindChanged &&
+            automation.status !== 'active' &&
+            AutomationTrigger.safeParse(applied.trigger).success
+          )
+            mutations.save.mutate({ ...draft.input, definition: applied });
+        });
       }}
       onStartNow={
         automation.status === 'active' && editable
@@ -83,7 +88,6 @@ export const AutomationInspector = (props: InspectorProps) => {
               subject={built.hasSubject ? built.subject : null}
               dirty={draft.dirty}
               onSave={() => mutations.save.mutateAsync(draft.input)}
-              onTested={props.onTested}
             />
           )}
           {step && (

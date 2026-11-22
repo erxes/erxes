@@ -75,7 +75,8 @@ export const pluginFieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/plugin-values',
-      summary:
+      summary: 'Write a plugin’s field values',
+      description:
         "Write values of the calling plugin's own fields (by manifest `code`), up to 500; null clears one. Quiet: no timeline entry, event, audit row or notification. Records not found are skipped. 400 INVALID_FIELD for a code the manifest doesn't declare, INVALID_FIELD_VALUE for a value that doesn't fit",
     })
     .input(
@@ -96,7 +97,8 @@ export const pluginFieldsContract = {
     .route({
       method: 'POST',
       path: '/fields/check',
-      summary:
+      summary: 'Check custom field values',
+      description:
         "Apply a patch to a record's custom field values, for a plugin that keeps them (its own `<plugin>.<type>`): the values to save, checked and trimmed; null or empty clears one. Core stores nothing. 400 INVALID_FIELD for a field not of that type, archived, or in a group that doesn't apply to the record (`appliesTo`), INVALID_FIELD_VALUE for a value that doesn't fit or a required field left empty while it shows; 403 NOT_ALLOWED for another plugin's type",
     })
     .input(

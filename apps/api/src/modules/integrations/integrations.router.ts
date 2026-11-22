@@ -8,6 +8,7 @@ import {
 } from '~/modules/integrations/integrations.service';
 import { reportIntegrationState } from '~/modules/integrations/pluginIntegrations';
 import { appSubscriptionsOf } from '~/modules/integrations/listeners';
+import { listAppRecords } from '~/modules/integrations/records';
 import { authorizeUrl, removeOAuthApp, setOAuthApp } from '~/modules/integrations/oauth';
 import { scoped, unscoped } from '~/orpc';
 
@@ -19,6 +20,7 @@ export const integrationsRouter = {
   subscriptions: scoped.integrations.subscriptions.handler(({ input }) =>
     appSubscriptionsOf(db(), input.key),
   ),
+  records: unscoped.integrations.records.handler(({ input }) => listAppRecords(input)),
   connect: unscoped.integrations.connect.handler(({ input }) => connect(input)),
   update: unscoped.integrations.update.handler(({ input }) => updateConnection(input)),
   remove: scoped.integrations.remove.handler(({ input }) =>

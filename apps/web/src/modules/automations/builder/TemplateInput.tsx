@@ -1,24 +1,12 @@
-import { cn } from 'erxes-ui';
+import { cn, Kbd } from 'erxes-ui';
+import { useRef, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { InsertData } from './DataPicker';
+import { readableTemplate, templateParts } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
-import { useTokenField } from './useTokenField';
+import { CHIP, chipLabel, useTokenField } from './useTokenField';
 
-/**
- * Text an action sends or saves, with the run's data dropped in as chips: "Insert data" lists
- * the record's fields, the trigger's values, earlier steps' results and the time, and puts the
- * chip where the caret is. The value is still the template text (`Hi {{subject.firstName}}`).
- */
-export const TemplateInput = ({
-  value,
-  onChange,
-  fields,
-  subject,
-  multiline,
-  label,
-  placeholder,
-  disabled,
-  invalid,
-}: {
+type FieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -28,35 +16,139 @@ export const TemplateInput = ({
   placeholder?: string;
   disabled?: boolean;
   invalid?: boolean;
-}) => {
-  const { ref, insert } = useTokenField({ value, fields, multiline, onChange });
+};
+
+const Example = ({
+  text,
+  fields,
+  className,
+}: {
+  text: string;
+  fields: FieldInfo[];
+  className: string;
+}) => (
+  <span
+    aria-hidden
+    className={cn(
+      'pointer-events-none absolute inset-0 text-sm leading-5 break-words whitespace-pre-wrap text-accent-foreground',
+      className,
+    )}
+  >
+    {templateParts(text).map((part) =>
+      'text' in part ? (
+        <span key={part.at}>{part.text}</span>
+      ) : (
+        <span key={part.at} className={cn(CHIP, 'opacity-60')}>
+          {chipLabel(part.path, part.filters, fields)}
+        </span>
+      ),
+    )}
+  </span>
+);
+
+const BraceHint = () => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <span className="flex items-center gap-1 pr-1 text-xs text-muted-foreground">
+      <Trans
+        t={t}
+        i18nKey="insert-data-key"
+        defaults="or type <key>{</key>"
+        components={{ key: <Kbd variant="foreground" /> }}
+      />
+    </span>
+  );
+};
+
+/** Typing `{` opens the data picker at the caret; closing it without a pick types the `{`. */
+const usePickedData = ({
+  value,
+  fields,
+  multiline,
+  onChange,
+}: Pick<FieldProps, 'value' | 'fields' | 'multiline' | 'onChange'>) => {
+  const [open, setOpen] = useState(false);
+  const fromBrace = useRef(false);
+
+  const { ref, insert, type } = useTokenField({
+    value,
+    fields,
+    multiline,
+    onChange,
+    onBrace: () => {
+      fromBrace.current = true;
+      setOpen(true);
+    },
+  });
+
+  const onPick = (path: string) => {
+    fromBrace.current = false;
+    insert(path);
+  };
+
+  const onOpenChange = (next: boolean) => {
+    setOpen(next);
+
+    if (next || !fromBrace.current) return;
+
+    fromBrace.current = false;
+    type('{');
+  };
+
+  return { ref, open, onPick, onOpenChange };
+};
+
+/**
+ * Text an action sends or saves, with the run's data dropped in as chips: "Insert data", or
+ * typing `{`, lists the record's fields, the trigger's values, earlier steps' results and the
+ * time, and puts the chip where the caret is. The value is still the template text
+ * (`Hi {{subject.firstName}}`).
+ */
+export const TemplateInput = (props: FieldProps) => {
+  const { label, fields, subject, multiline, placeholder, disabled, invalid } = props;
+  const { ref, ...picking } = usePickedData(props);
+  const box = multiline ? 'px-3 pt-1.5 pb-0.5' : 'py-0.5';
+
+  const picker = <InsertData fields={fields} subject={subject} labelled={multiline} {...picking} />;
 
   return (
     <div
       className={cn(
-        'relative flex w-full items-start gap-1 rounded-sm bg-background py-1 pr-1 pl-3 shadow-xs transition focus-within:shadow-focus',
+        'flex w-full rounded-sm bg-background shadow-xs transition focus-within:shadow-focus',
+        multiline ? 'flex-col' : 'items-start gap-1 py-1 pr-1 pl-3',
         invalid && 'shadow-destructive',
         disabled && 'opacity-50',
       )}
     >
-      {!value && placeholder && (
-        <span className="pointer-events-none absolute top-1.5 left-3 text-sm text-accent-foreground">
-          {placeholder}
-        </span>
-      )}
-      <div
-        ref={ref}
-        aria-label={label}
-        aria-multiline={multiline}
-        aria-invalid={invalid ? true : undefined}
-        aria-disabled={disabled ? true : undefined}
-        contentEditable={!disabled}
-        className={cn(
-          'min-w-0 flex-1 py-0.5 text-sm leading-5 break-words whitespace-pre-wrap outline-hidden',
-          multiline ? 'min-h-20' : 'min-h-5',
+      <div className="relative min-w-0 flex-1">
+        {!props.value && placeholder && (
+          <Example text={placeholder} fields={fields} className={box} />
         )}
-      />
-      {!disabled && <InsertData fields={fields} subject={subject} onPick={insert} />}
+        <div
+          ref={ref}
+          aria-label={label}
+          aria-placeholder={placeholder ? readableTemplate(placeholder, fields) : undefined}
+          aria-multiline={multiline}
+          aria-invalid={invalid ? true : undefined}
+          aria-disabled={disabled ? true : undefined}
+          contentEditable={!disabled}
+          className={cn(
+            'text-sm leading-5 break-words whitespace-pre-wrap outline-hidden',
+            box,
+            multiline ? 'min-h-20' : 'min-h-5',
+          )}
+        />
+      </div>
+      {!disabled &&
+        (multiline ? (
+          <div className="flex items-center justify-between gap-2 px-1 pb-1">
+            {picker}
+            <BraceHint />
+          </div>
+        ) : (
+          picker
+        ))}
     </div>
   );
 };

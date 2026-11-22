@@ -108,14 +108,16 @@ export const saasContract = {
     .route({
       method: 'GET',
       path: '/plan',
-      summary: "The organisation's subscription: each plugin's tier, status and access",
+      summary: 'Get the subscription plan',
+      description: "The organisation's subscription: each plugin's tier, status and access",
     })
     .output(SubscriptionInfo),
   pluginPlan: base
     .route({
       method: 'GET',
       path: '/plan/plugin',
-      summary: 'For the calling plugin: its tier and what it may do (read-only, off)',
+      summary: 'Get a plugin’s plan',
+      description: 'For the calling plugin: its tier and what it may do (read-only, off)',
     })
     .output(PluginPlan),
 };

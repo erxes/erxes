@@ -1,6 +1,6 @@
 import type { CorePermission, Integration as IntegrationListing } from '@erxes/core-contract';
 import type { z } from 'zod';
-import type { AppAction, AppClient, Apps } from './apps';
+import type { AppAction, AppClient, AppRecords, Apps } from './apps';
 import { fieldsOf, type Keys, oauthKeys } from './fields';
 import type {
   ClientOptions,
@@ -76,6 +76,11 @@ export interface KeyedIntegration<
   payments?: Payments<C>;
   /** Its own actions; the `payments` ability brings the invoice actions to every gateway. */
   actions?: AppAction<C>[];
+  /**
+   * The records its `plugin_record` inputs and record trigger settings pick from, by
+   * `recordType`. A type it leaves out is picked only from the run's values.
+   */
+  records?: AppRecords<C>;
   oauth?: OAuthSetup;
   status?: never;
 }

@@ -96,6 +96,7 @@ const KeyCall = z.object({
   method: z.string(),
   path: z.string(),
   summary: z.string().nullable(),
+  description: z.string().nullable(),
   area: z.union([ApiKeyArea, z.literal('lookup')]).nullable(),
   access: ApiKeyAccess,
   /** The permission a member needs for it; null when any member may make it. */
@@ -124,7 +125,8 @@ export const apiKeysContract = {
     .route({
       method: 'GET',
       path: '/api-keys',
-      summary: "Your API keys; everyone's with api_keys.manage",
+      summary: 'List API keys',
+      description: "Your API keys; everyone's with api_keys.manage",
     })
     .output(listOf(ApiKey)),
   create: base
@@ -132,7 +134,8 @@ export const apiKeysContract = {
       method: 'POST',
       path: '/api-keys',
       successStatus: 201,
-      summary:
+      summary: 'Create an API key',
+      description:
         'A new key; the key is returned once here. 403 OWNER_ONLY: a management key needs an owner or admin. 403 BEYOND_OWN_PERMISSIONS: an area your role lacks. 400 LIMIT_EXCEEDED past 20 keys',
     })
     .input(KeyRules)
@@ -141,7 +144,8 @@ export const apiKeysContract = {
     .route({
       method: 'PATCH',
       path: '/api-keys/{id}',
-      summary:
+      summary: 'Change an API key',
+      description:
         'Change a key you made: its name and rules (a key made before rules takes them now). The secret stays; a lifetime given starts again from now',
     })
     .input(KeyRules.extend({ id: Id, lifetimeDays: KeyRules.shape.lifetimeDays.optional() }))
@@ -150,7 +154,8 @@ export const apiKeysContract = {
     .route({
       method: 'DELETE',
       path: '/api-keys/{id}',
-      summary: "Revoke a key, yours or (with api_keys.manage) anyone's; it stops at once",
+      summary: 'Revoke an API key',
+      description: "Revoke a key, yours or (with api_keys.manage) anyone's; it stops at once",
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -158,14 +163,16 @@ export const apiKeysContract = {
     .route({
       method: 'GET',
       path: '/api-keys/calls',
-      summary: 'Every procedure, with the area and access a key needs for it',
+      summary: 'List the calls a key can make',
+      description: 'Every procedure, with the area and access a key needs for it',
     })
     .output(listOf(KeyCall)),
   try: base
     .route({
       method: 'POST',
       path: '/api-keys/{id}/try',
-      summary:
+      summary: 'Check what a key may call',
+      description:
         'Would the key be allowed each call it can be given (from this address, on this contact)? Says which rule decided each; nothing is called',
     })
     .input(

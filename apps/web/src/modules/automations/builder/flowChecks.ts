@@ -1,4 +1,10 @@
-import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
+import {
+  type ActionField,
+  type ActionInfo,
+  type AutomationStep,
+  type DataField,
+  isAppEvent,
+} from '@erxes/core-contract';
 import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
@@ -87,10 +93,10 @@ export const countSteps = (steps: AutomationStep[]): number =>
 
 /**
  * An event's own values as fields (`event.payload.<key>`), under the event's name. One that holds
- * a plugin's record id (`recordType`) is picked from that plugin's records.
+ * a record id (`recordType`) is picked from its plugin's records, or an app event's from the app's.
  */
 export const eventDataFields = (
-  event: { label: string; source?: string; fields?: DataField[] } | undefined,
+  event: { type?: string; label: string; source?: string; fields?: DataField[] } | undefined,
 ): FieldInfo[] =>
   (event?.fields ?? []).map((field) => ({
     path: `event.payload.${field.key}`,
@@ -99,7 +105,9 @@ export const eventDataFields = (
     group: 'event',
     groupLabel: event?.label,
     recordType: field.recordType,
-    source: event?.source,
+    ...(event?.type && isAppEvent(event.type)
+      ? { integration: event.source }
+      : { source: event?.source }),
   }));
 
 /**
@@ -133,7 +141,12 @@ export const stepOutputFields = (
             label: `${title}: ${output.label}`,
             type: output.type,
             ...(output.recordType && action
-              ? { recordType: output.recordType, source: action.source }
+              ? {
+                  recordType: output.recordType,
+                  ...(action.source === 'core' && action.integration
+                    ? { integration: action.integration }
+                    : { source: action.source }),
+                }
               : {}),
           });
         }

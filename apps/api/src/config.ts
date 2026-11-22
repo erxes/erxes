@@ -27,6 +27,15 @@ const listenUrl = (): string | undefined => {
   return url.toString();
 };
 
+const assistantEndpoints: Partial<Record<string, string>> = {
+  openai: env.ASSISTANT_OPENAI_URL,
+  anthropic: env.ASSISTANT_ANTHROPIC_URL,
+  openrouter: env.ASSISTANT_OPENROUTER_URL,
+  kimi: env.ASSISTANT_KIMI_URL,
+  'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
+  grok: env.ASSISTANT_GROK_URL,
+};
+
 export const config = {
   isProduction,
   port: env.PORT,
@@ -175,14 +184,7 @@ export const config = {
     /** Where owners manage the subscription; `{subdomain}` is replaced. */
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
   },
-  assistant: {
-    endpoints: {
-      openai: env.ASSISTANT_OPENAI_URL,
-      grok: env.ASSISTANT_GROK_URL,
-      kimi: env.ASSISTANT_KIMI_URL,
-      'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
-    },
-  },
+  assistant: { endpoints: assistantEndpoints },
   /** Secret → plugin name. */
   pluginKeys: env.CORE_PLUGIN_KEYS,
   plugins: {
