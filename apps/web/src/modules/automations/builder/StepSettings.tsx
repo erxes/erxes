@@ -40,7 +40,7 @@ const useDetails = (step: Extract<AutomationStep, { type: 'action' }>, action: A
   const filledKeys = () =>
     new Set(action.fields.filter((field) => !isEmpty(step.input[field.key])).map(({ key }) => key));
 
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(() => !action.fields.some((field) => field.required));
   const [kept, setKept] = useState(filledKeys);
   const shown = action.fields.filter((field) => showAll || field.required || kept.has(field.key));
   const labelShown = showAll || Boolean(step.label);
@@ -167,9 +167,12 @@ const ActionSettings = ({
   const { t } = useTranslation('automations');
   const { step, subject, disabled, onChange } = props;
   const action = actions.find((item) => item.type === step.action);
-  const { hasSubject } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(subject);
-  const recordFields = hasSubject ? fields : [];
+  const { hasSubject, automationId } = useContext(BuilderContext);
+  const { fields } = useAutomationFields(subject, automationId);
+
+  const recordFields = hasSubject
+    ? fields
+    : fields.filter((field) => field.path.startsWith('event.payload.'));
 
   return (
     <>

@@ -20,16 +20,19 @@ interface Draft {
   definition?: AutomationDefinition;
 }
 
+const versionOf = (automation: Automation) =>
+  `${automation.updatedAt}:${automation.status}:${automation.activeVersion ?? 0}`;
+
 /**
  * Unsaved edits over the saved automation. A newer automation from the server
- * (saved, restored, turned on) starts the draft again from it.
+ * (saved, restored, turned on) starts the draft again from it; a sample call or new stats don't.
  */
 export const useAutomationDraft = (automation: Automation) => {
   const [draft, setDraft] = useState<Draft>({});
-  const [base, setBase] = useState(automation);
+  const [base, setBase] = useState(() => versionOf(automation));
 
-  if (base !== automation) {
-    setBase(automation);
+  if (base !== versionOf(automation)) {
+    setBase(versionOf(automation));
     setDraft({});
   }
 

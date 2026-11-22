@@ -6,7 +6,8 @@ A request goes contract procedure → its policy in `ACCESS` (`src/http/policies
 `src/modules/<feature>/<feature>.router.ts` → service → row → the procedure's output schema, which
 picks the fields and turns Dates into ISO strings. Copy `modules/tags` for a new feature.
 `<feature>.http.ts` is only for Express routes the contract can't describe: byte and event streams,
-OAuth's token and revoke endpoints, and callbacks from outside services (payments, SaaS).
+OAuth's token and revoke endpoints, and callbacks from outside services (payments, SaaS,
+automation webhooks).
 
 ## Rules
 

@@ -1,4 +1,6 @@
 import {
+  IconArrowBackUp,
+  IconAutomation,
   IconBolt,
   IconBrandDiscord,
   IconBrandFacebook,
@@ -58,6 +60,11 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
   webhook: { label: 'Integrations', icon: IconWebhook, order: 6 },
   http: { label: 'Integrations', icon: IconWebhook, order: 6 },
   agent: { label: 'AI agents', icon: IconSparkles, order: 7 },
+  automation: { label: 'Automations', icon: IconAutomation, order: 8 },
+};
+
+const CORE_ICONS: Record<string, TablerIcon> = {
+  'core.webhook.reply': IconArrowBackUp,
 };
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {
@@ -103,7 +110,7 @@ export const catalogIcon = (item: CatalogItem) => {
   const words = item.source === 'core' ? [] : item.type.split(/[._]/).slice(1);
   const found = WORD_ICONS.find(([word]) => words.some((part) => word.test(part)));
 
-  return found?.[1] ?? groupOf(item).icon;
+  return found?.[1] ?? CORE_ICONS[item.type] ?? groupOf(item).icon;
 };
 
 export type GroupEntry = { group: CatalogGroup; items: CatalogItem[] };

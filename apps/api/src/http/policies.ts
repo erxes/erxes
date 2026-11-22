@@ -256,6 +256,7 @@ export const ACCESS = {
   'automations.remove': needs('automations.manage'),
   'automations.start': needs('automations.manage'),
   'automations.test': needs('automations.view'),
+  'automations.saveSample': needs('automations.manage'),
   'automations.stats': needs('automations.view'),
   'automations.versions': needs('automations.view'),
   'automations.restoreVersion': needs('automations.manage'),

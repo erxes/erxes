@@ -119,6 +119,18 @@ export const createRateLimits = () => ({
       key: (req) => `email-events:${ip(req)}`,
     }),
   ],
+  automationHooks: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 3000,
+      key: (req) => `automation-hooks:${ip(req)}`,
+    }),
+    rateLimit({
+      windowSeconds: 60,
+      max: 600,
+      key: (req) => `automation-hooks:${ip(req)}:${String(req.params.id)}`,
+    }),
+  ],
   /** Uploads through signed links: 120 a minute per address. */
   upload: rateLimit({
     windowSeconds: 60,

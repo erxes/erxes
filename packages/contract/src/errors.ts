@@ -115,6 +115,7 @@ export const ERRORS = {
   NOT_ACTIVE: { status: 409 },
   NOT_FAILED: { status: 409 },
   NOT_RUNNING: { status: 409 },
+  SUBJECT_NOT_FOUND: { status: 422 },
 
   // Contacts, leads, tags, custom fields.
   NOT_A_LEAD: { status: 400 },

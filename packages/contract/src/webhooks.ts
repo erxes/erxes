@@ -6,6 +6,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, httpUrl, Id, isoDate, listOf } from './common';
 import {
+  AUTOMATION_FAILED_DATA,
   type CoreEventType,
   EventTypeInfo,
   INVOICE_DATA,
@@ -179,6 +180,13 @@ export const CORE_EVENT_TYPES = [
     subject: null,
     description: 'A payment is refunded, in part or in full',
     ...INVOICE_REFUNDED_DATA,
+  },
+  {
+    type: 'core.automation.failed',
+    label: 'Automation failed',
+    subject: null,
+    description: 'A run of another automation fails at a step',
+    ...AUTOMATION_FAILED_DATA,
   },
 ] as const satisfies readonly CoreEventType[];
 

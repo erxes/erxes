@@ -23,7 +23,7 @@ type AutomationRow = typeof automations.$inferSelect;
 type EventRow = typeof events.$inferSelect;
 
 /** Automations started by events that automations caused stop this deep. */
-const MAX_CHAIN_DEPTH = 5;
+export const MAX_CHAIN_DEPTH = 5;
 
 export interface RunStart {
   eventId: string;
@@ -267,7 +267,10 @@ const subjectRefOf = (event: EventRow) =>
  * checked (a value the field can't take, the member who turned it on is gone) count as not
  * holding for this one automation, logged, and leave the event's other automations be.
  */
-const conditionsHold = async (check: () => Promise<boolean>, facts: Record<string, string>) => {
+export const conditionsHold = async (
+  check: () => Promise<boolean>,
+  facts: Record<string, string>,
+) => {
   try {
     return await savepoint(check);
   } catch (error) {

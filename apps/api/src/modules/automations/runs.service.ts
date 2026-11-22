@@ -100,7 +100,7 @@ export const startAutomation = async (client: Db, id: string, subjects?: string[
 
   if (!definition) throw fail('NOT_ACTIVE', 'Turn the automation on first');
 
-  const result = await startNow(client, row, definition, subjects);
+  const result = await startNow(client, row, definition, { subjects });
 
   await recordAudit(client, {
     action: 'automation.started',

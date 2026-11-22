@@ -68,6 +68,7 @@ interface Enrollment {
   /** On the records' fields, and the firing's event (the same for every record). */
   conditions: ConditionGroup | undefined;
   event: FiringEvent;
+  depth?: number;
   startOf: (subject: Subject) => { eventId: string; event: Record<string, unknown> };
 }
 
@@ -75,11 +76,13 @@ const audienceEnrollment = (
   audience: Audience,
   startKey: string,
   event: FiringEvent,
+  depth?: number,
 ): Enrollment => ({
   type: audience.type,
   where: undefined,
   conditions: audience.conditions,
   event,
+  depth,
   startOf: (subject) => ({ eventId: `${startKey}:${subject.id}`, event }),
 });
 
@@ -161,6 +164,7 @@ const enrollPage = async (
       eventType: enrollment.event.type,
       subject: { type: enrollment.type, id: subject.id },
       event,
+      depth: enrollment.depth,
       loaded: subject,
     };
   });
@@ -183,6 +187,8 @@ const FirePayload = z.object({
   manualKey: z.string().optional(),
   /** The next page starts after this record id. */
   after: z.string().optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
+  depth: z.int().optional(),
 });
 
 type FirePayload = z.infer<typeof FirePayload>;
@@ -198,11 +204,12 @@ const enrollmentFor = async (tx: Db, definition: AutomationDefinition, payload: 
   if (!trigger.audience) return null;
 
   if (payload.manualKey)
-    return audienceEnrollment(trigger.audience, payload.manualKey, {
-      type: 'manual',
-      occurredAt: at,
-      payload: {},
-    });
+    return audienceEnrollment(
+      trigger.audience,
+      payload.manualKey,
+      { type: 'manual', occurredAt: at, payload: payload.data ?? {} },
+      payload.depth,
+    );
 
   return trigger.kind === 'schedule'
     ? audienceEnrollment(trigger.audience, `schedule:${at}`, {
@@ -311,26 +318,40 @@ export const tickAutomations = () =>
     return due.length;
   });
 
+interface StartNow {
+  subjects?: string[];
+  subjectType?: SubjectType;
+  key?: string;
+  data?: Record<string, unknown>;
+  depth?: number;
+}
+
 /**
- * A member starts an automation now: on the given records, or on its
+ * A member or another automation starts an automation now: on the given records, or on its
  * audience (the first page now, the rest in the background: `continuing`).
  */
 export const startNow = async (
   tx: Db,
   automation: AutomationRow,
   definition: AutomationDefinition,
-  subjects?: string[],
+  start: StartNow = {},
 ) => {
-  const manualKey = `manual:${newId()}`;
+  const { subjects, depth } = start;
+  const manualKey = start.key ?? `manual:${newId()}`;
   const scheduledFor = new Date().toISOString();
-  const event = { type: 'manual', occurredAt: scheduledFor, payload: {} };
+  const event = { type: 'manual', occurredAt: scheduledFor, payload: start.data ?? {} };
   const { trigger } = definition;
 
   const audience =
     trigger.kind === 'manual' || trigger.kind === 'schedule' ? trigger.audience : undefined;
 
   if (subjects?.length) {
-    const chosen = audienceEnrollment(audience ?? { type: 'customer' }, manualKey, event);
+    const chosen = audienceEnrollment(
+      audience ?? { type: start.subjectType ?? 'customer' },
+      manualKey,
+      event,
+      depth,
+    );
 
     const page = await enrollPage(
       tx,
@@ -345,7 +366,7 @@ export const startNow = async (
   }
 
   if (audience) {
-    const enrollment = audienceEnrollment(audience, manualKey, event);
+    const enrollment = audienceEnrollment(audience, manualKey, event, depth);
     const page = await enrollPage(tx, automation, definition, enrollment);
 
     if (page.next)
@@ -354,6 +375,8 @@ export const startNow = async (
         scheduledFor,
         manualKey,
         after: page.next,
+        data: start.data,
+        depth,
       });
 
     return { started: page.started, skipped: page.skipped, continuing: page.next !== null };
@@ -364,6 +387,7 @@ export const startNow = async (
     eventType: 'manual',
     subject: null,
     event,
+    depth,
     loaded: null,
   });
 
