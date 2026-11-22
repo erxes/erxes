@@ -1,7 +1,7 @@
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient, ORPCErrorFromErrorMap } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
-import { createTanstackQueryUtils } from '@orpc/tanstack-query';
+import { createTanstackQueryUtils, type RouterUtils } from '@orpc/tanstack-query';
 import DataLoader from 'dataloader';
 import type { ERRORS, ErrorCode } from './errors';
 import type { coreContract } from './index';
@@ -27,9 +27,10 @@ const client: ContractRouterClient<typeof coreContract> = createORPCClient(
  * outside React Query. The key is the procedure and its input, so the same
  * request is cached once wherever it's used, in web and in a plugin (they share
  * web's QueryClient), and `invalidateQueries({ queryKey: orpc.users.key() })`
- * reaches every users query. Never write a query key by hand.
+ * reaches every users query. Never write a query key by hand. Its type is named, since the
+ * declaration build won't write out one this large.
  */
-export const orpc = createTanstackQueryUtils(client);
+export const orpc: RouterUtils<typeof client> = createTanstackQueryUtils(client);
 
 /**
  * Where erxes-ui's member pickers and `useMembersById` read members:
