@@ -68,17 +68,6 @@ const ConnectionFacts = ({
       <Fact label={t('used-by', 'Used by')}>
         {connection.usedBy.length ? connection.usedBy.join(', ') : t('unused', 'Nothing')}
       </Fact>
-      {integration.fields.flatMap(({ key, label, type }) => {
-        const value = connection.settings[key];
-
-        return type === 'text' && typeof value === 'string' && value
-          ? [
-              <Fact key={key} label={fieldT(`field.${key}`, label)}>
-                {value}
-              </Fact>,
-            ]
-          : [];
-      })}
       <Fact label={t('keys', 'Keys')}>
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <IconLock className="size-3.5" />
