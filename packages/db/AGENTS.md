@@ -32,7 +32,9 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
   no `core_tenant` policy. A table without `org_id` is listed in `tools/no-org-id.sql` with the reason.
 - `runMigrations()` (`src/migrate.ts`) applies `drizzle/` in one transaction under an advisory
   transaction lock. Production runs it with `pnpm db:migrate`; the API runs it at startup only when
-  `DATA_MIGRATE_ON_START` is on, the default outside production.
+  `DATA_MIGRATE_ON_START` is on, the default outside production. A migration whose rows only the
+  server can rewrite (it holds the keys) has a code step, by its tag, in `MIGRATION_STEPS`
+  (`apps/api/src/lib/migrateDb.ts`): it runs right after that migration's SQL, in the same transaction.
 - Released migrations never change (`db:check-applied` in CI). Never use `drizzle-kit push`.
 - Under row level security an index serves a condition only when its functions are LEAKPROOF.
   `runMigrations()` marks `LEAKPROOF_FUNCTIONS` (`lower`, `LIKE`, `ILIKE`) when it runs as a

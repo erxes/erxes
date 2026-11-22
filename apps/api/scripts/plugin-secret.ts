@@ -7,6 +7,7 @@
 import { configureDb, runMigrations } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
+import { MIGRATION_STEPS } from '~/lib/migrateDb';
 import { runCli, say } from './cli';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 
@@ -18,7 +19,7 @@ const main = async () => {
   }
 
   configureDb(config.data);
-  await runMigrations();
+  await runMigrations(MIGRATION_STEPS);
 
   const secret = await rotatePluginSecret(name);
 

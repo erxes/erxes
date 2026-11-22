@@ -18,7 +18,14 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink } from '~/modules/email/email';
 import { readSecret, saveSecret } from '~/modules/secrets/vault';
 import type { ConnectionRow } from './connections';
-import { type KeyedIntegration, type OAuthKeys, oauthKeys, type OAuthSetup } from './define';
+import {
+  type KeyedIntegration,
+  type OAuthKeys,
+  oauthKeys,
+  type OAuthSetup,
+  sealedValues,
+  splitValues,
+} from './define';
 import { gatewayHttp } from './gateways/http';
 import { connectable } from './connectable';
 
@@ -250,8 +257,10 @@ export const exchangeCode = async (
   return { keys: { ...keys, account } };
 };
 
-const storedKeys = async (tx: Db, row: ConnectionRow): Promise<unknown> =>
-  JSON.parse(await readSecret(tx, row.secretId));
+const storedKeys = async (tx: Db, row: ConnectionRow): Promise<unknown> => ({
+  ...row.settings,
+  ...sealedValues(await readSecret(tx, row.secretId)),
+});
 
 const renewable = (keys: OAuthKeys): keys is OAuthKeys & { refreshToken: string } =>
   Boolean(
@@ -291,7 +300,7 @@ export const freshKeys = async (tx: Db, integration: KeyedIntegration, row: Conn
     current,
   );
 
-  await saveSecret(tx, JSON.stringify(next), row.secretId);
+  await saveSecret(tx, JSON.stringify(splitValues(integration.keys, next).secrets), row.secretId);
 
   return next;
 };

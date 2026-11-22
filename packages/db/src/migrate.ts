@@ -128,6 +128,10 @@ export const blockedIndexFunctions = async (): Promise<string[]> => {
 /** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
+export type MigrationTx = Parameters<Parameters<ReturnType<typeof drizzle>['transaction']>[0]>[0];
+
+export type MigrationSteps = Record<string, (tx: MigrationTx) => Promise<void>>;
+
 /**
  * Applies pending migrations and returns their tags. pg-boss's schema comes
  * first, so a migration can move rows into its tables. Marks
@@ -139,7 +143,10 @@ export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })
  * `migrate()` is not used: it opens its own transaction. Bookkeeping matches
  * Drizzle's (hash + timestamp), so drizzle-kit keeps working.
  */
-export const runMigrations = async (folder = migrationsFolder()): Promise<string[]> => {
+export const runMigrations = async (
+  steps: MigrationSteps,
+  folder = migrationsFolder(),
+): Promise<string[]> => {
   const migrations = readMigrationFiles({
     migrationsFolder: folder,
     migrationsTable: MIGRATIONS_TABLE,
@@ -181,11 +188,15 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
 
     // One parameterless string runs as a simple query: every statement in order, in this
     // transaction. A newline before each `;` ends a trailing `--` comment first.
-    const script = pending
-      .flatMap(({ migration }) => migration.sql.filter((statement) => statement.trim()))
-      .join('\n;\n');
+    await pending.reduce<Promise<void>>(async (previous, { migration, tag }) => {
+      await previous;
 
-    if (script) await tx.execute(sql.raw(script));
+      const script = migration.sql.filter((statement) => statement.trim()).join('\n;\n');
+
+      if (script) await tx.execute(sql.raw(script));
+
+      await steps[tag]?.(tx);
+    }, Promise.resolve());
 
     await tx.execute(
       sql`INSERT INTO ${migrationsTable} (hash, created_at) VALUES ${sql.join(

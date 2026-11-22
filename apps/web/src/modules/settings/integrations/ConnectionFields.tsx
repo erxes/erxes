@@ -28,6 +28,24 @@ export const connectionKeys = (integration: Integration, values: ConnectionValue
   ),
 });
 
+export const settingsFilled = (integration: Integration, values: ConnectionValues) =>
+  integration.fields.every(
+    ({ key, type, optional }) =>
+      optional ||
+      type === 'switch' ||
+      type === 'secret' ||
+      (typeof values[key] === 'string' && values[key].trim() !== ''),
+  );
+
+export const changedKeys = (kept: ConnectionValues, typed: ConnectionValues) =>
+  Object.fromEntries(
+    Object.entries(typed).flatMap(([key, value]) => {
+      if (value === (kept[key] ?? '')) return [];
+
+      return [[key, value === '' ? null : value]];
+    }),
+  );
+
 export const shownValues = (connection: IntegrationConnection): ConnectionValues =>
   Object.fromEntries(
     Object.entries(connection.settings).filter(
@@ -88,12 +106,14 @@ const FieldInput = ({
   integration,
   field,
   values,
+  secretsKept,
   onChange,
 }: {
   id: string;
   integration: Integration;
   field: Integration['fields'][number];
   values: ConnectionValues;
+  secretsKept: boolean;
   onChange: (key: string, value: string | boolean) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -131,6 +151,9 @@ const FieldInput = ({
       type={type === 'secret' ? 'password' : 'text'}
       autoComplete="off"
       spellCheck={false}
+      placeholder={
+        type === 'secret' && secretsKept ? t('secret-kept', 'Kept. Type to replace it') : undefined
+      }
       value={text}
       onChange={(event) => onChange(key, event.target.value)}
     />
@@ -145,10 +168,12 @@ const FieldInput = ({
 export const ConnectionFieldInputs = ({
   integration,
   values,
+  secretsKept = false,
   onChange,
 }: {
   integration: Integration;
   values: ConnectionValues;
+  secretsKept?: boolean;
   onChange: (key: string, value: string | boolean) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -187,6 +212,7 @@ export const ConnectionFieldInputs = ({
           integration={integration}
           field={field}
           values={values}
+          secretsKept={secretsKept}
           onChange={onChange}
         />
         {integration.key === 'quickqr' && field.key === 'iban' && (

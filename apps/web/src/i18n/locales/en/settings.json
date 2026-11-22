@@ -926,7 +926,7 @@
       "sandbox-badge": "sandbox",
       "turn-off": "Turn off",
       "turn-on": "Turn on",
-      "replace-credentials": "Replace the credentials",
+      "secret-kept": "Kept. Type to replace it",
       "save": "Save",
       "save-failed": "Could not save",
       "remove": "Remove",
