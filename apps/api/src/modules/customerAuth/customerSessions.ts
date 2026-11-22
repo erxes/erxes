@@ -1,7 +1,15 @@
 import type { CustomerTokens } from '@erxes/core-contract';
-import { customerSessions, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
+import {
+  customerAccounts,
+  customerSessions,
+  type Db,
+  newId,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { fail } from '~/http/errors';
 import { coreKey } from '~/lib/coreKey';
 import { hmacSha256, sha256 } from '~/lib/crypto';
 import { signJwt, verifyJwt } from '~/lib/signing';
@@ -27,16 +35,22 @@ const REUSE_GRACE_SECONDS = 60;
 const secretAfter = (sessionId: string, secret: string) =>
   hmacSha256(coreKey('erxes-customer-refresh-v1'), `${sessionId}.${secret}`, 'base64url');
 
-interface CustomerSessionRef {
+/** Who a session signs in: the account, its website and its customer. */
+export interface CustomerSessionRef {
   orgId: string;
   customerId: string;
+  accountId: string;
+  websiteId: string;
   sessionId: string;
 }
 
+export const accountBlocked = () =>
+  fail('ACCOUNT_BLOCKED', 'This account may not sign in to the website');
+
 /** A 15-minute access token for core's `/customer/*` and every plugin's API. */
-const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
+const customerAccessToken = (ref: CustomerSessionRef) =>
   signJwt(
-    { org: ref.orgId, client_id: clientId, sid: ref.sessionId },
+    { org: ref.orgId, wid: ref.websiteId, sid: ref.sessionId },
     {
       typ: CUSTOMER_ACCESS_TYP,
       audience: CUSTOMER_AUDIENCE,
@@ -47,21 +61,17 @@ const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
 
 const tokensFor = async (
   ref: CustomerSessionRef,
-  clientId: string,
   refreshToken: string,
 ): Promise<CustomerTokens> => ({
-  accessToken: await customerAccessToken(ref, clientId),
+  accessToken: await customerAccessToken(ref),
   refreshToken,
   expiresIn: CUSTOMER_ACCESS_SECONDS,
 });
 
-/** A new session in the app (90 days from its last use) and its first tokens. */
+/** A new session for the account (90 days from its last use) and its first tokens. */
 export const createSession = async (
   tx: Db,
-  session: {
-    orgId: string;
-    customerId: string;
-    clientId: string;
+  session: Omit<CustomerSessionRef, 'sessionId'> & {
     userAgent?: string | null;
     ip?: string | null;
   },
@@ -71,19 +81,14 @@ export const createSession = async (
 
   await tx.insert(customerSessions).values({
     id,
-    customerId: session.customerId,
-    clientId: session.clientId,
+    accountId: session.accountId,
     tokenHash: sha256(secret),
     userAgent: session.userAgent?.slice(0, 500) ?? null,
     ip: session.ip ?? null,
     expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
   });
 
-  return tokensFor(
-    { orgId: session.orgId, customerId: session.customerId, sessionId: id },
-    session.clientId,
-    `${id}.${secret}`,
-  );
+  return tokensFor({ ...session, sessionId: id }, `${id}.${secret}`);
 };
 
 /** The session a refresh token names (any organisation: the token is all a caller has). */
@@ -93,7 +98,19 @@ export const sessionOf = async (token: string | undefined) => {
   if (!id || !secret) return null;
 
   const [row] = await withSystem('customer session lookup', (tx) =>
-    tx.select().from(customerSessions).where(eq(customerSessions.id, id)).limit(1),
+    tx
+      .select({
+        id: customerSessions.id,
+        orgId: customerSessions.orgId,
+        accountId: customerSessions.accountId,
+        websiteId: customerAccounts.websiteId,
+        tokenHash: customerSessions.tokenHash,
+        previousTokenHash: customerSessions.previousTokenHash,
+      })
+      .from(customerSessions)
+      .innerJoin(customerAccounts, eq(customerAccounts.id, customerSessions.accountId))
+      .where(eq(customerSessions.id, id))
+      .limit(1),
   );
 
   return row ? { row, secret } : null;
@@ -105,7 +122,7 @@ type FoundSession = NonNullable<Awaited<ReturnType<typeof sessionOf>>>;
  * Trades the session's refresh token for new tokens. The previous token used
  * again within REUSE_GRACE_SECONDS gets the same new token, since a second tab
  * or a retried request (its answer lost) refreshes that way. Used again later,
- * it leaked: the session ends.
+ * it leaked: the session ends. A blocked account gets 403 ACCOUNT_BLOCKED.
  */
 export const rotateSession = ({ row, secret }: FoundSession) =>
   withOrg(row.orgId, async (tx) => {
@@ -114,17 +131,28 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
       .select({
         tokenHash: customerSessions.tokenHash,
         previousTokenHash: customerSessions.previousTokenHash,
+        customerId: customerAccounts.customerId,
+        blocked: sql<boolean>`${customerAccounts.status} = 'blocked'`,
         live: sql<boolean>`${customerSessions.revokedAt} is null and ${customerSessions.expiresAt} > now()`,
         justRotated: sql<boolean>`coalesce(${customerSessions.rotatedAt} > now() - make_interval(secs => ${REUSE_GRACE_SECONDS}), false)`,
       })
       .from(customerSessions)
+      .innerJoin(customerAccounts, eq(customerAccounts.id, customerSessions.accountId))
       .where(eq(customerSessions.id, row.id))
-      .for('update')
+      .for('update', { of: customerSessions })
       .limit(1);
 
     if (!session?.live) return null;
 
-    const ref = { orgId: row.orgId, customerId: row.customerId, sessionId: row.id };
+    if (session.blocked) throw accountBlocked();
+
+    const ref = {
+      orgId: row.orgId,
+      customerId: session.customerId,
+      accountId: row.accountId,
+      websiteId: row.websiteId,
+      sessionId: row.id,
+    };
 
     if (sameHash(session.tokenHash, secret)) {
       const next = secretAfter(row.id, secret);
@@ -140,13 +168,13 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
         })
         .where(eq(customerSessions.id, row.id));
 
-      return tokensFor(ref, row.clientId, `${row.id}.${next}`);
+      return tokensFor(ref, `${row.id}.${next}`);
     }
 
     if (!session.previousTokenHash || !sameHash(session.previousTokenHash, secret)) return null;
 
     if (session.justRotated) {
-      return tokensFor(ref, row.clientId, `${row.id}.${secretAfter(row.id, secret)}`);
+      return tokensFor(ref, `${row.id}.${secretAfter(row.id, secret)}`);
     }
 
     await tx
@@ -179,15 +207,25 @@ export const revokeSessionToken = async (token: string) => {
   );
 };
 
+/** Ends every live session of an account. */
+export const revokeAccountSessions = (tx: Db, accountId: string) =>
+  tx
+    .update(customerSessions)
+    .set({ revokedAt: sql`now()` })
+    .where(and(eq(customerSessions.accountId, accountId), isNull(customerSessions.revokedAt)));
+
 const AccessClaims = z.object({
   sub: z.string().min(1),
   org: z.string().min(1),
-  client_id: z.string().min(1),
+  wid: z.string().min(1),
   sid: z.string().min(1),
 });
 
-/** The customer behind an access token, while its session lasts (signing out ends it here at once). */
-export const customerOfToken = async (token: string) => {
+/**
+ * The account behind an access token, while its session lasts and it isn't blocked
+ * (signing out or blocking ends it here at once).
+ */
+export const customerOfToken = async (token: string): Promise<CustomerSessionRef | null> => {
   const claims = await verifyJwt(token, AccessClaims, {
     typ: CUSTOMER_ACCESS_TYP,
     audience: CUSTOMER_AUDIENCE,
@@ -197,12 +235,15 @@ export const customerOfToken = async (token: string) => {
 
   const [session] = await withOrg(claims.org, (tx) =>
     tx
-      .select({ id: customerSessions.id })
+      .select({ accountId: customerAccounts.id })
       .from(customerSessions)
+      .innerJoin(customerAccounts, eq(customerAccounts.id, customerSessions.accountId))
       .where(
         and(
           eq(customerSessions.id, claims.sid),
-          eq(customerSessions.customerId, claims.sub),
+          eq(customerAccounts.customerId, claims.sub),
+          eq(customerAccounts.websiteId, claims.wid),
+          eq(customerAccounts.status, 'active'),
           isNull(customerSessions.revokedAt),
           gt(customerSessions.expiresAt, sql`now()`),
         ),
@@ -214,8 +255,9 @@ export const customerOfToken = async (token: string) => {
     ? {
         orgId: claims.org,
         customerId: claims.sub,
+        accountId: session.accountId,
+        websiteId: claims.wid,
         sessionId: claims.sid,
-        clientId: claims.client_id,
       }
     : null;
 };

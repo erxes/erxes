@@ -1,5 +1,7 @@
 import {
   broadcastRecipients,
+  customerAccounts,
+  customerCodes,
   customerCompanies,
   customerLogins,
   customerNotifications,
@@ -8,7 +10,8 @@ import {
   db,
   type Db,
 } from '@erxes/core-db';
-import { asc, inArray, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { inOrder } from '~/lib/sequence';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
@@ -31,6 +34,55 @@ const MERGE_FILLED = [
   'ownerId',
 ] as const;
 
+/**
+ * Accounts move to the kept customer. Where the kept customer already has an
+ * account on the same website, the other account's logins and sessions join
+ * it and the other account goes.
+ */
+const moveAccounts = async (tx: Db, otherIds: string[], keepId: string) => {
+  const others = await tx
+    .select({ id: customerAccounts.id, websiteId: customerAccounts.websiteId })
+    .from(customerAccounts)
+    .where(inArray(customerAccounts.customerId, otherIds))
+    .orderBy(asc(customerAccounts.createdAt), asc(customerAccounts.id));
+
+  await inOrder(others, async (other) => {
+    const [kept] = await tx
+      .select({ id: customerAccounts.id })
+      .from(customerAccounts)
+      .where(
+        and(
+          eq(customerAccounts.websiteId, other.websiteId),
+          eq(customerAccounts.customerId, keepId),
+        ),
+      )
+      .limit(1);
+
+    if (!kept) {
+      await tx
+        .update(customerAccounts)
+        .set({ customerId: keepId })
+        .where(eq(customerAccounts.id, other.id));
+
+      return;
+    }
+
+    await tx
+      .update(customerLogins)
+      .set({ accountId: kept.id })
+      .where(eq(customerLogins.accountId, other.id));
+    await tx
+      .update(customerSessions)
+      .set({ accountId: kept.id })
+      .where(eq(customerSessions.accountId, other.id));
+    await tx
+      .update(customerCodes)
+      .set({ accountId: kept.id })
+      .where(eq(customerCodes.accountId, other.id));
+    await tx.delete(customerAccounts).where(eq(customerAccounts.id, other.id));
+  });
+};
+
 /** Company links and tags move to the kept customer before the others go. */
 const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx.execute(sql`
@@ -45,12 +97,7 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await copyTags(tx, 'customer', otherIds, keepId);
 
   // They sign in as the kept customer from now on, and stay signed in.
-  const ofOthers = (
-    table: typeof customerLogins | typeof customerSessions | typeof customerNotifications,
-  ) => inArray(table.customerId, otherIds);
-
-  await tx.update(customerLogins).set({ customerId: keepId }).where(ofOthers(customerLogins));
-  await tx.update(customerSessions).set({ customerId: keepId }).where(ofOthers(customerSessions));
+  await moveAccounts(tx, otherIds, keepId);
   // Their inboxes too; a retry key both had keeps the kept customer's copy.
   await tx.execute(sql`
     DELETE FROM ${customerNotifications} other
@@ -64,7 +111,7 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx
     .update(customerNotifications)
     .set({ customerId: keepId })
-    .where(ofOthers(customerNotifications));
+    .where(inArray(customerNotifications.customerId, otherIds));
   // What broadcasts they were sent stays counted, now as the kept customer's.
   await tx
     .update(broadcastRecipients)

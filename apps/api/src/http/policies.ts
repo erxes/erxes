@@ -201,6 +201,14 @@ export const ACCESS = {
   // Plugins read product tags only (tags.service).
   // Each type needs what its own list needs (search.service).
   'search.global': MEMBER,
+  // Plugins keep their websites; members see them and the accounts on them.
+  'websites.list': { member: 'contacts.view', plugin: 'websites:write' },
+  'websites.save': { plugin: 'websites:write' },
+  'websites.remove': { plugin: 'websites:write' },
+  'customerAccounts.list': needs('contacts.view'),
+  'customerAccounts.setStatus': needs('contacts.edit'),
+  'customerAccounts.signOut': needs('contacts.edit'),
+
   'tags.list': { member: 'any', plugin: 'products:read' },
   'tags.create': needs('tags.manage'),
   'tags.update': needs('tags.manage'),

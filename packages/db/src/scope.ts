@@ -41,7 +41,14 @@ export type Caller =
       key?: KeyRules;
     }
   | { type: 'plugin'; plugin: string; scopes: readonly string[] }
-  | { type: 'customer'; customerId: string; sessionId: string; clientId: string }
+  | {
+      type: 'customer';
+      customerId: string;
+      sessionId: string;
+      /** The account signed in, on the website it belongs to. */
+      accountId: string;
+      websiteId: string;
+    }
   | { type: 'system'; reason: string };
 
 /** What a request or job runs in: its caller, its organisation and its transaction. */

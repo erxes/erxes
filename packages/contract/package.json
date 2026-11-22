@@ -1,6 +1,6 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.1.0-v2.32",
+  "version": "0.1.0-v2.33",
   "private": false,
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
@@ -91,6 +91,7 @@
     "./values": "./src/values.ts",
     "./views": "./src/views.ts",
     "./webhooks": "./src/webhooks.ts",
+    "./websites": "./src/websites.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -171,6 +172,7 @@
       "./values": "./dist/values.js",
       "./views": "./dist/views.js",
       "./webhooks": "./dist/webhooks.js",
+      "./websites": "./dist/websites.js",
       "./package.json": "./package.json"
     },
     "access": "public",

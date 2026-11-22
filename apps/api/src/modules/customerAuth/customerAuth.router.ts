@@ -1,37 +1,36 @@
-import { subdomainFromHost } from '~/modules/auth/auth.service';
 import { httpOf, unscoped, type CoreContext } from '~/orpc';
-import type { AppRequest } from './customerApps';
 import {
   confirmAddLogin,
   myLogins,
   myProfile,
   mySessions,
-  refreshTokens,
   removeMyLogin,
   revokeMySession,
   sendAddLoginCode,
+  signOutEverywhere,
+  updateMyProfile,
+} from './customerAccount.service';
+import {
+  refreshTokens,
   sendSignInCode,
   signInWithCode,
   signOut,
-  signOutEverywhere,
-  updateMyProfile,
+  type SignInRequest,
 } from './customerAuth.service';
 
-const appRequest = (context: CoreContext): AppRequest => {
-  const { req } = httpOf(context);
-
-  return { subdomain: subdomainFromHost(req.get('host')), origin: req.get('origin') };
-};
+const signInRequest = (context: CoreContext): SignInRequest => ({
+  origin: httpOf(context).req.get('origin'),
+});
 
 export const customerAuthRouter = {
   sendCode: unscoped.customerAuth.sendCode.handler(({ input, context }) =>
-    sendSignInCode(input, appRequest(context)),
+    sendSignInCode(input, signInRequest(context)),
   ),
   signIn: unscoped.customerAuth.signIn.handler(({ input, context }) =>
-    signInWithCode(input, appRequest(context)),
+    signInWithCode(input, signInRequest(context)),
   ),
   refresh: unscoped.customerAuth.refresh.handler(({ input, context }) =>
-    refreshTokens(input, appRequest(context)),
+    refreshTokens(input, signInRequest(context)),
   ),
   signOut: unscoped.customerAuth.signOut.handler(({ input }) => signOut(input.refreshToken)),
 };

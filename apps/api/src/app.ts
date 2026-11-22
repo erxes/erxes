@@ -20,7 +20,7 @@ import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
-import { customerCors } from '~/modules/customerAuth/customerApps';
+import { customerCors } from '~/modules/customerAuth/customerWebsites';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { emailEventsRouter } from '~/modules/email/events/events.http';
@@ -113,7 +113,7 @@ export const createApp = (log: Logger = logger): Express => {
   // Signed file links stream bytes: before the JSON parser and sign-in.
   app.use('/core/v1/files/signed', limit.upload, signedFilesRouter);
 
-  // Plugins' customer apps call these from their own origins (decision 42).
+  // Websites call these from their own origins (decision 42).
   app.use(['/core/v1/customer-auth', '/core/v1/customer'], customerCors);
 
   // Guessing passwords and secrets: limited per address before anything else.

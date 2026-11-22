@@ -34,6 +34,7 @@ import { trashContract } from './trash';
 import { unitTypesContract, unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
+import { customerAccountsContract, websitesContract } from './websites';
 import { saasContract } from './saas';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
@@ -84,6 +85,8 @@ export type CoreContract = {
   users: typeof usersContract;
   views: typeof viewsContract;
   webhooks: typeof webhooksContract;
+  websites: typeof websitesContract;
+  customerAccounts: typeof customerAccountsContract;
 };
 
 /** The whole core API. Core implements it; plugins call it with a typed client. */
@@ -131,6 +134,8 @@ export const coreContract: CoreContract = {
   users: usersContract,
   views: viewsContract,
   webhooks: webhooksContract,
+  websites: websitesContract,
+  customerAccounts: customerAccountsContract,
 };
 
 export * from './activities';
@@ -268,6 +273,8 @@ export * from './notificationGroups';
 export * from './views';
 
 export * from './webhooks';
+
+export * from './websites';
 
 export * from './apiKeys';
 

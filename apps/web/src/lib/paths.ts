@@ -82,6 +82,7 @@ export const paths = {
     vaultConnection: (connectionId: string) => `/settings/vault/${id(connectionId)}`,
     email: '/settings/email',
     webhooks: '/settings/webhooks',
+    websites: '/settings/websites',
     auditLog: '/settings/audit-log',
     eventDelivery: '/settings/event-delivery',
     assistantCodeMode: '/settings/assistant-code-mode',
