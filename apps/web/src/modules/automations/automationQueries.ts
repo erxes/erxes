@@ -12,7 +12,11 @@ export const catalogQuery = () =>
     ...liveOptions(['automations.catalog']),
   });
 
-export const automationQuery = (id: string) => orpc.automations.get.queryOptions({ input: { id } });
+export const automationQuery = (id: string) =>
+  orpc.automations.get.queryOptions({
+    input: { id },
+    ...liveOptions([`automations.runs:${id}`], false),
+  });
 
 export const automationsQuery = () => orpc.automations.list.queryOptions({ input: {} });
 

@@ -143,8 +143,7 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
 /** Templates may only use filters that exist. */
 const templateProblems = (definition: AutomationDefinition) => {
-  const { trigger } = definition;
-  const templates: unknown[] = trigger.kind === 'webhook' ? [trigger.subject?.value] : [];
+  const templates: unknown[] = [];
 
   eachStep(definition.steps, (step) => {
     if (step.type === 'action') templates.push(step.input);

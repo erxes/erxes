@@ -8,6 +8,7 @@ import type {
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from '~/lib/timeZones';
+import { readableTemplate } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
 
 /** Words for the trigger and the cards on the canvas. */
@@ -178,30 +179,6 @@ export const describeTrigger = (
       };
   }
 };
-
-const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(\|[^{}]*)?\}\}/g;
-const ADD_DAYS = /\|\s*add_days:\s*(-?\d+)/;
-
-/** `{{now | add_days: 7}}` reads "7 days after it runs". */
-const nowText = (filters = '') => {
-  const days = Number(ADD_DAYS.exec(filters)?.[1] ?? 0);
-
-  if (days === 0) return "Today's date";
-
-  return `${plural(Math.abs(days), 'day')} ${days > 0 ? 'after' : 'before'} it runs`;
-};
-
-/**
- * Text with its placeholders named as the data picker names them: "Welcome
- * {{subject.firstName}}!" reads "Welcome [First name]!".
- */
-export const readableTemplate = (text: string, fields: FieldInfo[]) =>
-  text.replace(PLACEHOLDER, (whole, path: string, filters?: string) => {
-    const label =
-      path === 'now' ? nowText(filters) : fields.find((field) => field.path === path)?.label;
-
-    return label ? `[${label.replace(/ \(custom\)$/, '')}]` : whole;
-  });
 
 const valueText = (value: unknown, fields: FieldInfo[]): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';

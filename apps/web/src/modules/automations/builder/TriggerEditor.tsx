@@ -12,7 +12,7 @@ import { RecordPicks } from './RecordPicks';
 import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
 import { AudienceEditor, Field } from './triggerFields';
-import { WebhookTriggerSettings } from './WebhookTriggerSettings';
+import { type Hook, WebhookTriggerSettings } from './WebhookTriggerSettings';
 
 const KINDS = [
   { kind: 'event', label: 'Event', hint: 'When something happens' },
@@ -199,7 +199,7 @@ export const TriggerEditor = ({
 }: {
   trigger: AutomationTrigger;
   events: EventInfo[];
-  hook: { url: string | null; on: boolean };
+  hook: Hook;
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;

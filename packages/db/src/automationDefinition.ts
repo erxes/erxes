@@ -202,11 +202,15 @@ export const Audience = z.object({
 
 export type Audience = z.infer<typeof Audience>;
 
-const HookValue = z.string().trim().min(1).max(200);
+/** A value of the webhook request, by its path: `body.email`, `body.user.phone`, `query.ref`. */
+export const HookField = z
+  .string()
+  .max(200)
+  .regex(/^(body|query)(\.[A-Za-z][A-Za-z0-9_]{0,59}){1,4}$/, 'body.<key> or query.<key>');
 
 export const HookSubject = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('customer'), by: z.enum(HOOK_CUSTOMER_KEYS), value: HookValue }),
-  z.object({ type: z.literal('company'), by: z.enum(HOOK_COMPANY_KEYS), value: HookValue }),
+  z.object({ type: z.literal('customer'), by: z.enum(HOOK_CUSTOMER_KEYS), field: HookField }),
+  z.object({ type: z.literal('company'), by: z.enum(HOOK_COMPANY_KEYS), field: HookField }),
 ]);
 
 export type HookSubject = z.infer<typeof HookSubject>;

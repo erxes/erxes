@@ -42,9 +42,16 @@ export const automations = pgTable(
     triggerEvent: text().notNull(),
     /** Scheduled and date triggers: when the next tick is due. */
     nextRunAt: timestamptz(),
-    /** Working state: round-robin positions per step, runs skipped by the hourly limit. */
+    /**
+     * Working state: round-robin positions per step, runs skipped by the hourly limit, and a
+     * webhook's sample request (a call while it is off, or one pasted in the editor).
+     */
     state: jsonb()
-      .$type<{ turns?: Record<string, number>; skippedByLimit?: number }>()
+      .$type<{
+        turns?: Record<string, number>;
+        skippedByLimit?: number;
+        hookSample?: { body: unknown; query: Record<string, unknown>; at: string };
+      }>()
       .default({})
       .notNull(),
     activeVersion: integer(),

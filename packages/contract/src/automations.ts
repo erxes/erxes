@@ -2,9 +2,9 @@ import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
+import { createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { AutomationId } from './records';
+import { Automation, HookSample } from './automation';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
 import {
@@ -17,36 +17,6 @@ import {
   RunStep,
 } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
-
-export const Automation = createSelectSchema(automations, {
-  id: AutomationId,
-  definition: AutomationDefinition,
-  activeVersion: () => z.int(),
-  createdAt: isoDate,
-  updatedAt: isoDate,
-})
-  .pick({
-    id: true,
-    name: true,
-    description: true,
-    status: true,
-    definition: true,
-    /** The version runs start with (null until first activated). */
-    activeVersion: true,
-    activatedBy: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    stats: z.object({
-      running: z.int(),
-      succeeded: z.int(),
-      failed: z.int(),
-    }),
-    hookUrl: z.string().nullable(),
-  });
-
-export type Automation = z.infer<typeof Automation>;
 
 const Fields = createUpdateSchema(automations, {
   name: (name) => name.trim().min(1).max(120),
@@ -211,6 +181,15 @@ export const automationsContract = {
         }),
     )
     .output(DryRun),
+  saveSample: base
+    .route({
+      method: 'PUT',
+      path: '/automations/{id}/sample',
+      summary:
+        'Keep a webhook request as the sample: its fields fill the editor’s lists and the test uses it',
+    })
+    .input(HookSample.pick({ body: true, query: true }).extend({ id: Id }))
+    .output(Automation),
   stats: base
     .route({
       method: 'GET',

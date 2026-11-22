@@ -15,7 +15,7 @@ import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkDefinition } from './definitions';
 import { forgetHookData } from './eventData';
-import { withHookUrls } from './hooks';
+import { saveHookSample, withHookUrls } from './hooks';
 import { firstRunAt, triggerKey } from './triggers';
 
 type AutomationRow = typeof automations.$inferSelect;
@@ -80,6 +80,16 @@ export const getAutomation = async (client: Db, id: string) => {
   if (!row) throw notFound('Automation');
 
   return row;
+};
+
+export const saveSample = async (
+  client: Db,
+  id: string,
+  request: { body: unknown; query: Record<string, unknown> },
+) => {
+  await saveHookSample(client, await findAutomation(client, id), request);
+
+  return getAutomation(client, id);
 };
 
 export const createAutomation = async (

@@ -133,6 +133,7 @@ export const AutomationInspector = (props: InspectorProps) => {
               hook={{
                 url: props.automation.hookUrl,
                 on: props.automation.status === 'active',
+                sample: props.automation.hookSample,
               }}
               disabled={!editable}
               onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}

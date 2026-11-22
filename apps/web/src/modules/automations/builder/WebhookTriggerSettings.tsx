@@ -1,16 +1,18 @@
-import { type AutomationTrigger, HookSubject } from '@erxes/core-contract';
+import { type AutomationTrigger, type HookSample, HookSubject } from '@erxes/core-contract';
 import { IconBuilding, IconCopy, IconUser } from '@tabler/icons-react';
 import { CopyText, Select } from 'erxes-ui';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
+import { HookSampleCall } from './HookSampleCall';
 import { Segmented } from './Segmented';
-import { TemplateInput } from './TemplateInput';
 import { Field } from './triggerFields';
-import { useAutomationFields } from './useAutomationFields';
+import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type WebhookTrigger = Extract<AutomationTrigger, { kind: 'webhook' }>;
+
+export type Hook = { url: string; on: boolean; sample: HookSample | null };
 
 type HookKeys<T extends HookSubject['type']> = Record<
   Extract<HookSubject, { type: T }>['by'],
@@ -28,22 +30,36 @@ const COMPANY_KEYS: HookKeys<'company'> = {
   id: 'Company ID',
 };
 
-const DEFAULT_SUBJECT: Record<HookSubject['type'], HookSubject> = {
-  customer: { type: 'customer', by: 'primaryEmail', value: '{{event.payload.body.email}}' },
-  company: { type: 'company', by: 'primaryName', value: '{{event.payload.body.company}}' },
+const PAYLOAD = 'event.payload.';
+
+const GUESS: Record<HookSubject['by'], RegExp> = {
+  primaryEmail: /e-?mail/i,
+  primaryPhone: /phone|mobile/i,
+  primaryName: /company|name/i,
+  id: /(^|\.)id$/i,
 };
 
-const HookAddress = ({ url, on }: { url: string | null; on: boolean }) => {
-  const { t } = useTranslation('automations');
+const guessField = (by: HookSubject['by'], fields: FieldInfo[], fallback: string) =>
+  fields.find((field) => GUESS[by].test(field.path))?.path.slice(PAYLOAD.length) ?? fallback;
 
-  if (!url)
-    return (
-      <Field label={t('hook-address', 'Address')}>
-        <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
-          {t('hook-address-after-save', 'Save to get the address.')}
-        </p>
-      </Field>
+const subjectOf = (type: HookSubject['type'], fields: FieldInfo[]): HookSubject =>
+  type === 'company'
+    ? { type, by: 'primaryName', field: guessField('primaryName', fields, 'body.company') }
+    : { type, by: 'primaryEmail', field: guessField('primaryEmail', fields, 'body.email') };
+
+const sampleValue = (sample: HookSample | null, field: string) =>
+  field
+    .split('.')
+    .reduce<unknown>(
+      (value, key) =>
+        typeof value === 'object' && value !== null && !Array.isArray(value)
+          ? Object.entries(value).find(([name]) => name === key)?.[1]
+          : undefined,
+      sample,
     );
+
+const HookAddress = ({ url, on }: { url: string; on: boolean }) => {
+  const { t } = useTranslation('automations');
 
   return (
     <Field
@@ -54,7 +70,7 @@ const HookAddress = ({ url, on }: { url: string | null; on: boolean }) => {
               'hook-address-hint',
               'Anyone with it can start runs: give it only to the system that calls it.',
             )
-          : t('hook-address-off', 'Calls start runs only while the automation is on.')
+          : undefined
       }
     >
       <CopyText value={url} className="w-full min-w-0">
@@ -67,12 +83,63 @@ const HookAddress = ({ url, on }: { url: string | null; on: boolean }) => {
   );
 };
 
-const HookSubjectEditor = ({
+const RequestFieldSelect = ({
+  value,
+  fields,
+  sample,
+  disabled,
+  onChange,
+}: {
+  value: string;
+  fields: FieldInfo[];
+  sample: HookSample | null;
+  disabled?: boolean;
+  onChange: (field: string) => void;
+}) => {
+  const { t } = useTranslation('automations');
+
+  const options = fields.map((field) => ({
+    value: field.path.slice(PAYLOAD.length),
+    label: field.label,
+  }));
+
+  if (!options.some((option) => option.value === value))
+    options.unshift({ value, label: value.split('.').slice(1).join(' ') });
+
+  return (
+    <Select value={value} disabled={disabled} onValueChange={(next) => next && onChange(next)}>
+      <Select.Trigger
+        className="min-w-0 flex-1"
+        aria-label={t('hook-find-value', 'Value from the request')}
+      >
+        <Select.Value />
+      </Select.Trigger>
+      <Select.Content>
+        {options.map((option) => {
+          const example = sampleValue(sample, option.value);
+
+          return (
+            <Select.Item key={option.value} value={option.value}>
+              {option.label}
+              {(typeof example === 'string' || typeof example === 'number') && (
+                <span className="ml-2 text-xs text-muted-foreground">{example}</span>
+              )}
+            </Select.Item>
+          );
+        })}
+      </Select.Content>
+    </Select>
+  );
+};
+
+export const HookSubjectEditor = ({
   trigger,
+  sample,
   onChange,
   disabled,
 }: {
   trigger: WebhookTrigger;
+  sample: HookSample | null;
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
 }) => {
@@ -81,7 +148,7 @@ const HookSubjectEditor = ({
   const { subject } = trigger;
 
   const requestFields = useAutomationFields(null, automationId).fields.filter((field) =>
-    field.path.startsWith('event.payload.'),
+    /^event\.payload\.(body|query)\./.test(field.path),
   );
 
   const keys = Object.entries(subject?.type === 'company' ? COMPANY_KEYS : CUSTOMER_KEYS);
@@ -100,7 +167,10 @@ const HookSubjectEditor = ({
         disabled={disabled}
         label={t('hook-subject', 'Who the run is about')}
         onChange={(type) =>
-          onChange({ ...trigger, subject: type === 'none' ? undefined : DEFAULT_SUBJECT[type] })
+          onChange({
+            ...trigger,
+            subject: type === 'none' ? undefined : subjectOf(type, requestFields),
+          })
         }
         options={[
           { value: 'none', label: t('hook-subject-nobody', 'Nobody') },
@@ -109,7 +179,8 @@ const HookSubjectEditor = ({
         ]}
       />
       {subject && (
-        <div className="flex items-start gap-2">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="shrink-0 text-muted-foreground">{t('hook-whose', 'whose')}</span>
           <Select
             value={subject.by}
             disabled={disabled}
@@ -119,7 +190,7 @@ const HookSubjectEditor = ({
               if (next.success) onChange({ ...trigger, subject: next.data });
             }}
           >
-            <Select.Trigger className="w-36 shrink-0" aria-label={t('hook-find-by', 'Find by')}>
+            <Select.Trigger className="w-32 shrink-0" aria-label={t('hook-find-by', 'Find by')}>
               <Select.Value />
             </Select.Trigger>
             <Select.Content>
@@ -130,17 +201,14 @@ const HookSubjectEditor = ({
               ))}
             </Select.Content>
           </Select>
-          <div className="min-w-0 flex-1">
-            <TemplateInput
-              label={t('hook-find-value', 'Value from the request')}
-              value={subject.value}
-              fields={requestFields}
-              subject={subject.type}
-              disabled={disabled}
-              invalid={!subject.value.trim()}
-              onChange={(value) => onChange({ ...trigger, subject: { ...subject, value } })}
-            />
-          </div>
+          <span className="shrink-0 text-muted-foreground">{t('hook-is', 'is')}</span>
+          <RequestFieldSelect
+            value={subject.field}
+            fields={requestFields}
+            sample={sample}
+            disabled={disabled}
+            onChange={(field) => onChange({ ...trigger, subject: { ...subject, field } })}
+          />
         </div>
       )}
     </Field>
@@ -154,7 +222,7 @@ export const WebhookTriggerSettings = ({
   disabled,
 }: {
   trigger: WebhookTrigger;
-  hook: { url: string | null; on: boolean };
+  hook: Hook;
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
 }) => {
@@ -163,7 +231,13 @@ export const WebhookTriggerSettings = ({
   return (
     <>
       <HookAddress url={hook.url} on={hook.on} />
-      <HookSubjectEditor trigger={trigger} disabled={disabled} onChange={onChange} />
+      <HookSampleCall sample={hook.sample} on={hook.on} />
+      <HookSubjectEditor
+        trigger={trigger}
+        sample={hook.sample}
+        disabled={disabled}
+        onChange={onChange}
+      />
       <Field
         label={t('only-if', 'Only if')}
         hint={
@@ -179,20 +253,12 @@ export const WebhookTriggerSettings = ({
           onChange={(conditions) => onChange({ ...trigger, conditions })}
         />
       </Field>
-      <div className="space-y-1.5 rounded-lg border p-3 text-xs text-muted-foreground">
-        <p>
-          {t(
-            'hook-answer',
-            'The caller hears “accepted” at once. To send data back, add a “Reply to the webhook” step: the caller then waits up to 30 seconds for it.',
-          )}
-        </p>
-        <p>
-          {t(
-            'hook-fields-hint',
-            'The request’s fields show up in conditions and Insert data after its first call while it is on.',
-          )}
-        </p>
-      </div>
+      <p className="text-xs text-muted-foreground">
+        {t(
+          'hook-answer',
+          'The caller hears “accepted” at once. To send data back, add a “Reply to the webhook” step.',
+        )}
+      </p>
     </>
   );
 };

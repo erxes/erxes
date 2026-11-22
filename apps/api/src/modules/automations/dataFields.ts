@@ -1,4 +1,4 @@
-import { DataField } from '@erxes/core-contract';
+import type { DataField } from '@erxes/core-contract';
 
 type CarriedKind = 'text' | 'number' | 'boolean' | 'list';
 
@@ -32,9 +32,23 @@ export const labelOf = (key: string) => {
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
-export const carriedBy = (data: Record<string, unknown>): Carried[] =>
-  Object.entries(data).flatMap(([key, value]) => {
-    const kind = DataField.shape.key.safeParse(key).success ? kindOf(value) : null;
+const MAX_DEPTH = 4;
+
+const KEY = /^[A-Za-z][A-Za-z0-9_]{0,59}$/;
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** The values data carries, nested objects included by dotted key (`user.email`), four deep at most. */
+export const carriedBy = (data: Record<string, unknown>, prefix = '', depth = 1): Carried[] =>
+  Object.entries(data).flatMap(([name, value]) => {
+    if (!KEY.test(name)) return [];
+
+    const key = `${prefix}${name}`;
+
+    if (isObject(value)) return depth < MAX_DEPTH ? carriedBy(value, `${key}.`, depth + 1) : [];
+
+    const kind = kindOf(value);
 
     return kind ? [{ key, kind }] : [];
   });

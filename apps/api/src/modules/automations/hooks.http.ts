@@ -16,7 +16,14 @@ import { safeEqual } from '~/lib/crypto';
 import { repeatWhile } from '~/lib/sequence';
 import { type LiveSignal, liveHub } from '~/modules/live/hub';
 import { Reply } from './actions/reply';
-import { HookRequest, hookSignature, noHookSubject, replySteps, startHookRun } from './hooks';
+import {
+  HookRequest,
+  hookSignature,
+  noHookSubject,
+  replySteps,
+  saveHookSample,
+  startHookRun,
+} from './hooks';
 import { definitionOf } from './runs';
 
 const MAX_BYTES = '1mb';
@@ -77,6 +84,7 @@ const requestOf = (req: Request) => {
   return parsed.data;
 };
 
+/** While it is on, a call starts a run; while it is off, the call is kept as the sample. */
 const start = (hook: Hook, request: HookRequest, eventId: string) =>
   withOrg(hook.orgId, async (tx) => {
     const [automation] = await tx
@@ -85,14 +93,24 @@ const start = (hook: Hook, request: HookRequest, eventId: string) =>
       .where(eq(automations.id, hook.id))
       .limit(1);
 
+    if (!automation) throw noHook();
+
     const definition =
-      automation?.status === 'active' && automation.activeVersion
+      automation.status === 'active' && automation.activeVersion
         ? await definitionOf(tx, automation.id, automation.activeVersion)
         : null;
 
-    const trigger = definition?.trigger;
+    if (!definition) {
+      if (automation.definition.trigger.kind !== 'webhook') throw noHook();
 
-    if (!automation || !definition || trigger?.kind !== 'webhook') throw noHook();
+      await saveHookSample(tx, automation, request);
+
+      return { outcome: { kind: 'sample' as const }, replies: [] };
+    }
+
+    const { trigger } = definition;
+
+    if (trigger.kind !== 'webhook') throw noHook();
 
     const outcome = await startHookRun(tx, automation, definition, trigger, { eventId, request });
 
@@ -217,6 +235,12 @@ const receive: RequestHandler = async (req, res) => {
   if (outcome.kind === 'no-subject') throw noHookSubject();
 
   res.set(SANDBOXED_ANSWER);
+
+  if (outcome.kind === 'sample') {
+    res.status(202).json({ ok: true, started: false, sample: true });
+
+    return;
+  }
 
   if (outcome.kind === 'skipped') {
     res.json({ ok: true, started: false });

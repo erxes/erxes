@@ -11,6 +11,22 @@ export const Reply = z.object({ status: ReplyStatus, body: z.json().nullable() }
 
 const isTemplate = (value: unknown) => typeof value === 'string' && value.includes('{{');
 
+const STATUSES = [
+  ['200', 'OK'],
+  ['201', 'Created'],
+  ['202', 'Accepted'],
+  ['204', 'No content'],
+  ['400', 'Bad request'],
+  ['401', 'Not signed in'],
+  ['403', 'Not allowed'],
+  ['404', 'Not found'],
+  ['409', 'Conflict'],
+  ['422', 'Can’t process'],
+  ['429', 'Too many requests'],
+  ['500', 'Server error'],
+  ['503', 'Unavailable'],
+] as const;
+
 export const REPLY_ACTIONS: CoreAction[] = [
   {
     type: REPLY_ACTION,
@@ -21,18 +37,12 @@ export const REPLY_ACTIONS: CoreAction[] = [
       {
         key: 'status',
         label: 'Status',
-        type: 'number',
+        type: 'select',
         required: false,
-        placeholder: '200',
-        description: 'From 200 to 599; 200 when empty',
+        options: STATUSES.map(([value, label]) => ({ value, label: `${value} · ${label}` })),
+        placeholder: '200 · OK',
       },
-      {
-        key: 'body',
-        label: 'Body',
-        type: 'longtext',
-        required: false,
-        description: 'JSON, or plain text',
-      },
+      { key: 'body', label: 'Body', type: 'json', required: false },
     ],
     outputs: [
       { key: 'status', label: 'Status', type: 'number' },

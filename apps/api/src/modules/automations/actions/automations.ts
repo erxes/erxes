@@ -25,7 +25,7 @@ export const AUTOMATION_ACTIONS: CoreAction[] = [
         label: 'Data to pass',
         type: 'json',
         required: false,
-        description: 'The other automation reads it as {{event.payload.<key>}}',
+        description: 'Values the other automation’s steps can use',
       },
     ],
     outputs: [{ key: 'started', label: 'Runs started', type: 'number' }],

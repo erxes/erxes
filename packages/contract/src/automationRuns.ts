@@ -27,7 +27,10 @@ const RecordType = z
 export const DataField = z.object({
   key: z
     .string()
-    .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter'),
+    .regex(
+      /^[A-Za-z][A-Za-z0-9_]{0,59}(\.[A-Za-z][A-Za-z0-9_]{0,59}){0,3}$/,
+      'letters, digits and _, starting with a letter; a dot reaches inside an object',
+    ),
   label: z.string().trim().min(1).max(100),
   type: z.enum(AUTOMATION_FIELD_TYPES),
   /**
