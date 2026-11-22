@@ -60,7 +60,7 @@ const keyedAction = (action: AppAction<unknown>): KeyedAction<unknown> => ({
  * The connection a step runs on: the one its `connection` input names, else the organisation's
  * default gateway when it is one of the integration's, else the integration's oldest active one.
  */
-const connectionFor = async (tx: Db, integration: KeyedIntegration, requested?: string) => {
+export const connectionFor = async (tx: Db, integration: KeyedIntegration, requested?: string) => {
   const active = await connectionsWithSecret(tx)
     .where(
       and(

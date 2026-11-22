@@ -1,5 +1,4 @@
 import {
-  type AssistantConnection,
   type AssistantMessagePart,
   type AssistantProvider,
   AssistantThinkingLevel,
@@ -25,8 +24,11 @@ export interface ModelRun {
   levels: AssistantThinkingLevel[];
 }
 
+type Settings = InferContractRouterOutputs<typeof coreContract>['assistant']['settings'];
+
 interface Choice {
-  connections: Pick<AssistantConnection, 'provider' | 'isDefault'>[];
+  providers: AssistantProvider[];
+  preferred: Pick<Settings, 'defaultProvider' | 'defaultModel'>;
   catalog: (Omit<Catalog[number], 'models'> & {
     models: Pick<CatalogModel, 'id' | 'name' | 'recommended' | 'thinking'>[];
   })[];
@@ -50,21 +52,29 @@ const nearestLevel = (asked: AssistantThinkingLevel, levels: AssistantThinkingLe
           : best;
       }, undefined);
 
-export const modelToRun = ({ connections, catalog, picked }: Choice): ModelRun | null => {
-  const saved = connections.find((connection) => connection.provider === picked.provider);
-  const provider = (saved ?? connections.find((c) => c.isDefault) ?? connections[0])?.provider;
+const connectedOf = (
+  providers: AssistantProvider[],
+  provider: AssistantProvider | null | undefined,
+) => providers.find((candidate) => candidate === provider);
+
+export const modelToRun = ({ providers, preferred, catalog, picked }: Choice): ModelRun | null => {
+  const kept = connectedOf(providers, picked.provider);
+  const provider = kept ?? connectedOf(providers, preferred.defaultProvider) ?? providers[0];
 
   if (!provider) return null;
 
   const models = catalog.find((entry) => entry.provider === provider)?.models ?? [];
-  const keepPick = saved !== undefined && picked.model !== undefined;
+
+  const wanted =
+    (kept ? picked.model : undefined) ??
+    (provider === preferred.defaultProvider ? (preferred.defaultModel ?? undefined) : undefined);
 
   const model =
-    (keepPick ? models.find((entry) => entry.id === picked.model) : undefined) ??
+    (wanted ? models.find((entry) => entry.id === wanted) : undefined) ??
     models.find((entry) => entry.recommended) ??
     models[0];
 
-  const id = model?.id ?? (keepPick ? picked.model : undefined);
+  const id = model?.id ?? wanted;
   const levels = model?.thinking?.levels ?? [];
 
   return {

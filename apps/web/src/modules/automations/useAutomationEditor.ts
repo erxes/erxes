@@ -1,69 +1,147 @@
 import { paths } from '~/lib/paths';
-import type {
-  Automation,
-  AutomationDefinition,
-  AutomationStep,
-  coreContract,
-} from '@erxes/core-contract';
+import type { Automation, AutomationStep, coreContract } from '@erxes/core-contract';
 import type { InferContractRouterInputs } from '@orpc/contract';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'erxes-ui';
-import { useState } from 'react';
+import { AutomationDefinition } from '@erxes/core-contract/values';
+import { storedFamily, useToast } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
+import { RESET } from 'jotai/utils';
+import { useEffect } from 'react';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { automationQuery } from './automationQueries';
 
-interface Draft {
-  name?: string;
-  description?: string;
-  definition?: AutomationDefinition;
-}
+const UNFINISHED = new Set(['too_small', 'too_big', 'invalid_format', 'not_multiple_of', 'custom']);
 
-const versionOf = (automation: Automation) =>
-  `${automation.updatedAt}:${automation.status}:${automation.activeVersion ?? 0}`;
+const unfinishedOnly = (issues: readonly z.core.$ZodIssue[]): boolean =>
+  issues.every((issue) =>
+    issue.code === 'invalid_union' ? issue.errors.some(unfinishedOnly) : UNFINISHED.has(issue.code),
+  );
+
+const DraftDefinition = z.custom<AutomationDefinition>((value) => {
+  const parsed = AutomationDefinition.safeParse(value);
+
+  return parsed.success || unfinishedOnly(parsed.error.issues);
+});
+
+const StoredDraft = z.object({
+  /** The saved automation the edits were made over (`fingerprint` of its content). */
+  base: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  definition: DraftDefinition.optional(),
+});
+
+type StoredDraft = z.infer<typeof StoredDraft>;
+
+type Patch = Partial<Omit<StoredDraft, 'base'>>;
 
 /**
- * Unsaved edits over the saved automation. A newer automation from the server
- * (saved, restored, turned on) starts the draft again from it; a sample call or new stats don't.
+ * Unsaved edits, one per automation, kept in this browser: a reload or a closed tab loses
+ * nothing, and other tabs follow through the browser's storage event. Written on each edit,
+ * removed once it matches what is saved.
  */
-export const useAutomationDraft = (automation: Automation) => {
-  const [draft, setDraft] = useState<Draft>({});
-  const [base, setBase] = useState(() => versionOf(automation));
+const draftState = storedFamily<StoredDraft | null>({
+  key: 'erxes:automations:draft',
+  schema: StoredDraft.nullable(),
+  initial: null,
+});
 
-  if (base !== versionOf(automation)) {
-    setBase(versionOf(automation));
-    setDraft({});
+const contentOf = (draft: { name: string; description: string; definition: unknown }) =>
+  JSON.stringify([draft.name, draft.description, draft.definition]);
+
+/** A short FNV-1a hash, enough to tell one saved version from another. */
+const fingerprint = (text: string) => {
+  let hash = 0x81_1c_9d_c5;
+
+  for (let index = 0; index < text.length; index++) {
+    hash = Math.imul(hash ^ text.charCodeAt(index), 0x01_00_01_93);
   }
 
-  const name = draft.name ?? automation.name;
-  const description = draft.description ?? automation.description ?? '';
-  const definition = draft.definition ?? automation.definition;
+  return (hash >>> 0).toString(36);
+};
 
-  const dirty =
-    name !== automation.name ||
-    description !== (automation.description ?? '') ||
-    JSON.stringify(definition) !== JSON.stringify(automation.definition);
+/**
+ * Unsaved edits over the saved automation, kept in the browser. Edits made over a version
+ * that has since changed on the server (someone else saved) are `stale`: they wait until
+ * the member restores them over the new version or drops them; editing starts afresh.
+ * Turning on, pausing or new stats leave the content, and so the edits, as they are.
+ */
+export const useAutomationDraft = (automation: Automation) => {
+  const [stored, setStored] = useAtom(draftState(automation.id));
+  const savedDescription = automation.description ?? '';
+  const saved = contentOf({ ...automation, description: savedDescription });
+  const base = fingerprint(saved);
+  const fresh = stored?.base === base ? stored : null;
+
+  const merged = (draft: StoredDraft | null) => ({
+    name: draft?.name ?? automation.name,
+    description: draft?.description ?? savedDescription,
+    definition: draft?.definition ?? automation.definition,
+  });
+
+  const { name, description, definition } = merged(fresh);
+  const dirty = contentOf({ name, description, definition }) !== saved;
+  const storedContent = stored ? contentOf(merged(stored)) : null;
+  const stale = stored && !fresh && storedContent !== saved ? stored : null;
+
+  useEffect(() => {
+    if (storedContent === saved) setStored(RESET);
+  }, [storedContent, saved, setStored]);
+
+  const edit = (patch: (current: StoredDraft | null) => Patch) =>
+    setStored((previous) => {
+      const current = previous?.base === base ? previous : null;
+
+      return { ...current, ...patch(current), base };
+    });
 
   return {
     name,
     description,
     definition,
     dirty,
+    /** Edits over an older saved version, waiting for `restore` or `drop`. */
+    stale: stale !== null,
+    restore: () => setStored((previous) => (previous ? { ...previous, base } : previous)),
+    drop: () => setStored(RESET),
     /** What saving sends. */
     input: { id: automation.id, name, description: description || null, definition },
-    change: (patch: Draft) => setDraft((current) => ({ ...current, ...patch })),
-    setDefinition: (next: AutomationDefinition) =>
-      setDraft((current) => ({ ...current, definition: next })),
+    change: (patch: Patch) => edit(() => patch),
+    setDefinition: (next: AutomationDefinition) => edit(() => ({ definition: next })),
     setSteps: (steps: AutomationStep[]) =>
-      setDraft((current) => ({
-        ...current,
-        definition: { ...(current.definition ?? automation.definition), steps },
+      edit((current) => ({
+        definition: { ...(current?.definition ?? automation.definition), steps },
       })),
   };
 };
 
 type UpdateInput = InferContractRouterInputs<typeof coreContract>['automations']['update'];
+
+const savedBase = (automation: Automation) =>
+  fingerprint(contentOf({ ...automation, description: automation.description ?? '' }));
+
+/**
+ * After a save: the kept edits are gone when they are what was sent; edits made while it was
+ * saving stay, over the version just saved.
+ */
+const useSettleDraft = (id: string) => {
+  const setStored = useSetAtom(draftState(id));
+
+  return (sent: UpdateInput, next: Automation) =>
+    setStored((previous) => {
+      if (!previous) return previous;
+
+      const unchanged =
+        (previous.name ?? sent.name) === sent.name &&
+        (previous.description ?? sent.description ?? '') === (sent.description ?? '') &&
+        JSON.stringify(previous.definition ?? sent.definition) === JSON.stringify(sent.definition);
+
+      return unchanged ? RESET : { ...previous, base: savedBase(next) };
+    });
+};
 
 /** Save, turn on, pause, start now and delete; `onProblems` gets what the server refused. */
 export const useAutomationMutations = (id: string, onProblems: (problems: string[]) => void) => {
@@ -71,6 +149,7 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
   const { toast } = useToast();
   const client = useQueryClient();
   const navigate = useNavigate();
+  const settleDraft = useSettleDraft(id);
 
   const update = (next: Automation) => {
     client.setQueryData(automationQuery(id).queryKey, next);
@@ -88,8 +167,9 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
 
   const save = useMutation(
     orpc.automations.update.mutationOptions({
-      onSuccess: (next) => {
+      onSuccess: (next, sent) => {
         onProblems([]);
+        settleDraft(sent, next);
         update(next);
         toast({
           title:
@@ -106,8 +186,9 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
 
       return orpc.automations.activate.call({ id });
     },
-    onSuccess: (next) => {
+    onSuccess: (next, sent) => {
       onProblems([]);
+      settleDraft(sent, next);
       update(next);
       toast({ title: t('activated', 'Turned on') });
     },

@@ -20,23 +20,21 @@ import { describeTrigger } from './builder/flowText';
 import { useBuilder } from './builder/useBuilder';
 import { ProblemsPopover } from './ProblemsPopover';
 import { RunsPanel } from './RunsPanel';
-import { SetupRail } from './SetupRail';
 import type { Selection } from './StepInspector';
 import { useAutomationDraft, useAutomationMutations } from './useAutomationEditor';
+import { useFlowGuard } from './useFlowGuard';
 
 const isStep = (selection: Selection) => selection !== 'trigger' && selection !== 'test';
 
 /** The draft, what is selected, the save and start mutations, and the editor's keys. */
-const useEditorState = (automation: Automation, editable: boolean) => {
-  const draft = useAutomationDraft(automation);
+const useEditorState = (automation: Automation, editable: boolean, catalog: Catalog) => {
+  const draft = useFlowGuard(useAutomationDraft(automation), catalog);
   const [selected, setSelected] = useState<Selection>('trigger');
   const [serverProblems, setServerProblems] = useState<string[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [tested, setTested] = useState(false);
-  const [railHidden, setRailHidden] = useState(false);
   const mutations = useAutomationMutations(automation.id, setServerProblems);
 
-  useLeaveWarning(draft.dirty);
+  useLeaveWarning(draft.dirty, { kept: true });
   useHotkeys(
     'mod+s',
     () => {
@@ -59,9 +57,6 @@ const useEditorState = (automation: Automation, editable: boolean) => {
     serverProblems,
     mutations,
     settings: { open: settingsOpen, setOpen: setSettingsOpen },
-    tested,
-    onTested: () => setTested(true),
-    rail: { hidden: railHidden, hide: () => setRailHidden(true) },
   };
 };
 
@@ -134,37 +129,6 @@ const BuildCanvas = ({
   );
 };
 
-const Rail = ({
-  automation,
-  editor,
-  editable,
-  trigger,
-  problemCount,
-}: {
-  automation: Automation;
-  editor: ReturnType<typeof useEditorState>;
-  editable: boolean;
-  trigger: string;
-  problemCount: number;
-}) => {
-  const { draft, mutations } = editor;
-
-  if (!editable || automation.activeVersion !== null || editor.rail.hidden) return null;
-
-  return (
-    <SetupRail
-      automation={{ definition: draft.definition, hookSample: automation.hookSample }}
-      trigger={trigger}
-      problemCount={problemCount}
-      tested={editor.tested}
-      selected={editor.selected}
-      onSelect={editor.setSelected}
-      onTurnOn={problemCount ? undefined : () => mutations.activate.mutate(draft.input)}
-      onHide={editor.rail.hide}
-    />
-  );
-};
-
 const AutomationEditor = ({
   automation,
   catalog,
@@ -173,7 +137,7 @@ const AutomationEditor = ({
   catalog: Catalog;
 }) => {
   const editable = useCan()('automations.manage');
-  const editor = useEditorState(automation, editable);
+  const editor = useEditorState(automation, editable, catalog);
   const { draft, selected, setSelected, mutations } = editor;
   const { definition } = draft;
   const { timezone } = useSession().organization;
@@ -204,13 +168,6 @@ const AutomationEditor = ({
             />
           </EditorTabBar>
           <Tabs.Content value="build" className="mt-0 flex min-h-0 flex-1">
-            <Rail
-              automation={automation}
-              editor={editor}
-              editable={editable}
-              trigger={trigger.title}
-              problemCount={problemCount}
-            />
             <BuildCanvas
               built={built}
               draft={draft}
@@ -228,7 +185,6 @@ const AutomationEditor = ({
               editable={editable}
               selected={selected}
               onSelect={setSelected}
-              onTested={editor.onTested}
             />
           </Tabs.Content>
           <Tabs.Content value="runs" className="mt-0 flex min-h-0 flex-1">
@@ -248,7 +204,7 @@ const AutomationEditor = ({
 };
 
 /**
- * One automation: a setup rail while it is new, the flow canvas (trigger, steps, branches) with
+ * One automation: the flow canvas (trigger, steps, branches) with
  * a panel for whatever is selected or the test, and its runs. Saving an active automation
  * publishes a new version at once (runs in progress keep theirs).
  */

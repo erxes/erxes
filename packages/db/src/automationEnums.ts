@@ -54,4 +54,7 @@ export const ACTION_FIELD_TYPES = [
   'reply_to',
   'automation',
   'connection',
+  'agent_tools',
+  'agent_api_key',
+  'agent_model',
 ] as const;

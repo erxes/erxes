@@ -33,7 +33,8 @@ export const sealValues = async (
 };
 
 /**
- * What a connection's client is given: its token cache, the platform's QuickQR
+ * What a connection's client is given: its token cache, the address the server
+ * sets for its service (ASSISTANT_*_URL), the platform's QuickQR
  * vendor account, and, for one that reads through a bank (`readsThrough`), the
  * keys of the bank connection it names, read with `client`. Changing the bank
  * connection's keys changes them here too.
@@ -44,9 +45,12 @@ export const clientOptions = async (
   id: string,
   keys: Record<string, unknown>,
 ): Promise<ClientOptions> => {
+  const baseUrl = config.assistant.endpoints[integration.key];
+
   const options: ClientOptions = {
     cacheKey: id,
     ...(config.quickQr && { quickQr: config.quickQr }),
+    ...(baseUrl && { baseUrl }),
   };
 
   if (!integration.readsThrough) return options;

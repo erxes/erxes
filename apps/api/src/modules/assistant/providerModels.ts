@@ -1,10 +1,11 @@
 import type { AssistantProvider } from '@erxes/core-contract';
 import { z } from 'zod';
+import type { ProviderKey } from './connectedProviders';
 import { type ProviderModelEntry } from './modelCatalog';
 import {
-  endpointOf,
   providerErrorMessage,
   providerLabel,
+  rejectedKey,
   sanitizeProviderMessage,
 } from './providers';
 
@@ -44,8 +45,7 @@ const describeFailure = (
     );
   }
 
-  if (status === 401)
-    return failed(`${label} rejected the saved API key (401). Save it again.${said}`);
+  if (status === 401) return failed(`${rejectedKey(provider)}${said}`);
 
   if (status === 403) return failed(`${label} refused to list models for this key (403).${said}`);
 
@@ -67,12 +67,14 @@ const createdOf = (entry: { created?: number; created_at?: string }) => {
   return Number.isNaN(time) ? undefined : Math.floor(time / 1000);
 };
 
-export const fetchProviderModels = async (
-  provider: AssistantProvider,
-  apiKey: string,
-): Promise<ModelListing> => {
-  const response = await fetch(`${endpointOf(provider)}/models`, {
-    headers: { Authorization: `Bearer ${apiKey}`, 'x-api-key': apiKey },
+export const fetchProviderModels = async ({
+  provider,
+  apiKey,
+  modelsUrl,
+  headers,
+}: ProviderKey): Promise<ModelListing> => {
+  const response = await fetch(modelsUrl, {
+    headers,
     signal: AbortSignal.timeout(10_000),
   }).catch(() => null);
 

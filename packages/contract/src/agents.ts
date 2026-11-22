@@ -92,7 +92,7 @@ export const agentsContract = {
       path: '/agents/models',
       summary: 'List the model each agent runs on',
       description:
-        'The model each agent runs on, where an admin chose one; the others use the default provider and its default model',
+        "The model each agent runs on, where an admin chose one; the others use the assistant settings' default model",
     })
     .output(listOf(AgentModel)),
   setModel: base
@@ -101,7 +101,7 @@ export const agentsContract = {
       path: '/agents/{agent}/model',
       summary: 'Choose an agent’s model',
       description:
-        'Choose the provider and model an agent runs on. 404 NOT_FOUND when no key is saved for the provider',
+        'Choose the provider and model an agent runs on. 404 NOT_FOUND when the provider is not connected in Integrations',
     })
     .input(z.object({ agent: AgentName, provider: AssistantProvider, model: AssistantModelId }))
     .output(AgentModel),

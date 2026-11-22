@@ -4,6 +4,7 @@ import { Button, Input, Switch } from 'erxes-ui';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionFieldInput } from './ActionFieldInput';
+import { appOf } from './recordSelects';
 import { SplitPaths, SwitchCases } from './ArmSettings';
 import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
@@ -36,18 +37,25 @@ const NameField = ({
   );
 };
 
+/** Choices that read fine empty ("Every action", "Don't use the erxes API", "Organisation's default"), so they never fold away. */
+const ALWAYS_SHOWN: ReadonlySet<string> = new Set(['agent_tools', 'agent_api_key', 'agent_model']);
+
 const useDetails = (step: Extract<AutomationStep, { type: 'action' }>, action: ActionInfo) => {
   const filledKeys = () =>
     new Set(action.fields.filter((field) => !isEmpty(step.input[field.key])).map(({ key }) => key));
 
   const [showAll, setShowAll] = useState(() => !action.fields.some((field) => field.required));
   const [kept, setKept] = useState(filledKeys);
-  const shown = action.fields.filter((field) => showAll || field.required || kept.has(field.key));
+
+  const shown = action.fields.filter(
+    (field) => showAll || field.required || ALWAYS_SHOWN.has(field.type) || kept.has(field.key),
+  );
+
   const labelShown = showAll || Boolean(step.label);
   const hiddenCount = action.fields.length - shown.length + Number(!labelShown);
 
   const emptyOptional = action.fields.some(
-    (field) => !field.required && isEmpty(step.input[field.key]),
+    (field) => !field.required && !ALWAYS_SHOWN.has(field.type) && isEmpty(step.input[field.key]),
   );
 
   return {
@@ -88,9 +96,14 @@ const ActionInputs = ({
   const { t } = useTranslation('automations');
 
   // The inputs that follow `key` (a status follows its pipeline), and the ones that follow those.
+  // An app's records belong to the connection: another one has other pages.
   const dependents = (key: string): string[] =>
     action.fields
-      .filter((field) => field.dependsOn === key)
+      .filter((field) =>
+        key === 'connection' && appOf(action)
+          ? field.type === 'plugin_record'
+          : field.dependsOn === key,
+      )
       .flatMap((field) => [field.key, ...dependents(field.key)]);
 
   const setInput = (key: string, value: unknown) =>

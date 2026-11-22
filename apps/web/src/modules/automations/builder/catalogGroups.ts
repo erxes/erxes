@@ -26,6 +26,7 @@ import {
   IconWebhook,
   type TablerIcon,
 } from '@tabler/icons-react';
+import { catalogCategory } from '@erxes/core-contract/values';
 import { storedFamily } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import type { ComponentType } from 'react';
@@ -44,6 +45,8 @@ export interface CatalogItem {
   /** The integration an action belongs to (`qpay`, `frontline.facebook`), and its name. */
   integration?: string | null;
   integrationName?: string | null;
+  /** What picking it would break in the flow ("Removes 1 step"). */
+  warning?: string;
 }
 
 export interface CatalogGroup {
@@ -55,32 +58,34 @@ export interface CatalogGroup {
   order: number;
 }
 
-/** Core's areas, by the second part of the type (`core.<area>.…`), in this order. */
+/** Core's categories (`catalogCategory`), in this order. */
 const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
-  customer: { label: 'Customers', icon: IconUser, order: 0 },
-  lead: { label: 'Leads', icon: IconMagnet, order: 1 },
-  company: { label: 'Companies', icon: IconBuilding, order: 2 },
-  payment: { label: 'Payments', icon: IconCreditCard, order: 3 },
-  email: { label: 'Messages', icon: IconMail, order: 4 },
-  notification: { label: 'Messages', icon: IconMail, order: 4 },
-  note: { label: 'Timeline', icon: IconNote, order: 5 },
-  webhook: { label: 'Integrations', icon: IconWebhook, order: 6 },
-  http: { label: 'Integrations', icon: IconWebhook, order: 6 },
-  agent: { label: 'AI agents', icon: IconSparkles, order: 7 },
-  automation: { label: 'Automations', icon: IconAutomation, order: 8 },
+  'core:customers': { label: 'Customers', icon: IconUser, order: 0 },
+  'core:leads': { label: 'Leads', icon: IconMagnet, order: 1 },
+  'core:companies': { label: 'Companies', icon: IconBuilding, order: 2 },
+  'core:payments': { label: 'Payments', icon: IconCreditCard, order: 3 },
+  'core:messages': { label: 'Messages', icon: IconMail, order: 4 },
+  'core:timeline': { label: 'Timeline', icon: IconNote, order: 5 },
+  'core:integrations': { label: 'Integrations', icon: IconWebhook, order: 6 },
+  'core:agents': { label: 'AI agents', icon: IconSparkles, order: 7 },
+  'core:automations': { label: 'Automations', icon: IconAutomation, order: 8 },
 };
+
+const GENERAL = { label: 'General', icon: IconBolt, order: 50 };
 
 const CORE_ICONS: Record<string, TablerIcon> = {
   'core.webhook.reply': IconArrowBackUp,
 };
 
 export const groupOf = (item: CatalogItem): CatalogGroup => {
+  const key = catalogCategory(item);
+
   if (item.integration) {
     const label = item.integrationName ?? item.integration;
     const builtIn = !item.integration.includes('.');
 
     return {
-      key: `integration:${item.integration}`,
+      key,
       source: item.source,
       label,
       icon: builtIn ? (logoOf(item.integration) ?? initialMark(label)) : IconPlugConnected,
@@ -91,7 +96,7 @@ export const groupOf = (item: CatalogItem): CatalogGroup => {
 
   if (item.source !== 'core') {
     return {
-      key: `plugin:${item.source}`,
+      key,
       source: item.source,
       label: pluginLabel(item.source),
       icon: IconPuzzle,
@@ -99,11 +104,7 @@ export const groupOf = (item: CatalogItem): CatalogGroup => {
     };
   }
 
-  const area = CORE_AREAS[item.type.split('.')[1] ?? ''];
-
-  return area
-    ? { key: `core:${area.label}`, source: 'core', ...area }
-    : { key: 'core:general', source: 'core', label: 'General', icon: IconBolt, order: 50 };
+  return { key, source: 'core', ...(CORE_AREAS[key] ?? GENERAL) };
 };
 
 /** What a word in a plugin's type usually means, first match first (`frontline.facebook.message_received`). */

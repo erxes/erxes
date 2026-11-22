@@ -106,4 +106,5 @@ export interface ClientOptions {
   /** Caches the gateway's access token under this key (the connection id). */
   cacheKey?: string;
   fetch?: typeof globalThis.fetch;
+  baseUrl?: string;
 }

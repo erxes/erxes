@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { hmacSha256, safeEqual } from '~/lib/crypto';
 import {
-  field,
+  record,
   type AppHooks,
   DeliveryRefused,
   gatewayHttp,
@@ -12,10 +12,12 @@ import {
   GatewayError,
 } from '@erxes/plugin-sdk/integrations';
 import { githubPayload } from './githubEvents';
+import { type GithubKeys, statusOf } from './githubInputs';
 
-type GithubKeys = { accessToken: string };
-
-const repository = z.object({ owner: field('Owner'), repository: field('Repository') });
+const repository = z.object({
+  owner: record('Owner', 'owner'),
+  repository: record('Repository', 'repository', { dependsOn: 'owner' }),
+});
 
 type Repository = z.output<typeof repository>;
 
@@ -44,8 +46,6 @@ const hooksPath = ({ owner, repository: name }: Repository) =>
   `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/hooks`;
 
 const Hook = z.object({ id: Text });
-
-const statusOf = (error: unknown) => (error instanceof GatewayError ? error.status : null);
 
 const hookBody = (url: string, secret: string, events: string[]) => ({
   active: true,

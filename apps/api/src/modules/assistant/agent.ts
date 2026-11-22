@@ -11,7 +11,7 @@ import { fail, notFound } from '~/http/errors';
 import { memberOf } from '~/http/auth';
 import type { Agent, AgentScope } from '~/modules/agents/agent';
 import { ASSISTANT_AGENT, MEMBER_ENTRY } from './chat.service';
-import { listConnections, openKey } from './connections.service';
+import { connectedProviders } from './connectedProviders';
 import { instructionsFor } from './instructions';
 import { installedPlugins } from './plugins';
 import { modelsFor } from './providers';
@@ -81,7 +81,7 @@ export const assistantAgent: Agent = {
       withOrg(scope.orgId, async (tx) => {
         const { codeMode } = await getSettings(tx);
         const plugins = await installedPlugins(tx);
-        const { data } = await listConnections(tx);
+        const connected = await connectedProviders(tx);
         const skills = skillsFor(plugins);
 
         const tools: ToolScope = {
@@ -92,11 +92,7 @@ export const assistantAgent: Agent = {
           plugins,
         };
 
-        const keys = data.flatMap(({ provider, secret }) => {
-          const apiKey = openKey(secret);
-
-          return apiKey === null ? [] : [{ provider, apiKey }];
-        });
+        const keys = connected.flatMap(({ key }) => (key ? [key] : []));
 
         const extension = defineExtension({
           name: 'assistant',

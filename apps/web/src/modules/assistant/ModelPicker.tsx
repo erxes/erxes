@@ -1,10 +1,15 @@
-import type { AssistantThinkingLevel } from '@erxes/core-contract';
+import type {
+  AssistantProvider,
+  AssistantProviderModels,
+  AssistantThinkingLevel,
+} from '@erxes/core-contract';
 import { IconBrain, IconCheck, IconChevronDown, IconSettings } from '@tabler/icons-react';
 import { Button, Command, Popover, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '~/lib/paths';
+import { useCan } from '~/modules/auth/session';
 import { PROVIDER_LABELS } from './providers';
 import type { ModelRunState } from './useModelRun';
 
@@ -18,9 +23,42 @@ const LEVEL_LABELS: Record<AssistantThinkingLevel, string> = {
   max: 'Max',
 };
 
+/** Each provider's models as command groups, with why its list is empty when it is. */
+export const ProviderModelGroups = ({
+  entries,
+  current,
+  onPick,
+}: {
+  entries: AssistantProviderModels[];
+  current: { provider: AssistantProvider; model: string | undefined } | null;
+  onPick: (provider: AssistantProvider, model: string) => void;
+}) =>
+  entries.map((entry) => (
+    <Command.Group key={entry.provider} heading={PROVIDER_LABELS[entry.provider]}>
+      {entry.error && (
+        <Command.Item disabled value={`${entry.provider}-error`}>
+          <span className="text-destructive-text">{entry.error}</span>
+        </Command.Item>
+      )}
+      {entry.models.map((model) => (
+        <Command.Item
+          key={model.id}
+          value={`${entry.provider} ${model.id} ${model.name ?? ''}`}
+          onSelect={() => onPick(entry.provider, model.id)}
+        >
+          <span className="min-w-0 flex-1 truncate">{model.name ?? model.id}</span>
+          {current?.provider === entry.provider && current.model === model.id && (
+            <IconCheck aria-hidden className="size-4" />
+          )}
+        </Command.Item>
+      ))}
+    </Command.Group>
+  ));
+
 const ModelList = ({ state, onDone }: { state: ModelRunState; onDone: () => void }) => {
   const { t } = useTranslation('assistant');
   const navigate = useNavigate();
+  const canManage = useCan()('assistant.manage');
   const { run, entries, setPicked, picked } = state;
 
   return (
@@ -28,40 +66,28 @@ const ModelList = ({ state, onDone }: { state: ModelRunState; onDone: () => void
       <Command.Input placeholder={t('model.search', 'Find a model')} />
       <Command.List className="max-h-popup">
         <Command.Empty>{t('model.none', 'No model matches.')}</Command.Empty>
-        {entries.map((entry) => (
-          <Command.Group key={entry.provider} heading={PROVIDER_LABELS[entry.provider]}>
-            {entry.error && (
-              <Command.Item disabled value={`${entry.provider}-error`}>
-                <span className="text-destructive-text">{entry.error}</span>
-              </Command.Item>
-            )}
-            {entry.models.map((model) => (
+        <ProviderModelGroups
+          entries={entries}
+          current={run}
+          onPick={(provider, model) => {
+            setPicked({ ...picked, provider, model });
+            onDone();
+          }}
+        />
+        {canManage && (
+          <>
+            <Command.Separator />
+            <Command.Group>
               <Command.Item
-                key={model.id}
-                value={`${entry.provider} ${model.id} ${model.name ?? ''}`}
-                onSelect={() => {
-                  setPicked({ ...picked, provider: entry.provider, model: model.id });
-                  onDone();
-                }}
+                value="manage-providers"
+                onSelect={() => void navigate(paths.settings.aiIntegrations)}
               >
-                <span className="min-w-0 flex-1 truncate">{model.name ?? model.id}</span>
-                {run?.provider === entry.provider && run.model === model.id && (
-                  <IconCheck aria-hidden className="size-4" />
-                )}
+                <IconSettings aria-hidden />
+                {t('model.manage', 'Manage AI providers')}
               </Command.Item>
-            ))}
-          </Command.Group>
-        ))}
-        <Command.Separator />
-        <Command.Group>
-          <Command.Item
-            value="manage-keys"
-            onSelect={() => void navigate(paths.settings.assistant)}
-          >
-            <IconSettings aria-hidden />
-            {t('model.manage', 'Manage provider keys')}
-          </Command.Item>
-        </Command.Group>
+            </Command.Group>
+          </>
+        )}
       </Command.List>
     </Command>
   );

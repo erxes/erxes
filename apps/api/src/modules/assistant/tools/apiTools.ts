@@ -16,6 +16,7 @@ import { bounded, describeError, refusal } from './results';
 type Member = Extract<Caller, { type: 'user' }>;
 
 export interface ToolScope {
+  /** Whom calls act as: a signed-in member, read again per call, or an API key's caller as given. */
   member: Member;
   orgId: string;
   /** The assistant thread its references belong to; an automation step has none. */
@@ -147,7 +148,9 @@ export const callProcedure = async (
     );
   }
 
-  const member = await memberOf(scope.orgId, scope.member.userId);
+  const member = scope.member.apiKeyId
+    ? scope.member
+    : await memberOf(scope.orgId, scope.member.userId);
 
   if (!member)
     return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');

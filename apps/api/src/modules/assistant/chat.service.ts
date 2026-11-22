@@ -1,6 +1,6 @@
 import { completeSimple } from '@earendil-works/pi-ai/compat';
 import { ROOT_CONVERSATION_ID } from '@earendil-works/pi-durable';
-import type { AssistantProvider, AssistantSendRequest } from '@erxes/core-contract';
+import type { AssistantSendRequest } from '@erxes/core-contract';
 import { assistantThreads, caller, type Db, newId, requestOrgId, withOrg } from '@erxes/core-db';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -15,8 +15,9 @@ import {
 } from '~/modules/agents/host';
 import { StorageBusy } from '~/modules/agents/storage';
 import { readContents } from './attachments';
-import { usableKey } from './connections.service';
-import { DEFAULT_MODELS, modelOf } from './providers';
+import type { ProviderKey } from './connectedProviders';
+import { modelKey } from './connections.service';
+import { modelOf } from './providers';
 import { findThread, removeThread } from './threads.service';
 import { modelInput, readTurnContext, withTurnContext } from './turnContext';
 
@@ -55,11 +56,11 @@ const cleanTitle = (text: string) =>
 const titleThread = async (
   orgId: string,
   threadId: string,
-  key: { provider: AssistantProvider; apiKey: string },
+  key: ProviderKey,
   modelId: string,
   prompt: string,
 ) => {
-  const model = modelOf(key.provider, modelId);
+  const model = modelOf(key, modelId);
 
   if (!model || !prompt) return;
 
@@ -96,7 +97,7 @@ export const sendMessage = async (request: AssistantSendRequest) => {
   const contents = await readContents(orgId, [...turn.files, ...turn.snapshots]);
 
   const { thread, key, parts } = await withOrg(orgId, async (tx) => {
-    const usable = await usableKey(tx, request.provider);
+    const usable = await modelKey(tx, { provider: request.provider, model: request.model });
     const row = request.threadId ? await findThread(tx, request.threadId) : await createThread(tx);
 
     await tx
@@ -111,7 +112,7 @@ export const sendMessage = async (request: AssistantSendRequest) => {
     };
   });
 
-  const modelId = request.model ?? DEFAULT_MODELS[key.provider];
+  const modelId = key.model;
 
   await startRun(
     agentNamed(ASSISTANT_AGENT),

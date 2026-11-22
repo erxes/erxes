@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
-import { fakeModel } from './fakeModel';
+import { connectProvider, fakeModel } from './fakeModel';
 import { chat, follow, liveText, messagesOf, textOf, userMessage } from './assistantChat';
 import { useTwoOrgs } from './support';
 
@@ -16,7 +16,7 @@ describe('assistant chat (send and watch)', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());
@@ -117,9 +117,40 @@ describe('assistant chat (send and watch)', () => {
     await expect(follow(t.member(), threadId)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
-  it('asks for a key before chatting', async () => {
+  it('asks for an AI provider before chatting', async () => {
     await expect(t.other().assistant.send({ message: userMessage('Hi') })).rejects.toMatchObject({
       code: 'ASSISTANT_NO_CONNECTION',
     });
+  });
+
+  it("runs a turn that names no model on the settings' default model", async () => {
+    model.script(() => ({ text: 'On the default' }));
+    await t
+      .owner()
+      .assistant.updateSettings({ defaultProvider: 'kimi', defaultModel: 'kimi-k2.6' });
+
+    await chat(t.owner(), { message: userMessage('Which model answers?') });
+    expect(model.chats().at(-1)?.model).toBe('kimi-k2.6');
+
+    await t.owner().assistant.updateSettings({ defaultProvider: null, defaultModel: null });
+
+    await chat(t.owner(), { message: userMessage('And which one now?') });
+    expect(model.chats().at(-1)?.model).toBe('kimi-k3');
+  });
+
+  it('stops answering once the AI provider connection is turned off', async () => {
+    const [connection] = (await t.owner().integrations.connections({ key: 'kimi' })).data;
+
+    if (!connection) throw new Error('kimi is not connected');
+
+    await t.owner().integrations.update({ key: 'kimi', id: connection.id, status: 'disabled' });
+
+    await expect(t.owner().assistant.send({ message: userMessage('Hi') })).rejects.toMatchObject({
+      code: 'ASSISTANT_NO_CONNECTION',
+    });
+    expect((await t.owner().assistant.providers({})).data).toEqual([]);
+
+    await t.owner().integrations.update({ key: 'kimi', id: connection.id, status: 'active' });
+    expect((await t.owner().assistant.providers({})).data).toEqual([{ provider: 'kimi' }]);
   });
 });

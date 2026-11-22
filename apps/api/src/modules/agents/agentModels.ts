@@ -3,12 +3,12 @@ import { agentModels, type Db } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
 import { notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
-import { findConnection, usableKey } from '~/modules/assistant/connections.service';
-import { DEFAULT_MODELS } from '~/modules/assistant/providers';
+import { connectedProviders } from '~/modules/assistant/connectedProviders';
+import { modelKey } from '~/modules/assistant/connections.service';
 
 /**
  * The key and model `agent` runs on: the provider and model an admin chose for it, else the
- * organisation's default provider and its default model.
+ * assistant settings' default model.
  */
 export const agentModelKey = async (client: Db, agent: string) => {
   const [chosen] = await client
@@ -17,9 +17,7 @@ export const agentModelKey = async (client: Db, agent: string) => {
     .where(eq(agentModels.agent, agent))
     .limit(1);
 
-  const key = await usableKey(client, chosen?.provider);
-
-  return { ...key, model: chosen?.model ?? DEFAULT_MODELS[key.provider] };
+  return modelKey(client, chosen ? { provider: chosen.provider, model: chosen.model } : {});
 };
 
 export const listAgentModels = async (client: Db) => ({
@@ -34,7 +32,9 @@ export const setAgentModel = async (
   provider: AssistantProvider,
   model: string,
 ) => {
-  if (!(await findConnection(client, provider))) throw notFound('Connection');
+  if (!(await connectedProviders(client)).some((entry) => entry.provider === provider)) {
+    throw notFound('Connection');
+  }
 
   const [row] = await client
     .insert(agentModels)

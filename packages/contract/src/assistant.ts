@@ -1,12 +1,7 @@
 import type { Op } from '@earendil-works/chord/delta';
 import type { ConversationView } from '@earendil-works/pi-durable';
 import { ASSISTANT_THINKING_KINDS } from '@erxes/core-db/assistantEnums';
-import {
-  assistantAppearances,
-  assistantConnections,
-  assistantSettings,
-  assistantThreads,
-} from '@erxes/core-db/schema';
+import { assistantAppearances, assistantSettings, assistantThreads } from '@erxes/core-db/schema';
 import { eventIterator, oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -19,15 +14,6 @@ export const AssistantModelId = z
   .string()
   .trim()
   .regex(/^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$/, 'a model id such as gpt-6-luna');
-
-export const AssistantConnection = createSelectSchema(assistantConnections, {
-  createdAt: isoDate,
-  updatedAt: isoDate,
-})
-  .pick({ provider: true, isDefault: true, createdAt: true, updatedAt: true })
-  .extend({ hasKey: z.boolean() });
-
-export type AssistantConnection = z.infer<typeof AssistantConnection>;
 
 export const AssistantModel = z.object({
   id: z.string(),
@@ -62,7 +48,28 @@ export const AssistantMessagePart = z.looseObject({ type: z.string() });
 
 export type AssistantMessagePart = z.infer<typeof AssistantMessagePart>;
 
-export const AssistantSettings = createSelectSchema(assistantSettings).pick({ codeMode: true });
+export const AssistantSettings = createSelectSchema(assistantSettings).pick({
+  codeMode: true,
+  defaultProvider: true,
+  defaultModel: true,
+});
+
+export const AssistantSettingsChange = z
+  .object({
+    codeMode: z.boolean().optional(),
+    defaultProvider: AssistantProvider.nullable().optional(),
+    defaultModel: AssistantModelId.nullable().optional(),
+  })
+  .refine(
+    (change) => Object.values(change).some((value) => value !== undefined),
+    'nothing to update',
+  )
+  .refine(
+    (change) =>
+      (change.defaultProvider === undefined) === (change.defaultModel === undefined) &&
+      (change.defaultProvider === null) === (change.defaultModel === null),
+    'defaultProvider and defaultModel are set together',
+  );
 
 export const AssistantAppearance = createSelectSchema(assistantAppearances).pick({
   body: true,
@@ -88,8 +95,6 @@ export type AssistantWatchEvent = { value: ConversationView } | { ops: readonly 
 export const AssistantWatchEvent = z.custom<AssistantWatchEvent>(
   (event) => typeof event === 'object' && event !== null && ('value' in event || 'ops' in event),
 );
-
-const ProviderInput = z.object({ provider: AssistantProvider });
 
 export const AssistantRecord = z.discriminatedUnion('available', [
   z.object({
@@ -133,70 +138,25 @@ const sending = base.errors({
 });
 
 export const assistantContract = {
-  connections: base
+  providers: base
     .route({
       method: 'GET',
-      path: '/assistant/connections',
-      summary: 'List AI provider keys',
+      path: '/assistant/providers',
+      summary: 'List AI providers',
       description:
-        "The organisation's model provider keys, which every agent uses; keys are never returned",
+        'The AI providers connected in Integrations that the assistant and agents run on, oldest first',
     })
-    .output(listOf(AssistantConnection)),
-  saveConnection: base
-    .route({
-      method: 'PUT',
-      path: '/assistant/connections/{provider}',
-      summary: 'Save an AI provider key',
-      description:
-        "Save or replace the organisation's key for a provider; the first saved provider becomes the default",
-    })
-    .input(ProviderInput.extend({ apiKey: z.string().trim().min(8).max(500) }))
-    .output(AssistantConnection),
-  removeConnection: base
-    .route({
-      method: 'DELETE',
-      path: '/assistant/connections/{provider}',
-      summary: 'Remove an AI provider key',
-      description: 'Forget the key for a provider. 404 NOT_FOUND when none is saved',
-    })
-    .input(ProviderInput)
-    .output(z.object({ ok: z.literal(true) })),
-  setDefaultProvider: base
-    .route({
-      method: 'PUT',
-      path: '/assistant/default-provider',
-      summary: 'Set the default AI provider',
-      description:
-        'The provider a turn uses when it names none; null clears it. 404 NOT_FOUND when no key is saved for it',
-    })
-    .input(z.object({ provider: AssistantProvider.nullable() }))
-    .output(listOf(AssistantConnection)),
+    .output(listOf(z.object({ provider: AssistantProvider }))),
   models: base
     .route({
       method: 'GET',
       path: '/assistant/models',
       summary: 'List chat models',
       description:
-        'Chat models each saved provider offers, best first; `error` says why a list is empty without revealing the key',
+        'Chat models of each AI provider connected in Integrations (its oldest active connection), best first; `error` says why a list is empty without revealing the key',
     })
     .output(
       z.object({ data: z.array(AssistantProviderModels).max(AssistantProvider.options.length) }),
-    ),
-  verifyModel: base
-    .route({
-      method: 'POST',
-      path: '/assistant/models/verify',
-      summary: 'Test a model',
-      description: 'Send one tiny request to check a model works with the saved key',
-    })
-    .input(ProviderInput.extend({ model: AssistantModelId }))
-    .output(
-      z.object({
-        provider: AssistantProvider,
-        model: z.string(),
-        ok: z.boolean(),
-        error: z.string().nullable(),
-      }),
     ),
   threads: base
     .route({
@@ -296,9 +256,10 @@ export const assistantContract = {
       method: 'PATCH',
       path: '/assistant/settings',
       summary: 'Change assistant settings',
-      description: 'Whether the assistant may run code in a sandbox to compute over API results',
+      description:
+        'Whether the assistant may run code in a sandbox to compute over API results, and the model a turn or agent runs on when it names none (null: the oldest connected AI provider). 404 NOT_FOUND when the provider is not connected in Integrations',
     })
-    .input(z.object({ codeMode: z.boolean() }))
+    .input(AssistantSettingsChange)
     .output(AssistantSettings),
   appearance: base
     .route({

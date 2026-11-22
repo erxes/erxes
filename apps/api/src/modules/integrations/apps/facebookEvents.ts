@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { AppEvent } from '@erxes/plugin-sdk/integrations';
 import { Text } from '@erxes/plugin-sdk/integrations';
+import { messagingEvent } from './facebookMessaging';
 
 const fromSeconds = (seconds: number | undefined) =>
   seconds === undefined ? undefined : new Date(seconds * 1000).toISOString();
@@ -23,9 +24,20 @@ const Feed = z.looseObject({
   message: z.string().optional(),
   link: z.string().optional(),
   photo: z.string().optional(),
+  photos: z.array(z.string()).optional(),
+  photo_id: Text.optional(),
   video: z.string().optional(),
+  video_id: Text.optional(),
+  published: z.union([z.boolean(), z.number()]).optional(),
+  is_hidden: z.boolean().optional(),
   from: Author.optional(),
   created_time: z.number().optional(),
+  post: z
+    .looseObject({
+      permalink_url: z.string().optional(),
+      status_type: z.string().optional(),
+    })
+    .optional(),
 });
 
 const Mention = z.looseObject({
@@ -42,32 +54,12 @@ const Rating = z.looseObject({
   verb: z.string(),
   reviewer_id: Text.optional(),
   reviewer_name: z.string().optional(),
+  item: z.string().optional(),
   rating: z.number().optional(),
   recommendation_type: z.string().optional(),
   review_text: z.string().optional(),
   open_graph_story_id: Text.optional(),
   created_time: z.number().optional(),
-});
-
-const Messaging = z.looseObject({
-  sender: z.object({ id: Text }),
-  recipient: z.object({ id: Text }),
-  timestamp: z.number(),
-  message: z
-    .looseObject({
-      mid: z.string(),
-      text: z.string().optional(),
-      is_echo: z.boolean().optional(),
-      attachments: z
-        .array(
-          z.object({
-            type: z.string(),
-            payload: z.looseObject({ url: z.string().optional() }).nullish(),
-          }),
-        )
-        .optional(),
-    })
-    .optional(),
 });
 
 const Body = z.object({
@@ -119,8 +111,15 @@ const CHANGES: Record<string, Parsed> = {
       parentId: feed.parent_id,
       message: feed.message,
       link: feed.link,
-      photo: feed.photo,
+      photo: feed.photo ?? feed.photos?.[0],
+      photos: feed.photos,
+      photoId: feed.photo_id,
       video: feed.video,
+      videoId: feed.video_id,
+      published: feed.published === undefined ? undefined : Boolean(feed.published),
+      hidden: feed.is_hidden,
+      postLink: feed.post?.permalink_url,
+      postType: feed.post?.status_type,
       fromId: feed.from?.id,
       fromName: feed.from?.name,
       createdTime: fromSeconds(feed.created_time),
@@ -142,6 +141,7 @@ const CHANGES: Record<string, Parsed> = {
     id: `${rating.verb}:${rating.open_graph_story_id ?? `${rating.reviewer_id}:${rating.created_time}`}`,
     payload: {
       verb: rating.verb,
+      item: rating.item,
       reviewerId: rating.reviewer_id,
       reviewerName: rating.reviewer_name,
       rating: rating.rating,
@@ -151,31 +151,6 @@ const CHANGES: Record<string, Parsed> = {
       createdTime: fromSeconds(rating.created_time),
     },
   })),
-};
-
-const message = (pageId: string, value: unknown): AppEvent | null => {
-  const parsed = Messaging.safeParse(value);
-  const sent = parsed.data?.message;
-
-  if (!parsed.success || !sent || sent.is_echo) return null;
-
-  const [attachment] = sent.attachments ?? [];
-
-  return {
-    id: sent.mid,
-    type: 'messages',
-    payload: {
-      pageId,
-      senderId: parsed.data.sender.id,
-      recipientId: parsed.data.recipient.id,
-      messageId: sent.mid,
-      text: sent.text,
-      attachmentType: attachment?.type,
-      attachmentUrl: attachment?.payload?.url,
-      sentAt: new Date(parsed.data.timestamp).toISOString(),
-      raw: value,
-    },
-  };
 };
 
 export const pageEvents = (body: unknown) => {
@@ -189,7 +164,7 @@ export const pageEvents = (body: unknown) => {
       ...(entry.changes ?? []).flatMap(
         (change) => CHANGES[change.field]?.(entry.id, change.value) ?? [],
       ),
-      ...(entry.messaging ?? []).flatMap((item) => message(entry.id, item) ?? []),
+      ...(entry.messaging ?? []).flatMap((item) => messagingEvent(entry.id, item) ?? []),
     ],
   }));
 };

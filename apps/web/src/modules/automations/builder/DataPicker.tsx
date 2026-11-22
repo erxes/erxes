@@ -1,13 +1,13 @@
 import {
   IconBolt,
-  IconBraces,
   IconBuilding,
   IconClock,
   IconRoute,
   IconUser,
+  IconVariablePlus,
 } from '@tabler/icons-react';
 import { Button, Command, Popover } from 'erxes-ui';
-import { type ComponentType, useContext, useState } from 'react';
+import { type ComponentType, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext, type StartingEvent } from './BuilderContext';
 import { EventDataHint } from './EventDataHint';
@@ -86,8 +86,9 @@ const TriggerGroup = ({
   );
 };
 
+/** The event's values to insert: a plugin's record ids are picked, not inserted as text. */
 const isEventText = (field: FieldInfo) =>
-  field.path.startsWith('event.payload.') && !field.recordType;
+  field.path.startsWith('event.payload.') && !(field.recordType && field.source);
 
 /**
  * What a step can insert, searchable: the trigger's own values first, then the customer or
@@ -178,27 +179,42 @@ const DataPicker = ({
   );
 };
 
-/** The `{ }` button that opens the data picker; `onPick` gets the path picked. */
+/**
+ * The "Insert data" button that opens the data picker; `onPick` gets the path picked. `labelled`
+ * shows its name next to the icon, for fields with room under the text.
+ */
 export const InsertData = ({
   fields,
   subject,
   onPick,
+  open,
+  onOpenChange,
+  labelled,
 }: {
   fields: FieldInfo[];
   subject: 'customer' | 'company';
   onPick: (path: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  labelled?: boolean;
 }) => {
   const { t } = useTranslation('automations');
-  const [open, setOpen] = useState(false);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <Popover.Trigger
         title={t('insert-data', 'Insert data')}
-        aria-label={t('insert-data', 'Insert data')}
-        render={<Button variant="ghost" size="icon" tone="muted" className="size-6" />}
+        aria-label={labelled ? undefined : t('insert-data', 'Insert data')}
+        render={
+          labelled ? (
+            <Button variant="ghost" size="sm" tone="muted" />
+          ) : (
+            <Button variant="ghost" size="icon" tone="muted" className="size-6" />
+          )
+        }
       >
-        <IconBraces className="size-4" />
+        <IconVariablePlus className="size-4" />
+        {labelled && t('insert-data', 'Insert data')}
       </Popover.Trigger>
       <Popover.Content
         aria-label={t('insert-data', 'Insert data')}
@@ -212,8 +228,8 @@ export const InsertData = ({
           fields={fields}
           subject={subject}
           onPick={(path) => {
-            setOpen(false);
             onPick(path);
+            onOpenChange(false);
           }}
         />
       </Popover.Content>

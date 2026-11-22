@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { config } from '~/config';
 import { chat, textOf, userPartsOf } from './assistantChat';
 import { useTestDatabase } from './db';
-import { type ChatRequest, fakeModel } from './fakeModel';
+import { type ChatRequest, connectProvider, fakeModel } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0005';
@@ -117,8 +117,8 @@ describe('assistant attachments and page selections', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await t.other().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
+    await connectProvider(t.other(), KEY);
   });
 
   afterAll(() => model.close());

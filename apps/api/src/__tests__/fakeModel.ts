@@ -1,7 +1,9 @@
 import { once } from 'node:events';
 import { createServer, type ServerResponse } from 'node:http';
 import { setTimeout as sleep } from 'node:timers/promises';
+import type { AssistantProvider } from '@erxes/core-contract';
 import { z } from 'zod';
+import type { CoreClient } from './support';
 
 const ChatRequest = z.looseObject({
   model: z.string(),
@@ -124,6 +126,13 @@ const jsonReply = (res: ServerResponse, reply: Reply) => {
     }),
   );
 };
+
+export const connectProvider = (
+  client: CoreClient,
+  apiKey: string,
+  provider: AssistantProvider = 'kimi',
+  name = `${provider} (tests)`,
+) => client.integrations.connect({ key: provider, name, keys: { apiKey } });
 
 export const fakeModel = async (apiKey: string, port = 0) => {
   const requests: ChatRequest[] = [];

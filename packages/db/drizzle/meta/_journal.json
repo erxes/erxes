@@ -848,6 +848,13 @@
       "when": 1795366942004,
       "tag": "0120_connection_unique_names",
       "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "7",
+      "when": 1795378851851,
+      "tag": "0121_ai_provider_integrations",
+      "breakpoints": true
     }
   ]
 }

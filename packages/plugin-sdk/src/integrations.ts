@@ -4,6 +4,7 @@ export {
   type AppClient,
   type AppEvent,
   type AppHooks,
+  type AppRecords,
   type Apps,
   type AppWideHooks,
   type Delivery,
@@ -32,6 +33,7 @@ export {
   type Keys,
   type OAuthKeys,
   oauthKeys,
+  record,
   secret,
   toggle,
 } from './integrations/fields';

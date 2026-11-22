@@ -1,5 +1,6 @@
 import { ActionField, type ActionInfo } from '@erxes/core-contract';
 import { type Connections, INTEGRATION_ACTIONS } from '~/modules/integrations/actions';
+import { appOf } from '~/modules/integrations/apps';
 import { AGENT_ACTIONS } from './agent';
 import { AUTOMATION_ACTIONS } from './automations';
 import type { CoreAction } from './context';
@@ -59,15 +60,19 @@ const pluginInfos = (plugin: ActionPlugin): ActionInfo[] => {
 };
 
 /**
- * Core's actions, those of its integrations connected here (`connections`, with each one's
- * active connections), and those of the installed plugins (from their manifests).
+ * Core's actions: every app's, as with app triggers, so a step can connect the app from its
+ * connection picker; other integrations' once connected here (`connections`, with each one's
+ * active connections). Then those of the installed plugins (from their manifests).
  */
 export const actionCatalog = (
   installed: ActionPlugin[],
   connections: Connections,
 ): ActionInfo[] => [
   ...CORE_ACTIONS.filter(
-    (action) => !action.integration || connections.has(action.integration.key),
+    (action) =>
+      !action.integration ||
+      appOf(action.integration.key) !== null ||
+      connections.has(action.integration.key),
   ).map((action) => coreInfo(action, connections)),
   ...installed.flatMap(pluginInfos),
 ];

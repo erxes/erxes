@@ -6,7 +6,7 @@ import type { z } from 'zod';
 import { config } from '~/config';
 import { callsTo, chat, resultsOf, userMessage } from './assistantChat';
 import { adminDb, useTestDatabase } from './db';
-import { fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
+import { connectProvider, fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
 import { pluginRest } from './pluginRest';
 import { type CoreClient, useTwoOrgs } from './support';
 
@@ -68,8 +68,8 @@ describe('assistant plugin contributions', () => {
     await t.client(await t.pluginToken()).plugins.registerManifest(manifestFor(hr.url));
     await t.other().plugins.uninstall({ name: 'hr' });
 
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await t.other().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
+    await connectProvider(t.other(), KEY);
   });
 
   afterAll(async () => {

@@ -120,13 +120,11 @@ export const TestPanel = ({
   subject,
   dirty,
   onSave,
-  onTested,
 }: {
   automation: Automation;
   subject: 'customer' | 'company' | null;
   dirty: boolean;
   onSave: () => Promise<unknown>;
-  onTested: () => void;
 }) => {
   const { t } = useTranslation('automations');
   const id = useId();
@@ -140,17 +138,14 @@ export const TestPanel = ({
   const test = async () => {
     if (dirty) await onSave();
 
-    run.mutate(
-      {
-        id: automation.id,
-        ...(webhook && sample
-          ? { payload: { method: 'POST', body: sample.body, query: sample.query } }
-          : {}),
-        ...(!webhook && subject && recordId ? { subjectType: subject, subjectId: recordId } : {}),
-        assumeEventHappens: assume,
-      },
-      { onSuccess: onTested },
-    );
+    run.mutate({
+      id: automation.id,
+      ...(webhook && sample
+        ? { payload: { method: 'POST', body: sample.body, query: sample.query } }
+        : {}),
+      ...(!webhook && subject && recordId ? { subjectType: subject, subjectId: recordId } : {}),
+      assumeEventHappens: assume,
+    });
   };
 
   return (

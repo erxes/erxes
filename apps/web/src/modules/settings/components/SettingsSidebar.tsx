@@ -15,6 +15,7 @@ import {
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
+  IconSparkles,
   IconCode,
   IconKey,
   IconTrash,
@@ -192,11 +193,6 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
     ...(can('assistant.chat')
       ? [
           {
-            name: t('assistant-keys', 'Provider keys'),
-            to: paths.settings.assistant,
-            icon: IconKey,
-          },
-          {
             name: t('assistant-appearance', 'Appearance'),
             to: paths.settings.assistantAppearance,
             icon: IconMoodSmile,
@@ -205,6 +201,11 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
       : []),
     ...(can('assistant.manage')
       ? [
+          {
+            name: t('assistant-model', 'Default model'),
+            to: paths.settings.assistantModel,
+            icon: IconSparkles,
+          },
           {
             name: t('assistant-code-mode', 'Code mode'),
             to: paths.settings.assistantCodeMode,

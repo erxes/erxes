@@ -13,7 +13,7 @@ import {
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ActionInfo } from './automationRuns';
+import { ActionInfo, RecordType } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { Country } from './money';
@@ -41,6 +41,10 @@ export const IntegrationField = z.object({
   optional: z.boolean(),
   /** A `select` field's values. */
   options: z.array(z.string()).optional(),
+  /** A trigger setting that is one of the app's records, picked from `records` by this type. */
+  recordType: RecordType.optional(),
+  /** The key of another setting: its records are the ones under that setting's value. */
+  dependsOn: z.string().optional(),
 });
 
 export type IntegrationField = z.infer<typeof IntegrationField>;
@@ -131,6 +135,8 @@ export const AutomationApp = z.object({
   name: z.string(),
   category: IntegrationCategory,
   triggers: z.array(AutomationAppTrigger),
+  /** The record types it lists for pickers (`records`); others are the run's values or typed. */
+  records: z.array(RecordType),
   connections: z.array(IntegrationConnection.pick({ id: true, name: true, status: true })),
 });
 
@@ -165,12 +171,18 @@ const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
+/** One of an app's records as a picker offers it: its id, and the name a member reads. */
+export const AppRecord = z.object({ value: z.string(), label: z.string() });
+
+export type AppRecord = z.infer<typeof AppRecord>;
+
 const {
   BANK_IN_USE,
   CONNECTION_IN_USE,
   GATEWAY_IN_USE,
   GATEWAY_REFUSED,
   KIND_CHANGED,
+  NOT_CONNECTED,
   NOT_SET_UP,
 } = ERRORS;
 
@@ -181,6 +193,7 @@ const base = oc.errors({
   GATEWAY_IN_USE,
   GATEWAY_REFUSED,
   KIND_CHANGED,
+  NOT_CONNECTED,
   NOT_SET_UP,
 });
 
@@ -247,6 +260,24 @@ export const integrationsContract = {
     })
     .input(z.object({ key: IntegrationKey }))
     .output(listOf(AppSubscription)),
+  records: base
+    .route({
+      method: 'GET',
+      path: '/integrations/{key}/records/{recordType}',
+      summary: 'List an app’s records',
+      description:
+        "The records of one type an app lists for the automation builder's pickers (the Facebook pages, a repository's workflows), read with `connection`, else the default one. `parents`: the values of the inputs the picker depends on, nearest first. A type the app doesn't list answers none. 409 NOT_CONNECTED; 400 GATEWAY_REFUSED with the service's own message",
+    })
+    .input(
+      z.object({
+        key: IntegrationKey,
+        recordType: RecordType,
+        connection: Id.optional(),
+        parents: z.array(z.string().trim().min(1).max(500)).max(5).optional(),
+        search: z.string().trim().max(200).optional(),
+      }),
+    )
+    .output(listOf(AppRecord)),
   connect: base
     .route({
       method: 'POST',
