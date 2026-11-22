@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useTeamMembers } from '../useTeamMembers';
 
 export function TeamMemberCounts() {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { totalCount, loading } = useTeamMembers();
 
   return (

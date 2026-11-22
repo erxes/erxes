@@ -17,7 +17,7 @@ const toLinkUrl = (linkField: string, value: string) => {
 };
 
 export const MemberLinks = ({ user }: { user: User }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);
 

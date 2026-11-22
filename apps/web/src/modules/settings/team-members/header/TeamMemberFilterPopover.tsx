@@ -7,7 +7,7 @@ import { IsActiveBar } from './IsActiveBar';
 import { useRoleFilter } from './useRoleFilter';
 
 export function TeamMemberFilterPopover() {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const role = useRoleFilter();
 
   return (

@@ -8,7 +8,7 @@ import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 
 /** Owners pick any role, admins admin or member. */
 export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [open, setOpen] = useState(false);
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 
 export function TeamMemberSettingsBreadcrumb() {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     <Link to={paths.settings.teamMembers} className={buttonVariants({ variant: 'ghost' })}>

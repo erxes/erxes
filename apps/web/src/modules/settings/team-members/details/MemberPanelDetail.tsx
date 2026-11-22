@@ -51,7 +51,7 @@ export const MemberPanelName = ({ user }: { user: User }) => {
 
 /** Short name, email, phone, username and employee id. */
 const MemberContactFields = ({ user }: { user: User }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);
   const { id } = user;
@@ -116,7 +116,7 @@ const MemberContactFields = ({ user }: { user: User }) => {
 
 /** The overview tab: the member's own fields, each edited in place. */
 export const MemberPanelDetail = ({ user }: { user: User }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const edit = useTeamMemberEdit();
   const permissions = useMemberPermissions(user);
   const { id } = user;

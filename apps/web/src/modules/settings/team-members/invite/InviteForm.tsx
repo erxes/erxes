@@ -22,7 +22,7 @@ import { InviteRowRemoveButton } from './RemoveButton';
 /** Sends every row's invitation; a taken email marks its row. */
 const useInviteSubmit = (form: UseFormReturn<TUserForm>, onSent: () => void) => {
   const { toast } = useToast();
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const invite = useTeamMembersInvite();
 
   const submit: SubmitHandler<TUserForm> = (data) => {
@@ -69,7 +69,7 @@ const useInviteSubmit = (form: UseFormReturn<TUserForm>, onSent: () => void) => 
 
 /** A row per member, selectable, with buttons to add and remove rows. */
 const InviteTable = ({ form }: { form: UseFormReturn<TUserForm> }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'entries' });
 
@@ -111,7 +111,7 @@ const InviteTable = ({ form }: { form: UseFormReturn<TUserForm> }) => {
 
 /** A row per member, sent together. */
 export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }) {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const form = useForm<TUserForm>({
     mode: 'onBlur',

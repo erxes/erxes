@@ -17,7 +17,7 @@ const EmailStatus = ({ user }: { user: User }) => {
 };
 
 export const TeamMemberEmailField = ({ user }: { user: User }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { id } = user;
   const email = user.email ?? '';
   const [draft, setDraft] = useState(email);

@@ -70,7 +70,7 @@ export const ResetPasswordDialog = ({
   userId: string | null;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
   const setPassword = useTeamMemberSetPassword();
 

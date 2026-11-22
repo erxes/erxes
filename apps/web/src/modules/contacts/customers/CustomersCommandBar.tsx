@@ -25,7 +25,6 @@ import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCus
 const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
   const { t: tContact } = useTranslation('contact', { keyPrefix: 'customer' });
   const remove = useCustomersRemove();
   const [open, setOpen] = useState(false);
@@ -41,7 +40,7 @@ const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger render={<Button variant="secondary" />}>
         <IconRepeat />
-        {t('actions')}
+        {tContact('actions')}
       </Popover.Trigger>
       <Popover.Content
         variant="flush"
@@ -93,7 +92,7 @@ const CustomersMergeDialog = ({
         details: [
           customer.primaryEmail ?? '',
           customer.primaryPhone ?? '',
-          customer.state === 'lead' ? t('lead', 'Lead') : '',
+          customer.state === 'lead' ? t('lead._', 'Lead') : '',
         ],
       }))}
       onMerge={(keepId) =>

@@ -52,7 +52,7 @@ const InviteTextCell = ({
 
 /** Every role but owner. */
 const InviteRoleCell = ({ index }: { index: number }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { control } = useFormContext<TUserForm>();
   const { roles } = useRoles();
 
@@ -89,7 +89,7 @@ const InviteRoleCell = ({ index }: { index: number }) => {
 /** One invitation: email, an optional password and the role. */
 export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: string }) => {
   const { selectedUsers } = useUserInviteContext();
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     <Table.Row

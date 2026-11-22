@@ -37,7 +37,7 @@ const TextField = ({
 
 /** Mounted while the dialog is open, so closing it drops what was typed. */
 const AddForm = ({ onDone }: { onDone: () => void }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
   const add = useTeamMemberAdd();
   const [draft, setDraft] = useState(EMPTY);
@@ -102,7 +102,7 @@ const AddForm = ({ onDone }: { onDone: () => void }) => {
  */
 export function AddWithoutSignIn() {
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -5,7 +5,7 @@ import { useRoles } from '../../roles/useRoles';
 
 /** Filters the list by role (owner, admin, member). */
 export const useRoleFilter = (): OptionFilterProps => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { roles } = useRoles();
 
   return {

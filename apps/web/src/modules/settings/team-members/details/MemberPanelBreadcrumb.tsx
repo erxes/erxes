@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 
 export const MemberPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
-  const { t } = useTranslation('workspace', { keyPrefix: 'team-member' });
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     // Room for the app sidebar's expand button while the sidebar is collapsed.
