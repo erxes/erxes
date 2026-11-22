@@ -92,8 +92,6 @@ export const ERRORS = {
   TOO_MANY_CODES: { status: 429 },
   ORIGIN_NOT_ALLOWED: { status: 403 },
   UNKNOWN_WEBSITE: { status: 400 },
-  /** Staff blocked the account on this website. */
-  ACCOUNT_BLOCKED: { status: 403 },
   /** Codes can't reach this kind of address here (no SMS provider). */
   SIGN_IN_UNAVAILABLE: { status: 400 },
   LAST_LOGIN: { status: 409 },

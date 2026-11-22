@@ -2,7 +2,7 @@ import type { CustomerAccount } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { IconWorldWww } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Badge, PanelSection, useFormat } from 'erxes-ui';
+import { PanelSection, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
 import { pluginTitle, useInstalledPlugins } from '~/modules/products/useCatalogContext';
@@ -18,11 +18,6 @@ const AccountRow = ({ account, plugin }: { account: CustomerAccount; plugin: str
         <IconWorldWww className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         <span className="truncate font-medium">{account.websiteName}</span>
         <span className="truncate text-xs text-muted-foreground">{plugin}</span>
-        {account.status === 'blocked' && (
-          <Badge variant="destructive" className="ml-auto shrink-0">
-            {t('blocked', 'Blocked')}
-          </Badge>
-        )}
       </div>
       <p className="truncate text-muted-foreground">{account.logins.join(', ')}</p>
       <p className="text-xs text-muted-foreground">

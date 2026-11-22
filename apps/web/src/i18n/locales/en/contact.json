@@ -6,7 +6,6 @@
   "unnamed": "Unnamed",
   "accounts": {
     "title": "Accounts",
-    "blocked": "Blocked",
     "last-signed-in": "Last signed in {{when}}",
     "never-signed-in": "Never signed in",
     "sessions_one": "{{count}} signed in now",

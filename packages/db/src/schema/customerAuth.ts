@@ -1,4 +1,4 @@
-import { CUSTOMER_ACCOUNT_STATUSES, CUSTOMER_CODE_PURPOSES, CUSTOMER_LOGIN_KINDS } from '../enums';
+import { CUSTOMER_CODE_PURPOSES, CUSTOMER_LOGIN_KINDS } from '../enums';
 import {
   check,
   foreignKey,
@@ -18,8 +18,6 @@ import { websites } from './websites';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export type CustomerLoginKind = (typeof CUSTOMER_LOGIN_KINDS)[number];
-
-export type CustomerAccountStatus = (typeof CUSTOMER_ACCOUNT_STATUSES)[number];
 
 /** A sign-up form, checked when sent: the customer's name and the fields customers may fill. */
 export interface CustomerSignUpData {
@@ -42,7 +40,6 @@ export const customerAccounts = pgTable(
     orgId: orgIdColumn(),
     websiteId: text().notNull(),
     customerId: text().notNull(),
-    status: text({ enum: CUSTOMER_ACCOUNT_STATUSES }).default('active').notNull(),
     createdAt: createdAt(),
     lastSignedInAt: timestamptz(),
   },
@@ -70,7 +67,6 @@ export const customerAccounts = pgTable(
       foreignColumns: [customers.id],
       name: 'core_customer_accounts_customer_id_fkey',
     }).onDelete('cascade'),
-    check('core_customer_accounts_status_check', inList(table.status, CUSTOMER_ACCOUNT_STATUSES)),
   ],
 );
 

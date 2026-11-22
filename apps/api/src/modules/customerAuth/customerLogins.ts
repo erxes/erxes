@@ -21,7 +21,6 @@ export const findLogin = (tx: Db, websiteId: string, address: Address) =>
       id: customerLogins.id,
       accountId: customerAccounts.id,
       customerId: customerAccounts.customerId,
-      status: customerAccounts.status,
     })
     .from(customerLogins)
     .innerJoin(customerAccounts, eq(customerAccounts.id, customerLogins.accountId))

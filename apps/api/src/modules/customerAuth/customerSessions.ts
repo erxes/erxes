@@ -9,7 +9,6 @@ import {
 } from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { fail } from '~/http/errors';
 import { coreKey } from '~/lib/coreKey';
 import { hmacSha256, sha256 } from '~/lib/crypto';
 import { signJwt, verifyJwt } from '~/lib/signing';
@@ -43,9 +42,6 @@ export interface CustomerSessionRef {
   websiteId: string;
   sessionId: string;
 }
-
-export const accountBlocked = () =>
-  fail('ACCOUNT_BLOCKED', 'This account may not sign in to the website');
 
 /** A 15-minute access token for core's `/customer/*` and every plugin's API. */
 const customerAccessToken = (ref: CustomerSessionRef) =>
@@ -122,7 +118,7 @@ type FoundSession = NonNullable<Awaited<ReturnType<typeof sessionOf>>>;
  * Trades the session's refresh token for new tokens. The previous token used
  * again within REUSE_GRACE_SECONDS gets the same new token, since a second tab
  * or a retried request (its answer lost) refreshes that way. Used again later,
- * it leaked: the session ends. A blocked account gets 403 ACCOUNT_BLOCKED.
+ * it leaked: the session ends.
  */
 export const rotateSession = ({ row, secret }: FoundSession) =>
   withOrg(row.orgId, async (tx) => {
@@ -132,7 +128,6 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
         tokenHash: customerSessions.tokenHash,
         previousTokenHash: customerSessions.previousTokenHash,
         customerId: customerAccounts.customerId,
-        blocked: sql<boolean>`${customerAccounts.status} = 'blocked'`,
         live: sql<boolean>`${customerSessions.revokedAt} is null and ${customerSessions.expiresAt} > now()`,
         justRotated: sql<boolean>`coalesce(${customerSessions.rotatedAt} > now() - make_interval(secs => ${REUSE_GRACE_SECONDS}), false)`,
       })
@@ -143,8 +138,6 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
       .limit(1);
 
     if (!session?.live) return null;
-
-    if (session.blocked) throw accountBlocked();
 
     const ref = {
       orgId: row.orgId,
@@ -207,13 +200,6 @@ export const revokeSessionToken = async (token: string) => {
   );
 };
 
-/** Ends every live session of an account. */
-export const revokeAccountSessions = (tx: Db, accountId: string) =>
-  tx
-    .update(customerSessions)
-    .set({ revokedAt: sql`now()` })
-    .where(and(eq(customerSessions.accountId, accountId), isNull(customerSessions.revokedAt)));
-
 const AccessClaims = z.object({
   sub: z.string().min(1),
   org: z.string().min(1),
@@ -221,10 +207,7 @@ const AccessClaims = z.object({
   sid: z.string().min(1),
 });
 
-/**
- * The account behind an access token, while its session lasts and it isn't blocked
- * (signing out or blocking ends it here at once).
- */
+/** The account behind an access token, while its session lasts (signing out ends it here at once). */
 export const customerOfToken = async (token: string): Promise<CustomerSessionRef | null> => {
   const claims = await verifyJwt(token, AccessClaims, {
     typ: CUSTOMER_ACCESS_TYP,
@@ -243,7 +226,6 @@ export const customerOfToken = async (token: string): Promise<CustomerSessionRef
           eq(customerSessions.id, claims.sid),
           eq(customerAccounts.customerId, claims.sub),
           eq(customerAccounts.websiteId, claims.wid),
-          eq(customerAccounts.status, 'active'),
           isNull(customerSessions.revokedAt),
           gt(customerSessions.expiresAt, sql`now()`),
         ),

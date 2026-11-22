@@ -134,7 +134,6 @@ export type CustomerTokens = z.infer<typeof CustomerTokens>;
  * website's own form calls these. Public; browsers only from the website's origins.
  */
 const {
-  ACCOUNT_BLOCKED,
   INVALID_CODE,
   INVALID_FIELD,
   INVALID_TOKEN,
@@ -148,7 +147,6 @@ const {
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  ACCOUNT_BLOCKED,
   INVALID_CODE,
   INVALID_FIELD,
   INVALID_TOKEN,
@@ -187,7 +185,7 @@ export const customerAuthContract = {
       method: 'POST',
       path: '/customer-auth/sign-up/confirm',
       summary:
-        'Confirm a sign-up with its code: makes the account, saves the form on the customer and signs in. 400 INVALID_CODE, 400 INVALID_FIELD, 400 UNKNOWN_WEBSITE, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
+        'Confirm a sign-up with its code: makes the account, saves the form on the customer and signs in. 400 INVALID_CODE, 400 INVALID_FIELD, 400 UNKNOWN_WEBSITE, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(addressWith({ website, code: Code }))
     .output(SignedIn),
@@ -206,7 +204,7 @@ export const customerAuthContract = {
       method: 'POST',
       path: '/customer-auth/sign-in',
       summary:
-        'Sign in to an account on the website with the code and get its tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_WEBSITE, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
+        'Sign in to an account on the website with the code and get its tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_WEBSITE, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(addressWith({ website, code: Code }))
     .output(SignedIn),
@@ -215,7 +213,7 @@ export const customerAuthContract = {
       method: 'POST',
       path: '/customer-auth/refresh',
       summary:
-        'New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ACCOUNT_BLOCKED, 403 ORIGIN_NOT_ALLOWED',
+        'New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(z.object({ refreshToken: RefreshToken }))
     .output(CustomerTokens),
