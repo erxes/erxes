@@ -65,6 +65,7 @@ export {
   oauthCodes,
   oauthRefreshTokens,
   organizations,
+  bankTransfers,
   integrationConnections,
   paymentInvoices,
   entitlements,

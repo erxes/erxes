@@ -9,7 +9,7 @@ import type { GATEWAY_REFUND_KINDS } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import type { DriverOptions, GatewayDriver } from './gateways/types';
 
-type FormField = Pick<IntegrationField, 'label' | 'type'>;
+type FormField = Pick<IntegrationField, 'label' | 'type' | 'options'>;
 
 const formFields = z.registry<FormField>();
 
@@ -28,6 +28,14 @@ export const secret = (
   label: string,
   schema: z.ZodType<string> = z.string().trim().min(1).max(2000),
 ) => labelled(schema, { label, type: 'secret' });
+
+/** One of a few values, picked from a list. */
+export const choice = <const T extends readonly [string, ...string[]]>(label: string, options: T) =>
+  labelled(z.enum(options), { label, type: 'select', options: [...options] });
+
+/** Kept with the keys but filled by core (`register`), never asked for. */
+export const kept = (label: string) =>
+  labelled(z.string().trim().min(1).max(200).optional(), { label, type: 'hidden' });
 
 export const toggle = (label: string) =>
   labelled(z.boolean().default(false), { label, type: 'switch' });
@@ -61,7 +69,18 @@ interface Connection {
 
 export interface KeyedIntegration<K extends Keys = Keys> extends Connection {
   keys: K;
+  /**
+   * The bank integration whose connection (`keys.connectionId`) this one reads
+   * through: core opens its keys and passes them as `options.bank`.
+   */
+  readsThrough?: string;
   verify(keys: z.output<K>, options: DriverOptions): Promise<void>;
+  /**
+   * Sets the account up at the service on connecting or changing its keys
+   * (QuickQR: signs the merchant up), returning keys to keep with the rest.
+   * Runs after `verify`.
+   */
+  register?(keys: z.output<K>, options: DriverOptions): Promise<Record<string, string>>;
   payments?: GatewayPayments<z.output<K>>;
   status?: never;
 }
@@ -75,8 +94,15 @@ export interface PagedIntegration extends Connection {
 
 export type Integration = KeyedIntegration | PagedIntegration;
 
+/** The label given with `field()` or `secret()`, also through `.optional()` and `.default()`. */
+const metaOf = (schema: z.core.$ZodType): FormField | undefined =>
+  formFields.get(schema) ??
+  (schema instanceof z.ZodOptional || schema instanceof z.ZodDefault
+    ? metaOf(schema.unwrap())
+    : undefined);
+
 const fieldOf = (key: string, schema: z.ZodType): IntegrationField => {
-  const meta = formFields.get(schema);
+  const meta = metaOf(schema);
 
   if (!meta) throw new Error(`The integration field ${key} has no label: use field() or secret()`);
 

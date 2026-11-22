@@ -99,7 +99,7 @@ const gatewayRefund = async (
   input: { paymentId: string; amount: number; note: string },
 ) => {
   try {
-    const result = await driverOf(gateway).refund(input, invoice.payment);
+    const result = await (await driverOf(gateway)).refund(input, invoice.payment);
 
     return { status: 'succeeded' as const, gatewayRefundId: result.refundId, error: null };
   } catch (error) {

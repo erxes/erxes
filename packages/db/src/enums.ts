@@ -452,7 +452,7 @@ export const ACTION_FIELD_TYPES = [
 
 // ─── Integrations ───────────────────────────────────────────────────────────
 
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
+export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'banks', 'tax'] as const;
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
 
@@ -468,7 +468,7 @@ export const VAULT_HOLDERS = [
 
 export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
 
-export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch'] as const;
+export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch', 'select', 'hidden'] as const;
 
 // ─── Payments ───────────────────────────────────────────────────────────────
 
@@ -551,3 +551,5 @@ export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', '
 export const LOG_FORMATS = ['json', 'pretty'] as const;
 export const EMAIL_DRIVERS = ['smtp', 'log'] as const;
 export const SMS_DRIVERS = ['log'] as const;
+
+export * from './bankEnums';

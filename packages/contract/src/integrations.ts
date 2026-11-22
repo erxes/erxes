@@ -35,6 +35,8 @@ export const IntegrationField = z.object({
   label: z.string(),
   type: z.enum(INTEGRATION_FIELD_TYPES),
   optional: z.boolean(),
+  /** A `select` field's values. */
+  options: z.array(z.string()).optional(),
 });
 
 export type IntegrationField = z.infer<typeof IntegrationField>;
@@ -74,9 +76,15 @@ const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
-const { GATEWAY_IN_USE, GATEWAY_REFUSED, KIND_CHANGED } = ERRORS;
+const { BANK_IN_USE, GATEWAY_IN_USE, GATEWAY_REFUSED, KIND_CHANGED } = ERRORS;
 
-const base = oc.errors({ ...COMMON_ERRORS, GATEWAY_IN_USE, GATEWAY_REFUSED, KIND_CHANGED });
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  BANK_IN_USE,
+  GATEWAY_IN_USE,
+  GATEWAY_REFUSED,
+  KIND_CHANGED,
+});
 
 export const integrationsContract = {
   list: base

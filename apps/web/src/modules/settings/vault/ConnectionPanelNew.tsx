@@ -114,7 +114,7 @@ const ConnectForm = ({
           <ConnectionFieldInputs
             integration={integration}
             values={values}
-            onChange={(key, value) => setValues({ ...values, [key]: value })}
+            onChange={(key, value) => setValues((current) => ({ ...current, [key]: value }))}
           />
         </div>
       </PanelFormLayout>

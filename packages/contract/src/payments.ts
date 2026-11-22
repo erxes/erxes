@@ -11,6 +11,7 @@ import { DedupeKey } from './platform';
 import { TaxBuyer } from './ebarimt';
 import { InvoiceLine, InvoiceLineInput } from './invoiceLines';
 import { IntegrationConnection } from './integrations';
+import { PayerInstructions } from './paymentPayer';
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z
@@ -45,12 +46,7 @@ export const Invoice = createSelectSchema(paymentInvoices, {
   taxBuyer: () => z.object({ companyNo: z.string().optional(), consumerNo: z.string().optional() }),
   paidAmount: int,
   refundedAmount: int,
-  payment: z.object({
-    qrText: z.string().nullable(),
-    qrImage: z.string().nullable(),
-    shortUrl: z.string().nullable(),
-    links: z.array(z.object({ name: z.string(), logo: z.string().nullable(), link: z.string() })),
-  }),
+  payment: PayerInstructions,
   expiresAt: isoDate,
   paidAt: isoDate,
   createdAt: isoDate,
@@ -286,4 +282,16 @@ export const paymentsContract = {
     })
     .input(z.object({ id: Id }))
     .output(Invoice),
+  /** QPay QuickQR's districts of a city or aimag (by code), for a merchant's address. */
+  quickQrDistricts: base
+    .route({ method: 'GET', path: '/payments/quickqr/districts/{city}' })
+    .input(
+      z.object({
+        city: z
+          .string()
+          .trim()
+          .regex(/^\d{1,10}$/),
+      }),
+    )
+    .output(listOf(z.object({ code: z.string(), name: z.string() }))),
 };

@@ -17,6 +17,7 @@ import {
 import { paymentsRouter } from '~/modules/payments/payments.router';
 import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
 import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
+import { banksRouter } from '~/modules/banks/banks.router';
 import { integrationsRouter } from '~/modules/integrations/integrations.router';
 import { secretsRouter } from '~/modules/secrets/secrets.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
@@ -65,6 +66,7 @@ export const coreRouter = unscoped.router({
   products: productsRouter,
   webhooks: webhooksRouter,
   integrations: integrationsRouter,
+  banks: banksRouter,
   secrets: secretsRouter,
   apiKeys: apiKeysRouter,
   trash: trashRouter,

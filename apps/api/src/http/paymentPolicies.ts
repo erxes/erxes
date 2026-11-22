@@ -6,7 +6,19 @@ import { needs } from './policyRules';
  * `payments:*` scopes.
  */
 export const PAYMENT_ACCESS = {
+  // Banks: the organisation's accounts. Seeing them and sending money are two
+  // permissions (connecting one is Settings › Integrations'); no plugin or
+  // API key reaches them.
+  'banks.connections': needs('banks.view'),
+  'banks.accounts': needs('banks.view'),
+  'banks.account': needs('banks.view'),
+  'banks.statement': needs('banks.view'),
+  'banks.transfers': needs('banks.view'),
+  'banks.transfer': needs('banks.transfer'),
+  'banks.taxpayer': needs('banks.view'),
+  'banks.taxInvoices': needs('banks.view'),
   'payments.gateways': needs('payments.manage'),
+  'payments.quickQrDistricts': needs('payments.manage'),
   'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.recordPayment': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },

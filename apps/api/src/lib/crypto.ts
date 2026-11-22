@@ -52,6 +52,30 @@ export const hmacSha256Bytes = (key: string | Buffer, value: string) =>
   createHmac('sha256', key).update(value).digest();
 
 /** A 32-byte key derived from `secret` (HKDF-SHA256, no salt), one per `info`. */
+/**
+ * AES-128-CBC (PKCS#7), base64: a bank's wire format (Golomt's corporate
+ * gateway asks for it), never for anything core keeps — that's `encrypt`.
+ */
+export const aes128CbcEncrypt = (key: Buffer, iv: Buffer, text: string) => {
+  // Golomt's API takes only this mode; nothing core keeps is sealed with it.
+  const cipher = createCipheriv('aes-128-cbc', key, iv); // NOSONAR
+
+  return Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]).toString('base64');
+};
+
+/** Opens `aes128CbcEncrypt`'s base64; throws when the key doesn't fit. */
+export const aes128CbcDecrypt = (key: Buffer, iv: Buffer, base64: string) => {
+  const decipher = createDecipheriv('aes-128-cbc', key, iv); // NOSONAR: Golomt's mode
+
+  return Buffer.concat([decipher.update(Buffer.from(base64, 'base64')), decipher.final()]).toString(
+    'utf8',
+  );
+};
+
+/** HMAC-SHA-1, as RFC 6238 one-time codes are made (a bank's transfer codes). */
+export const hmacSha1Bytes = (key: Buffer, value: Buffer) =>
+  createHmac('sha1', key).update(value).digest(); // NOSONAR: RFC 6238 is defined on SHA-1
+
 export const deriveKey = (secret: string, info: string) =>
   Buffer.from(hkdfSync('sha256', secret, Buffer.alloc(0), info, 32));
 

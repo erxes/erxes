@@ -1,5 +1,5 @@
 {
-  "id": "9e503695-bd4d-4906-9eea-64186dc4a47a",
+  "id": "67544888-c037-4141-a931-c597423f0972",
   "prevId": "1f9237af-40c1-4787-917a-d2b16b800968",
   "version": "7",
   "dialect": "postgresql",
@@ -6047,6 +6047,209 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.core_bank_transfers": {
+      "name": "core_bank_transfers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "connection_id": {
+          "name": "connection_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bank": {
+          "name": "bank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reference": {
+          "name": "reference",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_account": {
+          "name": "from_account",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_account": {
+          "name": "to_account",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_account_name": {
+          "name": "to_account_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to_bank": {
+          "name": "to_bank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bank_reference": {
+          "name": "bank_reference",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "core_bank_transfers_org_id_reference_key": {
+          "name": "core_bank_transfers_org_id_reference_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "reference",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_bank_transfers_org_id_created_at_idx": {
+          "name": "core_bank_transfers_org_id_created_at_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_bank_transfers_org_id_fkey": {
+          "name": "core_bank_transfers_org_id_fkey",
+          "tableFrom": "core_bank_transfers",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_bank_transfers_bank_check": {
+          "name": "core_bank_transfers_bank_check",
+          "value": "\"core_bank_transfers\".\"bank\" IN ('khanbank', 'golomt', 'tdb')"
+        },
+        "core_bank_transfers_type_check": {
+          "name": "core_bank_transfers_type_check",
+          "value": "\"core_bank_transfers\".\"type\" IN ('domestic', 'interbank')"
+        },
+        "core_bank_transfers_status_check": {
+          "name": "core_bank_transfers_status_check",
+          "value": "\"core_bank_transfers\".\"status\" IN ('sending', 'sent', 'failed')"
+        },
+        "core_bank_transfers_amount_check": {
+          "name": "core_bank_transfers_amount_check",
+          "value": "\"core_bank_transfers\".\"amount\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.core_integration_connections": {
       "name": "core_integration_connections",
       "schema": "",
@@ -9592,179 +9795,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.core_customer_accounts": {
-      "name": "core_customer_accounts",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "website_id": {
-          "name": "website_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "customer_id": {
-          "name": "customer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'active'"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "last_signed_in_at": {
-          "name": "last_signed_in_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "core_customer_accounts_org_website_customer_key": {
-          "name": "core_customer_accounts_org_website_customer_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "website_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "customer_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_customer_accounts_id_website_key": {
-          "name": "core_customer_accounts_id_website_key",
-          "columns": [
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "website_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_customer_accounts_org_customer_idx": {
-          "name": "core_customer_accounts_org_customer_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "customer_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_customer_accounts_org_id_fkey": {
-          "name": "core_customer_accounts_org_id_fkey",
-          "tableFrom": "core_customer_accounts",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_customer_accounts_website_id_fkey": {
-          "name": "core_customer_accounts_website_id_fkey",
-          "tableFrom": "core_customer_accounts",
-          "tableTo": "core_websites",
-          "columnsFrom": [
-            "website_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_customer_accounts_customer_id_fkey": {
-          "name": "core_customer_accounts_customer_id_fkey",
-          "tableFrom": "core_customer_accounts",
-          "tableTo": "core_customers",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_customer_accounts_status_check": {
-          "name": "core_customer_accounts_status_check",
-          "value": "\"core_customer_accounts\".\"status\" IN ('active', 'blocked')"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.core_customer_codes": {
       "name": "core_customer_codes",
       "schema": "",
@@ -9781,12 +9811,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "website_id": {
-          "name": "website_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         },
         "kind": {
           "name": "kind",
@@ -9806,8 +9830,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "account_id": {
-          "name": "account_id",
+        "customer_id": {
+          "name": "customer_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -9852,17 +9876,11 @@
         }
       },
       "indexes": {
-        "core_customer_codes_org_website_address_idx": {
-          "name": "core_customer_codes_org_website_address_idx",
+        "core_customer_codes_org_address_idx": {
+          "name": "core_customer_codes_org_address_idx",
           "columns": [
             {
               "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "website_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -9906,25 +9924,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "core_customer_codes_website_id_fkey": {
-          "name": "core_customer_codes_website_id_fkey",
+        "core_customer_codes_customer_id_fkey": {
+          "name": "core_customer_codes_customer_id_fkey",
           "tableFrom": "core_customer_codes",
-          "tableTo": "core_websites",
+          "tableTo": "core_customers",
           "columnsFrom": [
-            "website_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_customer_codes_account_id_fkey": {
-          "name": "core_customer_codes_account_id_fkey",
-          "tableFrom": "core_customer_codes",
-          "tableTo": "core_customer_accounts",
-          "columnsFrom": [
-            "account_id"
+            "customer_id"
           ],
           "columnsTo": [
             "id"
@@ -9965,14 +9970,8 @@
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
         },
-        "account_id": {
-          "name": "account_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "website_id": {
-          "name": "website_id",
+        "customer_id": {
+          "name": "customer_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -10004,17 +10003,11 @@
         }
       },
       "indexes": {
-        "core_customer_logins_org_website_kind_value_key": {
-          "name": "core_customer_logins_org_website_kind_value_key",
+        "core_customer_logins_org_kind_value_key": {
+          "name": "core_customer_logins_org_kind_value_key",
           "columns": [
             {
               "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "website_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -10037,8 +10030,8 @@
           "method": "btree",
           "with": {}
         },
-        "core_customer_logins_org_account_idx": {
-          "name": "core_customer_logins_org_account_idx",
+        "core_customer_logins_org_customer_idx": {
+          "name": "core_customer_logins_org_customer_idx",
           "columns": [
             {
               "expression": "org_id",
@@ -10047,7 +10040,7 @@
               "nulls": "last"
             },
             {
-              "expression": "account_id",
+              "expression": "customer_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -10073,20 +10066,18 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "core_customer_logins_account_fkey": {
-          "name": "core_customer_logins_account_fkey",
+        "core_customer_logins_customer_id_fkey": {
+          "name": "core_customer_logins_customer_id_fkey",
           "tableFrom": "core_customer_logins",
-          "tableTo": "core_customer_accounts",
+          "tableTo": "core_customers",
           "columnsFrom": [
-            "account_id",
-            "website_id"
+            "customer_id"
           ],
           "columnsTo": [
-            "id",
-            "website_id"
+            "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -10117,8 +10108,14 @@
           "notNull": true,
           "default": "nullif(current_setting('app.org_id', true), '')"
         },
-        "account_id": {
-          "name": "account_id",
+        "customer_id": {
+          "name": "customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "client_id": {
+          "name": "client_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -10181,8 +10178,8 @@
         }
       },
       "indexes": {
-        "core_customer_sessions_org_account_idx": {
-          "name": "core_customer_sessions_org_account_idx",
+        "core_customer_sessions_org_customer_idx": {
+          "name": "core_customer_sessions_org_customer_idx",
           "columns": [
             {
               "expression": "org_id",
@@ -10191,7 +10188,7 @@
               "nulls": "last"
             },
             {
-              "expression": "account_id",
+              "expression": "customer_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -10217,134 +10214,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "core_customer_sessions_account_id_fkey": {
-          "name": "core_customer_sessions_account_id_fkey",
+        "core_customer_sessions_customer_id_fkey": {
+          "name": "core_customer_sessions_customer_id_fkey",
           "tableFrom": "core_customer_sessions",
-          "tableTo": "core_customer_accounts",
+          "tableTo": "core_customers",
           "columnsFrom": [
-            "account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.core_websites": {
-      "name": "core_websites",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "plugin": {
-          "name": "plugin",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "record_id": {
-          "name": "record_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "origins": {
-          "name": "origins",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_websites_org_plugin_record_key": {
-          "name": "core_websites_org_plugin_record_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "plugin",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "record_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_websites_origins_idx": {
-          "name": "core_websites_origins_idx",
-          "columns": [
-            {
-              "expression": "origins",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "gin",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_websites_org_id_fkey": {
-          "name": "core_websites_org_id_fkey",
-          "tableFrom": "core_websites",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
+            "customer_id"
           ],
           "columnsTo": [
             "id"
@@ -10381,12 +10256,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "website_id": {
-          "name": "website_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "source": {
           "name": "source",
@@ -10573,19 +10442,6 @@
           "tableTo": "core_customers",
           "columnsFrom": [
             "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_customer_notifications_website_id_fkey": {
-          "name": "core_customer_notifications_website_id_fkey",
-          "tableFrom": "core_customer_notifications",
-          "tableTo": "core_websites",
-          "columnsFrom": [
-            "website_id"
           ],
           "columnsTo": [
             "id"

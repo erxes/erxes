@@ -123,6 +123,12 @@ export const OWNER_RULES: Record<string, OwnerRule> = {
           email: true,
         }
       : null,
+  'bank.transfer_sent': (label) => ({
+    title: `Money was sent: ${label}`,
+    body: (by) => `By ${by}. See its bank's Transfers in Settings › Integrations.`,
+    link: '/settings/integrations',
+    email: true,
+  }),
   'audit.exported': () => ({
     title: 'The audit log was exported',
     body: (by) => `By ${by}.`,

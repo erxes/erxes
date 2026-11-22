@@ -209,7 +209,7 @@ export type TPluginSettingsPage = {
 };
 
 /** Every integration category, in Settings › Integrations' order. */
-export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'tax'] as const;
+export const INTEGRATION_CATEGORIES = ['email', 'messaging', 'payments', 'banks', 'tax'] as const;
 
 /** An integration's category in Settings › Integrations. */
 export type TIntegrationCategory = (typeof INTEGRATION_CATEGORIES)[number];

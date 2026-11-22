@@ -7,7 +7,12 @@ import { ConnectionList } from '../vault/ConnectionList';
 import { connectionsOf, useConnections } from '../vault/useVault';
 import type { CoreIntegration } from './catalog';
 import { CredentialsHelp } from './ConnectionFields';
-import { IntegrationLayout, OverviewSection, useIntegrationTab } from './IntegrationLayout';
+import {
+  IntegrationLayout,
+  type IntegrationTab,
+  OverviewSection,
+  useIntegrationTab,
+} from './IntegrationLayout';
 
 const PaymentFacts = ({ payments }: { payments: NonNullable<CoreIntegration['payments']> }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -86,7 +91,14 @@ const Connect = ({ integration }: { integration: CoreIntegration }) => {
   );
 };
 
-export const ConnectionsIntegration = ({ integration }: { integration: CoreIntegration }) => {
+/** An integration's page: its connections, then any `tabs` of its own (a bank's accounts). */
+export const ConnectionsIntegration = ({
+  integration,
+  tabs = [],
+}: {
+  integration: CoreIntegration;
+  tabs?: IntegrationTab[];
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const [tab, setTab] = useIntegrationTab('overview');
 
@@ -102,6 +114,7 @@ export const ConnectionsIntegration = ({ integration }: { integration: CoreInteg
           label: t('tab.overview', 'Overview'),
           content: <Overview integration={integration} />,
         },
+        ...tabs,
       ]}
     />
   );

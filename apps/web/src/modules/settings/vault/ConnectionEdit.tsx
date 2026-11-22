@@ -145,7 +145,7 @@ export const ConnectionEdit = ({
           <ConnectionFieldInputs
             integration={integration}
             values={values}
-            onChange={(key, value) => setTyped({ ...typed, [key]: value })}
+            onChange={(key, value) => setTyped((current) => ({ ...current, [key]: value }))}
           />
         </div>
       )}
