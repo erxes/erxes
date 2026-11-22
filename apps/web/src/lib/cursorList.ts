@@ -6,11 +6,12 @@ import {
   keepPreviousData,
   type UseInfiniteQueryOptions,
   useInfiniteQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import { EnumCursorDirection } from 'erxes-ui';
 import { tablePositionState } from 'erxes-ui/modules/record-table/states/RecordTableCursorState';
 import { useStore } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface CursorPage<T> {
   data: T[];
@@ -37,19 +38,160 @@ interface CursorPaging<T> {
   getPreviousPageParam: (first: CursorPage<T>) => CursorParams | undefined;
 }
 
-/** Paging forward from the top, a page of `limit` at a time. */
+/** The `getNextPageParam`s of lists that keep only their first page once nothing shows them. */
+const firstPageOnLeave = new WeakSet<object>();
+
+/**
+ * Paging forward from the top, a page of `limit` at a time. Once nothing shows the list, it
+ * keeps only its first page (`keepFirstPageOnLeave`), so coming back to it refetches one page,
+ * not every page loaded; `keepPages` keeps them all, for a list that loads all its pages anyway.
+ */
 export const forwardPaging = (
   limit: number,
+  { keepPages = false }: { keepPages?: boolean } = {},
 ): {
   initialPageParam: CursorParams;
   getNextPageParam: (last: CursorPage<unknown>) => CursorParams | undefined;
-} => ({
-  initialPageParam: { limit, direction: 'forward', cursorMode: 'exclusive' },
-  getNextPageParam: (last: CursorPage<unknown>): CursorParams | undefined =>
+} => {
+  const getNextPageParam = (last: CursorPage<unknown>): CursorParams | undefined =>
     last.pageInfo.hasNextPage && last.pageInfo.endCursor
       ? { limit, cursor: last.pageInfo.endCursor, direction: 'forward', cursorMode: 'exclusive' }
-      : undefined,
-});
+      : undefined;
+
+  if (!keepPages) firstPageOnLeave.add(getNextPageParam);
+
+  return {
+    initialPageParam: { limit, direction: 'forward', cursorMode: 'exclusive' },
+    getNextPageParam,
+  };
+};
+
+const isCursorCache = (data: unknown): data is CursorCache<unknown> =>
+  typeof data === 'object' &&
+  data !== null &&
+  Array.isArray((data as Partial<CursorCache<unknown>>).pages) &&
+  Array.isArray((data as Partial<CursorCache<unknown>>).pageParams);
+
+/**
+ * A paged list (`forwardPaging`, `useCursorList`) that nothing shows any more keeps only its
+ * first page. TanStack refetches every page of an infinite query, one after another, when it
+ * shows again with stale data; this way it refetches one, and the list loads the rest as it is
+ * scrolled. A list that changed while hidden still refetches when it shows: the trim keeps the
+ * data's age and its invalidation.
+ */
+export const keepFirstPageOnLeave = (client: QueryClient) =>
+  client.getQueryCache().subscribe((event) => {
+    if (event.type !== 'observerRemoved' && event.type !== 'updated') return;
+
+    const { query } = event;
+    const { options } = query;
+    const data: unknown = query.state.data;
+    const nextPageParam = 'getNextPageParam' in options ? options.getNextPageParam : undefined;
+
+    if (
+      query.getObserversCount() > 0 ||
+      typeof nextPageParam !== 'function' ||
+      !firstPageOnLeave.has(nextPageParam) ||
+      !isCursorCache(data) ||
+      data.pages.length < 2
+    ) {
+      return;
+    }
+
+    const { dataUpdatedAt, isInvalidated } = query.state;
+
+    query.setData(
+      { pages: data.pages.slice(0, 1), pageParams: data.pageParams.slice(0, 1) },
+      { updatedAt: dataUpdatedAt, manual: true },
+    );
+
+    if (isInvalidated) query.invalidate();
+  });
+
+/** Keyset paging both ways, opening at row `from` (inclusive), or at the top. */
+const cursorPaging = <T>(limit: number, from: string): CursorPaging<T> => {
+  const forward = forwardPaging(limit);
+
+  return {
+    initialPageParam: from
+      ? { limit, cursor: from, direction: 'forward', cursorMode: 'inclusive' }
+      : forward.initialPageParam,
+    getNextPageParam: forward.getNextPageParam,
+    getPreviousPageParam: (first) =>
+      first.pageInfo.hasPreviousPage && first.pageInfo.startCursor
+        ? {
+            limit,
+            cursor: first.pageInfo.startCursor,
+            direction: 'backward',
+            cursorMode: 'exclusive',
+          }
+        : undefined,
+  };
+};
+
+/**
+ * When a list unmounts, the next visit opens at the row RecordTable remembered (`useCursorList`):
+ * a query of its own, starting there. That query gets the rows this one holds from that row on,
+ * one page of them, so the list shows at once and refetches that one page, and its position
+ * becomes "that row at the top" (scroll 0), the place the new query's rows put it.
+ */
+const reopenAtRememberedRow = ({
+  client,
+  store,
+  position,
+  filtersKey,
+  limit,
+  from,
+  to,
+}: {
+  client: QueryClient;
+  store: ReturnType<typeof useStore>;
+  position: ReturnType<typeof tablePositionState>;
+  filtersKey: string;
+  limit: number;
+  from: QueryKey;
+  /** The query key of the list opened at `row`. */
+  to: (row: string) => QueryKey;
+}) => {
+  const saved = store.get(position);
+  const cache = client.getQueryData<CursorCache<{ id: string }>>(from);
+
+  if (!saved.row || saved.filters !== filtersKey || !cache?.pages.length) return;
+
+  const rows = cache.pages.flatMap((page) => page.data);
+  const index = rows.findIndex((row) => row.id === saved.row);
+
+  if (index < 0) return;
+
+  const data = rows.slice(index, index + limit);
+  const counted = cache.pages.find((page) => page.totalCount !== undefined);
+  const firstPage = cache.pages[0];
+  const lastPage = cache.pages.at(-1);
+  const key = to(saved.row);
+
+  const page: CursorPage<{ id: string }> = {
+    data,
+    pageInfo: {
+      hasPreviousPage: index > 0 || (firstPage?.pageInfo.hasPreviousPage ?? false),
+      hasNextPage: index + limit < rows.length || (lastPage?.pageInfo.hasNextPage ?? false),
+      startCursor: data[0]?.id ?? null,
+      endCursor: data.at(-1)?.id ?? null,
+    },
+    ...(counted && { totalCount: counted.totalCount, totalCapped: counted.totalCapped }),
+  };
+
+  client.setQueryData<CursorCache<{ id: string }>>(
+    key,
+    {
+      pages: [page],
+      pageParams: [{ limit, cursor: saved.row, direction: 'forward', cursorMode: 'inclusive' }],
+    },
+    { updatedAt: client.getQueryState(from)?.dataUpdatedAt },
+  );
+  // Shown at once, but fetched again when the list mounts, whatever its staleTime.
+  void client.invalidateQueries({ queryKey: key, exact: true, refetchType: 'none' });
+  store.set(position, { ...saved, scroll: 0 });
+};
 
 /**
  * A keyset-paged core list for `RecordTable.CursorProvider`: loads forward and
@@ -102,24 +244,28 @@ export const useCursorList = <T extends { id: string }>({
     }
   }, [store, position, filtersKey]);
 
-  const forward = forwardPaging(limit);
+  const paging = (from: string) => cursorPaging<T>(limit, from);
+  const queryOptions = options(paging(start));
+  const client = useQueryClient();
+
+  // What the list shows, for the cleanup below to read when it unmounts.
+  const leaving = { client, store, position, filtersKey, limit, from: queryOptions.queryKey };
+  const shown = useRef({ ...leaving, to: (row: string) => options(paging(row)).queryKey });
+
+  useEffect(() => {
+    shown.current = { ...leaving, to: (row: string) => options(paging(row)).queryKey };
+  });
+
+  // When the list unmounts, before the query's own cleanup (`keepFirstPageOnLeave`) keeps
+  // only its first page.
+  useEffect(() => {
+    const latest = shown;
+
+    return () => reopenAtRememberedRow(latest.current);
+  }, []);
 
   const query = useInfiniteQuery({
-    ...options({
-      initialPageParam: start
-        ? { limit, cursor: start, direction: 'forward', cursorMode: 'inclusive' }
-        : forward.initialPageParam,
-      getNextPageParam: forward.getNextPageParam,
-      getPreviousPageParam: (first) =>
-        first.pageInfo.hasPreviousPage && first.pageInfo.startCursor
-          ? {
-              limit,
-              cursor: first.pageInfo.startCursor,
-              direction: 'backward',
-              cursorMode: 'exclusive',
-            }
-          : undefined,
-    }),
+    ...queryOptions,
     placeholderData: sameList ? keepPreviousData : undefined,
   });
 
