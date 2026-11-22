@@ -22,6 +22,7 @@ import {
   useConnectionsChanged,
 } from '../integrations/ConnectionFields';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { isOAuthIntegration, SignInForm } from './SignInForm';
 import { useConnectionDraft, useKeyedIntegrations } from './useVault';
 
 const useLeavePanel = () => {
@@ -182,6 +183,15 @@ export const ConnectionPanelNew = () => {
   if (loading) return <Spinner area="lg" />;
 
   if (!integration) return <ServiceChooser integrations={integrations} onPick={setPicked} />;
+
+  if (isOAuthIntegration(integration))
+    return (
+      <SignInForm
+        key={integration.key}
+        integration={integration}
+        onCancel={wanted ? leave : () => setPicked(null)}
+      />
+    );
 
   return (
     <ConnectForm

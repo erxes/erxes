@@ -4,12 +4,22 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { CONTENT_TYPES, type ContentType, type Db, fields } from '@erxes/core-db';
+import { isAppEvent } from '@erxes/core-contract';
+import {
+  CONTENT_TYPES,
+  type ContentType,
+  type Db,
+  fields,
+  integrationConnections,
+} from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
+import { manages } from '~/modules/integrations/connectable';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
+import { resolveAppTrigger } from '~/modules/integrations/subscriptions';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { coreAction } from './actions/catalog';
 import { REPLY_ACTION } from './actions/reply';
@@ -34,6 +44,7 @@ const subjectOfTrigger = (trigger: Trigger, triggers: Catalog['triggers']): Subj
     case 'date':
       return trigger.subject;
     case 'webhook':
+    case 'app':
       return trigger.subject?.type ?? null;
     case 'schedule':
     case 'manual':
@@ -47,6 +58,16 @@ const isBlank = (value: unknown) =>
   value === '' ||
   (Array.isArray(value) && value.length === 0);
 
+const appsNotAllowed = (action: Catalog['actions'][number]) => {
+  const integration = INTEGRATIONS.find((item) => item.key === action.integration);
+
+  const own = integration?.keys
+    ? integration.actions?.some((item) => `${integration.key}.${item.key}` === action.type)
+    : false;
+
+  return integration && own && !manages(integration) ? [integration.name] : [];
+};
+
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
 const actionProblems = (
   step: Extract<AutomationStep, { type: 'action' }>,
@@ -56,11 +77,22 @@ const actionProblems = (
 ) => {
   const action = catalog.actions.find((item) => item.type === step.action);
 
-  if (!action) return [`Step ${step.id}: unknown action ${step.action}`];
+  if (!action) {
+    const owner = coreAction(step.action)?.integration;
+
+    return [
+      owner
+        ? `Step ${step.id}: ${owner.name} is not connected: connect it in Settings › Integrations`
+        : `Step ${step.id}: unknown action ${step.action}`,
+    ];
+  }
 
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))
     .map((field) => `Step ${step.id} (${action.label}): ${field.label} is required`);
+
+  for (const name of appsNotAllowed(action))
+    problems.push(`Step ${step.id} (${action.label}): your role can't use ${name}`);
 
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
@@ -132,13 +164,37 @@ const scheduleProblems = (trigger: Extract<Trigger, { kind: 'schedule' }>) => {
   return interval ? ['Only schedules in minutes or hours take “every N”'] : [];
 };
 
+const appTriggerProblems = async (client: Db, trigger: Extract<Trigger, { kind: 'app' }>) => {
+  const resolved = resolveAppTrigger(trigger);
+
+  if (!resolved.ok) return [resolved.problem];
+
+  if (!manages(resolved.app)) return [`Your role can't use ${resolved.app.name} for the trigger`];
+
+  const [connection] = await client
+    .select({ key: integrationConnections.key, status: integrationConnections.status })
+    .from(integrationConnections)
+    .where(eq(integrationConnections.id, trigger.connectionId))
+    .limit(1);
+
+  if (connection?.key !== resolved.app.key)
+    return [`Pick a ${resolved.app.name} connection for the trigger`];
+
+  return connection.status === 'active' ? [] : [`The ${resolved.app.name} connection is off`];
+};
+
 const triggerProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
   const trigger = definition.trigger;
 
   if (trigger.kind === 'event' && !catalog.triggers.some((item) => item.type === trigger.event))
     return [`Unknown trigger ${trigger.event}`];
 
+  if (trigger.kind === 'event' && isAppEvent(trigger.event))
+    return ['An app’s event starts an automation under App, with its connection'];
+
   if (trigger.kind === 'schedule') return scheduleProblems(trigger);
+
+  if (trigger.kind === 'app') return appTriggerProblems(client, trigger);
 
   if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
 

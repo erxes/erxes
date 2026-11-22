@@ -1,6 +1,7 @@
 import { type Db, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { connectedIntegrations } from '~/modules/integrations/actions';
+import { appCatalog, appTriggerTypes } from '~/modules/integrations/appCatalog';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { type Carried, healedFields, labelOf } from './dataFields';
@@ -38,7 +39,7 @@ const unexpectedTriggers = (
   });
 
 export const automationCatalog = async (client: Db) => {
-  const triggers = await eventTypeCatalog(client);
+  const triggers = [...(await eventTypeCatalog(client)), ...appTriggerTypes()];
   const installed = await installedPlugins(client);
   const learned = await learnedEventData(client);
   const actions = actionCatalog(installed, await connectedIntegrations(client));
@@ -61,5 +62,6 @@ export const automationCatalog = async (client: Db) => {
 
       return carried ? { ...action, outputs: healedFields(action.outputs, carried) } : action;
     }),
+    apps: await appCatalog(client),
   };
 };

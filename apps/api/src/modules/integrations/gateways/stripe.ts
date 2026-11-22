@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { gatewayHttp, NO_INSTRUCTIONS, pageInstructions, parse } from './http';
+import { NO_INSTRUCTIONS, pageInstructions, parse } from './http';
 import { defineIntegration, secret } from '../define';
+import { createCustomer } from './stripeActions';
+import { STRIPE_TRIGGERS, stripeHooks, stripeSend } from './stripeHooks';
 import type { ClientOptions } from './types';
 
 const keys = z.object({ secretKey: secret('Secret key') });
@@ -17,19 +19,19 @@ const Session = z.object({
 
 const Refund = z.object({ id: z.string().min(1) });
 
-const stripeClient = (config: StripeConfig, options: ClientOptions) => {
-  const send = gatewayHttp('Stripe', 'https://api.stripe.com/v1', options);
+const stripeClient =
+  (config: StripeConfig, options: ClientOptions) =>
+  (path: string, form?: Record<string, string>, headers?: Record<string, string>) =>
+    stripeSend(
+      config,
+      form ? 'POST' : 'GET',
+      path,
+      form && new URLSearchParams(form),
+      headers,
+      options,
+    );
 
-  return (path: string, form?: Record<string, string>) =>
-    send(path, {
-      method: form ? 'POST' : 'GET',
-      headers: {
-        Authorization: `Bearer ${config.secretKey}`,
-        ...(form ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
-      },
-      body: form ? new URLSearchParams(form).toString() : undefined,
-    });
-};
+export type StripeClient = ReturnType<typeof stripeClient>;
 
 /**
  * Stripe Checkout: a hosted page for cards and wallets in the invoice's
@@ -113,4 +115,7 @@ export const stripe = defineIntegration({
       return { refundId: refund.id };
     },
   },
+  hooks: stripeHooks,
+  triggers: STRIPE_TRIGGERS,
+  actions: [createCustomer],
 });

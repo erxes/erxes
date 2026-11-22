@@ -7,6 +7,7 @@ import { openSecret, type WithSecret } from '~/modules/secrets/vault';
 import { bankConfigOf } from './banks';
 import { fieldsOf, type KeyedIntegration, type Keys } from './define';
 import type { ClientOptions } from './gateways/types';
+import { freshKeys } from './oauth';
 import { keyedOf } from './registry';
 
 export type ConnectionRow = WithSecret<typeof integrationConnections.$inferSelect>;
@@ -59,7 +60,7 @@ export const clientOf = async <C>(
   integration: KeyedIntegration<Keys, C>,
   row: ConnectionRow,
 ) => {
-  const keys = keysOf(integration, row);
+  const keys = integration.oauth ? await freshKeys(tx, integration, row) : keysOf(integration, row);
 
   return integration.client(keys, await clientOptions(tx, integration, row.id, keys));
 };

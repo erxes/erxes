@@ -4,6 +4,7 @@ import {
   IconCalendarEvent,
   IconClock,
   IconHandFinger,
+  IconPlugConnected,
   IconWebhook,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +19,7 @@ export const TRIGGER_ICONS = {
   date: IconCalendarEvent,
   manual: IconHandFinger,
   webhook: IconWebhook,
+  app: IconPlugConnected,
 } as const;
 
 export const TriggerIcon = ({

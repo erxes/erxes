@@ -1,5 +1,8 @@
 import { MAINTENANCE } from '~/lib/maintenance';
 import { auditStreamJob, auditStreamsSchedule } from '~/modules/audit/streamDelivery';
+import { pollSchedule } from '~/modules/integrations/polls';
+import { APP_WIDE_JOBS } from '~/modules/integrations/appWideEvents';
+import { subscriptionSync } from '~/modules/integrations/subscriptionSync';
 import { resealSchedule } from '~/modules/secrets/vault';
 import { advanceJob, callJob } from '~/modules/automations/engine';
 import { broadcastRepeat } from '~/modules/broadcasts/repeating';
@@ -53,4 +56,7 @@ export const JOBS = [
   ...MAINTENANCE,
   auditStreamsSchedule,
   resealSchedule,
+  subscriptionSync,
+  ...APP_WIDE_JOBS,
+  pollSchedule,
 ].flatMap((definition) => definition.queues);

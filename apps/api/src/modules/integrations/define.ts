@@ -9,6 +9,7 @@ import type { Db } from '@erxes/core-db';
 import type { GATEWAY_REFUND_KINDS } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import type { ActionContext, ActionSpec, CallContext } from '~/modules/automations/actions/context';
+import type { AppClient, Apps } from './appDefinition';
 import type {
   ClientOptions,
   CreatedInvoice,
@@ -130,7 +131,29 @@ interface Listing {
   dashboard?: string;
 }
 
-export interface KeyedIntegration<K extends Keys = Keys, C = unknown> extends Listing {
+export const oauthKeys = z.object({
+  accessToken: secret('Access token', z.string().min(1).max(4000)),
+  refreshToken: secret('Refresh token', z.string().min(1).max(4000)).optional(),
+  expiresAt: labelled(z.int().positive(), { label: 'Sign-in expires', type: 'secret' }).optional(),
+  account: field('Account').optional(),
+});
+
+export type OAuthKeys = z.output<typeof oauthKeys>;
+
+export interface OAuthSetup {
+  authorizeUrl: string;
+  tokenUrl: string;
+  scopes: string[];
+  scopeSeparator?: string;
+  authorizeParams?: Record<string, string>;
+  account(accessToken: string): Promise<string>;
+  longLived?(
+    input: { accessToken: string } & AppClient,
+  ): Promise<{ accessToken: string; expiresIn?: number }>;
+}
+
+export interface KeyedIntegration<K extends Keys = Keys, C = unknown>
+  extends Listing, Apps<z.output<K>> {
   keys: K;
   /**
    * The bank integration whose connection (`keys.connectionId`) this one reads
@@ -148,6 +171,7 @@ export interface KeyedIntegration<K extends Keys = Keys, C = unknown> extends Li
   payments?: Payments<C>;
   /** Its own actions; the `payments` ability brings the invoice actions to every gateway. */
   actions?: KeyedAction<C>[];
+  oauth?: OAuthSetup;
   status?: never;
 }
 
@@ -159,6 +183,9 @@ export interface PagedIntegration extends Listing {
   client?: never;
   verify?: never;
   payments?: never;
+  oauth?: never;
+  hooks?: never;
+  triggers?: never;
 }
 
 export type Integration = KeyedIntegration | PagedIntegration;
@@ -186,6 +213,12 @@ export function defineIntegration<K extends Keys, C>(
 ): KeyedIntegration<K, C>;
 export function defineIntegration(definition: PagedIntegration): PagedIntegration;
 export function defineIntegration(definition: Integration) {
+  if (definition.oauth && definition.keys !== oauthKeys)
+    throw new Error(`${definition.key} signs in with OAuth: its keys are oauthKeys`);
+
+  if (definition.hooks?.appWide && !definition.oauth)
+    throw new Error(`${definition.key} hears its app's events: it signs in with OAuth`);
+
   if (definition.keys) fieldsOf(definition.keys);
 
   return definition;

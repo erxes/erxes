@@ -1,8 +1,10 @@
-import type { AutomationTrigger, DataField } from '@erxes/core-contract';
+import { type AutomationTrigger, type DataField, isAppEvent } from '@erxes/core-contract';
 import { IconHandFinger } from '@tabler/icons-react';
 import { Badge, Button, ChoiceboxGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { Catalog } from '../automationQueries';
 import { TriggerIcon } from '../TemplatePicker';
+import { AppTriggerSettings } from './AppTriggerSettings';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
@@ -20,6 +22,7 @@ const KINDS = [
   { kind: 'date', label: 'Date', hint: 'Before or after a record’s date' },
   { kind: 'manual', label: 'Manual', hint: 'You start it on chosen records' },
   { kind: 'webhook', label: 'Webhook', hint: 'When another system calls its address' },
+  { kind: 'app', label: 'App', hint: 'When a connected app reports something' },
 ] as const;
 
 const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
@@ -41,6 +44,8 @@ const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
       return { kind };
     case 'manual':
       return { kind, audience: { type: 'customer' } };
+    case 'app':
+      return { kind, app: '', trigger: '', connectionId: '', params: {} };
   }
 };
 
@@ -183,13 +188,15 @@ const EventTriggerSettings = ({
 export const TriggerEditor = ({
   trigger,
   events,
+  apps,
   hook,
   onChange,
   disabled,
   onStartNow,
 }: {
   trigger: AutomationTrigger;
-  events: EventInfo[];
+  events: Catalog['triggers'];
+  apps: Catalog['apps'];
   hook: Hook;
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
@@ -205,7 +212,7 @@ export const TriggerEditor = ({
       {trigger.kind === 'event' && (
         <EventTriggerSettings
           trigger={trigger}
-          events={events}
+          events={events.filter((event) => !isAppEvent(event.type))}
           disabled={disabled}
           onChange={onChange}
         />
@@ -220,6 +227,14 @@ export const TriggerEditor = ({
         <WebhookTriggerSettings
           trigger={trigger}
           hook={hook}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      )}
+      {trigger.kind === 'app' && (
+        <AppTriggerSettings
+          trigger={trigger}
+          catalog={{ apps, triggers: events }}
           disabled={disabled}
           onChange={onChange}
         />

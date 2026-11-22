@@ -31,6 +31,7 @@ export const pluginIntegrations = async (client: Db) => {
         keyed: false,
         fields: [],
         payments: null,
+        oauth: null,
         status: stateOf(name, integration.key),
         actions: (manifest?.actions ?? [])
           .filter((action) => action.integration === integration.key)

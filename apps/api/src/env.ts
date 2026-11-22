@@ -31,6 +31,7 @@ const SECRETS = [
   'CLOUDFLARE_SECRET_ACCESS_KEY',
   'CLOUDFLARE_API_TOKEN',
   'QUICK_QR_PASSWORD',
+  'INTEGRATION_OAUTH_APPS',
 ] as const;
 
 const readSecret = (name: string) => {
@@ -73,6 +74,25 @@ const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
  * its secret for short-lived tokens (`POST /core/v1/plugins/token`) and never
  * sends it on API calls. `pnpm plugin:secret <name>` rotates one.
  */
+const OAuthApp = z.object({ clientId: z.string().min(1), clientSecret: z.string().min(1) });
+
+const oauthApps = optional(z.string())
+  .transform((value, ctx) => {
+    if (!value) return {};
+
+    try {
+      return z.record(z.string(), OAuthApp).parse(JSON.parse(value));
+    } catch {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'INTEGRATION_OAUTH_APPS is JSON: {"google":{"clientId":"…","clientSecret":"…"}}',
+      });
+
+      return z.NEVER;
+    }
+  })
+  .pipe(z.record(z.string(), OAuthApp));
+
 const pluginKeys = optional(z.string()).transform((value, ctx) => {
   const keys = new Map<string, string>();
 
@@ -160,6 +180,9 @@ const Env = z
     QUICK_QR_URL: baseUrl('https://quickqr.qpay.mn'),
     QUICK_QR_USERNAME: text,
     QUICK_QR_PASSWORD: text,
+
+    INTEGRATION_OAUTH_APPS: oauthApps,
+    INTEGRATION_OAUTH_CALLBACK_URL: optional(z.url()),
 
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),

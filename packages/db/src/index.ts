@@ -2,6 +2,8 @@ export * from './client';
 
 export * from './enums';
 
+export * from './integrationEnums';
+
 export * from './ids';
 
 export * from './migrate';
@@ -67,6 +69,8 @@ export {
   organizations,
   bankTransfers,
   integrationConnections,
+  integrationOAuthApps,
+  integrationSubscriptions,
   paymentInvoices,
   entitlements,
   favorites,

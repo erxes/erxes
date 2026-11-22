@@ -8,7 +8,6 @@ import {
   withOrg,
 } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { callerCan } from '~/http/access';
 import { fail, invalidInput, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -25,23 +24,12 @@ import {
   visibleSettings,
   withSettings,
 } from './connections';
-import { fieldsOf, type Integration, type KeyedIntegration } from './define';
+import { connectable, manages } from './connectable';
+import { fieldsOf, type KeyedIntegration } from './define';
+import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
+import { callbackUrl, oauthClientSource } from './oauth';
 import { pluginIntegrations } from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
-
-const manages = (integration: Integration) => callerCan(integration.permission);
-
-const connectable = (key: string) => {
-  const integration = keyedOf(key);
-
-  if (!manages(integration)) {
-    throw fail('NOT_ALLOWED', "Your role doesn't allow this", {
-      permission: integration.permission,
-    });
-  }
-
-  return integration;
-};
 
 const activeCounts = async (client: Db) => {
   const rows = await client
@@ -73,8 +61,14 @@ export const listIntegrations = async (client: Db) => {
       plugin: null,
       dashboard: integration.dashboard ?? null,
       keyed: Boolean(integration.keys),
-      fields: integration.keys ? fieldsOf(integration.keys) : [],
+      fields: integration.keys && !integration.oauth ? fieldsOf(integration.keys) : [],
       payments: integration.payments ?? null,
+      oauth: integration.oauth
+        ? {
+            client: await oauthClientSource(client, integration.key),
+            callbackUrl: await callbackUrl(client),
+          }
+        : null,
       status: integration.status
         ? await integration.status(client)
         : connectionStatus(counts.get(integration.key)),
@@ -109,6 +103,11 @@ export const integrationConnectionsOf = async (client: Db, key?: string) => {
       )
     : [];
 
+  const listeners = await listenersOf(
+    client,
+    data.map((connection) => connection.id),
+  );
+
   const usedBy = (connection: (typeof data)[number]) => {
     if (isBank(connection.key))
       return readers.flatMap((reader) =>
@@ -116,7 +115,10 @@ export const integrationConnectionsOf = async (client: Db, key?: string) => {
       );
 
     // Gateways serve the whole organisation: every plugin taking payments, while it is on.
-    return connection.status === 'active' && keyedOf(connection.key).payments ? plugins : [];
+    return [
+      ...(connection.status === 'active' && keyedOf(connection.key).payments ? plugins : []),
+      ...listeners(connection.id),
+    ];
   };
 
   return { data: data.map((connection) => ({ ...connection, usedBy: usedBy(connection) })) };
@@ -188,36 +190,47 @@ const connectionOf = async (client: Db, integration: KeyedIntegration, id: strin
   return row;
 };
 
+export const insertConnection = async (
+  tx: Db,
+  integration: KeyedIntegration,
+  input: { id: string; name: string; keys: Record<string, unknown> },
+) => {
+  const row = oneRow(
+    await tx
+      .insert(integrationConnections)
+      .values({
+        id: input.id,
+        key: integration.key,
+        name: input.name,
+        auth: integration.oauth ? 'oauth' : 'keys',
+        secretId: await saveSecret(tx, JSON.stringify(input.keys)),
+        createdBy: caller('user').userId,
+      })
+      .returning(),
+  );
+
+  await recordAudit(tx, {
+    action: 'integration.connected',
+    targetType: 'integration_connection',
+    targetId: input.id,
+    targetLabel: input.name,
+    metadata: { key: integration.key, ...visibleSettings(integration, input.keys) },
+  });
+
+  return withSettings(row, input.keys);
+};
+
 export const connect = async (input: { key: string; name: string; keys: unknown }) => {
   const integration = connectable(input.key);
+
+  if (integration.oauth)
+    throw fail('NOT_ALLOWED', `${integration.name} connects by signing in, not with keys`);
+
   const id = newId();
   const orgId = requestOrgId();
   const keys = await verified(orgId, integration, id, parsedKeys(integration, input.keys));
 
-  return withOrg(orgId, async (tx) => {
-    const row = oneRow(
-      await tx
-        .insert(integrationConnections)
-        .values({
-          id,
-          key: integration.key,
-          name: input.name,
-          secretId: await saveSecret(tx, JSON.stringify(keys)),
-          createdBy: caller('user').userId,
-        })
-        .returning(),
-    );
-
-    await recordAudit(tx, {
-      action: 'integration.connected',
-      targetType: 'integration_connection',
-      targetId: id,
-      targetLabel: input.name,
-      metadata: { key: integration.key, ...visibleSettings(integration, keys) },
-    });
-
-    return withSettings(row, keys);
-  });
+  return withOrg(orgId, (tx) => insertConnection(tx, integration, { id, name: input.name, keys }));
 };
 
 export const updateConnection = async (input: {
@@ -250,6 +263,9 @@ export const updateConnection = async (input: {
 
     if (!row) throw notFound('Connection');
 
+    if (input.status && input.status !== before.status)
+      await connectionTurned(tx, row.id, input.status);
+
     await recordAudit(tx, {
       action: 'integration.updated',
       targetType: 'integration_connection',
@@ -265,6 +281,21 @@ export const updateConnection = async (input: {
 export const removeConnection = async (client: Db, key: string, id: string) => {
   const integration = connectable(key);
   const row = await connectionOf(client, integration, id);
+  const listening = (await listenersOf(client, [id]))(id);
+
+  if (listening.length)
+    throw fail(
+      'CONNECTION_IN_USE',
+      `Automations listen on ${row.name}: pause ${listening.join(', ')} first`,
+      { automations: listening },
+    );
+
+  if (await hooksSyncing(client, id))
+    throw fail(
+      'CONNECTION_IN_USE',
+      `${row.name} is still removing its webhooks: try again in a minute`,
+      { automations: [] },
+    );
 
   if (integration.payments) await releaseGateway(client, id);
 

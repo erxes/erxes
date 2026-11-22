@@ -4,8 +4,9 @@ import { fail } from '~/http/errors';
 import { type CallContext, type CoreAction, text } from '~/modules/automations/actions/context';
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { INVOICE_ACTIONS } from '~/modules/payments/invoiceActions';
+import { manages } from './connectable';
 import { clientOf, connectionsWithSecret } from './connections';
-import type { Integration, KeyedIntegration, PagedIntegration } from './define';
+import type { Integration, KeyedAction, KeyedIntegration, PagedIntegration } from './define';
 import { INTEGRATIONS } from './registry';
 
 /**
@@ -44,23 +45,41 @@ const open = (ctx: CallContext, integration: KeyedIntegration) =>
     return { id: row.id, name: row.name, client: await clientOf(tx, integration, row) };
   });
 
+const permitted = (
+  integration: KeyedIntegration,
+  action: KeyedAction<unknown>,
+): KeyedAction<unknown> => ({
+  ...action,
+  call: (ctx) => {
+    if (!manages(integration))
+      throw fail(
+        'NOT_ALLOWED',
+        `The member who turned this automation on may no longer use ${integration.name}`,
+        { permission: integration.permission },
+      );
+
+    return action.call(ctx);
+  },
+});
+
 const keyedActions = (integration: KeyedIntegration): CoreAction[] => {
   const owner = { key: integration.key, name: integration.name };
 
-  return [...(integration.payments ? INVOICE_ACTIONS : []), ...(integration.actions ?? [])].map(
-    (action) => ({
-      type: `${integration.key}.${action.key}`,
-      label: action.label,
-      description: action.description,
-      subject: action.subject,
-      fields: action.fields,
-      outputs: action.outputs,
-      check: action.check,
-      integration: owner,
-      call: (ctx) =>
-        action.call({ ...ctx, integration: owner, connection: () => open(ctx, integration) }),
-    }),
-  );
+  return [
+    ...(integration.payments ? INVOICE_ACTIONS : []),
+    ...(integration.actions ?? []).map((action) => permitted(integration, action)),
+  ].map((action) => ({
+    type: `${integration.key}.${action.key}`,
+    label: action.label,
+    description: action.description,
+    subject: action.subject,
+    fields: action.fields,
+    outputs: action.outputs,
+    check: action.check,
+    integration: owner,
+    call: (ctx) =>
+      action.call({ ...ctx, integration: owner, connection: () => open(ctx, integration) }),
+  }));
 };
 
 const pagedActions = (integration: PagedIntegration): CoreAction[] =>

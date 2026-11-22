@@ -5,11 +5,13 @@ import { findAutomation } from './automations.service';
 import { type ConditionChecker, conditionChecker, type SubjectRef } from './conditionCheck';
 import { type Cursor, enterArm, nextCursor, splitPath, stepAt } from './cursor';
 import { automationCatalog } from './automationCatalog';
-import { findHookSubject, HookRequest, hookEvent, noHookSubject } from './hooks';
+import { HookRequest, hookEvent } from './hooks';
+import { findHookSubject, noHookSubject } from './hookSubject';
 import { armConditions } from './steps';
 import { subjectOf } from './subjects';
 import { render } from './templates';
 import { triggerConditions } from './conditions';
+import { triggerKey } from './triggerKey';
 
 /** The most steps a dry run follows (a loop guard). */
 const MAX_DRY_STEPS = 200;
@@ -192,7 +194,8 @@ const testEvent = (trigger: AutomationDefinition['trigger'], input: TestInput) =
 
   if (trigger.kind !== 'webhook')
     return {
-      type: trigger.kind === 'event' ? trigger.event : trigger.kind,
+      type:
+        trigger.kind === 'event' || trigger.kind === 'app' ? triggerKey({ trigger }) : trigger.kind,
       occurredAt,
       payload: input.payload ?? {},
     };
@@ -213,7 +216,7 @@ const testSubject = async (
   const { subjectType = null, subjectId = null } = input;
 
   if (!subjectId) {
-    if (trigger.kind !== 'webhook' || !trigger.subject) return null;
+    if ((trigger.kind !== 'webhook' && trigger.kind !== 'app') || !trigger.subject) return null;
 
     const found = await findHookSubject(client, trigger.subject, { event });
 

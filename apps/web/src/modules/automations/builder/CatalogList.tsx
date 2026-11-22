@@ -1,4 +1,5 @@
-import { IconCheck, IconClockHour4, type TablerIcon } from '@tabler/icons-react';
+import { IconCheck, IconClockHour4 } from '@tabler/icons-react';
+import type { ComponentType } from 'react';
 import { cn, Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -9,7 +10,13 @@ import {
   useCatalogLabels,
 } from './catalogGroups';
 
-const IconTile = ({ icon: Icon, selected }: { icon: TablerIcon; selected: boolean }) => (
+const IconTile = ({
+  icon: Icon,
+  selected,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  selected: boolean;
+}) => (
   <span
     className={cn(
       'flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground',
@@ -161,11 +168,12 @@ const Categories = ({
             >
               <span
                 className={cn(
-                  'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
+                  'flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground',
                   group.source !== 'core' && 'bg-primary/10 text-primary-text',
+                  group.logo && 'border bg-white',
                 )}
               >
-                <group.icon className="size-4" />
+                <group.icon className={group.logo ? 'size-5' : 'size-4'} />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{groupName(group)}</span>

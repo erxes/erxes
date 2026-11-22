@@ -77,13 +77,17 @@ describe('the automation catalog’s groups', () => {
     expect(groupOf({ ...plugin('sales', 'sales.deal.won'), integration: null }).label).toBe(
       'Sales',
     );
-    expect(groupOf(invoice)).toEqual({
+    expect(groupOf(invoice)).toMatchObject({
       key: 'integration:test',
       source: 'core',
       label: 'Test',
-      icon: IconPlugConnected,
+      logo: false,
       order: 60,
     });
+    expect(groupOf(invoice).icon).not.toBe(IconPlugConnected);
+    expect(
+      groupOf({ ...invoice, type: 'stripe.create_customer', integration: 'stripe' }),
+    ).toMatchObject({ key: 'integration:stripe', logo: true });
     expect(
       groupOf({
         ...plugin('frontline', 'frontline.facebook.reply'),
@@ -139,7 +143,7 @@ describe('the automation catalog’s groups', () => {
     expect(catalogIcon(plugin('telegram', 'telegram.message.received'))).toBe(IconMessage);
     expect(catalogIcon(plugin('hr', 'hr.leave.approved'))).toBe(IconPuzzle);
     expect(catalogIcon(core('core.lead.form_submitted'))).toBe(IconMagnet);
-    expect(catalogIcon(invoice)).toBe(IconPlugConnected);
+    expect(catalogIcon(invoice)).toBe(groupOf(invoice).icon);
   });
 
   it('finds an item when every word searched is in its name or keywords', () => {
