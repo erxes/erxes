@@ -14,16 +14,21 @@ let cached: ReturnType<typeof createProcessor> | undefined;
 const processor = () => (cached ??= createProcessor());
 
 export const UI_EXAMPLES = [
-  `Top customers by paid orders, October 2026.
+  `## Top customers, October 2026
+
+Ranked by paid orders.
 
 <a2ui>
 surface("top-customers")
-root = Column([stats, table, actions])
+root = Column([stats, table, actions, next])
 stats = Row([Stat("Revenue", "₮48.2M", "+12%", "good"), Stat("Orders", "312"), Stat("Average order", "₮154K")])
 table = Table([{label: "Customer"}, {label: "Revenue", align: "end"}], [["[[ref:k2Xp9aQ0vB7LmN4rT]]", "₮9.4M"], ["[[ref:p8Lm2cV5xQ1nR7sWd]]", "₮7.1M"]])
 actions = Row([Button(Text("Email these customers"), "primary", Event("email_top_customers")), Button(Text("Show all 148"), "default", Event("show_all_customers"))])
+next = Suggestions(["Compare to September", "Only new customers"])
 </a2ui>`,
-  `I need two details before I create the task.
+  `## New task
+
+I need two details before I create the task.
 
 <a2ui>
 surface("new-task")

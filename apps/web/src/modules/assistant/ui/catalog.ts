@@ -5,7 +5,7 @@ import { ChoicePicker } from './components/choices';
 import { Badge, Stat, Table } from './components/data';
 import { Button, CheckBox, DateTimeInput, MemberPicker, TextField } from './components/inputs';
 import { Column, Divider, List, Row, SurfaceCard, SurfaceTabs, Text } from './components/layout';
-import { Callout, Flow } from './components/notices';
+import { Callout, Flow, Suggestions } from './components/notices';
 import { RecordPicker } from './components/records';
 
 const page = { open: (_path: string) => undefined as void };
@@ -36,6 +36,7 @@ export const uiCatalog = assistantCatalog<ReactComponentImplementation>(
     RecordPicker,
     Callout,
     Flow,
+    Suggestions,
   ],
   (path) => page.open(path),
 );

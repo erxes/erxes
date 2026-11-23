@@ -139,6 +139,7 @@ export const useConversation = (
           { type: 'text', text: label },
           { type: 'data-action', data: action },
         ]),
+      onAsk: (text: string) => sendMessage({ text, mentions: [], page, files: [], selections: [] }),
     },
   };
 };

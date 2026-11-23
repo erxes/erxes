@@ -1040,6 +1040,29 @@
         "steps"
       ],
       "unevaluatedProperties": false
+    },
+    "Suggestions": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Suggestions"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 48
+          },
+          "minItems": 1,
+          "maxItems": 4,
+          "description": "Short follow-ups as the member would type them, such as \"Compare to September\". Pressing one sends it as their next message."
+        }
+      },
+      "required": [
+        "component",
+        "items"
+      ],
+      "unevaluatedProperties": false
     }
   },
   "functions": {
@@ -1590,6 +1613,9 @@
         },
         {
           "$ref": "#/components/Flow"
+        },
+        {
+          "$ref": "#/components/Suggestions"
         }
       ],
       "discriminator": {

@@ -24,6 +24,7 @@ import {
   RECORD_KINDS,
   RecordPickerApi,
   StatApi,
+  SuggestionsApi,
   TableApi,
 } from './components';
 
@@ -36,6 +37,7 @@ export {
   MemberPickerApi,
   RecordPickerApi,
   StatApi,
+  SuggestionsApi,
   TableApi,
   ButtonApi,
   CardApi,
@@ -76,6 +78,7 @@ export const ASSISTANT_COMPONENT_APIS: ComponentApi[] = [
   RecordPickerApi,
   CalloutApi,
   FlowApi,
+  SuggestionsApi,
 ];
 
 const INSTRUCTIONS = `Lay a surface out with Column and Row; put related content in a Card.

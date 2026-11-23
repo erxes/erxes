@@ -1,17 +1,19 @@
 import { createComponentImplementation } from '@erxes/assistant-catalog/react';
-import { CalloutApi, FlowApi } from '@erxes/assistant-catalog';
+import { CalloutApi, FlowApi, SuggestionsApi } from '@erxes/assistant-catalog';
 import {
   IconAlertTriangle,
   IconArrowsSplit,
   IconBolt,
   IconCircleCheck,
   IconClockHour4,
+  IconCornerDownRight,
   IconInfoCircle,
   IconPlayerPlay,
   IconX,
   type Icon,
 } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
+import { useUiHost } from '../host';
 import { numbered } from './children';
 import { CellText } from './data';
 import { optionalText, textOf } from './values';
@@ -71,6 +73,27 @@ const Steps = ({ steps }: { steps: readonly FlowStep[] }) => (
     })}
   </ol>
 );
+
+export const Suggestions = createComponentImplementation(SuggestionsApi, ({ props }) => {
+  const host = useUiHost();
+
+  return (
+    <div className="flex min-w-0 flex-wrap gap-1.5">
+      {numbered(props.items).map(({ item, at }) => (
+        <Button
+          key={at}
+          variant="outline"
+          size="sm"
+          disabled={!host.live}
+          onClick={() => host.ask(item)}
+        >
+          <IconCornerDownRight aria-hidden className="text-muted-foreground" />
+          {item}
+        </Button>
+      ))}
+    </div>
+  );
+});
 
 export const Flow = createComponentImplementation(FlowApi, ({ props }) => (
   <div className="@container flex min-w-0 flex-col gap-3 rounded-lg border bg-background p-3">

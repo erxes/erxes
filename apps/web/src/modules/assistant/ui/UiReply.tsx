@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Markdown } from '../Markdown';
 import { useCanvas } from '../canvas';
-import type { OnUiAction, ReplyState } from '../Reply';
+import type { ReplyActions, ReplyState } from '../Reply';
 import { createAnswer, type UiPart } from './answer';
 import { openPagesWith } from './catalog';
 import { UiHostContext } from './host';
@@ -82,15 +82,16 @@ const keyOf = (part: UiPart, index: number) =>
 export const UiReply = ({
   text,
   state,
-  onAction,
+  actions,
 }: {
   text: string;
   state: ReplyState;
-  onAction: OnUiAction;
+  actions: ReplyActions;
 }) => {
   const navigate = useNavigate();
   const [answer] = useState(() => createAnswer(text, state.streaming));
   const view = useSyncExternalStore(answer.subscribe, answer.view);
+  const { onAction, onAsk } = actions;
 
   useEffect(() => answer.sendWith(onAction), [answer, onAction]);
 
@@ -98,7 +99,7 @@ export const UiReply = ({
 
   useEffect(() => answer.sync(text, state.streaming), [answer, text, state.streaming]);
 
-  const host = { live: state.live, press: answer.press };
+  const host = { live: state.live, press: answer.press, ask: onAsk };
 
   return (
     <UiHostContext value={host}>

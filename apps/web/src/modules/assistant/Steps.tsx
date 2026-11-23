@@ -223,10 +223,10 @@ export const ActivityGroup = ({ rows, live }: { rows: ActivityRow[]; live: boole
 
   const steps = shown.flatMap((row) => (row.kind === 'steps' ? row.steps : []));
   const failed = steps.filter((step) => step.status === 'failed').length;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean | null>(null);
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
+    <Collapsible open={open ?? live} onOpenChange={setOpen}>
       <FoldTrigger className="-ml-2 max-w-full">
         {live && <IconLoader2 aria-hidden className="size-3.5 shrink-0 animate-spin" />}
         <span className="min-w-0 truncate">{activityLabel(rows, steps, live, t)}</span>

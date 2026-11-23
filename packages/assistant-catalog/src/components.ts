@@ -186,3 +186,20 @@ export const FlowApi = {
       'A process drawn as steps: an automation, a workflow or a plan, before or after you create it. Draw only what you will create or what a tool returned.',
     ),
 };
+
+export const SuggestionsApi = {
+  name: 'Suggestions',
+  schema: z
+    .object({
+      items: z
+        .array(z.string().max(48))
+        .min(1)
+        .max(4)
+        .describe(
+          'Short follow-ups as the member would type them, such as "Compare to September". Pressing one sends it as their next message.',
+        ),
+    })
+    .describe(
+      'The likely next questions or steps, as chips. Put one at the end of the root Column when the member could go on from here.',
+    ),
+};
