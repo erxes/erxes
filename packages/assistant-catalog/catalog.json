@@ -936,7 +936,7 @@
           "description": "warning for something missing or blocking, bad for a failure; info otherwise."
         },
         "action": {
-          "type": "string",
+          "$ref": "common_types.json#/$defs/Child",
           "description": "The id of one Button that fixes it, such as \"Create the tag\"."
         }
       },

@@ -147,9 +147,9 @@ export const CalloutApi = {
         .enum(CALLOUT_TONES)
         .optional()
         .describe('warning for something missing or blocking, bad for a failure; info otherwise.'),
-      action: CommonSchemas.Child.optional().describe(
-        'The id of one Button that fixes it, such as "Create the tag".',
-      ),
+      action: CommonSchemas.Child.describe(
+        'REF:#/$defs/Child|The id of one Button that fixes it, such as "Create the tag".',
+      ).optional(),
     })
     .describe(
       'A short notice with an optional fix button: something missing, blocked or worth knowing before the member goes on.',
