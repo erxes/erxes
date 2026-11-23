@@ -46,7 +46,11 @@ import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
 import { IModels } from '~/connectionResolvers';
-import { prepareSettlePayment } from '~/modules/posclient/utils';
+import {
+  claimSettlement,
+  prepareSettlePayment,
+  releaseSettlement,
+} from '~/modules/posclient/utils';
 import { debugError } from '~/modules/posclient/debugError';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
@@ -428,7 +432,7 @@ export const ordersAdd = async (
   }
 };
 
-export const ordersEdit = async (
+const applyOrderEdit = async (
   doc: IOrderEditParams,
   {
     posUser,
@@ -445,8 +449,6 @@ export const ordersEdit = async (
   const order = await models.Orders.getOrder(doc._id);
 
   checkOrderStatus(order);
-
-  await validateOrder(subdomain, models, config, doc, order);
 
   const before = await getOrderChangeSnapshot(models, doc._id);
 
@@ -545,6 +547,28 @@ export const ordersEdit = async (
   }
 
   return updatedOrder;
+};
+
+export const ordersEdit = async (
+  doc: IOrderEditParams,
+  context: OrderMutationCtx,
+) => {
+  const { models, config, subdomain } = context;
+  const order = await models.Orders.getOrder(doc._id);
+
+  checkOrderStatus(order);
+
+  await validateOrder(subdomain, models, config, doc, order);
+
+  if (!(await claimSettlement(models, doc._id))) {
+    throw new ExpectedError('Order is busy, try again', 'CONFLICT');
+  }
+
+  try {
+    return await applyOrderEdit(doc, context);
+  } finally {
+    await releaseSettlement(models, doc._id);
+  }
 };
 
 const getItemInput = (item) => {
