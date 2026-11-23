@@ -123,7 +123,7 @@ export const portalPlugins = pgTable(
 );
 
 /**
- * A portal's server key: its own server trades it for 15-minute portal tokens that every
+ * A portal's customer key: its own server trades it for 15-minute portal tokens that every
  * attached plugin checks. Kept as a hash; the secret shows once.
  */
 export const portalKeys = pgTable(

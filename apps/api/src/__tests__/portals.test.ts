@@ -67,14 +67,20 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
     ).rejects.toMatchObject({ status: 400, code: 'SIGN_IN_UNAVAILABLE' });
   });
 
-  it("gives the portal's server a key it trades for tokens the plugins check", async () => {
+  it("gives the portal's server a customer key it trades for tokens the plugins check", async () => {
     const made = await t.owner().portals.createKey({ id: t.sites.acme, name: 'Shop server' });
 
     expect(made.secret).toMatch(/^erxp_/);
     expect(made.hint).toBe(made.secret.slice(-4));
-    expect((await t.owner().portals.keys({ id: t.sites.acme })).data).toEqual([
-      expect.objectContaining({ id: made.id, name: 'Shop server', lastUsedAt: null }),
+    expect((await t.owner().portals.keys({})).data).toEqual([
+      expect.objectContaining({
+        id: made.id,
+        name: 'Shop server',
+        portalName: 'acme shop',
+        lastUsedAt: null,
+      }),
     ]);
+    expect((await t.other().portals.keys({})).data).toEqual([]);
 
     const server = t.app({ origin: null }).api;
     const token = await server.portalAuth.token({ key: made.secret });

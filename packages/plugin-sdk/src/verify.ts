@@ -312,12 +312,12 @@ export const verifyCustomerToken = async (
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
 };
 
-/** A portal's own server calling a plugin, with a token core gave it for the portal's server key. */
+/** A portal's own server calling a plugin, with a token core gave it for the portal's customer key. */
 export interface PortalCall {
   orgId: string;
   /** Serve your record on this portal; refuse a portal you're not on. */
   portalId: string;
-  /** The server key it traded. */
+  /** The customer key it traded. */
   keyId: string;
 }
 
@@ -331,7 +331,7 @@ const PortalClaims = z
 
 /**
  * Verifies a portal token from the `X-Portal-Token` header with core's public keys: core
- * issued it for one of the portal's server keys (`POST /core/v1/portal-auth/token`), and it
+ * issued it for one of the portal's customer keys (`POST /core/v1/portal-auth/token`), and it
  * is unexpired. A revoked key's tokens stop within 15 minutes. Throws if not valid.
  */
 export const verifyPortalToken = async (

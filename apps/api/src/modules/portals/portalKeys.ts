@@ -8,31 +8,31 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, desc, eq, exists, sql } from 'drizzle-orm';
+import { and, desc, eq, exists, getTableColumns, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { sha256 } from '~/lib/crypto';
 import { wholeList } from '~/lib/keyset';
 import { signJwt } from '~/lib/signing';
 import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
-/** Server keys start with this, so secret scanners and people can tell them apart. */
+/** Customer keys start with this, so secret scanners and people can tell them apart. */
 const KEY_PREFIX = 'erxp_';
 
 const PORTAL_TOKEN_SECONDS = 900;
 
-/** The portal's server keys, newest first. */
-export const listPortalKeys = async (client: Db, portalId: string) => ({
+/** Every portal's customer keys with the portal's name, newest first. */
+export const listPortalKeys = async (client: Db) => ({
   data: await wholeList((limit) =>
     client
-      .select()
+      .select({ ...getTableColumns(portalKeys), portalName: portals.name })
       .from(portalKeys)
-      .where(eq(portalKeys.portalId, portalId))
+      .innerJoin(portals, eq(portals.id, portalKeys.portalId))
       .orderBy(desc(portalKeys.createdAt), desc(portalKeys.id))
       .limit(limit),
   ),
 });
 
-/** A new server key for the portal; its secret is in the answer only. */
+/** A new customer key for the portal; its secret is in the answer only. */
 export const createPortalKey = async (client: Db, input: { id: string; name: string }) => {
   const [portal] = await client
     .select({ id: portals.id })
@@ -77,7 +77,7 @@ export const removePortalKey = async (client: Db, input: { id: string; keyId: st
 const invalidKey = () => fail('INVALID_TOKEN', 'The portal key is not valid');
 
 /**
- * A 15-minute portal token for a server key, while the key stands and its portal has a
+ * A 15-minute portal token for a customer key, while the key stands and its portal has a
  * plugin: `sub` the portal, `org`, `kid` the key. Plugins check it with `verifyPortalToken`.
  */
 export const portalToken = async (key: string) => {
@@ -125,7 +125,7 @@ export const portalToken = async (key: string) => {
   };
 };
 
-/** `kid` names the server key, or `agent:<id>` for core's agent acting on the portal. */
+/** `kid` names the customer key, or `agent:<id>` for core's agent acting on the portal. */
 const signPortalToken = (orgId: string, portalId: string, kid: string) =>
   signJwt(
     { org: orgId, kid },

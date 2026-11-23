@@ -95,7 +95,7 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
 
 /**
  * The settings "Developer" group: the API reference (core's and the plugins'), keys, the portals
- * customers sign in to (their apps, sign-in and server keys), then what sends events out.
+ * customers sign in to (their apps, sign-in and customer keys), then what sends events out.
  */
 const useSettingsDeveloperPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });

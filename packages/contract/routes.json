@@ -3976,7 +3976,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/portals/{id}/keys"
+          "path": "/portals/keys"
         }
       }
     },

@@ -117,7 +117,7 @@ export const updatePortal = async (client: Db, { id, ...changes }: Inputs['updat
   return row;
 };
 
-/** Deletes a portal with its accounts, sessions and server keys; its customers stay. */
+/** Deletes a portal with its accounts, sessions and customer keys; its customers stay. */
 export const removePortal = async (client: Db, id: string) => {
   const [row] = await client
     .delete(portals)

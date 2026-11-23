@@ -183,7 +183,7 @@ export const API_KEY_AREA_INFO = {
  * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes
  * (with a plugin session token), employees in the plugin's own app (with a token the plugin
  * issues when they sign in, like HR's mobile app), customers (with a customer token from
- * core) or a portal's server (with a portal token from core, for the portal's server key).
+ * core) or a portal's server (with a portal token from core, for the portal's customer key).
  */
 export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'portal'] as const;
 

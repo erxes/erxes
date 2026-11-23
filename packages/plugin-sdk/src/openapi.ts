@@ -89,7 +89,7 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
           in: 'header',
           name: 'x-portal-token',
           description:
-            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for the portal's server key (Settings › Portals). Keep the key on the server.",
+            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for the portal's customer key (Settings › API keys). Keep the key on the server.",
         },
         [CUSTOMER_TOKEN_SCHEME]: customerToken,
       },

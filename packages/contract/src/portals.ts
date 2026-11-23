@@ -94,7 +94,7 @@ export const PortalListItem = Portal.extend({
 
 export type PortalListItem = z.infer<typeof PortalListItem>;
 
-/** A portal's server key, without its secret. */
+/** A portal's customer key, without its secret. */
 export const PortalKey = createSelectSchema(portalKeys, {
   id: Id,
   createdAt: isoDate,
@@ -221,7 +221,7 @@ export const portalsContract = {
       path: '/portals/{id}',
       summary: 'Delete a portal',
       description:
-        'Delete a portal with its customer accounts and server keys; customers stay. 404 NOT_FOUND',
+        'Delete a portal with its customer accounts and customer keys; customers stay. 404 NOT_FOUND',
     })
     .input(portalId)
     .output(ok),
@@ -264,20 +264,20 @@ export const portalsContract = {
   keys: base
     .route({
       method: 'GET',
-      path: '/portals/{id}/keys',
-      summary: "List a portal's server keys",
-      description: 'Server keys, newest first, without their secrets',
+      path: '/portals/keys',
+      summary: 'List customer keys',
+      description:
+        "Every portal's customer keys (Settings › API keys), newest first, without their secrets",
     })
-    .input(portalId)
-    .output(listOf(PortalKey)),
+    .output(listOf(PortalKey.extend({ portalName: z.string() }))),
   createKey: base
     .route({
       method: 'POST',
       path: '/portals/{id}/keys',
       successStatus: 201,
-      summary: 'Make a server key',
+      summary: 'Make a customer key',
       description:
-        "A key for the portal's own server, shown once: it trades it at `POST /portal-auth/token`. 404 NOT_FOUND",
+        "A customer key for the portal's own server, shown once: it trades it at `POST /portal-auth/token` for a token the portal's plugins accept, for what customers and visitors may see. 404 NOT_FOUND",
     })
     .input(portalId.extend({ name: z.string().trim().min(1).max(100) }))
     .output(PortalKey.extend({ secret: z.string() })),
@@ -285,8 +285,9 @@ export const portalsContract = {
     .route({
       method: 'DELETE',
       path: '/portals/{id}/keys/{keyId}',
-      summary: 'Revoke a server key',
-      description: 'Revoke a server key: its tokens stop working within 15 minutes. 404 NOT_FOUND',
+      summary: 'Revoke a customer key',
+      description:
+        'Revoke a customer key: its tokens stop working within 15 minutes. 404 NOT_FOUND',
     })
     .input(portalId.extend({ keyId: Id }))
     .output(ok),
@@ -319,7 +320,7 @@ export const portalAuthContract = {
       path: '/portal-auth/token',
       summary: 'Get a portal token',
       description:
-        "Trade a portal's server key for a 15-minute token (`typ: portal+jwt`) to send to its plugins as `X-Portal-Token`. Keep the key on the server. 401 INVALID_TOKEN",
+        "Trade a portal's customer key for a 15-minute token (`typ: portal+jwt`) to send to its plugins as `X-Portal-Token`. Keep the key on the server. 401 INVALID_TOKEN",
     })
     .input(z.object({ key: z.string().min(1).max(200) }))
     .output(

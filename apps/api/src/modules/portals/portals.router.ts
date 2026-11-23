@@ -54,7 +54,7 @@ export const portalsRouter = {
       }),
     ).then(() => ok),
   ),
-  keys: scoped.portals.keys.handler(({ input }) => listPortalKeys(db(), input.id)),
+  keys: scoped.portals.keys.handler(() => listPortalKeys(db())),
   createKey: scoped.portals.createKey.handler(({ input }) =>
     audited(
       (tx) => createPortalKey(tx, input),

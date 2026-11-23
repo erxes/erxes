@@ -107,7 +107,7 @@
  * code signs an account in; `/customer-auth/social` signs in with Google, Apple or Facebook. They
  * return `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews them.
  * The portal's server calls plugins with `X-Portal-Token` (`verifyPortalToken`), a token core
- * gives for the portal's server key; no plugin issues its own keys.
+ * gives for the portal's customer key; no plugin issues its own keys.
  * Serve customers under `/customer/*`, keyed by the customer id and scoped to the portal:
  *
  *   app.use('/customer', async (req, res, next) => {

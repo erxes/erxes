@@ -17,13 +17,12 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { pluginTitle, useInstalledPlugins } from '~/modules/products/useCatalogContext';
 import { AddressList } from './AddressList';
-import { PortalKeys } from './PortalKeys';
 import { PortalSignInForm } from './PortalSignInForm';
 import { useSavePortal } from './useSavePortal';
 
@@ -156,6 +155,12 @@ const Plugins = ({ portal }: { portal: PortalListItem }) => {
       <p className="text-muted-foreground">
         {t('portal-id', 'Its id, for sign-in calls: {{id}}', { id: portal.id })}
       </p>
+      <p className="text-muted-foreground">
+        {t('keys-at', 'Its server calls the plugins with a customer key, made in')}{' '}
+        <Link className="underline" to={paths.settings.customerKeys}>
+          {t('keys-link', 'Settings › API keys')}
+        </Link>
+      </p>
     </div>
   );
 };
@@ -234,9 +239,6 @@ export const PortalPage = () => {
                 <Tabs.List variant="underline" className="mb-4">
                   <Tabs.Trigger value="setup">{t('tab-setup', 'Setup')}</Tabs.Trigger>
                   <Tabs.Trigger value="sign-in">{t('tab-sign-in', 'Sign-in')}</Tabs.Trigger>
-                  {canEdit && (
-                    <Tabs.Trigger value="keys">{t('tab-keys', 'Server keys')}</Tabs.Trigger>
-                  )}
                   <Tabs.Trigger value="plugins">{t('tab-plugins', 'Plugins')}</Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="setup">
@@ -245,11 +247,6 @@ export const PortalPage = () => {
                 <Tabs.Content value="sign-in">
                   <PortalSignInForm key={saved.updatedAt} portal={saved} canEdit={canEdit} />
                 </Tabs.Content>
-                {canEdit && (
-                  <Tabs.Content value="keys">
-                    <PortalKeys portalId={saved.id} />
-                  </Tabs.Content>
-                )}
                 <Tabs.Content value="plugins">
                   <Plugins portal={saved} />
                 </Tabs.Content>
