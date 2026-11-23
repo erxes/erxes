@@ -36,18 +36,18 @@ const PageHeaderRoot = ({
   </div>
 );
 
+// The first crumb moves into the header's padding, so its icon lines up with the page content
+// below (a list's view tabs, a form's fields). Every page gets it; `flush` is the only variant.
 const pageHeaderStartVariants = cva(
   'flex flex-none items-center gap-2 [&>svg]:shrink-0 [&>svg:not([class*=size-])]:size-4',
   {
     variants: {
       variant: {
-        default: '',
-        // The first crumb moves into the header's padding, so its icon lines up with the page content.
         flush:
           '[&>nav:first-of-type>ol>li:first-child_a]:-ml-2 [&>nav:first-of-type>ol>li:first-child_a]:pl-2 [&>nav:first-of-type>ol>li:first-child_button]:-ml-2 [&>nav:first-of-type>ol>li:first-child_button]:pl-2',
       },
     },
-    defaultVariants: { variant: 'default' },
+    defaultVariants: { variant: 'flush' },
   },
 );
 

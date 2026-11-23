@@ -33,7 +33,7 @@ export const TeamMembersPage = () => {
   return (
     <PageContainer>
       <PageHeader>
-        <PageHeader.Start variant="flush">
+        <PageHeader.Start>
           <TeamMemberSettingsBreadcrumb />
         </PageHeader.Start>
         <PageHeader.End>

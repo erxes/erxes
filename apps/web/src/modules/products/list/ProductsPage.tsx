@@ -31,7 +31,7 @@ export const ProductsPage = () => {
   return (
     <PageContainer>
       <PageHeader>
-        <PageHeader.Start variant="flush">
+        <PageHeader.Start>
           <AppBreadcrumb
             items={[
               { label: t('products', 'Products'), to: paths.products.list, icon: IconPackage },

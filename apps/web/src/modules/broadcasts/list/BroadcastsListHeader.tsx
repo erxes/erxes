@@ -59,7 +59,7 @@ export const BroadcastsListHeader = () => {
 
   return (
     <PageHeader>
-      <PageHeader.Start variant="flush">
+      <PageHeader.Start>
         <AppBreadcrumb
           items={[
             { label: t('title', 'Broadcasts'), to: paths.broadcasts.list, icon: IconSpeakerphone },
