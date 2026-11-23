@@ -13,7 +13,8 @@ import { projectFiles } from './project-files.ts';
 const ZOD_FIELDS_MIN = 3;
 const TABLE_FIELDS_MIN = 5;
 
-const SKIPPED = /(^|\/)(__tests__|e2e|drizzle|dist|node_modules)\/|\.(test|spec|d)\.tsx?$/;
+const SKIPPED =
+  /(?:(?:^|\/)(?:__tests__|e2e|drizzle|dist|node_modules)\/)|(?:\.(?:test|spec|d)\.tsx?$)/;
 
 const Manifest = z.object({
   name: z.string().optional(),
