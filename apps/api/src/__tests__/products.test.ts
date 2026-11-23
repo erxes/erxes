@@ -278,7 +278,10 @@ describe('products', { timeout: 120_000 }, () => {
     await t.owner().payments.payTestInvoice({ id: invoice.id });
     await settle();
     expect(api.rejected).toEqual([]);
-    expect(api.received.map((event) => event.type)).toEqual(['core.payment.paid']);
+    expect(api.received.map((event) => event.type).toSorted((a, b) => a.localeCompare(b))).toEqual([
+      'core.payment.created',
+      'core.payment.paid',
+    ]);
     expect(api.received[0]?.payload).toMatchObject({ invoiceId: invoice.id, source: 'hr' });
   });
 });

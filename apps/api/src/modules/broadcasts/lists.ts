@@ -14,6 +14,7 @@ import {
 import { and, eq, getTableColumns, ilike, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { containsPattern, keysetPage } from '~/lib/keyset';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { getBroadcast } from './broadcasts.service';
 
 /** A recipient's customer, by name, else nothing (the address shows). */
@@ -74,6 +75,28 @@ export const listSuppressions = (
         .limit(limit),
   );
 
+export const publishSuppressed = (
+  client: Db,
+  added: { row: typeof suppressions.$inferSelect; customerId: string | null }[],
+) =>
+  publishCoreEvents(
+    client,
+    added.map(({ row, customerId }) => ({
+      type: 'core.broadcast.suppressed',
+      ...(customerId && { subjectType: 'customer' as const, subjectId: customerId }),
+      entityType: 'suppression',
+      entityId: row.id,
+      payload: {
+        address: row.address,
+        channel: row.channel,
+        reason: row.reason,
+        detail: row.detail,
+        broadcastId: row.broadcastId,
+        customerId,
+      },
+    })),
+  );
+
 /** Adds addresses by hand; one already suppressed keeps its reason. */
 export const addSuppressions = async (
   client: Db,
@@ -94,7 +117,12 @@ export const addSuppressions = async (
       })),
     )
     .onConflictDoNothing()
-    .returning({ address: suppressions.address });
+    .returning();
+
+  await publishSuppressed(
+    client,
+    added.map((row) => ({ row, customerId: null })),
+  );
 
   return { added: added.length, addresses: added.map(({ address }) => address) };
 };

@@ -11,8 +11,8 @@ import { ebarimtIdOf } from './taxConfig';
 
 /**
  * Records a payment taken outside a gateway (cash, a card terminal, a bank
- * transfer) as an invoice paid in full now. It publishes `core.payment.paid`
- * like a gateway payment, so its subscribers (eBarimt, webhooks,
+ * transfer) as an invoice paid in full now. It publishes `core.payment.created`
+ * and `core.payment.paid` like a gateway payment, so their subscribers (eBarimt, webhooks,
  * automations, the plugin) treat both alike. Retry-safe with `dedupeKey`.
  */
 export const recordPayment = async (client: Db, input: RecordedPayment) => {
@@ -55,12 +55,20 @@ export const recordPayment = async (client: Db, input: RecordedPayment) => {
     return first;
   }
 
-  await publishCoreEvents(client, {
-    type: 'core.payment.paid',
-    entityType: 'payment_invoice',
-    entityId: row.id,
-    payload: { ...eventPayload(row), paidAmount: row.amount, gateway: null },
-  });
+  await publishCoreEvents(client, [
+    {
+      type: 'core.payment.created',
+      entityType: 'payment_invoice',
+      entityId: row.id,
+      payload: eventPayload(row),
+    },
+    {
+      type: 'core.payment.paid',
+      entityType: 'payment_invoice',
+      entityId: row.id,
+      payload: { ...eventPayload(row), paidAmount: row.amount, gateway: null },
+    },
+  ]);
   await recordAudit(client, {
     action: 'payment.recorded',
     targetType: 'payment_invoice',

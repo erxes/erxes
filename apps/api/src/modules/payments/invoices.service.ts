@@ -152,6 +152,12 @@ export const createInvoice = async (input: InvoiceInput) => {
       return first;
     }
 
+    await publishCoreEvents(tx, {
+      type: 'core.payment.created',
+      entityType: 'payment_invoice',
+      entityId: row.id,
+      payload: eventPayload(row),
+    });
     await queueCheck(tx, row, 0);
 
     return shownInvoice(tx, row.id);

@@ -16,6 +16,7 @@ import {
   IconMessage,
   IconMessageCircle,
   IconNote,
+  IconPackage,
   IconPhone,
   IconPlugConnected,
   IconPuzzle,
@@ -66,6 +67,7 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
   'core:leads': { label: 'Leads', icon: IconMagnet, order: 1 },
   'core:companies': { label: 'Companies', icon: IconBuilding, order: 2 },
   'core:payments': { label: 'Payments', icon: IconCreditCard, order: 3 },
+  'core:products': { label: 'Products', icon: IconPackage, order: 3 },
   'core:messages': { label: 'Messages', icon: IconMail, order: 4 },
   'core:timeline': { label: 'Timeline', icon: IconNote, order: 5 },
   'core:integrations': { label: 'Integrations', icon: IconWebhook, order: 6 },
@@ -142,6 +144,30 @@ export const catalogIcon = (item: CatalogItem) => {
 
 export type GroupEntry = { group: CatalogGroup; items: CatalogItem[] };
 
+const CHANNEL_WORDS =
+  /^(facebook|instagram|messenger|telegram|discord|whatsapp|viber|mail|email|sms|call)$/;
+
+const sectionName = (word: string) => {
+  const name = word.replaceAll('_', ' ');
+  const plural = name.endsWith('s') ? name : `${name}s`;
+
+  return plural.charAt(0).toUpperCase() + plural.slice(1);
+};
+
+/** A plugin's items by what they are about (`frontline.ticket.…` under Tickets), channels together. */
+export const sectionsOf = (items: CatalogItem[]) => {
+  const byName = new Map<string, CatalogItem[]>();
+
+  for (const item of items) {
+    const word = item.type.split('.')[1] ?? '';
+    const name = CHANNEL_WORDS.test(word) ? 'Channels' : sectionName(word);
+
+    byName.set(name, [...(byName.get(name) ?? []), item]);
+  }
+
+  return [...byName].map(([name, sectionItems]) => ({ name, items: sectionItems }));
+};
+
 /** The items by area (core's in a fixed order, then plugins by name). */
 export const groupItems = (items: CatalogItem[]) => {
   const byKey = new Map<string, GroupEntry>();
@@ -192,19 +218,10 @@ export const useCatalogLabels = (kind: string) => {
           defaultValue_other: '{{count}} events',
         });
 
-  /** Inside a category, its name; otherwise what is searched. */
-  const searchPlaceholder = (group?: CatalogGroup) => {
-    if (group) {
-      return t('catalog-search-in', {
-        name: groupName(group),
-        defaultValue: 'Search in {{name}}…',
-      });
-    }
-
-    return kind === 'action'
+  const searchPlaceholder =
+    kind === 'action'
       ? t('catalog-search-actions', 'Search actions…')
       : t('catalog-search-events', 'Search events…');
-  };
 
   /** The picker's name, for screen readers. */
   const pickerLabel =

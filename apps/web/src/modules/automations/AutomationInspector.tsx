@@ -64,7 +64,7 @@ export const AutomationInspector = (props: InspectorProps) => {
           : '';
 
   return (
-    <aside className="flex w-110 shrink-0 flex-col border-l bg-background">
+    <aside className="flex w-136 shrink-0 flex-col border-l bg-background">
       <div className="flex h-10 shrink-0 items-center gap-2 border-b pr-2 pl-4 text-sm font-medium">
         <span className="min-w-0 flex-1 truncate">{heading}</span>
         {step && (

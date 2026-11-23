@@ -55,7 +55,6 @@ const Shown = z.object({
   names: z.array(z.string()),
   counts: z.array(z.string()),
   search: z.string(),
-  searchIn: z.string(),
   picker: z.string(),
 });
 
@@ -68,8 +67,7 @@ const Labels = ({ kind, groups }: { kind: string; groups: CatalogGroup[] }) => {
     JSON.stringify({
       names: groups.map(groupName),
       counts: [1, 3].map(countLabel),
-      search: searchPlaceholder(),
-      searchIn: searchPlaceholder(groups[0]),
+      search: searchPlaceholder,
       picker: pickerLabel,
     }),
   );
@@ -99,14 +97,12 @@ describe('the catalog’s words', () => {
       names: ['Customers'],
       counts: ['1 action', '3 actions'],
       search: 'Search actions…',
-      searchIn: 'Search in Customers…',
       picker: 'Choose an action',
     });
     expect(await labelsOf('trigger', [customers])).toEqual({
       names: ['Customers'],
       counts: ['1 event', '3 events'],
       search: 'Search events…',
-      searchIn: 'Search in Customers…',
       picker: 'Choose an event',
     });
   });
@@ -118,14 +114,12 @@ describe('the catalog’s words', () => {
       names: ['Харилцагчид', 'Messages', 'General'],
       counts: ['1 үйлдэл', '3 үйлдэл'],
       search: 'Үйлдэл хайх…',
-      searchIn: 'Харилцагчид-д хайх…',
       picker: 'Үйлдэл сонгох',
     });
     expect(await labelsOf('trigger', [customers])).toEqual({
       names: ['Харилцагчид'],
       counts: ['1 үйл явдал', '3 үйл явдал'],
       search: 'Үйл явдал хайх…',
-      searchIn: 'Харилцагчид-д хайх…',
       picker: 'Үйл явдал сонгох',
     });
   });

@@ -367,11 +367,15 @@ const CORE_AREAS: Record<string, string> = {
   lead: 'leads',
   company: 'companies',
   payment: 'payments',
+  ebarimt: 'payments',
+  product: 'products',
   email: 'messages',
   notification: 'messages',
+  broadcast: 'messages',
   note: 'timeline',
   webhook: 'integrations',
   http: 'integrations',
+  integration: 'integrations',
   automation: 'automations',
 };
 

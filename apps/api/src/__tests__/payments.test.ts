@@ -190,7 +190,7 @@ describe('payments', { timeout: 240_000 }, () => {
         'succeeded',
       ]);
 
-      // The plugin heard about its own invoice: paid, then two refunds (not the failed one).
+      // The plugin heard about its own invoice: created, paid, then two refunds (not the failed one).
       await settle();
       expect(api.rejected).toEqual([]);
 
@@ -198,6 +198,7 @@ describe('payments', { timeout: 240_000 }, () => {
       const ours = api.received.filter((event) => event.payload.invoiceId === id);
 
       expect(ours.map((event) => event.type).toSorted((a, b) => a.localeCompare(b))).toEqual([
+        'core.payment.created',
         'core.payment.paid',
         'core.payment.refunded',
         'core.payment.refunded',
