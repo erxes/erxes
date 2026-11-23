@@ -116,6 +116,11 @@ export const facebook = defineIntegration({
       'pages_manage_engagement',
       'leads_retrieval',
       'pages_messaging',
+      // Plugins that use the connection (frontline's inbox): Instagram messages and comments.
+      'business_management',
+      'instagram_basic',
+      'instagram_manage_messages',
+      'instagram_manage_comments',
     ],
     scopeSeparator: ',',
     account: (accessToken) => accountOf(accessToken),

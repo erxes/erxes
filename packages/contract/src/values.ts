@@ -207,6 +207,12 @@ export const PORTAL_TOKEN_SCHEME = 'portalToken';
  */
 export const pluginReadScope = (permission: string) => `reads:${permission}`;
 
+/**
+ * How an installation's granted scopes hold an approved use of the organisation's connections of
+ * one integration (the manifest's `connections`): `uses:facebook`.
+ */
+export const connectionUseScope = (integration: string) => `uses:${integration}`;
+
 // ─── Members ────────────────────────────────────────────────────────────────
 
 /** `owner`, `admin`, `member`, or a custom role's `r_<id>`. */

@@ -319,6 +319,9 @@ export const ACCESS = {
   'integrations.update': MEMBER,
   'integrations.remove': MEMBER,
   'integrations.report': { plugin: 'installed' },
+  // Plugins the owner approved (`uses:<key>`, checked in connectionUse.ts) use the connections.
+  'integrations.usable': { plugin: 'installed' },
+  'integrations.credentials': { plugin: 'installed' },
   'integrations.authorize': MEMBER,
   'integrations.setOAuthApp': MEMBER,
   'integrations.removeOAuthApp': MEMBER,

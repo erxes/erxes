@@ -56,6 +56,15 @@ export const APP_TRIGGER_FAILED_DATA = {
   ],
 } as const satisfies { record: string; fields: readonly DataField[] };
 
+export const INTEGRATION_CHANGED_DATA = {
+  record: 'App connection',
+  fields: [
+    { key: 'key', label: 'Integration', type: 'text' },
+    { key: 'connectionId', label: 'Connection', type: 'text' },
+    { key: 'change', label: 'Change', type: 'text' },
+  ],
+} as const satisfies { record: string; fields: readonly DataField[] };
+
 /** One of core's events (`CORE_EVENT_TYPES`). */
 export type CoreEventType = {
   type: string;
@@ -250,5 +259,14 @@ export const CORE_EVENT_TYPES = [
       'A connected app stops sending events: its webhook or polling keeps failing',
     ),
     ...APP_TRIGGER_FAILED_DATA,
+  },
+  {
+    ...event(
+      'core.integration.changed',
+      'App connection changed',
+      null,
+      'A connection is added, its keys or sign-in change, or it is turned off or removed (`change`): plugins that use it read it again',
+    ),
+    ...INTEGRATION_CHANGED_DATA,
   },
 ] satisfies readonly CoreEventType[];

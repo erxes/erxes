@@ -1,4 +1,5 @@
-import { db } from '@erxes/core-db';
+import { caller, db } from '@erxes/core-db';
+import { connectionCredentials, usableConnections } from '~/modules/integrations/connectionUse';
 import {
   connect,
   integrationConnectionsOf,
@@ -10,12 +11,22 @@ import { reportIntegrationState } from '~/modules/integrations/pluginIntegration
 import { appSubscriptionsOf } from '~/modules/integrations/listeners';
 import { listAppRecords } from '~/modules/integrations/records';
 import { authorizeUrl, removeOAuthApp, setOAuthApp } from '~/modules/integrations/oauth';
-import { scoped, unscoped } from '~/orpc';
+import { audited, recordOf, scoped, unscoped } from '~/orpc';
 
 export const integrationsRouter = {
   list: scoped.integrations.list.handler(() => listIntegrations(db())),
   connections: scoped.integrations.connections.handler(({ input }) =>
     integrationConnectionsOf(db(), input.key),
+  ),
+  usable: scoped.integrations.usable.handler(({ input }) => usableConnections(db(), input.key)),
+  credentials: scoped.integrations.credentials.handler(({ input }) =>
+    audited(
+      (tx) => connectionCredentials(tx, input.id),
+      (credentials) => ({
+        ...recordOf('integration_connection', 'credentials_read', credentials.connectionId),
+        metadata: { key: credentials.key, plugin: caller('plugin').plugin },
+      }),
+    ),
   ),
   subscriptions: scoped.integrations.subscriptions.handler(({ input }) =>
     appSubscriptionsOf(db(), input.key),

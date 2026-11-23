@@ -2,6 +2,7 @@ import {
   CORE_PERMISSION_AREAS,
   PLUGIN_SCOPES,
   type PluginManifest,
+  connectionUseScope,
   pluginReadScope,
 } from '@erxes/core-contract';
 import {
@@ -40,7 +41,8 @@ const SECRET_OVERLAP_HOURS = 24;
 
 /**
  * Scopes a plugin asks for: its manifest's, with each read of another plugin's API as
- * `reads:<permission>`, or (before it sent one) what plugins could always do.
+ * `reads:<permission>` and each integration whose connections it uses as `uses:<key>`, or
+ * (before it sent one) what plugins could always do.
  */
 export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
   row.manifest
@@ -49,6 +51,7 @@ export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
         ...(row.manifest.pluginReads ?? []).flatMap((read) =>
           read.permissions.map(pluginReadScope),
         ),
+        ...(row.manifest.connections ?? []).map((use) => connectionUseScope(use.integration)),
       ]
     : [...PLUGIN_SCOPES];
 

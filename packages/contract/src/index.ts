@@ -228,6 +228,8 @@ export * from './platform';
 
 export * from './organizations';
 
+export * from './connectionUse';
+
 export * from './integrations';
 
 export * from './payments';

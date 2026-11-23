@@ -754,6 +754,9 @@
     "empty-description": "Plugins appear here once they are registered with this erxes (pnpm plugin:secret <name>).",
     "scope": {
       "reads": "Read {{permission}} in {{plugin}}: {{reason}}",
+      "uses": "Use the organisation’s {{integration}} connections: {{reason}}",
+      "sms-write": "Send texts from erxes",
+      "portals-write": "Put its stores and sites on portals customers sign in to",
       "activities-write": "Add entries to customer and company timelines",
       "audit-write": "Record its changes in the audit log",
       "customers-read": "Read and search customers and companies",

@@ -15,6 +15,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ActionInfo, RecordType } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
+import { connectionUseContract } from './connectionUse';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { Country } from './money';
 import { IntegrationCategory, IntegrationKey } from './values';
@@ -255,6 +256,7 @@ export const integrationsContract = {
     })
     .input(z.object({ key: IntegrationKey.optional() }))
     .output(listOf(VaultConnection)),
+  ...connectionUseContract,
   subscriptions: base
     .route({
       method: 'GET',

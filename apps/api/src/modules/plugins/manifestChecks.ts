@@ -1,5 +1,6 @@
 import { type PluginManifest } from '@erxes/core-contract';
 import { fail } from '~/http/errors';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
 
 const namespaced = (plugin: string, values: string[] | undefined, what: string) => {
   const wrong = (values ?? []).find((value) => !value.startsWith(`${plugin}.`));
@@ -113,6 +114,26 @@ const othersReads = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+/** A plugin uses the connections of core's integrations that sign in with OAuth, each once. */
+const usableConnections = (manifest: PluginManifest) => {
+  const uses = manifest.connections ?? [];
+
+  const wrong = uses.find(
+    ({ integration }) => !INTEGRATIONS.some((item) => item.key === integration && item.oauth),
+  );
+
+  if (wrong) {
+    throw fail(
+      'UNKNOWN_INTEGRATION',
+      `connections names "${wrong.integration}", which isn't one of core's integrations that sign in with OAuth`,
+    );
+  }
+
+  if (new Set(uses.map((use) => use.integration)).size !== uses.length) {
+    throw fail('UNKNOWN_INTEGRATION', 'connections names an integration twice');
+  }
+};
+
 /**
  * What the schema can't check: the manifest's names are the plugin's own, and what it grants or
  * needs names permissions it declares. Throws the first problem.
@@ -139,4 +160,5 @@ export const checkManifest = (plugin: string, manifest: PluginManifest) => {
   ownRelations(plugin, manifest);
   ownIntegrations(manifest);
   othersReads(plugin, manifest);
+  usableConnections(manifest);
 };

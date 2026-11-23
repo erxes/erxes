@@ -3152,6 +3152,26 @@
         }
       }
     },
+    "usable": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/usable"
+        }
+      }
+    },
+    "credentials": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/connections/{id}/credentials"
+        }
+      }
+    },
     "subscriptions": {
       "~orpc": {
         "errorMap": {},

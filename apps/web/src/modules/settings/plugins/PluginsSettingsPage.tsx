@@ -1,5 +1,5 @@
 import { paths } from '~/lib/paths';
-import { type Plugin, pluginReadScope } from '@erxes/core-contract';
+import { connectionUseScope, type Plugin, pluginReadScope } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -99,6 +99,16 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
           reason: read.reason,
         });
     }
+
+    const use = plugin.manifest?.connections?.find(
+      (item) => connectionUseScope(item.integration) === scope,
+    );
+
+    if (use)
+      return t('scope.uses', 'Use the organisation’s {{integration}} connections: {{reason}}', {
+        integration: use.integration,
+        reason: use.reason,
+      });
 
     return t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope);
   };

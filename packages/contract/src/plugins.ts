@@ -12,6 +12,7 @@ import { EventType } from './platform';
 import { PluginName } from './values';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
+import { PluginConnectionUse } from './connectionUse';
 import { PluginIntegrations } from './integrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
@@ -109,6 +110,13 @@ export const PluginManifest = z.object({
    * permissions its manifest declares.
    */
   pluginReads: z.array(PluginRead).max(20).optional(),
+  /**
+   * The organisation's connections of core's integrations it uses (`facebook`), and why. Like a
+   * new scope, each waits for the owner's approval; then `integrations.usable` lists them and
+   * `integrations.credentials` gives one's token, so the organisation connects an account once
+   * for core and every plugin.
+   */
+  connections: z.array(PluginConnectionUse).max(10).optional(),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
     .array(
@@ -239,6 +247,7 @@ export const Plugin = createSelectSchema(plugins, {
       api: true,
       search: true,
       pluginReads: true,
+      connections: true,
     }),
 })
   .pick({ name: true, manifest: true })

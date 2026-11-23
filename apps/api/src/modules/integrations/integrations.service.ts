@@ -12,6 +12,7 @@ import { eq, sql } from 'drizzle-orm';
 import { fail, invalidInput, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { releaseBank } from '~/modules/banks/banks.service';
 import { payingPlugins, releaseGateway } from '~/modules/payments/gateways.service';
 import { INTEGRATION_ACTIONS } from './actions';
@@ -210,6 +211,7 @@ export const insertConnection = async (
     targetLabel: input.name,
     metadata: { key: integration.key, ...row.settings },
   });
+  await connectionChanged(tx, { key: integration.key, connectionId: row.id, change: 'connected' });
 
   return row;
 };
@@ -302,10 +304,26 @@ export const updateConnection = async (input: Inputs['update']) => {
         ...changed?.settings,
       },
     });
+    await connectionChanged(tx, { key: row.key, connectionId: row.id, change: row.status });
 
     return row;
   });
 };
+
+/**
+ * `core.integration.changed`: plugins that use the integration's connections (decision 52) read
+ * them again. `change`: `connected`, `active`, `disabled` or `removed`.
+ */
+const connectionChanged = (
+  tx: Db,
+  payload: { key: string; connectionId: string; change: string },
+) =>
+  publishCoreEvents(tx, {
+    type: 'core.integration.changed',
+    entityType: 'integration_connection',
+    entityId: payload.connectionId,
+    payload,
+  });
 
 export const removeConnection = async (client: Db, key: string, id: string) => {
   const integration = connectable(key);
@@ -338,6 +356,7 @@ export const removeConnection = async (client: Db, key: string, id: string) => {
     targetLabel: row.name,
     metadata: { key },
   });
+  await connectionChanged(client, { key, connectionId: id, change: 'removed' });
 
   return { ok: true as const };
 };

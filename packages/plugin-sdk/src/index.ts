@@ -90,6 +90,20 @@
  *     contentType: 'customer', values: [{ recordId: customerId, code: 'total_spent', value: 150000 }],
  *   });                                   // → { written, skipped }; up to 500, value null clears
  *
+ * Email and texts go out through core, never the plugin's own SMTP or SMS provider:
+ *
+ *   await core.forOrg(orgId).emails.send({ to: [email], subject, body });   // scope emails:write
+ *   await core.forOrg(orgId).sms.send({ to: [phone], text });               // scope sms:write
+ *
+ * The organisation's connections of core's integrations (Facebook): name them in the manifest
+ * (`connections: [{ integration: 'facebook', reason }]`), the owner approves, then
+ *
+ *   const { data } = await core.forOrg(orgId).integrations.usable({ key: 'facebook' });
+ *   const { accessToken, appSecret } = await core.forOrg(orgId).integrations.credentials({ id });
+ *
+ * and call the service yourself; its webhooks reach the plugin directly. Subscribe to
+ * `core.integration.changed` to read a connection again when it changes or goes.
+ *
  * Segments (scope `views:read`): a shared view members built in core is the audience.
  *
  *   const { data } = await core.forOrg(orgId).views.list({ recordType: 'customer' });  // shared only
