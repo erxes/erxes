@@ -166,7 +166,7 @@ export const ApiKeysPage = () => {
           {tab === 'customers' && customers
             ? t(
                 'intro-customers',
-                'A customer key lets a portal’s own server call its plugins for what its customers and visitors may see. It never acts as a team member.',
+                'A customer key lets a portal’s apps (publishable) or its server (secret) call its plugins for what its customers and visitors may see. It never acts as a team member.',
               )
             : t(
                 'intro',
@@ -182,7 +182,7 @@ export const ApiKeysPage = () => {
               title={t('customers-empty', 'No customer keys yet')}
               description={t(
                 'customers-empty-description',
-                'A portal’s server calls its plugins with one, for what customers and visitors may see.',
+                'A portal’s web and mobile apps, or its server, call its plugins with one, for what customers and visitors may see.',
               )}
             />
           }
@@ -195,7 +195,7 @@ export const ApiKeysPage = () => {
           open={creating}
           onOpenChange={setCreating}
           onCreated={(made) => {
-            setSecret(made);
+            setSecret(made.kind === 'secret' ? made.secret : null);
             void setTab('customers');
           }}
         />

@@ -120,17 +120,28 @@
  * account; `POST /core/v1/customer-auth/code` `{ portal, kind, value }` then `/sign-in` with the
  * code signs an account in; `/customer-auth/social` signs in with Google, Apple or Facebook. They
  * return `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews them.
- * The portal's server calls plugins with `X-Portal-Token` (`verifyPortalToken`), a token core
- * gives for the portal's customer key; no plugin issues its own keys.
- * Serve customers under `/customer/*`, keyed by the customer id and scoped to the portal:
+ * A portal's apps and server call each plugin's one portal API, `/portal/v1`, with
+ * `X-Portal-Token`: a token core gives for one of the portal's customer keys, a secret key on its
+ * server or a publishable key in its web and mobile apps; no plugin issues its own keys. A
+ * signed-in customer adds `Authorization: Bearer`, which the `/me/*` routes (their orders, their
+ * profile) require. `verifyPortalRequest` checks both, the browser's address and whom to limit:
  *
- *   app.use('/customer', async (req, res, next) => {
- *     req.customer = await verifyCustomerToken(req.headers.authorization, { coreUrl })
- *       .catch(() => null);                // { orgId, customerId, portalId }
- *     req.store = req.customer && (await storeOfPortal(req.customer.orgId, req.customer.portalId));
+ *   app.use('/portal/v1', cors({ origin: true }), async (req, res, next) => {
+ *     try {
+ *       req.call = await verifyPortalRequest({
+ *         portalToken: req.header('x-portal-token'), authorization: req.header('authorization'),
+ *         origin: req.header('origin'), ip: req.ip, visitorIp: req.header('x-visitor-ip'),
+ *       }, { coreUrl });                           // limit calls by req.call.visitor
+ *     } catch (error) {
+ *       if (!(error instanceof PortalRequestError)) return next(error);
+ *       return res.status(error.status).json({ code: error.code, message: error.message });
+ *     }
+ *     req.store = await storeOfPortal(req.call.orgId, req.call.portalId);
  *     return req.store ? next() : res.sendStatus(401);
  *   });
- *   app.get('/customer/orders', (req) => orders.list(req.store.id, req.customer.customerId));
+ *   app.get('/portal/v1/me/orders', (req) => orders.list(req.store.id, req.call.customer.customerId));
+ *
+ * Files that need no token at all (product images) go under `/public`.
  *
  * Tiers on SaaS (erxes.io: free / plus / pro; self-hosted: pro, full):
  *
@@ -242,5 +253,7 @@ export * from './client';
 export * from './jobs';
 
 export { PluginCallError } from './pluginCalls';
+
+export * from './portal';
 
 export * from './verify';

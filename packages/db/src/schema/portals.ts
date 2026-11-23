@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   foreignKey,
   index,
   primaryKey,
@@ -8,7 +9,8 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { orgIdColumn, pgTable } from '../table';
+import { PORTAL_KEY_KINDS } from '../enums';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { integrationConnections } from './integrations';
 import { organizations } from './organizations';
@@ -89,7 +91,7 @@ export const portals = pgTable(
 
 /**
  * A plugin's record on a portal: an ecommerce store, a content site, a tour channel. Each
- * attached plugin serves the portal's customers under its own `/customer/*` routes; a portal
+ * attached plugin serves the portal under its own `/portal/v1` routes; a portal
  * signs customers in while one of its plugins is installed.
  */
 export const portalPlugins = pgTable(
@@ -123,8 +125,10 @@ export const portalPlugins = pgTable(
 );
 
 /**
- * A portal's customer key: its own server trades it for 15-minute portal tokens that every
- * attached plugin checks. Kept as a hash; the secret shows once.
+ * A portal's customer key, traded for 15-minute portal tokens that every attached plugin checks.
+ * `secret`: for the portal's own server, kept as a hash, shown once. `publishable`: for its web
+ * and mobile apps, which ship it to everyone, so it is kept whole (`key`) and shown any time; a
+ * browser may trade it only from the portal's web addresses.
  */
 export const portalKeys = pgTable(
   'portal_keys',
@@ -133,7 +137,11 @@ export const portalKeys = pgTable(
     orgId: orgIdColumn(),
     portalId: text().notNull(),
     name: text().notNull(),
+    /** `secret` (a server's) or `publishable` (an app's). */
+    kind: text({ enum: PORTAL_KEY_KINDS }).default('secret').notNull(),
     secretHash: text().notNull(),
+    /** A publishable key whole, `erxpk_…`; null for a secret key. */
+    key: text(),
     /** The secret's last 4 characters, to tell keys apart. */
     hint: text().notNull(),
     createdBy: text(),
@@ -142,6 +150,7 @@ export const portalKeys = pgTable(
   },
   (table) => [
     index('core_portal_keys_org_portal_idx').on(table.orgId, table.portalId),
+    check('core_portal_keys_kind_check', inList(table.kind, PORTAL_KEY_KINDS)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

@@ -501,3 +501,11 @@ export * from './automationEnums';
 export * from './bankEnums';
 
 export * from './integrationEnums';
+
+/**
+ * A portal's customer key: `secret` for its server, `publishable` for its web and mobile apps
+ * (decision 42). A portal token also comes from core's `agent` talking to its customers.
+ */
+export const PORTAL_KEY_KINDS = ['secret', 'publishable'] as const;
+
+export const PORTAL_TOKEN_KINDS = [...PORTAL_KEY_KINDS, 'agent'] as const;

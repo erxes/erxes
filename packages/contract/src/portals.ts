@@ -1,3 +1,4 @@
+import { PORTAL_KEY_KINDS } from '@erxes/core-db/enums';
 import { customerAccounts, portalKeys, portalPlugins, portals } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -95,14 +96,27 @@ export const PortalListItem = Portal.extend({
 export type PortalListItem = z.infer<typeof PortalListItem>;
 
 /** A portal's customer key, without its secret. */
+/**
+ * A customer key's kind: `secret` for the portal's own server (shown once), `publishable` for
+ * its web and mobile apps (ships inside them, shown any time; browsers only from the portal's
+ * web addresses). Both reach the same routes; plugins limit a publishable key's calls per visitor.
+ */
+export const PortalKeyKind = z.enum(PORTAL_KEY_KINDS);
+
+export type PortalKeyKind = z.infer<typeof PortalKeyKind>;
+
 export const PortalKey = createSelectSchema(portalKeys, {
   id: Id,
+  kind: PortalKeyKind,
   createdAt: isoDate,
   lastUsedAt: isoDate,
 }).pick({
   id: true,
   portalId: true,
   name: true,
+  kind: true,
+  /** A publishable key whole; null for a secret key. */
+  key: true,
   /** The secret's last 4 characters. */
   hint: true,
   createdBy: true,
@@ -277,9 +291,14 @@ export const portalsContract = {
       successStatus: 201,
       summary: 'Make a customer key',
       description:
-        "A customer key for the portal's own server, shown once: it trades it at `POST /portal-auth/token` for a token the portal's plugins accept, for what customers and visitors may see. 404 NOT_FOUND",
+        "A customer key, traded at `POST /portal-auth/token` for a token the portal's plugins accept, for what customers and visitors may see. `secret` (the default) is for the portal's own server and shows once; `publishable` is for its web and mobile apps and shows any time. 404 NOT_FOUND",
     })
-    .input(portalId.extend({ name: z.string().trim().min(1).max(100) }))
+    .input(
+      portalId.extend({
+        name: z.string().trim().min(1).max(100),
+        kind: PortalKeyKind.default('secret'),
+      }),
+    )
     .output(PortalKey.extend({ secret: z.string() })),
   removeKey: base
     .route({
@@ -309,18 +328,18 @@ export const customerAccountsContract = {
     .output(listOf(CustomerAccount)),
 };
 
-const { INVALID_TOKEN } = ERRORS;
+const { INVALID_TOKEN, ORIGIN_NOT_ALLOWED } = ERRORS;
 
-/** A portal's server trades its key for a token every attached plugin checks. */
+/** A portal's server or app trades its customer key for a token every attached plugin checks. */
 export const portalAuthContract = {
   token: oc
-    .errors({ ...COMMON_ERRORS, INVALID_TOKEN })
+    .errors({ ...COMMON_ERRORS, INVALID_TOKEN, ORIGIN_NOT_ALLOWED })
     .route({
       method: 'POST',
       path: '/portal-auth/token',
       summary: 'Get a portal token',
       description:
-        "Trade a portal's customer key for a 15-minute token (`typ: portal+jwt`) to send to its plugins as `X-Portal-Token`. Keep the key on the server. 401 INVALID_TOKEN",
+        "Trade a portal's customer key for a 15-minute token (`typ: portal+jwt`) to send to its plugins as `X-Portal-Token`. A secret key works from a server only (a call with `Origin` is refused); a publishable key works from the portal's web addresses, its mobile apps and servers. 401 INVALID_TOKEN, 403 ORIGIN_NOT_ALLOWED",
     })
     .input(z.object({ key: z.string().min(1).max(200) }))
     .output(

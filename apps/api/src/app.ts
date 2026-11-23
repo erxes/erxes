@@ -129,7 +129,8 @@ export const createApp = (log: Logger = logger): Express => {
   app.use('/core/v1/files/signed', limit.upload, signedFilesRouter);
 
   // Portals call these from their own origins (decision 42).
-  app.use(['/core/v1/customer-auth', '/core/v1/customer'], customerCors);
+  // A publishable customer key is traded from them too.
+  app.use(['/core/v1/customer-auth', '/core/v1/customer', '/core/v1/portal-auth'], customerCors);
 
   // Guessing passwords and secrets: limited per address before anything else.
   app.use(

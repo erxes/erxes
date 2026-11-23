@@ -120,7 +120,7 @@
   "api-keys": {
     "title": "API keys",
     "intro": "Keys let other systems use erxes. A regular key works with data, a management key sets up the organisation. A key never does more than the person who made it.",
-    "intro-customers": "A customer key lets a portal’s own server call its plugins for what its customers and visitors may see. It never acts as a team member.",
+    "intro-customers": "A customer key lets a portal’s apps (publishable) or its server (secret) call its plugins for what its customers and visitors may see. It never acts as a team member.",
     "add": "Create key",
     "member-key": "Team member key",
     "member-key-help": "Scripts and systems that work as you, within rules",
@@ -129,7 +129,7 @@
     "tab-members": "Team member keys",
     "tab-customers": "Customer keys",
     "customers-empty": "No customer keys yet",
-    "customers-empty-description": "A portal’s server calls its plugins with one, for what customers and visitors may see.",
+    "customers-empty-description": "A portal’s web and mobile apps, or its server, call its plugins with one, for what customers and visitors may see.",
     "unused": "Never",
     "name": "Name",
     "kind": {
@@ -687,15 +687,22 @@
     "no-portals": "A customer key is for a portal: add one first in",
     "portals": "Settings › Portals",
     "name": "Name",
-    "name-placeholder": "What uses it, like \"Shop server\"",
+    "name-placeholder": "What uses it, like \"Shop app\"",
     "portal": "Portal",
     "portal-pick": "Pick the portal it is for",
     "add": "Create customer key",
-    "add-description": "For a portal’s own server: it reaches the portal’s plugins only for what its customers and visitors may see, never as a team member.",
+    "add-description": "For a portal’s apps or server: it reaches the portal’s plugins only for what its customers and visitors may see, never as a team member.",
     "key-used": "Used {{when}}",
     "key-unused": "Never used",
     "revoke-confirm": "Revoke “{{name}}”? Its tokens stop within 15 minutes.",
-    "revoke": "Revoke"
+    "revoke": "Revoke",
+    "kind": "Kind",
+    "kind-publishable": "Publishable: for a website or mobile app",
+    "kind-publishable-description": "Goes inside the app, where anyone can read it. Browsers may use it only from the portal’s web addresses, and plugins limit each visitor. You can copy it any time.",
+    "kind-secret": "Secret: for the portal’s server",
+    "kind-secret-description": "Stays on your server and never reaches a browser or an app. It shows once.",
+    "kind-publishable-short": "Publishable",
+    "kind-secret-short": "Secret"
   },
   "audit-log": {
     "title": "Audit log",

@@ -1,4 +1,4 @@
-import type { PortalKey } from '@erxes/core-contract';
+import type { PortalKey, PortalKeyKind } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconCopy, IconKey, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,10 +35,29 @@ const useKeyChange = () => {
   };
 };
 
-/** The new key's secret, shown once, with a button that copies it. */
-const NewSecret = ({ secret }: { secret: string }) => {
+/** A button that copies a key. */
+const CopyKey = ({ value }: { value: string }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
   const { toast } = useToast();
+
+  return (
+    <Button
+      variant="outline"
+      onClick={() =>
+        void navigator.clipboard
+          .writeText(value)
+          .then(() => toast({ title: t('copied', 'Copied') }))
+      }
+    >
+      <IconCopy />
+      {t('copy', 'Copy')}
+    </Button>
+  );
+};
+
+/** The new secret key, shown once, with a button that copies it. */
+const NewSecret = ({ secret }: { secret: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
 
   return (
     <Alert>
@@ -51,17 +70,7 @@ const NewSecret = ({ secret }: { secret: string }) => {
             aria-label={t('key', 'Customer key')}
             className="min-w-0 flex-1"
           />
-          <Button
-            variant="outline"
-            onClick={() =>
-              void navigator.clipboard
-                .writeText(secret)
-                .then(() => toast({ title: t('copied', 'Copied') }))
-            }
-          >
-            <IconCopy />
-            {t('copy', 'Copy')}
-          </Button>
+          <CopyKey value={secret} />
         </span>
         {t(
           'key-use',
@@ -72,21 +81,79 @@ const NewSecret = ({ secret }: { secret: string }) => {
   );
 };
 
-/** A new customer key: its name and the portal it is for. Mounted while the dialog is open. */
-const NewCustomerKeyForm = ({ onCreated }: { onCreated: (secret: string) => void }) => {
+/** What the app made: a secret key's secret shows once, a publishable key stays in the list. */
+export interface MadeCustomerKey {
+  kind: PortalKeyKind;
+  secret: string;
+}
+
+const useKindLabels = (): Record<PortalKeyKind, { label: string; description: string }> => {
+  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+
+  return {
+    publishable: {
+      label: t('kind-publishable', 'Publishable: for a website or mobile app'),
+      description: t(
+        'kind-publishable-description',
+        'Goes inside the app, where anyone can read it. Browsers may use it only from the portal’s web addresses, and plugins limit each visitor. You can copy it any time.',
+      ),
+    },
+    secret: {
+      label: t('kind-secret', 'Secret: for the portal’s server'),
+      description: t(
+        'kind-secret-description',
+        'Stays on your server and never reaches a browser or an app. It shows once.',
+      ),
+    },
+  };
+};
+
+/** Which kind of key: publishable for apps, secret for a server, with what that means. */
+const KindPicker = ({
+  kind,
+  onChange,
+}: {
+  kind: PortalKeyKind;
+  onChange: (kind: PortalKeyKind) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const kinds = useKindLabels();
+
+  return (
+    <div className="space-y-1.5">
+      <Select value={kind} onValueChange={onChange}>
+        <Select.Trigger aria-label={t('kind', 'Kind')}>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          {(['publishable', 'secret'] as const).map((value) => (
+            <Select.Item key={value} value={value}>
+              {kinds[value].label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+      <p className="text-xs text-muted-foreground">{kinds[kind].description}</p>
+    </div>
+  );
+};
+
+/** A new customer key: its kind, name and the portal it is for. Mounted while the dialog is open. */
+const NewCustomerKeyForm = ({ onCreated }: { onCreated: (made: MadeCustomerKey) => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
   const nameId = useId();
   const portals = useQuery(orpc.portals.list.queryOptions());
   const { refresh, failed } = useKeyChange();
   const [name, setName] = useState('');
   const [portalId, setPortalId] = useState('');
+  const [kind, setKind] = useState<PortalKeyKind>('publishable');
   const list = portals.data?.data ?? [];
 
   const create = useMutation(
     orpc.portals.createKey.mutationOptions({
       onSuccess: (made) => {
         void refresh();
-        onCreated(made.secret);
+        onCreated({ kind: made.kind, secret: made.secret });
       },
       onError: failed,
     }),
@@ -108,16 +175,17 @@ const NewCustomerKeyForm = ({ onCreated }: { onCreated: (secret: string) => void
       className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
-        create.mutate({ id: portalId, name });
+        create.mutate({ id: portalId, name, kind });
       }}
     >
+      <KindPicker kind={kind} onChange={setKind} />
       <div className="space-y-1.5">
         <Label htmlFor={nameId}>{t('name', 'Name')}</Label>
         <Input
           id={nameId}
           value={name}
           maxLength={100}
-          placeholder={t('name-placeholder', 'What uses it, like "Shop server"')}
+          placeholder={t('name-placeholder', 'What uses it, like "Shop app"')}
           onChange={(event) => setName(event.target.value)}
         />
       </div>
@@ -152,7 +220,7 @@ export const NewCustomerKey = ({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (secret: string) => void;
+  onCreated: (made: MadeCustomerKey) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
 
@@ -163,14 +231,14 @@ export const NewCustomerKey = ({
           title={t('add', 'Create customer key')}
           description={t(
             'add-description',
-            'For a portal’s own server: it reaches the portal’s plugins only for what its customers and visitors may see, never as a team member.',
+            'For a portal’s apps or server: it reaches the portal’s plugins only for what its customers and visitors may see, never as a team member.',
           )}
         />
         {open && (
           <NewCustomerKeyForm
-            onCreated={(secret) => {
+            onCreated={(made) => {
               onOpenChange(false);
-              onCreated(secret);
+              onCreated(made);
             }}
           />
         )}
@@ -198,12 +266,17 @@ const KeyRow = ({ apiKey }: { apiKey: PortalKey & { portalName: string } }) => {
           <Link className="hover:underline" to={paths.settings.portalOf(apiKey.portalId)}>
             {apiKey.portalName}
           </Link>{' '}
+          ·{' '}
+          {apiKey.kind === 'publishable'
+            ? t('kind-publishable-short', 'Publishable')
+            : t('kind-secret-short', 'Secret')}{' '}
           · …{apiKey.hint} ·{' '}
           {apiKey.lastUsedAt
             ? t('key-used', 'Used {{when}}', { when: fmt.dateTime(apiKey.lastUsedAt) })
             : t('key-unused', 'Never used')}
         </span>
       </span>
+      {apiKey.key && <CopyKey value={apiKey.key} />}
       <Button
         variant="ghost"
         tone="destructive"

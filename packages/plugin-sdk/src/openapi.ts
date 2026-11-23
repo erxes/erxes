@@ -23,7 +23,7 @@ export interface PluginOpenApiOptions {
   /**
    * The address the document's paths start from, which "try it" calls: the manifest's
    * `api.url` (`${publicUrl}/api`) for routes under it, or the plugin's public URL for routes
-   * outside it (a portal's `/public/v1`, customers' `/customer`).
+   * outside it (the portal API's `/portal/v1`).
    */
   server: string;
   /**
@@ -89,7 +89,7 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
           in: 'header',
           name: 'x-portal-token',
           description:
-            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for the portal's customer key (Settings › API keys). Keep the key on the server.",
+            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for one of the portal's customer keys (Settings › API keys › Customer keys): a secret key on the portal's server, or a publishable key in its web and mobile apps. A server may name the visitor it calls for in `X-Visitor-Ip`.",
         },
         [CUSTOMER_TOKEN_SCHEME]: customerToken,
       },
@@ -99,6 +99,33 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
       { [PORTAL_TOKEN_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
     ],
   };
+};
+
+/** A portal API's `/me` routes are the signed-in customer's own (their orders, their profile). */
+const isMine = (path: string) => path === '/me' || path.startsWith('/me/');
+
+type PathItem = NonNullable<OpenAPI.Document['paths']>[string];
+
+const METHODS = ['get', 'put', 'post', 'delete', 'patch'] as const;
+
+/** Every operation of a `/me` path needs the customer's token along with the portal's. */
+const signedIn = (item: PathItem): PathItem => {
+  if (!item) return item;
+
+  const copy = { ...item };
+
+  for (const method of METHODS) {
+    const operation = copy[method];
+
+    if (operation) {
+      copy[method] = {
+        ...operation,
+        security: [{ [PORTAL_TOKEN_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] }],
+      };
+    }
+  }
+
+  return copy;
 };
 
 /**
@@ -125,7 +152,10 @@ export const pluginOpenApi = async (
   });
 
   doc.paths = Object.fromEntries(
-    Object.entries(doc.paths ?? {}).map(([path, item]) => [`${prefix}${path}`, item]),
+    Object.entries(doc.paths ?? {}).map(([path, item]) => [
+      `${prefix}${path}`,
+      audience === 'portal' && isMine(path) ? signedIn(item) : item,
+    ]),
   );
 
   return doc;

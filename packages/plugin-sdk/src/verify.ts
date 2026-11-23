@@ -1,14 +1,14 @@
 import {
-  CORE_API_PREFIX,
   CoreEvent,
   PluginAccess,
   PluginJobDelivery,
   PluginTier,
   PluginTransferRequest,
+  PORTAL_TOKEN_KINDS,
   RecordAccessCheck,
 } from '@erxes/core-contract';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
+import { verifyCoreToken } from './coreToken';
 
 /** The signed-in member a plugin UI calls the plugin's API for. */
 export interface PluginMember {
@@ -77,47 +77,6 @@ interface VerifyOptions {
   coreUrl: string;
   plugin: string;
 }
-
-const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-
-/**
- * The plugin's server clock may run a little ahead of core's: a token core
- * just issued, or one a member's browser renews 30 s before it ends, still passes.
- */
-const CLOCK_TOLERANCE_SECONDS = 60;
-
-/** A token core signed (its public keys), for this plugin (or `audience`), of this kind, unexpired; its claims parsed. */
-const verifyCoreToken = async <T>(
-  token: string,
-  options: Pick<VerifyOptions, 'coreUrl'> & { plugin?: string },
-  typ: string,
-  claims: z.ZodType<T>,
-  audience = options.plugin,
-) => {
-  const base = options.coreUrl.replace(/\/+$/, '');
-  let jwks = jwksByCore.get(base);
-
-  if (!jwks) {
-    jwks = createRemoteJWKSet(new URL(`${base}${CORE_API_PREFIX}/.well-known/jwks.json`));
-    jwksByCore.set(base, jwks);
-  }
-
-  if (!audience) throw new Error('no audience to check the token for');
-
-  const { payload } = await jwtVerify(token, jwks, {
-    issuer: 'erxes-core',
-    audience,
-    typ,
-    algorithms: ['ES256'],
-    clockTolerance: CLOCK_TOLERANCE_SECONDS,
-  });
-
-  const parsed = claims.safeParse(payload);
-
-  if (!parsed.success) throw new Error(`not an erxes ${typ} token`);
-
-  return parsed.data;
-};
 
 // A claim of the wrong type or an unknown value fails verification: it never grants access.
 const Tier = PluginTier.nullable();
@@ -312,27 +271,47 @@ export const verifyCustomerToken = async (
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
 };
 
-/** A portal's own server calling a plugin, with a token core gave it for the portal's customer key. */
+/**
+ * Who traded the portal token: the portal's server with a `secret` customer key, its web or
+ * mobile app with a `publishable` one, or core's `agent` talking to the portal's customers.
+ */
+export type PortalKeyKind = (typeof PORTAL_TOKEN_KINDS)[number];
+
+/** A portal's server or app calling a plugin, with a token core gave it for a customer key. */
 export interface PortalCall {
   orgId: string;
   /** Serve your record on this portal; refuse a portal you're not on. */
   portalId: string;
-  /** The customer key it traded. */
+  /** The customer key it traded (`agent:<id>` for core's agent). */
   keyId: string;
+  kind: PortalKeyKind;
+  /** The web address a browser traded a publishable key from; null from apps and servers. */
+  origin: string | null;
 }
 
 const PortalClaims = z
-  .object({ org: z.string().min(1), sub: z.string().min(1), kid: z.string().min(1) })
+  .object({
+    org: z.string().min(1),
+    sub: z.string().min(1),
+    kid: z.string().min(1),
+    knd: z.enum(PORTAL_TOKEN_KINDS).optional(),
+    ori: z.string().optional(),
+  })
   .transform((claims): PortalCall => ({
     orgId: claims.org,
     portalId: claims.sub,
     keyId: claims.kid,
+    // Tokens from before keys had kinds: a secret key's, or core's agent's.
+    kind: claims.knd ?? (claims.kid.startsWith(AGENT_SESSION) ? 'agent' : 'secret'),
+    origin: claims.ori ?? null,
   }));
 
 /**
  * Verifies a portal token from the `X-Portal-Token` header with core's public keys: core
  * issued it for one of the portal's customer keys (`POST /core/v1/portal-auth/token`), and it
- * is unexpired. A revoked key's tokens stop within 15 minutes. Throws if not valid.
+ * is unexpired. A revoked key's tokens stop within 15 minutes. Throws if not valid. For a
+ * plugin's `/portal/v1` routes use `verifyPortalRequest`, which also checks the browser's
+ * address and the customer.
  */
 export const verifyPortalToken = async (
   token: string | undefined | null,

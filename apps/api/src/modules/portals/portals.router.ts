@@ -1,5 +1,5 @@
 import { db } from '@erxes/core-db';
-import { audited, recordOf, scoped, unscoped } from '~/orpc';
+import { audited, httpOf, recordOf, scoped, unscoped } from '~/orpc';
 import { createPortalKey, listPortalKeys, portalToken, removePortalKey } from './portalKeys';
 import {
   attachPortal,
@@ -60,7 +60,7 @@ export const portalsRouter = {
       (tx) => createPortalKey(tx, input),
       (key) => ({
         ...recordOf('portal_key', 'created', key.id, key),
-        metadata: { portalId: key.portalId },
+        metadata: { portalId: key.portalId, kind: key.kind },
       }),
     ),
   ),
@@ -76,7 +76,9 @@ export const portalsRouter = {
 };
 
 export const portalAuthRouter = {
-  token: unscoped.portalAuth.token.handler(({ input }) => portalToken(input.key)),
+  token: unscoped.portalAuth.token.handler(({ input, context }) =>
+    portalToken(input.key, httpOf(context).req.get('origin')),
+  ),
 };
 
 export const customerAccountsRouter = {

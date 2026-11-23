@@ -1,3 +1,4 @@
+import type { PortalKeyKind } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -13,10 +14,26 @@ import { fail, notFound } from '~/http/errors';
 import { sha256 } from '~/lib/crypto';
 import { wholeList } from '~/lib/keyset';
 import { signJwt } from '~/lib/signing';
+import { portalFor } from '~/modules/customerAuth/customerPortals';
 import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
-/** Customer keys start with this, so secret scanners and people can tell them apart. */
-const KEY_PREFIX = 'erxp_';
+/**
+ * Customer keys start with their kind's prefix, so secret scanners and people can tell them
+ * apart: `erxp_` a secret key, `erxpk_` a publishable one.
+ */
+const KEY_PREFIXES = { secret: 'erxp_', publishable: 'erxpk_' } as const satisfies Record<
+  PortalKeyKind,
+  string
+>;
+
+/** A key's id and secret, with no prefix or another kind's. */
+const keyParts = (key: string) => {
+  const prefix = Object.values(KEY_PREFIXES)
+    .toSorted((a, b) => b.length - a.length)
+    .find((candidate) => key.startsWith(candidate));
+
+  return prefix ? splitCredential(key.slice(prefix.length)) : { id: null, secret: null };
+};
 
 const PORTAL_TOKEN_SECONDS = 900;
 
@@ -32,8 +49,14 @@ export const listPortalKeys = async (client: Db) => ({
   ),
 });
 
-/** A new customer key for the portal; its secret is in the answer only. */
-export const createPortalKey = async (client: Db, input: { id: string; name: string }) => {
+/**
+ * A new customer key for the portal. A secret key's secret is in the answer only; a publishable
+ * key is kept whole, since its apps ship it to everyone.
+ */
+export const createPortalKey = async (
+  client: Db,
+  input: { id: string; name: string; kind: PortalKeyKind },
+) => {
   const [portal] = await client
     .select({ id: portals.id })
     .from(portals)
@@ -44,6 +67,7 @@ export const createPortalKey = async (client: Db, input: { id: string; name: str
 
   const id = newId();
   const secret = newSecret();
+  const key = `${KEY_PREFIXES[input.kind]}${id}.${secret}`;
   const who = caller();
 
   const [row] = await client
@@ -52,7 +76,9 @@ export const createPortalKey = async (client: Db, input: { id: string; name: str
       id,
       portalId: portal.id,
       name: input.name,
+      kind: input.kind,
       secretHash: sha256(secret),
+      key: input.kind === 'publishable' ? key : null,
       hint: secret.slice(-4),
       createdBy: who.type === 'user' ? who.userId : null,
     })
@@ -60,7 +86,7 @@ export const createPortalKey = async (client: Db, input: { id: string; name: str
 
   if (!row) throw new Error('the key was not saved');
 
-  return { ...row, secret: `${KEY_PREFIX}${id}.${secret}` };
+  return { ...row, secret: key };
 };
 
 export const removePortalKey = async (client: Db, input: { id: string; keyId: string }) => {
@@ -76,14 +102,21 @@ export const removePortalKey = async (client: Db, input: { id: string; keyId: st
 
 const invalidKey = () => fail('INVALID_TOKEN', 'The portal key is not valid');
 
+const secretInBrowser = () =>
+  fail(
+    'ORIGIN_NOT_ALLOWED',
+    'A secret customer key works from a server only: give web and mobile apps a publishable key',
+  );
+
 /**
  * A 15-minute portal token for a customer key, while the key stands and its portal has a
- * plugin: `sub` the portal, `org`, `kid` the key. Plugins check it with `verifyPortalToken`.
+ * plugin: `sub` the portal, `org`, `kid` the key, `knd` its kind, and `ori` the web address a
+ * browser traded a publishable key from. A browser (it sends `Origin`) may trade only a
+ * publishable key, from one of the portal's web addresses. Plugins check the token with
+ * `verifyPortalToken`.
  */
-export const portalToken = async (key: string) => {
-  const { id, secret } = splitCredential(
-    key.startsWith(KEY_PREFIX) ? key.slice(KEY_PREFIX.length) : '',
-  );
+export const portalToken = async (key: string, origin: string | undefined) => {
+  const { id, secret } = keyParts(key);
 
   if (!id || !secret) throw invalidKey();
 
@@ -92,6 +125,7 @@ export const portalToken = async (key: string) => {
       .select({
         orgId: portalKeys.orgId,
         portalId: portalKeys.portalId,
+        kind: portalKeys.kind,
         hash: portalKeys.secretHash,
       })
       .from(portalKeys)
@@ -109,7 +143,16 @@ export const portalToken = async (key: string) => {
       .limit(1),
   );
 
-  if (!row || !sameHash(row.hash, secret)) throw invalidKey();
+  if (!row || !key.startsWith(KEY_PREFIXES[row.kind])) throw invalidKey();
+
+  if (!sameHash(row.hash, secret)) throw invalidKey();
+
+  const { kind } = row;
+
+  if (origin && kind === 'secret') throw secretInBrowser();
+
+  // A browser's web address must be the portal's (and the portal must still sign customers in).
+  if (origin) await portalFor(row.portalId, origin);
 
   await withOrg(row.orgId, (tx) =>
     tx
@@ -119,16 +162,27 @@ export const portalToken = async (key: string) => {
   );
 
   return {
-    accessToken: await signPortalToken(row.orgId, row.portalId, id),
+    accessToken: await signPortalToken(row.orgId, row.portalId, {
+      kid: id,
+      knd: kind,
+      ...(origin && { ori: origin.toLowerCase() }),
+    }),
     expiresIn: PORTAL_TOKEN_SECONDS,
     portalId: row.portalId,
   };
 };
 
-/** `kid` names the customer key, or `agent:<id>` for core's agent acting on the portal. */
-const signPortalToken = (orgId: string, portalId: string, kid: string) =>
+/**
+ * `kid` names the customer key, or `agent:<id>` for core's agent acting on the portal; `knd`
+ * is `secret`, `publishable` or `agent`.
+ */
+const signPortalToken = (
+  orgId: string,
+  portalId: string,
+  claims: { kid: string; knd: PortalKeyKind | 'agent'; ori?: string },
+) =>
   signJwt(
-    { org: orgId, kid },
+    { org: orgId, ...claims },
     {
       typ: 'portal+jwt',
       audience: 'erxes-portal',
@@ -139,4 +193,4 @@ const signPortalToken = (orgId: string, portalId: string, kid: string) =>
 
 /** A portal token for an agent that talks to the portal's customers. */
 export const agentPortalToken = (orgId: string, portalId: string, agentId: string) =>
-  signPortalToken(orgId, portalId, `agent:${agentId}`);
+  signPortalToken(orgId, portalId, { kid: `agent:${agentId}`, knd: 'agent' });

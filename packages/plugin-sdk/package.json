@@ -23,6 +23,7 @@
     "./logger": "./src/logger.ts",
     "./openapi": "./src/openapi.ts",
     "./pluginCalls": "./src/pluginCalls.ts",
+    "./portal": "./src/portal.ts",
     "./verify": "./src/verify.ts",
     "./package.json": "./package.json"
   },
@@ -36,6 +37,7 @@
       "./logger": "./dist/logger.js",
       "./openapi": "./dist/openapi.js",
       "./pluginCalls": "./dist/pluginCalls.js",
+      "./portal": "./dist/portal.js",
       "./verify": "./dist/verify.js",
       "./package.json": "./package.json"
     },
