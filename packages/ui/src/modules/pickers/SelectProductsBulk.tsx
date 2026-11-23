@@ -113,7 +113,8 @@ const ProductsList = ({
   const [categoryId, setCategoryId] = useState('');
   const pages = useProductPages(products, term, categoryId);
   const rows = pages.data?.pages.flatMap((page) => page.data) ?? [];
-  const totalCount = pages.data?.pages.at(-1)?.totalCount ?? 0;
+  // Only the first page counts; the pages after it leave totalCount out.
+  const totalCount = pages.data?.pages.at(0)?.totalCount ?? 0;
 
   const stock = useQuery(
     remainders && rows.length

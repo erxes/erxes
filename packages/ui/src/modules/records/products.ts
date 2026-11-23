@@ -53,11 +53,14 @@ type RecordRows = { data: ProductRecord[] };
 
 type CategoryRows = { data: ProductCategoryChoice[] };
 
-/** A page of products: the rows, whether more follow and where, and how many match. */
+/**
+ * A page of products: the rows, whether more follow and where, and how many match. Core's lists
+ * leave the count out when they don't count, as `cursorPageOf` answers.
+ */
 export interface ProductPage {
   data: ProductRecord[];
   pageInfo: { hasNextPage: boolean; endCursor: string | null };
-  totalCount: number;
+  totalCount?: number;
 }
 
 /** A product's name, with its code when it has one: "iPhone 15 · IP15". */
