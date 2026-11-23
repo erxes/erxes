@@ -2510,33 +2510,43 @@
     }
   },
   "ebarimt": {
-    "settings": {
+    "configs": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/ebarimt/settings"
+          "path": "/ebarimt/configs"
         }
       }
     },
-    "saveSettings": {
+    "createConfig": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/configs"
+        }
+      }
+    },
+    "updateConfig": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PUT",
-          "path": "/ebarimt/settings"
+          "path": "/ebarimt/configs/{id}"
         }
       }
     },
-    "removeSettings": {
+    "removeConfig": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/ebarimt/settings"
+          "path": "/ebarimt/configs/{id}"
         }
       }
     },

@@ -1,7 +1,7 @@
 import type { InvoiceLineInput } from '@erxes/core-contract';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { useTestDatabase } from './db';
-import { usePosApi } from './posApi';
+import { saveEbarimt, usePosApi } from './posApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -14,7 +14,7 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
 
   beforeAll(async () => {
     await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
   });
 
   const order = (referenceId: string, lines?: InvoiceLineInput[]) =>
@@ -126,7 +126,7 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
       taxReceipts: 'own',
     });
 
-    expect(await t.owner().ebarimt.saveSettings(settings())).toMatchObject({ status: 'active' });
+    expect(await saveEbarimt(t.owner(), settings())).toMatchObject({ status: 'active' });
     expect((await t.owner().ebarimt.printTemplates({})).data.map((row) => row.plugin)).toEqual([
       'core',
     ]);

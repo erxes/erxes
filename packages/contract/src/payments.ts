@@ -33,6 +33,8 @@ const InvoiceFields = z.object({
   taxBuyer: TaxBuyer.optional(),
   /** False: no tax receipt for it, as for an order that needs none. */
   taxReceipt: z.boolean().default(true),
+  /** The eBarimt config that issues its receipt (`ebarimt.configs`); none: the default. 404 */
+  ebarimtId: Id.optional(),
 });
 
 const int = () => z.int();
@@ -40,6 +42,7 @@ const int = () => z.int();
 export const Invoice = createSelectSchema(paymentInvoices, {
   id: Id,
   gatewayId: () => Id.nullable(),
+  ebarimtId: () => Id.nullable(),
   amount: int,
   metadata: z.record(z.string(), z.unknown()),
   lines: z.array(InvoiceLine),
@@ -73,6 +76,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     taxBuyer: true,
     /** Whether it gets a tax receipt (eBarimt) once paid. */
     taxReceipt: true,
+    /** The eBarimt config that issues its receipt; null: the organisation's default. */
+    ebarimtId: true,
     /** What the gateway says was paid, and how much of it was given back. */
     paidAmount: true,
     refundedAmount: true,

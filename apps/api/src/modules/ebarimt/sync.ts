@@ -6,7 +6,7 @@ import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
 import { defineJob } from '~/modules/jobs/jobs';
 import { type Buyer, type BuiltReceipt, buildReceipt, linesFor } from './build';
-import { activeReceipt, keptAmount, readForSync, type ReceiptRow, settingsOf } from './plan';
+import { activeReceipt, anyActive, keptAmount, readForSync, type ReceiptRow } from './plan';
 import { deleteReceipt, findCompany, putReceipt } from './posapi';
 
 const log = logger.child({ component: 'ebarimt' });
@@ -132,7 +132,7 @@ const rowOf = (plan: Plan) => {
  * a while. Throws InvoiceBusy when another sync holds it or the issued
  * receipt changed since it was read.
  */
-const claim = async (tx: Db, invoiceId: string, plan: Plan) => {
+const claim = async (tx: Db, invoiceId: string, settingsId: string, plan: Plan) => {
   await tx
     .update(ebarimtReceipts)
     .set({ status: 'failed', error: 'Interrupted before PosAPI answered', updatedAt: sql`now()` })
@@ -153,6 +153,7 @@ const claim = async (tx: Db, invoiceId: string, plan: Plan) => {
     .values({
       id: newId(),
       invoiceId,
+      settingsId,
       previousId: plan.previous?.id ?? null,
       ...rowOf(plan),
       ...(plan.kind === 'failed' && { status: 'failed' as const, error: plan.error }),
@@ -252,7 +253,7 @@ const syncReceipt = async (orgId: string, invoiceId: string) => {
 
   if (!plan) return null;
 
-  const receipt = await withOrg(orgId, (tx) => claim(tx, invoiceId, plan));
+  const receipt = await withOrg(orgId, (tx) => claim(tx, invoiceId, read.settings.id, plan));
   const answer = await send(read.settings.posApiUrl, plan);
 
   if (!answer) return { receipt, retry: false };
@@ -286,11 +287,11 @@ export const ebarimtSyncJob = defineJob({
 
 /**
  * Queues a sync of the invoice's receipt, in the caller's transaction, when
- * the organisation has eBarimt on. Each change queues its own sync; they run
+ * any eBarimt config is on (the sync picks the invoice's). Each change queues its own sync; they run
  * one at a time per invoice (the pending receipt).
  */
 export const queueReceiptSync = async (tx: Db, invoice: { orgId: string; id: string }) => {
-  if ((await settingsOf(tx))?.status !== 'active') return;
+  if (!(await anyActive(tx))) return;
 
   await ebarimtSyncJob.enqueue(tx, { orgId: invoice.orgId, payload: { invoiceId: invoice.id } });
 };

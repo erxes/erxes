@@ -4,9 +4,9 @@ test.describe.configure({ mode: 'serial' });
 
 test('an owner finds eBarimt in the catalog and sets it up', async ({ page, request, baseURL }) => {
   const api = coreClient(request, baseURL);
-
-  // A rerun starts from no eBarimt.
-  await api.ebarimt.removeSettings({});
+  // A rerun finds the configs an earlier run left: those that sent receipts can't be removed.
+  const fresh = (await api.ebarimt.configs()).data.length === 0;
+  const name = `E2E Shop ${unique()}`;
 
   await page.goto('/settings/integrations?tab=browse');
 
@@ -32,31 +32,49 @@ test('an owner finds eBarimt in the catalog and sets it up', async ({ page, requ
 
   await tile.click();
   await expect(page.getByRole('heading', { name: 'eBarimt', level: 1 })).toBeVisible();
-  await expect(page.getByText('Not set up', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Set up' }).click();
+
+  if (fresh) {
+    await expect(page.getByText('Not set up', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Set up' }).click();
+  } else {
+    await page.getByRole('tab', { name: 'Settings' }).click();
+    await page.getByRole('button', { name: 'Add config' }).click();
+  }
 
   // PosAPI isn't called on save; the receipt below fails to reach it, which Activity shows.
+  await page.getByLabel('Name', { exact: true }).fill(name);
   await page.getByLabel('PosAPI address').fill('https://posapi.example.test');
   await page.getByLabel('Company name').fill('E2E Shop');
   await page.getByLabel('Merchant tax number (TIN)').fill('37900846788');
   await page.getByLabel('District code').fill('3505');
   await expectAccessibleInBothThemes(page);
-  await page.getByRole('button', { name: 'Set up eBarimt' }).click();
+  await page.getByRole('button', { name: 'Save config' }).click();
 
   // On once set up (Connected, or Needs attention on a rerun: an earlier failed receipt stays).
-  const sending = page.getByRole('switch', { name: 'Send receipts' });
+  const sending = page
+    .getByRole('listitem')
+    .filter({ hasText: name })
+    .getByRole('switch', { name: 'Send receipts' });
 
   await expect(sending).toBeChecked();
   await expect(page.getByText('Not set up', { exact: true })).toBeHidden();
 
-  // Turned off, it stays off.
+  // Turned off, it stays off; eBarimt is Off once no config sends receipts.
+  const off = page.getByText('Off', { exact: true });
+
   await sending.click();
-  await expect(page.getByText('Off', { exact: true })).toBeVisible();
+  await expect(sending).not.toBeChecked();
+
+  if (fresh) await expect(off).toBeVisible();
+
   await page.reload();
-  await expect(page.getByText('Off', { exact: true })).toBeVisible();
+  await expect(sending).not.toBeChecked();
+
+  if (fresh) await expect(off).toBeVisible();
+
   await sending.click();
   await expect(sending).toBeChecked();
-  await expect(page.getByText('Off', { exact: true })).toBeHidden();
+  await expect(off).toBeHidden();
 });
 
 test('an owner sees a receipt that failed, on Integrations and on its invoice', async ({
@@ -66,7 +84,9 @@ test('an owner sees a receipt that failed, on Integrations and on its invoice', 
 }) => {
   const api = coreClient(request, baseURL);
 
-  await api.ebarimt.saveSettings({
+  await api.ebarimt.createConfig({
+    name: `E2E default ${unique()}`,
+    isDefault: true,
     posApiUrl: 'https://posapi.example.test',
     companyName: 'E2E Shop',
     merchantTin: '37900846788',

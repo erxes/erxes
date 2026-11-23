@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   check,
   doublePrecision,
   foreignKey,
@@ -41,10 +42,19 @@ export interface EbarimtTaxRule {
 }
 
 /** The organisation's eBarimt integration; none: not installed. */
+/**
+ * One eBarimt config: a merchant's PosAPI and how its receipts are taxed. An organisation may
+ * keep several (a branch, another merchant TIN); its default issues an invoice's receipt unless
+ * the invoice names another (`ebarimtId`).
+ */
 export const ebarimtSettings = pgTable(
   'ebarimt_settings',
   {
-    orgId: orgIdColumn().primaryKey(),
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    /** What staff call it: `Main shop`, `Airport branch`. */
+    name: text().notNull(),
+    isDefault: boolean().default(false).notNull(),
     status: text({ enum: EBARIMT_STATUSES }).default('active').notNull(),
     /** The merchant's PosAPI 3.0, for example `https://posapi.example.mn`. */
     posApiUrl: text().notNull(),
@@ -64,6 +74,10 @@ export const ebarimtSettings = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
+    uniqueIndex('core_ebarimt_settings_org_id_id_key').on(table.orgId, table.id),
+    uniqueIndex('core_ebarimt_settings_default_key')
+      .on(table.orgId)
+      .where(sql`${table.isDefault}`),
     check('core_ebarimt_settings_status_check', inList(table.status, EBARIMT_STATUSES)),
     check(
       'core_ebarimt_settings_percent_check',
@@ -90,6 +104,11 @@ export const ebarimtReceipts = pgTable(
     id: text().primaryKey(),
     orgId: orgIdColumn(),
     invoiceId: text().notNull(),
+    /**
+     * The config that sent it; a return or replacement goes through the same PosAPI. Null for
+     * receipts of a setup removed before configs; a config with receipts can't be removed.
+     */
+    settingsId: text(),
     kind: text({ enum: EBARIMT_RECEIPT_KINDS }).notNull(),
     status: text({ enum: EBARIMT_RECEIPT_STATUSES }).default('pending').notNull(),
     previousId: text(),

@@ -11,7 +11,7 @@ import { and, desc, eq, getTableColumns, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { settingsOf } from './plan';
+import { configOf } from './plan';
 import { findCompany } from './posapi';
 import { queueReceiptSync } from './sync';
 
@@ -72,7 +72,7 @@ export const listReceipts = (
   );
 };
 
-/** The caller's invoice (a plugin's own), with eBarimt set up. 404, 409 EBARIMT_NOT_SET_UP. */
+/** The caller's invoice (a plugin's own), with its eBarimt config on. 404, 409 EBARIMT_NOT_SET_UP. */
 const invoiceToSync = async (tx: Db, invoiceId: string) => {
   const [invoice] = await tx
     .select()
@@ -84,7 +84,7 @@ const invoiceToSync = async (tx: Db, invoiceId: string) => {
 
   if (!invoice || (source && invoice.source !== source)) throw notFound('Invoice');
 
-  if ((await settingsOf(tx))?.status !== 'active') {
+  if ((await configOf(tx, invoice.ebarimtId))?.status !== 'active') {
     throw fail('EBARIMT_NOT_SET_UP', 'Turn eBarimt on first (Settings › Integrations)');
   }
 

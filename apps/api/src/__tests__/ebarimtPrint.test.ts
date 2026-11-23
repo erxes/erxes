@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { loggedEmails } from '~/modules/email/email';
 import { useTestDatabase } from './db';
-import { usePosApi } from './posApi';
+import { saveEbarimt, usePosApi } from './posApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -43,7 +43,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
       t.owner().ebarimt.previewPrint({ paperSize: '80mm', blocks: [] }),
     ).rejects.toMatchObject({ status: 409, code: 'EBARIMT_NOT_SET_UP' });
 
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
 
     const { data } = await t.owner().ebarimt.printTemplates({});
 
@@ -70,7 +70,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   });
 
   it('saves, previews and resets a plugin’s template', async () => {
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
 
     await expect(
       t.owner().ebarimt.savePrintTemplate({ plugin: 'sales', paperSize: '58mm' }),
@@ -130,7 +130,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   });
 
   it('prints an issued receipt with its plugin’s template', async () => {
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
     await t.owner().ebarimt.savePrintTemplate({ plugin: 'hr', footerText: 'Come again' });
 
     const { invoice, receipt } = await paidReceipt();
@@ -159,7 +159,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   });
 
   it('previews a made-up receipt with this merchant’s taxes, and prints amounts in tögrög', async () => {
-    await t.owner().ebarimt.saveSettings({ ...settings(), cityTaxPercent: 2 });
+    await saveEbarimt(t.owner(), { ...settings(), cityTaxPercent: 2 });
 
     const { data } = await t.owner().ebarimt.printTemplates({});
     const blocks = data[0]?.blocks ?? [];
@@ -181,11 +181,11 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
     expect(printed.html).toContain('<span>НӨАТ</span><span>19.64</span>');
     expect(printed.html).toContain('<span>НХАТ</span><span>3.93</span>');
 
-    await t.owner().ebarimt.saveSettings({ ...settings(), cityTaxPercent: 0 });
+    await saveEbarimt(t.owner(), { ...settings(), cityTaxPercent: 0 });
   });
 
   it('prints only a receipt in force, and a plugin only its own invoices’ receipts', async () => {
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
 
     const own = await t.owner().payments.createInvoice({
       amount: 9_000,
@@ -231,7 +231,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   });
 
   it('names each template by its plugin, keeps each plugin’s own, and audits saves and real resets', async () => {
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
     await t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'HR',
       version: '3',
@@ -305,7 +305,7 @@ describe('ebarimt print templates', { timeout: 240_000 }, () => {
   });
 
   it('emails an issued receipt with its QR code as an image', async () => {
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), settings());
 
     const { receipt } = await paidReceipt();
 

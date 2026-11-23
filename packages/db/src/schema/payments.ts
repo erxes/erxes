@@ -87,6 +87,8 @@ export const paymentInvoices = pgTable(
     taxBuyer: jsonb().$type<TaxBuyer>(),
     /** Send an eBarimt receipt once it is paid; false: this order needs none. */
     taxReceipt: boolean().default(true).notNull(),
+    /** The eBarimt config that issues its receipt; null: the organisation's default. */
+    ebarimtId: text(),
     /** What the gateway says was paid, and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),

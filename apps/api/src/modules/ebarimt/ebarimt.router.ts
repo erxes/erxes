@@ -10,17 +10,19 @@ import {
 import { emailReceipt } from '~/modules/ebarimt/receiptEmail.service';
 import { listReceipts, requestSync, setBuyer } from '~/modules/ebarimt/receipts.service';
 import {
-  getSettings,
-  removeSettings,
-  saveSettings,
+  configs,
+  createConfig,
+  removeConfig,
   testConnection,
+  updateConfig,
 } from '~/modules/ebarimt/settings.service';
 import { scoped, unscoped } from '~/orpc';
 
 export const ebarimtRouter = {
-  settings: scoped.ebarimt.settings.handler(() => getSettings(db())),
-  saveSettings: scoped.ebarimt.saveSettings.handler(({ input }) => saveSettings(db(), input)),
-  removeSettings: scoped.ebarimt.removeSettings.handler(() => removeSettings(db())),
+  configs: scoped.ebarimt.configs.handler(() => configs(db())),
+  createConfig: scoped.ebarimt.createConfig.handler(({ input }) => createConfig(db(), input)),
+  updateConfig: scoped.ebarimt.updateConfig.handler(({ input }) => updateConfig(db(), input)),
+  removeConfig: scoped.ebarimt.removeConfig.handler(({ input }) => removeConfig(db(), input.id)),
   testConnection: unscoped.ebarimt.testConnection.handler(({ input }) =>
     testConnection(input.posApiUrl),
   ),

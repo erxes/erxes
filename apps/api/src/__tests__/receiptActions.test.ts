@@ -3,7 +3,7 @@ import { loggedEmails } from '~/modules/email/email';
 import { useActionRuns } from './actionRuns';
 import { forCustomer } from './automations.fixture';
 import { useTestDatabase } from './db';
-import { usePosApi } from './posApi';
+import { saveEbarimt, usePosApi } from './posApi';
 import { settle } from './settle';
 
 const RECEIPT_STEPS = ['ebarimt.receipt.email', 'ebarimt.receipt.sync', 'ebarimt.receipt.company'];
@@ -26,7 +26,7 @@ describe('receipt actions', { timeout: 180_000 }, () => {
   it('offers eBarimt’s receipt steps while it is on, even with a refused receipt', async () => {
     expect(await receiptSteps()).toEqual([]);
 
-    await t.owner().ebarimt.saveSettings(posApi.settings());
+    await saveEbarimt(t.owner(), posApi.settings());
     expect(await receiptSteps()).toEqual(RECEIPT_STEPS);
 
     posApi.fake.refuse = 'Invalid merchant';
@@ -35,12 +35,12 @@ describe('receipt actions', { timeout: 180_000 }, () => {
     posApi.fake.refuse = null;
     expect(await receiptSteps()).toEqual(RECEIPT_STEPS);
 
-    await t.owner().ebarimt.saveSettings({ ...posApi.settings(), status: 'disabled' });
+    await saveEbarimt(t.owner(), { ...posApi.settings(), status: 'disabled' });
     expect(await receiptSteps()).toEqual([]);
   });
 
   it('emails, reissues to a company and syncs receipts from a run', async () => {
-    await t.owner().ebarimt.saveSettings({ ...posApi.settings(), status: 'active' });
+    await saveEbarimt(t.owner(), { ...posApi.settings(), status: 'active' });
 
     const issued = await t.paidInvoice('receipt-1');
 

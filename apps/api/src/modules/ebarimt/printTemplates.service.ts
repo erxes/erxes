@@ -10,7 +10,7 @@ import { eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { settingsOf } from './plan';
+import { configOf } from './plan';
 import { receiptSources } from './plugins';
 import { allBlocks, defaultBlocks, linesOfRequest, type PrintData, renderReceipt } from './print';
 
@@ -25,9 +25,9 @@ interface TemplateInput {
 
 const toTugrik = (minor: number) => minor / 100;
 
-/** eBarimt's settings. 409 EBARIMT_NOT_SET_UP. */
-const setUp = async (client: Db) => {
-  const settings = await settingsOf(client);
+/** The config with this id, else the default. 409 EBARIMT_NOT_SET_UP. */
+const setUp = async (client: Db, id?: string | null) => {
+  const settings = await configOf(client, id);
 
   if (!settings) throw fail('EBARIMT_NOT_SET_UP', 'Set up eBarimt first (Settings › Integrations)');
 
@@ -56,9 +56,7 @@ const withTitle = async <T extends { plugin: string }>(client: Db, template: T) 
 
 /** One template for core and each plugin eBarimt issues receipts for. */
 export const listPrintTemplates = async (client: Db) => {
-  const settings = await settingsOf(client);
-
-  if (!settings) return { data: [] };
+  if (!(await configOf(client))) return { data: [] };
 
   const saved = await client.select().from(ebarimtPrintTemplates);
 
@@ -192,7 +190,8 @@ export const printableReceipt = async (client: Db, id: string) => {
     throw fail('RECEIPT_NOT_PRINTABLE', 'Only an issued receipt that is still in force prints');
   }
 
-  const settings = await setUp(client);
+  // The config that sent it: its merchant is on the receipt.
+  const settings = await setUp(client, row.settingsId);
 
   const [saved] = await client
     .select()

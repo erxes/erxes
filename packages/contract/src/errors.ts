@@ -202,6 +202,8 @@ export const ERRORS = {
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).
   EBARIMT_NOT_SET_UP: { status: 409 },
+  // An eBarimt config that sent receipts: turn it off instead, so they can still be returned.
+  EBARIMT_CONFIG_IN_USE: { status: 409 },
   RECEIPT_NOT_PRINTABLE: { status: 409 },
   COMPANY_NOT_FOUND: { status: 404 },
   TAX_OFFICE_UNAVAILABLE: { status: 503 },

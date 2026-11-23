@@ -3,7 +3,7 @@ import { ebarimtReceipts, ebarimtSettings, paymentInvoices } from '@erxes/core-d
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { ebarimtPrintContract } from './ebarimtPrint';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtReceiptStatus } from './values';
@@ -44,11 +44,18 @@ export type EbarimtTaxRule = z.infer<typeof EbarimtTaxRule>;
 const percent = (column: z.ZodNumber) => column.min(0).max(100);
 const code = (max: number) => (column: z.ZodString) => column.trim().max(max);
 
+/** One eBarimt config: a merchant's PosAPI and how its receipts are taxed. */
 export const EbarimtSettings = createSelectSchema(ebarimtSettings, {
+  id: Id,
   rules: z.array(EbarimtTaxRule),
   createdAt: isoDate,
   updatedAt: isoDate,
 }).pick({
+  id: true,
+  /** What staff call it: `Main shop`, `Airport branch`. */
+  name: true,
+  /** Issues the receipts of invoices that name no config. One per organisation. */
+  isDefault: true,
   /** `disabled`: no receipts are sent; the settings stay. */
   status: true,
   posApiUrl: true,
@@ -69,6 +76,7 @@ export const EbarimtSettings = createSelectSchema(ebarimtSettings, {
 export type EbarimtSettings = z.infer<typeof EbarimtSettings>;
 
 const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
+  name: (name) => name.trim().min(1).max(100),
   posApiUrl: (url) => url.trim().min(1).max(500),
   companyName: (name) => name.trim().min(1).max(200),
   merchantTin: (tin) => tin.trim().regex(/^\d{11,14}$/, '11 to 14 digits'),
@@ -81,6 +89,8 @@ const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
   rules: z.array(EbarimtTaxRule).max(100).optional(),
 })
   .pick({
+    name: true,
+    isDefault: true,
     status: true,
     posApiUrl: true,
     companyName: true,
@@ -93,7 +103,13 @@ const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
     classificationCode: true,
     rules: true,
   })
-  .required({ posApiUrl: true, companyName: true, merchantTin: true, districtCode: true });
+  .required({
+    name: true,
+    posApiUrl: true,
+    companyName: true,
+    merchantTin: true,
+    districtCode: true,
+  });
 
 const int = () => z.int();
 
@@ -111,6 +127,8 @@ export const EbarimtReceipt = createSelectSchema(ebarimtReceipts, {
   .pick({
     id: true,
     invoiceId: true,
+    /** The config that sent it; null for one sent before configs, by a setup removed since. */
+    settingsId: true,
     /** `put` issues a receipt (replacing `previousId`'s, if any); `return` cancels `previousId`'s. */
     kind: true,
     status: true,
@@ -145,11 +163,18 @@ export const EbarimtReceipt = createSelectSchema(ebarimtReceipts, {
 
 export type EbarimtReceipt = z.infer<typeof EbarimtReceipt>;
 
-const { COMPANY_NOT_FOUND, EBARIMT_NOT_SET_UP, INVALID_URL, TAX_OFFICE_UNAVAILABLE } = ERRORS;
+const {
+  COMPANY_NOT_FOUND,
+  EBARIMT_CONFIG_IN_USE,
+  EBARIMT_NOT_SET_UP,
+  INVALID_URL,
+  TAX_OFFICE_UNAVAILABLE,
+} = ERRORS;
 
 const base = oc.errors({
   ...COMMON_ERRORS,
   COMPANY_NOT_FOUND,
+  EBARIMT_CONFIG_IN_USE,
   EBARIMT_NOT_SET_UP,
   INVALID_URL,
   TAX_OFFICE_UNAVAILABLE,
@@ -159,8 +184,9 @@ const InvoiceRef = z.object({ invoiceId: Id });
 
 /**
  * eBarimt, Mongolia's tax receipts, as an integration (Settings ›
- * Integrations, `integrations.manage`). When it is active, every paid
- * invoice in tögrög gets a receipt from the merchant's PosAPI, built from the
+ * Integrations, `integrations.manage`). An organisation keeps one or more configs, each a
+ * merchant's PosAPI; an invoice's `ebarimtId` picks one, else the default issues. When that
+ * config is active, every paid invoice in tögrög gets a receipt from its PosAPI, built from the
  * invoice's lines and its `taxBuyer`, except a plugin's whose manifest says
  * `taxReceipts: 'own'`. A line is taxed
  * by the organisation's rule for its product, else by the line's `tax`,
@@ -169,31 +195,45 @@ const InvoiceRef = z.object({ invoiceId: Id });
  * kept with its error and sent again by `sync`.
  */
 export const ebarimtContract = {
-  settings: base
+  configs: base
     .route({
       method: 'GET',
-      path: '/ebarimt/settings',
-      summary: 'Get eBarimt settings',
-      description: 'The organisation’s eBarimt settings; null when it is not set up',
-    })
-    .output(EbarimtSettings.nullable()),
-  saveSettings: base
-    .route({
-      method: 'PUT',
-      path: '/ebarimt/settings',
-      summary: 'Change eBarimt settings',
+      path: '/ebarimt/configs',
+      summary: 'List eBarimt configs',
       description:
-        'Set up eBarimt or change its settings. 400 INVALID_URL for a PosAPI address core may not call',
+        'The organisation’s eBarimt configs, the default first; empty when it is not set up',
+    })
+    .output(listOf(EbarimtSettings)),
+  createConfig: base
+    .route({
+      method: 'POST',
+      path: '/ebarimt/configs',
+      successStatus: 201,
+      summary: 'Add an eBarimt config',
+      description:
+        'Add a merchant’s PosAPI. The first one, or one with `isDefault`, becomes the default. 400 INVALID_URL for a PosAPI address core may not call',
     })
     .input(EbarimtSettingsInput)
     .output(EbarimtSettings),
-  removeSettings: base
+  updateConfig: base
+    .route({
+      method: 'PUT',
+      path: '/ebarimt/configs/{id}',
+      summary: 'Change an eBarimt config',
+      description:
+        'Change a config; `isDefault` makes it the default. 400 INVALID_URL, 404 NOT_FOUND',
+    })
+    .input(EbarimtSettingsInput.extend({ id: Id }))
+    .output(EbarimtSettings),
+  removeConfig: base
     .route({
       method: 'DELETE',
-      path: '/ebarimt/settings',
-      summary: 'Remove eBarimt',
-      description: 'Remove eBarimt; issued receipts stay',
+      path: '/ebarimt/configs/{id}',
+      summary: 'Remove an eBarimt config',
+      description:
+        'Remove a config that sent no receipts; the oldest left becomes the default. 409 EBARIMT_CONFIG_IN_USE: turn it off instead',
     })
+    .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   testConnection: base
     .route({

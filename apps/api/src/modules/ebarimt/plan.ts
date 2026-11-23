@@ -6,7 +6,7 @@ import {
   productCategories,
   products,
 } from '@erxes/core-db';
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { type ProductInfo } from './build';
 import { ownReceiptPlugins } from './plugins';
 
@@ -38,10 +38,33 @@ export const activeReceipt = async (tx: Db, invoiceId: string) => {
   return row ?? null;
 };
 
-export const settingsOf = async (tx: Db) => {
-  const [row] = await tx.select().from(ebarimtSettings).limit(1);
+/** The organisation's configs, the default first, then oldest first. */
+export const listConfigs = (tx: Db) =>
+  tx
+    .select()
+    .from(ebarimtSettings)
+    .orderBy(desc(ebarimtSettings.isDefault), asc(ebarimtSettings.createdAt));
+
+/** The config with this id, else the default; null when there is none. */
+export const configOf = async (tx: Db, id?: string | null) => {
+  const [row] = await tx
+    .select()
+    .from(ebarimtSettings)
+    .where(id ? eq(ebarimtSettings.id, id) : eq(ebarimtSettings.isDefault, true))
+    .limit(1);
 
   return row ?? null;
+};
+
+/** True when any config sends receipts. */
+export const anyActive = async (tx: Db) => {
+  const [row] = await tx
+    .select({ id: ebarimtSettings.id })
+    .from(ebarimtSettings)
+    .where(eq(ebarimtSettings.status, 'active'))
+    .limit(1);
+
+  return Boolean(row);
 };
 
 /** Does the organisation issue receipts for this invoice? */
@@ -108,9 +131,14 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
     .where(eq(paymentInvoices.id, invoiceId))
     .limit(1);
 
-  const settings = await settingsOf(tx);
+  if (!invoice) return null;
 
-  if (!invoice || !issuesFor(settings, invoice)) return null;
+  const active = await activeReceipt(tx, invoiceId);
+  // An issued receipt is replaced or returned through the config that sent it; a new one goes
+  // through the invoice's config, else the default.
+  const settings = await configOf(tx, active?.settingsId ?? invoice.ebarimtId);
+
+  if (!issuesFor(settings, invoice)) return null;
 
   if ((await ownReceiptPlugins(tx, [invoice.source])).size) return null;
 
@@ -119,7 +147,7 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
   return {
     invoice,
     settings,
-    active: await activeReceipt(tx, invoiceId),
+    active,
     products: await productInfo(tx, ids),
   };
 };

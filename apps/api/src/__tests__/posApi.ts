@@ -3,6 +3,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { z } from 'zod';
 import { afterAll, beforeAll } from 'vite-plus/test';
 import { config } from '~/config';
+import type { CoreClient } from './support';
 
 const Body = z.record(z.string(), z.unknown());
 
@@ -95,6 +96,7 @@ export const usePosApi = () => {
     fake,
     base: () => base,
     settings: () => ({
+      name: 'Main shop',
       posApiUrl: `${base}/posapi`,
       companyName: 'Acme Shop',
       merchantTin: '37900846788',
@@ -102,4 +104,15 @@ export const usePosApi = () => {
       posNo: '10001',
     }),
   };
+};
+
+type ConfigInput = Parameters<CoreClient['ebarimt']['createConfig']>[0];
+
+/** Sets the organisation's default eBarimt config up, or changes it, as staff do on its page. */
+export const saveEbarimt = async (client: CoreClient, input: ConfigInput) => {
+  const current = (await client.ebarimt.configs()).data.find((row) => row.isDefault);
+
+  return current
+    ? client.ebarimt.updateConfig({ ...input, id: current.id })
+    : client.ebarimt.createConfig(input);
 };

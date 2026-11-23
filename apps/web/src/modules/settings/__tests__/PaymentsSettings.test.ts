@@ -84,11 +84,13 @@ const INVOICE = {
   createdAt: CREATED,
   gatewayKind: 'test',
   refundable: { amount: 0, gateway: 'full' },
+  ebarimtId: null,
 } satisfies Invoice;
 
 const RECEIPT = {
   id: 'receipt-1',
   invoiceId: INVOICE.id,
+  settingsId: 'config-1',
   kind: 'put',
   status: 'failed',
   previousId: null,

@@ -7,6 +7,7 @@ import { getOrganization } from '~/modules/organizations/organizations.service';
 import { resolveInvoiceLines } from './invoiceLines';
 import { invoiceByDedupeKey } from './invoices.service';
 import { eventPayload, shownInvoice } from './invoiceState';
+import { ebarimtIdOf } from './taxConfig';
 
 /**
  * Records a payment taken outside a gateway (cash, a card terminal, a bank
@@ -40,6 +41,7 @@ export const recordPayment = async (client: Db, input: RecordedPayment) => {
       lines: await resolveInvoiceLines(client, input.amount, input.lines ?? []),
       taxBuyer: input.taxBuyer ?? null,
       taxReceipt: input.taxReceipt ?? true,
+      ebarimtId: await ebarimtIdOf(client, input.ebarimtId),
     })
     .onConflictDoNothing()
     .returning();

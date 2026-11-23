@@ -19,6 +19,7 @@ import { type CreateInvoiceInput, GatewayError } from '@erxes/plugin-sdk/integra
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { gatewayAt, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
+import { ebarimtIdOf } from './taxConfig';
 import {
   callbackSignature,
   eventPayload,
@@ -56,6 +57,7 @@ interface InvoiceInput {
   lines?: InvoiceLineInput[];
   taxBuyer?: TaxBuyer;
   taxReceipt?: boolean;
+  ebarimtId?: string;
   payerPhone?: string;
   payerEmail?: string;
   returnUrl?: string;
@@ -82,13 +84,14 @@ const prepareInvoice = (orgId: string, input: InvoiceInput) =>
     if (existing) return { existing };
 
     const lines = await resolveInvoiceLines(tx, input.amount, input.lines ?? []);
+    const ebarimtId = await ebarimtIdOf(tx, input.ebarimtId);
     const currency = input.currency ?? (await getOrganization(tx)).currency;
     const gateway = await resolveGateway(tx, currency, input.gatewayId);
     const id = newId();
     // Signed in the path: some gateways (WeChat Pay) take no query in a callback address.
     const path = `/core/v1/payments/callback/${id}/${callbackSignature(id)}`;
 
-    return { gateway, id, lines, currency, callbackUrl: await appLink(tx, path) };
+    return { gateway, id, lines, ebarimtId, currency, callbackUrl: await appLink(tx, path) };
   });
 
 /**
@@ -102,7 +105,7 @@ export const createInvoice = async (input: InvoiceInput) => {
 
   if (prepared.existing) return prepared.existing;
 
-  const { gateway, id, lines, currency, callbackUrl } = prepared;
+  const { gateway, id, lines, ebarimtId, currency, callbackUrl } = prepared;
 
   const created = await openAtGateway(gateway, {
     invoiceId: id,
@@ -136,6 +139,7 @@ export const createInvoice = async (input: InvoiceInput) => {
         lines,
         taxBuyer: input.taxBuyer ?? null,
         taxReceipt: input.taxReceipt ?? true,
+        ebarimtId,
       })
       .onConflictDoNothing()
       .returning();

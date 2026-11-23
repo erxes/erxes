@@ -1032,12 +1032,11 @@
       }
     },
     "ebarimt": {
-      "remove-title": "Remove eBarimt",
-      "remove-description": "No more receipts are sent. Issued ones stay with their invoices.",
+      "remove-title": "Remove this config",
+      "remove-description": "Only a config that sent no receipts can go. Turn one that did off instead, so its receipts can still be returned.",
       "failed-count_one": "{{count}} receipt could not be sent.",
       "failed-count_other": "{{count}} receipts could not be sent.",
       "review": "Review",
-      "connected-to": "Connected to",
       "tin": "TIN",
       "set-up-hint": "You need your PosAPI 3.0 address and your business as registered with the tax office.",
       "how": "How it works",
@@ -1061,7 +1060,6 @@
       "save-failed": "Could not save",
       "save": "Save changes",
       "set-up-short": "Set up",
-      "set-up": "Set up eBarimt",
       "form-description": "Receipts go to your PosAPI 3.0, which reports them to the tax office.",
       "rule-category": "Pick a category",
       "rule-tax-type": "Tax",
@@ -1071,9 +1069,10 @@
       "rules-help": "Products in these categories (and those under them) are taxed this way. Other lines carry VAT, unless their plugin marks them otherwise.",
       "rule-add": "Add a rule",
       "active": "Send receipts",
-      "remove-confirm": "Remove eBarimt? Issued receipts stay with their invoices.",
+      "remove-confirm": "Remove {{name}}?",
       "remove": "Remove",
       "field": {
+        "name": "Name",
         "posApiUrl": "PosAPI address",
         "companyName": "Company name",
         "merchantTin": "Merchant tax number (TIN)",
@@ -1138,7 +1137,14 @@
         "set-up": "Set up e-barimt",
         "not-issuing": "eBarimt issues no receipts for this plugin yet.",
         "intro-core": "How core’s own receipts print. Each plugin sets how its receipts print in its own settings."
-      }
+      },
+      "connected-to_one": "Connected to",
+      "connected-to_other": "Connected to {{count}} merchants; the default:",
+      "create": "Save config",
+      "add-config": "Add config",
+      "default": "Default",
+      "make-default": "Make default",
+      "new-config-hint": "Another merchant or branch: invoices go through the default unless a plugin picks this one."
     },
     "email": {
       "set-up-short": "Set up",
