@@ -88,7 +88,9 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
       {!!customerId && separateNext && (
         <CustomersInline.Provider
           customerIds={[customerId]}
-          customers={customer ? [customer] : []}
+          customers={
+            customer && customer._id === customerId ? [customer] : undefined
+          }
         >
           <CustomersInline.Avatar size="xl" />
         </CustomersInline.Provider>

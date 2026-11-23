@@ -129,7 +129,9 @@ export const MessageWrapper = ({
       {!!customerId && separateNext && !isOutgoing && (
         <CustomersInline.Provider
           customerIds={[customerId]}
-          customers={customer ? [customer] : []}
+          customers={
+            customer && customer._id === customerId ? [customer] : undefined
+          }
         >
           <CustomersInline.Avatar size="xl" />
         </CustomersInline.Provider>
