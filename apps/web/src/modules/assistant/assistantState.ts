@@ -33,13 +33,18 @@ export const assistantActiveTabState = stored({
   initial: null,
 });
 
+/** The provider, model and thinking level the member picked; unset parts follow the defaults. */
+const PickedModel = z.object({
+  provider: AssistantProvider.optional(),
+  model: z.string().optional(),
+  thinkingLevel: AssistantThinkingLevel.optional(),
+});
+
+export type PickedModel = z.infer<typeof PickedModel>;
+
 export const assistantPickedModelState = stored({
   key: 'erxes:assistant:model',
-  schema: z.object({
-    provider: AssistantProvider.optional(),
-    model: z.string().optional(),
-    thinkingLevel: AssistantThinkingLevel.optional(),
-  }),
+  schema: PickedModel,
   initial: {},
 });
 

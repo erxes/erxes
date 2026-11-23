@@ -130,6 +130,15 @@ export const NotificationSettings = z.object({
 
 export type NotificationSettings = z.infer<typeof NotificationSettings>;
 
+/** Some notifications (`ids`), one inbox's (`source`) or all, read or unread. */
+export const MarkReadInput = z.object({
+  ids: z.array(Id).max(200).optional(),
+  source: z.string().trim().max(40).optional(),
+  read: z.boolean().default(true),
+});
+
+export type MarkReadInput = z.infer<typeof MarkReadInput>;
+
 const { ALWAYS_ON, INVALID_ACTOR, INVALID_OWNER, INVALID_RECIPIENT, INVALID_TYPE } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
@@ -179,13 +188,7 @@ export const notificationsContract = {
       description:
         'Mark some (`ids`), one inbox’s (`source`) or all of my notifications read, or unread with `read: false`',
     })
-    .input(
-      z.object({
-        ids: z.array(Id).max(200).optional(),
-        source: z.string().trim().max(40).optional(),
-        read: z.boolean().default(true),
-      }),
-    )
+    .input(MarkReadInput)
     .output(z.object({ updated: z.int() })),
   remove: base
     .route({

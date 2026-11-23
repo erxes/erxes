@@ -38,7 +38,8 @@ export const UnitType = createSelectSchema(orgUnitTypes, {
 
 export type UnitType = z.infer<typeof UnitType>;
 
-const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
+/** What a unit type create or update may set. */
+export const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
   name: (name) => name.trim().min(1).max(100),
   code: (code) => code.trim().min(1).max(50),
   description: (text) => text.trim().max(2000),
@@ -57,6 +58,8 @@ const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
   isActive: true,
   sortOrder: true,
 });
+
+export type UnitTypeFields = z.infer<typeof UnitTypeFields>;
 
 /** A unit type a plugin brings from its own tables or old erxes, with its id. */
 const ImportedUnitType = UnitTypeFields.required({ name: true }).extend({ id: Id, kind: UnitKind });

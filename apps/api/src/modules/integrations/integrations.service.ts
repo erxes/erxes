@@ -1,4 +1,5 @@
-import type { IntegrationStatus } from '@erxes/core-contract';
+import type { coreContract, IntegrationStatus } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   caller,
   type Db,
@@ -213,11 +214,9 @@ export const insertConnection = async (
   return row;
 };
 
-export const connect = async (input: {
-  key: string;
-  name: string;
-  keys: Record<string, unknown>;
-}) => {
+type Inputs = InferContractRouterInputs<typeof coreContract>['integrations'];
+
+export const connect = async (input: Inputs['connect']) => {
   const integration = connectable(input.key);
 
   if (integration.oauth)
@@ -238,13 +237,7 @@ export const connect = async (input: {
   return withOrg(orgId, (tx) => insertConnection(tx, integration, { id, name: input.name, keys }));
 };
 
-export const updateConnection = async (input: {
-  key: string;
-  id: string;
-  name?: string;
-  keys?: Record<string, unknown>;
-  status?: (typeof integrationConnections.$inferSelect)['status'];
-}) => {
+export const updateConnection = async (input: Inputs['update']) => {
   const integration = connectable(input.key);
   const orgId = requestOrgId();
 

@@ -98,14 +98,10 @@ export const lockLiveRun = async (tx: Db, runId: string) => {
   return run && (run.status === 'running' || run.status === 'waiting') ? run : null;
 };
 
-type StepEntry = {
-  status: 'succeeded' | 'failed';
-  input?: unknown;
-  output?: unknown;
-  error?: string;
-  attempt: number;
-  startedAt: Date;
-};
+type StepEntry = Pick<
+  typeof automationRunSteps.$inferInsert,
+  'status' | 'input' | 'output' | 'error' | 'attempt' | 'startedAt'
+>;
 
 const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: StepEntry) =>
   tx.insert(automationRunSteps).values({
@@ -113,12 +109,7 @@ const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: StepEntry) =>
     runId: run.id,
     stepId: step.id,
     type: step.type === 'action' ? step.action : step.type,
-    status: entry.status,
-    input: entry.input ?? null,
-    output: entry.output ?? null,
-    error: entry.error ?? null,
-    attempt: entry.attempt,
-    startedAt: entry.startedAt,
+    ...entry,
   });
 
 export const finishRun = (

@@ -1,4 +1,4 @@
-import type { CursorQuery } from '@erxes/core-contract';
+import type { CursorQuery, UserFields } from '@erxes/core-contract';
 import { caller, db, type Db, users } from '@erxes/core-db';
 import { and, eq, ilike, inArray, ne, or, type SQL, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -10,7 +10,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertAssignable, assertNotAbove } from '~/modules/roles/roles.service';
-import { profileChanges, type UserChanges } from './userProfile';
+import { profileChanges } from './userProfile';
 import {
   allowedTo,
   assertTeamManager,
@@ -175,7 +175,7 @@ const announceUserChange = async (tx: Db, before: UserRow, after: UserRow) => {
 };
 
 /** Saves profile, email and role changes; whoever signs in keeps an email. */
-const saveChanges = async (tx: Db, target: UserRow, input: UserChanges) => {
+const saveChanges = async (tx: Db, target: UserRow, input: UserFields) => {
   const email = input.email === null ? null : input.email?.trim().toLowerCase();
 
   if (email === null && target.canSignIn) {
@@ -200,7 +200,7 @@ const saveChanges = async (tx: Db, target: UserRow, input: UserChanges) => {
   return row;
 };
 
-export const updateUser = async (id: string, input: UserChanges) => {
+export const updateUser = async (id: string, input: UserFields) => {
   const tx = db();
 
   if (caller().type === 'plugin') {

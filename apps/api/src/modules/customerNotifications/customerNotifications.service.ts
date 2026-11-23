@@ -1,4 +1,4 @@
-import type { CustomerNotificationInput } from '@erxes/core-contract';
+import type { CustomerNotificationInput, MarkReadInput } from '@erxes/core-contract';
 import {
   caller,
   customerAccounts,
@@ -259,10 +259,7 @@ export const customerUnreadCount = async (client: Db, source?: string) => {
   return { count: row?.count ?? 0 };
 };
 
-export const markCustomerNotificationsRead = async (
-  client: Db,
-  input: { ids?: string[]; source?: string; read: boolean },
-) => {
+export const markCustomerNotificationsRead = async (client: Db, input: MarkReadInput) => {
   if (input.ids && !input.ids.length) return { updated: 0 };
 
   const result = await client

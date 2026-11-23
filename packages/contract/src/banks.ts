@@ -67,6 +67,8 @@ export const StatementLine = z.object({
     .nullable(),
 });
 
+export type StatementLine = z.infer<typeof StatementLine>;
+
 export const Statement = z.object({
   lines: z.array(StatementLine),
   openingBalance: z.number().nullable(),

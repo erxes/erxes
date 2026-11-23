@@ -163,11 +163,14 @@ const MergeInput = z
   .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
   .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
 
-const TagChange = z.object({
+/** Tags to add to and remove from some customers or companies. */
+export const TagChange = z.object({
   ids: z.array(Id).min(1).max(100),
   add: z.array(Id).max(50).default([]),
   remove: z.array(Id).max(50).default([]),
 });
+
+export type TagChange = z.infer<typeof TagChange>;
 
 const {
   INVALID_ACTOR,

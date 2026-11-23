@@ -13,28 +13,16 @@ import { config } from '~/config';
 import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
-import type { Changes } from '~/lib/changes';
 import { currentRunCause } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { deleteInBatches, inOrder } from '~/lib/sequence';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
+import type { AuditInput } from './alertRules';
 import { raiseAlerts } from './alerts';
 
 /** The actor columns of the entries and where they came from (`core` or the plugin). */
 type RecordedBy = ReturnType<typeof actorOf> & { source: string };
-
-export interface AuditInput {
-  action: string;
-  targetType?: string;
-  targetId?: string;
-  targetLabel?: string | null;
-  changes?: Changes | null;
-  metadata?: Record<string, unknown> | null;
-  /** Plugins pass the end user's address and browser; otherwise the request's. */
-  ip?: string | null;
-  userAgent?: string | null;
-}
 
 const writeAudit = async (client: Db, by: RecordedBy, entries: AuditInput[]) => {
   if (!entries.length) {

@@ -22,20 +22,15 @@ const NAME = 'TDB';
 const PAGE_SIZE = 100;
 
 /** TDB wraps answers in `success` and `msg`; `success: false` is a refusal whatever the status. */
-const Answer = <T extends z.ZodType>(data: T) =>
-  z
-    .object({
-      success: z.boolean().nullish(),
-      msg: z.string().nullish(),
-      message: z.string().nullish(),
-    })
-    .and(data);
+const Envelope = z.object({
+  success: z.boolean().nullish(),
+  msg: z.string().nullish(),
+  message: z.string().nullish(),
+});
 
-const refused = (answer: {
-  success?: boolean | null;
-  msg?: string | null;
-  message?: string | null;
-}) => {
+const Answer = <T extends z.ZodType>(data: T) => Envelope.and(data);
+
+const refused = (answer: z.infer<typeof Envelope>) => {
   if (answer.success === false)
     throw new GatewayError(`TDB refused: ${answer.msg ?? answer.message ?? 'no reason given'}`);
 };

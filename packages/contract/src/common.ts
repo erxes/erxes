@@ -84,6 +84,9 @@ export const cursorPageOf = <T extends z.ZodType>(item: T) =>
     totalCapped: z.boolean().optional(),
   });
 
+/** A page of `T`s, as a `cursorPageOf` list answers. */
+export type CursorPage<T> = z.infer<ReturnType<typeof cursorPageOf<z.ZodType<T>>>>;
+
 /**
  * Most items a list read whole may hold. Whole lists are small config
  * (roles, stages, fields, webhooks); past this the server fails instead of

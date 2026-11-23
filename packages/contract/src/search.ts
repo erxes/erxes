@@ -21,6 +21,16 @@ export const PluginSearchSource = z.object({
   path: z.string().regex(/^(\/[a-z0-9][a-z0-9_.-]*)+$/, 'a path like /search/deals'),
 });
 
+/** Records matching every word of `q`: the first `limit` of each type, or of `type` only. */
+export const SearchQuery = z.object({
+  q: z.string().trim().min(1).max(100),
+  /** Only this type (a group's "show more"). */
+  type: SearchType.optional(),
+  limit: z.coerce.number().int().min(1).max(20).default(5),
+});
+
+export type SearchQuery = z.infer<typeof SearchQuery>;
+
 const base = oc.errors(COMMON_ERRORS);
 
 /** One search box over the organisation's records: core's here, plugins' at their own routes. */
@@ -33,13 +43,6 @@ export const searchContract = {
       description:
         'Records matching every word of `q`, the first `limit` of each type the member may see: people and companies with contacts.view, team members with team.view, products, branches and departments',
     })
-    .input(
-      z.object({
-        q: z.string().trim().min(1).max(100),
-        /** Only this type (a group's "show more"). */
-        type: SearchType.optional(),
-        limit: z.coerce.number().int().min(1).max(20).default(5),
-      }),
-    )
+    .input(SearchQuery)
     .output(z.object({ data: z.array(SearchHit).max(100) })),
 };

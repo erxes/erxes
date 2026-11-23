@@ -119,6 +119,22 @@ export const PaymentSettings = createSelectSchema(organizations, {
 
 export type PaymentSettings = z.infer<typeof PaymentSettings>;
 
+/** Money back for a paid invoice: all that is left unless `amount`. */
+export const RefundRequest = z.object({
+  id: Id,
+  amount: z.int().min(1).optional(),
+  reason: z.string().trim().min(1).max(255),
+  manual: z.boolean().default(false),
+  dedupeKey: DedupeKey.optional(),
+});
+
+export type RefundRequest = z.infer<typeof RefundRequest>;
+
+/** A payment taken outside a gateway, recorded as a paid invoice. */
+export const RecordedPayment = InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) });
+
+export type RecordedPayment = z.infer<typeof RecordedPayment>;
+
 /**
  * Payments: an organisation's gateway connections (QPay, …) and invoices
  * made through them for plugins' records. Paid invoices publish
@@ -206,7 +222,7 @@ export const paymentsContract = {
       description:
         'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT',
     })
-    .input(InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) }))
+    .input(RecordedPayment)
     .output(Invoice),
   getInvoice: base
     .route({
@@ -230,15 +246,7 @@ export const paymentsContract = {
       description:
         'Give money back for a paid invoice (all that is left unless `amount`). Through the gateway, or `manual` to record a refund made outside erxes. A refused refund is kept as failed. 409 NOT_REFUNDABLE / PARTIAL_NOT_SUPPORTED',
     })
-    .input(
-      z.object({
-        id: Id,
-        amount: z.int().min(1).optional(),
-        reason: z.string().trim().min(1).max(255),
-        manual: z.boolean().default(false),
-        dedupeKey: DedupeKey.optional(),
-      }),
-    )
+    .input(RefundRequest)
     .output(z.object({ refund: Refund, invoice: Invoice })),
   refunds: base
     .route({ method: 'GET', path: '/payments/invoices/{id}/refunds', summary: 'List refunds' })
