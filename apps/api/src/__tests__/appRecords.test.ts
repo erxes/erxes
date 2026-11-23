@@ -273,4 +273,38 @@ describe('app records for the builder’s pickers', { timeout: 300_000 }, () => 
       { key: 'repository', recordType: 'repository', dependsOn: 'owner' },
     ]);
   });
+
+  it('a catalog search answers the best matches first, with only their apps, triggers and connections', async () => {
+    const found = await t.owner().automations.catalog({ search: 'github issue opened' });
+    const types = found.triggers.map((trigger) => trigger.type);
+
+    expect(types[0]).toBe('app.github.issue_opened');
+    expect(types).not.toContain('app.github.push');
+    expect(found.actions[0]?.type).toBe('github.create_issue');
+    expect(found.apps.map((app) => app.key)).toEqual(['github']);
+    expect(found.apps[0]?.connections).toEqual([
+      { id: githubId, name: 'Acme code', status: 'active' },
+    ]);
+    expect(found.apps[0]?.triggers.map((trigger) => trigger.type).toSorted()).toEqual(
+      types.filter((type) => type.startsWith('app.github.')).toSorted(),
+    );
+
+    const comment = await t.owner().automations.catalog({ search: 'github comment', limit: 2 });
+
+    expect(comment.actions.map((action) => action.type)).toEqual([
+      'github.add_comment',
+      'github.edit_comment',
+    ]);
+    expect(comment.triggers).toHaveLength(2);
+    expect(comment.triggers[0]?.type).toBe('app.github.issue_comment_created');
+
+    const nothing = await t.owner().automations.catalog({ search: 'zzqx' });
+
+    expect(nothing).toEqual({ triggers: [], actions: [], apps: [] });
+
+    const whole = await t.owner().automations.catalog({});
+
+    expect(whole.triggers.map((trigger) => trigger.type)).toContain('app.github.push');
+    expect(whole.apps.map((app) => app.key)).toContain('facebook');
+  });
 });
