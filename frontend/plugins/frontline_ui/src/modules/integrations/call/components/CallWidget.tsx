@@ -3,7 +3,7 @@ import { IconDots } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CallWidgetDraggableRoot } from '@/integrations/call/components/CallWidgetDraggable';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { callWidgetPositionState } from '@/integrations/call/states/callWidgetStates';
 import { callUiAtom } from '@/integrations/call/states/callUiAtom';
 import {
@@ -30,23 +30,14 @@ import { CallTriggerContent } from '@/integrations/call/components/CallTriggerCo
 import {
   currentCallConversationIdAtom,
   historyIdAtom,
+  inCallViewAtom,
 } from '@/integrations/call/states/callStates';
 import { useAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
 
 export const CallWidgetContent = () => {
-  const [sipState] = useAtom<ISipState>(sipStateAtom);
-  const setHistoryId = useSetAtom(historyIdAtom);
-  const setCurrentCallConversationId = useSetAtom(
-    currentCallConversationIdAtom,
-  );
+  const sipState = useAtomValue<ISipState>(sipStateAtom);
   const { addCustomer, customer, channels, integrationName, loading } =
     useAddCallCustomer();
-  useEffect(() => {
-    if (sipState.callStatus === CallStatusEnum.ENDED) {
-      setHistoryId(null);
-      setCurrentCallConversationId(null);
-    }
-  }, [sipState.callStatus, setHistoryId, setCurrentCallConversationId]);
 
   if (sipState.callStatus === CallStatusEnum.IDLE) {
     return <CallTabs keypad={<Dialpad addCustomer={addCustomer} />} />;
@@ -114,6 +105,12 @@ export const CallWidget = () => {
   const open = useAtomValue(callWidgetOpenAtom);
   const sipState = useAtomValue(sipStateAtom);
   const setOpen = useSetAtom(callWidgetOpenAtom);
+  const setHistoryId = useSetAtom(historyIdAtom);
+  const setCurrentCallConversationId = useSetAtom(
+    currentCallConversationIdAtom,
+  );
+  const setInCallView = useSetAtom(inCallViewAtom);
+  const previousCallStatusRef = useRef(sipState.callStatus);
   useLayoutEffect(() => {
     if (popoverContentRef.current) {
       setContentHeight(popoverContentRef.current.offsetHeight);
@@ -131,6 +128,26 @@ export const CallWidget = () => {
       setOpen(false);
     }
   }, [sipState.callDirection, sipState.callStatus, setOpen]);
+
+  // CallWidget stays mounted while the popover is closed, so the end of a
+  // call is caught here rather than in the popover content.
+  useEffect(() => {
+    const previousStatus = previousCallStatusRef.current;
+    previousCallStatusRef.current = sipState.callStatus;
+    if (
+      sipState.callStatus === CallStatusEnum.IDLE &&
+      previousStatus !== CallStatusEnum.IDLE
+    ) {
+      setHistoryId(null);
+      setCurrentCallConversationId(null);
+      setInCallView(null);
+    }
+  }, [
+    sipState.callStatus,
+    setHistoryId,
+    setCurrentCallConversationId,
+    setInCallView,
+  ]);
 
   return (
     <>

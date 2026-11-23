@@ -357,18 +357,66 @@
   keeps the first non-empty name.
 - `SipProvider` never lets JsSIP wait for ICE gathering to finish on its own.
   Every `newRTCSession` subscribes to the session's `icecandidate` event and
-  calls its `ready()` as soon as a `relay` candidate arrives, or one second
-  after the last candidate otherwise, so the answer or offer SDP leaves at
-  once. Without this, Windows hosts with Hyper-V `vEthernet` or VPN adapters
-  keep ringing 40–50 seconds after Answer while the browser times out on
-  interfaces that never reply to STUN/TURN. Keep the early `ready()` when
-  changing call setup.
+  calls its `ready()` once every TURN URL in `iceServers` has produced a
+  `relay` candidate, one second after the last candidate, or 1.5 seconds after
+  the first candidate, whichever comes first, so the answer or offer SDP leaves
+  at once. Its timers are cleared when the session ends. Without this, Windows
+  hosts with Hyper-V `vEthernet` or VPN adapters keep ringing 40–50 seconds
+  after Answer while the browser times out on interfaces that never reply to
+  STUN/TURN. Keep the early `ready()` when changing call setup.
+- `SipContainer` builds `iceServers` from `callsGetConfigs`: the
+  `ICE_SERVERS` code holds a JSON `RTCIceServer[]` (each entry needs a
+  non-empty `urls`) for several TURN/STUN servers; when it is absent or
+  invalid, the legacy `TURN_SERVER_URL` (with `TURN_SERVER_USERNAME` and
+  `TURN_SERVER_CREDENTIAL`) and `STUN_SERVER_URL` codes apply. `iceServers`
+  and the SIP config are memoized so `SipProvider`'s context stays stable.
+  A persisted `callConfigAtom` whose `inboxId` is not among
+  `callUserIntegrations` reopens the call config picker.
+- `SipProvider` owns one call at a time through `rtcSessionRef`, kept in
+  step with `rtcSessionAtom`. A second incoming INVITE gets `486 Busy Here`
+  before it touches `sipStateAtom`. `failed` and `ended` run
+  `clearSession(rtcSession)`, which does nothing unless that session is the
+  current one, and never call `ua.terminateSessions()`; JsSIP 3.10 emits no
+  `bye` or `rejected` session events. `clearSession` resets the call fields
+  of `sipStateAtom` (including `groupName`), `rtcSessionAtom`,
+  `callDurationAtom`, the remote audio `srcObject` and mute/hold state, and
+  refetches every mounted `CallHistories` query.
+- The `registered` event fires on every REGISTER refresh, so it and
+  `unregistered` leave `callStatus` and `callDirection` alone while a
+  session is live. A WebSocket drop only marks the connection error: JsSIP
+  reconnects the transport itself and the UA is never stopped under a live
+  call. `reconnectSip({ register })` restarts the UA when idle (Reconnect
+  after Turn off passes `register: true`) and only nudges the transport during
+  a call.
+- Remote audio attaches on the peer connection's `track` event for both
+  directions, bound when the session starts or on its `peerconnection`
+  event, and plays immediately. `answerCall` is guarded per session by
+  `answeringSessionRef`; `useSip().answering` disables Answer until the
+  session is accepted, fails or ends, and a throwing `answer()` clears it.
+- `SipProvider` owns `callDurationAtom` (set on `accepted`, cleared at
+  session end), so the trigger and in-call timers never depend on the popover
+  being open. Mute and hold state come from the session's `muted`,
+  `unmuted`, `hold` and `unhold` events as `useSip().muted` and `held`.
+- `CallWidget` is always mounted, so it clears `historyIdAtom`,
+  `currentCallConversationIdAtom` and `inCallViewAtom` when `callStatus`
+  returns to `IDLE`. `useCurrentCallSession` cancels its 1.5-second
+  ended/missed cleanup when a newer session update arrives or it unmounts, and
+  refetches call histories on `ended` and `missed`.
+- The dialpad's Call button and Enter in the number input share one handler,
+  enabled only while `sipStatus` is `REGISTERED` and `callStatus` is
+  `IDLE`. Outgoing `callAddCustomer` sends no queue name. Transfer is enabled
+  only while the call is `ACTIVE` and disables its submit while the mutation
+  is in flight.
+- `useAddCallCustomer.addCustomer` is stable, blanks the previous caller and
+  ignores any response but the latest request.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
   `config:call_enabled_integrations`, `callInfo`,
-  `callHistoryId`, `callWidgetPosition`) and reopens the call config picker,
-  which unmounts `SipProvider` and stops the SIP user agent.
+  `callHistoryId`, `callWidgetPosition`) plus the in-memory `sipStateAtom`,
+  `rtcSessionAtom`, `currentCallConversationIdAtom`, `inCallViewAtom` and
+  `callDurationAtom`, and reopens the call config picker, which unmounts
+  `SipProvider` and stops the SIP user agent.
 - The incoming-call popup reads `Incoming call to <integration name>`, naming
   the inbox integration `callAddCustomer` matched for the call's queue, not the
   integration's channel.
@@ -1043,6 +1091,16 @@ owns the setup form and connection actions.
 ## Contracts
 
 ### Provides
+
+- Inside the erxes desktop app, `SipProvider` drives the optional
+  `window.erxesDesktop` bridge (absent in a browser, where it does nothing):
+  it pushes `phone({ language, status: 'connecting' | 'ready' | 'offline',
+  call: { number, name, direction, talking, since, muted, held } | null,
+  queues: [] })` on every phone change and `phone(null)` on unmount, and runs
+  `onCommand` commands `answer`, `hangUp`, `mute`, `hold` (both toggle),
+  `dial` (fills the number, opens the widget and dials when idle and
+  registered) and `openPhone`. `name` is always `null` and `queues` empty;
+  the provider knows neither.
 
 - `./frontline` retains its federation path and loads the named `Frontline`
   export from `src/modules/FrontlineMain.tsx`.
@@ -2044,8 +2102,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   re-registers and one on the same credentials keeps the live connection. Never
   force a `key` on `SipProvider`: `CallWidget` renders inside it, and a remount
   runs the widget's `IDLE` effect and closes the widget. Its `useSip()` context
-  carries only call controls; frontline_api has no active-session contract, so
-  there is nothing to register a device or tab against.
+  carries call controls plus the `answering`, `muted` and `held` flags;
+  frontline_api has no active-session contract, so there is nothing to register
+  a device or tab against.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -3454,6 +3513,14 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - Every in-app `Link`/`navigate` target starts with `/frontline/…`. A relative `to="frontline/tickets…"` resolves against the current route, so each click appends another `frontline/tickets` segment (`/frontline/tickets/frontline/tickets/…`). The tickets sidebar channel rows (`TicketNavigations`) link to `/frontline/tickets?channelId=…&pipelineId=…`.
 
 ## Validation
+
+- Call smoke: take a call and wait past a SIP REGISTER refresh; the widget stays
+  in-call. Ring the same extension from a second phone during the call; it gets
+  busy and the first call keeps audio. Hang up the second ring; the first call
+  survives. Answer by double-clicking; one 200 OK goes out and the button stays
+  disabled until the call connects. Turn off, then Reconnect; the badge returns
+  to Online. Close the popover mid-call and reopen it; the duration keeps
+  counting. End a call; the widget history shows it without a reload.
 
 - Ticket deletion smoke: confirm Delete on A, open B while the request is pending,
   then finish it; B stays open. Keep A selected and confirm a stacked parent returns.

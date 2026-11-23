@@ -18,6 +18,10 @@ import {
 } from '@tabler/icons-react';
 import { Button, Tabs } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
+import {
+  CallStatusEnum,
+  SipStatusEnum,
+} from '@/integrations/call/types/sipTypes';
 import { TAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
 
 export const CallTabs = ({ keypad }: { keypad: React.ReactNode }) => {
@@ -72,43 +76,33 @@ const CallTabsTrigger = ({
 };
 
 export const Dialpad = ({ addCustomer }: { addCustomer: TAddCallCustomer }) => {
-  return (
-    <div className="px-3 pt-3">
-      <CallSipActions />
-      <CallNumberInput />
-      <SelectPhoneCallFrom />
-      <CallButton addCustomer={addCustomer} />
-    </div>
-  );
-};
-
-export const CallButton = ({
-  addCustomer,
-}: {
-  addCustomer: TAddCallCustomer;
-}) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
   const { startCall } = useSip();
   const sipState = useAtomValue(sipStateAtom);
-  const [callConfig] = useAtom(callConfigAtom);
+  const callConfig = useAtomValue(callConfigAtom);
   const phoneNumber = useAtomValue(callNumberState);
 
+  const canCall =
+    !!phoneNumber &&
+    sipState.sipStatus === SipStatusEnum.REGISTERED &&
+    sipState.callStatus === CallStatusEnum.IDLE;
+
   const call = () => {
-    if (phoneNumber && phoneNumber.length > 0) {
-      addCustomer(callConfig?.inboxId || '', phoneNumber, sipState.groupName);
-      startCall(phoneNumber);
-    }
+    if (!canCall) return;
+    addCustomer(callConfig?.inboxId || '', phoneNumber);
+    startCall(phoneNumber);
   };
 
   return (
-    <Button
-      className="my-3 w-full"
-      disabled={!phoneNumber?.length}
-      onClick={call}
-    >
-      {t('call')}
-    </Button>
+    <div className="px-3 pt-3">
+      <CallSipActions />
+      <CallNumberInput onSubmit={call} />
+      <SelectPhoneCallFrom />
+      <Button className="my-3 w-full" disabled={!canCall} onClick={call}>
+        {t('call')}
+      </Button>
+    </div>
   );
 };

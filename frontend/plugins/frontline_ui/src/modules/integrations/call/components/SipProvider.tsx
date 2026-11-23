@@ -5,16 +5,21 @@ import React, {
   createContext,
   useContext,
   useMemo,
+  useState,
 } from 'react';
 import * as JsSIP from 'jssip';
-import type { IceCandidateEvent } from 'jssip/lib/RTCSession';
+import type { IceCandidateEvent, RTCSession } from 'jssip/lib/RTCSession';
+import type { CallOptions, RTCSessionEvent } from 'jssip/lib/UA';
+import { useApolloClient } from '@apollo/client';
 import {
   SipErrorTypeEnum,
   SipStatusEnum,
   CallDirectionEnum,
   CallStatusEnum,
+  ExtraHeaders,
   SipProviderProps,
   SipContextValue,
+  ReconnectSipOptions,
 } from '../types/sipTypes';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -28,18 +33,56 @@ import {
   extractPhoneNumberFromCounterpart,
   isCallCompletedElsewhere,
   logger,
-  parseCallDirection,
 } from '@/integrations/call/utils/callUtils';
-
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
-import { historyIdAtom } from '@/integrations/call/states/callStates';
+import { callDurationAtom } from '@/integrations/call/states/callStates';
+import { callWidgetOpenAtom } from '@/integrations/call/states/callWidgetOpenAtom';
+import { refetchCallHistories } from '@/integrations/call/hooks/useCallHistories';
 
 const ICE_GATHERING_SETTLE_MS = 1000;
+const ICE_GATHERING_MAX_MS = 1500;
+const DEFAULT_EXTRA_HEADERS: ExtraHeaders = { register: [], invite: [] };
+const NO_ICE_SERVERS: RTCIceServer[] = [];
 
-// Context for SIP functionality
+type DesktopPhoneState = {
+  language: string;
+  status: 'connecting' | 'ready' | 'offline';
+  call: {
+    number: string;
+    name: string | null;
+    direction: 'incoming' | 'outgoing';
+    talking: boolean;
+    since: number | null;
+    muted: boolean;
+    held: boolean;
+  } | null;
+  queues: never[];
+};
+
+type DesktopPhoneCommand =
+  | { type: 'openPhone' | 'answer' | 'hangUp' | 'mute' | 'hold' }
+  | { type: 'dial'; number: string };
+
+declare global {
+  interface Window {
+    /** The erxes desktop app's preload; absent in a browser. */
+    erxesDesktop?: {
+      phone: (state: DesktopPhoneState | null) => void;
+      onCommand: (
+        listener: (command: DesktopPhoneCommand) => void,
+      ) => () => void;
+    };
+  }
+}
+
+const countTurnUrls = (iceServers: RTCIceServer[]) =>
+  iceServers
+    .flatMap(({ urls }) => (Array.isArray(urls) ? urls : [urls]))
+    .filter((url) => /^turns?:/i.test(url)).length;
+
 const SipContext = createContext<SipContextValue | null>(null);
 
-const SipProvider = ({
+export const SipProvider = ({
   host = null,
   port = null,
   pathname = '',
@@ -48,34 +91,36 @@ const SipProvider = ({
   autoRegister = false,
   autoAnswer = false,
   sessionTimersExpires = 3600,
-  extraHeaders = { register: [], invite: [] },
-  iceServers = [],
+  extraHeaders = DEFAULT_EXTRA_HEADERS,
+  iceServers = NO_ICE_SERVERS,
   debug = false,
   children,
 }: SipProviderProps & { children: React.ReactNode }) => {
-  const { t } = useTranslation('frontline', {
+  const { t, i18n } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [callInfo] = useAtom(callInfoAtom);
+  const client = useApolloClient();
+  const callInfo = useAtomValue(callInfoAtom);
   const setCallNumber = useSetAtom(callNumberState);
-  // State
+  const setWidgetOpen = useSetAtom(callWidgetOpenAtom);
   const [sipState, setSipState] = useAtom(sipStateAtom);
   const [rtcSessionState, setRtcSessionState] = useAtom(rtcSessionAtom);
+  const [callStartedAt, setCallStartedAt] = useAtom(callDurationAtom);
+  const [answeringSession, setAnsweringSession] = useState<RTCSession | null>(
+    null,
+  );
+  const [media, setMedia] = useState({ muted: false, held: false });
 
-  const currentHistoryId = useAtomValue(historyIdAtom);
-
-  const uaRef = useRef<any>(null);
+  const uaRef = useRef<JsSIP.UA | null>(null);
+  const rtcSessionRef = useRef<RTCSession | null>(null);
+  const answeringSessionRef = useRef<RTCSession | null>(null);
   const ringbackToneRef = useRef<HTMLAudioElement | null>(null);
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-  const loggerRef = useRef<any>(logger);
+  const iceServersRef = useRef(iceServers);
+  const callInfoRef = useRef(callInfo);
 
-  const historyIdRef = useRef<string>('');
-
-  useEffect(() => {
-    if (currentHistoryId) {
-      historyIdRef.current = currentHistoryId;
-    }
-  }, [currentHistoryId]);
+  iceServersRef.current = iceServers;
+  callInfoRef.current = callInfo;
 
   const playHangupTone = useCallback(() => {
     if (!ringbackToneRef.current) {
@@ -101,6 +146,40 @@ const SipProvider = ({
       ringbackToneRef.current = null;
     }
   }, []);
+
+  const setAnswering = useCallback((session: RTCSession | null) => {
+    answeringSessionRef.current = session;
+    setAnsweringSession(session);
+  }, []);
+
+  const setSession = useCallback(
+    (session: RTCSession | null) => {
+      rtcSessionRef.current = session;
+      setRtcSessionState(session);
+    },
+    [setRtcSessionState],
+  );
+
+  // Ends only the given session; a late event from another call is ignored.
+  const clearSession = useCallback(
+    (rtcSession: RTCSession) => {
+      if (rtcSessionRef.current !== rtcSession) return;
+      setSession(null);
+      if (answeringSessionRef.current === rtcSession) setAnswering(null);
+      if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null;
+      setMedia({ muted: false, held: false });
+      setCallStartedAt(null);
+      setSipState((prev) => ({
+        ...prev,
+        callStatus: CallStatusEnum.IDLE,
+        callDirection: null,
+        callCounterpart: null,
+        groupName: '',
+      }));
+      refetchCallHistories(client);
+    },
+    [client, setAnswering, setCallStartedAt, setSession, setSipState],
+  );
 
   // SIP control functions
   const registerSip = useCallback(() => {
@@ -133,33 +212,26 @@ const SipProvider = ({
 
   // Call control functions
   const answerCall = useCallback(() => {
+    const session = rtcSessionRef.current;
     if (
-      sipState.callStatus !== CallStatusEnum.STARTING ||
-      sipState.callDirection !== CallDirectionEnum.INCOMING
+      !session ||
+      answeringSessionRef.current === session ||
+      session.direction !== 'incoming' ||
+      !session.isInProgress()
     ) {
-      throw new Error(
-        `Calling answerCall() is not allowed when call status is ${sipState.callStatus} and call direction is ${sipState.callDirection}`,
-      );
+      return;
     }
+    setAnswering(session);
     try {
-      rtcSessionState?.answer({
-        mediaConstraints: {
-          audio: true,
-          video: false,
-        },
-        pcConfig: {
-          iceServers,
-        },
+      session.answer({
+        mediaConstraints: { audio: true, video: false },
+        pcConfig: { iceServers: iceServersRef.current },
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
+      if (answeringSessionRef.current === session) setAnswering(null);
     }
-  }, [
-    sipState.callStatus,
-    sipState.callDirection,
-    rtcSessionState,
-    iceServers,
-  ]);
+  }, [setAnswering]);
 
   const startCall = useCallback(
     (destination: string) => {
@@ -180,18 +252,15 @@ const SipProvider = ({
         );
       }
 
-      const options = {
+      const options: CallOptions = {
         extraHeaders: extraHeaders.invite,
         mediaConstraints: { audio: true, video: false },
         pcConfig: {
           iceServers,
           bundlePolicy: 'balanced',
           rtcpMuxPolicy: 'require',
-          sdpSemantics: 'unified-plan',
         },
         sessionTimersExpires,
-        no_answer_timeout: 3600,
-        session_timers: true,
       };
 
       uaRef.current?.call(destination, options);
@@ -211,22 +280,20 @@ const SipProvider = ({
   );
 
   const stopCall = useCallback(() => {
-    setSipState((prev) => ({ ...prev, callStatus: CallStatusEnum.IDLE }));
-    uaRef.current?.terminateSessions();
-  }, [setSipState]);
+    const session = rtcSessionRef.current;
+    if (!session) {
+      setSipState((prev) => ({ ...prev, callStatus: CallStatusEnum.IDLE }));
+      return;
+    }
+    try {
+      session.terminate();
+    } catch (error) {
+      logger.error(error);
+      clearSession(session);
+    }
+  }, [clearSession, setSipState]);
 
   // Audio control functions
-  const isMuted = useCallback(() => {
-    return rtcSessionState?._audioMuted || false;
-  }, [rtcSessionState]);
-
-  const isHeld = useCallback(() => {
-    return {
-      localHold: rtcSessionState?._localHold,
-      remoteHold: rtcSessionState?._remoteHold,
-    };
-  }, [rtcSessionState]);
-
   const mute = useCallback(() => {
     rtcSessionState?.mute();
   }, [rtcSessionState]);
@@ -246,429 +313,337 @@ const SipProvider = ({
   const sendDtmf = useCallback(
     (tones: string) => {
       rtcSessionState?.sendDTMF(tones);
-      return 'calledSendDtmf';
     },
     [rtcSessionState],
   );
 
-  // Initialize JsSIP
-  const reinitializeJsSIP = useCallback(() => {
-    if (uaRef.current) {
-      uaRef.current.stop();
-      uaRef.current = null;
-    }
+  // Plays the remote party as soon as its track arrives, for either direction.
+  const attachRemoteAudio = useCallback(
+    (rtcSession: RTCSession, peerConnection: RTCPeerConnection) => {
+      peerConnection.addEventListener('track', (event) => {
+        const audio = remoteAudioRef.current;
+        if (!audio || rtcSessionRef.current !== rtcSession) return;
+        audio.autoplay = true;
+        audio.srcObject = event.streams[0] ?? new MediaStream([event.track]);
+        audio.play().catch((error) => {
+          logger.debug('Error playing remote audio', error);
+        });
+      });
+    },
+    [],
+  );
 
-    if (!host || !port || !user) {
+  // Sends the SDP early: once every TURN URL gave a relay candidate, one
+  // second after the last candidate, or 1.5s after the first, whichever comes
+  // first. Returns the cleanup for the session's end.
+  const watchIceGathering = useCallback((rtcSession: RTCSession) => {
+    let settleTimer: ReturnType<typeof setTimeout> | undefined;
+    let capTimer: ReturnType<typeof setTimeout> | undefined;
+    let pendingReady: VoidFunction | null = null;
+    let relayCandidates = 0;
+
+    const clear = () => {
+      clearTimeout(settleTimer);
+      clearTimeout(capTimer);
+      pendingReady = null;
+      relayCandidates = 0;
+    };
+    const finish = () => {
+      const ready = pendingReady;
+      clear();
+      ready?.();
+    };
+
+    rtcSession.on('icecandidate', ({ candidate, ready }: IceCandidateEvent) => {
+      if (pendingReady !== ready) {
+        clear();
+        pendingReady = ready;
+        capTimer = setTimeout(finish, ICE_GATHERING_MAX_MS);
+      }
+      clearTimeout(settleTimer);
+      if (candidate.type === 'relay') {
+        relayCandidates += 1;
+        if (
+          relayCandidates >= Math.max(1, countTurnUrls(iceServersRef.current))
+        ) {
+          finish();
+          return;
+        }
+      }
+      settleTimer = setTimeout(finish, ICE_GATHERING_SETTLE_MS);
+    });
+
+    return clear;
+  }, []);
+
+  const handleNewSession = useCallback(
+    ({ originator, session: rtcSession, request }: RTCSessionEvent) => {
+      const isIncoming = originator === 'remote';
+
+      if (rtcSessionRef.current) {
+        logger.debug('second call replied with 486 "Busy Here"');
+        rtcSession.terminate(
+          isIncoming ? { status_code: 486, reason_phrase: 'Busy Here' } : {},
+        );
+        return;
+      }
+
+      const uri = (isIncoming ? request.from : request.to).toString();
+      const counterpart = uri.split(';')[0];
+      const callDirection = isIncoming
+        ? CallDirectionEnum.INCOMING
+        : CallDirectionEnum.OUTGOING;
+
+      setSession(rtcSession);
       setSipState((prev) => ({
         ...prev,
-        sipStatus: SipStatusEnum.DISCONNECTED,
-        sipErrorType: null,
-        sipErrorMessage: null,
+        callDirection,
+        callStatus: CallStatusEnum.STARTING,
+        callCounterpart: counterpart,
+        groupName: isIncoming
+          ? request.from.getParam<string>('x-gs-group-name') || ''
+          : '',
       }));
-      return;
-    }
 
-    try {
-      const socket = new JsSIP.WebSocketInterface(
-        `wss://${host}:${port}${pathname}`,
-      );
-      const options = {
-        uri: `sip:${user}@${host}`,
-        password,
-        sockets: [socket],
-        register: !callInfo?.isUnregistered,
+      const boundConnections = new WeakSet<RTCPeerConnection>();
+      const bindConnection = (peerConnection: RTCPeerConnection) => {
+        if (boundConnections.has(peerConnection)) return;
+        boundConnections.add(peerConnection);
+        attachRemoteAudio(rtcSession, peerConnection);
       };
+      if (rtcSession.connection) bindConnection(rtcSession.connection);
+      rtcSession.on('peerconnection', ({ peerconnection }) =>
+        bindConnection(peerconnection),
+      );
 
-      uaRef.current = new JsSIP.UA(options);
-      if (debug) {
-        JsSIP.debug.enable('JsSIP:*');
-      } else {
-        JsSIP.debug.disable();
-      }
-    } catch (error) {
-      loggerRef.current.debug('Error', error.message, error);
-      setSipState((prev) => ({
-        ...prev,
-        sipStatus: SipStatusEnum.ERROR,
-        sipErrorType: SipErrorTypeEnum.CONFIGURATION,
-        sipErrorMessage: error?.message,
-      }));
-      return;
-    }
+      const stopIceGathering = watchIceGathering(rtcSession);
 
-    const ua = uaRef.current;
+      const syncMedia = () => {
+        if (rtcSessionRef.current !== rtcSession) return;
+        setMedia({
+          muted: !!rtcSession.isMuted().audio,
+          held: rtcSession.isOnHold().local,
+        });
+      };
+      rtcSession.on('muted', syncMedia);
+      rtcSession.on('unmuted', syncMedia);
+      rtcSession.on('hold', syncMedia);
+      rtcSession.on('unhold', syncMedia);
 
-    // Set up event handlers
-    ua.on('connecting', () => {
-      loggerRef.current?.debug('UA "connecting" event');
+      rtcSession.on('failed', (e) => {
+        stopRingbackTone();
+        stopIceGathering();
+        if (rtcSessionRef.current !== rtcSession) return;
 
-      if (uaRef.current !== ua) {
-        return;
-      }
-      setSipState((prev) => ({
-        ...prev,
-        sipStatus: SipStatusEnum.CONNECTING,
-        sipErrorType: null,
-        sipErrorMessage: null,
-      }));
-    });
+        if (e.cause === JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS) {
+          toast({
+            title: t('mic-permission-denied'),
+            variant: 'destructive',
+          });
+        } else if (
+          isIncoming &&
+          e.originator !== 'local' &&
+          !isCallCompletedElsewhere(e.message)
+        ) {
+          toast({
+            title: t('missed-call'),
+            description: extractPhoneNumberFromCounterpart(counterpart),
+            variant: 'destructive',
+          });
+        }
+        clearSession(rtcSession);
+      });
 
-    ua.on('connected', () => {
-      loggerRef.current?.debug('UA "connected" event');
+      rtcSession.on('ended', (e) => {
+        stopRingbackTone();
+        stopIceGathering();
+        if (rtcSessionRef.current !== rtcSession) return;
+        if (e.cause === JsSIP.C.causes.BYE) {
+          playHangupTone();
+          setCallNumber('');
+        }
+        clearSession(rtcSession);
+      });
 
-      if (uaRef.current !== ua) {
-        return;
-      }
-      setSipState((prev) => ({
-        ...prev,
-        sipStatus: SipStatusEnum.CONNECTED,
-        sipErrorType: null,
-        sipErrorMessage: null,
-      }));
-    });
-
-    ua.on('disconnected', (e: any) => {
-      loggerRef.current.debug('UA "disconnected" event');
-      if (e.code === 1006) {
-        setTimeout(() => reinitializeJsSIP(), 5000);
-      }
-
-      if (uaRef.current !== ua) {
-        return;
-      }
-      setSipState((prev) => ({
-        ...prev,
-        sipStatus: SipStatusEnum.ERROR,
-        sipErrorType: SipErrorTypeEnum.CONNECTION,
-        sipErrorMessage: 'disconnected',
-      }));
-    });
-
-    ua.on('registered', (data: any) => {
-      loggerRef.current.debug('UA "registered" event', data);
-
-      if (uaRef.current !== ua) {
-        return;
-      }
-      setSipState((prev) => ({
-        ...prev,
-        sipStatus: SipStatusEnum.REGISTERED,
-        callStatus: CallStatusEnum.IDLE,
-      }));
-    });
-
-    ua.on('unregistered', () => {
-      loggerRef.current.debug('UA "unregistered" event');
-
-      if (uaRef.current !== ua) {
-        return;
-      }
-      if (ua.isConnected()) {
+      rtcSession.on('accepted', () => {
+        stopRingbackTone();
+        if (rtcSessionRef.current !== rtcSession) return;
+        setCallStartedAt(new Date());
         setSipState((prev) => ({
           ...prev,
-          sipStatus: SipStatusEnum.CONNECTED,
-          callStatus: CallStatusEnum.IDLE,
-          callDirection: null,
+          callStatus: CallStatusEnum.ACTIVE,
         }));
-      } else {
+        remoteAudioRef.current?.play().catch((error) => {
+          logger.debug('Error playing remote audio', error);
+        });
+      });
+
+      if (isIncoming && autoAnswer) {
+        answerCall();
+      }
+    },
+    [
+      answerCall,
+      attachRemoteAudio,
+      autoAnswer,
+      clearSession,
+      playHangupTone,
+      setCallNumber,
+      setCallStartedAt,
+      setSession,
+      setSipState,
+      stopRingbackTone,
+      t,
+      watchIceGathering,
+    ],
+  );
+
+  const startUa = useCallback(
+    (register: boolean) => {
+      if (uaRef.current) {
+        uaRef.current.stop();
+        uaRef.current = null;
+      }
+
+      if (!host || !port || !user) {
         setSipState((prev) => ({
           ...prev,
           sipStatus: SipStatusEnum.DISCONNECTED,
-          callStatus: CallStatusEnum.IDLE,
-          callDirection: null,
+          sipErrorType: null,
+          sipErrorMessage: null,
         }));
-      }
-    });
-
-    ua.on('registrationFailed', (data: any) => {
-      loggerRef.current.debug('UA "registrationFailed" event');
-
-      if (uaRef.current !== ua) {
         return;
       }
-      setSipState((prev) => ({
-        ...prev,
-        sipStatus: SipStatusEnum.ERROR,
-        sipErrorType: SipErrorTypeEnum.REGISTRATION,
-        sipErrorMessage: data?.cause || '',
-      }));
-    });
 
-    ua.on('muted', () => {
-      loggerRef.current.debug('UA "muted" event');
-    });
-
-    // Handle new RTC sessions (calls)
-    ua.on(
-      'newRTCSession',
-      ({ originator, session: rtcSession, request: rtcRequest }: any) => {
-        if (uaRef.current !== ua) {
-          return;
-        }
-        let counterpart = '';
-        let callDirection = '';
-
-        if (originator === 'local') {
-          const foundUri = rtcRequest.to.toString();
-          const toDelimiterPosition = foundUri.indexOf(';') || null;
-
-          counterpart = rtcRequest.to.toString().split(';')[0];
-          callDirection = CallDirectionEnum.OUTGOING;
-
-          setSipState((prev) => ({
-            ...prev,
-            callDirection: CallDirectionEnum.OUTGOING,
-            callStatus: CallStatusEnum.STARTING,
-            callCounterpart:
-              foundUri.substring(0, toDelimiterPosition) || foundUri,
-          }));
-
-          rtcSession.connection.ontrack = (event: any) => {
-            const mediaStream = new MediaStream();
-            mediaStream.addTrack(event.track);
-            if (remoteAudioRef.current) {
-              remoteAudioRef.current.autoplay = true;
-              remoteAudioRef.current.srcObject = mediaStream;
-            }
-          };
-        } else if (originator === 'remote') {
-          const foundUri = rtcRequest.from.toString();
-          const delimiterPosition = foundUri.indexOf(';') || null;
-          counterpart = rtcRequest.from.toString().split(';')[0];
-          callDirection = CallDirectionEnum.INCOMING;
-
-          const fromParameters = rtcRequest.from._parameters;
-          const groupName = fromParameters['x-gs-group-name'] || '';
-          if (debug) {
-            loggerRef.current.debug('UA "newRTCSession" event', foundUri);
-          }
-          setSipState((prev) => ({
-            ...prev,
-            callDirection: CallDirectionEnum.INCOMING,
-            callStatus: CallStatusEnum.STARTING,
-            callCounterpart:
-              foundUri.substring(0, delimiterPosition) || foundUri,
-            groupName,
-          }));
-        }
-
-        const diversionHeader = rtcRequest.getHeader('Diversion');
-        const timeStamp = rtcRequest.getHeader('Timestamp') || 0;
-
-        if (rtcSessionState) {
-          loggerRef.current.debug('incoming call replied with 486 "Busy Here"');
-          rtcSession.terminate({
-            status_code: 486,
-            reason_phrase: 'Busy Here',
-          });
-          return;
-        }
-
-        setRtcSessionState(rtcSession);
-
-        let iceGatheringTimer: ReturnType<typeof setTimeout> | null = null;
-
-        rtcSession.on(
-          'icecandidate',
-          ({ candidate, ready }: IceCandidateEvent) => {
-            if (iceGatheringTimer) {
-              clearTimeout(iceGatheringTimer);
-              iceGatheringTimer = null;
-            }
-            if (candidate.type === 'relay') {
-              ready();
-              return;
-            }
-            iceGatheringTimer = setTimeout(ready, ICE_GATHERING_SETTLE_MS);
-          },
-        );
-
-        let direction = CallDirectionEnum.OUTGOING;
-        let customerPhone = '';
-
-        // Set up RTC session event handlers
-        rtcSession.on('failed', (e: any) => {
-          stopRingbackTone();
-          loggerRef.current.debug('RTC session failed', e);
-          if (uaRef.current !== ua) {
-            return;
-          }
-
-          if (sipState.callDirection) {
-            direction = parseCallDirection(sipState.callDirection);
-          }
-          customerPhone = extractPhoneNumberFromCounterpart(counterpart);
-
-          if (e?.cause === JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS) {
-            toast({
-              title: t('mic-permission-denied'),
-              variant: 'destructive',
-            });
-          } else if (
-            callDirection === CallDirectionEnum.INCOMING &&
-            e?.originator !== 'local' &&
-            !isCallCompletedElsewhere(e?.message)
-          ) {
-            toast({
-              title: t('missed-call'),
-              description: customerPhone,
-              variant: 'destructive',
-            });
-          }
-
-          setSipState((prev) => ({
-            ...prev,
-            callStatus: CallStatusEnum.IDLE,
-            callDirection: null,
-            callCounterpart: null,
-          }));
-          setRtcSessionState(null);
-          ua?.terminateSessions();
-          historyIdRef.current = '';
-          rtcSession = null;
+      let ua: JsSIP.UA;
+      try {
+        ua = new JsSIP.UA({
+          uri: `sip:${user}@${host}`,
+          password,
+          sockets: [
+            new JsSIP.WebSocketInterface(`wss://${host}:${port}${pathname}`),
+          ],
+          register,
         });
-
-        rtcSession.on('ended', (data: any) => {
-          stopRingbackTone();
-          if (uaRef.current !== ua) {
-            return;
-          }
-          if (data.cause === 'Terminated') {
-            playHangupTone();
-            setCallNumber('');
-          }
-
-          if (sipState.callDirection) {
-            direction = parseCallDirection(sipState.callDirection);
-          }
-          customerPhone = extractPhoneNumberFromCounterpart(counterpart);
-
-          setSipState((prev) => ({
-            ...prev,
-            callStatus: CallStatusEnum.IDLE,
-            callDirection: null,
-            callCounterpart: null,
-            groupName: '',
-          }));
-          setRtcSessionState(null);
-          ua?.terminateSessions();
-          historyIdRef.current = '';
-          rtcSession = null;
-        });
-
-        rtcSession.on('bye', () => {
-          if (uaRef.current !== ua) {
-            return;
-          }
-          setSipState((prev) => ({
-            ...prev,
-            callStatus: CallStatusEnum.IDLE,
-            callDirection: null,
-            callCounterpart: null,
-            groupName: '',
-          }));
-          ua?.terminateSessions();
-          setRtcSessionState(null);
-          historyIdRef.current = '';
-          rtcSession = null;
-        });
-
-        rtcSession.on('rejected', () => {
-          if (uaRef.current !== ua) {
-            return;
-          }
-
-          setSipState((prev) => ({
-            ...prev,
-            callStatus: CallStatusEnum.IDLE,
-            callDirection: null,
-            callCounterpart: null,
-            groupName: '',
-          }));
-          ua?.terminateSessions();
-          historyIdRef.current = '';
-        });
-
-        rtcSession.on('accepted', () => {
-          try {
-            stopRingbackTone();
-            if (uaRef.current !== ua) {
-              return;
-            }
-            if (sipState.callDirection) {
-              direction = parseCallDirection(sipState.callDirection);
-            }
-            customerPhone = extractPhoneNumberFromCounterpart(counterpart);
-            if (originator === 'remote' && remoteAudioRef.current) {
-              [remoteAudioRef.current.srcObject] =
-                rtcSession.connection.getRemoteStreams();
-            }
-
-            const playPromise = remoteAudioRef.current?.play();
-            if (playPromise) {
-              playPromise
-                .catch(() => {
-                  loggerRef.current?.debug('Error playing remote audio');
-                })
-                .then(() => {
-                  setTimeout(() => {
-                    remoteAudioRef.current?.play();
-                  }, 2000);
-                });
-              setSipState((prev) => ({
-                ...prev,
-                callStatus: CallStatusEnum.ACTIVE,
-              }));
-              return;
-            }
-
-            setTimeout(() => {
-              remoteAudioRef.current?.play();
-            }, 2000);
-            setSipState((prev) => ({
-              ...prev,
-              callStatus: CallStatusEnum.ACTIVE,
-            }));
-          } catch (error) {
-            console.error('Error in accepted event handler:', error);
-          }
-        });
-
-        if (originator === 'remote' && autoAnswer) {
-          answerCall();
+        if (debug) {
+          JsSIP.debug.enable('JsSIP:*');
+        } else {
+          JsSIP.debug.disable();
         }
-        if (originator === 'local') {
-          setTimeout(() => {
-            remoteAudioRef.current?.play();
-          }, 2000);
-        }
-      },
-    );
+      } catch (error) {
+        logger.debug('Error', error);
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: SipStatusEnum.ERROR,
+          sipErrorType: SipErrorTypeEnum.CONFIGURATION,
+          sipErrorMessage: error instanceof Error ? error.message : null,
+        }));
+        return;
+      }
+      uaRef.current = ua;
 
-    const extraHeadersRegister = extraHeaders.register || [];
-    if (extraHeadersRegister.length) {
-      ua.registrator().setExtraHeaders(extraHeadersRegister);
-    }
-    ua.start();
-  }, [
-    host,
-    port,
-    user,
-    extraHeaders.register,
-    setSipState,
-    pathname,
-    password,
-    callInfo?.isUnregistered,
-    debug,
-    sipState,
-    rtcSessionState,
-    setRtcSessionState,
-    autoAnswer,
-    stopRingbackTone,
-    playHangupTone,
-    setCallNumber,
-    answerCall,
-  ]);
+      ua.on('connecting', () => {
+        if (uaRef.current !== ua) return;
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: SipStatusEnum.CONNECTING,
+          sipErrorType: null,
+          sipErrorMessage: null,
+        }));
+      });
+
+      ua.on('connected', () => {
+        if (uaRef.current !== ua) return;
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: SipStatusEnum.CONNECTED,
+          sipErrorType: null,
+          sipErrorMessage: null,
+        }));
+      });
+
+      // JsSIP reconnects the WebSocket by itself; restarting the UA here
+      // would drop a call that is still flowing over the media path.
+      ua.on('disconnected', () => {
+        if (uaRef.current !== ua) return;
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: SipStatusEnum.ERROR,
+          sipErrorType: SipErrorTypeEnum.CONNECTION,
+          sipErrorMessage: 'disconnected',
+        }));
+      });
+
+      // Fires on every REGISTER refresh too, so it must leave a live call be.
+      ua.on('registered', () => {
+        if (uaRef.current !== ua) return;
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: SipStatusEnum.REGISTERED,
+          callStatus: rtcSessionRef.current
+            ? prev.callStatus
+            : CallStatusEnum.IDLE,
+        }));
+      });
+
+      ua.on('unregistered', () => {
+        if (uaRef.current !== ua) return;
+        const hasSession = !!rtcSessionRef.current;
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: ua.isConnected()
+            ? SipStatusEnum.CONNECTED
+            : SipStatusEnum.DISCONNECTED,
+          callStatus: hasSession ? prev.callStatus : CallStatusEnum.IDLE,
+          callDirection: hasSession ? prev.callDirection : null,
+        }));
+      });
+
+      ua.on('registrationFailed', (data) => {
+        if (uaRef.current !== ua) return;
+        setSipState((prev) => ({
+          ...prev,
+          sipStatus: SipStatusEnum.ERROR,
+          sipErrorType: SipErrorTypeEnum.REGISTRATION,
+          sipErrorMessage: data?.cause || '',
+        }));
+      });
+
+      ua.on('newRTCSession', (event: RTCSessionEvent) => {
+        if (uaRef.current !== ua) return;
+        handleNewSession(event);
+      });
+
+      const extraHeadersRegister = extraHeaders.register || [];
+      if (extraHeadersRegister.length) {
+        ua.registrator().setExtraHeaders(extraHeadersRegister);
+      }
+      ua.start();
+    },
+    [
+      host,
+      port,
+      user,
+      pathname,
+      password,
+      debug,
+      extraHeaders.register,
+      setSipState,
+      handleNewSession,
+    ],
+  );
+
+  const reconnectSip = useCallback(
+    (options?: ReconnectSipOptions) => {
+      if (rtcSessionRef.current) {
+        // Never stop the UA under a live call; nudge the transport instead.
+        uaRef.current?.start();
+        return;
+      }
+      startUa(options?.register ?? !callInfoRef.current?.isUnregistered);
+    },
+    [startUa],
+  );
 
   // Initialize audio element and JsSIP on mount
   useEffect(() => {
@@ -682,7 +657,7 @@ const SipProvider = ({
     audioElement.id = 'sip-provider-audio';
     document.body.appendChild(audioElement);
     remoteAudioRef.current = audioElement;
-    reinitializeJsSIP();
+    startUa(!callInfoRef.current?.isUnregistered);
     return () => {
       if (remoteAudioRef.current) {
         remoteAudioRef.current.parentNode?.removeChild(remoteAudioRef.current);
@@ -693,38 +668,118 @@ const SipProvider = ({
         uaRef.current = null;
       }
     };
+    // Only a new account restarts the UA here; Reconnect picks up the rest.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [host, port, user]);
 
-  // Create context value
+  const answering = !!answeringSession && answeringSession === rtcSessionState;
+
+  // Desktop app bridge: a no-op in a plain browser.
+  const commandRef = useRef<(command: DesktopPhoneCommand) => void>(() => {
+    return;
+  });
+  commandRef.current = (command) => {
+    if (command.type === 'answer') answerCall();
+    if (command.type === 'hangUp') stopCall();
+    if (command.type === 'mute') (media.muted ? unmute : mute)();
+    if (command.type === 'hold') (media.held ? unhold : hold)();
+    if (command.type === 'openPhone' || command.type === 'dial') {
+      setWidgetOpen(true);
+    }
+    if (command.type === 'dial') {
+      setCallNumber(command.number);
+      if (
+        sipState.sipStatus === SipStatusEnum.REGISTERED &&
+        sipState.callStatus === CallStatusEnum.IDLE
+      ) {
+        startCall(command.number);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const desktop = window.erxesDesktop;
+    if (!desktop) return;
+    const unsubscribe = desktop.onCommand((command) =>
+      commandRef.current(command),
+    );
+    return () => {
+      unsubscribe();
+      desktop.phone(null);
+    };
+  }, []);
+
+  const { sipStatus, callStatus, callDirection, callCounterpart } = sipState;
+  useEffect(() => {
+    const desktop = window.erxesDesktop;
+    if (!desktop) return;
+    const status =
+      sipStatus === SipStatusEnum.REGISTERED
+        ? 'ready'
+        : sipStatus === SipStatusEnum.CONNECTING ||
+          (sipStatus === SipStatusEnum.CONNECTED && !callInfo?.isUnregistered)
+        ? 'connecting'
+        : 'offline';
+    desktop.phone({
+      language: i18n.language,
+      status,
+      call:
+        callStatus === CallStatusEnum.IDLE || !callDirection
+          ? null
+          : {
+              number: extractPhoneNumberFromCounterpart(callCounterpart || ''),
+              name: null,
+              direction:
+                callDirection === CallDirectionEnum.INCOMING
+                  ? 'incoming'
+                  : 'outgoing',
+              talking: callStatus === CallStatusEnum.ACTIVE,
+              since: callStartedAt?.getTime() ?? null,
+              muted: media.muted,
+              held: media.held,
+            },
+      queues: [],
+    });
+  }, [
+    i18n.language,
+    sipStatus,
+    callStatus,
+    callDirection,
+    callCounterpart,
+    callStartedAt,
+    callInfo?.isUnregistered,
+    media,
+  ]);
+
   const contextValue = useMemo(
     () => ({
       registerSip,
       unregisterSip,
-      reconnectSip: reinitializeJsSIP,
+      reconnectSip,
       answerCall,
+      answering,
       startCall,
       stopCall,
-      isMuted,
+      muted: media.muted,
       mute,
       unmute,
       sendDtmf,
-      isHeld,
+      held: media.held,
       hold,
       unhold,
     }),
     [
       registerSip,
       unregisterSip,
-      reinitializeJsSIP,
+      reconnectSip,
       answerCall,
+      answering,
       startCall,
       stopCall,
-      isMuted,
+      media,
       mute,
       unmute,
       sendDtmf,
-      isHeld,
       hold,
       unhold,
     ],
@@ -743,5 +798,3 @@ export const useSip = () => {
   }
   return context;
 };
-
-export default SipProvider;

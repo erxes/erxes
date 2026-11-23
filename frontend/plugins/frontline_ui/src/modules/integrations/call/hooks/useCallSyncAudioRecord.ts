@@ -12,6 +12,7 @@ export const useCallSyncAudioRecord = (conversationId: string | null) => {
           },
         ]
       : [],
+    awaitRefetchQueries: true,
   });
 
   return {

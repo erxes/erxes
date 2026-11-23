@@ -4,7 +4,11 @@ import {
   useTransferCall,
 } from '@/integrations/call/hooks/useTransferCall';
 import { inCallViewAtom } from '@/integrations/call/states/callStates';
-import { callConfigAtom } from '@/integrations/call/states/sipStates';
+import {
+  callConfigAtom,
+  sipStateAtom,
+} from '@/integrations/call/states/sipStates';
+import { CallStatusEnum } from '@/integrations/call/types/sipTypes';
 import { IconCheck, IconPhoneOutgoing } from '@tabler/icons-react';
 import { Button, Label, Select, Toggle, cn, toast } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -16,12 +20,14 @@ export const TransferTrigger = () => {
     keyPrefix: 'modules.integrations',
   });
   const [inCallView, setInCallView] = useAtom(inCallViewAtom);
+  const sip = useAtomValue(sipStateAtom);
   return (
     <InCallActionButton
       asChild
       className="data-[state=on]:bg-muted data-[state=on]:text-foreground"
     >
       <Toggle
+        disabled={sip.callStatus !== CallStatusEnum.ACTIVE}
         pressed={inCallView === 'transfer'}
         onPressedChange={(pressed) =>
           setInCallView(pressed ? 'transfer' : null)
@@ -43,12 +49,17 @@ export const Transfer = () => {
   const { callExtensionList, loading } = useExtentionList({
     skip: inCallView !== 'transfer',
   });
-  const { transferCall } = useTransferCall();
+  const { transferCall, loading: transferring } = useTransferCall();
   const [selectedExtension, setSelectedExtension] = useState('');
 
   if (inCallView !== 'transfer') {
     return null;
   }
+
+  const close = () => {
+    setSelectedExtension('');
+    setInCallView(null);
+  };
 
   const handleTransfer = async () => {
     if (!selectedExtension || !config?.inboxId) return;
@@ -61,7 +72,7 @@ export const Transfer = () => {
       });
       if (result?.data?.callTransfer === 'success') {
         toast({ title: t('transfer'), description: t('transfer-success') });
-        setInCallView(null);
+        close();
       } else {
         toast({
           title: t('transfer'),
@@ -91,34 +102,36 @@ export const Transfer = () => {
             <Select.Value placeholder={t('select-an-extension')} />
           </Select.Trigger>
           <Select.Content className="z-110">
-            {callExtensionList?.map((extension) => (
-              <Select.Primitive.Item
-                key={extension.extension}
-                value={extension.extension ?? ''}
-                className={cn(
-                  'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50',
-                )}
-              >
-                <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-                  <Select.Primitive.ItemIndicator>
-                    <IconCheck className="w-4 h-4" />
-                  </Select.Primitive.ItemIndicator>
-                </span>
-                <Select.Primitive.ItemText>
-                  {extension.fullname} ({extension.extension})
-                </Select.Primitive.ItemText>
-                <span className="ml-2 text-accent-foreground text-xs">
-                  {extension.status}
-                </span>
-              </Select.Primitive.Item>
-            ))}
+            {callExtensionList
+              ?.filter((extension) => !!extension.extension)
+              .map((extension) => (
+                <Select.Primitive.Item
+                  key={extension.extension}
+                  value={extension.extension || ''}
+                  className={cn(
+                    'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50',
+                  )}
+                >
+                  <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+                    <Select.Primitive.ItemIndicator>
+                      <IconCheck className="w-4 h-4" />
+                    </Select.Primitive.ItemIndicator>
+                  </span>
+                  <Select.Primitive.ItemText>
+                    {extension.fullname} ({extension.extension})
+                  </Select.Primitive.ItemText>
+                  <span className="ml-2 text-accent-foreground text-xs">
+                    {extension.status}
+                  </span>
+                </Select.Primitive.Item>
+              ))}
           </Select.Content>
         </Select>
       </div>
       <div className="flex flex-col gap-1">
         <Button
           variant="secondary"
-          disabled={!selectedExtension}
+          disabled={!selectedExtension || transferring}
           onClick={handleTransfer}
         >
           {t('transfer')}
@@ -126,7 +139,7 @@ export const Transfer = () => {
         <Button
           variant="ghost"
           className="text-accent-foreground"
-          onClick={() => setInCallView(null)}
+          onClick={close}
         >
           {t('cancel')}
         </Button>

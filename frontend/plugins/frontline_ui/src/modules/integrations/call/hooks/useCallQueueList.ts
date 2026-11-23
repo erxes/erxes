@@ -15,7 +15,7 @@ export const useCallQueueList = (
 ) => {
   const { data, loading, error, subscribeToMore } = useQuery(CALL_QUEUE_LIST, {
     ...options,
-    skip: !options.variables?.inboxId,
+    skip: Boolean(options.skip) || !options.variables?.inboxId,
   });
 
   const callQueueList = data?.callQueueList?.filter(isDefined);
