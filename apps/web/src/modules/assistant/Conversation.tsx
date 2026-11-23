@@ -1,6 +1,8 @@
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Alert, Button, Spinner } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CanvasContext, useWide } from './canvas';
 import { isApiError, messageOf } from '@erxes/core-contract/client';
 import type { AssistantTab } from './assistantState';
 import { Composer } from './Composer';
@@ -96,6 +98,8 @@ export const Conversation = ({
   const context = usePageContext();
   const view = useConversation(tab, tabs, open, context.page);
   const { model, transcript } = view;
+  const { setFrame, wide } = useWide();
+  const [canvas, setCanvas] = useState<HTMLElement | null>(null);
 
   if (isApiError(view.thread.error, 'NOT_FOUND')) {
     return (
@@ -120,32 +124,47 @@ export const Conversation = ({
 
   return (
     <div
+      ref={setFrame}
       role="tabpanel"
       id="assistant-conversation"
       aria-labelledby={`assistant-tab-${tab.key}`}
-      className="flex min-h-0 flex-1 flex-col"
+      className="flex min-h-0 flex-1"
     >
-      {transcript.messages.length === 0 && !view.busy && !view.sendError && !view.watch.error ? (
-        <EmptyState
-          noKey={model.noKey}
-          record={context.page?.record?.type ?? null}
-          onPick={(text) =>
-            view.send({ text, mentions: [], page: context.page, files: [], selections: [] })
-          }
+      <CanvasContext value={wide ? canvas : null}>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {transcript.messages.length === 0 &&
+          !view.busy &&
+          !view.sendError &&
+          !view.watch.error ? (
+            <EmptyState
+              noKey={model.noKey}
+              record={context.page?.record?.type ?? null}
+              onPick={(text) =>
+                view.send({ text, mentions: [], page: context.page, files: [], selections: [] })
+              }
+            />
+          ) : (
+            <Transcript messages={transcript.messages} footer={footer} actions={view.actions} />
+          )}
+          <Composer
+            open={open}
+            model={model}
+            busy={view.busy}
+            block={view.block}
+            page={context.page}
+            onHidePage={context.hide}
+            onSend={view.send}
+            onStop={view.stop}
+          />
+        </div>
+      </CanvasContext>
+      {wide && (
+        <aside
+          ref={setCanvas}
+          aria-label={t('canvas', 'Canvas')}
+          className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto border-l bg-muted/40 p-4 empty:hidden"
         />
-      ) : (
-        <Transcript messages={transcript.messages} footer={footer} actions={view.actions} />
       )}
-      <Composer
-        open={open}
-        model={model}
-        busy={view.busy}
-        block={view.block}
-        page={context.page}
-        onHidePage={context.hide}
-        onSend={view.send}
-        onStop={view.stop}
-      />
     </div>
   );
 };
