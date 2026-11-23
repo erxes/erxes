@@ -21,6 +21,7 @@ export interface IOrder {
   modifiedAt?: Date;
   userId?: string;
   paidDate?: Date;
+  settlingAt?: Date;
   dueDate?: Date;
   number?: string;
   customerId?: string;
