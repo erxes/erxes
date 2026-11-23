@@ -38,7 +38,7 @@ test('a member creates an automation, turns it on and it runs', async ({ page, a
   });
   await page.getByRole('tab', { name: /^Runs/ }).click();
   await page.getByRole('button', { name: new RegExp(`^Done Ada ${suffix}`) }).click();
-  await expect(page.getByText('core.note.add')).toBeVisible();
+  await expect(page.getByRole('listitem').filter({ hasText: /^Done\s*Add a note/ })).toBeVisible();
   await expectAccessible(page);
 
   // The step's note is on the customer's timeline.
