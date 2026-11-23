@@ -43,7 +43,7 @@ const recordsKey = (field: FieldInfo) => `${field.source}:${field.recordType}`;
  * all of them (no `parent`), as the plugin lists them for the member. Shared with the action
  * inputs that list the same records.
  */
-const useRecordChoices = (fields: FieldInfo[]) => {
+export const useRecordChoices = (fields: FieldInfo[]) => {
   const wanted = [
     ...new Map(
       fields.flatMap((field) =>

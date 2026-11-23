@@ -9,35 +9,21 @@ import type { InferContractRouterOutputs } from '@orpc/contract';
 import { IconAlertTriangle, IconFlask } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { Alert, Badge, Button, Label, RelativeDateDisplay, Spinner, Switch } from 'erxes-ui';
-import { useContext, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { ContactSelect } from '~/modules/contacts/components/ContactPicker';
-import { BuilderContext } from './builder/BuilderContext';
 import { armsOf, findStep } from './builder/flowModel';
-import { describeStep } from './builder/flowText';
 import { JsonView } from './builder/JsonView';
-import { useAutomationFields } from './builder/useAutomationFields';
+import { useStepText } from './builder/useStepText';
 
 type TestResult = InferContractRouterOutputs<typeof coreContract>['automations']['test'];
 
-const TraceStep = ({
-  item,
-  hookAutomationId,
-  steps,
-}: {
-  item: DryRunStep;
-  hookAutomationId?: string;
-  steps: AutomationStep[];
-}) => {
-  const { knownActions, events } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(null, hookAutomationId);
+const TraceStep = ({ item, steps }: { item: DryRunStep; steps: AutomationStep[] }) => {
+  const { t } = useTranslation('automations');
   const step = findStep(steps, item.stepId);
-
-  const title = step
-    ? describeStep(step, { actions: knownActions, events, fields }).title
-    : item.type;
+  const title = useStepText(step)?.title ?? t(`step-type.${item.type}`, item.type);
 
   return (
     <li className="space-y-1.5 rounded-md border p-2.5 text-sm">
@@ -51,15 +37,7 @@ const TraceStep = ({
   );
 };
 
-const Trace = ({
-  result,
-  hookAutomationId,
-  steps,
-}: {
-  result: TestResult;
-  hookAutomationId?: string;
-  steps: AutomationStep[];
-}) => {
+const Trace = ({ result, steps }: { result: TestResult; steps: AutomationStep[] }) => {
   const { t } = useTranslation('automations');
 
   return (
@@ -89,12 +67,7 @@ const Trace = ({
       </div>
       <ol className="space-y-2">
         {result.trace.map((item) => (
-          <TraceStep
-            key={item.stepId}
-            item={item}
-            hookAutomationId={hookAutomationId}
-            steps={steps}
-          />
+          <TraceStep key={item.stepId} item={item} steps={steps} />
         ))}
       </ol>
     </div>
@@ -217,13 +190,7 @@ export const TestPanel = ({
         {t('run-test', 'Run the test')}
       </Button>
       {run.isError && <p className="text-sm text-destructive-text">{messageOf(run.error)}</p>}
-      {run.data && (
-        <Trace
-          result={run.data}
-          hookAutomationId={webhook ? automation.id : undefined}
-          steps={activeDefinition.steps}
-        />
-      )}
+      {run.data && <Trace result={run.data} steps={activeDefinition.steps} />}
     </div>
   );
 };

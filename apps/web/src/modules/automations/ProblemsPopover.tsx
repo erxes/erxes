@@ -1,42 +1,53 @@
 import type { AutomationStep } from '@erxes/core-contract';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button, Popover } from 'erxes-ui';
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BuilderContext } from './builder/BuilderContext';
 import { findStep } from './builder/flowModel';
-import { describeStep } from './builder/flowText';
-import type { FieldInfo } from './builder/useAutomationFields';
+import { useStepText } from './builder/useStepText';
+
+const StepProblem = ({
+  step,
+  problem,
+  onSelect,
+}: {
+  step: AutomationStep;
+  problem: string | undefined;
+  onSelect: (stepId: string) => void;
+}) => {
+  const title = useStepText(step)?.title;
+
+  return (
+    <li>
+      <Button
+        variant="ghost"
+        tone="destructive"
+        className="h-auto w-full justify-start text-left whitespace-normal"
+        onClick={() => onSelect(step.id)}
+      >
+        {title}: {problem}
+      </Button>
+    </li>
+  );
+};
 
 export const ProblemsPopover = ({
   steps,
-  fields,
   problems,
   serverProblems,
   onSelect,
 }: {
   steps: AutomationStep[];
-  fields: FieldInfo[];
   problems: Map<string, string[]>;
   serverProblems: string[];
   onSelect: (stepId: string) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { events, outputsBefore, knownActions } = useContext(BuilderContext);
   const count = [...problems.values()].reduce((sum, list) => sum + list.length, 0);
 
   const stepProblems = [...problems.entries()].flatMap(([stepId, list]) => {
     const step = findStep(steps, stepId);
 
-    if (!step) return [];
-
-    const context = {
-      actions: knownActions,
-      events,
-      fields: [...fields, ...outputsBefore(stepId)],
-    };
-
-    return [{ stepId, first: list[0], title: describeStep(step, context).title }];
+    return step ? [{ step, first: list[0] }] : [];
   });
 
   if (!count && !serverProblems.length) return null;
@@ -56,17 +67,8 @@ export const ProblemsPopover = ({
               {problem}
             </li>
           ))}
-          {stepProblems.map(({ stepId, title, first }) => (
-            <li key={stepId}>
-              <Button
-                variant="ghost"
-                tone="destructive"
-                className="h-auto w-full justify-start text-left whitespace-normal"
-                onClick={() => onSelect(stepId)}
-              >
-                {title}: {first}
-              </Button>
-            </li>
+          {stepProblems.map(({ step, first }) => (
+            <StepProblem key={step.id} step={step} problem={first} onSelect={onSelect} />
           ))}
         </ul>
       </Popover.Content>

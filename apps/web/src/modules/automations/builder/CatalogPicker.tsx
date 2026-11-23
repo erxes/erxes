@@ -114,8 +114,12 @@ export const CatalogPicker = ({
   const [search, setSearch] = useState('');
   const { recent, remember } = useRecent(kind);
   const selected = items.find((item) => item.type === value);
-  const { knownActions } = useContext(BuilderContext);
-  const shown = selected ?? knownActions.find((item) => kind === 'action' && item.type === value);
+  const { knownActions, knownEvents } = useContext(BuilderContext);
+
+  const shown =
+    selected ??
+    (kind === 'action' ? knownActions : knownEvents).find((item) => item.type === value);
+
   const groups = useMemo(() => groupItems(items), [items]);
   const recentItems = currentThenRecent(items, selected, recent);
   const searching = search.trim().length > 0;

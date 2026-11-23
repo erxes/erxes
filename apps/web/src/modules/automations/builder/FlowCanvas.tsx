@@ -1,22 +1,17 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { IconFlag, IconZoomIn, IconZoomOut } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { Button, cn } from 'erxes-ui';
 import { Fragment, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLeadStages } from '~/modules/leads/useLeads';
 import { BuilderContext } from './BuilderContext';
 import { catalogIcon } from './catalogGroups';
 import { armsOf, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
-import { describeStep } from './flowText';
 import { Connector, LOOK, Node } from './FlowNode';
-import type { FieldInfo } from './useAutomationFields';
-import { automationsQuery } from '../automationQueries';
+import { useStepText } from './useStepText';
 import { TRIGGER_ICONS } from '../TemplatePicker';
 
 interface FlowProps {
   actions: ActionInfo[];
-  fields: FieldInfo[];
   selected: string | null;
   problems: Map<string, string[]>;
   disabled?: boolean;
@@ -66,17 +61,8 @@ const Arms = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
 /** One step's card: its kind (or plugin), what it does, problems and recent runs. */
 const StepNode = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
   const { t } = useTranslation('automations');
-  const { events, stats, outputsBefore, knownActions } = useContext(BuilderContext);
-  const { stages } = useLeadStages();
-  const automations = useQuery(automationsQuery()).data?.data;
-
-  const { title, detail } = describeStep(step, {
-    actions: knownActions,
-    events,
-    fields: [...flow.fields, ...outputsBefore(step.id)],
-    stages,
-    automations,
-  });
+  const { stats } = useContext(BuilderContext);
+  const { title, detail } = useStepText(step) ?? { title: '', detail: null };
 
   const action =
     step.type === 'action' ? flow.actions.find((item) => item.type === step.action) : undefined;

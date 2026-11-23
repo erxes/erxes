@@ -14,14 +14,17 @@ import {
   useToast,
   useFormat,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { catalogQuery, runQuery, runsQuery } from './automationQueries';
+import { BuilderContext } from './builder/BuilderContext';
+import { findStep } from './builder/flowModel';
 import { JsonView } from './builder/JsonView';
+import { useStepText } from './builder/useStepText';
 
 const STATUS_VARIANT = {
   running: 'info',
@@ -63,6 +66,10 @@ const When = ({ value }: { value: string }) => (
 
 const StepEntry = ({ step }: { step: RunStep }) => {
   const { t } = useTranslation('automations');
+  const { steps } = useContext(BuilderContext);
+
+  const title =
+    useStepText(findStep(steps, step.stepId))?.title ?? t(`step-type.${step.type}`, step.type);
 
   return (
     <li className="rounded-md border p-2 text-sm">
@@ -74,10 +81,9 @@ const StepEntry = ({ step }: { step: RunStep }) => {
               : 'secondary'
           }
         >
-          {step.status}
+          {t(`status.${step.status}`, step.status)}
         </Badge>
-        <span className="font-mono text-xs">{step.type}</span>
-        <span className="text-xs text-muted-foreground">#{step.stepId}</span>
+        <span className="min-w-0 truncate font-medium">{title}</span>
         {step.attempt > 1 && (
           <span className="text-xs text-muted-foreground">
             · {t('attempt', 'attempt {{n}}', { n: step.attempt })}
