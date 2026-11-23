@@ -26,7 +26,7 @@ import {
 import { scoped } from '~/orpc';
 
 export const automationsRouter = {
-  catalog: scoped.automations.catalog.handler(() => automationCatalog(db())),
+  catalog: scoped.automations.catalog.handler(({ input }) => automationCatalog(db(), input)),
   list: scoped.automations.list.handler(({ input }) => listAutomations(db(), input)),
   get: scoped.automations.get.handler(({ input }) => getAutomation(db(), input.id)),
   create: scoped.automations.create.handler(({ input }) => createAutomation(db(), input)),

@@ -52,6 +52,18 @@ describe('assistant tools', () => {
     expect(model.lastToolResult()).toContain('Wholesale');
   });
 
+  it('finds app triggers and actions in the automation catalog whole, not cut off', async () => {
+    model.script(callThen('automations.catalog', { search: 'github issue opened comment' }));
+
+    const { view } = await ask('Reply to every GitHub issue opened');
+    const [result] = resultsOf(view, 'callApi');
+
+    expect(result).toMatchObject({ ok: true });
+    expect(result).not.toHaveProperty('truncated');
+    expect(model.lastToolResult()).toContain('app.github.issue_opened');
+    expect(model.lastToolResult()).toContain('github.add_comment');
+  });
+
   it('runs a write as the member and tells the model it changed data', async () => {
     model.script(callThen('tags.create', { type: 'customer', name: 'VIP' }));
 
