@@ -192,9 +192,9 @@ const Sender = ({
 export const PortalMessagesForm = ({ portal, canEdit }: { portal: Portal; canEdit: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'portals' });
   const save = useSavePortal();
-  const [fromEmail, setFromEmail] = useState(portal.fromEmail);
-  const [replyTo, setReplyTo] = useState(portal.replyTo);
-  const [language, setLanguage] = useState<Messages['codeLanguage']>(portal.codeLanguage);
+  const [fromEmail, setFromEmail] = useState(() => portal.fromEmail);
+  const [replyTo, setReplyTo] = useState(() => portal.replyTo);
+  const [language, setLanguage] = useState<Messages['codeLanguage']>(() => portal.codeLanguage);
 
   const [texts, setTexts] = useState<Texts>(() => ({
     codeEmailSubject: portal.codeEmailSubject ?? '',
