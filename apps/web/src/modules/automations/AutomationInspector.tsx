@@ -59,7 +59,7 @@ const TriggerPanel = (props: InspectorProps) => {
 
 export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
-  const { draft, selected, onSelect, editable, automation, mutations, built } = props;
+  const { draft, selected, onSelect, editable, automation, built } = props;
   const { definition } = draft;
 
   const step =
@@ -95,9 +95,9 @@ export const AutomationInspector = (props: InspectorProps) => {
           {selected === 'test' && (
             <TestPanel
               automation={automation}
+              definition={definition}
               subject={built.hasSubject ? built.subject : null}
               dirty={draft.dirty}
-              onSave={() => mutations.save.mutateAsync(draft.input)}
             />
           )}
           {step && (

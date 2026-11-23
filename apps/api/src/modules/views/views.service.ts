@@ -4,7 +4,7 @@ import { broadcasts, caller, type Db, newId, views } from '@erxes/core-db';
 import { and, asc, count, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { callerCan } from '~/http/access';
-import { fail, notFound } from '~/http/errors';
+import { fail, notAllowed, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { filterFields } from './filterFields';
 import { listSharedViews } from './pluginViews';
@@ -25,9 +25,6 @@ const corePermissions = (recordType: ViewRecordType) =>
 
 const permissionsOf = (recordType: ViewListType) =>
   isCoreList(recordType) ? corePermissions(recordType) : { see: null, share: null };
-
-const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
-  fail('NOT_ALLOWED', message, { permission });
 
 /** The member may see the list the views are of. */
 const assertSees = (recordType: ViewListType) => {

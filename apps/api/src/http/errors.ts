@@ -24,6 +24,9 @@ export const fail = <C extends ErrorCode>(
 
 export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
 
+export const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
+  fail('NOT_ALLOWED', message, { permission });
+
 export const inputIssues = ({ issues }: Pick<ValidationError, 'issues'>) => ({
   issues: issues.map((issue) => ({
     path: (issue.path ?? []).flatMap((segment) => {

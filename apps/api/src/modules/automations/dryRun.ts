@@ -1,9 +1,11 @@
 import type { AutomationDefinition, AutomationStep, DryRunStep } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
-import { invalidInput, notFound } from '~/http/errors';
+import { callerCan } from '~/http/access';
+import { invalidInput, notAllowed, notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
 import { type ConditionChecker, conditionChecker, type SubjectRef } from './conditionCheck';
 import { type Cursor, enterArm, nextCursor, splitPath, stepAt } from './cursor';
+import { definitionProblems } from './definitions';
 import { automationCatalog } from './automationCatalog';
 import { HookRequest, hookEvent } from './hooks';
 import { findHookSubject, noHookSubject } from './hookSubject';
@@ -183,6 +185,7 @@ const trace = async (dry: DryRun, checker: ConditionChecker, subject: SubjectRef
 };
 
 interface TestInput {
+  definition?: AutomationDefinition;
   subjectType?: ContentType;
   subjectId?: string;
   payload?: Record<string, unknown>;
@@ -238,8 +241,12 @@ const testSubject = async (
  * Nothing is changed.
  */
 export const testAutomation = async (client: Db, id: string, input: TestInput) => {
+  if (input.definition !== undefined && !callerCan('automations.manage')) {
+    throw notAllowed('automations.manage');
+  }
+
   const row = await findAutomation(client, id);
-  const { definition } = row;
+  const definition = input.definition ?? row.definition;
   const { trigger } = definition;
 
   const event = testEvent(trigger, input);
@@ -271,6 +278,7 @@ export const testAutomation = async (client: Db, id: string, input: TestInput) =
   return {
     triggerMatches,
     goalMetAtStart: Boolean(definition.goal && goalMet),
+    problems: await definitionProblems(client, definition),
     trace: await trace(dry, checker, ref),
   };
 };

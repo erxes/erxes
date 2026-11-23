@@ -110,6 +110,77 @@ export const eventDataFields = (
       : { source: event?.source }),
   }));
 
+type OutputContext = {
+  events: { type: string; label: string }[];
+  actions: ActionInfo[];
+  /** The trigger event's own values, as its plugin declares them. */
+  trigger?: StartingEvent;
+};
+
+const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[] => {
+  if (step.type === 'action') {
+    const action = context.actions.find((item) => item.type === step.action);
+    const title = step.label || action?.label || step.action;
+
+    return (action?.outputs ?? []).map((output) => ({
+      path: `steps.${step.id}.output.${output.key}`,
+      label: `${title}: ${output.label}`,
+      type: output.type,
+      ...(output.recordType && action
+        ? {
+            recordType: output.recordType,
+            ...(action.source === 'core' && action.integration
+              ? { integration: action.integration }
+              : { source: action.source }),
+          }
+        : {}),
+    }));
+  }
+
+  if (step.type === 'wait_for') {
+    const label =
+      step.label || (context.events.find((item) => item.type === step.event)?.label ?? step.event);
+
+    return [
+      {
+        path: `steps.${step.id}.output.matched`,
+        label: `${label} within the wait`,
+        type: 'boolean',
+      },
+    ];
+  }
+
+  return [];
+};
+
+const collectOutputsBefore = (
+  list: AutomationStep[],
+  id: string | null,
+  context: OutputContext,
+): { found: boolean; fields: FieldInfo[] } => {
+  const fields: FieldInfo[] = [];
+
+  for (const step of list) {
+    if (step.id === id) return { found: true, fields };
+
+    fields.push(...outputsOfStep(step, context));
+
+    const branchOutputs: FieldInfo[] = [];
+
+    for (const arm of armsOf(step)) {
+      const inside = collectOutputsBefore(arm.steps, id, context);
+
+      if (inside.found) return { found: true, fields: [...fields, ...inside.fields] };
+
+      branchOutputs.push(...inside.fields);
+    }
+
+    fields.push(...branchOutputs);
+  }
+
+  return { found: false, fields };
+};
+
 /**
  * What the steps before `id` can use besides the record: the trigger event's values
  * ("Deal" of "Deal created") and earlier steps' outputs ("Create a deal: Deal",
@@ -118,59 +189,8 @@ export const eventDataFields = (
 export const stepOutputFields = (
   steps: AutomationStep[],
   id: string | null,
-  context: {
-    events: { type: string; label: string }[];
-    actions: ActionInfo[];
-    /** The trigger event's own values, as its plugin declares them. */
-    trigger?: StartingEvent;
-  },
-): FieldInfo[] => {
-  const out: FieldInfo[] = eventDataFields(context.trigger);
-
-  const walk = (list: AutomationStep[]): boolean => {
-    for (const step of list) {
-      if (step.id === id) return true;
-
-      if (step.type === 'action') {
-        const action = context.actions.find((item) => item.type === step.action);
-        const title = step.label || action?.label || step.action;
-
-        for (const output of action?.outputs ?? []) {
-          out.push({
-            path: `steps.${step.id}.output.${output.key}`,
-            label: `${title}: ${output.label}`,
-            type: output.type,
-            ...(output.recordType && action
-              ? {
-                  recordType: output.recordType,
-                  ...(action.source === 'core' && action.integration
-                    ? { integration: action.integration }
-                    : { source: action.source }),
-                }
-              : {}),
-          });
-        }
-      }
-
-      if (step.type === 'wait_for') {
-        const label =
-          step.label ||
-          (context.events.find((item) => item.type === step.event)?.label ?? step.event);
-
-        out.push({
-          path: `steps.${step.id}.output.matched`,
-          label: `${label} within the wait`,
-          type: 'boolean',
-        });
-      }
-
-      for (const arm of armsOf(step)) if (walk(arm.steps)) return true;
-    }
-
-    return false;
-  };
-
-  walk(steps);
-
-  return out;
-};
+  context: OutputContext,
+): FieldInfo[] => [
+  ...eventDataFields(context.trigger),
+  ...collectOutputsBefore(steps, id, context).fields,
+];

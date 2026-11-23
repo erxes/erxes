@@ -220,7 +220,7 @@ const subjectFrom = (field: z.ZodString) =>
 
 export const HookSubject = subjectFrom(HookField);
 
-const AppSubject = subjectFrom(AppField);
+export const AppSubject = subjectFrom(AppField);
 
 export type HookSubject = z.infer<typeof HookSubject>;
 
