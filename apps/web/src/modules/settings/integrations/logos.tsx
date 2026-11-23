@@ -59,10 +59,13 @@ export const initialMark = (name: string): Mark => {
 
 export const logoOf = (key: string): Mark | null => {
   if (!marks.has(key)) {
-    const url = BY_BRAND.get(BRAND_OF[key] ?? key);
+    const url = logoUrlOf(key);
 
     marks.set(key, url ? logoMark(url) : null);
   }
 
   return marks.get(key) ?? null;
 };
+
+/** The logo's file for an integration key, or undefined when core has none. */
+export const logoUrlOf = (key: string) => BY_BRAND.get(BRAND_OF[key] ?? key);

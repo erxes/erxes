@@ -374,6 +374,12 @@ export {
 } from './modules/records/ReceiptPrintSettings';
 
 export {
+  IntegrationLogo,
+  type IntegrationLogoProps,
+  setIntegrationLogo,
+} from './modules/records/IntegrationLogo';
+
+export {
   ContactRelationInput,
   SelectContactContent,
   type TContactKind,

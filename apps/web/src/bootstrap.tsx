@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import {
   setConnectionPicker,
   setFileStorage,
+  setIntegrationLogo,
   setPluginRuntime,
   setRecordPage,
   setReceiptPrintSettings,
@@ -44,6 +45,14 @@ setTransferButtons({
 // A plugin's settings set how its eBarimt receipts print with core's editor, loaded on first use.
 setReceiptPrintSettings(
   lazyNamed(() => import('./modules/settings/integrations/EbarimtPrint'), 'PluginReceiptPrint'),
+);
+
+// Plugin UIs show a gateway's or integration's logo as Settings › Integrations does.
+setIntegrationLogo(
+  lazyNamed(
+    () => import('./modules/settings/integrations/PluginIntegrationLogo'),
+    'PluginIntegrationLogo',
+  ),
 );
 
 // Plugin UIs call their own API with a per-plugin token and hear live signals.

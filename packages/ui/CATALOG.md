@@ -88,6 +88,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Export` An Export button for a plugin's records, through core's export.
 - `<HostSessionProvider session>` Gives plugin pages the signed-in session; web mounts it, plugins don't.
 - `Import` An Import button for a plugin's records, through core's import.
+- `IntegrationLogo` An integration's logo, as Settings › Integrations shows it.
+- `type IntegrationLogoProps { integrationKey, name, className }` What `IntegrationLogo` takes.
 - `MEMBER_CONTENT_TYPE` The content type core's side panel opens team members as.
 - `<MemberLink memberId members>` A team member as a chip: their avatar and name.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
@@ -117,6 +119,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
 - `<SelectContactContent kind value onValueChange contacts multiple>` A picker's searchable list of customers or companies, the picked first.
 - `setConnectionPicker` Registers core's connection picker.
+- `setIntegrationLogo` Registers core's integration logos.
 - `setReceiptPrintSettings` Registers core's receipt print settings.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.

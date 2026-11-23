@@ -30,6 +30,7 @@ type CurrencyCode
 type CustomerContact
 type FileStorageAdapter
 type IUIConfig
+type IntegrationLogoProps
 type Member
 type MemberQueries
 type MultiSelectOption
@@ -157,6 +158,7 @@ value Import
 value InfoCard
 value Input
 value InputGroup
+value IntegrationLogo
 value Kbd
 value LANGUAGES
 value Label
@@ -278,6 +280,7 @@ value productTitle
 value readImage
 value setConnectionPicker
 value setFileStorage
+value setIntegrationLogo
 value setPluginRuntime
 value setReceiptPrintSettings
 value setRecordPage
