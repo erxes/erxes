@@ -1,5 +1,12 @@
 
 
+## [3.4.27](https://github.com/erxes/erxes/compare/3.4.26...3.4.27) (2026-11-23)
+
+
+### Bug Fixes
+
+* **frontline:** fill customer profiles when a form field is converted  ([2925e9c](https://github.com/erxes/erxes/commit/2925e9c1c1d05bc30ffd066d4f0eabd078d26948))
+
 ## [3.4.26](https://github.com/erxes/erxes/compare/3.4.25...3.4.26) (2026-11-23)
 
 
