@@ -44,6 +44,8 @@ const SettingsRoutes = lazyNamed(async () => {
   return routes;
 }, 'SettingsRoutes');
 
+const AssistantPage = lazyNamed(() => import('~/modules/assistant/AssistantPage'), 'AssistantPage');
+
 const NotificationsPage = lazyNamed(
   () => import('~/modules/notifications/NotificationsPage'),
   'NotificationsPage',
@@ -94,6 +96,7 @@ export const AppRoutes = () => (
       <Route path="broadcasts/*" element={<BroadcastsRoutes />} />
       <Route path="reports/*" element={<ReportsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
+      <Route path="assistant" element={<AssistantPage />} />
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="notifications/:source" element={<NotificationsPage />} />
       <Route path="*" element={<PluginRoutes />} />

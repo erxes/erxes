@@ -1,7 +1,8 @@
 import { RecordOpenerProvider } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { useRecordPageNavigation } from '~/modules/side-panel/panelNavigation';
 import { recordPagePath, usePanelRecordType } from '~/modules/side-panel/panelRecordTypes';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
@@ -28,6 +29,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
   const shown = useShownRecords();
   const { openNewRecord } = useSidePanel();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { openPage } = useRecordPageNavigation();
   const { type } = usePanelRecordType(shown.top?.record.contentType ?? '');
   const recordPage = shown.top ? recordPagePath(type, shown.top.record, pathname) : null;
@@ -67,7 +69,14 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
           inert={!chatShown}
           className={chatShown ? 'flex min-h-0 flex-1 flex-col' : 'hidden'}
         >
-          <PanelHeader tabs={tabs} onClose={close} />
+          <PanelHeader
+            tabs={tabs}
+            onClose={close}
+            onExpand={() => {
+              setOpen(false);
+              void navigate(paths.assistant);
+            }}
+          />
           {tabs.active && (
             <Conversation key={tabs.active.key} tab={tabs.active} tabs={tabs} open={open} />
           )}

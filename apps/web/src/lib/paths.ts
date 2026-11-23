@@ -25,6 +25,7 @@ export const paths = {
   /** A plugin's (or core app's) first page: `config.path` without slashes. */
   app: (path: string) => `/${path}`,
   notifications: '/notifications',
+  assistant: '/assistant',
   notificationSource: (source: string) => `/notifications/${id(source)}`,
   contacts: {
     customers: '/contacts/customers',

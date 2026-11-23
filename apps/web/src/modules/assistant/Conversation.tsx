@@ -123,13 +123,7 @@ export const Conversation = ({
   const footer = <TranscriptFooter view={view} />;
 
   return (
-    <div
-      ref={setFrame}
-      role="tabpanel"
-      id="assistant-conversation"
-      aria-labelledby={`assistant-tab-${tab.key}`}
-      className="flex min-h-0 flex-1"
-    >
+    <div ref={setFrame} className="flex min-h-0 flex-1">
       <CanvasContext value={wide ? canvas : null}>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {transcript.messages.length === 0 &&

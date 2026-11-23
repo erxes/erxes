@@ -53,7 +53,7 @@ const ThreadItem = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () =>
   );
 };
 
-const HistoryList = ({ onOpen }: { onOpen: (id: string) => void }) => {
+export const HistoryList = ({ onOpen }: { onOpen: (id: string) => void }) => {
   const { t } = useTranslation('assistant');
   const query = useThreadPages();
   const threads = query.data?.pages.flatMap((page) => page.data) ?? [];
