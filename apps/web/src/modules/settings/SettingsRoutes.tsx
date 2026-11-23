@@ -41,6 +41,10 @@ const AssistantAppearancePage = lazyNamed(
 );
 
 // Fetched on first visit: few members open these, so they stay out of settings' chunk.
+const AgentsPage = lazyNamed(() => import('./agents/AgentsPage'), 'AgentsPage');
+const NewAgentPage = lazyNamed(() => import('./agents/NewAgentPage'), 'NewAgentPage');
+const AgentPage = lazyNamed(() => import('./agents/AgentPage'), 'AgentPage');
+
 const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
 
 const ApiReferencePage = lazyNamed(
@@ -115,6 +119,9 @@ export const SettingsRoutes = () => (
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
       <Route path="assistant-model" element={<AssistantModelPage />} />
+      <Route path="agents" element={<AgentsPage />} />
+      <Route path="agents/new" element={<NewAgentPage />} />
+      <Route path="agents/:id" element={<AgentPage />} />
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="properties/*" element={<PluginPropertiesSettings />} />

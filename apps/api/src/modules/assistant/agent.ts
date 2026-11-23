@@ -85,7 +85,7 @@ export const assistantAgent: Agent = {
         const skills = skillsFor(plugins);
 
         const tools: ToolScope = {
-          member,
+          caller: () => memberOf(scope.orgId, member.userId),
           orgId: scope.orgId,
           threadId: scope.key,
           codeMode,
