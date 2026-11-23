@@ -160,7 +160,7 @@ export const validateFormFieldConversions = async (
   newFields: IField[],
   removedFieldIds: string[],
   session?: ClientSession,
-): Promise<void> => {
+): Promise<FormFieldUpdate[]> => {
   const deadline = performance.now() + 10_000;
   const conversions = await prepareFormFieldConversions(
     models,
@@ -187,4 +187,5 @@ export const validateFormFieldConversions = async (
       );
     }
   }
+  return conversions;
 };
