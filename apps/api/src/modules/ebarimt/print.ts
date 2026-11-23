@@ -9,12 +9,14 @@ type Template = Pick<
 >;
 
 /** A line as PosAPI got it, in tögrög. */
-export interface PrintLine {
-  name: string;
-  qty: number;
-  unitPrice: number;
-  totalAmount: number;
-}
+const PrintLine = z.object({
+  name: z.string(),
+  qty: z.number(),
+  unitPrice: z.number(),
+  totalAmount: z.number(),
+});
+
+export type PrintLine = z.infer<typeof PrintLine>;
 
 /** What a receipt prints: the merchant, PosAPI's answer and the lines, amounts in tögrög. */
 export interface PrintData {
@@ -47,18 +49,7 @@ export const allBlocks = (blocks: EbarimtPrintBlock[]): EbarimtPrintBlock[] => [
 ];
 
 const PosApiLines = z.object({
-  receipts: z.array(
-    z.object({
-      items: z.array(
-        z.object({
-          name: z.string(),
-          qty: z.number(),
-          unitPrice: z.number(),
-          totalAmount: z.number(),
-        }),
-      ),
-    }),
-  ),
+  receipts: z.array(z.object({ items: z.array(PrintLine) })),
 });
 
 /** The lines of what core sent PosAPI for a receipt; none when it isn't PosAPI's shape. */

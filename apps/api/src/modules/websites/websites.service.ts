@@ -1,3 +1,4 @@
+import type { coreContract } from '@erxes/core-contract';
 import {
   caller,
   customerAccounts,
@@ -8,6 +9,7 @@ import {
   websites,
 } from '@erxes/core-db';
 import { and, asc, count, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { wholeList } from '~/lib/keyset';
 import { unknownWebsite } from '~/modules/customerAuth/customerWebsites';
 
@@ -49,7 +51,7 @@ export const listWebsites = async (client: Db) => {
 /** Adds or changes the website of one of the calling plugin's records. */
 export const saveWebsite = async (
   client: Db,
-  input: { recordId: string; name: string; origins: string[] },
+  input: InferContractRouterInputs<typeof coreContract>['websites']['save'],
 ) => {
   const [row] = await client
     .insert(websites)

@@ -1,7 +1,8 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
 import { Select, ToggleGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AudienceEditor, Field, TimeOfDay } from './triggerFields';
+import { Field } from './Field';
+import { AudienceEditor, TimeOfDay } from './triggerFields';
 
 type ScheduleTrigger = Extract<AutomationTrigger, { kind: 'schedule' }>;
 

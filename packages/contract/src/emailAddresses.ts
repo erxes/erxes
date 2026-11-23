@@ -58,7 +58,8 @@ export const emailAddressesContract = {
     .route({
       method: 'GET',
       path: '/email/addresses',
-      summary:
+      summary: 'List emailed addresses',
+      description:
         'Addresses the organisation emailed or suppressed, newest first, each with its standing',
     })
     .input(

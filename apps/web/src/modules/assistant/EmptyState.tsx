@@ -41,19 +41,19 @@ export const KeyNotice = () => {
           <>
             <p>
               {t(
-                'no-key',
-                'Add an API key for a model provider to start. Everyone in the organisation uses it.',
+                'no-provider',
+                'Connect an AI provider in Integrations to start. Everyone in the organisation uses it.',
               )}
             </p>
             <Link
-              to={paths.settings.assistant}
+              to={paths.settings.aiIntegrations}
               className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'self-start')}
             >
-              {t('add-key', 'Add a key')}
+              {t('connect-provider', 'Connect an AI provider')}
             </Link>
           </>
         ) : (
-          <p>{t('no-key-ask', 'Ask an admin to add a model provider key to start.')}</p>
+          <p>{t('no-provider-ask', 'Ask an admin to connect an AI provider in Integrations.')}</p>
         )}
       </div>
     </div>

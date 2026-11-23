@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
-import { fakeModel, lastToolResult, type Script } from './fakeModel';
+import { connectProvider, fakeModel, lastToolResult, type Script } from './fakeModel';
 import { chat, resultsOf, textOf, userMessage } from './assistantChat';
 import { type CoreClient, useTwoOrgs } from './support';
 
@@ -36,7 +36,7 @@ describe('assistant tools', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());

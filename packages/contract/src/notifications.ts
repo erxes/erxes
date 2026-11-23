@@ -130,6 +130,15 @@ export const NotificationSettings = z.object({
 
 export type NotificationSettings = z.infer<typeof NotificationSettings>;
 
+/** Some notifications (`ids`), one inbox's (`source`) or all, read or unread. */
+export const MarkReadInput = z.object({
+  ids: z.array(Id).max(200).optional(),
+  source: z.string().trim().max(40).optional(),
+  read: z.boolean().default(true),
+});
+
+export type MarkReadInput = z.infer<typeof MarkReadInput>;
+
 const { ALWAYS_ON, INVALID_ACTOR, INVALID_OWNER, INVALID_RECIPIENT, INVALID_TYPE } = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
@@ -145,7 +154,12 @@ const base = oc.errors({
 
 export const notificationsContract = {
   list: base
-    .route({ method: 'GET', path: '/notifications', summary: 'My notifications, newest first' })
+    .route({
+      method: 'GET',
+      path: '/notifications',
+      summary: 'List my notifications',
+      description: 'My notifications, newest first',
+    })
     .input(
       CursorQuery.extend({
         unread: QueryFlag.optional(),
@@ -160,7 +174,8 @@ export const notificationsContract = {
     .route({
       method: 'GET',
       path: '/notifications/unread-count',
-      summary:
+      summary: 'Count my unread notifications',
+      description:
         'My unread notifications, in total and per inbox (core and each plugin); `source` for one inbox',
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
@@ -169,33 +184,35 @@ export const notificationsContract = {
     .route({
       method: 'POST',
       path: '/notifications/read',
-      summary:
+      summary: 'Mark notifications read',
+      description:
         'Mark some (`ids`), one inbox’s (`source`) or all of my notifications read, or unread with `read: false`',
     })
-    .input(
-      z.object({
-        ids: z.array(Id).max(200).optional(),
-        source: z.string().trim().max(40).optional(),
-        read: z.boolean().default(true),
-      }),
-    )
+    .input(MarkReadInput)
     .output(z.object({ updated: z.int() })),
   remove: base
     .route({
       method: 'DELETE',
       path: '/notifications/{id}',
-      summary: 'Remove one of my notifications',
+      summary: 'Remove a notification',
+      description: 'Remove one of my notifications',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   settings: base
-    .route({ method: 'GET', path: '/notifications/settings', summary: 'My notification settings' })
+    .route({
+      method: 'GET',
+      path: '/notifications/settings',
+      summary: 'Get my notification settings',
+      description: 'My notification settings',
+    })
     .output(NotificationSettings),
   updateSettings: base
     .route({
       method: 'PUT',
       path: '/notifications/settings',
-      summary: 'Where each group of notifications goes, and the email and browser switches',
+      summary: 'Change my notification settings',
+      description: 'Where each group of notifications goes, and the email and browser switches',
     })
     .input(
       z.object({
@@ -210,7 +227,8 @@ export const notificationsContract = {
       method: 'POST',
       path: '/notifications',
       successStatus: 201,
-      summary:
+      summary: 'Notify team members',
+      description:
         'Notify team members (plugins only). `kind` starts with the plugin name. 400 INVALID_RECIPIENT for unknown or inactive members',
     })
     .input(NotificationInput)

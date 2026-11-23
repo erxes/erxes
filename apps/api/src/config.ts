@@ -27,6 +27,22 @@ const listenUrl = (): string | undefined => {
   return url.toString();
 };
 
+const assistantEndpoints: Partial<Record<string, string>> = {
+  openai: env.ASSISTANT_OPENAI_URL,
+  anthropic: env.ASSISTANT_ANTHROPIC_URL,
+  openrouter: env.ASSISTANT_OPENROUTER_URL,
+  kimi: env.ASSISTANT_KIMI_URL,
+  'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
+  grok: env.ASSISTANT_GROK_URL,
+};
+
+const oauthApps: Record<string, { clientId: string; clientSecret: string }> = {
+  ...env.INTEGRATION_OAUTH_APPS,
+  ...(env.META_APP_ID && env.META_APP_SECRET
+    ? { facebook: { clientId: env.META_APP_ID, clientSecret: env.META_APP_SECRET } }
+    : {}),
+};
+
 export const config = {
   isProduction,
   port: env.PORT,
@@ -148,8 +164,12 @@ export const config = {
     allowPrivate: env.OUTBOUND_ALLOW_PRIVATE ?? !isProduction,
   },
   integrations: {
-    oauthApps: env.INTEGRATION_OAUTH_APPS,
+    oauthApps,
     oauthCallbackUrl: env.INTEGRATION_OAUTH_CALLBACK_URL,
+    metaRelay:
+      env.META_RELAY_URL && env.META_RELAY_KEY
+        ? { url: env.META_RELAY_URL, key: env.META_RELAY_KEY }
+        : null,
   },
   ebarimt: {
     /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */
@@ -175,14 +195,7 @@ export const config = {
     /** Where owners manage the subscription; `{subdomain}` is replaced. */
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
   },
-  assistant: {
-    endpoints: {
-      openai: env.ASSISTANT_OPENAI_URL,
-      grok: env.ASSISTANT_GROK_URL,
-      kimi: env.ASSISTANT_KIMI_URL,
-      'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
-    },
-  },
+  assistant: { endpoints: assistantEndpoints },
   /** Secret → plugin name. */
   pluginKeys: env.CORE_PLUGIN_KEYS,
   plugins: {

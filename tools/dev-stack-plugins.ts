@@ -13,23 +13,17 @@ import { z } from 'zod';
 /** A dev server the stack starts with `pnpm <args>` in `cwd`; it is up once `ready` answers. */
 export type DevServer = { cwd: string; args: string[]; env: Record<string, string>; ready: string };
 
-export type DevPlugin = {
-  name: string;
-  dir: string;
-  apiPort: number;
-  uiPort: number;
-  secret: string;
-};
+const DevPlugin = z.object({
+  name: z.string(),
+  dir: z.string(),
+  apiPort: z.number(),
+  uiPort: z.number(),
+  secret: z.string(),
+});
 
-export const DevPlugins = z.array(
-  z.object({
-    name: z.string(),
-    dir: z.string(),
-    apiPort: z.number(),
-    uiPort: z.number(),
-    secret: z.string(),
-  }),
-);
+export type DevPlugin = z.infer<typeof DevPlugin>;
+
+export const DevPlugins = z.array(DevPlugin);
 
 const PluginPackage = z.object({ name: z.string().regex(/^@[a-z][a-z0-9_]*\/plugin$/) });
 

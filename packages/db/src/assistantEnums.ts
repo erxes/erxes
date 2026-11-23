@@ -1,6 +1,13 @@
 /** The assistant's value lists, kept as `./enums` is: one `as const` array each, no imports. */
 
-export const ASSISTANT_PROVIDERS = ['openai', 'grok', 'kimi', 'kimi-code'] as const;
+export const ASSISTANT_PROVIDERS = [
+  'openai',
+  'anthropic',
+  'openrouter',
+  'kimi',
+  'kimi-code',
+  'grok',
+] as const;
 
 export const ASSISTANT_THINKING_LEVELS = [
   'off',

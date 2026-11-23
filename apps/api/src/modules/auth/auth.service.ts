@@ -1,3 +1,5 @@
+import type { coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
   caller,
@@ -141,7 +143,7 @@ const upgradePasswordHash = async (user: Account['user'], password: string) => {
  * same, so the response never tells whether an email exists.
  */
 export const signIn = async (
-  input: { email: string; password: string; subdomain?: string },
+  input: InferContractRouterInputs<typeof coreContract>['auth']['signIn'],
   host?: string,
 ) => {
   const email = input.email.trim().toLowerCase();

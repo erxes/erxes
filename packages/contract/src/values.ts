@@ -353,6 +353,43 @@ export const appEventType = (app: string, trigger: string) =>
 
 export const isAppEvent = (type: string) => type.startsWith('app.');
 
+/** Core's areas, by the second part of a type (`core.<area>.…`). */
+const CORE_AREAS: Record<string, string> = {
+  customer: 'customers',
+  lead: 'leads',
+  company: 'companies',
+  payment: 'payments',
+  email: 'messages',
+  notification: 'messages',
+  note: 'timeline',
+  webhook: 'integrations',
+  http: 'integrations',
+  agent: 'agents',
+  automation: 'automations',
+};
+
+/**
+ * Where the builder files an event or action, and what an agent step may be limited to:
+ * `integration:<key>`, `plugin:<name>`, or `core:<area>` (`core:messages`).
+ */
+export const catalogCategory = (item: {
+  type: string;
+  source: string;
+  integration?: string | null;
+}) => {
+  if (item.integration) return `integration:${item.integration}`;
+
+  if (item.source !== 'core') return `plugin:${item.source}`;
+
+  return `core:${CORE_AREAS[item.type.split('.')[1] ?? ''] ?? 'general'}`;
+};
+
+/** Actions only a step takes, never an agent step's agent: asking an agent, answering the webhook. */
+export const STEP_ONLY_ACTIONS: ReadonlySet<string> = new Set([
+  'core.agent.ask',
+  'core.webhook.reply',
+]);
+
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 
 export const BroadcastChannel = z.enum(BROADCAST_CHANNELS);
@@ -406,6 +443,8 @@ export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
 /** The nodes and marks an email's document may hold; the email editor offers only these. */
 export { EMAIL_MARK_TYPES, EMAIL_NODE_TYPES } from '@erxes/core-db/emailEnums';
 
+export { AutomationDefinition } from '@erxes/core-db/automationDefinition';
+
 // ─── eBarimt ────────────────────────────────────────────────────────────────
 
 /** How eBarimt taxes a product's lines (Settings › Integrations › eBarimt). */
@@ -434,6 +473,14 @@ export const LiveMode = z.enum(LIVE_MODES);
 export const AssistantProvider = z.enum(ASSISTANT_PROVIDERS);
 
 export type AssistantProvider = z.infer<typeof AssistantProvider>;
+
+/** The model an agent step runs on (its `agent_model` input). */
+export const AgentStepModel = z.object({
+  provider: AssistantProvider,
+  model: z.string().trim().min(1).max(128),
+});
+
+export type AgentStepModel = z.infer<typeof AgentStepModel>;
 
 export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
 

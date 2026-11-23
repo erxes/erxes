@@ -87,32 +87,37 @@ export const webhooksContract = {
     .route({
       method: 'GET',
       path: '/events/types',
-      summary: "Event types to subscribe to or automate on: core's and installed plugins'",
+      summary: 'List event types',
+      description: "Event types to subscribe to or automate on: core's and installed plugins'",
     })
     .output(listOf(EventTypeInfo)),
-  list: base.route({ method: 'GET', path: '/webhooks' }).output(listOf(Webhook)),
+  list: base
+    .route({ method: 'GET', path: '/webhooks', summary: 'List webhooks' })
+    .output(listOf(Webhook)),
   create: base
     .route({
       method: 'POST',
       path: '/webhooks',
       successStatus: 201,
-      summary: 'Add an endpoint; the signing secret is returned once here',
+      summary: 'Add a webhook endpoint',
+      description: 'Add an endpoint; the signing secret is returned once here',
     })
     .input(WebhookFields.omit({ status: true }).required({ url: true, eventTypes: true }))
     .output(z.object({ webhook: Webhook, secret: z.string() })),
   update: base
-    .route({ method: 'PATCH', path: '/webhooks/{id}' })
+    .route({ method: 'PATCH', path: '/webhooks/{id}', summary: 'Change a webhook' })
     .input(WebhookFields.extend({ id: Id }))
     .output(Webhook),
   remove: base
-    .route({ method: 'DELETE', path: '/webhooks/{id}' })
+    .route({ method: 'DELETE', path: '/webhooks/{id}', summary: 'Remove a webhook' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   rotateSecret: base
     .route({
       method: 'POST',
       path: '/webhooks/{id}/secret',
-      summary: 'A new signing secret (returned once); the old one stops at once',
+      summary: 'Rotate a webhook secret',
+      description: 'A new signing secret (returned once); the old one stops at once',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ secret: z.string() })),
@@ -120,7 +125,8 @@ export const webhooksContract = {
     .route({
       method: 'POST',
       path: '/webhooks/{id}/test',
-      summary: 'Send a `core.webhook.test` event to the endpoint now',
+      summary: 'Test a webhook',
+      description: 'Send a `core.webhook.test` event to the endpoint now',
     })
     .input(z.object({ id: Id }))
     .output(WebhookDelivery),
@@ -128,7 +134,8 @@ export const webhooksContract = {
     .route({
       method: 'GET',
       path: '/webhooks/{id}/deliveries',
-      summary: 'Recent deliveries, newest first',
+      summary: 'List webhook deliveries',
+      description: 'Recent deliveries, newest first',
     })
     .input(CursorQuery.extend({ id: Id, status: z.enum(WEBHOOK_DELIVERY_STATUSES).optional() }))
     .output(cursorPageOf(WebhookDelivery)),
@@ -136,7 +143,8 @@ export const webhooksContract = {
     .route({
       method: 'POST',
       path: '/webhooks/deliveries/{deliveryId}/redeliver',
-      summary: 'Send a delivery again',
+      summary: 'Resend a webhook delivery',
+      description: 'Send a delivery again',
     })
     .input(z.object({ deliveryId: Id }))
     .output(WebhookDelivery),

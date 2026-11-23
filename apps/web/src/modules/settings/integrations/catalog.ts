@@ -22,7 +22,7 @@ export type Integration = ListedIntegration & {
 export const useMayOpenIntegrations = () => {
   const can = useCan();
 
-  return can('integrations.manage') || can('payments.manage');
+  return can('integrations.manage') || can('payments.manage') || can('assistant.manage');
 };
 
 export const useIntegrations = () => {

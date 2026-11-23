@@ -3,26 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { type Catalog, statsQuery } from '../automationQueries';
 import { startingEventType } from './AppTriggerSettings';
-import { flowProblems, REPLY_ACTION, stepOutputFields } from './flowChecks';
+import { flowProblems, stepOutputFields } from './flowChecks';
+import { actionsFor, subjectOf } from './flowFit';
 import { useAutomationFields } from './useAutomationFields';
-
-/** The record type runs are about, and whether the trigger gives one at all. */
-const subjectOf = (trigger: AutomationDefinition['trigger'], triggers: Catalog['triggers']) => {
-  if (trigger.kind === 'event') {
-    const event = triggers.find((item) => item.type === trigger.event);
-
-    return { subject: event?.subject ?? 'customer', hasSubject: Boolean(event?.subject) };
-  }
-
-  if (trigger.kind === 'date') return { subject: trigger.subject, hasSubject: true };
-
-  if (trigger.kind === 'webhook' || trigger.kind === 'app')
-    return { subject: trigger.subject?.type ?? 'customer', hasSubject: Boolean(trigger.subject) };
-
-  const audience = 'audience' in trigger ? trigger.audience : undefined;
-
-  return { subject: audience?.type ?? 'customer', hasSubject: Boolean(audience) };
-};
 
 /**
  * The builder's derived data: actions for this subject, each step's problems,
@@ -36,7 +19,6 @@ export const useBuilder = (
   const stats = useQuery(statsQuery(automationId));
 
   const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
-  const hooked = definition.trigger.kind === 'webhook';
 
   const { fields, error: fieldsError } = useAutomationFields(
     hasSubject ? subject : null,
@@ -44,14 +26,8 @@ export const useBuilder = (
   );
 
   const actions = useMemo(
-    () =>
-      catalog.actions.filter(
-        (action) =>
-          (hooked || action.type !== REPLY_ACTION) &&
-          (!action.subject ||
-            (hasSubject && (action.subject === 'any' || action.subject === subject))),
-      ),
-    [catalog.actions, hasSubject, subject, hooked],
+    () => actionsFor(catalog, definition.trigger),
+    [catalog, definition.trigger],
   );
 
   const problems = useMemo(

@@ -1,6 +1,6 @@
 import { type AutomationTrigger, type DataField, isAppEvent } from '@erxes/core-contract';
-import { IconHandFinger } from '@tabler/icons-react';
-import { Badge, Button, ChoiceboxGroup } from 'erxes-ui';
+import { IconAlertTriangle, IconHandFinger } from '@tabler/icons-react';
+import { Badge, Button, ChoiceboxGroup, Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from '../automationQueries';
 import { TriggerIcon } from '../TemplatePicker';
@@ -9,11 +9,12 @@ import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
 import { EventDataHint } from './EventDataHint';
+import { Field } from './Field';
 import { eventDataFields } from './flowChecks';
 import { RecordPicks } from './RecordPicks';
 import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
-import { AudienceEditor, Field } from './triggerFields';
+import { AudienceEditor } from './triggerFields';
 import { type Hook, WebhookTriggerSettings } from './WebhookTriggerSettings';
 
 const KINDS = [
@@ -59,40 +60,62 @@ type EventInfo = {
   seen?: boolean;
 };
 
+type CostOf = (trigger: AutomationTrigger) => string;
+
 const KindPicker = ({
   value,
   onChange,
   disabled,
+  costOf,
 }: {
   value: AutomationTrigger['kind'];
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
+  costOf?: CostOf;
 }) => {
   const { t } = useTranslation('automations');
 
   return (
-    <ChoiceboxGroup
-      value={value}
-      disabled={disabled}
-      className="grid grid-cols-2"
-      onValueChange={(next) => {
-        const kind = KINDS.find((item) => item.kind === next)?.kind;
+    <Tooltip.Provider delay={300}>
+      <ChoiceboxGroup
+        value={value}
+        disabled={disabled}
+        aria-label={t('trigger-type', 'Starts')}
+        className="grid grid-cols-3"
+        onValueChange={(next) => {
+          const kind = KINDS.find((item) => item.kind === next)?.kind;
 
-        if (kind && kind !== value) onChange(defaults(kind));
-      }}
-    >
-      {KINDS.map(({ kind, label, hint }) => (
-        <ChoiceboxGroup.Item key={kind} value={kind} disabled={disabled}>
-          <span className="flex items-start gap-2">
-            <TriggerIcon kind={kind} className="mt-0.5 size-4 shrink-0" />
-            <span className="min-w-0">
-              <span className="block">{t(`trigger-${kind}-title`, label)}</span>
-              <span className="block text-xs font-normal">{t(`trigger-${kind}-hint`, hint)}</span>
-            </span>
-          </span>
-        </ChoiceboxGroup.Item>
-      ))}
-    </ChoiceboxGroup>
+          if (kind && kind !== value) onChange(defaults(kind));
+        }}
+      >
+        {KINDS.map(({ kind, label, hint }) => {
+          const cost = kind === value ? '' : costOf?.(defaults(kind));
+
+          return (
+            <ChoiceboxGroup.Item key={kind} value={kind} disabled={disabled}>
+              <Tooltip>
+                <Tooltip.Trigger render={<span className="flex w-full items-center" />}>
+                  <TriggerIcon kind={kind} className="mr-2 size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">
+                    {t(`trigger-${kind}-title`, label)}
+                  </span>
+                  {cost && (
+                    <IconAlertTriangle
+                      aria-label={cost}
+                      className="ml-1 size-3.5 shrink-0 text-warning-text"
+                    />
+                  )}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="bottom" className="max-w-56 whitespace-normal">
+                  {t(`trigger-${kind}-hint`, hint)}
+                  {cost && <span className="block text-warning">{cost}</span>}
+                </Tooltip.Content>
+              </Tooltip>
+            </ChoiceboxGroup.Item>
+          );
+        })}
+      </ChoiceboxGroup>
+    </Tooltip.Provider>
   );
 };
 
@@ -100,11 +123,9 @@ const KindPicker = ({
 const EventData = ({ event }: { event: EventInfo }) => {
   const { t } = useTranslation('automations');
   const fields = (event.fields ?? []).filter((field) => !field.recordType);
+  const waiting = event.source !== 'core' && !event.seen && !event.fields?.length;
 
-  // Core's customer and company events carry that record, which steps use as the record.
-  if (!fields.length && event.source === 'core' && event.subject) return null;
-
-  if (!fields.length && event.fields?.length) return null;
+  if (!fields.length && !waiting) return null;
 
   return (
     <Field label={t('event-data', 'What steps can use from it')}>
@@ -128,11 +149,13 @@ const EventTriggerSettings = ({
   events,
   onChange,
   disabled,
+  costOf,
 }: {
   trigger: Extract<AutomationTrigger, { kind: 'event' }>;
   events: EventInfo[];
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
+  costOf?: CostOf;
 }) => {
   const { t } = useTranslation('automations');
   const started = events.find((event) => event.type === trigger.event);
@@ -149,7 +172,11 @@ const EventTriggerSettings = ({
       <Field label={t('event', 'Event')}>
         <CatalogPicker
           kind="event"
-          items={events}
+          items={events.map((event) => ({
+            ...event,
+            warning:
+              event.type === trigger.event ? '' : costOf?.({ kind: 'event', event: event.type }),
+          }))}
           value={trigger.event}
           disabled={disabled}
           onChange={(event) => onChange({ ...trigger, event })}
@@ -162,14 +189,7 @@ const EventTriggerSettings = ({
         onChange={(next) => onChange({ ...trigger, conditions: joinPicks(next, rest) })}
       />
       {started && <EventData event={started} />}
-      <Field
-        label={t('only-if', 'Only if')}
-        hint={
-          rest?.rules.length
-            ? undefined
-            : t('only-if-empty', 'No conditions: every such event starts a run.')
-        }
-      >
+      <Field label={t('only-if', 'Only if')}>
         <ConditionsEditor
           subject={started?.subject ?? null}
           extraFields={eventFields.filter((field) => !recordFields.includes(field))}
@@ -193,6 +213,7 @@ export const TriggerEditor = ({
   onChange,
   disabled,
   onStartNow,
+  costOf,
 }: {
   trigger: AutomationTrigger;
   events: Catalog['triggers'];
@@ -201,20 +222,21 @@ export const TriggerEditor = ({
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;
+  costOf?: CostOf;
 }) => {
   const { t } = useTranslation('automations');
 
   return (
     <div className="space-y-5">
-      <Field label={t('trigger-type', 'Starts')}>
-        <KindPicker value={trigger.kind} disabled={disabled} onChange={onChange} />
-      </Field>
+      <KindPicker value={trigger.kind} disabled={disabled} onChange={onChange} costOf={costOf} />
+
       {trigger.kind === 'event' && (
         <EventTriggerSettings
           trigger={trigger}
           events={events.filter((event) => !isAppEvent(event.type))}
           disabled={disabled}
           onChange={onChange}
+          costOf={costOf}
         />
       )}
       {trigger.kind === 'schedule' && (

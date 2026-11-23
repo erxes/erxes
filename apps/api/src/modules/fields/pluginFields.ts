@@ -1,8 +1,8 @@
+import type { coreContract } from '@erxes/core-contract';
 import {
   caller,
   companies,
   type ContentType,
-  type CustomValue,
   customers,
   type Db,
   fields,
@@ -10,6 +10,7 @@ import {
   type StoredPluginManifest,
 } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -76,8 +77,6 @@ export const syncPluginFields = async (tx: Db, plugin: string, declared: Declare
       and not exists (select 1 from ${d} where d.content_type = f.content_type and d.code = f.code)`);
 };
 
-type PluginValue = { recordId: string; code: string; value: CustomValue | null };
-
 /** Rows a single insert takes at most (parameters stay well under Postgres' 65 535). */
 const INSERT_BATCH = 2000;
 
@@ -89,7 +88,7 @@ const INSERT_BATCH = 2000;
  */
 export const setPluginValues = async (
   tx: Db,
-  input: { contentType: ContentType; values: PluginValue[] },
+  input: InferContractRouterInputs<typeof coreContract>['fields']['setPluginValues'],
 ) => {
   const { plugin } = caller('plugin');
   const { contentType } = input;

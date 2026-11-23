@@ -25,7 +25,7 @@ const usePlaceholder = (block: ComposerBlock) => {
 
   switch (block) {
     case 'no-key':
-      return t('composer.no-key', 'Add a provider key to start');
+      return t('composer.no-provider', 'Connect an AI provider to start');
     case null:
       return t('composer.placeholder', 'Ask anything, @ to mention a record');
   }

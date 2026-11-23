@@ -1,7 +1,9 @@
+import type { BankAccount, Statement, StatementLine } from '@erxes/core-contract';
+import type { BANK_KINDS } from '@erxes/core-db';
 import { currencyDigits } from '@erxes/plugin-sdk/integrations';
 import type { ClientOptions } from '@erxes/plugin-sdk/integrations';
 
-export type BankKind = 'khanbank' | 'golomt' | 'tdb';
+export type BankKind = (typeof BANK_KINDS)[number];
 
 /** Khan Bank corporate gateway (api.khanbank.com): its consumer keys. */
 export interface KhanbankBankConfig {
@@ -37,37 +39,8 @@ export interface TdbBankConfig {
 
 export type BankConfig = KhanbankBankConfig | GolomtBankConfig | TdbBankConfig;
 
-/** An account at the bank. Amounts are integers in the currency's smallest unit. */
-export interface BankAccount {
-  number: string;
-  iban: string | null;
-  name: string | null;
-  currency: string;
-  balance: number | null;
-  available: number | null;
-  hold: number | null;
-  status: string | null;
-}
-
-/** One line of a statement: money in is positive, out negative. */
-export interface StatementLine {
-  /** The bank's id of the line (Khan Bank's record, TDB's reference). */
-  id: string;
-  /** When it was made, as the bank tells it (ISO; Ulaanbaatar time when the bank gives no zone). */
-  date: string | null;
-  amount: number;
-  balance: number | null;
-  description: string;
-  counterparty: { account: string | null; name: string | null; bank: string | null } | null;
-}
-
-interface Statement {
-  lines: StatementLine[];
-  openingBalance: number | null;
-  closingBalance: number | null;
-  /** Whether the next page holds more lines. */
-  more: boolean;
-}
+// A statement line's `date` is as the bank tells it: ISO, Ulaanbaatar time when it gives no zone.
+export type { BankAccount, StatementLine };
 
 interface StatementQuery {
   account: string;

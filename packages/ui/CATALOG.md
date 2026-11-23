@@ -104,6 +104,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type ProductRecord { price, currency, unit, categoryId }` A product as product pickers list it: core's `Product` has more.
 - `type ProductSearchQueries { search, byIds }` Where a filter's `product` fields search products and load picked ones.
 - `productTitle(product)` A product's name, with its code when it has one: "iPhone 15 · IP15".
+- `ReceiptPrintSettings` How a plugin's eBarimt receipts print, set in the plugin's own settings.
+- `type ReceiptPrintSettingsProps { plugin }` What `ReceiptPrintSettings` takes.
 - `<RecordChip record name avatarUrl loading failed>` A record as a chip: its avatar and name.
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
@@ -115,6 +117,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
 - `<SelectContactContent kind value onValueChange contacts multiple>` A picker's searchable list of customers or companies, the picked first.
 - `setConnectionPicker` Registers core's connection picker.
+- `setReceiptPrintSettings` Registers core's receipt print settings.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
 - `setTransferButtons(buttons)` Registers core's import and export buttons; plugins don't call it.

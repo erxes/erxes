@@ -24,6 +24,9 @@ export const fail = <C extends ErrorCode>(
 
 export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
 
+export const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
+  fail('NOT_ALLOWED', message, { permission });
+
 export const inputIssues = ({ issues }: Pick<ValidationError, 'issues'>) => ({
   issues: issues.map((issue) => ({
     path: (issue.path ?? []).flatMap((segment) => {
@@ -75,6 +78,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   core_exchange_rates_org_pair_date_key: {
     field: 'date',
     message: 'This currency already has a rate on this day',
+  },
+  core_integration_connections_org_key_name_key: {
+    field: 'name',
+    message: 'Another connection of this integration has this name',
   },
   core_lead_stages_org_name_key: {
     field: 'name',

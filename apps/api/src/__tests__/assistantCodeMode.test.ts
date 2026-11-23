@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { chat, follow, resultsOf, userMessage } from './assistantChat';
 import { useTestDatabase } from './db';
-import { fakeModel, inSteps } from './fakeModel';
+import { connectProvider, fakeModel, inSteps } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0011';
@@ -32,7 +32,7 @@ describe('assistant code mode', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());
@@ -42,7 +42,11 @@ describe('assistant code mode', () => {
 
     await chat(t.owner(), { model: 'kimi-k3', message: userMessage('Hi') });
 
-    expect(await t.owner().assistant.settings({})).toEqual({ codeMode: false });
+    expect(await t.owner().assistant.settings({})).toEqual({
+      codeMode: false,
+      defaultProvider: null,
+      defaultModel: null,
+    });
     expect(offeredTools()).toContain('callApi');
     expect(offeredTools()).not.toContain('runCode');
     await expect(t.member().assistant.updateSettings({ codeMode: true })).rejects.toMatchObject({
@@ -51,6 +55,8 @@ describe('assistant code mode', () => {
 
     expect(await t.owner().assistant.updateSettings({ codeMode: true })).toEqual({
       codeMode: true,
+      defaultProvider: null,
+      defaultModel: null,
     });
   });
 
@@ -68,6 +74,17 @@ describe('assistant code mode', () => {
     expect(result).toContain('["Retail","Wholesale"]');
     expect(result).toContain('"searched":true');
     expect(offeredTools()).toContain('runCode');
+  });
+
+  it('finds a procedure by words in its description and returns its title and rules', async () => {
+    const result = await runCode(`
+      const found = await searchApi('same name under the same parent');
+      const { summary, description } = found.procedures.find((p) => p.procedure === 'productCategories.create');
+      return { summary, description };
+    `);
+
+    expect(result).toContain('"summary":"Add a product category"');
+    expect(result).toContain('409 TAKEN (same name under the same parent)');
   });
 
   it('makes a change from a program as the member', async () => {

@@ -1,17 +1,20 @@
-import type { DataField } from '@erxes/core-contract';
 import { defineIntegration, oauthKeys, hookTrigger } from '@erxes/plugin-sdk/integrations';
-import { sendMessage } from './facebookActions';
+import { MESSENGER_ACTIONS } from './facebookActions';
+import { COMMENT_ACTIONS } from './facebookCommentActions';
+import { POST_ACTIONS } from './facebookPostActions';
 import { accountOf, GRAPH_VERSION, longLivedToken } from './facebookGraph';
 import { facebookHooks } from './facebookHooks';
-
-const PAGE: DataField[] = [{ key: 'pageId', label: 'Page id', type: 'text' }];
-
-const POST: DataField[] = [
-  ...PAGE,
-  { key: 'postId', label: 'Post id', type: 'text' },
-  { key: 'message', label: 'Text', type: 'text' },
-  { key: 'createdTime', label: 'Posted at', type: 'date' },
-];
+import { FACEBOOK_RECORDS } from './facebookRecords';
+import {
+  COMMENT_OUTPUTS,
+  LEAD_OUTPUTS,
+  MENTION_OUTPUTS,
+  MESSAGE_OUTPUTS,
+  POST_OUTPUTS,
+  POSTBACK_OUTPUTS,
+  REFERRAL_OUTPUTS,
+  REVIEW_OUTPUTS,
+} from './facebookOutputs';
 
 const POST_ITEMS = new Set(['post', 'status', 'photo', 'video', 'share']);
 
@@ -27,19 +30,7 @@ const TRIGGERS = [
     label: 'Lead form filled',
     description:
       "Someone sends a Lead Ads form for the page. Each question's answer arrives under its name, as email, phone_number or full_name.",
-    outputs: [
-      ...PAGE,
-      { key: 'email', label: 'Email', type: 'text' },
-      { key: 'phone_number', label: 'Phone', type: 'text' },
-      { key: 'full_name', label: 'Full name', type: 'text' },
-      { key: 'first_name', label: 'First name', type: 'text' },
-      { key: 'last_name', label: 'Last name', type: 'text' },
-      { key: 'leadId', label: 'Lead id', type: 'text' },
-      { key: 'formId', label: 'Form id', type: 'text' },
-      { key: 'adId', label: 'Ad id', type: 'text' },
-      { key: 'campaignId', label: 'Campaign id', type: 'text' },
-      { key: 'createdTime', label: 'Sent at', type: 'date' },
-    ],
+    outputs: LEAD_OUTPUTS,
   }),
   hookTrigger({
     key: 'page_mentioned',
@@ -47,15 +38,7 @@ const TRIGGERS = [
     when: is({ verb: 'add' }),
     label: 'Page mentioned',
     description: 'Someone tags the page in a post or a comment',
-    outputs: [
-      ...PAGE,
-      { key: 'item', label: 'In a post or comment', type: 'text' },
-      { key: 'postId', label: 'Post id', type: 'text' },
-      { key: 'commentId', label: 'Comment id', type: 'text' },
-      { key: 'senderId', label: 'Person id', type: 'text' },
-      { key: 'senderName', label: 'Person', type: 'text' },
-      { key: 'message', label: 'Text', type: 'text' },
-    ],
+    outputs: MENTION_OUTPUTS,
   }),
   hookTrigger({
     key: 'post_published',
@@ -67,12 +50,7 @@ const TRIGGERS = [
       byPage(payload),
     label: 'Page posted',
     description: 'The page publishes a post, photo, video or link',
-    outputs: [
-      ...POST,
-      { key: 'link', label: 'Link', type: 'text' },
-      { key: 'photo', label: 'Photo', type: 'text' },
-      { key: 'video', label: 'Video', type: 'text' },
-    ],
+    outputs: POST_OUTPUTS,
   }),
   hookTrigger({
     key: 'comment_added',
@@ -81,13 +59,7 @@ const TRIGGERS = [
     label: 'Comment on a post',
     description:
       "Someone comments on one of the page's posts. The page's own comments are left out.",
-    outputs: [
-      ...POST,
-      { key: 'commentId', label: 'Comment id', type: 'text' },
-      { key: 'parentId', label: 'Answers', type: 'text' },
-      { key: 'fromId', label: 'Person id', type: 'text' },
-      { key: 'fromName', label: 'Person', type: 'text' },
-    ],
+    outputs: COMMENT_OUTPUTS,
   }),
   hookTrigger({
     key: 'review_left',
@@ -95,30 +67,30 @@ const TRIGGERS = [
     when: is({ verb: 'add' }),
     label: 'Review left',
     description: 'Someone recommends the page, or not, or rates it',
-    outputs: [
-      ...PAGE,
-      { key: 'reviewerId', label: 'Person id', type: 'text' },
-      { key: 'reviewerName', label: 'Person', type: 'text' },
-      { key: 'recommendation', label: 'Recommends (positive or negative)', type: 'text' },
-      { key: 'rating', label: 'Stars', type: 'number' },
-      { key: 'reviewText', label: 'Review', type: 'text' },
-      { key: 'createdTime', label: 'Left at', type: 'date' },
-    ],
+    outputs: REVIEW_OUTPUTS,
   }),
   hookTrigger({
     key: 'message_received',
     on: 'messages',
     label: 'Message to the page',
     description: 'Someone sends the page a Messenger message',
-    outputs: [
-      ...PAGE,
-      { key: 'senderId', label: 'Sender id', type: 'text' },
-      { key: 'messageId', label: 'Message id', type: 'text' },
-      { key: 'text', label: 'Text', type: 'text' },
-      { key: 'attachmentType', label: 'Attachment type', type: 'text' },
-      { key: 'attachmentUrl', label: 'Attachment link', type: 'text' },
-      { key: 'sentAt', label: 'Sent at', type: 'date' },
-    ],
+    outputs: MESSAGE_OUTPUTS,
+  }),
+  hookTrigger({
+    key: 'button_pressed',
+    on: 'messaging_postbacks',
+    label: 'Messenger button pressed',
+    description:
+      'Someone taps a button in a page message, the Get started button or a menu item in Messenger',
+    outputs: POSTBACK_OUTPUTS,
+  }),
+  hookTrigger({
+    key: 'chat_opened_from_link',
+    on: 'messaging_referrals',
+    label: 'Chat opened from a link or ad',
+    description:
+      'Someone who already talks to the page opens the chat again from an m.me link, an ad or a Messenger code',
+    outputs: REFERRAL_OUTPUTS,
   }),
 ];
 
@@ -140,6 +112,8 @@ export const facebook = defineIntegration({
       'pages_manage_metadata',
       'pages_read_engagement',
       'pages_read_user_content',
+      'pages_manage_posts',
+      'pages_manage_engagement',
       'leads_retrieval',
       'pages_messaging',
     ],
@@ -153,5 +127,6 @@ export const facebook = defineIntegration({
   },
   hooks: facebookHooks,
   triggers: TRIGGERS,
-  actions: [sendMessage],
+  actions: [...MESSENGER_ACTIONS, ...POST_ACTIONS, ...COMMENT_ACTIONS],
+  records: FACEBOOK_RECORDS,
 });

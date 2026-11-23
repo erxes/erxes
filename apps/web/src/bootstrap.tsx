@@ -6,6 +6,7 @@ import {
   setFileStorage,
   setPluginRuntime,
   setRecordPage,
+  setReceiptPrintSettings,
   setRecordTimeline,
   setTransferButtons,
 } from 'erxes-ui';
@@ -39,6 +40,11 @@ setTransferButtons({
   Import: lazyNamed(() => import('./modules/transfer/PluginTransfer'), 'PluginImport'),
   Export: lazyNamed(() => import('./modules/transfer/PluginTransfer'), 'PluginExport'),
 });
+
+// A plugin's settings set how its eBarimt receipts print with core's editor, loaded on first use.
+setReceiptPrintSettings(
+  lazyNamed(() => import('./modules/settings/integrations/EbarimtPrint'), 'PluginReceiptPrint'),
+);
 
 // Plugin UIs call their own API with a per-plugin token and hear live signals.
 // A plugin page has its own queries, so core refusing its token is passed on

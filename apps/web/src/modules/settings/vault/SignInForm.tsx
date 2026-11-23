@@ -2,10 +2,11 @@ import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconCopy, IconLogin2 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, CopyText, Input, Label, useToast } from 'erxes-ui';
-import { useId, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { ConnectionNameInput, useConnectionName } from './ConnectionName';
 
 type OAuthIntegration = Integration & { oauth: NonNullable<Integration['oauth']> };
 
@@ -76,6 +77,45 @@ const OAuthAppForm = ({ integration }: { integration: OAuthIntegration }) => {
   );
 };
 
+const Fact = ({ label, children }: { label: string; children: ReactNode }) => (
+  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+    <dt className="text-muted-foreground">{label}</dt>
+    <dd className="min-w-0 break-all text-right">{children}</dd>
+  </div>
+);
+
+export const ServerAppFacts = ({ oauth }: { oauth: OAuthIntegration['oauth'] }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
+
+  if (oauth.client !== 'server') return null;
+
+  return (
+    <div className="space-y-2 rounded-lg border p-3 text-sm">
+      <dl className="space-y-1.5">
+        <Fact label={t('app', 'App')}>{t('app-on-server', 'Set on the server')}</Fact>
+        {oauth.serverClientId && (
+          <Fact label={t('client-id', 'Client id')}>
+            <code className="text-xs">{oauth.serverClientId}</code>
+          </Fact>
+        )}
+        {oauth.relayUrl && (
+          <>
+            <Fact label={t('relay', 'Events and sign-in')}>
+              {t('through-relay', 'Through the erxes Meta relay')}
+            </Fact>
+            <Fact label={t('relay-url', 'Relay')}>
+              <code className="text-xs">{oauth.relayUrl}</code>
+            </Fact>
+          </>
+        )}
+      </dl>
+      <p className="text-xs text-muted-foreground">
+        {t('server-app-note', "Set in the server's .env. Change it there.")}
+      </p>
+    </div>
+  );
+};
+
 export const SignInForm = ({
   integration,
   onCancel,
@@ -87,7 +127,7 @@ export const SignInForm = ({
   const id = useId();
   const { toast } = useToast();
   const brand = useIntegrationText()(integration).name;
-  const [name, setName] = useState(brand);
+  const { name, setName, taken, ready } = useConnectionName(integration);
 
   const authorize = useMutation(
     orpc.integrations.authorize.mutationOptions({
@@ -103,16 +143,20 @@ export const SignInForm = ({
         <span className="font-medium">{brand}</span>
       </div>
       {integration.oauth.client === null && <OAuthAppForm integration={integration} />}
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-name`}>{t('name', 'Name')}</Label>
-        <Input id={`${id}-name`} value={name} onChange={(event) => setName(event.target.value)} />
-      </div>
+      <ServerAppFacts oauth={integration.oauth} />
+      <ConnectionNameInput
+        id={`${id}-name`}
+        integration={integration}
+        name={name}
+        taken={taken}
+        onChange={setName}
+      />
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onCancel}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button
-          disabled={!integration.oauth.client || !name.trim() || authorize.isPending}
+          disabled={!integration.oauth.client || !ready || authorize.isPending}
           onClick={() => authorize.mutate({ key: integration.key, name: name.trim() })}
         >
           <IconLogin2 />

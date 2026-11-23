@@ -1,4 +1,5 @@
-import type { ActivityTarget } from '@erxes/core-contract';
+import type { ActivityTarget, coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   activities,
   actorOf,
@@ -205,7 +206,7 @@ export const addNote = async (
 export const editNote = async (
   client: Db,
   id: string,
-  input: { body?: string; mentions?: string[]; fileIds?: string[] },
+  input: Omit<InferContractRouterInputs<typeof coreContract>['activities']['editNote'], 'id'>,
 ) => {
   // One edit at a time: each keeps the wording the one before it left.
   await lockRows(client, 'core_notes', [id]);

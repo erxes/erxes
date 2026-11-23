@@ -20,7 +20,6 @@ export {
   activities,
   agentModels,
   assistantAppearances,
-  assistantConnections,
   assistantReferences,
   assistantSettings,
   assistantThreads,

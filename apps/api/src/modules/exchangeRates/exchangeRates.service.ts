@@ -1,4 +1,4 @@
-import type { CursorQuery } from '@erxes/core-contract';
+import type { ActiveRateQuery, CursorQuery } from '@erxes/core-contract';
 import { type Db, exchangeRates, newId, organizations } from '@erxes/core-db';
 import { and, desc, eq, ilike, inArray, lte, or, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
@@ -79,10 +79,7 @@ export const listExchangeRates = (
  * 3.x's `getActiveRate`: the pair's latest rate starting on `date`'s day or before. A moment
  * counts on its day in the organisation's time zone, as 3.x took the day in the server's.
  */
-export const activeExchangeRate = async (
-  client: Db,
-  input: { date: string; rateCurrency: string; mainCurrency?: string },
-) => {
+export const activeExchangeRate = async (client: Db, input: ActiveRateQuery) => {
   const org = await orgMoney(client);
   const day = input.date.includes('T') ? localDay(org.timezone, new Date(input.date)) : input.date;
 

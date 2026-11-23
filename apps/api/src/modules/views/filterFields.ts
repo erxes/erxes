@@ -257,7 +257,7 @@ export const filterFields = async (
 };
 
 /** The records automations run on. */
-export type SubjectType = 'customer' | 'company';
+export type SubjectType = (typeof CONTENT_TYPES)[number];
 
 /**
  * Every field of one customer or company, whichever list shows it: a person has the customers

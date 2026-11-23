@@ -7,8 +7,12 @@ import {
   parse,
   secret,
 } from '@erxes/plugin-sdk/integrations';
-import { createCustomer } from './actions';
-import { STRIPE_TRIGGERS, stripeHooks, stripeSend } from './hooks';
+import { createCustomer, deleteCustomer, findCustomer, updateCustomer } from './actions';
+import { createCoupon } from './couponActions';
+import { chargeCustomer, getBalance, refundPayment } from './paymentActions';
+import { stripeHooks, stripeSend } from './hooks';
+import { STRIPE_RECORDS } from './records';
+import { STRIPE_TRIGGERS } from './triggers';
 
 const keys = z.object({ secretKey: secret('Secret key') });
 
@@ -26,15 +30,13 @@ const Refund = z.object({ id: z.string().min(1) });
 
 const stripeClient =
   (config: StripeConfig, options: ClientOptions) =>
-  (path: string, form?: Record<string, string>, headers?: Record<string, string>) =>
-    stripeSend(
-      config,
-      form ? 'POST' : 'GET',
-      path,
-      form && new URLSearchParams(form),
-      headers,
-      options,
-    );
+  (
+    path: string,
+    form?: Record<string, string>,
+    headers?: Record<string, string>,
+    method = form ? 'POST' : 'GET',
+  ) =>
+    stripeSend(config, method, path, form && new URLSearchParams(form), headers, options);
 
 export type StripeClient = ReturnType<typeof stripeClient>;
 
@@ -122,5 +124,15 @@ export const stripe = defineIntegration({
   },
   hooks: stripeHooks,
   triggers: STRIPE_TRIGGERS,
-  actions: [createCustomer],
+  actions: [
+    createCustomer,
+    updateCustomer,
+    findCustomer,
+    deleteCustomer,
+    chargeCustomer,
+    refundPayment,
+    createCoupon,
+    getBalance,
+  ],
+  records: STRIPE_RECORDS,
 });

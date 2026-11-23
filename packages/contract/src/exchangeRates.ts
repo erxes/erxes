@@ -34,6 +34,16 @@ const ExchangeRateFields = createUpdateSchema(exchangeRates, {
   rate: (rate) => rate.positive(),
 }).pick({ date: true, mainCurrency: true, rateCurrency: true, rate: true });
 
+/** Which rate is in force: `rateCurrency`'s against `mainCurrency` (the organisation's) on `date`. */
+export const ActiveRateQuery = z.object({
+  /** A day, or a moment, whose day in the organisation's time zone counts. */
+  date: z.union([Day, z.iso.datetime({ offset: true })]),
+  rateCurrency: Currency,
+  mainCurrency: Currency.optional(),
+});
+
+export type ActiveRateQuery = z.infer<typeof ActiveRateQuery>;
+
 const base = oc.errors(COMMON_ERRORS);
 
 /**
@@ -45,8 +55,9 @@ export const exchangeRatesContract = {
     .route({
       method: 'GET',
       path: '/exchange-rates',
-      summary:
-        'Exchange rates, newest first. `searchValue` matches either currency; plugins read them (exchange_rates:read)',
+      summary: 'List exchange rates',
+      description:
+        'Newest first. `searchValue` matches either currency; plugins read them (exchange_rates:read)',
     })
     .input(
       CursorQuery.extend({
@@ -62,25 +73,20 @@ export const exchangeRatesContract = {
     .route({
       method: 'GET',
       path: '/exchange-rates/active',
-      summary:
+      summary: 'Get the exchange rate in force on a day',
+      description:
         "The rate of `rateCurrency` in force on `date`: the pair's latest rate starting on that day or before, in the organisation's time zone; null when there is none. `mainCurrency` is the organisation's currency unless given",
     })
-    .input(
-      z.object({
-        /** A day, or a moment, whose day in the organisation's time zone counts. */
-        date: z.union([Day, z.iso.datetime({ offset: true })]),
-        rateCurrency: Currency,
-        mainCurrency: Currency.optional(),
-      }),
-    )
+    .input(ActiveRateQuery)
     .output(ExchangeRate.nullable()),
   create: base
     .route({
       method: 'POST',
       path: '/exchange-rates',
       successStatus: 201,
-      summary:
-        'Add a rate. `mainCurrency` is the organisation’s currency unless given. 409 TAKEN (`date`) when the pair has a rate on that day; 400 INVALID_INPUT when both currencies are the same',
+      summary: 'Add an exchange rate',
+      description:
+        '`mainCurrency` is the organisation’s currency unless given. 409 TAKEN (`date`) when the pair has a rate on that day; 400 INVALID_INPUT when both currencies are the same',
     })
     .input(
       ExchangeRateFields.partial({ mainCurrency: true }).required({
@@ -94,8 +100,9 @@ export const exchangeRatesContract = {
     .route({
       method: 'PATCH',
       path: '/exchange-rates/{id}',
-      summary:
-        'Change a rate. 409 TAKEN (`date`) when the pair has another rate on that day; 400 INVALID_INPUT when both currencies are the same',
+      summary: 'Change an exchange rate',
+      description:
+        '409 TAKEN (`date`) when the pair has another rate on that day; 400 INVALID_INPUT when both currencies are the same',
     })
     .input(
       ExchangeRateFields.extend({ id: Id }).refine(

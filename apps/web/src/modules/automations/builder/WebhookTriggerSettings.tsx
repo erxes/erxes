@@ -1,13 +1,18 @@
-import { type AutomationTrigger, type HookSample, HookSubject } from '@erxes/core-contract';
+import {
+  AppSubject,
+  type AutomationTrigger,
+  type HookSample,
+  HookSubject,
+} from '@erxes/core-contract';
 import { IconBuilding, IconCopy, IconUser } from '@tabler/icons-react';
 import { CopyText, Select } from 'erxes-ui';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
+import { Field } from './Field';
 import { HookSampleCall } from './HookSampleCall';
 import { Segmented } from './Segmented';
-import { Field } from './triggerFields';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type WebhookTrigger = Extract<AutomationTrigger, { kind: 'webhook' }>;
@@ -45,10 +50,30 @@ const guessField = (by: HookSubject['by'], fields: FieldInfo[], fallback: string
   (fields.find((field) => GUESS[by].test(field.path)) ?? fields[0])?.path.slice(PAYLOAD.length) ??
   fallback;
 
-const subjectOf = (type: HookSubject['type'], fields: FieldInfo[]): HookSubject =>
-  type === 'company'
-    ? { type, by: 'primaryName', field: guessField('primaryName', fields, 'body.company') }
-    : { type, by: 'primaryEmail', field: guessField('primaryEmail', fields, 'body.email') };
+export const subjectOf = (
+  type: HookSubject['type'],
+  fields: FieldInfo[],
+  kind: 'webhook' | 'app',
+): HookSubject => {
+  const prefix = kind === 'webhook' ? 'body.' : '';
+
+  return type === 'company'
+    ? { type, by: 'primaryName', field: guessField('primaryName', fields, `${prefix}company`) }
+    : { type, by: 'primaryEmail', field: guessField('primaryEmail', fields, `${prefix}email`) };
+};
+
+export const withSubjectBy = (
+  kind: 'webhook' | 'app',
+  subject: HookSubject,
+  by: string,
+): HookSubject | null => {
+  const parsed = (kind === 'app' ? AppSubject : HookSubject).safeParse({ ...subject, by });
+
+  return parsed.success ? parsed.data : null;
+};
+
+export const subjectFieldLabel = (field: string) =>
+  field.replace(/^(body|query)\./, '').replaceAll('.', ' ');
 
 const sampleValue = (sample: HookSample | null, field: string) =>
   field
@@ -67,7 +92,7 @@ const HookAddress = ({ url, on }: { url: string; on: boolean }) => {
   return (
     <Field
       label={t('hook-address', 'Address')}
-      hint={
+      info={
         on
           ? t(
               'hook-address-hint',
@@ -107,7 +132,7 @@ const RequestFieldSelect = ({
   }));
 
   if (!options.some((option) => option.value === value))
-    options.unshift({ value, label: value.split('.').slice(1).join(' ') });
+    options.unshift({ value, label: subjectFieldLabel(value) });
 
   return (
     <Select value={value} disabled={disabled} onValueChange={(next) => next && onChange(next)}>
@@ -155,21 +180,19 @@ export const HookSubjectEditor = <T extends WebhookTrigger | AppTrigger>({
 
   return (
     <Field
-      label={t('hook-subject', 'Who the run is about')}
-      hint={
-        subject
-          ? t('hook-subject-hint', 'When no one matches, the call starts no run.')
-          : t('hook-subject-none', 'Runs aren’t about a customer or company.')
+      label={t('hook-subject', 'About')}
+      info={
+        subject ? t('hook-subject-hint', 'When no one matches, the call starts no run.') : undefined
       }
     >
       <Segmented
         value={subject?.type ?? 'none'}
         disabled={disabled}
-        label={t('hook-subject', 'Who the run is about')}
+        label={t('hook-subject', 'About')}
         onChange={(type) =>
           onChange({
             ...trigger,
-            subject: type === 'none' ? undefined : subjectOf(type, requestFields),
+            subject: type === 'none' ? undefined : subjectOf(type, requestFields, trigger.kind),
           })
         }
         options={[
@@ -185,9 +208,9 @@ export const HookSubjectEditor = <T extends WebhookTrigger | AppTrigger>({
             value={subject.by}
             disabled={disabled}
             onValueChange={(by) => {
-              const next = HookSubject.safeParse({ ...subject, by });
+              const next = by ? withSubjectBy(trigger.kind, subject, by) : null;
 
-              if (next.success) onChange({ ...trigger, subject: next.data });
+              if (next) onChange({ ...trigger, subject: next });
             }}
           >
             <Select.Trigger className="w-32 shrink-0" aria-label={t('hook-find-by', 'Find by')}>
@@ -244,14 +267,7 @@ export const WebhookTriggerSettings = ({
         disabled={disabled}
         onChange={onChange}
       />
-      <Field
-        label={t('only-if', 'Only if')}
-        hint={
-          trigger.conditions?.rules.length
-            ? undefined
-            : t('hook-only-if-empty', 'No conditions: every call starts a run.')
-        }
-      >
+      <Field label={t('only-if', 'Only if')}>
         <ConditionsEditor
           subject={trigger.subject?.type ?? null}
           value={trigger.conditions}
@@ -259,12 +275,6 @@ export const WebhookTriggerSettings = ({
           onChange={(conditions) => onChange({ ...trigger, conditions })}
         />
       </Field>
-      <p className="text-xs text-muted-foreground">
-        {t(
-          'hook-answer',
-          'The caller hears “accepted” at once. To send data back, add a “Reply to the webhook” step.',
-        )}
-      </p>
     </>
   );
 };

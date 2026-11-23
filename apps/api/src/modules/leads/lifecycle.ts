@@ -1,4 +1,4 @@
-import type { LeadRecordType } from '@erxes/core-contract';
+import type { LeadRecordType, LIFECYCLE_INPUT_COLUMNS } from '@erxes/core-contract';
 import type { CUSTOMER_STATES, LEAD_EVENTS } from '@erxes/core-db/enums';
 import {
   actorOf,
@@ -37,13 +37,8 @@ export interface LeadPlan {
   steps: LeadStep[];
 }
 
-interface LeadInput {
-  state?: (typeof CUSTOMER_STATES)[number];
-  leadStageId?: string;
-  disqualifyReason?: string | null;
-  source?: string | null;
-  sourceDetails?: Record<string, string>;
-}
+/** The lifecycle columns a customer or company create or update sets. */
+type LeadInput = Partial<Pick<typeof customers.$inferInsert, keyof typeof LIFECYCLE_INPUT_COLUMNS>>;
 
 /** Where someone came from when nobody said: an import, a plugin, or a member typing them in. */
 const callerSource = (): { source: string; sourceDetails: Record<string, string> } => {

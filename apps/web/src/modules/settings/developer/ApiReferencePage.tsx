@@ -7,11 +7,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { type ApiGroup, ApiReferencePicker } from './ApiReferencePicker';
-import { type ApiAudience, ApiReferenceView, type ReferenceSource } from './ApiReferenceView';
+import {
+  API_AUDIENCES,
+  type ApiAudience,
+  ApiReferenceView,
+  type ReferenceSource,
+} from './ApiReferenceView';
 import { usePluginReferences } from './pluginReferences';
 
 const isAudience = (value: string): value is ApiAudience =>
-  value === 'member' || value === 'customer';
+  API_AUDIENCES.some((audience) => audience === value);
 
 /** The names of the APIs, by who calls them. */
 const useAudienceLabels = (): Record<PluginApiAudience, string> => {
@@ -53,7 +58,7 @@ export const ApiReferencePage = () => {
   const groups: ApiGroup[] = [
     {
       heading: t('core', 'Core'),
-      choices: (['member', 'customer'] as const).map((value) => ({
+      choices: API_AUDIENCES.map((value) => ({
         key: value,
         label: labels[value],
         title: labels[value],

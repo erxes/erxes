@@ -5,6 +5,7 @@ import {
   type ApiKeyActions,
   type ApiKeyArea,
   type ApiKeyAreas,
+  type ApiKeyRules,
   type ApiKeyPlugins,
   CORE_PERMISSIONS,
   OWNER_ONLY_PERMISSIONS,
@@ -18,16 +19,7 @@ import { installedPlugin } from '../plugins/installedPlugin';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
-export interface KeyRulesInput {
-  kind: 'regular' | 'management';
-  areas: ApiKeyAreas;
-  pluginAccess: ApiKeyPlugins;
-  actions: ApiKeyActions;
-  ownRecords: boolean;
-  unitIds: string[];
-  tagIds: string[];
-  allowedIps: string[];
-}
+export type KeyRulesInput = Omit<ApiKeyRules, 'name' | 'lifetimeDays'>;
 
 const invalid = (field: string, message: string) =>
   fail('INVALID_INPUT', message, { issues: [{ path: [field], message }] });

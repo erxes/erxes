@@ -16,8 +16,11 @@ import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
-/** A kind of a plugin's own records (`pipeline`, `stage`) its API lists for the builder's pickers. */
-const RecordType = z
+/**
+ * A kind of a plugin's own records (`pipeline`, `stage`) its API lists for the builder's pickers,
+ * or of an app's (`page`, `repository`), which core lists with the step's connection.
+ */
+export const RecordType = z
   .string()
   .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -');
 
@@ -67,6 +70,9 @@ export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
  * `plugin_record` (one of the plugin's own records of `recordType`, by id),
  * `connection` (one of the action's integration's active connections, by id, from `options`;
  * empty: the default one). Only core's integration actions take a `connection`.
+ * An agent step's `agent_tools` (the categories its agent may use, `catalogCategory` keys and
+ * `api`; empty: all) and `agent_model` (`{ provider, model }`; empty: the organisation's default)
+ * are core's own too.
  */
 export const ActionField = z
   .object({
@@ -125,13 +131,20 @@ const dependsInCircle = (fields: ActionField[]) => {
   });
 };
 
+const CORE_FIELD_TYPES: ReadonlySet<string> = new Set([
+  'connection',
+  'agent_tools',
+  'agent_api_key',
+  'agent_model',
+]);
+
 /** A plugin action's inputs: each `dependsOn` names another of them, with no circle. */
 export const ActionFields = z
   .array(ActionField)
   .max(50)
   .refine(
-    (fields) => fields.every((field) => field.type !== 'connection'),
-    "connection inputs are core's own",
+    (fields) => fields.every((field) => !CORE_FIELD_TYPES.has(field.type)),
+    "connection, agent_tools, agent_api_key and agent_model inputs are core's own",
   )
   .refine(
     (fields) =>
@@ -270,5 +283,6 @@ export type DryRunStep = z.infer<typeof DryRunStep>;
 export const DryRun = z.object({
   triggerMatches: z.boolean(),
   goalMetAtStart: z.boolean(),
+  problems: z.array(z.string()),
   trace: z.array(DryRunStep),
 });

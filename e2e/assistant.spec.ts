@@ -4,16 +4,21 @@ import { expect, expectAccessible, test, unique } from './fixtures';
 
 test.beforeEach(connectFakeModel);
 
-test('a member saves a key, asks for a change and sees the result', async ({ page, api }) => {
-  const name = `Ada ${unique()}`;
+test('an admin connects an AI provider in Integrations, asks for a change and sees the result', async ({
+  page,
+  api,
+}) => {
+  const suffix = unique();
+  const name = `Ada ${suffix}`;
+  const connection = `Kimi ${suffix}`;
 
-  await page.goto('/settings/assistant');
-
-  const kimi = page.getByRole('region', { name: 'Kimi', exact: true });
-
-  await kimi.getByLabel('Kimi API key').fill(MODEL_KEY);
-  await kimi.getByRole('button', { name: 'Save key' }).click();
-  await expect(kimi.getByText('Key saved')).toBeVisible();
+  await page.goto('/settings/integrations?tab=browse&category=ai');
+  await page.getByRole('link', { name: /Kimi Moonshot API/ }).click();
+  await page.getByRole('button', { name: 'Add another', exact: true }).click();
+  await page.getByLabel('Name').fill(connection);
+  await page.getByLabel('API key').fill(MODEL_KEY);
+  await page.getByRole('button', { name: 'Connect Kimi Moonshot API' }).click();
+  await expect(page.getByText(`${connection} is connected`)).toBeVisible();
   await expectAccessible(page);
 
   await page.getByRole('button', { name: 'Assistant', exact: true }).click();
@@ -21,7 +26,9 @@ test('a member saves a key, asks for a change and sees the result', async ({ pag
   const panel = page.getByRole('complementary', { name: 'Assistant' });
 
   await expect(panel.getByRole('heading', { name: 'How can I help?' })).toBeVisible();
-  await expect(panel.getByRole('button', { name: /^Model: Kimi · .*k3/i })).toBeVisible();
+  await expect(
+    panel.getByRole('button', { name: /^Model: Kimi Moonshot API · .*k3/i }),
+  ).toBeVisible();
   await expectAccessible(page);
 
   await panel.getByRole('textbox', { name: 'Message' }).fill(`Add a customer named ${name}`);
@@ -31,6 +38,12 @@ test('a member saves a key, asks for a change and sees the result', async ({ pag
   await expectAccessible(page);
 
   await expect.poll(async () => (await api.customers.list({ search: name })).data.length).toBe(1);
+
+  const added = (await api.integrations.connections({ key: 'kimi' })).data.find(
+    (row) => row.name === connection,
+  );
+
+  if (added) await api.integrations.remove({ key: 'kimi', id: added.id });
 });
 
 test('closing a tab keeps the conversation; deleting asks first', async ({ page }) => {

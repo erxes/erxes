@@ -1,25 +1,6 @@
-import type { UserLinkName } from '@erxes/core-contract';
+import type { UserFields } from '@erxes/core-contract';
 import type { users } from '@erxes/core-db';
 import type { UserRow } from './userRows';
-
-export interface UserChanges {
-  email?: string | null;
-  fullName?: string;
-  username?: string;
-  avatarUrl?: string | null;
-  role?: string;
-  firstName?: string | null;
-  middleName?: string | null;
-  lastName?: string | null;
-  shortName?: string | null;
-  employeeId?: string | null;
-  code?: string | null;
-  phone?: string | null;
-  birthDate?: string | null;
-  workStartedDate?: string | null;
-  description?: string | null;
-  links?: Partial<Record<UserLinkName, string | null>>;
-}
 
 type NameParts = Pick<UserRow, 'firstName' | 'middleName' | 'lastName'>;
 
@@ -40,7 +21,7 @@ const blankToNull = (value: string | null | undefined) =>
   value === undefined ? undefined : value?.trim() ? value.trim() : null;
 
 /** The name columns, with `fullName` kept in step with the name parts. */
-const nameChanges = (input: UserChanges, current?: NameParts): UserSet => {
+const nameChanges = (input: UserFields, current?: NameParts): UserSet => {
   const parts = {
     firstName: blankToNull(input.firstName),
     middleName: blankToNull(input.middleName),
@@ -63,7 +44,7 @@ const nameChanges = (input: UserChanges, current?: NameParts): UserSet => {
 };
 
 /** Links merged into the current ones; an empty value removes a link. */
-const linkChanges = (links: NonNullable<UserChanges['links']>, current: UserRow['links'] = {}) => {
+const linkChanges = (links: NonNullable<UserFields['links']>, current: UserRow['links'] = {}) => {
   const next: Record<string, string> = { ...current };
 
   for (const [name, value] of Object.entries(links)) {
@@ -79,7 +60,7 @@ const linkChanges = (links: NonNullable<UserChanges['links']>, current: UserRow[
 
 /** Name, profile and link changes. */
 export const profileChanges = (
-  input: UserChanges,
+  input: UserFields,
   current?: Pick<UserRow, 'firstName' | 'middleName' | 'lastName' | 'links'>,
 ) => {
   const set = nameChanges(input, current);

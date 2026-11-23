@@ -79,14 +79,17 @@ export const websitesContract = {
     .route({
       method: 'GET',
       path: '/websites',
-      summary: 'Websites customers sign in to, by name, with their accounts. A plugin gets its own',
+      summary: 'List websites',
+      description:
+        'Websites customers sign in to, by name, with their accounts. A plugin gets its own',
     })
     .output(listOf(WebsiteListItem)),
   save: base
     .route({
       method: 'PUT',
       path: '/websites/{recordId}',
-      summary:
+      summary: 'Add or change a website',
+      description:
         "Add or change the website of one of the plugin's records (plugins only). Its id goes in sign-in calls",
     })
     .input(
@@ -104,7 +107,8 @@ export const websitesContract = {
     .route({
       method: 'DELETE',
       path: '/websites/{recordId}',
-      summary:
+      summary: 'Remove a website',
+      description:
         "Remove the website of one of the plugin's records (plugins only), with its accounts. 400 UNKNOWN_WEBSITE",
     })
     .input(z.object({ recordId: Id }))
@@ -120,7 +124,8 @@ export const customerAccountsContract = {
     .route({
       method: 'GET',
       path: '/customers/{customerId}/accounts',
-      summary: "A customer's accounts, one per website they signed up on",
+      summary: 'List a customer’s accounts',
+      description: "A customer's accounts, one per website they signed up on",
     })
     .input(z.object({ customerId: Id }))
     .output(listOf(CustomerAccount)),

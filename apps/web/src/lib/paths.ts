@@ -79,6 +79,7 @@ export const paths = {
     integrations: '/settings/integrations',
     integration: (key: string) => `/settings/integrations/${id(key)}`,
     paymentIntegrations: '/settings/integrations?tab=browse&category=payments',
+    aiIntegrations: '/settings/integrations?tab=browse&category=ai',
     integrationConnection: (connectionId: string) =>
       `/settings/integrations/connections/${id(connectionId)}`,
     email: '/settings/email',
@@ -97,7 +98,7 @@ export const paths = {
     profile: '/settings/profile',
     security: '/settings/security',
     notifications: '/settings/notifications',
-    assistant: '/settings/assistant',
+    assistantModel: '/settings/assistant-model',
     assistantAppearance: '/settings/assistant-appearance',
     /** Plugins' record types' properties: `/settings/properties/<plugin>.<type>`. */
     properties: '/settings/properties',

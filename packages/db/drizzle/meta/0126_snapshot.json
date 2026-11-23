@@ -1,6 +1,6 @@
 {
-  "id": "c1ae200e-3d4e-49aa-a9b4-3847495455fa",
-  "prevId": "286dc76e-878a-4f39-8872-3f063598c4ae",
+  "id": "f5586eee-df0a-4b9f-802b-c3a1f627fca8",
+  "prevId": "4e73d1c9-7140-4988-b13c-088b78feb821",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1787,18 +1787,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'UTC'"
-        },
-        "phone": {
-          "name": "phone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "settings": {
           "name": "settings",
@@ -6428,6 +6416,33 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "core_integration_connections_org_key_name_key": {
+          "name": "core_integration_connections_org_key_name_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -9772,12 +9787,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "code": {
-          "name": "code",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "parent_id": {
           "name": "parent_id",
           "type": "text",
@@ -9823,28 +9832,6 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_product_categories_org_code_key": {
-          "name": "core_product_categories_org_code_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "lower(\"code\")",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_product_categories\".\"code\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -11593,135 +11580,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.core_assistant_connections": {
-      "name": "core_assistant_connections",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "key_secret_id": {
-          "name": "key_secret_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_default": {
-          "name": "is_default",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_assistant_connections_provider_key": {
-          "name": "core_assistant_connections_provider_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "provider",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_assistant_connections_default_key": {
-          "name": "core_assistant_connections_default_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_assistant_connections\".\"is_default\"",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_assistant_connections_org_id_fkey": {
-          "name": "core_assistant_connections_org_id_fkey",
-          "tableFrom": "core_assistant_connections",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_assistant_connections_key_secret_id_fkey": {
-          "name": "core_assistant_connections_key_secret_id_fkey",
-          "tableFrom": "core_assistant_connections",
-          "tableTo": "core_secrets",
-          "columnsFrom": [
-            "key_secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_assistant_connections_provider_check": {
-          "name": "core_assistant_connections_provider_check",
-          "value": "\"core_assistant_connections\".\"provider\" IN ('openai', 'grok', 'kimi', 'kimi-code')"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.core_assistant_references": {
       "name": "core_assistant_references",
       "schema": "",
@@ -11857,6 +11715,18 @@
           "notNull": true,
           "default": false
         },
+        "default_provider": {
+          "name": "default_provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "default_model": {
+          "name": "default_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp with time zone",
@@ -11884,7 +11754,16 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "core_assistant_settings_default_provider_check": {
+          "name": "core_assistant_settings_default_provider_check",
+          "value": "\"core_assistant_settings\".\"default_provider\" IN ('openai', 'anthropic', 'openrouter', 'kimi', 'kimi-code', 'grok')"
+        },
+        "core_assistant_settings_default_model_check": {
+          "name": "core_assistant_settings_default_model_check",
+          "value": "(\"core_assistant_settings\".\"default_provider\" is null) = (\"core_assistant_settings\".\"default_model\" is null)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.core_assistant_threads": {
@@ -12769,7 +12648,7 @@
       "checkConstraints": {
         "core_agent_models_provider_check": {
           "name": "core_agent_models_provider_check",
-          "value": "\"core_agent_models\".\"provider\" IN ('openai', 'grok', 'kimi', 'kimi-code')"
+          "value": "\"core_agent_models\".\"provider\" IN ('openai', 'anthropic', 'openrouter', 'kimi', 'kimi-code', 'grok')"
         }
       },
       "isRLSEnabled": false

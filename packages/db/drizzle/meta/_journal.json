@@ -845,50 +845,64 @@
     {
       "idx": 120,
       "version": "7",
-      "when": 1795372253258,
-      "tag": "0120_organization_currencies",
+      "when": 1795366942004,
+      "tag": "0120_connection_unique_names",
       "breakpoints": true
     },
     {
       "idx": 121,
       "version": "7",
-      "when": 1795373029997,
-      "tag": "0121_exchange_rates",
+      "when": 1795378851851,
+      "tag": "0121_ai_provider_integrations",
       "breakpoints": true
     },
     {
       "idx": 122,
       "version": "7",
-      "when": 1795373047386,
-      "tag": "0122_user_code",
+      "when": 1795378852851,
+      "tag": "0122_organization_currencies",
       "breakpoints": true
     },
     {
       "idx": 123,
       "version": "7",
-      "when": 1795373056259,
-      "tag": "0123_member_restrictions",
+      "when": 1795378853851,
+      "tag": "0123_exchange_rates",
       "breakpoints": true
     },
     {
       "idx": 124,
       "version": "7",
-      "when": 1795373106777,
-      "tag": "0124_product_inventories",
+      "when": 1795378854851,
+      "tag": "0124_user_code",
       "breakpoints": true
     },
     {
       "idx": 125,
       "version": "7",
-      "when": 1795373114071,
-      "tag": "0125_product_category_code",
+      "when": 1795378855851,
+      "tag": "0125_member_restrictions",
       "breakpoints": true
     },
     {
       "idx": 126,
       "version": "7",
-      "when": 1795373116157,
-      "tag": "0126_organization_contact",
+      "when": 1795378856851,
+      "tag": "0126_product_inventories",
+      "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1795378857851,
+      "tag": "0127_product_category_code",
+      "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1795378858851,
+      "tag": "0128_organization_contact",
       "breakpoints": true
     }
   ]

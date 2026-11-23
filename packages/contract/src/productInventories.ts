@@ -84,7 +84,8 @@ export const productInventoriesContract = {
     .route({
       method: 'GET',
       path: '/product-inventories',
-      summary:
+      summary: "List products' stock rows",
+      description:
         "The products' stock rows (3.x's `product.inventories`): every place, or the one place `branchId` and `departmentId` name (either left out for none); the first 1000 by product, the no-branch place first",
     })
     .input(Place.extend({ productIds: IdList }))
@@ -93,7 +94,8 @@ export const productInventoriesContract = {
     .route({
       method: 'GET',
       path: '/product-inventories/remainders',
-      summary:
+      summary: "Get products' remainders",
+      description:
         "Each product's stock as 3.x's `product.remainder`: the place `branchId` and `departmentId` name, else the sums over `branchIds` and `departmentIds` (all when left out; `_` for none)",
     })
     .input(Place.extend({ ids: IdList, branchIds: PlaceIds, departmentIds: PlaceIds }))
@@ -102,7 +104,8 @@ export const productInventoriesContract = {
     .route({
       method: 'GET',
       path: '/product-inventories/stock',
-      summary: "Each product's stock in total and by branch, without cost: `?ids=a,b`",
+      summary: "Get products' stock by branch",
+      description: "Each product's stock in total and by branch, without cost: `?ids=a,b`",
     })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(ProductStock).max(100) })),
@@ -110,7 +113,8 @@ export const productInventoriesContract = {
     .route({
       method: 'POST',
       path: '/product-inventories/set',
-      summary:
+      summary: "Set products' stock in one place",
+      description:
         "Set products' stock in one place (3.x's `setInventories`); an amount left out or 0 is cleared. 400 INVALID_PRODUCT",
     })
     .input(
@@ -134,7 +138,8 @@ export const productInventoriesContract = {
     .route({
       method: 'POST',
       path: '/product-inventories/increase',
-      summary:
+      summary: "Add to products' stock in one place",
+      description:
         "Add to products' stock in one place (3.x's `increaseInventories`); a diff left out adds 0. 400 INVALID_PRODUCT",
     })
     .input(

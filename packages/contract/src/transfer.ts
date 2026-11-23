@@ -177,6 +177,16 @@ export const Export = createSelectSchema(exports, {
 
 export type Export = z.infer<typeof Export>;
 
+/** A list to export: its record type, file format, columns and filters. */
+export const ExportRequest = z.object({
+  recordType: TransferRecordType,
+  format: z.enum(EXPORT_FORMATS).default('csv'),
+  columns: z.array(z.string().max(100)).min(1).max(200),
+  query: ExportQuery.default({}),
+});
+
+export type ExportRequest = z.infer<typeof ExportRequest>;
+
 /** Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of lists. */
 const {
   CROSS_SITE,
@@ -217,7 +227,8 @@ export const transferContract = {
     .route({
       method: 'GET',
       path: '/transfer/types',
-      summary:
+      summary: 'List importable record types',
+      description:
         "The record types the member may import or export: core's, and those of installed plugins whose permission they hold",
     })
     .output(listOf(TransferType)),
@@ -225,16 +236,22 @@ export const transferContract = {
     .route({
       method: 'GET',
       path: '/transfer/columns',
-      summary: 'What imports can fill and exports can write, for a record type',
+      summary: 'List import and export columns',
+      description: 'What imports can fill and exports can write, for a record type',
     })
     .input(z.object({ recordType: TransferRecordType }))
     .output(listOf(TransferColumn)),
   imports: base
-    .route({ method: 'GET', path: '/imports', summary: 'Imports, newest first' })
+    .route({
+      method: 'GET',
+      path: '/imports',
+      summary: 'List imports',
+      description: 'Imports, newest first',
+    })
     .input(TransferPage)
     .output(cursorPageOf(Import)),
   import: base
-    .route({ method: 'GET', path: '/imports/{id}' })
+    .route({ method: 'GET', path: '/imports/{id}', summary: 'Get an import' })
     .input(z.object({ id: Id }))
     .output(Import),
   createImport: base
@@ -242,7 +259,8 @@ export const transferContract = {
       method: 'POST',
       path: '/imports',
       successStatus: 201,
-      summary:
+      summary: 'Start an import',
+      description:
         'Start an import from an uploaded CSV or Excel file (≤ 100,000 rows): it is read, then columns are suggested',
     })
     .input(z.object({ recordType: TransferRecordType, fileId: Id }))
@@ -251,7 +269,9 @@ export const transferContract = {
     .route({
       method: 'PATCH',
       path: '/imports/{id}',
-      summary: 'Set the column mapping and options (before it runs); the check result is cleared',
+      summary: 'Change an import’s mapping',
+      description:
+        'Set the column mapping and options (before it runs); the check result is cleared',
     })
     .input(
       z.object({
@@ -265,7 +285,9 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/check',
-      summary: 'A dry run: what each row would do (create, update, skip, error), changing nothing',
+      summary: 'Check an import',
+      description:
+        'A dry run: what each row would do (create, update, skip, error), changing nothing',
     })
     .input(z.object({ id: Id }))
     .output(Import),
@@ -273,7 +295,8 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/start',
-      summary: 'Run it, in the background, in batches',
+      summary: 'Run an import',
+      description: 'Run it, in the background, in batches',
     })
     .input(z.object({ id: Id }))
     .output(Import),
@@ -281,7 +304,9 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/undo',
-      summary: 'Remove the records it created (to the recycle bin), within 30 days; updates stay',
+      summary: 'Undo an import',
+      description:
+        'Remove the records it created (to the recycle bin), within 30 days; updates stay',
     })
     .input(z.object({ id: Id }))
     .output(Import),
@@ -289,7 +314,8 @@ export const transferContract = {
     .route({
       method: 'GET',
       path: '/imports/{id}/rows',
-      summary: 'Rows of an import, by what they did (errors first for the report)',
+      summary: 'List an import’s rows',
+      description: 'Rows of an import, by what they did (errors first for the report)',
     })
     .input(
       z.object({
@@ -300,7 +326,12 @@ export const transferContract = {
     )
     .output(z.object({ data: z.array(ImportRow).max(1000) })),
   exports: base
-    .route({ method: 'GET', path: '/exports', summary: 'Exports, newest first' })
+    .route({
+      method: 'GET',
+      path: '/exports',
+      summary: 'List exports',
+      description: 'Exports, newest first',
+    })
     .input(TransferPage)
     .output(cursorPageOf(Export)),
   createExport: base
@@ -308,16 +339,10 @@ export const transferContract = {
       method: 'POST',
       path: '/exports',
       successStatus: 202,
-      summary:
+      summary: 'Export a list',
+      description:
         'Export a list (its filters) to CSV or Excel in the background; a notification says when it is ready',
     })
-    .input(
-      z.object({
-        recordType: TransferRecordType,
-        format: z.enum(EXPORT_FORMATS).default('csv'),
-        columns: z.array(z.string().max(100)).min(1).max(200),
-        query: ExportQuery.default({}),
-      }),
-    )
+    .input(ExportRequest)
     .output(Export),
 };

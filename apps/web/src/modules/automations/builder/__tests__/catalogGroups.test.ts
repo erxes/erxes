@@ -33,21 +33,21 @@ const invoice: CatalogItem = {
 describe('the automation catalog’s groups', () => {
   it('puts core’s items in their area, in a fixed order, and the rest under General', () => {
     const areas = [
-      ['core.customer.created', 'Customers', IconUser, 0],
-      ['core.lead.stage_changed', 'Leads', IconMagnet, 1],
-      ['core.company.update', 'Companies', IconBuilding, 2],
-      ['core.payment.paid', 'Payments', IconCreditCard, 3],
-      ['core.email.send', 'Messages', IconMail, 4],
-      ['core.notification.send', 'Messages', IconMail, 4],
-      ['core.note.add', 'Timeline', IconNote, 5],
-      ['core.webhook.post', 'Integrations', IconWebhook, 6],
-      ['core.http.request', 'Integrations', IconWebhook, 6],
-      ['core.agent.ask', 'AI agents', IconSparkles, 7],
+      ['core.customer.created', 'customers', 'Customers', IconUser, 0],
+      ['core.lead.stage_changed', 'leads', 'Leads', IconMagnet, 1],
+      ['core.company.update', 'companies', 'Companies', IconBuilding, 2],
+      ['core.payment.paid', 'payments', 'Payments', IconCreditCard, 3],
+      ['core.email.send', 'messages', 'Messages', IconMail, 4],
+      ['core.notification.send', 'messages', 'Messages', IconMail, 4],
+      ['core.note.add', 'timeline', 'Timeline', IconNote, 5],
+      ['core.webhook.post', 'integrations', 'Integrations', IconWebhook, 6],
+      ['core.http.request', 'integrations', 'Integrations', IconWebhook, 6],
+      ['core.agent.ask', 'agents', 'AI agents', IconSparkles, 7],
     ] as const;
 
-    for (const [type, label, icon, order] of areas)
+    for (const [type, area, label, icon, order] of areas)
       expect(groupOf(core(type))).toEqual({
-        key: `core:${label}`,
+        key: `core:${area}`,
         source: 'core',
         label,
         icon,
@@ -123,8 +123,8 @@ describe('the automation catalog’s groups', () => {
     ]);
 
     expect(grouped.map(({ group, items }) => [group.key, items.map((item) => item.type)])).toEqual([
-      ['core:Customers', ['core.customer.update']],
-      ['core:Messages', ['core.notification.send', 'core.email.send']],
+      ['core:customers', ['core.customer.update']],
+      ['core:messages', ['core.notification.send', 'core.email.send']],
       ['core:general', ['core.segment.matched']],
       ['integration:qpay', ['qpay.invoice.create']],
       ['integration:test', ['test.invoice.create']],

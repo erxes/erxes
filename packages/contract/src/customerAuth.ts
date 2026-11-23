@@ -165,7 +165,8 @@ export const customerAuthContract = {
     .route({
       method: 'GET',
       path: '/customer-auth/fields',
-      summary:
+      summary: 'List sign-up fields',
+      description:
         "The fields the website's organisation lets customers fill in, for its sign-up and profile forms. 400 UNKNOWN_WEBSITE",
     })
     .input(z.object({ website }))
@@ -175,7 +176,8 @@ export const customerAuthContract = {
       method: 'POST',
       path: '/customer-auth/sign-up',
       successStatus: 202,
-      summary:
+      summary: 'Sign up on a website',
+      description:
         'Make an account on the website: checks the form and sends a code to confirm the address. An address with an account gets a code too, which signs it in. 400 INVALID_FIELD, 400 UNKNOWN_WEBSITE, 400 SIGN_IN_UNAVAILABLE, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
     .input(addressWith({ website, ...SignUpForm }))
@@ -184,7 +186,8 @@ export const customerAuthContract = {
     .route({
       method: 'POST',
       path: '/customer-auth/sign-up/confirm',
-      summary:
+      summary: 'Confirm a sign-up',
+      description:
         'Confirm a sign-up with its code: makes the account, saves the form on the customer and signs in. 400 INVALID_CODE, 400 INVALID_FIELD, 400 UNKNOWN_WEBSITE, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(addressWith({ website, code: Code }))
@@ -194,7 +197,8 @@ export const customerAuthContract = {
       method: 'POST',
       path: '/customer-auth/code',
       successStatus: 202,
-      summary:
+      summary: 'Send a sign-in code',
+      description:
         'Send a code for signing in to an account on the website. An address with no account gets no code, with the same answer: sign up first. 400 UNKNOWN_WEBSITE, 400 SIGN_IN_UNAVAILABLE (no SMS provider for phones), 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
     .input(addressWith({ website }))
@@ -203,7 +207,8 @@ export const customerAuthContract = {
     .route({
       method: 'POST',
       path: '/customer-auth/sign-in',
-      summary:
+      summary: 'Sign in with a code',
+      description:
         'Sign in to an account on the website with the code and get its tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_WEBSITE, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(addressWith({ website, code: Code }))
@@ -212,7 +217,8 @@ export const customerAuthContract = {
     .route({
       method: 'POST',
       path: '/customer-auth/refresh',
-      summary:
+      summary: 'Refresh tokens',
+      description:
         'New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ORIGIN_NOT_ALLOWED',
     })
     .input(z.object({ refreshToken: RefreshToken }))
@@ -221,7 +227,8 @@ export const customerAuthContract = {
     .route({
       method: 'POST',
       path: '/customer-auth/sign-out',
-      summary: "End the refresh token's session; the answer is ok either way",
+      summary: 'Sign out',
+      description: "End the refresh token's session; the answer is ok either way",
     })
     .input(z.object({ refreshToken: RefreshToken }))
     .output(z.object({ ok: z.literal(true) })),
@@ -230,26 +237,38 @@ export const customerAuthContract = {
 /** The signed-in customer (`Authorization: Bearer` with a customer access token). */
 export const customerAccountContract = {
   me: base
-    .route({ method: 'GET', path: '/customer/me', summary: "The signed-in customer's profile" })
+    .route({
+      method: 'GET',
+      path: '/customer/me',
+      summary: 'Get my customer profile',
+      description: "The signed-in customer's profile",
+    })
     .output(CustomerProfile),
   update: base
     .route({
       method: 'PATCH',
       path: '/customer/me',
-      summary:
+      summary: 'Change my customer profile',
+      description:
         'Change name, picture, birth date or the fields customers fill in (`null` clears one). 400 INVALID_FIELD',
     })
     .input(CustomerProfileFields.extend({ customFields: CustomFieldsPatch.optional() }))
     .output(CustomerProfile),
   logins: base
-    .route({ method: 'GET', path: '/customer/me/logins', summary: 'Addresses I sign in with' })
+    .route({
+      method: 'GET',
+      path: '/customer/me/logins',
+      summary: 'List my sign-in addresses',
+      description: 'Addresses I sign in with',
+    })
     .output(listOf(CustomerLogin)),
   addLogin: base
     .route({
       method: 'POST',
       path: '/customer/me/logins',
       successStatus: 202,
-      summary:
+      summary: 'Add a sign-in address',
+      description:
         'Send a code to a new address to sign in to this website with; the same answer when the address is taken. 400 SIGN_IN_UNAVAILABLE, 429 TOO_MANY_CODES',
     })
     .input(addressWith({}))
@@ -259,7 +278,8 @@ export const customerAccountContract = {
       method: 'POST',
       path: '/customer/me/logins/confirm',
       successStatus: 201,
-      summary: 'Add the address with its code. 400 INVALID_CODE, 409 TAKEN',
+      summary: 'Confirm a sign-in address',
+      description: 'Add the address with its code. 400 INVALID_CODE, 409 TAKEN',
     })
     .input(addressWith({ code: Code }))
     .output(CustomerLogin),
@@ -267,18 +287,25 @@ export const customerAccountContract = {
     .route({
       method: 'DELETE',
       path: '/customer/me/logins/{id}',
-      summary: 'Stop signing in with an address. 409 LAST_LOGIN',
+      summary: 'Remove a sign-in address',
+      description: 'Stop signing in with an address. 409 LAST_LOGIN',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   sessions: base
-    .route({ method: 'GET', path: '/customer/me/sessions', summary: 'Where I am signed in' })
+    .route({
+      method: 'GET',
+      path: '/customer/me/sessions',
+      summary: 'List my sessions',
+      description: 'Where I am signed in',
+    })
     .output(listOf(CustomerSession)),
   revokeSession: base
     .route({
       method: 'DELETE',
       path: '/customer/me/sessions/{id}',
-      summary: 'Sign out one device or browser',
+      summary: 'Sign out a device',
+      description: 'Sign out one device or browser',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -286,7 +313,8 @@ export const customerAccountContract = {
     .route({
       method: 'POST',
       path: '/customer/me/sign-out-everywhere',
-      summary: 'Sign out of this website everywhere (access tokens end within 15 minutes)',
+      summary: 'Sign out everywhere',
+      description: 'Sign out of this website everywhere (access tokens end within 15 minutes)',
     })
     .output(z.object({ ok: z.literal(true) })),
 };

@@ -7,10 +7,11 @@ import {
 import { ConnectionPicker, Input, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from '../automationQueries';
+import { AppRecordPicker, parentsOf } from './AppRecordPicker';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
+import { Field } from './Field';
 import { eventDataFields } from './flowChecks';
-import { Field } from './triggerFields';
 import { HookSubjectEditor } from './WebhookTriggerSettings';
 
 type AppTrigger = Extract<AutomationTrigger, { kind: 'app' }>;
@@ -26,17 +27,52 @@ export const startingEventType = (trigger: AutomationTrigger) => {
 };
 
 const ParamInput = ({
+  app,
+  trigger,
+  params,
   field,
   value,
   disabled,
   onChange,
 }: {
+  app: AutomationApp;
+  trigger: AppTrigger;
+  params: Param[];
   field: Param;
   value: unknown;
   disabled?: boolean;
   onChange: (value: string | boolean | null) => void;
-}) =>
-  field.type === 'switch' ? (
+}) => {
+  const { t } = useTranslation('automations');
+
+  if (field.recordType) {
+    const parents = parentsOf(field.dependsOn, params, (key) => {
+      const given = trigger.params[key];
+
+      return typeof given === 'string' ? given : '';
+    });
+
+    return (
+      <AppRecordPicker
+        integration={app.key}
+        recordType={field.recordType}
+        listable={app.records.includes(field.recordType)}
+        connection={trigger.connectionId || undefined}
+        parents={parents}
+        value={typeof value === 'string' && value ? [value] : []}
+        onValueChange={([picked]) => onChange(picked ?? null)}
+        noneLabel={field.optional ? t('none', 'None') : undefined}
+        disabled={disabled}
+        waitingFor={
+          parents.includes('')
+            ? (params.find((other) => other.key === field.dependsOn)?.label ?? '')
+            : undefined
+        }
+      />
+    );
+  }
+
+  return field.type === 'switch' ? (
     <Switch
       checked={value === true}
       disabled={disabled}
@@ -51,6 +87,18 @@ const ParamInput = ({
       onChange={(event) => onChange(event.target.value || null)}
     />
   );
+};
+
+const CONNECTION = '__connection';
+
+/** The settings that follow `key` (a sheet, its spreadsheet); every record follows the connection. */
+const followersOf = (params: Param[], key: string): string[] =>
+  params
+    .filter((field) => (key === CONNECTION ? field.recordType : field.dependsOn === key))
+    .flatMap((field) => [field.key, ...followersOf(params, field.key)]);
+
+const cleared = (params: Param[], key: string) =>
+  Object.fromEntries(followersOf(params, key).map((follower) => [follower, null]));
 
 const pickTrigger = (trigger: AppTrigger, apps: AutomationApp[], type: string): AppTrigger => {
   const app = apps.find((item) => item.triggers.some((each) => each.type === type));
@@ -85,26 +133,33 @@ const AppSource = ({
 
   return (
     <>
-      <Field
-        label={t('app-connection', 'Connection')}
-        hint={t('app-connection-hint', 'The account whose events start runs.')}
-      >
+      <Field label={t('app-connection', 'Connection')}>
         <ConnectionPicker
           integration={app.key}
           value={trigger.connectionId || null}
           onValueChange={(connectionId) =>
-            onChange({ ...trigger, connectionId: connectionId ?? '' })
+            onChange({
+              ...trigger,
+              connectionId: connectionId ?? '',
+              params: { ...trigger.params, ...cleared(params, CONNECTION) },
+            })
           }
         />
       </Field>
       {params.map((field) => (
         <Field key={field.key} label={field.label}>
           <ParamInput
+            app={app}
+            trigger={trigger}
+            params={params}
             field={field}
             value={trigger.params[field.key]}
             disabled={disabled}
             onChange={(value) =>
-              onChange({ ...trigger, params: { ...trigger.params, [field.key]: value } })
+              onChange({
+                ...trigger,
+                params: { ...trigger.params, ...cleared(params, field.key), [field.key]: value },
+              })
             }
           />
         </Field>
@@ -159,14 +214,7 @@ export const AppTriggerSettings = ({
             disabled={disabled}
             onChange={onChange}
           />
-          <Field
-            label={t('only-if', 'Only if')}
-            hint={
-              trigger.conditions?.rules.length
-                ? undefined
-                : t('app-only-if-empty', 'No conditions: every such event starts a run.')
-            }
-          >
+          <Field label={t('only-if', 'Only if')}>
             <ConditionsEditor
               subject={trigger.subject?.type ?? null}
               extraFields={fields}

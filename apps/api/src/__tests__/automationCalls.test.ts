@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
-import { fakeModel, inSteps, lastToolResult } from './fakeModel';
+import { connectProvider, fakeModel, inSteps, lastToolResult } from './fakeModel';
 import { settle } from './settle';
 import { type CoreClient, useTestServer } from './support';
 
@@ -55,7 +55,7 @@ describe('automation calls', { timeout: 120_000 }, () => {
     hookUrl = `http://127.0.0.1:${address.port}/hook`;
     model = await fakeModel(MODEL_KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await owner.assistant.saveConnection({ provider: 'kimi', apiKey: MODEL_KEY });
+    await connectProvider(owner, MODEL_KEY);
   });
 
   afterAll(async () => {
@@ -142,7 +142,18 @@ describe('automation calls', { timeout: 120_000 }, () => {
     expect(steps).toEqual([]);
   });
 
-  it('asks an agent as the member who turned the automation on, and the next step reads its answer', async () => {
+  it('asks an agent with the step’s API key, and the next step reads its answer', async () => {
+    const { apiKey } = await owner.apiKeys.create({
+      kind: 'regular',
+      name: 'Agent',
+      areas: { contacts: 'read' },
+      ownRecords: false,
+      unitIds: [],
+      tagIds: [],
+      allowedIps: [],
+      lifetimeDays: 30,
+    });
+
     model.script(
       inSteps(
         { tool: 'callApi', input: { procedure: 'customers.list', input: { search: 'Agent' } } },
@@ -166,7 +177,10 @@ describe('automation calls', { timeout: 120_000 }, () => {
             id: 'ask',
             type: 'action',
             action: 'core.agent.ask',
-            input: { prompt: 'Summarize {{subject.firstName}} {{subject.lastName}}' },
+            input: {
+              prompt: 'Summarize {{subject.firstName}} {{subject.lastName}}',
+              apiKey: apiKey.id,
+            },
           },
           {
             id: 'note',

@@ -132,6 +132,55 @@ const MoreMenu = ({
   );
 };
 
+type Draft = Parameters<typeof EditorActions>[0]['draft'];
+
+/** "Unsaved changes", kept in this browser until saved, with a way to throw them away. */
+const UnsavedMarker = ({ draft }: { draft: Draft }) => {
+  const { t } = useTranslation('automations');
+  const { confirm } = useConfirm();
+
+  return (
+    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <span className="size-1.5 rounded-full bg-warning" />
+      {t('unsaved', 'Unsaved changes')}
+      <Button
+        variant="ghost"
+        size="sm"
+        tone="muted"
+        onClick={() =>
+          void confirm({
+            message: t('discard-confirm', 'Discard your unsaved changes?'),
+            options: {
+              description: t('discard-description', 'The automation goes back to its last save.'),
+              okLabel: t('discard', 'Discard'),
+              variants: { ok: 'destructive' },
+            },
+          }).then(draft.drop)
+        }
+      >
+        {t('discard', 'Discard')}
+      </Button>
+    </span>
+  );
+};
+
+/** Edits kept from before someone else saved: put them back over the new version, or drop them. */
+const StaleDraft = ({ draft }: { draft: Draft }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <span className="flex items-center gap-1 text-xs text-warning-text">
+      {t('stale-draft', 'Your unsaved changes were made before the last save.')}
+      <Button variant="ghost" size="sm" onClick={draft.restore}>
+        {t('stale-restore', 'Put them back')}
+      </Button>
+      <Button variant="ghost" size="sm" tone="muted" onClick={draft.drop}>
+        {t('stale-drop', 'Drop them')}
+      </Button>
+    </span>
+  );
+};
+
 /** Breadcrumb, status and unsaved marker; for editors, the save and lifecycle actions. */
 export const AutomationHeader = ({
   editable,
@@ -155,12 +204,8 @@ export const AutomationHeader = ({
           maxLength={120}
           onChange={(event) => draft.change({ name: event.target.value })}
         />
-        {draft.dirty && (
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-warning" />
-            {t('unsaved', 'Unsaved changes')}
-          </span>
-        )}
+        {draft.dirty && editable && <UnsavedMarker draft={draft} />}
+        {draft.stale && editable && <StaleDraft draft={draft} />}
       </PageHeader.Start>
       {editable && <EditorActions {...props} />}
     </PageHeader>

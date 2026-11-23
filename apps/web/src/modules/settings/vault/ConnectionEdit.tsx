@@ -2,7 +2,7 @@ import type { VaultConnection } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Input, Label, Spinner, useConfirm, useToast } from 'erxes-ui';
+import { Button, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
@@ -14,6 +14,7 @@ import {
   shownValues,
   useConnectionsChanged,
 } from '../integrations/ConnectionFields';
+import { ConnectionNameInput, useConnectionName } from './ConnectionName';
 
 export const useConnectionChanges = (onRemoved?: () => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -98,14 +99,13 @@ export const ConnectionEdit = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const id = useId();
-  const [typedName, setName] = useState<string | null>(null);
+  const { name, setName, taken, ready: named } = useConnectionName(integration, connection);
   const [typed, setTyped] = useState<ConnectionValues>({});
-  const name = typedName ?? connection.name;
   const kept = shownValues(connection);
   const values = { ...kept, ...typed };
   const { update, remove } = useConnectionChanges(onRemoved);
   const keys = changedKeys(kept, typed);
-  const ready = name.trim() !== '' && settingsFilled(integration, values);
+  const ready = named && settingsFilled(integration, values);
   const target = { key: integration.key, id: connection.id };
 
   return (
@@ -122,10 +122,13 @@ export const ConnectionEdit = ({
         );
       }}
     >
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-name`}>{t('name', 'Name')}</Label>
-        <Input id={`${id}-name`} value={name} onChange={(event) => setName(event.target.value)} />
-      </div>
+      <ConnectionNameInput
+        id={`${id}-name`}
+        integration={integration}
+        name={name}
+        taken={taken}
+        onChange={setName}
+      />
       {integration.fields.length > 0 && (
         <div className="space-y-3 rounded-lg border p-3">
           <ConnectionFieldInputs

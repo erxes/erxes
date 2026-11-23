@@ -4,9 +4,10 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { IconPrinter } from '@tabler/icons-react';
 import {
   Button,
+  buttonVariants,
   Label,
+  type ReceiptPrintSettingsProps,
   printHtml,
-  Select,
   Spinner,
   Textarea,
   ToggleGroup,
@@ -14,6 +15,8 @@ import {
 } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { useDebounce } from 'use-debounce';
 import { QueryState } from '~/components/QueryState';
 import { FormSection } from './FormSection';
@@ -250,72 +253,80 @@ const TemplateEditor = ({ template }: { template: EbarimtPrintTemplate }) => {
   );
 };
 
-const PluginPicker = ({
-  templates,
-  value,
-  onChange,
-}: {
-  templates: EbarimtPrintTemplate[];
-  value: string;
-  onChange: (plugin: string) => void;
-}) => {
+/** Before eBarimt is set up there is nothing to print: says so, and leads to its setup. */
+const NotSetUp = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt.print' });
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm text-muted-foreground">{t('template-for', 'Template for')}</span>
-      <Select value={value} onValueChange={onChange}>
-        <Select.Trigger className="w-56" aria-label={t('template-for', 'Template for')}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {templates.map((template) => (
-            <Select.Item key={template.plugin} value={template.plugin}>
-              {template.title}
-              {!template.updatedAt && ` · ${t('default', 'default')}`}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
+    <div className="flex flex-col items-start gap-3 rounded-lg border p-4">
+      <p className="text-sm text-muted-foreground">
+        {t('not-set-up', 'Set up eBarimt first: its receipts print once it issues them.')}
+      </p>
+      <Link
+        to={paths.settings.integration('ebarimt')}
+        className={buttonVariants({ variant: 'outline' })}
+      >
+        {t('set-up', 'Set up e-barimt')}
+      </Link>
     </div>
   );
 };
 
-const Templates = ({ templates }: { templates: EbarimtPrintTemplate[] }) => {
+/** How `plugin`'s receipts print, edited in place, or why they can't be yet. */
+const ReceiptPrint = ({
+  templates,
+  plugin,
+}: {
+  templates: EbarimtPrintTemplate[];
+  plugin: string;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt.print' });
-  const [picked, setPicked] = useState<string | null>(null);
-  const template = templates.find((item) => item.plugin === picked) ?? templates[0];
+  const template = templates.find((item) => item.plugin === plugin);
 
-  if (!template) {
+  if (templates.length === 0) return <NotSetUp />;
+
+  if (!template)
     return (
-      <p className="rounded-lg border p-4 text-sm">
-        {t(
-          'no-plugins',
-          'Set up eBarimt in Settings first. Core and each plugin that takes payments get their own template here.',
-        )}
+      <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+        {t('not-issuing', 'eBarimt issues no receipts for this plugin yet.')}
       </p>
     );
-  }
+
+  return (
+    <TemplateEditor key={`${template.plugin}:${template.updatedAt ?? ''}`} template={template} />
+  );
+};
+
+/**
+ * One plugin's receipt print settings, which erxes-ui's `ReceiptPrintSettings` draws in the
+ * plugin's own settings: its paper, parts and text, with a live preview.
+ */
+export const PluginReceiptPrint = ({ plugin }: ReceiptPrintSettingsProps) => {
+  const templates = useQuery(orpc.ebarimt.printTemplates.queryOptions());
+
+  return (
+    <QueryState query={templates}>
+      {({ data }) => <ReceiptPrint templates={data} plugin={plugin} />}
+    </QueryState>
+  );
+};
+
+/**
+ * eBarimt's Print tab: how core's own receipts print. Each plugin sets how its receipts print in
+ * its own settings.
+ */
+export const EbarimtPrint = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt.print' });
 
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         {t(
-          'intro',
-          'Each plugin prints its receipts with its own template. Plugins show a Print button on issued receipts.',
+          'intro-core',
+          'How core’s own receipts print. Each plugin sets how its receipts print in its own settings.',
         )}
       </p>
-      {templates.length > 1 && (
-        <PluginPicker templates={templates} value={template.plugin} onChange={setPicked} />
-      )}
-      <TemplateEditor key={`${template.plugin}:${template.updatedAt ?? ''}`} template={template} />
+      <PluginReceiptPrint plugin="core" />
     </div>
   );
-};
-
-/** eBarimt's Print tab: a receipt template for each plugin it issues receipts for. */
-export const EbarimtPrint = () => {
-  const templates = useQuery(orpc.ebarimt.printTemplates.queryOptions());
-
-  return <QueryState query={templates}>{({ data }) => <Templates templates={data} />}</QueryState>;
 };

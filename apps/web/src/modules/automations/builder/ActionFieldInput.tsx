@@ -2,6 +2,7 @@ import { IconAt, IconBuilding, IconCalendar, IconClockPlus, IconUser } from '@ta
 import { DatePicker, InputGroup, Select, Switch, textOf, toIsoDay } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
+import { AgentApiKeyInput, AgentModelInput, AgentToolsInput } from './AgentStepFields';
 import {
   type ActionInputProps,
   AutomationSelect,
@@ -12,8 +13,8 @@ import {
   LeadStageSelect,
   LookupMultiSelect,
   OptionSelect,
-  PluginRecordSelect,
 } from './actionFieldSelects';
+import { PluginRecordSelect } from './recordSelects';
 import { JsonEditor } from './JsonEditor';
 import { Segmented } from './Segmented';
 import { TemplateInput } from './TemplateInput';
@@ -217,6 +218,12 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <OptionSelect {...props} />;
     case 'connection':
       return <ConnectionSelect {...props} />;
+    case 'agent_tools':
+      return <AgentToolsInput {...props} />;
+    case 'agent_api_key':
+      return <AgentApiKeyInput {...props} />;
+    case 'agent_model':
+      return <AgentModelInput {...props} />;
     case 'members':
     case 'tags':
       return <LookupMultiSelect {...props} />;

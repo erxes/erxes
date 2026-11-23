@@ -591,7 +591,6 @@
       "email": "Email sending password",
       "file-bucket": "File storage key",
       "webhook": "Webhook signing keys",
-      "assistant": "AI provider keys",
       "audit-stream": "Audit log stream keys",
       "two-step": "Two-step sign-in codes",
       "plugin": "Plugin secrets"
@@ -873,7 +872,8 @@
       "email": "Email",
       "government": "Government",
       "developer": "Developer tools",
-      "productivity": "Productivity"
+      "productivity": "Productivity",
+      "ai": "AI Provider"
     },
     "made-for": "Made for {{countries}}",
     "anywhere": "Works in any country",
@@ -920,6 +920,8 @@
     "connection": {
       "connect": "Connect",
       "connect-named": "Connect {{name}}",
+      "add-another": "Add another",
+      "name-taken": "Another {{name}} connection has this name",
       "connections": "Connections",
       "none": "Nothing connected yet.",
       "payments": "How payers pay",
@@ -1019,7 +1021,7 @@
         "VAT_ZERO": "0% VAT",
         "NOT_SEND": "Left off the receipt"
       },
-      "how-print": "Each plugin prints its receipts with its own template, set up under Print.",
+      "how-print": "Core prints its receipts with the template under Print; each plugin sets its own in its settings.",
       "print": {
         "preview": "Preview",
         "test-print": "Test print",
@@ -1039,10 +1041,6 @@
         "save": "Save template",
         "saved": "Template saved",
         "was-reset": "Back to the default template",
-        "template-for": "Template for",
-        "default": "default",
-        "no-plugins": "Set up eBarimt in Settings first. Core and each plugin that takes payments get their own template here.",
-        "intro": "Each plugin prints its receipts with its own template. Plugins show a Print button on issued receipts.",
         "reorder": "Move {{name}}",
         "show": "Print {{name}}",
         "block": {
@@ -1066,7 +1064,11 @@
           "qr": "For the buyer to scan into the eBarimt app",
           "lottery": "For receipts to a person",
           "footer": "Your text below the receipt"
-        }
+        },
+        "not-set-up": "Set up eBarimt first: its receipts print once it issues them.",
+        "set-up": "Set up e-barimt",
+        "not-issuing": "eBarimt issues no receipts for this plugin yet.",
+        "intro-core": "How core’s own receipts print. Each plugin sets how its receipts print in its own settings."
       }
     },
     "email": {
@@ -1420,7 +1422,12 @@
     "password-lowercase": "Add a lowercase letter",
     "password-uppercase": "Add an uppercase letter",
     "password-mismatch": "The passwords do not match",
-    "code": "Code"
+    "code": "Code",
+    "all-team-members": "All team members",
+    "status-active": "Active",
+    "status-invited": "Invited",
+    "status-disabled": "Deactivated",
+    "signs-in": "Signs in"
   },
   "exchange-rates": {
     "exchange-rates-label": "Exchange Rates",

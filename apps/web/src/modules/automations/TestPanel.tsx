@@ -1,11 +1,18 @@
-import type { Automation, AutomationStep, coreContract, DryRunStep } from '@erxes/core-contract';
+import type {
+  Automation,
+  AutomationDefinition,
+  AutomationStep,
+  coreContract,
+  DryRunStep,
+} from '@erxes/core-contract';
 import type { InferContractRouterOutputs } from '@orpc/contract';
-import { IconFlask } from '@tabler/icons-react';
+import { IconAlertTriangle, IconFlask } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { Badge, Button, Label, RelativeDateDisplay, Spinner, Switch } from 'erxes-ui';
+import { Alert, Badge, Button, Label, RelativeDateDisplay, Spinner, Switch } from 'erxes-ui';
 import { useContext, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { useCan } from '~/modules/auth/session';
 import { ContactSelect } from '~/modules/contacts/components/ContactPicker';
 import { BuilderContext } from './builder/BuilderContext';
 import { armsOf, findStep } from './builder/flowModel';
@@ -15,10 +22,18 @@ import { useAutomationFields } from './builder/useAutomationFields';
 
 type TestResult = InferContractRouterOutputs<typeof coreContract>['automations']['test'];
 
-const TraceStep = ({ item, automation }: { item: DryRunStep; automation: Automation }) => {
+const TraceStep = ({
+  item,
+  automationId,
+  steps,
+}: {
+  item: DryRunStep;
+  automationId: string;
+  steps: AutomationStep[];
+}) => {
   const { knownActions, events } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(null, automation.id);
-  const step = findStep(automation.definition.steps, item.stepId);
+  const { fields } = useAutomationFields(null, automationId);
+  const step = findStep(steps, item.stepId);
 
   const title = step
     ? describeStep(step, { actions: knownActions, events, fields }).title
@@ -36,11 +51,32 @@ const TraceStep = ({ item, automation }: { item: DryRunStep; automation: Automat
   );
 };
 
-const Trace = ({ result, automation }: { result: TestResult; automation: Automation }) => {
+const Trace = ({
+  result,
+  automationId,
+  steps,
+}: {
+  result: TestResult;
+  automationId: string;
+  steps: AutomationStep[];
+}) => {
   const { t } = useTranslation('automations');
 
   return (
     <div className="space-y-2">
+      {result.problems.length > 0 && (
+        <Alert variant="destructive">
+          <IconAlertTriangle />
+          <Alert.Title>{t('test-problems', 'Fix before saving or turning on')}</Alert.Title>
+          <Alert.Description>
+            <ul className="space-y-1 text-destructive-text">
+              {result.problems.map((problem) => (
+                <li key={problem}>{problem}</li>
+              ))}
+            </ul>
+          </Alert.Description>
+        </Alert>
+      )}
       <div className="flex flex-wrap gap-2">
         <Badge variant={result.triggerMatches ? 'success' : 'warning'}>
           {result.triggerMatches
@@ -53,7 +89,7 @@ const Trace = ({ result, automation }: { result: TestResult; automation: Automat
       </div>
       <ol className="space-y-2">
         {result.trace.map((item) => (
-          <TraceStep key={item.stepId} item={item} automation={automation} />
+          <TraceStep key={item.stepId} item={item} automationId={automationId} steps={steps} />
         ))}
       </ol>
     </div>
@@ -117,53 +153,53 @@ const RecordPick = ({
 
 export const TestPanel = ({
   automation,
+  definition,
   subject,
   dirty,
-  onSave,
-  onTested,
 }: {
   automation: Automation;
+  definition: AutomationDefinition;
   subject: 'customer' | 'company' | null;
   dirty: boolean;
-  onSave: () => Promise<unknown>;
-  onTested: () => void;
 }) => {
   const { t } = useTranslation('automations');
   const id = useId();
   const [recordId, setRecordId] = useState<string>();
   const [assume, setAssume] = useState(false);
+  const canManage = useCan()('automations.manage');
+  const sendDraft = dirty && canManage;
+  const activeDefinition = sendDraft ? definition : automation.definition;
   const run = useMutation(orpc.automations.test.mutationOptions());
-  const webhook = automation.definition.trigger.kind === 'webhook';
+  const webhook = activeDefinition.trigger.kind === 'webhook';
   const sample = automation.hookSample;
   const blocked = (webhook && !sample) || (!webhook && subject !== null && !recordId);
 
-  const test = async () => {
-    if (dirty) await onSave();
-
-    run.mutate(
-      {
-        id: automation.id,
-        ...(webhook && sample
-          ? { payload: { method: 'POST', body: sample.body, query: sample.query } }
-          : {}),
-        ...(!webhook && subject && recordId ? { subjectType: subject, subjectId: recordId } : {}),
-        assumeEventHappens: assume,
-      },
-      { onSuccess: onTested },
-    );
+  const test = () => {
+    run.mutate({
+      id: automation.id,
+      ...(sendDraft ? { definition } : {}),
+      ...(webhook && sample
+        ? { payload: { method: 'POST', body: sample.body, query: sample.query } }
+        : {}),
+      ...(!webhook && subject && recordId ? { subjectType: subject, subjectId: recordId } : {}),
+      assumeEventHappens: assume,
+    });
   };
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {t('test-description', 'Shows what each step would do. Nothing is sent or changed.')}
+        {t(
+          'test-description',
+          'Shows what each step would do, unsaved changes included. Nothing is sent or changed.',
+        )}
       </p>
       {webhook ? (
         <SampleLine sample={sample} />
       ) : (
         subject && <RecordPick subject={subject} value={recordId} onChange={setRecordId} />
       )}
-      {waitsForEvents(automation.definition.steps) && (
+      {waitsForEvents(activeDefinition.steps) && (
         <div className="flex items-center gap-2 text-sm">
           <Switch id={`${id}-assume`} checked={assume} onCheckedChange={setAssume} />
           <Label htmlFor={`${id}-assume`} variant="option">
@@ -171,12 +207,14 @@ export const TestPanel = ({
           </Label>
         </div>
       )}
-      <Button className="w-full" disabled={run.isPending || blocked} onClick={() => void test()}>
+      <Button className="w-full" disabled={run.isPending || blocked} onClick={test}>
         {run.isPending ? <Spinner size="sm" /> : <IconFlask />}
-        {dirty ? t('save-and-test', 'Save and test') : t('run-test', 'Run the test')}
+        {t('run-test', 'Run the test')}
       </Button>
       {run.isError && <p className="text-sm text-destructive-text">{messageOf(run.error)}</p>}
-      {run.data && <Trace result={run.data} automation={automation} />}
+      {run.data && (
+        <Trace result={run.data} automationId={automation.id} steps={activeDefinition.steps} />
+      )}
     </div>
   );
 };

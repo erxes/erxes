@@ -42,6 +42,7 @@ type ProductChoice
 type ProductQueries
 type ProductRecord
 type ProductSearchQueries
+type ReceiptPrintSettingsProps
 type RecordListGroup
 type RecordPageProps
 type RecordPanelControls
@@ -189,6 +190,7 @@ value Popover
 value PopoverScoped
 value ProductsInline
 value RadioGroup
+value ReceiptPrintSettings
 value RecordChip
 value RecordList
 value RecordOpenerProvider
@@ -277,6 +279,7 @@ value readImage
 value setConnectionPicker
 value setFileStorage
 value setPluginRuntime
+value setReceiptPrintSettings
 value setRecordPage
 value setRecordTimeline
 value setTransferButtons

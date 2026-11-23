@@ -16,6 +16,7 @@ import { bounded, describeError, refusal } from './results';
 type Member = Extract<Caller, { type: 'user' }>;
 
 export interface ToolScope {
+  /** Whom calls act as: a signed-in member, read again per call, or an API key's caller as given. */
   member: Member;
   orgId: string;
   /** The assistant thread its references belong to; an automation step has none. */
@@ -61,7 +62,7 @@ const stemmed = (text: string) => tokensOf(text).join(' ');
 const scoreOf = (procedure: ApiProcedure, tokens: string[]) => {
   const name = stemmed(procedure.name);
   const path = stemmed(procedure.path);
-  const summary = stemmed(procedure.summary);
+  const summary = stemmed(`${procedure.summary} ${procedure.description}`);
 
   return tokens.reduce((score, token) => {
     const inName = name.includes(token) ? 3 : 0;
@@ -97,6 +98,7 @@ export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_
       method: procedure.method,
       path: procedure.path,
       summary: procedure.summary,
+      description: procedure.description,
       input: procedure.input,
     }));
 
@@ -146,7 +148,9 @@ export const callProcedure = async (
     );
   }
 
-  const member = await memberOf(scope.orgId, scope.member.userId);
+  const member = scope.member.apiKeyId
+    ? scope.member
+    : await memberOf(scope.orgId, scope.member.userId);
 
   if (!member)
     return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');
@@ -164,7 +168,7 @@ export const apiTools = (scope: ToolScope) => [
   agentTool({
     name: 'searchApi',
     description:
-      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary and input JSON schema.',
+      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary, description (its rules and errors) and input JSON schema.',
     input: z.object({
       query: z.string().trim().min(1).max(200),
       limit: z.int().min(1).max(SEARCH_MAX).optional(),

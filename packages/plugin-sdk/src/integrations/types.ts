@@ -1,42 +1,11 @@
-type PaymentLink = {
-  name: string;
-  logo: string | null;
-  link: string;
-};
+import type { PayerInstructions as ShownInstructions } from '@erxes/core-contract/paymentPayer';
 
 /**
- * What a page open inside the payer's app passes to the app's own pay call
- * (Toki's mini program: `buy()`).
+ * What the payer needs, as an invoice shows it. A gateway leaves out the
+ * in-app pay call and the transfer when it has neither.
  */
-type InAppPayment = {
-  app: string;
-  data: Record<string, string | number>;
-};
-
-/** Where the payer transfers the money, and the reference that matches it to the invoice. */
-type BankTransfer = {
-  bank: string;
-  accountNumber: string;
-  iban: string | null;
-  accountName: string | null;
-  /** In the currency's smallest unit, like the invoice. */
-  amount: number;
-  /** What the payer writes as the transfer's description. */
-  reference: string;
-};
-
-/**
- * What the payer needs: QR (text and PNG data URL), a short link, bank app
- * links; a pay call inside the payer's app, or the account to transfer to.
- */
-type PayerInstructions = {
-  qrText: string | null;
-  qrImage: string | null;
-  shortUrl: string | null;
-  links: PaymentLink[];
-  inApp?: InAppPayment;
-  bankTransfer?: BankTransfer;
-};
+type PayerInstructions = Omit<ShownInstructions, 'inApp' | 'bankTransfer'> &
+  Partial<Pick<ShownInstructions, 'inApp' | 'bankTransfer'>>;
 
 export interface CreateInvoiceInput {
   /** Our invoice id (sent as the merchant's reference). */
@@ -106,4 +75,5 @@ export interface ClientOptions {
   /** Caches the gateway's access token under this key (the connection id). */
   cacheKey?: string;
   fetch?: typeof globalThis.fetch;
+  baseUrl?: string;
 }

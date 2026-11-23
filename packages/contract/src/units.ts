@@ -38,7 +38,8 @@ export const UnitType = createSelectSchema(orgUnitTypes, {
 
 export type UnitType = z.infer<typeof UnitType>;
 
-const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
+/** What a unit type create or update may set. */
+export const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
   name: (name) => name.trim().min(1).max(100),
   code: (code) => code.trim().min(1).max(50),
   description: (text) => text.trim().max(2000),
@@ -57,6 +58,8 @@ const UnitTypeFields = createUpdateSchema(orgUnitTypes, {
   isActive: true,
   sortOrder: true,
 });
+
+export type UnitTypeFields = z.infer<typeof UnitTypeFields>;
 
 /** A unit type a plugin brings from its own tables or old erxes, with its id. */
 const ImportedUnitType = UnitTypeFields.required({ name: true }).extend({ id: Id, kind: UnitKind });
@@ -139,7 +142,12 @@ const typeBase = oc.errors({
  */
 export const unitTypesContract = {
   list: typeBase
-    .route({ method: 'GET', path: '/unit-types', summary: 'Unit types, by kind and order' })
+    .route({
+      method: 'GET',
+      path: '/unit-types',
+      summary: 'List unit types',
+      description: 'Unit types, by kind and order',
+    })
     .input(z.object({ kind: UnitKind.optional() }))
     .output(listOf(UnitType)),
   create: typeBase
@@ -147,7 +155,8 @@ export const unitTypesContract = {
       method: 'POST',
       path: '/unit-types',
       successStatus: 201,
-      summary:
+      summary: 'Add a unit type',
+      description:
         '409 TAKEN when the code is taken for its kind. 400 INVALID_REFERENCE when an allowed parent type is of another kind',
     })
     .input(UnitTypeFields.required({ name: true }).extend({ kind: UnitKind }))
@@ -156,7 +165,8 @@ export const unitTypesContract = {
     .route({
       method: 'PATCH',
       path: '/unit-types/{id}',
-      summary:
+      summary: 'Change a unit type',
+      description:
         'Its rules apply to units added or moved from now on. 409 LAST_UNIT_TYPE when its kind would have no active type',
     })
     .input(
@@ -170,7 +180,8 @@ export const unitTypesContract = {
     .route({
       method: 'DELETE',
       path: '/unit-types/{id}',
-      summary:
+      summary: 'Delete a unit type',
+      description:
         "409 UNIT_TYPE_IN_USE while units have it, 409 LAST_UNIT_TYPE for its kind's last active type",
     })
     .input(z.object({ id: Id }))
@@ -179,7 +190,8 @@ export const unitTypesContract = {
     .route({
       method: 'POST',
       path: '/unit-types/import',
-      summary:
+      summary: 'Import unit types',
+      description:
         "Bring a plugin's unit types in, keeping their ids. One whose id is taken, or of the same kind with the same code (or name when it has no code), merges into that one: `ids` maps each given id to the type it is now",
     })
     .input(z.object({ types: z.array(ImportedUnitType).min(1).max(200) }))
@@ -196,7 +208,8 @@ export const unitsContract = {
     .route({
       method: 'GET',
       path: '/units',
-      summary: 'Branches or departments with their members, by path (parents first)',
+      summary: 'List branches or departments',
+      description: 'Branches or departments with their members, by path (parents first)',
     })
     .input(z.object({ kind: UnitKind.optional(), userId: Id.optional() }))
     .output(listOf(Unit)),
@@ -204,7 +217,8 @@ export const unitsContract = {
     .route({
       method: 'GET',
       path: '/units/restrictions',
-      summary:
+      summary: "Get a member's unit restrictions",
+      description:
         "The branches and departments a member's lists keep to (3.x's team member restrictions): their own units and the ones under them, or null for no limit (restrictions off, an owner, a member listed for every unit of the kind, or one in no unit of it). `userId` is the caller unless given; a plugin gives it",
     })
     .input(z.object({ userId: Id.optional() }))
@@ -215,7 +229,7 @@ export const unitsContract = {
       }),
     ),
   get: base
-    .route({ method: 'GET', path: '/units/{id}' })
+    .route({ method: 'GET', path: '/units/{id}', summary: 'Get a branch or department' })
     .input(z.object({ id: Id }))
     .output(Unit),
   create: base
@@ -223,7 +237,8 @@ export const unitsContract = {
       method: 'POST',
       path: '/units',
       successStatus: 201,
-      summary: `Add a branch or department. 409 TAKEN when the code is taken for its kind, 409 UNIT_LIMIT past ${LIST_MAX} units. 400 INVALID_REFERENCE when the parent is of another kind, or the supervisor or a member isn't on the team`,
+      summary: 'Add a branch or department',
+      description: `409 TAKEN when the code is taken for its kind, 409 UNIT_LIMIT past ${LIST_MAX} units. 400 INVALID_REFERENCE when the parent is of another kind, or the supervisor or a member isn't on the team`,
     })
     .input(UnitFields.required({ name: true }).extend({ kind: UnitKind }))
     .output(Unit),
@@ -231,7 +246,8 @@ export const unitsContract = {
     .route({
       method: 'PATCH',
       path: '/units/{id}',
-      summary:
+      summary: 'Change a branch or department',
+      description:
         'Change a unit; `memberIds` replaces who is in it. 400 INVALID_REFERENCE when the parent is the unit, one under it or of another kind',
     })
     .input(
@@ -245,7 +261,8 @@ export const unitsContract = {
     .route({
       method: 'DELETE',
       path: '/units/{id}',
-      summary: 'Delete a unit; the units under it move up to its parent',
+      summary: 'Delete a branch or department',
+      description: 'Delete a unit; the units under it move up to its parent',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -253,7 +270,8 @@ export const unitsContract = {
     .route({
       method: 'PUT',
       path: '/units/members/{userId}',
-      summary: "Set a member's branches or departments (the units of `kind` they are in)",
+      summary: 'Set a member’s branches or departments',
+      description: "Set a member's branches or departments (the units of `kind` they are in)",
     })
     .input(z.object({ userId: Id, kind: UnitKind, unitIds: z.array(Id).max(100) }))
     .output(z.object({ unitIds: z.array(Id) })),
@@ -261,7 +279,8 @@ export const unitsContract = {
     .route({
       method: 'POST',
       path: '/units/import',
-      summary:
+      summary: 'Import branches or departments',
+      description:
         "Bring a plugin's or old erxes' units in, keeping their ids. A unit whose id is taken, or of the same kind with the same code (or name and parent when it has no code), merges into that one: `ids` maps each given id to the unit it is now. Members not on the team are skipped",
     })
     .input(z.object({ units: z.array(ImportedUnit).min(1).max(LIST_MAX) }))

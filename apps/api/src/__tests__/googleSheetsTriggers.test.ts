@@ -63,7 +63,21 @@ describe('Google Sheets triggers', { timeout: 300_000 }, () => {
   const google = fakeGateway([
     ['POST https://oauth2.googleapis.com/token', tokens],
     ['GET https://www.googleapis.com/oauth2/v3/userinfo', { email: 'sales@acme.mn' }],
+    [
+      'GET https://www.googleapis.com/drive/v3/files',
+      { files: [{ id: SPREADSHEET, name: 'Leads' }] },
+    ],
     [`GET https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET}/values/`, sheet],
+    [
+      `GET https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET}?fields=`,
+      {
+        properties: { title: 'Leads' },
+        sheets: [
+          { properties: { sheetId: 0, title: 'Sheet1' } },
+          { properties: { sheetId: 7, title: 'Ops' } },
+        ],
+      },
+    ],
   ]);
 
   const tokenRequests = () =>
@@ -116,7 +130,12 @@ describe('Google Sheets triggers', { timeout: 300_000 }, () => {
     expect(url.searchParams.get('redirect_uri')).toContain('/core/v1/integrations/oauth/callback');
     expect(url.searchParams.get('code_challenge')).toBeTruthy();
     expect(url.searchParams.get('access_type')).toBe('offline');
-    expect(url.searchParams.get('scope')).toContain('spreadsheets.readonly');
+    expect(url.searchParams.get('scope')?.split(' ')).toEqual(
+      expect.arrayContaining([
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive.metadata.readonly',
+      ]),
+    );
 
     const [exchange] = tokenRequests();
 
@@ -145,6 +164,28 @@ describe('Google Sheets triggers', { timeout: 300_000 }, () => {
     );
 
     expect(forged.status).toBe(400);
+  });
+
+  const records = (recordType: string, extra: { search?: string; parents?: string[] } = {}) =>
+    t.owner().integrations.records({ key: 'googlesheets', recordType, ...extra });
+
+  it('lists the account’s spreadsheets by name, newest first or by what was typed, and a spreadsheet’s sheets', async () => {
+    expect((await records('spreadsheet')).data).toEqual([{ value: SPREADSHEET, label: 'Leads' }]);
+
+    await records('spreadsheet', { search: "bat's leads" });
+
+    const queries = google.calls
+      .filter((call) => call.url.startsWith('https://www.googleapis.com/drive/v3/files'))
+      .map((call) => new URL(call.url).searchParams);
+
+    expect(queries[0]?.get('orderBy')).toBe('modifiedTime desc');
+    expect(queries[1]?.get('q')).toBe(
+      String.raw`mimeType='application/vnd.google-apps.spreadsheet' and trashed=false and name contains 'bat\'s leads'`,
+    );
+
+    expect(
+      (await records('sheet', { parents: [SPREADSHEET] })).data.map((row) => row.label),
+    ).toEqual(['Sheet1', 'Ops']);
   });
 
   it('a new row starts one run with its cells; the first poll and an unchanged sheet start none', async () => {

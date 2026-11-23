@@ -1,4 +1,5 @@
-import type { BankAccount } from '@erxes/core-contract';
+import type { BankAccount, StatementQuery } from '@erxes/core-contract';
+import type { z } from 'zod';
 import { type Db, integrationConnections, requestOrgId, withOrg } from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
@@ -123,13 +124,7 @@ export const getAccount = async (id: string, account: string) => {
   return ask(() => bank.account(account));
 };
 
-export const getStatement = async (query: {
-  id: string;
-  account: string;
-  from: string;
-  to: string;
-  page: number;
-}) => {
+export const getStatement = async (query: z.infer<typeof StatementQuery>) => {
   const { bank } = await bankOf(query.id);
 
   return ask(() => bank.statement(query));

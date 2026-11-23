@@ -1,6 +1,6 @@
 {
-  "id": "05eaceb1-0d41-47ca-8821-ddda382bc4f9",
-  "prevId": "11245858-c1c9-49b3-9677-19301a7fa42c",
+  "id": "9ea75994-df3e-463a-b856-c9046cf6aea9",
+  "prevId": "d29961a7-14f3-4366-ba64-aa5f6bf54b50",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1773,13 +1773,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "currencies": {
-          "name": "currencies",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
         },
         "timezone": {
           "name": "timezone",
@@ -6396,6 +6389,33 @@
               "expression": "id",
               "isExpression": false,
               "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_integration_connections_org_key_name_key": {
+          "name": "core_integration_connections_org_key_name_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
               "nulls": "last"
             }
           ],
@@ -11397,135 +11417,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.core_assistant_connections": {
-      "name": "core_assistant_connections",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "key_secret_id": {
-          "name": "key_secret_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_default": {
-          "name": "is_default",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_assistant_connections_provider_key": {
-          "name": "core_assistant_connections_provider_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "provider",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_assistant_connections_default_key": {
-          "name": "core_assistant_connections_default_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_assistant_connections\".\"is_default\"",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_assistant_connections_org_id_fkey": {
-          "name": "core_assistant_connections_org_id_fkey",
-          "tableFrom": "core_assistant_connections",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "core_assistant_connections_key_secret_id_fkey": {
-          "name": "core_assistant_connections_key_secret_id_fkey",
-          "tableFrom": "core_assistant_connections",
-          "tableTo": "core_secrets",
-          "columnsFrom": [
-            "key_secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_assistant_connections_provider_check": {
-          "name": "core_assistant_connections_provider_check",
-          "value": "\"core_assistant_connections\".\"provider\" IN ('openai', 'grok', 'kimi', 'kimi-code')"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.core_assistant_references": {
       "name": "core_assistant_references",
       "schema": "",
@@ -11661,6 +11552,18 @@
           "notNull": true,
           "default": false
         },
+        "default_provider": {
+          "name": "default_provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "default_model": {
+          "name": "default_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp with time zone",
@@ -11688,7 +11591,16 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "core_assistant_settings_default_provider_check": {
+          "name": "core_assistant_settings_default_provider_check",
+          "value": "\"core_assistant_settings\".\"default_provider\" IN ('openai', 'anthropic', 'openrouter', 'kimi', 'kimi-code', 'grok')"
+        },
+        "core_assistant_settings_default_model_check": {
+          "name": "core_assistant_settings_default_model_check",
+          "value": "(\"core_assistant_settings\".\"default_provider\" is null) = (\"core_assistant_settings\".\"default_model\" is null)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.core_assistant_threads": {
@@ -12573,7 +12485,7 @@
       "checkConstraints": {
         "core_agent_models_provider_check": {
           "name": "core_agent_models_provider_check",
-          "value": "\"core_agent_models\".\"provider\" IN ('openai', 'grok', 'kimi', 'kimi-code')"
+          "value": "\"core_agent_models\".\"provider\" IN ('openai', 'anthropic', 'openrouter', 'kimi', 'kimi-code', 'grok')"
         }
       },
       "isRLSEnabled": false
@@ -16216,150 +16128,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.core_exchange_rates": {
-      "name": "core_exchange_rates",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "date": {
-          "name": "date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "main_currency": {
-          "name": "main_currency",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rate_currency": {
-          "name": "rate_currency",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rate": {
-          "name": "rate",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "core_exchange_rates_org_pair_date_key": {
-          "name": "core_exchange_rates_org_pair_date_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "main_currency",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "rate_currency",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "date",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_exchange_rates_org_created_idx": {
-          "name": "core_exchange_rates_org_created_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": false,
-              "nulls": "last"
-            },
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": false,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "core_exchange_rates_org_id_fkey": {
-          "name": "core_exchange_rates_org_id_fkey",
-          "tableFrom": "core_exchange_rates",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_exchange_rates_rate_check": {
-          "name": "core_exchange_rates_rate_check",
-          "value": "\"core_exchange_rates\".\"rate\" > 0"
-        }
-      },
       "isRLSEnabled": false
     }
   },

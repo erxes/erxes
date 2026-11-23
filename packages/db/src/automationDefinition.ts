@@ -220,7 +220,7 @@ const subjectFrom = (field: z.ZodString) =>
 
 export const HookSubject = subjectFrom(HookField);
 
-const AppSubject = subjectFrom(AppField);
+export const AppSubject = subjectFrom(AppField);
 
 export type HookSubject = z.infer<typeof HookSubject>;
 
@@ -265,9 +265,9 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   }),
   z.object({
     kind: z.literal('app'),
-    app: z.string().regex(/^[a-z][a-z0-9-]{0,39}$/),
-    trigger: z.string().regex(/^[a-z][a-z0-9_]{0,59}$/),
-    connectionId: z.string().min(1).max(64),
+    app: z.string().regex(/^[a-z][a-z0-9-]{0,39}$/, 'Choose an app event'),
+    trigger: z.string().regex(/^[a-z][a-z0-9_]{0,59}$/, 'Choose an app event'),
+    connectionId: z.string().min(1, 'Choose a connection').max(64),
     params: z.record(z.string(), z.json()).default({}),
     subject: AppSubject.optional(),
     conditions: ConditionGroup.optional(),

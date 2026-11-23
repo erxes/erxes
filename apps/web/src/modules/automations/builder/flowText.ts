@@ -1,6 +1,7 @@
 import {
   type ActionField,
   type ActionInfo,
+  AgentStepModel,
   type AutomationStep,
   type AutomationTrigger,
   appEventType,
@@ -9,6 +10,7 @@ import {
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from '~/lib/timeZones';
+import { pathShare } from './flowModel';
 import { readableTemplate } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -251,6 +253,17 @@ const actionDetail = (
         : [];
     }
 
+    if (field.type === 'agent_tools')
+      return Array.isArray(value) && value.length ? [`${field.label}: ${value.length} picked`] : [];
+
+    if (field.type === 'agent_api_key') return typeof value === 'string' ? [field.label] : [];
+
+    if (field.type === 'agent_model') {
+      const model = AgentStepModel.safeParse(value).data?.model;
+
+      return model ? [`${field.label}: ${model}`] : [];
+    }
+
     // Saved by id; its name lives in the plugin.
     if (field.type === 'plugin_record') return [];
 
@@ -316,7 +329,8 @@ export const describeStep = (
           step.label ||
           step.paths
             .map(
-              (path, index) => `${path.label || String.fromCharCode(65 + index)} ${path.weight}%`,
+              (path, index) =>
+                `${path.label || String.fromCharCode(65 + index)} ${pathShare(step.paths, index)}%`,
             )
             .join(' · '),
         detail: 'Each run takes one path',

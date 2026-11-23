@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { loggedEmails } from '~/modules/email/email';
-import { type DefinitionInput, useAutomations } from './automations.fixture';
+import { action, type DefinitionInput, useAutomations } from './automations.fixture';
 import { useTestDatabase } from './db';
 import { makeDue, settle } from './settle';
 
@@ -144,6 +144,125 @@ describe('automations: paths, testing and operations', { timeout: 600_000 }, () 
       .activities.list({ targetType: 'customer', targetId: sample.id, kind: 'notes' });
 
     expect(notes.data).toEqual([]);
+  });
+
+  it('dry-runs an unsaved draft definition on an active automation without publishing it', async () => {
+    const id = await t.active('Live', {
+      trigger: { kind: 'event', event: 'core.customer.created' },
+      steps: [
+        {
+          id: 'n1',
+          type: 'action',
+          action: 'core.note.add',
+          input: { body: 'Live {{subject.firstName}}' },
+        },
+      ],
+    });
+
+    const sample = await t.owner().customers.create({ firstName: 'Ada', state: 'lead' });
+    await settle();
+
+    const result = await t.owner().automations.test({
+      id,
+      subjectType: 'customer',
+      subjectId: sample.id,
+      definition: {
+        trigger: { kind: 'event', event: 'core.customer.created' },
+        steps: [
+          {
+            id: 'n2',
+            type: 'action',
+            action: 'core.note.add',
+            input: { body: 'Candidate {{subject.firstName}}' },
+          },
+        ],
+      },
+    });
+
+    expect(result.triggerMatches).toBe(true);
+    expect(result.problems).toEqual([]);
+    expect(result.trace.map((item) => item.stepId)).toEqual(['n2']);
+    expect(result.trace[0]?.input).toEqual({ body: 'Candidate Ada' });
+
+    const broken = await t.owner().automations.test({
+      id,
+      subjectType: 'customer',
+      subjectId: sample.id,
+      definition: {
+        trigger: { kind: 'event', event: 'core.customer.created' },
+        steps: [
+          {
+            id: 'dup',
+            type: 'action',
+            action: 'core.note.add',
+            input: { body: 'First {{subject.firstName}}' },
+          },
+          {
+            id: 'dup',
+            type: 'action',
+            action: 'core.note.add',
+            input: { body: 'Second {{subject.firstName}}' },
+          },
+        ],
+      },
+    });
+
+    expect(broken.problems).toContain('Two steps share the id dup');
+    expect(broken.trace.map((item) => item.stepId)).toEqual(['dup', 'dup']);
+    expect(broken.trace[0]?.input).toEqual({ body: 'First Ada' });
+
+    const saved = await t.owner().automations.get({ id });
+
+    expect(saved.activeVersion).toBe(1);
+    expect(saved.definition.steps[0]?.id).toBe('n1');
+  });
+
+  it('requires automations.manage to dry-run a draft definition but still lets viewers test the saved one', async () => {
+    const previous =
+      (await t.owner().roles.list({})).data.find((role) => role.key === 'member')?.permissions ??
+      [];
+
+    await t.owner().roles.update({ key: 'member', permissions: [...previous, 'automations.view'] });
+
+    try {
+      const trigger: DefinitionInput['trigger'] = { kind: 'event', event: 'core.customer.created' };
+
+      const { id } = await t.owner().automations.create({
+        name: 'Viewer test',
+        definition: {
+          trigger,
+          steps: [action('saved', 'core.note.add', { body: 'Saved {{subject.firstName}}' })],
+        },
+      });
+
+      const sample = await t.owner().customers.create({ firstName: 'Grace', state: 'lead' });
+
+      await expect(
+        t.member().automations.test({
+          id,
+          subjectType: 'customer',
+          subjectId: sample.id,
+          definition: {
+            trigger,
+            steps: [action('leak', 'core.note.add', { body: '{{subject | json}}' })],
+          },
+        }),
+      ).rejects.toMatchObject({
+        status: 403,
+        code: 'NOT_ALLOWED',
+        data: { permission: 'automations.manage' },
+      });
+
+      const result = await t
+        .member()
+        .automations.test({ id, subjectType: 'customer', subjectId: sample.id });
+
+      expect(result.triggerMatches).toBe(true);
+      expect(result.trace.map((item) => item.stepId)).toEqual(['saved']);
+      expect(result.trace[0]?.input).toEqual({ body: 'Saved Grace' });
+    } finally {
+      await t.owner().roles.update({ key: 'member', permissions: previous });
+    }
   });
 
   it('limits runs an hour and keeps versions', async () => {

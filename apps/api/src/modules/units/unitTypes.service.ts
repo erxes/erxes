@@ -1,4 +1,4 @@
-import type { UnitKind } from '@erxes/core-contract';
+import type { UnitKind, UnitTypeFields } from '@erxes/core-contract';
 import { type Db, newId, orgUnitTypes, orgUnits } from '@erxes/core-db';
 import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
@@ -8,18 +8,6 @@ import { oneRow } from '~/lib/rows';
 import { publishCoreEvents } from '~/modules/events/events.service';
 
 export type UnitTypeRow = typeof orgUnitTypes.$inferSelect;
-
-export interface UnitTypeFields {
-  name?: string;
-  code?: string | null;
-  description?: string | null;
-  color?: string;
-  icon?: string | null;
-  canBeRoot?: boolean;
-  allowedParentTypeIds?: string[];
-  isActive?: boolean;
-  sortOrder?: number;
-}
 
 /** What every organisation starts with: one type per kind, named as old erxes named them. */
 const DEFAULT_TYPES = [

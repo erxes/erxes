@@ -164,7 +164,8 @@ const procedureOf = (
     name: `${plugin}:${id}`,
     method: verb,
     path,
-    summary: (operation.summary ?? operation.description ?? '').slice(0, SUMMARY_MAX),
+    summary: (operation.summary ?? '').slice(0, SUMMARY_MAX),
+    description: (operation.description ?? '').slice(0, SUMMARY_MAX),
     input,
     changes: method !== 'get',
     denied:

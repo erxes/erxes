@@ -1,4 +1,4 @@
-import type { SearchHit, SearchType } from '@erxes/core-contract';
+import type { SearchHit, SearchQuery, SearchType } from '@erxes/core-contract';
 import { companies, customers, type Db, orgUnits, products, users } from '@erxes/core-db';
 import { and, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
@@ -116,10 +116,7 @@ const visibleTypes = (type?: SearchType) =>
   );
 
 /** The first `limit` matches of each type, in the order of `SEARCH_RECORD_TYPES`. */
-export const searchRecords = async (
-  client: Db,
-  input: { q: string; type?: SearchType; limit: number },
-) => {
+export const searchRecords = async (client: Db, input: SearchQuery) => {
   const data: SearchHit[] = [];
 
   // The request's one transaction runs one query at a time.

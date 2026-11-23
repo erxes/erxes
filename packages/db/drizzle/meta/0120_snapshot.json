@@ -1,5 +1,5 @@
 {
-  "id": "11245858-c1c9-49b3-9677-19301a7fa42c",
+  "id": "d29961a7-14f3-4366-ba64-aa5f6bf54b50",
   "prevId": "1c43fc11-4f9b-4e7d-a3ca-bea7726d1a33",
   "version": "7",
   "dialect": "postgresql",
@@ -1773,13 +1773,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "currencies": {
-          "name": "currencies",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
         },
         "timezone": {
           "name": "timezone",
@@ -6396,6 +6389,33 @@
               "expression": "id",
               "isExpression": false,
               "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "core_integration_connections_org_key_name_key": {
+          "name": "core_integration_connections_org_key_name_key",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
               "nulls": "last"
             }
           ],

@@ -1,64 +1,72 @@
 import { defineExtension } from '@earendil-works/pi-durable';
-import { automationRuns, automations, enterScope, withOrg } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
-import { fail } from '~/http/errors';
-import { memberOf } from '~/http/auth';
+import { type Db, enterScope, withOrg } from '@erxes/core-db';
+import { modelKey } from '~/modules/assistant/connections.service';
 import { installedPlugins } from '~/modules/assistant/plugins';
 import { modelsFor } from '~/modules/assistant/providers';
 import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { AUTOMATION_AGENT } from '~/modules/automations/actions/agent';
-import type { Agent, AgentScope } from './agent';
+import type { Agent } from './agent';
+import { actionTools } from './automationActions';
 import { agentModelKey } from './agentModels';
+import { type AutomationStepScope, automationStepOf } from './automationStep';
+import { stepKeyCaller } from './stepApiKey';
 
-const INSTRUCTIONS = `You carry out one step of an erxes automation. Find what you need with searchApi and do it with callApi, within the role of the member who turned the automation on. Nobody reads along and nobody can answer questions: when something is missing, do what you can and say what you could not. End with a short plain answer, which later steps of the automation read.`;
+const ROLE = `You carry out one step of an erxes automation, within the role of the member who turned the automation on.`;
 
-/** A step's conversation is keyed `<run>-<step>`, so its run names the member it acts as. */
-const memberOfStep = async ({ orgId, key }: AgentScope) => {
-  const [runId = ''] = key.split('-');
+const API = `Find API procedures with searchApi and call them with callApi: they read and change what this step's API key allows in erxes.`;
 
-  const [row] = await withOrg(orgId, (tx) =>
-    tx
-      .select({ userId: automations.activatedBy })
-      .from(automationRuns)
-      .innerJoin(automations, eq(automations.id, automationRuns.automationId))
-      .where(eq(automationRuns.id, runId))
-      .limit(1),
-  );
+const ACTIONS = `Find automation actions with searchActions and run them with runAction: they send email, notify team members, call web addresses, change the run's record, and act in connected apps and plugins.`;
 
-  const member = row?.userId ? await memberOf(orgId, row.userId) : null;
+const CLOSING = `Use only these tools; nothing else is available to this step. Nobody reads along and nobody can answer questions: when something is missing, do what you can and say what you could not. End with a short plain answer, which later steps of the automation read.`;
 
-  if (!member) throw fail('UNAUTHORIZED', 'The member who turned this automation on is not active');
+/** The step's chosen model with its provider's key, else the automation agent's. */
+const stepModelKey = (tx: Db, step: AutomationStepScope) =>
+  step.settings.model ? modelKey(tx, step.settings.model) : agentModelKey(tx, AUTOMATION_AGENT);
 
-  return member;
+/** The erxes API as the step's API key, when it has one, and the actions it allows. */
+const toolsOf = async (tx: Db, step: AutomationStepScope) => {
+  const { apiKeyId } = step.settings;
+
+  const api = apiKeyId
+    ? apiTools({
+        member: await stepKeyCaller(tx, step, apiKeyId),
+        orgId: step.orgId,
+        threadId: null,
+        codeMode: false,
+        plugins: await installedPlugins(tx),
+      })
+    : [];
+
+  return { api, actions: actionTools(step) };
 };
 
-/** The agent an automation step asks (`core.agent.ask`): the API as the member who turned it on. */
+/**
+ * The agent an automation step asks (`core.agent.ask`), as the member who turned it on: the
+ * automation actions, or the categories and actions the step chose, the erxes API as the step's
+ * API key when it has one, on the step's model.
+ */
 export const automationAgent: Agent = {
   name: AUTOMATION_AGENT,
   setup: async (scope) => {
-    const member = await memberOfStep(scope);
+    const step = await automationStepOf(scope);
 
-    return enterScope(member, scope.orgId, () =>
+    return enterScope(step.member, scope.orgId, () =>
       withOrg(scope.orgId, async (tx) => {
-        const key = await agentModelKey(tx, AUTOMATION_AGENT);
-        const plugins = await installedPlugins(tx);
+        const key = await stepModelKey(tx, step);
+        const { api, actions } = await toolsOf(tx, step);
 
-        const tools = apiTools({
-          member,
-          orgId: scope.orgId,
-          threadId: null,
-          codeMode: false,
-          plugins,
-        });
+        const instructions = [ROLE, api.length ? API : '', actions.length ? ACTIONS : '', CLOSING]
+          .filter(Boolean)
+          .join(' ');
 
-        const extension = defineExtension({ name: 'automation', tools });
+        const extension = defineExtension({ name: 'automation', tools: [...api, ...actions] });
 
         return {
           models: modelsFor([key]),
           extensions: [extension],
           agent: {
             extensions: [extension],
-            instructions: INSTRUCTIONS,
+            instructions,
             model: { provider: key.provider, modelId: key.model },
           },
         };

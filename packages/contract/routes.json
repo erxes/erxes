@@ -164,43 +164,13 @@
     }
   },
   "assistant": {
-    "connections": {
+    "providers": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/assistant/connections"
-        }
-      }
-    },
-    "saveConnection": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/assistant/connections/{provider}"
-        }
-      }
-    },
-    "removeConnection": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/assistant/connections/{provider}"
-        }
-      }
-    },
-    "setDefaultProvider": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/assistant/default-provider"
+          "path": "/assistant/providers"
         }
       }
     },
@@ -211,16 +181,6 @@
         "route": {
           "method": "GET",
           "path": "/assistant/models"
-        }
-      }
-    },
-    "verifyModel": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/assistant/models/verify"
         }
       }
     },
@@ -3117,6 +3077,16 @@
         "route": {
           "method": "GET",
           "path": "/integrations/{key}/subscriptions"
+        }
+      }
+    },
+    "records": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/records/{recordType}"
         }
       }
     },

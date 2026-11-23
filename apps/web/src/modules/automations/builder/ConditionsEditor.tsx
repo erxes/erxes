@@ -18,14 +18,16 @@ const choicesOf = (options: string[] | undefined) =>
 /**
  * A field as erxes-ui's editor takes it: choices as `{ value, label }`, a relation's fields too.
  * One holding a plugin's record ids is a choice of those records (`records`), so a member picks
- * "Won" rather than typing a stage's id.
+ * "Won" rather than typing a stage's id. An app's record ids (a Facebook page) stay values.
  */
 const conditionField = (
   { options, relation, recordType, source, ...field }: FieldInfo,
   records?: Choices,
 ): TConditionField => ({
   ...field,
-  ...(recordType ? { type: 'select', options: records ?? [] } : { options: choicesOf(options) }),
+  ...(recordType && source
+    ? { type: 'select', options: records ?? [] }
+    : { options: choicesOf(options) }),
   relation: relation && {
     label: relation.label,
     fields: relation.fields.map((inner) => ({ ...inner, options: choicesOf(inner.options) })),

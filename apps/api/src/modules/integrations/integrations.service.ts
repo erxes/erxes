@@ -1,4 +1,5 @@
-import type { IntegrationStatus } from '@erxes/core-contract';
+import type { coreContract, IntegrationStatus } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   caller,
   type Db,
@@ -23,10 +24,11 @@ import {
   sealValues,
 } from './connections';
 import { connectable, manages } from './connectable';
+import { ensureNameFree } from './connectionNames';
 import { fieldsOf } from '@erxes/plugin-sdk/integrations';
 import { type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
-import { callbackUrl, oauthClientSource } from './oauth';
+import { oauthFacts } from './oauth';
 import { pluginIntegrations } from './pluginIntegrations';
 import { INTEGRATIONS, keyedOf } from './registry';
 
@@ -62,12 +64,7 @@ export const listIntegrations = async (client: Db) => {
       keyed: Boolean(integration.keys),
       fields: integration.keys && !integration.oauth ? fieldsOf(integration.keys) : [],
       payments: integration.payments ?? null,
-      oauth: integration.oauth
-        ? {
-            client: await oauthClientSource(client, integration.key),
-            callbackUrl: await callbackUrl(client),
-          }
-        : null,
+      oauth: integration.oauth ? await oauthFacts(client, integration.key) : null,
       status: integration.status
         ? await integration.status(client)
         : connectionStatus(counts.get(integration.key)),
@@ -217,11 +214,9 @@ export const insertConnection = async (
   return row;
 };
 
-export const connect = async (input: {
-  key: string;
-  name: string;
-  keys: Record<string, unknown>;
-}) => {
+type Inputs = InferContractRouterInputs<typeof coreContract>['integrations'];
+
+export const connect = async (input: Inputs['connect']) => {
   const integration = connectable(input.key);
 
   if (integration.oauth)
@@ -229,6 +224,8 @@ export const connect = async (input: {
 
   const id = newId();
   const orgId = requestOrgId();
+
+  await withOrg(orgId, (tx) => ensureNameFree(tx, integration, input.name));
 
   const keys = await verified(
     orgId,
@@ -240,16 +237,16 @@ export const connect = async (input: {
   return withOrg(orgId, (tx) => insertConnection(tx, integration, { id, name: input.name, keys }));
 };
 
-export const updateConnection = async (input: {
-  key: string;
-  id: string;
-  name?: string;
-  keys?: Record<string, unknown>;
-  status?: (typeof integrationConnections.$inferSelect)['status'];
-}) => {
+export const updateConnection = async (input: Inputs['update']) => {
   const integration = connectable(input.key);
   const orgId = requestOrgId();
-  const before = await withOrg(orgId, (tx) => connectionOf(tx, integration, input.id));
+
+  const before = await withOrg(orgId, async (tx) => {
+    if (input.name !== undefined) await ensureNameFree(tx, integration, input.name, input.id);
+
+    return connectionOf(tx, integration, input.id);
+  });
+
   const kept: Record<string, unknown> = keysOf(integration, before);
 
   const given =

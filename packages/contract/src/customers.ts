@@ -163,11 +163,14 @@ const MergeInput = z
   .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
   .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
 
-const TagChange = z.object({
+/** Tags to add to and remove from some customers or companies. */
+export const TagChange = z.object({
   ids: z.array(Id).min(1).max(100),
   add: z.array(Id).max(50).default([]),
   remove: z.array(Id).max(50).default([]),
 });
+
+export type TagChange = z.infer<typeof TagChange>;
 
 const {
   INVALID_ACTOR,
@@ -202,7 +205,8 @@ export const customersContract = {
     .route({
       method: 'GET',
       path: '/customers',
-      summary: 'Customers of the organisation, newest first',
+      summary: 'List customers',
+      description: 'Customers of the organisation, newest first',
     })
     .input(
       CursorQuery.extend({
@@ -225,7 +229,8 @@ export const customersContract = {
     .route({
       method: 'POST',
       path: '/customers/find-or-create',
-      summary:
+      summary: 'Find or create a customer',
+      description:
         'The customer with this email or phone, or a new one (members with contacts.create; plugins with customers:write). Safe to call twice at once. With only a name there is nothing to match, so it always creates one',
     })
     .input(
@@ -251,7 +256,8 @@ export const customersContract = {
     .route({
       method: 'GET',
       path: '/customers/{id}',
-      summary: 'A customer; ids merged into another customer resolve to it',
+      summary: 'Get a customer',
+      description: 'A customer; ids merged into another customer resolve to it',
     })
     .input(ID)
     .output(Customer),
@@ -260,19 +266,21 @@ export const customersContract = {
       method: 'POST',
       path: '/customers',
       successStatus: 201,
-      summary: 'Create a customer. 409 TAKEN (data.field) when the primary email or phone is taken',
+      summary: 'Create a customer',
+      description: '409 TAKEN (data.field) when the primary email or phone is taken',
     })
     .input(CustomerFields.refine(identifies, 'a name, an email or a phone is required'))
     .output(Customer),
   update: base
-    .route({ method: 'PATCH', path: '/customers/{id}' })
+    .route({ method: 'PATCH', path: '/customers/{id}', summary: 'Change a customer' })
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Customer),
   remove: base
     .route({
       method: 'POST',
       path: '/customers/remove',
-      summary: 'Delete customers (owners and admins)',
+      summary: 'Delete customers',
+      description: 'Delete customers (owners and admins)',
     })
     .input(Ids)
     .output(z.object({ removed: z.int() })),
@@ -280,7 +288,8 @@ export const customersContract = {
     .route({
       method: 'POST',
       path: '/customers/merge',
-      summary:
+      summary: 'Merge customers',
+      description:
         'Merge customers into `keepId`: empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
     })
     .input(MergeInput)
@@ -289,7 +298,8 @@ export const customersContract = {
     .route({
       method: 'POST',
       path: '/customers/tag',
-      summary: 'Add and remove tags on many customers',
+      summary: 'Tag or untag customers',
+      description: 'Add and remove tags on many customers',
     })
     .input(TagChange)
     .output(z.object({ updated: z.int() })),
@@ -297,7 +307,8 @@ export const customersContract = {
     .route({
       method: 'GET',
       path: '/customers/{id}/companies',
-      summary: "The customer's companies",
+      summary: 'List a customer’s companies',
+      description: "The customer's companies",
     })
     .input(ID)
     .output(listOf(CompanyRef)),
@@ -305,12 +316,17 @@ export const customersContract = {
     .route({
       method: 'PUT',
       path: '/customers/{id}/companies/{companyId}',
-      summary: 'Link (or change the link: role, main contact, left)',
+      summary: 'Link a customer to a company',
+      description: 'Link, or change the link: role, main contact, left',
     })
     .input(ContactLinkInput.extend({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
   unlinkCompany: base
-    .route({ method: 'DELETE', path: '/customers/{id}/companies/{companyId}' })
+    .route({
+      method: 'DELETE',
+      path: '/customers/{id}/companies/{companyId}',
+      summary: 'Unlink a customer from a company',
+    })
     .input(z.object({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
 };

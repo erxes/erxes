@@ -2,7 +2,7 @@ import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
-const scrollAreaVariants = cva('relative overflow-hidden', {
+const scrollAreaVariants = cva('relative flex flex-col overflow-hidden', {
   variants: {
     /**
      * Room along the edges, so the scrollbars sit beside the content, not on it: `true` along
@@ -60,7 +60,7 @@ const ScrollAreaViewport = ({
   ...props
 }: ScrollAreaPrimitive.Viewport.Props & FitWidth) => (
   <ScrollAreaPrimitive.Viewport
-    className={cn('h-full w-full rounded-inherit', className)}
+    className={cn('h-full min-h-0 w-full rounded-inherit', className)}
     {...props}
   >
     {/* Base UI sets the content's min-width to fit-content inline; only `!` overrides it. */}

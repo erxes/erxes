@@ -5,7 +5,7 @@ import { config } from '~/config';
 import { chat, userMessage } from './assistantChat';
 import { field, say } from './broadcasts.fixture';
 import { useTestDatabase } from './db';
-import { fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
+import { connectProvider, fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0012';
@@ -26,7 +26,7 @@ describe('assistant built-in skills', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());

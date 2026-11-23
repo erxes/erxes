@@ -108,7 +108,8 @@ export const auditContract = {
     .route({
       method: 'GET',
       path: '/audit',
-      summary: 'Audit log, newest first (owners and admins)',
+      summary: 'List audit log entries',
+      description: 'Audit log, newest first (owners and admins)',
     })
     .input(
       CursorQuery.extend({
@@ -132,7 +133,8 @@ export const auditContract = {
       method: 'POST',
       path: '/audit',
       successStatus: 201,
-      summary:
+      summary: 'Write audit log entries',
+      description:
         'Record audit entries (plugins only, up to 100). Actions start with the plugin name. Plugins on core’s database can use `core_record_audit()` in their own transaction instead',
     })
     .input(
@@ -165,7 +167,8 @@ export const auditContract = {
     .route({
       method: 'GET',
       path: '/audit/verify',
-      summary:
+      summary: 'Verify the audit log',
+      description:
         'Check the audit log’s hash chain: has any entry been changed or removed? (owners and admins)',
     })
     .output(
@@ -191,7 +194,8 @@ export const auditContract = {
     .route({
       method: 'GET',
       path: '/audit/checkpoints',
-      summary:
+      summary: 'List audit checkpoints',
+      description:
         'Signed checkpoints of the audit chain (JWS, ES256; keys at /core/v1/.well-known/jwks.json), to keep outside erxes (owners and admins)',
     })
     .input(
@@ -220,18 +224,25 @@ export const auditContract = {
     .route({
       method: 'GET',
       path: '/settings/audit',
-      summary: 'How long the audit log keeps entries',
+      summary: 'Get audit log retention',
+      description: 'How long the audit log keeps entries',
     })
     .output(z.object({ retentionDays: z.int(), maxRetentionDays: z.int() })),
   updateSettings: base
-    .route({ method: 'PUT', path: '/settings/audit', summary: 'Change audit retention (owners)' })
+    .route({
+      method: 'PUT',
+      path: '/settings/audit',
+      summary: 'Change audit log retention',
+      description: 'Change audit retention (owners)',
+    })
     .input(z.object({ retentionDays: z.int().min(30).max(3650) }))
     .output(z.object({ retentionDays: z.int(), maxRetentionDays: z.int() })),
   streams: base
     .route({
       method: 'GET',
       path: '/audit/streams',
-      summary: 'Where the audit log is streamed (owners)',
+      summary: 'List audit log streams',
+      description: 'Where the audit log is streamed (owners)',
     })
     .output(listOf(AuditStream)),
   createStream: base
@@ -239,7 +250,8 @@ export const auditContract = {
       method: 'POST',
       path: '/audit/streams',
       successStatus: 201,
-      summary: 'Stream the audit log to a log service; the signing secret is shown once',
+      summary: 'Add an audit log stream',
+      description: 'Stream the audit log to a log service; the signing secret is shown once',
     })
     .input(
       StreamFields.omit({ status: true })
@@ -253,18 +265,19 @@ export const auditContract = {
     )
     .output(z.object({ stream: AuditStream, secret: z.string() })),
   updateStream: base
-    .route({ method: 'PATCH', path: '/audit/streams/{id}' })
+    .route({ method: 'PATCH', path: '/audit/streams/{id}', summary: 'Change an audit log stream' })
     .input(StreamFields.extend({ id: Id, authHeader: AuthHeader.nullable().optional() }))
     .output(AuditStream),
   removeStream: base
-    .route({ method: 'DELETE', path: '/audit/streams/{id}' })
+    .route({ method: 'DELETE', path: '/audit/streams/{id}', summary: 'Remove an audit log stream' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   testStream: base
     .route({
       method: 'POST',
       path: '/audit/streams/{id}/test',
-      summary: 'Send one test entry now and report the answer',
+      summary: 'Test an audit log stream',
+      description: 'Send one test entry now and report the answer',
     })
     .input(z.object({ id: Id }))
     .output(

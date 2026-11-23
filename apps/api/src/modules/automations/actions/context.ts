@@ -14,6 +14,8 @@ export interface CallContext {
   automation: { id: string; name: string };
   run: { id: string; depth: number };
   step: { id: string };
+  /** The agent tool call that runs it inside an agent step, which keys its work apart from the step's. */
+  call?: string;
   subject: SubjectRef | null;
   /** The step's input with its placeholders filled. */
   input: Record<string, unknown>;
@@ -48,7 +50,8 @@ export type ActionSpec = Pick<ActionInfo, 'label' | 'description' | 'subject' | 
     check?: (input: Record<string, unknown>) => string[];
   };
 
-export const idempotencyKey = (ctx: CallContext) => `${ctx.run.id}:${ctx.step.id}`;
+export const idempotencyKey = (ctx: CallContext) =>
+  [ctx.run.id, ctx.step.id, ...(ctx.call ? [ctx.call] : [])].join(':');
 
 export const needSubject = (ctx: CallContext, type: ContentType) => {
   if (ctx.subject?.type !== type) {

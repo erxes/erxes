@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 import { cn, Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
+  type CatalogGroup,
   catalogIcon,
   type CatalogItem,
   type GroupEntry,
@@ -26,6 +27,25 @@ const IconTile = ({
     <Icon className="size-4" />
   </span>
 );
+
+/** A category's icon or app logo, as the action picker shows it. */
+const GroupTile = ({ group }: { group: CatalogGroup }) => (
+  <span
+    className={cn(
+      'flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground',
+      group.source !== 'core' && 'bg-primary/10 text-primary-text',
+      group.logo && 'border bg-white',
+    )}
+  >
+    <group.icon className={group.logo ? 'size-5' : 'size-4'} />
+  </span>
+);
+
+/** Which items and categories show as picked: one in a picker, several in a checklist. */
+export type Picked = {
+  item: (item: CatalogItem) => boolean;
+  category: (key: string) => boolean;
+};
 
 const Row = ({
   item,
@@ -56,6 +76,7 @@ const Row = ({
             {item.description}
           </span>
         )}
+        {item.warning && <span className="block text-xs text-warning-text">{item.warning}</span>}
       </span>
       {selected && <IconCheck className="size-4 shrink-0 text-primary-text" />}
     </Command.Item>
@@ -64,11 +85,11 @@ const Row = ({
 
 const Rows = ({
   items,
-  value,
+  picked,
   onChoose,
 }: {
   items: CatalogItem[];
-  value: string | undefined;
+  picked: Picked;
   onChoose: (type: string) => void;
 }) => (
   <div className="flex flex-col gap-1">
@@ -76,7 +97,7 @@ const Rows = ({
       <Row
         key={item.type}
         item={item}
-        selected={item.type === value}
+        selected={picked.item(item)}
         onSelect={() => onChoose(item.type)}
       />
     ))}
@@ -87,12 +108,12 @@ const Rows = ({
 const SearchResults = ({
   kind,
   groups,
-  value,
+  picked,
   onChoose,
 }: {
   kind: string;
   groups: GroupEntry[];
-  value: string | undefined;
+  picked: Picked;
   onChoose: (type: string) => void;
 }) => {
   const { groupName } = useCatalogLabels(kind);
@@ -107,7 +128,7 @@ const SearchResults = ({
         </span>
       }
     >
-      <Rows items={items} value={value} onChoose={onChoose} />
+      <Rows items={items} picked={picked} onChoose={onChoose} />
     </Command.Group>
   ));
 };
@@ -117,20 +138,21 @@ const Categories = ({
   kind,
   groups,
   recentItems,
-  selected,
+  picked,
+  categoryHint,
   onChoose,
   onOpen,
 }: {
   kind: string;
   groups: GroupEntry[];
   recentItems: CatalogItem[];
-  selected: CatalogItem | undefined;
+  picked: Picked;
+  categoryHint: ((entry: GroupEntry) => string) | undefined;
   onChoose: (type: string) => void;
   onOpen: (category: string) => void;
 }) => {
   const { t } = useTranslation('automations');
   const { groupName, countLabel } = useCatalogLabels(kind);
-  const selectedKey = selected ? groupOf(selected).key : null;
 
   return (
     <>
@@ -149,7 +171,7 @@ const Categories = ({
                 key={`recent:${item.type}`}
                 keyPrefix="recent:"
                 item={item}
-                selected={item.type === selected?.type}
+                selected={picked.item(item)}
                 onSelect={() => onChoose(item.type)}
               />
             ))}
@@ -158,28 +180,24 @@ const Categories = ({
       )}
       <Command.Group heading={t('catalog-categories', 'Categories')}>
         <div className="grid grid-cols-2 gap-1">
-          {groups.map(({ group, items }) => (
+          {groups.map((entry) => (
             <Command.Item
-              key={group.key}
-              value={`category:${group.key}`}
-              onSelect={() => onOpen(group.key)}
+              key={entry.group.key}
+              value={`category:${entry.group.key}`}
+              onSelect={() => onOpen(entry.group.key)}
               variant="tile"
-              checked={selectedKey === group.key}
+              checked={picked.category(entry.group.key)}
             >
-              <span
-                className={cn(
-                  'flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground',
-                  group.source !== 'core' && 'bg-primary/10 text-primary-text',
-                  group.logo && 'border bg-white',
-                )}
-              >
-                <group.icon className={group.logo ? 'size-5' : 'size-4'} />
-              </span>
+              <GroupTile group={entry.group} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium">{groupName(group)}</span>
+                <span className="block truncate text-sm font-medium">{groupName(entry.group)}</span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
-                  {countLabel(items.length)}
+                  {categoryHint?.(entry) ?? (
+                    <>
+                      {entry.group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
+                      {countLabel(entry.items.length)}
+                    </>
+                  )}
                 </span>
               </span>
             </Command.Item>
@@ -196,9 +214,9 @@ export const CatalogList = ({
   groups,
   current,
   searching,
-  value,
-  selected,
+  picked,
   recentItems,
+  categoryHint,
   onChoose,
   onOpen,
 }: {
@@ -206,9 +224,10 @@ export const CatalogList = ({
   groups: GroupEntry[];
   current: GroupEntry | null;
   searching: boolean;
-  value: string | undefined;
-  selected: CatalogItem | undefined;
+  picked: Picked;
   recentItems: CatalogItem[];
+  /** A category tile's second line, in place of its size. */
+  categoryHint?: (entry: GroupEntry) => string;
   onChoose: (type: string) => void;
   onOpen: (category: string) => void;
 }) => {
@@ -221,13 +240,13 @@ export const CatalogList = ({
         <SearchResults
           kind={kind}
           groups={current ? [current] : groups}
-          value={value}
+          picked={picked}
           onChoose={onChoose}
         />
       )}
       {!searching && current && (
         <Command.Group>
-          <Rows items={current.items} value={value} onChoose={onChoose} />
+          <Rows items={current.items} picked={picked} onChoose={onChoose} />
         </Command.Group>
       )}
       {!searching && !current && (
@@ -235,7 +254,8 @@ export const CatalogList = ({
           kind={kind}
           groups={groups}
           recentItems={recentItems}
-          selected={selected}
+          picked={picked}
+          categoryHint={categoryHint}
           onChoose={onChoose}
           onOpen={onOpen}
         />

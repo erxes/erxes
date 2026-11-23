@@ -32,21 +32,24 @@ export const readableTemplate = (text: string, fields: FieldInfo[]) =>
     return label ? `[${label}]` : whole;
   });
 
-type TemplatePart = { text: string } | { token: string; path: string; filters?: string };
+type TemplatePart = { at: number } & (
+  | { text: string }
+  | { token: string; path: string; filters?: string }
+);
 
-/** Text and the placeholders in it, in order. */
+/** Text and the placeholders in it, in order, each with where it starts. */
 export const templateParts = (text: string) => {
   const parts: TemplatePart[] = [];
   let at = 0;
 
   for (const match of text.matchAll(PLACEHOLDER)) {
-    if (match.index > at) parts.push({ text: text.slice(at, match.index) });
+    if (match.index > at) parts.push({ at, text: text.slice(at, match.index) });
 
-    parts.push({ token: match[0], path: match[1] ?? '', filters: match[2] });
+    parts.push({ at: match.index, token: match[0], path: match[1] ?? '', filters: match[2] });
     at = match.index + match[0].length;
   }
 
-  if (at < text.length) parts.push({ text: text.slice(at) });
+  if (at < text.length) parts.push({ at, text: text.slice(at) });
 
   return parts;
 };
