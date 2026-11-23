@@ -9,6 +9,7 @@ import {
 } from '~/modules/form/formWriteGuard';
 import { IField, IFieldDocument } from '~/modules/form/db/definitions/fields';
 import { validateFormFieldConversions } from '~/modules/form/fieldConversion';
+import { backfillConvertedCustomerFields } from '~/modules/form/customerBackfill';
 
 export interface IFieldsEdit extends IField {
   _id: string;
@@ -158,7 +159,7 @@ export const fieldMutations = {
     args: IFieldsBulkAddAndEditParams,
     context: IContext,
   ) {
-    const { models, user, checkPermission } = context;
+    const { models, user, checkPermission, subdomain } = context;
     if (!user?._id) throw new Error('Unauthorized');
     const {
       contentType,
@@ -185,14 +186,14 @@ export const fieldMutations = {
       if (!form) throw new Error('Form not found');
       // The expensive scan happens outside the short write transaction. All
       // submission and field writers advance this form's revision.
-      await validateFormFieldConversions(
+      const conversions = await validateFormFieldConversions(
         models,
         contentTypeId,
         updatedFields,
         newFields,
         removedFieldIds,
       );
-      return runFormTransaction(models, async (session) => {
+      const fields = await runFormTransaction(models, async (session) => {
         await claimFormConversion(
           models,
           contentTypeId,
@@ -204,6 +205,13 @@ export const fieldMutations = {
           await models.Forms.updateForm(contentTypeId, formChanges, session);
         return fields;
       });
+      void backfillConvertedCustomerFields(
+        subdomain,
+        models,
+        contentTypeId,
+        conversions,
+      );
+      return fields;
     }
     if (await supportsFormTransactions(models)) {
       return runFormTransaction(models, async (session) => {

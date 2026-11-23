@@ -58,6 +58,16 @@ export const FormConversionFeedback = ({
         {checking && (
           <p className="text-xs text-muted-foreground">{t('checkingHelp')}</p>
         )}
+        {!failure && !!result?.customersToFill && (
+          <p className="text-xs text-muted-foreground">
+            {t('customersFill', { count: result.customersToFill })}
+          </p>
+        )}
+        {!failure && !!result?.customersKept && (
+          <p className="text-xs text-muted-foreground">
+            {t('customersKept', { count: result.customersKept })}
+          </p>
+        )}
         {!!result?.invalidCount && (
           <>
             <p className="text-xs text-muted-foreground">{t('blockedHelp')}</p>

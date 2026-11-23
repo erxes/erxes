@@ -1,10 +1,13 @@
 import type { IContext } from '~/connectionResolvers';
 import { requireFormTransactions } from '../../../formWriteGuard';
 import type { IField } from '../../../db/definitions/fields';
+import { performance } from 'node:perf_hooks';
+import { countCustomerBackfill } from '../../../customerBackfill';
 import { prepareFormFieldConversions } from '../../../fieldConversion';
 import {
   conversionError,
   inspectFieldConversion,
+  type ConversionInspection,
 } from '../../../inspectFieldConversion';
 
 export interface ConversionCheckArgs {
@@ -22,8 +25,13 @@ export const fieldConversionQueries = {
   async frontlineFormFieldConversionCheck(
     _root: unknown,
     args: ConversionCheckArgs,
-    { models, user, checkPermission }: IContext,
-  ) {
+    { models, user, checkPermission, subdomain }: IContext,
+  ): Promise<
+    ConversionInspection & {
+      customersToFill: number | null;
+      customersKept: number | null;
+    }
+  > {
     if (!user?._id) throw new Error('Unauthorized');
     await checkPermission('formsEdit');
     await requireFormTransactions(models);
@@ -69,13 +77,27 @@ export const fieldConversionQueries = {
         'Choose a different field type to check.',
       );
     }
-    return inspectFieldConversion(
+    const deadline = performance.now() + 10_000;
+    const inspection = await inspectFieldConversion(
       models,
       args.formId,
       args.fieldId,
       args.targetType,
       args.validator,
-      { page: args.page, search: args.search },
+      { page: args.page, search: args.search, deadline },
     );
+    const { fillCount, keptCount } = inspection.invalidCount
+      ? { fillCount: 0, keptCount: 0 }
+      : await countCustomerBackfill(subdomain, models, {
+          formId: args.formId,
+          fieldId: args.fieldId,
+          targetType: args.targetType,
+          deadline,
+        }).catch(() => ({ fillCount: null, keptCount: null }));
+    return {
+      ...inspection,
+      customersToFill: fillCount,
+      customersKept: keptCount,
+    };
   },
 };

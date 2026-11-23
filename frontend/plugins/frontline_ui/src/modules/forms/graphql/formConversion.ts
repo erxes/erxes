@@ -25,6 +25,8 @@ export const FORM_CONVERSION_CHECK = gql(`
       invalidCount
       matchingCount
       hasMore
+      customersToFill
+      customersKept
       examples {
         id
         submissionId

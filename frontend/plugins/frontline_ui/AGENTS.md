@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-19`
+- **Last synchronized:** `2026-11-23`
 
 ## Scope
 
@@ -1929,7 +1929,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   duplicate requests, and changing target or search resets the list. Responses
   belong to a specific review request, even when a search is later repeated.
   Search runs on explicit
-  submission to avoid rescanning large forms on every keystroke. Server
+  submission to avoid rescanning large forms on every keystroke. When the
+  target is a customer field and every answer is compatible, the check also
+  shows how many existing customers will have the answer copied to an empty
+  profile field on save (`customersToFill`) and how many keep the value they
+  already have (`customersKept`); `frontline_api` does the copy. Server
   deadlines leave the draft intact and offer retry. Conversion messages and
   field-type labels use the plugin-owned `frontline-form-conversion` English
   and Mongolian namespace, loaded from `modules/forms/locales/conversion.*.json`;

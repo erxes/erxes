@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-14`
+- **Last synchronized:** `2026-11-23`
 
 ## Scope
 
@@ -32,7 +32,28 @@
   target type and selected validator before any bulk field write, rejects linked
   custom fields, incompatible conditional rules and duplicate customer mappings,
   and checks `expectedType` for stale edits. Field IDs and stored
-  answers are preserved; existing customer profiles are not backfilled.
+  answers are preserved. After a conversion to a customer type commits,
+  `modules/form/customerBackfill.ts` copies each submitter's latest non-empty
+  answer to their core customer profile through tRPC `customers.updateCustomer`,
+  only where that profile field is empty (email/phone count as set when the
+  customer has any); primary email/phone follow the form's `saveAsCustomer`.
+  It runs outside the form transaction and is not awaited by the save, so it
+  can neither delay nor fail the conversion; converting back to a basic type
+  leaves profiles as they are. Emails are written as typed because core matches
+  them exactly. Submitters are streamed in chunks of 200: each chunk's profiles
+  are read and written before the next is read, with one update per customer
+  covering every field converted in that save; updates that would set a primary
+  email or phone another update in the chunk already sets run afterwards, one
+  at a time, so core's duplicate check sees the earlier write. Skipped profiles are counted in one server log line; nothing retries.
+  Core has no conditional customer update, so an edit made between a chunk's
+  read and its write can still be replaced. The check query returns
+  `customersToFill` / `customersKept` from the same plan within the check's
+  ten-second deadline, or null when they cannot be read in time.
+  `widgetsSaveLead` stores a blank optional answer as `''` (never `0` or
+  1970-01-01) and skips blank answers when writing `core:customer:*` fields so
+  they cannot erase a profile value. Date answers of
+  exactly 1970-01-01 saved before that rule are treated as blank by the
+  birth-date backfill.
   `frontlineFormFieldConversionCheck` requires `formsEdit` and inspects the
   draft before confirmation. Checks use the submission index
   `{formId: 1, formFieldId: 1, _id: 1}`, yield between bounded batches, and
