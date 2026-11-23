@@ -14,7 +14,7 @@ import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 const Ids = z.union([z.string(), z.array(z.string())]).transform((value) => [value].flat());
 
-export const useFirstValueText = (
+const useFirstValueText = (
   group: ConditionGroup | undefined,
   fields: FieldInfo[],
   subject: 'customer' | 'company' | null,
