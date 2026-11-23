@@ -227,21 +227,13 @@ export const startRun = async (
  * Sends `prompt` to the root conversation, counted (`countRun`), and waits for the answer;
  * rejects when the run ends without one. A retry with the same `requestId` asks once.
  */
-export const askAgent = async (
-  agent: Agent,
-  scope: AgentScope,
-  prompt: string,
-  requestId?: string,
-) => {
+export const askAgent = async (agent: Agent, scope: AgentScope, prompt: string) => {
   await countRun(scope.orgId);
 
   return withHarness(agent, scope, async (harness) => {
     const root = await harness.root(BACKGROUND_CONTEXT);
 
-    const submission = await root.submit(
-      { type: 'input', content: prompt, ...(requestId ? { requestId } : {}) },
-      BACKGROUND_CONTEXT,
-    );
+    const submission = await root.submit({ type: 'input', content: prompt }, BACKGROUND_CONTEXT);
 
     const settled = await submission.wait(BACKGROUND_CONTEXT);
 

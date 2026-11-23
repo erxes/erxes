@@ -19,7 +19,6 @@ import {
   IconPhone,
   IconPlugConnected,
   IconPuzzle,
-  IconSparkles,
   IconTicket,
   IconUser,
   IconUsers,
@@ -67,8 +66,7 @@ const CORE_AREAS: Record<string, Omit<CatalogGroup, 'key'>> = {
   'core:messages': { label: 'Messages', icon: IconMail, order: 4 },
   'core:timeline': { label: 'Timeline', icon: IconNote, order: 5 },
   'core:integrations': { label: 'Integrations', icon: IconWebhook, order: 6 },
-  'core:agents': { label: 'AI agents', icon: IconSparkles, order: 7 },
-  'core:automations': { label: 'Automations', icon: IconAutomation, order: 8 },
+  'core:automations': { label: 'Automations', icon: IconAutomation, order: 7 },
 };
 
 const GENERAL = { label: 'General', icon: IconBolt, order: 50 };
