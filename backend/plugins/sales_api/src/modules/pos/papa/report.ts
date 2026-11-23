@@ -56,7 +56,7 @@ const toDate = (value: Date | string, name: string) => {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`${name} is not a valid date`);
+    throw new TypeError(`${name} is not a valid date`);
   }
 
   return date;

@@ -1,11 +1,9 @@
 import { useQuery } from '@apollo/client';
 import {
   IconAlertTriangle,
-  IconCalendarCheck,
   IconCar,
   IconCash,
   IconCircleCheck,
-  IconCircleX,
   IconHash,
   IconKey,
   IconMapPin,
@@ -14,7 +12,6 @@ import {
   IconRefresh,
   IconTruckDelivery,
   IconUser,
-  IconUserCheck,
   IconWallet,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
@@ -27,23 +24,24 @@ import {
   Spinner,
   useConfirm,
 } from 'erxes-ui';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PanelField } from 'ui-modules';
 import { PosPanelText } from '~/widgets/record-panel/PosPanelShared';
 import { SALES_POS_ORDER_PAPA_PHOTO_PROOF } from '../graphql/papaDocuments';
 import { usePapaDelivery } from '../hooks/usePapaDelivery';
 import {
-  orderDeliveryDefaults,
-  PAPA_AUTO_SEND_MISSING,
   PAPA_CANCELLABLE_STATUSES,
-  PAPA_CLOSE_REASONS,
-  parsePapaAutoSend,
   PAPA_RESENDABLE_STATUSES,
   papaPhotoProofSchema,
   TPapaDelivery,
 } from '../utils/papaJson';
 import { PapaCancelDialog } from './PapaCancelDialog';
+import {
+  PapaAutoSendNotice,
+  PapaCustomerField,
+  PapaDeliveryOutcome,
+  useOrderDeliveryDefaults,
+} from './PapaDeliveryDetails';
 import { PapaDeliveryQuoteForm } from './PapaDeliveryQuoteForm';
 import { PapaDeliverySendForm } from './PapaDeliverySendForm';
 import { PapaWalletBalance } from './PapaWalletBalance';
@@ -55,15 +53,6 @@ const personName = (delivery: TPapaDelivery) =>
   [delivery.driver?.lastname, delivery.driver?.firstname]
     .filter(Boolean)
     .join(' ') || '-';
-
-const formatTime = (value?: string | null) =>
-  value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '';
-
-const joinParts = (parts: (string | null | undefined)[]) =>
-  parts
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(' · ');
 
 const PapaPhotoProof = ({
   orderId,
@@ -123,21 +112,10 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
   const { confirm } = useConfirm();
   const papa = usePapaDelivery(orderId);
   const { order, delivery, busy } = papa;
-  const customer = order?.customer;
-  const customerName = joinParts([customer?.lastName, customer?.firstName]);
   // The checkout's receiver first; the order's customer when it names none.
-  const defaults = useMemo(() => {
-    const info = orderDeliveryDefaults(order?.deliveryInfo);
-
-    return {
-      ...info,
-      receiverName: info.receiverName || customerName,
-      phone: info.phone || customer?.primaryPhone || '',
-    };
-  }, [order?.deliveryInfo, customerName, customer?.primaryPhone]);
-  const autoSend = useMemo(
-    () => parsePapaAutoSend(order?.papaAutoSend),
-    [order?.papaAutoSend],
+  const defaults = useOrderDeliveryDefaults(
+    order?.deliveryInfo,
+    order?.customer,
   );
 
   if (papa.loading && !order) {
@@ -188,38 +166,6 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
     (status === 'FAILED' || PAPA_CANCELLABLE_STATUSES.includes(status ?? ''));
 
   const canMarkDelivered = status === 'START' && !!delivery?.cargoId;
-  const closeReason = status ? PAPA_CLOSE_REASONS[status] : undefined;
-  // An automatic send that did not reach Papa leaves the order to staff.
-  const autoSendNote =
-    autoSend && !delivery?.papaOrderId
-      ? {
-          skipped: t(
-            'papa-auto-skipped',
-            'Not sent to Papa automatically: the order has no {{missing}}. Fill it in below and send it.',
-            {
-              missing: (autoSend.missing ?? [])
-                .map((key) => {
-                  const [labelKey, label] = PAPA_AUTO_SEND_MISSING[key] ?? [
-                    key,
-                    key,
-                  ];
-                  return t(labelKey, label);
-                })
-                .join(', '),
-            },
-          ),
-          failed: t(
-            'papa-auto-failed',
-            'Sending to Papa automatically failed: {{error}}. Finish it below.',
-            { error: autoSend.error || '' },
-          ),
-          sending: t(
-            'papa-auto-sending',
-            'Sending to Papa automatically… Refresh in a moment.',
-          ),
-          sent: '',
-        }[autoSend.status]
-      : '';
   // Papa takes its fee from DTS's wallet when a delivery ends; an END
   // delivery still unpaid means the wallet was short at that moment.
   const showFee = status === 'END' || status === 'COMPLETED';
@@ -254,26 +200,11 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-4 p-4">
-        {autoSendNote && (
-          <Alert
-            variant={autoSend?.status === 'sending' ? 'default' : 'warning'}
-          >
-            <IconAlertTriangle />
-            <Alert.Description>{autoSendNote}</Alert.Description>
-          </Alert>
-        )}
-
-        {(customerName || customer?.primaryPhone) && (
-          <PanelField
-            icon={IconUser}
-            label={t('customer', 'Customer')}
-            cell={false}
-          >
-            <PosPanelText>
-              {joinParts([customerName, customer?.primaryPhone])}
-            </PosPanelText>
-          </PanelField>
-        )}
+        <PapaAutoSendNotice
+          value={order.papaAutoSend}
+          hasPapaOrder={!!delivery?.papaOrderId}
+        />
+        <PapaCustomerField customer={order.customer} />
 
         {delivery && (
           <div className="space-y-1">
@@ -357,41 +288,7 @@ export const PapaDeliveryPanel = ({ orderId }: { orderId: string }) => {
             <PanelField icon={IconMapPin} label={t('address')} cell={false}>
               <PosPanelText>{delivery.toAddress || '-'}</PosPanelText>
             </PanelField>
-            {(delivery.receiverName || delivery.receiverPhone) && (
-              <PanelField
-                icon={IconUserCheck}
-                label={t('papa-receiver', 'Receiver')}
-                cell={false}
-              >
-                <PosPanelText>
-                  {joinParts([delivery.receiverName, delivery.receiverPhone])}
-                </PosPanelText>
-              </PanelField>
-            )}
-            {delivery.deliveredAt && (
-              <PanelField
-                icon={IconCalendarCheck}
-                label={t('papa-delivered-at', 'Delivered at')}
-                cell={false}
-              >
-                <PosPanelText>{formatTime(delivery.deliveredAt)}</PosPanelText>
-              </PanelField>
-            )}
-            {closeReason && (
-              <PanelField
-                icon={IconCircleX}
-                label={t('papa-closed-reason', 'Not delivered')}
-                cell={false}
-              >
-                <PosPanelText>
-                  {joinParts([
-                    t(closeReason[0], closeReason[1]),
-                    delivery.cancelReason,
-                    formatTime(delivery.closedAt),
-                  ])}
-                </PosPanelText>
-              </PanelField>
-            )}
+            <PapaDeliveryOutcome delivery={delivery} />
             {delivery.pincode && (
               <PanelField
                 icon={IconKey}

@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IPapaConfig, IPapaConfigDocument } from '../../@types/papaConfigs';
@@ -19,7 +19,7 @@ export interface IPapaConfigModel extends Model<IPapaConfigDocument> {
 
 export const loadPapaConfigClass = (models: IModels) => {
   class PapaConfig {
-    public static async getConfig() {
+    public static getConfig() {
       return models.PapaConfigs.findOne({}).lean();
     }
 

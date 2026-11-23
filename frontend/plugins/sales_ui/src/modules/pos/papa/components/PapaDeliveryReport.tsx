@@ -68,7 +68,8 @@ const COLUMNS: {
  */
 export const PapaDeliveryReport = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
-  const [interval, setReportInterval] = useState<TPapaReportInterval>('day');
+  const [reportInterval, setReportInterval] =
+    useState<TPapaReportInterval>('day');
   const [from, setFrom] = useState<Date>(() =>
     dayjs().subtract(DEFAULT_RANGE_DAYS.day, 'day').startOf('day').toDate(),
   );
@@ -94,7 +95,7 @@ export const PapaDeliveryReport = ({ posId }: { posId?: string }) => {
       posId,
       startDate: dayjs(from).startOf('day').toISOString(),
       endDate: dayjs(to).add(1, 'day').startOf('day').toISOString(),
-      interval,
+      interval: reportInterval,
       timezone,
     },
     skip: !posId || dayjs(to).isBefore(from, 'day'),
@@ -143,7 +144,7 @@ export const PapaDeliveryReport = ({ posId }: { posId?: string }) => {
             type="single"
             variant="outline"
             className="w-fit"
-            value={interval}
+            value={reportInterval}
             onValueChange={(value) => {
               const next = PAPA_REPORT_INTERVALS.find((item) => item === value);
               if (next) changeInterval(next);
@@ -210,7 +211,7 @@ export const PapaDeliveryReport = ({ posId }: { posId?: string }) => {
               <Table.Header>
                 <Table.Row>
                   <Table.Head>
-                    {interval === 'month'
+                    {reportInterval === 'month'
                       ? t('papa-report-month', 'Month')
                       : t('papa-report-day', 'Day')}
                   </Table.Head>

@@ -643,7 +643,7 @@ describe('Papa delivery details', () => {
       80,
     );
 
-    expect(note.length <= 80).toBe(true);
+    expect(note.length).toBeLessThanOrEqual(80);
     expect(note.startsWith('Хүлээн авагч: Болд\nБараа: Product 0')).toBe(true);
     expect(note.endsWith('…')).toBe(true);
   });
@@ -711,9 +711,9 @@ describe('Papa automatic send', () => {
       lat: '47.9',
       lng: '106.9',
     });
-    expect(readDeliveryPin({ marker: { latitude: 'x', longitude: 1 } })).toBe(
-      null,
-    );
+    expect(
+      readDeliveryPin({ marker: { latitude: 'x', longitude: 1 } }),
+    ).toBeNull();
   });
 
   it('plans a send from a complete dts.mn checkout', () => {
@@ -751,7 +751,7 @@ describe('Papa automatic send', () => {
   it('lists what a checkout lacks instead of sending', () => {
     const plan = planPapaAutoSend({ district: 'Нүүдэл' }, locations);
 
-    expect(plan.quote).toBe(null);
+    expect(plan.quote).toBeNull();
     expect(plan.missing).toEqual(['district', 'pin', 'phone']);
   });
 });

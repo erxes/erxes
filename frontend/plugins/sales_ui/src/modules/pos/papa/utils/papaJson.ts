@@ -155,15 +155,16 @@ export const parsePapaAutoSend = (value: unknown): TPapaAutoSend | null => {
 };
 
 /** What an order lacked for an automatic send, as translation key and text. */
-export const PAPA_AUTO_SEND_MISSING: Record<string, [string, string]> = {
-  district: ['papa-missing-district', 'a district Papa knows'],
-  address: ['papa-missing-address', 'an address'],
-  pin: ['papa-missing-pin', 'a map pin'],
-  phone: ['papa-missing-phone', 'the receiver’s phone'],
-};
+export const PAPA_AUTO_SEND_MISSING: Partial<Record<string, [string, string]>> =
+  {
+    district: ['papa-missing-district', 'a district Papa knows'],
+    address: ['papa-missing-address', 'an address'],
+    pin: ['papa-missing-pin', 'a map pin'],
+    phone: ['papa-missing-phone', 'the receiver’s phone'],
+  };
 
 /** Why a Papa order ended without delivery, as a translation key and text. */
-export const PAPA_CLOSE_REASONS: Record<string, [string, string]> = {
+export const PAPA_CLOSE_REASONS: Partial<Record<string, [string, string]>> = {
   USER_CANCELLED: ['papa-closed-by-store', 'Cancelled by the store'],
   CANCELLED: ['papa-closed-by-papa', 'Cancelled by Papa'],
   EXPIRED: ['papa-closed-expired', 'No driver accepted it in time'],

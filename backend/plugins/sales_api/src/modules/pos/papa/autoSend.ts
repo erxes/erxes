@@ -29,8 +29,7 @@ export const autoSendPapaDelivery = async ({
   const order = await models.PosOrders.findOne({ _id: orderId }).lean().exec();
 
   if (
-    !order ||
-    order.type !== 'delivery' ||
+    order?.type !== 'delivery' ||
     !order.paidDate ||
     order.status === 'return' ||
     order.papaDelivery ||

@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 import {
   PAPA_ENDED_ORDER_STATUSES,
   PAPA_LIST_PAGE_SIZE,

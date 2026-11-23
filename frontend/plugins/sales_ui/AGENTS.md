@@ -131,7 +131,10 @@
   automatic send did not reach Papa, the tab says why from
   `posOrder.papaAutoSend` (`parsePapaAutoSend`): skipped with what was
   missing (`PAPA_AUTO_SEND_MISSING`), failed with Papa's error, or still
-  sending. The account form shows staff
+  sending. The customer row, the automatic-send notice, the receiver /
+  delivered / not-delivered rows and the tab's defaults live in
+  `PapaDeliveryDetails.tsx`, keeping `PapaDeliveryPanel` under Sonar's
+  cognitive-complexity limit. The account form shows staff
   phone/email/name fields while `salesPapaConfig.staffId` is empty, so saving
   can create the Papa staff member. It polls every 15s
   while the delivery can still change (`PAPA_ACTIVE_STATUSES`).
