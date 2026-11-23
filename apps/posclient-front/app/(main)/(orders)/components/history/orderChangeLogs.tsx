@@ -228,30 +228,37 @@ const changeLines = (
   const changes = log.changes || []
   const hasItems = changes.some((change) => change.field === "items")
 
-  return changes.flatMap((change) => {
-    if (change.field === "items") return itemLines(change, nameOf)
-    if (change.field === "itemActions")
-      return hasItems ? [] : itemActionLines(change, nameOf)
+  return (
+    changes
+      .flatMap((change) => {
+        if (change.field === "items") return itemLines(change, nameOf)
+        if (change.field === "itemActions")
+          return hasItems ? [] : itemActionLines(change, nameOf)
 
-    const label = FIELD_LABELS[change.field] || change.field
-    const isObject = (value: unknown) =>
-      !!value && typeof value === "object" && !Array.isArray(value)
+        const label = FIELD_LABELS[change.field] || change.field
+        const isObject = (value: unknown) =>
+          !!value && typeof value === "object" && !Array.isArray(value)
 
-    if (isObject(change.oldValue) || isObject(change.newValue))
-      return nestedLines(change).map((line) => ({
-        ...line,
-        label: `${label} · ${line.label}`,
-      }))
+        if (isObject(change.oldValue) || isObject(change.newValue))
+          return nestedLines(change).map((line) => ({
+            ...line,
+            label: `${label} · ${line.label}`,
+          }))
 
-    return [
-      {
-        key: change.field,
-        label,
-        before: formatValue(change.field, change.oldValue),
-        after: formatValue(change.field, change.newValue),
-      },
-    ]
-  })
+        return [
+          {
+            key: change.field,
+            label,
+            before: formatValue(change.field, change.oldValue),
+            after: formatValue(change.field, change.newValue),
+          },
+        ]
+      })
+      .filter((line) => line.before !== line.after)
+      .map((line) =>
+        line.before === "—" ? { ...line, before: undefined } : line
+      )
+  )
 }
 
 const OrderChangeLogs = ({

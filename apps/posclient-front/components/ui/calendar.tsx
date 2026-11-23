@@ -36,20 +36,21 @@ function Calendar({
         button_next: navButtonClassName,
         month_grid: "w-full border-collapse space-y-1",
         weekdays: "flex",
-        weekday: "text-slate-500 rounded-md w-8 font-normal text-[0.8rem]",
+        weekday:
+          "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
         week: "flex w-full mt-2",
-        day: "text-center p-0 relative aria-selected:bg-slate-100 first:aria-selected:rounded-l-md last:aria-selected:rounded-r-md focus-within:relative focus-within:z-20",
+        day: "text-center p-0 relative aria-selected:bg-primary/10 first:aria-selected:rounded-l-md last:aria-selected:rounded-r-md focus-within:relative focus-within:z-20",
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
           "h-8 w-8 p-0 font-normal"
         ),
-        today: "[&>button]:bg-slate-100 [&>button]:text-slate-900",
+        today:
+          "[&>button]:bg-accent [&>button]:font-semibold [&>button]:text-primary",
         selected:
-          "[&>button]:bg-slate-900 [&>button]:text-slate-50! [&>button]:hover:bg-slate-900 [&>button]:hover:text-slate-50 [&>button]:focus:bg-slate-900 [&>button]:focus:text-slate-50",
-        outside: "text-slate-500 opacity-50",
-        disabled: "text-slate-500 opacity-50",
-        range_middle:
-          "[&>button]:bg-slate-100! [&>button]:text-slate-900!",
+          "[&>button]:bg-primary [&>button]:text-primary-foreground! [&>button]:hover:bg-primary [&>button]:hover:text-primary-foreground [&>button]:focus:bg-primary [&>button]:focus:text-primary-foreground",
+        outside: "text-muted-foreground opacity-50",
+        disabled: "text-muted-foreground opacity-50",
+        range_middle: "[&>button]:bg-primary/10! [&>button]:text-primary!",
         hidden: "invisible",
         ...classNames,
       }}

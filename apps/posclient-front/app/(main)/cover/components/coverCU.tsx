@@ -1,19 +1,22 @@
-import { useRouter } from "next/navigation"
-import { useAtomValue, useSetAtom } from "jotai"
-import { AlarmCheckIcon } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { paymentTypesAtom } from "@/store/config.store"
 import {
-  isCoverAmountsFetchedAtom,
+  coverStatusAtom,
+  coverValidationAttemptedAtom,
   endDateAtom,
+  isCoverAmountsFetchedAtom,
   resetCoverDetailAtom,
   terminalFetchBusyAtom,
-  coverStatusAtom,
   terminalResultsAtom,
-  coverValidationAttemptedAtom,
 } from "@/store/cover.store"
-import { paymentTypesAtom } from "@/store/config.store"
+import { useAtomValue, useSetAtom } from "jotai"
+import { AlarmCheckIcon } from "lucide-react"
+
 import { BANK_CARD_TYPES } from "@/lib/constants"
+import { useRemoveQueryStateByKey } from "@/lib/useQueryState"
 import { Button } from "@/components/ui/button"
 import { onError, toast } from "@/components/ui/use-toast"
+
 import { useCoverSave } from "../hooks/useCoverSave"
 
 export const CoverCU = () => {
@@ -26,6 +29,8 @@ export const CoverCU = () => {
   const setValidationAttempted = useSetAtom(coverValidationAttemptedAtom)
   const resetCover = useSetAtom(resetCoverDetailAtom)
   const router = useRouter()
+  const pathname = usePathname()
+  const removeQuery = useRemoveQueryStateByKey()
   const { loading, saveCover } = useCoverSave()
   const handleClick = async () => {
     setValidationAttempted(true)
@@ -44,9 +49,10 @@ export const CoverCU = () => {
     }
     try {
       await saveCover()
-      toast({ description: "Хаалт хадгалагдлаа" })
+      toast({ description: "Хаалт хадгалагдлаа", variant: "success" })
       resetCover()
-      router.push("/cover")
+      if (pathname.startsWith("/cover/detail")) router.push("/cover")
+      else removeQuery("id")
     } catch (error) {
       onError(error instanceof Error ? error.message : String(error))
     }
@@ -54,13 +60,13 @@ export const CoverCU = () => {
   if (!endDate || !fetched) return null
   return (
     <Button
-      className="mt-4"
+      className="h-8 w-full gap-1.5 rounded text-[13px] font-medium"
       loading={loading}
       disabled={busy || status === "confirm" || status === "confirming"}
       onClick={handleClick}
     >
-      <AlarmCheckIcon className="mr-1 h-4 w-4 -translate-x-1" />
-      Хадгалах
+      {!loading && <AlarmCheckIcon className="h-4 w-4" />}
+      Хаалт хадгалах
     </Button>
   )
 }

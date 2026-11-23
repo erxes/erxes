@@ -1,4 +1,6 @@
+import { RecordTable, RecordTableInlineCell } from "@/modules/record-table"
 import { paymentTypesAtom } from "@/store/config.store"
+import { ColumnDef } from "@tanstack/react-table"
 import { useAtomValue } from "jotai"
 import {
   BanknoteIcon,
@@ -16,6 +18,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 
 type Amounts = Record<string, number | string | undefined>
 
@@ -241,83 +244,104 @@ const ReportSummary = ({ report }: { report: DailyReport }) => {
             {products.length} бичлэг олдлоо
           </span>
         </div>
-        <div className="overflow-hidden rounded-lg border-l-4 border-t-4 border-sidebar bg-sidebar">
-          <div className="overflow-x-auto pb-1 pr-1">
-            <table className="w-full table-fixed border-separate border-spacing-0 text-[13px] leading-none">
-              <thead>
-                <tr>
-                  <Th icon={HashIcon} className="w-14" />
-                  <Th icon={PackageIcon} label="Бараа" />
-                  <Th
-                    icon={FolderIcon}
-                    label="Ангилал"
-                    className="hidden w-44 md:table-cell"
-                  />
-                  <Th icon={LayersIcon} label="Тоо" className="w-24" />
-                  <Th icon={WalletIcon} label="Дүн" className="w-40" />
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product, index) => (
-                  <tr
-                    key={`${product.category}-${product.name}`}
-                    className="group/row"
-                  >
-                    <td className={cn(cellClass, "text-muted-foreground")}>
-                      {index + 1}
-                    </td>
-                    <td className={cn(cellClass, "font-medium")}>
-                      <span className="block truncate">{product.name}</span>
-                    </td>
-                    <td className={cn(cellClass, "hidden md:table-cell")}>
-                      {product.category ? (
-                        <span className="rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
-                          {product.category}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className={cn(cellClass, "font-medium tabular-nums")}>
-                      {product.count.toLocaleString()}
-                    </td>
-                    <td className={cn(cellClass, "font-semibold tabular-nums")}>
-                      {formatNum(product.amount)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ReportProductsTable products={products} />
       </div>
     </div>
   )
 }
 
-const cellClass =
-  "h-cell overflow-hidden whitespace-nowrap border-b border-r bg-background px-2 align-middle transition-colors group-hover/row:bg-muted first:border-l [tr:first-child>&]:border-t [tr:first-child>&:first-child]:rounded-tl-lg [tr:first-child>&:last-child]:rounded-tr-lg"
+type ProductRow = {
+  _id: string
+  rank: number
+  name: string
+  category: string
+  count: number
+  amount: number
+}
 
-const Th = ({
-  icon: Icon,
-  label,
-  className,
+const productColumns: ColumnDef<ProductRow>[] = [
+  {
+    id: "rank",
+    size: 48,
+    enableResizing: false,
+    header: () => <RecordTable.InlineHead icon={HashIcon} label="" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="tabular-nums text-muted-foreground">
+        {row.original.rank}
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: "name",
+    size: 260,
+    header: () => <RecordTable.InlineHead icon={PackageIcon} label="Бараа" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="font-medium">
+        <span className="truncate">{row.original.name}</span>
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: "category",
+    size: 160,
+    header: () => <RecordTable.InlineHead icon={FolderIcon} label="Ангилал" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        {row.original.category ? (
+          <Badge variant="secondary" className="h-6 rounded-sm py-0">
+            {row.original.category}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )}
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: "count",
+    size: 100,
+    header: () => <RecordTable.InlineHead icon={LayersIcon} label="Тоо" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="justify-end font-medium tabular-nums">
+        {row.original.count.toLocaleString()}
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: "amount",
+    size: 140,
+    header: () => <RecordTable.InlineHead icon={WalletIcon} label="Дүн" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="justify-end font-semibold tabular-nums">
+        {formatNum(row.original.amount)}
+      </RecordTableInlineCell>
+    ),
+  },
+]
+
+const ReportProductsTable = ({
+  products,
 }: {
-  icon: LucideIcon
-  label?: string
-  className?: string
+  products: Omit<ProductRow, "_id" | "rank">[]
 }) => (
-  <th
-    className={cn(
-      "h-9 whitespace-nowrap bg-sidebar px-2 text-left align-middle font-mono text-xs font-semibold uppercase text-muted-foreground/80",
-      className
-    )}
+  <RecordTable.Provider
+    columns={productColumns}
+    data={products.map((product, index) => ({
+      ...product,
+      _id: `${product.category}-${product.name}`,
+      rank: index + 1,
+    }))}
+    tableId="pos_report_products"
   >
-    <span className="inline-flex items-center gap-1.5">
-      <Icon className="h-3.5 w-3.5 flex-none" />
-      {label}
-    </span>
-  </th>
+    <RecordTable.Scroll>
+      <RecordTable>
+        <RecordTable.Header />
+        <RecordTable.Body>
+          <RecordTable.RowList />
+        </RecordTable.Body>
+      </RecordTable>
+    </RecordTable.Scroll>
+  </RecordTable.Provider>
 )
 
 const StatCard = ({

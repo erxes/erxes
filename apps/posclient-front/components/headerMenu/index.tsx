@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import Logout from "@/modules/auth/components/logout"
 import { modeAtom } from "@/store"
 import {
@@ -28,8 +29,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
+import { headerMenuItemClass } from "./headerMenuItemClass"
 
 const HeaderMenu = () => {
+  const pathname = usePathname()
   const mode = useAtomValue(modeAtom)
   const user = useAtomValue(currentUserAtom)
   const permissionConfig = useAtomValue(permissionConfigAtom)
@@ -73,16 +76,25 @@ const HeaderMenu = () => {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="h-9 w-9 rounded-lg p-0 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+            className="h-9 w-9 rounded-md p-0 text-muted-foreground transition-colors hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+            aria-label="Цэс"
           >
-            <MenuIcon className="h-5 w-5" />
+            <MenuIcon className="size-5" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="p-1.5 min-w-[220px]">
+        <DropdownMenuContent
+          align="start"
+          sideOffset={8}
+          className="w-56 rounded-md bg-background p-1 shadow-lg"
+        >
           {menu.map((itm) => (
-            <MenuItem {...itm} key={itm.href} />
+            <MenuItem
+              {...itm}
+              key={itm.href}
+              active={pathname === `/${itm.href}`}
+            />
           ))}
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="-mx-1 my-1" />
           <Logout />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -94,22 +106,26 @@ const MenuItem = ({
   href,
   Icon,
   text,
+  active,
 }: {
   href: string
   Icon: LucideIcon
   text: string
+  active?: boolean
 }) => (
   <DropdownMenuItem asChild>
-    <Button
-      className="w-full justify-start mb-0.5 font-medium"
-      variant="ghost"
-      size="sm"
-      Component={Link}
+    <Link
       href={`/${href}`}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        headerMenuItemClass,
+        active &&
+          "bg-primary/10 font-medium text-primary focus:bg-primary/10 [&>svg]:text-primary"
+      )}
     >
-      <Icon className="mr-2 h-5 w-5 text-muted-foreground" />
+      <Icon aria-hidden="true" />
       {text}
-    </Button>
+    </Link>
   </DropdownMenuItem>
 )
 

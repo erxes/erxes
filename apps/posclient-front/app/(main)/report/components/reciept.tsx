@@ -1,4 +1,3 @@
-import { Fragment } from "react"
 import {
   qzMainPrinterAtom,
   qzTrayEnabledAtom,
@@ -21,23 +20,10 @@ import { Button } from "@/components/ui/button"
 import { onError } from "@/components/ui/use-toast"
 import PrintLayout from "@/app/reciept/layout"
 
-const formatNum = (num?: number) => (num || 0).toLocaleString()
-const Flex = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode
-  className?: string
-}) => (
-  <div
-    className={`report-print__row flex items-start justify-between gap-2 ${
-      className || ""
-    }`.trim()}
-  >
-    {children}
-  </div>
-)
+import type { DailyReport } from "./summary"
 
+type ReportUser = DailyReport[string]
+type ReportCategory = NonNullable<ReportUser["items"]>[string]
 type ReportProduct = {
   _id?: string | null
   id?: string | null
@@ -48,6 +34,23 @@ type ReportProduct = {
   unitPrice?: number
   totalAmount?: number
 }
+type Amounts = NonNullable<ReportUser["ordersAmounts"]>
+
+const DATE_FORMAT = "yyyy.MM.dd HH:mm"
+
+const FIXED_AMOUNT_KEYS = [
+  "_id",
+  "cashAmount",
+  "cardAmount",
+  "mobileAmount",
+  "count",
+  "totalAmount",
+  "receivableAmount",
+]
+
+const toNumber = (value?: number | string) => Number(value) || 0
+
+const formatNum = (value?: number | string) => toNumber(value).toLocaleString()
 
 const normalizeText = (value?: string | null) => value?.trim() || ""
 
@@ -63,11 +66,8 @@ const getProductSizeFromCode = (code?: string | null) => {
   return parts.length > 1 ? parts[parts.length - 1] : ""
 }
 
-const hasStandaloneSize = (name: string, size: string) => {
-  const matcher = new RegExp(`(^|\\W)${escapeRegExp(size)}($|\\W)`, "i")
-
-  return matcher.test(name)
-}
+const hasStandaloneSize = (name: string, size: string) =>
+  new RegExp(`(^|\\W)${escapeRegExp(size)}($|\\W)`, "i").test(name)
 
 const getProductLabel = ({ name, code }: ReportProduct) => {
   const normalizedName = normalizeText(name)
@@ -92,7 +92,30 @@ const getServiceChargeAmount = (totalAmount = 0, serviceCharge = 0) => {
   return Math.round(totalAmount * (serviceCharge / (100 + serviceCharge)))
 }
 
-const Receipt = ({ date, report }: any) => {
+const getProductTotal = (product: ReportProduct) =>
+  product.totalAmount || (product.unitPrice || 0) * (product.count || 0)
+
+const getProducts = (category: ReportCategory): ReportProduct[] =>
+  Object.values(category.products || {})
+
+const Row = ({
+  label,
+  value,
+  className,
+}: {
+  label: React.ReactNode
+  value: React.ReactNode
+  className?: string
+}) => (
+  <div className={`report-print__row ${className || ""}`.trim()}>
+    <span>{label}</span>
+    <span className="report-print__value">{value}</span>
+  </div>
+)
+
+const Divider = () => <div className="report-print__divider" />
+
+const Receipt = ({ report }: { report?: DailyReport }) => {
   const config = useAtomValue(configAtom)
   const paymentTypes = useAtomValue(paymentTypesAtom)
   const reportStartDate = useAtomValue(reportStartDateAtom)
@@ -126,88 +149,6 @@ const Receipt = ({ date, report }: any) => {
     return null
   }
 
-  const excludeTypes = [
-    "_id",
-    "cashAmount",
-    "cardAmount",
-    "mobileAmount",
-    "count",
-    "totalAmount",
-    "receivableAmount",
-  ]
-
-  const renderAmounts = (amounts: any) => {
-    return (
-      <div className="pt-3 report-print__section md:pt-0">
-        <Flex>
-          {`Бэлнээр: `}
-          <span className="report-print__value tabular-nums">
-            {formatNum(amounts.cashAmount)}
-          </span>
-        </Flex>
-        <Flex>
-          {`Цахимаар: `}
-          <span className="report-print__value tabular-nums">
-            {formatNum(amounts.mobileAmount)}
-          </span>
-        </Flex>
-        {(amounts.cardAmount && (
-          <Flex>
-            {`Картаар: `}
-            <span className="report-print__value tabular-nums">
-              {formatNum(amounts.cardAmount)}
-            </span>
-          </Flex>
-        )) ||
-          ""}
-        {(amounts.receivableAmount && (
-          <Flex>
-            {`Картаар: `}
-            <span className="report-print__value tabular-nums">
-              {formatNum(amounts.receivableAmount)}
-            </span>
-          </Flex>
-        )) ||
-          ""}
-
-        {(Object.keys(amounts) || [])
-          .filter((key) => !excludeTypes.includes(key))
-          .map((type) => (
-            <Flex key={type}>
-              {`${
-                (
-                  (paymentTypes || []).find(
-                    (t: IPaymentType) => t.type === type
-                  ) || {
-                    title: type,
-                  }
-                ).title
-              }: `}
-              <span className="report-print__value tabular-nums">
-                {formatNum(amounts[type])}
-              </span>
-            </Flex>
-          ))}
-
-        <Flex>
-          {`Нийт: `}
-          <span className="report-print__value tabular-nums">
-            {formatNum(amounts.totalAmount)}
-          </span>
-        </Flex>
-        <Flex>
-          {`Б.тоо: `}
-          <span className="report-print__value tabular-nums">
-            {formatNum(amounts.count)}
-          </span>
-        </Flex>
-      </div>
-    )
-  }
-
-  const getProductTotal = (product: ReportProduct) =>
-    product.totalAmount || (product.unitPrice || 0) * (product.count || 0)
-
   const isServiceChargeProduct = (product: ReportProduct) => {
     const serviceProductId = config?.serviceChargeApplicableProductId
     const productIds = [product.productId, product._id, product.id].filter(
@@ -221,123 +162,164 @@ const Receipt = ({ date, report }: any) => {
     return normalizeText(product.name).toLowerCase().includes("service charge")
   }
 
-  const getProductKey = (product: ReportProduct, fallbackKey: string) => {
-    const productIdentifier =
-      product._id ||
-      product.productId ||
-      product.id ||
-      product.code ||
-      product.name ||
-      "unknown"
+  const getLineAmount = (product: ReportProduct, amounts?: Amounts) => {
+    if (!isServiceChargeProduct(product)) {
+      return getProductTotal(product)
+    }
 
-    return `${fallbackKey}:${productIdentifier}`
+    return (
+      getServiceChargeAmount(
+        toNumber(amounts?.totalAmount),
+        config?.serviceCharge
+      ) || getProductTotal(product)
+    )
+  }
+
+  const getPaymentTitle = (type: string) =>
+    (paymentTypes || []).find((t: IPaymentType) => t.type === type)?.title ||
+    type
+
+  const renderPayments = (amounts: Amounts) => {
+    const extraTypes = Object.keys(amounts).filter(
+      (key) => !FIXED_AMOUNT_KEYS.includes(key)
+    )
+
+    return (
+      <section className="report-print__section">
+        <div className="report-print__section-title">Төлбөр</div>
+        <Row label="Бэлнээр" value={formatNum(amounts.cashAmount)} />
+        <Row label="Цахимаар" value={formatNum(amounts.mobileAmount)} />
+        {!!toNumber(amounts.cardAmount) && (
+          <Row label="Картаар" value={formatNum(amounts.cardAmount)} />
+        )}
+        {!!toNumber(amounts.receivableAmount) && (
+          <Row label="Авлагаар" value={formatNum(amounts.receivableAmount)} />
+        )}
+        {extraTypes.map((type) => (
+          <Row
+            key={type}
+            label={getPaymentTitle(type)}
+            value={formatNum(amounts[type])}
+          />
+        ))}
+        <Row
+          label="Нийт дүн"
+          value={formatNum(amounts.totalAmount)}
+          className="report-print__row--total"
+        />
+        <Row label="Баримтын тоо" value={formatNum(amounts.count)} />
+      </section>
+    )
   }
 
   const renderProduct = (
     product: ReportProduct,
-    productKey: string,
-    ordersAmounts?: any
-  ) => {
-    const isServiceCharge = isServiceChargeProduct(product)
-    const serviceChargeAmount = getServiceChargeAmount(
-      ordersAmounts?.totalAmount,
-      config?.serviceCharge
-    )
-
-    return (
-      <div
-        className="report-print__product"
-        key={getProductKey(product, productKey)}
-      >
-        <div className="report-print__product-name">
-          {getProductLabel(product)}
+    key: string,
+    amounts?: Amounts
+  ) => (
+    <div className="report-print__product" key={key}>
+      <Row
+        label={getProductLabel(product)}
+        value={formatNum(getLineAmount(product, amounts))}
+      />
+      {!isServiceChargeProduct(product) && (
+        <div className="report-print__muted">
+          {formatNum(product.unitPrice)} × {formatNum(product.count)}
         </div>
-        <div className="report-print__product-amount tabular-nums">
-          {isServiceCharge ? (
-            formatNum(serviceChargeAmount || getProductTotal(product))
-          ) : (
-            <>
-              {formatNum(product.unitPrice)} * {formatNum(product.count)} ={" "}
-              {formatNum(getProductTotal(product))}
-            </>
-          )}
-        </div>
-      </div>
-    )
-  }
+      )}
+    </div>
+  )
 
   const renderCategory = (
-    category: any,
-    categoryKey: string,
-    ordersAmounts?: any
+    category: ReportCategory,
+    key: string,
+    amounts?: Amounts
   ) => {
-    const categoryIdentifier =
-      category._id || category.id || category.code || category.name || "unknown"
+    const products = getProducts(category)
+    const count = products.reduce((sum, p) => sum + (p.count || 0), 0)
+    const total = products.reduce(
+      (sum, p) => sum + getLineAmount(p, amounts),
+      0
+    )
 
     return (
-      <Fragment key={`${categoryKey}:${categoryIdentifier}`}>
-        <div className="report-print__category">
-          <b className="font-semibold">
-            {`Барааны бүлэг: `} {category.name}
-          </b>
-        </div>
-        <div className="report-print__product-header">
-          <span>Барааны нэр</span>
-          <span>Үнэ * Тоо = Дүн</span>
-        </div>
-
-        {Object.keys(category.products).map((p) =>
-          renderProduct(category.products[p], p, ordersAmounts)
+      <section className="report-print__category" key={key}>
+        <Row
+          label={normalizeText(category.name) || "Бусад"}
+          value={`${formatNum(count)} ш`}
+          className="report-print__category-head"
+        />
+        {products.map((product, index) =>
+          renderProduct(product, `${key}:${index}`, amounts)
         )}
-      </Fragment>
+        <Row
+          label="Дүн"
+          value={formatNum(total)}
+          className="report-print__category-total"
+        />
+      </section>
     )
   }
 
-  const renderUser = (item: any, userId: string) => {
-    const key = item.user?._id || item.user?.email || userId
+  const renderUser = (item: ReportUser, userId: string) => {
+    const amounts = item.ordersAmounts || {}
+    const name =
+      item.user?.details?.fullName || item.user?.email || "Хэрэглэгчгүй"
 
     return (
-      <div key={key} className="block report-print__user">
-        <b className="font-semibold flex-v-center">
-          <span>{`Хэрэглэгч: `}</span>
-          <span>{item.user.email}</span>
-        </b>
-        {renderAmounts(item.ordersAmounts)}
-        {Object.keys(item.items).map((i) =>
-          renderCategory(item.items[i], i, item.ordersAmounts)
+      <div key={userId || "none"} className="report-print__user">
+        <Divider />
+        <Row label="Ажилтан" value={name} className="report-print__person" />
+        {renderPayments(amounts)}
+        {!!Object.keys(item.items || {}).length && (
+          <>
+            <Divider />
+            <div className="report-print__section-title">Борлуулсан бараа</div>
+            {Object.entries(item.items || {}).map(([key, category]) =>
+              renderCategory(category, key, amounts)
+            )}
+          </>
         )}
       </div>
     )
   }
-
-  //   <div className="h-full px-1 mx-4 overflow-auto print:overflow-visible print:mx-0">
 
   return (
     <PrintLayout>
       <div className="flex flex-col print:block">
         <div className="report-print">
-          <header className="block pb-2 border-b border-black/15">
+          <header className="report-print__header">
+            {!!config?.name && (
+              <div className="report-print__brand">{config.name.trim()}</div>
+            )}
             <div className="report-print__title">Өдрийн тайлан</div>
-            <p className="report-print__meta">
-              Хамаарах:{" "}
-              <b className="font-semibold">
-                {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
-                {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
-              </b>
-            </p>
-            <p className="report-print__meta">
-              Хэвлэсэн:{" "}
-              <b className="font-semibold">
-                {format(new Date(), "yyyy.MM.dd HH:mm")}
-              </b>
-            </p>
           </header>
-          {Object.keys(report || {}).map((userId) =>
-            renderUser(report[userId], userId)
+          <div className="report-print__meta">
+            <Row
+              label="Эхлэх"
+              value={format(reportStartDate || new Date(), DATE_FORMAT)}
+            />
+            <Row
+              label="Дуусах"
+              value={format(reportEndDate || new Date(), DATE_FORMAT)}
+            />
+            <Row label="Хэвлэсэн" value={format(new Date(), DATE_FORMAT)} />
+          </div>
+
+          {Object.entries(report).map(([userId, item]) =>
+            renderUser(item, userId)
           )}
-          <footer className="space-y-1 report-print__signature">
-            <label className="font-semibold">Гарын үсэг:</label>
-            <span> _____________________</span>
+
+          <Divider />
+          <footer className="report-print__signatures">
+            <div className="report-print__sign">
+              <span>Хүлээлгэн өгсөн</span>
+              <span className="report-print__sign-line" />
+            </div>
+            <div className="report-print__sign">
+              <span>Хүлээн авсан</span>
+              <span className="report-print__sign-line" />
+            </div>
           </footer>
         </div>
 

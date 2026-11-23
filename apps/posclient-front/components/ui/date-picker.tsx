@@ -18,13 +18,17 @@ export function DatePicker({
   setDate,
   disabled,
   className,
+  placeholder = "Pick a date",
   ...props
 }: CalendarProps & {
   date?: Date
   setDate: (date: Date | undefined) => void
+  placeholder?: string
 }) {
+  const [open, setOpen] = React.useState(false)
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -36,7 +40,7 @@ export function DatePicker({
           disabled={!!disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "yyyy.MM.dd") : <span>Pick a date</span>}
+          {date ? format(date, "yyyy.MM.dd") : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
@@ -45,7 +49,10 @@ export function DatePicker({
           disabled={disabled}
           mode="single"
           selected={date}
-          onSelect={(date) => setDate(date)}
+          onSelect={(next) => {
+            setDate(next)
+            setOpen(false)
+          }}
           initialFocus
         />
       </PopoverContent>

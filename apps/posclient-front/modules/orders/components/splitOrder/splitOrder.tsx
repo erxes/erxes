@@ -7,7 +7,8 @@ const SplitOrder = () => {
   const { disabled, loading, splitOrder } = useSplitOrder()
   return (
     <Button
-      className="bg-amber-500 hover:bg-amber-600 whitespace-nowrap font-bold px-3 mr-2"
+      variant="outline"
+      className="h-11 whitespace-nowrap rounded-xl px-4 font-semibold"
       disabled={disabled || loading}
       onClick={splitOrder}
     >

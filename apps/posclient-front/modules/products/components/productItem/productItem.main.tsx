@@ -4,9 +4,12 @@ import { isSimilarityModeAtom, mobileTabAtom, modeAtom } from "@/store"
 import { addToCartAtom } from "@/store/cart.store"
 import { isShowRemainderAtom } from "@/store/config.store"
 import { useAtomValue, useSetAtom } from "jotai"
+import { PlusIcon } from "lucide-react"
 
 import { IProduct } from "@/types/product.types"
 import { cn, formatNum } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   HoverCard,
@@ -15,20 +18,21 @@ import {
 } from "@/components/ui/hover-card"
 import Image from "@/components/ui/image"
 import { ToastAction } from "@/components/ui/toast"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { toast } from "@/components/ui/use-toast"
 
 const ChooseBulkSimilarity = dynamic(
   () => import("../ChooseFromBulkSimilarity"),
   {
-    loading: () => <div style={{ height: "350px" }}></div>,
+    loading: () => (
+      <div role="status" className="p-8 text-center">
+        Уншиж байна…
+      </div>
+    ),
   }
 )
+
+const remainderClass =
+  "rounded border bg-muted px-1 text-[11px] font-medium tabular-nums text-muted-foreground"
 
 const ProductItem = (props: IProduct) => {
   const {
@@ -49,74 +53,87 @@ const ProductItem = (props: IProduct) => {
   const isSimilarityMode = useAtomValue(isSimilarityModeAtom)
   const hasSimilarity = isSimilarityMode && props.hasSimilarity
 
+  const handleAdd = () => {
+    if (hasSimilarity) {
+      setOpen(true)
+      return
+    }
+    addToCart(props)
+    mode === "mobile" &&
+      toast({
+        variant: "default",
+        description: `${name} сагсанд нэмэгдлээ`,
+        action: (
+          <ToastAction altText="Goto cart" onClick={() => setTab("checkout")}>
+            Сагс руу очих
+          </ToastAction>
+        ),
+      })
+  }
+
   return (
     <>
-      <div
+      <Card
         className={cn(
-          "group relative flex cursor-pointer select-none flex-col rounded-2xl bg-background p-2.5 text-left shadow-xs transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.98]",
-          isShowRemainder && isCheckRem && remainder === 0 && "opacity-70"
+          "group relative isolate flex min-w-0 flex-col overflow-hidden rounded-lg bg-background p-1 text-left shadow-sm transition-shadow hover:shadow-lg focus-within:shadow-focus",
+          isShowRemainder && isCheckRem && remainder === 0 && "opacity-60"
         )}
-        onClick={() => {
-          if (hasSimilarity) {
-            setOpen(true)
-            return
-          }
-          addToCart(props)
-          mode === "mobile" &&
-            toast({
-              variant: "default",
-              description: `${name} сагсанд нэмэгдлээ`,
-              action: (
-                <ToastAction
-                  altText="Goto cart"
-                  onClick={() => setTab("checkout")}
-                >
-                  Сагс руу очих
-                </ToastAction>
-              ),
-            })
-        }}
       >
-        <div className="relative mb-2.5 flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-muted/70">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-muted">
           <Image
-            src={(attachment || {}).url || ""}
+            src={attachment?.url || ""}
             alt=""
-            width={200}
-            height={100}
-            className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+            width={320}
+            height={256}
+            className={cn(
+              "size-full",
+              attachment?.url
+                ? "object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                : "object-contain p-8 text-muted-foreground/40"
+            )}
           />
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="mb-1.5 line-clamp-2 h-9 px-0.5 text-[13px] font-medium leading-[18px] text-foreground">
-                <span className="text-muted-foreground">{code}</span>
-                {` - ${name}`}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <div>{`${code} - ${name}`}</div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <div className="mt-auto flex items-center justify-between gap-2 px-0.5 text-left">
-          <p className="text-base font-bold tracking-tight">
-            {formatNum(unitPrice)}₮{" "}
-            {isShowRemainder && typeof remainder === "number" &&
+        <CardContent className="flex min-w-0 flex-col gap-1.5 px-2 pb-1 pt-2">
+          <div
+            title={name}
+            className="line-clamp-2 min-h-8 text-[13px] font-medium leading-4"
+          >
+            {name}
+          </div>
+          {code && (
+            <span className="w-fit max-w-full truncate rounded border bg-muted px-1.5 py-px font-mono text-[11px] text-muted-foreground">
+              {code}
+            </span>
+          )}
+        </CardContent>
+        <CardFooter className="mt-auto items-center justify-between gap-2 px-2 pb-1 pt-1">
+          <div className="flex min-w-0 items-baseline gap-1.5">
+            <span className="truncate text-sm font-semibold tabular-nums">
+              {formatNum(unitPrice)}
+              <span className="ml-0.5 text-xs font-normal text-muted-foreground">
+                ₮
+              </span>
+            </span>
+            {isShowRemainder &&
+              typeof remainder === "number" &&
               (remainders && remainders?.length > 1 ? (
                 <HoverCard>
-                  <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>
-                  <HoverCardContent className="w-48">
-                    <div className="flex flex-col border border-b-0">
+                  <HoverCardTrigger
+                    className={cn(remainderClass, "relative z-10")}
+                  >
+                    {remainder}
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-48 p-1">
+                    <div className="flex flex-col divide-y text-xs">
                       {remainders?.map(({ location, remainder }) => (
                         <div
                           key={location}
-                          className="flex items-center border-b font-semibold"
+                          className="flex items-center justify-between gap-2 px-2 py-1.5"
                         >
-                          <span className="flex-1 border-r p-1 text-left text-muted-foreground">
+                          <span className="truncate text-muted-foreground">
                             {location}
                           </span>
-                          <span className="flex-1 p-1 text-right ">
+                          <span className="font-medium tabular-nums">
                             {remainder}
                           </span>
                         </div>
@@ -125,16 +142,24 @@ const ProductItem = (props: IProduct) => {
                   </HoverCardContent>
                 </HoverCard>
               ) : (
-                <span>{`/ ${remainder}/`}</span>
+                <span className={remainderClass}>{remainder}</span>
               ))}
-          </p>
-          {hasSimilarity && (
-            <span className="shrink-0 whitespace-nowrap rounded-full cursor-pointer bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              Сонгох...
-            </span>
-          )}
-        </div>
-      </div>
+          </div>
+          <span
+            aria-hidden="true"
+            className="inline-flex h-7 min-w-7 flex-none items-center justify-center rounded bg-accent px-1.5 text-xs font-medium text-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
+          >
+            {hasSimilarity ? "Сонгох" : <PlusIcon className="size-4" />}
+          </span>
+        </CardFooter>
+        <Button
+          type="button"
+          variant="ghost"
+          aria-label={`${name} — ${hasSimilarity ? "Хувилбар сонгох" : "Сагсанд нэмэх"}`}
+          onClick={handleAdd}
+          className="absolute inset-0 size-full rounded-lg p-0 hover:bg-transparent focus-visible:outline-hidden"
+        />
+      </Card>
       {hasSimilarity && (
         <Dialog open={open} onOpenChange={() => setOpen(false)}>
           <DialogContent>

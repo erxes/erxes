@@ -6,9 +6,11 @@ const ProductCount = () => {
   if (!count) {
     return null
   }
-  return <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary">
+  return (
+    <span className="rounded-sm bg-accent px-1.5 text-xs font-medium tabular-nums text-muted-foreground">
       {count}
     </span>
+  )
 }
 
 export default ProductCount

@@ -9,12 +9,14 @@ import {
 } from "@/store/order.store"
 import { ebarimtSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { PrinterIcon } from "lucide-react"
 
 import useReciept from "@/lib/useReciept"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -52,28 +54,28 @@ const EbarimtMain = () => {
     <Dialog open={openDialog} onOpenChange={() => setOpenDialog(!openDialog)}>
       <DialogTrigger asChild>
         <Button
-          className="font-bold bg-green-500 hover:bg-green-400"
+          className="h-11 w-full rounded-xl font-semibold"
           size="lg"
           disabled={disabled}
         >
           Баримт хэвлэх
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="max-w-md gap-5 rounded-2xl">
+        <DialogHeader className="space-y-1">
           <DialogTitle>Төлбөрийн баримт авах</DialogTitle>
+          <DialogDescription>Баримтын төрлөө сонгоно уу</DialogDescription>
         </DialogHeader>
-        <div className="space-y-3 h-36 min-h-fit">
-          <BillType />
-        </div>
+        <BillType />
         <DialogFooter>
           <Button
             type="submit"
             disabled={disabled}
             onClick={printBill}
             loading={loading}
-            className="font-semibold"
+            className="h-11 w-full gap-1.5 rounded-xl font-semibold"
           >
+            {!loading && <PrinterIcon className="h-4 w-4" />}
             Баримт хэвлэх
           </Button>
         </DialogFooter>

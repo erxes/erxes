@@ -2,12 +2,19 @@ import { useCallback, useMemo } from "react"
 import { activeCategoryAtom, activeCatName, hiddenParentsAtom } from "@/store"
 import { motion } from "framer-motion"
 import { useAtom, useSetAtom } from "jotai"
-import { Minus, Plus } from "lucide-react"
+import {
+  ChevronRightIcon,
+  FolderIcon,
+  LayoutGridIcon,
+  XIcon,
+} from "lucide-react"
 
 import { ICategory } from "@/types/product.types"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { SheetClose, SheetTitle } from "@/components/ui/sheet"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import useProductCategories from "../hooks/useProductCategories"
 
@@ -45,6 +52,12 @@ const CategoriesSheetNew = ({
     [categories]
   )
 
+  const clearCat = () => {
+    setActiveCat("")
+    setCatName("")
+    setOpen(false)
+  }
+
   const chooseCat = (_id: string) => {
     setActiveCat(activeCat === _id ? "" : _id)
     setCatName(getCategoryByField(_id, "_id")?.name || "")
@@ -52,16 +65,6 @@ const CategoriesSheetNew = ({
   }
 
   const shortestLength = sortedCategories[0]?.order?.split("/").length
-
-  const renderP = useCallback(
-    (length: number) =>
-      Array.from({ length: length - shortestLength }, (e, i) => (
-        <div key={i} className="px-3 h-7">
-          <p className="border-l h-7" />
-        </div>
-      )),
-    [shortestLength]
-  )
 
   const handleChangeView = useCallback(
     (cat: ICategory) => {
@@ -115,46 +118,118 @@ const CategoriesSheetNew = ({
     [hiddenParents]
   )
 
-  if (loading) return <>loading..</>
+  const rowClass =
+    "flex h-9 w-full min-w-0 items-center gap-2 rounded-lg pr-2 text-left text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:shadow-focus"
 
-  return (
-    <ScrollArea className="overflow-hidden">
-      {categories.map((cat) => (
+  const renderList = () => {
+    if (loading) {
+      return (
+        <div className="space-y-2 px-1 py-1">
+          {Array.from({ length: 8 }, (_, i) => (
+            <Skeleton key={i} className="h-7 w-full rounded-lg" />
+          ))}
+        </div>
+      )
+    }
+
+    if (!categories.length) {
+      return (
+        <div className="flex flex-col items-center gap-2 px-6 py-16 text-center text-sm text-muted-foreground">
+          <FolderIcon className="h-6 w-6" />
+          Ангилал бүртгэгдээгүй байна
+        </div>
+      )
+    }
+
+    return categories.map((cat) => {
+      const depth = cat.order.split("/").length - shortestLength
+      const hasChildren = checkHasChildren(cat.order)
+      const isActive = activeCat === cat._id
+      const hidden = checkIsHidden(cat.order)
+
+      return (
         <motion.div
-          className={cn("flex items-center overflow-hidden")}
+          className="overflow-hidden"
           key={cat._id}
+          initial={false}
           animate={{
-            height: checkIsHidden(cat.order) ? 0 : "auto",
-            opacity: checkIsHidden(cat.order) ? 0 : 1,
+            height: hidden ? 0 : "auto",
+            opacity: hidden ? 0 : 1,
           }}
         >
-          {renderP(cat.order.split("/").length)}
-          {checkHasChildren(cat.order) ? (
-            <Button
-              className="h-6 w-6 p-0"
-              variant="outline"
-              onClick={() => handleChangeView(cat)}
-            >
-              {isHiddenChild(cat.order) ? (
-                <Plus className="h-4 w-4" strokeWidth={1.7} />
-              ) : (
-                <Minus className="h-4 w-4" strokeWidth={1.7} />
-              )}
-            </Button>
-          ) : (
-            <div className="h-7 w-0" />
-          )}
-          <Button
-            variant={activeCat === cat._id ? "default" : "ghost"}
-            size="sm"
-            className="h-7 px-2"
-            onClick={() => chooseCat(cat._id)}
+          <div
+            className={cn(
+              rowClass,
+
+              isActive &&
+                "bg-primary/10 font-semibold text-primary hover:bg-primary/10"
+            )}
+            style={{ paddingLeft: depth * 16 + 4 }}
           >
-            {cat.name}
-          </Button>
+            {hasChildren ? (
+              <button
+                type="button"
+                aria-label={isHiddenChild(cat.order) ? "Дэлгэх" : "Хураах"}
+                className="flex h-6 w-6 flex-none items-center justify-center rounded-md text-muted-foreground hover:bg-background hover:text-foreground"
+                onClick={() => handleChangeView(cat)}
+              >
+                <ChevronRightIcon
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    !isHiddenChild(cat.order) && "rotate-90"
+                  )}
+                />
+              </button>
+            ) : (
+              <span className="w-6 flex-none" />
+            )}
+            <button
+              type="button"
+              className="h-full min-w-0 flex-auto truncate text-left"
+              onClick={() => chooseCat(cat._id)}
+            >
+              {cat.name}
+            </button>
+          </div>
         </motion.div>
-      ))}
-    </ScrollArea>
+      )
+    })
+  }
+
+  return (
+    <>
+      <div className="flex h-14 flex-none items-center justify-between border-b px-4">
+        <SheetTitle className="text-base font-semibold">Ангилал</SheetTitle>
+        <SheetClose asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            aria-label="Хаах"
+          >
+            <XIcon className="h-4 w-4" />
+          </Button>
+        </SheetClose>
+      </div>
+      <div className="flex-none border-b p-2">
+        <button
+          type="button"
+          className={cn(
+            rowClass,
+            "pl-2",
+            !activeCat &&
+              "bg-primary/10 font-semibold text-primary hover:bg-primary/10"
+          )}
+          onClick={clearCat}
+        >
+          <LayoutGridIcon className="h-4 w-4 flex-none" />
+          Бүх бараа
+        </button>
+      </div>
+      <ScrollArea className="min-h-0 flex-auto">
+        <div className="space-y-0.5 p-2">{renderList()}</div>
+      </ScrollArea>
+    </>
   )
 }
 

@@ -1,19 +1,18 @@
 import {
-  calcAmountsAtom,
-  currentAmountsAtom,
-  terminalResultsAtom,
   coverStatusAtom,
-  terminalFetchBusyAtom,
   coverValidationAttemptedAtom,
+  terminalFetchBusyAtom,
+  terminalResultsAtom,
 } from "@/store/cover.store"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { DownloadCloudIcon } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+
+import { CoverBlock } from "./cover-ui"
 
 export const BankAmountUi = ({
   name,
@@ -36,83 +35,62 @@ export const BankAmountUi = ({
     attempted && !results.some((result) => !!result.response?.trim())
   const descriptionId = `cover-terminal-description-${type}`
   const disabled = busy || status === "confirm" || status === "confirming"
-  const [calcAmounts] = useAtom(calcAmountsAtom)
-  const [currentAmounts, setCurrentAmounts] = useAtom(currentAmountsAtom)
-  const calcAmount = (calcAmounts || {})[type] || 0
-  const currentAmount = (currentAmounts || {})[type] || 0
   return (
-    <Card>
-      <div className="flex flex-row items-center justify-between p-4 pt-3">
-        <CardTitle>{name}</CardTitle>
+    <CoverBlock
+      title={name}
+      description="Терминалын өдрийн хаалт"
+      action={
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
+          className="h-7 gap-1.5 rounded px-2.5 text-[13px] font-medium"
           loading={loading}
           onClick={getCover}
           disabled={disabled || !getCover}
         >
-          {!loading && (
-            <DownloadCloudIcon className="mr-0.5 h-5 w-5 -translate-x-0.5" />
-          )}
-          Терминалаас хаалт татах
+          {!loading && <DownloadCloudIcon className="h-4 w-4" />}
+          Терминалаас татах
         </Button>
-      </div>
-      <CardContent>
-        <div className="flex items-center space-x-2 pb-2">
-          <div className="w-1/3 space-y-1">
-            <Label>Систем дүн</Label>
-            <Input disabled value={(calcAmounts || {})[type] || 0} />
-          </div>
-          <div className="w-1/3 space-y-1">
-            <Label>Зөрүү</Label>
-            <Input disabled value={calcAmount - currentAmount} type="number" />
-          </div>
-          <div className="w-1/3 space-y-1">
-            <Label>Бүгд</Label>
-            <Input
-              value={currentAmount}
-              disabled={disabled}
-              onChange={(e) =>
-                setCurrentAmounts({
-                  ...currentAmounts,
-                  [type]:
-                    Number(e.target.value) > 0 ? Number(e.target.value) : 0,
-                })
-              }
-              type="number"
-            />
-          </div>
-        </div>
-        <div className="w-full space-y-1">
-          <Label htmlFor={descriptionId}>Tэмдэглэл *</Label>
-          <Textarea
-            id={descriptionId}
-            aria-required="true"
-            aria-invalid={invalid}
-            aria-describedby={invalid ? `${descriptionId}-error` : undefined}
-            className={invalid ? "border-destructive" : undefined}
-            value={results
-              .map(
-                (entry) =>
-                  `${entry.createdAt}\n${
-                    entry.response ?? "Хариу хүлээгдэж байна"
-                  }`
-              )
-              .join("\n\n")}
-            readOnly
-            rows={6}
-          />
-          {invalid && (
-            <p
-              id={`${descriptionId}-error`}
-              role="alert"
-              className="text-sm font-medium text-destructive"
-            >
-              Терминалаас хаалт татаж, тэмдэглэлийг бөглөнө үү.
-            </p>
+      }
+    >
+      <div className="space-y-1.5">
+        <Label
+          htmlFor={descriptionId}
+          className="block text-xs text-muted-foreground"
+        >
+          Терминалын тэмдэглэл <span className="text-destructive">*</span>
+        </Label>
+        <Textarea
+          id={descriptionId}
+          aria-required="true"
+          aria-invalid={invalid}
+          aria-describedby={invalid ? `${descriptionId}-error` : undefined}
+          className={cn(
+            "min-h-24 rounded-sm border-0 bg-muted/60 font-mono text-xs shadow-none",
+            invalid && "shadow-focus-destructive"
           )}
-        </div>
-      </CardContent>
-    </Card>
+          placeholder="Терминалаас хаалт татахад хариу энд харагдана"
+          value={results
+            .map(
+              (entry) =>
+                `${entry.createdAt}\n${
+                  entry.response ?? "Хариу хүлээгдэж байна"
+                }`
+            )
+            .join("\n\n")}
+          readOnly
+          rows={5}
+        />
+        {invalid && (
+          <p
+            id={`${descriptionId}-error`}
+            role="alert"
+            className="text-xs font-medium text-destructive"
+          >
+            Терминалаас хаалт татаж, тэмдэглэлийг бөглөнө үү.
+          </p>
+        )}
+      </div>
+    </CoverBlock>
   )
 }

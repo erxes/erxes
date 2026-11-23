@@ -13,17 +13,15 @@ const SyncOrders = () => {
       const { syncOrders } = data
       if (syncOrders) {
         if (syncOrders.sumCount > syncOrders.syncedCount) {
-          return toast({
-            description: `${
-              syncOrders.syncedCount
-            } order has been synced successfully. But less count ${
+          return onError(
+            `${syncOrders.syncedCount} захиалга илгээгдлээ, ${
               syncOrders.sumCount - syncOrders.syncedCount
-            }`,
-          })
+            } илгээгдээгүй`
+          )
         }
-        return onError(
-          `${syncOrders.syncedCount} order has been synced successfully`
-        )
+        return toast({
+          description: `${syncOrders.syncedCount} захиалга амжилттай илгээгдлээ`,
+        })
       }
     },
     onError(error) {
@@ -35,7 +33,7 @@ const SyncOrders = () => {
 
   return (
     <SettingsButton loading={loading} onClick={handleClick}>
-      Resync order
+      Захиалга илгээх
     </SettingsButton>
   )
 }

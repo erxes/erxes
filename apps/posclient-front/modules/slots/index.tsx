@@ -21,12 +21,11 @@ const Slots = () => {
   }
 
   return (
-    <div className="w-full overflow-auto shadow-inner p-2 relative">
+    <div className="relative mb-16 w-full flex-auto overflow-auto rounded-2xl border bg-background p-2 shadow-xs">
       <div
         className="relative min-h-[1000px] min-w-[1000px] w-full h-full"
         style={{
-          background: "white",
-          backgroundImage: `radial-gradient(#d4d4d4 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(hsl(var(--border)) 1px, transparent 0)`,
           backgroundSize: "10px 10px",
           backgroundPosition: "-5px -5px",
         }}

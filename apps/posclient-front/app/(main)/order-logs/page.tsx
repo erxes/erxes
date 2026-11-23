@@ -1,1 +1,1 @@
-export { OrderAuditPage as default } from "@/modules/orders/components/OrderAuditPage"
+export { OrderLogsPage as default } from "@/modules/orders/components/order-logs/OrderLogsPage"

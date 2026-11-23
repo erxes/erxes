@@ -1,0 +1,34 @@
+
+import { RENAMED_FIXED_DATES } from "../constants/dateTypes"
+
+const QUARTER_TOKEN = /^(\d{4})-quarter-([1-4])$/
+const HALF_TOKEN = /^(\d{4})-half-([1-2])$/
+
+export const YEAR_TOKEN = /^\d{4}-y$/
+
+export const normalizeFixedDate = (value: string): string =>
+  Object.prototype.hasOwnProperty.call(RENAMED_FIXED_DATES, value)
+    ? RENAMED_FIXED_DATES[value]
+    : value
+
+export const parseQuarterToken = (
+  value: string
+): { year: number; quarter: number } | null => {
+  const match = QUARTER_TOKEN.exec(value)
+  if (!match) return null
+  return {
+    year: Number.parseInt(match[1], 10),
+    quarter: Number.parseInt(match[2], 10),
+  }
+}
+
+export const parseHalfToken = (
+  value: string
+): { year: number; half: number } | null => {
+  const match = HALF_TOKEN.exec(value)
+  if (!match) return null
+  return {
+    year: Number.parseInt(match[1], 10),
+    half: Number.parseInt(match[2], 10),
+  }
+}

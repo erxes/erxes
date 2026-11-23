@@ -11,7 +11,7 @@ import {
 } from "./dropdown-menu"
 
 const optionVariants = cva(
-  "rounded-none shadow-none first:rounded-s-xl last:rounded-e-xl focus-visible:z-10 flex-none px-0",
+  "rounded-none shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 flex-none px-0",
   {
     variants: {
       size: {
@@ -45,7 +45,7 @@ export default function SplitButton({
     >
       <Button
         className={cn(
-          "rounded-none shadow-none first:rounded-s-xl last:rounded-e-xl focus-visible:z-10 flex-auto px-0",
+          "rounded-none shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 flex-auto px-0",
           size === "lg" && "h-12"
         )}
         size={size}

@@ -61,8 +61,9 @@ const BuyAction = () => {
   return (
     <>
       <SplitButton
-        size="lg"
-        className="rounded-xl"
+        size="sm"
+        variant="outline"
+        className="h-8 divide-border rounded bg-background shadow-xs [&>button]:h-8 [&>button]:border-0 [&>button]:bg-transparent [&>button]:text-[13px] [&>button]:font-medium [&>button]:shadow-none [&>button:last-child]:w-8"
         onClick={() => {
           setButtonType("order")
           setTimeout(orderCU)
@@ -99,7 +100,7 @@ const BuyAction = () => {
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"
-            className="h-12 flex-auto rounded-xl bg-emerald-600 text-base hover:bg-emerald-600/90"
+            className="h-9 flex-auto rounded-md text-sm font-semibold"
             loading={loading && buttonType === "pay"}
             disabled={disabled}
             onClick={() => {

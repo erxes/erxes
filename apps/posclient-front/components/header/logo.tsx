@@ -18,7 +18,7 @@ const Logo = () => {
   return (
     <div className="mx-1 block flex-none">
       <div
-        className="flex h-9 cursor-pointer items-center rounded-lg px-2 text-foreground transition-colors hover:bg-accent"
+        className="flex h-8 cursor-pointer items-center rounded-md px-1.5 text-foreground transition-colors hover:bg-accent"
         onClick={() => (pathname === "/" ? reset() : router.push("/"))}
       >
         <Image
@@ -27,7 +27,7 @@ const Logo = () => {
           fallBack="/logo-dark.png"
           height={24}
           width={48}
-          className="h-7 w-auto min-w-[4.5rem] object-contain"
+          className="h-6 w-auto min-w-[4.5rem] object-contain"
           priority
         />
       </div>

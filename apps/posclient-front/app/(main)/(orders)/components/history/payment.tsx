@@ -1,3 +1,4 @@
+import { PanelField, PanelSection } from "@/modules/record-side-panel"
 import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 import {
@@ -6,8 +7,6 @@ import {
   SmartphoneIcon,
   WalletIcon,
 } from "lucide-react"
-
-import { PanelField, PanelSection } from "./panel"
 
 const formatAmount = (amount?: number | string) =>
   `${Number(amount || 0).toLocaleString()}₮`
@@ -31,9 +30,9 @@ const Payment = ({
   const paymentTypes = useAtomValue(paymentTypesAtom)
 
   return (
-    <PanelSection title="Төлбөр">
+    <PanelSection title="Төлбөр" nested>
       <PanelField icon={WalletIcon} label="Нийт дүн">
-        <span className="text-[13px] font-semibold tabular-nums">
+        <span className="font-semibold tabular-nums">
           {formatAmount(totalAmount)}
         </span>
       </PanelField>

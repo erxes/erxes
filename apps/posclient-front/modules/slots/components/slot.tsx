@@ -22,13 +22,16 @@ import SlotActions from "./slotActions"
 const MotionLabel = motion(Label)
 
 export const slotVariants = cva(
-  "absolute flex items-center font-medium justify-center",
+  "absolute flex items-center justify-center border text-sm font-semibold transition-colors",
   {
     variants: {
       status: {
-        serving: "bg-blue-300 hover:bg-blue-200",
-        available: "bg-green-300 hover:bg-green-200",
-        reserved: "bg-orange-200 hover:bg-orange-200",
+        serving:
+          "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        available:
+          "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15",
+        reserved:
+          "border-dashed border-primary/60 bg-background text-primary hover:bg-primary/5",
       },
     },
     defaultVariants: {

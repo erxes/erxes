@@ -1,7 +1,8 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Command as CommandPrimitive } from "cmdk"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -10,6 +11,7 @@ import {
   XIcon,
 } from "lucide-react"
 
+import { useRemoveQueryStateByKey } from "@/lib/useQueryState"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { CommandItem } from "@/components/ui/command"
@@ -35,45 +37,27 @@ import {
 } from "@/components/ui/tooltip"
 
 import {
-  DateFilterCommand,
-  DateRangeDialogContent,
-  getDisplayValue,
-} from "./date-filter"
+  filterDialogButtonClass,
+  filterDialogClass,
+  filterDialogOverlayClass,
+  filterInputClass,
+  filterItemClass,
+} from "../constants/filterClassNames"
+import { FilterContext } from "../context/FilterContext"
+import { DateFilterCommand } from "../date-filter/components/DateFilterCommand"
+import { FilterDialogDateView } from "../date-filter/components/DialogDateView"
+import { getDisplayValue } from "../date-filter/utils/getDisplayValue"
+import { useFilterContext } from "../hooks/useFilterContext"
+import { useFilterQueryState } from "../hooks/useFilterQueryState"
+import {
+  filterDialogViewState,
+  filterPageState,
+  filterPopoverViewState,
+  openDialogState,
+  openPopoverState,
+} from "../states/filterStates"
 
-export type FilterValue = string | string[] | null
-
-type FilterContextValue = {
-  values: Record<string, FilterValue>
-  setValue: (key: string, value: FilterValue) => void
-  open: boolean
-  setOpen: (open: boolean) => void
-  view: string
-  setView: (view: string) => void
-  dialogView: string
-  setDialogView: (view: string) => void
-  openDialog: boolean
-  setOpenDialog: (open: boolean) => void
-  resetFilterState: () => void
-}
-
-const FilterContext = createContext<FilterContextValue | null>(null)
-
-export const useFilterContext = () => {
-  const context = useContext(FilterContext)
-  if (!context) throw new Error("useFilterContext must be used within Filter")
-  return context
-}
-
-export const useFilterValue = (key: string) => {
-  const { values, setValue } = useFilterContext()
-  return [
-    values[key] ?? null,
-    (value: FilterValue) => setValue(key, value),
-  ] as const
-}
-
-const isEmptyValue = (value: FilterValue) =>
-  value === null || (Array.isArray(value) && !value.length) || value === ""
+const FILTER_LABEL = "Шүүлтүүр"
 
 const isEditableTarget = (target: EventTarget | null) =>
   target instanceof HTMLElement &&
@@ -82,17 +66,17 @@ const isEditableTarget = (target: EventTarget | null) =>
 
 const FilterProvider = ({
   children,
-  values,
-  onValueChange,
+  id,
+  sessionKey,
 }: {
   children: React.ReactNode
-  values: Record<string, FilterValue>
-  onValueChange: (key: string, value: FilterValue) => void
+  id: string
+  sessionKey?: string
 }) => {
-  const [open, setOpen] = useState(false)
-  const [view, setView] = useState("root")
-  const [dialogView, setDialogView] = useState("root")
-  const [openDialog, setOpenDialog] = useState(false)
+  const setOpen = useSetAtom(openPopoverState(id))
+  const setView = useSetAtom(filterPopoverViewState(id))
+  const setDialogView = useSetAtom(filterDialogViewState(id))
+  const setOpenDialog = useSetAtom(openDialogState(id))
 
   const resetFilterState = () => {
     setOpen(false)
@@ -104,18 +88,13 @@ const FilterProvider = ({
   return (
     <FilterContext.Provider
       value={{
-        values,
-        setValue: (key, value) =>
-          onValueChange(key, isEmptyValue(value) ? null : value),
-        open,
-        setOpen,
-        view,
-        setView,
-        dialogView,
-        setDialogView,
-        openDialog,
-        setOpenDialog,
+        id,
+        sessionKey,
         resetFilterState,
+        setOpen,
+        setView,
+        setDialogView,
+        setOpenDialog,
       }}
     >
       {children}
@@ -125,7 +104,9 @@ const FilterProvider = ({
 
 const FilterTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof Button> & { isFiltered?: boolean }
+  React.ComponentPropsWithoutRef<typeof Button> & {
+    isFiltered?: boolean
+  }
 >(({ isFiltered, className, ...props }, ref) => (
   <TooltipProvider>
     <Tooltip delayDuration={0}>
@@ -135,6 +116,7 @@ const FilterTrigger = React.forwardRef<
             ref={ref}
             type="button"
             variant="ghost"
+            aria-label={FILTER_LABEL}
             className={cn(
               "h-7 gap-2 rounded text-[13px] font-medium",
               isFiltered ? "-ml-1.5 w-7 px-0" : "-ml-2 px-2",
@@ -142,19 +124,21 @@ const FilterTrigger = React.forwardRef<
             )}
             {...props}
           >
-            <ListFilterIcon className="h-4 w-4" />
-            {!isFiltered && "Шүүлтүүр"}
+            <ListFilterIcon className="size-4" />
+            {!isFiltered && FILTER_LABEL}
           </Button>
         </PopoverTrigger>
       </TooltipTrigger>
-      <TooltipContent>Шүүлтүүр</TooltipContent>
+      <TooltipContent>{FILTER_LABEL}</TooltipContent>
     </Tooltip>
   </TooltipProvider>
 ))
 FilterTrigger.displayName = "FilterTrigger"
 
 const FilterPopover = ({ children }: { children: React.ReactNode }) => {
-  const { open, setOpen, setView } = useFilterContext()
+  const { id } = useFilterContext()
+  const [open, setOpen] = useAtom(openPopoverState(id))
+  const setView = useSetAtom(filterPopoverViewState(id))
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -178,9 +162,9 @@ const FilterPopover = ({ children }: { children: React.ReactNode }) => {
   return (
     <Popover
       open={open}
-      onOpenChange={(next) => {
-        setOpen(next)
-        if (next) setView("root")
+      onOpenChange={(op) => {
+        setOpen(op)
+        if (op) setView("root")
       }}
     >
       {children}
@@ -196,43 +180,14 @@ const FilterContent = React.forwardRef<
     ref={ref}
     align="start"
     sideOffset={8}
+    {...props}
     className={cn(
-      "w-(--radix-popper-anchor-width) min-w-72 max-w-96 p-0",
+      "w-(--radix-popper-anchor-width) min-w-72 max-w-96 overflow-hidden rounded-md bg-background p-0",
       className
     )}
-    {...props}
   />
 ))
 FilterContent.displayName = "FilterContent"
-
-const FilterCommandInput = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
-    hotkey?: boolean
-  }
->(({ className, hotkey, ...props }, ref) => (
-  <div className="relative flex items-center border-b bg-background">
-    <CommandPrimitive.Input
-      ref={ref}
-      autoFocus
-      className={cn(
-        "flex h-8 w-full rounded-md bg-transparent px-3 text-[13px] font-medium outline-hidden placeholder:text-muted-foreground/70",
-        hotkey && "pr-8",
-        className
-      )}
-      {...props}
-    />
-    {hotkey && (
-      <Kbd className="absolute right-2 top-1/2 h-5 min-w-5 -translate-y-1/2 border border-foreground/20 bg-foreground/10 font-sans text-xs text-foreground/70 shadow-none">
-        F
-      </Kbd>
-    )}
-  </div>
-))
-FilterCommandInput.displayName = "FilterCommandInput"
-
-export const filterItemClass =
-  "h-8 gap-2 rounded-sm px-2 text-[13px] font-medium text-foreground [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0"
 
 const FilterItem = React.forwardRef<
   React.ComponentRef<typeof CommandItem>,
@@ -242,23 +197,29 @@ const FilterItem = React.forwardRef<
     inDialog?: boolean
     active?: boolean
   }
->(({ children, value, label, inDialog, active, className, ...props }, ref) => {
+>(({ children, value, label, inDialog, className, active, ...props }, ref) => {
   const { setDialogView, setOpenDialog, setOpen, setView } = useFilterContext()
+
+  const onSelect = () => {
+    if (inDialog) {
+      setDialogView(value)
+      setOpenDialog(true)
+      setOpen(false)
+    } else {
+      setView(value)
+    }
+  }
 
   return (
     <CommandItem
-      ref={ref}
       value={label || value}
-      onSelect={() => {
-        if (inDialog) {
-          setDialogView(value)
-          setOpenDialog(true)
-          setOpen(false)
-          return
-        }
-        setView(value)
-      }}
-      className={cn(filterItemClass, active && "text-primary", className)}
+      onSelect={onSelect}
+      ref={ref}
+      className={cn(
+        filterItemClass,
+        active && "text-primary aria-selected:text-primary",
+        className
+      )}
       {...props}
     >
       {children}
@@ -274,14 +235,16 @@ const FilterCommandItem = React.forwardRef<
 >(({ className, onSelect, ...props }, ref) => {
   const { setOpen } = useFilterContext()
 
+  const handleSelect = (value: string) => {
+    setOpen(false)
+    onSelect?.(value)
+  }
+
   return (
     <CommandItem
       ref={ref}
       className={cn(filterItemClass, className)}
-      onSelect={(value) => {
-        setOpen(false)
-        onSelect?.(value)
-      }}
+      onSelect={handleSelect}
       {...props}
     />
   )
@@ -297,13 +260,13 @@ const FilterBackButton = () => {
       onClick={() => setView("root")}
       className="flex h-8 w-full items-center gap-1 border-b px-2 text-[13px] text-muted-foreground hover:text-foreground"
     >
-      <ChevronLeftIcon className="h-4 w-4" />
+      <ChevronLeftIcon className="size-4" />
       Буцах
     </button>
   )
 }
 
-const FilterViewNesting = createContext(false)
+const FilterViewNesting = React.createContext(false)
 
 const FilterView = ({
   children,
@@ -314,12 +277,18 @@ const FilterView = ({
   filterKey?: string
   inDialog?: boolean
 }) => {
-  const { view, dialogView } = useFilterContext()
-  const isNested = useContext(FilterViewNesting)
+  const { id } = useFilterContext()
+  const view = useAtomValue(filterPopoverViewState(id))
+  const dialogView = useAtomValue(filterDialogViewState(id))
+  const isNested = React.useContext(FilterViewNesting)
 
-  if (inDialog ? dialogView !== filterKey : view !== filterKey) return null
+  if (inDialog ? dialogView !== filterKey : view !== filterKey) {
+    return null
+  }
 
-  if (inDialog || filterKey === "root" || isNested) return <>{children}</>
+  if (inDialog || filterKey === "root" || isNested) {
+    return <>{children}</>
+  }
 
   return (
     <FilterViewNesting.Provider value={true}>
@@ -330,125 +299,19 @@ const FilterView = ({
 }
 
 const FilterDialog = ({ children }: { children: React.ReactNode }) => {
-  const { openDialog, setOpenDialog, resetFilterState } = useFilterContext()
+  const { id, setOpenDialog, resetFilterState } = useFilterContext()
+  const openDialog = useAtomValue(openDialogState(id))
 
   return (
     <Dialog
       open={openDialog}
-      onOpenChange={(next) => {
-        setOpenDialog(next)
-        if (!next) resetFilterState()
+      onOpenChange={(open) => {
+        setOpenDialog(open)
+        if (!open) resetFilterState()
       }}
     >
       {children}
     </Dialog>
-  )
-}
-
-const FilterDialogStringView = ({
-  filterKey,
-  label,
-}: {
-  filterKey: string
-  label?: string
-}) => {
-  const { resetFilterState } = useFilterContext()
-  const [query, setQuery] = useFilterValue(filterKey)
-  const [text, setText] = useState(typeof query === "string" ? query : "")
-  const isSearch = !label && filterKey === "searchValue"
-  const placeholder = isSearch ? "Хайх утгаа оруулна уу" : label
-
-  return (
-    <DialogContent className="sm:max-w-md">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          setQuery(text.trim() || null)
-          resetFilterState()
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle className="text-lg font-medium">
-            {isSearch ? "Хайх" : label}
-          </DialogTitle>
-        </DialogHeader>
-        <Input
-          autoFocus
-          placeholder={placeholder}
-          aria-label={placeholder}
-          className="my-4 h-8 text-[13px]"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-        />
-        <DialogFooter className="sm:space-x-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-8 rounded px-3 text-[13px] font-semibold"
-            onClick={resetFilterState}
-          >
-            Болих
-          </Button>
-          <Button
-            type="submit"
-            className="h-8 rounded px-3 text-[13px] font-semibold"
-          >
-            Хэрэглэх
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
-  )
-}
-
-const FilterDialogDateView = ({
-  filterKey,
-  label,
-}: {
-  filterKey: string
-  label: string
-}) => {
-  const { resetFilterState } = useFilterContext()
-  const [value, setValue] = useFilterValue(filterKey)
-
-  return (
-    <DateRangeDialogContent
-      label={label}
-      value={typeof value === "string" ? value : null}
-      onCancel={resetFilterState}
-      onApply={(next) => {
-        setValue(next)
-        resetFilterState()
-      }}
-    />
-  )
-}
-
-const FilterPopoverDateView = ({
-  filterKey,
-  label,
-}: {
-  filterKey: string
-  label: string
-}) => {
-  const { resetFilterState, setDialogView, setOpenDialog, setOpen } =
-    useFilterContext()
-  const [value, setValue] = useFilterValue(filterKey)
-
-  return (
-    <DateFilterCommand
-      label={label}
-      selected={typeof value === "string" ? value : ""}
-      onSelect={(next) => {
-        setValue(next)
-        resetFilterState()
-      }}
-      onCustom={() => {
-        setOpen(false)
-        setDialogView(filterKey)
-        setOpenDialog(true)
-      }}
-    />
   )
 }
 
@@ -466,11 +329,15 @@ FilterBar.displayName = "FilterBar"
 
 const FilterBarItem = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { queryKey: string }
+  React.HTMLAttributes<HTMLDivElement> & {
+    queryKey?: string
+  }
 >(({ className, queryKey, children, ...props }, ref) => {
-  const [query] = useFilterValue(queryKey)
+  const [query] = useFilterQueryState<unknown>(queryKey || "root")
 
-  if (isEmptyValue(query)) return null
+  if (queryKey && (query === null || query === "")) {
+    return null
+  }
 
   return (
     <div
@@ -495,7 +362,7 @@ const FilterBarName = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex w-fit items-center gap-2 rounded-l bg-background px-2 [&>svg]:h-4 [&>svg]:w-4",
+      "flex w-fit items-center gap-2 rounded-l bg-background px-2 [&>svg]:size-4",
       className
     )}
     {...props}
@@ -534,56 +401,182 @@ const FilterBarButton = React.forwardRef<
 })
 FilterBarButton.displayName = "FilterBarButton"
 
-const FilterBarCloseButton = ({ filterKey }: { filterKey: string }) => {
-  const [, setQuery] = useFilterValue(filterKey)
+const FilterBarCloseButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof Button> & {
+    filterKey?: string
+  }
+>(({ className, filterKey, ...props }, ref) => {
+  const { sessionKey } = useFilterContext()
+  const removeQuery = useRemoveQueryStateByKey()
+  const setPage = useSetAtom(filterPageState(sessionKey ?? ""))
 
   return (
     <Button
+      ref={ref}
       type="button"
       variant="ghost"
-      className="h-7 w-7 rounded-none rounded-r bg-background p-0"
-      onClick={() => setQuery(null)}
+      aria-label="Шүүлтүүр арилгах"
+      className={cn(
+        "h-7 w-7 rounded-none rounded-r bg-background p-0",
+        className
+      )}
+      onClick={() => {
+        removeQuery(filterKey ?? "")
+        if (sessionKey) setPage(1)
+      }}
+      {...props}
     >
-      <XIcon className="h-4 w-4" />
+      <XIcon className="size-4" />
     </Button>
   )
-}
+})
+FilterBarCloseButton.displayName = "FilterBarCloseButton"
 
-const FilterBarDate = ({
+const FilterDialogStringView = ({
   filterKey,
   label,
 }: {
   filterKey: string
-  label: string
+  label?: string
 }) => {
-  const { setDialogView, setOpenDialog } = useFilterContext()
-  const [value, setValue] = useFilterValue(filterKey)
+  const { setDialogView, setOpenDialog, sessionKey, resetFilterState } =
+    useFilterContext()
+  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey)
+  const [dialogSearch, setDialogSearch] = useState(query ?? "")
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const value = dialogSearch.trim()
+    setQuery(value.length > 0 ? value : null)
+    setDialogView("root")
+    setOpenDialog(false)
+  }
+
+  const isSearch = !label && filterKey === "searchValue"
+  const displayPlaceholder = isSearch
+    ? "Хайх утгаа оруулна уу"
+    : label || filterKey
+
+  return (
+    <DialogContent
+      hideClose
+      overlayClassName={filterDialogOverlayClass}
+      className={filterDialogClass}
+    >
+      <form onSubmit={onSubmit}>
+        <DialogHeader>
+          <DialogTitle className="text-lg font-medium">
+            {isSearch ? "Хайх" : `${label || filterKey}-аар шүүх`}
+          </DialogTitle>
+        </DialogHeader>
+
+        <Input
+          autoFocus
+          placeholder={displayPlaceholder}
+          aria-label={displayPlaceholder}
+          className="my-4 h-7 rounded-sm border-0 px-3 text-[13px] shadow-xs placeholder:text-zinc-400"
+          value={dialogSearch}
+          onChange={(e) => setDialogSearch(e.target.value)}
+        />
+        <DialogFooter className="sm:space-x-3">
+          <Button
+            type="button"
+            variant="outline"
+            className={filterDialogButtonClass}
+            onClick={resetFilterState}
+          >
+            Болих
+          </Button>
+          <Button type="submit" className={filterDialogButtonClass}>
+            Хэрэглэх
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  )
+}
+
+const FilterPopoverDateView = ({
+  filterKey,
+  label,
+}: {
+  filterKey: string
+  label?: string
+}) => {
+  const { resetFilterState, sessionKey } = useFilterContext()
+
+  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey)
+
+  return (
+    <DateFilterCommand
+      focusOnMount
+      value={filterKey}
+      label={label}
+      selected={query ?? ""}
+      onSelect={(value) => {
+        setQuery(value)
+        resetFilterState()
+      }}
+    />
+  )
+}
+
+const FilterBarDate = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof Button> & {
+    filterKey: string
+    label?: string
+  }
+>(({ filterKey, label, className, ...props }, ref) => {
+  const { sessionKey } = useFilterContext()
+  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey)
   const [open, setOpen] = useState(false)
-  const selected = typeof value === "string" ? value : ""
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <FilterBarButton>{getDisplayValue(selected)}</FilterBarButton>
+        <FilterBarButton ref={ref} className={className} {...props}>
+          {getDisplayValue(query ?? "")}
+        </FilterBarButton>
       </PopoverTrigger>
       <FilterContent>
         <DateFilterCommand
+          value={filterKey}
           label={label}
-          selected={selected}
-          onSelect={(next) => {
-            setValue(next)
+          selected={query ?? ""}
+          onSelect={(val) => {
+            setQuery(val)
             setOpen(false)
-          }}
-          onCustom={() => {
-            setOpen(false)
-            setDialogView(filterKey)
-            setOpenDialog(true)
           }}
         />
       </FilterContent>
     </Popover>
   )
-}
+})
+FilterBarDate.displayName = "FilterBarDate"
+
+const FilterCommandInput = React.forwardRef<
+  React.ComponentRef<typeof CommandPrimitive.Input>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+    hotkey?: boolean
+  }
+>(({ className, hotkey = true, ...props }, ref) => (
+  <div className="relative border-b bg-background">
+    <CommandPrimitive.Input
+      ref={ref}
+      autoFocus
+      className={cn(filterInputClass, hotkey && "pr-8", className)}
+      {...props}
+    />
+    {hotkey && (
+      <Kbd className="absolute right-2 top-1/2 h-5 min-w-5 -translate-y-1/2 rounded-md border border-foreground/20 bg-foreground/10 font-sans text-xs text-foreground opacity-70 shadow-none">
+        F
+      </Kbd>
+    )}
+  </div>
+))
+FilterCommandInput.displayName = "FilterCommandInput"
 
 const FilterSearchValueTrigger = () => (
   <FilterItem value="searchValue" label="Хайх" inDialog>
@@ -593,7 +586,7 @@ const FilterSearchValueTrigger = () => (
 )
 
 const FilterSearchValueBarItem = () => {
-  const [searchValue] = useFilterValue("searchValue")
+  const [searchValue] = useFilterQueryState<string>("searchValue")
 
   return (
     <FilterBarItem queryKey="searchValue">
@@ -614,8 +607,9 @@ export const Filter = Object.assign(FilterProvider, {
   Content: FilterContent,
   Item: FilterItem,
   CommandItem: FilterCommandItem,
-  CommandInput: FilterCommandInput,
   View: FilterView,
+  SearchValueTrigger: FilterSearchValueTrigger,
+  SearchValueBarItem: FilterSearchValueBarItem,
   Dialog: FilterDialog,
   DialogStringView: FilterDialogStringView,
   DialogDateView: FilterDialogDateView,
@@ -626,6 +620,5 @@ export const Filter = Object.assign(FilterProvider, {
   BarButton: FilterBarButton,
   BarClose: FilterBarCloseButton,
   Date: FilterBarDate,
-  SearchValueTrigger: FilterSearchValueTrigger,
-  SearchValueBarItem: FilterSearchValueBarItem,
+  CommandInput: FilterCommandInput,
 })

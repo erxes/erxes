@@ -1,17 +1,19 @@
-import { useState } from "react"
+import { useId, useState } from "react"
 import { resetAtom } from "@/store"
 import { configAtom, configsAtom } from "@/store/config.store"
 import { useMutation } from "@apollo/client"
-import { useAtom, useSetAtom } from "jotai"
-import { CheckIcon, ChevronsUpDown } from "lucide-react"
+import { useAtomValue, useSetAtom } from "jotai"
+import { CheckIcon, ChevronsUpDown, Store } from "lucide-react"
 
 import { cn, resetLocal } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command"
 import { Label } from "@/components/ui/label"
 import Loader from "@/components/ui/loader"
@@ -24,11 +26,11 @@ import { onError } from "@/components/ui/use-toast"
 
 import { mutations } from "./graphql"
 
-const ChooseConfig = () => {
+export function ChooseConfig() {
   const [open, setOpen] = useState(false)
-
-  const [config] = useAtom(configAtom)
-  const [configs] = useAtom(configsAtom)
+  const id = useId()
+  const config = useAtomValue(configAtom)
+  const configs = useAtomValue(configsAtom) ?? []
   const reset = useSetAtom(resetAtom)
 
   const [chooseConfig, { loading }] = useMutation(mutations.chooseConfig, {
@@ -39,70 +41,92 @@ const ChooseConfig = () => {
     },
   })
 
-  const selectedConfig = (configs || []).find(
-    ({ token }) => token === config?.token
-  )
+  const selectedName =
+    config?.name?.trim() || (config?.token ? "POS" : "Select point of sale")
 
-  const handleChange = (value: string) => {
-    const lowerToken = value.split("_")[0]
-    const token = (configs || []).find(
-      (conf) => conf.token.toLowerCase() === lowerToken
-    )?.token
+  const handleChange = (token: string) => {
     setOpen(false)
-    resetLocal()
-    return chooseConfig({ variables: { token } })
-  }
+    if (token === config?.token) return
 
-  if (!configs || configs.length < 2) {
-    return null
+    resetLocal()
+    void chooseConfig({ variables: { token } })
   }
 
   return (
-    <div className="mb-3 space-y-1">
-      <Label className="block">Choose pos</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between"
-            disabled={loading}
+    <div className="grid gap-1">
+      <Label id={`${id}-label`} className="sr-only">
+        Point of sale
+      </Label>
+      {configs.length === 1 && config?.token ? (
+        <div className="rounded-lg bg-foreground/5 p-1">
+          <div className="flex min-h-7 items-center justify-center gap-2 rounded-md bg-background px-3 py-1 text-[13px] text-primary shadow-sm">
+            <Store aria-hidden="true" className="size-4 shrink-0" />
+            <span className="min-w-0 wrap-break-word">{selectedName}</span>
+          </div>
+        </div>
+      ) : (
+        <Popover open={open} onOpenChange={setOpen}>
+          <div className="rounded-lg bg-foreground/5 p-1">
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-7 w-full justify-start gap-2 rounded-md bg-background px-3 text-[13px] font-normal text-primary shadow-sm hover:bg-background"
+                aria-labelledby={`${id}-label ${id}-value`}
+                loading={loading}
+              >
+                <Store aria-hidden="true" className="size-4" />
+                <span
+                  id={`${id}-value`}
+                  className="min-w-0 flex-1 truncate text-left"
+                >
+                  {selectedName}
+                </span>
+                <ChevronsUpDown
+                  aria-hidden="true"
+                  className="size-4 text-muted-foreground"
+                />
+              </Button>
+            </PopoverTrigger>
+          </div>
+          <PopoverContent
+            align="start"
+            lang="en"
+            className="w-(--radix-popover-trigger-width) border p-0"
           >
-            {selectedConfig?.name || "Посоо сонгоно уу..."}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-screen max-w-sm p-0">
-          <Command>
-            <CommandInput placeholder="Пос хайх..." className="h-9" />
-            <CommandGroup>
-              <div className="max-h-[300px] overflow-y-auto">
-                {(configs || []).map((conf) => (
-                  <CommandItem
-                    key={conf.token}
-                    value={conf.token + "_" + conf.name}
-                    onSelect={handleChange}
-                  >
-                    <CheckIcon
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        conf.token === config?.token
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                    {conf.name}
-                  </CommandItem>
-                ))}
-              </div>
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      {loading && <Loader className="fixed inset-0 bg-black/10" />}
+            <Command label="Select a point of sale">
+              <CommandInput
+                placeholder="Search points of sale..."
+                className="h-11 text-base sm:text-sm"
+              />
+              <CommandList className="max-h-60">
+                <CommandEmpty>No points of sale found.</CommandEmpty>
+                <CommandGroup>
+                  {configs.map((conf, index) => (
+                    <CommandItem
+                      key={conf.token}
+                      value={String(index)}
+                      keywords={[conf.name]}
+                      className="min-h-10 gap-2.5 text-sm"
+                      onSelect={() => handleChange(conf.token)}
+                    >
+                      <CheckIcon
+                        aria-hidden="true"
+                        className={cn(
+                          "size-4 shrink-0 text-primary",
+                          conf.token !== config?.token && "invisible"
+                        )}
+                      />
+                      {conf.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      )}
+      {loading && <Loader className="fixed inset-0 z-50 bg-black/10" />}
     </div>
   )
 }
-
-export default ChooseConfig

@@ -1,30 +1,27 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import type { ButtonHTMLAttributes, JSXElementConstructor } from "react"
+import { forwardRef } from "react"
+import type { LinkProps } from "next/link"
 import { cva, VariantProps } from "class-variance-authority"
 import { AnimatePresence, motion } from "framer-motion"
 import { Loader2 } from "lucide-react"
-import type { LinkProps } from "next/link"
-import type { ButtonHTMLAttributes, JSXElementConstructor } from "react"
-import { forwardRef } from "react"
+
+import { cn } from "@/lib/utils"
 
 const glossy =
   "relative border border-transparent shadow-button-primary [text-shadow:0_1px_1px_rgb(0_0_0/25%)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-b before:from-white/20 before:opacity-50 before:transition-opacity before:duration-300 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:bottom-1/2 after:rounded-[inherit] after:bg-white/10 after:mix-blend-overlay"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md font-medium transition-[color,background-color,box-shadow,opacity,transform] duration-200 outline-offset-2 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring/70 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center rounded-md font-medium transition-[color,background-color,box-shadow,opacity] duration-200 outline-offset-2 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring/70 disabled:opacity-50 disabled:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: cn(glossy, "bg-primary text-primary-foreground"),
-        destructive: cn(
-          glossy,
-          "bg-destructive text-destructive-foreground"
-        ),
+        destructive: cn(glossy, "bg-destructive text-destructive-foreground"),
         outline:
           "bg-background shadow-button-outline hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-border",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-border",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "underline-offset-4 hover:underline text-primary",
       },
@@ -43,8 +40,9 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-  VariantProps<typeof buttonVariants> {
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   Component?: string | JSXElementConstructor<any>
   href?: LinkProps["href"]
   loading?: boolean

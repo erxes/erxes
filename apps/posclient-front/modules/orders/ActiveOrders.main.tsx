@@ -64,7 +64,7 @@ const ActiveOrders = () => {
                 size="sm"
                 loading={loading}
                 variant="outline"
-                className="mx-1 my-2 h-8 whitespace-nowrap rounded-lg text-xs font-semibold"
+                className="mx-1 my-2.5 h-7 whitespace-nowrap rounded-md border-0 text-xs font-medium shadow-xs"
                 onClick={handleLoadMore}
               >
                 Цааш үзэх {fullOrders.length} / {totalCount}

@@ -2,6 +2,10 @@
 
 import React, { useEffect, useState } from "react"
 import {
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormRow,
+} from "@/modules/record-side-panel"
+import {
   activeOrderIdAtom,
   brokerAtom,
   brokerTypeAtom,
@@ -13,6 +17,7 @@ import {
   Building2Icon,
   Check,
   ChevronsUpDown,
+  HandshakeIcon,
   UserCheckIcon,
   UserCircleIcon,
   XIcon,
@@ -58,10 +63,15 @@ const BrokerTypeButton = () => {
   }
 
   return (
-    <Button onClick={cycle} variant="outline" className="px-2.5">
-      {type === "customer" && <UserCircleIcon className="h-5 w-5" />}
-      {type === "company" && <Building2Icon className="h-5 w-5" />}
-      {type === "user" && <UserCheckIcon className="h-5 w-5" />}
+    <Button
+      onClick={cycle}
+      variant="ghost"
+      aria-label="Брокерын төрөл солих"
+      className="size-7 flex-none rounded-sm p-0 text-muted-foreground hover:text-foreground"
+    >
+      {type === "customer" && <UserCircleIcon className="size-3.5" />}
+      {type === "company" && <Building2Icon className="size-3.5" />}
+      {type === "user" && <UserCheckIcon className="size-3.5" />}
     </Button>
   )
 }
@@ -101,74 +111,82 @@ const BrokerSelect = () => {
   }
 
   return (
-    <div className="flex items-center gap-1 relative">
-      <BrokerTypeButton />
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between px-2"
-          >
-            {broker ? (
-              getCustomerLabel(broker)
-            ) : (
-              <span>{`${placeholder(
-                brokerType as BrokerTypeValue
-              )} сонгох`}</span>
-            )}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        {broker && (
-          <Button
-            variant="secondary"
-            className="h-5 w-5 p-0.5 rounded-full absolute right-2 top-1/2 -translate-y-1/2"
-            onClick={handleClear}
-          >
-            <XIcon className="h-4 w-4" />
-          </Button>
-        )}
-        <PopoverContent className="w-(--radix-popper-anchor-width) p-0">
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder={`${placeholder(brokerType as BrokerTypeValue)} хайх`}
-              onValueChange={(v) => setValue(v)}
-              value={value}
-            />
-            <CommandEmpty>
-              {loading
-                ? "Хайж байна..."
-                : `${placeholder(brokerType as BrokerTypeValue)} олдсонгүй`}
-            </CommandEmpty>
-            {!!(poscCustomers || []).length && (
-              <CommandGroup>
-                <ScrollArea className="h-[300px]">
-                  {(poscCustomers || []).map((entity: Customer) => (
-                    <CommandItem
-                      key={entity._id}
-                      value={entity._id}
-                      onSelect={() => handleSelect(entity)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          broker?._id === entity._id
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                      {getCustomerLabel(entity)}
-                    </CommandItem>
-                  ))}
-                </ScrollArea>
-              </CommandGroup>
-            )}
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+    <PanelFormRow label="Брокер" icon={HandshakeIcon}>
+      <div className="relative flex items-center gap-0.5">
+        <BrokerTypeButton />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              role="combobox"
+              aria-expanded={open}
+              className={cn(
+                PANEL_INPUT_CLASS_NAME,
+                "min-w-0 flex-1 justify-between",
+                !broker && "text-zinc-400"
+              )}
+            >
+              <span className="truncate">
+                {broker
+                  ? getCustomerLabel(broker)
+                  : `${placeholder(brokerType as BrokerTypeValue).replace(
+                      "Брокер: ",
+                      ""
+                    )} сонгох`}
+              </span>
+              <ChevronsUpDown className="ml-2 size-3.5 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          {broker && (
+            <Button
+              variant="secondary"
+              aria-label="Брокер арилгах"
+              className="absolute right-7 top-1/2 size-5 -translate-y-1/2 rounded-full p-0.5"
+              onClick={handleClear}
+            >
+              <XIcon className="size-3" />
+            </Button>
+          )}
+          <PopoverContent className="w-(--radix-popper-anchor-width) p-0">
+            <Command shouldFilter={false}>
+              <CommandInput
+                placeholder={`${placeholder(brokerType as BrokerTypeValue)} хайх`}
+                onValueChange={(v) => setValue(v)}
+                value={value}
+              />
+              <CommandEmpty>
+                {loading
+                  ? "Хайж байна..."
+                  : `${placeholder(brokerType as BrokerTypeValue)} олдсонгүй`}
+              </CommandEmpty>
+              {!!(poscCustomers || []).length && (
+                <CommandGroup>
+                  <ScrollArea className="h-[300px]">
+                    {(poscCustomers || []).map((entity: Customer) => (
+                      <CommandItem
+                        key={entity._id}
+                        value={entity._id}
+                        onSelect={() => handleSelect(entity)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            broker?._id === entity._id
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        {getCustomerLabel(entity)}
+                      </CommandItem>
+                    ))}
+                  </ScrollArea>
+                </CommandGroup>
+              )}
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+    </PanelFormRow>
   )
 }
 

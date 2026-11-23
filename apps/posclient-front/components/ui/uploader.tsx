@@ -35,7 +35,7 @@ const Uploader = ({
           toast({ description: response.statusText })
           setLoading(false)
         } else {
-          toast({ description: "Амжилттай" })
+          toast({ description: "Амжилттай", variant: "success" })
           setLoading(false)
           setAttachment({ url: response })
         }
@@ -47,12 +47,12 @@ const Uploader = ({
   }
 
   return (
-    <div className="relative h-24 border rounded-md overflow-hidden">
+    <div className="relative h-20 overflow-hidden rounded-md border border-dashed bg-background">
       {loading ? (
         <Loader className="absolute inset-0 opacity-50" />
       ) : (
         <ImagePlusIcon
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 opacity-30 text-slate-500"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 text-muted-foreground opacity-40"
           strokeWidth={1.2}
         />
       )}

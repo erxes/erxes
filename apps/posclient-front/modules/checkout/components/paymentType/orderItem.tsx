@@ -50,11 +50,10 @@ const OrderItem = ({ _id, productName, unitPrice, isTake, count }: T) => {
   return (
     <div
       key={_id}
-      className="border-white/20 mx-4 flex items-stretch overflow-hidden pt-4 flex-wrap mb-2"
+      className="mx-4 mb-2 flex flex-wrap items-stretch overflow-hidden pt-4"
     >
       <div className="w-1/12 flex flex-col justify-center items-start">
         <Checkbox
-          className="border-white/50"
           checked={product?.count === availableCount}
           onCheckedChange={(checked) =>
             handleChange(checked ? availableCount : 0)

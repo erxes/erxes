@@ -34,7 +34,7 @@ const FetchRemainders = () => {
 
   return (
     <SettingsButton loading={loading} onClick={handleClick}>
-      Fetch remainders
+      Үлдэгдэл татах
     </SettingsButton>
   )
 }

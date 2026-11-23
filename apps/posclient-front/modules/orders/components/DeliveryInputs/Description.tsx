@@ -1,24 +1,32 @@
+import {
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormRow,
+} from "@/modules/record-side-panel"
 import { descriptionAtom } from "@/store/order.store"
 import { useAtom } from "jotai"
+import { AlignLeftIcon } from "lucide-react"
 
-import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
 
 const Description = () => {
   const [description, setDescription] = useAtom(descriptionAtom)
 
   return (
-    <div>
-      <Label htmlFor="delivery" className="block pb-1">
-        Дэлгэрэнгүй
-      </Label>
+    <PanelFormRow label="Тайлбар" icon={AlignLeftIcon}>
       <Textarea
         id="delivery"
-        className="max-h-20"
+        aria-label="Тайлбар"
+        placeholder="Тайлбар бичих"
+        className={cn(
+          PANEL_INPUT_CLASS_NAME,
+          "h-auto min-h-7 max-h-20 resize-none py-1.5"
+        )}
+        rows={1}
         value={description || ""}
         onChange={(e) => setDescription(e.target.value)}
       />
-    </div>
+    </PanelFormRow>
   )
 }
 

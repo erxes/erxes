@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 import ProductCount from "./components/productCount"
 
-const Categories: any = dynamic(() => import("./components/CategoriesSheet"))
+const Categories = dynamic(() => import("./components/CategoriesSheet"))
 
 const ProductCategories = () => {
   const activeCat = useAtomValue(activeCategoryAtom)
@@ -20,7 +20,7 @@ const ProductCategories = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <Sheet open={open} onOpenChange={() => setOpen(!open)}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {mode === "mobile" ? (
           <Button size="icon" variant="secondary">
@@ -29,10 +29,10 @@ const ProductCategories = () => {
         ) : (
           <Button
             variant="outline"
-            className="my-2 mr-2 h-10 rounded-full px-4 font-semibold whitespace-nowrap"
+            className="h-7 flex-none gap-1.5 rounded border-0 px-2.5 text-[13px] font-medium whitespace-nowrap shadow-xs hover:bg-accent"
             size="sm"
           >
-            <MenuIcon className="h-4 w-4 mr-1.5 text-primary" strokeWidth={2.5} />
+            <MenuIcon className="size-4 text-muted-foreground" />
             {!!activeCat ? catName : "Ангилал"}
             <ProductCount />
           </Button>
@@ -40,8 +40,7 @@ const ProductCategories = () => {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="sm:max-w-md w-full flex flex-col overflow-hidden h-screen p-4 pr-0"
-        closable={mode === "mobile"}
+        className="flex h-screen w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-sm"
       >
         {open && <Categories setOpen={setOpen} />}
       </SheetContent>

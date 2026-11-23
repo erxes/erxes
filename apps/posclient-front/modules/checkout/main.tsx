@@ -13,12 +13,16 @@ import { Collapsible } from "@/components/ui/collapsible"
 
 import DeliveryInputs from "../orders/components/DeliveryInputs"
 
-const CheckoutMain = () => {
+const CheckoutMain = ({ receipt = false }: { receipt?: boolean }) => {
   const [orderCollapsible, setOrderCollapsible] = useAtom(orderCollapsibleAtom)
   const mode = useAtomValue(modeAtom)
   return (
     <OrderDetail inCheckout>
-      <div className="pb-3 md:p-3 md:pb-2">
+      <div
+        className={
+          receipt ? "shrink-0 border-b px-3 py-2" : "pb-3 md:p-3 md:pb-2"
+        }
+      >
         <Customer />
       </div>
       {!(mode === "mobile" && orderCollapsible) ? (
@@ -31,9 +35,9 @@ const CheckoutMain = () => {
         open={orderCollapsible}
         onOpenChange={(open) => setOrderCollapsible(open)}
       >
-        <div className="grid flex-none grid-cols-2 gap-2 border-t bg-muted/30 pt-4 md:p-3">
-          <DeliveryInputs />
-          <TotalAmount />
+        <div className="grid flex-none grid-cols-2 gap-2 border-t bg-background/95 p-3 backdrop-blur supports-backdrop-filter:bg-background/85">
+          <DeliveryInputs className="-mx-3 -mt-3" />
+          <TotalAmount receipt={receipt} />
           <ChooseType />
           <BuyAction />
         </div>

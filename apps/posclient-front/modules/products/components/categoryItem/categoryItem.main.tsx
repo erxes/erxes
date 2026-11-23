@@ -1,4 +1,4 @@
-import { activeCatName, activeCategoryAtom } from "@/store"
+import { activeCategoryAtom, activeCatName } from "@/store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useSetAtom } from "jotai"
 
@@ -23,7 +23,7 @@ const CategoryItem = ({ _id }: { _id: string }) => {
       <Button
         variant={"outline"}
         size="sm"
-        className="my-2 h-10 rounded-full px-4 whitespace-nowrap"
+        className="h-7 rounded px-2.5 whitespace-nowrap"
       >
         <Skeleton style={{ width: 80 }} className="h-3" />
       </Button>
@@ -33,11 +33,14 @@ const CategoryItem = ({ _id }: { _id: string }) => {
 
   return (
     <Button
-      variant={activeCat !== _id ? "outline" : undefined}
+      variant="ghost"
+      aria-pressed={activeCat === _id}
       size="sm"
       className={cn(
-        "my-2 h-10 rounded-full px-4 whitespace-nowrap font-semibold",
-        activeCat !== _id && "text-muted-foreground"
+        "h-7 rounded border-0 px-3 text-[13px] font-medium whitespace-nowrap shadow-none",
+        activeCat !== _id
+          ? "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
+          : "bg-primary/10 text-primary hover:bg-primary/15"
       )}
       onClick={() => {
         if (activeCat === _id) {

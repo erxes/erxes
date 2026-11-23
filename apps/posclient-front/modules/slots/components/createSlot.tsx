@@ -1,15 +1,16 @@
-import { PlusCircleIcon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 
 import { useCreateSlots } from "../hooks/useSlots"
+import { SLOT_MENU_ITEM_CLASS } from "../slotStatuses"
 
 const CreateSlot = ({ code }: { code: string }) => {
   const { handleCreate } = useCreateSlots({ code })
 
   return (
-    <DropdownMenuItem onClick={handleCreate} className="flex items-center">
-      <PlusCircleIcon className="h-4 w-4 mr-2" />
+    <DropdownMenuItem onClick={handleCreate} className={SLOT_MENU_ITEM_CLASS}>
+      <PlusIcon />
       Захиалга үүсгэх
     </DropdownMenuItem>
   )

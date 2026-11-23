@@ -12,6 +12,8 @@ import {
   ShieldXIcon,
 } from "lucide-react"
 
+import { Skeleton } from "@/components/ui/skeleton"
+
 import ReportForm from "./components/form"
 import Receipt from "./components/reciept"
 import ReportSummary, { DailyReport } from "./components/summary"
@@ -30,6 +32,42 @@ interface ReportVariables {
   endDate: Date
 }
 
+const ReportPlaceholder = ({ loading }: { loading: boolean }) => {
+  if (loading) {
+    return (
+      <div
+        role="status"
+        aria-label="Тайлан бэлдэж байна"
+        className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6 py-6"
+      >
+        <Skeleton className="h-6 w-24" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-24 rounded-lg" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Skeleton className="h-40 rounded-lg" />
+          <Skeleton className="h-40 rounded-lg" />
+        </div>
+        <Skeleton className="h-56 rounded-lg" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full min-h-64 flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="mb-4 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <FileBarChart2Icon className="size-5" aria-hidden="true" />
+      </div>
+      <h3 className="text-sm font-medium">Тайлан гаргаагүй байна</h3>
+      <p className="mt-1 max-w-xs text-[13px] text-muted-foreground">
+        Зүүн талд ажилчид, хугацаагаа сонгоод «Тайлан шүүх» дарна уу.
+      </p>
+    </div>
+  )
+}
+
 const Report = () => {
   const [getReport, { loading, data }] = useLazyQuery<
     DailyReportResponse,
@@ -43,23 +81,20 @@ const Report = () => {
 
   if (!isAdmin && !permissionConfig?.seeReport)
     return (
-      <div className="flex flex-auto items-center justify-center bg-sidebar">
-        <div className="flex flex-col items-center text-center">
-          <ShieldXIcon
-            className="mb-4 h-12 w-12 text-muted-foreground"
-            strokeWidth={1.5}
-          />
-          <h3 className="text-base font-semibold">Хандах эрхгүй байна</h3>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Тайлан харах эрхийг админаас авна уу
-          </p>
+      <div className="flex flex-auto flex-col items-center justify-center px-6 py-20 text-center">
+        <div className="mb-4 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <ShieldXIcon className="size-5" aria-hidden="true" />
         </div>
+        <h3 className="text-sm font-medium">Хандах эрхгүй</h3>
+        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground">
+          Тайлан харах эрхийг админаас авна уу.
+        </p>
       </div>
     )
 
   return (
     <div className="flex min-h-0 w-full flex-auto flex-col overflow-hidden bg-background print:block print:w-[72mm] print:overflow-visible">
-      <div className="flex h-10 flex-none items-center gap-2 border-b px-3 print:hidden">
+      <div className="flex h-10 flex-none items-center gap-2 border-b px-4 md:pl-6 md:pr-4 print:hidden">
         <FileBarChart2Icon className="h-4 w-4 text-muted-foreground" />
         <span className="text-[13px] font-medium">Тайлан</span>
         <span className="h-4 w-px bg-border" />
@@ -88,28 +123,7 @@ const Report = () => {
                 <ReportSummary report={report} />
               </div>
             ) : (
-              <div className="flex h-full min-h-64 items-center justify-center p-6">
-                <div className="flex flex-col items-center text-center">
-                  {loading ? (
-                    <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-                  ) : (
-                    <FileBarChart2Icon
-                      className="mb-4 h-10 w-10 text-muted-foreground/60"
-                      strokeWidth={1.5}
-                    />
-                  )}
-                  <h3 className="text-sm font-semibold">
-                    {loading
-                      ? "Тайлан бэлдэж байна"
-                      : "Тайлан харагдаагүй байна"}
-                  </h3>
-                  <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-                    {loading
-                      ? "Түр хүлээнэ үү"
-                      : "Зүүн талд ажилчид, хугацаагаа сонгоод «Тайлан шүүх» дарна уу"}
-                  </p>
-                </div>
-              </div>
+              <ReportPlaceholder loading={loading} />
             )}
           </main>
           {!!report && (

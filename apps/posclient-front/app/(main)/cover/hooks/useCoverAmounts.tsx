@@ -6,7 +6,7 @@ import {
 import { useLazyQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
 
-import { onError } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import { queries } from "../graphql"
 import { useCoverSave } from "./useCoverSave"
@@ -20,11 +20,23 @@ export const useCoverAmounts = () => {
   const [getCoverAmounts, { loading }] = useLazyQuery(queries.coverAmounts, {
     variables: { id: id === "create" ? undefined : id },
     onCompleted(data) {
-      setCoverAmount(data.coverAmounts || {})
+      const amounts = data.coverAmounts || {}
+      setCoverAmount(amounts)
       changeIsFetched(true)
-      void saveCover().catch((error: unknown) =>
-        onError(error instanceof Error ? error.message : String(error))
-      )
+      const total = Object.entries(amounts)
+        .filter(([key]) => key !== "startDate" && key !== "endDate")
+        .reduce<number>((sum, [, amount]) => sum + (Number(amount) || 0), 0)
+      saveCover()
+        .then(() =>
+          toast({
+            title: "Хаалтын дүн татагдлаа",
+            description: `Системийн нийт дүн: ${total.toLocaleString()}₮`,
+            variant: "success",
+          })
+        )
+        .catch((error: unknown) =>
+          onError(error instanceof Error ? error.message : String(error))
+        )
     },
     onError({ message }) {
       onError(message)

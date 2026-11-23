@@ -137,7 +137,7 @@ export const useCoverTerminalFetch = () => {
       }
       await persist(entry)
       clearPending(entry)
-      toast({ description: "Терминалын хариу хадгалагдлаа" })
+      toast({ description: "Терминалын хариу хадгалагдлаа", variant: "success" })
     } catch (error) {
       onError(message(error))
     } finally {
@@ -180,7 +180,7 @@ export const useCoverTerminalFetch = () => {
       }
       await persist(saved)
       clearPending(saved)
-      toast({ description: "Терминалын үр дүн хадгалагдлаа" })
+      toast({ description: "Терминалын үр дүн хадгалагдлаа", variant: "success" })
     } catch (error) {
       onError(message(error))
     } finally {

@@ -154,3 +154,11 @@ export const resetCoverDetailAtom = atom(null, (get, set) => {
 })
 
 export const description = atom<string>("")
+
+export const coverPrintIdAtom = atom<string | null>(null)
+
+export const coverEditVersionAtom = atom(0)
+
+export const markCoverEditedAtom = atom(null, (get, set) => {
+  set(coverEditVersionAtom, get(coverEditVersionAtom) + 1)
+})

@@ -95,33 +95,33 @@ const Customer = () => {
   return (
     <>
       <div className="relative flex items-center gap-2">
-        <CustomerType className="h-5 w-5" />
+        <CustomerType className="size-4" />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="h-11 w-full justify-between rounded-xl px-3 font-normal"
+              className="h-8 w-full justify-between rounded border-0 px-2.5 text-[13px] font-normal shadow-xs"
             >
               {!!customer ? (
                 getCustomerLabel(customer)
               ) : (
                 <span className="text-muted-foreground">
                   {`${placeHolder(customerType)} сонгох`}{" "}
-                  <Kbd className="ml-1 px-1">F9</Kbd>
+                  <Kbd className="ml-1 px-1 text-[10px]">F9</Kbd>
                 </span>
               )}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="ml-2 size-3.5 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           {!!customer && (
             <Button
               variant="secondary"
-              className="absolute right-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full p-1"
+              className="absolute right-8 top-1/2 size-5 -translate-y-1/2 rounded-full p-0.5"
               onClick={handleClean}
             >
-              <XIcon className="h-4 w-4" />
+              <XIcon className="size-3.5" />
             </Button>
           )}
           <PopoverContent className="w-[var(--radix-popper-anchor-width)] p-0">
@@ -187,7 +187,9 @@ const Customer = () => {
         onCreated={handleCreated}
         onClose={() => setAddOpen(false)}
       />
-      {loadingCU && <Loader className="absolute inset-0 bg-background/60 backdrop-blur-[1px]" />}
+      {loadingCU && (
+        <Loader className="absolute inset-0 bg-background/60 backdrop-blur-[1px]" />
+      )}
     </>
   )
 }

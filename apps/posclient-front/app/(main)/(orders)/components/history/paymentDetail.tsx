@@ -9,9 +9,11 @@ import { OrderReturnTrigger } from "./orderReturn"
 const PaymentDetail = ({
   _id,
   paidDate,
+  onSelect,
 }: {
   _id: string
   paidDate: string | null
+  onSelect: () => void
 }) => {
   const setPaymentDetail = useSetAtom(paymentDetailAtom)
 
@@ -27,8 +29,12 @@ const PaymentDetail = ({
 
   return (
     <>
-      <OrderReturnTrigger _id={_id} paidDate={paidDate} />
-      <HistoryOrderCancelTrigger loading={loading} _id={_id} />
+      <OrderReturnTrigger _id={_id} paidDate={paidDate} onSelect={onSelect} />
+      <HistoryOrderCancelTrigger
+        loading={loading}
+        _id={_id}
+        onSelect={onSelect}
+      />
     </>
   )
 }

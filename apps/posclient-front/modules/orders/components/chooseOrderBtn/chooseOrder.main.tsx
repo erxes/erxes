@@ -34,7 +34,7 @@ const ChooseOrder = ({
             className={cn(
               statusVariants({ status }),
               activeOrder === _id &&
-                "bg-primary/10 text-primary ring-2 ring-primary hover:bg-primary/15 hover:text-primary"
+                "bg-primary/10 text-primary ring-primary hover:bg-primary/15 hover:text-primary"
             )}
             onClick={() => setNextOrder(_id)}
           >
@@ -58,20 +58,20 @@ const ChooseOrder = ({
 }
 
 const statusVariants = cva(
-  "relative mx-1 my-2 h-8 gap-1 overflow-visible whitespace-nowrap rounded-lg px-3 text-[13px] font-semibold tabular-nums ring-1 ring-inset",
+  "relative mx-0.5 my-2.5 h-7 gap-1 overflow-visible whitespace-nowrap rounded-md px-2.5 text-[13px] font-medium tabular-nums ring-1 ring-inset",
   {
     variants: {
       status: {
         pending:
-          "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100 hover:text-amber-800",
+          "bg-warning/10 text-warning ring-warning/20 hover:bg-warning/15 hover:text-warning",
         reDoing:
-          "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100 hover:text-amber-800",
+          "bg-warning/10 text-warning ring-warning/20 hover:bg-warning/15 hover:text-warning",
         doing:
-          "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100 hover:text-amber-800",
-        done: "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100 hover:text-emerald-800",
+          "bg-warning/10 text-warning ring-warning/20 hover:bg-warning/15 hover:text-warning",
+        done: "bg-success/10 text-success ring-success/20 hover:bg-success/15 hover:text-success",
         complete:
-          "bg-teal-50 text-teal-700 ring-teal-200 hover:bg-teal-100 hover:text-teal-800",
-        new: "bg-muted text-foreground ring-border hover:bg-accent",
+          "bg-info/10 text-info ring-info/20 hover:bg-info/15 hover:text-info",
+        new: "bg-background text-foreground shadow-xs ring-transparent hover:bg-accent",
       },
     },
     defaultVariants: {

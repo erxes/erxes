@@ -13,14 +13,15 @@ const SettingsTrigger = () => {
       <Button
         variant="outline"
         className={cn(
-          "col-span-2 h-12 w-12 rounded-xl px-0 font-semibold",
-          isPre && "border-2 border-primary text-primary hover:text-primary"
+          "relative col-span-2 size-9 flex-none rounded-md border-0 px-0 text-muted-foreground shadow-xs hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground",
+          isPre &&
+            "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary data-[state=open]:bg-primary/15 data-[state=open]:text-primary"
         )}
       >
         {isPre ? (
-          <AlarmClockIcon className="h-5 w-5 animate-bounce" />
+          <AlarmClockIcon className="size-4" aria-label="Урьдчилсан захиалга" />
         ) : (
-          <SlidersHorizontalIcon className="h-5 w-5" />
+          <SlidersHorizontalIcon className="size-4" />
         )}
       </Button>
     </CollapsibleTrigger>

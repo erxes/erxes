@@ -11,11 +11,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
-import mutations from "../graphql/mutations"
 import { onError } from "@/components/ui/use-toast"
 
-const ClearSessionButton = () => {
+import mutations from "../graphql/mutations"
+
+const clearSessionLabel = "Clear session and reload"
+
+export function ClearSessionButton() {
   const [logout, { loading }] = useMutation(mutations.logout, {
     onError({ message }) {
       onError(message)
@@ -36,16 +38,16 @@ const ClearSessionButton = () => {
             loading={loading}
             iconOnly
             onClick={() => logout()}
-            aria-label="Clear session & refresh"
-            className="absolute bg-transparent border-none shadow-none right-4 top-4 text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={clearSessionLabel}
+            className="size-8 shrink-0 text-muted-foreground"
           >
-            <Paintbrush className="w-4 h-4" />
+            <Paintbrush aria-hidden="true" className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Clear session & refresh</TooltipContent>
+        <TooltipContent side="bottom" lang="en">
+          {clearSessionLabel}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )
 }
-
-export default ClearSessionButton

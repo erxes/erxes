@@ -1,8 +1,6 @@
-import { userLabelAtom } from "@/store/config.store"
-import { useAtomValue } from "jotai"
-
 import HeaderMenu from "@/components/headerMenu"
 
+import HeaderUser from "./headerUser"
 import Logo from "./logo"
 
 const HeaderLayout = ({
@@ -11,24 +9,15 @@ const HeaderLayout = ({
 }: {
   children?: React.ReactNode
   hideUser?: boolean
-}) => {
-  const label = useAtomValue(userLabelAtom)
-  return (
-    <header className="flex flex-none items-center border-b bg-background px-5 py-1.5 print:hidden">
-      <div className="pr-2 flex-auto xl:flex-none xl:w-2/3 sm:pr-4">
-        {children}
-      </div>
-      <div className="flex w-auto items-center justify-end flex-none xl:flex-auto">
-        {!hideUser && (
-          <p className="hidden flex-none text-center font-medium text-muted-foreground sm:block px-2">
-            {label}
-          </p>
-        )}
-        <Logo />
-        <HeaderMenu />
-      </div>
-    </header>
-  )
-}
+}) => (
+  <header className="sticky top-0 z-30 flex h-14 flex-none items-center gap-1 border-b bg-background/80 px-2 backdrop-blur-md md:px-4 print:hidden">
+    <div className="flex min-w-0 flex-auto items-center">{children}</div>
+    <div className="flex flex-none items-center gap-1">
+      {!hideUser && <HeaderUser />}
+      <Logo />
+      <HeaderMenu />
+    </div>
+  </header>
+)
 
 export default HeaderLayout

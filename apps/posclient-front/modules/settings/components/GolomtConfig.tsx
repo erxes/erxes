@@ -1,13 +1,15 @@
 import { useState } from "react"
 import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
+import { CreditCardIcon } from "lucide-react"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { getLocal, getPaymentType, setLocal } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
+
+import { SettingsSection } from "./SettingsSection"
 
 const GolomtConfig = () => {
   const paymentTypes = useAtomValue(paymentTypesAtom) || []
@@ -23,29 +25,59 @@ const GolomtConfig = () => {
     e.preventDefault()
     setLocal("golomtId", terminalID)
     setLocal("golomtPortNo", portNo)
-    toast({ description: "Амжилттай" })
+    toast({ description: "Амжилттай хадгаллаа", variant: "success" })
   }
 
   return (
-    <form className="w-full pb-5" onSubmit={handleSubmit}>
-      <Label htmlFor="golomtId">Golomt Terminal ID</Label>
-      <div className="flex items-center space-x-2 pt-1">
-        <Input
-          id="golomtId"
-          placeholder="Терминалийн ID-г оруулана уу"
-          required
-          value={terminalID}
-          onChange={(e) => setTerminalID(e.target.value)}
-        />
-        <Input
-          id="golomtPortNo"
-          placeholder="Терминалийн dev-PORT-г оруулана уу"
-          value={portNo}
-          onChange={(e) => setPortNo(e.target.value)}
-        />
-        <Button className="font-semibold">Хадгалах</Button>
-      </div>
-    </form>
+    <SettingsSection
+      title="Голомт банк"
+      description="Картын терминалын ID болон холболтын порт"
+      icon={CreditCardIcon}
+    >
+      <form className="space-y-3 px-2 py-2" onSubmit={handleSubmit}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1">
+            <label
+              htmlFor="golomtId"
+              className="font-mono text-xs font-semibold uppercase text-zinc-400 dark:text-zinc-500"
+            >
+              Terminal ID
+            </label>
+            <Input
+              id="golomtId"
+              placeholder="Терминалын ID"
+              className="h-8 rounded-sm border-0 text-[13px] shadow-xs"
+              required
+              value={terminalID}
+              onChange={(e) => setTerminalID(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="golomtPortNo"
+              className="font-mono text-xs font-semibold uppercase text-zinc-400 dark:text-zinc-500"
+            >
+              Port
+            </label>
+            <Input
+              id="golomtPortNo"
+              placeholder="Терминалын dev-PORT"
+              className="h-8 rounded-sm border-0 text-[13px] shadow-xs"
+              value={portNo}
+              onChange={(e) => setPortNo(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="h-8 rounded px-3 text-[13px] font-medium"
+          >
+            Хадгалах
+          </Button>
+        </div>
+      </form>
+    </SettingsSection>
   )
 }
 

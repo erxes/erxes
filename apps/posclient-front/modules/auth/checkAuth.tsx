@@ -8,7 +8,7 @@ import { Loader2, ServerOffIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import ConfigsFetch from "./configsFetch"
-import Login from "./LoginPage"
+import { LoginPage } from "./LoginPage"
 
 const checkValidAuth = (currentUser: any, config: any) => {
   const { _id } = currentUser || {}
@@ -64,7 +64,7 @@ const CheckAuth = ({ children }: any) => {
 
   if (show === "init") return <ConfigsFetch />
 
-  if (show === "login") return <Login />
+  if (show === "login") return <LoginPage />
 
   if (show === "private") return children
 

@@ -1,12 +1,12 @@
 import { useMutation } from "@apollo/client"
-import { LogOutIcon } from "lucide-react"
+import { Loader2Icon, LogOutIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { onError } from "@/components/ui/use-toast"
+import { headerMenuItemClass } from "@/components/headerMenu/headerMenuItemClass"
 
 import mutations from "../graphql/mutations"
 import queries from "../graphql/queries"
-import { onError } from '@/components/ui/use-toast'
 
 const Logout = () => {
   const [logout, { loading }] = useMutation(mutations.logout, {
@@ -16,15 +16,17 @@ const Logout = () => {
     refetchQueries: [queries.posCurrentUser],
   })
   return (
-    <DropdownMenuItem asChild onClick={() => logout()}>
-      <Button
-        loading={loading}
-        variant="ghost"
-        className="w-full justify-start mt-1"
-      >
-        <LogOutIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-        Гарах
-      </Button>
+    <DropdownMenuItem
+      disabled={loading}
+      onSelect={() => logout()}
+      className={headerMenuItemClass}
+    >
+      {loading ? (
+        <Loader2Icon className="animate-spin" aria-hidden="true" />
+      ) : (
+        <LogOutIcon aria-hidden="true" />
+      )}
+      Гарах
     </DropdownMenuItem>
   )
 }

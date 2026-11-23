@@ -18,7 +18,7 @@ const ChooseType = () => {
   const [type, setType] = useAtom(orderTypeAtom)
   return (
     <Select value={type} onValueChange={(value: IOrderType) => setType(value)}>
-      <SelectTrigger className="h-12 rounded-xl bg-foreground text-center text-sm font-semibold text-background shadow-sm">
+      <SelectTrigger className="h-8 rounded border-0 bg-background px-2.5 text-[13px] font-medium shadow-xs focus:shadow-focus">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react"
+import { filterItemClass } from "@/modules/filter"
 import { mutations } from "@/modules/orders/graphql"
 import { orderPasswordAtom } from "@/store/config.store"
 import { paymentDetailAtom } from "@/store/history.store"
@@ -9,8 +10,11 @@ import {
 } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { Trash2Icon } from "lucide-react"
 
+import { IOrder } from "@/types/order.types"
 import useFocus from "@/lib/useFocus"
+import { cn } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -21,30 +25,39 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { CommandItem } from "@/components/ui/command"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { onError } from "@/components/ui/use-toast"
-import { IOrder } from "@/types/order.types"
 
 export const HistoryOrderCancelTrigger = ({
   loading,
   _id,
+  onSelect,
 }: {
   loading?: boolean
   _id: string
+  onSelect: () => void
 }) => {
   const paymentDetail = useAtomValue(paymentDetailAtom)
   const { changeOpen, lessZero } = useOrderCancel(paymentDetail)
 
   return (
-    <DropdownMenuItem
-      className="text-destructive focus:text-destructive"
-      onClick={() => changeOpen(_id)}
+    <CommandItem
+      value="cancel"
+      className={cn(
+        filterItemClass,
+        "text-destructive aria-selected:bg-destructive/10 aria-selected:text-destructive"
+      )}
       disabled={loading || lessZero}
+      onSelect={() => {
+        onSelect()
+        changeOpen(_id)
+      }}
     >
+      <Trash2Icon />
       Устгах
-    </DropdownMenuItem>
+    </CommandItem>
   )
 }
 
@@ -147,44 +160,66 @@ const OrderCancel = ({
           focus()
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent
+          overlayClassName="bg-black/80"
+          className="border shadow-lg sm:rounded-lg"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-destructive">
-              Та {number} дугаартай захиалгыг устгахдаа итгэлтэй байна уу?
+            <AlertDialogTitle className="text-lg">
+              <span className="tabular-nums">{number}</span> дугаартай захиалгыг
+              устгах уу?
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              Энэ үйлдлийг буцаах боломжгүй. Энэ нь таны захиалгийг бүрмөсөн
-              устгана
+            <AlertDialogDescription className="text-sm">
+              Энэ үйлдлийг буцаах боломжгүй. Захиалга бүрмөсөн устгагдана.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="grid gap-4">
             {orderPassword && (
-              <div>
-                <Label htmlFor="pass">Нууц үг</Label>
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="pass"
+                  className="font-mono text-xs font-semibold uppercase leading-none text-zinc-400 dark:text-zinc-500"
+                >
+                  Нууц үг
+                </Label>
                 <Input
                   id="pass"
                   type="password"
                   autoComplete="off"
-                  className="block my-1"
-                  onChange={(e) => setValue(e.target.value)}
+                  aria-invalid={error || undefined}
+                  className="h-8 rounded-sm border-0 px-3 text-[13px] shadow-xs aria-invalid:shadow-focus-destructive"
+                  onChange={(e) => {
+                    setValue(e.target.value)
+                    setError(false)
+                  }}
                 />
-
-                <div
-                  className={
+                <p
+                  className={cn(
+                    "text-xs",
                     error ? "text-destructive" : "text-muted-foreground"
-                  }
+                  )}
                 >
-                  Баталгаажуулах нууц {error && "зөв"} үгээ оруулана уу
-                </div>
+                  {error
+                    ? "Нууц үг буруу байна"
+                    : "Баталгаажуулах нууц үгээ оруулна уу"}
+                </p>
               </div>
             )}
 
-            <AlertDialogFooter className="pt-6">
-              <AlertDialogCancel onClick={handleCancel}>
+            <AlertDialogFooter className="pt-2">
+              <AlertDialogCancel
+                onClick={handleCancel}
+                className="mt-0 h-8 rounded px-3 text-[13px] font-semibold"
+              >
                 Болих
               </AlertDialogCancel>
-              <Button variant="destructive" type="submit" loading={loading}>
+              <Button
+                variant="destructive"
+                type="submit"
+                loading={loading}
+                className="h-8 rounded px-3 text-[13px] font-semibold"
+              >
                 Устгах
               </Button>
             </AlertDialogFooter>

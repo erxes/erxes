@@ -2,9 +2,12 @@ import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import { slotFilterAtom } from "@/store"
 import { activeOrderIdAtom, slotCodeAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
+import { LinkIcon, UnlinkIcon } from "lucide-react"
 
-import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu"
-import { LoaderText } from "@/components/ui/loader"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { LoaderIcon } from "@/components/ui/loader"
+
+import { SLOT_MENU_ITEM_CLASS } from "../slotStatuses"
 
 const SetSlot = ({ code }: { code: string }) => {
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
@@ -22,16 +25,17 @@ const SetSlot = ({ code }: { code: string }) => {
     setTimeout(orderCU)
   }
 
+  const isSet = activeSlot === code
+
   return (
-    <DropdownMenuCheckboxItem
-      onCheckedChange={handleChoose}
-      checked={activeSlot === code}
+    <DropdownMenuItem
+      className={SLOT_MENU_ITEM_CLASS}
+      onSelect={() => handleChoose(!isSet)}
       disabled={!activeOrderId || loading}
     >
-      {!loading &&
-        (activeSlot === code ? "Захиалгаас чөлөөлөх" : "Захиалгад оноох")}
-      {loading && <LoaderText />}
-    </DropdownMenuCheckboxItem>
+      {loading ? <LoaderIcon /> : isSet ? <UnlinkIcon /> : <LinkIcon />}
+      {isSet ? "Захиалгаас чөлөөлөх" : "Захиалгад оноох"}
+    </DropdownMenuItem>
   )
 }
 

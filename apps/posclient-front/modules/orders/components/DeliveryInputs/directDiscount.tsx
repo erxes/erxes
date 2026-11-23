@@ -1,13 +1,18 @@
-import React, { type ChangeEvent, useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState, type ChangeEvent } from "react"
+import {
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormRow,
+} from "@/modules/record-side-panel"
 import { modeAtom } from "@/store"
 import { cartAtom, totalAmountAtom } from "@/store/cart.store"
 import { directDiscountConfigAtom } from "@/store/config.store"
 import { directDiscountAtom, directIsAmountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
+import { PercentIcon } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const DirectDiscount: React.FC = () => {
@@ -137,9 +142,64 @@ const DirectDiscount: React.FC = () => {
       ? Number(((discountAmount * 100) / baseAmount).toFixed(4))
       : 0
 
+  const limitText = isAmount
+    ? `${formatAmount(totalAmount * directDiscountLimit * 0.01)}₮`
+    : `${directDiscountLimit}%`
+
+  if (mode === "main") {
+    return (
+      <PanelFormRow label="Хөнгөлөлт" icon={PercentIcon}>
+        <div className="flex items-center gap-1">
+          <Tabs
+            value={isAmount ? "amount" : "percent"}
+            onValueChange={handleIsAmountChange}
+          >
+            <TabsList className="h-7 rounded-sm p-0.5">
+              <TabsTrigger
+                value="percent"
+                className="h-6 w-7 rounded-sm px-0 text-xs font-semibold"
+              >
+                %
+              </TabsTrigger>
+              <TabsTrigger
+                value="amount"
+                className="h-6 w-7 rounded-sm px-0 text-xs font-semibold"
+              >
+                ₮
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Input
+            type="number"
+            id="directDiscount"
+            aria-label="Нэмэх хямдрал"
+            placeholder={`max ${limitText}`}
+            className={cn(
+              PANEL_INPUT_CLASS_NAME,
+              "min-w-0 flex-1 tabular-nums"
+            )}
+            value={discountDraft}
+            onChange={handleDirectDiscountChange}
+            onFocus={() => setIsEditingDiscount(true)}
+            onBlur={() => {
+              setIsEditingDiscount(false)
+              setDiscountDraft(
+                formatDiscountInputValue(currentHandleDiscountInputValue)
+              )
+            }}
+          />
+          {!!discountAmount && (
+            <span className="flex-none text-xs tabular-nums text-muted-foreground">
+              −{formatAmount(discountAmount)}₮
+            </span>
+          )}
+        </div>
+      </PanelFormRow>
+    )
+  }
+
   return (
     <>
-      {mode === "main" && <Separator />}
       <div>
         <Label htmlFor="directDiscount" className="block pb-2">
           Нэмэх хямдрал оруулах (max:
