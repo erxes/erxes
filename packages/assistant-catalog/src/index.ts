@@ -21,12 +21,14 @@ import {
   ChartApi,
   FlowApi,
   MemberPickerApi,
+  RECORD_KINDS,
   RecordPickerApi,
   StatApi,
   TableApi,
 } from './components';
 
 export {
+  RECORD_KINDS,
   BadgeApi,
   CalloutApi,
   ChartApi,

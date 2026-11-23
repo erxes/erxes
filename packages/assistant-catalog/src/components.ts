@@ -108,7 +108,7 @@ export const MemberPickerApi = {
     ),
 };
 
-const RECORD_KINDS = ['customer', 'company', 'product', 'tag'] as const;
+export const RECORD_KINDS = ['customer', 'company', 'product', 'tag'] as const;
 
 const CALLOUT_TONES = ['info', 'good', 'warning', 'bad'] as const;
 

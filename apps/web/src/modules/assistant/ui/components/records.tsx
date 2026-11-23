@@ -1,5 +1,5 @@
 import { createComponentImplementation } from '@erxes/assistant-catalog/react';
-import { RecordPickerApi } from '@erxes/assistant-catalog';
+import { type RECORD_KINDS, RecordPickerApi } from '@erxes/assistant-catalog';
 import { contactSearchQueries, productSearchQueries } from '@erxes/core-contract/client';
 import { skipToken } from '@tanstack/react-query';
 import { LookupPicker, useContactOptions, useProductOptions, useTagOptions } from 'erxes-ui';
@@ -11,7 +11,7 @@ import { useUiHost } from '../host';
 import { Field, Problems } from './field';
 import { listOf, optionalText, pickedEntry, pickedRecord } from './values';
 
-type RecordKind = 'customer' | 'company' | 'product' | 'tag';
+type RecordKind = (typeof RECORD_KINDS)[number];
 
 const useRecordOptions = (
   kind: RecordKind,
