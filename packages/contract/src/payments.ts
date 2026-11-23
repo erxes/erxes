@@ -174,6 +174,17 @@ const base = oc.errors({
   SUBJECT_REQUIRED,
 });
 
+/**
+ * A connected gateway with its service: `integrationName` is what payers know it as (`QPay`),
+ * `pays` how they pay (`bank-qr`, `card`, `installments`), next to the connection's own `name`.
+ */
+export const PaymentGateway = IntegrationConnection.extend({
+  integrationName: z.string(),
+  pays: z.string(),
+});
+
+export type PaymentGateway = z.infer<typeof PaymentGateway>;
+
 export const paymentsContract = {
   gateways: base
     .route({
@@ -183,7 +194,7 @@ export const paymentsContract = {
       description:
         'The payment gateways connected on Settings › Integrations (plugins: payments:read), so a plugin can pick one as `gatewayId`',
     })
-    .output(listOf(IntegrationConnection)),
+    .output(listOf(PaymentGateway)),
   createInvoice: base
     .route({
       method: 'POST',

@@ -132,7 +132,9 @@ describe('payments', { timeout: 240_000 }, () => {
       const first = (await t.owner().payments.gateways({})).data.find((row) => row.name === 'Test');
 
       // A plugin lists them too, to let its own settings pick one (`gatewayId`).
-      expect((await t.hr().payments.gateways({})).data.map((row) => row.id)).toContain(second.id);
+      expect(
+        (await t.hr().payments.gateways({})).data.find((row) => row.id === second.id),
+      ).toMatchObject({ key: 'test', integrationName: 'Test', pays: 'test' });
 
       expect((await t.hr().payments.createInvoice(order('oldest'))).gatewayId).toBe(first?.id);
       expect(

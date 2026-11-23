@@ -85,7 +85,18 @@ export const gatewayAt = async (row: GatewayRow) => {
   };
 };
 
-export const listGateways = (client: Db) => listConnections(client, PAYMENT_KEYS);
+/** The gateways connected here, each with its service's name and how payers pay through it. */
+export const listGateways = async (client: Db) => {
+  const { data } = await listConnections(client, PAYMENT_KEYS);
+
+  return {
+    data: data.map((row) => {
+      const gateway = gatewayOf(row.key);
+
+      return { ...row, integrationName: gateway.name, pays: gateway.payments.pays };
+    }),
+  };
+};
 
 /** The installed plugins that may create invoices (`payments:write`), by title. */
 export const payingPlugins = async (client: Db) =>
