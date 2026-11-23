@@ -89,9 +89,36 @@ export const verifyPortalRequest = async (
       })
     : null;
 
-  if (!key && !customer?.agentId) throw unauthorized('Portal token required');
+  return portalRequestOf(input, { key, customer });
+};
 
-  const caller = key ?? customer;
+/** Whom a checked call is limited as. */
+const visitorOf = (
+  input: PortalRequestInput,
+  key: PortalCall | null,
+  customer: CustomerSignIn | null,
+  portalId: string,
+) => {
+  if (!key) return `agent:${customer?.agentId}`;
+
+  if (key.kind === 'agent') return key.keyId;
+
+  if (key.kind === 'publishable') return `ip:${input.ip ?? 'unknown'}`;
+
+  const visitorIp = input.visitorIp?.trim();
+
+  return visitorIp && IP.test(visitorIp) ? `ip:${visitorIp}` : `portal:${portalId}`;
+};
+
+/**
+ * `verifyPortalRequest`'s checks on tokens already verified (null when absent): for tests that
+ * stand in for core's tokens. Throws `PortalRequestError`.
+ */
+export const portalRequestOf = (
+  input: PortalRequestInput,
+  { key, customer }: { key: PortalCall | null; customer: CustomerSignIn | null },
+): PortalRequest => {
+  const caller = key ?? (customer?.agentId ? customer : null);
 
   if (!caller) throw unauthorized('Portal token required');
 
@@ -111,16 +138,11 @@ export const verifyPortalRequest = async (
     );
   }
 
-  const visitorIp = input.visitorIp?.trim();
-
-  const visitor =
-    !key || key.kind === 'agent'
-      ? `agent:${customer?.agentId ?? key?.keyId}`
-      : key.kind === 'publishable'
-        ? `ip:${input.ip ?? 'unknown'}`
-        : visitorIp && IP.test(visitorIp)
-          ? `ip:${visitorIp}`
-          : `portal:${caller.portalId}`;
-
-  return { orgId: caller.orgId, portalId: caller.portalId, key, customer, visitor };
+  return {
+    orgId: caller.orgId,
+    portalId: caller.portalId,
+    key,
+    customer,
+    visitor: visitorOf(input, key, customer, caller.portalId),
+  };
 };
