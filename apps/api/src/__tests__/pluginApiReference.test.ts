@@ -104,7 +104,7 @@ describe('plugin API reference', () => {
 
     expect(customer.security).toEqual([{ [CUSTOMER_TOKEN_SCHEME]: [] }]);
     expect(JSON.stringify(customer.components?.securitySchemes)).toContain(
-      'POST /core/v1/customer-auth/sign-in',
+      'POST /core/v1/portal/auth/sign-in',
     );
 
     const portal = await document('portal');

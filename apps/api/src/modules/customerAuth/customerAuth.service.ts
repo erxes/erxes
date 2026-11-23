@@ -18,11 +18,11 @@ import { type Address, addressOf, invalidCode, type PhoneMethod } from './custom
 import { profileOf } from './customerFields';
 import { findLogin } from './customerLogins';
 import { createSession, revokeSessionToken, rotateSession, sessionOf } from './customerSessions';
-import { type LivePortal, portalFor, portalServes } from './customerPortals';
+import type { LivePortal } from './customerPortals';
 
-/** Where a sign-in call comes from: a browser sends its page's origin; a mobile app or server, none. */
+/** A call to core's portal API: the portal its `X-Portal-Token` names (`portalOfCall`). */
 export interface SignInRequest {
-  origin?: string;
+  portal: LivePortal;
 }
 
 /** The customer's account on the portal, made the first time. */
@@ -92,10 +92,10 @@ export const openSession = async (
  * with the same answer, so nobody learns who has one: the portal offers sign-up instead.
  */
 export const sendSignInCode = async (
-  input: Address & { portal: string; method?: PhoneMethod },
+  input: Address & { method?: PhoneMethod },
   request: SignInRequest,
 ) => {
-  const portal = await portalFor(input.portal, request.origin);
+  const { portal } = request;
   const address = addressOf(input);
   const { ip } = requestInfo();
 
@@ -112,11 +112,8 @@ const noAccount = () =>
   fail('NO_ACCOUNT', 'This phone has no account on the portal: sign up with it');
 
 /** Signs in to the portal's account with a code: a new session, and its tokens. */
-export const signInWithCode = async (
-  input: Address & { portal: string; code: string },
-  request: SignInRequest,
-) => {
-  const portal = await portalFor(input.portal, request.origin);
+export const signInWithCode = async (input: Address & { code: string }, request: SignInRequest) => {
+  const { portal } = request;
   const address = addressOf(input);
   const used = await proveCode(portal, address, 'sign_in', input.code);
 
@@ -152,7 +149,7 @@ export const refreshTokens = async (
 ): Promise<CustomerTokens> => {
   const found = await sessionOf(input.refreshToken);
 
-  if (!found || !(await portalServes(found.row.portalId, request.origin))) throw invalidToken();
+  if (found?.row.portalId !== request.portal.id) throw invalidToken();
 
   const tokens = await rotateSession(found);
 

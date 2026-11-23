@@ -157,8 +157,8 @@ const Plugins = ({ portal }: { portal: PortalListItem }) => {
         {t('portal-id', 'Its id, for sign-in calls: {{id}}', { id: portal.id })}
       </p>
       <p className="text-muted-foreground">
-        {t('keys-at', 'Its server calls the plugins with a customer key, made in')}{' '}
-        <Link className="underline" to={paths.settings.customerKeys}>
+        {t('keys-at', 'Its apps and server call core and the plugins with a portal key, made in')}{' '}
+        <Link className="underline" to={paths.settings.portalKeys}>
           {t('keys-link', 'Settings › API keys')}
         </Link>
       </p>

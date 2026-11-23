@@ -8,7 +8,7 @@ import { fail } from '~/http/errors';
  * organisation and the web addresses browsers may call from come with it.
  */
 
-const originNotAllowed = () =>
+export const originNotAllowed = () =>
   fail('ORIGIN_NOT_ALLOWED', 'This web address may not sign customers in to the portal');
 
 export const unknownPortal = () =>
@@ -18,7 +18,7 @@ export const unknownPortal = () =>
  * A portal that signs customers in now, with its settings: one of its plugins is active and
  * installed in its organisation.
  */
-const livePortal = async (id: string) => {
+export const livePortal = async (id: string) => {
   const [row] = await withSystem('customer portal', (tx) =>
     tx
       .select()
@@ -70,17 +70,6 @@ export const portalFor = async (id: string, origin: string | undefined) => {
   return portal;
 };
 
-/** Whether the portal still signs customers in, for calls with its tokens (`/customer/*`, refresh). */
-export const portalServes = async (id: string, origin: string | undefined) => {
-  const portal = await livePortal(id);
-
-  if (!portal) return false;
-
-  assertOrigin(portal, origin);
-
-  return true;
-};
-
 /** Whether any portal runs at this origin. */
 const anyPortalAt = async (origin: string) => {
   const rows = await withSystem('customer portal origins', (tx) =>
@@ -95,10 +84,10 @@ const anyPortalAt = async (origin: string) => {
 };
 
 /**
- * CORS on `/customer-auth/*` and `/customer/*`: answers a browser from an
- * origin some portal lists (no cookies: tokens travel in the body and
- * `Authorization`), and refuses every other origin. Which portal an origin
- * may act for is checked on each call.
+ * CORS on core's portal API (`/portal/*`) and `/portal-auth`: answers a browser from an
+ * origin some portal lists (no cookies: tokens travel in the body, `Authorization` and
+ * `X-Portal-Token`), and refuses every other origin. Which portal an origin
+ * may act for is checked on each call (`portalOfCall`, `portalToken`).
  */
 export const customerCors = async (req: Request, res: Response, next: NextFunction) => {
   const origin = req.get('origin');
@@ -114,7 +103,7 @@ export const customerCors = async (req: Request, res: Response, next: NextFuncti
 
   res.set({
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE',
-    'Access-Control-Allow-Headers': 'authorization, content-type, x-request-id',
+    'Access-Control-Allow-Headers': 'authorization, content-type, x-portal-token, x-request-id',
     'Access-Control-Max-Age': '600',
   });
   res.status(204).end();

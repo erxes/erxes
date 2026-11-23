@@ -43,7 +43,7 @@ export interface CustomerSessionRef {
   sessionId: string;
 }
 
-/** A 15-minute access token for core's `/customer/*` and every plugin's API. */
+/** A 15-minute access token for core's `/portal/me` and every plugin's portal API. */
 const customerAccessToken = (ref: CustomerSessionRef) =>
   signJwt(
     { org: ref.orgId, pid: ref.portalId, sid: ref.sessionId },

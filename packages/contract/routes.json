@@ -1440,7 +1440,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/me"
+          "path": "/portal/me"
         }
       }
     },
@@ -1450,7 +1450,7 @@
         "meta": {},
         "route": {
           "method": "PATCH",
-          "path": "/customer/me"
+          "path": "/portal/me"
         }
       }
     },
@@ -1460,7 +1460,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/me/logins"
+          "path": "/portal/me/logins"
         }
       }
     },
@@ -1470,7 +1470,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/me/logins"
+          "path": "/portal/me/logins"
         }
       }
     },
@@ -1480,7 +1480,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/me/logins/confirm"
+          "path": "/portal/me/logins/confirm"
         }
       }
     },
@@ -1490,7 +1490,7 @@
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/customer/me/logins/{id}"
+          "path": "/portal/me/logins/{id}"
         }
       }
     },
@@ -1500,7 +1500,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/me/sessions"
+          "path": "/portal/me/sessions"
         }
       }
     },
@@ -1510,7 +1510,7 @@
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/customer/me/sessions/{id}"
+          "path": "/portal/me/sessions/{id}"
         }
       }
     },
@@ -1520,7 +1520,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/me/sign-out-everywhere"
+          "path": "/portal/me/sign-out-everywhere"
         }
       }
     }
@@ -1532,7 +1532,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer-auth/methods"
+          "path": "/portal/auth/methods"
         }
       }
     },
@@ -1542,7 +1542,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/social"
+          "path": "/portal/auth/social"
         }
       }
     },
@@ -1552,7 +1552,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer-auth/fields"
+          "path": "/portal/auth/fields"
         }
       }
     },
@@ -1562,7 +1562,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/sign-up"
+          "path": "/portal/auth/sign-up"
         }
       }
     },
@@ -1572,7 +1572,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/sign-up/confirm"
+          "path": "/portal/auth/sign-up/confirm"
         }
       }
     },
@@ -1582,7 +1582,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/code"
+          "path": "/portal/auth/code"
         }
       }
     },
@@ -1592,7 +1592,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/sign-in"
+          "path": "/portal/auth/sign-in"
         }
       }
     },
@@ -1602,7 +1602,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/refresh"
+          "path": "/portal/auth/refresh"
         }
       }
     },
@@ -1612,7 +1612,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/sign-out"
+          "path": "/portal/auth/sign-out"
         }
       }
     }
@@ -1634,7 +1634,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/notifications"
+          "path": "/portal/me/notifications"
         }
       }
     },
@@ -1644,7 +1644,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/notifications/unread-count"
+          "path": "/portal/me/notifications/unread-count"
         }
       }
     },
@@ -1654,7 +1654,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/notifications/read"
+          "path": "/portal/me/notifications/read"
         }
       }
     }

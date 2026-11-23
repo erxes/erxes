@@ -96,7 +96,7 @@ export const paths = {
     apiReferenceOf: (api: string, audience?: string) =>
       `/settings/api-reference/${id(api)}${audience ? `/${id(audience)}` : ''}`,
     apiKeys: '/settings/api-keys',
-    customerKeys: '/settings/api-keys?tab=customers',
+    portalKeys: '/settings/api-keys?tab=portal',
     apiKeyNew: '/settings/api-keys/new',
     apiKeyOf: (keyId: string) => `/settings/api-keys/${id(keyId)}`,
     profile: '/settings/profile',

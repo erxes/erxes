@@ -10,11 +10,10 @@ import { issueCode, proveCode } from './customerCodeReplies';
 import { type Address, addressOf, invalidCode, type PhoneMethod } from './customerCodes';
 import { checkSignUp, customerFieldsOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
-import { portalFor } from './customerPortals';
 
 /** The fields the portal's organisation lets customers fill in, for its forms. */
-export const signUpFields = async (input: { portal: string }, request: SignInRequest) => {
-  const portal = await portalFor(input.portal, request.origin);
+export const signUpFields = async (request: SignInRequest) => {
+  const { portal } = request;
 
   return withOrg(portal.orgId, async (tx) => ({ data: await customerFieldsOf(tx) }));
 };
@@ -24,10 +23,10 @@ export const signUpFields = async (input: { portal: string }, request: SignInReq
  * address that already has an account gets a code too, the same answer: confirming signs it in.
  */
 export const sendSignUpCode = async (
-  input: Address & CustomerSignUpData & { portal: string; method?: PhoneMethod },
+  input: Address & CustomerSignUpData & { method?: PhoneMethod },
   request: SignInRequest,
 ) => {
-  const portal = await portalFor(input.portal, request.origin);
+  const { portal } = request;
   const signUp = await withOrg(portal.orgId, (tx) => checkSignUp(tx, input));
   const { ip } = requestInfo();
 
@@ -56,11 +55,8 @@ export const fillEmpty = async (tx: Db, customerId: string, form: CustomerSignUp
  * Confirms a sign-up with its code: the customer (found by the address, else new), their account
  * on the portal, its first login and a session. An address that already had an account signs in.
  */
-export const confirmSignUp = async (
-  input: Address & { portal: string; code: string },
-  request: SignInRequest,
-) => {
-  const portal = await portalFor(input.portal, request.origin);
+export const confirmSignUp = async (input: Address & { code: string }, request: SignInRequest) => {
+  const { portal } = request;
   const address = addressOf(input);
 
   const used = await proveCode(portal, address, 'sign_up', input.code);

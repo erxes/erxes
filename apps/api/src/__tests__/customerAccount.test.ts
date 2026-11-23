@@ -40,10 +40,10 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
       (await api.customerAuth.refresh({ refreshToken: first.refreshToken })).refreshToken,
     ).toBe(second.refreshToken);
 
-    // Another portal's page can't use it.
+    // Another portal's token can't use it.
     await expect(
       t.app({ site: 'outlet' }).api.customerAuth.refresh({ refreshToken: second.refreshToken }),
-    ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
+    ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
 
     // A made-up token for the session is refused, and the session goes on.
     const [sessionId] = second.refreshToken.split('.');

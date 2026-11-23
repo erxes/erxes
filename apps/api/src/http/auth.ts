@@ -21,7 +21,8 @@ import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
-import { portalServes } from '~/modules/customerAuth/customerPortals';
+import { livePortal } from '~/modules/customerAuth/customerPortals';
+import { portalClaimsOfCall } from '~/modules/customerAuth/portalCalls';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
 declare global {
@@ -117,11 +118,24 @@ interface Resolved {
   orgId: string | null;
 }
 
-/** A signed-in customer: their own routes only, on a portal that still signs customers in. */
+/**
+ * A signed-in customer: their own routes only (`/portal/me`), with the token of the portal they
+ * signed in to, while it still signs customers in.
+ */
 const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> => {
   const customer = bearer ? await customerOfToken(bearer) : null;
 
-  if (!customer || !(await portalServes(customer.portalId, req.get('origin')))) {
+  if (!customer) throw unauthorized();
+
+  // Core's portal API takes the portal's token too, for the portal the customer signed in to.
+  const portal = await portalClaimsOfCall(req.get('x-portal-token'), req.get('origin'));
+
+  // A portal that stopped signing customers in ends their sessions.
+  if (
+    portal.sub !== customer.portalId ||
+    portal.org !== customer.orgId ||
+    !(await livePortal(portal.sub))
+  ) {
     throw unauthorized();
   }
 
@@ -290,8 +304,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   const header = req.headers.authorization ?? '';
   const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
 
-  // Nobody else's token works on the customer routes.
-  const resolved = req.path.startsWith('/customer/')
+  // Nobody else's token works on the customer's own routes.
+  const resolved = /^\/portal\/me(\/|$)/.test(req.path)
     ? await resolveCustomer(req, bearer)
     : bearer && isPluginToken(bearer)
       ? await resolvePlugin(req, bearer)

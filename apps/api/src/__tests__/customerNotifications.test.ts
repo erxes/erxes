@@ -166,7 +166,7 @@ describe('customer notifications', { timeout: 300_000 }, () => {
       }),
     ).rejects.toMatchObject({ status: 400 });
 
-    // Members can't send, and customer tokens work on `/customer/*` only.
+    // Members can't send, and customer tokens work on `/portal/me` only.
     await expect(t.member().customerNotifications.create(note)).rejects.toMatchObject({
       status: 403,
     });

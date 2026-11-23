@@ -116,7 +116,7 @@ export const customerNotificationsContract = {
   list: base
     .route({
       method: 'GET',
-      path: '/customer/notifications',
+      path: '/portal/me/notifications',
       summary: 'List customer notifications',
       description: "The signed-in customer's notifications, newest first",
     })
@@ -130,7 +130,7 @@ export const customerNotificationsContract = {
   unreadCount: base
     .route({
       method: 'GET',
-      path: '/customer/notifications/unread-count',
+      path: '/portal/me/notifications/unread-count',
       summary: 'Count unread customer notifications',
       description: "The signed-in customer's unread notifications; `source` for one plugin's",
     })
@@ -139,7 +139,7 @@ export const customerNotificationsContract = {
   markRead: base
     .route({
       method: 'POST',
-      path: '/customer/notifications/read',
+      path: '/portal/me/notifications/read',
       summary: 'Mark customer notifications read',
       description:
         'Mark some (`ids`) or all of my notifications read, or unread with `read: false`',

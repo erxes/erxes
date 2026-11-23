@@ -18,7 +18,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     expect(
       await api.customerAuth.signUp({
-        portal: t.sites.acme,
         kind: 'email',
         value: 'Shopper@Example.com',
         firstName: 'Bold',
@@ -27,7 +26,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     ).toEqual({ expiresInSeconds: 600, reply: null });
 
     const signedIn = await api.customerAuth.confirmSignUp({
-      portal: t.sites.acme,
       kind: 'email',
       value: 'shopper@example.com',
       code: await lastCode('shopper@example.com'),
@@ -71,7 +69,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
       primaryEmail: 'shopper@example.com',
     });
 
-    // A customer token opens nothing else, and no other token opens /customer/*.
+    // A customer token opens nothing else, and no other token opens /portal/me.
     await expect(t.client(signedIn.accessToken).customers.list({})).rejects.toMatchObject({
       status: 401,
     });
@@ -118,10 +116,13 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     expect(outlet.customer.id).toBe(known.id);
 
-    // Each portal's token works on that portal only.
+    // Each portal's customer token works with that portal's token only.
     await expect(
       t.app({ site: 'outlet', token: shop.accessToken }).api.customerAccount.me({}),
-    ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
+    ).rejects.toMatchObject({ status: 401, code: 'UNAUTHORIZED' });
+    await expect(
+      t.app({ portalToken: null, token: shop.accessToken }).api.customerAccount.me({}),
+    ).rejects.toMatchObject({ status: 401, code: 'UNAUTHORIZED' });
 
     expect(await shop.me.customerAccount.sessions({}).then((list) => list.data)).toHaveLength(1);
 
@@ -167,7 +168,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it('counts wrong codes: five, then even the right one fails', async () => {
     const { api, join } = t.app();
-    const address = { portal: t.sites.acme, kind: 'email', value: 'guess@example.com' } as const;
+    const address = { kind: 'email', value: 'guess@example.com' } as const;
 
     await join('guess@example.com');
     await aMinuteLater();
@@ -190,7 +191,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it("takes a portal's code on that portal only", async () => {
     await t.app().api.customerAuth.signUp({
-      portal: t.sites.acme,
       kind: 'email',
       value: 'elsewhere@example.com',
       firstName: 'Elsewhere',
@@ -198,7 +198,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     await expect(
       t.app({ site: 'outlet' }).api.customerAuth.confirmSignUp({
-        portal: t.sites.outlet,
         kind: 'email',
         value: 'elsewhere@example.com',
         code: await lastCode('elsewhere@example.com'),
@@ -208,7 +207,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it('signs in accounts only: an address without one gets no code, with the same answer', async () => {
     const { api, signIn, join } = t.app();
-    const address = { portal: t.sites.acme, kind: 'email', value: 'nobody@example.com' } as const;
+    const address = { kind: 'email', value: 'nobody@example.com' } as const;
 
     expect(await api.customerAuth.sendCode(address)).toEqual({
       expiresInSeconds: 600,
@@ -229,7 +228,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
   });
 
   it('limits codes per address and requests per network address', async () => {
-    const address = { portal: t.sites.acme, kind: 'phone', value: '+97699112233' } as const;
+    const address = { kind: 'phone', value: '+97699112233' } as const;
     const { api } = t.app();
     const signUp = { ...address, firstName: 'Limit' };
 
@@ -246,7 +245,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     for (let index = 0; index < 11; index += 1) {
       answers.push(
         await flood.api.customerAuth
-          .sendCode({ portal: t.sites.acme, kind: 'email', value: `flood${index}@example.com` })
+          .sendCode({ kind: 'email', value: `flood${index}@example.com` })
           .then(
             () => 'sent',
             (error: unknown) => z.object({ code: z.string() }).parse(error).code,
@@ -259,7 +258,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it("answers browsers only from the portal's origins", async () => {
     const preflight = (origin: string) =>
-      fetch(t.url('/core/v1/customer-auth/code'), {
+      fetch(t.url('/core/v1/portal/auth/code'), {
         method: 'OPTIONS',
         headers: {
           origin,
@@ -275,7 +274,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(allowed.headers.get('access-control-allow-credentials')).toBeNull();
     expect((await preflight('https://evil.example.com')).status).toBe(403);
 
-    const send = { portal: t.sites.acme, kind: 'email', value: 'origin@example.com' } as const;
+    const send = { kind: 'email', value: 'origin@example.com' } as const;
 
     await expect(
       t.app({ origin: 'https://evil.example.com' }).api.customerAuth.sendCode(send),
@@ -291,9 +290,15 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     expect(globex.customer.id).not.toBe(acme.customer.id);
 
-    // Acme's token from Globex's shop: refused.
+    // Acme's customer token with Globex's portal token: refused.
     await expect(
       t.app({ site: 'globex', token: acme.accessToken }).api.customerAccount.me({}),
+    ).rejects.toMatchObject({ status: 401, code: 'UNAUTHORIZED' });
+    // A secret key's token from a browser: refused, as plugins refuse it.
+    const secret = await t.owner().portals.createKey({ id: t.sites.acme, name: 'Server' });
+
+    await expect(
+      t.app({ portalToken: await t.tradeKey(secret.secret, null) }).api.customerAuth.sendCode(send),
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
 
     // A mobile app or the portal's server sends no origin.
@@ -304,8 +309,8 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it("follows the plugin's portals: changed addresses, removed portals, uninstalls", async () => {
     await expect(
-      t.app().api.customerAuth.sendCode({ portal: 'nope', kind: 'email', value: 'a@example.com' }),
-    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_PORTAL' });
+      t.app({ portalToken: 'nope' }).api.customerAuth.sendCode({ kind: 'email', value: 'a@x.mn' }),
+    ).rejects.toMatchObject({ status: 401, code: 'UNAUTHORIZED' });
 
     // A plugin keeps its own portals; members only read them.
     const listed = await t.owner().portals.list({});
@@ -327,7 +332,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
     expect(
       await t
-        .app({ origin: 'https://outlet.example.mn', token: moved.accessToken })
+        .app({ site: 'outlet', origin: 'https://outlet.example.mn', token: moved.accessToken })
         .api.customerAccount.me({}),
     ).toMatchObject({ id: moved.customer.id });
 
@@ -337,7 +342,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
       code: 'UNKNOWN_PORTAL',
     });
     await expect(
-      t.app({ origin: null, token: moved.accessToken }).api.customerAccount.me({}),
+      t.app({ site: 'outlet', origin: null, token: moved.accessToken }).api.customerAccount.me({}),
     ).rejects.toMatchObject({ status: 401 });
 
     const before = await t.signedIn('leaving@example.com', 'globex');
@@ -346,7 +351,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     await expect(
       t.app({ site: 'globex' }).api.customerAuth.sendCode({
-        portal: t.sites.globex,
         kind: 'email',
         value: 'late@example.com',
       }),
@@ -356,6 +360,6 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     await expect(before.me.customerAccount.me({})).rejects.toMatchObject({ status: 401 });
     await expect(
       t.app({ site: 'globex' }).api.customerAuth.refresh({ refreshToken: before.refreshToken }),
-    ).rejects.toMatchObject({ status: 401, code: 'INVALID_TOKEN' });
+    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_PORTAL' });
   });
 });

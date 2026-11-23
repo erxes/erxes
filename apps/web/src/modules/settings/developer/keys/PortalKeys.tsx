@@ -20,7 +20,7 @@ import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 
 const useKeyChange = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
   const { toast } = useToast();
   const client = useQueryClient();
 
@@ -37,7 +37,7 @@ const useKeyChange = () => {
 
 /** A button that copies a key. */
 const CopyKey = ({ value }: { value: string }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
   const { toast } = useToast();
 
   return (
@@ -57,7 +57,7 @@ const CopyKey = ({ value }: { value: string }) => {
 
 /** The new secret key, shown once, with a button that copies it. */
 const NewSecret = ({ secret }: { secret: string }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
 
   return (
     <Alert>
@@ -67,7 +67,7 @@ const NewSecret = ({ secret }: { secret: string }) => {
           <Input
             readOnly
             value={secret}
-            aria-label={t('key', 'Customer key')}
+            aria-label={t('key', 'Portal key')}
             className="min-w-0 flex-1"
           />
           <CopyKey value={secret} />
@@ -82,13 +82,13 @@ const NewSecret = ({ secret }: { secret: string }) => {
 };
 
 /** What the app made: a secret key's secret shows once, a publishable key stays in the list. */
-export interface MadeCustomerKey {
+export interface MadePortalKey {
   kind: PortalKeyKind;
   secret: string;
 }
 
 const useKindLabels = (): Record<PortalKeyKind, { label: string; description: string }> => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
 
   return {
     publishable: {
@@ -116,7 +116,7 @@ const KindPicker = ({
   kind: PortalKeyKind;
   onChange: (kind: PortalKeyKind) => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
   const kinds = useKindLabels();
 
   return (
@@ -138,9 +138,9 @@ const KindPicker = ({
   );
 };
 
-/** A new customer key: its kind, name and the portal it is for. Mounted while the dialog is open. */
-const NewCustomerKeyForm = ({ onCreated }: { onCreated: (made: MadeCustomerKey) => void }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+/** A new portal key: its kind, name and the portal it is for. Mounted while the dialog is open. */
+const NewPortalKeyForm = ({ onCreated }: { onCreated: (made: MadePortalKey) => void }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
   const nameId = useId();
   const portals = useQuery(orpc.portals.list.queryOptions());
   const { refresh, failed } = useKeyChange();
@@ -162,7 +162,7 @@ const NewCustomerKeyForm = ({ onCreated }: { onCreated: (made: MadeCustomerKey) 
   if (!portals.isPending && !list.length) {
     return (
       <p className="text-sm text-muted-foreground">
-        {t('no-portals', 'A customer key is for a portal: add one first in')}{' '}
+        {t('no-portals', 'A portal key is for a portal: add one first in')}{' '}
         <Link className="underline" to={paths.settings.portals}>
           {t('portals', 'Settings › Portals')}
         </Link>
@@ -206,36 +206,36 @@ const NewCustomerKeyForm = ({ onCreated }: { onCreated: (made: MadeCustomerKey) 
         className="w-full"
         disabled={!name.trim() || !portalId || create.isPending}
       >
-        {t('add', 'Create customer key')}
+        {t('add', 'Create portal key')}
       </Button>
     </form>
   );
 };
 
-/** Creates a customer key in a dialog; the secret shows on the page after. */
-export const NewCustomerKey = ({
+/** Creates a portal key in a dialog; the secret shows on the page after. */
+export const NewPortalKey = ({
   open,
   onOpenChange,
   onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (made: MadeCustomerKey) => void;
+  onCreated: (made: MadePortalKey) => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content>
         <Dialog.HeaderCombined
-          title={t('add', 'Create customer key')}
+          title={t('add', 'Create portal key')}
           description={t(
             'add-description',
             'For a portal’s apps or server: it reaches the portal’s plugins only for what its customers and visitors may see, never as a team member.',
           )}
         />
         {open && (
-          <NewCustomerKeyForm
+          <NewPortalKeyForm
             onCreated={(made) => {
               onOpenChange(false);
               onCreated(made);
@@ -248,7 +248,7 @@ export const NewCustomerKey = ({
 };
 
 const KeyRow = ({ apiKey }: { apiKey: PortalKey & { portalName: string } }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'customer-keys' });
+  const { t } = useTranslation('settings', { keyPrefix: 'portal-keys' });
   const fmt = useFormat();
   const { confirm } = useConfirm();
   const { refresh, failed } = useKeyChange();
@@ -296,8 +296,8 @@ const KeyRow = ({ apiKey }: { apiKey: PortalKey & { portalName: string } }) => {
   );
 };
 
-/** Settings › API keys › Customer keys: every portal's keys, and the one just made. */
-export const CustomerKeys = ({ secret, empty }: { secret: string | null; empty: ReactNode }) => {
+/** Settings › API keys › Portal keys: every portal's keys, and the one just made. */
+export const PortalKeys = ({ secret, empty }: { secret: string | null; empty: ReactNode }) => {
   const keys = useQuery(orpc.portals.keys.queryOptions());
 
   return (

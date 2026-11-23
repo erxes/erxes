@@ -4,7 +4,6 @@ import { canDeliverEmail } from '~/modules/email/sender';
 import { canDeliverSms } from '~/modules/sms/sms';
 import type { SignInRequest } from './customerAuth.service';
 import { phoneMethodsOf } from './customerCodes';
-import { portalFor } from './customerPortals';
 import { socialSignInOf } from './signInConnections';
 
 /** The id a portal's button starts the service's SDK with, or null when it is off or gone. */
@@ -17,11 +16,8 @@ const publicIdOf = async (orgId: string, connectionId: string | null) => {
 };
 
 /** How the portal lets customers sign in now: what it turned on and what can reach them. */
-export const signInMethods = async (
-  input: { portal: string },
-  request: SignInRequest,
-): Promise<PortalSignIn> => {
-  const portal = await portalFor(input.portal, request.origin);
+export const signInMethods = async (request: SignInRequest): Promise<PortalSignIn> => {
+  const { portal } = request;
 
   const { emails, texts } = await withOrg(portal.orgId, async (tx) => ({
     emails: await canDeliverEmail(tx),

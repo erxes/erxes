@@ -18,7 +18,7 @@ import { portalFor } from '~/modules/customerAuth/customerPortals';
 import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
 /**
- * Customer keys start with their kind's prefix, so secret scanners and people can tell them
+ * Portal keys start with their kind's prefix, so secret scanners and people can tell them
  * apart: `erxp_` a secret key, `erxpk_` a publishable one.
  */
 const KEY_PREFIXES = { secret: 'erxp_', publishable: 'erxpk_' } as const satisfies Record<
@@ -37,7 +37,7 @@ const keyParts = (key: string) => {
 
 const PORTAL_TOKEN_SECONDS = 900;
 
-/** Every portal's customer keys with the portal's name, newest first. */
+/** Every portal's keys with the portal's name, newest first. */
 export const listPortalKeys = async (client: Db) => ({
   data: await wholeList((limit) =>
     client
@@ -50,7 +50,7 @@ export const listPortalKeys = async (client: Db) => ({
 });
 
 /**
- * A new customer key for the portal. A secret key's secret is in the answer only; a publishable
+ * A new portal key for the portal. A secret key's secret is in the answer only; a publishable
  * key is kept whole, since its apps ship it to everyone.
  */
 export const createPortalKey = async (
@@ -105,11 +105,11 @@ const invalidKey = () => fail('INVALID_TOKEN', 'The portal key is not valid');
 const secretInBrowser = () =>
   fail(
     'ORIGIN_NOT_ALLOWED',
-    'A secret customer key works from a server only: give web and mobile apps a publishable key',
+    'A secret portal key works from a server only: give web and mobile apps a publishable key',
   );
 
 /**
- * A 15-minute portal token for a customer key, while the key stands and its portal has a
+ * A 15-minute portal token for a portal key, while the key stands and its portal has a
  * plugin: `sub` the portal, `org`, `kid` the key, `knd` its kind, and `ori` the web address a
  * browser traded a publishable key from. A browser (it sends `Origin`) may trade only a
  * publishable key, from one of the portal's web addresses. Plugins check the token with
@@ -173,7 +173,7 @@ export const portalToken = async (key: string, origin: string | undefined) => {
 };
 
 /**
- * `kid` names the customer key, or `agent:<id>` for core's agent acting on the portal; `knd`
+ * `kid` names the portal key, or `agent:<id>` for core's agent acting on the portal; `knd`
  * is `secret`, `publishable` or `agent`.
  */
 const signPortalToken = (

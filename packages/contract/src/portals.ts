@@ -243,7 +243,7 @@ export const portalsContract = {
       path: '/portals/{id}',
       summary: 'Delete a portal',
       description:
-        'Delete a portal with its customer accounts and customer keys; customers stay. 404 NOT_FOUND',
+        'Delete a portal with its customer accounts and portal keys; customers stay. 404 NOT_FOUND',
     })
     .input(portalId)
     .output(ok),
@@ -287,9 +287,8 @@ export const portalsContract = {
     .route({
       method: 'GET',
       path: '/portals/keys',
-      summary: 'List customer keys',
-      description:
-        "Every portal's customer keys (Settings › API keys), newest first, without their secrets",
+      summary: 'List portal keys',
+      description: "Every portal's keys (Settings › API keys), newest first, without their secrets",
     })
     .output(listOf(PortalKey.extend({ portalName: z.string() }))),
   createKey: base
@@ -297,9 +296,9 @@ export const portalsContract = {
       method: 'POST',
       path: '/portals/{id}/keys',
       successStatus: 201,
-      summary: 'Make a customer key',
+      summary: 'Make a portal key',
       description:
-        "A customer key, traded at `POST /portal-auth/token` for a token the portal's plugins accept, for what customers and visitors may see. `secret` (the default) is for the portal's own server and shows once; `publishable` is for its web and mobile apps and shows any time. 404 NOT_FOUND",
+        "A portal key, traded at `POST /portal-auth/token` for a token the portal's plugins accept, for what customers and visitors may see. `secret` (the default) is for the portal's own server and shows once; `publishable` is for its web and mobile apps and shows any time. 404 NOT_FOUND",
     })
     .input(
       portalId.extend({
@@ -312,9 +311,8 @@ export const portalsContract = {
     .route({
       method: 'DELETE',
       path: '/portals/{id}/keys/{keyId}',
-      summary: 'Revoke a customer key',
-      description:
-        'Revoke a customer key: its tokens stop working within 15 minutes. 404 NOT_FOUND',
+      summary: 'Revoke a portal key',
+      description: 'Revoke a portal key: its tokens stop working within 15 minutes. 404 NOT_FOUND',
     })
     .input(portalId.extend({ keyId: Id }))
     .output(ok),
@@ -322,7 +320,7 @@ export const portalsContract = {
 
 /**
  * Staff see a customer's accounts on the organisation's portals. Only the customer signs
- * their account out (`/customer/me/*`); staff don't act on it.
+ * their account out (`/portal/me/*`); staff don't act on it.
  */
 export const customerAccountsContract = {
   list: base

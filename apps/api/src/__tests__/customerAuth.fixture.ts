@@ -47,34 +47,81 @@ export const lastCode = async (to: string) => {
 export const useCustomers = () => {
   const t = useTwoOrgs();
   const sites: Record<Site, string> = { acme: '', outlet: '', globex: '' };
+  /** Each portal's publishable key, as its apps ship it. */
+  const keys: Record<Site, string> = { acme: '', outlet: '', globex: '' };
+  const portalTokens = new Map<string, Promise<string>>();
 
-  /**
-   * A portal in one browser: its own network address (rate limits are per
-   * address), its page's origin (`null`: a mobile app sends none) and, once
-   * signed in, the customer's access token.
-   */
-  const app = (options: { site?: Site; origin?: string | null; token?: string } = {}) => {
-    const site = options.site ?? 'acme';
-    const ip = `10.0.0.${++ipCount}`;
-    const origin = options.origin === undefined ? siteOrigin(site) : options.origin;
-
-    const api: CoreClient = createORPCClient(
+  /** A client from one network address and page (`null`: a mobile app), with these headers. */
+  const clientAt = (
+    ip: string,
+    origin: string | null,
+    headers: () => Promise<Record<string, string>> | Record<string, string> = () => ({}),
+  ): CoreClient =>
+    createORPCClient(
       new OpenAPILink(coreContract, {
         url: () => t.url(CORE_API_PREFIX),
-        headers: () => ({
+        headers: async () => ({
           'x-forwarded-for': ip,
           ...(origin ? { origin } : {}),
-          ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
+          ...(await headers()),
         }),
       }),
     );
 
+  /** A portal key traded for a token from `origin`, as an app does every 15 minutes. */
+  const tradeKey = (key: string, origin: string | null) =>
+    clientAt(`10.1.0.${++ipCount}`, origin)
+      .portalAuth.token({ key })
+      .then((answer) => answer.accessToken);
+
+  /** The site's portal token for apps at `origin`, traded once. */
+  const portalTokenOf = (site: Site, origin: string | null) => {
+    const cacheKey = `${site} ${origin}`;
+    const known = portalTokens.get(cacheKey);
+
+    if (known) return known;
+
+    const traded = tradeKey(keys[site], origin);
+
+    portalTokens.set(cacheKey, traded);
+
+    return traded;
+  };
+
+  /**
+   * A portal in one browser: its own network address (rate limits are per
+   * address), its page's origin (`null`: a mobile app sends none), the portal's
+   * token (`portalToken: null` sends none) and, once signed in, the customer's access token.
+   */
+  const app = (
+    options: {
+      site?: Site;
+      origin?: string | null;
+      token?: string;
+      portalToken?: string | null;
+    } = {},
+  ) => {
+    const site = options.site ?? 'acme';
+    const ip = `10.0.0.${++ipCount}`;
+    const origin = options.origin === undefined ? siteOrigin(site) : options.origin;
+
+    const portalToken = () =>
+      options.portalToken === undefined ? portalTokenOf(site, origin) : options.portalToken;
+
+    const api = clientAt(ip, origin, async () => {
+      const token = await portalToken();
+
+      return {
+        ...(token ? { 'x-portal-token': token } : {}),
+        ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
+      };
+    });
+
     /** Signs in to the portal's account of the address, with a code sent to it. */
     const signIn = async (value: string, kind: 'email' | 'phone' = 'email') => {
-      await api.customerAuth.sendCode({ portal: sites[site], kind, value });
+      await api.customerAuth.sendCode({ kind, value });
 
       return api.customerAuth.signIn({
-        portal: sites[site],
         kind,
         value,
         code: await lastCode(value),
@@ -88,7 +135,6 @@ export const useCustomers = () => {
       form: { firstName?: string; customFields?: Record<string, string> } = {},
     ) => {
       await api.customerAuth.signUp({
-        portal: sites[site],
         kind,
         value,
         firstName: form.firstName ?? 'Test',
@@ -96,7 +142,6 @@ export const useCustomers = () => {
       });
 
       return api.customerAuth.confirmSignUp({
-        portal: sites[site],
         kind,
         value,
         code: await lastCode(value),
@@ -106,7 +151,7 @@ export const useCustomers = () => {
     return { api, signIn, join };
   };
 
-  /** Signs up on (or in to) a portal; `me` is its `/customer/*` client. */
+  /** Signs up on (or in to) a portal; `me` is its `/portal/me` client. */
   const signedIn = async (value: string, site: Site = 'acme') => {
     const result = await app({ site }).join(value);
 
@@ -129,7 +174,16 @@ export const useCustomers = () => {
     sites.acme = await save(t.ids.org, 'store-1', 'acme');
     sites.outlet = await save(t.ids.org, 'store-2', 'outlet');
     sites.globex = await save(t.ids.otherOrg, 'store-1', 'globex');
+
+    const keyOf = (client: CoreClient, site: Site) =>
+      client.portals
+        .createKey({ id: sites[site], name: `${site} app`, kind: 'publishable' })
+        .then((made) => made.secret);
+
+    keys.acme = await keyOf(t.owner(), 'acme');
+    keys.outlet = await keyOf(t.owner(), 'outlet');
+    keys.globex = await keyOf(t.other(), 'globex');
   });
 
-  return { ...t, sites, app, signedIn };
+  return { ...t, sites, keys, app, signedIn, tradeKey };
 };

@@ -39,19 +39,19 @@ const REQUEST_ID = /^[\w.:-]{8,100}$/;
 /** Where plugins, customers and portals' servers trade a secret or a token for a new token. */
 const TOKEN_PATHS = [
   '/core/v1/plugins/token',
-  '/core/v1/customer-auth/refresh',
-  '/core/v1/customer-auth/social',
+  '/core/v1/portal/auth/refresh',
+  '/core/v1/portal/auth/social',
   '/core/v1/portal-auth/token',
 ];
 
 /** Where customers ask for and type sign-up and sign-in codes. */
 const CUSTOMER_CODE_PATHS = [
-  '/core/v1/customer-auth/sign-up',
-  '/core/v1/customer-auth/sign-up/confirm',
-  '/core/v1/customer-auth/code',
-  '/core/v1/customer-auth/sign-in',
-  '/core/v1/customer/me/logins',
-  '/core/v1/customer/me/logins/confirm',
+  '/core/v1/portal/auth/sign-up',
+  '/core/v1/portal/auth/sign-up/confirm',
+  '/core/v1/portal/auth/code',
+  '/core/v1/portal/auth/sign-in',
+  '/core/v1/portal/me/logins',
+  '/core/v1/portal/me/logins/confirm',
 ];
 
 /** The caller's `X-Request-Id` when it is a plain token, else a new one. Echoed on the response. */
@@ -129,8 +129,8 @@ export const createApp = (log: Logger = logger): Express => {
   app.use('/core/v1/files/signed', limit.upload, signedFilesRouter);
 
   // Portals call these from their own origins (decision 42).
-  // A publishable customer key is traded from them too.
-  app.use(['/core/v1/customer-auth', '/core/v1/customer', '/core/v1/portal-auth'], customerCors);
+  // A publishable portal key is traded from them too.
+  app.use(['/core/v1/portal', '/core/v1/portal-auth'], customerCors);
 
   // Guessing passwords and secrets: limited per address before anything else.
   app.use(
@@ -200,7 +200,7 @@ export const createApp = (log: Logger = logger): Express => {
   app.get('/core/v1/openapi.json', openApiDocument);
   // The references Settings › Developer shows: what members, or customers, can call.
   app.get('/core/v1/openapi/member.json', apiReference('member'));
-  app.get('/core/v1/openapi/customer.json', apiReference('customer'));
+  app.get('/core/v1/openapi/portal.json', apiReference('portal'));
 
   // Core's public signing keys: plugins verify plugin tokens and auditors
   // verify audit checkpoints with them.

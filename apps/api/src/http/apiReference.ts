@@ -6,12 +6,12 @@ import { ACCESS } from './policies';
 import type { Policy } from './policyRules';
 
 /**
- * Who a reference is for: team members (the session cookie or a member token) or
- * signed-in customers (a customer token). Plugins read the whole document. The
+ * Who a reference is for: team members (the session cookie or a member token) or a portal's
+ * apps and server (its portal token, and a signed-in customer's token on `/portal/me`). Plugins read the whole document. The
  * cookie is described, not declared as a scheme: a client that fills a cookie
  * scheme in would overwrite the member's own session.
  */
-export type ApiAudience = 'member' | 'customer';
+export type ApiAudience = 'member' | 'portal';
 
 const POLICIES = new Map<string, Policy>(Object.entries(ACCESS));
 
@@ -19,10 +19,12 @@ const METHODS = ['get', 'put', 'post', 'delete', 'patch'] as const;
 
 /** Whose reference lists a procedure; `plugins.token` is a plugin's own sign-in. */
 const audienceOf = (procedure: string, policy: Policy): ApiAudience | undefined => {
-  if ('customer' in policy) return 'customer';
+  if ('customer' in policy) return 'portal';
 
   if ('public' in policy) {
-    if (procedure.startsWith('customerAuth.')) return 'customer';
+    if (procedure.startsWith('customerAuth.') || procedure.startsWith('portalAuth.')) {
+      return 'portal';
+    }
 
     return procedure.startsWith('plugins.') ? undefined : 'member';
   }
@@ -53,19 +55,25 @@ const INTROS: Record<ApiAudience, Pick<OpenAPI.Document, 'info' | 'components' |
     },
     security: [{ memberToken: [] }],
   },
-  customer: {
+  portal: {
     info: {
-      title: 'erxes customer API',
+      title: 'erxes portal API',
       version: 'v1',
       description:
-        'What a customer can call from a portal or its app: sign in to the portal (its id from the plugin) with a code sent by email or SMS, then use the access token from `POST /customer-auth/sign-in` as `Authorization: Bearer`.',
+        "What a portal's web and mobile apps (a publishable key) and its server (a secret key) call in core: trade the portal key at `POST /portal-auth/token` for a 15-minute token and send it as `X-Portal-Token`, sign customers in with a code sent by email or SMS or with Google, Apple or Facebook, then send the customer's access token as `Authorization: Bearer` too on `/portal/me`. Each plugin on the portal has its own portal API at `/portal/v1`.",
     },
     components: {
       securitySchemes: {
+        portalToken: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-portal-token',
+          description: "A 15-minute token for one of the portal's keys (`POST /portal-auth/token`)",
+        },
         customerToken: { ...BEARER, description: 'A customer access token' },
       },
     },
-    security: [{ customerToken: [] }],
+    security: [{ portalToken: [], customerToken: [] }],
   },
 };
 
@@ -82,7 +90,10 @@ const operationsFor = (item: OpenAPI.PathItemObject | undefined, audience: ApiAu
       kept[method] = {
         ...operation,
         tags: [sectionOf(procedure)],
-        ...('public' in policy ? { security: [] } : {}),
+        // Signing in takes the portal's token only; the trade itself takes neither.
+        ...('public' in policy
+          ? { security: procedure.startsWith('customerAuth.') ? [{ portalToken: [] }] : [] }
+          : {}),
       };
     }
   }

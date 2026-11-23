@@ -183,7 +183,7 @@ export const API_KEY_AREA_INFO = {
  * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes
  * (with a plugin session token), employees in the plugin's own app (with a token the plugin
  * issues when they sign in, like HR's mobile app) or a portal's apps and server (`/portal/v1`,
- * with a portal token from core for one of the portal's customer keys, and the signed-in
+ * with a portal token from core for one of the portal's keys, and the signed-in
  * customer's token on `/me` routes). `customer` documents the older `/customer` routes, which
  * plugins fold into `portal` as `/portal/v1/me`.
  */
@@ -448,7 +448,7 @@ export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
 /** The nodes and marks an email's document may hold; the email editor offers only these. */
 export { EMAIL_MARK_TYPES, EMAIL_NODE_TYPES } from '@erxes/core-db/emailEnums';
 
-/** Who traded a portal token (`knd`): a customer key's kind, or core's agent. */
+/** Who traded a portal token (`knd`): a portal key's kind, or core's agent. */
 export { PORTAL_KEY_KINDS, PORTAL_TOKEN_KINDS } from '@erxes/core-db/enums';
 
 export { AutomationDefinition } from '@erxes/core-db/automationDefinition';

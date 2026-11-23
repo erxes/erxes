@@ -115,13 +115,14 @@
  * `await core.forOrg(orgId).portals.attach({ id: portalId, recordId: store.id })` puts a store on
  * a portal picked from `portals.list()`; `portals.save({ recordId: site.id, name, origins })`
  * makes the portal a record runs and renames it after; `portals.detach({ recordId })` when the
- * record goes. The portal's own forms call core: `POST /core/v1/customer-auth/sign-up`
- * `{ portal, kind, value, firstName, … }` then `/sign-up/confirm` with the code makes the
- * account; `POST /core/v1/customer-auth/code` `{ portal, kind, value }` then `/sign-in` with the
- * code signs an account in; `/customer-auth/social` signs in with Google, Apple or Facebook. They
- * return `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews them.
- * A portal's apps and server call each plugin's one portal API, `/portal/v1`, with
- * `X-Portal-Token`: a token core gives for one of the portal's customer keys, a secret key on its
+ * record goes. The portal's own forms call core's portal API with the same `X-Portal-Token`:
+ * `POST /core/v1/portal/auth/sign-up` `{ kind, value, firstName, … }` then `/sign-up/confirm`
+ * with the code makes the account; `POST /core/v1/portal/auth/code` `{ kind, value }` then
+ * `/sign-in` with the code signs an account in; `/portal/auth/social` signs in with Google, Apple
+ * or Facebook. They return `{ accessToken, refreshToken, expiresIn, customer }`;
+ * `/portal/auth/refresh` renews them. A portal's apps and server call each plugin's one portal
+ * API, `/portal/v1`, with `X-Portal-Token`: a token core gives for one of the portal's keys, a
+ * secret key on its
  * server or a publishable key in its web and mobile apps; no plugin issues its own keys. A
  * signed-in customer adds `Authorization: Bearer`, which the `/me/*` routes (their orders, their
  * profile) require. `verifyPortalRequest` checks both, the browser's address and whom to limit:

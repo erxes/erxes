@@ -21,7 +21,7 @@ import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { apiKeyColumns } from './apiKeyColumns';
-import { CustomerKeys, NewCustomerKey } from './keys/CustomerKeys';
+import { NewPortalKey, PortalKeys } from './keys/PortalKeys';
 
 const NoKeys = ({ title, description }: { title: string; description: string }) => (
   <Empty>
@@ -85,10 +85,10 @@ const MemberKeys = () => {
   );
 };
 
-const KEY_TABS = ['members', 'customers'] as const;
+const KEY_TABS = ['members', 'portal'] as const;
 
-/** Create key: a team member key (its own page) or a customer key for a portal (a dialog). */
-const CreateKey = ({ onCustomerKey }: { onCustomerKey: () => void }) => {
+/** Create key: a team member key (its own page) or a portal's key (a dialog). */
+const CreateKey = ({ onPortalKey }: { onPortalKey: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'api-keys' });
   const can = useCan();
   const navigate = useNavigate();
@@ -114,12 +114,12 @@ const CreateKey = ({ onCustomerKey }: { onCustomerKey: () => void }) => {
           </DropdownMenu.Item>
         )}
         {can('portals.manage') && (
-          <DropdownMenu.Item onClick={onCustomerKey}>
+          <DropdownMenu.Item onClick={onPortalKey}>
             <IconWorldWww />
             <span>
-              <span className="block">{t('customer-key', 'Customer key')}</span>
+              <span className="block">{t('portal-key', 'Portal key')}</span>
               <span className="block text-xs text-muted-foreground">
-                {t('customer-key-help', 'A portal’s server, for what its customers may see')}
+                {t('portal-key-help', 'A portal’s apps or server, for what its customers may see')}
               </span>
             </span>
           </DropdownMenu.Item>
@@ -139,7 +139,7 @@ export const ApiKeysPage = () => {
   const [tab, setTab] = useQueryState('tab', parseAsStringLiteral(KEY_TABS).withDefault('members'));
   const [creating, setCreating] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
-  const customers = can('portals.manage');
+  const portalKeys = can('portals.manage');
 
   return (
     <PageContainer>
@@ -150,23 +150,23 @@ export const ApiKeysPage = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          <CreateKey onCustomerKey={() => setCreating(true)} />
+          <CreateKey onPortalKey={() => setCreating(true)} />
         </PageHeader.End>
       </PageHeader>
       <PageSubHeader className="items-center">
-        {customers && (
+        {portalKeys && (
           <Tabs value={tab} onValueChange={(next) => void setTab(next)}>
             <Tabs.List variant="flush" className="h-9">
               <Tabs.Trigger value="members">{t('tab-members', 'Team member keys')}</Tabs.Trigger>
-              <Tabs.Trigger value="customers">{t('tab-customers', 'Customer keys')}</Tabs.Trigger>
+              <Tabs.Trigger value="portal">{t('tab-portal', 'Portal keys')}</Tabs.Trigger>
             </Tabs.List>
           </Tabs>
         )}
         <span className="text-sm text-muted-foreground">
-          {tab === 'customers' && customers
+          {tab === 'portal' && portalKeys
             ? t(
-                'intro-customers',
-                'A customer key lets a portal’s apps (publishable) or its server (secret) call its plugins for what its customers and visitors may see. It never acts as a team member.',
+                'intro-portal',
+                'A portal key lets a portal’s apps (publishable) or its server (secret) call core and its plugins for what its customers and visitors may see. It never acts as a team member.',
               )
             : t(
                 'intro',
@@ -174,14 +174,14 @@ export const ApiKeysPage = () => {
               )}
         </span>
       </PageSubHeader>
-      {tab === 'customers' && customers ? (
-        <CustomerKeys
+      {tab === 'portal' && portalKeys ? (
+        <PortalKeys
           secret={secret}
           empty={
             <NoKeys
-              title={t('customers-empty', 'No customer keys yet')}
+              title={t('portal-empty', 'No portal keys yet')}
               description={t(
-                'customers-empty-description',
+                'portal-empty-description',
                 'A portal’s web and mobile apps, or its server, call its plugins with one, for what customers and visitors may see.',
               )}
             />
@@ -190,13 +190,13 @@ export const ApiKeysPage = () => {
       ) : (
         <MemberKeys />
       )}
-      {customers && (
-        <NewCustomerKey
+      {portalKeys && (
+        <NewPortalKey
           open={creating}
           onOpenChange={setCreating}
           onCreated={(made) => {
             setSecret(made.kind === 'secret' ? made.secret : null);
-            void setTab('customers');
+            void setTab('portal');
           }}
         />
       )}

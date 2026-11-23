@@ -12,7 +12,7 @@ import { QueryState } from '~/components/QueryState';
 import { useAppliedTheme } from '~/modules/app/ThemeEffect';
 
 /** Who a reference is for: the routes core's `/openapi/<audience>.json` lists. */
-export const API_AUDIENCES = ['member', 'customer'] as const;
+export const API_AUDIENCES = ['member', 'portal'] as const;
 
 export type ApiAudience = (typeof API_AUDIENCES)[number];
 

@@ -58,7 +58,7 @@ const unauthorized = (message: string) => new PortalRequestError(401, 'UNAUTHORI
  * Checks a call to a plugin's portal API (`/portal/v1`), the one API a portal's web and mobile
  * apps and its server call:
  *
- * - `X-Portal-Token` names the portal: a token core gave for one of its customer keys. Core's
+ * - `X-Portal-Token` names the portal: a token core gave for one of its portal keys. Core's
  *   agent may instead send its customer token alone.
  * - `Authorization: Bearer` (optional, required by `/me` routes): the customer signed in to the
  *   same portal.
@@ -134,7 +134,7 @@ export const portalRequestOf = (
       'ORIGIN_NOT_ALLOWED',
       key?.kind === 'publishable'
         ? 'This web address is not the one the portal token was made for'
-        : 'Browsers call with a publishable customer key only',
+        : 'Browsers call with a publishable portal key only',
     );
   }
 

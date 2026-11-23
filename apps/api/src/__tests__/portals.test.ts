@@ -17,12 +17,16 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
 
     expect(portal).toMatchObject({ emailSignIn: true, phoneSignIn: true, senderName: null });
 
-    // No plugin on it yet: it signs nobody in.
-    const browser = t.app({ origin: 'https://tours.example.mn' });
+    // No plugin on it yet: its key trades for no token, so it signs nobody in.
+    const origin = 'https://tours.example.mn';
 
-    await expect(browser.api.customerAuth.methods({ portal: portal.id })).rejects.toMatchObject({
-      status: 400,
-      code: 'UNKNOWN_PORTAL',
+    const { secret: key } = await t
+      .owner()
+      .portals.createKey({ id: portal.id, name: 'Tours app', kind: 'publishable' });
+
+    await expect(t.tradeKey(key, origin)).rejects.toMatchObject({
+      status: 401,
+      code: 'INVALID_TOKEN',
     });
 
     expect(await t.hr().portals.attach({ id: portal.id, recordId: 'tours-1' })).toMatchObject({
@@ -35,7 +39,9 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
       plugins: ['hr'],
       accounts: 0,
     });
-    expect(await browser.api.customerAuth.methods({ portal: portal.id })).toEqual({
+    const browser = t.app({ origin, portalToken: await t.tradeKey(key, origin) });
+
+    expect(await browser.api.customerAuth.methods()).toEqual({
       name: 'Nomad Tours',
       email: true,
       phone: 'code',
@@ -64,24 +70,27 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
     await t.owner().portals.update({ id: portal.id, emailSignIn: false, senderName: 'Nomad' });
 
     await expect(
-      browser.api.customerAuth.sendCode({ portal: portal.id, kind: 'email', value: 'a@x.mn' }),
+      browser.api.customerAuth.sendCode({ kind: 'email', value: 'a@x.mn' }),
     ).rejects.toMatchObject({ status: 400, code: 'SIGN_IN_UNAVAILABLE' });
   });
 
-  it("gives the portal's server a customer key it trades for tokens the plugins check", async () => {
+  it("gives the portal's server a portal key it trades for tokens the plugins check", async () => {
     const made = await t.owner().portals.createKey({ id: t.sites.acme, name: 'Shop server' });
 
     expect(made.secret).toMatch(/^erxp_/);
     expect(made.hint).toBe(made.secret.slice(-4));
-    expect((await t.owner().portals.keys({})).data).toEqual([
+    expect((await t.owner().portals.keys({})).data[0]).toEqual(
       expect.objectContaining({
         id: made.id,
         name: 'Shop server',
         portalName: 'acme shop',
         lastUsedAt: null,
       }),
+    );
+    // Globex sees its own keys only: its app's.
+    expect((await t.other().portals.keys({})).data.map((key) => key.portalId)).toEqual([
+      t.sites.globex,
     ]);
-    expect((await t.other().portals.keys({})).data).toEqual([]);
 
     const server = t.app({ origin: null }).api;
     const token = await server.portalAuth.token({ key: made.secret });
@@ -126,9 +135,9 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
     expect(made).toMatchObject({ kind: 'publishable', key: made.secret });
     expect(made.secret).toMatch(/^erxpk_/);
     // It stays readable: apps ship it to everyone.
-    expect((await t.owner().portals.keys({})).data).toEqual([
+    expect((await t.owner().portals.keys({})).data[0]).toEqual(
       expect.objectContaining({ id: made.id, kind: 'publishable', key: made.secret }),
-    ]);
+    );
 
     const browser = t.app({ origin: siteOrigin('acme') }).api;
     const token = await browser.portalAuth.token({ key: made.secret });
@@ -226,8 +235,12 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
 
     await t.hr().portals.attach({ id: portal.id, recordId: 'popup-1' });
 
-    const { api } = t.app({ origin });
-    const address = { portal: portal.id, kind: 'email' as const, value: 'popup@example.com' };
+    const { secret: key } = await t
+      .owner()
+      .portals.createKey({ id: portal.id, name: 'Pop-up app', kind: 'publishable' });
+
+    const { api } = t.app({ origin, portalToken: await t.tradeKey(key, origin) });
+    const address = { kind: 'email' as const, value: 'popup@example.com' };
 
     await api.customerAuth.signUp({ ...address, firstName: 'Pop' });
 

@@ -39,7 +39,7 @@ const BEARER = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } as const;
 
 const customerToken = {
   ...BEARER,
-  description: `A customer's access token from core: \`POST ${CORE_API_PREFIX}/customer-auth/sign-in\` returns it (core's Customer API documents the sign-in).`,
+  description: `A customer's access token from core: \`POST ${CORE_API_PREFIX}/portal/auth/sign-in\` returns it (core's Portal API documents the sign-in).`,
 };
 
 /** How each audience signs in, for the document's security schemes. */
@@ -89,7 +89,7 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
           in: 'header',
           name: 'x-portal-token',
           description:
-            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for one of the portal's customer keys (Settings › API keys › Customer keys): a secret key on the portal's server, or a publishable key in its web and mobile apps. A server may name the visitor it calls for in `X-Visitor-Ip`.",
+            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for one of the portal's keys (Settings › API keys › Portal keys): a secret key on the portal's server, or a publishable key in its web and mobile apps. A server may name the visitor it calls for in `X-Visitor-Ip`.",
         },
         [CUSTOMER_TOKEN_SCHEME]: customerToken,
       },

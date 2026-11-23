@@ -88,9 +88,9 @@ describe('portal sign-in with verify.mn and Google (decision 42)', { timeout: 30
     await t.owner().portals.update({ id: t.sites.acme, phoneConnectionId: verify.id });
 
     const { api } = t.app();
-    const phone = { portal: t.sites.acme, kind: 'phone' as const, value: '99112233' };
+    const phone = { kind: 'phone' as const, value: '99112233' };
 
-    expect((await api.customerAuth.methods({ portal: t.sites.acme })).phone).toBe('reply');
+    expect((await api.customerAuth.methods()).phone).toBe('reply');
 
     // No account yet: the phone proves itself first, then hears it has none.
     const sent = await api.customerAuth.sendCode(phone);
@@ -150,15 +150,12 @@ describe('portal sign-in with verify.mn and Google (decision 42)', { timeout: 30
 
     const { api } = t.app();
 
-    expect((await api.customerAuth.methods({ portal: t.sites.acme })).googleClientId).toBe(
-      GOOGLE_CLIENT,
-    );
+    expect((await api.customerAuth.methods()).googleClientId).toBe(GOOGLE_CLIENT);
 
     // Someone already signed up with the email gets Google added to the same account.
     const known = await t.signedIn('gerel@example.com');
 
     const viaGoogle = await api.customerAuth.social({
-      portal: t.sites.acme,
       provider: 'google',
       token: await googleToken({ sub: 'g-100', email: 'Gerel@example.com', given_name: 'Gerel' }),
     });
@@ -173,7 +170,6 @@ describe('portal sign-in with verify.mn and Google (decision 42)', { timeout: 30
 
     // A new person: a new customer and account, named by Google.
     const fresh = await api.customerAuth.social({
-      portal: t.sites.acme,
       provider: 'google',
       token: await googleToken({ sub: 'g-200', email: 'tuul@example.com', given_name: 'Tuul' }),
     });
@@ -182,14 +178,13 @@ describe('portal sign-in with verify.mn and Google (decision 42)', { timeout: 30
 
     await expect(
       api.customerAuth.social({
-        portal: t.sites.acme,
         provider: 'google',
         token: await googleToken({ sub: 'g-300' }, 'someone-else.apps.googleusercontent.com'),
       }),
     ).rejects.toMatchObject({ status: 401, code: 'INVALID_SOCIAL_TOKEN' });
 
     await expect(
-      api.customerAuth.social({ portal: t.sites.acme, provider: 'apple', token: 'x.y.z' }),
+      api.customerAuth.social({ provider: 'apple', token: 'x.y.z' }),
     ).rejects.toMatchObject({ status: 400, code: 'SIGN_IN_UNAVAILABLE' });
   });
 });

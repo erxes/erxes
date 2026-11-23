@@ -16,7 +16,7 @@ import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { accountOf, openSession, type SignInRequest } from './customerAuth.service';
 import { checkSignUp } from './customerFields';
 import { addLogin, findLogin, lockLogin, type Login } from './customerLogins';
-import { type LivePortal, portalFor } from './customerPortals';
+import type { LivePortal } from './customerPortals';
 import { fillEmpty } from './customerSignUp';
 import { socialSignInOf } from './signInConnections';
 
@@ -27,7 +27,6 @@ type Provider = (typeof CUSTOMER_SOCIAL_PROVIDERS)[number];
 const SERVICE = { google: 'Google', apple: 'Apple', facebook: 'Facebook' } as const;
 
 interface SocialInput extends Partial<CustomerSignUpData> {
-  portal: string;
   provider: Provider;
   token: string;
   nonce?: string;
@@ -143,7 +142,7 @@ const firstSignIn = async (
  * it joins or makes the portal's account (`firstSignIn`).
  */
 export const signInWithSocial = async (input: SocialInput, request: SignInRequest) => {
-  const portal = await portalFor(input.portal, request.origin);
+  const { portal } = request;
   const identity = await identify(portal, input);
   const social: Login = { kind: input.provider, value: identity.subject };
 

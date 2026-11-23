@@ -82,7 +82,7 @@ describe(
 
     it("sends the portal's own code email and text, in its language by default", async () => {
       const { api } = t.app();
-      const email = { portal: t.sites.acme, kind: 'email' as const, value: 'nomin@x.mn' };
+      const email = { kind: 'email' as const, value: 'nomin@x.mn' };
 
       await t.owner().portals.update({ id: t.sites.acme, codeLanguage: 'mn' });
       await api.customerAuth.signUp({ ...email, firstName: 'Nomin' });
@@ -107,7 +107,6 @@ describe(
       await aMinuteLater();
       await api.customerAuth.signUp({ ...email, firstName: 'Nomin' });
       await api.customerAuth.signUp({
-        portal: t.sites.acme,
         kind: 'phone',
         value: '99001122',
         firstName: 'Bat',
@@ -137,7 +136,6 @@ describe(
       await t.owner().portals.update({ id: t.sites.acme, replyTo: 'help@acme.mn' });
       await aMinuteLater();
       await t.app().api.customerAuth.signUp({
-        portal: t.sites.acme,
         kind: 'email',
         value: 'reply@x.mn',
         firstName: 'Saraa',
@@ -169,7 +167,7 @@ describe(
         t.owner().portals.update({ id: t.sites.acme, smsConnectionId: 'nope' }),
       ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_CONNECTION' });
 
-      const phone = { portal: t.sites.acme, kind: 'phone' as const, value: '99112244' };
+      const phone = { kind: 'phone' as const, value: '99112244' };
 
       await aMinuteLater();
       await t.app().api.customerAuth.signUp({ ...phone, firstName: 'Dorj' });
@@ -196,7 +194,7 @@ describe(
       });
 
       const { api } = t.app();
-      const phone = { portal: t.sites.acme, kind: 'phone' as const, value: '99113355' };
+      const phone = { kind: 'phone' as const, value: '99113355' };
 
       await t.owner().portals.update({
         id: t.sites.acme,
@@ -204,7 +202,7 @@ describe(
         phoneTexts: true,
       });
 
-      expect(await api.customerAuth.methods({ portal: t.sites.acme })).toMatchObject({
+      expect(await api.customerAuth.methods()).toMatchObject({
         phone: 'reply',
         phoneMethods: ['reply', 'code'],
       });
@@ -224,9 +222,7 @@ describe(
       await t.owner().portals.update({ id: t.sites.acme, phoneTexts: false });
       await aMinuteLater();
 
-      expect((await api.customerAuth.methods({ portal: t.sites.acme })).phoneMethods).toEqual([
-        'reply',
-      ]);
+      expect((await api.customerAuth.methods()).phoneMethods).toEqual(['reply']);
       await expect(
         api.customerAuth.signUp({ ...phone, firstName: 'Tuya', method: 'code' }),
       ).rejects.toMatchObject({ status: 400, code: 'SIGN_IN_UNAVAILABLE' });
@@ -238,9 +234,7 @@ describe(
         phoneTexts: true,
       });
 
-      expect((await api.customerAuth.methods({ portal: t.sites.acme })).phoneMethods).toEqual([
-        'code',
-      ]);
+      expect((await api.customerAuth.methods()).phoneMethods).toEqual(['code']);
       await expect(
         api.customerAuth.signUp({ ...phone, firstName: 'Tuya', method: 'reply' }),
       ).rejects.toMatchObject({ status: 400, code: 'SIGN_IN_UNAVAILABLE' });

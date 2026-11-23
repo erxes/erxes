@@ -220,7 +220,7 @@ export const verifyErxesAccessToken = async (
   return { ...member(claims), scope: claims.scope };
 };
 
-/** A customer signed in through core (`/customer-auth`), calling a plugin's `/customer/*` routes. */
+/** A customer signed in through core (`/portal/auth`), calling a plugin's `/portal/v1/me` routes. */
 export interface CustomerSignIn {
   orgId: string;
   customerId: string;
@@ -257,8 +257,8 @@ const CustomerClaims = z
  * Verifies a customer's access token from the `Authorization` header with
  * core's public keys: issued by core for customers, unexpired. Key the
  * customer's data by `orgId` and `customerId`. Signing out reaches plugins
- * when the token expires (15 minutes); ask core (`GET /customer/me` with the
- * same token) where that matters. Throws if not valid.
+ * when the token expires (15 minutes); ask core (`GET /portal/me` with this
+ * token and the portal's) where that matters. Throws if not valid.
  */
 export const verifyCustomerToken = async (
   authorization: string | undefined | null,
@@ -272,17 +272,17 @@ export const verifyCustomerToken = async (
 };
 
 /**
- * Who traded the portal token: the portal's server with a `secret` customer key, its web or
+ * Who traded the portal token: the portal's server with a `secret` portal key, its web or
  * mobile app with a `publishable` one, or core's `agent` talking to the portal's customers.
  */
 export type PortalKeyKind = (typeof PORTAL_TOKEN_KINDS)[number];
 
-/** A portal's server or app calling a plugin, with a token core gave it for a customer key. */
+/** A portal's server or app calling a plugin, with a token core gave it for a portal key. */
 export interface PortalCall {
   orgId: string;
   /** Serve your record on this portal; refuse a portal you're not on. */
   portalId: string;
-  /** The customer key it traded (`agent:<id>` for core's agent). */
+  /** The portal key it traded (`agent:<id>` for core's agent). */
   keyId: string;
   kind: PortalKeyKind;
   /** The web address a browser traded a publishable key from; null from apps and servers. */
@@ -308,7 +308,7 @@ const PortalClaims = z
 
 /**
  * Verifies a portal token from the `X-Portal-Token` header with core's public keys: core
- * issued it for one of the portal's customer keys (`POST /core/v1/portal-auth/token`), and it
+ * issued it for one of the portal's keys (`POST /core/v1/portal-auth/token`), and it
  * is unexpired. A revoked key's tokens stop within 15 minutes. Throws if not valid. For a
  * plugin's `/portal/v1` routes use `verifyPortalRequest`, which also checks the browser's
  * address and the customer.

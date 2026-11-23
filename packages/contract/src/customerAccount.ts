@@ -12,12 +12,15 @@ import {
   CustomerSession,
 } from './customerAuthShapes';
 
-/** The signed-in customer (`Authorization: Bearer` with a customer access token). */
+/**
+ * The signed-in customer (`Authorization: Bearer` with a customer access token), with the token of
+ * the portal they signed in to (`X-Portal-Token`).
+ */
 export const customerAccountContract = {
   me: base
     .route({
       method: 'GET',
-      path: '/customer/me',
+      path: '/portal/me',
       summary: 'Get my customer profile',
       description: "The signed-in customer's profile",
     })
@@ -25,7 +28,7 @@ export const customerAccountContract = {
   update: base
     .route({
       method: 'PATCH',
-      path: '/customer/me',
+      path: '/portal/me',
       summary: 'Change my customer profile',
       description:
         'Change name, picture, birth date or the fields customers fill in (`null` clears one). 400 INVALID_FIELD',
@@ -35,7 +38,7 @@ export const customerAccountContract = {
   logins: base
     .route({
       method: 'GET',
-      path: '/customer/me/logins',
+      path: '/portal/me/logins',
       summary: 'List my sign-in addresses',
       description: 'Addresses and Google, Apple or Facebook accounts I sign in with',
     })
@@ -43,7 +46,7 @@ export const customerAccountContract = {
   addLogin: base
     .route({
       method: 'POST',
-      path: '/customer/me/logins',
+      path: '/portal/me/logins',
       successStatus: 202,
       summary: 'Add a sign-in address',
       description:
@@ -54,7 +57,7 @@ export const customerAccountContract = {
   confirmLogin: base
     .route({
       method: 'POST',
-      path: '/customer/me/logins/confirm',
+      path: '/portal/me/logins/confirm',
       successStatus: 201,
       summary: 'Confirm a sign-in address',
       description:
@@ -65,7 +68,7 @@ export const customerAccountContract = {
   removeLogin: base
     .route({
       method: 'DELETE',
-      path: '/customer/me/logins/{id}',
+      path: '/portal/me/logins/{id}',
       summary: 'Remove a sign-in address',
       description: 'Stop signing in with an address or account. 409 LAST_LOGIN',
     })
@@ -74,7 +77,7 @@ export const customerAccountContract = {
   sessions: base
     .route({
       method: 'GET',
-      path: '/customer/me/sessions',
+      path: '/portal/me/sessions',
       summary: 'List my sessions',
       description: 'Where I am signed in',
     })
@@ -82,7 +85,7 @@ export const customerAccountContract = {
   revokeSession: base
     .route({
       method: 'DELETE',
-      path: '/customer/me/sessions/{id}',
+      path: '/portal/me/sessions/{id}',
       summary: 'Sign out a device',
       description: 'Sign out one device or browser',
     })
@@ -91,7 +94,7 @@ export const customerAccountContract = {
   signOutEverywhere: base
     .route({
       method: 'POST',
-      path: '/customer/me/sign-out-everywhere',
+      path: '/portal/me/sign-out-everywhere',
       summary: 'Sign out everywhere',
       description: 'Sign out of this portal everywhere (access tokens end within 15 minutes)',
     })

@@ -80,7 +80,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   users: 'team',
   views: null,
   webhooks: 'webhooks',
-  // Portals hold sign-in settings and customer keys: members set them up in erxes only.
+  // Portals hold sign-in settings and portal keys: members set them up in erxes only.
   portals: null,
   portalAuth: null,
 };

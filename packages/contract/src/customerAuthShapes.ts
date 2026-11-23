@@ -25,9 +25,6 @@ export const addressWith = <T extends AlongWith>(fields: T) =>
  */
 export const PhoneMethod = z.enum(PORTAL_PHONE_METHODS);
 
-/** The portal signing in (Settings › Portals shows its id); it names the organisation too. */
-export const portal = Id;
-
 export const Code = z
   .string()
   .trim()
@@ -47,7 +44,7 @@ export const CustomerProfile = createSelectSchema(customers, { id: Id, createdAt
     createdAt: true,
   })
   .extend({
-    /** Values of the fields customers fill in (`GET /customer-auth/fields`), by field id. */
+    /** Values of the fields customers fill in (`GET /portal/auth/fields`), by field id. */
     customFields: CustomFields,
   });
 
@@ -84,7 +81,7 @@ export const SignUpForm = {
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD')
     .optional(),
-  /** Values of `GET /customer-auth/fields`, by field id. */
+  /** Values of `GET /portal/auth/fields`, by field id. */
   customFields: CustomFields.optional(),
 };
 
@@ -158,9 +155,9 @@ export const RefreshToken = z.string().max(200);
 
 /** The app's tokens: a 15-minute access token and a refresh token that rotates on each use. */
 export const CustomerTokens = z.object({
-  /** `Authorization: Bearer` for core's `/customer/*` and every plugin's `/customer/*`. */
+  /** `Authorization: Bearer` for core's `/portal/me` and every plugin's `/portal/v1/me`. */
   accessToken: z.string(),
-  /** Trade it at `/customer-auth/refresh`; it lasts 90 days from its last use. */
+  /** Trade it at `/portal/auth/refresh`; it lasts 90 days from its last use. */
   refreshToken: z.string(),
   /** Seconds the access token works. */
   expiresIn: z.int(),
