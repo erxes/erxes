@@ -6,6 +6,7 @@ import {
   setFileStorage,
   setPluginRuntime,
   setRecordPage,
+  setReceiptPrintSettings,
   setRecordTimeline,
 } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
@@ -30,6 +31,11 @@ setRecordPage(lazyNamed(() => import('./modules/side-panel/RecordPage'), 'Record
 
 setConnectionPicker(
   lazyNamed(() => import('./modules/settings/vault/ConnectionPicker'), 'ConnectionPicker'),
+);
+
+// A plugin's settings set how its eBarimt receipts print with core's editor, loaded on first use.
+setReceiptPrintSettings(
+  lazyNamed(() => import('./modules/settings/integrations/EbarimtPrint'), 'PluginReceiptPrint'),
 );
 
 // Plugin UIs call their own API with a per-plugin token and hear live signals.

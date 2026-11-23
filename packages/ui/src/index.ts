@@ -315,6 +315,12 @@ export {
 export { ContactLink } from './modules/records/ContactLink';
 
 export {
+  ReceiptPrintSettings,
+  type ReceiptPrintSettingsProps,
+  setReceiptPrintSettings,
+} from './modules/records/ReceiptPrintSettings';
+
+export {
   ContactRelationInput,
   SelectContactContent,
   type TContactKind,

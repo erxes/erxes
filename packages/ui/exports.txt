@@ -38,6 +38,7 @@ type PluginRuntime
 type PluginSession
 type ProductChoice
 type ProductSearchQueries
+type ReceiptPrintSettingsProps
 type RecordListGroup
 type RecordPageProps
 type RecordPanelControls
@@ -167,6 +168,7 @@ value PhoneInput
 value Popover
 value PopoverScoped
 value RadioGroup
+value ReceiptPrintSettings
 value RecordChip
 value RecordList
 value RecordOpenerProvider
@@ -237,6 +239,7 @@ value readImage
 value setConnectionPicker
 value setFileStorage
 value setPluginRuntime
+value setReceiptPrintSettings
 value setRecordPage
 value setRecordTimeline
 value stored

@@ -1033,10 +1033,6 @@
         "save": "Save template",
         "saved": "Template saved",
         "was-reset": "Back to the default template",
-        "template-for": "Template for",
-        "default": "default",
-        "no-plugins": "Set up eBarimt in Settings first. Core and each plugin that takes payments get their own template here.",
-        "intro": "Each plugin prints its receipts with its own template. Plugins show a Print button on issued receipts.",
         "reorder": "Move {{name}}",
         "show": "Print {{name}}",
         "block": {
@@ -1060,7 +1056,11 @@
           "qr": "For the buyer to scan into the eBarimt app",
           "lottery": "For receipts to a person",
           "footer": "Your text below the receipt"
-        }
+        },
+        "not-set-up": "Set up eBarimt first: its receipts print once it issues them.",
+        "set-up": "Set up e-barimt",
+        "not-issuing": "eBarimt issues no receipts for this plugin yet.",
+        "intro-core": "How core’s own receipts print. Each plugin sets how its receipts print in its own settings."
       }
     },
     "email": {
