@@ -1,5 +1,5 @@
 import { type Db, integrationConnections, withOrg } from '@erxes/core-db';
-import { and, asc, eq, inArray } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { config } from '~/config';
 import { logger } from '~/logger';
@@ -9,7 +9,12 @@ import { defineJob } from '~/modules/jobs/jobs';
 
 const log = logger.child({ component: 'sms' });
 
-const SmsPayload = z.object({ to: z.string(), text: z.string() });
+const SmsPayload = z.object({
+  to: z.string(),
+  text: z.string(),
+  /** The SMS connection to text through (a portal's); while it isn't active, the oldest. */
+  connectionId: z.string().optional(),
+});
 
 type SmsPayload = z.infer<typeof SmsPayload>;
 
@@ -17,10 +22,10 @@ type SmsPayload = z.infer<typeof SmsPayload>;
 export const loggedSms: SmsPayload[] = [];
 
 /**
- * The organisation's SMS connection (CallPro, Twilio in Settings › Integrations): its oldest
- * active one of an integration that sends texts.
+ * The organisation's SMS connection (CallPro, Twilio in Settings › Integrations): `preferred`
+ * while it is active, else its oldest active one of an integration that sends texts.
  */
-const smsConnection = (tx: Db) =>
+const smsConnection = (tx: Db, preferred?: string | null) =>
   connectionsWithSecret(tx)
     .where(
       and(
@@ -28,7 +33,10 @@ const smsConnection = (tx: Db) =>
         eq(integrationConnections.status, 'active'),
       ),
     )
-    .orderBy(asc(integrationConnections.createdAt))
+    .orderBy(
+      sql`${integrationConnections.id} = ${preferred ?? ''} desc`,
+      asc(integrationConnections.createdAt),
+    )
     .limit(1)
     .then(([row]) => row);
 
@@ -36,8 +44,8 @@ const smsConnection = (tx: Db) =>
  * Whether the organisation's texts reach phones: it has an SMS connection, or this isn't
  * production (texts go to the log there).
  */
-export const canDeliverSms = async (tx: Db) =>
-  !config.isProduction || Boolean(await smsConnection(tx));
+export const canDeliverSms = async (tx: Db, preferred?: string | null) =>
+  !config.isProduction || Boolean(await smsConnection(tx, preferred));
 
 const logText = (message: SmsPayload) => {
   loggedSms.push(message);
@@ -54,7 +62,7 @@ const logText = (message: SmsPayload) => {
  */
 export const deliverSms = async (orgId: string, message: SmsPayload) => {
   const opened = await withOrg(orgId, async (tx) => {
-    const row = await smsConnection(tx);
+    const row = await smsConnection(tx, message.connectionId);
 
     if (!row) return null;
 

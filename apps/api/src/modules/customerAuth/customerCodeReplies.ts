@@ -9,6 +9,8 @@ import {
   type CodePortal,
   invalidCode,
   newCode,
+  noReplies,
+  type PhoneMethod,
   type Purpose,
   repliesTo,
   sendCode,
@@ -32,15 +34,19 @@ const secondsUntil = (when: Date) => Math.max(0, Math.round((when.getTime() - Da
 
 /**
  * A new code for the address: sent to it, or, on a portal with verify.mn, made for the customer
- * to text from it (`reply` says where). `options` are worked out in the code's transaction.
+ * to text from it (`reply` says where). A portal with both lets the customer pick (`method`),
+ * the reply by default. `options` are worked out in the code's transaction.
  */
 export const issueCode = async (
   portal: IssuingPortal,
   address: Address,
   purpose: Purpose,
   options: (tx: Db) => Promise<SendOptions>,
+  method?: PhoneMethod,
 ): Promise<{ expiresInSeconds: number; reply: CodeReply | null }> => {
-  const connectionId = repliesTo(portal, address);
+  const connectionId = repliesTo(portal, address, method);
+
+  if (!connectionId && method === 'reply' && address.kind === 'phone') throw noReplies();
 
   if (!connectionId) {
     await withOrg(portal.orgId, async (tx) =>
@@ -50,7 +56,7 @@ export const issueCode = async (
     return { expiresInSeconds: CODE_SECONDS, reply: null };
   }
 
-  await withOrg(portal.orgId, (tx) => assertCanSend(tx, portal, address));
+  await withOrg(portal.orgId, (tx) => assertCanSend(tx, portal, address, 'reply'));
 
   const { phoneReply, client } = await phoneReplyOf(portal.orgId, connectionId);
   const code = newCode();

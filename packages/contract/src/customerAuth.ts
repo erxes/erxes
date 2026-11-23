@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { listOf } from './common';
 import {
   addressWith,
+  PhoneMethod,
   Code,
   CodeSent,
   customerBase as base,
@@ -79,7 +80,7 @@ export const customerAuthContract = {
       description:
         'Make an account on the portal: checks the form and sends a code to confirm the address (or, with `reply`, has the customer text it). An address with an account gets a code too, which signs it in. 400 INVALID_FIELD, 400 UNKNOWN_PORTAL, 400 SIGN_IN_UNAVAILABLE, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
-    .input(addressWith({ portal, ...SignUpForm }))
+    .input(addressWith({ portal, method: PhoneMethod.optional(), ...SignUpForm }))
     .output(CodeSent),
   confirmSignUp: base
     .route({
@@ -100,7 +101,7 @@ export const customerAuthContract = {
       description:
         'Send a code for signing in to an account on the portal. An address with no account gets no code, with the same answer: sign up first. With `reply` the customer texts the code instead, whether or not they have an account. 400 UNKNOWN_PORTAL, 400 SIGN_IN_UNAVAILABLE, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
-    .input(addressWith({ portal }))
+    .input(addressWith({ portal, method: PhoneMethod.optional() }))
     .output(CodeSent),
   signIn: base
     .route({

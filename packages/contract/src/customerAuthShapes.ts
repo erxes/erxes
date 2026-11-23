@@ -1,4 +1,4 @@
-import { PORTAL_PHONE_SIGN_IN } from '@erxes/core-db/enums';
+import { PORTAL_PHONE_METHODS, PORTAL_PHONE_SIGN_IN } from '@erxes/core-db/enums';
 import { customerLogins, customerSessions, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -18,6 +18,12 @@ export const addressWith = <T extends AlongWith>(fields: T) =>
     z.object({ kind: z.literal('email'), value: EmailAddress, ...fields }),
     z.object({ kind: z.literal('phone'), value: PhoneNumber, ...fields }),
   ]);
+
+/**
+ * How a phone proves itself, when the portal offers both (`phoneMethods`): `code` texts it a
+ * code, `reply` has the customer text one. Left out: `reply` when the portal has it. Emails ignore it.
+ */
+export const PhoneMethod = z.enum(PORTAL_PHONE_METHODS);
 
 /** The portal signing in (Settings › Portals shows its id); it names the organisation too. */
 export const portal = Id;
@@ -134,8 +140,10 @@ export const CodeSent = z.object({
 export const PortalSignIn = z.object({
   name: z.string(),
   email: z.boolean(),
-  /** `code`: a texted code; `reply`: the customer texts one (verify.mn). */
+  /** `code`: a texted code; `reply`: the customer texts one (verify.mn); `reply` when both are on. */
   phone: z.enum(PORTAL_PHONE_SIGN_IN),
+  /** Every way a phone can prove itself here, for the screen to offer the customer a choice. */
+  phoneMethods: z.array(z.enum(PORTAL_PHONE_METHODS)),
   /** Google's web client id, for Google Identity Services on the web; null: off. */
   googleClientId: z.string().nullable(),
   /** Apple's Services ID, for Sign in with Apple on the web; null: off. */

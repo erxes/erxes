@@ -23,6 +23,7 @@ import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { pluginTitle, useInstalledPlugins } from '~/modules/products/useCatalogContext';
 import { AddressList } from './AddressList';
+import { PortalMessagesForm } from './PortalMessagesForm';
 import { PortalSignInForm } from './PortalSignInForm';
 import { useSavePortal } from './useSavePortal';
 
@@ -208,7 +209,10 @@ const RemovePortal = ({ portal }: { portal: PortalListItem }) => {
   );
 };
 
-/** Settings › Portals › one portal: where it runs, how customers sign in, its keys and plugins. */
+/**
+ * Settings › Portals › one portal: where it runs, how customers sign in, what its codes say,
+ * its keys and plugins.
+ */
 export const PortalPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'portals' });
   const { id = '' } = useParams();
@@ -239,6 +243,9 @@ export const PortalPage = () => {
                 <Tabs.List variant="underline" className="mb-4">
                   <Tabs.Trigger value="setup">{t('tab-setup', 'Setup')}</Tabs.Trigger>
                   <Tabs.Trigger value="sign-in">{t('tab-sign-in', 'Sign-in')}</Tabs.Trigger>
+                  <Tabs.Trigger value="messages">
+                    {t('tab-messages', 'Emails and texts')}
+                  </Tabs.Trigger>
                   <Tabs.Trigger value="plugins">{t('tab-plugins', 'Plugins')}</Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="setup">
@@ -246,6 +253,9 @@ export const PortalPage = () => {
                 </Tabs.Content>
                 <Tabs.Content value="sign-in">
                   <PortalSignInForm key={saved.updatedAt} portal={saved} canEdit={canEdit} />
+                </Tabs.Content>
+                <Tabs.Content value="messages">
+                  <PortalMessagesForm key={saved.updatedAt} portal={saved} canEdit={canEdit} />
                 </Tabs.Content>
                 <Tabs.Content value="plugins">
                   <Plugins portal={saved} />

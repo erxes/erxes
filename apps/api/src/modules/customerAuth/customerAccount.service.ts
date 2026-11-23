@@ -16,7 +16,7 @@ import { lockKeys } from '~/lib/locks';
 import { findCustomer } from '~/modules/customers/customerRows';
 import { updateCustomer } from '~/modules/customers/customers.service';
 import { issueCode, proveCode } from './customerCodeReplies';
-import { type Address, addressOf } from './customerCodes';
+import { type Address, addressOf, type PhoneMethod } from './customerCodes';
 import { checkTheirFields, profileOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
 
@@ -77,17 +77,19 @@ const myPortal = () =>
  * Sends a code to a new address for the account. An address another account
  * signs in with gets no code, with the same answer, so nobody learns it is taken.
  */
-export const sendAddLoginCode = async (input: Address) => {
+export const sendAddLoginCode = async (input: Address & { method?: PhoneMethod }) => {
   const address = addressOf(input);
   const portal = await myPortal();
   const { ip } = requestInfo();
   const { accountId } = caller('customer');
 
-  return issueCode(portal, address, 'add_login', async (tx) => ({
-    accountId,
-    ip,
-    deliver: !(await findLogin(tx, portal.id, address)),
-  }));
+  return issueCode(
+    portal,
+    address,
+    'add_login',
+    async (tx) => ({ accountId, ip, deliver: !(await findLogin(tx, portal.id, address)) }),
+    input.method,
+  );
 };
 
 const loginTaken = () =>

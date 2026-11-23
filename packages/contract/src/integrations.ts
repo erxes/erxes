@@ -82,6 +82,8 @@ export const Integration = z.object({
   keyed: z.boolean(),
   fields: z.array(IntegrationField),
   payments: IntegrationPayments.nullable(),
+  /** It texts the organisation's messages (CallPro, Twilio): a portal may text its codes through it. */
+  sms: z.boolean(),
   oauth: z
     .object({
       client: z.enum(OAUTH_CLIENT_SOURCES).nullable(),

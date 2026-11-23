@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { CustomFieldsPatch, Id, listOf } from './common';
 import {
   addressWith,
+  PhoneMethod,
   Code,
   CodeSent,
   customerBase as base,
@@ -48,7 +49,7 @@ export const customerAccountContract = {
       description:
         'Send a code to a new address to sign in to this portal with (or, with `reply`, have the customer text it); the same answer when the address is taken. 400 SIGN_IN_UNAVAILABLE, 429 TOO_MANY_CODES',
     })
-    .input(addressWith({}))
+    .input(addressWith({ method: PhoneMethod.optional() }))
     .output(CodeSent),
   confirmLogin: base
     .route({

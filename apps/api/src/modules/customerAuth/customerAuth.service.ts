@@ -14,7 +14,7 @@ import { fail } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { issueCode, proveCode } from './customerCodeReplies';
-import { type Address, addressOf, invalidCode } from './customerCodes';
+import { type Address, addressOf, invalidCode, type PhoneMethod } from './customerCodes';
 import { profileOf } from './customerFields';
 import { findLogin } from './customerLogins';
 import { createSession, revokeSessionToken, rotateSession, sessionOf } from './customerSessions';
@@ -92,17 +92,20 @@ export const openSession = async (
  * with the same answer, so nobody learns who has one: the portal offers sign-up instead.
  */
 export const sendSignInCode = async (
-  input: Address & { portal: string },
+  input: Address & { portal: string; method?: PhoneMethod },
   request: SignInRequest,
 ) => {
   const portal = await portalFor(input.portal, request.origin);
   const address = addressOf(input);
   const { ip } = requestInfo();
 
-  return issueCode(portal, address, 'sign_in', async (tx) => ({
-    ip,
-    deliver: Boolean(await findLogin(tx, portal.id, address)),
-  }));
+  return issueCode(
+    portal,
+    address,
+    'sign_in',
+    async (tx) => ({ ip, deliver: Boolean(await findLogin(tx, portal.id, address)) }),
+    input.method,
+  );
 };
 
 const noAccount = () =>

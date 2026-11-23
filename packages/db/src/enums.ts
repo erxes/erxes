@@ -246,6 +246,9 @@ export const CUSTOMER_SOCIAL_PROVIDERS = ['google', 'apple', 'facebook'] as cons
 /** How a portal's customers sign in with a phone: not at all, a code texted to them, or one they text. */
 export const PORTAL_PHONE_SIGN_IN = ['off', 'code', 'reply'] as const;
 
+/** The ways a customer can prove a phone on a portal: get a texted code, or text one (verify.mn). */
+export const PORTAL_PHONE_METHODS = ['code', 'reply'] as const;
+
 /** How a customer signs in: a code to an address, or an account at Google, Apple or Facebook. */
 export const CUSTOMER_LOGIN_KINDS = [
   ...CUSTOMER_ADDRESS_KINDS,

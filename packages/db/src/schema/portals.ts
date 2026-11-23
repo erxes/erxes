@@ -9,7 +9,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { PORTAL_KEY_KINDS } from '../enums';
+import { LANGUAGES, PORTAL_KEY_KINDS } from '../enums';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { integrationConnections } from './integrations';
@@ -46,8 +46,25 @@ export const portals = pgTable(
     emailSignIn: boolean().default(true).notNull(),
     /** Customers sign in with their phone: a texted code, or by texting one (`phoneConnectionId`). */
     phoneSignIn: boolean().default(true).notNull(),
-    /** A verify.mn connection: customers text the code to prove their phone. Null: core texts it. */
+    /**
+     * A verify.mn connection: customers may text the code to prove their phone. With
+     * `phoneTexts` too, the customer picks.
+     */
     phoneConnectionId: text(),
+    /** Core texts phone codes to customers (through `smsConnectionId`). */
+    phoneTexts: boolean().default(true).notNull(),
+    /** The SMS connection (CallPro, Twilio) that texts its codes; null: the organisation's oldest. */
+    smsConnectionId: text(),
+    /** Its emails' From, on a domain the provider verified; null: the settings' own address. */
+    fromEmail: text(),
+    /** A verified Reply-To address of the organisation for its emails; null: none. */
+    replyTo: text(),
+    /** The language of its default code email and text. */
+    codeLanguage: text({ enum: LANGUAGES }).default('en').notNull(),
+    /** Its own code email subject and body, and code text: `{code}`, `{minutes}`, `{portal}`. */
+    codeEmailSubject: text(),
+    codeEmailBody: text(),
+    codeSmsText: text(),
     /** The Google sign-in connection whose client ids its tokens are for; null: off. */
     googleConnectionId: text(),
     /** The Apple sign-in connection; null: off. */
@@ -71,6 +88,12 @@ export const portals = pgTable(
       foreignColumns: [integrationConnections.id],
       name: 'core_portals_phone_connection_id_fkey',
     }).onDelete('set null'),
+    foreignKey({
+      columns: [table.smsConnectionId],
+      foreignColumns: [integrationConnections.id],
+      name: 'core_portals_sms_connection_id_fkey',
+    }).onDelete('set null'),
+    check('core_portals_code_language_check', inList(table.codeLanguage, LANGUAGES)),
     foreignKey({
       columns: [table.googleConnectionId],
       foreignColumns: [integrationConnections.id],

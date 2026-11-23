@@ -56,6 +56,9 @@ const portalOf = async (client: Db, source: string, portalId: string | undefined
       id: portals.id,
       name: portals.name,
       senderName: portals.senderName,
+      fromEmail: portals.fromEmail,
+      replyTo: portals.replyTo,
+      smsConnectionId: portals.smsConnectionId,
       origins: portals.origins,
     })
     .from(portals)
@@ -129,7 +132,7 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
 
 /**
  * Emails and texts the customers who got it anew, where they have an address: from the portal's
- * sender name, linking to its first web address.
+ * sender name, From and Reply-To, linking to its first web address, texted through its SMS connection.
  */
 const deliver = async (
   client: Db,
@@ -171,6 +174,8 @@ const deliver = async (
                 to: email,
                 template: 'customer_notification' as const,
                 ...(fromName && { fromName }),
+                ...(portal?.fromEmail && { fromEmail: portal.fromEmail }),
+                ...(portal?.replyTo && { replyTo: portal.replyTo }),
                 data: { organization, title: input.title, body, link },
               },
             ]
@@ -186,7 +191,17 @@ const deliver = async (
     await sendSms(
       client,
       orgId,
-      created.flatMap(({ phone }) => (phone ? [{ to: phone, text }] : [])),
+      created.flatMap(({ phone }) =>
+        phone
+          ? [
+              {
+                to: phone,
+                text,
+                ...(portal?.smsConnectionId && { connectionId: portal.smsConnectionId }),
+              },
+            ]
+          : [],
+      ),
     );
   }
 };

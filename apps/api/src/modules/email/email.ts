@@ -239,7 +239,6 @@ export const emailJob = defineJob({
     if (!go) return;
 
     const rendered = payload.template === 'rendered';
-    const sent = payload.template === 'message' || rendered ? payload : null;
     // Unknown when the route itself can't be found (the settings, the server's address).
     let provider: DeliveryProvider | null = null;
 
@@ -250,9 +249,9 @@ export const emailJob = defineJob({
       await route.send({
         to: payload.to,
         cc: payload.template === 'message' ? payload.cc : undefined,
-        replyTo: sent?.replyTo,
+        replyTo: 'replyTo' in payload ? payload.replyTo : undefined,
         fromName: 'fromName' in payload ? payload.fromName : undefined,
-        fromEmail: sent?.fromEmail,
+        fromEmail: 'fromEmail' in payload ? payload.fromEmail : undefined,
         attachments: rendered ? payload.attachments : undefined,
         files: rendered ? await readAttachments(job.orgId, payload.fileIds ?? []) : undefined,
         deliveryId: payload.deliveryId,

@@ -1,4 +1,5 @@
-import type { CUSTOMER_CODE_PURPOSES } from '@erxes/core-db/enums';
+import { DEFAULT_CODE_MESSAGES, fillCodeMessage } from '@erxes/core-contract';
+import type { CUSTOMER_CODE_PURPOSES, PORTAL_PHONE_METHODS } from '@erxes/core-db/enums';
 import {
   type CustomerAddressKind,
   type CustomerSignUpData,
@@ -37,18 +38,44 @@ export const addressOf = (input: Address): Address => ({
 
 export type Purpose = (typeof CUSTOMER_CODE_PURPOSES)[number];
 
+/** How a phone proves itself: `code` gets a texted code, `reply` texts one (verify.mn). */
+export type PhoneMethod = (typeof PORTAL_PHONE_METHODS)[number];
+
 /**
  * The portal a code is for: codes work there only, and its settings say how they go
- * (`phoneConnectionId`: verify.mn, the customer texts the code instead of getting it).
+ * (`phoneConnectionId`: verify.mn, the customer may text the code; `phoneTexts`: core texts it
+ * through `smsConnectionId`) and what they say.
  */
 export type CodePortal = Pick<
   typeof portals.$inferSelect,
-  'id' | 'name' | 'senderName' | 'emailSignIn' | 'phoneSignIn' | 'phoneConnectionId'
+  | 'id'
+  | 'name'
+  | 'senderName'
+  | 'fromEmail'
+  | 'replyTo'
+  | 'emailSignIn'
+  | 'phoneSignIn'
+  | 'phoneConnectionId'
+  | 'phoneTexts'
+  | 'smsConnectionId'
+  | 'codeLanguage'
+  | 'codeEmailSubject'
+  | 'codeEmailBody'
+  | 'codeSmsText'
 >;
 
-/** The customer texts phone codes to the portal's verify.mn connection. */
-export const repliesTo = (portal: CodePortal, address: Address) =>
-  address.kind === 'phone' ? portal.phoneConnectionId : null;
+/** The ways the portal lets a phone prove itself, the customer texting one first. */
+export const phoneMethodsOf = (portal: CodePortal): PhoneMethod[] => [
+  ...(portal.phoneConnectionId ? (['reply'] as const) : []),
+  ...(portal.phoneTexts ? (['code'] as const) : []),
+];
+
+/**
+ * The verify.mn connection the customer texts a phone's code to: asked for (`reply`), or by
+ * default when the portal has one; null for a texted code or an email.
+ */
+export const repliesTo = (portal: CodePortal, address: Address, method?: PhoneMethod) =>
+  address.kind === 'phone' && method !== 'code' ? portal.phoneConnectionId : null;
 
 /** Keyed with core's secret: a leaked table doesn't give the codes away by trying all million. */
 const hashOf = (id: string, code: string) =>
@@ -67,11 +94,19 @@ const forAddress = (portalId: string, address: Address) =>
 
 const unavailable = (message: string) => fail('SIGN_IN_UNAVAILABLE', message);
 
+/** 400 SIGN_IN_UNAVAILABLE: the customer asked to text the code, and the portal has no verify.mn. */
+export const noReplies = () => unavailable("This portal doesn't take codes texted to it");
+
 /**
- * 400 SIGN_IN_UNAVAILABLE when the portal doesn't sign in with this kind of address, or a code
- * would only reach the server's log.
+ * 400 SIGN_IN_UNAVAILABLE when the portal doesn't sign in with this kind of address or phone
+ * method, or a code would only reach the server's log.
  */
-const assertDeliverable = async (tx: Db, portal: CodePortal, address: Address) => {
+const assertDeliverable = async (
+  tx: Db,
+  portal: CodePortal,
+  address: Address,
+  method?: PhoneMethod,
+) => {
   if (address.kind === 'email') {
     if (!portal.emailSignIn) throw unavailable("This portal doesn't sign in with email");
 
@@ -84,7 +119,13 @@ const assertDeliverable = async (tx: Db, portal: CodePortal, address: Address) =
 
   if (!portal.phoneSignIn) throw unavailable("This portal doesn't sign in with a phone");
 
-  if (!repliesTo(portal, address) && !(await canDeliverSms(tx))) {
+  if (repliesTo(portal, address, method)) return;
+
+  if (method === 'reply') throw noReplies();
+
+  if (!portal.phoneTexts) throw unavailable("This portal doesn't text codes");
+
+  if (!(await canDeliverSms(tx, portal.smsConnectionId))) {
     throw unavailable("Codes can't be texted yet: sign in with an email address");
   }
 };
@@ -103,8 +144,13 @@ export interface CodeReplySession {
  * 400 SIGN_IN_UNAVAILABLE or 429 TOO_MANY_CODES unless the portal may have a new code for the
  * address now: 5 an hour, one each 30 seconds.
  */
-export const assertCanSend = async (tx: Db, portal: CodePortal, address: Address) => {
-  await assertDeliverable(tx, portal, address);
+export const assertCanSend = async (
+  tx: Db,
+  portal: CodePortal,
+  address: Address,
+  method?: PhoneMethod,
+) => {
+  await assertDeliverable(tx, portal, address, method);
   await lockAddress(tx, portal.id, address);
 
   const [recent] = await tx
@@ -153,9 +199,9 @@ export const sendCode = async (
     reply?: CodeReplySession;
   } = {},
 ) => {
-  await assertCanSend(tx, portal, address);
-
   const { reply } = options;
+
+  await assertCanSend(tx, portal, address, reply ? 'reply' : 'code');
 
   // A texted code proves the phone before anything is said about an account: no need to hide.
   if (options.deliver === false && !reply) return;
@@ -186,6 +232,9 @@ export const sendCode = async (
 
   if (reply) return;
 
+  const values = { code, minutes: CODE_MINUTES, portal: portal.name };
+  const defaults = DEFAULT_CODE_MESSAGES[portal.codeLanguage];
+
   if (address.kind === 'email') {
     await sendEmail(
       tx,
@@ -194,14 +243,23 @@ export const sendCode = async (
         to: address.value,
         template: 'sign_in_code',
         fromName: portal.senderName ?? portal.name,
-        data: { organization: portal.name, code, minutes: CODE_MINUTES },
+        ...(portal.fromEmail && { fromEmail: portal.fromEmail }),
+        ...(portal.replyTo && { replyTo: portal.replyTo }),
+        data: {
+          organization: portal.name,
+          code,
+          minutes: CODE_MINUTES,
+          subject: fillCodeMessage(portal.codeEmailSubject ?? defaults.emailSubject, values),
+          body: fillCodeMessage(portal.codeEmailBody ?? defaults.emailBody, values),
+        },
       },
       { source: 'customer_account', sourceId: id },
     );
   } else {
     await sendSms(tx, requestOrgId(), {
       to: address.value,
-      text: `${code} is your ${portal.name} code. It works for ${CODE_MINUTES} minutes.`,
+      text: fillCodeMessage(portal.codeSmsText ?? defaults.sms, values),
+      ...(portal.smsConnectionId && { connectionId: portal.smsConnectionId }),
     });
   }
 };

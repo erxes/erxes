@@ -939,6 +939,13 @@
       "when": 1795431428883,
       "tag": "0133_email_domains_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1795445937212,
+      "tag": "0134_portal_messages",
+      "breakpoints": true
     }
   ]
 }

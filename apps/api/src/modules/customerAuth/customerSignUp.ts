@@ -7,7 +7,7 @@ import { updateCustomer } from '~/modules/customers/customers.service';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { accountOf, openSession, type SignInRequest } from './customerAuth.service';
 import { issueCode, proveCode } from './customerCodeReplies';
-import { type Address, addressOf, invalidCode } from './customerCodes';
+import { type Address, addressOf, invalidCode, type PhoneMethod } from './customerCodes';
 import { checkSignUp, customerFieldsOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
 import { portalFor } from './customerPortals';
@@ -24,14 +24,14 @@ export const signUpFields = async (input: { portal: string }, request: SignInReq
  * address that already has an account gets a code too, the same answer: confirming signs it in.
  */
 export const sendSignUpCode = async (
-  input: Address & CustomerSignUpData & { portal: string },
+  input: Address & CustomerSignUpData & { portal: string; method?: PhoneMethod },
   request: SignInRequest,
 ) => {
   const portal = await portalFor(input.portal, request.origin);
   const signUp = await withOrg(portal.orgId, (tx) => checkSignUp(tx, input));
   const { ip } = requestInfo();
 
-  return issueCode(portal, addressOf(input), 'sign_up', async () => ({ signUp, ip }));
+  return issueCode(portal, addressOf(input), 'sign_up', async () => ({ signUp, ip }), input.method);
 };
 
 /** What the form adds to a customer erxes already had: only what is still empty, staff's data kept. */

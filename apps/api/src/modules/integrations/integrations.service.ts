@@ -65,6 +65,7 @@ export const listIntegrations = async (client: Db) => {
       keyed: Boolean(integration.keys),
       fields: integration.keys && !integration.oauth ? fieldsOf(integration.keys) : [],
       payments: integration.payments ?? null,
+      sms: Boolean(integration.smsSending),
       oauth: integration.oauth ? await oauthFacts(client, integration.key) : null,
       status: integration.status
         ? await integration.status(client)

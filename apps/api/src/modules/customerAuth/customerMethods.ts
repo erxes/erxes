@@ -3,6 +3,7 @@ import { withOrg } from '@erxes/core-db';
 import { canDeliverEmail } from '~/modules/email/sender';
 import { canDeliverSms } from '~/modules/sms/sms';
 import type { SignInRequest } from './customerAuth.service';
+import { phoneMethodsOf } from './customerCodes';
 import { portalFor } from './customerPortals';
 import { socialSignInOf } from './signInConnections';
 
@@ -24,16 +25,15 @@ export const signInMethods = async (
 
   const { emails, texts } = await withOrg(portal.orgId, async (tx) => ({
     emails: await canDeliverEmail(tx),
-    texts: await canDeliverSms(tx),
+    texts: await canDeliverSms(tx, portal.smsConnectionId),
   }));
 
-  const phone = !portal.phoneSignIn
-    ? 'off'
-    : portal.phoneConnectionId
-      ? 'reply'
-      : texts
-        ? 'code'
-        : 'off';
+  // Texted codes count while something can text them.
+  const phoneMethods = portal.phoneSignIn
+    ? phoneMethodsOf(portal).filter((method) => method === 'reply' || texts)
+    : [];
+
+  const phone = phoneMethods[0] ?? 'off';
 
   const [googleClientId, appleServicesId, facebookAppId] = await Promise.all([
     publicIdOf(portal.orgId, portal.googleConnectionId),
@@ -45,6 +45,7 @@ export const signInMethods = async (
     name: portal.name,
     email: portal.emailSignIn && emails,
     phone,
+    phoneMethods,
     googleClientId,
     appleServicesId,
     facebookAppId,

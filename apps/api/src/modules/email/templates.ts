@@ -1,3 +1,4 @@
+import { DEFAULT_CODE_MESSAGES, fillCodeMessage } from '@erxes/core-contract';
 import { z } from 'zod';
 
 const Button = z.object({ label: z.string(), link: z.string() });
@@ -53,6 +54,8 @@ export const EmailPayload = z.discriminatedUnion('template', [
     to: z.string(),
     template: z.literal('customer_notification'),
     fromName: z.string().optional(),
+    fromEmail: z.string().optional(),
+    replyTo: z.string().optional(),
     data: z.object({
       organization: z.string(),
       title: z.string(),
@@ -66,12 +69,23 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('reply_to_confirmation'),
     data: z.object({ organization: z.string(), link: z.string(), days: z.number() }),
   }),
-  /** A customer's one-time sign-in code, from the portal's sender name. */
+  /**
+   * A customer's one-time sign-in code, from the portal's sender name, From and Reply-To, in its words
+   * (`subject`, `body`: `fillCodeMessage`) or the default.
+   */
   z.object({
     to: z.string(),
     template: z.literal('sign_in_code'),
     fromName: z.string().optional(),
-    data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
+    fromEmail: z.string().optional(),
+    replyTo: z.string().optional(),
+    data: z.object({
+      organization: z.string(),
+      code: z.string(),
+      minutes: z.number(),
+      subject: z.string().optional(),
+      body: z.string().optional(),
+    }),
   }),
   /** An email rendered already (a broadcast's test copy). */
   z.object({
@@ -201,13 +215,13 @@ const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): Emai
     case 'sign_in_code': {
       const { data } = email;
 
+      const values = { code: data.code, minutes: data.minutes, portal: data.organization };
+      const { emailSubject, emailBody } = DEFAULT_CODE_MESSAGES.en;
+
       return {
-        subject: `${data.code} is your ${data.organization} code`,
+        subject: data.subject ?? fillCodeMessage(emailSubject, values),
         heading: data.code,
-        lines: [
-          `Enter this code to sign in to ${data.organization}. It works once, for ${data.minutes} minutes.`,
-          "If you didn't ask for it, ignore this email: nobody can sign in without the code.",
-        ],
+        lines: (data.body ?? fillCodeMessage(emailBody, values)).split(/\n{2,}/),
         button: null,
       };
     }

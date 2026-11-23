@@ -51,6 +51,7 @@ const openAiIntegration = (): Integration => ({
   keyed: true,
   fields: [{ key: 'apiKey', label: 'API key', type: 'secret', optional: false }],
   payments: null,
+  sms: false,
   oauth: null,
   status: !state.connected
     ? { state: 'not-set-up', count: null }

@@ -40,6 +40,7 @@ describe('plugin integrations', { timeout: 120_000 }, () => {
         keyed: false,
         fields: [],
         payments: null,
+        sms: false,
         oauth: null,
         status: { state: 'not-set-up', count: null },
         actions: [],

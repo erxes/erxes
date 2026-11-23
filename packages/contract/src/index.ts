@@ -39,7 +39,8 @@ import { trashContract } from './trash';
 import { unitTypesContract, unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
-import { customerAccountsContract, portalAuthContract, portalsContract } from './portals';
+import { portalAuthContract } from './portalKeys';
+import { customerAccountsContract, portalsContract } from './portals';
 import { saasContract } from './saas';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
@@ -304,6 +305,10 @@ export * from './notificationGroups';
 export * from './views';
 
 export * from './webhooks';
+
+export * from './portalKeys';
+
+export * from './portalMessages';
 
 export * from './portals';
 

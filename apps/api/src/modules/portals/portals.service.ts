@@ -16,6 +16,8 @@ import type { InferContractRouterInputs } from '@orpc/contract';
 import { fail, notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { unknownPortal } from '~/modules/customerAuth/customerPortals';
+import { requireReplyTo } from '~/modules/email/replyTos.service';
+import { requireFromAddress } from '~/modules/email/sender';
 import { PORTAL_CONNECTIONS } from './portalConnections';
 
 type Inputs = InferContractRouterInputs<typeof coreContract>['portals'];
@@ -67,10 +69,10 @@ type PortalFields = Partial<Omit<Inputs['update'], 'id'>>;
 
 /** 400 UNKNOWN_CONNECTION unless each connection given is the organisation's, of its integration. */
 const checkConnections = async (client: Db, fields: PortalFields) => {
-  const given = PORTAL_CONNECTIONS.flatMap(([column, key]) => {
+  const given = PORTAL_CONNECTIONS.flatMap(([column, keys]) => {
     const id = fields[column];
 
-    return id ? [{ id, key }] : [];
+    return id ? [{ id, keys }] : [];
   });
 
   if (!given.length) return;
@@ -85,13 +87,24 @@ const checkConnections = async (client: Db, fields: PortalFields) => {
       ),
     );
 
-  const wrong = given.find(({ id, key }) => !found.some((row) => row.id === id && row.key === key));
+  const wrong = given.find(
+    ({ id, keys }) => !found.some((row) => row.id === id && keys.includes(row.key)),
+  );
 
-  if (wrong) throw fail('UNKNOWN_CONNECTION', `Pick one of your ${wrong.key} connections`);
+  if (wrong) {
+    throw fail('UNKNOWN_CONNECTION', `Pick one of your ${wrong.keys.join(' or ')} connections`);
+  }
+};
+
+/** 400 unless the portal's From is on a verified domain and its Reply-To a verified address. */
+const checkFields = async (client: Db, fields: PortalFields) => {
+  await checkConnections(client, fields);
+  await requireFromAddress(client, fields.fromEmail);
+  await requireReplyTo(client, fields.replyTo);
 };
 
 export const createPortal = async (client: Db, input: Inputs['create']) => {
-  await checkConnections(client, input);
+  await checkFields(client, input);
 
   const [row] = await client
     .insert(portals)
@@ -104,7 +117,7 @@ export const createPortal = async (client: Db, input: Inputs['create']) => {
 };
 
 export const updatePortal = async (client: Db, { id, ...changes }: Inputs['update']) => {
-  await checkConnections(client, changes);
+  await checkFields(client, changes);
 
   const [row] = await client
     .update(portals)

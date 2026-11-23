@@ -17,6 +17,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
+    "./coreToken": "./src/coreToken.ts",
     "./filter": "./src/filter.ts",
     "./integrations": "./src/integrations.ts",
     "./jobs": "./src/jobs.ts",
@@ -31,6 +32,7 @@
     "exports": {
       ".": "./dist/index.js",
       "./client": "./dist/client.js",
+      "./coreToken": "./dist/coreToken.js",
       "./filter": "./dist/filter.js",
       "./integrations": "./dist/integrations.js",
       "./jobs": "./dist/jobs.js",

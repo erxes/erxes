@@ -39,6 +39,7 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
       name: 'Nomad Tours',
       email: true,
       phone: 'code',
+      phoneMethods: ['code'],
       googleClientId: null,
       appleServicesId: null,
       facebookAppId: null,

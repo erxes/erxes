@@ -128,6 +128,7 @@ const listed = (
   dashboard: null,
   keyed: false,
   fields: [],
+  sms: false,
   payments: null,
   oauth: null,
   status: NOT_SET_UP,

@@ -1,6 +1,6 @@
 import type { Portal } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Form, Select, Spinner, Switch } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,21 +15,26 @@ type SignIn = Pick<
   | 'emailSignIn'
   | 'phoneSignIn'
   | 'phoneConnectionId'
+  | 'phoneTexts'
+  | 'smsConnectionId'
   | 'googleConnectionId'
   | 'appleConnectionId'
   | 'facebookConnectionId'
 >;
 
-/** Off, or one of the organisation's connections of the integration (Settings › Integrations). */
+/**
+ * Off (or the default), or one of the organisation's connections of the integrations
+ * (Settings › Integrations).
+ */
 const ConnectionSelect = ({
-  integration,
+  integrations,
   label,
   offLabel,
   value,
   onChange,
   disabled,
 }: {
-  integration: string;
+  integrations: readonly string[];
   label: string;
   offLabel: string;
   value: string | null;
@@ -38,13 +43,18 @@ const ConnectionSelect = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'portals' });
 
-  const connections = useQuery(
-    orpc.integrations.connections.queryOptions({ input: { key: integration } }),
-  );
+  const connections = useQueries({
+    queries: integrations.map((key) =>
+      orpc.integrations.connections.queryOptions({ input: { key } }),
+    ),
+  });
 
-  const list = (connections.data?.data ?? []).filter(
-    (connection) => connection.status === 'active' || connection.id === value,
-  );
+  const list = connections
+    .flatMap((query) => query.data?.data ?? [])
+    .filter((connection) => connection.status === 'active' || connection.id === value);
+
+  const pending = connections.some((query) => query.isPending);
+  const [first] = integrations;
 
   return (
     <div className="space-y-1">
@@ -65,9 +75,9 @@ const ConnectionSelect = ({
           ))}
         </Select.Content>
       </Select>
-      {!connections.isPending && !list.length && (
+      {!pending && !list.length && first && (
         <p className="text-xs text-muted-foreground">
-          <Link className="underline" to={paths.settings.integration(integration)}>
+          <Link className="underline" to={paths.settings.integration(first)}>
             {t('connect', 'Connect it in Settings › Integrations')}
           </Link>
         </p>
@@ -110,6 +120,68 @@ const CODES = [
   { column: 'phoneSignIn', label: 'phone' },
 ] as const;
 
+/** The integrations that text messages (CallPro, Twilio). */
+const useSmsIntegrations = () =>
+  (useQuery(orpc.integrations.list.queryOptions()).data?.data ?? [])
+    .filter((integration) => integration.sms)
+    .map((integration) => integration.key);
+
+type PhoneDraft = Pick<SignIn, 'phoneConnectionId' | 'phoneTexts' | 'smsConnectionId'>;
+
+/**
+ * How phones prove themselves: the customer texts the code to verify.mn, it is texted to them
+ * through an SMS connection, or both and the customer picks.
+ */
+const PhoneCodes = ({
+  draft,
+  disabled,
+  onChange,
+}: {
+  draft: PhoneDraft;
+  disabled: boolean;
+  onChange: (phone: Partial<PhoneDraft>) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'portals' });
+  const sms = useSmsIntegrations();
+
+  return (
+    <Form.Section
+      title={t('phone-codes', 'Phone codes')}
+      description={t(
+        'phone-codes-both',
+        'Customers text the code to 144773 from their phone with verify.mn, and pay for the text, or erxes texts the code to them. With both on, the customer picks.',
+      )}
+    >
+      <div className="space-y-3">
+        <ConnectionSelect
+          integrations={['verify-mn']}
+          label={t('phone-verify', 'verify.mn')}
+          offLabel={t('phone-verify-off', 'verify.mn · Off')}
+          value={draft.phoneConnectionId}
+          disabled={disabled}
+          onChange={(phoneConnectionId) => onChange({ phoneConnectionId })}
+        />
+        <Toggle
+          label={t('phone-texts', 'Text codes to customers')}
+          checked={draft.phoneTexts}
+          disabled={disabled}
+          onChange={(phoneTexts) => onChange({ phoneTexts })}
+        />
+        {draft.phoneTexts && sms.length > 0 && (
+          <ConnectionSelect
+            integrations={sms}
+            label={t('sms-connection', 'SMS connection')}
+            offLabel={t('sms-default', 'The organisation’s first SMS connection')}
+            value={draft.smsConnectionId}
+            disabled={disabled}
+            onChange={(smsConnectionId) => onChange({ smsConnectionId })}
+          />
+        )}
+      </div>
+    </Form.Section>
+  );
+};
+
 /** How customers sign in to the portal: codes by email or phone, and Google, Apple or Facebook. */
 export const PortalSignInForm = ({ portal, canEdit }: { portal: Portal; canEdit: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'portals' });
@@ -140,22 +212,11 @@ export const PortalSignInForm = ({ portal, canEdit }: { portal: Portal; canEdit:
         </div>
       </Form.Section>
       {draft.phoneSignIn && (
-        <Form.Section
-          title={t('phone-codes', 'Phone codes')}
-          description={t(
-            'phone-codes-description',
-            'With verify.mn customers text the code to 144773 from their phone, and pay for the text. Off: erxes texts the code to them.',
-          )}
-        >
-          <ConnectionSelect
-            integration="verify-mn"
-            label={t('phone-codes', 'Phone codes')}
-            offLabel={t('phone-texted', 'Texted to the customer')}
-            value={draft.phoneConnectionId}
-            disabled={disabled}
-            onChange={(phoneConnectionId) => setDraft({ ...draft, phoneConnectionId })}
-          />
-        </Form.Section>
+        <PhoneCodes
+          draft={draft}
+          disabled={disabled}
+          onChange={(phone) => setDraft({ ...draft, ...phone })}
+        />
       )}
       <Form.Section
         title={t('social', 'Google, Apple and Facebook')}
@@ -168,7 +229,7 @@ export const PortalSignInForm = ({ portal, canEdit }: { portal: Portal; canEdit:
           {SOCIAL.map(({ integration, column, label }) => (
             <ConnectionSelect
               key={integration}
-              integration={integration}
+              integrations={[integration]}
               label={label}
               offLabel={`${label} · ${off}`}
               value={draft[column]}
