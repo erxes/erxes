@@ -211,6 +211,9 @@ export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
  */
 export const API_KEY_KINDS = ['member', 'regular', 'management'] as const;
 
+/** The templates an agent can start from (Settings › AI agents). */
+export const AGENT_TEMPLATES = ['shop', 'hotel', 'tours', 'support'] as const;
+
 /** The areas a regular key works with: data. */
 export const API_KEY_DATA_AREAS = [
   'contacts',

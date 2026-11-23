@@ -12,6 +12,7 @@ import {
   IconMail,
   IconMoodSmile,
   IconPlugConnected,
+  IconRobot,
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
@@ -197,6 +198,7 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
             to: paths.settings.assistantAppearance,
             icon: IconMoodSmile,
           },
+          { name: t('agents', 'Agents'), to: paths.settings.agents, icon: IconRobot },
         ]
       : []),
     ...(can('assistant.manage')
