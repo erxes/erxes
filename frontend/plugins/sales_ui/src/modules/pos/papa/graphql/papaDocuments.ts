@@ -82,6 +82,13 @@ export const SALES_POS_ORDER_PAPA_DELIVERY = gql(`
       deliveryInfo
       papaDelivery
       papaDeal
+      papaAutoSend
+      customer {
+        _id
+        firstName
+        lastName
+        primaryPhone
+      }
     }
   }
 `);
@@ -115,12 +122,14 @@ export const SALES_POS_ORDER_PAPA_QUOTE = gql(`
 export const SALES_POS_ORDER_PAPA_SEND = gql(`
   mutation salesPosOrderPapaSend(
     $id: String!
+    $receiverName: String
     $receiverPhone: String
     $description: String
     $receiverPays: Boolean
   ) {
     posOrderPapaSend(
       _id: $id
+      receiverName: $receiverName
       receiverPhone: $receiverPhone
       description: $description
       receiverPays: $receiverPays
@@ -135,8 +144,8 @@ export const SALES_POS_ORDER_PAPA_REFRESH = gql(`
 `);
 
 export const SALES_POS_ORDER_PAPA_CANCEL = gql(`
-  mutation salesPosOrderPapaCancel($id: String!) {
-    posOrderPapaCancel(_id: $id)
+  mutation salesPosOrderPapaCancel($id: String!, $reason: String) {
+    posOrderPapaCancel(_id: $id, reason: $reason)
   }
 `);
 
@@ -149,6 +158,24 @@ export const SALES_POS_ORDER_PAPA_APPROVE_PHOTO = gql(`
 export const SALES_POS_ORDER_PAPA_MARK_DELIVERED = gql(`
   mutation salesPosOrderPapaMarkDelivered($id: String!) {
     posOrderPapaMarkDelivered(_id: $id)
+  }
+`);
+
+export const SALES_PAPA_DELIVERY_REPORT = gql(`
+  query salesPapaDeliveryReport(
+    $posId: String
+    $startDate: Date!
+    $endDate: Date!
+    $interval: String
+    $timezone: String
+  ) {
+    salesPapaDeliveryReport(
+      posId: $posId
+      startDate: $startDate
+      endDate: $endDate
+      interval: $interval
+      timezone: $timezone
+    )
   }
 `);
 

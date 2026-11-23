@@ -70,6 +70,17 @@ export const PAPA_RESENDABLE_STATUSES: string[] = [
   PAPA_ORDER_STATUS.EXPIRED,
 ];
 
+/** Papa has delivered the goods (END: fee not yet settled, COMPLETED: settled). */
+export const PAPA_DELIVERED_STATUSES: string[] = [
+  PAPA_ORDER_STATUS.END,
+  PAPA_ORDER_STATUS.COMPLETED,
+];
+
+/** Driver note limits: Papa's `description` and each part erxes adds to it. */
+export const PAPA_DRIVER_NOTE_MAX = 500;
+export const PAPA_RECEIVER_NAME_MAX = 100;
+export const PAPA_CANCEL_REASON_MAX = 300;
+
 /** States in which the delivery can still be cancelled from erxes. */
 export const PAPA_CANCELLABLE_STATUSES: string[] = [
   PAPA_ORDER_STATUS.NEW,
@@ -136,3 +147,13 @@ export const PAPA_DEAL_STEP_RANK: Record<TPapaDealStep, number> = {
 
 // A deal create that has not finished within this is taken as crashed.
 export const PAPA_DEAL_CREATE_LOCK_MS = 60_000;
+
+/** What a delivery order lacked when it could not be sent automatically. */
+export const PAPA_AUTO_SEND_MISSING = [
+  'district',
+  'address',
+  'pin',
+  'phone',
+] as const;
+
+export type TPapaAutoSendMissing = (typeof PAPA_AUTO_SEND_MISSING)[number];

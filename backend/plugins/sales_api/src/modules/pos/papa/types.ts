@@ -1,4 +1,5 @@
 import {
+  TPapaAutoSendMissing,
   TPapaCarTypeGroup,
   TPapaDealStep,
   TPapaSize,
@@ -214,6 +215,17 @@ export interface IPosPapaConfig {
   size?: TPapaSize;
   /** Deal stage for each delivery step; a step without one moves nothing. */
   stageIds?: Partial<Record<TPapaDealStep, string>>;
+  /** Quote and send paid delivery orders to Papa as soon as they arrive. */
+  autoSend?: boolean;
+}
+
+/** How the automatic send of one order went (`posOrder.papaAutoSend`). */
+export interface IPapaAutoSend {
+  status: 'sending' | 'sent' | 'skipped' | 'failed';
+  at: Date;
+  /** Why it was skipped: what the order's delivery info lacked. */
+  missing?: TPapaAutoSendMissing[];
+  error?: string;
 }
 
 /**
@@ -272,6 +284,22 @@ export interface IPapaDelivery {
   createUncertain?: boolean;
   sentBy?: string;
   sentAt?: Date;
+  /** Who receives the goods, as sent to Papa in the driver note. */
+  receiverName?: string;
+  receiverPhone?: string;
+  /** When Papa first reported the goods delivered (END or COMPLETED). */
+  deliveredAt?: Date;
+  /** When the Papa order was cancelled or expired. */
+  closedAt?: Date;
+  /** Why the store cancelled it, typed in the cancel dialog. */
+  cancelReason?: string;
+  cancelledBy?: string;
   events?: IPapaDeliveryEvent[];
   updatedAt: Date;
+}
+
+/** One order line as written in the driver note. */
+export interface IPapaNoteItem {
+  name: string;
+  quantity: number;
 }

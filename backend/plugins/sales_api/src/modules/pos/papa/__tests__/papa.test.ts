@@ -8,14 +8,21 @@ import {
 } from '../client';
 import {
   buildCallbackUrl,
+  buildDriverNote,
   buildDynamicCreateInput,
   expandCarTypes,
+  mergeRefreshedDelivery,
   normalizeMnPhone,
   orderToDelivery,
+  matchPapaLocation,
   papaDealStep,
+  papaStatusDate,
+  planPapaAutoSend,
+  readDeliveryPin,
   shouldMoveDeal,
   trimTrailingSlashes,
 } from '../mapping';
+import { summarizePapaReport } from '../report';
 
 class MemoryStore implements IPapaTokenStore {
   public values = new Map<string, string>();
@@ -534,5 +541,217 @@ describe('Papa delivery deal steps', () => {
     expect(shouldMoveDeal(delivered, 'inTransit', 'p1')).toBe(false);
     expect(shouldMoveDeal(delivered, 'failed', 'p1')).toBe(false);
     expect(shouldMoveDeal(delivered, 'sent', 'p2')).toBe(true);
+  });
+});
+
+describe('Papa delivery details', () => {
+  const driver = { firstname: 'Bat', lastname: 'Dorj', phone: '99112233' };
+  const car = { plate: '1234УБА' };
+  const at = new Date('2026-11-20T10:00:00Z');
+  const later = new Date('2026-11-20T12:00:00Z');
+
+  it('keeps the driver and vehicle after Papa drops them', () => {
+    const current = {
+      status: 'START',
+      driver,
+      car,
+      updatedAt: at,
+    };
+    const next = mergeRefreshedDelivery(
+      current,
+      { status: 'COMPLETED', driver: null, car: null },
+      later,
+    );
+
+    expect(next.driver).toEqual(driver);
+    expect(next.car).toEqual(car);
+  });
+
+  it('records when the goods were delivered, once', () => {
+    const ended = mergeRefreshedDelivery(
+      { status: 'START', updatedAt: at },
+      { status: 'END' },
+      at,
+    );
+    const completed = mergeRefreshedDelivery(
+      ended,
+      { status: 'COMPLETED' },
+      later,
+    );
+
+    expect(ended.deliveredAt).toEqual(at);
+    expect(completed.deliveredAt).toEqual(at);
+    expect(completed.closedAt).toBeUndefined();
+  });
+
+  it('records when a delivery was cancelled or expired', () => {
+    const cancelled = mergeRefreshedDelivery(
+      { status: 'CONFIRM', cancelReason: 'Customer called', updatedAt: at },
+      { status: 'USER_CANCELLED' },
+      later,
+    );
+
+    expect(cancelled.closedAt).toEqual(later);
+    expect(cancelled.cancelReason).toBe('Customer called');
+    expect(cancelled.deliveredAt).toBeUndefined();
+  });
+
+  it('reads Papa’s status date, falling back when it is missing', () => {
+    const order = { id: 'p1', parcel_order_status: 'END' };
+
+    expect(
+      papaStatusDate(
+        { ...order, parcel_order_status_date: '2026-11-20T10:00:00Z' },
+        later,
+      ),
+    ).toEqual(at);
+    expect(papaStatusDate(order, later)).toEqual(later);
+    expect(
+      papaStatusDate({ ...order, parcel_order_status_date: 'soon' }, later),
+    ).toEqual(later);
+    expect(
+      papaStatusDate(
+        { ...order, parcel_order_status_date: '2026-11-20 18:00:00' },
+        later,
+      ),
+    ).toEqual(later);
+  });
+
+  it('writes the receiver, the note and the items into the driver note', () => {
+    expect(
+      buildDriverNote({
+        receiverName: ' Болд ',
+        note: 'Call first',
+        items: [
+          { name: 'Ус', quantity: 2 },
+          { name: 'Талх', quantity: 1 },
+        ],
+      }),
+    ).toBe('Хүлээн авагч: Болд\nCall first\nБараа: Ус ×2, Талх ×1');
+    expect(buildDriverNote({ items: [] })).toBe('');
+  });
+
+  it('shortens the item list first when the note is too long', () => {
+    const note = buildDriverNote(
+      {
+        receiverName: 'Болд',
+        items: Array.from({ length: 50 }, (_, index) => ({
+          name: `Product ${index}`,
+          quantity: 1,
+        })),
+      },
+      80,
+    );
+
+    expect(note.length <= 80).toBe(true);
+    expect(note.startsWith('Хүлээн авагч: Болд\nБараа: Product 0')).toBe(true);
+    expect(note.endsWith('…')).toBe(true);
+  });
+});
+
+describe('Papa delivery report', () => {
+  it('counts deliveries still in progress and sums the totals', () => {
+    const { rows, totals } = summarizePapaReport([
+      {
+        period: '2026-11-19',
+        sent: 5,
+        delivered: 3,
+        cancelled: 1,
+        failed: 0,
+        revenue: 300000,
+        papaCost: 30000,
+      },
+      {
+        period: '2026-11-20',
+        sent: 2,
+        delivered: 1,
+        cancelled: 0,
+        failed: 1,
+        revenue: 50000,
+        papaCost: 10000,
+      },
+    ]);
+
+    expect(rows.map((row) => row.inProgress)).toEqual([1, 0]);
+    expect(totals).toEqual({
+      sent: 7,
+      delivered: 4,
+      cancelled: 1,
+      failed: 1,
+      inProgress: 1,
+      revenue: 350000,
+      papaCost: 40000,
+    });
+  });
+});
+
+describe('Papa automatic send', () => {
+  const locations = [
+    { id: 11, name: 'Сүхбаатар дүүрэг' },
+    { id: 12, name: 'Хан-Уул дүүрэг' },
+    { id: 13, name: 'Баянзүрх дүүрэг' },
+    { id: 14, name: 'Баянзүрх', parent_id: 99 },
+  ];
+
+  it('matches a checkout district to one Papa location', () => {
+    expect(matchPapaLocation('Хан-Уул', locations)).toBe('12');
+    expect(matchPapaLocation('сүхбаатар дүүрэг', locations)).toBe('11');
+    expect(matchPapaLocation('Баянзүрх', locations)).toBeUndefined();
+    expect(matchPapaLocation('', locations)).toBeUndefined();
+  });
+
+  it('reads the checkout pin in every agreed shape', () => {
+    expect(
+      readDeliveryPin({ marker: { latitude: 47.9, longitude: 106.9 } }),
+    ).toEqual({ lat: '47.9', lng: '106.9' });
+    expect(
+      readDeliveryPin({ location: { coordinates: [106.9, 47.9] } }),
+    ).toEqual({ lat: '47.9', lng: '106.9' });
+    expect(readDeliveryPin({ lat: '47.9', lng: '106.9' })).toEqual({
+      lat: '47.9',
+      lng: '106.9',
+    });
+    expect(readDeliveryPin({ marker: { latitude: 'x', longitude: 1 } })).toBe(
+      null,
+    );
+  });
+
+  it('plans a send from a complete dts.mn checkout', () => {
+    const plan = planPapaAutoSend(
+      {
+        city: 'Улаанбаатар',
+        district: 'Хан-Уул',
+        street: '15-р хороо',
+        detail: '5-р байр 12 тоот',
+        phone: '+976 9911 2233',
+        firstName: 'Бат',
+        lastName: 'Дорж',
+        callBefore: true,
+        marker: { latitude: 47.89, longitude: 106.91 },
+      },
+      locations,
+      'SMALL',
+    );
+
+    expect(plan.missing).toEqual([]);
+    expect(plan.quote).toEqual({
+      toLocationId: '12',
+      toAddress: 'Улаанбаатар, Хан-Уул, 15-р хороо, 5-р байр 12 тоот',
+      toLatitude: '47.89',
+      toLongitude: '106.91',
+      size: 'SMALL',
+    });
+    expect(plan.send).toEqual({
+      receiverName: 'Дорж Бат',
+      receiverPhone: '99112233',
+      description: 'Хүргэхийн өмнө заавал залгах',
+    });
+  });
+
+  it('lists what a checkout lacks instead of sending', () => {
+    const plan = planPapaAutoSend({ district: 'Нүүдэл' }, locations);
+
+    expect(plan.quote).toBe(null);
+    expect(plan.missing).toEqual(['district', 'pin', 'phone']);
   });
 });

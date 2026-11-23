@@ -111,17 +111,27 @@
   shown as saved through `hasSecret`) and `PapaPosForm` saves the POS's
   `deliveryConfig.papa` (`enabled`, pickup `addressId` with an inline
   `PapaAddressForm` that registers a new Papa address, `carTypeGroups`
-  `car` / `light`, `categoryId`, `conditionId`, default `size`, and
+  `car` / `light`, `categoryId`, `conditionId`, default `size`, `autoSend`
+  (send paid delivery orders to Papa as soon as they arrive), and
   `stageIds`: the deal stage per delivery step `sent` / `inTransit` /
   `delivered` / `cancelled` / `failed`, picked by `PapaDealStages` from the
   delivery pipeline (`deliveryConfig.pipelineId`), each clearable). The POS order
   panel has a Delivery tab (`PapaDeliveryPanel`, record panel tab `delivery`):
   the full-page order view (`PosRecordDetailPage`) adds the same
-  `delivery` tab after Payments; for `type: 'delivery'` orders it quotes (district, address, coordinates,
-  size), sends (receiver phone normalized to 8 digits, driver note, receiver
-  pays), shows status, price, pickup code, delivery code, driver and vehicle,
-  approves the driver's photo, marks a started delivery as delivered
-  (confirm dialog), refreshes and cancels. The account form shows staff
+  `delivery` tab after Payments; for `type: 'delivery'` orders it shows the
+  order's customer (name, phone), quotes (district, address, coordinates,
+  size), sends (receiver name, receiver phone normalized to 8 digits, driver
+  note, receiver pays; the name and phone default to the checkout's, else the
+  customer's), shows status, price, receiver, pickup code, delivery code,
+  driver and vehicle (kept after the delivery ends), when it was delivered,
+  and for an undelivered order why (`PAPA_CLOSE_REASONS`: cancelled by the
+  store, by Papa, or no driver; the typed reason; when), approves the
+  driver's photo, marks a started delivery as delivered (confirm dialog),
+  refreshes and cancels (`PapaCancelDialog`, optional reason). When the
+  automatic send did not reach Papa, the tab says why from
+  `posOrder.papaAutoSend` (`parsePapaAutoSend`): skipped with what was
+  missing (`PAPA_AUTO_SEND_MISSING`), failed with Papa's error, or still
+  sending. The account form shows staff
   phone/email/name fields while `salesPapaConfig.staffId` is empty, so saving
   can create the Papa staff member. It polls every 15s
   while the delivery can still change (`PAPA_ACTIVE_STATUSES`).
@@ -134,6 +144,12 @@
   refetching the delivery and the wallet). It is the store's fee to Papa,
   never the customer's payment. When the delivery deal could not be moved,
   the tab shows `papaDeal.error` as a warning.
+- Each POS's menu has "Papa deliveries" (`/sales/pos/:posId/deliveries`,
+  `PosPapaDeliveriesPage` → `PapaDeliveryReport`, `salesPapaDeliveryReport`):
+  a From/To date range and By day / By month toggle (30 days or a year by
+  default, the browser's time zone), total tiles and a per-period table of
+  sent, delivered, cancelled by user, failed, in progress, revenue and Papa
+  cost, with loading, error and empty states.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -932,7 +948,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   the watcher never exits. With Sales enabled, `pnpm dev:uis` generates types,
   starts the watcher, then starts the host and Sales remote.
 
-- Papa JSON (`papaDelivery`, `papaDeal`, `deliveryConfig.papa`, `salesPapaReferences`,
+- Papa JSON (`papaDelivery`, `papaDeal`, `papaAutoSend`, `deliveryConfig.papa`, `salesPapaReferences`,
   `salesPapaAddresses`, the photo proof) is narrowed in
   `pos/papa/utils/papaJson.ts`. Papa does not document its reference row
   shape, so rows need only an `id`; labels fall back from `name` to `title`,
@@ -966,7 +982,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `district`, `street`, `detail` joined as the address, `haveBaby`,
   `callBefore`, `onlyAfternoon` written into the driver note, and `district`
   matched to a Papa location by name or short name (`matchPapaDistrict`,
-  only when exactly one matches). These checkouts send no coordinates.
+  only when exactly one matches). The map pin is read by `readDeliveryPin`
+  from `marker`, then `location`, then top-level fields, each as
+  `latitude`/`longitude`, `lat`/`lng` or GeoJSON `coordinates`
+  `[longitude, latitude]`; a malformed pin is ignored, never failing the
+  address. `receiverName`, `name` or `lastName` + `firstName` prefill the
+  receiver.
 - Papa labels use `t(key, 'English default')`; their Mongolian strings are
   not yet in the gateway `sales.json` locales.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.

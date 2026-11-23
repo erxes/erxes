@@ -98,6 +98,34 @@
   `changeDeal`, so stage permissions, loyalty, activity logs, board
   subscriptions and automations run as for a board drag, as the user who
   sent the delivery.
+- A Papa send writes the driver note (`buildDriverNote`, Papa `description`,
+  at most 500 characters): the receiver's name (`posOrderPapaSend`
+  `receiverName`), the store's note, then the order lines with core product
+  names (`products.find`), the item list shortened first. The delivery keeps
+  `receiverName` / `receiverPhone`. Each refresh keeps the last driver and
+  vehicle once Papa drops them, and stamps `deliveredAt` (first `END` /
+  `COMPLETED`) and `closedAt` (cancelled or expired) from Papa's
+  `parcel_order_status_date` when it names its time zone, else the refresh
+  time (a zoneless time would be read in the server's zone). `posOrderPapaCancel(reason)` stores
+  `cancelReason` and `cancelledBy`.
+- Automatic send (`papa/autoSend.ts`): with `deliveryConfig.papa.autoSend`,
+  each paid, non-returned delivery order synced from a POS client
+  (`createOrUpdateOrders` / `createOrUpdateOrdersMany`, started without
+  awaiting so the sync never waits on Papa) is quoted and sent once:
+  `planPapaAutoSend` reads its `deliveryInfo` (district matched to one Papa
+  location, address or city/district/street/detail, map pin from `marker`,
+  `location` or top-level fields, phone normalized to 8 digits, receiver
+  name, checkout note flags). The order claims `papaAutoSend` conditionally;
+  it ends `sent`, `skipped` (with `missing`: district, address, pin, phone)
+  or `failed` (Papa's error), and staff finish skipped or failed orders on
+  the Delivery tab. It never throws.
+- `salesPapaDeliveryReport(posId, startDate, endDate, interval: day|month,
+  timezone)` (`papa/report.ts`, `posOrderRead`) groups a POS's Papa
+  deliveries by the day or month they were sent (`papaDelivery.sentAt`, end
+  date exclusive, a day report at most a year): sent, delivered
+  (`END`/`COMPLETED`), cancelled (`USER_CANCELLED`), failed
+  (`CANCELLED`/`EXPIRED`), in progress, revenue (delivered orders'
+  `totalAmount`) and Papa cost (their `papaDelivery.price`), with totals.
 - POS configuration stores `customerCreateConfig` (`enabled`,
   `assignCashierAsOwner`, `layout`) for POS client customer registration and
   syncs it to POS client.
@@ -368,7 +396,9 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   `posOrderPapaQuote`, `posOrderPapaSend`, `posOrderPapaRefresh`,
   `posOrderPapaCancel`, `posOrderPapaApprovePhoto`,
   `posOrderPapaMarkDelivered`, `posOrderPapaPay(_id, method: wallet|outside)`
-  and query `salesPapaWallet` (`posOrderPapaManage`).
+  and query `salesPapaWallet` (`posOrderPapaManage`);
+  `salesPapaDeliveryReport` (`posOrderRead`). `posOrderPapaSend` takes
+  `receiverName`, `posOrderPapaCancel` takes `reason`.
   `PosOrderDetail.papaDelivery` and `papaDeal` (JSON).
 - HTTP `GET /papa-callback/:secret` (gateway `/pl:sales/papa-callback/...`),
   registered with Papa by `salesPapaConfigSave` through `/client/configration`.
@@ -410,8 +440,13 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   `sales_papa_token_<hash>` (45 min) and re-requested once on 401/403.
 - `pos_orders.papaDelivery` stores the quote, Papa order id/code/pincode,
   status, driver/car, shipping id, end pincode, photo-proof flag and the last
-  50 callback events. Local statuses `QUOTED`, `SENDING`, `FAILED` precede
-  Papa's `parcel_order_status` values.
+  50 callback events, plus `receiverName` / `receiverPhone`, `deliveredAt`,
+  `closedAt`, `cancelReason` and `cancelledBy`. Local statuses `QUOTED`,
+  `SENDING`, `FAILED` precede Papa's `parcel_order_status` values. A new quote
+  starts the object over.
+- `pos_orders.papaAutoSend` (`IPapaAutoSend`: `status`, `at`, `missing`,
+  `error`) records the automatic send; POS client sync drops it like
+  `papaDelivery`.
 - `pos_orders.papaDeal` links the delivery deal Papa moves: `dealId`, the
   last `step` and the `papaOrderId` it belongs to, a `creatingAt` create
   claim, and the last move `error`.
@@ -774,6 +809,9 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - Every Papa request sends `updateversion: ios/1.1.1` (`PAPA_UPDATE_VERSION_HEADER`),
   as Papa's docs do on organization endpoints. List calls send
   `filter: { query: '' }` with `limit` at most 20.
+- Papa's create has no field for the receiver's name or the goods: they go in
+  the driver note, never in extra create fields (the create accepts only the
+  documented example body).
 - Papa's dynamic quote and create accept only the docs' example bodies
   (verified end to end on dev), not the field tables. Quote:
   `{ order_type: 'PARCEL_ORDER', size, address_id, to_point_id }`, where

@@ -2,9 +2,13 @@ import {
   PAPA_CAR_TYPE_GROUPS,
   PAPA_DEAL_STEP_BY_STATUS,
   PAPA_DEAL_STEP_RANK,
+  PAPA_DELIVERED_STATUSES,
+  PAPA_DRIVER_NOTE_MAX,
+  PAPA_ENDED_ORDER_STATUSES,
   PAPA_MAX_EVENTS,
   PAPA_SIZES,
   TPapaCarTypeGroup,
+  TPapaAutoSendMissing,
   TPapaDealStep,
   TPapaSize,
 } from './constants';
@@ -14,6 +18,7 @@ import {
   IPapaDeliveryEvent,
   IPapaDynamicCreateInput,
   IPapaDynamicOrder,
+  IPapaNoteItem,
   IPapaQuote,
   IPapaShipping,
   IPosPapaConfig,
@@ -31,7 +36,6 @@ export const trimTrailingSlashes = (value: string) => {
 
   return value.slice(0, end);
 };
-const MAX_DESCRIPTION = 500;
 
 /** Expands the POS's UI car-type groups into Papa `car_type` values. */
 export const expandCarTypes = (groups?: string[]): string[] => {
@@ -130,7 +134,7 @@ export const buildDynamicCreateInput = ({
     throw new Error('Papa category and condition must be set on the POS');
   }
 
-  const note = (description || '').trim().slice(0, MAX_DESCRIPTION);
+  const note = (description || '').trim().slice(0, PAPA_DRIVER_NOTE_MAX);
 
   return {
     quote_id: quoteId,
@@ -180,6 +184,89 @@ export const orderToDelivery = (
   updatedAt: now,
 });
 
+// Only a date that states its zone is trusted: a zoneless Papa time would be
+// read in the server's zone and land hours off.
+const ZONED_DATE = /T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
+
+/** When Papa says the order reached its status, or `fallback`. */
+export const papaStatusDate = (order: IPapaDynamicOrder, fallback: Date) => {
+  const value = order.parcel_order_status_date;
+  const date = value && ZONED_DATE.test(value) ? new Date(value) : undefined;
+
+  return date && !Number.isNaN(date.getTime()) ? date : fallback;
+};
+
+/**
+ * A refreshed delivery: Papa's latest state over the stored one. Papa drops
+ * the driver and vehicle once an order is over, so the last known ones stay;
+ * the delivered and closed times are kept from the first time they were seen.
+ */
+export const mergeRefreshedDelivery = (
+  current: IPapaDelivery,
+  fresh: Partial<IPapaDelivery>,
+  statusAt: Date,
+): IPapaDelivery => {
+  const next: IPapaDelivery = {
+    ...current,
+    ...fresh,
+    driver: fresh.driver || current.driver || null,
+    car: fresh.car || current.car || null,
+  };
+
+  if (PAPA_DELIVERED_STATUSES.includes(next.status) && !current.deliveredAt) {
+    next.deliveredAt = statusAt;
+  }
+
+  if (PAPA_ENDED_ORDER_STATUSES.includes(next.status) && !current.closedAt) {
+    next.closedAt = statusAt;
+  }
+
+  return next;
+};
+
+/**
+ * The driver note sent as Papa's `description`: the receiver, the store's
+ * note, then the order lines. Papa has no field for the receiver's name or
+ * the goods, so they travel in the note; when it is too long the item list is
+ * shortened first.
+ */
+export const buildDriverNote = (
+  {
+    receiverName,
+    note,
+    items,
+  }: { receiverName?: string; note?: string; items: IPapaNoteItem[] },
+  max = PAPA_DRIVER_NOTE_MAX,
+) => {
+  const head = [
+    receiverName?.trim() ? `Хүлээн авагч: ${receiverName.trim()}` : '',
+    note?.trim() || '',
+  ]
+    .filter(Boolean)
+    .join('\n')
+    .slice(0, max);
+  const itemText = items
+    .filter((item) => item.name && item.quantity > 0)
+    .map((item) => `${item.name} ×${item.quantity}`)
+    .join(', ');
+
+  if (!itemText) {
+    return head;
+  }
+
+  const itemsLine = `Бараа: ${itemText}`;
+  const room = max - head.length - (head ? 1 : 0);
+
+  if (room < 12) {
+    return head;
+  }
+
+  const fitted =
+    itemsLine.length <= room ? itemsLine : `${itemsLine.slice(0, room - 1)}…`;
+
+  return head ? `${head}\n${fitted}` : fitted;
+};
+
 export const shippingToDelivery = (
   shipping: IPapaShipping,
 ): Partial<IPapaDelivery> => ({
@@ -215,3 +302,164 @@ export const shouldMoveDeal = (
   !link?.step ||
   link.papaOrderId !== papaOrderId ||
   PAPA_DEAL_STEP_RANK[step] > PAPA_DEAL_STEP_RANK[link.step];
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const textOf = (value: unknown) =>
+  typeof value === 'string' ? value.trim() : '';
+
+const normalizeDistrict = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/дүүрэг|district/g, '')
+    .replace(/[\s-]+/g, '');
+
+/**
+ * The Papa location of a checkout district ("Хан-Уул", "Баянзүрх дүүрэг"),
+ * by full or short name; only when exactly one location matches.
+ */
+export const matchPapaLocation = (
+  district: string,
+  locations: unknown[],
+): string | undefined => {
+  const wanted = normalizeDistrict(district);
+
+  if (!wanted) {
+    return undefined;
+  }
+
+  const matches = locations.filter(
+    (row) =>
+      isRecord(row) &&
+      (typeof row.id === 'string' || typeof row.id === 'number') &&
+      [row.name, row.code, row.title, row.short_name].some(
+        (label) =>
+          typeof label === 'string' && normalizeDistrict(label) === wanted,
+      ),
+  );
+
+  return matches.length === 1 && isRecord(matches[0])
+    ? String(matches[0].id)
+    : undefined;
+};
+
+const coordinateText = (value: unknown, limit: number) => {
+  if (value === null || value === undefined || value === '') {
+    return undefined;
+  }
+
+  return isValidCoordinate(value, limit) ? String(Number(value)) : undefined;
+};
+
+/**
+ * The checkout's map pin: `marker`, then `location`, then top-level fields,
+ * each as `latitude`/`longitude`, `lat`/`lng` or GeoJSON `coordinates`
+ * `[longitude, latitude]`. Both coordinates come from the same place.
+ */
+export const readDeliveryPin = (
+  deliveryInfo: unknown,
+): { lat: string; lng: string } | null => {
+  if (!isRecord(deliveryInfo)) {
+    return null;
+  }
+
+  for (const pin of [
+    deliveryInfo.marker,
+    deliveryInfo.location,
+    deliveryInfo,
+  ]) {
+    if (!isRecord(pin)) {
+      continue;
+    }
+
+    const coordinates = Array.isArray(pin.coordinates) ? pin.coordinates : [];
+    const lat = coordinateText(pin.latitude ?? pin.lat ?? coordinates[1], 90);
+    const lng = coordinateText(pin.longitude ?? pin.lng ?? coordinates[0], 180);
+
+    if (lat && lng) {
+      return { lat, lng };
+    }
+  }
+
+  return null;
+};
+
+const DELIVERY_NOTE_FLAGS = [
+  ['haveBaby', 'Нялх хүүхэдтэй'],
+  ['callBefore', 'Хүргэхийн өмнө заавал залгах'],
+  ['onlyAfternoon', 'Зөвхөн оройн цагаар хүргэх'],
+] as const;
+
+export interface IPapaAutoSendPlan {
+  quote: {
+    toLocationId: string;
+    toAddress: string;
+    toLatitude: string;
+    toLongitude: string;
+    size?: TPapaSize;
+  } | null;
+  send: { receiverName?: string; receiverPhone?: string; description?: string };
+  missing: TPapaAutoSendMissing[];
+}
+
+/**
+ * What an automatic send would quote and send for a checkout's
+ * `deliveryInfo`, or which parts are missing: Papa needs a district it
+ * knows, an address, a map pin and the receiver's phone.
+ */
+export const planPapaAutoSend = (
+  deliveryInfo: unknown,
+  locations: unknown[],
+  size?: TPapaSize,
+): IPapaAutoSendPlan => {
+  const info = isRecord(deliveryInfo) ? deliveryInfo : {};
+  const district = textOf(info.district);
+  const address =
+    textOf(info.address) ||
+    [info.city, info.district, info.street, info.detail]
+      .map(textOf)
+      .filter(Boolean)
+      .join(', ');
+  const toLocationId = matchPapaLocation(district, locations);
+  const pin = readDeliveryPin(info);
+  const receiverPhone = normalizeMnPhone(textOf(info.phone));
+  const receiverName =
+    textOf(info.receiverName) ||
+    textOf(info.name) ||
+    [info.lastName, info.firstName].map(textOf).filter(Boolean).join(' ');
+  const description = [
+    textOf(info.description),
+    ...DELIVERY_NOTE_FLAGS.flatMap(([key, label]) =>
+      info[key] === true ? [label] : [],
+    ),
+  ]
+    .filter(Boolean)
+    .join('. ');
+
+  const missing: TPapaAutoSendMissing[] = [];
+
+  if (!toLocationId) missing.push('district');
+  if (!address) missing.push('address');
+  if (!pin) missing.push('pin');
+  if (!receiverPhone) missing.push('phone');
+
+  return {
+    quote:
+      toLocationId && address && pin
+        ? {
+            toLocationId,
+            toAddress: address.slice(0, 500),
+            toLatitude: pin.lat,
+            toLongitude: pin.lng,
+            size,
+          }
+        : null,
+    send: {
+      receiverName: receiverName || undefined,
+      receiverPhone,
+      description: description || undefined,
+    },
+    missing,
+  };
+};

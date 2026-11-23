@@ -9,6 +9,7 @@ const normalizePhone = (value: string) =>
   value.replace(/\D/g, '').replace(/^976(?=\d{8}$)/, '');
 
 const sendSchema = z.object({
+  receiverName: z.string().trim().max(100),
   receiverPhone: z
     .string()
     .refine(
@@ -22,7 +23,7 @@ const sendSchema = z.object({
 export type TPapaSendForm = z.infer<typeof sendSchema>;
 
 interface PapaDeliverySendFormProps {
-  defaults: { phone: string; description: string };
+  defaults: { receiverName: string; phone: string; description: string };
   busy: boolean;
   retry: boolean;
   onSubmit: (values: TPapaSendForm) => Promise<boolean>;
@@ -39,6 +40,7 @@ export const PapaDeliverySendForm = ({
   const form = useForm<TPapaSendForm>({
     resolver: zodResolver(sendSchema),
     defaultValues: {
+      receiverName: defaults.receiverName.slice(0, 100),
       receiverPhone: defaults.phone,
       description: defaults.description.slice(0, 500),
       receiverPays: false,
@@ -57,6 +59,21 @@ export const PapaDeliverySendForm = ({
         className="space-y-3"
         noValidate
       >
+        <Form.Field
+          control={form.control}
+          name="receiverName"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                {t('papa-receiver-name', 'Receiver name')}
+              </Form.Label>
+              <Form.Control>
+                <Input {...field} autoComplete="off" />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
         <Form.Field
           control={form.control}
           name="receiverPhone"
@@ -87,6 +104,12 @@ export const PapaDeliverySendForm = ({
             </Form.Item>
           )}
         />
+        <p className="text-xs text-muted-foreground">
+          {t(
+            'papa-note-includes',
+            'Papa’s driver sees the receiver’s name and the order’s items in the note, together with what you write here.',
+          )}
+        </p>
         <Form.Field
           control={form.control}
           name="receiverPays"

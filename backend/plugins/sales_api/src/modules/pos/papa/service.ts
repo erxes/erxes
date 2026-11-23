@@ -1,4 +1,4 @@
-import { getEnv, redis } from 'erxes-api-shared/utils';
+import { getEnv, redis, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IPosOrderDocument } from '../@types/orders';
 import { IPapaConfigDocument } from '../@types/papaConfigs';
@@ -6,12 +6,14 @@ import { isTrustedPapaUrl, isUncertainPapaFailure, PapaClient } from './client';
 import {
   PAPA_CALLBACK_OBJECT_TYPES,
   PAPA_CALLBACK_PATH,
+  PAPA_CANCEL_REASON_MAX,
   PAPA_CANCELLABLE_STATUSES,
   PAPA_DEV_API_URL,
   PAPA_LIST_PAGE_SIZE,
   PAPA_LOCAL_STATUS,
   PAPA_MAX_ADDRESS_PAGES,
   PAPA_ORDER_STATUS,
+  PAPA_RECEIVER_NAME_MAX,
   PAPA_REFERENCES_TTL_SECONDS,
   PAPA_RESENDABLE_STATUSES,
   PAPA_SHIPPING_STATUSES,
@@ -21,11 +23,14 @@ import { syncPapaDeal } from './deal';
 import {
   appendEvent,
   buildCallbackUrl,
+  buildDriverNote,
   buildDynamicCreateInput,
   isPapaSize,
   isValidCoordinate,
+  mergeRefreshedDelivery,
   normalizeMnPhone,
   orderToDelivery,
+  papaStatusDate,
   quoteToDelivery,
   shippingToDelivery,
 } from './mapping';
@@ -33,6 +38,7 @@ import {
   IPapaAddress,
   IPapaDelivery,
   IPapaDynamicCreateInput,
+  IPapaNoteItem,
   IPapaReferences,
   IPosPapaConfig,
 } from './types';
@@ -56,6 +62,7 @@ export interface IPapaQuoteArgs {
 }
 
 export interface IPapaSendArgs {
+  receiverName?: string;
   receiverPhone?: string;
   description?: string;
   receiverPays?: boolean;
@@ -342,6 +349,51 @@ const assertDeliveryOrder = (order: IPosOrderDocument) => {
   }
 };
 
+const isNamedProduct = (
+  value: unknown,
+): value is { _id: string; name: string } =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as { _id?: unknown })._id === 'string' &&
+  typeof (value as { name?: unknown }).name === 'string';
+
+/** The order's lines with core product names, for the driver note. */
+const getOrderNoteItems = async (
+  subdomain: string,
+  order: IPosOrderDocument,
+): Promise<IPapaNoteItem[]> => {
+  const items = (order.items || []).filter(
+    (item) => item.productId && item.count > 0,
+  );
+
+  if (!items.length) {
+    return [];
+  }
+
+  const products: unknown = await sendTRPCMessage({
+    subdomain,
+    method: 'query',
+    pluginName: 'core',
+    module: 'products',
+    action: 'find',
+    input: {
+      query: { _id: { $in: items.map((item) => item.productId) } },
+      sort: {},
+    },
+    defaultValue: [],
+  });
+  const names = new Map(
+    (Array.isArray(products) ? products : [])
+      .filter(isNamedProduct)
+      .map((product) => [product._id, product.name]),
+  );
+
+  return items.map((item) => ({
+    name: names.get(item.productId) || item.productId,
+    quantity: item.count,
+  }));
+};
+
 const setDelivery = async (
   models: IModels,
   orderId: string,
@@ -576,6 +628,15 @@ export const sendPapaDelivery = async (
     throw new Error('Save the Papa credentials again to load the staff id');
   }
 
+  const receiverName = args.receiverName
+    ?.trim()
+    .slice(0, PAPA_RECEIVER_NAME_MAX);
+  const description = buildDriverNote({
+    receiverName,
+    note: args.description ?? order.deliveryInfo?.description,
+    items: await getOrderNoteItems(subdomain, order),
+  });
+
   // Claim the send atomically so a double click cannot create two orders.
   const claimed = await models.PosOrders.updateOne(
     { _id: orderId, 'papaDelivery.status': current.status },
@@ -599,7 +660,7 @@ export const sendPapaDelivery = async (
     staffId: config.staffId,
     posConfig,
     receiverPhone,
-    description: args.description ?? order.deliveryInfo?.description,
+    description,
     receiverPays: args.receiverPays,
   });
   const state: IPapaSendState = {
@@ -624,6 +685,8 @@ export const sendPapaDelivery = async (
       carTypes: input.car_type,
       createUncertain: undefined,
       error: undefined,
+      receiverName: receiverName || undefined,
+      receiverPhone,
       sentBy: userId,
       sentAt: now,
       updatedAt: now,
@@ -657,8 +720,11 @@ export const refreshPapaDelivery = async (
   const now = new Date();
 
   let next: IPapaDelivery = {
-    ...current,
-    ...orderToDelivery(papaOrder, now),
+    ...mergeRefreshedDelivery(
+      current,
+      orderToDelivery(papaOrder, now),
+      papaStatusDate(papaOrder, now),
+    ),
     error: undefined,
   };
 
@@ -689,6 +755,7 @@ export const cancelPapaDelivery = async (
   models: IModels,
   subdomain: string,
   orderId: string,
+  { reason, userId }: { reason?: string; userId?: string } = {},
 ) => {
   const order = await models.PosOrders.getOrder(orderId);
   let current = order.papaDelivery;
@@ -715,6 +782,22 @@ export const cancelPapaDelivery = async (
     await client.cancelAcceptedOrder(papaOrderId);
   } else {
     await client.cancelConfirmedOrder(papaOrderId);
+  }
+
+  const cancelReason = reason?.trim().slice(0, PAPA_CANCEL_REASON_MAX);
+
+  if (cancelReason || userId) {
+    await models.PosOrders.updateOne(
+      { _id: orderId },
+      {
+        $set: {
+          ...(cancelReason
+            ? { 'papaDelivery.cancelReason': cancelReason }
+            : {}),
+          ...(userId ? { 'papaDelivery.cancelledBy': userId } : {}),
+        },
+      },
+    );
   }
 
   return refreshPapaDelivery(models, subdomain, orderId);

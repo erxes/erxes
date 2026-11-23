@@ -136,6 +136,7 @@ export const usePapaDelivery = (orderId: string) => {
         t('papa-quoted', 'Delivery price received'),
       ),
     send: (variables: {
+      receiverName?: string;
       receiverPhone: string;
       description?: string;
       receiverPays: boolean;
@@ -149,9 +150,9 @@ export const usePapaDelivery = (orderId: string) => {
         () => refreshMutation({ variables: { id: orderId } }),
         t('papa-refreshed', 'Delivery status updated'),
       ),
-    cancel: () =>
+    cancel: (reason?: string) =>
       run(
-        () => cancelMutation({ variables: { id: orderId } }),
+        () => cancelMutation({ variables: { id: orderId, reason } }),
         t('papa-cancelled', 'Delivery cancelled'),
       ),
     markDelivered: () =>

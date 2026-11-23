@@ -46,6 +46,7 @@ export const loadPosOrderClass = (
       delete doc.scoreLogIds;
       delete doc.papaDelivery;
       delete doc.papaDeal;
+      delete doc.papaAutoSend;
 
       const oldOrder = await models.PosOrders.findOne({ _id }).lean();
 

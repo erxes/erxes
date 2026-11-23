@@ -107,12 +107,15 @@ export const papaMutations = {
 
   async posOrderPapaCancel(
     _root,
-    { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
+    { _id, reason }: { _id: string; reason?: string },
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderPapaManage');
 
-    return cancelPapaDelivery(models, subdomain, requireId(_id));
+    return cancelPapaDelivery(models, subdomain, requireId(_id), {
+      reason,
+      userId: user?._id,
+    });
   },
 
   async posOrderPapaApprovePhoto(

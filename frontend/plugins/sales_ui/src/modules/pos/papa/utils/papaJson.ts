@@ -58,6 +58,7 @@ export const PAPA_CANCELLABLE_STATUSES = [
 export const posPapaConfigSchema = z
   .object({
     enabled: z.boolean().nullish(),
+    autoSend: z.boolean().nullish(),
     addressId: text,
     carTypeGroups: z.array(z.enum(PAPA_CAR_TYPE_GROUPS)).nullish(),
     categoryId: text,
@@ -125,11 +126,68 @@ export const papaDeliverySchema = z
     error: text,
     createUncertain: z.boolean().nullish(),
     sentAt: text,
+    receiverName: text,
+    receiverPhone: text,
+    deliveredAt: text,
+    closedAt: text,
+    cancelReason: text,
     updatedAt: text,
   })
   .passthrough();
 
 export type TPapaDelivery = z.infer<typeof papaDeliverySchema>;
+
+// `posOrder.papaAutoSend`: how the automatic send of the order went.
+const papaAutoSendSchema = z
+  .object({
+    status: z.enum(['sending', 'sent', 'skipped', 'failed']),
+    at: text,
+    missing: z.array(z.string()).nullish(),
+    error: text,
+  })
+  .passthrough();
+
+export type TPapaAutoSend = z.infer<typeof papaAutoSendSchema>;
+
+export const parsePapaAutoSend = (value: unknown): TPapaAutoSend | null => {
+  const parsed = papaAutoSendSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+};
+
+/** What an order lacked for an automatic send, as translation key and text. */
+export const PAPA_AUTO_SEND_MISSING: Record<string, [string, string]> = {
+  district: ['papa-missing-district', 'a district Papa knows'],
+  address: ['papa-missing-address', 'an address'],
+  pin: ['papa-missing-pin', 'a map pin'],
+  phone: ['papa-missing-phone', 'the receiver’s phone'],
+};
+
+/** Why a Papa order ended without delivery, as a translation key and text. */
+export const PAPA_CLOSE_REASONS: Record<string, [string, string]> = {
+  USER_CANCELLED: ['papa-closed-by-store', 'Cancelled by the store'],
+  CANCELLED: ['papa-closed-by-papa', 'Cancelled by Papa'],
+  EXPIRED: ['papa-closed-expired', 'No driver accepted it in time'],
+};
+
+// `salesPapaDeliveryReport`: deliveries per day or month.
+const reportCountsSchema = z.object({
+  sent: z.number(),
+  delivered: z.number(),
+  cancelled: z.number(),
+  failed: z.number(),
+  inProgress: z.number(),
+  revenue: z.number(),
+  papaCost: z.number(),
+});
+
+export const papaReportSchema = z.object({
+  interval: z.enum(['day', 'month']),
+  rows: z.array(reportCountsSchema.extend({ period: z.string() })),
+  totals: reportCountsSchema,
+});
+
+export type TPapaReport = z.infer<typeof papaReportSchema>;
+export type TPapaReportCounts = z.infer<typeof reportCountsSchema>;
 
 // Papa reference rows (`app/init`); Papa does not document their exact shape,
 // so only an id and a display name are required.
@@ -286,11 +344,31 @@ const DELIVERY_NOTE_FLAGS = [
   ['onlyAfternoon', 'Зөвхөн оройн цагаар хүргэх'],
 ] as const;
 
+// A map pin as a checkout may send it: `{ latitude, longitude }`,
+// `{ lat, lng }` or GeoJSON `{ coordinates: [longitude, latitude] }`. A
+// malformed pin is ignored rather than failing the whole address.
+const pinSchema = z
+  .object({
+    lat: numeric,
+    lng: numeric,
+    latitude: numeric,
+    longitude: numeric,
+    coordinates: z.array(numeric).nullish(),
+  })
+  .passthrough()
+  .nullish()
+  .catch(null);
+
 const deliveryInfoSchema = z
   .object({
     address: text,
     phone: text,
     description: text,
+    // Who receives the goods, when the checkout asks for it.
+    receiverName: text,
+    name: text,
+    firstName: text,
+    lastName: text,
     // Ecommerce checkouts (dts.mn) send the address in parts.
     city: text,
     district: text,
@@ -299,22 +377,55 @@ const deliveryInfoSchema = z
     haveBaby: z.boolean().nullish(),
     callBefore: z.boolean().nullish(),
     onlyAfternoon: z.boolean().nullish(),
-    marker: z
-      .object({
-        lat: numeric,
-        lng: numeric,
-        latitude: numeric,
-        longitude: numeric,
-      })
-      .passthrough()
-      .nullish(),
+    marker: pinSchema,
+    location: pinSchema,
+    lat: numeric.catch(null),
+    lng: numeric.catch(null),
+    latitude: numeric.catch(null),
+    longitude: numeric.catch(null),
   })
   .passthrough();
+
+type TPin = z.infer<typeof pinSchema>;
+
+const inRange = (value: unknown, limit: number) => {
+  if (value === null || value === undefined || value === '') {
+    return undefined;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) && Math.abs(number) <= limit
+    ? String(number)
+    : undefined;
+};
+
+/**
+ * The checkout's pin: `marker`, then `location`, then top-level fields.
+ * Both coordinates must come from the same place and be in range.
+ */
+export const readDeliveryPin = (
+  pins: TPin[],
+): { lat: string; lng: string } | null => {
+  for (const pin of pins) {
+    const lat = inRange(pin?.latitude ?? pin?.lat ?? pin?.coordinates?.[1], 90);
+    const lng = inRange(
+      pin?.longitude ?? pin?.lng ?? pin?.coordinates?.[0],
+      180,
+    );
+
+    if (lat && lng) {
+      return { lat, lng };
+    }
+  }
+
+  return null;
+};
 
 export interface IOrderDeliveryDefaults {
   address: string;
   district: string;
   phone: string;
+  receiverName: string;
   description: string;
   lat: string;
   lng: string;
@@ -337,6 +448,7 @@ export const orderDeliveryDefaults = (
       address: '',
       district: '',
       phone: '',
+      receiverName: '',
       description: '',
       lat: '',
       lng: '',
@@ -347,6 +459,16 @@ export const orderDeliveryDefaults = (
   const notes = DELIVERY_NOTE_FLAGS.flatMap(([key, label]) =>
     info[key] ? [label] : [],
   );
+  const pin = readDeliveryPin([
+    info.marker,
+    info.location,
+    {
+      lat: info.lat,
+      lng: info.lng,
+      latitude: info.latitude,
+      longitude: info.longitude,
+    },
+  ]);
 
   return {
     address:
@@ -354,9 +476,13 @@ export const orderDeliveryDefaults = (
       join([info.city, info.district, info.street, info.detail], ', '),
     district: info.district || '',
     phone: info.phone || '',
+    receiverName:
+      info.receiverName ||
+      info.name ||
+      join([info.lastName, info.firstName], ' '),
     description: join([info.description, ...notes], '. '),
-    lat: String(info.marker?.latitude ?? info.marker?.lat ?? ''),
-    lng: String(info.marker?.longitude ?? info.marker?.lng ?? ''),
+    lat: pin?.lat ?? '',
+    lng: pin?.lng ?? '',
   };
 };
 

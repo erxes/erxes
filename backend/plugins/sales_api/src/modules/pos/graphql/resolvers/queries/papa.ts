@@ -6,6 +6,7 @@ import {
   listPapaAddresses,
   toConfigView,
 } from '../../../papa/service';
+import { getPapaDeliveryReport, IPapaReportArgs } from '../../../papa/report';
 
 export const papaQueries = {
   async salesPapaConfig(_root, _args, { models, checkPermission }: IContext) {
@@ -39,6 +40,16 @@ export const papaQueries = {
     await checkPermission('posOrderPapaManage');
 
     return getPapaWallet(models);
+  },
+
+  async salesPapaDeliveryReport(
+    _root,
+    args: IPapaReportArgs,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('posOrderRead');
+
+    return getPapaDeliveryReport(models, args);
   },
 
   async posOrderPapaPhotoProof(

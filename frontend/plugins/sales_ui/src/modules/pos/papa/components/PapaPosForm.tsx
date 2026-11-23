@@ -27,6 +27,7 @@ import { PapaReferenceSelect } from './PapaReferenceSelect';
 const posPapaFormSchema = z
   .object({
     enabled: z.boolean(),
+    autoSend: z.boolean(),
     addressId: z.string(),
     carTypeGroups: z.array(z.enum(PAPA_CAR_TYPE_GROUPS)),
     categoryId: z.string(),
@@ -64,6 +65,7 @@ type TPosPapaForm = z.infer<typeof posPapaFormSchema>;
 
 const DEFAULT_VALUES: TPosPapaForm = {
   enabled: false,
+  autoSend: false,
   addressId: '',
   carTypeGroups: ['car', 'light'],
   categoryId: '',
@@ -104,6 +106,7 @@ export const PapaPosForm = ({
 
     form.reset({
       enabled: !!saved.enabled,
+      autoSend: !!saved.autoSend,
       addressId: saved.addressId || '',
       carTypeGroups: saved.carTypeGroups?.length
         ? saved.carTypeGroups
@@ -208,6 +211,35 @@ export const PapaPosForm = ({
 
         {enabled && (
           <>
+            <Form.Field
+              control={form.control}
+              name="autoSend"
+              render={({ field }) => (
+                <Form.Item>
+                  <div className="flex items-center gap-2">
+                    <Form.Control>
+                      <Switch
+                        id="papaAutoSend"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Label htmlFor="papaAutoSend">
+                      {t(
+                        'papa-auto-send',
+                        'Send paid delivery orders to Papa automatically',
+                      )}
+                    </Label>
+                  </div>
+                  <Form.Description>
+                    {t(
+                      'papa-auto-send-help',
+                      'Each paid delivery order is priced and sent as soon as it arrives, using its district, address, map pin and phone. An order missing any of them waits on its Delivery tab for staff.',
+                    )}
+                  </Form.Description>
+                </Form.Item>
+              )}
+            />
             <Form.Field
               control={form.control}
               name="addressId"
