@@ -249,7 +249,8 @@ describe('AI provider connection changes', () => {
     await clickButton(container, 'Connect OpenAI');
 
     await vi.waitFor(() => {
-      expect(assistant()?.textContent).toContain('OpenAI · GPT-5');
+      expect(assistant()?.textContent).toContain('GPT-5');
+      expect(assistant()?.textContent).not.toContain('No provider');
       expect(assistant()?.textContent).not.toContain(
         'Connect an AI provider in Integrations to start.',
       );

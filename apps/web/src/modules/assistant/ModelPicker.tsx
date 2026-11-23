@@ -4,7 +4,7 @@ import type {
   AssistantThinkingLevel,
 } from '@erxes/core-contract';
 import { IconBrain, IconCheck, IconChevronDown, IconSettings } from '@tabler/icons-react';
-import { Button, Command, Popover, Select } from 'erxes-ui';
+import { Button, Command, IconTip, Popover, ToggleGroup } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -98,67 +98,56 @@ export const ModelPicker = ({ state, disabled }: { state: ModelRunState; disable
   const [open, setOpen] = useState(false);
   const { run } = state;
 
+  const model = run?.label ?? t('model.default', 'default model');
+  const levels = run && run.levels.length > 1 ? run.levels : [];
+  const level = levels.length ? run?.thinkingLevel : undefined;
+  const levelName = level ? t(`thinking.${level}`, LEVEL_LABELS[level]) : null;
+
   const name = run
-    ? `${PROVIDER_LABELS[run.provider]} · ${run.label ?? t('model.default', 'default model')}`
+    ? `${PROVIDER_LABELS[run.provider]} · ${model}`
     : t('model.no-key', 'No provider');
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
-        disabled={disabled || !run}
-        aria-label={t('model.label', 'Model: {{name}}', { name })}
-        render={<Button variant="ghost" size="sm" tone="muted" className="min-w-0" />}
-      >
-        <span className="truncate">{name}</span>
-        <IconChevronDown aria-hidden className="size-3.5 shrink-0" />
-      </Popover.Trigger>
+      <IconTip label={name}>
+        <Popover.Trigger
+          disabled={disabled || !run}
+          aria-label={t('model.label', 'Model: {{name}}', { name })}
+          render={<Button variant="ghost" size="sm" tone="muted" className="min-w-0" />}
+        >
+          <span className="truncate">{run ? model : name}</span>
+          {levelName && <span className="shrink-0 text-muted-foreground">· {levelName}</span>}
+          <IconChevronDown aria-hidden className="size-3.5 shrink-0" />
+        </Popover.Trigger>
+      </IconTip>
       <Popover.Content variant="flush" align="start" className="w-80">
+        {level && (
+          <div className="flex flex-col gap-1.5 border-b p-2">
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <IconBrain aria-hidden className="size-3.5" />
+              {t('thinking.title', 'Thinking')}
+            </span>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              value={[level]}
+              aria-label={t('thinking.label', 'Thinking: {{level}}', { level: levelName })}
+              onValueChange={([value]) => {
+                const next = levels.find((candidate) => candidate === value);
+
+                if (next) state.setPicked({ ...state.picked, thinkingLevel: next });
+              }}
+            >
+              {levels.map((option) => (
+                <ToggleGroup.Item key={option} value={option} className="flex-1">
+                  {t(`thinking.${option}`, LEVEL_LABELS[option])}
+                </ToggleGroup.Item>
+              ))}
+            </ToggleGroup>
+          </div>
+        )}
         <ModelList state={state} onDone={() => setOpen(false)} />
       </Popover.Content>
     </Popover>
-  );
-};
-
-export const ThinkingPicker = ({
-  state,
-  disabled,
-}: {
-  state: ModelRunState;
-  disabled: boolean;
-}) => {
-  const { t } = useTranslation('assistant');
-  const { run, picked, setPicked } = state;
-
-  const level = run?.thinkingLevel;
-
-  if (!run || !level || run.levels.length < 2) return null;
-
-  return (
-    <Select
-      value={level}
-      disabled={disabled}
-      onValueChange={(value) => {
-        const next = run.levels.find((candidate) => candidate === value);
-
-        if (next) setPicked({ ...picked, thinkingLevel: next });
-      }}
-    >
-      <Select.Trigger
-        aria-label={t('thinking.label', 'Thinking: {{level}}', {
-          level: t(`thinking.${level}`, LEVEL_LABELS[level]),
-        })}
-        className="h-6 w-auto shrink-0"
-      >
-        <IconBrain aria-hidden className="mr-1.5 size-3.5 shrink-0" />
-        <Select.Value />
-      </Select.Trigger>
-      <Select.Content>
-        {run.levels.map((option) => (
-          <Select.Item key={option} value={option}>
-            {t(`thinking.${option}`, LEVEL_LABELS[option])}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
   );
 };

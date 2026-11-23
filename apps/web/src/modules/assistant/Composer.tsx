@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { takeComposerFocus } from './assistantState';
 import { AttachButton, AttachmentTray, PickButton, PickHint } from './ComposerAttachments';
 import { MENTION_MENU_ID, MentionMenu } from './MentionMenu';
-import { ModelPicker, ThinkingPicker } from './ModelPicker';
+import { ModelPicker } from './ModelPicker';
 import { PageContextChip } from './PageContextChip';
 import { useAttachments } from './useAttachments';
 import { useComposerMentions } from './useComposerMentions';
@@ -221,9 +221,8 @@ export const Composer = ({
       <div className="flex min-w-0 items-center gap-1">
         <AttachButton attachments={draft.attachments} disabled={locked} />
         <PickButton picker={draft.picker} disabled={locked} />
-        <ModelPicker state={model} disabled={busy || block === 'no-key'} />
-        <ThinkingPicker state={model} disabled={busy} />
         <span className="flex-1" />
+        <ModelPicker state={model} disabled={busy || block === 'no-key'} />
         <SendButton busy={busy} canSend={draft.ready} onStop={onStop} />
       </div>
     </form>

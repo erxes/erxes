@@ -11,7 +11,7 @@ import type { TFunction } from 'i18next';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import type { Step, StepStatus } from './transcriptRows';
+import type { Step, StepStatus, TranscriptRow } from './transcriptRows';
 
 const STATUS_ICONS: Record<StepStatus, Icon> = {
   running: IconLoader2,
@@ -174,22 +174,7 @@ const SearchesRow = ({ searches }: { searches: Step[] }) => {
   );
 };
 
-const groupLabel = (
-  steps: Step[],
-  current: Step | undefined,
-  live: boolean,
-  t: TFunction<'assistant'>,
-) => {
-  if (current) return stepLabel(current, t);
-
-  if (live) return t('working', 'Working on it…');
-
-  return t('steps', {
-    count: steps.length,
-    defaultValue_one: '{{count}} step',
-    defaultValue_other: '{{count}} steps',
-  });
-};
+export type ActivityRow = Extract<TranscriptRow, { kind: 'thinking' | 'steps' }>;
 
 const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
   live
@@ -198,54 +183,73 @@ const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
         step.status === 'running' ? { ...step, status: 'failed' as const, error: stopped } : step,
       );
 
-export const StepsGroup = ({ steps: given, live }: { steps: Step[]; live: boolean }) => {
-  const { t } = useTranslation('assistant');
-  const steps = stoppedUnlessLive(given, live, t('step.stopped', 'Stopped'));
+const activityLabel = (
+  rows: ActivityRow[],
+  steps: Step[],
+  live: boolean,
+  t: TFunction<'assistant'>,
+) => {
   const current = steps.findLast((step) => step.status === 'running');
-  const active = current !== undefined || live;
+
+  if (current) return stepLabel(current, t);
+
+  if (live && rows.at(-1)?.kind === 'thinking') return t('thinking.now', 'Thinking…');
+
+  if (live) return t('working', 'Working on it…');
+
+  if (!steps.length) return t('thinking.done', 'Thought');
+
+  return t('steps', {
+    count: steps.length,
+    defaultValue_one: '{{count}} step',
+    defaultValue_other: '{{count}} steps',
+  });
+};
+
+const ThoughtText = ({ text }: { text: string }) => (
+  <li className="flex gap-2 py-1 pl-2">
+    <IconBrain aria-hidden className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+    <p className="min-w-0 text-sm whitespace-pre-wrap text-muted-foreground">{text}</p>
+  </li>
+);
+
+export const ActivityGroup = ({ rows, live }: { rows: ActivityRow[]; live: boolean }) => {
+  const { t } = useTranslation('assistant');
+  const stopped = t('step.stopped', 'Stopped');
+
+  const shown = rows.map((row) =>
+    row.kind === 'steps' ? { ...row, steps: stoppedUnlessLive(row.steps, live, stopped) } : row,
+  );
+
+  const steps = shown.flatMap((row) => (row.kind === 'steps' ? row.steps : []));
   const failed = steps.filter((step) => step.status === 'failed').length;
-  const [open, setOpen] = useState<boolean | null>(null);
+  const [open, setOpen] = useState(false);
 
   return (
-    <Collapsible open={open ?? active} onOpenChange={setOpen}>
-      <FoldTrigger>
-        {active && <IconLoader2 aria-hidden className="size-3.5 animate-spin" />}
-        <span className="min-w-0 truncate">{groupLabel(steps, current, live, t)}</span>
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <FoldTrigger className="-ml-2 max-w-full">
+        {live && <IconLoader2 aria-hidden className="size-3.5 shrink-0 animate-spin" />}
+        <span className="min-w-0 truncate">{activityLabel(rows, steps, live, t)}</span>
         {failed > 0 && (
-          <span className="text-muted-foreground">
+          <span className="shrink-0 text-destructive-text">
             {t('steps-failed', '· {{count}} failed', { count: failed })}
           </span>
         )}
       </FoldTrigger>
       <Collapsible.Panel>
-        <ul className="mt-1 ml-3 flex flex-col border-l pl-1">
-          {foldSearches(steps).map((item) =>
-            'searches' in item ? (
-              <SearchesRow key={item.key} searches={item.searches} />
-            ) : (
-              <StepRow key={item.key} step={item.step} />
-            ),
+        <ul className="mt-1 ml-1.5 flex flex-col border-l pl-1">
+          {shown.flatMap((row) =>
+            row.kind === 'thinking'
+              ? [<ThoughtText key={row.key} text={row.text} />]
+              : foldSearches(row.steps).map((item) =>
+                  'searches' in item ? (
+                    <SearchesRow key={item.key} searches={item.searches} />
+                  ) : (
+                    <StepRow key={item.key} step={item.step} />
+                  ),
+                ),
           )}
         </ul>
-      </Collapsible.Panel>
-    </Collapsible>
-  );
-};
-
-export const ThinkingBlock = ({ text, streaming }: { text: string; streaming: boolean }) => {
-  const { t } = useTranslation('assistant');
-  const [open, setOpen] = useState<boolean | null>(null);
-
-  return (
-    <Collapsible open={open ?? streaming} onOpenChange={setOpen}>
-      <FoldTrigger>
-        <IconBrain aria-hidden className={cn('size-3.5', streaming && 'animate-pulse')} />
-        <span>{streaming ? t('thinking.now', 'Thinking…') : t('thinking.done', 'Thought')}</span>
-      </FoldTrigger>
-      <Collapsible.Panel>
-        <p className="mt-1 ml-3 border-l pl-3 text-sm whitespace-pre-wrap text-muted-foreground">
-          {text}
-        </p>
       </Collapsible.Panel>
     </Collapsible>
   );

@@ -1,11 +1,11 @@
-import { IconArrowDown, IconLoader2 } from '@tabler/icons-react';
+import { IconArrowDown } from '@tabler/icons-react';
 import { Button, Spinner } from 'erxes-ui';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AssistantAvatar } from './AssistantAvatar';
 import { CopyButton } from './CopyButton';
 import { type OnUiAction, Reply } from './Reply';
-import { StepsGroup, ThinkingBlock } from './Steps';
+import { ActivityGroup, type ActivityRow } from './Steps';
 import { replyText, type TranscriptMessage, type TranscriptRow } from './transcriptRows';
 import { UserMessage } from './UserMessage';
 
@@ -19,17 +19,37 @@ export interface TranscriptActions {
 }
 
 interface RowPlace {
-  live: boolean;
   last: boolean;
   superseded: boolean;
 }
+
+type ShownRow = Exclude<TranscriptRow, ActivityRow>;
+
+type Segment = ShownRow | { kind: 'activity'; key: string; rows: ActivityRow[] };
+
+const isActivity = (row: TranscriptRow): row is ActivityRow =>
+  row.kind === 'thinking' || row.kind === 'steps';
+
+const segmentsOf = (rows: TranscriptRow[]) => {
+  const segments: Segment[] = [];
+
+  for (const row of rows) {
+    const previous = segments.at(-1);
+
+    if (!isActivity(row)) segments.push(row);
+    else if (previous?.kind === 'activity') previous.rows.push(row);
+    else segments.push({ kind: 'activity', key: row.key, rows: [row] });
+  }
+
+  return segments;
+};
 
 const Row = ({
   row,
   place,
   actions,
 }: {
-  row: TranscriptRow;
+  row: ShownRow;
   place: RowPlace;
   actions: TranscriptActions;
 }) => {
@@ -47,10 +67,6 @@ const Row = ({
           onAction={actions.onAction}
         />
       );
-    case 'thinking':
-      return <ThinkingBlock text={row.text} streaming={row.streaming} />;
-    case 'steps':
-      return <StepsGroup steps={row.steps} live={place.live} />;
     case 'artifact':
       return (
         <Suspense fallback={<Spinner />}>
@@ -72,44 +88,27 @@ const AssistantMessage = ({
   const { t } = useTranslation('assistant');
   const text = replyText(rows);
   const working = last && actions.busy;
-  const thinking = working && !rows.some((row) => row.kind === 'text');
-  const [first] = rows;
-  const lead = first?.kind === 'steps' || first?.kind === 'thinking' ? first : null;
-  const liveKey = working ? rows.at(-1)?.key : undefined;
+  const segments = segmentsOf(rows);
+  const liveKey = working ? segments.at(-1)?.key : undefined;
   const lastText = rows.findLast((row) => row.kind === 'text')?.key;
 
-  const placeOf = (row: TranscriptRow): RowPlace => ({
-    live: row.key === liveKey,
-    last,
-    superseded: row.kind === 'text' && row.key !== lastText,
-  });
-
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex min-w-0 items-start gap-2">
-        <AssistantAvatar
-          size={28}
-          state={thinking ? 'thinking' : 'idle'}
-          animated={last}
-          follow={last && !thinking}
-        />
-        {lead ? (
-          <div className="min-w-0 flex-1">
-            <Row row={lead} place={placeOf(lead)} actions={actions} />
-          </div>
+    <div className="flex flex-col gap-3">
+      {working && segments.length === 0 && <WorkingRow label={t('working', 'Working on it…')} />}
+      {segments.map((segment) =>
+        segment.kind === 'activity' ? (
+          <ActivityGroup key={segment.key} rows={segment.rows} live={segment.key === liveKey} />
         ) : (
-          thinking && (
-            <span className="self-center text-sm text-muted-foreground">
-              {t('working', 'Working on it…')}
-            </span>
-          )
-        )}
-      </div>
-      {rows.slice(lead ? 1 : 0).map((row) => (
-        <Row key={row.key} row={row} place={placeOf(row)} actions={actions} />
-      ))}
+          <Row
+            key={segment.key}
+            row={segment}
+            place={{ last, superseded: segment.kind === 'text' && segment.key !== lastText }}
+            actions={actions}
+          />
+        ),
+      )}
       {last && !working && text && (
-        <div className="flex items-center gap-0.5">
+        <div className="-mt-1 -ml-2 flex items-center gap-0.5">
           <CopyButton text={text} />
         </div>
       )}
@@ -117,13 +116,9 @@ const AssistantMessage = ({
   );
 };
 
-export const WorkingRow = ({ label, avatar = false }: { label: string; avatar?: boolean }) => (
+export const WorkingRow = ({ label }: { label: string }) => (
   <p className="flex items-center gap-2 text-sm text-muted-foreground">
-    {avatar ? (
-      <AssistantAvatar size={28} state="thinking" />
-    ) : (
-      <IconLoader2 aria-hidden className="size-3.5 animate-spin" />
-    )}
+    <AssistantAvatar size={22} state="thinking" />
     {label}
   </p>
 );

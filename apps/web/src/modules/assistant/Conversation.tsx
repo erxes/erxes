@@ -66,7 +66,7 @@ const TranscriptFooter = ({ view }: { view: ReturnType<typeof useConversation> }
   return (
     <>
       {view.busy && transcript.messages.at(-1)?.role !== 'assistant' && (
-        <WorkingRow label={t('working', 'Working on it…')} avatar />
+        <WorkingRow label={t('working', 'Working on it…')} />
       )}
       {transcript.failure && <ChatFailure message={transcript.failure} />}
       {view.sendError && <SendFailure error={view.sendError} onRetry={view.retry} />}
