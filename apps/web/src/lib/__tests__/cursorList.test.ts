@@ -6,9 +6,9 @@ import { getDefaultStore } from 'jotai';
 import { act, createElement, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vite-plus/test';
+import type { CursorQuery } from '@erxes/core-contract';
 import {
   type CursorPage,
-  type CursorParams,
   firstPageOnReturn,
   forwardPaging,
   keepFirstPageOnLeave,
@@ -19,9 +19,9 @@ type Row = { id: string; name: string };
 
 /** A keyset list of 1000 rows, newest first, as core pages it; renaming one shows on refetch. */
 let rows: Row[] = [];
-const requests: CursorParams[] = [];
+const requests: CursorQuery[] = [];
 
-const serve = (params: CursorParams): CursorPage<Row> => {
+const serve = (params: CursorQuery): CursorPage<Row> => {
   requests.push(params);
 
   const at = params.cursor ? rows.findIndex((row) => row.id === params.cursor) : -1;
@@ -72,7 +72,7 @@ const CursorList = () => {
 const ForwardList = ({ keepPages = false }: { keepPages?: boolean }) => {
   const query = useInfiniteQuery({
     queryKey: ['rows', 'forward', keepPages],
-    queryFn: async ({ pageParam }: { pageParam: CursorParams }) => serve(pageParam),
+    queryFn: async ({ pageParam }: { pageParam: CursorQuery }) => serve(pageParam),
     ...forwardPaging(100, { keepPages }),
   });
 

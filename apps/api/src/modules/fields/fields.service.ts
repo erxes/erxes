@@ -1,4 +1,10 @@
-import { FIELD_TYPE_FAMILIES, type FieldListQuery, type FieldLogic } from '@erxes/core-contract';
+import {
+  FIELD_TYPE_FAMILIES,
+  type FieldCreate,
+  type FieldListQuery,
+  type FieldLogic,
+  type FieldUpdate,
+} from '@erxes/core-contract';
 import { type Db, type PropertyContentType, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -23,8 +29,6 @@ import {
   selectFields,
   usageOf,
 } from './fieldRows';
-
-type FieldValidation = NonNullable<FieldRow['validation']>;
 
 const TEXT_TYPES: readonly FieldType[] = ['text', 'textarea'];
 
@@ -145,25 +149,7 @@ const customersFill = (contentType: PropertyContentType, customerEditable = fals
   return customerEditable;
 };
 
-export const createField = async (
-  client: Db,
-  input: {
-    contentType: PropertyContentType;
-    label: string;
-    type: FieldType;
-    options?: string[];
-    groupId?: string | null;
-    code?: string | null;
-    description?: string | null;
-    icon?: string | null;
-    validation?: FieldValidation | null;
-    isVisible?: boolean;
-    isRequired?: boolean;
-    isVisibleToCreate?: boolean;
-    customerEditable?: boolean;
-    logic?: FieldLogic | null;
-  },
-) => {
+export const createField = async (client: Db, input: FieldCreate) => {
   await assertPropertyType(client, input.contentType);
   await checkGroup(client, input.contentType, input.groupId);
   await checkLogic(client, input.contentType, null, input.logic);
@@ -197,22 +183,7 @@ export const createField = async (
   return fieldById(client, row.id);
 };
 
-interface FieldChanges {
-  label?: string;
-  type?: FieldType;
-  options?: string[];
-  order?: number;
-  groupId?: string | null;
-  code?: string | null;
-  description?: string | null;
-  icon?: string | null;
-  validation?: FieldValidation | null;
-  isVisible?: boolean;
-  isRequired?: boolean;
-  isVisibleToCreate?: boolean;
-  customerEditable?: boolean;
-  logic?: FieldLogic | null;
-}
+type FieldChanges = Omit<FieldUpdate, 'id'>;
 
 /** The type, options and validation a field ends up with; a type change must keep stored values readable. */
 const typeChange = async (client: Db, field: FieldRow, input: FieldChanges) => {

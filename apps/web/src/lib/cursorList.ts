@@ -1,4 +1,4 @@
-import type { PageInfo } from '@erxes/core-contract';
+import type { CursorQuery, PageInfo } from '@erxes/core-contract';
 import {
   type InfiniteData,
   type QueryClient,
@@ -22,20 +22,13 @@ export interface CursorPage<T> {
   totalCapped?: boolean;
 }
 
-export interface CursorParams {
-  limit: number;
-  cursor?: string;
-  direction: 'forward' | 'backward';
-  cursorMode: 'inclusive' | 'exclusive';
-}
-
-export type CursorCache<T> = InfiniteData<CursorPage<T>, CursorParams>;
+export type CursorCache<T> = InfiniteData<CursorPage<T>, CursorQuery>;
 
 /** What `useCursorList` adds to a list procedure's `infiniteOptions`. */
 interface CursorPaging<T> {
-  initialPageParam: CursorParams;
-  getNextPageParam: (last: CursorPage<T>) => CursorParams | undefined;
-  getPreviousPageParam: (first: CursorPage<T>) => CursorParams | undefined;
+  initialPageParam: CursorQuery;
+  getNextPageParam: (last: CursorPage<T>) => CursorQuery | undefined;
+  getPreviousPageParam: (first: CursorPage<T>) => CursorQuery | undefined;
 }
 
 /** The `getNextPageParam`s of lists that keep only their first page once nothing shows them. */
@@ -60,10 +53,10 @@ export const forwardPaging = (
   limit: number,
   { keepPages = false }: { keepPages?: boolean } = {},
 ): {
-  initialPageParam: CursorParams;
-  getNextPageParam: (last: CursorPage<unknown>) => CursorParams | undefined;
+  initialPageParam: CursorQuery;
+  getNextPageParam: (last: CursorPage<unknown>) => CursorQuery | undefined;
 } => {
-  const getNextPageParam = (last: CursorPage<unknown>): CursorParams | undefined =>
+  const getNextPageParam = (last: CursorPage<unknown>): CursorQuery | undefined =>
     last.pageInfo.hasNextPage && last.pageInfo.endCursor
       ? { limit, cursor: last.pageInfo.endCursor, direction: 'forward', cursorMode: 'exclusive' }
       : undefined;
@@ -224,7 +217,7 @@ export const useCursorList = <T extends { id: string }>({
   limit?: number;
   options: (
     paging: CursorPaging<T>,
-  ) => UseInfiniteQueryOptions<CursorPage<T>, Error, CursorCache<T>, QueryKey, CursorParams>;
+  ) => UseInfiniteQueryOptions<CursorPage<T>, Error, CursorCache<T>, QueryKey, CursorQuery>;
 }) => {
   const filtersKey = JSON.stringify(filters);
   const store = useStore();

@@ -1,4 +1,6 @@
+import type { coreContract } from '@erxes/core-contract';
 import { requestOrgId, withOrg } from '@erxes/core-db';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { GatewayError } from '@erxes/plugin-sdk/integrations';
 import { fail } from '~/http/errors';
 import { connectionFor } from './actions';
@@ -13,13 +15,9 @@ const MOST = 200;
  * doesn't list answers none: those are picked from the run's values. The service's refusal comes
  * back in its own words (400 GATEWAY_REFUSED).
  */
-export const listAppRecords = async (input: {
-  key: string;
-  recordType: string;
-  connection?: string;
-  parents?: string[];
-  search?: string;
-}) => {
+export const listAppRecords = async (
+  input: InferContractRouterInputs<typeof coreContract>['integrations']['records'],
+) => {
   const integration = connectable(input.key);
   const search = input.search?.toLowerCase() ?? '';
 
