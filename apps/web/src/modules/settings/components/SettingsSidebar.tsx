@@ -72,9 +72,6 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     ...(can('contacts.delete')
       ? [{ name: t('recycle-bin', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash }]
       : []),
-    ...(can('contacts.view')
-      ? [{ name: t('portals', 'Portals'), to: paths.settings.portals, icon: IconWorldWww }]
-      : []),
     ...(can('payments.manage')
       ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
       : []),
@@ -96,7 +93,10 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
   ];
 };
 
-/** The settings "Developer" group: the API reference (core's and the plugins'), then what sends events out. */
+/**
+ * The settings "Developer" group: the API reference (core's and the plugins'), keys, the portals
+ * customers sign in to (their apps, sign-in and server keys), then what sends events out.
+ */
 const useSettingsDeveloperPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
@@ -108,6 +108,9 @@ const useSettingsDeveloperPaths = (): SettingsPath[] => {
       icon: IconSourceCode,
     },
     { name: t('api-keys', 'API keys'), to: paths.settings.apiKeys, icon: IconKey },
+    ...(can('contacts.view')
+      ? [{ name: t('portals', 'Portals'), to: paths.settings.portals, icon: IconWorldWww }]
+      : []),
     ...(can('webhooks.manage')
       ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]
       : []),
