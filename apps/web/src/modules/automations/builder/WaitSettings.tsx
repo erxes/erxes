@@ -1,3 +1,4 @@
+import { isAppEvent } from '@erxes/core-contract';
 import { Input, oneOf, Select } from 'erxes-ui';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -158,7 +159,7 @@ export const WaitForSettings = ({
         <FieldLabel>{t('wait-for-event', 'Until this happens to the record')}</FieldLabel>
         <CatalogPicker
           kind="event"
-          items={events}
+          items={events.map((event) => ({ ...event, comingSoon: isAppEvent(event.type) }))}
           value={step.event}
           disabled={disabled}
           onChange={(event) => onChange({ ...step, event })}

@@ -174,7 +174,7 @@ const ActionSettings = ({
     <>
       <CatalogPicker
         kind="action"
-        items={actions}
+        items={actions.map((item) => ({ ...item, comingSoon: appOf(item) !== null }))}
         value={step.action}
         disabled={disabled}
         onChange={(type) =>

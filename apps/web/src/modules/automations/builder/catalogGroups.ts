@@ -46,6 +46,8 @@ export interface CatalogItem {
   integrationName?: string | null;
   /** What picking it would break in the flow ("Removes 1 step"). */
   warning?: string;
+  /** Listed, but not offered yet. */
+  comingSoon?: boolean;
 }
 
 export interface CatalogGroup {
@@ -55,6 +57,7 @@ export interface CatalogGroup {
   icon: ComponentType<{ className?: string }>;
   logo?: boolean;
   order: number;
+  comingSoon?: boolean;
 }
 
 /** Core's categories (`catalogCategory`), in this order. */
@@ -75,7 +78,7 @@ const CORE_ICONS: Record<string, TablerIcon> = {
   'core.webhook.reply': IconArrowBackUp,
 };
 
-export const groupOf = (item: CatalogItem): CatalogGroup => {
+const areaOf = (item: CatalogItem): CatalogGroup => {
   const key = catalogCategory(item);
 
   if (item.integration) {
@@ -104,6 +107,10 @@ export const groupOf = (item: CatalogItem): CatalogGroup => {
 
   return { key, source: 'core', ...(CORE_AREAS[key] ?? GENERAL) };
 };
+
+/** An item's category; one not offered yet comes last. */
+export const groupOf = (item: CatalogItem): CatalogGroup =>
+  item.comingSoon ? { ...areaOf(item), comingSoon: true, order: 200 } : areaOf(item);
 
 /** What a word in a plugin's type usually means, first match first (`frontline.facebook.message_received`). */
 const WORD_ICONS: [RegExp, TablerIcon][] = [
