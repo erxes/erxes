@@ -331,6 +331,18 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
   return { itemAmountPrePercent, preTaxPaymentTypes };
 };
 
+const getMobilePayments = (order: IOrderDocument) => {
+  let remaining = order.mobileAmount || 0;
+
+  return (order.mobileAmounts || []).flatMap((payment) => {
+    const amount = Math.min(payment.amount, remaining);
+
+    remaining -= amount;
+
+    return amount > 0 ? [{ amount }] : [];
+  });
+};
+
 export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
@@ -410,7 +422,7 @@ export const prepareEbarimtData = async (
       ...(order.paidAmounts || []).filter(
         (pa) => !preTaxPaymentTypes.includes(pa.type),
       ),
-      ...(order.mobileAmounts || []),
+      ...getMobilePayments(order),
     ].map((pay) => ({ amount: pay.amount })),
   };
 };
