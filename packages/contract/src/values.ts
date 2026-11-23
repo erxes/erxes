@@ -364,13 +364,12 @@ const CORE_AREAS: Record<string, string> = {
   note: 'timeline',
   webhook: 'integrations',
   http: 'integrations',
-  agent: 'agents',
   automation: 'automations',
 };
 
 /**
- * Where the builder files an event or action, and what an agent step may be limited to:
- * `integration:<key>`, `plugin:<name>`, or `core:<area>` (`core:messages`).
+ * Where the builder files an event or action: `integration:<key>`, `plugin:<name>`, or
+ * `core:<area>` (`core:messages`).
  */
 export const catalogCategory = (item: {
   type: string;
@@ -383,12 +382,6 @@ export const catalogCategory = (item: {
 
   return `core:${CORE_AREAS[item.type.split('.')[1] ?? ''] ?? 'general'}`;
 };
-
-/** Actions only a step takes, never an agent step's agent: asking an agent, answering the webhook. */
-export const STEP_ONLY_ACTIONS: ReadonlySet<string> = new Set([
-  'core.agent.ask',
-  'core.webhook.reply',
-]);
 
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 
@@ -473,14 +466,6 @@ export const LiveMode = z.enum(LIVE_MODES);
 export const AssistantProvider = z.enum(ASSISTANT_PROVIDERS);
 
 export type AssistantProvider = z.infer<typeof AssistantProvider>;
-
-/** The model an agent step runs on (its `agent_model` input). */
-export const AgentStepModel = z.object({
-  provider: AssistantProvider,
-  model: z.string().trim().min(1).max(128),
-});
-
-export type AgentStepModel = z.infer<typeof AgentStepModel>;
 
 export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
 

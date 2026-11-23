@@ -69,7 +69,7 @@ const appsNotAllowed = (action: Catalog['actions'][number]) => {
 };
 
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
-export const actionProblems = (
+const actionProblems = (
   step: Extract<AutomationStep, { type: 'action' }>,
   catalog: Catalog,
   subject: SubjectKind,

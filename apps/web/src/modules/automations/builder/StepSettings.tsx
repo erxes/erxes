@@ -36,8 +36,6 @@ const NameField = ({
   );
 };
 
-const ALWAYS_SHOWN: ReadonlySet<string> = new Set(['agent_tools', 'agent_api_key', 'agent_model']);
-
 const NAME = '__name';
 
 const useOptional = (step: Extract<AutomationStep, { type: 'action' }>, action: ActionInfo) => {
@@ -52,9 +50,7 @@ const useOptional = (step: Extract<AutomationStep, { type: 'action' }>, action: 
       : new Set([...action.fields.map(({ key }) => key), NAME]),
   );
 
-  const shown = action.fields.filter(
-    (field) => field.required || ALWAYS_SHOWN.has(field.type) || added.has(field.key),
-  );
+  const shown = action.fields.filter((field) => field.required || added.has(field.key));
 
   return {
     shown,

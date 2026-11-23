@@ -14,7 +14,6 @@ import { downloadRouter, publicFilesRouter, signedFilesRouter } from '~/modules/
 import { streamRouter } from '~/modules/live/stream.http';
 import { registerAgent, registerMadeAgents } from '~/modules/agents/host';
 import { assistantAgent } from '~/modules/assistant/agent';
-import { automationAgent } from '~/modules/agents/automationAgent';
 import { madeAgent } from '~/modules/agents/madeAgent';
 import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
@@ -119,7 +118,6 @@ export const createApp = (log: Logger = logger): Express => {
   const limit = createRateLimits();
 
   registerAgent(assistantAgent);
-  registerAgent(automationAgent);
   registerMadeAgents(madeAgent);
 
   app.disable('x-powered-by');

@@ -1,7 +1,6 @@
 import {
   type ActionField,
   type ActionInfo,
-  AgentStepModel,
   type AutomationStep,
   type AutomationTrigger,
   appEventType,
@@ -251,17 +250,6 @@ const actionDetail = (
       return Array.isArray(value) && value.length
         ? [plural(value.length, field.type === 'members' ? 'member' : 'tag')]
         : [];
-    }
-
-    if (field.type === 'agent_tools')
-      return Array.isArray(value) && value.length ? [`${field.label}: ${value.length} picked`] : [];
-
-    if (field.type === 'agent_api_key') return typeof value === 'string' ? [field.label] : [];
-
-    if (field.type === 'agent_model') {
-      const model = AgentStepModel.safeParse(value).data?.model;
-
-      return model ? [`${field.label}: ${model}`] : [];
     }
 
     // Saved by id; its name lives in the plugin.

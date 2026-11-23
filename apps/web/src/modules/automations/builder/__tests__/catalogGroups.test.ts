@@ -11,7 +11,6 @@ import {
   IconNote,
   IconPlugConnected,
   IconPuzzle,
-  IconSparkles,
   IconUser,
   IconWebhook,
 } from '@tabler/icons-react';
@@ -42,7 +41,6 @@ describe('the automation catalog’s groups', () => {
       ['core.note.add', 'timeline', 'Timeline', IconNote, 5],
       ['core.webhook.post', 'integrations', 'Integrations', IconWebhook, 6],
       ['core.http.request', 'integrations', 'Integrations', IconWebhook, 6],
-      ['core.agent.ask', 'agents', 'AI agents', IconSparkles, 7],
     ] as const;
 
     for (const [type, area, label, icon, order] of areas)

@@ -1,14 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { createServer, type IncomingMessage, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { config } from '~/config';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
-import { connectProvider, fakeModel, inSteps, lastToolResult } from './fakeModel';
 import { settle } from './settle';
 import { type CoreClient, useTestServer } from './support';
-
-const MODEL_KEY = 'fake-kimi-key-for-tests-0020';
 
 /** The run id from the `Idempotency-Key` (`<run>:<step>`) core sends. */
 const runIdOf = (req: IncomingMessage) =>
@@ -28,7 +24,6 @@ describe('automation calls', { timeout: 120_000 }, () => {
   let hookUrl = '';
   /** What the remote does before it answers. */
   let onCall: ((runId: string) => Promise<void>) | undefined;
-  let model: Awaited<ReturnType<typeof fakeModel>>;
 
   beforeAll(async () => {
     const acme = await createOrganization({
@@ -53,13 +48,9 @@ describe('automation calls', { timeout: 120_000 }, () => {
     if (!address || typeof address === 'string') throw new Error('not listening on a port');
 
     hookUrl = `http://127.0.0.1:${address.port}/hook`;
-    model = await fakeModel(MODEL_KEY);
-    Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await connectProvider(owner, MODEL_KEY);
   });
 
   afterAll(async () => {
-    await model.close();
     await new Promise<void>((resolve) => receiver.close(() => resolve()));
   });
 
@@ -140,69 +131,5 @@ describe('automation calls', { timeout: 120_000 }, () => {
     expect(run.status).toBe('cancelled');
     // The answer came after the cancel: no step is recorded and the note never runs.
     expect(steps).toEqual([]);
-  });
-
-  it('asks an agent with the step’s API key, and the next step reads its answer', async () => {
-    const { apiKey } = await owner.apiKeys.create({
-      kind: 'regular',
-      name: 'Agent',
-      areas: { contacts: 'read' },
-      ownRecords: false,
-      unitIds: [],
-      tagIds: [],
-      allowedIps: [],
-      lifetimeDays: 30,
-    });
-
-    model.script(
-      inSteps(
-        { tool: 'callApi', input: { procedure: 'customers.list', input: { search: 'Agent' } } },
-        { text: 'Agent Bold is new, no tags yet.' },
-      ),
-    );
-
-    const automation = await owner.automations.create({
-      name: 'Ask about new customers',
-      definition: {
-        trigger: {
-          kind: 'event',
-          event: 'core.customer.created',
-          conditions: {
-            match: 'all',
-            rules: [{ path: 'subject.firstName', op: 'eq', value: 'Agent' }],
-          },
-        },
-        steps: [
-          {
-            id: 'ask',
-            type: 'action',
-            action: 'core.agent.ask',
-            input: {
-              prompt: 'Summarize {{subject.firstName}} {{subject.lastName}}',
-              apiKey: apiKey.id,
-            },
-          },
-          {
-            id: 'note',
-            type: 'action',
-            action: 'core.note.add',
-            input: { body: 'Agent says: {{steps.ask.output.answer}}' },
-          },
-        ],
-      },
-    });
-
-    await owner.automations.activate({ id: automation.id });
-    await owner.customers.create({ firstName: 'Agent', lastName: 'Bold' });
-    await settle();
-
-    const { run, steps } = await onlyRun(automation.id);
-
-    expect(run.status).toBe('succeeded');
-    expect(steps.find((step) => step.stepId === 'ask')?.output).toEqual({
-      answer: 'Agent Bold is new, no tags yet.',
-    });
-    expect(JSON.stringify(model.chats()[0]?.messages)).toContain('Summarize Agent Bold');
-    expect(lastToolResult(model.chats().at(-1) ?? { model: '', messages: [] })).toContain('Agent');
   });
 });

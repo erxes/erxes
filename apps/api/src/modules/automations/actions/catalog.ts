@@ -1,7 +1,6 @@
 import { ActionField, type ActionInfo } from '@erxes/core-contract';
 import { type Connections, INTEGRATION_ACTIONS } from '~/modules/integrations/actions';
 import { appOf } from '~/modules/integrations/apps';
-import { AGENT_ACTIONS } from './agent';
 import { AUTOMATION_ACTIONS } from './automations';
 import type { CoreAction } from './context';
 import { LEAD_ACTIONS } from './leads';
@@ -14,7 +13,6 @@ const CORE_ACTIONS: CoreAction[] = [
   ...RECORD_ACTIONS,
   ...MESSAGE_ACTIONS,
   ...LEAD_ACTIONS,
-  ...AGENT_ACTIONS,
   ...AUTOMATION_ACTIONS,
   ...REPLY_ACTIONS,
   ...INTEGRATION_ACTIONS,

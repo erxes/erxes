@@ -1,6 +1,6 @@
 import { IconArrowLeft, IconBolt } from '@tabler/icons-react';
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { type ReactNode, useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { CatalogList, type Picked } from './CatalogList';
@@ -92,17 +92,15 @@ const PickerTrigger = ({
   );
 };
 
-/** The open category's name and size (or `trailing` in its place), with a way back to all. */
-export const CategoryHeader = ({
+/** The open category's name and size, with a way back to all. */
+const CategoryHeader = ({
   kind,
   current,
   onBack,
-  trailing,
 }: {
   kind: string;
   current: GroupEntry;
   onBack: () => void;
-  trailing?: ReactNode;
 }) => {
   const { t } = useTranslation('automations');
   const { groupName, countLabel } = useCatalogLabels(kind);
@@ -123,9 +121,7 @@ export const CategoryHeader = ({
       <span className="min-w-0 flex-1 truncate text-sm font-medium">
         {groupName(current.group)}
       </span>
-      {trailing ?? (
-        <span className="text-xs text-muted-foreground">{countLabel(current.items.length)}</span>
-      )}
+      <span className="text-xs text-muted-foreground">{countLabel(current.items.length)}</span>
     </div>
   );
 };
