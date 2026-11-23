@@ -35,6 +35,7 @@ describe('plugin integrations', { timeout: 120_000 }, () => {
       {
         ...facebook,
         plugin: 'hr',
+        connection: null,
         countries: [],
         dashboard: null,
         keyed: false,

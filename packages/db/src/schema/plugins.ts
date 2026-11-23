@@ -148,6 +148,8 @@ export interface StoredPluginManifest {
     category: (typeof INTEGRATION_CATEGORIES)[number];
     countries?: string[];
     permission: string;
+    /** The core integration its accounts connect through (`facebook`); it joins that one's page. */
+    connection?: string;
   }[];
   actions?: {
     type: string;

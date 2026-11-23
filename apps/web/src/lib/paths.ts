@@ -80,6 +80,8 @@ export const paths = {
     payments: '/settings/payments',
     integrations: '/settings/integrations',
     integration: (key: string) => `/settings/integrations/${id(key)}`,
+    integrationTab: (key: string, tab: string) =>
+      `/settings/integrations/${id(key)}?tab=${id(tab)}`,
     paymentIntegrations: '/settings/integrations?tab=browse&category=payments',
     aiIntegrations: '/settings/integrations?tab=browse&category=ai',
     integrationConnection: (connectionId: string) =>

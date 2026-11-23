@@ -15,6 +15,7 @@ import {
   OverviewSection,
   useIntegrationTab,
 } from './IntegrationLayout';
+import { JoinedUses, useJoinedTabs } from './JoinedIntegrations';
 
 const PaymentFacts = ({ payments }: { payments: NonNullable<Integration['payments']> }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
@@ -71,6 +72,7 @@ const Overview = ({ integration }: { integration: Integration }) => {
           )}
         </QueryState>
       </OverviewSection>
+      <JoinedUses integration={integration} />
       <AutomationTriggers integration={integration} />
       {isOAuthIntegration(integration) && integration.oauth.client === 'organization' && (
         <OverviewSection title={t('app', 'App')}>
@@ -115,7 +117,10 @@ const Connect = ({ integration }: { integration: Integration }) => {
   );
 };
 
-/** An integration's page: its connections, then any `tabs` of its own (a bank's accounts). */
+/**
+ * An integration's page: its connections, then any `tabs` of its own (a bank's accounts), then
+ * those of the plugins' integrations that connect through it (Frontline's pages).
+ */
 export const ConnectionsIntegration = ({
   integration,
   tabs = [],
@@ -125,6 +130,7 @@ export const ConnectionsIntegration = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const [tab, setTab] = useIntegrationTab('overview');
+  const joinedTabs = useJoinedTabs(integration);
 
   return (
     <IntegrationLayout
@@ -139,6 +145,7 @@ export const ConnectionsIntegration = ({
           content: <Overview integration={integration} />,
         },
         ...tabs,
+        ...joinedTabs,
       ]}
     />
   );

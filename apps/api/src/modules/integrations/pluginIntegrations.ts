@@ -26,6 +26,7 @@ export const pluginIntegrations = async (client: Db) => {
       .map((integration) => ({
         ...integration,
         plugin: name,
+        connection: integration.connection ?? null,
         countries: integration.countries ?? [],
         dashboard: null,
         keyed: false,

@@ -11,13 +11,48 @@ export const CATEGORIES = IntegrationCategory.options;
 
 export type Category = IntegrationCategory;
 
-/** A listed integration with its address (`qpay`, `frontline.facebook`) and what its UI adds. */
-export type Integration = ListedIntegration & {
+/** A listed integration with its address (`qpay`, `frontline.meta`) and what its UI adds. */
+type Listed = ListedIntegration & {
   slug: string;
   icon: ComponentType<{ className?: string }>;
   logo: boolean;
   tabs: TIntegrationTab[];
 };
+
+/** One with its tile, and the plugins' integrations that connect through it (`joined`). */
+export type Integration = Listed & { joined: Listed[] };
+
+const URGENCY = { 'not-set-up': 0, off: 1, connected: 2, attention: 3 } as const;
+
+/** Its own state, unless one that joins it is in a more urgent one (a broken page). */
+const statusWith = (host: Listed, joined: Listed[]): Listed['status'] => {
+  const state = [host, ...joined]
+    .map((item) => item.status.state)
+    .reduce((most, next) => (URGENCY[next] > URGENCY[most] ? next : most));
+
+  return { ...host.status, state };
+};
+
+/**
+ * Each plugin integration that names a `connection` joins that core integration: it has no tile,
+ * its tabs show on the core one's page, and its state counts towards the core one's.
+ */
+const joinHosts = (all: Listed[]) => {
+  const hostOf = (item: Listed) =>
+    item.connection ? all.find((host) => !host.plugin && host.key === item.connection) : undefined;
+
+  return all.flatMap((item): Integration[] => {
+    if (hostOf(item)) return [];
+
+    const joined = all.filter((other) => hostOf(other) === item);
+
+    return [{ ...item, status: statusWith(item, joined), joined }];
+  });
+};
+
+/** The tab of its host's page a joined integration's `tab` shows in. */
+export const joinedTab = (joined: Pick<Listed, 'slug'>, tab: string) =>
+  tab.startsWith(`${joined.slug}.`) ? tab : `${joined.slug}.${tab}`;
 
 export const useMayOpenIntegrations = () => {
   const can = useCan();
@@ -34,7 +69,7 @@ export const useIntegrations = () => {
       .find(({ config }) => config.name.toLowerCase() === plugin)
       ?.config.integrations.find((integration) => integration.key === key);
 
-  const integrations = (listed.data?.data ?? []).map((integration): Integration => {
+  const all = (listed.data?.data ?? []).map((integration): Listed => {
     const ui = integration.plugin ? uiOf(integration.plugin, integration.key) : undefined;
     const logo = integration.plugin ? null : logoOf(integration.key);
 
@@ -47,7 +82,7 @@ export const useIntegrations = () => {
     };
   });
 
-  return { integrations, loading: loading || listed.isPending, listed };
+  return { integrations: joinHosts(all), loading: loading || listed.isPending, listed };
 };
 
 /** Serves the organisation's country, or any country. */

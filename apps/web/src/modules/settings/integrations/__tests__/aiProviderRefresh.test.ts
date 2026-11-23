@@ -42,6 +42,7 @@ const currentConnection = (): VaultConnection => ({
 const openAiIntegration = (): Integration => ({
   key: 'openai',
   plugin: null,
+  connection: null,
   name: 'OpenAI',
   summary: 'GPT models for the assistant and agents.',
   category: 'ai',

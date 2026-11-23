@@ -42,6 +42,7 @@ const SHOP = {
 const TEST_INTEGRATION = {
   key: 'test',
   plugin: null,
+  connection: null,
   name: 'Test',
   summary: 'Pays at once, for trying payments out.',
   category: 'payments',

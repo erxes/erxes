@@ -1020,6 +1020,7 @@
       "name-taken": "Another {{name}} connection has this name",
       "connections": "Connections",
       "none": "Nothing connected yet.",
+      "used-by": "Used by",
       "payments": "How payers pay",
       "added": "{{name}} is connected",
       "add-failed": "Could not connect",

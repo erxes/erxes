@@ -132,6 +132,17 @@ const usableConnections = (manifest: PluginManifest) => {
   if (new Set(uses.map((use) => use.integration)).size !== uses.length) {
     throw fail('UNKNOWN_INTEGRATION', 'connections names an integration twice');
   }
+
+  const joined = manifest.integrations?.find(
+    ({ connection }) => connection && !uses.some((use) => use.integration === connection),
+  );
+
+  if (joined) {
+    throw fail(
+      'UNKNOWN_INTEGRATION',
+      `Integration "${joined.key}" connects through "${joined.connection}", which the manifest's connections don't name`,
+    );
+  }
 };
 
 /**

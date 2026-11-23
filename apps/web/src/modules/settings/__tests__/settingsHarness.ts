@@ -103,9 +103,15 @@ export const member: { can: (action: string) => boolean } = { can: ALL_BUT_PAYME
 
 /**
  * Core answers the integrations list once `ready` settles; `nothingSetUp` is a new organisation,
- * `qpay` one that connected its QPay shop.
+ * `qpay` one that connected its QPay shop, `joined` one where the chat plugin's Messenger connects
+ * through core's Facebook.
  */
-export const listing = { ready: Promise.resolve(), nothingSetUp: false, qpay: false };
+export const listing = {
+  ready: Promise.resolve(),
+  nothingSetUp: false,
+  qpay: false,
+  joined: false,
+};
 
 export const QPAY_SHOP: VaultConnection = {
   id: 'qpayMainShop00001',
@@ -123,6 +129,7 @@ const listed = (
   row: Pick<Integration, 'key' | 'name' | 'summary' | 'category'> & Partial<Integration>,
 ): Integration => ({
   plugin: null,
+  connection: null,
   countries: [],
   permission: 'integrations.manage',
   dashboard: null,
@@ -177,6 +184,21 @@ const LISTED = [
   }),
 ];
 
+// Core's Facebook, not connected yet, and the chat plugin's Messenger on it with a broken page.
+const JOINED = [
+  listed({
+    key: 'facebook',
+    name: 'Facebook Pages',
+    summary: 'Start automations from your Facebook pages.',
+    category: 'social',
+  }),
+  ...LISTED.map((row) =>
+    row.key === 'meta'
+      ? { ...row, connection: 'facebook', status: { state: 'attention' as const, count: 3 } }
+      : row,
+  ),
+];
+
 const QPAY = listed({
   key: 'qpay',
   name: 'QPay',
@@ -214,7 +236,7 @@ export const setUpSettings = async () => {
 
     await listing.ready;
 
-    const rows = listing.qpay ? [...LISTED, QPAY] : LISTED;
+    const rows = [...(listing.joined ? JOINED : LISTED), ...(listing.qpay ? [QPAY] : [])];
 
     return Response.json({
       data: listing.nothingSetUp ? rows.map((row) => ({ ...row, status: NOT_SET_UP })) : rows,
@@ -233,6 +255,7 @@ export const resetSettings = () => {
   listing.ready = Promise.resolve();
   listing.nothingSetUp = false;
   listing.qpay = false;
+  listing.joined = false;
 };
 
 export const unmount = () => {

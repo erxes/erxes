@@ -113,6 +113,48 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
     ).rejects.toMatchObject({ status: 404 });
   });
 
+  it('lists a plugin integration that connects through a core integration with its connection', async () => {
+    const inbox = {
+      key: 'meta',
+      name: 'Facebook and Instagram',
+      summary: 'Messenger chats answered in the inbox',
+      category: 'social' as const,
+      permission: 'hr.inbox.manage',
+      connection: 'facebook',
+    };
+
+    const manifest = {
+      title: 'HR',
+      version: '1',
+      scopes: [],
+      permissions: [{ action: 'hr.inbox.manage', label: 'Manage the inbox' }],
+      integrations: [inbox],
+    };
+
+    const plugin = t.client(await t.pluginToken()).plugins;
+
+    // It connects only through a core integration the manifest's connections name.
+    await expect(plugin.registerManifest({ ...manifest, connections: [] })).rejects.toMatchObject({
+      code: 'UNKNOWN_INTEGRATION',
+    });
+
+    await plugin.registerManifest({
+      ...manifest,
+      connections: [{ integration: 'facebook', reason: 'Messenger in the inbox' }],
+    });
+
+    const listed = (await t.owner().integrations.list()).data;
+
+    expect(listed.find((row) => row.plugin === 'hr')).toMatchObject({
+      key: 'meta',
+      connection: 'facebook',
+    });
+    expect(listed.find((row) => row.key === 'facebook')).toMatchObject({
+      plugin: null,
+      connection: null,
+    });
+  });
+
   it('tells plugins when a connection changes', async () => {
     await t.owner().integrations.update({ key: 'facebook', id: connectionId, status: 'disabled' });
 

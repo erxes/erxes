@@ -73,6 +73,8 @@ export const Integration = z.object({
   key: z.string(),
   /** The plugin whose manifest declares it; null for core's own. */
   plugin: z.string().nullable(),
+  /** A plugin's integration that connects through this core integration's connections; else null. */
+  connection: z.string().nullable(),
   name: z.string(),
   summary: z.string(),
   category: IntegrationCategory,
@@ -114,6 +116,12 @@ export const PluginIntegration = z.object({
   /** The ISO 3166 countries it serves (`MN`); none: any. */
   countries: z.array(Country).max(250).optional(),
   permission: z.string().trim().min(1).max(100),
+  /**
+   * The core integration its accounts connect through (`facebook`), one the manifest's
+   * `connections` names. It gets no tile of its own: its tabs join that integration's page, which
+   * lists it under "Used by".
+   */
+  connection: IntegrationKey.optional(),
 });
 
 /** The manifest's `integrations`, each key once, at most 20. */

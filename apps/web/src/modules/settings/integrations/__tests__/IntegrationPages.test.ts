@@ -74,6 +74,51 @@ describe('one integration’s page', () => {
   });
 });
 
+describe('a plugin’s integration that connects through core’s', () => {
+  it('has no tile: core’s tile shows its state, and Browse leads to core’s page', async () => {
+    listing.joined = true;
+
+    const container = await renderSettings('/settings/integrations?tab=browse', 'Facebook Pages');
+
+    expect(container.textContent).not.toContain('Messenger');
+    expect(pageLinks(container)).toEqual(
+      expect.arrayContaining([
+        [expect.stringContaining('Needs attention'), '/settings/integrations/facebook'],
+      ]),
+    );
+    expect(pageLinks(container).map(([, href]) => href)).not.toContain(
+      '/settings/integrations/chat.meta',
+    );
+  });
+
+  it('shows its tabs and its state on core’s page, and its old address opens its tab there', async () => {
+    listing.joined = true;
+
+    const container = await renderSettings(
+      '/settings/integrations/chat.meta?tab=app',
+      'Facebook Pages',
+    );
+
+    expect(window.location.pathname).toBe('/settings/integrations/facebook');
+    expect(window.location.search).toBe('?tab=chat.meta.app');
+    await vi.waitFor(() => expect(container.textContent).toContain('App id and secret'));
+    expect(container.querySelector('h1')?.textContent).toBe('Facebook Pages');
+    expect(tab(container, 'Chat · Overview')).toBeDefined();
+    expect(tab(container, 'Chat · Meta app')?.getAttribute('aria-selected')).toBe('true');
+
+    await click(tab(container, 'Overview'));
+    await vi.waitFor(() => expect(container.textContent).toContain('Used by'));
+    expect(links(container)).toEqual(
+      expect.arrayContaining([
+        [
+          expect.stringContaining('Needs attention'),
+          '/settings/integrations/facebook?tab=chat.meta.overview',
+        ],
+      ]),
+    );
+  });
+});
+
 const tab = (container: Element, name: string) =>
   [...container.querySelectorAll('[role="tab"]')].find((item) =>
     item.textContent?.startsWith(name),

@@ -61,6 +61,7 @@ export const listIntegrations = async (client: Db) => {
     INTEGRATIONS.filter(manages).map(async (integration) => ({
       ...integration,
       plugin: null,
+      connection: null,
       dashboard: integration.dashboard ?? null,
       keyed: Boolean(integration.keys),
       fields: integration.keys && !integration.oauth ? fieldsOf(integration.keys) : [],
