@@ -3,6 +3,7 @@ import { and, asc, eq, inArray, lt, notExists, or, sql } from 'drizzle-orm';
 import { randomToken } from '~/lib/crypto';
 import { appLink } from '~/modules/email/email';
 import { organizationName, valuesOf } from './broadcasts.service';
+import { publishSuppressed } from './lists';
 import type { PlaceholderValues } from './placeholders';
 
 /** Recipients one claim takes: how far past a pause a broadcast can go on. */
@@ -153,12 +154,12 @@ export const settleBlock = async (tx: Db, claimed: Claimed, outcomes: Map<string
     const outcome = outcomes.get(row.id);
 
     return outcome?.status === 'failed' && outcome.bounced
-      ? [{ address: row.address, detail: outcome.reason }]
+      ? [{ address: row.address, detail: outcome.reason, customerId: row.customerId }]
       : [];
   });
 
   if (bounced.length) {
-    await tx
+    const added = await tx
       .insert(suppressions)
       .values(
         bounced.map(({ address, detail }) => ({
@@ -170,7 +171,16 @@ export const settleBlock = async (tx: Db, claimed: Claimed, outcomes: Map<string
           broadcastId: claimed.broadcast.id,
         })),
       )
-      .onConflictDoNothing();
+      .onConflictDoNothing()
+      .returning();
+
+    await publishSuppressed(
+      tx,
+      added.map((row) => ({
+        row,
+        customerId: bounced.find(({ address }) => address === row.address)?.customerId ?? null,
+      })),
+    );
   }
 };
 

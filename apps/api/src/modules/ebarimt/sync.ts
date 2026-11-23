@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ORPCError } from '@orpc/server';
 import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { type Buyer, type BuiltReceipt, buildReceipt, linesFor } from './build';
 import { activeReceipt, anyActive, keptAmount, readForSync, type ReceiptRow } from './plan';
@@ -200,6 +201,7 @@ const send = async (posApiUrl: string, plan: Plan) => {
 /** Records PosAPI's answer; a success makes the receipt it replaced or returned inactive. */
 const record = async (
   tx: Db,
+  invoice: { referenceType: string; referenceId: string },
   receipt: ReceiptRow,
   answer: NonNullable<Awaited<ReturnType<typeof send>>>,
 ) => {
@@ -236,6 +238,30 @@ const record = async (
       .where(eq(ebarimtReceipts.id, receipt.id));
   }
 
+  if (issued) {
+    await publishCoreEvents(tx, {
+      type: 'core.ebarimt.receipt_issued',
+      entityType: 'ebarimt_receipt',
+      entityId: row.id,
+      payload: {
+        receiptId: row.id,
+        invoiceId: row.invoiceId,
+        billId: row.billId,
+        billDate: row.billDate,
+        lottery: row.lottery,
+        buyerType: row.buyerType,
+        customerTin: row.customerTin,
+        customerName: row.customerName,
+        totalAmount: row.totalAmount,
+        totalVat: row.totalVat,
+        totalCityTax: row.totalCityTax,
+        previousId: row.previousId,
+        referenceType: invoice.referenceType,
+        referenceId: invoice.referenceId,
+      },
+    });
+  }
+
   return row;
 };
 
@@ -258,7 +284,7 @@ const syncReceipt = async (orgId: string, invoiceId: string) => {
 
   if (!answer) return { receipt, retry: false };
 
-  const recorded = await withOrg(orgId, (tx) => record(tx, receipt, answer));
+  const recorded = await withOrg(orgId, (tx) => record(tx, read.invoice, receipt, answer));
 
   log[answer.ok ? 'info' : 'warn'](
     { orgId, invoiceId, receiptId: receipt.id, kind: receipt.kind, error: recorded.error },
