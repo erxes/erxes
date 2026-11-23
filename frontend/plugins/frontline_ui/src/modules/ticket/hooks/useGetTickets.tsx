@@ -61,6 +61,8 @@ export const useTicketsVariables = (
     statusChangedStartDate,
     branchIds,
     departmentIds,
+    companyId,
+    customerId,
     propertiesData,
   } = useNonNullMultiQueryState<{
     searchValue: string;
@@ -77,6 +79,8 @@ export const useTicketsVariables = (
     statusChangedStartDate: string;
     branchIds: string[];
     departmentIds: string[];
+    companyId: string;
+    customerId: string;
     propertiesData: string;
   }>([
     'searchValue',
@@ -93,6 +97,8 @@ export const useTicketsVariables = (
     'statusChangedStartDate',
     'branchIds',
     'departmentIds',
+    'companyId',
+    'customerId',
     'propertiesData',
   ]);
 
@@ -126,6 +132,8 @@ export const useTicketsVariables = (
     statusChangedEndDate: parseDateRangeFromString(statusChangedStartDate)?.to,
     branchIds: branchIds || undefined,
     departmentIds: departmentIds || undefined,
+    companyId,
+    customerId,
     propertiesData: propertiesData || undefined,
     ...variables,
   };
@@ -216,9 +224,15 @@ export const useTickets = (
 
         const listState = variables.state || 'active';
         const ticketState = ticket.state || 'active';
+        const matchesState =
+          listState === 'all'
+            ? ticketState !== 'deleted'
+            : ticketState === listState;
         const matchesFilter =
-          ticketState === listState &&
-          (!variables.statusId || ticket.statusId === variables.statusId);
+          matchesState &&
+          (!variables.statusId || ticket.statusId === variables.statusId) &&
+          (!variables.companyId || ticket.companyId === variables.companyId) &&
+          (!variables.customerId || ticket.customerId === variables.customerId);
 
         if (type === 'create') {
           const exists = currentList.some((item) => item._id === ticket._id);
@@ -248,7 +262,7 @@ export const useTickets = (
           }
         }
 
-        if (isRemoval) {
+        if (isRemoval && matchesFilter) {
           updatedList = currentList.filter((item) => item._id !== ticket._id);
           countDelta = -1;
         }
