@@ -19,8 +19,8 @@ import { optionalText, textOf } from './values';
 const CALLOUT_TONES = {
   info: { icon: IconInfoCircle, className: 'text-(--info-text) bg-(--info)/10' },
   good: { icon: IconCircleCheck, className: 'text-(--success-text) bg-(--success)/10' },
-  warning: { icon: IconAlertTriangle, className: 'text-(--warning-text) bg-(--warning-soft)' },
-  bad: { icon: IconX, className: 'text-destructive-text bg-(--destructive-soft)' },
+  warning: { icon: IconAlertTriangle, className: 'text-warning bg-(--warning)/15' },
+  bad: { icon: IconX, className: 'text-destructive-text bg-(--destructive)/15' },
 } as const;
 
 export const Callout = createComponentImplementation(CalloutApi, ({ props, buildChild }) => {

@@ -120,7 +120,7 @@ export const ModelPicker = ({ state, disabled }: { state: ModelRunState; disable
           <IconChevronDown aria-hidden className="size-3.5 shrink-0" />
         </Popover.Trigger>
       </IconTip>
-      <Popover.Content variant="flush" align="start" className="w-80">
+      <Popover.Content variant="flush" align="end" className="w-80">
         {level && (
           <div className="flex flex-col gap-1.5 border-b p-2">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
