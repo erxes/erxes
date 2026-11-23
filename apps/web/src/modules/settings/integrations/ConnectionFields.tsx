@@ -63,6 +63,8 @@ export const useConnectionsChanged = () => {
       client.invalidateQueries({ queryKey: orpc.payments.key() }),
       // A bank connection is what transfer payments pick as their config.
       client.invalidateQueries({ queryKey: orpc.banks.key() }),
+      client.invalidateQueries({ queryKey: orpc.assistant.providers.key() }),
+      client.invalidateQueries({ queryKey: orpc.assistant.models.key() }),
     ]);
 };
 
