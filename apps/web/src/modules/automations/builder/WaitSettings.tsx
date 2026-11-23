@@ -151,7 +151,7 @@ export const WaitForSettings = ({
   onChange,
 }: SettingsProps<'wait_for'>) => {
   const { t } = useTranslation('automations');
-  const { events } = useContext(BuilderContext);
+  const { events, knownEvents } = useContext(BuilderContext);
 
   return (
     <>
@@ -184,7 +184,7 @@ export const WaitForSettings = ({
         <FieldLabel>{t('only-if', 'Only if')}</FieldLabel>
         <ConditionsEditor
           subject={subject}
-          extraFields={eventDataFields(events.find((event) => event.type === step.event))}
+          extraFields={eventDataFields(knownEvents.find((event) => event.type === step.event))}
           value={step.conditions}
           disabled={disabled}
           onChange={(conditions) => onChange({ ...step, conditions })}

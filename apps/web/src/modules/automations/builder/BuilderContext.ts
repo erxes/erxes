@@ -1,4 +1,4 @@
-import type { ActionInfo, DataField } from '@erxes/core-contract';
+import type { ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
 import { createContext } from 'react';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -14,18 +14,20 @@ export type StartingEvent = {
   seen?: boolean;
 };
 
+type EventInfo = {
+  type: string;
+  label: string;
+  description?: string | null;
+  source: string;
+  /** The event's own values, for conditions on it. */
+  fields?: DataField[];
+};
+
 /** What the builder needs everywhere: event types (for waits) and how each step did (last 30 days). */
 export const BuilderContext = createContext<{
   automationId: string;
   hookAutomationId: string | undefined;
-  events: {
-    type: string;
-    label: string;
-    description?: string | null;
-    source: string;
-    /** The event's own values, for conditions on it. */
-    fields?: DataField[];
-  }[];
+  events: EventInfo[];
   stats: Map<string, { succeeded: number; failed: number }>;
   /** Outputs of earlier steps, by the step being edited. */
   outputsBefore: (stepId: string) => FieldInfo[];
@@ -33,7 +35,10 @@ export const BuilderContext = createContext<{
   trigger: StartingEvent | undefined;
   /** Whether runs are about a customer or company, whose fields steps can then use. */
   hasSubject: boolean;
+  subject: 'customer' | 'company' | null;
+  steps: AutomationStep[];
   knownActions: ActionInfo[];
+  knownEvents: EventInfo[];
 }>({
   automationId: '',
   hookAutomationId: undefined,
@@ -42,5 +47,8 @@ export const BuilderContext = createContext<{
   outputsBefore: () => [],
   trigger: undefined,
   hasSubject: false,
+  subject: null,
+  steps: [],
   knownActions: [],
+  knownEvents: [],
 });

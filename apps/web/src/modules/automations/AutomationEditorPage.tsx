@@ -16,8 +16,8 @@ import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automa
 import { BuilderContext } from './builder/BuilderContext';
 import { FlowCanvas } from './builder/FlowCanvas';
 import { insertStep, newStep, removeStep } from './builder/flowModel';
-import { describeTrigger } from './builder/flowText';
 import { useBuilder } from './builder/useBuilder';
+import { useTriggerText } from './builder/useStepText';
 import { ProblemsPopover } from './ProblemsPopover';
 import { RunsPanel } from './RunsPanel';
 import type { Selection } from './StepInspector';
@@ -98,7 +98,7 @@ const BuildCanvas = ({
 }: {
   built: ReturnType<typeof useBuilder>;
   draft: ReturnType<typeof useAutomationDraft>;
-  trigger: ReturnType<typeof describeTrigger>;
+  trigger: ReturnType<typeof useTriggerText>;
   editable: boolean;
   selected: Selection;
   onSelect: (selection: Selection) => void;
@@ -111,7 +111,6 @@ const BuildCanvas = ({
       trigger={{ kind: definition.trigger.kind, ...trigger }}
       steps={definition.steps}
       actions={built.actions}
-      fields={built.fields}
       selected={selected}
       problems={built.problems}
       disabled={!editable}
@@ -143,7 +142,14 @@ const AutomationEditor = ({
   const { timezone } = useSession().organization;
   const built = useBuilder(catalog, definition, automation.id);
   const problemCount = [...built.problems.values()].reduce((sum, list) => sum + list.length, 0);
-  const trigger = describeTrigger(definition.trigger, catalog.triggers, built.fields, timezone);
+
+  const trigger = useTriggerText(
+    definition.trigger,
+    catalog.triggers,
+    built.fields,
+    built.builder.subject,
+    timezone,
+  );
 
   return (
     <PageContainer>
@@ -161,7 +167,6 @@ const AutomationEditor = ({
           <EditorTabBar automationId={automation.id} statsError={built.stats.error}>
             <ProblemsPopover
               steps={definition.steps}
-              fields={built.fields}
               problems={built.problems}
               serverProblems={editor.serverProblems}
               onSelect={setSelected}

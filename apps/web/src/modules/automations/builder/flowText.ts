@@ -41,6 +41,7 @@ const countRules = (group: ConditionGroup): number =>
 export const describeConditions = (
   group: ConditionGroup | undefined,
   fields: FieldInfo[],
+  firstValue?: string,
 ): string | null => {
   if (!group || !group.rules.length) return null;
 
@@ -72,7 +73,7 @@ export const describeConditions = (
   const value =
     first.op === 'exists' || first.op === 'not_exists'
       ? ''
-      : ` ${Array.isArray(first.value) ? first.value.join(', ') : textOf(first.value)}`;
+      : ` ${firstValue ?? (Array.isArray(first.value) ? first.value.join(', ') : textOf(first.value))}`;
 
   return `${name} ${OPS[first.op] ?? first.op}${value}${more}`;
 };
@@ -83,9 +84,28 @@ const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 type Audience = Extract<AutomationTrigger, { kind: 'manual' }>['audience'];
 
+export const triggerConditions = (trigger: AutomationTrigger): ConditionGroup | undefined => {
+  switch (trigger.kind) {
+    case 'event':
+    case 'webhook':
+    case 'app':
+      return trigger.conditions;
+    case 'schedule':
+    case 'manual':
+      return trigger.audience?.conditions;
+    default:
+      return undefined;
+  }
+};
+
 /** "For each customer where …". */
-const audienceText = (prefix: string, audience: NonNullable<Audience>, fields: FieldInfo[]) => {
-  const where = describeConditions(audience.conditions, fields);
+const audienceText = (
+  prefix: string,
+  audience: NonNullable<Audience>,
+  fields: FieldInfo[],
+  firstValue?: string,
+) => {
+  const where = describeConditions(audience.conditions, fields, firstValue);
 
   return `${prefix} ${audience.type}${where ? ` where ${where}` : ''}`;
 };
@@ -126,11 +146,12 @@ export const describeTrigger = (
   fields: FieldInfo[],
   /** The organisation's: scheduled and date triggers run by its clock. */
   timeZone: string,
+  firstValue?: string,
 ): { title: string; detail: string | null } => {
   switch (trigger.kind) {
     case 'event': {
       const label = events.find((item) => item.type === trigger.event)?.label ?? trigger.event;
-      const only = describeConditions(trigger.conditions, fields);
+      const only = describeConditions(trigger.conditions, fields, firstValue);
 
       return { title: label, detail: only ? `Only if ${only}` : null };
     }
@@ -139,7 +160,7 @@ export const describeTrigger = (
       return {
         title: scheduleText(trigger),
         detail: trigger.audience
-          ? audienceText('For each', trigger.audience, fields)
+          ? audienceText('For each', trigger.audience, fields, firstValue)
           : zoneLabel(timeZone),
       };
     case 'date': {
@@ -160,7 +181,7 @@ export const describeTrigger = (
     }
 
     case 'webhook': {
-      const only = describeConditions(trigger.conditions, fields);
+      const only = describeConditions(trigger.conditions, fields, firstValue);
 
       const about = trigger.subject
         ? `For the ${trigger.subject.type} found by ${HOOK_KEY_WORDS[trigger.subject.by]}`
@@ -174,7 +195,7 @@ export const describeTrigger = (
 
     case 'app': {
       const type = appEventType(trigger.app, trigger.trigger);
-      const only = describeConditions(trigger.conditions, fields);
+      const only = describeConditions(trigger.conditions, fields, firstValue);
 
       return {
         title: events.find((item) => item.type === type)?.label ?? 'When a connected app reports',
@@ -186,7 +207,7 @@ export const describeTrigger = (
       return {
         title: 'Started by hand',
         detail: trigger.audience
-          ? audienceText('On each', trigger.audience, fields)
+          ? audienceText('On each', trigger.audience, fields, firstValue)
           : 'On chosen records',
       };
   }
@@ -220,6 +241,7 @@ type DescribeContext = {
   /** Lead stages, to name the one a step moves to. */
   stages?: { id: string; name: string }[];
   automations?: { id: string; name: string }[];
+  firstValue?: string;
 };
 
 const namedValue = (type: ActionField['type'], value: unknown, context: DescribeContext) => {
@@ -296,7 +318,7 @@ export const describeStep = (
     }
 
     case 'branch': {
-      const rule = describeConditions(step.conditions, context.fields);
+      const rule = describeConditions(step.conditions, context.fields, context.firstValue);
 
       return {
         title: step.label || (rule ? `If ${rule}` : 'No condition yet'),

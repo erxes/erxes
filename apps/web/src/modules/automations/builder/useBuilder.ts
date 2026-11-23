@@ -49,10 +49,17 @@ export const useBuilder = (
       events,
       stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
       outputsBefore: (stepId: string) =>
-        stepOutputFields(definition.steps, stepId, { events, actions, trigger: started }),
+        stepOutputFields(definition.steps, stepId, {
+          events: catalog.triggers,
+          actions,
+          trigger: started,
+        }),
       trigger: started,
       hasSubject,
+      subject: hasSubject ? subject : null,
+      steps: definition.steps,
       knownActions: catalog.actions,
+      knownEvents: catalog.triggers,
     };
   }, [
     automationId,
@@ -63,6 +70,7 @@ export const useBuilder = (
     definition,
     actions,
     hasSubject,
+    subject,
   ]);
 
   return { stats, subject, hasSubject, fields, fieldsError, actions, problems, builder };
