@@ -2,7 +2,7 @@ import type { IContext } from '~/connectionResolvers';
 import { requireFormTransactions } from '../../../formWriteGuard';
 import type { IField } from '../../../db/definitions/fields';
 import { performance } from 'node:perf_hooks';
-import { planCustomerBackfill } from '../../../customerBackfill';
+import { countCustomerBackfill } from '../../../customerBackfill';
 import { prepareFormFieldConversions } from '../../../fieldConversion';
 import {
   conversionError,
@@ -88,7 +88,7 @@ export const fieldConversionQueries = {
     );
     const { fillCount, keptCount } = inspection.invalidCount
       ? { fillCount: 0, keptCount: 0 }
-      : await planCustomerBackfill(subdomain, models, {
+      : await countCustomerBackfill(subdomain, models, {
           formId: args.formId,
           fieldId: args.fieldId,
           targetType: args.targetType,

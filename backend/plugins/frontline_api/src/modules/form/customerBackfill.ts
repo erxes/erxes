@@ -3,7 +3,8 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { IModels } from '~/connectionResolvers';
 
 const CUSTOMER_TYPE_PREFIX = 'core:customer:';
-const READ_CHUNK = 200;
+const BIRTH_DATE_TYPE = `${CUSTOMER_TYPE_PREFIX}birthDate`;
+const CHUNK_SIZE = 200;
 const WRITE_CONCURRENCY = 10;
 
 type CustomerProfile = {
@@ -21,7 +22,23 @@ type CustomerProfile = {
 
 type CustomerProfileUpdate = Partial<Omit<CustomerProfile, '_id'>>;
 
-export interface CustomerBackfillPlan {
+type ProfileUpdateBuilder = (
+  customer: CustomerProfile,
+  value: unknown,
+  saveAsCustomer: boolean,
+) => CustomerProfileUpdate | undefined;
+
+interface BackfillTarget {
+  fieldId: string;
+  targetType: string;
+}
+
+interface SubmitterAnswers {
+  _id: string;
+  answers: { fieldId: string; value: unknown }[];
+}
+
+interface BackfillChunk {
   fillCount: number;
   keptCount: number;
   updates: { customerId: string; doc: CustomerProfileUpdate }[];
@@ -30,129 +47,261 @@ export interface CustomerBackfillPlan {
 export const isCustomerFieldType = (type?: string): boolean =>
   !!type?.startsWith(CUSTOMER_TYPE_PREFIX);
 
-const buildProfileUpdate = (
-  customer: CustomerProfile,
-  targetType: string,
-  value: unknown,
-  saveAsCustomer: boolean,
-): CustomerProfileUpdate | undefined => {
-  const key = targetType.slice(CUSTOMER_TYPE_PREFIX.length);
-  if (key === 'email') {
+const fillText =
+  (
+    key: 'firstName' | 'middleName' | 'lastName' | 'description',
+  ): ProfileUpdateBuilder =>
+  (customer, value) =>
+    customer[key] ? undefined : { [key]: String(value) };
+
+const PROFILE_UPDATES: Record<string, ProfileUpdateBuilder> = {
+  firstName: fillText('firstName'),
+  middleName: fillText('middleName'),
+  lastName: fillText('lastName'),
+  description: fillText('description'),
+  email: (customer, value, saveAsCustomer) => {
     if (customer.primaryEmail || customer.emails?.length) return undefined;
     const email = String(value);
-    return {
-      emails: [email],
-      ...(saveAsCustomer ? { primaryEmail: email } : {}),
-    };
-  }
-  if (key === 'phone') {
+    return saveAsCustomer
+      ? { emails: [email], primaryEmail: email }
+      : { emails: [email] };
+  },
+  phone: (customer, value, saveAsCustomer) => {
     if (customer.primaryPhone || customer.phones?.length) return undefined;
     const phone = String(value);
-    return {
-      phones: [phone],
-      ...(saveAsCustomer ? { primaryPhone: phone } : {}),
-    };
-  }
-  if (key === 'birthDate') {
+    return saveAsCustomer
+      ? { phones: [phone], primaryPhone: phone }
+      : { phones: [phone] };
+  },
+  birthDate: (customer, value) => {
     if (customer.birthDate) return undefined;
     const birthDate = value instanceof Date ? value : new Date(String(value));
     return Number.isNaN(birthDate.getTime()) ? undefined : { birthDate };
-  }
-  if (
-    key === 'firstName' ||
-    key === 'middleName' ||
-    key === 'lastName' ||
-    key === 'description'
-  ) {
-    return customer[key] ? undefined : { [key]: String(value) };
-  }
-  return undefined;
+  },
 };
 
-export const planCustomerBackfill = async (
+const remainingMs = (deadline?: number): number | undefined => {
+  if (deadline === undefined) return undefined;
+  const remaining = Math.floor(deadline - performance.now());
+  if (remaining <= 0) throw new Error('Customer backfill planning timed out');
+  return remaining;
+};
+
+const answeredFilter = (targets: BackfillTarget[]) => {
+  const dateFieldIds = targets
+    .filter((target) => target.targetType === BIRTH_DATE_TYPE)
+    .map((target) => target.fieldId);
+  const otherFieldIds = targets
+    .filter((target) => target.targetType !== BIRTH_DATE_TYPE)
+    .map((target) => target.fieldId);
+  return [
+    { formFieldId: { $in: otherFieldIds }, value: { $nin: [null, ''] } },
+    {
+      formFieldId: { $in: dateFieldIds },
+      value: { $nin: [null, '', new Date(0)] },
+    },
+  ];
+};
+
+const planChunk = async (
+  subdomain: string,
+  submitters: SubmitterAnswers[],
+  targetTypes: Map<string, string>,
+  saveAsCustomer: boolean,
+  deadline?: number,
+): Promise<BackfillChunk> => {
+  const timeout = remainingMs(deadline);
+  const customers: CustomerProfile[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'find',
+    input: {
+      query: {
+        _id: { $in: submitters.map((submitter) => submitter._id) },
+        status: { $ne: 'deleted' },
+      },
+    },
+    options: timeout ? { signal: AbortSignal.timeout(timeout) } : undefined,
+    defaultValue: [],
+    throwOnError: true,
+  });
+  const profiles = new Map(
+    customers.map((customer) => [customer._id, customer]),
+  );
+  const chunk: BackfillChunk = { fillCount: 0, keptCount: 0, updates: [] };
+  for (const { _id, answers } of submitters) {
+    const customer = profiles.get(_id);
+    if (!customer) continue;
+    let doc: CustomerProfileUpdate | undefined;
+    for (const { fieldId, value } of answers) {
+      const key = targetTypes.get(fieldId)?.slice(CUSTOMER_TYPE_PREFIX.length);
+      const update = PROFILE_UPDATES[key ?? '']?.(
+        customer,
+        value,
+        saveAsCustomer,
+      );
+      if (update) {
+        chunk.fillCount++;
+        doc = { ...doc, ...update };
+      } else {
+        chunk.keptCount++;
+      }
+    }
+    if (doc) chunk.updates.push({ customerId: _id, doc });
+  }
+  return chunk;
+};
+
+async function* planCustomerBackfillChunks(
   subdomain: string,
   models: IModels,
   {
     formId,
-    fieldId,
-    targetType,
+    targets,
     saveAsCustomer = false,
     deadline,
   }: {
     formId: string;
-    fieldId: string;
-    targetType: string;
+    targets: BackfillTarget[];
     saveAsCustomer?: boolean;
     deadline?: number;
   },
-): Promise<CustomerBackfillPlan> => {
-  const plan: CustomerBackfillPlan = {
-    fillCount: 0,
-    keptCount: 0,
-    updates: [],
-  };
-  if (!isCustomerFieldType(targetType)) return plan;
-  const aggregation = models.FormSubmissions.aggregate<{
-    _id: string;
-    value: unknown;
-  }>([
+): AsyncGenerator<BackfillChunk> {
+  const customerTargets = targets.filter((target) =>
+    isCustomerFieldType(target.targetType),
+  );
+  if (!customerTargets.length) return;
+  const targetTypes = new Map(
+    customerTargets.map((target) => [target.fieldId, target.targetType]),
+  );
+  const aggregation = models.FormSubmissions.aggregate<SubmitterAnswers>([
     {
       $match: {
         formId,
-        formFieldId: fieldId,
         customerId: { $nin: [null, ''] },
-        value: {
-          $nin:
-            targetType === `${CUSTOMER_TYPE_PREFIX}birthDate`
-              ? [null, '', new Date(0)]
-              : [null, ''],
-        },
+        $or: answeredFilter(customerTargets),
       },
     },
     { $sort: { submittedAt: 1, _id: 1 } },
-    { $group: { _id: '$customerId', value: { $last: '$value' } } },
+    {
+      $group: {
+        _id: { customerId: '$customerId', fieldId: '$formFieldId' },
+        value: { $last: '$value' },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.customerId',
+        answers: { $push: { fieldId: '$_id.fieldId', value: '$value' } },
+      },
+    },
   ])
     .read('primary')
     .allowDiskUse(true);
-  if (deadline !== undefined) {
-    aggregation.option({
-      maxTimeMS: Math.max(1, Math.floor(deadline - performance.now())),
-    });
-  }
-  const answers = await aggregation;
-  for (let index = 0; index < answers.length; index += READ_CHUNK) {
-    const chunk = answers.slice(index, index + READ_CHUNK);
-    const customers: CustomerProfile[] = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'customers',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: chunk.map((answer) => answer._id) },
-          status: { $ne: 'deleted' },
-        },
-      },
-      defaultValue: [],
-    });
-    const values = new Map(chunk.map((answer) => [answer._id, answer.value]));
-    for (const customer of customers) {
-      const doc = buildProfileUpdate(
-        customer,
-        targetType,
-        values.get(customer._id),
+  const timeout = remainingMs(deadline);
+  if (timeout) aggregation.option({ maxTimeMS: timeout });
+  const cursor = aggregation.cursor({ batchSize: CHUNK_SIZE });
+  try {
+    let submitters: SubmitterAnswers[] = [];
+    for await (const submitter of cursor) {
+      submitters.push(submitter);
+      if (submitters.length < CHUNK_SIZE) continue;
+      yield await planChunk(
+        subdomain,
+        submitters,
+        targetTypes,
         saveAsCustomer,
+        deadline,
       );
-      if (doc) {
-        plan.fillCount++;
-        plan.updates.push({ customerId: customer._id, doc });
-      } else {
-        plan.keptCount++;
-      }
+      submitters = [];
+    }
+    if (submitters.length) {
+      yield await planChunk(
+        subdomain,
+        submitters,
+        targetTypes,
+        saveAsCustomer,
+        deadline,
+      );
+    }
+  } finally {
+    await cursor.close();
+  }
+}
+
+export const countCustomerBackfill = async (
+  subdomain: string,
+  models: IModels,
+  options: {
+    formId: string;
+    fieldId: string;
+    targetType: string;
+    deadline?: number;
+  },
+): Promise<{ fillCount: number; keptCount: number }> => {
+  const counts = { fillCount: 0, keptCount: 0 };
+  const chunks = planCustomerBackfillChunks(subdomain, models, {
+    formId: options.formId,
+    targets: [{ fieldId: options.fieldId, targetType: options.targetType }],
+    deadline: options.deadline,
+  });
+  for await (const chunk of chunks) {
+    counts.fillCount += chunk.fillCount;
+    counts.keptCount += chunk.keptCount;
+  }
+  return counts;
+};
+
+const writeUpdates = async (
+  subdomain: string,
+  updates: BackfillChunk['updates'],
+  concurrency: number,
+): Promise<number> => {
+  let failed = 0;
+  for (let index = 0; index < updates.length; index += concurrency) {
+    const results = await Promise.allSettled(
+      updates.slice(index, index + concurrency).map(({ customerId, doc }) =>
+        sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'updateCustomer',
+          input: { _id: customerId, doc },
+          throwOnError: true,
+        }),
+      ),
+    );
+    failed += results.filter((result) => result.status === 'rejected').length;
+  }
+  return failed;
+};
+
+const writeChunk = async (
+  subdomain: string,
+  updates: BackfillChunk['updates'],
+): Promise<number> => {
+  const claimed = new Set<string>();
+  const distinct: BackfillChunk['updates'] = [];
+  const repeated: BackfillChunk['updates'] = [];
+  for (const update of updates) {
+    const primaries = [
+      update.doc.primaryEmail && `email:${update.doc.primaryEmail}`,
+      update.doc.primaryPhone && `phone:${update.doc.primaryPhone}`,
+    ].filter((primary): primary is string => !!primary);
+    if (primaries.some((primary) => claimed.has(primary))) {
+      repeated.push(update);
+    } else {
+      primaries.forEach((primary) => claimed.add(primary));
+      distinct.push(update);
     }
   }
-  return plan;
+  return (
+    (await writeUpdates(subdomain, distinct, WRITE_CONCURRENCY)) +
+    (await writeUpdates(subdomain, repeated, 1))
+  );
 };
 
 export const backfillConvertedCustomerFields = async (
@@ -161,37 +310,27 @@ export const backfillConvertedCustomerFields = async (
   formId: string,
   conversions: { _id: string; type?: string }[],
 ): Promise<void> => {
-  const targets = conversions.filter((field) =>
-    isCustomerFieldType(field.type),
-  );
+  const targets = conversions
+    .filter((field) => isCustomerFieldType(field.type))
+    .map((field) => ({ fieldId: field._id, targetType: field.type ?? '' }));
   if (!targets.length) return;
   try {
     const form = await models.Forms.findOne({ _id: formId })
       .select('leadData.saveAsCustomer')
       .lean();
-    for (const field of targets) {
-      const { updates } = await planCustomerBackfill(subdomain, models, {
-        formId,
-        fieldId: field._id,
-        targetType: field.type ?? '',
-        saveAsCustomer: !!form?.leadData?.saveAsCustomer,
-      });
-      for (let index = 0; index < updates.length; index += WRITE_CONCURRENCY) {
-        await Promise.allSettled(
-          updates
-            .slice(index, index + WRITE_CONCURRENCY)
-            .map(({ customerId, doc }) =>
-              sendTRPCMessage({
-                subdomain,
-                pluginName: 'core',
-                method: 'mutation',
-                module: 'customers',
-                action: 'updateCustomer',
-                input: { _id: customerId, doc },
-              }),
-            ),
-        );
-      }
+    const chunks = planCustomerBackfillChunks(subdomain, models, {
+      formId,
+      targets,
+      saveAsCustomer: !!form?.leadData?.saveAsCustomer,
+    });
+    let failed = 0;
+    for await (const chunk of chunks) {
+      failed += await writeChunk(subdomain, chunk.updates);
+    }
+    if (failed) {
+      console.error(
+        `Converted customer field backfill skipped ${failed} profiles on form ${formId}`,
+      );
     }
   } catch (error) {
     console.error('Failed to backfill converted customer fields:', error);
