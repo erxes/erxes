@@ -18,7 +18,8 @@ const tableVariants = cva(
         frame: 'rounded-lg p-1 overflow-hidden',
         // A printed sheet: white with black text, every head ruled, long text wrapping in the
         // cells, 10pt when printed with its head on each page (3.x's tunable report paper).
-        paper: 'table-paper bg-white text-black print:text-print',
+        paper:
+          'bg-white text-black print:text-print [&_th]:border-y [&_th]:border-r [&_th:first-child]:border-l [&_th]:bg-white [&_th]:text-black [&_th]:whitespace-normal [&_th]:wrap-anywhere [&_td]:h-auto [&_td]:bg-white [&_td]:px-2 [&_td]:py-1 [&_td]:whitespace-normal [&_td]:wrap-anywhere print:[&_thead]:table-header-group',
       },
     },
     defaultVariants: { variant: 'default' },

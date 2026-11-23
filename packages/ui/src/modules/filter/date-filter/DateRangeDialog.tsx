@@ -90,7 +90,7 @@ const DateRadioGroup = ({
             <div className={cn('grid gap-1', GRID_COLUMNS[items.length])}>
               {items.map((item) => (
                 <DateRadio key={item} id={id} value={`${year}-${item}`} current={value}>
-                  {item.split('-').join(' ')}
+                  {item.replaceAll('-', ' ')}
                 </DateRadio>
               ))}
             </div>

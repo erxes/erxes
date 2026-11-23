@@ -50,8 +50,14 @@ const YEAR_TOKEN = /^\d{4}-y$/;
 export const normalizeFixedDate = (value: string): string =>
   Object.hasOwn(RENAMED_FIXED_DATES, value) ? (RENAMED_FIXED_DATES[value] ?? value) : value;
 
-export const isFixedDate = (value: string): value is FixedDate =>
-  FIXED_DATES.some((date) => date === value);
+const FIXED_DATE_NAMES: readonly string[] = FIXED_DATES;
+
+export const isFixedDate = (value: string): value is FixedDate => FIXED_DATE_NAMES.includes(value);
+
+const MONTH_NAMES: readonly string[] = MONTHS;
+
+/** A month's index (Jan is 0), or -1 for none. */
+export const monthIndex = (name: string) => MONTH_NAMES.indexOf(name);
 
 export const isMonthToken = (value: string) => MONTHS.some((month) => value.includes(month));
 

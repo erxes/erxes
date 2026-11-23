@@ -135,7 +135,7 @@ export const displayNum = (value: number | string | null | undefined, p = 2) =>
   );
 
 /** One decimal, without a trailing ".0". */
-const shortAmount = (value: number) => value.toFixed(1).replace(/\.?0+$/, '');
+const shortAmount = (value: number) => value.toFixed(1).replace(/\.0$/, '');
 
 /**
  * An amount to read: 2 decimals, or with `short` "1.2k", "3m", "4b".

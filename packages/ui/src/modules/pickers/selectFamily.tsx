@@ -52,7 +52,11 @@ export interface PickerProps {
   disabled?: boolean;
 }
 
-export const idsOf = (value: PickerValue) => (Array.isArray(value) ? value : value ? [value] : []);
+export const idsOf = (value: PickerValue): string[] => {
+  if (Array.isArray(value)) return value;
+
+  return value ? [value] : [];
+};
 
 /** The value after a pick: one id toggles off, several toggle in or out. */
 const picked = (value: PickerValue, id: string, mode: PickerMode) => {
@@ -177,7 +181,7 @@ export const PickerListView = <T,>({
   onValueChange,
   mode = 'single',
   onPick,
-}: PickerProps & {
+}: Pick<PickerProps, 'value' | 'onValueChange' | 'mode'> & {
   look: PickerLook<T>;
   texts: PickerTexts;
   byId: Map<string, T>;

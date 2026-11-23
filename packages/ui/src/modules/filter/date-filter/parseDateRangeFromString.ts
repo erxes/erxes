@@ -2,7 +2,7 @@ import { endOfDay, startOfDay, subDays, subMonths } from 'date-fns';
 import {
   isMonthToken,
   isYearToken,
-  MONTHS,
+  monthIndex,
   normalizeFixedDate,
   parseHalfToken,
   parseQuarterToken,
@@ -66,11 +66,7 @@ export const parseDateRangeFromString = (
   if (isMonthToken(date)) {
     const [year = '', month = ''] = date.split('-');
 
-    return months(
-      Number.parseInt(year, 10),
-      MONTHS.findIndex((name) => name === month),
-      1,
-    );
+    return months(Number.parseInt(year, 10), monthIndex(month), 1);
   }
 
   const quarter = parseQuarterToken(date);

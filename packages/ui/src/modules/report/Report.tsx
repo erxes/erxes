@@ -18,7 +18,11 @@ export const ReportPageContainer = onDemand(
 // promise without suspending again, and the whole table appears at once.
 let partsModule: Promise<typeof PartsModule> | undefined;
 
-const useModule = () => use((partsModule ??= import('./ReportTableParts')));
+const useModule = () => {
+  partsModule ??= import('./ReportTableParts');
+
+  return use(partsModule);
+};
 
 const useParts = () => useModule().ReportTableParts;
 

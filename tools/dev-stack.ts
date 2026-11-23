@@ -196,7 +196,7 @@ const startServer = (name: string, server: Server) => {
 const startAll = async (servers: Record<string, Server>) => {
   for (const [name, server] of Object.entries(servers)) startServer(name, server);
 
-  for (const [name, server] of Object.entries(servers)) await waitFor(name, server);
+  await Promise.all(Object.entries(servers).map(([name, server]) => waitFor(name, server)));
 };
 
 /** The organisation and owner (migrating first) and the API's role; example data comes after. */
@@ -320,9 +320,9 @@ const up = async (dirs: string[]) => {
   const plugins = readPlugins(dirs, firstPluginPort);
 
   if (isUp()) {
-    const running = startedPlugins().map((plugin) => plugin.dir);
+    const running = new Set(startedPlugins().map((plugin) => plugin.dir));
 
-    if (plugins.some((plugin) => !running.includes(plugin.dir)))
+    if (plugins.some((plugin) => !running.has(plugin.dir)))
       throw new Error('Already up with other plugins: vp run dev:stack down first.');
 
     say('Already up.');

@@ -171,7 +171,7 @@ export const ReportPageContainer = ({
       <Separator />
       <ScrollArea className="flex-auto bg-sidebar">
         <div
-          className="report-sheet m-4 mx-auto max-w-5xl bg-background p-8 pl-15 text-(length:--report-font-size) shadow-sm print:shadow-none"
+          className="m-4 [&_td]:break-inside-avoid [&_tr]:break-inside-avoid mx-auto max-w-5xl bg-background p-8 pl-15 text-(length:--report-font-size) shadow-sm print:shadow-none"
           style={{ '--report-font-size': fontSizeOf(printsize) }}
         >
           {children}
