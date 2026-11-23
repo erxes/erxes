@@ -12,10 +12,8 @@ export interface ReplyState {
   superseded: boolean;
 }
 
-export type OnUiAction = (action: AssistantAction, label: string) => void;
-
 export interface ReplyActions {
-  onAction: OnUiAction;
+  onAction: (action: AssistantAction, label: string) => void;
   onAsk: (text: string) => void;
 }
 
