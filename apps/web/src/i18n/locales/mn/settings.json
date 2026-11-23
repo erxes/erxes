@@ -1439,6 +1439,11 @@
     "password-number": "Тоо нэмнэ үү",
     "password-lowercase": "Жижиг үсэг нэмнэ үү",
     "password-uppercase": "Том үсэг нэмнэ үү",
-    "password-mismatch": "Нууц үг таарахгүй байна"
+    "password-mismatch": "Нууц үг таарахгүй байна",
+    "all-team-members": "Бүх ажилтан",
+    "status-active": "Идэвхтэй",
+    "status-invited": "Урилга илгээсэн",
+    "status-disabled": "Идэвхгүй болгосон",
+    "signs-in": "Нэвтэрдэг"
   }
 }

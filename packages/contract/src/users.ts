@@ -225,6 +225,8 @@ export const usersContract = {
         /** `false`: only the members who don't sign in. */
         canSignIn: QueryBoolean.optional(),
         ids: IdList.optional(),
+        /** The team members list's filter bar: JSON of a condition group on `subject.<field>` paths (role, status, dates…). */
+        filter: z.string().max(20_000).optional(),
       }),
     )
     .output(cursorPageOf(User)),

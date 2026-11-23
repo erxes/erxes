@@ -1413,6 +1413,11 @@
     "password-number": "Add a number",
     "password-lowercase": "Add a lowercase letter",
     "password-uppercase": "Add an uppercase letter",
-    "password-mismatch": "The passwords do not match"
+    "password-mismatch": "The passwords do not match",
+    "all-team-members": "All team members",
+    "status-active": "Active",
+    "status-invited": "Invited",
+    "status-disabled": "Deactivated",
+    "signs-in": "Signs in"
   }
 }

@@ -19,6 +19,7 @@ import {
   otherActiveOwners,
   type UserRow,
 } from './userRows';
+import { compileUserFilter } from './userFilter';
 import { asPlugin } from './withoutSignIn.service';
 
 type Status = UserRow['status'];
@@ -45,6 +46,7 @@ export const listUsers = async (
     permission?: string;
     canSignIn?: boolean;
     ids?: string[];
+    filter?: string;
   },
 ) => {
   const filters: (SQL | undefined)[] = [];
@@ -76,6 +78,8 @@ export const listUsers = async (
   if (query.search) {
     filters.push(userSearch(query.search));
   }
+
+  filters.push(compileUserFilter(query.filter));
 
   return keysetPage(
     client,

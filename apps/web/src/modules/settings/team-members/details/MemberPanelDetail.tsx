@@ -6,11 +6,13 @@ import {
   IconId,
   IconMail,
   IconPhone,
+  IconShieldHalf,
   IconUser,
 } from '@tabler/icons-react';
 import { FullNameField, FullNameValue, ScrollArea, PanelField, PanelFieldTrigger } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { nameParts } from '../record/TeamMemberColumns';
+import { TeamMemberRoleSelect } from '../record/TeamMemberRoleSelect';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 import {
   MEMBER_PANEL_SCOPE,
@@ -114,7 +116,7 @@ const MemberContactFields = ({ user }: { user: User }) => {
   );
 };
 
-/** The overview tab: the member's own fields, each edited in place. */
+/** The overview tab: the member's role, then their own fields, each edited in place. */
 export const MemberPanelDetail = ({ user }: { user: User }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const edit = useTeamMemberEdit();
@@ -125,6 +127,9 @@ export const MemberPanelDetail = ({ user }: { user: User }) => {
   return (
     <ScrollArea className="flex-1 min-h-0" fitWidth>
       <div className="flex flex-col gap-2 p-3">
+        <PanelField icon={IconShieldHalf} label={t('role')}>
+          <TeamMemberRoleSelect panel user={user} />
+        </PanelField>
         <MemberContactFields user={user} />
         <PanelField icon={IconCalendar} label={t('birthday')}>
           <MemberDateField
