@@ -34,19 +34,19 @@ const REUSE_GRACE_SECONDS = 60;
 const secretAfter = (sessionId: string, secret: string) =>
   hmacSha256(coreKey('erxes-customer-refresh-v1'), `${sessionId}.${secret}`, 'base64url');
 
-/** Who a session signs in: the account, its website and its customer. */
+/** Who a session signs in: the account, its portal and its customer. */
 export interface CustomerSessionRef {
   orgId: string;
   customerId: string;
   accountId: string;
-  websiteId: string;
+  portalId: string;
   sessionId: string;
 }
 
 /** A 15-minute access token for core's `/customer/*` and every plugin's API. */
 const customerAccessToken = (ref: CustomerSessionRef) =>
   signJwt(
-    { org: ref.orgId, wid: ref.websiteId, sid: ref.sessionId },
+    { org: ref.orgId, pid: ref.portalId, sid: ref.sessionId },
     {
       typ: CUSTOMER_ACCESS_TYP,
       audience: CUSTOMER_AUDIENCE,
@@ -56,15 +56,15 @@ const customerAccessToken = (ref: CustomerSessionRef) =>
   );
 
 /**
- * A 5-minute access token for an agent talking to a website's customer: the website's plugin
+ * A 5-minute access token for an agent talking to a portal's customer: the portal's plugin
  * routes take it as the customer's own (`sid` names the agent, not a session).
  */
 export const agentCustomerToken = (
-  customer: Pick<CustomerSessionRef, 'orgId' | 'customerId' | 'websiteId'>,
+  customer: Pick<CustomerSessionRef, 'orgId' | 'customerId' | 'portalId'>,
   agentId: string,
 ) =>
   signJwt(
-    { org: customer.orgId, wid: customer.websiteId, sid: `agent:${agentId}` },
+    { org: customer.orgId, pid: customer.portalId, sid: `agent:${agentId}` },
     {
       typ: CUSTOMER_ACCESS_TYP,
       audience: CUSTOMER_AUDIENCE,
@@ -117,7 +117,7 @@ export const sessionOf = async (token: string | undefined) => {
         id: customerSessions.id,
         orgId: customerSessions.orgId,
         accountId: customerSessions.accountId,
-        websiteId: customerAccounts.websiteId,
+        portalId: customerAccounts.portalId,
         tokenHash: customerSessions.tokenHash,
         previousTokenHash: customerSessions.previousTokenHash,
       })
@@ -161,7 +161,7 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
       orgId: row.orgId,
       customerId: session.customerId,
       accountId: row.accountId,
-      websiteId: row.websiteId,
+      portalId: row.portalId,
       sessionId: row.id,
     };
 
@@ -221,7 +221,7 @@ export const revokeSessionToken = async (token: string) => {
 const AccessClaims = z.object({
   sub: z.string().min(1),
   org: z.string().min(1),
-  wid: z.string().min(1),
+  pid: z.string().min(1),
   sid: z.string().min(1),
 });
 
@@ -243,7 +243,7 @@ export const customerOfToken = async (token: string): Promise<CustomerSessionRef
         and(
           eq(customerSessions.id, claims.sid),
           eq(customerAccounts.customerId, claims.sub),
-          eq(customerAccounts.websiteId, claims.wid),
+          eq(customerAccounts.portalId, claims.pid),
           isNull(customerSessions.revokedAt),
           gt(customerSessions.expiresAt, sql`now()`),
         ),
@@ -256,7 +256,7 @@ export const customerOfToken = async (token: string): Promise<CustomerSessionRef
         orgId: claims.org,
         customerId: claims.sub,
         accountId: session.accountId,
-        websiteId: claims.wid,
+        portalId: claims.pid,
         sessionId: claims.sid,
       }
     : null;

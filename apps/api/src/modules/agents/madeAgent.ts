@@ -1,5 +1,5 @@
 import { defineExtension, GenerationTask, hook, section } from '@earendil-works/pi-durable';
-import { apiKeys, type Db, websites, withOrg } from '@erxes/core-db';
+import { apiKeys, type Db, portalPlugins, portals, withOrg } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
 import { modelKey } from '~/modules/assistant/connections.service';
@@ -7,19 +7,30 @@ import { installedPlugins } from '~/modules/assistant/plugins';
 import { modelsFor } from '~/modules/assistant/providers';
 import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { agentCustomerToken } from '~/modules/customerAuth/customerSessions';
+import { agentPortalToken } from '~/modules/portals/portalKeys';
 import { type Agent, answerText, madeAgentName } from './agent';
 import { agentOrThrow, chatOf, notifyRun } from './agents.service';
 import { runEntries, showTool, shownBlocks } from './blocks';
 
 const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. To show a product, a picture or a payment link, call show with what they gave you.`;
 
-const CUSTOMER_GUIDE = `You are talking with one customer of the website. Their own orders, bookings and profile are under the website and customer procedures (names with ":website:" or ":customer:"), which act as them. Never look up other customers' records.`;
+const CUSTOMER_GUIDE = `You are talking with one customer of the portal. Their own orders, bookings and profile are under the portal and customer procedures (names with ":portal:" or ":customer:"), which act as them. Never look up other customers' records.`;
 
-/** The website's plugin, or null once the website is gone. */
-const websiteOf = async (client: Db, id: string | null) => {
-  const [row] = id ? await client.select().from(websites).where(eq(websites.id, id)).limit(1) : [];
+/** The portal with its plugins, or null once the portal is gone. */
+const portalOf = async (client: Db, id: string | null) => {
+  const rows = id
+    ? await client
+        .select({ id: portals.id, plugin: portalPlugins.plugin })
+        .from(portals)
+        .leftJoin(portalPlugins, eq(portalPlugins.portalId, portals.id))
+        .where(eq(portals.id, id))
+    : [];
 
-  return row ?? null;
+  const [first] = rows;
+
+  return first
+    ? { id: first.id, plugins: rows.flatMap((row) => (row.plugin ? [row.plugin] : [])) }
+    : null;
 };
 
 /** The key's caller now, or null once the key, its maker or the maker's role is gone. */
@@ -32,7 +43,7 @@ const keyCallerOf = async (client: Db, keyId: string) => {
 
 /**
  * An agent an admin made. It calls the API by its key's rules, and when it serves customers and
- * the conversation is with one, also the plugins' website and customer routes as that customer.
+ * the conversation is with one, also the plugins' portal and customer routes as that customer.
  * A run's answer goes to the plugin that talks in the conversation as `core.agent.finished`.
  */
 export const madeAgent = (id: string): Agent => ({
@@ -48,8 +59,8 @@ export const madeAgent = (id: string): Agent => ({
       });
 
       const plugins = await installedPlugins(tx);
-      const website = await websiteOf(tx, row.websiteId);
-      const customerId = website ? chat?.customerId : null;
+      const portal = await portalOf(tx, row.portalId);
+      const customerId = portal ? chat?.customerId : null;
 
       const tools = apiTools({
         caller: () => withOrg(scope.orgId, (client) => keyCallerOf(client, row.keyId)),
@@ -57,12 +68,17 @@ export const madeAgent = (id: string): Agent => ({
         threadId: null,
         codeMode: false,
         plugins,
-        ...(website && customerId
+        ...(portal && customerId
           ? {
               customer: {
-                plugin: website.plugin,
-                token: () =>
-                  agentCustomerToken({ orgId: scope.orgId, customerId, websiteId: website.id }, id),
+                plugins: portal.plugins,
+                credentials: async () => ({
+                  authorization: `Bearer ${await agentCustomerToken(
+                    { orgId: scope.orgId, customerId, portalId: portal.id },
+                    id,
+                  )}`,
+                  'x-portal-token': await agentPortalToken(scope.orgId, portal.id, id),
+                }),
               },
             }
           : {}),

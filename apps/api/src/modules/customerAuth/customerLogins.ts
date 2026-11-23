@@ -1,5 +1,6 @@
 import {
   customerAccounts,
+  type CustomerLoginKind,
   customerLogins,
   customers,
   type Db,
@@ -10,12 +11,21 @@ import { and, eq, sql } from 'drizzle-orm';
 import { lockKeys } from '~/lib/locks';
 import type { Address } from './customerCodes';
 
-/** One sign-up per address and website at a time (advisory locks span organisations). */
-export const lockLogin = (tx: Db, websiteId: string, address: Address) =>
-  lockKeys(tx, [`customer-login:${requestOrgId()}:${websiteId}:${address.kind}:${address.value}`]);
+/** What a login signs in with: an address, or an account at Google, Apple or Facebook (its id). */
+export interface Login {
+  kind: CustomerLoginKind;
+  value: string;
+}
 
-/** The login an address is on a website, with its account. */
-export const findLogin = (tx: Db, websiteId: string, address: Address) =>
+const isAddress = (login: Login): login is Address =>
+  login.kind === 'email' || login.kind === 'phone';
+
+/** One sign-up per login and portal at a time (advisory locks span organisations). */
+export const lockLogin = (tx: Db, portalId: string, address: Login) =>
+  lockKeys(tx, [`customer-login:${requestOrgId()}:${portalId}:${address.kind}:${address.value}`]);
+
+/** The login on a portal, with its account. */
+export const findLogin = (tx: Db, portalId: string, address: Login) =>
   tx
     .select({
       id: customerLogins.id,
@@ -26,7 +36,7 @@ export const findLogin = (tx: Db, websiteId: string, address: Address) =>
     .innerJoin(customerAccounts, eq(customerAccounts.id, customerLogins.accountId))
     .where(
       and(
-        eq(customerLogins.websiteId, websiteId),
+        eq(customerLogins.portalId, portalId),
         eq(customerLogins.kind, address.kind),
         eq(customerLogins.value, address.value),
       ),
@@ -34,24 +44,28 @@ export const findLogin = (tx: Db, websiteId: string, address: Address) =>
     .limit(1)
     .then(([row]) => row);
 
-/** Adds a proven address as the account's login, and to its customer's emails or phones. */
+/**
+ * Adds a proven login to the account; an address goes to its customer's emails or phones too.
+ */
 export const addLogin = async (
   tx: Db,
-  account: { id: string; websiteId: string; customerId: string },
-  address: Address,
+  account: { id: string; portalId: string; customerId: string },
+  address: Login,
 ) => {
   const [row] = await tx
     .insert(customerLogins)
     .values({
       id: newId(),
       accountId: account.id,
-      websiteId: account.websiteId,
+      portalId: account.portalId,
       kind: address.kind,
       value: address.value,
     })
     .returning();
 
   if (!row) throw new Error('the login was not saved');
+
+  if (!isAddress(address)) return row;
 
   const list = address.kind === 'email' ? customers.emails : customers.phones;
   const primary = address.kind === 'email' ? customers.primaryEmail : customers.primaryPhone;

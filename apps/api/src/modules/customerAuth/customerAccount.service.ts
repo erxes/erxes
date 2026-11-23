@@ -4,9 +4,8 @@ import {
   customerLogins,
   customerSessions,
   type CustomValue,
-  type Db,
   requestOrgId,
-  websites,
+  portals,
   withOrg,
 } from '@erxes/core-db';
 import { and, asc, desc, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
@@ -16,11 +15,12 @@ import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
 import { findCustomer } from '~/modules/customers/customerRows';
 import { updateCustomer } from '~/modules/customers/customers.service';
-import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
+import { issueCode, proveCode } from './customerCodeReplies';
+import { type Address, addressOf } from './customerCodes';
 import { checkTheirFields, profileOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
 
-// The signed-in customer (`caller('customer')`): their profile, and their account on the website.
+// The signed-in customer (`caller('customer')`): their profile, and their account on the portal.
 
 export const myProfile = () =>
   withOrg(requestOrgId(), (tx) => profileOf(tx, caller('customer').customerId));
@@ -59,55 +59,52 @@ export const myLogins = () =>
     ),
   }));
 
-/** The website the signed-in account belongs to. */
-const myWebsite = async (tx: Db) => {
-  const [website] = await tx
-    .select({ id: websites.id, name: websites.name })
-    .from(websites)
-    .where(eq(websites.id, caller('customer').websiteId))
-    .limit(1);
+/** The portal the signed-in account belongs to, with how its codes go. */
+const myPortal = () =>
+  withOrg(requestOrgId(), async (tx) => {
+    const [portal] = await tx
+      .select()
+      .from(portals)
+      .where(eq(portals.id, caller('customer').portalId))
+      .limit(1);
 
-  if (!website) throw notFound('Website');
+    if (!portal) throw notFound('Portal');
 
-  return website;
-};
+    return portal;
+  });
 
 /**
  * Sends a code to a new address for the account. An address another account
  * signs in with gets no code, with the same answer, so nobody learns it is taken.
  */
-export const sendAddLoginCode = (input: Address) =>
-  withOrg(requestOrgId(), async (tx) => {
-    const address = addressOf(input);
-    const website = await myWebsite(tx);
-    const taken = Boolean(await findLogin(tx, website.id, address));
+export const sendAddLoginCode = async (input: Address) => {
+  const address = addressOf(input);
+  const portal = await myPortal();
+  const { ip } = requestInfo();
+  const { accountId } = caller('customer');
 
-    return sendCode(tx, website, address, 'add_login', {
-      accountId: caller('customer').accountId,
-      ip: requestInfo().ip,
-      deliver: !taken,
-    });
-  });
+  return issueCode(portal, address, 'add_login', async (tx) => ({
+    accountId,
+    ip,
+    deliver: !(await findLogin(tx, portal.id, address)),
+  }));
+};
 
 const loginTaken = () =>
   fail('TAKEN', 'Someone already signs in with this address', { field: 'value' });
 
 export const confirmAddLogin = async (input: Address & { code: string }) => {
-  const { accountId, websiteId, customerId } = caller('customer');
+  const { accountId, portalId, customerId } = caller('customer');
   const address = addressOf(input);
 
-  const valid = await withOrg(requestOrgId(), (tx) =>
-    useCode(tx, websiteId, address, 'add_login', input.code, accountId),
-  );
-
-  if (!valid) throw invalidCode();
+  await proveCode(await myPortal(), address, 'add_login', input.code, accountId);
 
   return withOrg(requestOrgId(), async (tx) => {
-    await lockLogin(tx, websiteId, address);
+    await lockLogin(tx, portalId, address);
 
-    if (await findLogin(tx, websiteId, address)) throw loginTaken();
+    if (await findLogin(tx, portalId, address)) throw loginTaken();
 
-    return addLogin(tx, { id: accountId, websiteId, customerId }, address);
+    return addLogin(tx, { id: accountId, portalId, customerId }, address);
   });
 };
 

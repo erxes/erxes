@@ -58,11 +58,11 @@ const TemplateCard = ({
 const AgentForm = ({
   template,
   plugin,
-  websiteId,
+  portalId,
 }: {
   template: Template;
   plugin: KeyPlugin | undefined;
-  websiteId: string | null;
+  portalId: string | null;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'agents' });
   const { toast } = useToast();
@@ -75,7 +75,7 @@ const AgentForm = ({
     instructions: template.instructions,
     provider: null,
     model: null,
-    websiteId,
+    portalId,
   });
 
   const [access, setAccess] = useState<KeyDraft>(() => ({
@@ -130,12 +130,14 @@ export const NewAgentPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'agents' });
   const { plugins, loading } = useKeyPlugins();
   const [picked, setPicked] = useState<Template | null>(null);
-  const websites = useQuery(orpc.websites.list.queryOptions());
+  const portals = useQuery(orpc.portals.list.queryOptions());
   const pluginOf = (template: Template) => plugins.find(({ name }) => name === template.plugin);
 
-  const websiteOf = (template: Template) =>
+  const portalOf = (template: Template) =>
     template.customers
-      ? (websites.data?.data.find((website) => website.plugin === template.plugin)?.id ?? null)
+      ? (portals.data?.data.find(
+          (portal) => template.plugin && portal.plugins.includes(template.plugin),
+        )?.id ?? null)
       : null;
 
   return (
@@ -152,7 +154,7 @@ export const NewAgentPage = () => {
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-3xl space-y-4 p-6">
-          {loading || websites.isPending ? (
+          {loading || portals.isPending ? (
             <Spinner className="mx-auto my-12" />
           ) : picked ? (
             <>
@@ -160,11 +162,7 @@ export const NewAgentPage = () => {
                 <IconArrowLeft />
                 {t('templates', 'Templates')}
               </Button>
-              <AgentForm
-                template={picked}
-                plugin={pluginOf(picked)}
-                websiteId={websiteOf(picked)}
-              />
+              <AgentForm template={picked} plugin={pluginOf(picked)} portalId={portalOf(picked)} />
             </>
           ) : (
             <>

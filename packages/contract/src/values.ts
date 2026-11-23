@@ -183,9 +183,9 @@ export const API_KEY_AREA_INFO = {
  * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes
  * (with a plugin session token), employees in the plugin's own app (with a token the plugin
  * issues when they sign in, like HR's mobile app), customers (with a customer token from
- * core) or a website's server (with a key the plugin issues).
+ * core) or a portal's server (with a portal token from core, for the portal's server key).
  */
-export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'website'] as const;
+export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'portal'] as const;
 
 export type PluginApiAudience = (typeof PLUGIN_API_AUDIENCES)[number];
 
@@ -199,7 +199,7 @@ export const EMPLOYEE_TOKEN_SCHEME = 'employeeToken';
 
 export const CUSTOMER_TOKEN_SCHEME = 'customerToken';
 
-export const WEBSITE_KEY_SCHEME = 'websiteKey';
+export const PORTAL_TOKEN_SCHEME = 'portalToken';
 
 /**
  * How an installation's granted scopes hold an approved read of another plugin's API

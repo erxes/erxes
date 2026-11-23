@@ -23,9 +23,9 @@ export const CustomerNotification = createSelectSchema(customerNotifications, {
   kind: true,
   title: true,
   body: true,
-  /** The website it is for; null: every website. */
-  websiteId: true,
-  /** A path on the website. */
+  /** The portal it is for; null: every portal. */
+  portalId: true,
+  /** A path on the portal. */
   link: true,
   data: true,
   entityType: true,
@@ -55,7 +55,7 @@ export const CustomerNotificationInput = createUpdateSchema(customerNotification
     kind: true,
     title: true,
     body: true,
-    /** A path on `websiteId`'s website; emails link to it there. */
+    /** A path on `portalId`'s portal; emails link to it there. */
     link: true,
     data: true,
     /** Retry-safe: one notification per customer and key. */
@@ -66,13 +66,13 @@ export const CustomerNotificationInput = createUpdateSchema(customerNotification
   .required({ kind: true, title: true })
   .extend({
     /**
-     * One of the plugin's websites: the notification shows there only, `everyone` is its
-     * accounts, and emails link into it. Without one it shows on every website.
+     * One of the plugin's portals: the notification shows there only, `everyone` is its
+     * accounts, and emails link into it. Without one it shows on every portal.
      */
-    websiteId: Id.optional(),
+    portalId: Id.optional(),
     /** The customers to notify. */
     customerIds: z.array(Id).min(1).max(500).optional(),
-    /** Every customer with an account on the website (or on any website); inbox only. */
+    /** Every customer with an account on the portal (or on any portal); inbox only. */
     everyone: z.literal(true).optional(),
     /** Also by email or SMS, to the customer's primary address, when they have one. */
     channels: z.array(CustomerNotificationChannel).max(2).default([]),
@@ -90,15 +90,15 @@ export const CustomerNotificationInput = createUpdateSchema(customerNotification
     'entityType and entityId go together',
   )
   .refine(
-    (value) => value.link === undefined || value.websiteId !== undefined,
-    'a link is a path on a website: name websiteId',
+    (value) => value.link === undefined || value.portalId !== undefined,
+    'a link is a path on a portal: name portalId',
   );
 
 export type CustomerNotificationInput = z.infer<typeof CustomerNotificationInput>;
 
-const { INVALID_RECIPIENT, INVALID_TYPE, UNKNOWN_WEBSITE } = ERRORS;
+const { INVALID_RECIPIENT, INVALID_TYPE, UNKNOWN_PORTAL } = ERRORS;
 
-const base = oc.errors({ ...COMMON_ERRORS, INVALID_RECIPIENT, INVALID_TYPE, UNKNOWN_WEBSITE });
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_RECIPIENT, INVALID_TYPE, UNKNOWN_PORTAL });
 
 /** Plugins notify customers; the customer reads them in the plugin's app (decision 45). */
 export const customerNotificationsContract = {

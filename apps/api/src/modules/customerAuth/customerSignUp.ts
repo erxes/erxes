@@ -6,16 +6,17 @@ import { findCustomer } from '~/modules/customers/customerRows';
 import { updateCustomer } from '~/modules/customers/customers.service';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { accountOf, openSession, type SignInRequest } from './customerAuth.service';
-import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
+import { issueCode, proveCode } from './customerCodeReplies';
+import { type Address, addressOf, invalidCode } from './customerCodes';
 import { checkSignUp, customerFieldsOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
-import { websiteFor } from './customerWebsites';
+import { portalFor } from './customerPortals';
 
-/** The fields the website's organisation lets customers fill in, for its forms. */
-export const signUpFields = async (input: { website: string }, request: SignInRequest) => {
-  const website = await websiteFor(input.website, request.origin);
+/** The fields the portal's organisation lets customers fill in, for its forms. */
+export const signUpFields = async (input: { portal: string }, request: SignInRequest) => {
+  const portal = await portalFor(input.portal, request.origin);
 
-  return withOrg(website.orgId, async (tx) => ({ data: await customerFieldsOf(tx) }));
+  return withOrg(portal.orgId, async (tx) => ({ data: await customerFieldsOf(tx) }));
 };
 
 /**
@@ -23,21 +24,18 @@ export const signUpFields = async (input: { website: string }, request: SignInRe
  * address that already has an account gets a code too, the same answer: confirming signs it in.
  */
 export const sendSignUpCode = async (
-  input: Address & CustomerSignUpData & { website: string },
+  input: Address & CustomerSignUpData & { portal: string },
   request: SignInRequest,
 ) => {
-  const website = await websiteFor(input.website, request.origin);
+  const portal = await portalFor(input.portal, request.origin);
+  const signUp = await withOrg(portal.orgId, (tx) => checkSignUp(tx, input));
+  const { ip } = requestInfo();
 
-  return withOrg(website.orgId, async (tx) =>
-    sendCode(tx, website, addressOf(input), 'sign_up', {
-      signUp: await checkSignUp(tx, input),
-      ip: requestInfo().ip,
-    }),
-  );
+  return issueCode(portal, addressOf(input), 'sign_up', async () => ({ signUp, ip }));
 };
 
 /** What the form adds to a customer erxes already had: only what is still empty, staff's data kept. */
-const fillEmpty = async (tx: Db, customerId: string, form: CustomerSignUpData) => {
+export const fillEmpty = async (tx: Db, customerId: string, form: CustomerSignUpData) => {
   const current = await findCustomer(tx, customerId);
 
   const customFields: Record<string, CustomValue> = Object.fromEntries(
@@ -56,29 +54,26 @@ const fillEmpty = async (tx: Db, customerId: string, form: CustomerSignUpData) =
 
 /**
  * Confirms a sign-up with its code: the customer (found by the address, else new), their account
- * on the website, its first login and a session. An address that already had an account signs in.
+ * on the portal, its first login and a session. An address that already had an account signs in.
  */
 export const confirmSignUp = async (
-  input: Address & { website: string; code: string },
+  input: Address & { portal: string; code: string },
   request: SignInRequest,
 ) => {
-  const website = await websiteFor(input.website, request.origin);
+  const portal = await portalFor(input.portal, request.origin);
   const address = addressOf(input);
 
-  // Its own transaction: a wrong try counts even though this call fails.
-  const used = await withOrg(website.orgId, (tx) =>
-    useCode(tx, website.id, address, 'sign_up', input.code),
-  );
+  const used = await proveCode(portal, address, 'sign_up', input.code);
 
-  if (!used?.signUp) throw invalidCode();
+  if (!used.signUp) throw invalidCode();
 
   const form = used.signUp;
 
-  return withOrg(website.orgId, (tx) =>
+  return withOrg(portal.orgId, (tx) =>
     runAs(system('customer sign-up'), async () => {
-      await lockLogin(tx, website.id, address);
+      await lockLogin(tx, portal.id, address);
 
-      const login = await findLogin(tx, website.id, address);
+      const login = await findLogin(tx, portal.id, address);
 
       if (login) {
         await tx
@@ -86,7 +81,7 @@ export const confirmSignUp = async (
           .set({ lastUsedAt: sql`now()` })
           .where(eq(customerLogins.id, login.id));
 
-        return openSession(tx, website, address, {
+        return openSession(tx, portal, address.kind, {
           accountId: login.accountId,
           customerId: login.customerId,
           signedUp: false,
@@ -103,11 +98,11 @@ export const confirmSignUp = async (
 
       await fillEmpty(tx, customer.id, form);
 
-      const account = await accountOf(tx, website.id, customer.id);
+      const account = await accountOf(tx, portal.id, customer.id);
 
       const saved = await addLogin(
         tx,
-        { id: account.id, websiteId: website.id, customerId: customer.id },
+        { id: account.id, portalId: portal.id, customerId: customer.id },
         address,
       );
 
@@ -116,7 +111,7 @@ export const confirmSignUp = async (
         .set({ lastUsedAt: sql`now()` })
         .where(eq(customerLogins.id, saved.id));
 
-      return openSession(tx, website, address, {
+      return openSession(tx, portal, address.kind, {
         accountId: account.id,
         customerId: customer.id,
         signedUp: account.signedUp,

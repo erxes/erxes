@@ -17,13 +17,21 @@ import {
   signOut,
   type SignInRequest,
 } from './customerAuth.service';
+import { signInMethods } from './customerMethods';
 import { confirmSignUp, sendSignUpCode, signUpFields } from './customerSignUp';
+import { signInWithSocial } from './customerSocial';
 
 const signInRequest = (context: CoreContext): SignInRequest => ({
   origin: httpOf(context).req.get('origin'),
 });
 
 export const customerAuthRouter = {
+  methods: unscoped.customerAuth.methods.handler(({ input, context }) =>
+    signInMethods(input, signInRequest(context)),
+  ),
+  social: unscoped.customerAuth.social.handler(({ input, context }) =>
+    signInWithSocial(input, signInRequest(context)),
+  ),
   fields: unscoped.customerAuth.fields.handler(({ input, context }) =>
     signUpFields(input, signInRequest(context)),
   ),

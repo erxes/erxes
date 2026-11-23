@@ -1526,6 +1526,26 @@
     }
   },
   "customerAuth": {
+    "methods": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customer-auth/methods"
+        }
+      }
+    },
+    "social": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/customer-auth/social"
+        }
+      }
+    },
     "fields": {
       "~orpc": {
         "errorMap": {},
@@ -3869,24 +3889,44 @@
       }
     }
   },
-  "websites": {
+  "portals": {
     "list": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/websites"
+          "path": "/portals"
         }
       }
     },
-    "save": {
+    "get": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
-          "method": "PUT",
-          "path": "/websites/{recordId}"
+          "method": "GET",
+          "path": "/portals/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portals"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/portals/{id}"
         }
       }
     },
@@ -3896,7 +3936,79 @@
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/websites/{recordId}"
+          "path": "/portals/{id}"
+        }
+      }
+    },
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/portals/records/{recordId}"
+        }
+      }
+    },
+    "attach": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/portals/{id}/plugins/{recordId}"
+        }
+      }
+    },
+    "detach": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/portals/records/{recordId}"
+        }
+      }
+    },
+    "keys": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/portals/{id}/keys"
+        }
+      }
+    },
+    "createKey": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portals/{id}/keys"
+        }
+      }
+    },
+    "removeKey": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/portals/{id}/keys/{keyId}"
+        }
+      }
+    }
+  },
+  "portalAuth": {
+    "token": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal-auth/token"
         }
       }
     }

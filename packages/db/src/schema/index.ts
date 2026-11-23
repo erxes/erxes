@@ -54,7 +54,7 @@ export * from './products';
 
 export * from './customerAuth';
 
-export * from './websites';
+export * from './portals';
 
 export * from './customerNotifications';
 

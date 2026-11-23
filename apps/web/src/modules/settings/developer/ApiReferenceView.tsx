@@ -51,7 +51,7 @@ export type ReferenceSource =
 const locate = (source: ReferenceSource) =>
   'plugin' in source
     ? // A plugin's document names its own server (`pluginOpenApi`'s `server`): routes for a
-      // website or customers may sit outside `api.url`.
+      // portal or customers may sit outside `api.url`.
       { url: `${source.apiUrl}${source.path}`, server: null }
     : {
         url: `${CORE_API_PREFIX}/openapi/${source.audience}.json`,
@@ -110,7 +110,7 @@ const Reference = ({ create, source }: { create: CreateApiReference; source: Ref
   const theme = useAppliedTheme();
   const { url, server } = locate(source);
 
-  // Only a member document signs in as the member; customers and websites bring their own.
+  // Only a member document signs in as the member; customers and portals bring their own.
   const token = useSessionToken(
     'plugin' in source && source.audience === 'member' ? source.plugin : null,
   );

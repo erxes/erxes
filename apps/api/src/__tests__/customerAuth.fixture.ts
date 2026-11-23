@@ -10,10 +10,10 @@ import { adminDb } from './db';
 import { settle } from './settle';
 import { type CoreClient, useTwoOrgs } from './support';
 
-/** The test plugin's websites: two of Acme's stores and Globex's one. */
+/** The test plugin's portals: two of Acme's stores and Globex's one. */
 type Site = 'acme' | 'outlet' | 'globex';
 
-/** Where a website's pages run. */
+/** Where a portal's pages run. */
 export const siteOrigin = (site: Site = 'acme') => `https://${site}.shop.example.com`;
 
 let ipCount = 0;
@@ -41,15 +41,15 @@ export const lastCode = async (to: string) => {
 };
 
 /**
- * Acme and Globex (`useTwoOrgs`), where the test plugin `hr` keeps websites
- * (Acme's shop and outlet, Globex's shop), and a website as a browser would call core.
+ * Acme and Globex (`useTwoOrgs`), where the test plugin `hr` keeps portals
+ * (Acme's shop and outlet, Globex's shop), and a portal as a browser would call core.
  */
 export const useCustomers = () => {
   const t = useTwoOrgs();
   const sites: Record<Site, string> = { acme: '', outlet: '', globex: '' };
 
   /**
-   * A website in one browser: its own network address (rate limits are per
+   * A portal in one browser: its own network address (rate limits are per
    * address), its page's origin (`null`: a mobile app sends none) and, once
    * signed in, the customer's access token.
    */
@@ -69,26 +69,26 @@ export const useCustomers = () => {
       }),
     );
 
-    /** Signs in to the website's account of the address, with a code sent to it. */
+    /** Signs in to the portal's account of the address, with a code sent to it. */
     const signIn = async (value: string, kind: 'email' | 'phone' = 'email') => {
-      await api.customerAuth.sendCode({ website: sites[site], kind, value });
+      await api.customerAuth.sendCode({ portal: sites[site], kind, value });
 
       return api.customerAuth.signIn({
-        website: sites[site],
+        portal: sites[site],
         kind,
         value,
         code: await lastCode(value),
       });
     };
 
-    /** Signs up on the website (an address with an account there signs in) and confirms the code. */
+    /** Signs up on the portal (an address with an account there signs in) and confirms the code. */
     const join = async (
       value: string,
       kind: 'email' | 'phone' = 'email',
       form: { firstName?: string; customFields?: Record<string, string> } = {},
     ) => {
       await api.customerAuth.signUp({
-        website: sites[site],
+        portal: sites[site],
         kind,
         value,
         firstName: form.firstName ?? 'Test',
@@ -96,7 +96,7 @@ export const useCustomers = () => {
       });
 
       return api.customerAuth.confirmSignUp({
-        website: sites[site],
+        portal: sites[site],
         kind,
         value,
         code: await lastCode(value),
@@ -106,7 +106,7 @@ export const useCustomers = () => {
     return { api, signIn, join };
   };
 
-  /** Signs up on (or in to) a website; `me` is its `/customer/*` client. */
+  /** Signs up on (or in to) a portal; `me` is its `/customer/*` client. */
   const signedIn = async (value: string, site: Site = 'acme') => {
     const result = await app({ site }).join(value);
 
@@ -117,14 +117,14 @@ export const useCustomers = () => {
     await t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'Shop',
       version: '1',
-      scopes: ['websites:write', 'notifications:write'],
+      scopes: ['portals:write', 'notifications:write'],
     });
 
     const save = (org: string, recordId: string, site: Site) =>
       t
         .hr(org)
-        .websites.save({ recordId, name: `${site} shop`, origins: [siteOrigin(site)] })
-        .then((website) => website.id);
+        .portals.save({ recordId, name: `${site} shop`, origins: [siteOrigin(site)] })
+        .then((portal) => portal.id);
 
     sites.acme = await save(t.ids.org, 'store-1', 'acme');
     sites.outlet = await save(t.ids.org, 'store-2', 'outlet');

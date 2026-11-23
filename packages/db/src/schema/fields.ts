@@ -106,7 +106,7 @@ export const fields = pgTable(
     /** Asked for on the form that makes a record, not only on the record once made. */
     isVisibleToCreate: boolean().default(true).notNull(),
     /**
-     * Customers fill it in themselves on websites: at sign-up (where required, they must) and on
+     * Customers fill it in themselves on portals: at sign-up (where required, they must) and on
      * their profile (decision 42). Customer fields only.
      */
     customerEditable: boolean().default(false).notNull(),

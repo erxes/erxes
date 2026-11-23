@@ -61,6 +61,16 @@ export {
 } from './integrations/http';
 
 export {
+  type PhoneReply,
+  type PhoneReplySession,
+  type SocialIdentity,
+  type SocialSignIn,
+  SocialTokenError,
+  isTrue,
+  verifyIdToken,
+} from './integrations/signIn';
+
+export {
   type ClientOptions,
   type CreatedInvoice,
   type CreateInvoiceInput,

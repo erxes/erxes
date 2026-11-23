@@ -5,7 +5,7 @@ import { orgIdColumn, pgTable } from '../table';
 import { createdAt } from './common';
 import { customers } from './customers';
 import { organizations } from './organizations';
-import { websites } from './websites';
+import { portals } from './portals';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -13,7 +13,7 @@ export type CustomerNotificationChannel = (typeof CUSTOMER_NOTIFICATION_CHANNELS
 
 /**
  * A customer's inbox (decision 45): what plugins tell a signed-in customer,
- * read on the plugin's website through `/customer/notifications`. One
+ * read on the plugin's portal through `/customer/notifications`. One
  * row per customer; `channels` are where else it went (email, SMS).
  */
 export const customerNotifications = pgTable(
@@ -22,15 +22,15 @@ export const customerNotifications = pgTable(
     id: text().primaryKey(),
     orgId: orgIdColumn(),
     customerId: text().notNull(),
-    /** The website it is for, shown there only; null: every website the customer signs in to. */
-    websiteId: text(),
+    /** The portal it is for, shown there only; null: every portal the customer signs in to. */
+    portalId: text(),
     /** The plugin that sent it. */
     source: text().notNull(),
     /** Namespaced by the plugin: `content.post.published`. */
     kind: text().notNull(),
     title: text().notNull(),
     body: text(),
-    /** A path on the website, such as `/posts/abc`. */
+    /** A path on the portal, such as `/posts/abc`. */
     link: text(),
     entityType: text(),
     entityId: text(),
@@ -70,9 +70,9 @@ export const customerNotifications = pgTable(
       name: 'core_customer_notifications_customer_id_fkey',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [table.websiteId],
-      foreignColumns: [websites.id],
-      name: 'core_customer_notifications_website_id_fkey',
+      columns: [table.portalId],
+      foreignColumns: [portals.id],
+      name: 'core_customer_notifications_portal_id_fkey',
     }).onDelete('cascade'),
   ],
 );

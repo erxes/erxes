@@ -229,7 +229,7 @@ export const emailJob = defineJob({
         to: payload.to,
         cc: payload.template === 'message' ? payload.cc : undefined,
         replyTo: sent?.replyTo,
-        fromName: sent?.fromName,
+        fromName: 'fromName' in payload ? payload.fromName : undefined,
         attachments: rendered ? payload.attachments : undefined,
         files: rendered ? await readAttachments(job.orgId, payload.fileIds ?? []) : undefined,
         deliveryId: payload.deliveryId,

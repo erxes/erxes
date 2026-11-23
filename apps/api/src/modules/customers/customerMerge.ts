@@ -36,12 +36,12 @@ const MERGE_FILLED = [
 
 /**
  * Accounts move to the kept customer. Where the kept customer already has an
- * account on the same website, the other account's logins and sessions join
+ * account on the same portal, the other account's logins and sessions join
  * it and the other account goes.
  */
 const moveAccounts = async (tx: Db, otherIds: string[], keepId: string) => {
   const others = await tx
-    .select({ id: customerAccounts.id, websiteId: customerAccounts.websiteId })
+    .select({ id: customerAccounts.id, portalId: customerAccounts.portalId })
     .from(customerAccounts)
     .where(inArray(customerAccounts.customerId, otherIds))
     .orderBy(asc(customerAccounts.createdAt), asc(customerAccounts.id));
@@ -51,10 +51,7 @@ const moveAccounts = async (tx: Db, otherIds: string[], keepId: string) => {
       .select({ id: customerAccounts.id })
       .from(customerAccounts)
       .where(
-        and(
-          eq(customerAccounts.websiteId, other.websiteId),
-          eq(customerAccounts.customerId, keepId),
-        ),
+        and(eq(customerAccounts.portalId, other.portalId), eq(customerAccounts.customerId, keepId)),
       )
       .limit(1);
 

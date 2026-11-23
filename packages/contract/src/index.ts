@@ -14,7 +14,8 @@ import { eventsContract } from './events';
 import { exchangeRatesContract } from './exchangeRates';
 import { customersContract } from './customers';
 import { favoritesContract } from './favorites';
-import { customerAccountContract, customerAuthContract } from './customerAuth';
+import { customerAccountContract } from './customerAccount';
+import { customerAuthContract } from './customerAuth';
 import { customerNotificationsContract } from './customerNotifications';
 import { fieldGroupsContract } from './fieldGroups';
 import { fieldsContract } from './fields';
@@ -36,7 +37,7 @@ import { trashContract } from './trash';
 import { unitTypesContract, unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
-import { customerAccountsContract, websitesContract } from './websites';
+import { customerAccountsContract, portalAuthContract, portalsContract } from './portals';
 import { saasContract } from './saas';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
@@ -89,7 +90,8 @@ export type CoreContract = {
   users: typeof usersContract;
   views: typeof viewsContract;
   webhooks: typeof webhooksContract;
-  websites: typeof websitesContract;
+  portals: typeof portalsContract;
+  portalAuth: typeof portalAuthContract;
   customerAccounts: typeof customerAccountsContract;
 };
 
@@ -140,7 +142,8 @@ export const coreContract: CoreContract = {
   users: usersContract,
   views: viewsContract,
   webhooks: webhooksContract,
-  websites: websitesContract,
+  portals: portalsContract,
+  portalAuth: portalAuthContract,
   customerAccounts: customerAccountsContract,
 };
 
@@ -185,6 +188,8 @@ export * from './errors';
 export * from './companies';
 
 export * from './customers';
+
+export * from './customerAccount';
 
 export * from './customerAuth';
 
@@ -288,7 +293,7 @@ export * from './views';
 
 export * from './webhooks';
 
-export * from './websites';
+export * from './portals';
 
 export * from './apiKeys';
 

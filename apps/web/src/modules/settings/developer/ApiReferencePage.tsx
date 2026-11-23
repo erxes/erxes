@@ -26,14 +26,14 @@ const useAudienceLabels = (): Record<PluginApiAudience, string> => {
     member: t('member', 'Team member API'),
     customer: t('customer', 'Customer API'),
     employee: t('employee', 'Employee API'),
-    website: t('website', 'Website API'),
+    portal: t('portal', 'Portal API'),
   };
 };
 
 /**
  * Settings › API reference: every endpoint a team member or a customer can call, from
  * core's OpenAPI documents, and each installed plugin's own (for its members, customers or
- * websites), with a client to try them. The address names the one shown:
+ * portals), with a client to try them. The address names the one shown:
  * `/settings/api-reference/<member|customer>` or `/settings/api-reference/<plugin>/<audience>`.
  */
 export const ApiReferencePage = () => {

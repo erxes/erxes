@@ -21,7 +21,7 @@ import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
-import { websiteServes } from '~/modules/customerAuth/customerWebsites';
+import { portalServes } from '~/modules/customerAuth/customerPortals';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
 declare global {
@@ -117,11 +117,11 @@ interface Resolved {
   orgId: string | null;
 }
 
-/** A signed-in customer: their own routes only, on a website that still signs customers in. */
+/** A signed-in customer: their own routes only, on a portal that still signs customers in. */
 const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> => {
   const customer = bearer ? await customerOfToken(bearer) : null;
 
-  if (!customer || !(await websiteServes(customer.websiteId, req.get('origin')))) {
+  if (!customer || !(await portalServes(customer.portalId, req.get('origin')))) {
     throw unauthorized();
   }
 

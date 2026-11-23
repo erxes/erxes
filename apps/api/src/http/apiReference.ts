@@ -58,7 +58,7 @@ const INTROS: Record<ApiAudience, Pick<OpenAPI.Document, 'info' | 'components' |
       title: 'erxes customer API',
       version: 'v1',
       description:
-        'What a customer can call from a website or its app: sign in to the website (its id from the plugin) with a code sent by email or SMS, then use the access token from `POST /customer-auth/sign-in` as `Authorization: Bearer`.',
+        'What a customer can call from a portal or its app: sign in to the portal (its id from the plugin) with a code sent by email or SMS, then use the access token from `POST /customer-auth/sign-in` as `Authorization: Bearer`.',
     },
     components: {
       securitySchemes: {

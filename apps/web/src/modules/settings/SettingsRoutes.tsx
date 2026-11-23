@@ -70,10 +70,12 @@ const IntegrationsSettingsPage = lazyNamed(
   'IntegrationsSettingsPage',
 );
 
-const WebsitesSettingsPage = lazyNamed(
-  () => import('./websites/WebsitesSettingsPage'),
-  'WebsitesSettingsPage',
+const PortalsSettingsPage = lazyNamed(
+  () => import('./portals/PortalsSettingsPage'),
+  'PortalsSettingsPage',
 );
+
+const PortalPage = lazyNamed(() => import('./portals/PortalPage'), 'PortalPage');
 
 const EmailSettingsPage = lazyNamed(() => import('./email/EmailSettingsPage'), 'EmailSettingsPage');
 
@@ -110,7 +112,8 @@ export const SettingsRoutes = () => (
       <Route path="structure" element={<StructurePage />} />
       <Route path="exchange-rates" element={<ExchangeRatesPage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
-      <Route path="websites" element={<WebsitesSettingsPage />} />
+      <Route path="portals" element={<PortalsSettingsPage />} />
+      <Route path="portals/:id" element={<PortalPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="email" element={<EmailSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />

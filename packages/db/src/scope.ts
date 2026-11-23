@@ -45,9 +45,9 @@ export type Caller =
       type: 'customer';
       customerId: string;
       sessionId: string;
-      /** The account signed in, on the website it belongs to. */
+      /** The account signed in, on the portal it belongs to. */
       accountId: string;
-      websiteId: string;
+      portalId: string;
     }
   | { type: 'system'; reason: string };
 

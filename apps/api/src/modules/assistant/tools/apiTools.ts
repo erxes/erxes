@@ -24,10 +24,10 @@ export interface ToolScope {
   codeMode: boolean;
   plugins: InstalledPlugin[];
   /**
-   * An agent talking to a customer of one plugin's website: that plugin's website and customer
-   * routes run as them, on that website.
+   * An agent talking to a customer of a portal: the portal and customer routes of the plugins
+   * on it run as them, with the headers `credentials` gives (their token and a portal token).
    */
-  customer?: { plugin: string; token: () => Promise<string> };
+  customer?: { plugins: string[]; credentials: () => Promise<Record<string, string>> };
 }
 
 export const SEARCH_LIMIT = 8;
@@ -82,14 +82,14 @@ type Entry = ApiProcedure | PluginProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
 
-/** The website's and customer routes of the plugin whose website the customer is on. */
+/** The portal and customer routes of the plugins on the customer's portal. */
 const customerProcedures = async ({ customer, plugins }: ToolScope) => {
-  const owner = plugins.filter((plugin) => plugin.name === customer?.plugin);
+  const onPortal = plugins.filter((plugin) => customer?.plugins.includes(plugin.name));
 
-  return owner.length
+  return onPortal.length
     ? [
-        ...(await pluginProcedures(owner, 'website')),
-        ...(await pluginProcedures(owner, 'customer')),
+        ...(await pluginProcedures(onPortal, 'portal')),
+        ...(await pluginProcedures(onPortal, 'customer')),
       ]
     : [];
 };
@@ -202,7 +202,7 @@ export const callProcedure = async (
     if (!isPluginEntry(entry)) return runCore(scope, name, input);
 
     if (entry.audience !== 'member' && customer) {
-      return callPluginRoute(entry, input, customer.token);
+      return callPluginRoute(entry, input, customer.credentials);
     }
 
     return callPluginProcedure(scope.orgId, entry, input);

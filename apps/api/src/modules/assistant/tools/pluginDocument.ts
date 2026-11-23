@@ -64,7 +64,7 @@ const ObjectSchema = z.looseObject({
   required: z.array(z.string()).default([]),
 });
 
-/** Whose routes: the plugin's members', or a website's and a signed-in customer's. */
+/** Whose routes: the plugin's members', or a portal's and a signed-in customer's. */
 export type PluginAudience = Exclude<PluginApiAudience, 'employee'>;
 
 export interface PluginProcedure extends ApiProcedure {

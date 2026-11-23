@@ -237,8 +237,20 @@ export const LANGUAGES = ['en', 'mn'] as const;
 /** How a member gets one kind of notification. */
 export const NOTIFICATION_DELIVERIES = ['email', 'inbox', 'off'] as const;
 
-/** How a customer signs in: a code sent to an email address or a phone. */
-export const CUSTOMER_LOGIN_KINDS = ['email', 'phone'] as const;
+/** Where a customer proves they are themselves with a one-time code: an email address or a phone. */
+export const CUSTOMER_ADDRESS_KINDS = ['email', 'phone'] as const;
+
+/** Accounts at other services a customer signs in with, by a token from the service's own SDK. */
+export const CUSTOMER_SOCIAL_PROVIDERS = ['google', 'apple', 'facebook'] as const;
+
+/** How a portal's customers sign in with a phone: not at all, a code texted to them, or one they text. */
+export const PORTAL_PHONE_SIGN_IN = ['off', 'code', 'reply'] as const;
+
+/** How a customer signs in: a code to an address, or an account at Google, Apple or Facebook. */
+export const CUSTOMER_LOGIN_KINDS = [
+  ...CUSTOMER_ADDRESS_KINDS,
+  ...CUSTOMER_SOCIAL_PROVIDERS,
+] as const;
 
 /** Where a customer notification also goes besides the customer's inbox. */
 export const CUSTOMER_NOTIFICATION_CHANNELS = ['email', 'sms'] as const;
@@ -312,7 +324,7 @@ export const PLUGIN_SCOPES = [
   'users:read',
   'users:write',
   'views:read',
-  'websites:write',
+  'portals:write',
 ] as const;
 
 /** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */

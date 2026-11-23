@@ -7,7 +7,7 @@ import { PROVIDER_LABELS } from '~/modules/assistant/providers';
 
 const DEFAULT = 'default';
 
-const NO_WEBSITE = 'none';
+const NO_PORTAL = 'none';
 
 /** The organisation's default model, or one model of a provider with a saved key. */
 const ModelSelect = ({
@@ -60,8 +60,8 @@ const ModelSelect = ({
   );
 };
 
-/** No website, or the website whose customers it serves: a plugin's store, hotel or tour site. */
-const WebsiteSelect = ({
+/** No portal, or the portal whose customers it serves: a plugin's store, hotel or tour site. */
+const PortalSelect = ({
   draft,
   onChange,
 }: {
@@ -69,26 +69,26 @@ const WebsiteSelect = ({
   onChange: (draft: AgentSettings) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'agents' });
-  const websites = useQuery(orpc.websites.list.queryOptions());
-  const list = websites.data?.data ?? [];
+  const portals = useQuery(orpc.portals.list.queryOptions());
+  const list = portals.data?.data ?? [];
 
   return (
     <Select
-      value={draft.websiteId ?? NO_WEBSITE}
-      onValueChange={(next) => onChange({ ...draft, websiteId: next === NO_WEBSITE ? null : next })}
+      value={draft.portalId ?? NO_PORTAL}
+      onValueChange={(next) => onChange({ ...draft, portalId: next === NO_PORTAL ? null : next })}
     >
-      <Select.Trigger aria-label={t('website', 'Website')}>
+      <Select.Trigger aria-label={t('portal', 'Portal')}>
         <Select.Value />
       </Select.Trigger>
       <Select.Content>
-        <Select.Item value={NO_WEBSITE}>{t('website-none', 'No website')}</Select.Item>
-        {list.map((website) => (
-          <Select.Item key={website.id} value={website.id}>
-            {website.name} · {website.plugin}
+        <Select.Item value={NO_PORTAL}>{t('portal-none', 'No portal')}</Select.Item>
+        {list.map((portal) => (
+          <Select.Item key={portal.id} value={portal.id}>
+            {portal.name}
           </Select.Item>
         ))}
-        {draft.websiteId && !list.some((website) => website.id === draft.websiteId) && (
-          <Select.Item value={draft.websiteId}>{draft.websiteId}</Select.Item>
+        {draft.portalId && !list.some((portal) => portal.id === draft.portalId) && (
+          <Select.Item value={draft.portalId}>{draft.portalId}</Select.Item>
         )}
       </Select.Content>
     </Select>
@@ -140,10 +140,10 @@ export const AgentFields = ({
         title={t('customers', 'Customers')}
         description={t(
           'customers-help',
-          "With a website, it acts for the customer a plugin says it talks to: it sees and makes that customer's own orders and bookings on that website. Never anyone else's.",
+          "With a portal, it acts for the customer a plugin says it talks to: it sees and makes that customer's own orders and bookings on that portal. Never anyone else's.",
         )}
       >
-        <WebsiteSelect draft={draft} onChange={onChange} />
+        <PortalSelect draft={draft} onChange={onChange} />
       </Form.Section>
     </div>
   );

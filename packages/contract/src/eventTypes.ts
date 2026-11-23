@@ -141,13 +141,13 @@ export const CORE_EVENT_TYPES = [
     'core.customer.signed_up',
     'Customer signed up',
     'customer',
-    'A person makes an account on one of your websites',
+    'A person makes an account on one of your portals',
   ),
   event(
     'core.customer.signed_in',
     'Customer signed in',
     'customer',
-    'A person signs in to one of your websites with a code',
+    'A person signs in to one of your portals with a code',
   ),
   event(
     'core.lead.stage_changed',

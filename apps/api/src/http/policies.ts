@@ -205,10 +205,19 @@ export const ACCESS = {
   // Plugins read product tags only (tags.service).
   // Each type needs what its own list needs (search.service).
   'search.global': MEMBER,
-  // Plugins keep their websites; members see them and the accounts on them.
-  'websites.list': { member: 'contacts.view', plugin: 'websites:write' },
-  'websites.save': { plugin: 'websites:write' },
-  'websites.remove': { plugin: 'websites:write' },
+  // Members set portals up; plugins attach their records to them.
+  'portals.list': { member: 'contacts.view', plugin: 'portals:write' },
+  'portals.get': { member: 'contacts.view', plugin: 'portals:write' },
+  'portals.create': needs('portals.manage'),
+  'portals.update': needs('portals.manage'),
+  'portals.remove': needs('portals.manage'),
+  'portals.save': { plugin: 'portals:write' },
+  'portals.attach': { plugin: 'portals:write' },
+  'portals.detach': { plugin: 'portals:write' },
+  'portals.keys': needs('portals.manage'),
+  'portals.createKey': needs('portals.manage'),
+  'portals.removeKey': needs('portals.manage'),
+  'portalAuth.token': PUBLIC,
   'customerAccounts.list': needs('contacts.view'),
 
   'tags.list': { member: 'any', plugin: 'products:read' },

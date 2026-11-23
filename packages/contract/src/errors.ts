@@ -91,10 +91,18 @@ export const ERRORS = {
   INVALID_TOKEN: { status: 401 },
   TOO_MANY_CODES: { status: 429 },
   ORIGIN_NOT_ALLOWED: { status: 403 },
-  UNKNOWN_WEBSITE: { status: 400 },
-  /** Codes can't reach this kind of address here (no SMS provider). */
+  UNKNOWN_PORTAL: { status: 400 },
+  /** The portal doesn't sign in this way, or codes can't reach this kind of address here. */
   SIGN_IN_UNAVAILABLE: { status: 400 },
   LAST_LOGIN: { status: 409 },
+  /** The customer hasn't texted the code yet (verify.mn): ask again in a moment. */
+  CODE_PENDING: { status: 409 },
+  /** A phone proven by texting a code has no account on the portal: sign up. */
+  NO_ACCOUNT: { status: 404 },
+  /** Google, Apple or Facebook didn't vouch for the token, or it is for another app. */
+  INVALID_SOCIAL_TOKEN: { status: 401 },
+  /** A portal's connection that isn't one of the organisation's for that integration. */
+  UNKNOWN_CONNECTION: { status: 400 },
 
   // Timeline, notifications, events.
   NOT_AUTHOR: { status: 403 },

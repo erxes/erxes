@@ -6,13 +6,13 @@ import { inList, orgIdColumn, pgTable } from '../table';
 import { apiKeys } from './apiKeys';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
-import { websites } from './websites';
+import { portals } from './portals';
 
 /**
  * Agents an admin made (Settings › AI agents), such as a shop's sales bot. One runs by the rules
  * of its own API key (`keyId`, a regular key whose secret nobody holds), on the provider and
- * model chosen here or the organisation's default. With a website (`websiteId`) it acts for the
- * customer a conversation is with, through the routes of the plugin whose website it is.
+ * model chosen here or the organisation's default. With a portal (`portalId`) it acts for the
+ * customer a conversation is with, through the routes of the plugin whose portal it is.
  */
 export const agents = pgTable(
   'agents',
@@ -26,7 +26,7 @@ export const agents = pgTable(
     provider: text({ enum: ASSISTANT_PROVIDERS }),
     model: text(),
     keyId: text().notNull(),
-    websiteId: text(),
+    portalId: text(),
     createdBy: text().notNull(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -52,9 +52,9 @@ export const agents = pgTable(
       name: 'core_agents_key_id_fkey',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [table.websiteId],
-      foreignColumns: [websites.id],
-      name: 'core_agents_website_id_fkey',
+      columns: [table.portalId],
+      foreignColumns: [portals.id],
+      name: 'core_agents_portal_id_fkey',
     }).onDelete('set null'),
   ],
 );

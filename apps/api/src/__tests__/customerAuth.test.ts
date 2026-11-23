@@ -13,21 +13,21 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   const t = useCustomers();
 
-  it("signs a new customer up to a website with an email code, in the website's own form", async () => {
+  it("signs a new customer up to a portal with an email code, in the portal's own form", async () => {
     const { api } = t.app();
 
     expect(
       await api.customerAuth.signUp({
-        website: t.sites.acme,
+        portal: t.sites.acme,
         kind: 'email',
         value: 'Shopper@Example.com',
         firstName: 'Bold',
         lastName: 'Bat',
       }),
-    ).toEqual({ expiresInSeconds: 600 });
+    ).toEqual({ expiresInSeconds: 600, reply: null });
 
     const signedIn = await api.customerAuth.confirmSignUp({
-      website: t.sites.acme,
+      portal: t.sites.acme,
       kind: 'email',
       value: 'shopper@example.com',
       code: await lastCode('shopper@example.com'),
@@ -39,7 +39,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
       customer: { primaryEmail: 'shopper@example.com', firstName: 'Bold', lastName: 'Bat' },
     });
 
-    // Plugins check the token with core's public keys; it names the website.
+    // Plugins check the token with core's public keys; it names the portal.
     const jwks = createRemoteJWKSet(new URL(t.url('/core/v1/.well-known/jwks.json')));
 
     const { payload } = await jwtVerify(signedIn.accessToken, jwks, {
@@ -48,13 +48,13 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
       typ: 'customer+jwt',
     });
 
-    expect(payload).toMatchObject({ sub: signedIn.customer.id, wid: t.sites.acme });
+    expect(payload).toMatchObject({ sub: signedIn.customer.id, pid: t.sites.acme });
     expect(
       await verifyCustomerToken(`Bearer ${signedIn.accessToken}`, { coreUrl: t.url('') }),
     ).toEqual({
       orgId: t.ids.org,
       customerId: signedIn.customer.id,
-      websiteId: t.sites.acme,
+      portalId: t.sites.acme,
       agentId: null,
     });
     // A plugin's own token is not a customer's.
@@ -78,7 +78,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     await expect(t.owner().customerAccount.me({})).rejects.toMatchObject({ status: 401 });
     await expect(t.hr().customerAccount.me({})).rejects.toMatchObject({ status: 401 });
 
-    // The team sees who signed up, and on which website.
+    // The team sees who signed up, and on which portal.
     await settle();
 
     const published = await adminDb()
@@ -91,18 +91,18 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
         {
           type: 'core.customer.signed_up',
           subjectId: signedIn.customer.id,
-          payload: { kind: 'email', websiteId: t.sites.acme },
+          payload: { kind: 'email', portalId: t.sites.acme },
         },
         {
           type: 'core.customer.signed_in',
           subjectId: signedIn.customer.id,
-          payload: { kind: 'email', websiteId: t.sites.acme },
+          payload: { kind: 'email', portalId: t.sites.acme },
         },
       ]),
     );
   });
 
-  it('keeps one customer with an account per website, each signed up on its own', async () => {
+  it('keeps one customer with an account per portal, each signed up on its own', async () => {
     const known = await t.owner().customers.create({
       firstName: 'Saraa',
       primaryEmail: 'saraa@example.com',
@@ -113,12 +113,12 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     expect(shop).toMatchObject({ created: false, customer: { id: known.id, firstName: 'Saraa' } });
 
-    // The outlet is another website: the same customer, a new account and session.
+    // The outlet is another portal: the same customer, a new account and session.
     const outlet = await t.signedIn('saraa@example.com', 'outlet');
 
     expect(outlet.customer.id).toBe(known.id);
 
-    // Each website's token works on that website only.
+    // Each portal's token works on that portal only.
     await expect(
       t.app({ site: 'outlet', token: shop.accessToken }).api.customerAccount.me({}),
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
@@ -130,13 +130,12 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(accounts.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          websiteId: t.sites.acme,
-          websiteName: 'acme shop',
-          plugin: 'hr',
+          portalId: t.sites.acme,
+          portalName: 'acme shop',
           logins: ['saraa@example.com'],
           sessions: 1,
         }),
-        expect.objectContaining({ websiteId: t.sites.outlet, sessions: 1 }),
+        expect.objectContaining({ portalId: t.sites.outlet, sessions: 1 }),
       ]),
     );
     expect(accounts.data).toHaveLength(2);
@@ -158,8 +157,8 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     const accounts = await t.owner().customerAccounts.list({ customerId: shop.customer.id });
 
-    const sessionsOn = (websiteId: string) =>
-      accounts.data.find((account) => account.websiteId === websiteId)?.sessions;
+    const sessionsOn = (portalId: string) =>
+      accounts.data.find((account) => account.portalId === portalId)?.sessions;
 
     expect(accounts.data).toHaveLength(2);
     expect(sessionsOn(t.sites.acme)).toBe(0);
@@ -168,7 +167,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it('counts wrong codes: five, then even the right one fails', async () => {
     const { api, join } = t.app();
-    const address = { website: t.sites.acme, kind: 'email', value: 'guess@example.com' } as const;
+    const address = { portal: t.sites.acme, kind: 'email', value: 'guess@example.com' } as const;
 
     await join('guess@example.com');
     await aMinuteLater();
@@ -189,9 +188,9 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     });
   });
 
-  it("takes a website's code on that website only", async () => {
+  it("takes a portal's code on that portal only", async () => {
     await t.app().api.customerAuth.signUp({
-      website: t.sites.acme,
+      portal: t.sites.acme,
       kind: 'email',
       value: 'elsewhere@example.com',
       firstName: 'Elsewhere',
@@ -199,7 +198,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     await expect(
       t.app({ site: 'outlet' }).api.customerAuth.confirmSignUp({
-        website: t.sites.outlet,
+        portal: t.sites.outlet,
         kind: 'email',
         value: 'elsewhere@example.com',
         code: await lastCode('elsewhere@example.com'),
@@ -209,9 +208,12 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
   it('signs in accounts only: an address without one gets no code, with the same answer', async () => {
     const { api, signIn, join } = t.app();
-    const address = { website: t.sites.acme, kind: 'email', value: 'nobody@example.com' } as const;
+    const address = { portal: t.sites.acme, kind: 'email', value: 'nobody@example.com' } as const;
 
-    expect(await api.customerAuth.sendCode(address)).toEqual({ expiresInSeconds: 600 });
+    expect(await api.customerAuth.sendCode(address)).toEqual({
+      expiresInSeconds: 600,
+      reply: null,
+    });
     await expect(lastCode('nobody@example.com')).rejects.toThrow(/no code was sent/);
 
     // Signed up, the same address signs in; signing up again signs in too.
@@ -227,7 +229,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
   });
 
   it('limits codes per address and requests per network address', async () => {
-    const address = { website: t.sites.acme, kind: 'phone', value: '+97699112233' } as const;
+    const address = { portal: t.sites.acme, kind: 'phone', value: '+97699112233' } as const;
     const { api } = t.app();
     const signUp = { ...address, firstName: 'Limit' };
 
@@ -244,7 +246,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     for (let index = 0; index < 11; index += 1) {
       answers.push(
         await flood.api.customerAuth
-          .sendCode({ website: t.sites.acme, kind: 'email', value: `flood${index}@example.com` })
+          .sendCode({ portal: t.sites.acme, kind: 'email', value: `flood${index}@example.com` })
           .then(
             () => 'sent',
             (error: unknown) => z.object({ code: z.string() }).parse(error).code,
@@ -255,7 +257,7 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(answers.at(-1)).toBe('TOO_MANY_REQUESTS');
   });
 
-  it("answers browsers only from the website's origins", async () => {
+  it("answers browsers only from the portal's origins", async () => {
     const preflight = (origin: string) =>
       fetch(t.url('/core/v1/customer-auth/code'), {
         method: 'OPTIONS',
@@ -273,17 +275,17 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
     expect(allowed.headers.get('access-control-allow-credentials')).toBeNull();
     expect((await preflight('https://evil.example.com')).status).toBe(403);
 
-    const send = { website: t.sites.acme, kind: 'email', value: 'origin@example.com' } as const;
+    const send = { portal: t.sites.acme, kind: 'email', value: 'origin@example.com' } as const;
 
     await expect(
       t.app({ origin: 'https://evil.example.com' }).api.customerAuth.sendCode(send),
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
-    // Another website's page can't sign in to this one.
+    // Another portal's page can't sign in to this one.
     await expect(
       t.app({ origin: siteOrigin('globex') }).api.customerAuth.sendCode(send),
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
 
-    // The website names its organisation.
+    // The portal names its organisation.
     const globex = await t.signedIn('origin@example.com', 'globex');
     const acme = await t.signedIn('origin@example.com', 'acme');
 
@@ -294,28 +296,28 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
       t.app({ site: 'globex', token: acme.accessToken }).api.customerAccount.me({}),
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
 
-    // A mobile app or the website's server sends no origin.
+    // A mobile app or the portal's server sends no origin.
     const mobile = t.app({ origin: null });
 
     expect(await mobile.join('mobile@example.com')).toMatchObject({ created: true });
   });
 
-  it("follows the plugin's websites: changed addresses, removed websites, uninstalls", async () => {
+  it("follows the plugin's portals: changed addresses, removed portals, uninstalls", async () => {
     await expect(
-      t.app().api.customerAuth.sendCode({ website: 'nope', kind: 'email', value: 'a@example.com' }),
-    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_WEBSITE' });
+      t.app().api.customerAuth.sendCode({ portal: 'nope', kind: 'email', value: 'a@example.com' }),
+    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_PORTAL' });
 
-    // A plugin keeps its own websites; members only read them.
-    const listed = await t.owner().websites.list({});
+    // A plugin keeps its own portals; members only read them.
+    const listed = await t.owner().portals.list({});
 
-    expect(listed.data.map((website) => website.id)).toEqual(
+    expect(listed.data.map((portal) => portal.id)).toEqual(
       expect.arrayContaining([t.sites.acme, t.sites.outlet]),
     );
-    expect(listed.data.map((website) => website.id)).not.toContain(t.sites.globex);
+    expect(listed.data.map((portal) => portal.id)).not.toContain(t.sites.globex);
 
     const moved = await t.signedIn('moving@example.com', 'outlet');
 
-    await t.hr().websites.save({
+    await t.hr().portals.save({
       recordId: 'store-2',
       name: 'outlet shop',
       origins: ['https://outlet.example.mn'],
@@ -329,10 +331,10 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
         .api.customerAccount.me({}),
     ).toMatchObject({ id: moved.customer.id });
 
-    await t.hr().websites.remove({ recordId: 'store-2' });
-    await expect(t.hr().websites.remove({ recordId: 'store-2' })).rejects.toMatchObject({
+    await t.hr().portals.detach({ recordId: 'store-2' });
+    await expect(t.hr().portals.detach({ recordId: 'store-2' })).rejects.toMatchObject({
       status: 400,
-      code: 'UNKNOWN_WEBSITE',
+      code: 'UNKNOWN_PORTAL',
     });
     await expect(
       t.app({ origin: null, token: moved.accessToken }).api.customerAccount.me({}),
@@ -344,11 +346,11 @@ describe('customer sign-in (decision 42)', { timeout: 300_000 }, () => {
 
     await expect(
       t.app({ site: 'globex' }).api.customerAuth.sendCode({
-        website: t.sites.globex,
+        portal: t.sites.globex,
         kind: 'email',
         value: 'late@example.com',
       }),
-    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_WEBSITE' });
+    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_PORTAL' });
 
     // Its customers' tokens stop working with it.
     await expect(before.me.customerAccount.me({})).rejects.toMatchObject({ status: 401 });

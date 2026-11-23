@@ -48,10 +48,11 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string(),
     }),
   }),
-  /** A plugin's notification to a customer; the link opens the plugin's website. */
+  /** A plugin's notification to a customer; the link opens the portal, whose sender name it has. */
   z.object({
     to: z.string(),
     template: z.literal('customer_notification'),
+    fromName: z.string().optional(),
     data: z.object({
       organization: z.string(),
       title: z.string(),
@@ -65,10 +66,11 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('reply_to_confirmation'),
     data: z.object({ organization: z.string(), link: z.string(), days: z.number() }),
   }),
-  /** A customer's one-time sign-in code. */
+  /** A customer's one-time sign-in code, from the portal's sender name. */
   z.object({
     to: z.string(),
     template: z.literal('sign_in_code'),
+    fromName: z.string().optional(),
     data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
   }),
   /** An email rendered already (a broadcast's test copy). */

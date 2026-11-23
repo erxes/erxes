@@ -18,7 +18,7 @@ describe('customer sign-up', { timeout: 300_000 }, () => {
     const { api } = t.app();
 
     await api.customerAuth.signUp({
-      website: t.sites.acme,
+      portal: t.sites.acme,
       kind: 'email',
       value: 'known@example.com',
       firstName: 'Someone else',
@@ -27,7 +27,7 @@ describe('customer sign-up', { timeout: 300_000 }, () => {
 
     expect(
       await api.customerAuth.confirmSignUp({
-        website: t.sites.acme,
+        portal: t.sites.acme,
         kind: 'email',
         value: 'known@example.com',
         code: await lastCode('known@example.com'),
@@ -67,11 +67,11 @@ describe('customer sign-up', { timeout: 300_000 }, () => {
 
     const { api } = t.app();
 
-    expect(await api.customerAuth.fields({ website: t.sites.acme })).toMatchObject({
+    expect(await api.customerAuth.fields({ portal: t.sites.acme })).toMatchObject({
       data: [{ id: size.id, label: 'Shoe size', type: 'number', isRequired: true }],
     });
 
-    const form = { website: t.sites.acme, kind: 'email', value: 'shoes@example.com' } as const;
+    const form = { portal: t.sites.acme, kind: 'email', value: 'shoes@example.com' } as const;
 
     await expect(api.customerAuth.signUp({ ...form, firstName: 'Anu' })).rejects.toMatchObject({
       status: 400,

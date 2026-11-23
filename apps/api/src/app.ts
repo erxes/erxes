@@ -21,7 +21,7 @@ import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
-import { customerCors } from '~/modules/customerAuth/customerWebsites';
+import { customerCors } from '~/modules/customerAuth/customerPortals';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { emailEventsRouter } from '~/modules/email/events/events.http';
@@ -36,6 +36,14 @@ import { standingGuard } from '~/modules/saas/saas.service';
 import { legacyFilesRouter } from './modules/files/legacyFiles.http';
 
 const REQUEST_ID = /^[\w.:-]{8,100}$/;
+
+/** Where plugins, customers and portals' servers trade a secret or a token for a new token. */
+const TOKEN_PATHS = [
+  '/core/v1/plugins/token',
+  '/core/v1/customer-auth/refresh',
+  '/core/v1/customer-auth/social',
+  '/core/v1/portal-auth/token',
+];
 
 /** Where customers ask for and type sign-up and sign-in codes. */
 const CUSTOMER_CODE_PATHS = [
@@ -122,7 +130,7 @@ export const createApp = (log: Logger = logger): Express => {
   // Signed file links stream bytes: before the JSON parser and sign-in.
   app.use('/core/v1/files/signed', limit.upload, signedFilesRouter);
 
-  // Websites call these from their own origins (decision 42).
+  // Portals call these from their own origins (decision 42).
   app.use(['/core/v1/customer-auth', '/core/v1/customer'], customerCors);
 
   // Guessing passwords and secrets: limited per address before anything else.
@@ -137,7 +145,7 @@ export const createApp = (log: Logger = logger): Express => {
     ],
     limit.signIn,
   );
-  app.use(['/core/v1/plugins/token', '/core/v1/customer-auth/refresh'], limit.token);
+  app.use(TOKEN_PATHS, limit.token);
   app.use(CUSTOMER_CODE_PATHS, limit.customerCode);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.

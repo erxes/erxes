@@ -4,6 +4,7 @@
 export const INTEGRATION_CATEGORIES = [
   'payments',
   'banks',
+  'sign_in',
   'social',
   'messaging',
   'email',

@@ -95,21 +95,25 @@
  *   const { data } = await core.forOrg(orgId).views.list({ recordType: 'customer' });  // shared only
  *   const { recordIds } = await core.forOrg(orgId).views.matches({ viewId, recordIds: [customerId] });
  *
- * Customers (a shop, hotel or tour site): core signs them in, per website; the plugin never builds
- * sign-up or sign-in. Each record with a website (a store) saves it in core (scope
- * `websites:write`) and keeps the id: `await core.forOrg(orgId).websites.save({ recordId: store.id,
- * name: store.name, origins: ['https://shop.example.mn'] })` → `{ id, … }`; `websites.remove`
- * when the record goes. The website's own forms call core: `POST /core/v1/customer-auth/sign-up`
- * `{ website, kind, value, firstName, … }` then `/sign-up/confirm` with the emailed code makes the
- * account; `POST /core/v1/customer-auth/code` `{ website, kind, value }` then `/sign-in` with the
- * code signs an account in. Both return `{ accessToken, refreshToken, expiresIn, customer }`;
- * `/customer-auth/refresh` renews them.
- * Serve customers under `/customer/*`, keyed by the customer id and scoped to the website:
+ * Customers (a shop, hotel or tour site and its apps): core signs them in, per portal; the plugin
+ * never builds sign-up or sign-in. A portal belongs to the organisation (Settings › Portals) and
+ * many plugins attach to one, each with its own record (scope `portals:write`):
+ * `await core.forOrg(orgId).portals.attach({ id: portalId, recordId: store.id })` puts a store on
+ * a portal picked from `portals.list()`; `portals.save({ recordId: site.id, name, origins })`
+ * makes the portal a record runs and renames it after; `portals.detach({ recordId })` when the
+ * record goes. The portal's own forms call core: `POST /core/v1/customer-auth/sign-up`
+ * `{ portal, kind, value, firstName, … }` then `/sign-up/confirm` with the code makes the
+ * account; `POST /core/v1/customer-auth/code` `{ portal, kind, value }` then `/sign-in` with the
+ * code signs an account in; `/customer-auth/social` signs in with Google, Apple or Facebook. They
+ * return `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews them.
+ * The portal's server calls plugins with `X-Portal-Token` (`verifyPortalToken`), a token core
+ * gives for the portal's server key; no plugin issues its own keys.
+ * Serve customers under `/customer/*`, keyed by the customer id and scoped to the portal:
  *
  *   app.use('/customer', async (req, res, next) => {
  *     req.customer = await verifyCustomerToken(req.headers.authorization, { coreUrl })
- *       .catch(() => null);                // { orgId, customerId, websiteId }
- *     req.store = req.customer && (await storeOfWebsite(req.customer.orgId, req.customer.websiteId));
+ *       .catch(() => null);                // { orgId, customerId, portalId }
+ *     req.store = req.customer && (await storeOfPortal(req.customer.orgId, req.customer.portalId));
  *     return req.store ? next() : res.sendStatus(401);
  *   });
  *   app.get('/customer/orders', (req) => orders.list(req.store.id, req.customer.customerId));
@@ -174,7 +178,7 @@
  *
  * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
  * the RPC handler. The manifest's `api.docs` lists one document per audience (`member`, and
- * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them.
+ * `employee`, `customer` or `portal` for routes those call), and Settings › Developer shows them.
  * The assistant calls the `member` document's routes with the member's session token:
  *
  *   api: { url: `${publicUrl}/api`, docs: [{ audience: 'member', path: '/openapi/member.json' }] },

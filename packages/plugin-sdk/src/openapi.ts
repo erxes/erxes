@@ -4,7 +4,7 @@ import {
   EMPLOYEE_TOKEN_SCHEME,
   PLUGIN_SESSION_SCHEME,
   type PluginApiAudience,
-  WEBSITE_KEY_SCHEME,
+  PORTAL_TOKEN_SCHEME,
 } from '@erxes/core-contract';
 import { type OpenAPI, OpenAPIGenerator } from '@orpc/openapi';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
@@ -23,7 +23,7 @@ export interface PluginOpenApiOptions {
   /**
    * The address the document's paths start from, which "try it" calls: the manifest's
    * `api.url` (`${publicUrl}/api`) for routes under it, or the plugin's public URL for routes
-   * outside it (a website's `/public/v1`, customers' `/customer`).
+   * outside it (a portal's `/public/v1`, customers' `/customer`).
    */
   server: string;
   /**
@@ -80,22 +80,23 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
     };
   }
 
-  // A website's server sends the key the plugin issued; a signed-in visitor adds their token.
+  // A portal's server sends its portal token; a signed-in visitor adds their token.
   return {
     components: {
       securitySchemes: {
-        [WEBSITE_KEY_SCHEME]: {
+        [PORTAL_TOKEN_SCHEME]: {
           type: 'apiKey',
           in: 'header',
-          name: 'x-api-key',
-          description: "The website's key, from the plugin's settings. Keep it on the server.",
+          name: 'x-portal-token',
+          description:
+            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for the portal's server key (Settings › Portals). Keep the key on the server.",
         },
         [CUSTOMER_TOKEN_SCHEME]: customerToken,
       },
     },
     security: [
-      { [WEBSITE_KEY_SCHEME]: [] },
-      { [WEBSITE_KEY_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
+      { [PORTAL_TOKEN_SCHEME]: [] },
+      { [PORTAL_TOKEN_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
     ],
   };
 };

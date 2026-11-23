@@ -81,27 +81,25 @@ const resultOf = (entry: PluginProcedure, answer: OutboundAnswer) => {
 };
 
 /**
- * Calls a route of a plugin's member document with `bearer`'s token, and answers what the model
+ * Calls a plugin's route with the headers `credentials` gives, and answers what the model
  * reads: the bounded result, the plugin's own refusal, or that it didn't answer.
  */
 export const callPluginRoute = async (
   entry: PluginProcedure,
   input: Record<string, unknown>,
-  bearer: () => Promise<string>,
+  credentials: () => Promise<Record<string, string>>,
 ) => {
   const request = requestFor(entry, input);
 
   if (!request.ok) return request;
 
   try {
-    const token = await bearer();
-
     const answer = await requestOutbound(request.url, {
       method: entry.method,
       body: request.body,
       headers: {
         accept: 'application/json',
-        authorization: `Bearer ${token}`,
+        ...(await credentials()),
         ...(entry.sendsBody ? { 'content-type': 'application/json' } : {}),
       },
       timeoutMs: PLUGIN_TIMEOUT_MS,
@@ -125,6 +123,6 @@ export const callPluginProcedure = (
   entry: PluginProcedure,
   input: Record<string, unknown>,
 ) =>
-  callPluginRoute(entry, input, async () =>
-    withOrg(orgId, async () => (await pluginSession(entry.plugin)).token),
-  );
+  callPluginRoute(entry, input, async () => ({
+    authorization: `Bearer ${await withOrg(orgId, async () => (await pluginSession(entry.plugin)).token)}`,
+  }));

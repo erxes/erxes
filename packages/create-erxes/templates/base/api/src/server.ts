@@ -22,7 +22,7 @@ const rest = new OpenAPIHandler(router, { interceptors: [onError(logFailure)] })
 
 /**
  * Settings › Developer › API reference shows it (the manifest's `api.docs`). Routes for
- * customers or a website get their own document with that `audience`.
+ * customers or a portal get their own document with that `audience`.
  */
 const memberDoc = pluginOpenApi(router, {
   plugin: PLUGIN,
@@ -60,7 +60,7 @@ export const createApp = (log = logger) => {
   // The plugin UI calls this API from web, at whatever address the organisation
   // uses (acme.app.erxes.io, its own domain). Any origin may: access is the
   // Bearer session token core issues, never a cookie, so CORS guards nothing here.
-  // Routes for websites (an API key, customer tokens) set their own CORS.
+  // Routes for portals (an API key, customer tokens) set their own CORS.
   app.use(
     ['/api/rpc', '/api/v1', '/api/openapi', '/ui'],
     cors({ origin: true, credentials: false, maxAge: 600 }),

@@ -3,7 +3,7 @@ import {
   EMPLOYEE_TOKEN_SCHEME,
   PLUGIN_SESSION_SCHEME,
   type PluginApiAudience,
-  WEBSITE_KEY_SCHEME,
+  PORTAL_TOKEN_SCHEME,
 } from '@erxes/core-contract';
 import { verifyPluginSession } from '@erxes/plugin-sdk';
 import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
@@ -79,7 +79,7 @@ describe('plugin API reference', () => {
     await expect(
       register([
         { audience: 'employee', path: '/openapi/employee.json' },
-        { audience: 'website', path: '/openapi/website.json' },
+        { audience: 'portal', path: '/openapi/portal.json' },
       ]),
     ).resolves.toBeDefined();
   });
@@ -95,7 +95,7 @@ describe('plugin API reference', () => {
     );
   });
 
-  it("documents employee routes with the plugin's own token, customer routes with core's, and website routes with a key", async () => {
+  it("documents employee routes with the plugin's own token, customer routes with core's, and portal routes with core's portal token", async () => {
     const employee = await document('employee');
 
     expect(employee.security).toEqual([{ [EMPLOYEE_TOKEN_SCHEME]: [] }]);
@@ -107,17 +107,20 @@ describe('plugin API reference', () => {
       'POST /core/v1/customer-auth/sign-in',
     );
 
-    const website = await document('website');
+    const portal = await document('portal');
 
-    expect(website.security).toEqual([
-      { [WEBSITE_KEY_SCHEME]: [] },
-      { [WEBSITE_KEY_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
+    expect(portal.security).toEqual([
+      { [PORTAL_TOKEN_SCHEME]: [] },
+      { [PORTAL_TOKEN_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
     ]);
-    expect(website.components?.securitySchemes?.[WEBSITE_KEY_SCHEME]).toMatchObject({
+    expect(portal.components?.securitySchemes?.[PORTAL_TOKEN_SCHEME]).toMatchObject({
       type: 'apiKey',
       in: 'header',
-      name: 'x-api-key',
+      name: 'x-portal-token',
     });
+    expect(JSON.stringify(portal.components?.securitySchemes)).toContain(
+      'POST /core/v1/portal-auth/token',
+    );
   });
 
   it('gives a script with a key made before rules a session token the plugin accepts as that member', async () => {

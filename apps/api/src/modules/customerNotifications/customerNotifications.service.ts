@@ -9,7 +9,8 @@ import {
   organizations,
   requestOrgId,
   sourceOf,
-  websites,
+  portalPlugins,
+  portals,
 } from '@erxes/core-db';
 import { and, asc, count, eq, exists, gt, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -20,50 +21,61 @@ import { deleteInBatches, repeatWhile } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { sendEmail } from '~/modules/email/email';
 import { canDeliverEmail } from '~/modules/email/sender';
-import { unknownWebsite } from '~/modules/customerAuth/customerWebsites';
+import { unknownPortal } from '~/modules/customerAuth/customerPortals';
 import { sendSms } from '~/modules/sms/sms';
 
 const log = logger.child({ component: 'customer-notifications' });
 
-/** The signed-in customer's own notifications: their website's, and those for every website. */
+/** The signed-in customer's own notifications: their portal's, and those for every portal. */
 const mine = () => {
-  const { customerId, websiteId } = caller('customer');
+  const { customerId, portalId } = caller('customer');
 
   return and(
     eq(customerNotifications.customerId, customerId),
-    or(isNull(customerNotifications.websiteId), eq(customerNotifications.websiteId, websiteId)),
+    or(isNull(customerNotifications.portalId), eq(customerNotifications.portalId, portalId)),
   );
 };
 
-/** Every customer with an account on the website, or on any website. */
-const signedUp = (websiteId: string | undefined) =>
+/** Every customer with an account on the portal, or on any portal. */
+const signedUp = (portalId: string | undefined) =>
   exists(
     sql`(select 1 from ${customerAccounts} where ${and(
       eq(customerAccounts.customerId, customers.id),
-      websiteId ? eq(customerAccounts.websiteId, websiteId) : undefined,
+      portalId ? eq(customerAccounts.portalId, portalId) : undefined,
     )})`,
   );
 
 type Input = CustomerNotificationInput;
 
-/** The website a notification is for: one of the sending plugin's. */
-const websiteOf = async (client: Db, source: string, websiteId: string | undefined) => {
-  if (!websiteId) return null;
+/** The portal a notification is for: one the sending plugin is on. */
+const portalOf = async (client: Db, source: string, portalId: string | undefined) => {
+  if (!portalId) return null;
 
-  const [website] = await client
-    .select({ id: websites.id, origins: websites.origins })
-    .from(websites)
-    .where(and(eq(websites.id, websiteId), eq(websites.plugin, source)))
+  const [portal] = await client
+    .select({
+      id: portals.id,
+      name: portals.name,
+      senderName: portals.senderName,
+      origins: portals.origins,
+    })
+    .from(portals)
+    .innerJoin(
+      portalPlugins,
+      and(eq(portalPlugins.portalId, portals.id), eq(portalPlugins.plugin, source)),
+    )
+    .where(eq(portals.id, portalId))
     .limit(1);
 
-  if (!website) throw unknownWebsite();
+  if (!portal) throw unknownPortal();
 
-  return website;
+  return portal;
 };
+
+type NotifiedPortal = NonNullable<Awaited<ReturnType<typeof portalOf>>>;
 
 /** The row every recipient gets, without its id and customer. */
 const rowOf = (source: string, input: Input) => ({
-  websiteId: input.websiteId ?? null,
+  portalId: input.portalId ?? null,
   source,
   kind: input.kind,
   title: input.title,
@@ -93,7 +105,7 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
     const batch = await client
       .select({ id: customers.id })
       .from(customers)
-      .where(and(signedUp(input.websiteId), gt(customers.id, after)))
+      .where(and(signedUp(input.portalId), gt(customers.id, after)))
       .orderBy(asc(customers.id))
       .limit(EVERYONE_BATCH);
 
@@ -115,11 +127,14 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
   return { created, skipped: seen - created };
 };
 
-/** Emails and texts the customers who got it anew, where they have an address. */
+/**
+ * Emails and texts the customers who got it anew, where they have an address: from the portal's
+ * sender name, linking to its first web address.
+ */
 const deliver = async (
   client: Db,
   input: Input,
-  origin: string | null,
+  portal: NotifiedPortal | null,
   created: { id: string; email: string | null; phone: string | null }[],
 ) => {
   if (!input.channels.length || !created.length) return;
@@ -129,7 +144,9 @@ const deliver = async (
   const [org] = await client.select({ name: organizations.name }).from(organizations).limit(1);
 
   const organization = org?.name ?? 'erxes';
+  const origin = portal?.origins[0];
   const link = origin && input.link ? `${origin}${input.link}` : null;
+  const fromName = portal ? (portal.senderName ?? portal.name) : undefined;
   const body = input.body ?? null;
 
   // Email that would only reach the log is skipped; the inbox and other channels still get it.
@@ -153,6 +170,7 @@ const deliver = async (
                 customerId: id,
                 to: email,
                 template: 'customer_notification' as const,
+                ...(fromName && { fromName }),
                 data: { organization, title: input.title, body, link },
               },
             ]
@@ -183,7 +201,7 @@ export const notifyCustomers = async (client: Db, input: Input) => {
 
   assertPluginNamespace(source, input.kind);
 
-  const website = await websiteOf(client, source, input.websiteId);
+  const portal = await portalOf(client, source, input.portalId);
 
   if (input.everyone) return notifyEveryone(client, source, input);
 
@@ -210,7 +228,7 @@ export const notifyCustomers = async (client: Db, input: Input) => {
   await deliver(
     client,
     input,
-    website?.origins[0] ?? null,
+    portal,
     inserted.flatMap(({ customerId }) => contacts.get(customerId) ?? []),
   );
 

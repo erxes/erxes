@@ -2,6 +2,8 @@ import { CUSTOMER, PUBLIC } from './policyRules';
 
 /** The customer side of the access map: their sign-in, account and notifications. */
 export const CUSTOMER_ACCESS = {
+  'customerAuth.methods': PUBLIC,
+  'customerAuth.social': PUBLIC,
   'customerAuth.fields': PUBLIC,
   'customerAuth.signUp': PUBLIC,
   'customerAuth.confirmSignUp': PUBLIC,

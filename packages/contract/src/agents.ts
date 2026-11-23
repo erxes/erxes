@@ -91,10 +91,10 @@ export const AgentSettings = z.object({
   provider: AssistantProvider.nullable().default(null),
   model: AssistantModelId.nullable().default(null),
   /**
-   * The website whose customers it serves: it acts for the customer a conversation is with,
-   * through that website's plugin routes. Null: it acts for nobody but itself.
+   * The portal whose customers it serves: it acts for the customer a conversation is with,
+   * through that portal's plugin routes. Null: it acts for nobody but itself.
    */
-  websiteId: Id.nullable().default(null),
+  portalId: Id.nullable().default(null),
 });
 
 export type AgentSettings = z.infer<typeof AgentSettings>;
@@ -165,7 +165,7 @@ export const agentsContract = {
       method: 'PATCH',
       path: '/agents/{id}',
       summary: 'Change an agent',
-      description: 'Change its name, instructions, model or the website whose customers it serves',
+      description: 'Change its name, instructions, model or the portal whose customers it serves',
     })
     .input(AgentSettings.partial().extend({ id: Id }))
     .output(Agent),

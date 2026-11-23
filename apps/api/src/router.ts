@@ -42,7 +42,11 @@ import {
   customerAuthRouter,
 } from '~/modules/customerAuth/customerAuth.router';
 import { customerNotificationsRouter } from '~/modules/customerNotifications/customerNotifications.router';
-import { customerAccountsRouter, websitesRouter } from '~/modules/websites/websites.router';
+import {
+  customerAccountsRouter,
+  portalAuthRouter,
+  portalsRouter,
+} from '~/modules/portals/portals.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
 import { searchRouter } from '~/modules/search/search.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
@@ -90,7 +94,8 @@ export const coreRouter = unscoped.router({
   customerAccount: customerAccountRouter,
   customerAuth: customerAuthRouter,
   customerNotifications: customerNotificationsRouter,
-  websites: websitesRouter,
+  portals: portalsRouter,
+  portalAuth: portalAuthRouter,
   customerAccounts: customerAccountsRouter,
   companies: companiesRouter,
   search: searchRouter,

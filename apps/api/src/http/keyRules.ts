@@ -77,8 +77,9 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   users: 'team',
   views: null,
   webhooks: 'webhooks',
-  // Plugins keep websites; members only read them.
-  websites: null,
+  // Portals hold sign-in settings and server keys: members set them up in erxes only.
+  portals: null,
+  portalAuth: null,
 };
 
 const GROUPS = new Map<string, GroupRule>(Object.entries(GROUP_RULES));

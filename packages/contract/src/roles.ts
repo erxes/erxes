@@ -56,6 +56,11 @@ export const CORE_PERMISSIONS = [
     group: 'Settings',
     label: 'Add, change and delete exchange rates',
   },
+  {
+    action: 'portals.manage',
+    group: 'Settings',
+    label: 'Add portals, set how customers sign in to them and make their server keys',
+  },
   { action: 'audit.view', group: 'Security', label: 'See and export the audit log' },
   {
     action: 'events.view',

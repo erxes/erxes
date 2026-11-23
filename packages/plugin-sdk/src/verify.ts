@@ -266,12 +266,12 @@ export interface CustomerSignIn {
   orgId: string;
   customerId: string;
   /**
-   * The website the customer signed in to (`websites.save` gave its id). Serve only that
-   * website's data, and refuse a website that isn't one of yours.
+   * The portal the customer signed in to. Serve your record on it (the one you attached with
+   * `portals.attach` or `portals.save`), and refuse a portal you're not on.
    */
-  websiteId: string;
+  portalId: string;
   /**
-   * The core agent talking to the customer for that website, when core minted the token for
+   * The core agent talking to the customer for that portal, when core minted the token for
    * one; null for the customer's own sign-in.
    */
   agentId: string | null;
@@ -284,13 +284,13 @@ const CustomerClaims = z
   .object({
     sub: z.string().min(1),
     org: z.string().min(1),
-    wid: z.string().min(1),
+    pid: z.string().min(1),
     sid: z.string().optional(),
   })
   .transform((claims): CustomerSignIn => ({
     orgId: claims.org,
     customerId: claims.sub,
-    websiteId: claims.wid,
+    portalId: claims.pid,
     agentId: claims.sid?.startsWith(AGENT_SESSION) ? claims.sid.slice(AGENT_SESSION.length) : null,
   }));
 
@@ -310,6 +310,37 @@ export const verifyCustomerToken = async (
   if (!token) throw new Error('no customer token');
 
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
+};
+
+/** A portal's own server calling a plugin, with a token core gave it for the portal's server key. */
+export interface PortalCall {
+  orgId: string;
+  /** Serve your record on this portal; refuse a portal you're not on. */
+  portalId: string;
+  /** The server key it traded. */
+  keyId: string;
+}
+
+const PortalClaims = z
+  .object({ org: z.string().min(1), sub: z.string().min(1), kid: z.string().min(1) })
+  .transform((claims): PortalCall => ({
+    orgId: claims.org,
+    portalId: claims.sub,
+    keyId: claims.kid,
+  }));
+
+/**
+ * Verifies a portal token from the `X-Portal-Token` header with core's public keys: core
+ * issued it for one of the portal's server keys (`POST /core/v1/portal-auth/token`), and it
+ * is unexpired. A revoked key's tokens stop within 15 minutes. Throws if not valid.
+ */
+export const verifyPortalToken = async (
+  token: string | undefined | null,
+  options: { coreUrl: string },
+): Promise<PortalCall> => {
+  if (!token) throw new Error('no portal token');
+
+  return verifyCoreToken(token, options, 'portal+jwt', PortalClaims, 'erxes-portal');
 };
 
 /** A body's SHA-256, base64url: text as UTF-8, or its bytes as they came. */

@@ -13,7 +13,7 @@ export interface Template {
   plugin: string | null;
   /** The plugin's actions it may use, by name: what members see, never other customers' records. */
   actions: RegExp | null;
-  /** It serves the plugin's website's customers: the new agent starts on its first website. */
+  /** It serves the plugin's portal's customers: the new agent starts on its first portal. */
   customers: boolean;
   name: string;
   instructions: string;

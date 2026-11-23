@@ -59,7 +59,7 @@ const AgentRow = ({ agent }: { agent: Agent }) => {
           {agent.model ? ` · ${agent.model}` : ''}
         </span>
       </span>
-      {agent.websiteId && <Badge variant="secondary">{t('for-customers', 'Customers')}</Badge>}
+      {agent.portalId && <Badge variant="secondary">{t('for-customers', 'Customers')}</Badge>}
     </Link>
   );
 };

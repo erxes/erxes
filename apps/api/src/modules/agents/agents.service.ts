@@ -6,7 +6,7 @@ import {
   caller,
   type Db,
   newId,
-  websites,
+  portals,
   withOrg,
 } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
@@ -41,10 +41,10 @@ export const agentOrThrow = async (client: Db, id: string) => {
   return row;
 };
 
-/** A provider it runs on is connected in Integrations, and a website it serves is the organisation's. */
+/** A provider it runs on is connected in Integrations, and a portal it serves is the organisation's. */
 const checkSettings = async (
   client: Db,
-  { provider, websiteId }: Partial<Pick<AgentSettings, 'provider' | 'websiteId'>>,
+  { provider, portalId }: Partial<Pick<AgentSettings, 'provider' | 'portalId'>>,
 ) => {
   if (
     provider &&
@@ -53,14 +53,14 @@ const checkSettings = async (
     throw notFound('Connection');
   }
 
-  if (websiteId) {
-    const [website] = await client
-      .select({ id: websites.id })
-      .from(websites)
-      .where(eq(websites.id, websiteId))
+  if (portalId) {
+    const [portal] = await client
+      .select({ id: portals.id })
+      .from(portals)
+      .where(eq(portals.id, portalId))
       .limit(1);
 
-    if (!website) throw notFound('Website');
+    if (!portal) throw notFound('Portal');
   }
 };
 
@@ -94,7 +94,7 @@ export const createAgent = async (client: Db, input: NewAgent) => {
       provider: input.provider,
       model: input.model,
       keyId: apiKey.id,
-      websiteId: input.websiteId,
+      portalId: input.portalId,
       createdBy: me.userId,
     })
     .returning();

@@ -40,7 +40,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
       (await api.customerAuth.refresh({ refreshToken: first.refreshToken })).refreshToken,
     ).toBe(second.refreshToken);
 
-    // Another website's page can't use it.
+    // Another portal's page can't use it.
     await expect(
       t.app({ site: 'outlet' }).api.customerAuth.refresh({ refreshToken: second.refreshToken }),
     ).rejects.toMatchObject({ status: 403, code: 'ORIGIN_NOT_ALLOWED' });
@@ -85,7 +85,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     expect((await refresh(tab.refreshToken)).refreshToken).not.toBe(tab.refreshToken);
   });
 
-  it('signs the website out with its refresh token', async () => {
+  it('signs the portal out with its refresh token', async () => {
     const session = await t.signedIn('leave@example.com');
     const { api } = t.app();
 
@@ -132,7 +132,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     await aMinuteLater();
     expect(
       await me.customerAccount.addLogin({ kind: 'email', value: 'taken@example.com' }),
-    ).toEqual({ expiresInSeconds: 600 });
+    ).toEqual({ expiresInSeconds: 600, reply: null });
     await expect(
       me.customerAccount.confirmLogin({
         kind: 'email',
@@ -154,7 +154,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
       code: 'LAST_LOGIN',
     });
 
-    // Two sign-ins to the website: this one and the one elsewhere.
+    // Two sign-ins to the portal: this one and the one elsewhere.
     const sessions = (await me.customerAccount.sessions({})).data;
 
     expect(sessions.filter((session) => session.current)).toHaveLength(1);
@@ -169,7 +169,7 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
     await expect(me.customerAccount.me({})).rejects.toMatchObject({ status: 401 });
   });
 
-  it('joins the accounts of merged customers, one per website, and keeps them signed in', async () => {
+  it('joins the accounts of merged customers, one per portal, and keeps them signed in', async () => {
     const kept = await t.signedIn('kept-account@example.com');
     const other = await t.signedIn('other-account@example.com');
     const outlet = await t.signedIn('other-account@example.com', 'outlet');
@@ -181,9 +181,9 @@ describe('customer accounts (decision 42)', { timeout: 300_000 }, () => {
 
     const accounts = await t.owner().customerAccounts.list({ customerId: kept.customer.id });
 
-    const loginsOn = (websiteId: string) =>
+    const loginsOn = (portalId: string) =>
       accounts.data
-        .find((account) => account.websiteId === websiteId)
+        .find((account) => account.portalId === portalId)
         ?.logins.toSorted((a, b) => a.localeCompare(b));
 
     expect(accounts.data).toHaveLength(2);

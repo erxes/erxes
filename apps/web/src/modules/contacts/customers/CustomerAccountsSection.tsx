@@ -5,10 +5,9 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 import { PanelSection, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
-import { pluginTitle, useInstalledPlugins } from '~/modules/products/useCatalogContext';
 
-/** One website the customer signed up on: its logins, and when they last signed in. */
-const AccountRow = ({ account, plugin }: { account: CustomerAccount; plugin: string }) => {
+/** One portal the customer signed up on: its logins, and when they last signed in. */
+const AccountRow = ({ account }: { account: CustomerAccount }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'accounts' });
   const fmt = useFormat();
 
@@ -16,8 +15,7 @@ const AccountRow = ({ account, plugin }: { account: CustomerAccount; plugin: str
     <li className="space-y-1 rounded-md border px-3 py-2 text-sm">
       <div className="flex items-center gap-2">
         <IconWorldWww className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <span className="truncate font-medium">{account.websiteName}</span>
-        <span className="truncate text-xs text-muted-foreground">{plugin}</span>
+        <span className="truncate font-medium">{account.portalName}</span>
       </div>
       <p className="truncate text-muted-foreground">{account.logins.join(', ')}</p>
       <p className="text-xs text-muted-foreground">
@@ -33,10 +31,9 @@ const AccountRow = ({ account, plugin }: { account: CustomerAccount; plugin: str
   );
 };
 
-/** The websites the customer signed up on, one account each; nothing when there are none. */
+/** The portals the customer signed up on, one account each; nothing when there are none. */
 export const CustomerAccountsSection = ({ customerId }: { customerId: string }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'accounts' });
-  const { plugins } = useInstalledPlugins();
   const can = useCan();
 
   const accounts = useQuery(
@@ -53,11 +50,7 @@ export const CustomerAccountsSection = ({ customerId }: { customerId: string }) 
     <PanelSection title={t('title', 'Accounts')} nested>
       <ul className="space-y-2 pb-2">
         {rows.map((account) => (
-          <AccountRow
-            key={account.id}
-            account={account}
-            plugin={pluginTitle(plugins, account.plugin)}
-          />
+          <AccountRow key={account.id} account={account} />
         ))}
       </ul>
     </PanelSection>
