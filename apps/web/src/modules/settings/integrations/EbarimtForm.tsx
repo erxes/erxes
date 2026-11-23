@@ -84,7 +84,7 @@ const TestConnection = ({ posApiUrl }: { posApiUrl: string }) => {
 };
 
 /** Toasts what a save did, and refreshes the configs and the Integrations page. */
-export const useConfigSaved = (onSaved?: (config: EbarimtSettings) => void) => {
+const useConfigSaved = (onSaved?: (config: EbarimtSettings) => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
   const { toast } = useToast();
   const client = useQueryClient();
