@@ -21,6 +21,11 @@ interface Message {
   replyTo?: string;
   /** The sender's label: on SaaS it follows the organisation's name, self-hosted it is the name. */
   fromName?: string;
+  /**
+   * Self-hosted, through its own provider: an address on a domain the provider verified
+   * (`requireFromAddress`). The server's sending has none to offer, so it never gets one.
+   */
+  fromEmail?: string;
   subject: string;
   html: string;
   text: string;
@@ -136,9 +141,17 @@ export const routeFor = async (orgId: string) => {
 
     return {
       provider: provider satisfies DeliveryProvider,
-      send: async ({ fromName, attachments, files, deliveryId, headers, ...mail }: Message) => {
+      send: async ({
+        fromName,
+        fromEmail,
+        attachments,
+        files,
+        deliveryId,
+        headers,
+        ...mail
+      }: Message) => {
         await own.transport.sendMail({
-          from: await ownFrom(orgId, own.settings, fromName),
+          from: await ownFrom(orgId, own.settings, fromName, fromEmail),
           ...mail,
           headers: { ...headers, ...tagHeaders(provider, { orgId, deliveryId, configurationSet }) },
           attachments: attachmentsOf(attachments, files),
@@ -152,7 +165,16 @@ export const routeFor = async (orgId: string) => {
   return {
     provider,
     send: async (message: Message) => {
-      const { fromName, attachments, files, deliveryId, headers, ...mail } = message;
+      const {
+        fromName,
+        fromEmail: _fromEmail,
+        attachments,
+        files,
+        deliveryId,
+        headers,
+        ...mail
+      } = message;
+
       const from = await serverFrom(orgId, fromName);
 
       if (config.email.driver === 'log') return logEmail(message, from.name);
@@ -230,6 +252,7 @@ export const emailJob = defineJob({
         cc: payload.template === 'message' ? payload.cc : undefined,
         replyTo: sent?.replyTo,
         fromName: 'fromName' in payload ? payload.fromName : undefined,
+        fromEmail: sent?.fromEmail,
         attachments: rendered ? payload.attachments : undefined,
         files: rendered ? await readAttachments(job.orgId, payload.fileIds ?? []) : undefined,
         deliveryId: payload.deliveryId,

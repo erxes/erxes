@@ -6,6 +6,7 @@ import { isoDate } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 
 export const EmailSettings = createSelectSchema(emailSettings, {
+  domainsCheckedAt: isoDate,
   createdAt: isoDate,
   updatedAt: isoDate,
 })
@@ -29,6 +30,15 @@ export const EmailSettings = createSelectSchema(emailSettings, {
     configurationSet: true,
     /** `ses`: the SNS topic events come through; empty: they aren't taken. */
     eventsTopicArn: true,
+    /**
+     * `sendgrid`, `ses`: the domains the provider last said it sends from. A broadcast or
+     * automation may send from any address on them (`checkDomains` asks again).
+     */
+    verifiedDomains: true,
+    /** When the provider last answered; null: never asked. */
+    domainsCheckedAt: true,
+    /** What the provider said when it last couldn't answer; its last answer stays meanwhile. */
+    domainsError: true,
     createdAt: true,
     updatedAt: true,
   })
@@ -155,4 +165,13 @@ export const emailSettingsContract = {
         error: z.string().nullable(),
       }),
     ),
+  checkDomains: base
+    .route({
+      method: 'POST',
+      path: '/email/settings/domains',
+      summary: 'Check sending domains',
+      description:
+        'Ask SendGrid or SES which domains the organisation may send from, and keep the answer (`verifiedDomains`); when it can’t answer, `domainsError` says why and the last answer stays. Null without settings of its own',
+    })
+    .output(EmailSettings.nullable()),
 };

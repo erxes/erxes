@@ -38,6 +38,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   broadcasts: null,
   broadcastSchedules: null,
   suppressions: null,
+  // What broadcasts are written from: members only, as broadcasts are.
+  emailTemplates: null,
   companies: 'contacts',
   customers: 'contacts',
   favorites: null,

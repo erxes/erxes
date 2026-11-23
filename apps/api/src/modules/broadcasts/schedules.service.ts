@@ -4,7 +4,6 @@ import { and, eq, inArray, isNotNull } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { orgTimezone } from '~/lib/orgTime';
 import { inOrder } from '~/lib/sequence';
-import { requireReplyTo } from '~/modules/email/replyTos.service';
 import {
   assertComplete,
   assertDeliverable,
@@ -70,14 +69,13 @@ const upsertSchedule = (client: Db, values: typeof broadcastSchedules.$inferInse
 
 /**
  * Makes a draft recurring: checked as sending is (content, email delivery,
- * Reply-To), then its schedule runs from the next time after now.
+ * Reply-To and From), then its schedule runs from the next time after now.
  */
 export const startSchedule = async (tx: Db, id: string, rule: RepeatRule) => {
   const broadcast = await getBroadcast(tx, id);
 
   assertComplete(broadcast);
   await assertDeliverable(tx, broadcast);
-  await requireReplyTo(tx, broadcast.replyTo);
 
   const columns = ruleColumns(rule);
   const nextRunAt = firstRun({ ...columns, runs: 0 }, await orgTimezone(tx));

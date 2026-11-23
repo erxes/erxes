@@ -58,6 +58,7 @@ const makeRun = async (tx: Db, schedule: ScheduleRow, due: Date) => {
       content: parent.content,
       html: parent.html,
       fromName: parent.fromName,
+      fromEmail: parent.fromEmail,
       replyTo: parent.replyTo,
       attachmentIds: parent.attachmentIds,
       status: 'scheduled',

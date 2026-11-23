@@ -114,6 +114,7 @@
   "restore": "Restore",
   "restored": "Version restored",
   "from-template": "From a template",
+  "from-address-none": "No verified domain to pick from: emails go out from {{address}}.",
   "templates": "Start from a template",
   "templates-description": "A ready-made automation you can change before turning it on.",
   "summary-schedule": "Every {{every}} at {{at}}",

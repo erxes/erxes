@@ -39,6 +39,11 @@ export const EmailSender = z.object({
   /** How the organisation's emails go out now: its own provider (self-hosted), else the server's. */
   provider: EmailProvider,
   /**
+   * Domains its own provider verified (self-hosted, SendGrid or SES): a broadcast or
+   * automation may send from any address on them besides `address`. Empty otherwise.
+   */
+  domains: z.array(z.string()),
+  /**
    * False in production when emails would only be written to the server's log
    * (nothing set up): broadcasts, tests and plugin emails are refused with 409
    * EMAIL_NOT_CONFIGURED. Sign-in, invitation and reset emails still go to the log.

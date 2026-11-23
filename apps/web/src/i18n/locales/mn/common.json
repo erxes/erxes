@@ -944,7 +944,11 @@
   },
   "sender": {
     "label-placeholder": "Marketing",
-    "from-line": "{{name}} <{{address}}> · дамжуулагч: {{provider}}"
+    "from-line": "{{name}} <{{address}}> · дамжуулагч: {{provider}}",
+    "domain": "Domain",
+    "from-default": "Үндсэн хаягаас илгээх",
+    "from-stale-title": "{{domain}} баталгаажаагүй болсон байна",
+    "from-stale": "{{provider}} энэ domain-оос илгээхээ больсон тул энэ имэйл явахгүй. Domain-оо тэнд дахин баталгаажуулаад Settings-д дахин шалгана уу, эсвэл өөр domain сонгоно уу."
   },
   "email-setup": {
     "title": "Имэйл илгээлт тохируулагдаагүй байна",

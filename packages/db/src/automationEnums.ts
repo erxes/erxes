@@ -52,6 +52,7 @@ export const ACTION_FIELD_TYPES = [
   'recipients',
   'plugin_record',
   'reply_to',
+  'from_address',
   'automation',
   'connection',
 ] as const;

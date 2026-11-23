@@ -4,7 +4,7 @@ import { postOutbound } from '~/lib/outbound';
 import { sendEmail } from '~/modules/email/email';
 import { suppressedOf } from '~/modules/email/addresses';
 import { requireReplyTo } from '~/modules/email/replyTos.service';
-import { requireDelivery } from '~/modules/email/sender';
+import { requireDelivery, requireFromAddress } from '~/modules/email/sender';
 import { notify } from '~/modules/notifications/notifications.service';
 import {
   checked,
@@ -121,6 +121,14 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         description: 'Shown with the organisation’s name, e.g. “MSM Group · Support”',
       },
       {
+        key: 'fromEmail',
+        label: 'From address',
+        type: 'from_address',
+        required: false,
+        description:
+          'Any address on a domain your email provider verified; empty: the address in Settings › Email sending',
+      },
+      {
         key: 'replyTo',
         label: 'Replies go to',
         type: 'reply_to',
@@ -153,10 +161,12 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       };
 
       const fromName = text(ctx.input.fromName)?.trim() || undefined;
+      const fromEmail = text(ctx.input.fromEmail)?.trim().toLowerCase() || undefined;
       const replyTo = text(ctx.input.replyTo)?.trim().toLowerCase() || undefined;
 
-      // Email that can't be delivered, or a Reply-To that isn't verified (any more), fails the step.
+      // Email that can't be delivered, or a Reply-To or From that isn't verified (any more), fails the step.
       await requireDelivery(ctx.tx);
+      await requireFromAddress(ctx.tx, fromEmail, ['fromEmail']);
       await requireReplyTo(ctx.tx, replyTo, ['replyTo']);
 
       // A Cc that is also a recipient, or suppressed, is left out.
@@ -181,6 +191,7 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
           to: address,
           template: 'message',
           fromName,
+          fromEmail,
           replyTo,
           cc: cc.length ? cc : undefined,
           data,

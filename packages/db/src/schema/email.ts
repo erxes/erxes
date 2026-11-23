@@ -54,6 +54,18 @@ export const emailSettings = pgTable(
     configurationSet: text().default('').notNull(),
     /** `ses`: the SNS topic its events come through; notifications from any other are refused. */
     eventsTopicArn: text().default('').notNull(),
+    /**
+     * `sendgrid`, `ses`: the domains the provider last said it sends from,
+     * lower-cased. Any address on them may be an email's From.
+     */
+    verifiedDomains: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    /** When the provider last answered; null: never asked. */
+    domainsCheckedAt: timestamptz(),
+    /** What the provider said when it last couldn't answer; null once it does. */
+    domainsError: text(),
     updatedBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

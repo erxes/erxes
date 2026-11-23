@@ -43,6 +43,9 @@ const oauthApps: Record<string, { clientId: string; clientSecret: string }> = {
     : {}),
 };
 
+/** SES's API for its domains: the region's own endpoint unless `endpoint` is set. */
+const sesApi: { endpoint?: string } = {};
+
 export const config = {
   isProduction,
   port: env.PORT,
@@ -143,6 +146,12 @@ export const config = {
       sesConfigurationSet: env.SES_CONFIGURATION_SET,
       /** SES: the SNS topics its events may come through; a notification from any other is refused. */
       sesTopicArns: env.SES_EVENTS_TOPIC_ARNS,
+    },
+    /** Where an organisation's own SendGrid or SES is asked which domains it verified (`domains.ts`). */
+    domainApis: {
+      sendgrid: 'https://api.sendgrid.com/v3',
+      /** SES answers at its region's endpoint unless one is set here. */
+      ses: sesApi,
     },
   },
   broadcast: {

@@ -1710,6 +1710,16 @@
         }
       }
     },
+    "checkDomains": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/settings/domains"
+        }
+      }
+    },
     "sender": {
       "~orpc": {
         "errorMap": {},
@@ -1817,6 +1827,58 @@
         "route": {
           "method": "PUT",
           "path": "/email/limits/ramp"
+        }
+      }
+    }
+  },
+  "emailTemplates": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email-templates"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email-templates/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email-templates"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/email-templates/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/email-templates/{id}"
         }
       }
     }

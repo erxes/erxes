@@ -79,6 +79,8 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('rendered'),
     replyTo: z.string().optional(),
     fromName: z.string().optional(),
+    /** An address on a verified domain (`requireFromAddress`), else the settings' own. */
+    fromEmail: z.string().optional(),
     data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
     attachments: z.array(InlineImage).max(5).optional(),
     /** Stored files attached, read when it is sent. */
@@ -90,6 +92,8 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('message'),
     replyTo: z.string().optional(),
     fromName: z.string().optional(),
+    /** An address on a verified domain (`requireFromAddress`), else the settings' own. */
+    fromEmail: z.string().optional(),
     /** Copied on every email of the step (automations). */
     cc: z.array(z.email()).max(5).optional(),
     data: z.object({ subject: z.string(), body: z.string(), button: Button.optional() }),

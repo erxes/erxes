@@ -1,6 +1,12 @@
 import type { Broadcast } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { IconMail, IconMailOff, IconMessage, IconSpeakerphone } from '@tabler/icons-react';
+import {
+  IconMail,
+  IconMailOff,
+  IconMessage,
+  IconSpeakerphone,
+  IconTemplate,
+} from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, PageHeader, AppBreadcrumb } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 import { useBroadcastHandlers } from '../broadcastQueries';
+import { useTemplatesOffered } from '../templates/useEmailTemplates';
 
 /** Starts a draft on the channel and opens it. */
 const useNewBroadcast = () => {
@@ -56,6 +63,7 @@ const NewBroadcastButtons = () => {
 export const BroadcastsListHeader = () => {
   const { t } = useTranslation('broadcasts');
   const can = useCan();
+  const templates = useTemplatesOffered();
 
   return (
     <PageHeader>
@@ -75,6 +83,16 @@ export const BroadcastsListHeader = () => {
           <IconMailOff />
           {t('suppressions', 'Suppressed addresses')}
         </Button>
+        {templates && (
+          <Button
+            variant="ghost"
+            nativeButton={false}
+            render={<Link to={paths.broadcasts.templates} />}
+          >
+            <IconTemplate />
+            {t('templates.title', 'Templates')}
+          </Button>
+        )}
         {can('broadcasts.manage') && <NewBroadcastButtons />}
       </PageHeader.End>
     </PageHeader>

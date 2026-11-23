@@ -13,6 +13,7 @@ import {
   LookupMultiSelect,
   OptionSelect,
 } from './actionFieldSelects';
+import { FromAddressField } from './FromAddressField';
 import { PluginRecordSelect } from './recordSelects';
 import { JsonEditor } from './JsonEditor';
 import { Segmented } from './Segmented';
@@ -231,6 +232,8 @@ export const ActionFieldInput = (props: ActionInputProps) => {
           disabled={disabled}
         />
       );
+    case 'from_address':
+      return <FromAddressField value={value} onChange={onChange} disabled={disabled} />;
     default:
       return <TextField {...props} />;
   }

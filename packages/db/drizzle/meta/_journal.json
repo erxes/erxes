@@ -932,6 +932,13 @@
       "when": 1795430102501,
       "tag": "0132_publishable_keys",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1795431428883,
+      "tag": "0133_email_domains_templates",
+      "breakpoints": true
     }
   ]
 }

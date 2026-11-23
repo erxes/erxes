@@ -1160,6 +1160,13 @@
     },
     "email": {
       "set-up-short": "Set up",
+      "domains": "Verified domains",
+      "domains-none": "None yet: emails go out only from {{address}}.",
+      "domains-error": "The last check failed: {{error}}",
+      "domains-checked": "Checked {{when}}. Any address on these domains can be a From.",
+      "domains-unchecked": "Not checked yet.",
+      "domains-check": "Check again",
+      "domains-check-failed": "Could not check the domains",
       "saved": "Email settings saved",
       "save-failed": "Could not save",
       "save": "Save changes",
