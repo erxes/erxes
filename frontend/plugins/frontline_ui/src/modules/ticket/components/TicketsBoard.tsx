@@ -240,10 +240,10 @@ export const TicketsBoardCards = ({
   }, [tickets, setTicketCards, setAllticketsMap, column.id]);
 
   useEffect(() => {
-    if (totalCount) {
+    if (totalCount !== undefined) {
       setTicketCountByBoard((prev) => ({
         ...prev,
-        [column.id]: totalCount || 0,
+        [column.id]: totalCount,
       }));
     }
   }, [totalCount, setTicketCountByBoard, column.id]);

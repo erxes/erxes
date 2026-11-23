@@ -867,6 +867,9 @@
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
   as `ITicketFilter.branchIds` / `departmentIds`.
+- The ticket list and board offer Company and Customer single-select filters.
+  `useTicketsVariables` sends their URL values as `companyId` and `customerId`.
+  When both are set, a ticket must match both contacts, including live updates.
 - Ticket detail and the ticket table edit the single `branchId` /
   `departmentId` through `SelectBranchTicket` / `SelectDepartmentTicket` with
   an `id`; detail gates them by `canEditTicket` like its other fields.
