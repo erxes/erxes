@@ -59,19 +59,24 @@ test('closing a tab keeps the conversation; deleting asks first', async ({ page 
   await panel.getByRole('textbox', { name: 'Message' }).fill(question);
   await panel.getByRole('textbox', { name: 'Message' }).press('Enter');
   await expect(panel.getByText('Hello! How can I help?')).toBeVisible();
-  await expect(panel.getByRole('tab', { selected: true })).toHaveText('Greeting');
+  const chats = panel.getByRole('button', { name: 'Open conversations' });
+
+  await expect(chats).toHaveText('Greeting');
 
   await panel.getByRole('button', { name: 'Conversation actions' }).click();
   await page.getByRole('menuitem', { name: 'Rename' }).click();
   await page.getByRole('dialog').getByRole('textbox', { name: 'Title' }).fill(title);
   await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
-  await expect(panel.getByRole('tab', { selected: true })).toHaveText(title);
+  await expect(chats).toHaveText(title);
 
-  await panel.getByRole('tab', { name: title }).press('Delete');
-  await expect(panel.getByRole('tab', { name: title })).toBeHidden();
+  await chats.click();
+  await page.getByRole('button', { name: `Close ${title}` }).click();
+  await expect(page.getByRole('button', { name: `Close ${title}` })).toBeHidden();
+  await page.keyboard.press('Escape');
   await expect(panel.getByRole('heading', { name: 'How can I help?' })).toBeVisible();
 
-  await panel.getByRole('button', { name: 'Conversations' }).click();
+  await panel.getByRole('button', { name: 'Open conversations' }).click();
+  await page.getByRole('button', { name: 'Conversations' }).click();
 
   const history = page.getByRole('dialog', { name: 'Conversations' });
 
@@ -105,7 +110,9 @@ test('a reply links each customer it lists, and a link shows the customer in pla
     .fill('Who are our top customers by won deal value?');
   await panel.getByRole('textbox', { name: 'Message' }).press('Enter');
   await expect(panel.getByText('leads with')).toBeVisible();
-  await expect(panel.getByRole('tab', { selected: true })).toHaveText('Top customers this quarter');
+  await expect(panel.getByRole('button', { name: 'Open conversations' })).toHaveText(
+    'Top customers this quarter',
+  );
 
   const chip = panel.getByRole('table').getByRole('button').first();
   const name = (await chip.getAttribute('title')) ?? '';
