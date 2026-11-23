@@ -1,5 +1,7 @@
 import { anthropic } from './anthropic/server';
 import { appleSignIn } from './apple-sign-in/server';
+import { callpro } from './callpro/server';
+import { twilio } from './twilio/server';
 import { facebookLogin } from './facebook-login/server';
 import { googleSignIn } from './google-sign-in/server';
 import { verifyMn } from './verify-mn/server';
@@ -25,9 +27,13 @@ export const MODEL_PROVIDERS = {
 /** Ways portals' customers sign in, which portals pick a connection of (Settings › Portals). */
 export const SIGN_IN_INTEGRATIONS = [googleSignIn, appleSignIn, facebookLogin, verifyMn];
 
+/** Ways the organisation's texts go out; the oldest active connection of one sends them. */
+export const SMS_INTEGRATIONS = [callpro, twilio];
+
 export const INTEGRATIONS = [
   qpay,
   stripe,
+  ...SMS_INTEGRATIONS,
   ...Object.values(MODEL_PROVIDERS),
   ...SIGN_IN_INTEGRATIONS,
 ];

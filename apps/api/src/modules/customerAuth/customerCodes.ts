@@ -84,7 +84,7 @@ const assertDeliverable = async (tx: Db, portal: CodePortal, address: Address) =
 
   if (!portal.phoneSignIn) throw unavailable("This portal doesn't sign in with a phone");
 
-  if (!repliesTo(portal, address) && !canDeliverSms()) {
+  if (!repliesTo(portal, address) && !(await canDeliverSms(tx))) {
     throw unavailable("Codes can't be texted yet: sign in with an email address");
   }
 };

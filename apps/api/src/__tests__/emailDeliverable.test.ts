@@ -81,7 +81,7 @@ describe('email that can’t be delivered', () => {
     ]);
     expect(loggedEmails.some((email) => email.to === 'step@undelivered.mn')).toBe(false);
 
-    // SMS doesn't go through email.
+    // SMS doesn't go through email: it needs the organisation's SMS connection, which it lacks.
     const sms = await owner.broadcasts.create({
       name: 'Text',
       channel: 'sms',
@@ -89,8 +89,8 @@ describe('email that can’t be delivered', () => {
       body: 'Hi',
     });
 
-    expect(await owner.broadcasts.test({ id: sms.id, to: ['+97699112233'] })).toEqual({
-      queued: 1,
-    });
+    await expect(owner.broadcasts.test({ id: sms.id, to: ['+97699112233'] })).rejects.toMatchObject(
+      { status: 409, code: 'SMS_NOT_CONFIGURED' },
+    );
   });
 });

@@ -75,6 +75,7 @@ export interface PagedIntegration extends Listing {
   payments?: never;
   socialSignIn?: never;
   phoneReply?: never;
+  smsSending?: never;
   oauth?: never;
   hooks?: never;
   triggers?: never;

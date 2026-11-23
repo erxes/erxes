@@ -149,13 +149,6 @@ export const config = {
     /** Copies one broadcast sends a minute, within what the mail or SMS provider allows. */
     perMinute: env.BROADCAST_PER_MINUTE,
   },
-  sms: {
-    /**
-     * How customer sign-in codes reach phones. `log` (development: written to
-     * the log, not sent); country providers are drivers in `modules/sms`.
-     */
-    driver: env.SMS_DRIVER ?? 'log',
-  },
   outbound: {
     /**
      * Webhooks and automation calls may reach http and private addresses

@@ -63,6 +63,7 @@ export {
 export {
   type PhoneReply,
   type PhoneReplySession,
+  type SmsSending,
   type SocialIdentity,
   type SocialSignIn,
   SocialTokenError,

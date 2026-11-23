@@ -3,6 +3,7 @@ import { MEMBER, needs, PUBLIC } from './policyRules';
 /** Email sending, broadcasts and suppressions: their part of the access map (`ACCESS` in `./policies`). */
 export const MESSAGING_ACCESS = {
   'emails.send': { plugin: 'emails:write' },
+  'sms.send': { plugin: 'sms:write' },
   'emails.settings': needs('integrations.manage'),
   'emails.saveSettings': needs('integrations.manage'),
   'emails.removeSettings': needs('integrations.manage'),

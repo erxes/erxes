@@ -16,6 +16,7 @@ import { fail, notFound } from '~/http/errors';
 import { containsPattern, keysetPage } from '~/lib/keyset';
 import { isVerifiedReplyTo, requireReplyTo } from '~/modules/email/replyTos.service';
 import { requireDelivery } from '~/modules/email/sender';
+import { canDeliverSms } from '~/modules/sms/sms';
 import { assertAttachments } from './attachments';
 import { type Audience, audienceWhere, estimateAudience } from './audience';
 import { contentColumns } from './emailBody';
@@ -278,11 +279,21 @@ export const assertComplete = (broadcast: BroadcastRow) => {
 };
 
 /**
- * 409 EMAIL_NOT_CONFIGURED for an email broadcast while email would only reach the log;
+ * 409 EMAIL_NOT_CONFIGURED for an email broadcast while email would only reach the log,
+ * SMS_NOT_CONFIGURED for a text one with no SMS connection in production;
  * 400 BROADCAST_ATTACHMENT_UNAVAILABLE when an attached file was deleted since.
  */
 export const assertDeliverable = async (client: Db, broadcast: BroadcastRow) => {
-  if (broadcast.channel !== 'email') return;
+  if (broadcast.channel !== 'email') {
+    if (!(await canDeliverSms(client))) {
+      throw fail(
+        'SMS_NOT_CONFIGURED',
+        'Texts can’t go out: connect CallPro or Twilio in Settings › Integrations',
+      );
+    }
+
+    return;
+  }
 
   await requireDelivery(client);
   await assertAttachments(client, broadcast.channel, broadcast.attachmentIds);

@@ -21,13 +21,17 @@ export const signInMethods = async (
   request: SignInRequest,
 ): Promise<PortalSignIn> => {
   const portal = await portalFor(input.portal, request.origin);
-  const emails = await withOrg(portal.orgId, (tx) => canDeliverEmail(tx));
+
+  const { emails, texts } = await withOrg(portal.orgId, async (tx) => ({
+    emails: await canDeliverEmail(tx),
+    texts: await canDeliverSms(tx),
+  }));
 
   const phone = !portal.phoneSignIn
     ? 'off'
     : portal.phoneConnectionId
       ? 'reply'
-      : canDeliverSms()
+      : texts
         ? 'code'
         : 'off';
 

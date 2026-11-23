@@ -10,6 +10,7 @@ import { auditContract } from './audit';
 import { authContract } from './auth';
 import { companiesContract } from './companies';
 import { emailsContract } from './emails';
+import { smsContract } from './sms';
 import { eventsContract } from './events';
 import { exchangeRatesContract } from './exchangeRates';
 import { customersContract } from './customers';
@@ -61,6 +62,7 @@ export type CoreContract = {
   customerAuth: typeof customerAuthContract;
   customerNotifications: typeof customerNotificationsContract;
   emails: typeof emailsContract;
+  sms: typeof smsContract;
   events: typeof eventsContract;
   exchangeRates: typeof exchangeRatesContract;
   fieldGroups: typeof fieldGroupsContract;
@@ -113,6 +115,7 @@ export const coreContract: CoreContract = {
   customerAuth: customerAuthContract,
   customerNotifications: customerNotificationsContract,
   emails: emailsContract,
+  sms: smsContract,
   events: eventsContract,
   exchangeRates: exchangeRatesContract,
   fieldGroups: fieldGroupsContract,
@@ -196,6 +199,8 @@ export * from './customerAuth';
 export * from './customerNotifications';
 
 export * from './emails';
+
+export * from './sms';
 
 export * from './events';
 

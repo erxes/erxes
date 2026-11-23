@@ -2,7 +2,7 @@ import type { CorePermission, Integration as IntegrationListing } from '@erxes/c
 import type { z } from 'zod';
 import type { AppAction, AppClient, AppRecords, Apps } from './apps';
 import { fieldsOf, type Keys, oauthKeys } from './fields';
-import type { PhoneReply, SocialSignIn } from './signIn';
+import type { PhoneReply, SmsSending, SocialSignIn } from './signIn';
 import type {
   ClientOptions,
   CreatedInvoice,
@@ -79,6 +79,8 @@ export interface KeyedIntegration<
   socialSignIn?: SocialSignIn<C>;
   /** Proves portals' customers' phones by a text they send (verify.mn). */
   phoneReply?: PhoneReply<C>;
+  /** Sends the organisation's text messages (CallPro, Twilio). */
+  smsSending?: SmsSending<C>;
   /** Its own actions; the `payments` ability brings the invoice actions to every gateway. */
   actions?: AppAction<C>[];
   /**

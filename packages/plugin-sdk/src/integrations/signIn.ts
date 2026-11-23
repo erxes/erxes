@@ -97,6 +97,15 @@ export const verifyIdToken = async (
 /** A claim the service sends as a boolean or as `"true"` (Apple). */
 export const isTrue = (value: unknown) => value === true || value === 'true';
 
+/**
+ * Sends the organisation's text messages (CallPro, Twilio): core's sign-in codes, notifications
+ * and broadcasts, and plugins' `sms.send`, all go through the organisation's SMS connection.
+ */
+export interface SmsSending<C> {
+  /** Sends one text, or throws (core retries the job). `to` is the phone as the customer gave it. */
+  send(client: C, message: { to: string; text: string }): Promise<void>;
+}
+
 /** A phone-reply session: the customer texts `text` to `to` from their phone. */
 export interface PhoneReplySession {
   sessionId: string;

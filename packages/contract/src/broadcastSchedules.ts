@@ -111,7 +111,13 @@ export const UpcomingRun = z.object({
 
 export type UpcomingRun = z.infer<typeof UpcomingRun>;
 
-const { BROADCAST_STATUS, BROADCAST_INCOMPLETE, EMAIL_NOT_CONFIGURED, REPEAT_STATE } = ERRORS;
+const {
+  BROADCAST_STATUS,
+  BROADCAST_INCOMPLETE,
+  EMAIL_NOT_CONFIGURED,
+  REPEAT_STATE,
+  SMS_NOT_CONFIGURED,
+} = ERRORS;
 
 const base = oc.errors({ ...COMMON_ERRORS, BROADCAST_STATUS, REPEAT_STATE });
 
@@ -143,13 +149,13 @@ export const broadcastSchedulesContract = {
     .input(ById)
     .output(BroadcastSchedule.nullable()),
   start: base
-    .errors({ BROADCAST_INCOMPLETE, EMAIL_NOT_CONFIGURED })
+    .errors({ BROADCAST_INCOMPLETE, EMAIL_NOT_CONFIGURED, SMS_NOT_CONFIGURED })
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/schedule/start',
       summary: 'Make a broadcast repeat',
       description:
-        'Make a draft recurring on this schedule: from now each run sends a copy of it, the audience counted then. 409 BROADCAST_STATUS unless a draft, EMAIL_NOT_CONFIGURED when email can’t be delivered',
+        'Make a draft recurring on this schedule: from now each run sends a copy of it, the audience counted then. 409 BROADCAST_STATUS unless a draft, EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(WithRule)
     .output(BroadcastSchedule),
@@ -173,13 +179,13 @@ export const broadcastSchedulesContract = {
     .input(ById)
     .output(BroadcastSchedule),
   resume: base
-    .errors({ EMAIL_NOT_CONFIGURED })
+    .errors({ EMAIL_NOT_CONFIGURED, SMS_NOT_CONFIGURED })
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/schedule/resume',
       summary: 'Resume a repeat schedule',
       description:
-        'Run again from the next time after now; times missed while paused are skipped. 409 REPEAT_STATE unless paused, EMAIL_NOT_CONFIGURED when email can’t be delivered',
+        'Run again from the next time after now; times missed while paused are skipped. 409 REPEAT_STATE unless paused, EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(ById)
     .output(BroadcastSchedule),

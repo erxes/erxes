@@ -101,7 +101,7 @@ const sendCopy = async (
 
   try {
     if (!deliveryId) {
-      await deliverSms({ to: row.address, text: copy.text });
+      await deliverSms(broadcast.orgId, { to: row.address, text: copy.text });
     } else {
       route = await routeFor(broadcast.orgId);
       await route.send({

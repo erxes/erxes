@@ -319,6 +319,7 @@ export const PLUGIN_SCOPES = [
   'products:read',
   'products:write',
   'secrets:write',
+  'sms:write',
   'units:read',
   'units:write',
   'users:read',
@@ -494,7 +495,6 @@ export const EBARIMT_PAPER_SIZES = ['58mm', '80mm', 'a4'] as const;
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;
 export const LOG_FORMATS = ['json', 'pretty'] as const;
 export const EMAIL_DRIVERS = ['smtp', 'log'] as const;
-export const SMS_DRIVERS = ['log'] as const;
 
 export * from './automationEnums';
 

@@ -29,7 +29,10 @@ const base = oc.errors({
 });
 
 /** What sends an email broadcast: refused while the organisation can't deliver email. */
-const sending = base.errors({ EMAIL_NOT_CONFIGURED: ERRORS.EMAIL_NOT_CONFIGURED });
+const sending = base.errors({
+  EMAIL_NOT_CONFIGURED: ERRORS.EMAIL_NOT_CONFIGURED,
+  SMS_NOT_CONFIGURED: ERRORS.SMS_NOT_CONFIGURED,
+});
 
 const ById = z.object({ id: Id });
 
@@ -137,7 +140,7 @@ export const broadcastsContract = {
       successStatus: 202,
       summary: 'Send a test broadcast',
       description:
-        'Send the broadcast to up to 5 addresses (emails or phones, by channel) with sample values; not counted. 409 EMAIL_NOT_CONFIGURED when email can’t be delivered',
+        'Send the broadcast to up to 5 addresses (emails or phones, by channel) with sample values; not counted. 409 EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(ById.extend({ to: z.array(z.string().trim().min(3).max(254)).min(1).max(5) }))
     .output(z.object({ queued: z.int() })),
@@ -147,7 +150,7 @@ export const broadcastsContract = {
       path: '/broadcasts/{id}/send',
       summary: 'Send a broadcast now',
       description:
-        'Start sending now: the audience is frozen and goes out at the deployment’s pace. 409 NO_RECIPIENTS when nobody is reachable, EMAIL_NOT_CONFIGURED when email can’t be delivered',
+        'Start sending now: the audience is frozen and goes out at the deployment’s pace. 409 NO_RECIPIENTS when nobody is reachable, EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(ById)
     .output(Broadcast),
@@ -157,7 +160,7 @@ export const broadcastsContract = {
       path: '/broadcasts/{id}/schedule',
       summary: 'Schedule a broadcast',
       description:
-        'Send at `at` (in the future); the audience is frozen then. 409 EMAIL_NOT_CONFIGURED when email can’t be delivered',
+        'Send at `at` (in the future); the audience is frozen then. 409 EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(ById.extend({ at: z.iso.datetime({ offset: true }) }))
     .output(Broadcast),
@@ -184,7 +187,8 @@ export const broadcastsContract = {
       method: 'POST',
       path: '/broadcasts/{id}/resume',
       summary: 'Resume a broadcast',
-      description: 'Back to sending. 409 EMAIL_NOT_CONFIGURED when email can’t be delivered',
+      description:
+        'Back to sending. 409 EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(ById)
     .output(Broadcast),

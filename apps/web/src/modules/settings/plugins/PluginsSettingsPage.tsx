@@ -40,6 +40,8 @@ const SCOPE_LABELS: Record<string, string> = {
   'products:read': 'Read the product catalog',
   'products:write': 'Create and edit products',
   'secrets:write': 'Keep its passwords and keys in the vault',
+  'sms:write': 'Send texts from erxes',
+  'portals:write': 'Put its stores and sites on portals customers sign in to',
   'units:read': 'Read branches and departments',
   'units:write': 'Change branches and departments, and who is in them',
   'users:read': 'Read team members',

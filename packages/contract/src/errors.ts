@@ -198,6 +198,8 @@ export const ERRORS = {
   REPEAT_STATE: { status: 409, data: z.object({ state: z.string() }) },
   // Production with no way to send email: it would only be written to the server's log.
   EMAIL_NOT_CONFIGURED: { status: 409 },
+  // Production with no SMS connection (CallPro, Twilio in Settings › Integrations).
+  SMS_NOT_CONFIGURED: { status: 409 },
 
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).

@@ -70,6 +70,11 @@ export const PAYMENT_KEYS = INTEGRATIONS.flatMap((integration) =>
   integration.payments ? [integration.key] : [],
 );
 
+/** The integrations that send the organisation's texts (CallPro, Twilio). */
+export const SMS_KEYS = INTEGRATIONS.flatMap((integration) =>
+  integration.smsSending ? [integration.key] : [],
+);
+
 export const gatewayOf = (key: string) => {
   const integration = integrationOf(key);
 

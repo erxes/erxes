@@ -4,7 +4,6 @@ import {
   FILE_STORAGES,
   LOG_FORMATS,
   LOG_LEVELS,
-  SMS_DRIVERS,
 } from '@erxes/core-db/enums';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
@@ -168,8 +167,6 @@ const Env = z
     SES_CONFIGURATION_SET: text,
     SES_EVENTS_TOPIC_ARNS: list,
     EMAIL_AUTH_HOURLY_CAP: positive(300),
-
-    SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
 
     BROADCAST_PER_MINUTE: positive(600),
 

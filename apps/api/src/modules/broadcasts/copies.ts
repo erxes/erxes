@@ -70,6 +70,7 @@ export const testBroadcast = async (client: Db, id: string, to: string[]) => {
   const copy = renderCopy(broadcast, { ...SAMPLE_VALUES, organization }, null);
 
   if (broadcast.channel === 'sms') {
+    await assertDeliverable(client, broadcast);
     await sendSms(
       client,
       requestOrgId(),
