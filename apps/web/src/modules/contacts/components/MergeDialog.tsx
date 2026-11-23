@@ -1,6 +1,6 @@
 import { IconArrowMerge } from '@tabler/icons-react';
 import { Button, cn, Dialog, Spinner } from 'erxes-ui';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export interface MergeCandidate {
@@ -8,6 +8,56 @@ export interface MergeCandidate {
   title: string;
   details: string[];
 }
+
+/** The records as radio cards; the chosen one is kept. */
+const KeepChoices = ({
+  kind,
+  records,
+  keepId,
+  onKeep,
+}: {
+  kind: 'customer' | 'company';
+  records: MergeCandidate[];
+  keepId: string;
+  onKeep: (id: string) => void;
+}) => {
+  const { t } = useTranslation('contact');
+
+  return (
+    <fieldset className="flex min-w-0 flex-col gap-2">
+      <legend className="sr-only">{t(`merge.legend.${kind}`)}</legend>
+      {records.map((record) => (
+        <label
+          key={record.id}
+          className={cn(
+            'flex cursor-pointer flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring',
+            record.id === keepId && 'border-primary bg-primary/5 hover:bg-primary/10',
+          )}
+        >
+          <input
+            type="radio"
+            name="merge-keep"
+            value={record.id}
+            checked={record.id === keepId}
+            onChange={() => onKeep(record.id)}
+            className="sr-only"
+          />
+          <span className="flex w-full items-center justify-between gap-2 text-sm font-medium">
+            <span className="truncate">{record.title}</span>
+            {record.id === keepId && (
+              <span className="text-xs text-primary-text">{t('merge.keep', 'Keep')}</span>
+            )}
+          </span>
+          {record.details.filter(Boolean).map((detail) => (
+            <span key={detail} className="truncate text-xs text-muted-foreground">
+              {detail}
+            </span>
+          ))}
+        </label>
+      ))}
+    </fieldset>
+  );
+};
 
 /**
  * Pick which record to keep; the others are merged into it. Empty fields are
@@ -19,6 +69,7 @@ export const MergeDialog = ({
   kind,
   records,
   merging,
+  picker,
   onMerge,
 }: {
   open: boolean;
@@ -27,6 +78,8 @@ export const MergeDialog = ({
   kind: 'customer' | 'company';
   records: MergeCandidate[];
   merging?: boolean;
+  /** Above the records: how a record's own page picks the one to merge with. */
+  picker?: ReactNode;
   onMerge: (keepId: string) => void;
 }) => {
   const { t } = useTranslation('contact');
@@ -44,46 +97,21 @@ export const MergeDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
-          <Dialog.Title>{t(`merge.title.${kind}`, { total: records.length })}</Dialog.Title>
+          <Dialog.Title>
+            {t(`merge.title.${kind}`, { total: Math.max(records.length, 2) })}
+          </Dialog.Title>
           <Dialog.Description>{t(`merge.description.${kind}`)}</Dialog.Description>
         </Dialog.Header>
-        <fieldset className="flex min-w-0 flex-col gap-2">
-          <legend className="sr-only">{t(`merge.legend.${kind}`)}</legend>
-          {records.map((record) => (
-            <label
-              key={record.id}
-              className={cn(
-                'flex cursor-pointer flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring',
-                record.id === keepId && 'border-primary bg-primary/5 hover:bg-primary/10',
-              )}
-            >
-              <input
-                type="radio"
-                name="merge-keep"
-                value={record.id}
-                checked={record.id === keepId}
-                onChange={() => setKeepId(record.id)}
-                className="sr-only"
-              />
-              <span className="flex w-full items-center justify-between gap-2 text-sm font-medium">
-                <span className="truncate">{record.title}</span>
-                {record.id === keepId && (
-                  <span className="text-xs text-primary-text">{t('merge.keep', 'Keep')}</span>
-                )}
-              </span>
-              {record.details.filter(Boolean).map((detail) => (
-                <span key={detail} className="truncate text-xs text-muted-foreground">
-                  {detail}
-                </span>
-              ))}
-            </label>
-          ))}
-        </fieldset>
+        {picker}
+        <KeepChoices kind={kind} records={records} keepId={keepId} onKeep={setKeepId} />
         <Dialog.Footer>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={merging}>
             {t('cancel', 'Cancel')}
           </Button>
-          <Button onClick={() => onMerge(keepId)} disabled={!keepId || merging}>
+          <Button
+            onClick={() => onMerge(keepId)}
+            disabled={!keepId || records.length < 2 || merging}
+          >
             {merging ? <Spinner size="sm" /> : <IconArrowMerge />}
             {t('merge.merge', 'Merge')}
           </Button>

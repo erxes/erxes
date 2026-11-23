@@ -31,7 +31,12 @@
       "company": "The company to keep"
     },
     "keep": "Keep",
-    "merge": "Merge"
+    "merge": "Merge",
+    "with": "Merge with",
+    "pick": {
+      "customer": "Choose a customer",
+      "company": "Choose a company"
+    }
   },
   "customer": {
     "_": "Customer",
