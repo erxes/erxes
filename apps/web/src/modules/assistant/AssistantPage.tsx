@@ -1,15 +1,17 @@
 import { IconPlus, IconSparkles } from '@tabler/icons-react';
-import { AppBreadcrumb, Button, Command, PageContainer, PageHeader } from 'erxes-ui';
+import { AppBreadcrumb, Button, Command, PageContainer, PageHeader, Spinner } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { paths } from '~/lib/paths';
 import { assistantOpenState, wantComposerFocus } from './assistantState';
-import { Conversation } from './Conversation';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { HistoryList } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';
 import { useAssistantTabs } from './useAssistantTabs';
 import { threadTitle, useThread } from './useThread';
+
+const Conversation = lazyNamed(() => import('./Conversation'), 'Conversation');
 
 const ChatsRail = ({ tabs }: { tabs: ReturnType<typeof useAssistantTabs> }) => {
   const { t } = useTranslation('assistant');
@@ -69,7 +71,15 @@ export const AssistantPage = () => {
       </PageHeader>
       <div className="flex min-h-0 flex-1">
         <ChatsRail tabs={tabs} />
-        {tabs.active && <Conversation key={tabs.active.key} tab={tabs.active} tabs={tabs} open />}
+        <Suspense
+          fallback={
+            <div className="flex flex-1 items-center justify-center">
+              <Spinner />
+            </div>
+          }
+        >
+          {tabs.active && <Conversation key={tabs.active.key} tab={tabs.active} tabs={tabs} open />}
+        </Suspense>
       </div>
     </PageContainer>
   );

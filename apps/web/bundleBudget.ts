@@ -11,6 +11,7 @@ import { logger, type RsbuildPlugin, type Rspack } from '@rsbuild/core';
  * 15 kB over the route's size when it was set.
  */
 const BUDGET_KB: Record<string, number> = {
+  'assistant/AssistantPage': 760,
   'automations/AutomationsRoutes': 825,
   'broadcasts/BroadcastsRoutes': 775,
   'contacts/ContactsRoutes': 855,
