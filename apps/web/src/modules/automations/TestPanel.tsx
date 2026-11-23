@@ -24,15 +24,15 @@ type TestResult = InferContractRouterOutputs<typeof coreContract>['automations']
 
 const TraceStep = ({
   item,
-  automationId,
+  hookAutomationId,
   steps,
 }: {
   item: DryRunStep;
-  automationId: string;
+  hookAutomationId?: string;
   steps: AutomationStep[];
 }) => {
   const { knownActions, events } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(null, automationId);
+  const { fields } = useAutomationFields(null, hookAutomationId);
   const step = findStep(steps, item.stepId);
 
   const title = step
@@ -53,11 +53,11 @@ const TraceStep = ({
 
 const Trace = ({
   result,
-  automationId,
+  hookAutomationId,
   steps,
 }: {
   result: TestResult;
-  automationId: string;
+  hookAutomationId?: string;
   steps: AutomationStep[];
 }) => {
   const { t } = useTranslation('automations');
@@ -89,7 +89,12 @@ const Trace = ({
       </div>
       <ol className="space-y-2">
         {result.trace.map((item) => (
-          <TraceStep key={item.stepId} item={item} automationId={automationId} steps={steps} />
+          <TraceStep
+            key={item.stepId}
+            item={item}
+            hookAutomationId={hookAutomationId}
+            steps={steps}
+          />
         ))}
       </ol>
     </div>
@@ -213,7 +218,11 @@ export const TestPanel = ({
       </Button>
       {run.isError && <p className="text-sm text-destructive-text">{messageOf(run.error)}</p>}
       {run.data && (
-        <Trace result={run.data} automationId={automation.id} steps={activeDefinition.steps} />
+        <Trace
+          result={run.data}
+          hookAutomationId={webhook ? automation.id : undefined}
+          steps={activeDefinition.steps}
+        />
       )}
     </div>
   );

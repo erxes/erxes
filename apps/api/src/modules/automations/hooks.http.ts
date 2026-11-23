@@ -94,8 +94,6 @@ const start = (hook: Hook, request: HookRequest, eventId: string) =>
         : null;
 
     if (!definition) {
-      if (automation.definition.trigger.kind !== 'webhook') throw noHook();
-
       await saveHookSample(tx, automation, request);
 
       return { outcome: { kind: 'sample' as const }, replies: [] };
