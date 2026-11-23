@@ -6,13 +6,22 @@
  * secret, starts its API and UI dev servers, and installs it in the e2e organisation.
  * The container name and the ports come from the checkout's path, so parallel checkouts
  * never collide. `up` writes `.env.local`, which `vp run test` and the dev servers read.
+ *
+ * Core's `.env` (or the shell) may set:
+ *   DEV_STACK_PLUGINS=../accounting-plugin,../sales-plugin   plugin dirs when `up` names none
+ *   DEV_STACK_DATA_URL=postgres://erxes:…@127.0.0.1:5434/erxes
+ * With DEV_STACK_DATA_URL, a Postgres of your own (as its owner) instead of the throwaway one: its
+ * data stays, `up` migrates it and starts the servers on it, nothing is seeded, the plugins
+ * install themselves in its organisations, and `down` leaves it running. Each plugin keeps its
+ * database password and secret across `up`s (its checkout's `.env` ones when they point there).
  */
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { OWNER } from '../e2e/owner.ts';
+import { ownCredentials, prepareOwn, reachable, settingIn, shown } from './dev-stack-own.ts';
 import {
   type DevPlugin,
   DevPlugins,
@@ -23,6 +32,7 @@ import {
   readPlugins,
   rolePasswords,
 } from './dev-stack-plugins.ts';
+import { alive, answers, serversIn } from './dev-stack-helper.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const id = createHash('sha256').update(root).digest('hex').slice(0, 8);
@@ -38,13 +48,21 @@ export const stack = {
 /** Plugins get two ports each from here: 20 per checkout, in a range core's own never reach. */
 const firstPluginPort = 40_000 + slot * 20;
 
+/** Your own Postgres (its owner), when set; otherwise `up` starts the throwaway one. */
+const setting = settingIn(root);
+const ownPostgres = setting('DEV_STACK_DATA_URL');
+
 // No password: the throwaway server listens on 127.0.0.1 only and trusts local connections.
-const postgres = `postgres://erxes@127.0.0.1:${stack.ports.postgres}`;
+const throwaway = `postgres://erxes@127.0.0.1:${stack.ports.postgres}`;
+const throwawayUrl = `${throwaway}/erxes`;
+const dataUrl = ownPostgres ?? throwawayUrl;
 const api = `http://localhost:${stack.ports.api}`;
 const ui = `http://localhost:${stack.ports.ui}`;
 const state = resolve(root, '.scratch/dev-stack');
 const envFile = resolve(root, '.env.local');
 const pluginsFile = resolve(state, 'plugins.json');
+const startedOnFile = resolve(state, 'postgres');
+const credentialsFile = resolve(state, 'credentials.json');
 
 /**
  * The API acts as this role, under row level security like production's runtime role, so
@@ -52,19 +70,20 @@ const pluginsFile = resolve(state, 'plugins.json');
  */
 const RUNTIME_ROLE = 'erxes_dev_runtime';
 
-type Server = DevServer;
-
 /** Core's dev servers, told about the plugins. */
-const coreServers = (plugins: DevPlugin[]): Record<string, Server> => ({
+const coreServers = (plugins: DevPlugin[]): Record<string, DevServer> => ({
   api: {
     cwd: root,
     args: ['--filter', '@erxes/api', 'dev'],
     env: {
       PORT: String(stack.ports.api),
-      DATA_URL: `${postgres}/erxes`,
+      DATA_URL: dataUrl,
+      DATA_MIGRATION_URL: dataUrl,
       DATA_ROLE: RUNTIME_ROLE,
       DATA_RUNTIME_ROLE: RUNTIME_ROLE,
       APP_URL: ui,
+      // On your own Postgres nothing installs the plugins but this.
+      ...(ownPostgres ? { PLUGINS_AUTO_INSTALL: 'true' } : {}),
       ...coreEnv(plugins),
     },
     ready: `${api}/ready`,
@@ -87,29 +106,13 @@ const run = (command: string, args: string[], env: NodeJS.ProcessEnv = {}) =>
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
-const pidFile = (name: string) => resolve(state, `${name}.pid`);
-const logFile = (name: string) => resolve(state, `${name}.log`);
+/** For core's database scripts: the owner, whatever core's `.env` says. */
+const ownerEnv = { NODE_ENV: 'development', DATA_URL: dataUrl, DATA_MIGRATION_URL: dataUrl };
 
-const pidOf = (name: string) => {
-  try {
-    return Number(readFileSync(pidFile(name), 'utf8'));
-  } catch {
-    return undefined;
-  }
-};
+/** A core database script, as the owner. */
+const db = (args: string[]) => run('pnpm', ['--silent', ...args], ownerEnv);
 
-/** Whether the server's process group still has a process. */
-const alive = (pid: number | undefined) => {
-  if (!pid) return false;
-
-  try {
-    process.kill(-pid, 0);
-
-    return true;
-  } catch {
-    return false;
-  }
-};
+const { pidOf, startAll, stop } = serversIn(state);
 
 /** The plugins the running stack was started with. */
 const startedPlugins = () => {
@@ -125,28 +128,6 @@ const containerStatus = () => {
     return run('docker', ['inspect', '-f', '{{.State.Status}}', stack.container]).trim();
   } catch {
     return 'absent';
-  }
-};
-
-const answers = async (url: string) => {
-  try {
-    return (await fetch(url, { signal: AbortSignal.timeout(2000) })).ok;
-  } catch {
-    return false;
-  }
-};
-
-const tail = (name: string) => readFileSync(logFile(name), 'utf8').split('\n').slice(-30);
-
-/** Waits for a server to answer; fails with its log when it exits or takes 3 minutes. */
-const waitFor = async (name: string, server: Server) => {
-  const deadline = Date.now() + 180_000;
-
-  while (!(await answers(server.ready))) {
-    if (!alive(pidOf(name)) || Date.now() > deadline)
-      throw new Error(`${name} did not start. ${logFile(name)}:\n${tail(name).join('\n')}`);
-
-    await sleep(500);
   }
 };
 
@@ -178,27 +159,6 @@ const startPostgres = async () => {
   throw new Error(`Postgres in ${stack.container} did not start`);
 };
 
-const startServer = (name: string, server: Server) => {
-  const out = openSync(logFile(name), 'w');
-  const env = { ...process.env, NODE_ENV: 'development', ...server.env };
-
-  const child = spawn('pnpm', server.args, {
-    cwd: server.cwd,
-    env,
-    detached: true,
-    stdio: ['ignore', out, out],
-  });
-
-  writeFileSync(pidFile(name), String(child.pid));
-  child.unref();
-};
-
-const startAll = async (servers: Record<string, Server>) => {
-  for (const [name, server] of Object.entries(servers)) startServer(name, server);
-
-  await Promise.all(Object.entries(servers).map(([name, server]) => waitFor(name, server)));
-};
-
 /** The organisation and owner (migrating first) and the API's role; example data comes after. */
 const seed = () => {
   const printed = run(
@@ -208,37 +168,39 @@ const seed = () => {
       ['--email', OWNER.email, '--password', OWNER.password],
       ['--full-name', `${OWNER.firstName} ${OWNER.lastName}`],
     ].flat(),
-    { NODE_ENV: 'development', DATA_URL: `${postgres}/erxes` },
+    ownerEnv,
   );
 
   const token = /^token\s+(\S+)/m.exec(printed)?.[1];
 
   if (!token) throw new Error(`bootstrap printed no token:\n${printed}`);
 
-  run('pnpm', ['--silent', 'db:grant', RUNTIME_ROLE], {
-    NODE_ENV: 'development',
-    DATA_URL: `${postgres}/erxes`,
-  });
+  db(['db:grant', RUNTIME_ROLE]);
 
   return token;
 };
 
-/** Each plugin's API and UI servers, with a fresh password for its database role. */
-const pluginServersOf = (plugins: DevPlugin[]) => {
+/** A plugin's role on the stack's Postgres, same server and database. */
+const pluginDataUrl = (role: string, password: string) => {
+  const url = new URL(dataUrl);
+
+  url.username = role;
+  url.password = encodeURIComponent(password);
+
+  return url.href;
+};
+
+/**
+ * Each plugin's API and UI servers: with the given passwords (your own Postgres's kept ones),
+ * else a fresh password for its database role.
+ */
+const pluginServersOf = (plugins: DevPlugin[], given?: Map<string, string>) => {
   if (!plugins.length) return {};
 
-  const passwords = rolePasswords(
-    run('pnpm', ['--silent', 'db:plugin-role', ...plugins.map((plugin) => plugin.name)], {
-      DATA_URL: `${postgres}/erxes`,
-    }),
-  );
+  const passwords =
+    given ?? rolePasswords(db(['db:plugin-role', ...plugins.map((plugin) => plugin.name)]));
 
-  const core = {
-    dataUrl: (role: string, password: string) =>
-      `postgres://${role}:${password}@127.0.0.1:${stack.ports.postgres}/erxes`,
-    api,
-    ui,
-  };
+  const core = { dataUrl: pluginDataUrl, api, ui };
 
   return Object.fromEntries(
     plugins.flatMap((plugin) => {
@@ -261,20 +223,6 @@ const loadExampleData = async (token: string) => {
   if (!response.ok) throw new Error(`example data: ${response.status} ${await response.text()}`);
 };
 
-const stop = async (name: string) => {
-  const pid = pidOf(name);
-
-  if (pid && alive(pid)) {
-    process.kill(-pid, 'SIGTERM');
-
-    for (let waited = 0; waited < 20 && alive(pid); waited++) await sleep(500);
-
-    if (alive(pid)) process.kill(-pid, 'SIGKILL');
-  }
-
-  rmSync(pidFile(name), { force: true });
-};
-
 const serverNames = () => [
   'api',
   'ui',
@@ -287,13 +235,31 @@ const teardown = async () => {
   run('docker', ['rm', '-f', stack.container]);
   rmSync(envFile, { force: true });
   rmSync(pluginsFile, { force: true });
+  rmSync(startedOnFile, { force: true });
 };
 
+/** The Postgres the running stack was started on. */
+const startedOn = () => {
+  try {
+    return readFileSync(startedOnFile, 'utf8');
+  } catch {
+    return undefined;
+  }
+};
+
+const onThrowaway = () => (startedOn() ?? throwawayUrl) === throwawayUrl;
+
 export const isUp = () =>
-  containerStatus() === 'running' && alive(pidOf('api')) && alive(pidOf('ui'));
+  (!onThrowaway() || containerStatus() === 'running') && alive(pidOf('api')) && alive(pidOf('ui'));
 
 const status = async () => {
-  say(`postgres  ${postgres}/erxes  ${stack.container}: ${containerStatus()}`);
+  const on = startedOn() ?? dataUrl;
+
+  say(
+    on === throwawayUrl
+      ? `postgres  ${on}  ${stack.container}: ${containerStatus()}`
+      : `postgres  ${shown(on)}  (your own; down leaves it running)`,
+  );
 
   const plugins = startedPlugins();
 
@@ -312,18 +278,35 @@ const status = async () => {
     say(`${name.padEnd(8)}  ${server.ready}  pid ${pidOf(name) ?? '-'}: ${health}`);
   }
 
-  say(`sign in   ${ui}  ${OWNER.email} / ${OWNER.password}`);
+  say(
+    on === throwawayUrl
+      ? `sign in   ${ui}  ${OWNER.email} / ${OWNER.password}`
+      : `sign in   ${ui}  with your own users`,
+  );
   say(`logs      ${state}/<server>.log`);
 };
 
+/** Plugin dirs given to `up`, else DEV_STACK_PLUGINS (comma-separated, relative to core). */
+const pluginDirs = (given: string[]) =>
+  given.length
+    ? given
+    : (setting('DEV_STACK_PLUGINS') ?? '')
+        .split(',')
+        .map((dir) => dir.trim())
+        .filter(Boolean)
+        .map((dir) => resolve(root, dir));
+
 const up = async (dirs: string[]) => {
-  const plugins = readPlugins(dirs, firstPluginPort);
+  const plugins = readPlugins(pluginDirs(dirs), firstPluginPort);
 
   if (isUp()) {
     const running = new Set(startedPlugins().map((plugin) => plugin.dir));
 
     if (plugins.some((plugin) => !running.has(plugin.dir)))
       throw new Error('Already up with other plugins: vp run dev:stack down first.');
+
+    if ((startedOn() ?? throwawayUrl) !== dataUrl)
+      throw new Error('Already up on another Postgres: vp run dev:stack down first.');
 
     say('Already up.');
     await status();
@@ -333,11 +316,42 @@ const up = async (dirs: string[]) => {
 
   await teardown();
   mkdirSync(state, { recursive: true });
-  await startPostgres();
+
+  if (ownPostgres) await reachable(ownPostgres);
+  else await startPostgres();
+
+  // Tests create and drop databases, so they get the throwaway server only.
   writeFileSync(
     envFile,
-    `# Written by \`vp run dev:stack up\` for this checkout; \`down\` removes it.\nDATA_URL=${postgres}/erxes\nDATA_TEST_URL=${postgres}/postgres\n`,
+    [
+      '# Written by `vp run dev:stack up` for this checkout; `down` removes it.',
+      `DATA_URL=${dataUrl}`,
+      ...(ownPostgres ? [] : [`DATA_TEST_URL=${throwaway}/postgres`]),
+      '',
+    ].join('\n'),
   );
+  writeFileSync(startedOnFile, dataUrl);
+
+  if (ownPostgres) {
+    prepareOwn(db, dataUrl, RUNTIME_ROLE);
+
+    const kept = ownCredentials(plugins, { db, dataUrl, file: credentialsFile });
+
+    const withSecrets = plugins.map((plugin) => ({
+      ...plugin,
+      secret: kept.get(plugin.name)?.secret ?? plugin.secret,
+    }));
+
+    const passwords = new Map([...kept].map(([name, { password }]) => [name, password]));
+
+    writeFileSync(pluginsFile, JSON.stringify(withSecrets));
+    await startAll(coreServers(withSecrets));
+    await startAll(pluginServersOf(withSecrets, passwords));
+    await status();
+
+    return;
+  }
+
   writeFileSync(pluginsFile, JSON.stringify(plugins));
 
   const token = seed();
@@ -351,8 +365,14 @@ const up = async (dirs: string[]) => {
 };
 
 const down = async () => {
+  const own = !onThrowaway();
+
   await teardown();
-  say(`Stopped the servers and ${stack.container}.`);
+  say(
+    own
+      ? 'Stopped the servers; your Postgres keeps running.'
+      : `Stopped the servers and ${stack.container}.`,
+  );
 };
 
 const [command, ...dirs] = process.argv.slice(2);

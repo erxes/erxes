@@ -11,6 +11,7 @@ pnpm install         # Node 26 (.node-version); installs the pre-commit hook
 vp run doctor        # Docker, Node, pnpm, disk and ports: one line per problem, with the fix
 vp run dev:stack up  # Postgres, API and UI for this checkout; prints the URLs and the sign-in
                      # add plugin checkouts to run them too: vp run dev:stack up ../sales
+                     # or set DEV_STACK_PLUGINS, and DEV_STACK_DATA_URL for your own Postgres, in .env
 vp run test          # on dev:stack's Postgres (.env.local); vp run dev:stack down when done
 ```
 
