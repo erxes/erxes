@@ -91,23 +91,36 @@ const serverClient = (key: string): AppClient | null => {
   return client ? { ref: SERVER_CLIENT, ...client } : null;
 };
 
-const clientSource = async (tx: Db, key: string) => {
-  if (serverClient(key)) return 'server' as const;
-
-  return (await orgClient(tx, key)) ? ('organization' as const) : null;
-};
-
-/** On SaaS erxes runs the server's apps, so organisations don't see their ids or the relay. */
+/**
+ * How the organisation signs in to the app. The server's app (.env) stays out of sight; the
+ * organisation's own app shows its client id, to change while no connection uses it.
+ */
 export const oauthFacts = async (tx: Db, key: string) => {
   const relay = metaRelayFor(key);
-  const shown = !config.saas.enabled;
+  const own = serverClient(key) ? null : await orgClient(tx, key);
 
   return {
-    client: await clientSource(tx, key),
+    client: serverClient(key) ? ('server' as const) : own ? ('organization' as const) : null,
     callbackUrl: relay?.redirectUrl ?? (await callbackUrl(tx)),
-    serverClientId: (shown && serverClient(key)?.clientId) || null,
-    relayUrl: (shown && relay?.url) || null,
+    clientId: own?.clientId ?? null,
   };
+};
+
+const ensureAppFree = async (tx: Db, integration: OAuthIntegration) => {
+  if (serverClient(integration.key))
+    throw fail('NOT_ALLOWED', `${integration.name} signs in through the server's app`);
+
+  const [used] = await tx
+    .select({ id: integrationConnections.id })
+    .from(integrationConnections)
+    .where(eq(integrationConnections.key, integration.key))
+    .limit(1);
+
+  if (used)
+    throw fail(
+      'APP_IN_USE',
+      `Connections sign in through your ${integration.name} app: remove them to change it`,
+    );
 };
 
 export const appClientOf = async (tx: Db, key: string) => serverClient(key) ?? orgClient(tx, key);
@@ -327,6 +340,8 @@ export const freshKeys = async (tx: Db, integration: KeyedIntegration, row: Conn
 export const setOAuthApp = async (tx: Db, input: { key: string } & Client) => {
   const integration = oauthOf(input.key);
 
+  await ensureAppFree(tx, integration);
+
   const [row] = await tx
     .select({ secretId: integrationOAuthApps.secretId })
     .from(integrationOAuthApps)
@@ -363,6 +378,8 @@ export const setOAuthApp = async (tx: Db, input: { key: string } & Client) => {
 
 export const removeOAuthApp = async (tx: Db, key: string) => {
   const integration = oauthOf(key);
+
+  await ensureAppFree(tx, integration);
 
   await tx.delete(integrationOAuthApps).where(eq(integrationOAuthApps.key, integration.key));
 

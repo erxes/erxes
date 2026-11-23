@@ -193,4 +193,36 @@ describe('Signing in to an app from Settings', { timeout: 300_000 }, () => {
       ),
     ).toEqual(['ya29.renewed', 'ya29.renewed']);
   });
+
+  it('changes the organisation’s own app only while no connection signs in through it', async () => {
+    const app = async () =>
+      (await member.api.integrations.list()).data.find(({ key }) => key === 'googlesheets')?.oauth;
+
+    const setApp = (clientId: string) =>
+      member.api.integrations.setOAuthApp({
+        key: 'googlesheets',
+        clientId,
+        clientSecret: 'initech-secret',
+      });
+
+    expect(await app()).toMatchObject({
+      client: 'organization',
+      clientId: 'initech.apps.googleusercontent.com',
+    });
+    await expect(setApp('initech-2.apps.googleusercontent.com')).rejects.toMatchObject({
+      status: 409,
+      code: 'APP_IN_USE',
+    });
+    await expect(
+      member.api.integrations.removeOAuthApp({ key: 'googlesheets' }),
+    ).rejects.toMatchObject({ status: 409, code: 'APP_IN_USE' });
+
+    const { data } = await member.api.integrations.connections({ key: 'googlesheets' });
+
+    for (const { id } of data) await member.api.integrations.remove({ key: 'googlesheets', id });
+
+    await setApp('initech-2.apps.googleusercontent.com');
+
+    expect(await app()).toMatchObject({ clientId: 'initech-2.apps.googleusercontent.com' });
+  });
 });

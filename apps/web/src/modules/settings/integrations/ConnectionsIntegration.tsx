@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
-import { ServerAppFacts } from '../vault/SignInForm';
+import { isOAuthIntegration, OAuthAppForm } from '../vault/SignInForm';
 import { connectionsOf, useConnections } from '../vault/useVault';
 import type { Integration } from './catalog';
 import { AutomationTriggers } from './AutomationTriggers';
@@ -72,9 +72,21 @@ const Overview = ({ integration }: { integration: Integration }) => {
         </QueryState>
       </OverviewSection>
       <AutomationTriggers integration={integration} />
-      {integration.oauth?.client === 'server' && integration.oauth.serverClientId && (
+      {isOAuthIntegration(integration) && integration.oauth.client === 'organization' && (
         <OverviewSection title={t('app', 'App')}>
-          <ServerAppFacts oauth={integration.oauth} />
+          {connectionsOf(connections.data?.data ?? [], [integration]).length ? (
+            <p className="rounded-lg border p-4 text-sm">
+              {t(
+                'app-in-use',
+                'Client id {{clientId}}. Remove the connections to change the app.',
+                {
+                  clientId: integration.oauth.clientId,
+                },
+              )}
+            </p>
+          ) : (
+            <OAuthAppForm integration={integration} />
+          )}
         </OverviewSection>
       )}
       {integration.payments && (

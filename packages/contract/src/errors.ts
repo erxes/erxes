@@ -177,6 +177,7 @@ export const ERRORS = {
   GATEWAY_REFUSED: { status: 400 },
   GATEWAY_IN_USE: { status: 409 },
   CONNECTION_IN_USE: { status: 409, data: z.object({ automations: z.array(z.string()) }) },
+  APP_IN_USE: { status: 409 },
   KIND_CHANGED: { status: 400 },
   NO_GATEWAY: { status: 400 },
   NOT_PENDING: { status: 409 },

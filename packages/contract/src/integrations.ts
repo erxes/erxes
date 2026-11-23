@@ -88,8 +88,8 @@ export const Integration = z.object({
     .object({
       client: z.enum(OAUTH_CLIENT_SOURCES).nullable(),
       callbackUrl: z.string(),
-      serverClientId: z.string().nullable(),
-      relayUrl: z.string().nullable(),
+      /** The organisation's own app's client id; null on the server's app or none. */
+      clientId: z.string().nullable(),
     })
     .nullable(),
   status: IntegrationStatus,
@@ -185,6 +185,7 @@ export const AppRecord = z.object({ value: z.string(), label: z.string() });
 export type AppRecord = z.infer<typeof AppRecord>;
 
 const {
+  APP_IN_USE,
   BANK_IN_USE,
   CONNECTION_IN_USE,
   GATEWAY_IN_USE,
@@ -196,6 +197,7 @@ const {
 
 const base = oc.errors({
   ...COMMON_ERRORS,
+  APP_IN_USE,
   BANK_IN_USE,
   CONNECTION_IN_USE,
   GATEWAY_IN_USE,
@@ -221,7 +223,8 @@ export const integrationsContract = {
       method: 'PUT',
       path: '/integrations/{key}/oauth-app',
       summary: 'Set our own OAuth app',
-      description: "The organisation's own OAuth app for this integration, kept in the vault",
+      description:
+        "The organisation's own OAuth app for this integration, kept in the vault. 409 APP_IN_USE while connections sign in through it; 403 NOT_ALLOWED where the server's app signs in",
     })
     .input(
       z.object({
@@ -236,6 +239,8 @@ export const integrationsContract = {
       method: 'DELETE',
       path: '/integrations/{key}/oauth-app',
       summary: 'Remove our own OAuth app',
+      description:
+        "409 APP_IN_USE while connections sign in through it; 403 NOT_ALLOWED where the server's app signs in",
     })
     .input(z.object({ key: IntegrationKey }))
     .output(z.object({ ok: z.literal(true) })),

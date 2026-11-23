@@ -176,20 +176,16 @@ describe(
       expect(pageCalls('DELETE').map((call) => call.auth)).toEqual(['Bearer page-token']);
     });
 
-    it('shows the server’s app id self-hosted and hides it on SaaS', async () => {
-      expect(await facts()).toMatchObject({ client: 'server', serverClientId: APP_ID });
+    it('keeps the server’s app out of sight and out of reach', async () => {
+      expect(await facts()).toMatchObject({ client: 'server', clientId: null });
 
-      config.saas.enabled = true;
-
-      try {
-        expect(await facts()).toMatchObject({
-          client: 'server',
-          serverClientId: null,
-          relayUrl: null,
-        });
-      } finally {
-        config.saas.enabled = false;
-      }
+      await expect(
+        t.client({ user: t.ids.owner, org: t.ids.org }).integrations.setOAuthApp({
+          key: 'facebook',
+          clientId: 'own-app',
+          clientSecret: 'own-secret',
+        }),
+      ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
     });
   },
 );
