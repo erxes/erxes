@@ -1,42 +1,25 @@
-// import { Breadcrumb, Input, Label } from 'erxes-ui';
-
 import { ChooseTheme } from '@/settings/components/ChooseTheme';
 import { SettingsBreadcrumbs } from '@/settings/components/SettingsBreadcrumbs';
+import { PageContainer, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const SettingsExperiencePage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+
   return (
-    <section className="mx-auto max-w-2xl w-full">
-      <div className="px-4 h-10 flex items-center">
-        <SettingsBreadcrumbs />
-      </div>
-      <h2 className="font-semibold text-lg mt-4 mb-12 px-4">
-        {t('experience')}
-      </h2>
-      <div className="flex flex-col gap-10 px-4">
-        <div className="flex flex-col gap-4">
-          <ChooseTheme />
-        </div>
-        {/* <div className="flex flex-col gap-6">
-          <Label>Date and time</Label>
-          <p className="text-sm text-muted-foreground">
-            Configure how dates are displayed across the app
-          </p>
-          <div className="flex flex-col gap-1">
-            <Label className="text-xs text-muted-foreground">Time zone</Label>
-            <Input />
+    <PageContainer>
+      <SettingsBreadcrumbs />
+      <ScrollArea className="ui-home-backdrop bg-muted/20">
+        <section className="relative mx-auto w-full max-w-2xl px-4 py-6">
+          <h2 className="mb-6 text-xl font-semibold tracking-tight">
+            {t('experience')}
+          </h2>
+          <div className="rounded-2xl border border-border/75 bg-background/95 p-5 shadow-2xs backdrop-blur-xs">
+            <ChooseTheme />
           </div>
-          <div className="flex flex-col gap-1">
-            <Label className="text-xs text-muted-foreground">Date format</Label>
-            <Input />
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label className="text-xs text-muted-foreground">Time format</Label>
-            <Input />
-          </div>
-        </div> */}
-      </div>
-    </section>
+        </section>
+        <ScrollArea.Bar />
+      </ScrollArea>
+    </PageContainer>
   );
 };

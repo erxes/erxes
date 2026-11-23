@@ -52,11 +52,11 @@ export const GlobalSearchItem = ({
 
   return (
     <Command.Item
-      className="group h-auto min-h-10 gap-2 rounded-sm px-2 py-1.5"
+      className="group h-auto min-h-11 gap-2.5 rounded-lg px-2.5 py-2 transition-[background-color,color,transform] duration-150 data-[selected=true]:bg-accent/90 active:scale-[0.995]"
       value={commandValue}
       onSelect={() => onSelect(item.path)}
     >
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-sm border bg-muted/40 text-muted-foreground">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/50 text-muted-foreground transition-[background-color,border-color,color,transform] duration-150 group-data-[selected=true]:scale-105 group-data-[selected=true]:border-primary/30 group-data-[selected=true]:bg-primary/12 group-data-[selected=true]:text-primary">
         {Icon && <Icon className="size-4" />}
       </span>
       <span className="min-w-0 flex-1">
@@ -80,9 +80,13 @@ export const GlobalSearchItem = ({
           </span>
         )}
       </span>
-      <Command.Shortcut className="flex shrink-0 items-center gap-2 tracking-normal">
-        <span className="hidden sm:inline">{actionLabel}</span>
-        <IconCornerDownLeft className="hidden size-4 group-data-[selected=true]:block" />
+      <Command.Shortcut className="flex shrink-0 items-center gap-1.5 tracking-normal">
+        <span className="hidden text-xs text-muted-foreground transition-colors group-data-[selected=true]:text-foreground sm:inline">
+          {actionLabel}
+        </span>
+        <span className="hidden size-5 items-center justify-center rounded-md bg-primary/12 text-primary group-data-[selected=true]:inline-flex">
+          <IconCornerDownLeft className="size-3.5" />
+        </span>
       </Command.Shortcut>
     </Command.Item>
   );

@@ -27,7 +27,7 @@ const SearchGroupHeading = ({
       </span>
       {onShowMore && (
         <Button
-          className="h-6 gap-1 px-1.5 text-xs font-normal normal-case"
+          className="group/more h-6 gap-1 rounded-md px-2 text-xs font-medium normal-case text-muted-foreground hover:text-primary"
           size="sm"
           type="button"
           variant="ghost"
@@ -35,7 +35,7 @@ const SearchGroupHeading = ({
           onMouseDown={(event) => event.preventDefault()}
         >
           {t('show-more', 'Show more')}
-          <IconArrowRight className="size-3.5" />
+          <IconArrowRight className="size-3.5 transition-transform duration-150 group-hover/more:translate-x-0.5" />
         </Button>
       )}
     </span>

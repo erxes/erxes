@@ -223,11 +223,14 @@ export function SettingsExitButton() {
   });
 
   return (
-    <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+    <Sidebar.Header className="sticky top-0 z-10 bg-sidebar/90 px-2 pt-0 pb-1 backdrop-blur-md after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar/90 after:to-transparent">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onClick={handleExitSettings}>
-            <IconChevronLeft />
+          <Sidebar.MenuButton
+            className="group/exit transition-[background-color,color,transform] duration-150 active:scale-[0.985]"
+            onClick={handleExitSettings}
+          >
+            <IconChevronLeft className="transition-transform duration-150 group-hover/exit:-translate-x-0.5" />
             <span>{t('exit-settings')}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>

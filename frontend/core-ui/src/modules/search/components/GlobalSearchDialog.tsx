@@ -368,29 +368,29 @@ export const GlobalSearchDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="w-[calc(100vw-2rem)] max-w-4xl gap-0 overflow-hidden border-0 p-0">
+      <Dialog.Content className="w-[calc(100vw-2rem)] max-w-4xl gap-0 overflow-hidden rounded-2xl border border-border/75 bg-background/95 p-0 shadow-2xl ring-1 ring-primary/10 backdrop-blur-xl">
         <Dialog.Title className="sr-only">
           {t('placeholder', 'Search anything')}
         </Dialog.Title>
         <Dialog.Description className="sr-only">
           {t('description', 'Search navigation pages, content, and plugins')}
         </Dialog.Description>
-        <Command className="rounded-lg" shouldFilter={false} loop>
-          <div className="relative border-b">
+        <Command className="rounded-2xl bg-transparent" shouldFilter={false} loop>
+          <div className="relative border-b border-border/75 bg-background/60">
             <Command.Input
-              className="h-10 pr-36 text-sm"
+              className="h-12 pr-36 text-sm"
               focusOnMount
               placeholder={t('placeholder', 'Search anything...')}
               value={value}
               variant="primary"
-              wrapperClassName="h-10 border-b-0"
+              wrapperClassName="h-12 border-b-0 px-3"
               onValueChange={onValueChange}
             />
-            <div className="absolute inset-y-0 right-2 flex items-center gap-1">
+            <div className="absolute inset-y-0 right-2.5 flex items-center gap-1.5">
               {isSearching && (
                 <span
                   aria-label={t('results-count', { count: totalCount })}
-                  className="whitespace-nowrap px-2 text-xs tabular-nums text-muted-foreground"
+                  className="rounded-full border border-border/70 bg-muted/60 px-2.5 py-0.5 text-xs font-medium whitespace-nowrap tabular-nums text-muted-foreground"
                 >
                   {t('results-count', { count: totalCount })}
                 </span>
@@ -398,20 +398,20 @@ export const GlobalSearchDialog = ({
               {isSearching && (
                 <Button
                   aria-label={t('clear', 'Clear search')}
-                  className="size-8 text-muted-foreground"
+                  className="size-7 rounded-full text-muted-foreground transition-[background-color,color,transform] duration-150 hover:bg-accent hover:text-foreground active:scale-90"
                   size="icon"
                   type="button"
                   variant="ghost"
                   onClick={onClear}
                   onMouseDown={(event) => event.preventDefault()}
                 >
-                  <IconX className="size-4" />
+                  <IconX className="size-3.5" />
                 </Button>
               )}
             </div>
           </div>
 
-          <div className="flex items-center border-b">
+          <div className="flex items-center border-b border-border/75 bg-muted/20">
             <Tabs
               className="min-w-0 flex-1"
               value={category}
@@ -419,12 +419,12 @@ export const GlobalSearchDialog = ({
             >
               <Tabs.List
                 ref={tabsRef}
-                className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b-0 px-2 py-0"
+                className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b-0 px-2.5 py-0"
                 variant="underline"
               >
                 {categories.map((searchCategory) => (
                   <Tabs.Trigger
-                    className="h-8 shrink-0 px-2 text-xs uppercase tracking-wide"
+                    className="h-9 shrink-0 px-2.5 text-xs font-medium uppercase tracking-wide transition-colors"
                     key={searchCategory.key}
                     value={searchCategory.key}
                   >
@@ -432,7 +432,7 @@ export const GlobalSearchDialog = ({
                       <SearchCategoryLabel category={searchCategory} />
                       {searchCategory.count !== undefined &&
                         searchCategory.count > 0 && (
-                          <span className="rounded bg-muted px-1 text-[10px] font-medium tabular-nums text-muted-foreground">
+                          <span className="rounded-full bg-primary/10 px-1.5 py-0.2 text-[10px] font-semibold tabular-nums text-primary">
                             {searchCategory.count}
                           </span>
                         )}
@@ -447,7 +447,7 @@ export const GlobalSearchDialog = ({
                 value={sortOrder}
                 newestLabel={t('newest-to-oldest', 'Newest to oldest')}
                 oldestLabel={t('oldest-to-newest', 'Oldest to newest')}
-                triggerClassName="mr-2 h-7 w-44 shrink-0 text-xs"
+                triggerClassName="mr-2.5 h-7 w-44 shrink-0 rounded-lg text-xs"
                 onValueChange={onSortOrderChange}
               />
             )}
@@ -455,15 +455,15 @@ export const GlobalSearchDialog = ({
 
           {subcategories.length > 1 && (
             <Tabs value={subcategory} onValueChange={onSubcategoryChange}>
-              <Tabs.List className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b px-2 py-1">
+              <Tabs.List className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b border-border/70 bg-muted/10 px-2.5 py-1.5">
                 {subcategories.map((option) => (
                   <Tabs.Trigger
-                    className="h-7 shrink-0 gap-1.5 px-2 text-xs"
+                    className="h-7 shrink-0 gap-1.5 rounded-md px-2.5 text-xs transition-colors"
                     key={option.key}
                     value={option.key}
                   >
                     {t(option.labelKey ?? option.key, option.label)}
-                    <span className="rounded bg-muted px-1 text-[10px] tabular-nums text-muted-foreground">
+                    <span className="rounded-full bg-muted px-1.5 text-[10px] font-medium tabular-nums text-muted-foreground">
                       {option.count}
                     </span>
                   </Tabs.Trigger>
@@ -490,7 +490,7 @@ export const GlobalSearchDialog = ({
             onRetry={onRetry}
           />
 
-          <div className="flex min-h-9 flex-wrap items-center justify-between gap-2 border-t bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
+          <div className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-t border-border/75 bg-muted/35 px-3.5 py-1.5 text-xs text-muted-foreground">
             <span className="flex items-center gap-2">
               <Kbd variant="foreground">↑</Kbd>
               <Kbd variant="foreground">↓</Kbd>

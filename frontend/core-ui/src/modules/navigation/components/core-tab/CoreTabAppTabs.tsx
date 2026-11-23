@@ -156,13 +156,13 @@ const CoreTabAppTab = ({
           }
           data-active={active}
           className={cn(
-            'group/tab flex h-7 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
+            'group/tab relative flex h-7 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity,transform] duration-150 select-none hover:bg-accent/80 hover:text-foreground active:scale-[0.985]',
             'dark:group-data-[framed=true]/layout:text-primary-foreground/80 dark:group-data-[framed=true]/layout:hover:bg-primary-foreground/15 dark:group-data-[framed=true]/layout:hover:text-primary-foreground',
-            'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
-            'group-data-[framed=true]/layout:data-[active=true]:border-transparent group-data-[framed=true]/layout:data-[active=true]:bg-background group-data-[framed=true]/layout:data-[active=true]:text-foreground',
+            'data-[active=true]:border-border/90 data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
+            'group-data-[framed=true]/layout:data-[active=true]:border-transparent group-data-[framed=true]/layout:data-[active=true]:bg-background group-data-[framed=true]/layout:data-[active=true]:text-foreground group-data-[framed=true]/layout:data-[active=true]:shadow-sm',
             // The vertical rail shows icons only; the label is in the title.
             vertical ? 'size-8 justify-center px-0' : 'min-w-24 max-w-48',
-            isDragging && 'z-10 opacity-60',
+            isDragging && 'z-10 scale-[1.02] opacity-70 shadow-sm',
           )}
           style={{ transform: CSS.Transform.toString(transform), transition }}
           onClick={onSelect}
@@ -195,6 +195,18 @@ const CoreTabAppTab = ({
             onKeyDown(event);
           }}
         >
+          {/* Active indicator bar */}
+          {active && (
+            <span
+              aria-hidden
+              className={cn(
+                'pointer-events-none absolute rounded-full bg-primary transition-opacity',
+                vertical
+                  ? 'top-1.5 bottom-1.5 -left-0.5 w-0.5'
+                  : 'right-2.5 -bottom-px left-2.5 h-0.5',
+              )}
+            />
+          )}
           {/* On hover the icon turns into a grip: tabs can be dragged. */}
           <span className="relative size-4 shrink-0">
             <Icon
