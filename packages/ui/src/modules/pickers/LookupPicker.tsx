@@ -170,6 +170,7 @@ export const LookupPicker = ({
   placeholder,
   disabled,
   className,
+  onSearchChange,
 }: {
   lookup: LookupOptions;
   value: string[];
@@ -178,6 +179,7 @@ export const LookupPicker = ({
   placeholder: string;
   disabled?: boolean;
   className?: string;
+  onSearchChange?: (search: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -208,6 +210,7 @@ export const LookupPicker = ({
           }}
           loading={loading}
           error={error}
+          onSearchChange={onSearchChange}
         />
       </Combobox.Content>
     </Popover>

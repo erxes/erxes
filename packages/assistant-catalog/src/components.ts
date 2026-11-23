@@ -107,3 +107,82 @@ export const MemberPickerApi = {
       'Lets the member pick workspace team members by name. Use it whenever an answer is a team member.',
     ),
 };
+
+const RECORD_KINDS = ['customer', 'company', 'product', 'tag'] as const;
+
+const CALLOUT_TONES = ['info', 'good', 'warning', 'bad'] as const;
+
+const FLOW_KINDS = ['trigger', 'if', 'action', 'wait'] as const;
+
+export const RecordPickerApi = {
+  name: 'RecordPicker',
+  schema: z
+    .object({
+      label: CommonSchemas.DynamicString.optional().describe('The label beside the picker.'),
+      kind: z.enum(RECORD_KINDS).describe('The kind of record to pick.'),
+      tagsOf: z
+        .enum(['customer', 'company'])
+        .optional()
+        .describe('For kind "tag": whose tags to list. customer when left out.'),
+      value: CommonSchemas.DynamicStringList.describe(
+        'Bind it to a string list in the data model. Each picked record is written as "Name (<kind> id <id>)", such as "VIP (tag id k2Xp9aQ0vB7LmN4rT)". Initialise it with the record you recommend, in that form.',
+      ),
+      multiple: z.boolean().optional().describe('true to let the member pick several.'),
+      checks: CommonSchemas.Checkable.shape.checks,
+    })
+    .describe(
+      'Lets the member search and pick customers, companies, products or tags by name. Use it whenever an answer is one of those records; use MemberPicker for team members.',
+    ),
+};
+
+export const CalloutApi = {
+  name: 'Callout',
+  schema: z
+    .object({
+      title: CommonSchemas.DynamicString.describe(
+        'One short line, such as "No “Big spender” tag yet".',
+      ),
+      text: CommonSchemas.DynamicString.optional().describe('One more sentence when needed.'),
+      tone: z
+        .enum(CALLOUT_TONES)
+        .optional()
+        .describe('warning for something missing or blocking, bad for a failure; info otherwise.'),
+      action: CommonSchemas.Child.optional().describe(
+        'The id of one Button that fixes it, such as "Create the tag".',
+      ),
+    })
+    .describe(
+      'A short notice with an optional fix button: something missing, blocked or worth knowing before the member goes on.',
+    ),
+};
+
+const FlowStep = z.object({
+  kind: z.enum(FLOW_KINDS).describe('trigger starts it, if checks, action does, wait pauses.'),
+  text: z
+    .string()
+    .describe(
+      'What the step does in a few words. A record reference such as [[ref:k2Xp9aQ0vB7LmN4rT]] shows as a link.',
+    ),
+});
+
+export const FlowApi = {
+  name: 'Flow',
+  schema: z
+    .object({
+      title: z.string().optional().describe('A heading above the flow.'),
+      steps: z.array(FlowStep).min(1).max(12).describe('The steps in order, top to bottom.'),
+      branches: z
+        .array(
+          z.object({
+            label: z.string().describe('When this branch runs, such as "Yes" or "Not VIP".'),
+            steps: z.array(FlowStep).min(1).max(8),
+          }),
+        )
+        .max(4)
+        .optional()
+        .describe('Paths that split after the last step, side by side.'),
+    })
+    .describe(
+      'A process drawn as steps: an automation, a workflow or a plan, before or after you create it. Draw only what you will create or what a tool returned.',
+    ),
+};

@@ -1,7 +1,7 @@
 {
   "protocolVersion": "1.0",
   "catalogId": "https://erxes.io/a2ui/catalogs/assistant/v1.json",
-  "instructions": "Lay a surface out with Column and Row; put related content in a Card.\n\nText renders Markdown. A record reference such as [[ref:k2Xp9aQ0vB7LmN4rT]] inside a Text or a Table cell shows as a live link with the record's current name, so write the reference in place of the name.\n\nUse Stat for headline numbers, Table for records or figures in columns, Chart for a trend or a split, and Badge for a status.\n\nAn input keeps what the member enters at the data path it is bound to. Initialise every bound path. A Button's Event(name, context) sends the click to you as the member's next message, with the context's values read at that moment: pass each input's path in the context. The member sees those values under their message, so give options values they can read, such as \"sms\" or \"this_quarter\". openPage(path) opens a workspace page instead.\n\nTo join text with a bound value, use formatString(\"Hello ${/user/name}\"); there are no operators such as +.\n\nGive a validation check its own message; do not add a Text for the error.",
+  "instructions": "Lay a surface out with Column and Row; put related content in a Card.\n\nText renders Markdown. A record reference such as [[ref:k2Xp9aQ0vB7LmN4rT]] inside a Text or a Table cell shows as a live link with the record's current name, so write the reference in place of the name.\n\nUse Stat for headline numbers, Table for records or figures in columns, Chart for a trend or a split, and Badge for a status. Use Flow to show an automation, workflow or plan as steps, Callout for something missing or blocking (with a Button that fixes it when you can), and RecordPicker or MemberPicker when the answer is a record or a team member.\n\nAn input keeps what the member enters at the data path it is bound to. Initialise every bound path. A Button's Event(name, context) sends the click to you as the member's next message, with the context's values read at that moment: pass each input's path in the context. The member sees those values under their message, so give options values they can read, such as \"sms\" or \"this_quarter\". openPage(path) opens a workspace page instead.\n\nTo join text with a bound value, use formatString(\"Hello ${/user/name}\"); there are no operators such as +.\n\nGive a validation check its own message; do not add a Text for the error.",
   "components": {
     "Text": {
       "type": "object",
@@ -811,6 +811,235 @@
         "value"
       ],
       "unevaluatedProperties": false
+    },
+    "RecordPicker": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "RecordPicker"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "common_types.json#/$defs/DataBinding"
+            },
+            {
+              "$ref": "common_types.json#/$defs/FunctionCall",
+              "description": "Invokes a named function, combining common function properties with the catalog function definition."
+            }
+          ],
+          "description": "The label beside the picker."
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "customer",
+            "company",
+            "product",
+            "tag"
+          ],
+          "description": "The kind of record to pick."
+        },
+        "tagsOf": {
+          "type": "string",
+          "enum": [
+            "customer",
+            "company"
+          ],
+          "description": "For kind \"tag\": whose tags to list. customer when left out."
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "common_types.json#/$defs/DataBinding"
+            },
+            {
+              "$ref": "common_types.json#/$defs/FunctionCall",
+              "description": "Invokes a named function, combining common function properties with the catalog function definition."
+            }
+          ],
+          "description": "Bind it to a string list in the data model. Each picked record is written as \"Name (<kind> id <id>)\", such as \"VIP (tag id k2Xp9aQ0vB7LmN4rT)\". Initialise it with the record you recommend, in that form."
+        },
+        "multiple": {
+          "type": "boolean",
+          "description": "true to let the member pick several."
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "common_types.json#/$defs/CheckRule",
+            "description": "A single validation check rule applied to an input component. The condition function or path evaluates to a structured validation result object or a boolean (which is coerced to a validation result object)."
+          },
+          "description": "A list of validation check rules to perform on the component."
+        }
+      },
+      "required": [
+        "component",
+        "kind",
+        "value"
+      ],
+      "unevaluatedProperties": false
+    },
+    "Callout": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Callout"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "common_types.json#/$defs/DataBinding"
+            },
+            {
+              "$ref": "common_types.json#/$defs/FunctionCall",
+              "description": "Invokes a named function, combining common function properties with the catalog function definition."
+            }
+          ],
+          "description": "One short line, such as \"No “Big spender” tag yet\"."
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "common_types.json#/$defs/DataBinding"
+            },
+            {
+              "$ref": "common_types.json#/$defs/FunctionCall",
+              "description": "Invokes a named function, combining common function properties with the catalog function definition."
+            }
+          ],
+          "description": "One more sentence when needed."
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "info",
+            "good",
+            "warning",
+            "bad"
+          ],
+          "description": "warning for something missing or blocking, bad for a failure; info otherwise."
+        },
+        "action": {
+          "type": "string",
+          "description": "The id of one Button that fixes it, such as \"Create the tag\"."
+        }
+      },
+      "required": [
+        "component",
+        "title"
+      ],
+      "unevaluatedProperties": false
+    },
+    "Flow": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Flow"
+        },
+        "title": {
+          "type": "string",
+          "description": "A heading above the flow."
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "trigger",
+                  "if",
+                  "action",
+                  "wait"
+                ],
+                "description": "trigger starts it, if checks, action does, wait pauses."
+              },
+              "text": {
+                "type": "string",
+                "description": "What the step does in a few words. A record reference such as [[ref:k2Xp9aQ0vB7LmN4rT]] shows as a link."
+              }
+            },
+            "required": [
+              "kind",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 12,
+          "description": "The steps in order, top to bottom."
+        },
+        "branches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "When this branch runs, such as \"Yes\" or \"Not VIP\"."
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "trigger",
+                        "if",
+                        "action",
+                        "wait"
+                      ],
+                      "description": "trigger starts it, if checks, action does, wait pauses."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "What the step does in a few words. A record reference such as [[ref:k2Xp9aQ0vB7LmN4rT]] shows as a link."
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 8
+              }
+            },
+            "required": [
+              "label",
+              "steps"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 4,
+          "description": "Paths that split after the last step, side by side."
+        }
+      },
+      "required": [
+        "component",
+        "steps"
+      ],
+      "unevaluatedProperties": false
     }
   },
   "functions": {
@@ -1352,6 +1581,15 @@
         },
         {
           "$ref": "#/components/MemberPicker"
+        },
+        {
+          "$ref": "#/components/RecordPicker"
+        },
+        {
+          "$ref": "#/components/Callout"
+        },
+        {
+          "$ref": "#/components/Flow"
         }
       ],
       "discriminator": {

@@ -15,12 +15,24 @@ import {
 } from '@a2ui/web_core/catalogs/basic/v1';
 import { Catalog, type ComponentApi, createFunctionImplementation } from '@a2ui/web_core/v1_0';
 import { z } from 'zod';
-import { BadgeApi, ChartApi, MemberPickerApi, StatApi, TableApi } from './components';
+import {
+  BadgeApi,
+  CalloutApi,
+  ChartApi,
+  FlowApi,
+  MemberPickerApi,
+  RecordPickerApi,
+  StatApi,
+  TableApi,
+} from './components';
 
 export {
   BadgeApi,
+  CalloutApi,
   ChartApi,
+  FlowApi,
   MemberPickerApi,
+  RecordPickerApi,
   StatApi,
   TableApi,
   ButtonApi,
@@ -59,13 +71,16 @@ export const ASSISTANT_COMPONENT_APIS: ComponentApi[] = [
   TableApi,
   ChartApi,
   MemberPickerApi,
+  RecordPickerApi,
+  CalloutApi,
+  FlowApi,
 ];
 
 const INSTRUCTIONS = `Lay a surface out with Column and Row; put related content in a Card.
 
 Text renders Markdown. A record reference such as [[ref:k2Xp9aQ0vB7LmN4rT]] inside a Text or a Table cell shows as a live link with the record's current name, so write the reference in place of the name.
 
-Use Stat for headline numbers, Table for records or figures in columns, Chart for a trend or a split, and Badge for a status.
+Use Stat for headline numbers, Table for records or figures in columns, Chart for a trend or a split, and Badge for a status. Use Flow to show an automation, workflow or plan as steps, Callout for something missing or blocking (with a Button that fixes it when you can), and RecordPicker or MemberPicker when the answer is a record or a team member.
 
 An input keeps what the member enters at the data path it is bound to. Initialise every bound path. A Button's Event(name, context) sends the click to you as the member's next message, with the context's values read at that moment: pass each input's path in the context. The member sees those values under their message, so give options values they can read, such as "sms" or "this_quarter". openPage(path) opens a workspace page instead.
 

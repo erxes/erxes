@@ -238,6 +238,7 @@ export { MemberInline, SelectMember } from './modules/pickers/SelectMember';
 
 export {
   LookupPicker,
+  useContactOptions,
   type Tag,
   type TagsQuery,
   useMemberOptions,
