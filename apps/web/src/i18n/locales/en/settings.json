@@ -1013,7 +1013,7 @@
         "VAT_ZERO": "0% VAT",
         "NOT_SEND": "Left off the receipt"
       },
-      "how-print": "Each plugin prints its receipts with its own template, set up under Print.",
+      "how-print": "Core prints its receipts with the template under Print; each plugin sets its own in its settings.",
       "print": {
         "preview": "Preview",
         "test-print": "Test print",
