@@ -3,16 +3,23 @@ import { cfRecordUrl, sendToGrandStream } from './utils';
 import { formatCdrApiDate } from './services/cdrUtils';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 
+interface ICallAccount {
+  inboxIntegrationId?: string;
+  primaryPhone?: string;
+}
+
+/*
+ * Returns null for a call without a caller number (anonymous or withheld), so
+ * those calls never share one customer.
+ */
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
-  callAccount: any,
+  { inboxIntegrationId, primaryPhone }: ICallAccount,
 ) => {
-  const { inboxIntegrationId, primaryPhone } = callAccount;
-  if (typeof primaryPhone !== 'string') {
-    throw new Error('Invalid primaryPhone: must be a string');
-  }
+  if (!primaryPhone) return null;
 
   let customer = await models.CallCustomers.findOne({
     primaryPhone: { $eq: primaryPhone },
@@ -29,7 +36,7 @@ export const getOrCreateCustomer = async (
         status: 'pending',
       });
       createdNow = true;
-    } catch (e: any) {
+    } catch (e) {
       if (e.message?.includes('duplicate')) {
         customer = await models.CallCustomers.findOne({
           primaryPhone: { $eq: primaryPhone },
@@ -70,7 +77,7 @@ export const getOrCreateCustomer = async (
           `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
         );
       }
-    } catch (e: any) {
+    } catch (e) {
       if (createdNow) {
         await models.CallCustomers.deleteOne({ _id: customer._id });
       }
@@ -78,6 +85,8 @@ export const getOrCreateCustomer = async (
     }
   }
   if (customer?.erxesApiId) {
+    // Throws when core is unreachable, so an outage never reads as a deleted
+    // customer and spawns a duplicate.
     const coreCustomer = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -87,29 +96,13 @@ export const getOrCreateCustomer = async (
       input: {
         query: { _id: customer.erxesApiId },
       },
+      throwOnError: true,
     });
-    if (coreCustomer?._id) {
-      await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'updateCustomer',
-        input: {
-          _id: coreCustomer._id,
-          doc: {
-            primaryPhone,
-          },
-        },
-      });
-    }
     if (!coreCustomer) {
       const newCustomer = await sendTRPCMessage({
         subdomain,
-
         pluginName: 'core',
-        method: 'mutation', // this is a mutation, not a query
+        method: 'mutation',
         module: 'customers',
         action: 'createCustomer',
         input: {
@@ -128,56 +121,67 @@ export const getOrCreateCustomer = async (
   return customer;
 };
 
-export async function saveRecordUrl(
-  createdCdr,
+const recordFileDir = (cdr: ICallCdrDocument) => {
+  if (cdr.actionType?.includes('FOLLOWME')) {
+    return cdr.userfield === 'Outbound' ? 'queue' : 'monitor';
+  }
+  return ['QUEUE', 'TRANSFER'].some((type) => cdr.actionType?.includes(type)) &&
+    cdr.userfield === 'Inbound'
+    ? 'queue'
+    : 'monitor';
+};
+
+/*
+ * Uploads an answered CDR's recording again and stores the new URL on the CDR
+ * and its session. Throws when there is nothing to upload or the upload does
+ * not return a file, so the caller never reports a false success.
+ */
+export const syncCdrRecordFile = async (
+  cdr: ICallCdrDocument,
   models: IModels,
   inboxId: string,
   subdomain: string,
-) {
-  const recordUrl =
-    createdCdr.disposition === 'ANSWERED' &&
-    (createdCdr.recordfiles ||
-      (await fetchRecordUrl(models, inboxId, createdCdr)));
-
-  if (recordUrl) {
-    let fileDir =
-      ['QUEUE', 'TRANSFER'].some((substring) =>
-        createdCdr.actionType?.includes(substring),
-      ) && createdCdr.userfield === 'Inbound'
-        ? 'queue'
-        : 'monitor';
-
-    if (createdCdr?.action_type?.includes('FOLLOWME')) {
-      if (createdCdr?.userfield === 'Inbound') {
-        fileDir = 'monitor';
-      }
-      if (createdCdr?.userfield === 'Outbound') {
-        fileDir = 'queue';
-      }
-    }
-    const recordPath = await cfRecordUrl(
-      {
-        fileDir,
-        recordfiles: recordUrl,
-        inboxIntegrationId: inboxId,
-        retryCount: 3,
-      },
-      '',
-      models,
-      subdomain,
-    );
-
-    if (recordPath?.includes('wav')) {
-      await models.CallCdrs.updateOne(
-        { _id: createdCdr?._id?.toString() },
-        { $set: { recordUrl: recordPath } },
-        { upsert: true },
-      );
-    }
+) => {
+  if ((cdr.disposition || '').toUpperCase() !== 'ANSWERED') {
+    throw new Error('Only answered calls have a recording');
   }
-}
 
-const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
+  const recordfiles =
+    cdr.recordfiles || (await fetchRecordUrl(models, inboxId, cdr));
+  if (!recordfiles) {
+    throw new Error('The call server has no recording for this call');
+  }
+
+  const recordUrl = await cfRecordUrl(
+    {
+      fileDir: recordFileDir(cdr),
+      recordfiles,
+      inboxIntegrationId: inboxId,
+      retryCount: 3,
+    },
+    null,
+    models,
+    subdomain,
+  );
+
+  if (!recordUrl?.includes('wav')) {
+    throw new Error(`Recording upload returned no file: ${recordUrl}`);
+  }
+
+  await models.CallCdrs.updateOne({ _id: cdr._id }, { $set: { recordUrl } });
+  await models.CallSessions.updateMany(
+    { cdrAcctId: cdr.acctId },
+    { $set: { recordUrl } },
+  );
+
+  return recordUrl;
+};
+
+const fetchRecordUrl = async (
+  models: IModels,
+  inboxIntegrationId: string,
+  params: ICallCdrDocument,
+) => {
   const { src, dst, start, end } = params;
   const startTime = formatCdrApiDate(start);
   const endTime = formatCdrApiDate(end);

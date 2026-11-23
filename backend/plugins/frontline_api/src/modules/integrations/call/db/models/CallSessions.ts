@@ -10,6 +10,16 @@ export const SIBLING_SESSION_WINDOW_MS = 60_000;
 
 const LIVE_SESSION_STATUSES = ['ringing', 'active'];
 
+const DISPOSITION_RANKS: Record<string, number> = {
+  ANSWERED: 4,
+  'NO ANSWER': 3,
+  BUSY: 2,
+  FAILED: 1,
+};
+
+const dispositionRank = (disposition?: string) =>
+  DISPOSITION_RANKS[(disposition || '').toUpperCase()] ?? 0;
+
 export interface IFindSiblingParams {
   inboxIntegrationId: string;
   peerInboxIds?: string[];
@@ -220,15 +230,20 @@ export const loadCallSessionClass = (models: IModels) => {
         ((payload.disposition || '').toUpperCase() === 'ANSWERED' &&
           (payload.durationSec || 0) > 0);
       session.status = wasAnswered ? 'ended' : 'missed';
-      session.endedAt = payload.endedAt || new Date();
-      const ranks: Record<string, number> = {
-        ANSWERED: 4,
-        'NO ANSWER': 3,
-        BUSY: 2,
-        FAILED: 1,
-      };
-      const dispositionRank = (d?: string) =>
-        ranks[(d || '').toUpperCase()] ?? 0;
+
+      // Legs arrive out of order: keep the latest end seen so far.
+      const endedAt = payload.endedAt || new Date();
+      if (!session.endedAt || endedAt > session.endedAt) {
+        session.endedAt = endedAt;
+      }
+
+      // The best leg so far (answered beats no answer, busy, failed) owns
+      // the CDR id, duration and recording, so a late unanswered leg cannot
+      // replace the answered one.
+      const isBestLeg =
+        !session.cdrAcctId ||
+        dispositionRank(payload.disposition || payload.hangupCause) >=
+          dispositionRank(session.hangupCause);
       if (
         payload.hangupCause &&
         (!session.hangupCause ||
@@ -237,10 +252,12 @@ export const loadCallSessionClass = (models: IModels) => {
       ) {
         session.hangupCause = payload.hangupCause;
       }
-      if (payload.durationSec !== undefined)
-        session.durationSec = payload.durationSec;
-      if (payload.recordUrl) session.recordUrl = payload.recordUrl;
-      if (payload.cdrAcctId) session.cdrAcctId = payload.cdrAcctId;
+      if (isBestLeg) {
+        if (payload.durationSec !== undefined)
+          session.durationSec = payload.durationSec;
+        if (payload.recordUrl) session.recordUrl = payload.recordUrl;
+        if (payload.cdrAcctId) session.cdrAcctId = payload.cdrAcctId;
+      }
 
       await session.save();
       return session;

@@ -15,7 +15,7 @@ export const operatorSchema = new Schema({
 export const queueStatisticsSchema = new Schema({
   queuechairman: field({ type: String, required: true }),
   integrationId: field({ type: String, required: true }),
-  queue: field({ type: Number, required: true }),
+  queue: field({ type: String, required: true }),
   totalCalls: field({ type: Number, default: 0 }),
   answeredCalls: field({ type: Number, default: 0 }),
   answeredRate: field({ type: Number, default: 0 }),
@@ -29,3 +29,5 @@ export const queueStatisticsSchema = new Schema({
   transferOutRate: field({ type: Number, default: 0 }),
   abandonedRate: field({ type: Number, default: 0 }),
 });
+
+queueStatisticsSchema.index({ integrationId: 1, queue: 1 }, { unique: true });

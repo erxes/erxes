@@ -5,10 +5,18 @@ import {
 } from '../../utils';
 
 import { IContext } from '~/connectionResolvers';
-import { saveRecordUrl, getOrCreateCustomer } from '../../store';
+import { ExpectedError } from 'erxes-api-shared/utils';
+import { syncCdrRecordFile, getOrCreateCustomer } from '../../store';
 
 export interface ISession {
   sessionCode: string;
+}
+
+interface IBridgedChannel {
+  callerid1?: string;
+  callerid2?: string;
+  channel1?: string;
+  channel2?: string;
 }
 
 const CONFIG_SETTABLE_FIELDS = [
@@ -102,13 +110,17 @@ const callsMutations = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    const operator = integration.operators.find(
+    const extensionNumber = integration.operators.find(
       (operator) => operator.userId === user?._id,
-    );
+    )?.gsUsername;
 
-    const extensionNumber = operator?.gsUsername || '1001';
+    if (!extensionNumber) {
+      throw new ExpectedError(
+        'You have no call extension on this integration. Ask an admin to add you as an operator.',
+      );
+    }
 
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -127,10 +139,10 @@ const callsMutations = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    );
 
-    if (queueData?.response) {
-      const { need_apply } = queueData.response;
+    if (queueData?.status === 0) {
+      const need_apply = queueData.response?.need_apply;
       const operator = await models.CallOperators.getOperator(user._id);
       if (operator) {
         await models.CallOperators.updateOperator(user._id, status);
@@ -171,20 +183,20 @@ const callsMutations = {
       response: listBridgedChannelsResponse,
       extensionNumber: extension,
     } = await sendToGrandStream(models, listBridgedChannelsPayload, user);
-    let channel = '';
-    if (listBridgedChannelsResponse?.response) {
-      const channels = listBridgedChannelsResponse.response.channel;
-      if (channels) {
-        const matched = channels.find(
-          (ch) => ch.callerid1 === extension || ch.callerid2 === extension,
-        );
-        if (matched) {
-          channel =
-            matched.callerid1 === extension
-              ? matched.channel1 || ''
-              : matched.channel2 || '';
-        }
-      }
+    const channels: IBridgedChannel[] =
+      listBridgedChannelsResponse?.status === 0
+        ? listBridgedChannelsResponse.response?.channel || []
+        : [];
+    const matched = channels.find(
+      (ch) => ch.callerid1 === extension || ch.callerid2 === extension,
+    );
+    const channel =
+      matched?.callerid1 === extension ? matched?.channel1 : matched?.channel2;
+
+    if (!channel) {
+      throw new ExpectedError(
+        `No active call found on extension ${extension} to transfer`,
+      );
     }
 
     const callTransferPayload = {
@@ -210,9 +222,7 @@ const callsMutations = {
       user,
     );
 
-    const status =
-      callTransferResponse?.status ?? callTransferResponse?.response?.status;
-    if (status === 0 || callTransferResponse?.response?.need_apply) {
+    if (callTransferResponse?.status === 0) {
       return 'success';
     }
 
@@ -262,7 +272,8 @@ const callsMutations = {
         );
       }
 
-      await saveRecordUrl(cdr, models, inboxId, subdomain);
+      if (!cdr) throw new Error('Cannot sync record file');
+      await syncCdrRecordFile(cdr, models, inboxId, subdomain);
       return 'successfully updated';
     }
     throw new Error('Cannot sync record file');

@@ -13,10 +13,13 @@ export const integrationForQueue = (
 ): ICallIntegrationDocument | null => {
   if (!queue) return null;
   const wanted = String(queue);
-  const owners = integrations.filter((integration) =>
-    (integration.queues || []).some((owned) => String(owned) === wanted),
-  );
-  return owners.length === 1 ? owners[0] : null;
+  const owners = new Map<string, ICallIntegrationDocument>();
+  for (const integration of integrations) {
+    if ((integration.queues || []).some((owned) => String(owned) === wanted)) {
+      owners.set(String(integration.inboxId), integration);
+    }
+  }
+  return owners.size === 1 ? [...owners.values()][0] : null;
 };
 
 export const resolveQueueIntegration = async (
@@ -26,7 +29,7 @@ export const resolveQueueIntegration = async (
 ): Promise<ICallIntegrationDocument | null> => {
   if (!queue) return null;
   const peers = await models.CallIntegrations.findPeers(integration);
-  return integrationForQueue([integration, ...peers], queue);
+  return integrationForQueue(peers, queue);
 };
 
 export interface ICallKeys {

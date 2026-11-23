@@ -13,9 +13,21 @@ import {
   mapSessionToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
-import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { isObjectIdOrHexString } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
+import { withCloudflareIceServers } from '@/integrations/call/services/iceServers';
+import { ICallIntegration } from '@/integrations/call/@types/integrations';
+
+const EXTENSION_PAGE_SIZE = 100;
+const MAX_EXTENSION_PAGES = 50;
+
+export interface IUcmAccount {
+  extension?: string;
+  fullname?: string;
+  status?: string;
+}
 
 const callQueries = {
   async callsIntegrationDetail(
@@ -29,14 +41,23 @@ const callQueries = {
 
     const integration = await models.CallIntegrations.findOne({
       inboxId: integrationId,
-    }).lean();
+    }).lean<ICallIntegration & { _id: string }>();
 
     if (!integration) {
       return null;
     }
 
-    const { token, ...safe } = integration as any;
-    return safe;
+    // Owners edit operators (callsIntegrationUpdate) and need every SIP
+    // password; anyone else only sees their own.
+    return {
+      ...integration,
+      token: undefined,
+      operators: (integration.operators || []).map((operator) =>
+        user.isOwner || operator.userId === user._id
+          ? operator
+          : { ...operator, gsPassword: '' },
+      ),
+    };
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
@@ -95,7 +116,14 @@ const callQueries = {
   },
 
   async callsGetConfigs(_root, _args, { models }: IContext) {
-    return models.CallConfigs.find({});
+    const configs = await models.CallConfigs.find({}).lean();
+    return withCloudflareIceServers(
+      configs.map(({ _id, code, value }) => ({
+        _id: String(_id),
+        code: String(code),
+        value,
+      })),
+    );
   },
 
   async callGetAgentStatus(_root, _args, { models, user }: IContext) {
@@ -120,49 +148,58 @@ const callQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-          request: {
-            action: 'listAccount',
-            item_num: '50',
-            options: 'extension,fullname,status',
-            page: '1',
-            sidx: 'extension',
-            sord: 'asc',
+    const accounts: IUcmAccount[] = [];
+    for (let page = 1; page <= MAX_EXTENSION_PAGES; page++) {
+      const queueData = await sendToGrandStream(
+        models,
+        {
+          path: 'api',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          data: {
+            request: {
+              action: 'listAccount',
+              item_num: String(EXTENSION_PAGE_SIZE),
+              options: 'extension,fullname,status',
+              page: String(page),
+              sidx: 'extension',
+              sord: 'asc',
+            },
           },
+          integrationId: integrationId,
+          retryCount: 3,
+          isConvertToJson: true,
+          isAddExtention: false,
         },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: true,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
-    if (queueData?.response) {
-      const { account } = queueData.response;
+        user,
+      );
 
-      if (account) {
-        const gsUsernames = integration.operators.map(
-          (operator) => operator.gsUsername,
-        );
-
-        const matchedAgents = account.filter(
-          (agent) =>
-            gsUsernames.includes(agent.extension) &&
-            agent.status !== 'Unavailable',
-        );
-
-        return matchedAgents;
+      if (queueData?.status !== 0 || !queueData.response) {
+        throw new Error('Failed to load extensions from the PBX');
       }
-      return [];
+
+      const pageAccounts: IUcmAccount[] = queueData.response.account || [];
+      accounts.push(...pageAccounts);
+
+      const totalPages = Number(queueData.response.total_page) || 0;
+      if (
+        pageAccounts.length < EXTENSION_PAGE_SIZE ||
+        (totalPages && page >= totalPages)
+      ) {
+        break;
+      }
     }
 
-    throw new Error('Failed to load extensions from the PBX');
+    const gsUsernames = integration.operators.map(
+      (operator) => operator.gsUsername,
+    );
+
+    return accounts.filter(
+      (agent) =>
+        !!agent.extension &&
+        gsUsernames.includes(agent.extension) &&
+        agent.status !== 'Unavailable',
+    );
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
     const integration = await models.CallIntegrations.getIntegration(
@@ -204,7 +241,7 @@ const callQueries = {
           user._id,
         );
         owns = queues.map(String).includes(String(queue));
-      } catch (e) {
+      } catch {
         owns = false;
       }
 
@@ -270,7 +307,10 @@ const callQueries = {
       let result: ICallHistory | null = null;
 
       if (_id) {
-        const cdr = await models.CallCdrs.findOne({ _id });
+        // Inbox links pass a CDR _id; older links pass the PBX uniqueid.
+        const cdr = await models.CallCdrs.findOne(
+          isObjectIdOrHexString(_id) ? { _id } : { uniqueid: _id },
+        );
         if (cdr) {
           const history = mapCdrToCallHistory(cdr);
           if (cdr.uniqueid) {
@@ -284,9 +324,11 @@ const callQueries = {
           return history;
         }
 
-        result = await models.CallHistory.findOne({ _id });
-        if (result) {
-          return result;
+        if (isObjectIdOrHexString(_id)) {
+          result = await models.CallHistory.findOne({ _id });
+          if (result) {
+            return result;
+          }
         }
       }
 
@@ -315,14 +357,9 @@ const callQueries = {
       }
 
       return null;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to retrieve call history details');
     }
   },
 };
-markResolvers(callQueries, {
-  wrapperConfig: {
-    skipPermission: true,
-  },
-});
 export default callQueries;

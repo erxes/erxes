@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { callHistorySchema } from '../definitions/histories';
 import { IUser, IUserDocument } from 'erxes-api-shared/core-types';
 import {
@@ -7,6 +7,7 @@ import {
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
 import { IModels } from '~/connectionResolvers';
+import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 
 import { escapeRegExp } from 'erxes-api-shared/utils';
 /**
@@ -160,11 +161,17 @@ export const loadCallHistoryClass = (models: IModels) => {
         ? [ext, Number(ext)]
         : [ext];
 
-      const involvement: any[] = ext
+      // An outbound leg names the agent in src, channelExt or newSrc
+      // depending on how the UCM placed it.
+      const outboundAgentFields = ['src', 'channelExt', 'newSrc'];
+      const involvement: FilterQuery<ICallCdrDocument>[] = ext
         ? [
             { dstchannelExt: { $in: extVals } },
             { dstanswer: { $in: extVals } },
-            { userfield: 'Outbound', src: { $in: extVals } },
+            ...outboundAgentFields.map((agentField) => ({
+              userfield: 'Outbound',
+              [agentField]: { $in: extVals },
+            })),
           ]
         : [];
 
@@ -206,23 +213,53 @@ export const loadCallHistoryClass = (models: IModels) => {
                 },
                 { $gt: [{ $ifNull: ['$billsec', 0] }, 0] },
                 { $in: ['$lastapp', ['Queue', 'Dial']] },
+                // A voicemail leg is answered by the PBX, not the agent.
+                {
+                  $not: [
+                    {
+                      $regexMatch: {
+                        input: { $ifNull: ['$actionType', ''] },
+                        regex: /VM/,
+                      },
+                    },
+                  ],
+                },
                 {
                   $or: [
                     { $in: ['$dstanswer', extVals] },
                     {
                       $and: [
                         { $eq: ['$userfield', 'Outbound'] },
-                        { $in: ['$src', extVals] },
+                        {
+                          $or: outboundAgentFields.map((agentField) => ({
+                            $in: [`$${agentField}`, extVals],
+                          })),
+                        },
                       ],
                     },
                   ],
                 },
               ],
             },
+            // A FOLLOWME leg is the inbound call forwarded to the agent's
+            // phone, so the customer is still its src.
+            _isIncoming: {
+              $or: [
+                { $eq: ['$userfield', 'Inbound'] },
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /FOLLOWME/,
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          $addFields: {
             _customerPhone: {
-              $toString: {
-                $cond: [{ $eq: ['$userfield', 'Inbound'] }, '$src', '$dst'],
-              },
+              $toString: { $cond: ['$_isIncoming', '$src', '$dst'] },
             },
           },
         },
@@ -230,7 +267,7 @@ export const loadCallHistoryClass = (models: IModels) => {
         {
           $group: {
             _id: '$uniqueid',
-            userfield: { $first: '$userfield' },
+            isIncoming: { $first: '$_isIncoming' },
             customerPhone: { $first: '$_customerPhone' },
             conversationId: { $first: '$conversationId' },
             recordUrl: { $max: { $ifNull: ['$recordUrl', ''] } },
@@ -246,13 +283,7 @@ export const loadCallHistoryClass = (models: IModels) => {
         {
           $addFields: {
             isAnswered: { $gt: ['$anyAnswered', 0] },
-            callType: {
-              $cond: [
-                { $eq: ['$userfield', 'Inbound'] },
-                'incoming',
-                'outgoing',
-              ],
-            },
+            callType: { $cond: ['$isIncoming', 'incoming', 'outgoing'] },
           },
         },
         {

@@ -19,6 +19,7 @@ import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolver
 import { HelpCenterConfig } from '@/helpcenter/graphql/resolvers/customResolvers/helpCenterConfig';
 import { MailPipelineIntegration } from '@/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration';
 import { TicketNote } from '@/integrations/mail/graphql/resolvers/customResolvers/ticketNote';
+import { CallHistory } from '@/integrations/call/graphql/resolvers/customResolvers/customer';
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
@@ -37,4 +38,5 @@ export const customResolvers = {
   HelpCenterConfig,
   MailPipelineIntegration,
   TicketNote,
+  CallHistory,
 };

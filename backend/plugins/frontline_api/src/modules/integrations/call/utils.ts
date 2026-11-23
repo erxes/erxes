@@ -1,11 +1,10 @@
-import * as jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import https from 'https';
 
 import fetch from 'node-fetch';
 import FormData from 'form-data';
-import momentTz from 'moment-timezone';
 
-import type { RequestInit, HeadersInit } from 'node-fetch';
+import type { RequestInit } from 'node-fetch';
 import redis from '@/integrations/call/redlock';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { getEnv, ExpectedError } from 'erxes-api-shared/utils';
@@ -14,27 +13,56 @@ import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
-import { debugCall } from '@/integrations/call/debuggers';
 
-const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
+const UCM_REQUEST_TIMEOUT_MS = 60_000;
+const RECORD_UPLOAD_TIMEOUT_MS = 120_000;
+// A UCM error is a tiny JSON object; anything larger is a file.
+const UCM_JSON_SNIFF_BYTES = 16 * 1024;
 
-export const generateToken = async (integrationId, username?, password?) => {
-  const payload = { integrationId, username, password };
-  return jwt.sign(payload, JWT_TOKEN_SECRET);
-};
+// UCMs ship self-signed certificates. Trust them on UCM requests only.
+const ucmAgent = new https.Agent({ rejectUnauthorized: false });
 
-export const sendRequest = async (url, options) => {
+export interface IUcmResponse {
+  body: Buffer;
+  contentType: string;
+}
+
+/*
+ * Sends a request to a UCM and reads the whole body inside the timeout, so a
+ * caller never holds a half-read node-fetch stream.
+ */
+export const sendRequest = async (
+  url: string,
+  options: RequestInit,
+  timeoutMs = UCM_REQUEST_TIMEOUT_MS,
+): Promise<IUcmResponse> => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(url, {
+      agent: ucmAgent,
+      ...options,
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response;
+    return {
+      body: await response.buffer(),
+      contentType: response.headers.get('content-type') || '',
+    };
   } catch (error) {
-    console.error('Error in sendRequest:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ExpectedError(
+        `Call integration server did not answer within ${
+          timeoutMs / 1000
+        } seconds.`,
+      );
+    }
 
     if (
       error instanceof Error &&
@@ -47,27 +75,51 @@ export const sendRequest = async (url, options) => {
     }
 
     throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 };
 
-const getCallHistory = async (models: IModels, _id) => {
-  const history = await models.CallHistory.findOne({ _id });
-  if (!history) throw new Error('Call history not found');
-  return history;
+const parseUcmJson = (body: Buffer) => {
+  try {
+    return JSON.parse(body.toString('utf8'));
+  } catch {
+    return null;
+  }
 };
 
-export const sendToGrandStream = async (models: IModels, args, user) => {
+const ucmError = (status?: number) =>
+  (status !== undefined && errorList[status]) || `status ${status}`;
+
+export interface IGrandStreamRequest {
+  method: string;
+  path: string;
+  data: { request: Record<string, unknown> };
+  headers?: Record<string, string>;
+  integrationId: string;
+  retryCount?: number;
+  isConvertToJson?: boolean;
+  isAddExtention?: boolean;
+  isGetExtension?: boolean;
+  extensionNumber?: string;
+}
+
+export const sendToGrandStream = async (
+  models: IModels,
+  args: IGrandStreamRequest,
+  user?: { _id?: string } | null,
+) => {
   const {
     method,
     path,
     data,
     headers = {},
     integrationId,
-    retryCount,
+    retryCount = MAX_RETRY_COUNT,
     isConvertToJson,
     isAddExtention,
     isGetExtension,
-    extensionNumber: extension,
+    extensionNumber: requestedExtension,
   } = args;
 
   if (retryCount <= 0) {
@@ -80,17 +132,19 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
   if (!integration) throw new Error('Integration not found');
 
   const { wsServer = '' } = integration;
-  const operator = integration.operators.find((op) => op.userId === user?._id);
-  const extensionNumber = operator?.gsUsername || '1001';
+  const extensionNumber =
+    requestedExtension ||
+    integration.operators.find((op) => op.userId === user?._id)?.gsUsername;
 
-  let cookie = await getOrSetCallCookie(wsServer);
-  if (!cookie) {
-    throw new Error('Cookie not found');
+  if ((isAddExtention || isGetExtension) && !extensionNumber) {
+    throw new ExpectedError(
+      'You have no call extension on this integration. Ask an admin to add you as an operator.',
+    );
   }
 
-  cookie = cookie.toString();
+  const cookie = await getOrSetCallCookie(wsServer);
 
-  const requestOptions: RequestInit & { headers: HeadersInit } = {
+  const res = await sendRequest(`https://${wsServer}/${path}`, {
     method,
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -101,357 +155,135 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
         ...(isAddExtention && { extension: extensionNumber }),
       },
     }),
-  };
+  });
 
-  const retryWithFreshCookie = async () => {
+  const json =
+    isConvertToJson || res.body.length < UCM_JSON_SNIFF_BYTES
+      ? parseUcmJson(res.body)
+      : null;
+
+  if (json?.status === -6) {
     console.warn(
-      `[Call] Cookie expired (status -6) for ${wsServer}, refreshing and retrying (${
+      `[call] UCM cookie expired for ${wsServer}, refreshing (${
         retryCount - 1
-      } left)...`,
+      } retries left)`,
     );
-    await redis.del('callCookie');
-    await getOrSetCallCookie(wsServer);
+    await refreshCallCookie(wsServer, cookie);
     return sendToGrandStream(
       models,
       { ...args, retryCount: retryCount - 1 },
       user,
     );
-  };
+  }
 
-  try {
-    const res = await sendRequest(
-      `https://${wsServer}/${path}`,
-      requestOptions,
+  if (isConvertToJson) {
+    if (!json) {
+      throw new Error('Call integration server returned a non-JSON response');
+    }
+    return isGetExtension ? { response: json, extensionNumber } : json;
+  }
+
+  if (json) {
+    throw new Error(
+      `Call integration server returned ${ucmError(
+        json.status,
+      )} instead of a file`,
     );
-
-    if (isConvertToJson) {
-      const response = await res.json();
-
-      if (response.status === -6) {
-        return await retryWithFreshCookie();
-      }
-
-      if (isGetExtension) {
-        return { response, extensionNumber };
-      }
-      return response;
-    }
-
-    try {
-      const contentType = res.headers.get('content-type') || '';
-      const contentLength = parseInt(
-        res.headers.get('content-length') || '0',
-        10,
-      );
-      const isLikelyJson =
-        contentType.includes('json') ||
-        contentType.includes('text') ||
-        contentType.includes('html');
-      const isSmallResponse = contentLength > 0 && contentLength < 1024;
-      const isUnknownType =
-        !contentType || contentType === 'application/octet-stream';
-
-      if ((isLikelyJson || isSmallResponse || isUnknownType) && !res.bodyUsed) {
-        const clonedRes = res.clone();
-        const maybeError = await clonedRes.json();
-        if (maybeError?.status === -6) {
-          return await retryWithFreshCookie();
-        }
-      }
-    } catch (e) {
-      debugCall('Non-JSON response body:', e);
-    }
-
-    if (isGetExtension) {
-      return { res, extensionNumber };
-    }
-
-    return res;
-  } catch (error) {
-    console.error('Error in sendToGrandStream:', error);
-    throw error;
   }
+
+  return res.body;
 };
 
-const validateCookie = async (
-  wsServer: string,
-  cookie: string,
-): Promise<boolean> => {
-  try {
-    const requestOptions: RequestInit & { headers: HeadersInit } = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        request: {
-          action: 'getSystemStatus',
-          cookie,
-        },
-      }),
-    };
+const callCookieKey = (wsServer: string) => `callCookie:${wsServer}`;
 
-    const res = await sendRequest(`https://${wsServer}/api`, requestOptions);
-    const response = await res.json();
-    return response.status !== -6;
-  } catch (error) {
-    console.error('Error validating cookie:', error);
-    return false;
-  }
+const cookieLogins = new Map<string, Promise<string>>();
+
+const ucmApi = async (wsServer: string, request: Record<string, unknown>) => {
+  const res = await sendRequest(`https://${wsServer}/api`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ request }),
+  });
+  return parseUcmJson(res.body);
 };
 
-export const getOrSetCallCookie = async (wsServer) => {
+const loginToUcm = async (wsServer: string) => {
   const {
     CALL_API_USER,
     CALL_API_PASSWORD,
     CALL_API_EXPIRY = '86400',
   } = process.env;
-  // disable on production !!!
-  // if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  // }
 
   if (!CALL_API_USER || !CALL_API_PASSWORD) {
     throw new Error('Regular API credentials missing!');
   }
-  const cookieKey = 'callCookie';
-  const apiUser = CALL_API_USER;
-  const apiPassword = CALL_API_PASSWORD;
-  const expiry = CALL_API_EXPIRY;
 
-  const callCookie = await redis.get(cookieKey);
-  if (callCookie) {
-    console.log(`Using existing regular cookie:`, callCookie);
-    return callCookie;
+  const challengeData = await ucmApi(wsServer, {
+    action: 'challenge',
+    user: CALL_API_USER,
+    version: '1.0.20.23',
+  });
+  const challenge = challengeData?.response?.challenge;
+  if (challengeData?.status !== 0 || !challenge) {
+    throw new Error(`UCM challenge failed: ${ucmError(challengeData?.status)}`);
   }
 
-  try {
-    const challengeResponse = await sendRequest(`https://${wsServer}/api`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        request: {
-          action: 'challenge',
-          user: apiUser,
-          version: '1.0.20.23',
-        },
-      }),
-    });
+  const token = crypto
+    .createHash('md5')
+    .update(challenge + CALL_API_PASSWORD)
+    .digest('hex');
 
-    const data = await challengeResponse.json();
-    const { challenge } = data?.response ?? {};
-
-    const token = crypto
-      .createHash('md5')
-      .update(challenge + apiPassword)
-      .digest('hex');
-
-    const loginResponse = await sendRequest(`https://${wsServer}/api`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        request: {
-          action: 'login',
-          user: apiUser,
-          token,
-        },
-      }),
-    });
-
-    const loginData = await loginResponse.json();
-    if (loginData.status === 0) {
-      const { cookie } = loginData.response;
-      await redis.set(cookieKey, cookie, 'EX', expiry);
-      console.log(`Stored new regular cookie:`, cookie);
-      return cookie;
-    }
-
-    // Error handling
-    if (errorList[loginData.status]) {
-      console.error(
-        `Auth failed for regular user:`,
-        errorList[loginData.status],
-        'apiUser:',
-        apiUser,
-      );
-      throw new Error(errorList[loginData.status]);
-    }
-    throw new Error('Unknown authentication error');
-  } catch (error) {
-    console.error(`Error in regular auth:`, error);
-    throw error;
+  const loginData = await ucmApi(wsServer, {
+    action: 'login',
+    user: CALL_API_USER,
+    token,
+  });
+  const cookie = loginData?.response?.cookie;
+  if (loginData?.status !== 0 || !cookie) {
+    throw new Error(`UCM login failed: ${ucmError(loginData?.status)}`);
   }
+
+  await redis.set(
+    callCookieKey(wsServer),
+    cookie,
+    'EX',
+    Number(CALL_API_EXPIRY) || 86400,
+  );
+  return String(cookie);
 };
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+/*
+ * One login per UCM at a time in this process. Requests that hit an expired
+ * cookie together share the same refresh instead of each logging in.
+ */
+const loginOnce = (wsServer: string, staleCookie?: string) => {
+  const pending = cookieLogins.get(wsServer);
+  if (pending) return pending;
 
-export const getRecordUrl = async (params, user, models, subdomain) => {
-  const {
-    operatorPhone,
-    customerPhone,
-    callType,
-    callStartTime,
-    callEndTime,
-    _id,
-    transferredCallStatus,
-  } = params;
+  const login = (async () => {
+    const cached = await redis.get(callCookieKey(wsServer));
+    if (cached && cached !== staleCookie) return cached;
+    return loginToUcm(wsServer);
+  })().finally(() => cookieLogins.delete(wsServer));
 
-  if (transferredCallStatus === 'local' && callType === 'incoming') {
-    return 'Check the transferred call record URL!';
+  cookieLogins.set(wsServer, login);
+  return login;
+};
+
+export const getOrSetCallCookie = async (wsServer: string) => {
+  const cached = await redis.get(callCookieKey(wsServer));
+  return cached || loginOnce(wsServer);
+};
+
+const refreshCallCookie = (wsServer: string, staleCookie: string) =>
+  loginOnce(wsServer, staleCookie);
+
+export const clearCallCookies = async () => {
+  const stream = redis.scanStream({ match: 'callCookie*', count: 100 });
+  for await (const keys of stream) {
+    const batch: string[] = keys;
+    if (batch.length) await redis.del(...batch);
   }
-
-  const history = await getCallHistory(models, _id);
-  const { inboxIntegrationId = '' } = history;
-  const operator = operatorPhone || history.operatorPhone;
-
-  const fetchRecordUrl = async (retryCount) => {
-    try {
-      const { response, extensionNumber } = await sendToGrandStream(
-        models,
-        {
-          path: 'api',
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          data: {
-            request: {
-              action: 'listQueue',
-              options: 'extension,queue_name,members',
-              sidx: 'extension',
-              sord: 'asc',
-            },
-          },
-          extensionNumber: history.extensionNumber,
-          integrationId: inboxIntegrationId,
-          retryCount,
-          isConvertToJson: true,
-          isGetExtension: true,
-        },
-        user,
-      );
-
-      const queues = response?.response?.queue || response?.queue;
-      if (!queues) throw new Error('Queue not found');
-
-      const extension = queues.find((queueItem) =>
-        queueItem.members.split(',').includes(extensionNumber),
-      )?.extension;
-
-      const tz = 'Asia/Ulaanbaatar';
-      const startDate = (
-        momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
-      ).format('YYYY-MM-DD');
-      const endDate = (
-        momentTz(callEndTime).tz(tz) || momentTz(callEndTime)
-      ).format('YYYY-MM-DD');
-
-      let caller = customerPhone;
-      let callee = extensionNumber || extension || operator;
-
-      if (transferredCallStatus === 'remote') {
-        callee = extensionNumber || extension;
-      }
-
-      let fileDir = 'monitor';
-      if (callType === 'outgoing') {
-        caller = extensionNumber;
-        callee = customerPhone;
-      }
-
-      const startTime = `${startDate}T00:00:00`;
-      const endTime = `${endDate}T23:59:59`;
-
-      const cdrData = await sendToGrandStream(
-        models,
-        {
-          path: 'api',
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          data: {
-            request: {
-              action: 'cdrapi',
-              format: 'json',
-              caller,
-              callee,
-              numRecords: '100',
-              startTime,
-              endTime,
-            },
-          },
-          integrationId: inboxIntegrationId,
-          retryCount,
-          isConvertToJson: true,
-          isGetExtension: false,
-        },
-        user,
-      );
-
-      const cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
-      if (!cdrRoot) throw new Error('CDR root not found');
-
-      const sortedCdr = cdrRoot.sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      );
-
-      let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
-      if (!lastCreatedObject) throw new Error('Not found cdr');
-
-      const answeredCall = findAnsweredCall(lastCreatedObject);
-      const transferCall = findTransferCall(lastCreatedObject);
-
-      if (answeredCall) lastCreatedObject = answeredCall;
-      if (transferCall) {
-        lastCreatedObject = transferCall;
-        fileDir = 'monitor';
-      }
-
-      if (lastCreatedObject?.disposition !== 'ANSWERED' && !transferCall) {
-        throw new Error('Last created object disposition is not ANSWERED');
-      }
-
-      if (
-        ['QUEUE', 'TRANSFER'].some((substring) =>
-          lastCreatedObject?.action_type?.includes(substring),
-        ) &&
-        !(transferredCallStatus === 'remote' && callType === 'incoming')
-      ) {
-        fileDir = 'queue';
-      }
-
-      const recordfiles = lastCreatedObject?.recordfiles;
-      if (!recordfiles) throw new Error('Record files not found');
-
-      return await cfRecordUrl(
-        { fileDir, recordfiles, inboxIntegrationId, retryCount },
-        user,
-        models,
-        subdomain,
-      );
-    } catch (error) {
-      console.error(
-        `Error in fetchRecordUrl (Retries left: ${retryCount}):`,
-        error.message,
-      );
-
-      const isAuthError =
-        error.message.toLowerCase().includes('wrong account') ||
-        error.message.toLowerCase().includes('auth failed') ||
-        error.message.toLowerCase().includes('password');
-
-      if (isAuthError) {
-        console.error(
-          'Critical Auth Error: Please check GrandStream credentials!',
-        );
-        throw error;
-      }
-
-      if (retryCount > 1) {
-        await delay(1000);
-        return fetchRecordUrl(retryCount - 1);
-      }
-      throw error;
-    }
-  };
-
-  return fetchRecordUrl(MAX_RETRY_COUNT || 3);
 };
 
 function sanitizeFileName(rawFileName: string): string {
@@ -460,125 +292,98 @@ function sanitizeFileName(rawFileName: string): string {
     .replace(/_+/g, '_')
     .replace(/^_+|_+$/g, '');
 }
-export const cfRecordUrl = async (params, user, models, subdomain) => {
-  try {
-    const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
 
-    if (!recordfiles)
-      throw new Error('Missing required parameter: recordfiles');
-
-    const filePathParts = recordfiles.split('/');
-    const rawFileName = filePathParts[1]?.split('@')[0];
-
-    if (!rawFileName) return;
-
-    const grandStreamResponse = await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-          request: {
-            action: 'recapi',
-            filedir: fileDir,
-            filename: rawFileName,
-          },
-        },
-        integrationId: inboxIntegrationId,
-        retryCount,
-        isConvertToJson: false,
-      },
-      user,
-    );
-
-    if (!grandStreamResponse)
-      throw new Error('Failed to get response from GrandStream API');
-
-    const fileBuffer = await grandStreamResponse.buffer();
-    if (!fileBuffer || fileBuffer.length === 0) {
-      throw new Error('Received empty buffer from GrandStream API');
-    }
-
-    const uploadUrl = getUrl(subdomain);
-    const sanitizedFileName = sanitizeFileName(rawFileName);
-
-    const formData = new FormData();
-    formData.append('file', fileBuffer, sanitizedFileName);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      const responseText = await uploadResponse.text();
-
-      if (!uploadResponse.ok) {
-        throw new Error(
-          `Upload failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${responseText}`,
-        );
-      }
-
-      return responseText;
-    } catch (fetchError) {
-      if (fetchError.name === 'AbortError')
-        throw new Error('Upload to Erxes timed out');
-      throw fetchError;
-    }
-  } catch (error) {
-    console.error('Error in cfRecordUrl:', error.message);
-    throw error;
-  }
+/*
+ * `recordfiles` is an `@`-separated list of paths such as
+ * `2024-05/auto-1715.wav@`, `/monitor/a/b.wav` or a bare `b.wav`.
+ * recapi takes the bare name of the first file.
+ */
+export const recordFileName = (recordfiles: string) => {
+  const [firstFile = ''] = recordfiles
+    .split('@')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return firstFile.split('/').filter(Boolean).pop() || '';
 };
 
-function findTransferCall(data: any): any {
-  if (!data) {
-    return null;
-  }
-  const transferredCalls = Object.values(data).filter((subCdr) => {
-    const typedSubCdr = subCdr as any;
-    return typedSubCdr.action_type === 'TRANSFER' && typedSubCdr.recordfiles;
-  });
-
-  if (transferredCalls.length === 1) {
-    return transferredCalls[0];
-  } else if (transferredCalls.length > 1) {
-    return transferredCalls;
-  }
-  if (Array.isArray(data) && data.find) {
-    return data.find((item) => item.action_type === 'TRANSFER');
-  } else {
-    return null;
-  }
+export interface IRecordFileParams {
+  fileDir: string;
+  recordfiles: string;
+  inboxIntegrationId: string;
+  retryCount?: number;
 }
 
-function findAnsweredCall(data: any): any {
-  if (!data) {
-    return null;
-  }
-  const answeredCalls = Object.values(data).filter((subCdr) => {
-    const typedSubCdr = subCdr as any;
-    return typedSubCdr.disposition === 'ANSWERED' && typedSubCdr.recordfiles;
-  });
+export const cfRecordUrl = async (
+  { fileDir, recordfiles, inboxIntegrationId, retryCount }: IRecordFileParams,
+  user: { _id?: string } | null,
+  models: IModels,
+  subdomain: string,
+) => {
+  if (!recordfiles) throw new Error('Missing required parameter: recordfiles');
 
-  if (answeredCalls.length === 1) {
-    return answeredCalls[0];
-  } else if (answeredCalls.length > 1) {
-    return answeredCalls;
+  const rawFileName = recordFileName(recordfiles);
+  if (!rawFileName) {
+    throw new Error(`No file name in recordfiles "${recordfiles}"`);
   }
-  if (Array.isArray(data) && data.find) {
-    return data.find((item) => item.disposition === 'ANSWERED');
-  } else {
-    return null;
+
+  const fileBuffer: Buffer = await sendToGrandStream(
+    models,
+    {
+      path: 'api',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: {
+        request: {
+          action: 'recapi',
+          filedir: fileDir,
+          filename: rawFileName,
+        },
+      },
+      integrationId: inboxIntegrationId,
+      retryCount,
+      isConvertToJson: false,
+    },
+    user,
+  );
+
+  if (!fileBuffer?.length) {
+    throw new Error('Received an empty recording from the call server');
   }
-}
+
+  const formData = new FormData();
+  formData.append('file', fileBuffer, sanitizeFileName(rawFileName));
+
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    RECORD_UPLOAD_TIMEOUT_MS,
+  );
+
+  try {
+    const uploadResponse = await fetch(getUrl(subdomain), {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+
+    const responseText = await uploadResponse.text();
+
+    if (!uploadResponse.ok) {
+      throw new Error(
+        `Upload failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${responseText}`,
+      );
+    }
+
+    return responseText;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Recording upload timed out');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
 
 export const getPureDate = (date: Date, updateTime) => {
   const ndate = new Date(date);
@@ -827,7 +632,7 @@ export const updateIntegrationQueueNames = async (
       await Promise.all(
         queues.map(async (queue) => {
           try {
-            const { response } = await sendToGrandStream(
+            const response = await sendToGrandStream(
               models,
               {
                 path: 'api',
@@ -837,7 +642,6 @@ export const updateIntegrationQueueNames = async (
                 integrationId: integrationId,
                 retryCount: 3,
                 isConvertToJson: true,
-                isGetExtension: true,
               },
               {},
             );
@@ -875,7 +679,7 @@ export const updateIntegrationQueueNames = async (
 
 export const normalizeQueueStat = (q: any, integrationId: string) => ({
   queuechairman: q.queuechairman ?? q.queueChairman ?? '',
-  queue: q.queue,
+  queue: String(q.queue),
   totalCalls: q.total_calls ?? q.totalCalls ?? 0,
   answeredCalls: q.answered_calls ?? q.answeredCalls ?? 0,
   answeredRate: q.answered_rate ?? q.answeredRate ?? 0,

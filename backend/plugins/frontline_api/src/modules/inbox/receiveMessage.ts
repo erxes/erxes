@@ -176,7 +176,7 @@ export const receiveInboxMessage = async (
 
       if (conversation) {
         const updatedDoc = {
-          content,
+          ...(content !== undefined ? { content } : {}),
           assignedUserId,
           updatedAt,
 

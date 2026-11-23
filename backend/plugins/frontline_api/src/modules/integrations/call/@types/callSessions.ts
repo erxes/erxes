@@ -21,7 +21,7 @@ export interface ICallSession {
   inboxIntegrationId: string;
   conversationId?: string;
   customerId?: string;
-  customerPhone: string;
+  customerPhone?: string;
   operatorPhone?: string;
   callType: 'incoming' | 'outgoing';
   status: CallSessionStatus;

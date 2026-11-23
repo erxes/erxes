@@ -52,10 +52,9 @@ export const formatCdrApiDate = (value?: string | Date | null): string => {
 
 export const findOrCreateCdr = async (
   models: IModels,
-  subdomain,
-  cdrParams,
-  inboxId,
-  conversationId,
+  cdrParams: ICdrParams,
+  inboxId: string,
+  conversationId: string,
 ) => {
   validateRequiredParams(cdrParams);
 
@@ -68,7 +67,6 @@ export const findOrCreateCdr = async (
   }
 
   const newCdr = await createNewCdr(models, cdrParams, inboxId, conversationId);
-  await processRecordUrl(models, cdrParams, inboxId, subdomain, acctId);
 
   return { cdr: newCdr, created: true };
 };
@@ -121,32 +119,36 @@ const createNewCdr = async (
   });
 };
 
-const processRecordUrl = async (
+/*
+ * Downloads an answered leg's recording from the UCM, uploads it, and stores
+ * the file URL on the CDR and on the session that leg finalized. Callers run
+ * it outside any lock and log its rejection.
+ */
+export const syncCdrRecording = async (
   models: IModels,
-  cdrParams,
-  inboxId,
-  subdomain,
-  acctId,
+  subdomain: string,
+  cdrParams: ICdrParams,
+  inboxId: string,
 ) => {
-  const { recordfiles, lastapp, disposition } = cdrParams;
+  const { AcctId: acctId, recordfiles, lastapp, disposition } = cdrParams;
 
-  if (!shouldProcessRecordUrl(recordfiles, disposition, lastapp)) {
+  if (!acctId || !shouldProcessRecordUrl(recordfiles, disposition, lastapp)) {
     return;
   }
 
-  try {
-    const recordUrl = await generateRecordUrl(
-      cdrParams,
-      inboxId,
-      models,
-      subdomain,
-    );
+  const recordUrl = await generateRecordUrl(
+    cdrParams,
+    inboxId,
+    models,
+    subdomain,
+  );
 
-    if (recordUrl) {
-      await updateCdrWithRecordUrl(models, acctId, recordUrl);
-    }
-  } catch (error) {
-    console.error('Failed to process record URL:', error);
+  if (recordUrl) {
+    await models.CallCdrs.updateOne({ acctId }, { $set: { recordUrl } });
+    await models.CallSessions.updateMany(
+      { cdrAcctId: acctId },
+      { $set: { recordUrl } },
+    );
   }
 };
 
@@ -172,10 +174,6 @@ const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
     models,
     subdomain,
   );
-};
-
-const updateCdrWithRecordUrl = async (models: IModels, acctId, recordUrl) => {
-  await models.CallCdrs.updateOne({ acctId }, { $set: { recordUrl } });
 };
 
 export const determinePrimaryPhone = (params) => {
@@ -449,6 +447,23 @@ export interface ICdrOperatorParams {
   new_src?: string;
   lastapp?: string;
   action_type?: string;
+}
+
+/* A CDR as the UCM posts it to `/call/cdrReceive`. */
+export interface ICdrParams extends ICdrOperatorParams {
+  AcctId?: string;
+  uniqueid?: string;
+  linkedid?: string;
+  session?: string;
+  src_trunk_name?: string;
+  dst_trunk_name?: string;
+  start?: string;
+  answer?: string;
+  end?: string;
+  disposition?: string;
+  billsec?: string | number;
+  recordfiles?: string;
+  [field: string]: unknown;
 }
 
 export const resolveCdrOperator = (
