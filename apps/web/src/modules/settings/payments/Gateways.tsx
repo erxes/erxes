@@ -1,16 +1,89 @@
 import { IconCash, IconPlugConnected } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, ConnectionPicker, Empty, Skeleton, useToast } from 'erxes-ui';
+import { Badge, Button, Empty, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { QueryState } from '~/components/QueryState';
+import type { PaymentGateway } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';
+import { logoUrlOf } from '../integrations/logos';
 
-const DefaultGatewayPicker = ({ value }: { value: string | null }) => {
+type Gateway = PaymentGateway;
+
+/** A gateway's logo, as Settings › Integrations shows it; its first letter when core has none. */
+const GatewayLogo = ({ gateway }: { gateway: Gateway }) => {
+  const url = logoUrlOf(gateway.key);
+
+  if (url) return <img src={url} alt="" className="size-8 shrink-0 rounded-sm object-contain" />;
+
+  return (
+    <span
+      aria-hidden
+      className="flex size-8 shrink-0 items-center justify-center rounded-sm border font-semibold"
+    >
+      {gateway.integrationName.charAt(0).toUpperCase()}
+    </span>
+  );
+};
+
+/**
+ * One connected gateway: its service, its own name, whether it's on, and whether invoices that
+ * name no gateway go through it. Its keys are set up on its Integrations page.
+ */
+const GatewayRow = ({
+  gateway,
+  isDefault,
+  onDefault,
+  pending,
+}: {
+  gateway: Gateway;
+  isDefault: boolean;
+  onDefault: () => void;
+  pending: boolean;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
+  const { t: tc } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
+  const active = gateway.status === 'active';
+
+  return (
+    <li className="flex flex-wrap items-center gap-3 px-4 py-3">
+      <GatewayLogo gateway={gateway} />
+      <div className="min-w-0 flex-1">
+        <p className="flex items-center gap-2 text-sm font-medium">
+          {gateway.name}
+          {isDefault && <Badge variant="secondary">{t('default', 'Default')}</Badge>}
+          {!active && <Badge variant="muted">{t('off', 'Off')}</Badge>}
+        </p>
+        <p className="truncate text-xs text-muted-foreground">
+          {gateway.integrationName} · {tc(`pays.${gateway.pays}`, gateway.pays)}
+        </p>
+      </div>
+      {!isDefault && active && (
+        <Button size="sm" variant="ghost" disabled={pending} onClick={onDefault}>
+          {t('make-default', 'Make default')}
+        </Button>
+      )}
+      <Button
+        size="sm"
+        variant="outline"
+        nativeButton={false}
+        render={<Link to={paths.settings.integration(gateway.key)} />}
+      >
+        {t('set-up', 'Set up')}
+      </Button>
+    </li>
+  );
+};
+
+/**
+ * The connected gateways, the default marked. Invoices from core and every plugin go through the
+ * default unless they name a gateway or it doesn't take their currency; with none, the oldest.
+ */
+export const Gateways = ({ gateways }: { gateways: Gateway[] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const { toast } = useToast();
   const client = useQueryClient();
+  const settings = useQuery(orpc.payments.settings.queryOptions());
 
   const save = useMutation(
     orpc.payments.saveSettings.mutationOptions({
@@ -24,36 +97,30 @@ const DefaultGatewayPicker = ({ value }: { value: string | null }) => {
     }),
   );
 
-  return (
-    <ConnectionPicker
-      category="payments"
-      value={value}
-      onValueChange={(defaultGatewayId) => save.mutate({ defaultGatewayId })}
-      noneLabel={t('default-first', 'None: the first connected one')}
-    />
-  );
-};
-
-export const DefaultGateway = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
-  const settings = useQuery(orpc.payments.settings.queryOptions());
+  const chosen = settings.data?.defaultGatewayId ?? null;
+  // No default picked: the oldest one that's on takes the invoices.
+  const defaultId = chosen ?? gateways.find((gateway) => gateway.status === 'active')?.id ?? null;
 
   return (
     <section className="space-y-2">
-      <h2 className="text-sm font-medium">{t('default-gateway', 'Default gateway')}</h2>
+      <h2 className="text-sm font-medium">{t('gateways', 'Gateways')}</h2>
       <p className="text-sm text-muted-foreground">
         {t(
           'default-gateway-description',
-          'Invoices from core and every plugin go through it, unless they name a gateway or it doesn’t take their currency.',
+          'Invoices from core and every plugin go through the default, unless they name a gateway or it doesn’t take their currency.',
         )}
       </p>
-      <QueryState query={settings} loading={<Skeleton className="h-8 w-72" />}>
-        {({ defaultGatewayId }) => (
-          <div className="w-72">
-            <DefaultGatewayPicker value={defaultGatewayId} />
-          </div>
-        )}
-      </QueryState>
+      <ul className="divide-y rounded-lg border">
+        {gateways.map((gateway) => (
+          <GatewayRow
+            key={gateway.id}
+            gateway={gateway}
+            isDefault={gateway.id === defaultId}
+            pending={save.isPending}
+            onDefault={() => save.mutate({ defaultGatewayId: gateway.id })}
+          />
+        ))}
+      </ul>
     </section>
   );
 };

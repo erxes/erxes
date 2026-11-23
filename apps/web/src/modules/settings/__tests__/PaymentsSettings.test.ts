@@ -1,15 +1,8 @@
 // @vitest-environment happy-dom
-import type {
-  EbarimtReceipt,
-  Integration,
-  IntegrationConnection,
-  Invoice,
-  VaultConnection,
-} from '@erxes/core-contract';
-import { setConnectionPicker } from 'erxes-ui';
+import type { EbarimtReceipt, Integration, Invoice, PaymentGateway } from '@erxes/core-contract';
 import { act } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
-import { lazyNamed } from '~/lib/lazyNamed';
+import { z } from 'zod';
 import { renderSettings, setUpSettings, unmount } from './settingsHarness';
 
 vi.mock('@module-federation/enhanced/runtime', () => ({
@@ -33,9 +26,18 @@ const GATEWAY = {
   status: 'active',
   createdAt: CREATED,
   settings: {},
-} satisfies IntegrationConnection;
+  integrationName: 'Test',
+  pays: 'test',
+} satisfies PaymentGateway;
 
-const CONNECTION = { ...GATEWAY, usedBy: [] } satisfies VaultConnection;
+const SHOP = {
+  ...GATEWAY,
+  id: 'gateway-2',
+  key: 'qpay',
+  name: 'QPay shop',
+  integrationName: 'QPay',
+  pays: 'bank-qr',
+} satisfies PaymentGateway;
 
 const TEST_INTEGRATION = {
   key: 'test',
@@ -122,39 +124,23 @@ const PAGE_INFO = {
   endCursor: null,
 };
 
-const gate = () => {
-  let resolveOpened: (() => void) | undefined;
+let defaultGatewayId: string | null = null;
 
-  const opened = new Promise<void>((resolve) => {
-    resolveOpened = resolve;
-  });
+const answers: Record<string, (request: Request) => Promise<unknown>> = {
+  '/core/v1/payments/gateways': async () => ({ data: [GATEWAY, SHOP] }),
+  '/core/v1/payments/settings': async (request) => {
+    if (request.method === 'PUT') {
+      ({ defaultGatewayId } = z
+        .object({ defaultGatewayId: z.string().nullable() })
+        .parse(await request.json()));
+    }
 
-  const release = () => resolveOpened?.();
-
-  return { opened, release, open: () => act(async () => release()) };
-};
-
-const settingsAnswer = gate();
-const pickerCode = gate();
-const pickerAsked = gate();
-const connectionsAnswer = gate();
-
-const answers: Record<string, () => Promise<unknown>> = {
-  '/core/v1/payments/gateways': async () => ({ data: [GATEWAY] }),
-  '/core/v1/payments/settings': async () => {
-    await settingsAnswer.opened;
-
-    return { defaultGatewayId: null };
+    return { defaultGatewayId };
   },
   '/core/v1/payments/invoices': async () => ({ data: [INVOICE], pageInfo: PAGE_INFO }),
   [`/core/v1/payments/invoices/${INVOICE.id}/refunds`]: async () => ({ data: [] }),
   '/core/v1/ebarimt/receipts': async () => ({ data: [RECEIPT], pageInfo: PAGE_INFO }),
   '/core/v1/integrations': async () => ({ data: [TEST_INTEGRATION] }),
-  '/core/v1/integrations/connections': async () => {
-    await connectionsAnswer.opened;
-
-    return { data: [CONNECTION] };
-  },
 };
 
 beforeAll(async () => {
@@ -164,34 +150,15 @@ beforeAll(async () => {
 
     if (!answer) throw new Error('offline');
 
-    return Response.json(await answer());
+    return Response.json(await answer(request));
   });
-  setConnectionPicker(
-    lazyNamed(async () => {
-      pickerAsked.release();
-      await pickerCode.opened;
-
-      return import('../vault/ConnectionPicker');
-    }, 'ConnectionPicker'),
-  );
 });
 
 afterEach(unmount);
 
-const defaultGateway = (container: Element) => {
-  const heading = [...container.querySelectorAll('h2')].find(
-    (element) => element.textContent === 'Default gateway',
-  );
-
-  const section = heading?.closest('section');
-
-  if (!section) throw new Error('no Default gateway section');
-
-  return section;
-};
-
-const holdsPickerPlace = (container: Element) =>
-  defaultGateway(container).querySelector('.animate-pulse.h-8') !== null;
+/** The gateway's row in the list, by its connection name. */
+const rowOf = (container: Element, name: string) =>
+  [...container.querySelectorAll('li')].find((row) => row.textContent?.includes(name));
 
 const invoiceDialog = () =>
   [...document.querySelectorAll('[role="dialog"]')].find((dialog) =>
@@ -199,14 +166,23 @@ const invoiceDialog = () =>
   );
 
 describe('Settings › Payments', () => {
-  it('keeps the default gateway picker’s place while it loads, so a clicked invoice opens and stays open', async () => {
+  it('lists the gateways with the default marked, moves it, and opens an invoice', async () => {
     const container = await renderSettings('/settings/payments', 'Order R1');
 
-    expect(holdsPickerPlace(container)).toBe(true);
+    // None picked: the oldest one that's on takes the invoices.
+    await vi.waitFor(() =>
+      expect(rowOf(container, 'Test gateway')?.textContent).toContain('Default'),
+    );
+    expect(rowOf(container, 'QPay shop')?.textContent).toContain('QPay');
 
-    await settingsAnswer.open();
-    await act(() => pickerAsked.opened);
-    expect(holdsPickerPlace(container)).toBe(true);
+    const makeDefault = [...(rowOf(container, 'QPay shop')?.querySelectorAll('button') ?? [])].find(
+      (button) => button.textContent === 'Make default',
+    );
+
+    await act(async () => makeDefault?.click());
+    await vi.waitFor(() => expect(rowOf(container, 'QPay shop')?.textContent).toContain('Default'));
+    expect(defaultGatewayId).toBe(SHOP.id);
+    expect(rowOf(container, 'Test gateway')?.textContent).toContain('Make default');
 
     const row = [...container.querySelectorAll('button')].find((button) =>
       button.textContent?.includes('Order R1'),
@@ -214,14 +190,5 @@ describe('Settings › Payments', () => {
 
     await act(async () => row?.click());
     await vi.waitFor(() => expect(invoiceDialog()?.textContent).toContain('Failed'));
-
-    await pickerCode.open();
-    expect(holdsPickerPlace(container)).toBe(true);
-
-    await connectionsAnswer.open();
-    await vi.waitFor(() =>
-      expect(defaultGateway(container).textContent).toContain('None: the first connected one'),
-    );
-    expect(invoiceDialog()?.textContent).toContain('Failed');
   });
 });

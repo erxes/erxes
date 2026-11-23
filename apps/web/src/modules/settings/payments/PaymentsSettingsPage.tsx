@@ -17,7 +17,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
-import { ConnectGateways, DefaultGateway, NoGateways } from './Gateways';
+import { ConnectGateways, Gateways, NoGateways } from './Gateways';
 import { InvoiceDetails } from './InvoiceDetails';
 import { STATUS_BADGE } from './invoiceStatus';
 
@@ -142,7 +142,7 @@ const CurrencyNote = () => {
   );
 };
 
-/** Settings › Payments: the default gateway, and the invoices made. */
+/** Settings › Payments: the connected gateways and which is the default, and the invoices made. */
 export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const canManage = useCan()('payments.manage');
@@ -178,7 +178,7 @@ export const PaymentsSettingsPage = () => {
               </section>
             }
           >
-            {() => <DefaultGateway />}
+            {({ data }) => <Gateways gateways={data} />}
           </QueryState>
           <Invoices />
         </div>

@@ -876,9 +876,7 @@
     "refund-full-only": "This gateway refunds whole payments only. Refund part of it outside erxes and record it.",
     "refund-confirm": "Refund {{amount}}",
     "save-failed": "Could not save",
-    "default-gateway": "Default gateway",
-    "default-gateway-description": "Invoices from core and every plugin go through it, unless they name a gateway or it doesn’t take their currency.",
-    "default-first": "None: the first connected one",
+    "default-gateway-description": "Invoices from core and every plugin go through the default, unless they name a gateway or it doesn’t take their currency.",
     "add": "Connect a gateway",
     "title": "Payments",
     "gateways": "Gateways",
@@ -917,7 +915,11 @@
       "filter": "Receipts by state",
       "all": "All",
       "more": "Show more"
-    }
+    },
+    "default": "Default",
+    "off": "Off",
+    "make-default": "Make default",
+    "set-up": "Set up"
   },
   "recycle-bin": {
     "failed": "Something went wrong",
