@@ -75,7 +75,7 @@ export const TasksExportButton = () => {
 export const TasksLayout = () => {
   return (
     <div className="flex flex-col overflow-hidden w-full h-full">
-      <PageSubHeader>
+      <PageSubHeader className="flex-wrap">
         <TasksFilter />
         <TasksImportButton />
         <TasksExportButton />
