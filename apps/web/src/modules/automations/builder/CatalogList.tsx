@@ -1,6 +1,6 @@
 import { IconCheck, IconClockHour4 } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
-import { cn, Command } from 'erxes-ui';
+import { Badge, cn, Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   type CatalogGroup,
@@ -41,7 +41,7 @@ const GroupTile = ({ group }: { group: CatalogGroup }) => (
   </span>
 );
 
-/** Which items and categories show as picked: one in a picker, several in a checklist. */
+/** Which item and category show as picked. */
 export type Picked = {
   item: (item: CatalogItem) => boolean;
   category: (key: string) => boolean;
@@ -139,7 +139,6 @@ const Categories = ({
   groups,
   recentItems,
   picked,
-  categoryHint,
   onChoose,
   onOpen,
 }: {
@@ -147,7 +146,6 @@ const Categories = ({
   groups: GroupEntry[];
   recentItems: CatalogItem[];
   picked: Picked;
-  categoryHint: ((entry: GroupEntry) => string) | undefined;
   onChoose: (type: string) => void;
   onOpen: (category: string) => void;
 }) => {
@@ -187,16 +185,20 @@ const Categories = ({
               onSelect={() => onOpen(entry.group.key)}
               variant="tile"
               checked={picked.category(entry.group.key)}
+              disabled={entry.group.comingSoon}
             >
               <GroupTile group={entry.group} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{groupName(entry.group)}</span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {categoryHint?.(entry) ?? (
-                    <>
-                      {entry.group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
-                      {countLabel(entry.items.length)}
-                    </>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="truncate">
+                    {entry.group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
+                    {countLabel(entry.items.length)}
+                  </span>
+                  {entry.group.comingSoon && (
+                    <Badge variant="muted" size="sm" className="shrink-0">
+                      {t('coming-soon-short', 'Soon')}
+                    </Badge>
                   )}
                 </span>
               </span>
@@ -216,7 +218,6 @@ export const CatalogList = ({
   searching,
   picked,
   recentItems,
-  categoryHint,
   onChoose,
   onOpen,
 }: {
@@ -226,8 +227,6 @@ export const CatalogList = ({
   searching: boolean;
   picked: Picked;
   recentItems: CatalogItem[];
-  /** A category tile's second line, in place of its size. */
-  categoryHint?: (entry: GroupEntry) => string;
   onChoose: (type: string) => void;
   onOpen: (category: string) => void;
 }) => {
@@ -239,7 +238,7 @@ export const CatalogList = ({
       {searching && (
         <SearchResults
           kind={kind}
-          groups={current ? [current] : groups}
+          groups={(current ? [current] : groups).filter((entry) => !entry.group.comingSoon)}
           picked={picked}
           onChoose={onChoose}
         />
@@ -255,7 +254,6 @@ export const CatalogList = ({
           groups={groups}
           recentItems={recentItems}
           picked={picked}
-          categoryHint={categoryHint}
           onChoose={onChoose}
           onOpen={onOpen}
         />

@@ -40,7 +40,10 @@ const currentThenRecent = (
 ) => [
   ...(selected ? [selected] : []),
   ...recent.flatMap(
-    (type) => items.find((item) => item.type === type && item.type !== selected?.type) ?? [],
+    (type) =>
+      items.find(
+        (item) => item.type === type && item.type !== selected?.type && !item.comingSoon,
+      ) ?? [],
   ),
 ];
 
