@@ -8,6 +8,7 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { parseEnv } from 'node:util';
 import { z } from 'zod';
 
 /** A dev server the stack starts with `pnpm <args>` in `cwd`; it is up once `ready` answers. */
@@ -50,6 +51,46 @@ export const readPlugins = (dirs: string[], firstPort: number): DevPlugin[] =>
       secret: randomBytes(24).toString('base64url'),
     };
   });
+
+/** A plugin's database password and client secret, kept across `up`s on your own Postgres. */
+export const Credentials = z.record(
+  z.string(),
+  z.object({ password: z.string(), secret: z.string() }),
+);
+
+export type Credentials = z.infer<typeof Credentials>;
+
+/** Where a Postgres URL points: host, port and database, without the login. */
+export const serverOf = (url: string) => {
+  const parsed = new URL(url);
+
+  return `${parsed.hostname}:${parsed.port || '5432'}${parsed.pathname}`;
+};
+
+/**
+ * The password and secret in the plugin checkout's own `.env`, when its DATA_URL is the plugin's
+ * role on `server`: running it by hand and with the stack then works with the same ones.
+ */
+export const credentialsInCheckout = (plugin: DevPlugin, server: string) => {
+  const file = resolve(plugin.dir, '.env');
+
+  if (!existsSync(file)) return undefined;
+
+  const env = parseEnv(readFileSync(file, 'utf8'));
+
+  if (!env.DATA_URL || !env.PLUGIN_SECRET || env.PLUGIN_SECRET.length < 32) return undefined;
+
+  try {
+    const url = new URL(env.DATA_URL);
+
+    if (url.username !== `erxes_plugin_${plugin.name}` || serverOf(env.DATA_URL) !== server)
+      return undefined;
+
+    return { password: decodeURIComponent(url.password), secret: env.PLUGIN_SECRET };
+  } catch {
+    return undefined;
+  }
+};
 
 const apiUrl = (plugin: DevPlugin) => `http://localhost:${plugin.apiPort}`;
 const uiEntry = (plugin: DevPlugin) => `http://localhost:${plugin.uiPort}/remoteEntry.js`;
