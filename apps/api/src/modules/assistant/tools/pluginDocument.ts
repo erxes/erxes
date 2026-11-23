@@ -1,3 +1,4 @@
+import type { PluginApiAudience } from '@erxes/core-contract';
 import { z } from 'zod';
 import { requestOutbound } from '~/lib/outbound';
 import { logger } from '~/logger';
@@ -63,8 +64,12 @@ const ObjectSchema = z.looseObject({
   required: z.array(z.string()).default([]),
 });
 
+/** Whose routes: the plugin's members', or a website's and a signed-in customer's. */
+export type PluginAudience = Exclude<PluginApiAudience, 'employee'>;
+
 export interface PluginProcedure extends ApiProcedure {
   plugin: string;
+  audience: PluginAudience;
   url: string;
   pathNames: string[];
   queryNames: string[];
@@ -146,6 +151,7 @@ const pathNamesOf = (path: string) =>
 
 interface Route {
   plugin: string;
+  audience: PluginAudience;
   url: string;
   method: (typeof METHODS)[number];
   path: string;
@@ -153,7 +159,7 @@ interface Route {
 }
 
 const procedureOf = (
-  { plugin, url, method, path, schemas }: Route,
+  { plugin, audience, url, method, path, schemas }: Route,
   operation: Operation,
 ): PluginProcedure => {
   const verb = method.toUpperCase();
@@ -161,7 +167,7 @@ const procedureOf = (
   const input = inputOf(operation, schemas);
 
   return {
-    name: `${plugin}:${id}`,
+    name: audience === 'member' ? `${plugin}:${id}` : `${plugin}:${audience}:${id}`,
     method: verb,
     path,
     summary: (operation.summary ?? '').slice(0, SUMMARY_MAX),
@@ -172,6 +178,7 @@ const procedureOf = (
       carriesCredentials([input, schemaOf(answerOf(operation), schemas)]) ||
       [...id.split('.'), ...path.split('/')].some(isCredentialName),
     plugin,
+    audience,
     url,
     pathNames: pathNamesOf(path),
     queryNames: operation.parameters.filter((item) => item.in === 'query').map(({ name }) => name),
@@ -191,11 +198,12 @@ const serverOf = (apiUrl: string, declared: string | undefined) => {
 
 interface Source {
   plugin: string;
+  audience: PluginAudience;
   apiUrl: string;
   address: string;
 }
 
-const read = async ({ plugin, apiUrl, address }: Source): Promise<PluginProcedure[]> => {
+const read = async ({ plugin, audience, apiUrl, address }: Source): Promise<PluginProcedure[]> => {
   const answer = await requestOutbound(address, {
     method: 'GET',
     body: '',
@@ -220,7 +228,7 @@ const read = async ({ plugin, apiUrl, address }: Source): Promise<PluginProcedur
       return operation.success
         ? [
             procedureOf(
-              { plugin, url, method, path, schemas: document.components.schemas },
+              { plugin, audience, url, method, path, schemas: document.components.schemas },
               operation.data,
             ),
           ]
@@ -231,15 +239,20 @@ const read = async ({ plugin, apiUrl, address }: Source): Promise<PluginProcedur
 
 const documents = new Map<string, { until: number; procedures: Promise<PluginProcedure[]> }>();
 
-const proceduresOf = ({ name: plugin, apiUrl, memberDoc }: InstalledPlugin) => {
-  if (!apiUrl || !memberDoc) return Promise.resolve([]);
+const proceduresOf = (
+  { name: plugin, apiUrl, docs }: InstalledPlugin,
+  audience: PluginAudience,
+) => {
+  const doc = docs[audience];
 
-  const address = `${trimmed(apiUrl)}${memberDoc}`;
+  if (!apiUrl || !doc) return Promise.resolve([]);
+
+  const address = `${trimmed(apiUrl)}${doc}`;
   const known = documents.get(address);
 
   if (known && known.until > Date.now()) return known.procedures;
 
-  const procedures = read({ plugin, apiUrl, address }).catch((error: unknown) => {
+  const procedures = read({ plugin, audience, apiUrl, address }).catch((error: unknown) => {
     log.warn({ err: error, plugin, address }, 'a plugin API document could not be read');
     documents.set(address, { until: Date.now() + RETRY_MS, procedures: Promise.resolve([]) });
 
@@ -251,5 +264,8 @@ const proceduresOf = ({ name: plugin, apiUrl, memberDoc }: InstalledPlugin) => {
   return procedures;
 };
 
-export const pluginProcedures = async (plugins: InstalledPlugin[]) =>
-  (await Promise.all(plugins.map(proceduresOf))).flat();
+/** The routes of each plugin's API document for `audience`, read at most every 5 minutes. */
+export const pluginProcedures = async (
+  plugins: InstalledPlugin[],
+  audience: PluginAudience = 'member',
+) => (await Promise.all(plugins.map((plugin) => proceduresOf(plugin, audience)))).flat();

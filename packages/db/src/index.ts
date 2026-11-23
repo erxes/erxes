@@ -18,7 +18,8 @@ export * as schema from './schema';
 
 export {
   activities,
-  agentModels,
+  agentChats,
+  agents,
   assistantAppearances,
   assistantReferences,
   assistantSettings,

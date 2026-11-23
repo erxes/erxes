@@ -1,8 +1,8 @@
 import { type Caller, enterScope, withOrg } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
 import { z } from 'zod';
-import { memberMayCall } from '~/http/access';
-import { memberOf } from '~/http/auth';
+import { decideKeyCall, memberMayCall } from '~/http/access';
+import { decidePluginKey } from '~/http/keyRules';
 import { agentTool } from '~/modules/agents/tool';
 import { coreRouter } from '~/router';
 import type { InstalledPlugin } from '../plugins';
@@ -10,19 +10,24 @@ import { identitiesIn } from '../records';
 import { issueReferences } from '../references.service';
 import { type ApiProcedure, apiCatalog } from './apiCatalog';
 import { type PluginProcedure, pluginProcedures } from './pluginDocument';
-import { callPluginProcedure } from './pluginOperations';
+import { callPluginProcedure, callPluginRoute } from './pluginOperations';
 import { bounded, describeError, refusal } from './results';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
 export interface ToolScope {
-  /** Whom calls act as: a signed-in member, read again per call, or an API key's caller as given. */
-  member: Member;
+  /** Who each call runs as, read again for each: the chat's member, or an agent's key; null once gone. */
+  caller: () => Promise<Member | null>;
   orgId: string;
   /** The assistant thread its references belong to; an automation step has none. */
   threadId: string | null;
   codeMode: boolean;
   plugins: InstalledPlugin[];
+  /**
+   * An agent talking to a customer of one plugin's website: that plugin's website and customer
+   * routes run as them, on that website.
+   */
+  customer?: { plugin: string; token: () => Promise<string> };
 }
 
 export const SEARCH_LIMIT = 8;
@@ -77,18 +82,52 @@ type Entry = ApiProcedure | PluginProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
 
-const findEntry = async (scope: ToolScope, name: string): Promise<Entry | undefined> =>
-  apiCatalog().get(name) ??
-  (await pluginProcedures(scope.plugins)).find((entry) => entry.name === name);
+/** The website's and customer routes of the plugin whose website the customer is on. */
+const customerProcedures = async ({ customer, plugins }: ToolScope) => {
+  const owner = plugins.filter((plugin) => plugin.name === customer?.plugin);
 
-const mayCall = (scope: ToolScope, entry: Entry) =>
-  !entry.denied && (isPluginEntry(entry) || memberMayCall(entry.name, scope.member));
+  return owner.length
+    ? [
+        ...(await pluginProcedures(owner, 'website')),
+        ...(await pluginProcedures(owner, 'customer')),
+      ]
+    : [];
+};
+
+/** Every route the scope reaches: core's, plugins' member routes, and a customer's when it has one. */
+const entriesOf = async (scope: ToolScope): Promise<Entry[]> => [
+  ...apiCatalog().values(),
+  ...(await pluginProcedures(scope.plugins)),
+  ...(await customerProcedures(scope)),
+];
+
+const findEntry = async (scope: ToolScope, name: string) =>
+  apiCatalog().get(name) ?? (await entriesOf(scope)).find((entry) => entry.name === name);
+
+/**
+ * Would the call get past the caller's role or key rules? A key reaches a plugin's routes, a
+ * customer's too, only when its rules allow that plugin; the plugin checks the rest.
+ */
+const mayCall = (member: Member, entry: Entry) => {
+  if (entry.denied) return false;
+
+  if (!isPluginEntry(entry)) {
+    return member.key
+      ? decideKeyCall({ ...member, key: member.key }, entry.name).allowed
+      : memberMayCall(entry.name, member);
+  }
+
+  return !member.key || decidePluginKey(member.key, entry.plugin).allowed;
+};
 
 export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
   const tokens = tokensOf(query);
+  const member = await scope.caller();
 
-  const found = [...apiCatalog().values(), ...(await pluginProcedures(scope.plugins))]
-    .filter((entry) => mayCall(scope, entry))
+  if (!member) return { procedures: [] };
+
+  const found = (await entriesOf(scope))
+    .filter((entry) => mayCall(member, entry))
     .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
     .filter(({ score }) => score > 0)
     .toSorted((a, b) => b.score - a.score || a.procedure.name.localeCompare(b.procedure.name))
@@ -148,18 +187,28 @@ export const callProcedure = async (
     );
   }
 
-  const member = scope.member.apiKeyId
-    ? scope.member
-    : await memberOf(scope.orgId, scope.member.userId);
+  const member = await scope.caller();
 
-  if (!member)
-    return refusal('UNAUTHORIZED', 'The member who started this chat is no longer active');
+  if (!member) return refusal('UNAUTHORIZED', 'The member or key this acts as is no longer active');
 
-  const result = await enterScope(member, scope.orgId, () =>
-    isPluginEntry(entry)
-      ? callPluginProcedure(scope.orgId, entry, input)
-      : runCore(scope, name, input),
-  );
+  // Core checks its own procedures when they run; a plugin's routes are checked here.
+  if (isPluginEntry(entry) && !mayCall(member, entry)) {
+    return refusal('FORBIDDEN', `Your access does not include the ${entry.plugin} plugin`);
+  }
+
+  const { customer } = scope;
+
+  const run = () => {
+    if (!isPluginEntry(entry)) return runCore(scope, name, input);
+
+    if (entry.audience !== 'member' && customer) {
+      return callPluginRoute(entry, input, customer.token);
+    }
+
+    return callPluginProcedure(scope.orgId, entry, input);
+  };
+
+  const result = await enterScope(member, scope.orgId, run);
 
   return result.ok ? { ...result, changed: entry.changes } : result;
 };
@@ -178,7 +227,7 @@ export const apiTools = (scope: ToolScope) => [
   agentTool({
     name: 'callApi',
     description:
-      'Run one erxes API procedure as the signed-in member, with their permissions. Pass the procedure name from searchApi and one input object.',
+      'Run one erxes API procedure with your permissions. Pass the procedure name from searchApi and one input object.',
     input: CallApiInput,
     execute: ({ procedure, input }) => callProcedure(scope, procedure, input),
   }),

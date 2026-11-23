@@ -10,7 +10,6 @@ import { DataField, PluginAction } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
 import { PluginName } from './values';
-import { PluginAgents } from './agents';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
 import { PluginIntegrations } from './integrations';
@@ -212,7 +211,6 @@ export const PluginManifest = z.object({
     .max(500)
     .optional(),
   assistant: PluginAssistant.optional(),
-  agents: PluginAgents.optional(),
 });
 
 export type PluginManifest = z.infer<typeof PluginManifest>;

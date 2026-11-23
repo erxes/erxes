@@ -8,6 +8,7 @@ import { coreAction } from '~/modules/automations/actions/catalog';
 import type { CallContext } from '~/modules/automations/actions/context';
 import { pluginForAction, runPluginAction } from '~/modules/automations/actions/plugin';
 import { automationCatalog } from '~/modules/automations/automationCatalog';
+import { actionText, ranked } from '~/modules/automations/catalogSearch';
 import { actionProblems } from '~/modules/automations/definitions';
 import { type AutomationStepScope, callContextOf } from './automationStep';
 import { agentTool } from './tool';
@@ -28,28 +29,6 @@ const offeredIn = (step: AutomationStepScope, actions: ActionInfo[]) =>
 const catalogAs = (step: AutomationStepScope) =>
   enterScope(step.member, step.orgId, () => withOrg(step.orgId, automationCatalog));
 
-const wordsOf = (text: string) =>
-  text
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter((word) => word.length > 1);
-
-const scoreOf = (action: ActionInfo, words: string[]) => {
-  const label = wordsOf(`${action.label} ${action.type}`);
-
-  const rest = wordsOf(
-    `${action.description ?? ''} ${action.integrationName ?? ''} ${action.source}`,
-  );
-
-  return words.reduce(
-    (score, word) =>
-      score +
-      (label.some((part) => part.startsWith(word)) ? 2 : 0) +
-      (rest.some((part) => part.startsWith(word)) ? 1 : 0),
-    0,
-  );
-};
-
 const describe = (action: ActionInfo) => ({
   action: action.type,
   label: action.label,
@@ -68,16 +47,7 @@ const describe = (action: ActionInfo) => ({
 });
 
 const searchActions = async (step: AutomationStepScope, query: string, limit: number) => {
-  const offered = offeredIn(step, (await catalogAs(step)).actions);
-  const words = wordsOf(query);
-
-  const found = words.length
-    ? offered
-        .map((action) => ({ action, score: scoreOf(action, words) }))
-        .filter(({ score }) => score > 0)
-        .toSorted((a, b) => b.score - a.score)
-        .map(({ action }) => action)
-    : offered;
+  const found = ranked(offeredIn(step, (await catalogAs(step)).actions), query, actionText);
 
   return { actions: found.slice(0, limit).map(describe), more: Math.max(0, found.length - limit) };
 };

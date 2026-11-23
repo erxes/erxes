@@ -27,10 +27,14 @@ export const ACCESS = {
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
-  // A plugin sends to its own agents only (agents.router).
+  // Members pick agents (frontline's bot); admins make them. A plugin sends to any agent.
+  'agents.list': needs('assistant.chat'),
+  'agents.get': needs('assistant.chat'),
+  'agents.create': needs('assistant.manage'),
+  'agents.update': needs('assistant.manage'),
+  'agents.remove': needs('assistant.manage'),
+  'agents.try': needs('assistant.manage'),
   'agents.submit': { plugin: 'installed' },
-  'agents.models': needs('assistant.chat'),
-  'agents.setModel': needs('assistant.manage'),
   ...ASSISTANT_ACCESS,
   ...MESSAGING_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).

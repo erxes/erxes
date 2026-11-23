@@ -1,5 +1,5 @@
 {
-  "id": "ca991386-7b14-4e7e-a539-26f9b4177918",
+  "id": "a00f08bd-c9d0-47d1-9c2d-f34426fdc9f6",
   "prevId": "9ea75994-df3e-463a-b856-c9046cf6aea9",
   "version": "7",
   "dialect": "postgresql",
@@ -1773,13 +1773,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "currencies": {
-          "name": "currencies",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::text[]"
         },
         "timezone": {
           "name": "timezone",
@@ -12425,78 +12418,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.core_agent_models": {
-      "name": "core_agent_models",
-      "schema": "",
-      "columns": {
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "nullif(current_setting('app.org_id', true), '')"
-        },
-        "agent": {
-          "name": "agent",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "core_agent_models_org_id_fkey": {
-          "name": "core_agent_models_org_id_fkey",
-          "tableFrom": "core_agent_models",
-          "tableTo": "core_organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "core_agent_models_pkey": {
-          "name": "core_agent_models_pkey",
-          "columns": [
-            "org_id",
-            "agent"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "core_agent_models_provider_check": {
-          "name": "core_agent_models_provider_check",
-          "value": "\"core_agent_models\".\"provider\" IN ('openai', 'anthropic', 'openrouter', 'kimi', 'kimi-code', 'grok')"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.core_agent_record_ids": {
       "name": "core_agent_record_ids",
       "schema": "",
@@ -12957,6 +12878,252 @@
         "core_agent_tasks_status_check": {
           "name": "core_agent_tasks_status_check",
           "value": "\"core_agent_tasks\".\"status\" IN ('pending', 'running', 'waiting', 'sleeping', 'completing', 'terminal')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.core_agent_chats": {
+      "name": "core_agent_chats",
+      "schema": "",
+      "columns": {
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "agent_id": {
+          "name": "agent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plugin": {
+          "name": "plugin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "core_agent_chats_agent_id_fkey": {
+          "name": "core_agent_chats_agent_id_fkey",
+          "tableFrom": "core_agent_chats",
+          "tableTo": "core_agents",
+          "columnsFrom": [
+            "agent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_agent_chats_org_id_fkey": {
+          "name": "core_agent_chats_org_id_fkey",
+          "tableFrom": "core_agent_chats",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "core_agent_chats_pkey": {
+          "name": "core_agent_chats_pkey",
+          "columns": [
+            "org_id",
+            "agent_id",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.core_agents": {
+      "name": "core_agents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "nullif(current_setting('app.org_id', true), '')"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "template": {
+          "name": "template",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instructions": {
+          "name": "instructions",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "key_id": {
+          "name": "key_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "website_id": {
+          "name": "website_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "core_agents_org_idx": {
+          "name": "core_agents_org_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "core_agents_org_id_fkey": {
+          "name": "core_agents_org_id_fkey",
+          "tableFrom": "core_agents",
+          "tableTo": "core_organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_agents_key_id_fkey": {
+          "name": "core_agents_key_id_fkey",
+          "tableFrom": "core_agents",
+          "tableTo": "core_api_keys",
+          "columnsFrom": [
+            "key_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_agents_website_id_fkey": {
+          "name": "core_agents_website_id_fkey",
+          "tableFrom": "core_agents",
+          "tableTo": "core_websites",
+          "columnsFrom": [
+            "website_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "core_agents_template_check": {
+          "name": "core_agents_template_check",
+          "value": "\"core_agents\".\"template\" IS NULL OR \"core_agents\".\"template\" IN ('shop', 'hotel', 'tours', 'support')"
+        },
+        "core_agents_provider_check": {
+          "name": "core_agents_provider_check",
+          "value": "\"core_agents\".\"provider\" IS NULL OR \"core_agents\".\"provider\" IN ('openai', 'anthropic', 'openrouter', 'kimi', 'kimi-code', 'grok')"
         }
       },
       "isRLSEnabled": false

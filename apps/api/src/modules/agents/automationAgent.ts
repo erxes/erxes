@@ -7,7 +7,6 @@ import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { AUTOMATION_AGENT } from '~/modules/automations/actions/agent';
 import type { Agent } from './agent';
 import { actionTools } from './automationActions';
-import { agentModelKey } from './agentModels';
 import { type AutomationStepScope, automationStepOf } from './automationStep';
 import { stepKeyCaller } from './stepApiKey';
 
@@ -19,17 +18,15 @@ const ACTIONS = `Find automation actions with searchActions and run them with ru
 
 const CLOSING = `Use only these tools; nothing else is available to this step. Nobody reads along and nobody can answer questions: when something is missing, do what you can and say what you could not. End with a short plain answer, which later steps of the automation read.`;
 
-/** The step's chosen model with its provider's key, else the automation agent's. */
-const stepModelKey = (tx: Db, step: AutomationStepScope) =>
-  step.settings.model ? modelKey(tx, step.settings.model) : agentModelKey(tx, AUTOMATION_AGENT);
-
 /** The erxes API as the step's API key, when it has one, and the actions it allows. */
 const toolsOf = async (tx: Db, step: AutomationStepScope) => {
   const { apiKeyId } = step.settings;
+  // The key is checked once, as the step starts: a key removed later fails the next run.
+  const caller = apiKeyId ? await stepKeyCaller(tx, step, apiKeyId) : null;
 
-  const api = apiKeyId
+  const api = caller
     ? apiTools({
-        member: await stepKeyCaller(tx, step, apiKeyId),
+        caller: () => Promise.resolve(caller),
         orgId: step.orgId,
         threadId: null,
         codeMode: false,
@@ -52,7 +49,8 @@ export const automationAgent: Agent = {
 
     return enterScope(step.member, scope.orgId, () =>
       withOrg(scope.orgId, async (tx) => {
-        const key = await stepModelKey(tx, step);
+        // The step's chosen model, else the organisation's default.
+        const key = await modelKey(tx, step.settings.model ?? {});
         const { api, actions } = await toolsOf(tx, step);
 
         const instructions = [ROLE, api.length ? API : '', actions.length ? ACTIONS : '', CLOSING]

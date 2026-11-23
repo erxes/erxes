@@ -7,9 +7,9 @@ export const installedPlugins = async (client: Db) => {
   return rows.map(({ name, manifest }) => ({
     name,
     apiUrl: manifest?.api?.url ?? null,
-    memberDoc: manifest?.api?.docs?.find((doc) => doc.audience === 'member')?.path ?? null,
+    /** Where each API document is, under `apiUrl`, by audience. */
+    docs: Object.fromEntries((manifest?.api?.docs ?? []).map((doc) => [doc.audience, doc.path])),
     skills: manifest?.assistant?.skills ?? [],
-    agents: manifest?.agents ?? [],
   }));
 };
 

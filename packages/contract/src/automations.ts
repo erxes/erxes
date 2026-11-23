@@ -19,6 +19,13 @@ import {
 } from './automationRuns';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
+export const CatalogSearch = z.object({
+  search: z.string().trim().max(200).optional(),
+  limit: z.coerce.number().int().min(1).max(20).optional(),
+});
+
+export type CatalogSearch = z.infer<typeof CatalogSearch>;
+
 const Fields = createUpdateSchema(automations, {
   name: (name) => name.trim().min(1).max(120),
   description: (value) => value.trim().max(500),
@@ -55,8 +62,10 @@ export const automationsContract = {
       method: 'GET',
       path: '/automations/catalog',
       summary: 'List triggers and actions',
-      description: "Triggers (event types) and actions: core's and installed plugins'",
+      description:
+        "Triggers (event types, app events) and actions: core's, its apps' (GitHub, Telegram, …) and installed plugins'. `search` (plain words, e.g. \"github issue opened\") answers only the best matching triggers and actions, `limit` of each (5 by default), and the apps they belong to with their connections",
     })
+    .input(CatalogSearch.optional())
     .output(
       z.object({
         triggers: z.array(

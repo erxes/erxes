@@ -3,7 +3,9 @@ import { and, eq } from 'drizzle-orm';
 import { connectedIntegrations } from '~/modules/integrations/actions';
 import { appCatalog, appTriggerTypes } from '~/modules/integrations/appCatalog';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
+import type { CatalogSearch } from '@erxes/core-contract';
 import { actionCatalog } from './actions/catalog';
+import { actionText, ranked } from './catalogSearch';
 import { type Carried, healedFields, labelOf } from './dataFields';
 import { isEventType, learnedEventData, outputType } from './eventData';
 
@@ -38,7 +40,31 @@ const unexpectedTriggers = (
     ];
   });
 
-export const automationCatalog = async (client: Db) => {
+const matching = ({ triggers, actions, apps }: Catalog, search: string, limit: number) => {
+  const found = {
+    triggers: ranked(triggers, search, (trigger) => ({
+      label: `${trigger.label} ${trigger.type}`,
+      rest: `${trigger.description ?? ''} ${trigger.record ?? ''} ${trigger.source}`,
+    })).slice(0, limit),
+    actions: ranked(actions, search, actionText).slice(0, limit),
+  };
+
+  const types = new Set(found.triggers.map((trigger) => trigger.type));
+
+  const keys = new Set([
+    ...found.triggers.map((trigger) => trigger.source),
+    ...found.actions.flatMap((action) => (action.integration ? [action.integration] : [])),
+  ]);
+
+  return {
+    ...found,
+    apps: apps
+      .filter((app) => keys.has(app.key))
+      .map((app) => ({ ...app, triggers: app.triggers.filter(({ type }) => types.has(type)) })),
+  };
+};
+
+const fullCatalog = async (client: Db) => {
   const triggers = [...(await eventTypeCatalog(client)), ...appTriggerTypes()];
   const installed = await installedPlugins(client);
   const learned = await learnedEventData(client);
@@ -64,4 +90,14 @@ export const automationCatalog = async (client: Db) => {
     }),
     apps: await appCatalog(client),
   };
+};
+
+const SEARCH_LIMIT = 5;
+
+type Catalog = Awaited<ReturnType<typeof fullCatalog>>;
+
+export const automationCatalog = async (client: Db, { search, limit }: CatalogSearch = {}) => {
+  const catalog = await fullCatalog(client);
+
+  return search ? matching(catalog, search, limit ?? SEARCH_LIMIT) : catalog;
 };
