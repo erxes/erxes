@@ -97,14 +97,16 @@ const clientSource = async (tx: Db, key: string) => {
   return (await orgClient(tx, key)) ? ('organization' as const) : null;
 };
 
+/** On SaaS erxes runs the server's apps, so organisations don't see their ids or the relay. */
 export const oauthFacts = async (tx: Db, key: string) => {
   const relay = metaRelayFor(key);
+  const shown = !config.saas.enabled;
 
   return {
     client: await clientSource(tx, key),
     callbackUrl: relay?.redirectUrl ?? (await callbackUrl(tx)),
-    serverClientId: serverClient(key)?.clientId ?? null,
-    relayUrl: relay?.url ?? null,
+    serverClientId: (shown && serverClient(key)?.clientId) || null,
+    relayUrl: (shown && relay?.url) || null,
   };
 };
 

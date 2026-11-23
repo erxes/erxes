@@ -73,6 +73,12 @@ describe(
       return new URL(AppSubscription.parse(JSON.parse(app?.body ?? '{}')).callback_url).pathname;
     };
 
+    const facts = async () => {
+      const { data } = await t.client({ user: t.ids.owner, org: t.ids.org }).integrations.list();
+
+      return data.find((item) => item.key === 'facebook')?.oauth;
+    };
+
     const deliver = (raw: string) =>
       fetch(t.url(hookPath()), {
         method: 'POST',
@@ -168,6 +174,22 @@ describe(
       await settle();
 
       expect(pageCalls('DELETE').map((call) => call.auth)).toEqual(['Bearer page-token']);
+    });
+
+    it('shows the server’s app id self-hosted and hides it on SaaS', async () => {
+      expect(await facts()).toMatchObject({ client: 'server', serverClientId: APP_ID });
+
+      config.saas.enabled = true;
+
+      try {
+        expect(await facts()).toMatchObject({
+          client: 'server',
+          serverClientId: null,
+          relayUrl: null,
+        });
+      } finally {
+        config.saas.enabled = false;
+      }
     });
   },
 );

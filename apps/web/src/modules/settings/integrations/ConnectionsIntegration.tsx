@@ -72,7 +72,7 @@ const Overview = ({ integration }: { integration: Integration }) => {
         </QueryState>
       </OverviewSection>
       <AutomationTriggers integration={integration} />
-      {integration.oauth?.client === 'server' && (
+      {integration.oauth?.client === 'server' && integration.oauth.serverClientId && (
         <OverviewSection title={t('app', 'App')}>
           <ServerAppFacts oauth={integration.oauth} />
         </OverviewSection>

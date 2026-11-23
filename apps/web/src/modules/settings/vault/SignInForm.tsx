@@ -87,7 +87,7 @@ const Fact = ({ label, children }: { label: string; children: ReactNode }) => (
 export const ServerAppFacts = ({ oauth }: { oauth: OAuthIntegration['oauth'] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
 
-  if (oauth.client !== 'server') return null;
+  if (oauth.client !== 'server' || !oauth.serverClientId) return null;
 
   return (
     <div className="space-y-2 rounded-lg border p-3 text-sm">
