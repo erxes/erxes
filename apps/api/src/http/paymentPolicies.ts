@@ -17,7 +17,7 @@ export const PAYMENT_ACCESS = {
   'banks.transfer': needs('banks.transfer'),
   'banks.taxpayer': needs('banks.view'),
   'banks.taxInvoices': needs('banks.view'),
-  'payments.gateways': needs('payments.manage'),
+  'payments.gateways': { member: 'payments.manage', plugin: 'payments:read' },
   'payments.quickQrDistricts': needs('payments.manage'),
   'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.recordPayment': { member: 'payments.manage', plugin: 'payments:write' },

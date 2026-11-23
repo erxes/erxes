@@ -180,7 +180,8 @@ export const paymentsContract = {
       method: 'GET',
       path: '/payments/gateways',
       summary: 'List payment gateways',
-      description: 'The payment gateways connected on Settings › Integrations',
+      description:
+        'The payment gateways connected on Settings › Integrations (plugins: payments:read), so a plugin can pick one as `gatewayId`',
     })
     .output(listOf(IntegrationConnection)),
   createInvoice: base
