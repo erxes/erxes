@@ -86,9 +86,6 @@ export const fieldConversionQueries = {
       args.validator,
       { page: args.page, search: args.search, deadline },
     );
-    // Profiles are only filled once every saved answer fits the target type.
-    // The counts are informational: failing to read them must not block a
-    // conversion that the inspection allows.
     const { fillCount, keptCount } = inspection.invalidCount
       ? { fillCount: 0, keptCount: 0 }
       : await planCustomerBackfill(subdomain, models, {

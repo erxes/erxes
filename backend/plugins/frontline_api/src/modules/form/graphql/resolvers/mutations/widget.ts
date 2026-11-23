@@ -73,7 +73,6 @@ function handleCoreCustomerField(
   value: any,
   customerDoc: any,
 ) {
-  // A blank optional answer must not erase what the profile already holds.
   if (value === '') return;
 
   switch (fieldName) {
@@ -144,8 +143,6 @@ async function saveFormSubmissions(
   const groupId = nanoid();
   const submissionDocs = submissions.map((submission, index) => {
     let value: unknown = submission.value || '';
-    // A blank optional answer stays blank: coercing it would store 0 or
-    // 1970-01-01 as if the person had answered.
     const answered =
       submission.value !== undefined &&
       submission.value !== null &&

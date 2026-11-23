@@ -30,9 +30,6 @@ export interface CustomerBackfillPlan {
 export const isCustomerFieldType = (type?: string): boolean =>
   !!type?.startsWith(CUSTOMER_TYPE_PREFIX);
 
-// Mirrors what widgetsSaveLead writes for an existing customer, but returns
-// undefined when the profile already holds a value: a saved form answer must
-// never replace what someone entered on the profile.
 const buildProfileUpdate = (
   customer: CustomerProfile,
   targetType: string,
@@ -42,7 +39,6 @@ const buildProfileUpdate = (
   const key = targetType.slice(CUSTOMER_TYPE_PREFIX.length);
   if (key === 'email') {
     if (customer.primaryEmail || customer.emails?.length) return undefined;
-    // Kept as typed, like widgetsSaveLead: core matches emails exactly.
     const email = String(value);
     return {
       emails: [email],
@@ -73,8 +69,6 @@ const buildProfileUpdate = (
   return undefined;
 };
 
-// Each submitter's latest non-empty answer, compared with their current
-// profile. Customers that no longer exist are neither filled nor kept.
 export const planCustomerBackfill = async (
   subdomain: string,
   models: IModels,
@@ -107,7 +101,6 @@ export const planCustomerBackfill = async (
         formId,
         formFieldId: fieldId,
         customerId: { $nin: [null, ''] },
-        // Blank optional dates used to be stored as 1970-01-01.
         value: {
           $nin:
             targetType === `${CUSTOMER_TYPE_PREFIX}birthDate`
@@ -162,11 +155,6 @@ export const planCustomerBackfill = async (
   return plan;
 };
 
-// Runs after the conversion commits: customers live in core and cannot join
-// the form transaction. Callers do not await it, so a form with many earlier
-// submitters cannot hold up or fail the save; it therefore never rejects. A
-// profile that cannot be updated (for example a duplicate primary email) is
-// skipped.
 export const backfillConvertedCustomerFields = async (
   subdomain: string,
   models: IModels,
