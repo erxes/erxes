@@ -106,8 +106,9 @@ const mergedLookups = (lookups: LookupOptions[]): LookupOptions => {
 };
 
 /**
- * Customers or companies matching `search` as picker options, the `picked` ones first so their
- * names show whatever is searched; none without `contacts` or a `type`.
+ * Customers or companies matching `search` as picker options.
+ * The `picked` ones come first so their names show whatever is searched; none without
+ * `contacts` or a `type`.
  */
 export const useContactOptions = (
   contacts: ContactSearchQueries | undefined,
