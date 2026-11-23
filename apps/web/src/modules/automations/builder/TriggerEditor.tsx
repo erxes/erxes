@@ -18,12 +18,27 @@ import { AudienceEditor } from './triggerFields';
 import { type Hook, WebhookTriggerSettings } from './WebhookTriggerSettings';
 
 const KINDS = [
-  { kind: 'event', label: 'Event', hint: 'When something happens' },
-  { kind: 'schedule', label: 'Schedule', hint: 'Every few minutes, hours, days, weeks or months' },
-  { kind: 'date', label: 'Date', hint: 'Before or after a record’s date' },
-  { kind: 'manual', label: 'Manual', hint: 'You start it on chosen records' },
-  { kind: 'webhook', label: 'Webhook', hint: 'When another system calls its address' },
-  { kind: 'app', label: 'App', hint: 'When a connected app reports something' },
+  { kind: 'event', label: 'Event', hint: 'When something happens', comingSoon: false },
+  {
+    kind: 'schedule',
+    label: 'Schedule',
+    hint: 'Every few minutes, hours, days, weeks or months',
+    comingSoon: false,
+  },
+  { kind: 'date', label: 'Date', hint: 'Before or after a record’s date', comingSoon: false },
+  { kind: 'manual', label: 'Manual', hint: 'You start it on chosen records', comingSoon: false },
+  {
+    kind: 'webhook',
+    label: 'Webhook',
+    hint: 'When another system calls its address',
+    comingSoon: false,
+  },
+  {
+    kind: 'app',
+    label: 'App',
+    hint: 'When a connected app reports something',
+    comingSoon: true,
+  },
 ] as const;
 
 const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
@@ -83,22 +98,28 @@ const KindPicker = ({
         aria-label={t('trigger-type', 'Starts')}
         className="grid grid-cols-3"
         onValueChange={(next) => {
-          const kind = KINDS.find((item) => item.kind === next)?.kind;
+          const picked = KINDS.find((item) => item.kind === next);
 
-          if (kind && kind !== value) onChange(defaults(kind));
+          if (picked && !picked.comingSoon && picked.kind !== value)
+            onChange(defaults(picked.kind));
         }}
       >
-        {KINDS.map(({ kind, label, hint }) => {
-          const cost = kind === value ? '' : costOf?.(defaults(kind));
+        {KINDS.map(({ kind, label, hint, comingSoon }) => {
+          const cost = kind === value || comingSoon ? '' : costOf?.(defaults(kind));
 
           return (
-            <ChoiceboxGroup.Item key={kind} value={kind} disabled={disabled}>
+            <ChoiceboxGroup.Item key={kind} value={kind} disabled={Boolean(disabled) || comingSoon}>
               <Tooltip>
                 <Tooltip.Trigger render={<span className="flex w-full items-center" />}>
                   <TriggerIcon kind={kind} className="mr-2 size-4 shrink-0" />
                   <span className="min-w-0 flex-1 truncate">
                     {t(`trigger-${kind}-title`, label)}
                   </span>
+                  {comingSoon && (
+                    <Badge variant="muted" size="sm" className="ml-1 shrink-0">
+                      {t('coming-soon-short', 'Soon')}
+                    </Badge>
+                  )}
                   {cost && (
                     <IconAlertTriangle
                       aria-label={cost}
@@ -107,6 +128,9 @@ const KindPicker = ({
                   )}
                 </Tooltip.Trigger>
                 <Tooltip.Content side="bottom" className="max-w-56 whitespace-normal">
+                  {comingSoon && (
+                    <span className="block font-medium">{t('coming-soon', 'Coming soon')}</span>
+                  )}
                   {t(`trigger-${kind}-hint`, hint)}
                   {cost && <span className="block text-warning">{cost}</span>}
                 </Tooltip.Content>
