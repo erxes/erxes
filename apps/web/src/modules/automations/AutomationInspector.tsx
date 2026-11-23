@@ -1,4 +1,4 @@
-import { type Automation, AutomationTrigger } from '@erxes/core-contract';
+import type { Automation } from '@erxes/core-contract';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
 import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
@@ -36,18 +36,7 @@ const TriggerPanel = (props: InspectorProps) => {
       }}
       disabled={!editable}
       costOf={draft.triggerCost}
-      onChange={(trigger) => {
-        const kindChanged = trigger.kind !== definition.trigger.kind;
-
-        draft.setDefinition({ ...definition, trigger }, (applied) => {
-          if (
-            kindChanged &&
-            automation.status !== 'active' &&
-            AutomationTrigger.safeParse(applied.trigger).success
-          )
-            mutations.save.mutate({ ...draft.input, definition: applied });
-        });
-      }}
+      onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}
       onStartNow={
         automation.status === 'active' && editable
           ? () => mutations.start.mutate({ id: automation.id })

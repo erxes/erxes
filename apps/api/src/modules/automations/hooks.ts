@@ -27,9 +27,6 @@ export const hookSignature = (automationId: string) =>
 const hookPath = (automationId: string) =>
   `/core/v1/automations/hooks/${automationId}/${hookSignature(automationId)}`;
 
-const isHook = (row: { definition: AutomationDefinition }) =>
-  row.definition.trigger.kind === 'webhook';
-
 export const withHookUrls = async <T extends { id: string; state: AutomationRow['state'] }>(
   client: Db,
   rows: T[],
@@ -153,12 +150,12 @@ const requestField = (path: string, label: string, type: AutomationFieldPath['ty
 
 export const hookFields = async (client: Db, automationId: string) => {
   const [row] = await client
-    .select({ definition: automations.definition })
+    .select({ id: automations.id })
     .from(automations)
     .where(eq(automations.id, automationId))
     .limit(1);
 
-  if (!row || !isHook(row)) return [];
+  if (!row) return [];
 
   const learned = await learnedHookData(client, automationId);
 

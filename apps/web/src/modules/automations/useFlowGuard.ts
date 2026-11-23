@@ -50,15 +50,11 @@ export const useFlowGuard = (draft: Draft, catalog: Pick<Catalog, 'actions' | 't
   const { confirm } = useConfirm();
   const text = useFitText();
 
-  const setDefinition = (
-    next: AutomationDefinition,
-    then?: (applied: AutomationDefinition) => void,
-  ) => {
+  const setDefinition = (next: AutomationDefinition) => {
     const fit = fitFlow(draft.definition, next, catalog);
 
     if (!breaksAnything(fit)) {
       draft.setDefinition(next);
-      then?.(next);
 
       return;
     }
@@ -70,7 +66,6 @@ export const useFlowGuard = (draft: Draft, catalog: Pick<Catalog, 'actions' | 't
       });
 
       draft.setDefinition(fit.definition);
-      then?.(fit.definition);
     };
 
     void apply();

@@ -65,3 +65,43 @@ test('a reload keeps edits that are not ready to save', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue(`Half done ${suffix}`);
   await expect(page.getByRole('button', { name: /^Do this Add a note/i })).toHaveCount(0);
 });
+
+test('switching triggers with no steps keeps the draft without an error and accepts webhook samples', async ({
+  page,
+  api,
+  request,
+}) => {
+  await page.goto('/automations');
+  await page.getByRole('button', { name: 'New automation' }).click();
+  await page.waitForURL(/\/automations\/\w+$/);
+  const automationId = new URL(page.url()).pathname.split('/').at(-1) ?? '';
+  const starts = page.getByRole('radiogroup', { name: 'Starts' });
+
+  await starts.getByText('Webhook', { exact: true }).click();
+  await page.getByRole('button', { name: 'Change and fix them' }).click();
+  await expect(
+    page.getByRole('button', { name: /^When When its webhook is called/i }),
+  ).toBeVisible();
+  await expect(page.getByText('Something went wrong')).toHaveCount(0);
+
+  for (const label of ['Schedule', 'Date', 'Manual', 'Event', 'Webhook']) {
+    await starts.getByText(label, { exact: true }).click();
+  }
+
+  await expect(
+    page.getByRole('button', { name: /^When When its webhook is called/i }),
+  ).toBeVisible();
+  await expect(page.getByText('Something went wrong')).toHaveCount(0);
+  await expect(page.getByText('Unsaved changes')).toBeVisible();
+
+  const { hookUrl } = await api.automations.get({ id: automationId });
+
+  const response = await request.post(new URL(hookUrl).pathname, {
+    data: { orderId: 'ord_42' },
+  });
+
+  expect(response.status()).toBe(202);
+  await expect(page.getByText('Got a call')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText('Order id')).toBeVisible({ timeout: 10_000 });
+  await expectAccessible(page);
+});

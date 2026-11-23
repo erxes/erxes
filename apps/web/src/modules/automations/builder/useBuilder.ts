@@ -19,10 +19,11 @@ export const useBuilder = (
   const stats = useQuery(statsQuery(automationId));
 
   const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
+  const hookAutomationId = definition.trigger.kind === 'webhook' ? automationId : undefined;
 
   const { fields, error: fieldsError } = useAutomationFields(
     hasSubject ? subject : null,
-    automationId,
+    hookAutomationId,
   );
 
   const actions = useMemo(
@@ -44,6 +45,7 @@ export const useBuilder = (
 
     return {
       automationId,
+      hookAutomationId,
       events,
       stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
       outputsBefore: (stepId: string) =>
@@ -54,6 +56,7 @@ export const useBuilder = (
     };
   }, [
     automationId,
+    hookAutomationId,
     catalog.triggers,
     catalog.actions,
     stats.data,

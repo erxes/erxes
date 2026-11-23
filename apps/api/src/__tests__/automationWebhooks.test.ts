@@ -155,4 +155,52 @@ describe('automation webhooks', { timeout: 240_000 }, () => {
     expect(run?.status).toBe('failed');
     expect(run?.error).toContain('HTTP 300');
   });
+
+  it('saves a webhook sample and exposes its fields while off before switching triggers is saved, and still refuses active non-webhook automations', async () => {
+    const draft = await t.owner().automations.create({
+      name: 'Draft hook sample',
+      definition: forCustomer('Sampled', [action('note', 'core.note.add', { body: 'hi' })]),
+    });
+
+    const hookPath = new URL(draft.hookUrl).pathname;
+
+    const sampleResponse = await fetch(t.url(`${hookPath}?source=shop`), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ orderId: 'ord_1' }),
+    });
+
+    expect(sampleResponse.status).toBe(202);
+    expect(await sampleResponse.json()).toEqual({ ok: true, started: false, sample: true });
+
+    const reloaded = await t.owner().automations.get({ id: draft.id });
+
+    expect(reloaded.hookSample).toMatchObject({
+      body: { orderId: 'ord_1' },
+      query: { source: 'shop' },
+    });
+
+    const ownFields = (await t.owner().automations.fields({ automation: draft.id })).data.map(
+      (field) => field.path,
+    );
+
+    expect(ownFields).toContain('event.payload.body.orderId');
+    expect(ownFields).toContain('event.payload.query.source');
+
+    const otherFields = (await t.other().automations.fields({ automation: draft.id })).data.map(
+      (field) => field.path,
+    );
+
+    expect(otherFields).not.toContain('event.payload.body.orderId');
+
+    await t.owner().automations.activate({ id: draft.id });
+
+    const activeResponse = await fetch(t.url(hookPath), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ orderId: 'ord_2' }),
+    });
+
+    expect(activeResponse.status).toBe(404);
+  });
 });
