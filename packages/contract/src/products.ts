@@ -92,7 +92,14 @@ export const ProductCategory = createSelectSchema(productCategories, {
   id: Id,
   parentId: () => Id,
   createdAt: isoDate,
-}).pick({ id: true, name: true, parentId: true, createdAt: true });
+}).pick({
+  id: true,
+  name: true,
+  /** The organisation's own code, unique when set (3.x's category code). */
+  code: true,
+  parentId: true,
+  createdAt: true,
+});
 
 export type ProductCategory = z.infer<typeof ProductCategory>;
 
@@ -152,8 +159,9 @@ const ProductFields = createUpdateSchema(products, {
 
 const CategoryFields = createUpdateSchema(productCategories, {
   name: (name) => name.trim().min(1).max(100),
+  code: (code) => code.trim().min(1).max(100),
   parentId: () => Id,
-}).pick({ name: true, parentId: true });
+}).pick({ name: true, code: true, parentId: true });
 
 /**
  * The organisation's catalog of goods and services, shared by every plugin.
@@ -214,6 +222,13 @@ export const productsContract = {
         all: QueryBoolean.default(false),
         /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
+        /** With `departmentId`, the place `minRemainder` and `maxRemainder` read (either left out for none). */
+        branchId: Id.optional(),
+        departmentId: Id.optional(),
+        /** Stock at least this: in the place named, where its stock is set; else the total over every place. */
+        minRemainder: z.coerce.number().optional(),
+        /** Stock at most this, read as `minRemainder` is. */
+        maxRemainder: z.coerce.number().optional(),
       }),
     )
     .output(cursorPageOf(Product)),
@@ -301,7 +316,8 @@ export const productCategoriesContract = {
       path: '/product-categories',
       successStatus: 201,
       summary: 'Add a product category',
-      description: '409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY',
+      description:
+        '409 TAKEN (same name under the same parent, or a code another category has); 400 INVALID_CATEGORY',
     })
     .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),

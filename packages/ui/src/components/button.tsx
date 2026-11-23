@@ -30,7 +30,19 @@ const variants = cva(
         /** A round "+" that inserts between two items, such as automation steps. */
         insert:
           'rounded-full border bg-background text-muted-foreground shadow-xs hover:border-primary hover:text-primary-text',
+        /** An action that reads as a link: outlined, primary text (3.x's `link`). */
+        link: 'bg-background shadow-button-outline hover:bg-accent text-primary-text',
+        /** A value that fills a table cell and opens its picker: square, regular weight. */
+        value: 'rounded-none px-2 font-normal hover:bg-accent-foreground/10',
       },
+      /**
+       * The ground under any variant. `border` stands out on a sidebar-coloured panel (3.x's add
+       * buttons under a line table); `tint` is the tone's colour at 10% (3.x's Remove selected,
+       * `variant="secondary" tone="destructive" fill="tint"`).
+       */
+      fill: { default: '', border: 'bg-border', tint: '' },
+      /** Picked among its siblings, such as a voucher in a list to choose from. */
+      selected: { false: '', true: 'bg-primary/10 hover:bg-primary/10' },
       tone: {
         default: '',
         /** Secondary actions; pressed or with its menu open it reads as foreground on accent. */
@@ -38,6 +50,8 @@ const variants = cva(
           'text-muted-foreground hover:text-foreground aria-pressed:bg-accent aria-pressed:text-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
         destructive: 'text-destructive-text',
         primary: 'text-primary-text',
+        /** Something not final yet, such as 3.x's Save on a draft voucher. */
+        warning: 'text-warning-text',
       },
       size: {
         default: 'h-7 py-1',
@@ -47,12 +61,27 @@ const variants = cva(
         icon: 'size-7 p-0',
         /** No padding or corners: the button is its content, such as an image. */
         flush: 'h-auto p-0 rounded-none',
+        /** An entry in a list whose text wraps over lines: at least 2.25rem high, regular weight. */
+        multiline: 'h-auto min-h-9 py-1 whitespace-normal font-normal',
       },
     },
+    compoundVariants: [
+      { fill: 'tint', tone: ['default', 'muted'], className: 'bg-accent' },
+      { fill: 'tint', tone: 'destructive', className: 'bg-destructive/10' },
+      // Primary's tint has a rule round it (3.x's import guide button).
+      {
+        fill: 'tint',
+        tone: 'primary',
+        className: 'border border-primary/30 bg-primary/10 hover:bg-primary/15',
+      },
+      { fill: 'tint', tone: 'warning', className: 'bg-warning/10' },
+    ],
     defaultVariants: {
       variant: 'default',
       tone: 'default',
       size: 'default',
+      fill: 'default',
+      selected: false,
     },
   },
 );
@@ -65,14 +94,27 @@ const variants = cva(
  */
 export const buttonVariants = (props?: Parameters<typeof variants>[0]) => cn(variants(props));
 
-/** Base UI button props plus `variant`, `tone` and `size`. */
+/** Base UI button props plus the button's variants. */
 export type ButtonProps = React.ComponentProps<typeof ButtonPrimitive> &
   VariantProps<typeof buttonVariants>;
 
 /**
- * A button in the theme's variants, tones and sizes; native by default.
+ * A button in the theme's variants, tones and sizes; native by default. `selected` marks the
+ * one picked among its siblings and tells assistive tech it is pressed.
  * Links styled as buttons put `buttonVariants` on the link instead.
  */
-export const Button = ({ className, variant, tone, size, ...props }: ButtonProps) => (
-  <ButtonPrimitive className={buttonVariants({ variant, tone, size, className })} {...props} />
+export const Button = ({
+  className,
+  variant,
+  tone,
+  size,
+  fill,
+  selected,
+  ...props
+}: ButtonProps) => (
+  <ButtonPrimitive
+    aria-pressed={selected ?? undefined}
+    className={buttonVariants({ variant, tone, size, fill, selected, className })}
+    {...props}
+  />
 );

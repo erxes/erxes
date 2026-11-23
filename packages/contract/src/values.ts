@@ -162,9 +162,9 @@ export const API_KEY_AREA_INFO = {
   },
   settings: {
     label: 'Settings',
-    covers: 'Organisation, tags, fields, payment gateways',
+    covers: 'Organisation, tags, fields, payment gateways, exchange rates',
     read: ['settings.manage', 'integrations.manage', 'payments.manage'],
-    write: ['tags.manage', 'tags.delete', 'properties.manage'],
+    write: ['tags.manage', 'tags.delete', 'properties.manage', 'exchange_rates.manage'],
   },
 } as const satisfies Record<
   ApiKeyArea,
@@ -259,6 +259,12 @@ export const ContactState = z.enum(CUSTOMER_STATES);
 export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
+
+/**
+ * In a list of branch or department ids to sum stock over, the stock with no branch (or no
+ * department), as 3.x's inventory keys named it.
+ */
+export const NO_PLACE = '_';
 
 /** Where a member works (`branch`) or what they do (`department`). */
 export const UnitKind = z.enum(ORG_UNIT_KINDS);

@@ -51,6 +51,11 @@ export const CORE_PERMISSIONS = [
     group: 'Settings',
     label: 'Change organisation settings (file upload, …)',
   },
+  {
+    action: 'exchange_rates.manage',
+    group: 'Settings',
+    label: 'Add, change and delete exchange rates',
+  },
   { action: 'audit.view', group: 'Security', label: 'See and export the audit log' },
   {
     action: 'events.view',

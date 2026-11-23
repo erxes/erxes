@@ -5,6 +5,7 @@ import { apiKeysRouter } from '~/modules/apiKeys/apiKeys.router';
 import { auditRouter } from '~/modules/audit/audit.router';
 import { emailsRouter } from '~/modules/email/emails.router';
 import { eventsRouter } from '~/modules/events/events.router';
+import { exchangeRatesRouter } from '~/modules/exchangeRates/exchangeRates.router';
 import { filesRouter } from '~/modules/files/files.router';
 import { notificationsRouter } from '~/modules/notifications/notifications.router';
 import { authRouter } from '~/modules/auth/auth.router';
@@ -16,7 +17,11 @@ import {
 } from '~/modules/broadcasts/broadcasts.router';
 import { paymentsRouter } from '~/modules/payments/payments.router';
 import { ebarimtRouter } from '~/modules/ebarimt/ebarimt.router';
-import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
+import {
+  productCategoriesRouter,
+  productInventoriesRouter,
+  productsRouter,
+} from '~/modules/products/products.router';
 import { banksRouter } from '~/modules/banks/banks.router';
 import { integrationsRouter } from '~/modules/integrations/integrations.router';
 import { secretsRouter } from '~/modules/secrets/secrets.router';
@@ -53,6 +58,7 @@ export const coreRouter = unscoped.router({
   audit: auditRouter,
   emails: emailsRouter,
   events: eventsRouter,
+  exchangeRates: exchangeRatesRouter,
   files: filesRouter,
   notifications: notificationsRouter,
   auth: authRouter,
@@ -63,6 +69,7 @@ export const coreRouter = unscoped.router({
   payments: paymentsRouter,
   ebarimt: ebarimtRouter,
   productCategories: productCategoriesRouter,
+  productInventories: productInventoriesRouter,
   products: productsRouter,
   webhooks: webhooksRouter,
   integrations: integrationsRouter,

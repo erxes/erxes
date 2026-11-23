@@ -49,7 +49,7 @@ export const listCategories = async (client: Db) => {
 
 export const createCategory = async (
   client: Db,
-  input: { name: string; parentId?: string | null },
+  input: { name: string; code?: string | null; parentId?: string | null },
 ) => {
   await checkCategory(client, input.parentId);
 
@@ -59,6 +59,7 @@ export const createCategory = async (
       .values({
         id: newId(),
         name: input.name,
+        code: input.code ?? null,
         parentId: input.parentId ?? null,
         createdBy: actorOf(caller()).actorId,
       })
@@ -78,7 +79,7 @@ export const createCategory = async (
 export const updateCategory = async (
   client: Db,
   id: string,
-  changes: { name?: string; parentId?: string | null },
+  changes: { name?: string; code?: string | null; parentId?: string | null },
 ) => {
   await findCategory(client, id);
 

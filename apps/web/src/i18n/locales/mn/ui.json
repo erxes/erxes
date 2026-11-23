@@ -16,9 +16,20 @@
     "size": "Баркодын хэмжээ",
     "width": "Өргөн (px)"
   },
+  "branch": {
+    "count": "{{count}} салбар",
+    "search": "Салбар хайх",
+    "select": "Салбар сонгох",
+    "selected": "{{count}} салбар сонгосон"
+  },
   "breadcrumb": {
     "label": "Замын мөр",
     "more": "Цааш"
+  },
+  "category": {
+    "search": "Ангилал хайх",
+    "select": "Ангилал сонгох",
+    "selected": "{{count}} ангилал"
   },
   "color": {
     "custom": "Өөрийн өнгө",
@@ -40,6 +51,11 @@
       "violet": "Хөх ягаан",
       "yellow": "Шар"
     }
+  },
+  "company": {
+    "search": "Байгууллага хайх",
+    "select": "Байгууллага сонгох",
+    "selected": "{{count}} байгууллага"
   },
   "confirm": {
     "cancel": "Болих",
@@ -65,11 +81,46 @@
     "copied": "Хуулсан!",
     "hint": "Хуулахын тулд дарна уу"
   },
+  "currency": {
+    "empty": "Валют олдсонгүй",
+    "search": "Валют хайх",
+    "select": "Валют сонгох"
+  },
+  "customer": {
+    "search": "Харилцагч хайх",
+    "select": "Харилцагч сонгох",
+    "selected": "{{count}} харилцагч"
+  },
   "date": {
     "clear": "Арилгах",
     "days_one": "{{count}} өдөр",
     "days_other": "{{count}} өдөр",
     "placeholder": "Огноо сонгох"
+  },
+  "date-filter": {
+    "apply": "Хэрэглэх",
+    "cancel": "Цуцлах",
+    "custom": "{{field}} огноо эсвэл хугацаа сонгох",
+    "custom-range": "{{label}}: хугацаа сонгох",
+    "day": "Өдөр",
+    "field-date": "{{field}} огноо",
+    "half-year": "Хагас жил",
+    "in-the-past": "Өнгөрсөнд",
+    "last-1-day": "Сүүлийн 1 өдөр",
+    "last-3-days": "Сүүлийн 3 өдөр",
+    "last-3-months": "Сүүлийн 3 сар",
+    "last-7-days": "Сүүлийн 7 өдөр",
+    "month": "Сар",
+    "quarter": "Улирал",
+    "today": "Өнөөдөр",
+    "unknown": "Тодорхойгүй",
+    "year": "Жил"
+  },
+  "department": {
+    "count": "{{count}} хэлтэс",
+    "search": "Хэлтэс хайх",
+    "select": "Хэлтэс сонгох",
+    "selected": "{{count}} хэлтэс сонгосон"
   },
   "document": {
     "placeholder": "Баримтын орлуулагч",
@@ -145,6 +196,8 @@
     "inactive": "Идэвхгүй",
     "none": "Тодорхойлоогүй",
     "select": "Ажилтан сонгох",
+    "search": "Багийн гишүүн хайх",
+    "selected": "{{count}} гишүүн",
     "unnamed": "Нэргүй хэрэглэгч"
   },
   "multiselect": {
@@ -165,6 +218,30 @@
     "search-country": "Улс хайх…",
     "too-long": "Утасны дугаар 16 тэмдэгтээс хэтрэхгүй",
     "too-short": "Утасны дугаар дор хаяж 8 тэмдэгттэй байна"
+  },
+  "product": {
+    "add-many": "Олон бүтээгдэхүүн нэмэх",
+    "added": "Нэмсэн",
+    "cancel": "Цуцлах",
+    "more": "{{name}} +{{count}}",
+    "results": "{{count}} илэрц",
+    "search": "Бүтээгдэхүүн хайх",
+    "select": "Бүтээгдэхүүн сонгох",
+    "select-many": "Бүтээгдэхүүн сонгох",
+    "selected": "{{count}} бүтээгдэхүүн"
+  },
+  "report": {
+    "every-page": "Хүснэгтийн толгойг хуудас бүрт харуулах",
+    "export-excel": "Excel рүү гаргах",
+    "hide-sidebar": "хажуу самбар нуух",
+    "larger": "Томруулах",
+    "print": "Хэвлэх",
+    "print-settings": "Хэвлэх тохиргоо",
+    "print-size": "Хэвлэх хэмжээ",
+    "report": "Тайлан",
+    "show-sidebar": "хажуу самбар харуулах",
+    "smaller": "Жижигрүүлэх",
+    "table": "Хүснэгт"
   },
   "selection-actions": "Сонгосон бичлэгүүдийн үйлдлүүд",
   "sex": {

@@ -68,6 +68,8 @@ const PluginRecordNew = lazyPanelView(
 interface IPanelRecordType {
   /** What one is called, in English, for its draft's title: "New customer". */
   label: string;
+  /** A draft's whole title, when it isn't "New <label>"; in the same words as `label`. */
+  newTitle?: string;
   /** The plugin whose words `label` is (its i18n namespace); none: core's. */
   plugin?: string;
   /** A saved record: its header and tabs. */
@@ -142,6 +144,7 @@ const pluginPanelType = (
   entry: NonNullable<ReturnType<typeof findPluginRecordType>>,
 ): IPanelRecordType => ({
   label: entry.type.title,
+  newTitle: entry.type.newTitle,
   plugin: entry.plugin,
   View: PluginRecordView,
   New: entry.type.New ? PluginRecordNew : undefined,

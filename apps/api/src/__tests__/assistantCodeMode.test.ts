@@ -84,7 +84,7 @@ describe('assistant code mode', () => {
     `);
 
     expect(result).toContain('"summary":"Add a product category"');
-    expect(result).toContain('409 TAKEN (same name under the same parent)');
+    expect(result).toContain('409 TAKEN (same name under the same parent, or a code');
   });
 
   it('makes a change from a program as the member', async () => {

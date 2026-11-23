@@ -1,8 +1,8 @@
-import type { TransferColumn, TransferRecordType } from '@erxes/core-contract';
+import type { ExportQuery, TransferColumn, TransferRecordType } from '@erxes/core-contract';
 import { IconDownload } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, Dialog, Label, Select, Spinner, useToast } from 'erxes-ui';
-import { useId, useState } from 'react';
+import { type ReactElement, type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { messageOf, orpc } from '@erxes/core-contract/client';
@@ -110,18 +110,49 @@ const useStartExport = (onStarted: () => void) => {
 /** "Export": what the list shows (its filters and view) to CSV or Excel, with chosen columns, in the background. */
 export const ExportButton = ({ recordType }: { recordType: TransferRecordType }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
+  const list = useListQuery();
+
+  return (
+    <ExportDialog
+      recordType={recordType}
+      query={{ filter: list.advanced, search: list.search || undefined }}
+      filtered={list.advanced !== null || Boolean(list.search)}
+      trigger={<Button variant="outline" />}
+    >
+      <IconDownload />
+      {t('export', 'Export')}
+    </ExportDialog>
+  );
+};
+
+/**
+ * The export dialog behind an Export button: the format and columns, then the export of
+ * `query` starts in the background. Nothing shows without the type's export permission.
+ */
+export const ExportDialog = ({
+  recordType,
+  query,
+  filtered,
+  trigger,
+  children,
+}: {
+  recordType: TransferRecordType;
+  query: ExportQuery;
+  /** The export is of fewer than every record: filtered, or the selected rows. */
+  filtered: boolean;
+  trigger: ReactElement;
+  children: ReactNode;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
   const type = useTransferType(recordType);
   const columns = useTransferColumns(recordType);
   const exportable = (columns.data ?? []).filter((column) => column.exportable);
-  const list = useListQuery();
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<'csv' | 'xlsx'>('xlsx');
   const [chosen, setChosen] = useState<string[] | null>(null);
 
   const selected =
     chosen ?? exportable.filter((column) => column.default).map((column) => column.key);
-
-  const filtered = list.advanced !== null || Boolean(list.search);
 
   const start = useStartExport(() => setOpen(false));
 
@@ -134,15 +165,12 @@ export const ExportButton = ({ recordType }: { recordType: TransferRecordType })
       columns: exportable
         .filter((column) => selected.includes(column.key))
         .map((column) => column.key),
-      query: { filter: list.advanced, search: list.search || undefined },
+      query,
     });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger render={<Button variant="outline" />}>
-        <IconDownload />
-        {t('export', 'Export')}
-      </Dialog.Trigger>
+      <Dialog.Trigger render={trigger}>{children}</Dialog.Trigger>
       <Dialog.Content className="sm:max-w-lg">
         <Dialog.HeaderCombined
           title={t('export-title', 'Export')}

@@ -71,6 +71,8 @@ const formItemVariants = cva('', {
       vertical: 'space-y-1.5',
       // The label on one side and the control (a switch) on the other.
       horizontal: 'flex flex-row items-center justify-between',
+      // A checkbox and its label after it, side by side.
+      inline: 'flex flex-row items-center gap-2',
     },
   },
   defaultVariants: { orientation: 'vertical' },

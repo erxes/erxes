@@ -31,21 +31,29 @@ const SidePanelDraft = ({
   onBack,
   onClose,
   label,
+  newTitle,
   plugin,
   New,
 }: IRecordViewProps & {
   label: string;
+  newTitle?: string;
   plugin?: string;
   New: ComponentType<{ contentType: string }>;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const text = usePluginText();
-  const type = plugin ? text(plugin, label) : t(`record-types.${label}`, label);
+
+  const words = (value: string) =>
+    plugin ? text(plugin, value) : t(`record-types.${value}`, value);
 
   return (
     <>
       <RecordSidePanel.Header
-        title={t('new-record', 'New {{type}}', { type: type.toLowerCase() })}
+        title={
+          newTitle
+            ? words(newTitle)
+            : t('new-record', 'New {{type}}', { type: words(label).toLowerCase() })
+        }
         onBack={onBack}
         onClose={onClose}
       />
@@ -127,7 +135,13 @@ export const SidePanelRecord = (props: IRecordViewProps) => {
   return (
     <PanelRecordOpener stack>
       {isNew && type.New ? (
-        <SidePanelDraft {...props} label={type.label} plugin={type.plugin} New={type.New} />
+        <SidePanelDraft
+          {...props}
+          label={type.label}
+          newTitle={type.newTitle}
+          plugin={type.plugin}
+          New={type.New}
+        />
       ) : (
         <RecordPanelScope record={props.record} onClose={props.onClose}>
           <type.View {...props} />

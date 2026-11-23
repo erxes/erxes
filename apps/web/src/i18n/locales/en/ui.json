@@ -16,9 +16,20 @@
     "size": "Barcode size",
     "width": "Width (px)"
   },
+  "branch": {
+    "count": "{{count}} branches",
+    "search": "Search branches",
+    "select": "Select branches",
+    "selected": "{{count}} branches selected"
+  },
   "breadcrumb": {
     "label": "Breadcrumb",
     "more": "More"
+  },
+  "category": {
+    "search": "Search categories",
+    "select": "Choose category",
+    "selected": "{{count}} categories"
   },
   "color": {
     "custom": "Custom color",
@@ -40,6 +51,11 @@
       "violet": "Violet",
       "yellow": "Yellow"
     }
+  },
+  "company": {
+    "search": "Search companies",
+    "select": "Select Companies",
+    "selected": "{{count}} companies"
   },
   "confirm": {
     "cancel": "Cancel",
@@ -65,11 +81,46 @@
     "copied": "Copied!",
     "hint": "Click to copy"
   },
+  "currency": {
+    "empty": "No currency found",
+    "search": "Search currency",
+    "select": "Select currency"
+  },
+  "customer": {
+    "search": "Search customers",
+    "select": "Select Customers",
+    "selected": "{{count}} customers"
+  },
   "date": {
     "clear": "Clear",
     "days_one": "{{count}} day",
     "days_other": "{{count}} days",
     "placeholder": "Pick a date"
+  },
+  "date-filter": {
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "custom": "Custom {{field}} date or timeframe",
+    "custom-range": "Custom {{label}} range",
+    "day": "Day",
+    "field-date": "{{field}} date",
+    "half-year": "Half Year",
+    "in-the-past": "In the past",
+    "last-1-day": "Last 1 day",
+    "last-3-days": "Last 3 days",
+    "last-3-months": "Last 3 months",
+    "last-7-days": "Last 7 days",
+    "month": "Month",
+    "quarter": "Quarter",
+    "today": "Today",
+    "unknown": "Unknown",
+    "year": "Year"
+  },
+  "department": {
+    "count": "{{count}} departments",
+    "search": "Search departments",
+    "select": "Select departments",
+    "selected": "{{count}} departments selected"
   },
   "document": {
     "placeholder": "Document placeholder",
@@ -145,6 +196,8 @@
     "inactive": "Inactive",
     "none": "Not specified",
     "select": "Select a member",
+    "search": "Search team members",
+    "selected": "{{count}} members",
     "unnamed": "Unnamed user"
   },
   "multiselect": {
@@ -165,6 +218,30 @@
     "search-country": "Search country…",
     "too-long": "Phone number must not exceed 16 characters",
     "too-short": "Phone number must be at least 8 characters"
+  },
+  "product": {
+    "add-many": "Add Many Products",
+    "added": "Added",
+    "cancel": "Cancel",
+    "more": "{{name}} +{{count}} more",
+    "results": "{{count}} results",
+    "search": "Search products",
+    "select": "Select Products",
+    "select-many": "Select Products",
+    "selected": "{{count}} products"
+  },
+  "report": {
+    "every-page": "Show table layout on every page",
+    "export-excel": "Export to excel",
+    "hide-sidebar": "hide sidebar",
+    "larger": "Larger",
+    "print": "Print",
+    "print-settings": "Print settings",
+    "print-size": "Print size",
+    "report": "Report",
+    "show-sidebar": "show sidebar",
+    "smaller": "Smaller",
+    "table": "Table"
   },
   "selection-actions": "Actions for the selected records",
   "sex": {

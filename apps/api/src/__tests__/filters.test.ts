@@ -6,6 +6,10 @@ import { type CoreClient, type CoreInputs, useTestServer } from './support';
 const sorted = (values: (string | null)[]) =>
   values.map((value) => value ?? '').toSorted((a, b) => a.localeCompare(b));
 
+/** A list's filter: the field holds any of the values. */
+const filter = (path: string, value: string[]) =>
+  JSON.stringify({ match: 'any', rules: [{ path, op: 'in', value }] });
+
 describe('list filters (search, tags, owner)', () => {
   useTestDatabase();
 
@@ -81,5 +85,23 @@ describe('list filters (search, tags, owner)', () => {
     expect(await companies('software')).toEqual(['Nomad Tech']);
     expect((await api.users.list({ search: 'dorj bat' })).totalCount).toBe(1);
     expect((await api.users.list({ search: 'acme.mn' })).totalCount).toBe(1);
+  });
+
+  it('filters by any email, phone or name, not only the primary one', async () => {
+    expect(
+      await customers({ filter: filter('subject.emails', ['saraa.b@gmail.com', 'x@y.mn']) }),
+    ).toEqual(['Saraa']);
+    expect(await customers({ filter: filter('subject.phones', ['+97699112233']) })).toEqual([
+      'Saraa',
+    ]);
+    expect(await customers({ filter: filter('subject.emails', ['nobody@x.mn']) })).toEqual([]);
+
+    const named = async (path: string, value: string[]) =>
+      (await api.companies.list({ filter: filter(path, value) })).data.map(
+        (row) => row.primaryName,
+      );
+
+    expect(await named('subject.names', ['Nomad LLC'])).toEqual(['Nomad Tech']);
+    expect(await named('subject.names', ['Nomad'])).toEqual([]);
   });
 });

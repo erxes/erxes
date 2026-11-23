@@ -45,7 +45,8 @@ describe('plugins in core’s settings', () => {
       ['Tms', '/settings/properties/tms.booking'],
     ]);
     expect(container.textContent).not.toContain('Property management');
-    expect(container.textContent).not.toContain('Rates');
+    // Core's own Exchange Rates link stays; the plugin's second page, Rates, doesn't show.
+    expect(links(container).map(([text]) => text)).not.toContain('Rates');
     expect(container.textContent).not.toContain('Properties');
   });
 

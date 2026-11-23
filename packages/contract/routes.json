@@ -1853,6 +1853,58 @@
       }
     }
   },
+  "exchangeRates": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/exchange-rates"
+        }
+      }
+    },
+    "getActiveRate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/exchange-rates/active"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/exchange-rates"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/exchange-rates/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/exchange-rates/remove"
+        }
+      }
+    }
+  },
   "fieldGroups": {
     "list": {
       "~orpc": {
@@ -2703,6 +2755,58 @@
       }
     }
   },
+  "productInventories": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/product-inventories"
+        }
+      }
+    },
+    "remainders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/product-inventories/remainders"
+        }
+      }
+    },
+    "stock": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/product-inventories/stock"
+        }
+      }
+    },
+    "set": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/product-inventories/set"
+        }
+      }
+    },
+    "increase": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/product-inventories/increase"
+        }
+      }
+    }
+  },
   "products": {
     "list": {
       "~orpc": {
@@ -3209,6 +3313,16 @@
         "route": {
           "method": "GET",
           "path": "/units"
+        }
+      }
+    },
+    "restrictions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/restrictions"
         }
       }
     },

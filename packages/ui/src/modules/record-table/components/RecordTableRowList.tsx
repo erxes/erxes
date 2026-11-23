@@ -2,6 +2,7 @@ import { memo, useState, type ComponentProps, type ComponentType } from 'react';
 import { flexRender, type Cell, type Header, type Row, type RowData } from '@tanstack/react-table';
 import { cn } from 'erxes-ui/lib/utils';
 import { useRowWindow } from '../hooks/useRowWindow';
+import { readRowField } from '../utils/rowFields';
 import { RecordTableCell } from './RecordTableCell';
 import { useRecordTable, type RecordTableFeatures } from './RecordTableProvider';
 import { RecordTableRow } from './RecordTableRow';
@@ -33,6 +34,8 @@ interface RowItemProps {
   leafHeaders: Header<RecordTableFeatures, RowData>[];
   /** The list's first row, which draws the top border. */
   first: boolean;
+  /** The row starts a group (`groupBy`): its value differs from the row before it. */
+  groupStart: boolean;
   Row: ComponentType<ComponentProps<typeof RecordTableRow>>;
   handleRowViewChange?: (id: string, inView: boolean) => void;
 }
@@ -66,13 +69,21 @@ const sameCell = (previous: BodyCellProps, next: BodyCellProps) =>
 const MemoBodyCell = memo(BodyCell, sameCell);
 
 /** One row and its cells. */
-const RowItem = ({ row, leafHeaders, first, Row, handleRowViewChange }: RowItemProps) => {
+const RowItem = ({
+  row,
+  leafHeaders,
+  first,
+  groupStart,
+  Row,
+  handleRowViewChange,
+}: RowItemProps) => {
   const cells = row.getAllCellsByColumnId();
 
   return (
     <Row
       rowId={row.id}
       original={row.original}
+      groupStart={groupStart}
       handleRowViewChange={handleRowViewChange && ((inView) => handleRowViewChange(row.id, inView))}
     >
       {leafHeaders.map(({ column }) => {
@@ -99,6 +110,7 @@ const sameRow = (previous: RowItemProps, next: RowItemProps) =>
   previous.row.original === next.row.original &&
   previous.leafHeaders === next.leafHeaders &&
   previous.first === next.first &&
+  previous.groupStart === next.groupStart &&
   previous.Row === next.Row &&
   previous.handleRowViewChange === next.handleRowViewChange;
 
@@ -110,14 +122,18 @@ const MemoRowItem = memo(RowItem, sameRow);
  * leaf headers keep their identity while a column is resized (only CSS variables change
  * then), so resizing renders no rows. Selection re-renders only the rows it touches. With more
  * than `WINDOW_AFTER` rows, only the rows near the visible area of the table's scroll
- * container (or the page) render, so a long list keeps a small page.
+ * container (or the page) render, so a long list keeps a small page. With `groupBy`, a row whose
+ * group differs from the row before it starts a group (3.x's rule between a T-account's vouchers).
  */
 export const RecordTableRowList = ({
   handleRowViewChange,
   Row = RecordTableRow,
+  groupBy,
 }: {
   handleRowViewChange?: (id: string, inView: boolean) => void;
   Row?: ComponentType<ComponentProps<typeof RecordTableRow>>;
+  /** The record field that names a row's group, such as its voucher (`ptrId`). */
+  groupBy?: string;
 }) => {
   const { table } = useRecordTable();
   const { rows } = table.getRowModel();
@@ -130,16 +146,25 @@ export const RecordTableRowList = ({
   return (
     <>
       {windowed && <RowsGap ref={setListStart} rows={start} columnCount={leafHeaders.length} />}
-      {rows.slice(start, end).map((row, sliceIndex) => (
-        <MemoRowItem
-          key={row.id}
-          row={row}
-          leafHeaders={leafHeaders}
-          first={start + sliceIndex === 0}
-          Row={Row}
-          handleRowViewChange={handleRowViewChange}
-        />
-      ))}
+      {rows.slice(start, end).map((row, sliceIndex) => {
+        const before = rows[start + sliceIndex - 1];
+
+        return (
+          <MemoRowItem
+            key={row.id}
+            row={row}
+            leafHeaders={leafHeaders}
+            first={start + sliceIndex === 0}
+            groupStart={
+              groupBy !== undefined &&
+              before !== undefined &&
+              readRowField(before.original, groupBy) !== readRowField(row.original, groupBy)
+            }
+            Row={Row}
+            handleRowViewChange={handleRowViewChange}
+          />
+        );
+      })}
       {windowed && <RowsGap rows={rows.length - end} columnCount={leafHeaders.length} />}
     </>
   );

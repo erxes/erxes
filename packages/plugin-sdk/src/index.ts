@@ -40,6 +40,18 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Product stock by branch and department (write with scope `inventories:write`, read with
+ * `products:read`): 3.x's `product.inventories`, kept by the plugin that books the stock. Each call
+ * writes one place, `branchId` and `departmentId` either left out for none, at most 1000 lines.
+ * `set` sets each amount (left out or 0 clears it, as 3.x unset it); `increase` adds each diff in
+ * one statement, so concurrent bookings each add theirs. An unknown product fails the call (400
+ * INVALID_PRODUCT). `remainders` is 3.x's `product.remainder`, `stock` the total and per-branch
+ * stock without cost, and `products.list` filters by `minRemainder`/`maxRemainder`.
+ *
+ *   await core.forOrg(orgId).productInventories.increase({ branchId, departmentId, items: [{ productId, diffCount: -2, diffCost: -15000 }] });
+ *   await core.forOrg(orgId).productInventories.set({ branchId, departmentId, items: [{ productId, remainder: 10, cost: 75000 }] });
+ *   const { data } = await core.forOrg(orgId).productInventories.list({ productIds: ids.join(','), branchId, departmentId });
+ *
  * Team members who don't sign in (scope `users:write`): people a plugin keeps on the team for its own app
  * (HR's employees). They take no seat and never sign in to erxes; a plugin adds them and changes
  * their profile, never a member who signs in.
@@ -55,6 +67,20 @@
  *
  *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
  *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
+ *
+ * With the organisation's team member restrictions on (Settings › General, 3.x's "With team member
+ * restrictions"), keep a member's lists to the units `units.restrictions` answers; null is no limit.
+ *
+ *   const { branchIds, departmentIds } = await core.forOrg(orgId).units.restrictions({ userId });
+ *   if (branchIds) where.push(inArray(transactions.branchId, branchIds));
+ *
+ * Exchange rates (scopes `exchange_rates:read`, `exchange_rates:write`): the ones members keep in
+ * Settings › Exchange rates. A rate counts from its day until the pair's next one; `getActiveRate`
+ * answers the rate in force on a day (a moment counts on its day in the organisation's time zone),
+ * or null, with `mainCurrency` the organisation's currency unless given.
+ *
+ *   const spot = await core.forOrg(orgId).exchangeRates.getActiveRate({ date: tr.date.toISOString(), rateCurrency: 'USD' });
+ *   const rate = spot?.rate ?? 0;                                   // 1 USD = rate MNT
  *
  * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.

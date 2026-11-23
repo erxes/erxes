@@ -145,6 +145,8 @@ const ask = (
     typ: CORE_TRANSFER_TYP,
     headers: { 'User-Agent': 'erxes-transfer/1' },
     timeoutMs: 60_000,
+    // A page of rows, or what each row of a batch did: read whole.
+    maxBytes: 16 * 1024 * 1024,
   });
 
 type Input<T extends z.ZodType> = Omit<z.input<T>, 'kind' | 'requestId' | 'type'>;

@@ -190,6 +190,21 @@
     "name-taken": "A tag with this name is already there."
   },
   "import-export": {
+    "button": {
+      "current-imports": "Current imports",
+      "export": "Export",
+      "file-types": "CSV or Excel",
+      "history": "History",
+      "import": "Import",
+      "import-description": "Upload a file to create or update {{entity}} in bulk: you match its columns and check its rows before they import.",
+      "import-now": "Import now",
+      "no-exports": "No recent exports yet",
+      "no-exports-description": "Your exported files will show up here so you can download them again.",
+      "no-imports": "No imports running",
+      "no-imports-description": "Your latest uploads will appear here so you can follow their progress.",
+      "recent-exports": "Recent exports",
+      "upload": "Upload CSV"
+    },
     "count-create": "to create",
     "count-created": "created",
     "count-update": "to update",

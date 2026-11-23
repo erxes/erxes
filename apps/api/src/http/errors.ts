@@ -75,6 +75,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     message: 'A company with this name already exists',
   },
   core_tags_org_type_name_key: { field: 'name', message: 'A tag with this name already exists' },
+  core_exchange_rates_org_pair_date_key: {
+    field: 'date',
+    message: 'This currency already has a rate on this day',
+  },
   core_integration_connections_org_key_name_key: {
     field: 'name',
     message: 'Another connection of this integration has this name',
@@ -98,6 +102,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   core_product_categories_org_parent_name_key: {
     field: 'name',
     message: 'A category with this name is already there',
+  },
+  core_product_categories_org_code_key: {
+    field: 'code',
+    message: 'Another category has this code',
   },
   core_products_org_code_key: { field: 'code', message: 'Another product has this code' },
   core_products_org_barcode_key: { field: 'barcode', message: 'Another product has this barcode' },

@@ -11,6 +11,7 @@ import { authContract } from './auth';
 import { companiesContract } from './companies';
 import { emailsContract } from './emails';
 import { eventsContract } from './events';
+import { exchangeRatesContract } from './exchangeRates';
 import { customersContract } from './customers';
 import { favoritesContract } from './favorites';
 import { customerAccountContract, customerAuthContract } from './customerAuth';
@@ -23,6 +24,7 @@ import { organizationsContract } from './organizations';
 import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
+import { productInventoriesContract } from './productInventories';
 import { productCategoriesContract, productsContract } from './products';
 import { banksContract } from './banks';
 import { integrationsContract } from './integrations';
@@ -59,6 +61,7 @@ export type CoreContract = {
   customerNotifications: typeof customerNotificationsContract;
   emails: typeof emailsContract;
   events: typeof eventsContract;
+  exchangeRates: typeof exchangeRatesContract;
   fieldGroups: typeof fieldGroupsContract;
   fields: typeof fieldsContract;
   files: typeof filesContract;
@@ -69,6 +72,7 @@ export type CoreContract = {
   ebarimt: typeof ebarimtContract;
   plugins: typeof pluginsContract;
   productCategories: typeof productCategoriesContract;
+  productInventories: typeof productInventoriesContract;
   products: typeof productsContract;
   roles: typeof rolesContract;
   saas: typeof saasContract;
@@ -108,6 +112,7 @@ export const coreContract: CoreContract = {
   customerNotifications: customerNotificationsContract,
   emails: emailsContract,
   events: eventsContract,
+  exchangeRates: exchangeRatesContract,
   fieldGroups: fieldGroupsContract,
   fields: fieldsContract,
   files: filesContract,
@@ -118,6 +123,7 @@ export const coreContract: CoreContract = {
   ebarimt: ebarimtContract,
   plugins: pluginsContract,
   productCategories: productCategoriesContract,
+  productInventories: productInventoriesContract,
   products: productsContract,
   roles: rolesContract,
   saas: saasContract,
@@ -188,6 +194,8 @@ export * from './emails';
 
 export * from './events';
 
+export * from './exchangeRates';
+
 export * from './favorites';
 
 export * from './fieldGroups';
@@ -245,6 +253,8 @@ export * from './pluginTranslations';
 export * from './pluginReads';
 
 export * from './pluginTransfer';
+
+export * from './productInventories';
 
 export * from './products';
 

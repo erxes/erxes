@@ -3,6 +3,7 @@ import {
   IconAt,
   IconCalendar,
   IconCalendarPlus,
+  IconHash,
   IconId,
   IconMail,
   IconPhone,
@@ -110,6 +111,16 @@ const MemberContactFields = ({ user }: { user: User }) => {
           placeholder={t('employeeId')}
           disabled={readOnly}
           onSave={(employeeId) => edit.mutate({ id, employeeId: employeeId || null })}
+        />
+      </PanelField>
+      <PanelField icon={IconHash} label={t('code', 'Code')}>
+        <MemberPanelTextField
+          icon={IconHash}
+          scope={`${id}.code`}
+          value={user.code ?? ''}
+          placeholder={t('code', 'Code')}
+          disabled={readOnly}
+          onSave={(code) => edit.mutate({ id, code: code || null })}
         />
       </PanelField>
     </>

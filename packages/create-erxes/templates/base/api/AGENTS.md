@@ -92,7 +92,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   `{ rows, cursor }` (rows keyed by column, cursor null on the last page);
   POST `/api/transfer/import` sends `rows` of `{ rowNumber, values }`, answered
   `{ rows: [{ rowNumber, action, recordId?, error? }] }`, changing nothing when
-  `dryRun`. Check each with `verifyCoreTransfer` and answer as its `userId` may
+  `dryRun`; a type's `batchStart` column (a voucher's date) keeps the rows
+  without it in the batch of the row above. Check each with `verifyCoreTransfer` and answer as its `userId` may
   see and change. A retried batch keeps its `requestId`: write it once.
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without

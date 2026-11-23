@@ -186,6 +186,12 @@ const commandItemVariants = cva(
       },
       /** The current value among the items, such as the picked icon or the open filter. */
       checked: { true: 'text-primary-text' },
+      /**
+       * `nested` sits under a group's heading, its text further in. `flush` has no padding, for
+       * an item that holds a link filling it (`flex size-full items-center pr-2 pl-7` on the
+       * link), so a middle click opens the page in a new tab.
+       */
+      inset: { default: '', nested: 'cursor-pointer pl-7', flush: 'cursor-pointer p-0' },
     },
     compoundVariants: [
       { variant: 'tile', checked: true, className: 'border-primary/30 bg-primary/5' },
@@ -199,13 +205,14 @@ const CommandItem = ({
   className,
   variant,
   checked,
+  inset,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Item> &
   VariantProps<typeof commandItemVariants>) => (
   <CommandPrimitive.Item
     ref={ref}
     aria-current={checked ? 'true' : undefined}
-    className={cn(commandItemVariants({ variant, checked }), className)}
+    className={cn(commandItemVariants({ variant, checked, inset }), className)}
     {...props}
   />
 );

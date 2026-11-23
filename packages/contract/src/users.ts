@@ -54,6 +54,8 @@ export const User = createSelectSchema(users, {
   lastName: true,
   shortName: true,
   employeeId: true,
+  /** 3.x's member code; accounting prints it as a voucher's party code. */
+  code: true,
   phone: true,
   /** `YYYY-MM-DD` */
   birthDate: true,
@@ -110,6 +112,7 @@ export const UserFields = createUpdateSchema(users, {
   lastName: name,
   shortName: name,
   employeeId: name,
+  code: name,
   phone: () => PhoneNumber,
   birthDate: () => DateOnly,
   workStartedDate: () => DateOnly,
@@ -127,6 +130,7 @@ export const UserFields = createUpdateSchema(users, {
   lastName: true,
   shortName: true,
   employeeId: true,
+  code: true,
   phone: true,
   birthDate: true,
   workStartedDate: true,
@@ -155,6 +159,7 @@ export const NewMember = UserFields.pick({
   lastName: true,
   shortName: true,
   employeeId: true,
+  code: true,
   phone: true,
   email: true,
   birthDate: true,

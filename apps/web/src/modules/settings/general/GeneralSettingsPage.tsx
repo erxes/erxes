@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Form,
   Input,
+  MultipleSelector,
   PageContainer,
   PageHeader,
   ScrollArea,
@@ -16,8 +17,11 @@ import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { CountrySelect, CurrencySelect, TimeZoneSelect } from '~/components/RegionSelect';
+import { currencyOptions } from '~/lib/region';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
+import { ContactFields } from './ContactFields';
+import { MemberRestrictionsFields } from './MemberRestrictionsFields';
 
 type Translate = (key: string, defaultValue: string) => string;
 
@@ -30,7 +34,21 @@ const organizationSchema = (t: Translate) =>
       .max(100, t('name-too-long', 'Use at most 100 characters')),
     country: z.string(),
     currency: z.string(),
+    currencies: z.array(z.string()),
     timezone: z.string(),
+    phone: z.string().trim(),
+    email: z
+      .string()
+      .trim()
+      .refine(
+        (email) => !email || z.email().safeParse(email).success,
+        t('invalid-email', 'Enter an email address'),
+      ),
+    memberRestrictions: z.object({
+      enabled: z.boolean(),
+      allBranchesUserIds: z.array(z.string()),
+      allDepartmentsUserIds: z.array(z.string()),
+    }),
   });
 
 type OrganizationValues = z.infer<ReturnType<typeof organizationSchema>>;
@@ -39,7 +57,11 @@ const valuesOf = (organization: Organization): OrganizationValues => ({
   name: organization.name,
   country: organization.country ?? '',
   currency: organization.currency,
+  currencies: organization.currencies,
   timezone: organization.timezone,
+  phone: organization.phone ?? '',
+  email: organization.email ?? '',
+  memberRestrictions: organization.memberRestrictions,
 });
 
 /** Saves the organisation and gives the whole app its new name, country and currency. */
@@ -118,6 +140,48 @@ const RegionFields = ({ disabled }: { disabled: boolean }) => {
   );
 };
 
+/**
+ * The other currencies it trades in, which plugins offer beside the main one. The same list as the
+ * main currency's ("USD · US Dollar", in the UI's language), so a code finds its currency.
+ */
+const OtherCurrenciesField = ({ disabled }: { disabled: boolean }) => {
+  const { t, i18n } = useTranslation('settings', { keyPrefix: 'general' });
+  const { control } = useFormContext<OrganizationValues>();
+  const currencies = currencyOptions(i18n.language);
+
+  return (
+    <Form.Field
+      control={control}
+      name="currencies"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('currencies', 'Other currencies')}</Form.Label>
+          <Form.Control>
+            <MultipleSelector
+              options={currencies}
+              disabled={disabled}
+              value={field.value.map(
+                (code) =>
+                  currencies.find((option) => option.value === code) ?? {
+                    value: code,
+                    label: code,
+                  },
+              )}
+              onChange={(options) => field.onChange(options.map((option) => option.value))}
+            />
+          </Form.Control>
+          <Form.Description>
+            {t(
+              'currencies-help',
+              'Plugins offer these besides the main currency, such as for accounts and deals.',
+            )}
+          </Form.Description>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 /** The clock every schedule runs by. */
 const TimeZoneField = ({ disabled }: { disabled: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'general' });
@@ -167,7 +231,11 @@ const OrganizationForm = ({
       name: values.name,
       country: values.country || undefined,
       currency: values.currency,
+      currencies: values.currencies,
       timezone: values.timezone,
+      phone: values.phone || null,
+      email: values.email || null,
+      memberRestrictions: values.memberRestrictions,
     }),
   );
 
@@ -195,7 +263,10 @@ const OrganizationForm = ({
             )}
           />
           <RegionFields disabled={!canEdit} />
+          <OtherCurrenciesField disabled={!canEdit} />
           <TimeZoneField disabled={!canEdit} />
+          <ContactFields disabled={!canEdit} />
+          <MemberRestrictionsFields disabled={!canEdit} />
         </Form.Section>
         {canEdit && <Form.SaveBar saving={save.isPending} />}
       </form>

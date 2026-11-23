@@ -49,6 +49,9 @@ const COMPANY_FIELDS: FieldSpec[] = [
   field('size', 'Employees', 'number', sql`${companies.size}`),
   field('businessType', 'Business type', 'text', sql`${companies.businessType}`),
   field('code', 'Code', 'text', sql`${companies.code}`),
+  // Every name and phone, the primary one first: "is" means it has that one.
+  field('names', 'Any name', 'text', sql`${companies.names}`, { array: true }),
+  field('phones', 'Any phone', 'text', sql`${companies.phones}`, { array: true }),
 ];
 
 const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
@@ -71,6 +74,9 @@ const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
   field('position', 'Position', 'text', sql`${customers.position}`),
   field('department', 'Department', 'text', sql`${customers.department}`),
   field('code', 'Code', 'text', sql`${customers.code}`),
+  // Every email and phone, the primary one first: "is" means it has that one.
+  field('emails', 'Any email', 'text', sql`${customers.emails}`, { array: true }),
+  field('phones', 'Any phone', 'text', sql`${customers.phones}`, { array: true }),
 ];
 
 /** People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them. */

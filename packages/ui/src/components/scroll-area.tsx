@@ -4,8 +4,12 @@ import { cn } from '../lib/utils';
 
 const scrollAreaVariants = cva('relative flex flex-col overflow-hidden', {
   variants: {
-    // Room along the bottom and right edges, so the scrollbars sit beside the content, not on it.
-    gutter: { true: 'pb-2 pr-2' },
+    /**
+     * Room along the edges, so the scrollbars sit beside the content, not on it: `true` along
+     * the bottom and right, `wide` more of it (3.x's line tables), `bottom` only under it, for a
+     * box that scrolls only across.
+     */
+    gutter: { true: 'pb-2 pr-2', wide: 'pb-3 pr-3', bottom: 'pb-3' },
   },
 });
 

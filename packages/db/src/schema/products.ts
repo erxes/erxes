@@ -3,12 +3,14 @@ import { sql } from 'drizzle-orm';
 import {
   bigint,
   check,
+  doublePrecision,
   foreignKey,
   index,
   integer,
   jsonb,
   text,
   timestamp,
+  unique,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
@@ -22,6 +24,8 @@ export const productCategories = pgTable(
     id: text().primaryKey(),
     orgId: orgIdColumn(),
     name: text().notNull(),
+    /** The organisation's own code (3.x's category code), unique when set. */
+    code: text(),
     parentId: text(),
     createdBy: text(),
     createdAt: createdAt(),
@@ -29,6 +33,9 @@ export const productCategories = pgTable(
   },
   (table) => [
     uniqueIndex('core_product_categories_org_id_id_key').on(table.orgId, table.id),
+    uniqueIndex('core_product_categories_org_code_key')
+      .on(table.orgId, sql`lower(${table.code})`)
+      .where(sql`${table.code} IS NOT NULL`),
     uniqueIndex('core_product_categories_org_parent_name_key').on(
       table.orgId,
       sql`coalesce(${table.parentId}, '')`,
@@ -50,9 +57,9 @@ export const productCategories = pgTable(
 /**
  * The organisation's one catalog of goods and services, shared by every
  * plugin (sales, e-commerce, PMS, TMS …). `plugins` lists the plugins that
- * use a product: each sees its own by default. What only one plugin needs
- * (stock, storefront pages, delivery rules) stays in that plugin's tables,
- * keyed by the product id. Products are archived, never deleted: orders and
+ * use a product: each sees its own by default. Its stock by branch and
+ * department is `productInventories`. What only one plugin needs (storefront
+ * pages, delivery rules) stays in that plugin's tables, keyed by the product id. Products are archived, never deleted: orders and
  * invoices keep pointing at them. Prices are integers in the currency's
  * smallest unit (cents: $12.50 → 1250), like invoices.
  */
@@ -141,5 +148,53 @@ export const products = pgTable(
       'core_products_size_check',
       sql`coalesce(${table.weightGrams}, 0) >= 0 AND coalesce(${table.lengthMm}, 0) >= 0 AND coalesce(${table.widthMm}, 0) >= 0 AND coalesce(${table.heightMm}, 0) >= 0`,
     ),
+  ],
+);
+
+/**
+ * A product's stock in one branch and department (3.x's `product.inventories`): one row per
+ * product and place, null standing for no branch or no department. The plugin that keeps the
+ * stock (accounting) writes it; sales, POS and loyalty read it. A row exists once stock was
+ * written for the place, so a product without rows has no stock tracking, which is not the same
+ * as sold out. A null amount was never set, or set to 0 (3.x unset it), and counts as 0.
+ */
+export const productInventories = pgTable(
+  'product_inventories',
+  {
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    productId: text().notNull(),
+    branchId: text(),
+    departmentId: text(),
+    /** How many are in stock, in the product's unit. */
+    remainder: doublePrecision(),
+    /** Their cost, in the organisation's currency (plain decimal, as accounting keeps it). */
+    cost: doublePrecision(),
+    /** Ordered in, not yet received. */
+    soonIn: doublePrecision(),
+    /** Promised out, not yet sent. */
+    soonOut: doublePrecision(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    // One row per place; no branch and no department count as one place each.
+    unique('core_product_inventories_org_place_key')
+      .on(table.orgId, table.productId, table.branchId, table.departmentId)
+      .nullsNotDistinct(),
+    index('core_product_inventories_org_branch_idx').on(
+      table.orgId,
+      table.branchId,
+      table.departmentId,
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_product_inventories_org_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId, table.productId],
+      foreignColumns: [products.orgId, products.id],
+      name: 'core_product_inventories_product_fkey',
+    }).onDelete('cascade'),
   ],
 );

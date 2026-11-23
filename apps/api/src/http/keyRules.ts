@@ -50,6 +50,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   secrets: null,
   // The event stream carries contacts' data.
   events: null,
+  exchangeRates: { lookup: true, writes: 'settings' },
   fieldGroups: { lookup: true, writes: 'settings' },
   fields: { lookup: true, writes: 'settings' },
   files: 'files',
@@ -61,6 +62,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   ebarimt: 'payments',
   plugins: 'plugins',
   productCategories: 'products',
+  productInventories: 'products',
   products: 'products',
   roles: 'team',
   saas: 'settings',

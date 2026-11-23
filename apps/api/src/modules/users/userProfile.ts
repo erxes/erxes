@@ -65,7 +65,7 @@ export const profileChanges = (
 ) => {
   const set = nameChanges(input, current);
 
-  for (const key of ['shortName', 'employeeId', 'phone', 'description'] as const) {
+  for (const key of ['shortName', 'employeeId', 'code', 'phone', 'description'] as const) {
     const value = blankToNull(input[key]);
 
     if (value !== undefined) {

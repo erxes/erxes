@@ -217,8 +217,14 @@ export const ACCESS = {
   'tags.remove': needs('tags.delete'),
 
   // Branches and departments: every member reads them (pickers); plugins keep a copy.
+  'exchangeRates.list': { member: 'any', plugin: 'exchange_rates:read' },
+  'exchangeRates.getActiveRate': { member: 'any', plugin: 'exchange_rates:read' },
+  'exchangeRates.create': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
+  'exchangeRates.update': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
+  'exchangeRates.remove': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
   'units.list': { member: 'any', plugin: 'units:read' },
   'units.get': { member: 'any', plugin: 'units:read' },
+  'units.restrictions': { member: 'any', plugin: 'units:read' },
   'units.create': { member: 'structure.manage', plugin: 'units:write' },
   'units.update': { member: 'structure.manage', plugin: 'units:write' },
   'units.remove': { member: 'structure.manage', plugin: 'units:write' },
@@ -279,6 +285,12 @@ export const ACCESS = {
   'products.use': { plugin: 'products:write' },
   'products.archive': { member: 'products.manage', plugin: 'products:write' },
   'products.restore': { member: 'products.manage', plugin: 'products:write' },
+  // Stock: every member and products:read read it; only the plugin that keeps it writes.
+  'productInventories.list': { member: 'any', plugin: 'products:read' },
+  'productInventories.remainders': { member: 'any', plugin: 'products:read' },
+  'productInventories.stock': { member: 'any', plugin: 'products:read' },
+  'productInventories.set': { plugin: 'inventories:write' },
+  'productInventories.increase': { plugin: 'inventories:write' },
   'productCategories.list': { member: 'any', plugin: 'products:read' },
   'productCategories.create': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },

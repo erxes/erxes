@@ -1,6 +1,6 @@
 import React, { createContext, use, useId } from 'react';
 
-import { Table } from 'erxes-ui/components/table';
+import { Table, type TableCellVariants } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTable } from './RecordTableProvider';
 
@@ -20,7 +20,10 @@ export const useCellLabel = (id?: string) => {
   return { id: controlId, 'aria-labelledby': head ? `${head} ${controlId}` : undefined };
 };
 
-/** A body cell. Its width and pinned offset are CSS variables the table container sets. */
+/**
+ * A body cell. Its width and pinned offset are CSS variables the table container sets; it takes
+ * `Table.Cell`'s `tint`, `inset`, `text`, `tone` and `numeric`.
+ */
 export const RecordTableCell = ({
   ref,
   children,
@@ -29,10 +32,11 @@ export const RecordTableCell = ({
   pinned,
   style,
   ...props
-}: React.HTMLAttributes<HTMLTableCellElement> & {
-  columnId: string;
-  pinned: boolean;
-} & React.RefAttributes<HTMLTableCellElement>) => {
+}: React.HTMLAttributes<HTMLTableCellElement> &
+  Omit<TableCellVariants, 'pinned'> & {
+    columnId: string;
+    pinned: boolean;
+  } & React.RefAttributes<HTMLTableCellElement>) => {
   const { headId } = useRecordTable();
 
   return (

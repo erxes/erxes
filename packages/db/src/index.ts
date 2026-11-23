@@ -40,6 +40,7 @@ export {
   authTokens,
   auditLogs,
   eventData,
+  exchangeRates,
   events,
   files,
   notifications,
@@ -93,6 +94,7 @@ export {
   pluginInstallations,
   pluginIntegrationStates,
   productCategories,
+  productInventories,
   products,
   productTags,
   rateLimits,
@@ -134,5 +136,6 @@ export type {
   PluginRecordType,
   PropertyContentType,
   CustomValue,
+  MemberRestrictions,
   OrganizationSettings,
 } from './schema';

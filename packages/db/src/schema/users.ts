@@ -73,6 +73,8 @@ export const users = pgTable(
     lastName: text(),
     shortName: text(),
     employeeId: text(),
+    /** The member's code (3.x `users.code`): accounting prints it as a voucher's party code. */
+    code: text(),
     phone: text(),
     birthDate: date({ mode: 'string' }),
     workStartedDate: date({ mode: 'string' }),

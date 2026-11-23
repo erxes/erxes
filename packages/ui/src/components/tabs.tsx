@@ -32,6 +32,10 @@ const tabsTriggerVariants = cva(
           'relative rounded-none after:absolute after:inset-x-0 after:bottom-0 after:-mb-px after:h-0.5 hover:bg-accent data-active:bg-transparent data-active:shadow-none data-active:after:bg-primary data-active:hover:bg-accent data-active:text-primary-text',
         vertical:
           'h-9 justify-start gap-2.5 rounded-md px-2.5 hover:bg-accent data-active:bg-primary/10 data-active:text-primary-text data-active:hover:bg-primary/10',
+        // An underline tab that holds its own close button (3.x's voucher journals): compact,
+        // capitalised, bold while open. It renders as a `div` (`render={<div />}`) around the button.
+        closable:
+          'relative h-8 gap-2 py-1 pr-1 capitalize after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 hover:bg-accent data-active:bg-transparent data-active:font-bold data-active:shadow-none data-active:after:bg-primary data-active:hover:bg-accent data-active:text-primary-text',
       },
       size: {
         default: 'text-sm',

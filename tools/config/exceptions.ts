@@ -111,4 +111,12 @@ export const exceptions = [
       'max-lines-per-function': 'off',
     },
   },
+  {
+    // erxes-ui's public API: one export statement per module, and nothing else. It can't be
+    // split by responsibility: plugins share only the `erxes-ui` root through Module
+    // Federation, `export *` is a barrel file (oxc/no-barrel-file), and tools/ui-exports.ts
+    // reads every name from this file into exports.txt and CATALOG.md.
+    files: ['packages/ui/src/index.ts'],
+    rules: { 'max-lines': 'off' },
+  },
 ] satisfies OxlintConfig['overrides'];
