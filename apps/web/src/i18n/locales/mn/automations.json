@@ -114,6 +114,7 @@
   "restore": "Сэргээх",
   "restored": "Хувилбарыг сэргээлээ",
   "from-template": "Загвараас",
+  "from-address-none": "Сонгох баталгаажсан domain алга: имэйлүүд {{address}} хаягаас явна.",
   "templates": "Загвараас эхлэх",
   "templates-description": "Асаахаасаа өмнө өөрчилж болох бэлэн автоматжуулалт.",
   "summary-schedule": "{{every}} бүр {{at}}-д",

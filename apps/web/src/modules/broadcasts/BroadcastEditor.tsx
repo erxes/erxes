@@ -4,6 +4,7 @@ import { Button, Input, ScrollArea, Separator, Spinner, useFormat } from 'erxes-
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmailSetupBanner, useEmailUndeliverable } from '~/components/EmailSetupBanner';
+import { useFromStale } from '~/components/useFromAddress';
 import { useCan } from '~/modules/auth/session';
 import { AttachmentsField } from './AttachmentsField';
 import { type AudienceMode, AudienceSection, isAudienceMissing, modeOf } from './AudienceSection';
@@ -19,8 +20,11 @@ import { useBroadcastDraft } from './useBroadcastDraft';
 /** Why it can't go yet, in the member's words; null when it can. */
 const useBlocked = (broadcast: Broadcast, missingAudience: boolean, undeliverable: boolean) => {
   const { t } = useTranslation('broadcasts');
+  const fromStale = useFromStale(broadcast.channel === 'email' ? broadcast.fromEmail : null);
 
   if (undeliverable) return t('blocked-email', 'Email sending isn’t set up');
+
+  if (fromStale) return t('blocked-from', 'Its From address isn’t on a verified domain');
 
   if (missingAudience) return t('blocked-audience', 'Pick who gets it first');
 

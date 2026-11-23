@@ -1,4 +1,4 @@
-import { emailSettings, secrets, withOrg } from '@erxes/core-db';
+import { type Db, emailSettings, secrets, withOrg } from '@erxes/core-db';
 import type { EMAIL_DELIVERY_PROVIDERS } from '@erxes/core-db/emailEnums';
 import { eq } from 'drizzle-orm';
 import { createTransport, type Transporter } from 'nodemailer';
@@ -84,15 +84,20 @@ const KEEP_MS = 10 * 60_000;
 
 const kept = new Map<string, { version: string; until: number; transport: Transporter }>();
 
+/** The organisation's own settings and their sealed secret; null: it sends through the server's. */
+export const ownSettingsAndSecret = async (client: Db) => {
+  const [found] = await client
+    .select({ settings: emailSettings, secret: secrets })
+    .from(emailSettings)
+    .innerJoin(secrets, eq(secrets.id, emailSettings.secretId))
+    .limit(1);
+
+  return found ?? null;
+};
+
 /** The organisation's settings and a transport for them; null: it sends through the server's. */
 export const orgTransport = async (orgId: string) => {
-  const [found] = await withOrg(orgId, (tx) =>
-    tx
-      .select({ settings: emailSettings, secret: secrets })
-      .from(emailSettings)
-      .innerJoin(secrets, eq(secrets.id, emailSettings.secretId))
-      .limit(1),
-  );
+  const found = await withOrg(orgId, ownSettingsAndSecret);
 
   if (!found) return null;
 

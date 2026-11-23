@@ -17,6 +17,7 @@ export type BroadcastDraft = Pick<
   | 'body'
   | 'content'
   | 'fromName'
+  | 'fromEmail'
   | 'replyTo'
   | 'attachmentIds'
 >;
@@ -30,6 +31,7 @@ const draftOf = ({
   body,
   content,
   fromName,
+  fromEmail,
   replyTo,
   attachmentIds,
 }: Broadcast): BroadcastDraft => ({
@@ -41,6 +43,7 @@ const draftOf = ({
   body,
   content,
   fromName,
+  fromEmail,
   replyTo,
   attachmentIds,
 });
@@ -100,6 +103,7 @@ export const useBroadcastDraft = (broadcast: Broadcast) => {
       subject: blankToNull(draft.subject),
       preheader: blankToNull(draft.preheader),
       fromName: blankToNull(draft.fromName),
+      fromEmail: blankToNull(draft.fromEmail),
       replyTo: blankToNull(draft.replyTo),
     });
 

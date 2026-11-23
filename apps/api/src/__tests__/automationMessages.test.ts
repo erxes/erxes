@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { loggedEmails } from '~/modules/email/email';
 import { action, forCustomer, useAutomations } from './automations.fixture';
 import { adminDb, useTestDatabase } from './db';
-import { settle } from './settle';
+import { makeDue, settle } from './settle';
 
 /** The steps that tell people, as a run uses them. */
 describe('automation messages', { timeout: 240_000 }, () => {
@@ -208,6 +208,34 @@ describe('automation messages', { timeout: 240_000 }, () => {
       replyTo: 'desk@acme.mn',
       cc: ['quit@cc.mn'],
     });
+  });
+
+  it('fails the step for a From on a domain no provider of the organisation verified', async () => {
+    const id = await t.active(
+      'From elsewhere',
+      forCustomer('Unverified', [
+        action('mail', 'core.email.send', {
+          to: 'subject',
+          subject: 'Hi',
+          body: 'Hi',
+          fromEmail: 'news@elsewhere.mn',
+        }),
+      ]),
+    );
+
+    await t.owner().customers.create({ firstName: 'Unverified', primaryEmail: 'u@mail.mn' });
+    await settle();
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await makeDue();
+      await settle();
+    }
+
+    const [run] = await t.runsOf(id);
+
+    expect(run).toMatchObject({ status: 'failed' });
+    expect(run?.error).toContain("elsewhere.mn isn't a domain your email provider verified");
+    expect(loggedEmails.some((email) => email.to === 'u@mail.mn')).toBe(false);
   });
 
   it('sends no email when the record has none to send to', async () => {

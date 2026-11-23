@@ -4,6 +4,7 @@ import { assistantRouter } from '~/modules/assistant/assistant.router';
 import { apiKeysRouter } from '~/modules/apiKeys/apiKeys.router';
 import { auditRouter } from '~/modules/audit/audit.router';
 import { emailsRouter } from '~/modules/email/emails.router';
+import { emailTemplatesRouter } from '~/modules/emailTemplates/emailTemplates.router';
 import { smsRouter } from '~/modules/sms/sms.router';
 import { eventsRouter } from '~/modules/events/events.router';
 import { exchangeRatesRouter } from '~/modules/exchangeRates/exchangeRates.router';
@@ -62,6 +63,7 @@ export const coreRouter = unscoped.router({
   assistant: assistantRouter,
   audit: auditRouter,
   emails: emailsRouter,
+  emailTemplates: emailTemplatesRouter,
   sms: smsRouter,
   events: eventsRouter,
   exchangeRates: exchangeRatesRouter,

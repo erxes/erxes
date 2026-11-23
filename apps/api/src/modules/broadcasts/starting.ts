@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { isVerifiedReplyTo } from '~/modules/email/replyTos.service';
+import { isAllowedFrom } from '~/modules/email/sender';
 import { defineJob, defineSchedule } from '~/modules/jobs/jobs';
 import { enrolAudience } from './audience';
 import { missingContent, outerId } from './broadcasts.service';
@@ -70,6 +71,16 @@ const startJob = defineJob({
           tx,
           broadcastId,
           `Its Reply-To ${broadcast.replyTo} was no longer verified when its time came`,
+        );
+
+        return;
+      }
+
+      if (broadcast.fromEmail && !(await isAllowedFrom(tx, broadcast.fromEmail))) {
+        await failBroadcast(
+          tx,
+          broadcastId,
+          `Its From ${broadcast.fromEmail} was no longer on a domain your email provider verified when its time came`,
         );
 
         return;

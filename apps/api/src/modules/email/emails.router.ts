@@ -2,6 +2,7 @@ import { caller, db, requestOrgId } from '@erxes/core-db';
 import { audited, scoped, unscoped } from '~/orpc';
 import { listAddresses } from './addresses';
 import { listDeliveries } from './deliveries';
+import { checkDomains } from './domains';
 import { sendEmail } from './email';
 import { getLimits, getPacing, resumeSending, setRamp } from './limits.service';
 import {
@@ -46,6 +47,8 @@ export const emailsRouter = {
   removeSettings: scoped.emails.removeSettings.handler(() => removeSettings(db())),
   // Sends over the network: no transaction held meanwhile.
   sendTest: unscoped.emails.sendTest.handler(({ input }) => sendTest(input.to)),
+  // Asks the provider over the network, so no transaction either.
+  checkDomains: unscoped.emails.checkDomains.handler(() => checkDomains(requestOrgId())),
   sender: scoped.emails.sender.handler(() => getSender(db())),
   deliveries: scoped.emails.deliveries.handler(({ input }) => listDeliveries(db(), input)),
   addresses: scoped.emails.addresses.handler(({ input }) => listAddresses(db(), input)),

@@ -47,11 +47,17 @@ export const serverFrom = async (orgId: string, label: string | undefined) => ({
 /**
  * The From of an email the organisation sends through its own provider
  * (self-hosted): the label, else its settings' name, else the organisation's
- * name, as `getSender` shows it.
+ * name, as `getSender` shows it; `address` (checked by `requireFromAddress`
+ * when saved and started), else the settings' own.
  */
-export const ownFrom = async (orgId: string, settings: EmailSettingsRow, label?: string) => ({
+export const ownFrom = async (
+  orgId: string,
+  settings: EmailSettingsRow,
+  label?: string,
+  address?: string,
+) => ({
   name: cleanLabel(label) ?? (settings.fromName || (await organizationName(orgId))),
-  address: settings.fromEmail,
+  address: address ?? settings.fromEmail,
 });
 
 /** The organisation's own settings, as `routeFor` picks them: self-hosted only. */
@@ -63,11 +69,42 @@ const ownSettings = async (client: Db) => {
       provider: emailSettings.provider,
       fromName: emailSettings.fromName,
       fromEmail: emailSettings.fromEmail,
+      verifiedDomains: emailSettings.verifiedDomains,
     })
     .from(emailSettings)
     .limit(1);
 
   return own ?? null;
+};
+
+const domainOf = (address: string) => address.slice(address.lastIndexOf('@') + 1).toLowerCase();
+
+/**
+ * Whether the organisation may send from the address: its settings' own, or
+ * any on a domain its provider verified. Only its own provider (self-hosted)
+ * vouches for domains; on SaaS and through the server's, nothing else.
+ */
+export const isAllowedFrom = async (client: Db, address: string) => {
+  const own = await ownSettings(client);
+
+  return (
+    !!own &&
+    (address.toLowerCase() === own.fromEmail.toLowerCase() ||
+      own.verifiedDomains.includes(domainOf(address)))
+  );
+};
+
+/** 400 on `path` for a From the organisation may not send from (`isAllowedFrom`). */
+export const requireFromAddress = async (
+  client: Db,
+  address: string | null | undefined,
+  path: (string | number)[] = ['fromEmail'],
+) => {
+  if (!address || (await isAllowedFrom(client, address))) return;
+
+  const message = `${domainOf(address)} isn't a domain your email provider verified: verify it there, then check again in Settings › Email sending`;
+
+  throw fail('INVALID_INPUT', message, { issues: [{ path, message }] });
 };
 
 /** Production never takes the log for sending: it means nothing is set up. */
@@ -86,6 +123,7 @@ export const getSender = async (client: Db) => {
     nameLocked: config.saas.enabled,
     ownSending: !config.saas.enabled,
     provider,
+    domains: own?.verifiedDomains ?? [],
     canDeliver: delivers(provider),
   };
 };

@@ -58,6 +58,8 @@ export const paths = {
     list: '/broadcasts',
     broadcast: (broadcastId: string) => `/broadcasts/${id(broadcastId)}`,
     suppressions: '/broadcasts/suppressions',
+    templates: '/broadcasts/templates',
+    template: (templateId: string) => `/broadcasts/templates/${id(templateId)}`,
   },
   reports: {
     list: '/reports',

@@ -848,7 +848,11 @@
   },
   "sender": {
     "label-placeholder": "Marketing",
-    "from-line": "{{name}} <{{address}}> · via {{provider}}"
+    "from-line": "{{name}} <{{address}}> · via {{provider}}",
+    "domain": "Domain",
+    "from-default": "Send from the default address",
+    "from-stale-title": "{{domain}} isn’t verified any more",
+    "from-stale": "{{provider}} no longer sends from this domain, so this email won’t go out. Verify the domain there and check again in Settings, or choose another one."
   },
   "email-setup": {
     "title": "Email sending isn’t set up",

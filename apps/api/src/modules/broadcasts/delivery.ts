@@ -111,6 +111,7 @@ const sendCopy = async (
         text: copy.text,
         headers: copy.headers,
         fromName: broadcast.fromName ?? undefined,
+        fromEmail: broadcast.fromEmail ?? undefined,
         files,
         replyTo: broadcast.replyTo ?? undefined,
         deliveryId,

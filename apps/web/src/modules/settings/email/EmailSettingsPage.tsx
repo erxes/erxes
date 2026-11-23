@@ -30,6 +30,7 @@ import { EmailHaltNotice } from './EmailHaltBanner';
 import { EmailLimitsTab } from './EmailLimitsTab';
 import { ReplyTosSection } from './ReplyTosSection';
 import { ServerSender } from './ServerSender';
+import { VerifiedDomains } from './VerifiedDomains';
 
 /** Sends a test email to the member the way the organisation's go out, and says how it went. */
 const SendTest = () => {
@@ -170,6 +171,7 @@ const Overview = ({ sender, saved }: { sender: EmailSender; saved: EmailSettings
           </p>
         </>
       )}
+      {saved && saved.provider !== 'smtp' && <VerifiedDomains saved={saved} />}
       {saved && <EventsHelp saved={saved} />}
       <HowItWorks
         title={t('how', 'How it works')}

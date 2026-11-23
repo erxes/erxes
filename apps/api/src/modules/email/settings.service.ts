@@ -124,6 +124,10 @@ export const saveSettings = async (client: Db, input: EmailSettingsInput) => {
     configurationSet: ses?.configurationSet ?? '',
     eventsTopicArn: ses?.eventsTopicArn ?? '',
     secretId: await secretFor(client, input, before),
+    // Domains belong to the provider's account: another provider starts with none (`checkDomains`).
+    ...(before?.provider === input.provider
+      ? {}
+      : { verifiedDomains: [], domainsCheckedAt: null, domainsError: null }),
     updatedBy: caller('user').userId,
     updatedAt: sql`now()`,
   };

@@ -56,6 +56,11 @@ export const Broadcast = createSelectSchema(broadcasts, {
      */
     content: true,
     fromName: true,
+    /**
+     * Email only: an address on a domain the organisation's own provider verified
+     * (`emails.sender` lists them); null: the address in Settings › Email sending.
+     */
+    fromEmail: true,
     replyTo: true,
     /** Email only: files (`/files`) attached to every copy and test email. */
     attachmentIds: true,
@@ -95,6 +100,7 @@ const BroadcastFields = createUpdateSchema(broadcasts, {
       .max(80)
       .regex(/^[^<>"\r\n]*$/, 'no quotes, brackets or line breaks')
       .nullable(),
+  fromEmail: () => EmailAddress.nullable(),
   replyTo: () => EmailAddress.nullable(),
   attachmentIds: () =>
     z
@@ -112,6 +118,11 @@ const BroadcastFields = createUpdateSchema(broadcasts, {
   /** Email only: the message as the email editor's document. */
   content: true,
   fromName: true,
+  /**
+   * Email only: an address on a domain the organisation's own provider verified;
+   * 400 INVALID_INPUT for any other. Null: the address in Settings › Email sending.
+   */
+  fromEmail: true,
   replyTo: true,
   /**
    * Email only: ready files of the organisation, at most `BROADCAST_ATTACHMENTS_MAX` and

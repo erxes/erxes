@@ -2,9 +2,13 @@ import type { BroadcastPlaceholder } from '@erxes/core-contract';
 import { Input, Label, Textarea } from 'erxes-ui';
 import { lazy, Suspense, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FromAddressPicker } from '~/components/FromAddressPicker';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import { SenderLabelInput } from '~/components/SenderLabelInput';
+import { useFromAddress } from '~/components/useFromAddress';
 import { LabelRow } from './PlaceholderMenu';
+import { TemplatePicker } from './templates/TemplatePicker';
+import { useTemplatesOffered } from './templates/useEmailTemplates';
 import type { BroadcastDraft } from './useBroadcastDraft';
 
 /** The email editor loads the first time an email is opened. */
@@ -93,11 +97,16 @@ interface SectionProps {
   onChange: (patch: Partial<BroadcastDraft>) => void;
 }
 
-/** Who it comes from (the label after the organisation's name on SaaS) and where replies go. */
+/**
+ * Who it comes from (the label after the organisation's name on SaaS), the address when the
+ * provider verified domains to pick from, and where replies go.
+ */
 const SenderFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
   const { t } = useTranslation('broadcasts');
   const nameId = useId();
+  const addressId = useId();
   const replyId = useId();
+  const from = useFromAddress(draft.fromEmail, (fromEmail) => onChange({ fromEmail }));
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -106,9 +115,16 @@ const SenderFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
         <SenderLabelInput
           id={nameId}
           value={draft.fromName}
+          fromEmail={draft.fromEmail}
           onChange={(fromName) => onChange({ fromName })}
         />
       </div>
+      {from.shown && (
+        <div className="space-y-1.5">
+          <Label htmlFor={addressId}>{t('from-address', 'From address')}</Label>
+          <FromAddressPicker id={addressId} from={from} />
+        </div>
+      )}
       <div className="space-y-1.5">
         <Label htmlFor={replyId}>{t('reply-to', 'Replies go to')}</Label>
         <ReplyToSelect
@@ -172,10 +188,11 @@ const UnknownPlaceholders = ({ names }: { names: string[] }) => {
   );
 };
 
-/** The email's message in the email editor. */
+/** The email's message in the email editor; self-hosted, with its templates by the label. */
 const EmailBody = ({ draft, onChange }: SectionProps) => {
   const { t } = useTranslation('broadcasts');
   const label = t('body-email', 'Message');
+  const templates = useTemplatesOffered();
 
   return (
     <div className="space-y-1.5">
@@ -191,6 +208,11 @@ const EmailBody = ({ draft, onChange }: SectionProps) => {
           label={label}
           value={draft.content}
           onChange={(content) => onChange({ content })}
+          actions={
+            templates && (
+              <TemplatePicker content={draft.content} onUse={(content) => onChange({ content })} />
+            )
+          }
         />
       </Suspense>
       <p className="text-xs text-muted-foreground">

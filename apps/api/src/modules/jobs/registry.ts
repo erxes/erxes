@@ -10,6 +10,7 @@ import { BROADCAST_JOBS } from '~/modules/broadcasts/starting';
 import { fireJob } from '~/modules/automations/triggers';
 import { ebarimtSyncJob } from '~/modules/ebarimt/sync';
 import { emailJob } from '~/modules/email/email';
+import { domainsSchedule } from '~/modules/email/domains';
 import { rampSchedule } from '~/modules/email/rampEvaluation';
 import { rampNoticeJob } from '~/modules/email/rampNotices';
 import { cloudflareMoveJob } from '~/modules/files/cloudflareMove';
@@ -33,6 +34,7 @@ export const JOBS = [
   fireJob,
   emailJob,
   rampSchedule,
+  domainsSchedule,
   rampNoticeJob,
   smsJob,
   paymentCheckJob,

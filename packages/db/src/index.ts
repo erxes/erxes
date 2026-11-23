@@ -89,6 +89,7 @@ export {
   ebarimtPrintTemplates,
   emailSettings,
   emailReplyTos,
+  emailTemplates,
   emailDeliveries,
   emailAddresses,
   emailRamps,

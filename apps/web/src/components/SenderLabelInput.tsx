@@ -19,16 +19,19 @@ const fromName = (sender: EmailSender, label: string | null | undefined) => {
 /**
  * The name an email goes out under. SaaS: the organisation's name stays in
  * front and only the label after it is typed (`MSM Group · Marketing`);
- * self-hosted: the whole name. Says which address it goes out from.
+ * self-hosted: the whole name. Says which address it goes out from:
+ * `fromEmail` when one is picked, else the settings' own.
  */
 export const SenderLabelInput = ({
   id,
   value,
+  fromEmail,
   onChange,
   disabled,
 }: {
   id?: string;
   value: string | null | undefined;
+  fromEmail?: string | null;
   onChange: (value: string) => void;
   disabled?: boolean;
 }) => {
@@ -58,7 +61,7 @@ export const SenderLabelInput = ({
         <p className="truncate text-xs text-muted-foreground">
           {t('from-line', '{{name}} <{{address}}> · via {{provider}}', {
             name: fromName(sender.data, value),
-            address: sender.data.address,
+            address: fromEmail || sender.data.address,
             provider: providerName(sender.data.provider),
           })}
         </p>
