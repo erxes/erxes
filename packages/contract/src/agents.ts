@@ -29,12 +29,50 @@ export const AgentConversationKey = z
   .string()
   .regex(/^[A-Za-z0-9._-]{1,128}$/, 'letters, digits, dots, hyphens and underscores');
 
+const WebUrl = z.url({ protocol: /^https?$/ }).max(2000);
+
+const Label = z.string().trim().min(1).max(200);
+
+/**
+ * One thing an agent shows below its answer: a picture, a product, a link, or a payment page to
+ * pay on. The agent takes every URL and price from the API, never makes one up.
+ */
+export const AgentBlock = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('image'), url: WebUrl, alt: Label.nullable().default(null) }),
+  z.object({
+    kind: z.literal('product'),
+    title: Label,
+    /** As the shop shows it, with its currency: "450,000₮". */
+    price: z.string().trim().max(50).nullable().default(null),
+    text: z.string().trim().max(500).nullable().default(null),
+    imageUrl: WebUrl.nullable().default(null),
+    url: WebUrl.nullable().default(null),
+  }),
+  z.object({ kind: z.literal('link'), title: Label, url: WebUrl }),
+  z.object({
+    kind: z.literal('payment'),
+    title: Label,
+    url: WebUrl,
+    amount: z.string().trim().max(50).nullable().default(null),
+  }),
+]);
+
+export type AgentBlock = z.infer<typeof AgentBlock>;
+
+/** The most blocks one answer shows. */
+export const AGENT_BLOCKS_MAX = 10;
+
+/** What a run answered: its text, and what it showed below it. */
+export const AgentAnswer = z.object({
+  answer: z.string(),
+  blocks: z.array(AgentBlock).max(AGENT_BLOCKS_MAX),
+});
+
 /** What `core.agent.finished` carries to the plugin that sent the message: the run's answer. */
-export const AgentFinished = z.object({
+export const AgentFinished = AgentAnswer.extend({
   agentId: Id,
   plugin: PluginName,
   key: AgentConversationKey,
-  answer: z.string(),
 });
 
 /** What `core.agent.failed` carries to the plugin: why the run gave no answer. */
@@ -155,7 +193,7 @@ export const agentsContract = {
         restart: z.boolean().default(false),
       }),
     )
-    .output(z.object({ answer: z.string() })),
+    .output(AgentAnswer),
   submit: running
     .route({
       method: 'POST',

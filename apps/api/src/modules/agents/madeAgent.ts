@@ -9,8 +9,9 @@ import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { agentCustomerToken } from '~/modules/customerAuth/customerSessions';
 import { type Agent, answerText, madeAgentName } from './agent';
 import { agentOrThrow, chatOf, notifyRun } from './agents.service';
+import { runEntries, showTool, shownBlocks } from './blocks';
 
-const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API first.`;
+const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. To show a product, a picture or a payment link, call show with what they gave you.`;
 
 const CUSTOMER_GUIDE = `You are talking with one customer of the website. Their own orders, bookings and profile are under the website and customer procedures (names with ":website:" or ":customer:"), which act as them. Never look up other customers' records.`;
 
@@ -69,7 +70,7 @@ export const madeAgent = (id: string): Agent => ({
 
       const extension = defineExtension({
         name: 'made-agent',
-        tools,
+        tools: [...tools, showTool],
         sections: [
           section(
             'agent',
@@ -88,6 +89,7 @@ export const madeAgent = (id: string): Agent => ({
                   plugin: chat.plugin,
                   key: scope.key,
                   answer,
+                  blocks: shownBlocks(await runEntries(api, run.first, run.last)),
                 });
               }
 
