@@ -156,6 +156,7 @@ export const TemplateInput = (props: FieldProps) => {
         )}
         <div
           ref={ref}
+          role="textbox"
           aria-label={label}
           aria-placeholder={placeholder ? readableTemplate(placeholder, fields) : undefined}
           aria-multiline={multiline}
