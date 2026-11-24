@@ -18,18 +18,18 @@ test('picks other currencies by code, by pointer or Enter', async ({ page }) => 
   const field = page.getByRole('combobox', { name: 'Other currencies' });
 
   await field.click();
-  await field.fill('usd');
-  await page.getByRole('option', { name: 'USD · US Dollar' }).click();
-  await field.fill('cny');
+  await field.fill('eur');
+  await page.getByRole('option', { name: 'EUR · Euro' }).click();
+  await field.fill('jpy');
   await page.keyboard.press('Enter');
 
-  const dollar = page.getByRole('button', { name: 'Remove USD · US Dollar' });
+  const euro = page.getByRole('button', { name: 'Remove EUR · Euro' });
 
-  await expect(dollar).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Remove CNY · Chinese Yuan' })).toBeVisible();
+  await expect(euro).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Remove JPY · Japanese Yen' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
   expect(saves).toEqual([]);
 
   await page.getByRole('button', { name: 'Discard' }).click();
-  await expect(dollar).toBeHidden();
+  await expect(euro).toBeHidden();
 });
