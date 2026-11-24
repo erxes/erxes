@@ -15,7 +15,7 @@ import { getFxaCapitalValuation } from '@/accounting/utils/fxaCapitalValuation';
 import { assertTransactionJournalPermission } from '@/accounting/utils/transactionPermissions';
 import {
   JOURNALS,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
 } from '@/accounting/@types/constants';
 import {
   FXA_OWNER_RECORD_ACTIONS,
@@ -390,7 +390,7 @@ const fixedAssets = {
     );
     const transactions = await models.Transactions.find({
       journal: { $in: movementJournals },
-      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+      status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
       'details.fixedAssetId': { $in: ids },
       date: { $lte: date },
       ...exclusion,
@@ -692,7 +692,7 @@ const fixedAssets = {
   ) => {
     const filter: Record<string, unknown> = {
       journal: { $in: FXA_MOVEMENT_JOURNALS },
-      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+      status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
       'details.fixedAssetId': fixedAssetId,
     };
 
@@ -775,7 +775,7 @@ const fixedAssets = {
 
     const filter: Record<string, unknown> = {
       journal: { $in: FXA_MOVEMENT_JOURNALS },
-      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+      status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
       'details.fixedAssetId': { $in: fixedAssetIds },
     };
 

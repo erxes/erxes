@@ -1,10 +1,10 @@
 import { IModels } from '~/connectionResolvers';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   rehomeCallRecords,
   resolveQueueIntegration,
 } from '@/integrations/call/services/queueRouting';
-import { acquireCustomerLock, redlock } from '@/integrations/call/redlock';
+import { withCustomerLock, withSessionLock } from '@/integrations/call/redlock';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { debugCall } from '@/integrations/call/debuggers';
@@ -17,8 +17,6 @@ import {
   inboxIdForExtension,
   matchOperatorByExtension,
 } from '@/integrations/call/services/operatorResolution';
-
-const SESSION_LOCK_TTL_MS = 15_000;
 
 export type CallEventType =
   | 'ringing'
@@ -46,8 +44,30 @@ export interface ICallEventPayload {
   answeredAt?: string;
   endedAt?: string;
   diversion?: string;
-  raw?: Record<string, any>;
+  raw?: Record<string, unknown>;
 }
+
+const FINISHED_SESSION_STATUSES = ['ended', 'missed', 'failed'];
+
+const isSessionFinished = (session?: ICallSessionDocument | null) =>
+  !!session && FINISHED_SESSION_STATUSES.includes(session.status);
+
+/*
+ * Matches an integration by trunk name. Empty trunk names never match, so a
+ * payload without trunks cannot pick an arbitrary integration.
+ */
+export const findIntegrationByTrunk = async (
+  models: IModels,
+  srcTrunk?: string,
+  dstTrunk?: string,
+): Promise<ICallIntegrationDocument | null> => {
+  const selectors = [
+    ...(srcTrunk ? [{ srcTrunk }] : []),
+    ...(dstTrunk ? [{ dstTrunk }] : []),
+  ];
+  if (!selectors.length) return null;
+  return models.CallIntegrations.findOne({ $or: selectors });
+};
 
 const findIntegrationForEvent = async (
   models: IModels,
@@ -59,33 +79,39 @@ const findIntegrationForEvent = async (
     });
     if (direct) return direct;
   }
-  return models.CallIntegrations.findOne({
-    $or: [{ srcTrunk: ev.srcTrunkName }, { dstTrunk: ev.dstTrunkName }].filter(
-      (c) => Object.values(c).some(Boolean),
-    ),
-  });
+  return findIntegrationByTrunk(models, ev.srcTrunkName, ev.dstTrunkName);
 };
 
-const publishSession = async (
+export const publishSession = async (
   subdomain: string,
-  session: any,
-  integration: any,
+  session: ICallSessionDocument | null,
+  integration: ICallIntegrationDocument | undefined,
   peers: ICallIntegrationDocument[],
 ) => {
   if (!session) return;
-  const sessionInboxId = session.inboxIntegrationId || integration?.inboxId;
+  const sessionInboxId =
+    session.inboxIntegrationId || integration?.inboxId || '';
   const payload = {
     callSessionUpdated: {
-      ...(session.toObject ? session.toObject() : session),
+      ...session.toObject(),
       subdomain,
       inboxIntegrationId: sessionInboxId,
     },
   };
+  // The gateway loads subscription resolvers only when it starts, so until it
+  // restarts popups still listen on the unprefixed topics. Publish both.
+  const publish = async (suffix: string) => {
+    await graphqlPubsub.publish(`callSessionUpdated:${suffix}`, payload);
+    if (subdomain) {
+      await graphqlPubsub.publish(
+        `callSessionUpdated:${subdomain}:${suffix}`,
+        payload,
+      );
+    }
+  };
+
   if (session.uniqueid) {
-    await graphqlPubsub.publish(
-      `callSessionUpdated:uniqueid:${session.uniqueid}`,
-      payload,
-    );
+    await publish(`uniqueid:${session.uniqueid}`);
   }
   const published = new Set<string>();
   const publishToExtension = async (extension?: string) => {
@@ -94,7 +120,7 @@ const publishSession = async (
     const key = `${inboxId}:${extension}`;
     if (published.has(key)) return;
     published.add(key);
-    await graphqlPubsub.publish(`callSessionUpdated:ext:${key}`, payload);
+    await publish(`ext:${key}`);
   };
   await publishToExtension(session.answeredExtension);
   for (const op of session.ringingOperators || []) {
@@ -140,16 +166,17 @@ const isSiblingLeg = (
 const ensureConversation = async (
   models: IModels,
   subdomain: string,
-  session: any,
-  integration: any,
+  session: ICallSessionDocument,
+  integration: ICallIntegrationDocument,
   assignedUserId?: string,
 ) => {
   if (session.conversationId) {
-    if (assignedUserId) {
+    // Only assign the operator. The CDR owns the conversation text, and a
+    // finished call must not reopen its conversation.
+    if (assignedUserId && !isSessionFinished(session)) {
       await createOrUpdateErxesConversation(subdomain, {
         conversationId: session.conversationId,
         integrationId: integration.inboxId,
-        content: session.callType || 'incoming',
         updatedAt: new Date(),
         userId: assignedUserId,
       });
@@ -182,19 +209,20 @@ const ensureConversation = async (
     );
   }
 
-  session.conversationId = apiResponse.data._id;
+  const conversationId: string = apiResponse.data._id;
+  session.conversationId = conversationId;
   session.customerId = customerId;
   await session.save();
 
   try {
     const conversationMessage = {
-      _id: session.conversationId,
-      conversationId: session.conversationId,
+      _id: conversationId,
+      conversationId,
       content: session.callType || 'incoming',
       createdAt: new Date(),
     };
     await graphqlPubsub.publish(
-      `conversationMessageInserted:${session.conversationId}`,
+      `conversationMessageInserted:${conversationId}`,
       { conversationMessageInserted: conversationMessage },
     );
     await pConversationClientMessageInserted(subdomain, conversationMessage);
@@ -204,14 +232,20 @@ const ensureConversation = async (
     );
   }
 
-  return session.conversationId;
+  return conversationId;
 };
+
+const findSession = async (
+  models: IModels,
+  uniqueid: string,
+): Promise<ICallSessionDocument | null> =>
+  models.CallSessions.findOne({ uniqueid });
 
 export const handleCallEvent = async (
   models: IModels,
   subdomain: string,
   ev: ICallEventPayload,
-  verifiedIntegration?: any,
+  verifiedIntegration?: ICallIntegrationDocument,
 ) => {
   if (!ev?.uniqueid) {
     throw new Error('uniqueid required');
@@ -235,22 +269,6 @@ export const handleCallEvent = async (
     ev.queueName,
   );
   const integration = queueOwner || matched;
-  if (queueOwner) {
-    await rehomeCallRecords(
-      models,
-      { uniqueid: ev.uniqueid, linkedid: ev.linkedid },
-      queueOwner.inboxId,
-      queueOwner.phone,
-    );
-    await models.CallSessions.updateMany(
-      {
-        $or: [{ uniqueid: ev.uniqueid }, { linkedid: ev.uniqueid }],
-        queueName: { $ne: ev.queueName },
-      },
-      { $set: { queueName: ev.queueName } },
-    );
-  }
-
   const peers = await findPeerIntegrations(models, integration);
 
   const direction: 'incoming' | 'outgoing' =
@@ -260,193 +278,194 @@ export const handleCallEvent = async (
   const eventPhone =
     direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
 
-  const lockKey = `${subdomain}:call:session:${ev.uniqueid}`;
-  let lock;
-  try {
-    lock = await redlock.acquire([lockKey], SESSION_LOCK_TTL_MS);
-  } catch (e) {
-    throw new Error(`callEvent lock failure for ${ev.uniqueid}: ${e.message}`);
-  }
+  return withSessionLock(subdomain, ev, async () => {
+    if (queueOwner) {
+      const callIds = [ev.uniqueid, ev.linkedid].filter((id): id is string =>
+        Boolean(id),
+      );
+      await rehomeCallRecords(
+        models,
+        { uniqueid: ev.uniqueid, linkedid: ev.linkedid },
+        queueOwner.inboxId,
+        queueOwner.phone,
+      );
+      await models.CallSessions.updateMany(
+        {
+          $or: [{ uniqueid: { $in: callIds } }, { linkedid: { $in: callIds } }],
+          queueName: { $ne: ev.queueName },
+        },
+        { $set: { queueName: ev.queueName } },
+      );
+    }
 
-  const customerLock = await acquireCustomerLock(
-    subdomain,
-    integration.inboxId,
-    eventPhone,
-  );
+    const existing = await findSession(models, ev.uniqueid);
 
-  try {
-    let session: any = await models.CallSessions.findOne({
-      uniqueid: ev.uniqueid,
-    });
-
-    if (queueOwner && session?.conversationId) {
+    if (
+      queueOwner &&
+      existing?.conversationId &&
+      !isSessionFinished(existing)
+    ) {
       await createOrUpdateErxesConversation(subdomain, {
-        conversationId: session.conversationId,
+        conversationId: existing.conversationId,
         integrationId: queueOwner.inboxId,
-        content: session.callType || 'incoming',
         updatedAt: new Date(),
       });
     }
 
-    if (!session) {
-      const parent = await findParentLegSession(models, ev);
+    const parent = existing ? null : await findParentLegSession(models, ev);
+    const customerPhone =
+      existing?.customerPhone ||
+      parent?.customerPhone ||
+      (isChildLeg(ev) && looksLikePhoneNumber(ev.callerIdName)
+        ? ev.callerIdName
+        : eventPhone) ||
+      '';
 
-      const customerPhone =
-        parent?.customerPhone ||
-        (isChildLeg(ev) && looksLikePhoneNumber(ev.callerIdName)
-          ? (ev.callerIdName as string)
-          : eventPhone);
+    return withCustomerLock(subdomain, customerPhone, async () => {
+      let session = existing;
 
-      let sibling = parent;
+      if (!session) {
+        let sibling = parent;
 
-      if (!sibling) {
-        const candidate = await models.CallSessions.findSibling({
+        if (!sibling) {
+          const candidate = await models.CallSessions.findSibling({
+            inboxIntegrationId: integration.inboxId,
+            peerInboxIds: peers.map((peer) => peer.inboxId),
+            customerPhone,
+            excludeUniqueid: ev.uniqueid,
+          });
+
+          sibling = isSiblingLeg(candidate, ev, direction) ? candidate : null;
+        }
+
+        if (sibling?.conversationId) {
+          debugCall(
+            `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
+              `from ${parent ? 'parent' : 'sibling'} leg ${sibling.uniqueid} ` +
+              `(phone=${customerPhone})`,
+          );
+        }
+
+        session = await models.CallSessions.upsertSession({
+          uniqueid: ev.uniqueid,
+          linkedid: ev.linkedid,
           inboxIntegrationId: integration.inboxId,
-          peerInboxIds: peers.map((peer) => peer.inboxId),
+          callType: direction,
           customerPhone,
-          excludeUniqueid: ev.uniqueid,
+          operatorPhone: integration.phone,
+          queueName: ev.queueName,
+          startedAt: parseCdrDate(ev.startedAt) || new Date(),
+          status: 'ringing',
+          source: 'cti',
+          diversion: ev.diversion,
+          raw: ev.raw,
+          ...(sibling?.conversationId
+            ? {
+                conversationId: sibling.conversationId,
+                ...(sibling.customerId
+                  ? { customerId: sibling.customerId }
+                  : {}),
+              }
+            : {}),
         });
-
-        sibling = isSiblingLeg(candidate, ev, direction) ? candidate : null;
       }
 
-      if (sibling?.conversationId) {
-        debugCall(
-          `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
-            `from ${parent ? 'parent' : 'sibling'} leg ${sibling.uniqueid} ` +
-            `(phone=${customerPhone})`,
-        );
-      }
+      switch (ev.type) {
+        case 'ringing': {
+          if (ev.extension) {
+            const match = matchOperatorByExtension(peers, ev.extension);
+            await models.CallSessions.attachOperator(ev.uniqueid, {
+              extensionNumber: ev.extension,
+              userId: match?.operator.userId,
+              state: 'ringing',
+            });
+            session = (await findSession(models, ev.uniqueid)) || session;
+          }
+          try {
+            await ensureConversation(models, subdomain, session, integration);
+          } catch (e) {
+            debugCall(
+              `ensureConversation deferred for ${ev.uniqueid}: ${e.message}`,
+            );
+          }
+          break;
+        }
 
-      session = await models.CallSessions.upsertSession({
-        uniqueid: ev.uniqueid,
-        linkedid: ev.linkedid,
-        inboxIntegrationId: integration.inboxId,
-        callType: direction,
-        customerPhone,
-        operatorPhone: integration.phone,
-        queueName: ev.queueName,
-        startedAt: parseCdrDate(ev.startedAt) || new Date(),
-        status: 'ringing',
-        source: 'cti',
-        diversion: ev.diversion,
-        raw: ev.raw,
-        ...(sibling?.conversationId
-          ? {
-              conversationId: sibling.conversationId,
-              ...(sibling.customerId ? { customerId: sibling.customerId } : {}),
-            }
-          : {}),
-      });
-    }
-
-    switch (ev.type) {
-      case 'ringing': {
-        if (ev.extension) {
+        case 'answered':
+        case 'bridged': {
           const match = matchOperatorByExtension(peers, ev.extension);
-          await models.CallSessions.attachOperator(ev.uniqueid, {
-            extensionNumber: ev.extension,
-            userId: match?.operator.userId,
-            state: 'ringing',
-          });
-          session = await models.CallSessions.findOne({
-            uniqueid: ev.uniqueid,
-          });
-        }
-        try {
-          await ensureConversation(models, subdomain, session, integration);
-        } catch (e) {
-          debugCall(
-            `ensureConversation deferred for ${ev.uniqueid}: ${e.message}`,
-          );
-        }
-        break;
-      }
-
-      case 'answered':
-      case 'bridged': {
-        const match = matchOperatorByExtension(peers, ev.extension);
-        const userId = match?.operator.userId;
-        const owner =
-          queueOwner ||
-          (await resolveQueueIntegration(
-            models,
-            integration,
-            session?.queueName,
-          )) ||
-          match?.integration ||
-          integration;
-        if (ev.extension) {
-          await models.CallSessions.markAnswered(
-            ev.uniqueid,
-            ev.extension,
-            userId,
-          );
-        }
-        if (match && session.inboxIntegrationId !== owner.inboxId) {
-          await models.CallSessions.updateOne(
-            { uniqueid: ev.uniqueid },
-            {
-              $set: {
-                inboxIntegrationId: owner.inboxId,
-                operatorPhone: owner.phone,
+          const userId = match?.operator.userId;
+          const owner =
+            queueOwner ||
+            (await resolveQueueIntegration(
+              models,
+              integration,
+              session.queueName,
+            )) ||
+            match?.integration ||
+            integration;
+          if (ev.extension) {
+            await models.CallSessions.markAnswered(
+              ev.uniqueid,
+              ev.extension,
+              userId,
+            );
+          }
+          if (
+            match &&
+            !isSessionFinished(session) &&
+            session.inboxIntegrationId !== owner.inboxId
+          ) {
+            await models.CallSessions.updateOne(
+              { uniqueid: ev.uniqueid },
+              {
+                $set: {
+                  inboxIntegrationId: owner.inboxId,
+                  operatorPhone: owner.phone,
+                },
               },
-            },
-          );
+            );
+          }
+          session = (await findSession(models, ev.uniqueid)) || session;
+          try {
+            await ensureConversation(models, subdomain, session, owner, userId);
+          } catch (e) {
+            debugCall(
+              `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
+            );
+          }
+          break;
         }
-        session = await models.CallSessions.findOne({
-          uniqueid: ev.uniqueid,
-        });
-        try {
-          await ensureConversation(models, subdomain, session, owner, userId);
-        } catch (e) {
-          debugCall(
-            `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
-          );
-        }
-        break;
-      }
 
-      case 'noanswer': {
-        if (ev.extension) {
-          await models.CallSessions.attachOperator(ev.uniqueid, {
-            extensionNumber: ev.extension,
-            state: 'noanswer',
+        case 'noanswer': {
+          if (ev.extension) {
+            await models.CallSessions.attachOperator(ev.uniqueid, {
+              extensionNumber: ev.extension,
+              state: 'noanswer',
+            });
+            session = (await findSession(models, ev.uniqueid)) || session;
+          }
+          break;
+        }
+
+        case 'hangup': {
+          await models.CallSessions.markEnded(ev.uniqueid, {
+            endedAt: parseCdrDate(ev.endedAt) || new Date(),
+            hangupCause: ev.hangupCause,
           });
-          session = await models.CallSessions.findOne({
-            uniqueid: ev.uniqueid,
-          });
+          session = (await findSession(models, ev.uniqueid)) || session;
+          break;
         }
-        break;
       }
 
-      case 'hangup': {
-        await models.CallSessions.markEnded(ev.uniqueid, {
-          endedAt: parseCdrDate(ev.endedAt) || new Date(),
-          hangupCause: ev.hangupCause,
-        });
-        session = await models.CallSessions.findOne({
-          uniqueid: ev.uniqueid,
-        });
-        break;
-      }
-    }
-
-    await publishSession(subdomain, session, integration, peers);
-    return {
-      status: 'ok',
-      uniqueid: ev.uniqueid,
-      sessionStatus: session?.status,
-    };
-  } finally {
-    for (const held of [customerLock, lock]) {
-      try {
-        await held?.release();
-      } catch (e) {
-        console.error('handleCallEvent: lock release failed', e);
-      }
-    }
-  }
+      await publishSession(subdomain, session, integration, peers);
+      return {
+        status: 'ok',
+        uniqueid: ev.uniqueid,
+        sessionStatus: session.status,
+      };
+    });
+  });
 };
 
 export interface IUcmCallPayload {
@@ -480,7 +499,7 @@ const ucmPayloadToCallEvent = (p: IUcmCallPayload): ICallEventPayload => {
     extension: p.extension || undefined,
     channel: p.channel || undefined,
     startedAt: p.at || undefined,
-    raw: p as Record<string, any>,
+    raw: { ...p },
   };
 };
 
@@ -488,7 +507,7 @@ export const handleReceiveCall = async (
   models: IModels,
   subdomain: string,
   payload: IUcmCallPayload,
-  verifiedIntegration?: any,
+  verifiedIntegration?: ICallIntegrationDocument,
 ) => {
   if (!payload?.uniqueid) {
     throw new Error('uniqueid required');
@@ -504,5 +523,3 @@ export const handleReceiveCall = async (
     verifiedIntegration,
   );
 };
-
-void sendTRPCMessage;

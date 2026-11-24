@@ -16,22 +16,30 @@ export const ReportRunSheet = ({
   report,
   open,
   onOpenChange,
+  defaultValues,
+  onRun,
 }: {
   report: { _id: string; name: string };
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultValues?: ReportRunSettings;
+  onRun?: (settings: ReportRunSettings) => void;
 }) => {
   const { t } = useReportTranslation();
   const form = useForm<ReportRunSettings>({
     resolver: zodResolver(getReportRunSchema(t)),
-    defaultValues: defaultReportRunSettings(),
+    defaultValues: defaultValues ?? defaultReportRunSettings(),
   });
   const submit = form.handleSubmit((settings) => {
-    window.open(
-      reportRunPath(report._id, settings),
-      '_blank',
-      'noopener,noreferrer',
-    );
+    if (onRun) {
+      onRun(settings);
+    } else {
+      window.open(
+        reportRunPath(report._id, settings),
+        '_blank',
+        'noopener,noreferrer',
+      );
+    }
     onOpenChange(false);
   });
   return (

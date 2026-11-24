@@ -57,7 +57,7 @@ export function CallConversationDetail() {
   useEffect(() => {
     setIsInternalNote(true);
     setOnlyInternal(true);
-  }, []);
+  }, [setIsInternalNote, setOnlyInternal]);
 
   const syncRecord = async (
     acctId?: string | null,
@@ -102,9 +102,9 @@ export function CallConversationDetail() {
       : safeFormatDate(date, 'yyyy-MM-dd HH:mm:ss');
   };
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
       {callHistoryDetail && (
-        <div className="flex flex-col max-w-[648px] mx-auto p-6">
+        <div className="flex shrink-0 flex-col w-full max-w-[648px] mx-auto p-6">
           <div className="flex gap-5 items-end">
             <CustomersInline.Provider
               customerIds={[conversationDetail?.customerId || '']}
@@ -170,16 +170,18 @@ export function CallConversationDetail() {
                   </div>
                 </div>
                 {recordUrl && (
-                  <audio controls className="w-full">
-                    <source src={getRecordingUrl(recordUrl)} type="audio/wav" />
-                    {t('audio-not-supported')}
-                  </audio>
+                  <audio
+                    key={recordUrl}
+                    controls
+                    src={getRecordingUrl(recordUrl)}
+                    className="w-full"
+                  />
                 )}
                 <div className="font-medium">
                   <Button
                     id="cdrRecordUrl"
                     size="sm"
-                    disabled={syncFileLoading}
+                    disabled={syncFileLoading || !acctId || !inboxIntegrationId}
                     onClick={() => {
                       syncRecord(acctId, inboxIntegrationId);
                     }}
@@ -194,7 +196,9 @@ export function CallConversationDetail() {
           </div>
         </div>
       )}
-      <CallConversationNotes />
-    </>
+      <div className="min-h-0 flex-1">
+        <CallConversationNotes />
+      </div>
+    </div>
   );
 }

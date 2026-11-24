@@ -35,8 +35,17 @@ import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
-import { TR_STATUS_OPTIONS } from '@/transactions/types/constants';
+import {
+  TR_STATUS_LABELS,
+  TR_STATUSES,
+} from '@/transactions/types/constants';
 import { useTranslation } from 'react-i18next';
+
+// Generated transactions carry no approvers, so they never start as an
+// approval request.
+const SYNC_TR_STATUS_VALUES = TR_STATUSES.ALL.filter(
+  (value) => value !== TR_STATUSES.REQUESTED,
+);
 
 export interface IUsePipelineResetForm {
   boardId?: string;
@@ -270,9 +279,9 @@ export const SyncConfigGeneralFields = <
         render={({ field }) => (
           <SelectFieldContent
             label={t('tr-status-label')}
-            options={TR_STATUS_OPTIONS.map((s) => ({
-              value: s.value,
-              label: t(s.label || '', { nsSeparator: false }),
+            options={SYNC_TR_STATUS_VALUES.map((value) => ({
+              value,
+              label: t(TR_STATUS_LABELS[value]),
             }))}
             field={field}
           />

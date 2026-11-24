@@ -11,7 +11,7 @@ import { extractPhoneNumberFromCounterpart } from '@/integrations/call/utils/cal
 import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
 import { IconPhone, IconPhoneEnd } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl, toast } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
@@ -22,37 +22,39 @@ export const IncomingCallAudio = () => {
     keyPrefix: 'modules.integrations',
   });
   const audioRef = useRef<HTMLAudioElement>(null);
+  const tRef = useRef(t);
+  tRef.current = t;
   const sip = useAtomValue(sipStateAtom);
-  useEffect(() => {
-    if (
-      sip?.callStatus === CallStatusEnum.STARTING &&
-      sip.callDirection === CallDirectionEnum.INCOMING
-    ) {
-      if (audioRef.current) {
-        audioRef.current.src = getPluginAssetsUrl(
-          'frontline',
-          'sound/incoming.mp3',
-        );
-        audioRef.current.loop = true;
-        audioRef.current.play().catch(() => {
-          if (audioRef.current) {
-            audioRef.current.src = '';
-          }
-          toast({
-            title: t('ringtone-blocked'),
-            variant: 'warning',
-          });
-        });
-      }
-    } else {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
-    }
-  }, [sip?.callStatus, sip?.callDirection, t]);
+  const ringing =
+    sip?.callStatus === CallStatusEnum.STARTING &&
+    sip.callDirection === CallDirectionEnum.INCOMING;
 
-  return <audio ref={audioRef} loop autoPlay />;
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!ringing || !audio) return;
+
+    let cancelled = false;
+    audio.src = getPluginAssetsUrl('frontline', 'sound/incoming.mp3');
+    audio.loop = true;
+    audio.play().catch((err) => {
+      // A pause() from the cleanup also rejects play(); only a browser
+      // autoplay block is worth telling the user about.
+      if (cancelled || err?.name !== 'NotAllowedError') return;
+      toast({
+        title: tRef.current('ringtone-blocked'),
+        variant: 'warning',
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+    };
+  }, [ringing]);
+
+  return <audio ref={audioRef} loop />;
 };
 
 export const IncomingCall = ({
@@ -74,27 +76,17 @@ export const IncomingCall = ({
   const phoneNumber = extractPhoneNumberFromCounterpart(
     sipState.callCounterpart || '',
   );
-  const [callConfig] = useAtom(callConfigAtom);
+  const callConfig = useAtomValue(callConfigAtom);
 
-  const { answerCall, stopCall } = useSip();
+  const { answerCall, answering, stopCall } = useSip();
+  const inboxId = callConfig?.inboxId;
+  const { groupName } = sipState;
 
   useEffect(() => {
     if (phoneNumber) {
-      addCustomer(callConfig?.inboxId || '', phoneNumber, sipState.groupName);
+      addCustomer(inboxId || '', phoneNumber, groupName);
     }
-  }, [phoneNumber]);
-
-  const onAcceptCall = () => {
-    if (answerCall && sipState?.callStatus !== CallStatusEnum.IDLE) {
-      answerCall();
-    }
-  };
-
-  const onDeclineCall = () => {
-    if (stopCall) {
-      stopCall();
-    }
-  };
+  }, [phoneNumber, inboxId, groupName, addCustomer]);
 
   return (
     <>
@@ -115,7 +107,7 @@ export const IncomingCall = ({
         <Button
           variant="secondary"
           className="text-destructive bg-destructive/10 hover:bg-destructive/15"
-          onClick={onDeclineCall}
+          onClick={stopCall}
         >
           <IconPhoneEnd />
           {t('decline')}
@@ -123,7 +115,8 @@ export const IncomingCall = ({
         <Button
           variant="secondary"
           className="text-success bg-success/10 hover:bg-success/15"
-          onClick={onAcceptCall}
+          onClick={answerCall}
+          disabled={answering}
         >
           <IconPhone />
           {t('answer')}

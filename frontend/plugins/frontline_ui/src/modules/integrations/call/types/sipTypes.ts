@@ -32,14 +32,7 @@ export interface ExtraHeaders {
   invite?: string[];
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/API/RTCIceServer
-export type IceServers = {
-  urls: string | string[];
-  username?: string;
-  credential?: string;
-  credentialType?: string;
-  password?: string;
-}[];
+export type IceServers = RTCIceServer[];
 
 export interface Sip {
   status?: SipStatusEnum;
@@ -75,27 +68,30 @@ export interface SipProviderProps {
   autoRegister?: boolean;
   autoAnswer?: boolean;
   iceRestart?: boolean;
-  historyId?: string | null;
   sessionTimersExpires?: number;
   extraHeaders?: ExtraHeaders;
   iceServers?: IceServers;
   debug?: boolean;
 }
+export interface ReconnectSipOptions {
+  /** Register after connecting; defaults to the saved Turn on/off choice. */
+  register?: boolean;
+}
+
 export interface SipContextValue {
   registerSip: () => void;
   unregisterSip: () => void;
-  reconnectSip: () => void;
+  reconnectSip: (options?: ReconnectSipOptions) => void;
   answerCall: () => void;
+  /** True while Answer is in flight for the ringing session. */
+  answering: boolean;
   startCall: (destination: string) => void;
   stopCall: () => void;
-  isMuted: () => boolean;
+  muted: boolean;
   mute: () => void;
   unmute: () => void;
   sendDtmf: (tones: string) => void;
-  isHeld: () => {
-    localHold: boolean;
-    remoteHold: boolean;
-  };
+  held: boolean;
   hold: () => void;
   unhold: () => void;
 }

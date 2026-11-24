@@ -2,6 +2,7 @@ import { useQuery, useSubscription } from '@apollo/client';
 import { isDefined, useQueryState } from 'erxes-ui';
 import { getCallConversationNotes } from '@/integrations/call/graphql/queries/callConversationNoteQueries';
 import { CALL_CONVERSATION_NOTE_INSERTED } from '@/integrations/call/graphql/subscriptions/subscriptions';
+import { useState } from 'react';
 
 export const CALL_CONVERSATION_NOTES_LIMIT = 20;
 
@@ -21,29 +22,45 @@ export const useCallConversationNotes = () => {
   );
 
   const callConversationNotes = data?.callConversationNotes?.filter(isDefined);
+  // The conversation whose oldest note has been reached.
+  const [exhaustedConversationId, setExhaustedConversationId] = useState<
+    string | null
+  >(null);
+  const hasMore =
+    !!conversationId &&
+    exhaustedConversationId !== conversationId &&
+    (callConversationNotes?.length ?? 0) >= CALL_CONVERSATION_NOTES_LIMIT;
 
   const handleFetchMore = () => {
-    if (
-      callConversationNotes?.length &&
-      callConversationNotes.length % CALL_CONVERSATION_NOTES_LIMIT === 0
-    ) {
-      fetchMore({
-        variables: {
-          skip: callConversationNotes.length,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) {
-            return prev;
-          }
-          return {
-            callConversationNotes: [
-              ...(fetchMoreResult.callConversationNotes ?? []),
-              ...(prev.callConversationNotes ?? []),
-            ],
-          };
-        },
-      });
-    }
+    if (!hasMore || !conversationId || !callConversationNotes) return;
+    return fetchMore({
+      variables: {
+        conversationId,
+        limit: CALL_CONVERSATION_NOTES_LIMIT,
+        skip: callConversationNotes.length,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        const older = fetchMoreResult?.callConversationNotes?.filter(isDefined);
+        if (!older?.length) return prev;
+        const known = new Set(
+          prev.callConversationNotes?.map((note) => note?._id),
+        );
+        return {
+          ...prev,
+          callConversationNotes: [
+            ...older.filter((note) => !known.has(note._id)),
+            ...(prev.callConversationNotes ?? []),
+          ],
+        };
+      },
+    }).then(({ data: page }) => {
+      if (
+        (page?.callConversationNotes?.length ?? 0) <
+        CALL_CONVERSATION_NOTES_LIMIT
+      ) {
+        setExhaustedConversationId(conversationId);
+      }
+    });
   };
 
   useSubscription(CALL_CONVERSATION_NOTE_INSERTED, {
@@ -102,6 +119,8 @@ export const useCallConversationNotes = () => {
 
   return {
     callConversationNotes,
+    conversationId,
+    hasMore,
     handleFetchMore,
     loading,
     error,

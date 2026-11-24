@@ -65,6 +65,11 @@ const transactionFields = `
 `;
 
 export const types = () => `
+  enum AccountingTransactionDecision {
+    APPROVE
+    DECLINE
+  }
+
   type AccTrDetail {
     ${trDetailFields}
 
@@ -157,6 +162,20 @@ export const types = () => `
     totalCount: Int,
   }
 
+  type AccTransactionsListChange {
+    trIds: [String]
+    list: [AccCommonTransaction]
+    hasMore: Boolean
+    totalCount: Int
+  }
+
+  type AccTrRecordsListChange {
+    trIds: [String]
+    list: [AccCommonTrRecord]
+    hasMore: Boolean
+    totalCount: Int
+  }
+
   input CommonTrDetailInput {
     ${trDetailFields}
   }
@@ -206,6 +225,7 @@ const trsQueryParams = `
   journal: String,
   journals: [String],
   statuses: [String],
+  navStatus: String,
   relAccounts: [String],
 
   createdUserId: String,
@@ -266,6 +286,7 @@ export const queries = `
 export const mutations = `
   accTransactionsCreate(trDocs: [TransactionInput!]!): [AccCommonTransaction]
   accTransactionsUpdate(parentId: String!, trDocs: [TransactionInput!]!): [AccCommonTransaction]
+  accTransactionsDecide(parentId: String!, decision: AccountingTransactionDecision!): [AccCommonTransaction]
   accTransactionsRemove(parentId: String, ptrId: String): JSON
 
   accTransactionsLink(trIds: [String!]!, ptrId: String!): [AccCommonTransaction]

@@ -35,7 +35,7 @@ export const CallContacts = () => {
     },
   });
   return (
-    <Command>
+    <Command shouldFilter={false}>
       <div className="p-3">
         <Command.Input
           asChild
@@ -51,43 +51,52 @@ export const CallContacts = () => {
       <Command.List className="p-3 flex-auto max-h-full h-96 overflow-auto">
         <Command.Empty />
         {!loading &&
-          customersData.map((customer) => (
-            <Command.Item key={customer._id} value={customer._id}>
-              <CustomersInline
-                customers={[customer]}
-                placeholder={t('unnamed-customer')}
-              />
-              {[customer.primaryPhone, ...(customer.phones || [])].filter(
-                (phone) => phone,
-              ).length > 0 && (
-                <DropdownMenu>
-                  <DropdownMenu.Trigger asChild>
-                    <Button variant="secondary" className="ml-auto" size="icon">
-                      <IconPhone />
-                    </Button>
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content>
-                    {[customer.primaryPhone, ...(customer.phones || [])].map(
-                      (phone) => (
+          customersData.map((customer) => {
+            const phones = Array.from(
+              new Set(
+                [customer.primaryPhone, ...(customer.phones || [])].filter(
+                  (phone): phone is string => !!phone?.trim(),
+                ),
+              ),
+            );
+            return (
+              <Command.Item key={customer._id} value={customer._id}>
+                <CustomersInline
+                  customers={[customer]}
+                  placeholder={t('unnamed-customer')}
+                />
+                {phones.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenu.Trigger asChild>
+                      <Button
+                        variant="secondary"
+                        className="ml-auto"
+                        size="icon"
+                      >
+                        <IconPhone />
+                      </Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content>
+                      {phones.map((phone) => (
                         <DropdownMenu.Item
                           onClick={() => {
                             setCallUi('keypad');
-                            setPhone(phone || '');
+                            setPhone(phone);
                           }}
                           key={phone}
                         >
                           {formatPhoneNumber({
-                            value: phone || '',
+                            value: phone,
                             defaultCountry: 'MN',
                           })}
                         </DropdownMenu.Item>
-                      ),
-                    )}
-                  </DropdownMenu.Content>
-                </DropdownMenu>
-              )}
-            </Command.Item>
-          ))}
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu>
+                )}
+              </Command.Item>
+            );
+          })}
         {!loading && (
           <Combobox.FetchMore
             fetchMore={handleFetchMore}

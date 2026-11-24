@@ -2,7 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { IAdjustFxaDetail } from '../@types/adjustFixedAsset';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { ITransaction, ITrDetailFollowInfos } from '../@types/transaction';
-import { JOURNALS, TR_INVENTORY_STATUS_TYPES } from '../@types/constants';
+import { JOURNALS, TRANSACTION_STATUS_TYPES } from '../@types/constants';
 
 const money = (value: number): number => Math.round(value * 10000) / 10000;
 
@@ -132,7 +132,7 @@ export const getFxaRevaluationStates = async (
         JOURNALS.FXA_SALE,
       ],
     },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     ...(excludeTransactionId ? { _id: { $ne: excludeTransactionId } } : {}),
     date: {
       $lt: through,

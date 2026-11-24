@@ -6,7 +6,7 @@ import { IModels } from '~/connectionResolvers';
 import {
   ACCOUNT_JOURNALS,
   JOURNALS,
-  TR_INVENTORY_STATUS_TYPES,
+  TRANSACTION_STATUS_TYPES,
   TR_FOLLOW_TYPES,
   TR_SIDES,
 } from '../@types/constants';
@@ -370,7 +370,7 @@ const findLaterCapitalDependency = (
         JOURNALS.FXA_SALE,
       ],
     },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    status: { $in: TRANSACTION_STATUS_TYPES.REAL_STATUSES },
     'details.fixedAssetId': {
       $in: [...new Set(fixedAssetIds.filter(Boolean))],
     },

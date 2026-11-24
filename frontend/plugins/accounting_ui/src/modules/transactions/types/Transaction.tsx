@@ -43,6 +43,7 @@ export const trsQueryParamTypes: { [key: string]: string } = {
   currency: 'string',
   journal: 'string',
   statuses: 'string[]',
+  navStatus: 'string',
   createdUserId: 'string',
   modifiedUserId: 'string',
   date: 'startDate,endDate',

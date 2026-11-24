@@ -26,8 +26,10 @@ jest.mock('@/integrations/call/utils', () => ({
     ),
 }));
 jest.mock('@/integrations/call/redlock', () => ({
-  redlock: { acquire: async () => ({ release: async () => undefined }) },
-  acquireCustomerLock: async () => null,
+  withSessionLock: (_s: string, _k: unknown, routine: () => unknown) =>
+    routine(),
+  withCustomerLock: (_s: string, _p: unknown, routine: () => unknown) =>
+    routine(),
 }));
 jest.mock('@/integrations/call/store', () => ({
   getOrCreateCustomer: async () => ({ erxesApiId: 'customer' }),

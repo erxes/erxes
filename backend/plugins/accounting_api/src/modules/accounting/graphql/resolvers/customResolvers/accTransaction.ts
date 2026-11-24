@@ -1,6 +1,10 @@
 import { ITransactionDocument } from '@/accounting/@types/transaction';
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import {
+  EMPTY_PTR_INFO,
+  summarizePtr,
+} from '@/accounting/utils/transactionListRows';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
@@ -152,13 +156,7 @@ export default {
 
   async ptrInfo(transaction: ITransactionDocument, _, { models }: IContext) {
     if (!transaction.ptrId) {
-      return {
-        len: 0,
-        activeLen: 0,
-        status: 'None',
-        diff: 0,
-        value: 0,
-      };
+      return EMPTY_PTR_INFO;
     }
 
     const perPtrTrs = await models.Transactions.find(
@@ -172,14 +170,6 @@ export default {
       },
     ).lean();
 
-    const debit = perPtrTrs?.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
-    const credit = perPtrTrs?.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
-    return {
-      len: perPtrTrs.length,
-      activeLen: perPtrTrs.filter((tr) => !tr.originId).length,
-      status: perPtrTrs[0].ptrStatus,
-      diff: fixNum(Math.abs(debit - credit), 4),
-      value: fixNum(Math.max(debit, credit), 4),
-    };
+    return summarizePtr(perPtrTrs);
   },
 };

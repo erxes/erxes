@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { useWatch } from 'react-hook-form';
-import { Input, Spinner } from 'erxes-ui';
-import { ReportForm, ChoiceSetting, Choice } from '@/tunable-reports/fields';
+import { useDebounce } from 'use-debounce';
+import { Form, Table } from 'erxes-ui';
+import { ReportForm } from '@/tunable-reports/fields';
 import { REPORT_DETAIL, REPORT_LIST } from '@/tunable-reports/graphql';
 import { useReportTranslation } from '@/tunable-reports/locales';
+import { ReferenceSelect } from '@/tunable-reports/ReferenceSelect';
+
+const INHERIT = '__inherit';
 
 export const FormulaReferenceFields = ({
   form,
@@ -25,17 +29,17 @@ export const FormulaReferenceFields = ({
   const source = useWatch({ control: form.control, name: path });
   const sections = useWatch({ control: form.control, name: 'sections' });
   const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearch] = useDebounce(searchValue, 300);
   const list = useQuery(REPORT_LIST, {
-    variables: { page: 1, perPage: 100, searchValue },
+    variables: { page: 1, perPage: 100, searchValue: debouncedSearch },
   });
   const external = !!source?.reportId && source.reportId !== currentReportId;
   const detail = useQuery(REPORT_DETAIL, {
     variables: { _id: source?.reportId || '' },
     skip: !external,
   });
-  const sourceSections = external
-    ? detail.data?.accountingTunableReportDetail.sections ?? []
-    : sections;
+  const externalReport = detail.data?.accountingTunableReportDetail;
+  const sourceSections = external ? externalReport?.sections ?? [] : sections;
   const compatibleSections = sourceSections.filter(
     (section) => section.formulaType === sections[sectionIndex]?.formulaType,
   );
@@ -50,76 +54,95 @@ export const FormulaReferenceFields = ({
       { shouldDirty: true },
     );
   return (
-    <div className="min-w-80 space-y-2">
-      <div className="grid grid-cols-2 gap-2">
-        <div className="space-y-2">
-          <p className="text-sm">{t('sourceReport')}</p>
-          <Input
-            aria-label={t('search')}
-            placeholder={t('search')}
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-          />
-          <Choice
-            label={t('sourceReport')}
-            value={source?.reportId || '__inherit'}
-            options={[
-              { value: '__inherit', label: t('sameReport') },
-              ...(list.data?.accountingTunableReports.list ?? [])
-                .filter((report) => report._id !== currentReportId)
-                .map((report) => ({
-                  value: report._id,
-                  label: `${report.code} ${report.name}`,
-                })),
-            ]}
-            onChange={(id) => setSource(id === '__inherit' ? undefined : id)}
-          />
-          {list.loading && <Spinner size="sm" />}
-          {list.error && <p role="alert">{list.error.message}</p>}
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm">{t('sourceSection')}</p>
-          <Choice
-            label={t('sourceSection')}
-            value={source?.sectionId || '__inherit'}
-            options={[
-              ...(!external
-                ? [{ value: '__inherit', label: t('sameSection') }]
-                : []),
-              ...compatibleSections.map((section) => ({
-                value: section._id,
-                label: section.name || t('section'),
-              })),
-            ]}
-            onChange={(id) =>
-              setSource(source?.reportId, id === '__inherit' ? undefined : id)
-            }
-          />
-          {detail.loading && <Spinner size="sm" />}
-          {detail.error && <p role="alert">{detail.error.message}</p>}
-        </div>
-        <ChoiceSetting
-          form={form}
-          name={`${path}.rowId`}
-          label={t('source')}
-          options={(sourceSection?.rows ?? []).map((row) => ({
-            value: row._id,
-            label: `${row.number || ''} ${row.name || t('formulaRow')}`,
-          }))}
-        />
-        <ChoiceSetting
-          form={form}
-          name={`${path}.columnId`}
-          label={t('sourceColumn')}
+    <>
+      <Table.Cell className="border-l">
+        <ReferenceSelect
+          scope={`${path}.reportId`}
+          label={t('sourceReport')}
+          value={source?.reportId || INHERIT}
+          selectedLabel={
+            externalReport && `${externalReport.code} ${externalReport.name}`
+          }
+          search={{
+            value: searchValue,
+            placeholder: t('search'),
+            onChange: setSearchValue,
+          }}
+          loading={list.loading}
+          error={list.error}
           options={[
-            { value: '__inherit', label: t('periodContext') },
-            ...(sourceSection?.columns ?? []).map((column) => ({
-              value: column._id,
-              label: column.name || t('columns'),
+            { value: INHERIT, label: t('sameReport') },
+            ...(list.data?.accountingTunableReports.list ?? [])
+              .filter((report) => report._id !== currentReportId)
+              .map((report) => ({
+                value: report._id,
+                label: `${report.code} ${report.name}`,
+              })),
+          ]}
+          onChange={(id) => setSource(id === INHERIT ? undefined : id)}
+        />
+      </Table.Cell>
+      <Table.Cell>
+        <ReferenceSelect
+          scope={`${path}.sectionId`}
+          label={t('sourceSection')}
+          value={source?.sectionId || INHERIT}
+          loading={detail.loading}
+          error={detail.error}
+          options={[
+            ...(!external ? [{ value: INHERIT, label: t('sameSection') }] : []),
+            ...compatibleSections.map((section) => ({
+              value: section._id,
+              label: section.name || t('section'),
             })),
           ]}
+          onChange={(id) =>
+            setSource(source?.reportId, id === INHERIT ? undefined : id)
+          }
         />
-      </div>
-    </div>
+      </Table.Cell>
+      <Table.Cell>
+        <Form.Field
+          control={form.control}
+          name={`${path}.rowId`}
+          render={({ field }) => (
+            <Form.Item className="space-y-0">
+              <ReferenceSelect
+                scope={field.name}
+                label={t(operand)}
+                value={field.value}
+                options={(sourceSection?.rows ?? []).map((row) => ({
+                  value: row._id,
+                  label: `${row.number || ''} ${row.name || t('formulaRow')}`,
+                }))}
+                onChange={field.onChange}
+              />
+              <Form.Message className="px-2 pb-1" />
+            </Form.Item>
+          )}
+        />
+      </Table.Cell>
+      <Table.Cell className="border-r">
+        <Form.Field
+          control={form.control}
+          name={`${path}.columnId`}
+          render={({ field }) => (
+            <ReferenceSelect
+              scope={field.name}
+              label={t('sourceColumn')}
+              value={field.value || INHERIT}
+              options={[
+                { value: INHERIT, label: t('periodContext') },
+                ...(sourceSection?.columns ?? []).map((column) => ({
+                  value: column._id,
+                  label: column.name || t('columns'),
+                })),
+              ]}
+              onChange={(id) => field.onChange(id === INHERIT ? undefined : id)}
+            />
+          )}
+        />
+      </Table.Cell>
+    </>
   );
 };

@@ -73,6 +73,8 @@ function handleCoreCustomerField(
   value: any,
   customerDoc: any,
 ) {
+  if (value === '') return;
+
   switch (fieldName) {
     case 'avatar':
       if (Array.isArray(value) && value.length > 0) {
@@ -141,8 +143,16 @@ async function saveFormSubmissions(
   const groupId = nanoid();
   const submissionDocs = submissions.map((submission, index) => {
     let value: unknown = submission.value || '';
-    if (submission.validation === 'number') value = Number(submission.value);
-    if (submission.validation === 'datetime' || submission.validation === 'date')
+    const answered =
+      submission.value !== undefined &&
+      submission.value !== null &&
+      submission.value !== '';
+    if (answered && submission.validation === 'number')
+      value = Number(submission.value);
+    if (
+      answered &&
+      (submission.validation === 'datetime' || submission.validation === 'date')
+    )
       value = new Date(submission.value as string | number);
     if (submission.validation === 'email' && typeof value === 'string')
       value = value.toLowerCase();

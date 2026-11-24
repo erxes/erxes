@@ -1,5 +1,6 @@
+import type { FilterQuery } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   integrationForQueue,
   queueFromActionType,
@@ -8,12 +9,18 @@ import {
 } from '@/integrations/call/services/queueRouting';
 import { debugCall } from '@/integrations/call/debuggers';
 import {
+  ICdrParams,
   determinePrimaryPhone,
   findOrCreateCdr,
   getConversationContent,
   isHumanAnsweredLeg,
   parseCdrDate,
+  syncCdrRecording,
 } from '@/integrations/call/services/cdrUtils';
+import {
+  findIntegrationByTrunk,
+  publishSession,
+} from '@/integrations/call/services/callEventService';
 import {
   findPeerIntegrations,
   matchCdrOperator,
@@ -21,10 +28,10 @@ import {
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { acquireCustomerLock, redlock } from '@/integrations/call/redlock';
+import { withCustomerLock, withSessionLock } from '@/integrations/call/redlock';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
+import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
 
-const CDR_LOCK_TTL_MS = 20_000;
 const FOLLOWME_OVERLAP_BUFFER_MS = 60_000;
 const LEG_OVERLAP_BUFFER_MS = 10_000;
 
@@ -92,20 +99,19 @@ const findOverlappingLeg = async (
 
 export const receiveCdr = async (
   models: IModels,
-  subdomain,
-  params,
-  verifiedIntegration?: any,
+  subdomain: string,
+  params: ICdrParams,
+  verifiedIntegration?: ICallIntegrationDocument,
 ) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
   const matched =
     verifiedIntegration ||
-    (await models.CallIntegrations.findOne({
-      $or: [
-        { srcTrunk: params.src_trunk_name },
-        { dstTrunk: params.dst_trunk_name },
-      ],
-    }));
-  if (!matched) return;
+    (await findIntegrationByTrunk(
+      models,
+      params.src_trunk_name,
+      params.dst_trunk_name,
+    ));
+  if (!matched) return null;
 
   const queueOwner = await resolveQueueIntegration(
     models,
@@ -113,53 +119,42 @@ export const receiveCdr = async (
     queueFromActionType(params.action_type),
   );
   const integration = queueOwner || matched;
-  if (queueOwner && params.uniqueid) {
-    await rehomeCallRecords(
-      models,
-      { uniqueid: params.uniqueid, linkedid: params.linkedid },
-      queueOwner.inboxId,
-      queueOwner.phone,
-    );
-  }
 
-  if (params.uniqueid) {
-    const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
-    let lock;
-    try {
-      lock = await redlock.acquire([lockKey], CDR_LOCK_TTL_MS);
-    } catch (e) {
-      throw new Error(
-        `receiveCdr lock failure for ${params.uniqueid}: ${e.message}`,
-      );
-    }
-
-    const customerLock = await acquireCustomerLock(
-      subdomain,
-      integration.inboxId,
-      determinePrimaryPhone(params),
-    );
-
-    try {
-      return await processCdrLocked(models, subdomain, params, integration);
-    } finally {
-      for (const held of [customerLock, lock]) {
-        try {
-          await held?.release();
-        } catch (e) {
-          console.error('receiveCdr: lock release failed', e);
-        }
+  const result = await withSessionLock(subdomain, params, () =>
+    withCustomerLock(subdomain, determinePrimaryPhone(params), async () => {
+      if (queueOwner && params.uniqueid) {
+        await rehomeCallRecords(
+          models,
+          { uniqueid: params.uniqueid, linkedid: params.linkedid },
+          queueOwner.inboxId,
+          queueOwner.phone,
+        );
       }
-    }
+      return processCdrLocked(models, subdomain, params, integration);
+    }),
+  );
+
+  // The recording download and upload can take minutes on a large WAV, so it
+  // runs after the CDR and session are saved and the PBX has its answer.
+  if (result.created) {
+    syncCdrRecording(models, subdomain, params, integration.inboxId).catch(
+      (error) => {
+        console.error(
+          `[call] recording sync failed for CDR ${params.AcctId}:`,
+          error,
+        );
+      },
+    );
   }
 
-  return processCdrLocked(models, subdomain, params, integration);
+  return 'success';
 };
 
 const processCdrLocked = async (
   models: IModels,
   subdomain: string,
-  params: any,
-  integration: any,
+  params: ICdrParams,
+  integration: ICallIntegrationDocument,
 ) => {
   const inboxId = integration.inboxId;
   const queueRouted = Boolean(
@@ -207,7 +202,7 @@ const processCdrLocked = async (
 
   let existingSession: ICallSessionDocument | null = null;
   if (params.uniqueid) {
-    const sessionSelectors: any[] = [
+    const sessionSelectors: FilterQuery<ICallSessionDocument>[] = [
       { uniqueid: params.uniqueid },
       { linkedid: params.uniqueid },
     ];
@@ -338,7 +333,6 @@ const processCdrLocked = async (
 
   const { cdr, created } = await findOrCreateCdr(
     models,
-    subdomain,
     params,
     inboxId,
     conversationId,
@@ -412,19 +406,7 @@ const processCdrLocked = async (
       const updatedSession = await models.CallSessions.findOne({
         uniqueid: sessionUniqueid,
       });
-      if (updatedSession) {
-        const sessionPayload = {
-          callSessionUpdated: {
-            ...updatedSession.toObject(),
-            inboxIntegrationId: inboxId,
-            subdomain,
-          },
-        };
-        await graphqlPubsub.publish(
-          `callSessionUpdated:uniqueid:${sessionUniqueid}`,
-          sessionPayload,
-        );
-      }
+      await publishSession(subdomain, updatedSession, integration, peers);
     } catch (e) {
       debugCall(
         `CallSession finalize failed for ${sessionUniqueid}: ${e.message}`,
@@ -432,5 +414,5 @@ const processCdrLocked = async (
     }
   }
 
-  return 'success';
+  return { created };
 };

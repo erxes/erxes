@@ -1,6 +1,7 @@
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithReset, atomWithStorage } from 'jotai/utils';
 import { ICallConfigDoc } from '@/integrations/call/types/callTypes';
 import { atom } from 'jotai';
+import type { RTCSession } from 'jssip/lib/RTCSession';
 import {
   CallStatusEnum,
   ISipState,
@@ -25,7 +26,7 @@ export const callInfoAtom = atomWithStorage<{
   isUnregistered?: boolean;
 } | null>('callInfo', null, undefined, { getOnInit: true });
 
-export const sipStateAtom = atom<ISipState>({
+export const sipStateAtom = atomWithReset<ISipState>({
   sipStatus: SipStatusEnum.DISCONNECTED,
   sipErrorType: null,
   sipErrorMessage: null,
@@ -36,6 +37,6 @@ export const sipStateAtom = atom<ISipState>({
   callId: null,
 });
 
-export const rtcSessionAtom = atom<any>(null);
+export const rtcSessionAtom = atom<RTCSession | null>(null);
 
 export const phoneToCallAtom = atom<string>('');

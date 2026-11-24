@@ -155,6 +155,7 @@ export const CallIntegrationForm = ({
                   )}
                 />
                 <Button
+                  type="button"
                   variant="secondary"
                   size="icon"
                   className="bg-destructive/20 text-destructive mt-6 size-8 hover:bg-destructive/30"
@@ -166,6 +167,7 @@ export const CallIntegrationForm = ({
             </div>
           ))}
           <Button
+            type="button"
             className="col-span-full"
             variant="secondary"
             onClick={() =>
