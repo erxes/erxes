@@ -117,6 +117,7 @@ const RECEIPT = {
   referenceType: 'order',
   referenceId: 'R1',
   currency: 'MNT',
+  recorded: false,
 } satisfies EbarimtReceipt;
 
 const PAGE_INFO = {

@@ -17,7 +17,7 @@ export type SettingsRow = typeof ebarimtSettings.$inferSelect;
 type InvoiceRow = typeof paymentInvoices.$inferSelect;
 
 /** PosAPI takes tögrög only. */
-const RECEIPT_CURRENCY = 'MNT';
+export const RECEIPT_CURRENCY = 'MNT';
 
 /** The invoice's issued receipt: a put that succeeded and wasn't returned or replaced since. */
 export const activeReceipt = async (tx: Db, invoiceId: string) => {

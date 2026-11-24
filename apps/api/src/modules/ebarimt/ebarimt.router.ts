@@ -9,6 +9,7 @@ import {
 } from '~/modules/ebarimt/printTemplates.service';
 import { emailReceipt } from '~/modules/ebarimt/receiptEmail.service';
 import { listReceipts, requestSync, setBuyer } from '~/modules/ebarimt/receipts.service';
+import { recordReceipt } from '~/modules/ebarimt/recordReceipt.service';
 import {
   configs,
   createConfig,
@@ -27,6 +28,7 @@ export const ebarimtRouter = {
     testConnection(input.posApiUrl),
   ),
   receipts: scoped.ebarimt.receipts.handler(({ input }) => listReceipts(db(), input)),
+  recordReceipt: scoped.ebarimt.recordReceipt.handler(({ input }) => recordReceipt(db(), input)),
   sync: scoped.ebarimt.sync.handler(({ input }) => requestSync(db(), input.invoiceId)),
   setBuyer: unscoped.ebarimt.setBuyer.handler(({ input }) => setBuyer(input)),
   findCompany: unscoped.ebarimt.findCompany.handler(({ input }) => findCompany(input.no)),

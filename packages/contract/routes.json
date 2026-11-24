@@ -2736,6 +2736,16 @@
         }
       }
     },
+    "recordReceipt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/receipts/recorded"
+        }
+      }
+    },
     "printTemplates": {
       "~orpc": {
         "errorMap": {},

@@ -36,6 +36,8 @@ export const PAYMENT_ACCESS = {
   'ebarimt.removeConfig': needs('integrations.manage'),
   'ebarimt.testConnection': needs('integrations.manage'),
   'ebarimt.receipts': { member: 'payments.manage', plugin: 'payments:read' },
+  // A plugin that sends its own receipts (`taxReceipts: 'own'`) records them in core's register.
+  'ebarimt.recordReceipt': { plugin: 'payments:write' },
   'ebarimt.sync': { member: 'payments.manage', plugin: 'payments:write' },
   'ebarimt.setBuyer': { member: 'payments.manage', plugin: 'payments:write' },
   'ebarimt.findCompany': { member: 'any', plugin: 'payments:read' },

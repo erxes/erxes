@@ -201,7 +201,7 @@ const send = async (posApiUrl: string, plan: Plan) => {
 /** Records PosAPI's answer; a success makes the receipt it replaced or returned inactive. */
 const record = async (
   tx: Db,
-  invoice: { referenceType: string; referenceId: string },
+  invoice: { id: string; referenceType: string; referenceId: string },
   receipt: ReceiptRow,
   answer: NonNullable<Awaited<ReturnType<typeof send>>>,
 ) => {
@@ -245,7 +245,7 @@ const record = async (
       entityId: row.id,
       payload: {
         receiptId: row.id,
-        invoiceId: row.invoiceId,
+        invoiceId: invoice.id,
         billId: row.billId,
         billDate: row.billDate,
         lottery: row.lottery,

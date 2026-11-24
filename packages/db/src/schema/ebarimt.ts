@@ -92,18 +92,28 @@ export const ebarimtSettings = pgTable(
 );
 
 /**
- * What core sent PosAPI for an invoice. A `put` issues a receipt, or replaces
- * `previousId`'s after a partial refund or a new buyer; a `return` cancels
- * `previousId`'s. A put that was returned or replaced has `inactiveAt`.
- * Amounts are in the smallest unit, as the invoice's. One pending receipt per
- * invoice at a time: it is the lock while PosAPI is asked.
+ * The organisation's eBarimt receipts: what core sent PosAPI for an invoice, and what a plugin
+ * that sends its own (`taxReceipts: 'own'`) sent and recorded here (`source`), with or without an
+ * invoice. A `put` issues a receipt, or replaces `previousId`'s after a partial refund or a new
+ * buyer; a `return` cancels `previousId`'s. A put that was returned or replaced has `inactiveAt`.
+ * Amounts are in the smallest unit, as the invoice's. One pending receipt per invoice at a time:
+ * it is the lock while PosAPI is asked. Core never sends a recorded receipt.
  */
 export const ebarimtReceipts = pgTable(
   'ebarimt_receipts',
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    invoiceId: text().notNull(),
+    /** Null only for a receipt a plugin recorded for a sale with no invoice (a POS cash sale). */
+    invoiceId: text(),
+    /**
+     * The plugin that sent it to its own PosAPI and recorded it, with its record and its key for
+     * the receipt (one row per key); null: core sent it, for the invoice's record.
+     */
+    source: text(),
+    referenceType: text(),
+    referenceId: text(),
+    dedupeKey: text(),
     /**
      * The config that sent it; a return or replacement goes through the same PosAPI. Null for
      * receipts of a setup removed before configs; a config with receipts can't be removed.
@@ -138,6 +148,17 @@ export const ebarimtReceipts = pgTable(
     uniqueIndex('core_ebarimt_receipts_pending_key')
       .on(table.orgId, table.invoiceId)
       .where(sql`${table.status} = 'pending'`),
+    uniqueIndex('core_ebarimt_receipts_dedupe_key')
+      .on(table.orgId, table.source, table.dedupeKey)
+      .where(sql`${table.source} is not null`),
+    index('core_ebarimt_receipts_reference_idx')
+      .on(table.orgId, table.source, table.referenceId)
+      .where(sql`${table.source} is not null`),
+    // Core's receipts belong to an invoice; a recorded one names its plugin, record and key.
+    check(
+      'core_ebarimt_receipts_recorded_check',
+      sql`(${table.source} is null and ${table.invoiceId} is not null and ${table.referenceType} is null and ${table.referenceId} is null and ${table.dedupeKey} is null) or (${table.source} is not null and ${table.referenceType} is not null and ${table.referenceId} is not null and ${table.dedupeKey} is not null)`,
+    ),
     check('core_ebarimt_receipts_kind_check', inList(table.kind, EBARIMT_RECEIPT_KINDS)),
     check('core_ebarimt_receipts_status_check', inList(table.status, EBARIMT_RECEIPT_STATUSES)),
     check('core_ebarimt_receipts_buyer_type_check', inList(table.buyerType, EBARIMT_BUYER_TYPES)),

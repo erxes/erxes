@@ -209,6 +209,10 @@ export const ERRORS = {
   // An eBarimt config that sent receipts: turn it off instead, so they can still be returned.
   EBARIMT_CONFIG_IN_USE: { status: 409 },
   RECEIPT_NOT_PRINTABLE: { status: 409 },
+  // A plugin records only the receipts it sends itself (manifest `taxReceipts: 'own'`).
+  TAX_RECEIPTS_NOT_OWN: { status: 403 },
+  // A recorded return or replacement names a receipt that isn't an issued one still in force.
+  RECEIPT_NOT_IN_FORCE: { status: 409 },
   COMPANY_NOT_FOUND: { status: 404 },
   TAX_OFFICE_UNAVAILABLE: { status: 503 },
 

@@ -256,6 +256,8 @@ export * from './ebarimt';
 
 export * from './ebarimtPrint';
 
+export * from './ebarimtReceipts';
+
 export * from './emailSettings';
 
 export * from './emailReplyTos';
