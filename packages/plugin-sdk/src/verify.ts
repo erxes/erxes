@@ -42,9 +42,10 @@ export interface PluginMember {
   bundles: string[];
   /**
    * erxes support on a visit (SaaS): an owner for a few hours. Refuse what would
-   * outlast the visit: credentials, webhooks, forwarding to an address.
+   * outlast the visit (credentials, webhooks, forwarding to an address) when it
+   * is `true`. Verified tokens always set it; members made by hand (tests) may not.
    */
-  support: boolean;
+  support?: boolean;
 }
 
 /**
