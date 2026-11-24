@@ -93,7 +93,7 @@ export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
           <div className="flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <CopyButton text={text} />
           </div>
-          <p className="max-w-5/6 rounded-2xl rounded-br-md border bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
+          <p className="max-w-5/6 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
             <MessageText text={text} mentions={mentionsOf(parts)} />
           </p>
         </div>

@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { i18n, i18nReady } from '~/i18n';
-import { ActivityGroup } from '../Steps';
+import { RunTrace } from '../Steps';
 import { transcriptOf } from '../transcriptRows';
 
 let root: Root | null = null;
@@ -85,9 +86,13 @@ const render = (calls: Call[], live = false) => {
 
   document.body.append(container);
   root = createRoot(container);
-  const steps = createElement(ActivityGroup, { rows: [row], live });
+  const steps = createElement(RunTrace, { rows: [row], live });
 
-  act(() => root?.render(createElement(I18nextProvider, { i18n }, steps)));
+  const translated = createElement(I18nextProvider, { i18n }, steps);
+
+  act(() =>
+    root?.render(createElement(QueryClientProvider, { client: new QueryClient() }, translated)),
+  );
 
   const button = (name: string) => {
     const found = [...container.querySelectorAll('button')].find((item) =>

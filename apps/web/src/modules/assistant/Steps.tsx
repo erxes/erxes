@@ -1,6 +1,6 @@
 import {
   IconAlertTriangle,
-  IconBrain,
+  IconBulb,
   IconCheck,
   IconLoader2,
   IconSearch,
@@ -8,9 +8,10 @@ import {
 } from '@tabler/icons-react';
 import { Button, Collapsible, cn } from 'erxes-ui';
 import type { TFunction } from 'i18next';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { AssistantAvatar } from './AssistantAvatar';
 import type { Step, StepStatus, TranscriptRow } from './transcriptRows';
 
 const STATUS_ICONS: Record<StepStatus, Icon> = {
@@ -19,7 +20,37 @@ const STATUS_ICONS: Record<StepStatus, Icon> = {
   failed: IconAlertTriangle,
 };
 
+const MAX_DOTS = 24;
+
+const HEADING = /^\s*\*\*(.+?)\*\*\s*$/gm;
+
+const SENTENCE = /^(.+?[.!?])(?:\s|$)/;
+
 const Titled = z.object({ title: z.string() });
+
+const intentsOf = (thought: string) => {
+  const headings = [...thought.matchAll(HEADING)].flatMap((match) =>
+    match[1] ? [match[1].trim()] : [],
+  );
+
+  if (headings.length) return headings;
+
+  const first = thought.trim().split('\n')[0]?.trim() ?? '';
+
+  return first ? [SENTENCE.exec(first)?.[1] ?? first] : [];
+};
+
+const sentenceCase = (words: string) =>
+  words
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .replace(/^./, (letter) => letter.toUpperCase());
+
+const procedureLabel = (procedure: string) => {
+  const [group, ...verb] = procedure.split('.');
+
+  return verb.length && group ? `${sentenceCase(verb.join(' '))} ${group}` : procedure;
+};
 
 const artifactStepLabel = (step: Step, t: TFunction<'assistant'>) => {
   const title = Titled.safeParse(step.input).data?.title ?? '';
@@ -53,72 +84,73 @@ const stepLabel = (step: Step, t: TFunction<'assistant'>) => {
     }[step.status];
   }
 
-  const name = step.title ?? step.name;
+  const name = step.title ?? procedureLabel(step.name);
 
   return step.status === 'failed' ? t('step.failed', 'Could not: {{name}}', { name }) : name;
 };
 
-const Json = ({ value, className }: { value: unknown; className?: string }) => (
-  <pre
-    className={cn(
-      'max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap',
-      className,
-    )}
-  >
-    {JSON.stringify(value, null, 2)}
-  </pre>
-);
-
-const LabeledJson = ({ label, value }: { label: string; value: unknown }) => (
+const Json = ({ label, value }: { label: string; value: unknown }) => (
   <div className="flex flex-col gap-1">
     <span className="text-xs font-medium text-muted-foreground">{label}</span>
-    <Json value={value} />
+    <pre className="max-h-48 overflow-auto rounded-md bg-muted p-2 font-mono text-xs whitespace-pre-wrap">
+      {JSON.stringify(value, null, 2)}
+    </pre>
   </div>
 );
 
-const FoldTrigger = ({ className, children }: { className?: string; children: ReactNode }) => (
+const LineTrigger = ({ className, children }: { className?: string; children: ReactNode }) => (
   <Collapsible.Trigger
-    render={<Button variant="ghost" size="sm" tone="muted" className={className} />}
+    render={
+      <Button
+        variant="ghost"
+        size="sm"
+        tone="muted"
+        className={cn('group/line max-w-full justify-start', className)}
+      />
+    }
   >
-    <Collapsible.TriggerIcon className="size-3" />
     {children}
   </Collapsible.Trigger>
+);
+
+const Node = ({ icon: Glyph, tone }: { icon: Icon; tone?: 'failed' | 'running' }) => (
+  <span className="absolute top-1 -left-5.5 flex size-4 items-center justify-center rounded-full bg-background">
+    <Glyph
+      aria-hidden
+      className={cn(
+        'size-3.5',
+        tone === 'failed' && 'text-destructive-text',
+        tone === 'running' && 'animate-spin text-primary',
+      )}
+    />
+  </span>
 );
 
 const StepRow = ({ step }: { step: Step }) => {
   const { t } = useTranslation('assistant');
   const failed = step.status === 'failed';
-
-  const Icon =
-    step.tool === 'searchApi' && step.status === 'done' ? IconSearch : STATUS_ICONS[step.status];
+  const running = step.status === 'running';
 
   return (
-    <li>
+    <li className="relative">
+      <Node
+        icon={STATUS_ICONS[step.status]}
+        tone={failed ? 'failed' : running ? 'running' : undefined}
+      />
       <Collapsible>
-        <FoldTrigger className="w-full justify-start">
-          <Icon
-            aria-hidden
-            className={cn(
-              'size-3.5 shrink-0',
-              failed && 'text-destructive-text',
-              step.status === 'running' && 'animate-spin',
-            )}
-          />
-          <span
-            className={cn('min-w-0 flex-1 truncate text-left', failed && 'text-destructive-text')}
-          >
+        <LineTrigger>
+          <span className={cn('min-w-0 truncate', failed && 'text-destructive-text')}>
             {stepLabel(step, t)}
           </span>
-        </FoldTrigger>
+          <Collapsible.TriggerIcon className="size-2.5 shrink-0 opacity-0 group-hover/line:opacity-100 in-data-panel-open:opacity-100" />
+        </LineTrigger>
         <Collapsible.Panel>
-          <div className="flex flex-col gap-2 py-1 pl-8">
+          <div className="flex flex-col gap-2 pt-1 pb-2">
             {step.error && <p className="text-sm text-destructive-text">{step.error}</p>}
-            {step.title && (
-              <code className="font-mono text-xs text-muted-foreground">{step.name}</code>
-            )}
-            <LabeledJson label={t('step.input', 'Sent')} value={step.input} />
+            <code className="font-mono text-xs text-muted-foreground">{step.name}</code>
+            <Json label={t('step.input', 'Sent')} value={step.input} />
             {step.output !== null && (
-              <LabeledJson label={t('step.output', 'Returned')} value={step.output} />
+              <Json label={t('step.output', 'Returned')} value={step.output} />
             )}
           </div>
         </Collapsible.Panel>
@@ -127,17 +159,28 @@ const StepRow = ({ step }: { step: Step }) => {
   );
 };
 
-type StepItem = { key: string; step: Step } | { key: string; searches: Step[] };
+type TraceItem =
+  | { key: string; step: Step }
+  | { key: string; searches: Step[] }
+  | { key: string; intent: string };
 
-const foldSearches = (steps: Step[]) => {
-  const items: StepItem[] = [];
+const traceOf = (rows: ActivityRow[]) => {
+  const items: TraceItem[] = [];
 
-  for (const step of steps) {
-    const last = items.at(-1);
+  for (const row of rows) {
+    if (row.kind === 'thinking') {
+      intentsOf(row.text).forEach((intent, at) => items.push({ key: `${row.key}-${at}`, intent }));
 
-    if (step.tool !== 'searchApi') items.push({ key: step.key, step });
-    else if (last && 'searches' in last) last.searches.push(step);
-    else items.push({ key: step.key, searches: [step] });
+      continue;
+    }
+
+    for (const step of row.steps) {
+      const last = items.at(-1);
+
+      if (step.tool !== 'searchApi') items.push({ key: step.key, step });
+      else if (last && 'searches' in last) last.searches.push(step);
+      else items.push({ key: step.key, searches: [step] });
+    }
   }
 
   return items;
@@ -145,25 +188,23 @@ const foldSearches = (steps: Step[]) => {
 
 const SearchesRow = ({ searches }: { searches: Step[] }) => {
   const { t } = useTranslation('assistant');
-  const running = searches.find((step) => step.status === 'running');
-  const Icon = running ? IconLoader2 : IconSearch;
+  const running = searches.some((step) => step.status === 'running');
 
   return (
-    <li>
+    <li className="relative">
+      <Node icon={running ? IconLoader2 : IconSearch} tone={running ? 'running' : undefined} />
       <Collapsible>
-        <FoldTrigger className="w-full justify-start">
-          <Icon aria-hidden className={cn('size-3.5 shrink-0', running && 'animate-spin')} />
-          <span className="min-w-0 flex-1 truncate text-left">
-            {searchLabel(running !== undefined, t)}
-          </span>
+        <LineTrigger>
+          <span className="min-w-0 truncate">{searchLabel(running, t)}</span>
           {searches.length > 1 && (
-            <span className="text-xs text-muted-foreground">
+            <span className="shrink-0 text-xs text-muted-foreground/70">
               {t('step.search-count', '{{count}} searches', { count: searches.length })}
             </span>
           )}
-        </FoldTrigger>
+          <Collapsible.TriggerIcon className="size-2.5 shrink-0 opacity-0 group-hover/line:opacity-100 in-data-panel-open:opacity-100" />
+        </LineTrigger>
         <Collapsible.Panel>
-          <ul className="flex flex-col gap-1 py-1 pl-8 text-xs text-muted-foreground">
+          <ul className="flex flex-col gap-1 pb-2 font-mono text-xs text-muted-foreground">
             {searches.map((step) => (
               <li key={step.key}>{step.query ?? t('step.search-any', 'What it can do')}</li>
             ))}
@@ -174,6 +215,13 @@ const SearchesRow = ({ searches }: { searches: Step[] }) => {
   );
 };
 
+const IntentRow = ({ intent }: { intent: string }) => (
+  <li className="relative">
+    <Node icon={IconBulb} />
+    <p className="truncate py-1 text-sm text-muted-foreground/80 italic">{intent}</p>
+  </li>
+);
+
 export type ActivityRow = Extract<TranscriptRow, { kind: 'thinking' | 'steps' }>;
 
 const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
@@ -183,37 +231,58 @@ const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
         step.status === 'running' ? { ...step, status: 'failed' as const, error: stopped } : step,
       );
 
-const activityLabel = (
-  rows: ActivityRow[],
-  steps: Step[],
-  live: boolean,
-  t: TFunction<'assistant'>,
-) => {
+const liveLabel = (rows: ActivityRow[], steps: Step[], t: TFunction<'assistant'>) => {
   const current = steps.findLast((step) => step.status === 'running');
 
   if (current) return stepLabel(current, t);
 
-  if (live && rows.at(-1)?.kind === 'thinking') return t('thinking.now', 'Thinking…');
+  const last = rows.at(-1);
 
-  if (live) return t('working', 'Working on it…');
+  if (last?.kind === 'thinking')
+    return intentsOf(last.text).at(-1) ?? t('thinking.now', 'Thinking…');
 
-  if (!steps.length) return t('thinking.done', 'Thought');
-
-  return t('steps', {
-    count: steps.length,
-    defaultValue_one: '{{count}} step',
-    defaultValue_other: '{{count}} steps',
-  });
+  return t('working', 'Working on it…');
 };
 
-const ThoughtText = ({ text }: { text: string }) => (
-  <li className="flex gap-2 py-1 pl-2">
-    <IconBrain aria-hidden className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-    <p className="min-w-0 text-sm whitespace-pre-wrap text-muted-foreground">{text}</p>
-  </li>
+export const ThinkingLine = ({ label, children }: { label: string; children?: ReactNode }) => (
+  <span className="flex min-w-0 items-center gap-2 text-sm">
+    <AssistantAvatar size={20} state="thinking" />
+    <span className="min-w-0 truncate shimmer-text">{label}</span>
+    {children}
+  </span>
 );
 
-export const ActivityGroup = ({ rows, live }: { rows: ActivityRow[]; live: boolean }) => {
+const StepDots = ({ steps }: { steps: Step[] }) => {
+  const shown = steps.slice(-MAX_DOTS);
+
+  return (
+    <span aria-hidden className="flex shrink-0 items-center gap-0.5">
+      {steps.length > MAX_DOTS && (
+        <span className="mr-0.5 text-xs tabular-nums">+{steps.length - MAX_DOTS}</span>
+      )}
+      {shown.map((step) => (
+        <span
+          key={step.key}
+          className={cn(
+            'size-1.5 rounded-full bg-muted-foreground/35 animate-in fade-in zoom-in',
+            step.status === 'failed' && 'bg-destructive',
+            step.status === 'running' && 'animate-pulse bg-primary',
+          )}
+        />
+      ))}
+    </span>
+  );
+};
+
+export const RunTrace = ({
+  rows,
+  live,
+  tracing = live,
+}: {
+  rows: ActivityRow[];
+  live: boolean;
+  tracing?: boolean;
+}) => {
   const { t } = useTranslation('assistant');
   const stopped = t('step.stopped', 'Stopped');
 
@@ -223,33 +292,43 @@ export const ActivityGroup = ({ rows, live }: { rows: ActivityRow[]; live: boole
 
   const steps = shown.flatMap((row) => (row.kind === 'steps' ? row.steps : []));
   const failed = steps.filter((step) => step.status === 'failed').length;
-  const [open, setOpen] = useState<boolean | null>(null);
+
+  if (!tracing && !steps.length) return null;
 
   return (
-    <Collapsible open={open ?? live} onOpenChange={setOpen}>
-      <FoldTrigger className="-ml-2 max-w-full">
-        {live && <IconLoader2 aria-hidden className="size-3.5 shrink-0 animate-spin" />}
-        <span className="min-w-0 truncate">{activityLabel(rows, steps, live, t)}</span>
+    <Collapsible className="flex flex-col">
+      <LineTrigger className="w-auto self-start">
+        {tracing ? (
+          <ThinkingLine label={liveLabel(rows, steps, t)} />
+        ) : (
+          <>
+            <Collapsible.TriggerIcon className="size-2.5 shrink-0" />
+            <span className="shrink-0">
+              {t('steps', {
+                count: steps.length,
+                defaultValue_one: '{{count}} step',
+                defaultValue_other: '{{count}} steps',
+              })}
+            </span>
+          </>
+        )}
+        {steps.length > 0 && <StepDots steps={steps} />}
         {failed > 0 && (
-          <span className="shrink-0 text-destructive-text">
+          <span className="shrink-0 text-xs text-destructive-text">
             {t('steps-failed', '· {{count}} failed', { count: failed })}
           </span>
         )}
-      </FoldTrigger>
+      </LineTrigger>
       <Collapsible.Panel>
-        <ul className="mt-1 ml-1.5 flex flex-col border-l pl-1">
-          {shown.flatMap((row) =>
-            row.kind === 'thinking'
-              ? [<ThoughtText key={row.key} text={row.text} />]
-              : foldSearches(row.steps).map((item) =>
-                  'searches' in item ? (
-                    <SearchesRow key={item.key} searches={item.searches} />
-                  ) : (
-                    <StepRow key={item.key} step={item.step} />
-                  ),
-                ),
-          )}
-        </ul>
+        <ol className="mt-1 mb-1 ml-2 flex flex-col border-l pl-4 animate-in fade-in slide-in-from-top-1">
+          {traceOf(shown).map((item) => {
+            if ('intent' in item) return <IntentRow key={item.key} intent={item.intent} />;
+
+            if ('searches' in item) return <SearchesRow key={item.key} searches={item.searches} />;
+
+            return <StepRow key={item.key} step={item.step} />;
+          })}
+        </ol>
       </Collapsible.Panel>
     </Collapsible>
   );
