@@ -12,7 +12,7 @@ import { type Agent, answerText, madeAgentName } from './agent';
 import { agentOrThrow, chatOf, notifyRun } from './agents.service';
 import { runEntries, showTool, shownBlocks } from './blocks';
 
-const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. To show a product, a picture or a payment link, call show with what they gave you.`;
+const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. Money from the API is in its currency's smallest unit, as erxes keeps it: divide by 100 before you show it, so 150000 MNT is ₮1,500 and 134000 USD is $1,340. To show a product, a picture or a payment link, call show with what they gave you.`;
 
 /** Read each turn, so a booking agent turns "next Friday" into a date. */
 const todayLine = (now: Date) =>
