@@ -145,7 +145,7 @@
     "assistant-model": "Үндсэн загвар",
     "assistant-code-mode": "Код горим",
     "assistant-appearance": "Төрх",
-    "email-sending": "Имэйл илгээлт",
+    "email-sending": "Байгууллагын имэйл",
     "integrations": "Холболтууд",
     "exchange-rates": "Ханш"
   },
@@ -955,6 +955,13 @@
     "hint": "Зөвхөн баталгаажсан хаягууд.",
     "manage": "Хаягуудыг удирдах"
   },
+  "mail-connection": {
+    "organization": "Байгууллагын имэйл",
+    "off-item": "Унтраалттай холболт",
+    "off": "Энэ холболт унтарсан эсвэл устсан: асаах эсвэл өөрийг сонгоно уу.",
+    "hint": "Өөрийн бүртгэлээс илгээхийн тулд SMTP, Amazon SES эсвэл SendGrid холбоно уу.",
+    "manage": "Имэйл үйлчилгээ"
+  },
   "sender": {
     "label-placeholder": "Marketing",
     "from-line": "{{name}} <{{address}}> · дамжуулагч: {{provider}}",
@@ -964,9 +971,9 @@
     "from-stale": "{{provider}} энэ domain-оос илгээхээ больсон тул энэ имэйл явахгүй. Domain-оо тэнд дахин баталгаажуулаад Settings-д дахин шалгана уу, эсвэл өөр domain сонгоно уу."
   },
   "email-setup": {
-    "title": "Имэйл илгээлт тохируулагдаагүй байна",
+    "title": "Байгууллагын имэйл тохируулагдаагүй байна",
     "description": "Имэйлүүд зөвхөн серверийн log-д бичигдэх тул broadcast, тест болон automation-ий имэйл илгээгдэхгүй. Provider тохируулах эсвэл сервер дээр EMAIL_SMTP_URL тохируулна уу.",
-    "link": "Тохиргоо › Integrations › Имэйл илгээлт",
+    "link": "Тохиргоо › Байгууллагын имэйл",
     "via": {
       "smtp": "SMTP",
       "sendgrid": "SendGrid",

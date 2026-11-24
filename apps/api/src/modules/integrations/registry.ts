@@ -20,10 +20,12 @@ import { test } from './gateways/test';
 import { toki } from './gateways/toki';
 import { golomtTransfer, khanbankTransfer, tdbTransfer } from './gateways/transfers';
 import { wechatpay } from './gateways/wechatpay';
+import { MAIL_INTEGRATIONS } from './mail';
 
 export const INTEGRATIONS: readonly Integration[] = [
   ebarimt,
   ...PACKAGED,
+  ...MAIL_INTEGRATIONS,
   quickqr,
   socialpay,
   monpay,

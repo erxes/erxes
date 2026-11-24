@@ -86,6 +86,7 @@ export const paths = {
       `/settings/integrations/${id(key)}?tab=${id(tab)}`,
     paymentIntegrations: '/settings/integrations?tab=browse&category=payments',
     aiIntegrations: '/settings/integrations?tab=browse&category=ai',
+    mailIntegrations: '/settings/integrations?tab=browse&category=email',
     integrationConnection: (connectionId: string) =>
       `/settings/integrations/connections/${id(connectionId)}`,
     email: '/settings/email',

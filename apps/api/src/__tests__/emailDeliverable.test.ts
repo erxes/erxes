@@ -75,7 +75,7 @@ describe('email that can’t be delivered', () => {
     const [run] = (await owner.automations.runs({ id: automationId, limit: 1 })).data;
 
     expect(run?.status).toBe('failed');
-    expect(run?.error).toContain('Email sending isn’t set up');
+    expect(run?.error).toContain('Organization email isn’t set up');
     expect((await owner.automations.run({ runId: run?.id ?? '' })).steps).toMatchObject([
       { stepId: 'mail', status: 'failed', attempt: 1 },
     ]);

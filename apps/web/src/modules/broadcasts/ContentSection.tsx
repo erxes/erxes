@@ -3,6 +3,7 @@ import { Input, Label, Textarea } from 'erxes-ui';
 import { lazy, Suspense, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FromAddressPicker } from '~/components/FromAddressPicker';
+import { MailConnectionSelect } from '~/components/MailConnectionSelect';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import { SenderLabelInput } from '~/components/SenderLabelInput';
 import { useFromAddress } from '~/components/useFromAddress';
@@ -98,11 +99,13 @@ interface SectionProps {
 }
 
 /**
- * Who it comes from (the label after the organisation's name on SaaS), the address when the
+ * What it goes out through (a Mail service connection, or Organization email), who it comes
+ * from (the label after the organisation's name on SaaS), the address when Organization email's
  * provider verified domains to pick from, and where replies go.
  */
 const SenderFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
   const { t } = useTranslation('broadcasts');
+  const connectionId = useId();
   const nameId = useId();
   const addressId = useId();
   const replyId = useId();
@@ -110,16 +113,25 @@ const SenderFields = ({ draft, onChange }: Omit<SectionProps, 'channel'>) => {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-1.5 sm:col-span-2">
+        <Label htmlFor={connectionId}>{t('send-through', 'Send through')}</Label>
+        <MailConnectionSelect
+          id={connectionId}
+          value={draft.mailConnectionId}
+          onChange={(mailConnectionId) => onChange({ mailConnectionId })}
+        />
+      </div>
       <div className="space-y-1.5">
         <Label htmlFor={nameId}>{t('from-name', 'From name')}</Label>
         <SenderLabelInput
           id={nameId}
           value={draft.fromName}
           fromEmail={draft.fromEmail}
+          connectionId={draft.mailConnectionId}
           onChange={(fromName) => onChange({ fromName })}
         />
       </div>
-      {from.shown && (
+      {from.shown && !draft.mailConnectionId && (
         <div className="space-y-1.5">
           <Label htmlFor={addressId}>{t('from-address', 'From address')}</Label>
           <FromAddressPicker id={addressId} from={from} />

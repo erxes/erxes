@@ -228,7 +228,7 @@ export const requireReplyTo = async (
 ) => {
   if (!email || (await isVerifiedReplyTo(client, email))) return;
 
-  const message = `${email} isn't a verified Reply-To address: add it in Settings › Email sending`;
+  const message = `${email} isn't a verified Reply-To address: add it in Settings › Organization email`;
 
   throw fail('INVALID_INPUT', message, { issues: [{ path, message }] });
 };

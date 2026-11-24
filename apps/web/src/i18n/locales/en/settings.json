@@ -597,7 +597,7 @@
     "held_one": "{{count}} kept",
     "held_other": "{{count}} kept",
     "holder": {
-      "email": "Email sending password",
+      "email": "Organization email password",
       "file-bucket": "File storage key",
       "webhook": "Webhook signing keys",
       "audit-stream": "Audit log stream keys",
@@ -706,6 +706,8 @@
     "code-email-subject": "Email subject",
     "code-email-body": "Email text",
     "code-sms-text": "Text message",
+    "mail-connection": "Send through",
+    "mail-connection-description": "Its code and notification emails go out through this Mail service connection, from its address. While it is off: Organization email.",
     "from-email": "From address",
     "from-email-description": "Its code and notification emails come from this address, on a domain your email provider verified. Empty: the organisation’s own address."
   },
@@ -982,7 +984,7 @@
       "sign_in": "Customer sign-in",
       "social": "Social media",
       "messaging": "Messaging",
-      "email": "Email",
+      "email": "Mail service",
       "government": "Government",
       "developer": "Developer tools",
       "productivity": "Productivity",
@@ -1015,11 +1017,11 @@
     },
     "name": {
       "ebarimt": "eBarimt",
-      "email": "Email sending"
+      "email": "Organization email"
     },
     "catalog": {
       "ebarimt": "Mongolian tax receipts for paid invoices, sent through your PosAPI.",
-      "email": "Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES."
+      "email": "Invitations, sign-in codes, notifications and whatever else erxes emails under your organisation’s name. Websites, broadcasts and automations may send through a Mail service connection instead."
     },
     "triggers": {
       "title": "Automation triggers",
@@ -1204,7 +1206,7 @@
       "saved": "Email settings saved",
       "save-failed": "Could not save",
       "save": "Save changes",
-      "set-up": "Set up email sending",
+      "set-up": "Set up organization email",
       "field": {
         "provider": "Send through",
         "fromName": "From name",
@@ -1263,7 +1265,7 @@
       "server": "Server",
       "set-up-hint": "Emails go out from erxes’s address. Set up your own server or account to send from yours.",
       "how": "How it works",
-      "how-all": "Invitations, password resets, notifications, automations and broadcasts all use it.",
+      "how-all": "Invitations, sign-in, notifications and any email with no Mail service use it.",
       "how-verify": "SendGrid and Amazon SES only send from addresses or domains you verified with them.",
       "how-none": "Without it, emails go out from erxes’s address.",
       "events-help": {
@@ -1275,7 +1277,7 @@
         "ses": "Events are refused until you add the SNS topic in Settings."
       },
       "how-reply-to": "Replies go only to the Reply-To addresses you confirmed.",
-      "how-server-all": "Invitations, password resets, notifications, automations and broadcasts all use it.",
+      "how-server-all": "Invitations, sign-in, notifications and any email with no Mail service use it.",
       "how-server-server": "Every email goes out from erxes’ address under your organisation’s name.",
       "how-server-label": "A broadcast or automation adds a label after the name, such as “Marketing”.",
       "how-server-reply-to": "Replies go only to the Reply-To addresses you confirmed.",

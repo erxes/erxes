@@ -85,7 +85,7 @@ const Holdings = () => {
   const holdings = useQuery(orpc.secrets.holdings.queryOptions());
 
   const labels: Record<VaultHolding['holder'], string> = {
-    email: t('holder.email', 'Email sending password'),
+    email: t('holder.email', 'Organization email password'),
     'file-bucket': t('holder.file-bucket', 'File storage key'),
     webhook: t('holder.webhook', 'Webhook signing keys'),
     'audit-stream': t('holder.audit-stream', 'Audit log stream keys'),
