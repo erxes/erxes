@@ -55,7 +55,10 @@ export interface Program {
 
 const log = logger.child({ component: 'assistant' });
 
-const gate = workerGate(PROGRAMS_AT_ONCE, PROGRAMS_WAITING);
+/** Programs at once and waiting, for one kind of caller: the assistant's never wait on MCP's. */
+export const programGate = () => workerGate(PROGRAMS_AT_ONCE, PROGRAMS_WAITING);
+
+export type ProgramGate = ReturnType<typeof programGate>;
 
 const BUSY = refusal(
   'CODE_MODE_BUSY',
@@ -129,7 +132,7 @@ const resultOf = (end: WorkerEnd<ProgramResult>) => {
   return end.ended === 'out-of-memory' ? OUT_OF_MEMORY : FAILED;
 };
 
-export const runProgram = async ({ code, prelude, host }: Program) => {
+export const runProgram = async ({ code, prelude, host }: Program, gate: ProgramGate) => {
   const granted = await gate.acquire(AbortSignal.timeout(CODE_LIMITS.timeMs));
 
   if (granted !== 'granted') return BUSY;

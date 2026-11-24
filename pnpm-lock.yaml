@@ -105,7 +105,7 @@ importers:
         version: 1.5.0
       '@earendil-works/chord':
         specifier: 1.5.2
-        version: 1.5.2(esbuild@0.28.2)(react@19.3.1)(ws@8.21.3)
+        version: 1.5.2(esbuild@0.28.2)(react@19.3.1)
       '@earendil-works/pi-ai':
         specifier: 1.5.2
         version: 1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(undici@8.12.3)(zod@4.6.7)
@@ -136,6 +136,12 @@ importers:
       '@maily-to/shared':
         specifier: 2.0.0-beta.19
         version: 2.0.0-beta.19
+      '@modelcontextprotocol/node':
+        specifier: ^2.1.2
+        version: 2.1.2(@modelcontextprotocol/server@2.4.0)
+      '@modelcontextprotocol/server':
+        specifier: ^2.4.0
+        version: 2.4.0
       '@opentelemetry/api':
         specifier: 1.10.0
         version: 1.10.0
@@ -313,7 +319,7 @@ importers:
         version: 3.2.2(react@19.3.1)
       '@earendil-works/chord':
         specifier: 1.5.2
-        version: 1.5.2(esbuild@0.28.2)(react@19.3.1)(ws@8.21.3)
+        version: 1.5.2(esbuild@0.28.2)(react@19.3.1)
       '@erxes/assistant-catalog':
         specifier: workspace:*
         version: link:../../packages/assistant-catalog
@@ -1929,6 +1935,12 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
+  '@hono/node-server@2.1.11':
+    resolution: {integrity: sha512-KzKz9vl4vvr1vgLHamj+g5uonbrj5NwAdO3yzOS6cd2HjALVeOgTgeZOyAzNxejbkfOOPIcvuf/Tg8l1pEFLog==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      hono: ^4 || ^5.0.0-0
+
   '@hookform/resolvers@7.0.6':
     resolution: {integrity: sha512-LSTMwW4tmRWtM7pS5HkSqahi71USbhrmjc9pNHNa7UyYTbKIK/e0G1EAw6xsEnp9GahTjXhunxRJp0Bd8E6NZA==}
     peerDependencies:
@@ -2135,6 +2147,20 @@ packages:
 
   '@marijn/find-cluster-break@1.0.4':
     resolution: {integrity: sha512-Wy0V7+SGUjnF9/TkiM1hKVDPj7jKXduPNboMVtHTA8dySMURWqfg/JZ9E2Sq8JgSJmkl7k7Qe9FLeMSrSraWmQ==}
+
+  '@modelcontextprotocol/core@2.4.0':
+    resolution: {integrity: sha512-z8QBKqdfXLPzkLQuG4xp8hrVEMm1PZ1IgxMN2sMbJiFiAKOWXnAzogXn2W4aqIBlP1ea6U5yiqVquvUNM1Cj6Q==}
+    engines: {node: '>=20'}
+
+  '@modelcontextprotocol/node@2.1.2':
+    resolution: {integrity: sha512-IIcIqBpr6NCQQs5DgJTgvbSOAw+3iaR/uquqg+e0nXCdudfjPg/80x0TseUnQx14AUAtE4fsJCEpJKPyb6WPVA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@modelcontextprotocol/server': ^2.4.0
+
+  '@modelcontextprotocol/server@2.4.0':
+    resolution: {integrity: sha512-rgR9yxSaAJ+bcsi/XroT/S2AfPiIWloXAnrdfYSCms9ivVju0ishu/wW0J21Ho6+ZOR1r7RyeRbjiRuF87ix5Q==}
+    engines: {node: '>=20'}
 
   '@module-federation/bridge-react-webpack-plugin@2.9.3':
     resolution: {integrity: sha512-yXBbymB7P+ElMqYjJ2CGMcwTlmrZCmcYDoHHi5Bt/Vhu71KmJY6z9moM5eW9Oty6QrcNamoIpZJ1wNURYQvcEA==}
@@ -6905,6 +6931,10 @@ packages:
     resolution: {integrity: sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg==}
     engines: {node: '>=12.0.0'}
 
+  hono@4.13.20:
+    resolution: {integrity: sha512-xo6gecEJQ+CjTtOUUbcLHE8CdRKMeF4qITe+DT+OhFnSUmZR/ZBa9XavAfiGh4HlukmlaHFdaK4dz5tkTYFNmA==}
+    engines: {node: '>=16.9.0'}
+
   hookable@6.1.2:
     resolution: {integrity: sha512-+abwxtiEA52GCVIsQqut3S/uKTbUwYIp4Pe/vv+6py5XiXBCqMZHg6pA6Y5qhgLSEys0/cYuPbO0z1QFj5ZCmg==}
 
@@ -10536,14 +10566,13 @@ snapshots:
       esbuild: 0.28.2
       react: 19.3.0
 
-  '@earendil-works/chord@1.5.2(esbuild@0.28.2)(react@19.3.1)(ws@8.21.3)':
+  '@earendil-works/chord@1.5.2(esbuild@0.28.2)(react@19.3.1)':
     dependencies:
       '@earendil-works/pi-schema': 1.5.2
       '@earendil-works/pi-telemetry': 1.5.2
     optionalDependencies:
       esbuild: 0.28.2
       react: 19.3.1
-      ws: 8.21.3
 
   '@earendil-works/pi-ai@1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(undici@8.12.3)(zod@4.6.7)':
     dependencies:
@@ -10576,7 +10605,7 @@ snapshots:
 
   '@earendil-works/pi-durable@1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(esbuild@0.28.2)(react@19.3.1)(undici@8.12.3)(zod@4.6.7)':
     dependencies:
-      '@earendil-works/chord': 1.5.2(esbuild@0.28.2)(react@19.3.1)(ws@8.21.3)
+      '@earendil-works/chord': 1.5.2(esbuild@0.28.2)(react@19.3.1)
       '@earendil-works/pi-ai': 1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(undici@8.12.3)(zod@4.6.7)
       '@earendil-works/pi-codemode': 1.5.2
       '@earendil-works/pi-schema': 1.5.2
@@ -11002,7 +11031,7 @@ snapshots:
 
   '@gscode1/pi-durable-postgres@0.3.0(patch_hash=68629a4c418644df8875a8a48a0843968c515fefb9bb450a5583d2bea1a72f43)(@earendil-works/chord@1.5.2(esbuild@0.28.2)(react@19.3.1))(@earendil-works/pi-durable@1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(esbuild@0.28.2)(react@19.3.1)(undici@8.12.3)(zod@4.6.7))':
     dependencies:
-      '@earendil-works/chord': 1.5.2(esbuild@0.28.2)(react@19.3.1)(ws@8.21.3)
+      '@earendil-works/chord': 1.5.2(esbuild@0.28.2)(react@19.3.1)
       '@earendil-works/pi-durable': 1.5.2(@aws-sdk/credential-provider-node@3.972.96)(@smithy/signature-v4@5.7.5)(esbuild@0.28.2)(react@19.3.1)(undici@8.12.3)(zod@4.6.7)
       '@types/pg': 8.23.1
       pg: 8.23.1
@@ -11025,6 +11054,10 @@ snapshots:
     dependencies:
       '@tanstack/vue-virtual': 3.13.52(vue@3.5.45(typescript@7.0.2))
       vue: 3.5.45(typescript@7.0.2)
+
+  '@hono/node-server@2.1.11(hono@4.13.20)':
+    dependencies:
+      hono: 4.13.20
 
   '@hookform/resolvers@7.0.6(@standard-schema/spec@1.1.0)(ajv-formats@3.0.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.92.0(@types/react@19.3.0)(react@19.3.1))(zod@4.6.7)':
     dependencies:
@@ -11245,6 +11278,21 @@ snapshots:
       stylecast: 0.2.0
 
   '@marijn/find-cluster-break@1.0.4': {}
+
+  '@modelcontextprotocol/core@2.4.0':
+    dependencies:
+      zod: 4.6.7
+
+  '@modelcontextprotocol/node@2.1.2(@modelcontextprotocol/server@2.4.0)':
+    dependencies:
+      '@hono/node-server': 2.1.11(hono@4.13.20)
+      '@modelcontextprotocol/server': 2.4.0
+      hono: 4.13.20
+
+  '@modelcontextprotocol/server@2.4.0':
+    dependencies:
+      '@modelcontextprotocol/core': 2.4.0
+      zod: 4.6.7
 
   '@module-federation/bridge-react-webpack-plugin@2.9.3':
     dependencies:
@@ -15821,6 +15869,8 @@ snapshots:
   highlight.js@11.11.2: {}
 
   highlight.js@11.12.0: {}
+
+  hono@4.13.20: {}
 
   hookable@6.1.2: {}
 

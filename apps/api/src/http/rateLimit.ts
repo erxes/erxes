@@ -3,6 +3,7 @@ import { getTableName } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { RateLimiterPostgres, RateLimiterRes } from 'rate-limiter-flexible';
 import { fail } from '~/http/errors';
+import { sha256 } from '~/lib/crypto';
 
 /**
  * A fixed-window count per key in `core_rate_limits`, so every replica shares one count. Counts
@@ -67,6 +68,22 @@ const rateLimit = (options: {
 
 const ip = (req: Request) => req.ip ?? req.socket.remoteAddress ?? 'unknown';
 
+/** What apps acting as members (MCP clients) may do. */
+const appLimits = () => ({
+  /** MCP calls: 600 a minute per token or key, whoever holds it. */
+  mcp: rateLimit({
+    windowSeconds: 60,
+    max: 600,
+    key: (req) => `mcp:${sha256(req.headers.authorization ?? ip(req)).slice(0, 32)}`,
+  }),
+  /** Apps registering themselves for OAuth: 20 an hour per address. */
+  oauthRegister: rateLimit({
+    windowSeconds: 3600,
+    max: 20,
+    key: (req) => (req.method === 'POST' ? `oauth-register:${ip(req)}` : null),
+  }),
+});
+
 /** The app's limits, on the database `configureDb()` set up. */
 export const createRateLimits = () => ({
   /** Sign-in and first-run setup: 20 a minute per address. */
@@ -84,12 +101,7 @@ export const createRateLimits = () => ({
     max: 10,
     key: (req) => (req.method === 'POST' ? `customer-code:${ip(req)}` : null),
   }),
-  /** Apps registering themselves for OAuth: 20 an hour per address. */
-  oauthRegister: rateLimit({
-    windowSeconds: 3600,
-    max: 20,
-    key: (req) => (req.method === 'POST' ? `oauth-register:${ip(req)}` : null),
-  }),
+  ...appLimits(),
   /** Plugin token requests: 120 a minute per address. */
   token: rateLimit({
     windowSeconds: 60,

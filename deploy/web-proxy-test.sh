@@ -45,6 +45,8 @@ curl -fsS "$BASE/core/v1/customers?limit=2&q=a%20b" | grep -qx 'api-1 /core/v1/c
 curl -fsS "$BASE/gateway/pl:core/core-login?token=t" | grep -qx 'api-1 /gateway/pl:core/core-login?token=t xfp=http' ||
   fail "erxes.io's login link"
 curl -fsS "$BASE/core/v1/stream" | grep -q '^api-1 /core/v1/stream' || fail "the live stream"
+curl -fsS "$BASE/.well-known/oauth-protected-resource/core/v1/mcp" |
+  grep -q '^api-1 /.well-known/oauth-protected-resource/core/v1/mcp' || fail "MCP's OAuth discovery"
 
 echo "== the app's scripts go out gzipped to a browser that takes it, and cached for good"
 script=$(curl -fsS "$BASE/" | grep -o '/static/js/[^"]*\.js' | head -n 1)

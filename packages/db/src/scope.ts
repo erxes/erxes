@@ -37,6 +37,8 @@ export type Caller =
       permissions: readonly string[];
       /** Set when the member called with one of their API keys, not a session. */
       apiKeyId?: string;
+      /** Set when the call came through the MCP server: an app or a key acting as the member. */
+      via?: 'mcp';
       /** Set for a regular or management key: what it may do, besides `permissions`. */
       key?: KeyRules;
     }
@@ -130,5 +132,9 @@ export const actorOf = (who: Caller): { actorType: ActorType; actorId: string | 
   }
 };
 
-/** `core`, or the plugin that is calling. */
-export const sourceOf = (who: Caller) => (who.type === 'plugin' ? who.plugin : 'core');
+/** `core`, the plugin that is calling, or `mcp` for a member's call through the MCP server. */
+export const sourceOf = (who: Caller) => {
+  if (who.type === 'plugin') return who.plugin;
+
+  return who.type === 'user' && who.via ? who.via : 'core';
+};
