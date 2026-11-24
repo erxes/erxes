@@ -8,6 +8,15 @@ export interface IssuedReference {
   label: string;
 }
 
+/** A JSON answer or tool result, else its text as it is (null when empty). */
+export const jsonOf = (text: string): unknown => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text === '' ? null : text;
+  }
+};
+
 export const refusal = (code: string, message: string, extra: Record<string, unknown> = {}) => ({
   ok: false as const,
   code,

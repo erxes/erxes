@@ -1,9 +1,10 @@
-import { CUSTOMER_STATES } from '@erxes/core-db/enums';
-import { companies, customerCompanies, customers } from '@erxes/core-db/schema';
+import { CUSTOMER_MERGE_FIELDS, CUSTOMER_STATES } from '@erxes/core-db/enums';
+import { companies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { ContactLink, ContactLinkInput } from './contactLinks';
 import { CompanyId, CustomerId } from './records';
 import { ContactState, CustomerSex } from './values';
 import {
@@ -19,6 +20,9 @@ import {
   ImageAddress,
   isoDate,
   listOf,
+  MERGE_IDS_MESSAGE,
+  MergeIds,
+  namesMerged,
 } from './common';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 
@@ -123,31 +127,6 @@ const identifies = (value: CustomerInput) =>
     value.phones?.length,
   );
 
-/** What links a person and a company: their role there, main contact, left. */
-export const ContactLink = createSelectSchema(customerCompanies, {
-  endedAt: isoDate,
-  createdAt: isoDate,
-}).pick({
-  role: true,
-  /** The company's main contact (one per company). */
-  isPrimaryContact: true,
-  /** No longer there; the link stays as history. */
-  endedAt: true,
-  createdAt: true,
-});
-
-export type ContactLink = z.infer<typeof ContactLink>;
-
-/** Setting a link: any of its attributes (others stay; a new link starts with none). */
-export const ContactLinkInput = createUpdateSchema(customerCompanies, {
-  role: (role) => role.trim().max(100),
-})
-  .pick({ role: true, isPrimaryContact: true })
-  .extend({
-    /** `true`: left now; `false`: back (current again). */
-    ended: z.boolean().optional(),
-  });
-
 /** A company as listed on a customer, with the link. */
 export const CompanyRef = createSelectSchema(companies, { id: CompanyId })
   .pick({ id: true, primaryName: true, avatarUrl: true, website: true })
@@ -159,9 +138,16 @@ const ID = z.object({ id: Id });
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 const Ids = z.object({ ids: z.array(Id).min(1).max(100) });
 
-const MergeInput = z
-  .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
-  .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
+/** Fields whose value a merge can take from any of the merged customers. */
+export const CustomerMergeField = z.enum(CUSTOMER_MERGE_FIELDS);
+
+export type CustomerMergeField = z.infer<typeof CustomerMergeField>;
+
+const MergeInput = MergeIds.extend({
+  fields: z.partialRecord(CustomerMergeField, Id).default({}),
+}).refine(namesMerged, MERGE_IDS_MESSAGE);
+
+export type CustomerMerge = z.infer<typeof MergeInput>;
 
 /** Tags to add to and remove from some customers or companies. */
 export const TagChange = z.object({
@@ -295,7 +281,7 @@ export const customersContract = {
       path: '/customers/merge',
       summary: 'Merge customers',
       description:
-        'Merge customers into `keepId`: empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
+        'Merge customers into `keepId`: each field in `fields` takes that customer’s value, other empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
     })
     .input(MergeInput)
     .output(Customer),

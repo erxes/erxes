@@ -262,6 +262,8 @@ export const ERRORS = {
   ASSISTANT_NO_CONNECTION: { status: 400 },
   ASSISTANT_KEY_UNREADABLE: { status: 400 },
   ASSISTANT_BUSY: { status: 409 },
+  // An agent's run ended without an answer: the AI provider refused it, or it ran out of turns.
+  AGENT_RUN_FAILED: { status: 502 },
 
   // Import and export.
   UNSUPPORTED_FILE: { status: 400 },

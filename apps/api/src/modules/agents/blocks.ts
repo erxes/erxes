@@ -2,6 +2,7 @@ import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import type { Conversation, EntryId, EntryRecord } from '@earendil-works/pi-durable';
 import { AGENT_BLOCKS_MAX, AgentBlock } from '@erxes/core-contract';
 import { z } from 'zod';
+import { toolCallsOf } from './agent';
 import { agentTool } from './tool';
 
 const SHOW = 'show';
@@ -17,32 +18,32 @@ export const showTool = agentTool({
   execute: ({ blocks }) => ({ shown: blocks.length }),
 });
 
-/** The most entries one run reads back for what it showed. */
-const RUN_ENTRIES_MAX = 200;
+/** The most entries one run reads back for what it showed and called. */
+export const RUN_ENTRIES_MAX = 200;
 
-/** One run's entries, from its input to its answer, oldest first. */
+/** One run's entries, from its input to its answer (or the newest), oldest first. */
 export const runEntries = async (
   reader: Pick<Conversation, 'entries'>,
   first: EntryId,
-  last: EntryId,
+  last?: EntryId,
 ) => {
-  const query = { minEntryId: first, maxEntryId: last, order: 'ascending' } as const;
+  const query =
+    last === undefined
+      ? ({ minEntryId: first, order: 'ascending' } as const)
+      : ({ minEntryId: first, maxEntryId: last, order: 'ascending' } as const);
 
   return (await reader.entries(query, RUN_ENTRIES_MAX, undefined, BACKGROUND_CONTEXT)).items;
 };
 
 /** What the agent showed in these entries through `show`, in order, each block once. */
 export const shownBlocks = (entries: readonly EntryRecord[]) => {
-  const shown = entries
-    .flatMap((entry) => entry.model ?? [])
-    .flatMap((message) => (message.role === 'assistant' ? message.content : []))
-    .flatMap((part) => {
-      if (part.type !== 'toolCall' || part.name !== SHOW) return [];
+  const shown = toolCallsOf(entries).flatMap((call) => {
+    if (call.name !== SHOW) return [];
 
-      const input = ShowInput.safeParse(part.arguments);
+    const input = ShowInput.safeParse(call.arguments);
 
-      return input.success ? input.data.blocks : [];
-    });
+    return input.success ? input.data.blocks : [];
+  });
 
   return [...new Map(shown.map((block) => [JSON.stringify(block), block])).values()].slice(
     0,

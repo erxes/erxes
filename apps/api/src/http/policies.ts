@@ -35,6 +35,9 @@ export const ACCESS = {
   'agents.remove': needs('assistant.manage'),
   'agents.try': needs('assistant.manage'),
   'agents.submit': { plugin: 'installed' },
+  // A plugin reads and restarts only the conversations it talks in.
+  'agents.runs': { member: 'assistant.manage', plugin: 'installed' },
+  'agents.restart': { member: 'assistant.manage', plugin: 'installed' },
   ...ASSISTANT_ACCESS,
   ...MESSAGING_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).

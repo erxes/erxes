@@ -123,6 +123,8 @@ export const facebook = defineIntegration({
       'instagram_manage_comments',
     ],
     scopeSeparator: ',',
+    // Meta's dialog drops code_challenge for business apps, then refuses the code_verifier.
+    pkce: false,
     account: (accessToken) => accountOf(accessToken),
     longLived: longLivedToken,
   },

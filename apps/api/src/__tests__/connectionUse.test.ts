@@ -26,6 +26,7 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
     });
 
   let connectionId = '';
+  let authorizeUrl = new URL('https://www.facebook.com/');
 
   beforeAll(async () => {
     const realFetch = globalThis.fetch;
@@ -43,7 +44,10 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
     });
 
     const { url } = await t.owner().integrations.authorize({ key: 'facebook', name: 'Shop' });
-    const state = new URL(url).searchParams.get('state') ?? '';
+
+    authorizeUrl = new URL(url);
+
+    const state = authorizeUrl.searchParams.get('state') ?? '';
 
     const back = await fetch(
       t.url(`/core/v1/integrations/oauth/callback?code=fb-code&state=${state}`),
@@ -59,6 +63,18 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
 
   afterAll(() => {
     vi.unstubAllGlobals();
+  });
+
+  it('signs in to Facebook without PKCE, which Meta’s business apps refuse', () => {
+    const exchange = facebook.calls.find((call) => call.url.includes('/oauth/access_token'));
+    const form = new URLSearchParams(exchange?.body);
+
+    expect(connectionId).not.toBe('');
+    expect(authorizeUrl.searchParams.has('code_challenge')).toBe(false);
+    expect(authorizeUrl.searchParams.has('code_challenge_method')).toBe(false);
+    expect(form.get('code')).toBe('fb-code');
+    expect(form.get('client_secret')).toBe(APP_SECRET);
+    expect(form.has('code_verifier')).toBe(false);
   });
 
   it('refuses a plugin whose manifest doesn’t name the integration', async () => {

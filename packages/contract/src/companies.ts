@@ -1,4 +1,4 @@
-import { CUSTOMER_STATES } from '@erxes/core-db/enums';
+import { COMPANY_MERGE_FIELDS, CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { companies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -16,8 +16,12 @@ import {
   cursorPageOf,
   ImageAddress,
   isoDate,
+  MERGE_IDS_MESSAGE,
+  MergeIds,
+  namesMerged,
 } from './common';
-import { ContactLink, ContactLinkInput, TagChange } from './customers';
+import { ContactLink, ContactLinkInput } from './contactLinks';
+import { TagChange } from './customers';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 import { CompanyId, CustomerId } from './records';
 
@@ -118,9 +122,16 @@ const ID = z.object({ id: Id });
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 const Ids = z.object({ ids: z.array(Id).min(1).max(100) });
 
-const MergeInput = z
-  .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
-  .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
+/** Fields whose value a merge can take from any of the merged companies. */
+export const CompanyMergeField = z.enum(COMPANY_MERGE_FIELDS);
+
+export type CompanyMergeField = z.infer<typeof CompanyMergeField>;
+
+const MergeInput = MergeIds.extend({
+  fields: z.partialRecord(CompanyMergeField, Id).default({}),
+}).refine(namesMerged, MERGE_IDS_MESSAGE);
+
+export type CompanyMerge = z.infer<typeof MergeInput>;
 
 const {
   INVALID_ACTOR,
@@ -216,7 +227,8 @@ export const companiesContract = {
       method: 'POST',
       path: '/companies/merge',
       summary: 'Merge companies',
-      description: 'Merge companies into `keepId` (owners and admins), as for customers',
+      description:
+        'Merge companies into `keepId` (owners and admins), as for customers; the others’ names become extra names',
     })
     .input(MergeInput)
     .output(Company),

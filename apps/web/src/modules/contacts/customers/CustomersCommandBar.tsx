@@ -1,15 +1,6 @@
 import type { Customer } from '@erxes/core-contract';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import {
-  Button,
-  Command,
-  CommandBar,
-  customerTitle,
-  Popover,
-  RecordTable,
-  Separator,
-  useConfirm,
-} from 'erxes-ui';
+import { Button, Command, CommandBar, Popover, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelectedRows } from '~/components/useSelectedRows';
@@ -18,8 +9,8 @@ import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
-import { MergeDialog } from '../components/MergeDialog';
-import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCustomers';
+import { CustomersMerge } from '../components/ContactsMerge';
+import { useCustomersRemove, useCustomersTag } from './useCustomers';
 
 /** The Actions menu: delete the selected customers once confirmed. */
 const CustomersDeleteMenu = ({ ids }: { ids: string[] }) => {
@@ -75,38 +66,19 @@ const CustomersMergeDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('contact');
   const { table } = RecordTable.useRecordTable();
   const { openRecord } = useSidePanel();
-  const merge = useCustomersMerge();
 
   return (
-    <MergeDialog
+    <CustomersMerge
+      records={customers}
       open={open}
       onOpenChange={onOpenChange}
-      kind="customer"
-      merging={merge.isPending}
-      records={customers.map((customer) => ({
-        id: customer.id,
-        title: customerTitle(customer) || t('unnamed', 'Unnamed'),
-        details: [
-          customer.primaryEmail ?? '',
-          customer.primaryPhone ?? '',
-          customer.state === 'lead' ? t('lead._', 'Lead') : '',
-        ],
-      }))}
-      onMerge={(keepId) =>
-        merge.mutate(
-          { ids: customers.map((customer) => customer.id), keepId },
-          {
-            onSuccess: (customer) => {
-              onOpenChange(false);
-              table.resetRowSelection(true);
-              openRecord({ contentType: 'core:customer', contentId: customer.id });
-            },
-          },
-        )
-      }
+      onMerged={(keptId) => {
+        onOpenChange(false);
+        table.resetRowSelection(true);
+        openRecord({ contentType: 'core:customer', contentId: keptId });
+      }}
     />
   );
 };

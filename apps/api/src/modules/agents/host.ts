@@ -18,8 +18,9 @@ import { fail } from '~/http/errors';
 import { fixedWindow } from '~/http/rateLimit';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
-import { type Agent, type AgentScope, answerText, madeAgentId } from './agent';
+import { type Agent, type AgentScope, madeAgentId } from './agent';
 import { runEntries, shownBlocks } from './blocks';
+import { handOffOf, modelOf, replyOf, runFailureText } from './runs';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -64,7 +65,7 @@ export const agentNamed = (name: string) => {
   return agent;
 };
 
-const storageKeyOf = (agent: Agent, key: string) => `${agent.name}:${key}`;
+export const storageKeyOf = (agent: Agent, key: string) => `${agent.name}:${key}`;
 
 const open = async (agent: Agent, scope: AgentScope, readOnly: boolean) => {
   const storageKey = storageKeyOf(agent, scope.key);
@@ -224,8 +225,8 @@ export const startRun = async (
 };
 
 /**
- * Sends `prompt` to the root conversation, counted (`countRun`), and waits for the answer;
- * rejects when the run ends without one. A retry with the same `requestId` asks once.
+ * Sends `prompt` to the root conversation, counted (`countRun`), and waits for the answer, with
+ * the model that gave it and why it handed off; 502 `AGENT_RUN_FAILED` says why it gave none.
  */
 export const askAgent = async (agent: Agent, scope: AgentScope, prompt: string) => {
   await countRun(scope.orgId);
@@ -237,16 +238,25 @@ export const askAgent = async (agent: Agent, scope: AgentScope, prompt: string) 
 
     const settled = await submission.wait(BACKGROUND_CONTEXT);
 
-    if (settled.type !== 'input' || settled.status !== 'done') {
-      throw new Error('The agent did not answer');
+    if (settled.status !== 'done') {
+      throw fail('AGENT_RUN_FAILED', runFailureText(settled.reason, settled.detail));
     }
 
-    const run = await runEntries(root, settled.entry, settled.answer);
-    const answer = answerText(run.find((entry) => entry.id === settled.answer));
+    const run =
+      settled.type === 'input' ? await runEntries(root, settled.entry, settled.answer) : [];
 
-    if (!answer) throw new Error('The agent did not answer');
+    const answer = settled.type === 'input' ? replyOf(run, settled.answer) : '';
 
-    return { answer, blocks: shownBlocks(run) };
+    if (!answer) {
+      throw fail('AGENT_RUN_FAILED', 'It ended its turn without a word to the customer.');
+    }
+
+    return {
+      answer,
+      blocks: shownBlocks(run),
+      model: modelOf(run) ?? '',
+      handedOff: handOffOf(run)?.reason ?? null,
+    };
   });
 };
 
