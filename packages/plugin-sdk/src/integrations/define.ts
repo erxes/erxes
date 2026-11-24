@@ -48,6 +48,11 @@ export interface OAuthSetup {
   scopes: string[];
   scopeSeparator?: string;
   authorizeParams?: Record<string, string>;
+  /**
+   * False when the service drops PKCE's challenge from its sign-in and then refuses the
+   * verifier (Meta's business apps). The signed state and the app's secret still guard the code.
+   */
+  pkce?: false;
   account(accessToken: string): Promise<string>;
   longLived?(
     input: { accessToken: string } & AppClient,
