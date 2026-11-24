@@ -213,8 +213,9 @@ export const authorizeUrl = async (tx: Db, input: { key: string; name: string })
     response_type: 'code',
     scope: oauth.scopes.join(oauth.scopeSeparator ?? ' '),
     state: relay ? `v1.${await relay.register(callback)}.${sealState(fields)}` : sealState(fields),
-    code_challenge: sha256(verifier, 'base64url'),
-    code_challenge_method: 'S256',
+    ...(oauth.pkce === false
+      ? {}
+      : { code_challenge: sha256(verifier, 'base64url'), code_challenge_method: 'S256' }),
   }).forEach(([name, value]) => url.searchParams.set(name, value));
 
   return { url: url.toString() };
@@ -271,7 +272,7 @@ export const exchangeCode = async (
     redirect_uri: redirectUri,
     client_id: client.clientId,
     client_secret: client.clientSecret,
-    code_verifier: verifierOf(state),
+    ...(integration.oauth.pkce === false ? {} : { code_verifier: verifierOf(state) }),
   });
 
   const lasting = await integration.oauth.longLived?.({
