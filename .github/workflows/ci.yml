@@ -72,11 +72,13 @@ jobs:
     env:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
-      # Started first, not as a service, so it boots while the checkout and dependencies restore.
+      # Pulled and started in the background, not as a service, so it boots while the checkout and
+      # dependencies restore; the ready check below waits for it.
       - name: Postgres 18
         run: >-
-          docker run -d --name postgres -p 5432:5432
+          nohup docker run -d --name postgres -p 5432:5432
           -e POSTGRES_USER=erxes -e POSTGRES_PASSWORD=ci-only-password -e POSTGRES_DB=erxes_ci postgres:18
+          > "$RUNNER_TEMP/postgres.log" 2>&1 &
       # A pull request's checkout is its merge commit; its first parent is the base.
       - uses: actions/checkout@v7
         with:
@@ -84,7 +86,7 @@ jobs:
           filter: blob:none
       - uses: ./.github/actions/setup
       - name: Postgres accepts connections
-        run: timeout 60 sh -c 'until docker exec postgres pg_isready -h 127.0.0.1 -U erxes -d erxes_ci; do sleep 1; done'
+        run: timeout 60 sh -c 'until docker exec postgres pg_isready -h 127.0.0.1 -U erxes -d erxes_ci 2>/dev/null; do sleep 1; done; cat "$RUNNER_TEMP/postgres.log"'
       # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
       - name: Migrated schema has forced row level security on every org_id table and core_ names
         if: matrix.shard == 1
@@ -217,11 +219,13 @@ jobs:
     env:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
-      # Started first, not as a service, so it boots while the checkout and dependencies restore.
+      # Pulled and started in the background, not as a service, so it boots while the checkout and
+      # dependencies restore; the ready check below waits for it.
       - name: Postgres 18
         run: >-
-          docker run -d --name postgres -p 5432:5432
+          nohup docker run -d --name postgres -p 5432:5432
           -e POSTGRES_USER=erxes -e POSTGRES_PASSWORD=ci-only-password -e POSTGRES_DB=erxes_ci postgres:18
+          > "$RUNNER_TEMP/postgres.log" 2>&1 &
       - uses: actions/checkout@v7
         with:
           fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
@@ -242,7 +246,7 @@ jobs:
         run: consumers/run.sh "$RUNNER_TEMP/packs"
       - name: Postgres accepts connections
         if: steps.reach.outputs.run == 'true'
-        run: timeout 60 sh -c 'until docker exec postgres pg_isready -h 127.0.0.1 -U erxes -d erxes_ci; do sleep 1; done'
+        run: timeout 60 sh -c 'until docker exec postgres pg_isready -h 127.0.0.1 -U erxes -d erxes_ci 2>/dev/null; do sleep 1; done; cat "$RUNNER_TEMP/postgres.log"'
       - name: New and migrated plugins from create-erxes pass their own gates against the tarballs
         if: steps.reach.outputs.run == 'true'
         run: pnpm exec vp test run --project create-erxes-e2e
