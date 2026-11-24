@@ -8,8 +8,7 @@ import { DATA_PATH_TYPE, DataTargetContext } from './dataTarget';
 const FIRST = 6;
 const GRID = 'grid grid-cols-3 gap-1.5';
 
-const TILE =
-  'flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border p-1.5 text-center text-xs';
+const TILE = 'relative flex min-h-14 w-full rounded-lg border p-2 text-xs';
 
 /** One value: drag it into a field, or click to put it at the cursor (else copy it). */
 const Tile = ({
@@ -46,18 +45,18 @@ const Tile = ({
         onClick={() => targets.insert(item.path) || copy()}
         className={cn(
           TILE,
-          'cursor-grab bg-muted/40 transition hover:border-primary/50 hover:bg-primary/5 active:cursor-grabbing',
+          'cursor-grab flex-col items-start justify-end bg-muted/40 pt-5 text-left transition hover:border-primary/50 hover:bg-primary/5 active:cursor-grabbing',
           open && 'border-primary/50 bg-primary/5',
         )}
       >
-        {copied ? (
-          <IconCheck className="size-4 text-success" />
-        ) : (
-          <span className="text-muted-foreground [&>svg]:size-4">
+        <span className="absolute top-1.5 left-2 flex text-muted-foreground/70 [&>svg]:size-3">
+          {copied ? (
+            <IconCheck className="text-success" />
+          ) : (
             <FieldTypeIcon field={{ type: item.type }} />
-          </span>
-        )}
-        <span className="line-clamp-2 leading-tight break-words">{item.label}</span>
+          )}
+        </span>
+        <span className="line-clamp-2 leading-tight font-medium break-words">{item.label}</span>
       </button>
       {onToggle && (
         <button
@@ -117,10 +116,10 @@ export const DataTiles = ({ items, searching }: { items: DataItem[]; searching: 
             onClick={() => setAll(true)}
             className={cn(
               TILE,
-              'border-dashed text-primary-text hover:border-primary/50 hover:bg-primary/5',
+              'items-center justify-center gap-1 border-dashed font-medium text-primary-text hover:border-primary/50 hover:bg-primary/5',
             )}
           >
-            <IconPlus className="size-4" />
+            <IconPlus className="size-3.5" />
             {t('data-more', '{{count}} more', { count: hidden })}
           </button>
         )}
