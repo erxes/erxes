@@ -15,23 +15,10 @@ import type { Policy, ProcedurePath } from './policyRules';
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 
 /**
- * What erxes support never does on a visit, owner or not: anything that would let them in or
- * send data to them after it ends (a member, a role, an API key, an agent with its key, a
- * webhook, a portal key) or hide what they did (audit settings).
+ * erxes support sets a client's workspace up as an owner. The one thing it never touches is
+ * the owners' own say over it: whether erxes support may come in, and its visits.
  */
-const DENIED_TO_SUPPORT = new Set<string>([
-  'team.invite',
-  'team.manage',
-  'roles.manage',
-  'api_keys.create',
-  'api_keys.manage',
-  'assistant.manage',
-  'webhooks.manage',
-  'portals.manage',
-  'audit.retention',
-  'audit.stream',
-  'support.manage',
-]);
+const DENIED_TO_SUPPORT = new Set<string>(['support.manage']);
 
 type Member = Extract<Caller, { type: 'user' }>;
 

@@ -39,8 +39,10 @@ export const SupportBanner = () => {
         {user.isSupport
           ? t(
               'banner-self',
-              'You’re in as erxes support until {{until}}. Team members, roles, API keys, agents, webhooks, portal keys and audit settings are closed to you.',
-              { until },
+              'You’re in as erxes support, with an owner’s rights, until {{until}}.',
+              {
+                until,
+              },
             )
           : t('banner-owner', 'erxes support is in your workspace: {{names}}, until {{until}}.', {
               names: (data?.data ?? []).map((visit) => visit.staffName).join(', '),
