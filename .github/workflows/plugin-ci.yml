@@ -185,6 +185,7 @@ jobs:
       - name: Start core in the background
         id: stack
         run: |
+          echo "$(nproc) cores, $(free -g | awk '/Mem:/ { print $2 }') GB"
           docker pull --quiet "$TRIVY" > /dev/null 2>&1 &
           [ -f deploy/docker-compose.yml ] || { echo 'No deploy/docker-compose.yml: no smoke test or daily flows.'; exit 0; }
           files=deploy/docker-compose.yml
@@ -303,6 +304,10 @@ jobs:
             echo "$problems"
             exit 1
           fi
+      # Its checks passed: its CPU and memory go to the daily flows.
+      - name: Stop the smoke test's stack
+        if: steps.stack.outputs.up
+        run: smoke-compose down --volumes > "$RUNNER_TEMP/smoke-down.log" 2>&1 &
       - name: Playwright's version, which keys the browser cache
         if: steps.stack.outputs.e2e
         id: playwright
