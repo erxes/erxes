@@ -62,33 +62,29 @@ jobs:
         run: pnpm build
 
   integration:
-    name: Tests on Postgres (${{ matrix.shard }}/2)
+    name: Tests on Postgres (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # The tests are the longest job; two runners halve them.
+    # The tests are the longest job; four runners split them.
     strategy:
       matrix:
-        shard: [1, 2]
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: erxes
-          POSTGRES_PASSWORD: ci-only-password
-          POSTGRES_DB: erxes_ci
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U erxes -d erxes_ci"
-          --health-interval 5s --health-timeout 3s --health-retries 20
+        shard: [1, 2, 3, 4]
     env:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
+      # Started first, not as a service, so it boots while the checkout and dependencies restore.
+      - name: Postgres 18
+        run: >-
+          docker run -d --name postgres -p 5432:5432
+          -e POSTGRES_USER=erxes -e POSTGRES_PASSWORD=ci-only-password -e POSTGRES_DB=erxes_ci postgres:18
       # A pull request's checkout is its merge commit; its first parent is the base.
       - uses: actions/checkout@v7
         with:
           fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
           filter: blob:none
       - uses: ./.github/actions/setup
+      - name: Postgres accepts connections
+        run: timeout 60 sh -c 'until docker exec postgres pg_isready -h 127.0.0.1 -U erxes -d erxes_ci; do sleep 1; done'
       # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
       - name: Migrated schema has forced row level security on every org_id table and core_ names
         if: matrix.shard == 1
@@ -96,7 +92,7 @@ jobs:
       # A pull request runs the test files its changes reach through imports, and every file when it
       # changes an input vite.config.ts's forceRerunTriggers lists. Pushes run every file.
       - name: Tests (API test files run in parallel, each on its own database as a role without BYPASSRLS)
-        run: pnpm exec vp run test --shard=${{ matrix.shard }}/2 ${{ github.event_name == 'pull_request' && '--changed=HEAD^1 --passWithNoTests' || '' }}
+        run: pnpm exec vp run test --shard=${{ matrix.shard }}/4 ${{ github.event_name == 'pull_request' && '--changed=HEAD^1 --passWithNoTests' || '' }}
 
   models:
     name: TLA+ models
@@ -218,20 +214,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # A plugin create-erxes generates runs its own tests and tenancy guard.
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: erxes
-          POSTGRES_PASSWORD: ci-only-password
-          POSTGRES_DB: erxes_ci
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U erxes -d erxes_ci"
-          --health-interval 5s --health-timeout 3s --health-retries 20
     env:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
+      # Started first, not as a service, so it boots while the checkout and dependencies restore.
+      - name: Postgres 18
+        run: >-
+          docker run -d --name postgres -p 5432:5432
+          -e POSTGRES_USER=erxes -e POSTGRES_PASSWORD=ci-only-password -e POSTGRES_DB=erxes_ci postgres:18
       - uses: actions/checkout@v7
         with:
           fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
@@ -250,6 +240,9 @@ jobs:
       - name: A plugin UI and a plugin server build against the tarballs
         if: steps.reach.outputs.run == 'true'
         run: consumers/run.sh "$RUNNER_TEMP/packs"
+      - name: Postgres accepts connections
+        if: steps.reach.outputs.run == 'true'
+        run: timeout 60 sh -c 'until docker exec postgres pg_isready -h 127.0.0.1 -U erxes -d erxes_ci; do sleep 1; done'
       - name: New and migrated plugins from create-erxes pass their own gates against the tarballs
         if: steps.reach.outputs.run == 'true'
         run: pnpm exec vp test run --project create-erxes-e2e
