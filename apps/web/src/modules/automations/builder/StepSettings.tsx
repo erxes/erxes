@@ -163,8 +163,8 @@ const ActionSettings = ({
 }: SettingsProps<'action'> & { actions: ActionInfo[]; outputs: FieldInfo[] }) => {
   const { step, subject, disabled, onChange } = props;
   const action = actions.find((item) => item.type === step.action);
-  const { hasSubject, hookAutomationId } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(subject, hookAutomationId);
+  const { hasSubject, automationId } = useContext(BuilderContext);
+  const { fields } = useAutomationFields(subject, automationId);
 
   const recordFields = hasSubject
     ? fields

@@ -17,11 +17,17 @@ import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────
 
+const KEY = String.raw`[^.{}|\s](?:[^.{}|]{0,58}[^.{}|\s])?`;
+
+export const DATA_KEY = new RegExp(`^${KEY}$`);
+
+export const dataPath = (deeper: number) => new RegExp(`^${KEY}(\\.${KEY}){0,${deeper}}$`);
+
 /** Where a condition or template reads from: `event.payload.amount`, `subject.primaryEmail`, `steps.s2.output.id`. */
 export const ContextPath = z
   .string()
   .trim()
-  .regex(/^(event|subject|steps|run)(\.[A-Za-z0-9_-]+)*$/, 'a path like subject.primaryEmail');
+  .regex(new RegExp(`^(event|subject|steps|run)(\\.${KEY})*$`), 'a path like subject.primaryEmail');
 
 export { CONDITION_OPERATORS };
 
@@ -205,12 +211,9 @@ export type Audience = z.infer<typeof Audience>;
 export const HookField = z
   .string()
   .max(200)
-  .regex(/^(body|query)(\.[A-Za-z][A-Za-z0-9_]{0,59}){1,4}$/, 'body.<key> or query.<key>');
+  .regex(new RegExp(`^(body|query)(\\.${KEY}){1,4}$`), 'body.<key> or query.<key>');
 
-const AppField = z
-  .string()
-  .max(200)
-  .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}(\.[A-Za-z][A-Za-z0-9_]{0,59}){0,4}$/, '<key> of the event');
+const AppField = z.string().max(200).regex(dataPath(4), '<key> of the event');
 
 const subjectFrom = (field: z.ZodString) =>
   z.discriminatedUnion('type', [

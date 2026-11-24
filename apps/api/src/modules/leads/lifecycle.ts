@@ -1,5 +1,9 @@
-import type { LeadRecordType, LIFECYCLE_INPUT_COLUMNS } from '@erxes/core-contract';
-import type { CUSTOMER_STATES, LEAD_EVENTS } from '@erxes/core-db/enums';
+import type {
+  LeadRecordType,
+  LIFECYCLE_INPUT_COLUMNS,
+  WithCorePayload,
+} from '@erxes/core-contract';
+import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import {
   actorOf,
   caller,
@@ -24,12 +28,12 @@ import { findStage, firstStage, type StageRow, stagesOf } from './stages';
 
 type CustomerRow = typeof customers.$inferSelect;
 
-export interface LeadStep {
-  event: (typeof LEAD_EVENTS)[number];
+type LeadChange = WithCorePayload<'core.lead.stage_changed'>['payload'];
+
+export type LeadStep = Omit<LeadChange, 'from' | 'to'> & {
   from: StageRow | null;
   to: StageRow | null;
-  reason: string | null;
-}
+};
 
 export interface LeadPlan {
   /** Columns to write on the person or company (they share them). */

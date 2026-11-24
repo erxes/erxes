@@ -71,8 +71,8 @@ const UNTIL = /^\{\{\s*([^{}|]+?)\s*\}\}$/;
 
 const UntilDate = ({ step, subject, disabled, onChange }: SettingsProps<'delay'>) => {
   const { t } = useTranslation('automations');
-  const { hookAutomationId, hasSubject, outputsBefore } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(hasSubject ? subject : null, hookAutomationId);
+  const { automationId, hasSubject, outputsBefore } = useContext(BuilderContext);
+  const { fields } = useAutomationFields(hasSubject ? subject : null, automationId);
 
   const dates = [...fields, ...outputsBefore(step.id)].filter(
     (field) => field.type === 'date' && !field.conditionsOnly,

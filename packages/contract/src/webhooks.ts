@@ -5,9 +5,18 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, httpUrl, Id, isoDate, listOf } from './common';
-import { EventTypeInfo } from './eventTypes';
+import { EventTypeInfo } from './eventTypeInfo';
 
-export { CORE_EVENT_TYPES, type CoreEventType, EventTypeInfo } from './eventTypes';
+export { CORE_EVENT_TYPES } from './eventTypes';
+
+export { DATE_TRIGGER_DATA, SCHEDULE_TRIGGER_DATA } from './eventData';
+
+export {
+  type CoreEventName,
+  type CoreEventType,
+  EventTypeInfo,
+  type WithCorePayload,
+} from './eventTypeInfo';
 
 /** `core.customer.created`, `core.customer.*`, `hr.*` or `*`. */
 export const EventPattern = z

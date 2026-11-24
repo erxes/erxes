@@ -14,7 +14,7 @@ import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { checkersByMember } from './conditionCheck';
 import { nextCursor, stepAt } from './cursor';
-import { rememberEventData } from './eventData';
+import { rememberAppEvent, rememberEventData } from './eventData';
 import { findHookSubject } from './hookSubject';
 import { advanceJob, continueAfter, definitionsOf, finishRun, log, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
@@ -242,6 +242,8 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
     if (!definition || (trigger?.kind !== 'event' && trigger?.kind !== 'app')) return;
 
     if (trigger.kind === 'app' && automation.subscriptionId !== event.entityId) return;
+
+    if (trigger.kind === 'app') await rememberAppEvent(tx, automation.id, event);
 
     const found =
       trigger.kind === 'app' && trigger.subject

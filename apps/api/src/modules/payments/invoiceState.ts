@@ -1,4 +1,4 @@
-import type { Invoice } from '@erxes/core-contract';
+import type { Invoice, WithCorePayload } from '@erxes/core-contract';
 import {
   type Db,
   integrationConnections,
@@ -73,7 +73,9 @@ export const callbackSignature = (invoiceId: string) =>
   hmacSha256(coreKey('erxes-payment-callback-v1'), invoiceId, 'base64url');
 
 /** What `core.payment.*` events carry about the invoice. */
-export const eventPayload = (invoice: InvoiceRow) => ({
+export const eventPayload = (
+  invoice: InvoiceRow,
+): WithCorePayload<'core.payment.created'>['payload'] => ({
   invoiceId: invoice.id,
   source: invoice.source,
   referenceType: invoice.referenceType,

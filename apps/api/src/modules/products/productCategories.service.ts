@@ -1,10 +1,11 @@
-import { actorOf, caller, type Db, newId, productCategories, products } from '@erxes/core-db';
+import { actorOf, caller, type Db, newId, productCategories } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkCategory } from './productChecks';
+import { clearCategory } from './products.service';
 
 const findCategory = async (client: Db, id: string) => {
   const [row] = await client
@@ -120,10 +121,7 @@ export const removeCategory = async (client: Db, id: string) => {
     throw fail('CATEGORY_HAS_CHILDREN', 'Move or delete its subcategories first');
   }
 
-  await client
-    .update(products)
-    .set({ categoryId: null, updatedAt: sql`now()` })
-    .where(eq(products.categoryId, id));
+  await clearCategory(client, id);
   await client.delete(productCategories).where(eq(productCategories.id, id));
   await recordAudit(client, {
     action: 'product_category.deleted',

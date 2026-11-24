@@ -37,7 +37,10 @@ describe('automation data fields', () => {
       { key: 'leaveId', label: 'Leave', type: 'text' },
     ]);
     expect(fieldsOf('hr.employee.hired')).toEqual([]);
-    expect(fieldsOf('core.customer.created')).toEqual([]);
+    expect(fieldsOf('core.customer.created')).toEqual([
+      { key: 'label', label: 'Name', type: 'text' },
+      { key: 'ownerId', label: 'Owner', type: 'member' },
+    ]);
     expect(outputsOf('hr.leave.create')).toEqual([
       { key: 'days', label: 'Days off', type: 'number' },
     ]);
@@ -58,7 +61,7 @@ describe('automation data fields', () => {
           {
             type: 'hr.leave.create',
             label: 'Create leave',
-            outputs: [{ key: 'days off', label: 'Days off', type: 'number' }],
+            outputs: [{ key: 'days|off', label: 'Days off', type: 'number' }],
           },
         ],
       }),

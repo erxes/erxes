@@ -18,7 +18,10 @@ export const subjectOf = (trigger: Trigger, triggers: Catalog['triggers']) => {
   if (trigger.kind === 'event') {
     const event = triggers.find((item) => item.type === trigger.event);
 
-    return { subject: event?.subject ?? 'customer', hasSubject: Boolean(event?.subject) };
+    return {
+      subject: event?.subject ?? 'customer',
+      hasSubject: Boolean(event?.subject) && !event?.subjectGone,
+    };
   }
 
   if (trigger.kind === 'date') return { subject: trigger.subject, hasSubject: true };

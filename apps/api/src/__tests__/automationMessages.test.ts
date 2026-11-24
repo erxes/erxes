@@ -87,8 +87,14 @@ describe('automation messages', { timeout: 240_000 }, () => {
     expect((await onlyRun(id)).run.status).toBe('succeeded');
     expect(await outputsOf(id)).toEqual({
       tell: { sent: 1 },
-      mail: { sent: 0, reason: 'no email address' },
+      mail: { sent: 0, held: 0, suppressed: 0, reason: 'no email address' },
     });
+    expect((await t.owner().automations.outputs({ id })).data).toContainEqual({
+      stepId: 'tell',
+      action: 'core.notification.send',
+      fields: [{ key: 'sent', label: 'Sent', type: 'number' }],
+    });
+    await expect(t.other().automations.outputs({ id })).rejects.toMatchObject({ status: 404 });
     expect(
       (await inboxOf(t.member())).find((item) => item.title === 'Started by hand'),
     ).toMatchObject({
@@ -249,6 +255,8 @@ describe('automation messages', { timeout: 240_000 }, () => {
     await t.owner().customers.create({ firstName: 'Unmailed' });
     await settle();
 
-    expect(await outputsOf(id)).toEqual({ own: { sent: 0, reason: 'no email address' } });
+    expect(await outputsOf(id)).toEqual({
+      own: { sent: 0, held: 0, suppressed: 0, reason: 'no email address' },
+    });
   });
 });

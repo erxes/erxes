@@ -310,6 +310,8 @@ export * from './portalKeys';
 
 export * from './portalMessages';
 
+export * from './payloadFields';
+
 export * from './portals';
 
 export * from './apiKeys';

@@ -150,8 +150,20 @@ describe('products', { timeout: 120_000 }, () => {
       ]),
     );
 
-    // Events name the product; subscribers read it from core.
-    for (const event of events.data) expect(Object.keys(event.payload)).toEqual(['changed']);
+    for (const event of events.data)
+      expect(Object.keys(event.payload).toSorted()).toEqual([
+        'barcode',
+        'categoryId',
+        'changed',
+        'code',
+        'currency',
+        'kind',
+        'name',
+        'price',
+        'productId',
+        'status',
+        'unit',
+      ]);
   });
 
   it('lets plugins share products: each lists its own and uses others by choice', async () => {

@@ -16,6 +16,7 @@ import { automationCatalog } from '~/modules/automations/automationCatalog';
 import { automationFields, definitionProblems } from '~/modules/automations/definitions';
 import { testAutomation } from '~/modules/automations/dryRun';
 import {
+  automationOutputs,
   automationStats,
   cancelAutomationRun,
   getRun,
@@ -48,6 +49,7 @@ export const automationsRouter = {
   saveSample: scoped.automations.saveSample.handler(({ input: { id, ...request } }) =>
     saveSample(db(), id, request),
   ),
+  outputs: scoped.automations.outputs.handler(({ input }) => automationOutputs(db(), input.id)),
   stats: scoped.automations.stats.handler(({ input }) => automationStats(db(), input.id)),
   versions: scoped.automations.versions.handler(({ input }) => listVersions(db(), input.id)),
   restoreVersion: scoped.automations.restoreVersion.handler(({ input }) =>

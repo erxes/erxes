@@ -1,5 +1,5 @@
 import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
-import { CORE_EVENT_TYPES, type CoreEventType, type EventTypeInfo } from '@erxes/core-contract';
+import { CORE_EVENT_TYPES, type EventTypeInfo, payloadFields } from '@erxes/core-contract';
 import { caller, type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -19,14 +19,15 @@ export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => 
     .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
   return [
-    ...CORE_EVENT_TYPES.map((item: CoreEventType) => ({
+    ...CORE_EVENT_TYPES.map((item) => ({
       type: item.type,
       label: item.label,
       description: item.description,
       source: 'core',
       subject: item.subject,
-      record: item.record ?? null,
-      fields: [...(item.fields ?? [])],
+      subjectGone: 'subjectGone' in item,
+      record: 'record' in item ? item.record : null,
+      fields: 'payload' in item ? payloadFields(item.payload) : [],
     })),
     ...installed.flatMap((plugin) =>
       (plugin.manifest?.events ?? []).map((item) => ({

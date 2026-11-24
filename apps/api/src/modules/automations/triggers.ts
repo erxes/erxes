@@ -9,6 +9,8 @@ import { defineJob } from '~/modules/jobs/jobs';
 import { automationChecker } from './conditionCheck';
 import { dateConditions } from './conditions';
 import { startRun, startRuns } from './consumer';
+import { rememberTriggerData } from './eventData';
+import { type FiringEvent, firing } from './firing';
 import { definitionOf, log } from './runs';
 import { nextOccurrence } from './schedule';
 import {
@@ -54,7 +56,6 @@ export const rescheduleAutomations = async (tx: Db, timeZone: string) => {
 };
 
 /** An event a firing starts runs with. */
-type FiringEvent = { type: string; occurredAt: string; payload: Record<string, unknown> };
 
 /** Which records one firing starts, and how each one's run starts. */
 interface Enrollment {
@@ -111,7 +112,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string, timeZone: string): Enr
   const day = isoDay(today);
 
   const payload = { field: trigger.field, offsetDays: trigger.offsetDays, day };
-  const event = { type: 'date', occurredAt: at, payload };
+  const event = firing('date', at, payload);
 
   return {
     type: trigger.subject,
@@ -121,8 +122,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string, timeZone: string): Enr
     startOf: (subject) => ({
       eventId: `date:${day}:${subject.id}`,
       event: {
-        type: 'date',
-        occurredAt: at,
+        ...event,
         payload: {
           ...payload,
           date:
@@ -203,16 +203,16 @@ const enrollmentFor = async (tx: Db, definition: AutomationDefinition, payload: 
     return audienceEnrollment(
       trigger.audience,
       payload.manualKey,
-      { type: 'manual', occurredAt: at, payload: payload.data ?? {} },
+      firing('manual', at, payload.data ?? {}),
       payload.depth,
     );
 
   return trigger.kind === 'schedule'
-    ? audienceEnrollment(trigger.audience, `schedule:${at}`, {
-        type: 'schedule',
-        occurredAt: at,
-        payload: { every: trigger.every },
-      })
+    ? audienceEnrollment(
+        trigger.audience,
+        `schedule:${at}`,
+        firing('schedule', at, { every: trigger.every }),
+      )
     : null;
 };
 
@@ -247,7 +247,7 @@ export const fireJob = defineJob({
         eventId: `schedule:${at}`,
         eventType: 'schedule',
         subject: null,
-        event: { type: 'schedule', occurredAt: at, payload: { every: trigger.every } },
+        event: firing('schedule', at, { every: trigger.every }),
         loaded: null,
       });
 
@@ -335,11 +335,15 @@ export const startNow = async (
   const { subjects, depth } = start;
   const manualKey = start.key ?? `manual:${newId()}`;
   const scheduledFor = new Date().toISOString();
-  const event = { type: 'manual', occurredAt: scheduledFor, payload: start.data ?? {} };
+
+  const event = firing('manual', scheduledFor, start.data ?? {});
+
   const { trigger } = definition;
 
   const audience =
     trigger.kind === 'manual' || trigger.kind === 'schedule' ? trigger.audience : undefined;
+
+  if (start.data) await rememberTriggerData(tx, automation.id, 'manual', start.data);
 
   if (subjects?.length) {
     const chosen = audienceEnrollment(

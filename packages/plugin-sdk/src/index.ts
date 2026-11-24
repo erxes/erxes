@@ -251,6 +251,8 @@
 
 export * from './client';
 
+export { payloadFields } from '@erxes/core-contract';
+
 export * from './jobs';
 
 export { PluginCallError } from './pluginCalls';

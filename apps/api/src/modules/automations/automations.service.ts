@@ -15,7 +15,7 @@ import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { listenFor } from '~/modules/integrations/subscriptions';
 import { checkDefinition } from './definitions';
-import { forgetHookData } from './eventData';
+import { forgetAutomationData } from './eventData';
 import { saveHookSample, withHookUrls } from './hooks';
 import { triggerKey } from './triggerKey';
 import { firstRunAt } from './triggers';
@@ -217,7 +217,7 @@ export const removeAutomation = async (client: Db, id: string) => {
 
   await listenFor(client, id, null);
   await client.delete(automations).where(eq(automations.id, id));
-  await forgetHookData(client, id);
+  await forgetAutomationData(client, id);
   await recordAudit(client, {
     action: 'automation.deleted',
     targetType: 'automation',

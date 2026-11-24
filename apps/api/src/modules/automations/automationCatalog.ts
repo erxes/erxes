@@ -3,10 +3,10 @@ import { and, eq } from 'drizzle-orm';
 import { connectedIntegrations } from '~/modules/integrations/actions';
 import { appCatalog, appTriggerTypes } from '~/modules/integrations/appCatalog';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
-import type { CatalogSearch } from '@erxes/core-contract';
+import { type CatalogSearch, keyLabel } from '@erxes/core-contract';
 import { actionCatalog } from './actions/catalog';
 import { actionText, ranked } from './catalogSearch';
-import { type Carried, healedFields, labelOf } from './dataFields';
+import { type Carried, healedFields } from './dataFields';
 import { isEventType, learnedEventData, outputType } from './eventData';
 
 const installedPlugins = (client: Db) =>
@@ -29,7 +29,7 @@ const unexpectedTriggers = (
     return [
       {
         type,
-        label: labelOf(rest.join(' ')),
+        label: keyLabel(rest.join(' ')),
         description: null,
         source,
         subject: null,
