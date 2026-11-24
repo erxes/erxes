@@ -12,13 +12,26 @@ export const useCallEnabledIntegrations = () => {
   const [enabledIds, setEnabledIds] = useAtom(callEnabledIntegrationIdsAtom);
   const [callConfig, setCallConfig] = useAtom(callConfigAtom);
 
+  // Persisted ids may name integrations the user no longer operates.
   const activeIds = useMemo(() => {
-    const ids = new Set(enabledIds);
-    if (callConfig?.isAvailable && callConfig.inboxId) {
+    const validIds = new Set(
+      (callUserIntegrations || []).map((integration) => integration.inboxId),
+    );
+    const ids = new Set(enabledIds.filter((id) => validIds.has(id)));
+    if (
+      callConfig?.isAvailable &&
+      callConfig.inboxId &&
+      validIds.has(callConfig.inboxId)
+    ) {
       ids.add(callConfig.inboxId);
     }
     return ids;
-  }, [enabledIds, callConfig?.inboxId, callConfig?.isAvailable]);
+  }, [
+    callUserIntegrations,
+    enabledIds,
+    callConfig?.inboxId,
+    callConfig?.isAvailable,
+  ]);
 
   const enabledIntegrations = useMemo(
     () =>
@@ -39,29 +52,28 @@ export const useCallEnabledIntegrations = () => {
     }
 
     if (checked) {
-      setEnabledIds(Array.from(new Set([...activeIds, inboxId])));
-      if (!callConfig?.isAvailable) {
-        setCallConfig({ ...integration, isAvailable: true });
-      }
+      setEnabledIds((prev) => Array.from(new Set([...prev, inboxId])));
+      setCallConfig((prev) =>
+        prev?.isAvailable && activeIds.has(prev.inboxId || '')
+          ? prev
+          : { ...integration, isAvailable: true },
+      );
       return;
     }
 
     const remainingIds = Array.from(activeIds).filter((id) => id !== inboxId);
-    setEnabledIds(remainingIds);
-
-    if (callConfig?.inboxId !== inboxId) {
-      return;
-    }
+    setEnabledIds((prev) => prev.filter((id) => id !== inboxId));
 
     const nextIntegration = (callUserIntegrations || []).find(
       (item) => !!item.inboxId && remainingIds.includes(item.inboxId),
     );
 
-    setCallConfig(
-      nextIntegration
+    setCallConfig((prev) => {
+      if (prev?.inboxId !== inboxId) return prev;
+      return nextIntegration
         ? { ...nextIntegration, isAvailable: true }
-        : { ...integration, isAvailable: false },
-    );
+        : { ...integration, isAvailable: false };
+    });
   };
 
   const selectCallFrom = (inboxId: string) => {

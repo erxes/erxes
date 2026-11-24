@@ -15,6 +15,15 @@ export const usePauseAgent = () => {
   const [changeAgentStatus, { loading: changeAgentStatusLoading }] =
     useMutation(CALL_PAUSE_AGENT, {
       refetchQueries: [CALL_GET_AGENT_STATUS],
+      awaitRefetchQueries: true,
+      onCompleted(data) {
+        if (data?.callsPauseAgent === 'failed') {
+          toast({
+            title: t('something-went-wrong-pausing-agent'),
+            variant: 'destructive',
+          });
+        }
+      },
       onError(error) {
         toast({
           title: t('something-went-wrong-pausing-agent'),

@@ -16,18 +16,20 @@ export const renderUserInfo = (
     );
   }
 
+  const fullName = (
+    person?: {
+      firstName?: string | null;
+      lastName?: string | null;
+    } | null,
+  ) => [person?.firstName, person?.lastName].filter(Boolean).join(' ');
+
   const displayName =
-    customer?.firstName || customer?.lastName
-      ? `${customer?.firstName || ''} ${customer?.lastName || ''}`.trim()
-      : customer?.primaryPhone ||
-        customerDetail?.firstName ||
-        customerDetail?.lastName
-      ? `${customerDetail?.firstName || ''} ${
-          customerDetail?.lastName || ''
-        }`.trim()
-      : customerDetail?.primaryPhone || phoneNumber
-      ? phoneNumber
-      : 'Unknown';
+    fullName(customer) ||
+    fullName(customerDetail) ||
+    customer.primaryPhone ||
+    customerDetail?.primaryPhone ||
+    phoneNumber ||
+    'Unknown';
 
   return (
     <div className="text-center space-y-1">

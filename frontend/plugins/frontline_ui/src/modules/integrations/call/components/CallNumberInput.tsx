@@ -3,16 +3,13 @@ import { useAtom, useSetAtom } from 'jotai';
 
 import { IconBackspace } from '@tabler/icons-react';
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
-import { useSip } from '@/integrations/call/components/SipProvider';
 
-export const CallNumberInput = () => {
+export const CallNumberInput = ({ onSubmit }: { onSubmit: () => void }) => {
   const [number, setNumber] = useAtom(callNumberState);
-  const { startCall } = useSip();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (number.length === 0) return;
-    startCall(number);
+    onSubmit();
   };
 
   return (
@@ -21,7 +18,7 @@ export const CallNumberInput = () => {
         <Input
           className="text-center"
           value={formatPhoneNumber({ value: number, defaultCountry: 'MN' })}
-          onChange={(e) => setNumber(e.target.value.replace(' ', ''))}
+          onChange={(e) => setNumber(e.target.value.replace(/\s+/g, ''))}
         />
         <button className="sr-only" type="submit" />
       </form>
