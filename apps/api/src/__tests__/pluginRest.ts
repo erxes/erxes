@@ -6,6 +6,9 @@ import { once } from 'node:events';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { text } from 'node:stream/consumers';
 import { z } from 'zod';
+import { config } from '~/config';
+import { connectProvider, fakeModel } from './fakeModel';
+import type { useTwoOrgs } from './support';
 
 interface Call {
   procedure: string;
@@ -58,7 +61,7 @@ export const SKILL_TEXT =
   '# Leave balances\n\nRead days left with hr:leave.balances; show them per employee.';
 
 /** The HR plugin's manifest: its member and portal documents, a permission and two skills. */
-export const hrManifest = (apiUrl: string) =>
+const hrManifest = (apiUrl: string) =>
   ({
     title: 'HR',
     version: '2.1.0',
@@ -159,7 +162,7 @@ interface Caller {
   mayView: boolean;
 }
 
-export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
+const pluginRest = async (coreUrl: string, plugin = 'hr') => {
   const calls: Call[] = [];
   const portalCalls: PortalCall[] = [];
   const server = createServer().listen(0);
@@ -264,3 +267,22 @@ export const pluginRest = async (coreUrl: string, plugin = 'hr') => {
     },
   };
 };
+
+/**
+ * The fake model as every organisation's provider, and the HR plugin's API installed in the first
+ * organisation only.
+ */
+export const hrAssistant = async (t: ReturnType<typeof useTwoOrgs>, key: string) => {
+  const model = await fakeModel(key);
+  const hr = await pluginRest(t.url(''));
+
+  Object.assign(config.assistant.endpoints, { kimi: model.url });
+  await t.client(await t.pluginToken()).plugins.registerManifest(hrManifest(hr.url));
+  await t.other().plugins.uninstall({ name: 'hr' });
+  await connectProvider(t.owner(), key);
+  await connectProvider(t.other(), key);
+
+  return { model, hr };
+};
+
+export type HrAssistant = Awaited<ReturnType<typeof hrAssistant>>;
