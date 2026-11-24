@@ -20,6 +20,9 @@ export const recordPayment = async (client: Db, input: RecordedPayment) => {
 
   if (existing) return existing;
 
+  const currency = input.currency ?? (await getOrganization(client)).currency;
+  const ebarimtId = await ebarimtIdOf(client, { ...input, currency });
+
   const [row] = await client
     .insert(paymentInvoices)
     .values({
@@ -30,7 +33,7 @@ export const recordPayment = async (client: Db, input: RecordedPayment) => {
       referenceType: input.referenceType,
       referenceId: input.referenceId,
       amount: input.amount,
-      currency: input.currency ?? (await getOrganization(client)).currency,
+      currency,
       description: input.description,
       status: 'paid',
       paidAmount: input.amount,
@@ -41,7 +44,7 @@ export const recordPayment = async (client: Db, input: RecordedPayment) => {
       lines: await resolveInvoiceLines(client, input.amount, input.lines ?? []),
       taxBuyer: input.taxBuyer ?? null,
       taxReceipt: input.taxReceipt ?? true,
-      ebarimtId: await ebarimtIdOf(client, input.ebarimtId),
+      ebarimtId,
     })
     .onConflictDoNothing()
     .returning();

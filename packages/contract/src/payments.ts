@@ -33,7 +33,10 @@ const InvoiceFields = z.object({
   taxBuyer: TaxBuyer.optional(),
   /** False: no tax receipt for it, as for an order that needs none. */
   taxReceipt: z.boolean().default(true),
-  /** The eBarimt config that issues its receipt (`ebarimt.configs`); none: the default. 404 */
+  /**
+   * The eBarimt config that issues its receipt (`ebarimt.configs`); none: the default. 404 for an
+   * unknown one; 400 EBARIMT_CONFIG_OFF for one turned off, when the invoice gets a receipt.
+   */
   ebarimtId: Id.optional(),
 });
 
@@ -147,6 +150,7 @@ export type RecordedPayment = z.infer<typeof RecordedPayment>;
  */
 const {
   CURRENCY_NOT_SUPPORTED,
+  EBARIMT_CONFIG_OFF,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
@@ -165,6 +169,7 @@ const {
 const base = oc.errors({
   ...COMMON_ERRORS,
   CURRENCY_NOT_SUPPORTED,
+  EBARIMT_CONFIG_OFF,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
@@ -207,7 +212,7 @@ export const paymentsContract = {
       successStatus: 201,
       summary: 'Create an invoice',
       description:
-        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the organisation's default gateway, else the oldest active one that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
+        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the organisation's default gateway, else the oldest active one that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT. 400 EBARIMT_CONFIG_OFF when `ebarimtId` names a config that is turned off and the invoice gets a receipt from it",
     })
     .input(
       InvoiceFields.extend({
@@ -237,7 +242,7 @@ export const paymentsContract = {
       successStatus: 201,
       summary: 'Record an outside payment',
       description:
-        'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT',
+        'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT; 400 EBARIMT_CONFIG_OFF when `ebarimtId` names a config that is turned off and the payment gets a receipt from it',
     })
     .input(RecordedPayment)
     .output(Invoice),

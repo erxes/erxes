@@ -56,7 +56,11 @@ export const EbarimtSettings = createSelectSchema(ebarimtSettings, {
   name: true,
   /** Issues the receipts of invoices that name no config. One per organisation. */
   isDefault: true,
-  /** `disabled`: no receipts are sent; the settings stay. */
+  /**
+   * `disabled`: no receipts are sent; the settings stay. An invoice can't name it (400
+   * EBARIMT_CONFIG_OFF); a receipt it would send for an invoice that names it, or one it issued,
+   * is kept as failed with an error saying it is off.
+   */
   status: true,
   posApiUrl: true,
   companyName: true,
@@ -192,7 +196,8 @@ const InvoiceRef = z.object({ invoiceId: Id });
  * by the organisation's rule for its product, else by the line's `tax`,
  * else with VAT. A refund returns the receipt, or replaces it with
  * one for what is left. Receipts are sent in the background; a failed one is
- * kept with its error and sent again by `sync`.
+ * kept with its error and sent again by `sync`. A receipt whose config is turned off is kept as
+ * failed too ("… is off"), not dropped, so turning it back on and syncing sends it.
  */
 export const ebarimtContract = {
   configs: base
