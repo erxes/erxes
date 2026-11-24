@@ -104,7 +104,7 @@ export const ModelPicker = ({ state, disabled }: { state: ModelRunState; disable
   const levelName = level ? t(`thinking.${level}`, LEVEL_LABELS[level]) : null;
 
   const name = run
-    ? `${PROVIDER_LABELS[run.provider]} · ${model}`
+    ? `${PROVIDER_LABELS[run.provider]} · ${model}${levelName ? ` · ${levelName}` : ''}`
     : t('model.no-key', 'No provider');
 
   return (

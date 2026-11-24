@@ -87,7 +87,7 @@
   },
   "new-chat": "New chat",
   "close-tab": "Close tab (the conversation stays in history)",
-  "open-conversations": "Open conversations",
+  "open-conversations": "{{title}}, open conversations",
   "close-panel": "Close assistant",
   "ui": {
     "drawing": "Drawing…",
