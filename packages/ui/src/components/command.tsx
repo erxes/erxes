@@ -147,17 +147,31 @@ const CommandEmpty = ({
   />
 );
 
+const commandGroupVariants = cva(
+  'overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-accent-foreground',
+  {
+    variants: {
+      layout: {
+        list: '',
+        /** Its items side by side, three to a row: `variant="card"` choices. */
+        cards:
+          '**:[[cmdk-group-items]]:grid **:[[cmdk-group-items]]:grid-cols-3 **:[[cmdk-group-items]]:gap-1',
+      },
+    },
+    defaultVariants: { layout: 'list' },
+  },
+);
+
 const CommandGroup = ({
   ref,
   className,
+  layout,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Group>) => (
+}: React.ComponentProps<typeof CommandPrimitive.Group> &
+  VariantProps<typeof commandGroupVariants>) => (
   <CommandPrimitive.Group
     ref={ref}
-    className={cn(
-      'overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-accent-foreground',
-      className,
-    )}
+    className={cn(commandGroupVariants({ layout }), className)}
     {...props}
   />
 );
@@ -183,6 +197,8 @@ const commandItemVariants = cva(
         destructive: 'text-destructive-text',
         /** A card in a grid of choices; checked, it is outlined and tinted primary. */
         tile: 'h-auto gap-2.5 rounded-md border border-transparent py-2',
+        /** A square choice in a `layout="cards"` group: its icon over a short label. */
+        card: 'h-auto min-h-16 flex-col justify-center gap-1 rounded-lg border border-transparent p-1.5 text-center text-xs data-[selected=true]:border-border',
       },
       /** The current value among the items, such as the picked icon or the open filter. */
       checked: { true: 'text-primary-text' },
@@ -194,7 +210,7 @@ const commandItemVariants = cva(
       inset: { default: '', nested: 'cursor-pointer pl-7', flush: 'cursor-pointer p-0' },
     },
     compoundVariants: [
-      { variant: 'tile', checked: true, className: 'border-primary/30 bg-primary/5' },
+      { variant: ['tile', 'card'], checked: true, className: 'border-primary/30 bg-primary/5' },
     ],
     defaultVariants: { variant: 'default' },
   },

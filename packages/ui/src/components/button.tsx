@@ -29,7 +29,7 @@ const variants = cva(
         overlay: 'rounded-full bg-background/80 hover:bg-background',
         /** A round "+" that inserts between two items, such as automation steps. */
         insert:
-          'rounded-full border bg-background text-muted-foreground shadow-xs hover:border-primary hover:text-primary-text',
+          'rounded-full border bg-background text-muted-foreground shadow-xs transition-transform hover:scale-110 hover:border-primary hover:bg-primary hover:text-primary-foreground data-popup-open:scale-110 data-popup-open:border-primary data-popup-open:bg-primary data-popup-open:text-primary-foreground',
         /** An action that reads as a link: outlined, primary text (3.x's `link`). */
         link: 'bg-background shadow-button-outline hover:bg-accent text-primary-text',
         /** A value that fills a table cell and opens its picker: square, regular weight. */
