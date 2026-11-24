@@ -7,6 +7,7 @@ import {
 import { IContext } from '~/connectionResolvers';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { syncCdrRecordFile, getOrCreateCustomer } from '../../store';
+import { withoutCloudflareIceConfigs } from '@/integrations/call/services/iceServers';
 
 export interface ISession {
   sessionCode: string;
@@ -93,7 +94,9 @@ const callsMutations = {
   ) {
     await checkPermission('integrationsEdit');
 
-    await models.CallConfigs.updateConfigs(configsMap);
+    await models.CallConfigs.updateConfigs(
+      await withoutCloudflareIceConfigs(configsMap),
+    );
 
     return { status: 'ok' };
   },

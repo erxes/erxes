@@ -202,3 +202,53 @@ export const withCloudflareIceServers = async (
     ...overrides,
   ];
 };
+
+const LEGACY_ICE_CODES = [
+  'STUN_SERVER_URL',
+  'TURN_SERVER_URL',
+  'TURN_SERVER_USERNAME',
+  'TURN_SERVER_CREDENTIAL',
+];
+
+const isCloudflareIceHost = (value: unknown) =>
+  typeof value === 'string' &&
+  /(^|[.:/@])(stun|turn)\.cloudflare\.com/i.test(value);
+
+/*
+ * While Cloudflare TURN is on, the config form loads its short-lived values.
+ * Saving the form must not store them over the permanent CallConfigs
+ * fallback, so this drops ICE_SERVERS and every STUN/TURN value that is the
+ * current Cloudflare one or points at Cloudflare. A Cloudflare TURN URL takes
+ * its username and credential with it.
+ */
+export const withoutCloudflareIceConfigs = async (
+  configsMap: Record<string, unknown>,
+) => {
+  const { CF_TURN_KEY_ID, CF_TURN_API_TOKEN } = process.env;
+  if (!CF_TURN_KEY_ID || !CF_TURN_API_TOKEN) return configsMap;
+
+  const iceServers = await getCloudflareIceServers();
+  const current = new Map(
+    (iceServers ? iceServerConfigs(iceServers) : []).map((config) => [
+      config.code,
+      config.value,
+    ]),
+  );
+  const turnIsCloudflare =
+    isCloudflareIceHost(configsMap.TURN_SERVER_URL) ||
+    (current.has('TURN_SERVER_URL') &&
+      current.get('TURN_SERVER_URL') === configsMap.TURN_SERVER_URL);
+
+  return Object.fromEntries(
+    Object.entries(configsMap).filter(([code, value]) => {
+      if (code === 'ICE_SERVERS') return false;
+      if (!LEGACY_ICE_CODES.includes(code)) return true;
+      if (current.has(code) && current.get(code) === value) return false;
+      if (isCloudflareIceHost(value)) return false;
+      return !(
+        turnIsCloudflare &&
+        (code === 'TURN_SERVER_USERNAME' || code === 'TURN_SERVER_CREDENTIAL')
+      );
+    }),
+  );
+};

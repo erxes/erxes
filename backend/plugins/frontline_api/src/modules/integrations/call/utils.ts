@@ -13,10 +13,13 @@ import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
+import { ensureCallIndexes } from '@/integrations/call/indexes';
 
 const MAX_RETRY_COUNT = 3;
 const UCM_REQUEST_TIMEOUT_MS = 60_000;
-const RECORD_UPLOAD_TIMEOUT_MS = 120_000;
+// An hour-long call is a WAV of about 60 MB.
+const RECORD_DOWNLOAD_TIMEOUT_MS = 300_000;
+const RECORD_UPLOAD_TIMEOUT_MS = 300_000;
 // A UCM error is a tiny JSON object; anything larger is a file.
 const UCM_JSON_SNIFF_BYTES = 16 * 1024;
 
@@ -102,6 +105,7 @@ export interface IGrandStreamRequest {
   isAddExtention?: boolean;
   isGetExtension?: boolean;
   extensionNumber?: string;
+  timeoutMs?: number;
 }
 
 export const sendToGrandStream = async (
@@ -120,6 +124,7 @@ export const sendToGrandStream = async (
     isAddExtention,
     isGetExtension,
     extensionNumber: requestedExtension,
+    timeoutMs,
   } = args;
 
   if (retryCount <= 0) {
@@ -144,18 +149,22 @@ export const sendToGrandStream = async (
 
   const cookie = await getOrSetCallCookie(wsServer);
 
-  const res = await sendRequest(`https://${wsServer}/${path}`, {
-    method,
-    headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...data,
-      request: {
-        ...data.request,
-        cookie,
-        ...(isAddExtention && { extension: extensionNumber }),
-      },
-    }),
-  });
+  const res = await sendRequest(
+    `https://${wsServer}/${path}`,
+    {
+      method,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...data,
+        request: {
+          ...data.request,
+          cookie,
+          ...(isAddExtention && { extension: extensionNumber }),
+        },
+      }),
+    },
+    timeoutMs,
+  );
 
   const json =
     isConvertToJson || res.body.length < UCM_JSON_SNIFF_BYTES
@@ -342,6 +351,7 @@ export const cfRecordUrl = async (
       integrationId: inboxIntegrationId,
       retryCount,
       isConvertToJson: false,
+      timeoutMs: RECORD_DOWNLOAD_TIMEOUT_MS,
     },
     user,
   );
@@ -697,9 +707,13 @@ export const normalizeQueueStat = (q: any, integrationId: string) => ({
 
 export const upsertQueueStatistics = async (
   models: IModels,
+  subdomain: string,
   integration: ICallIntegrationDocument,
   payload: any,
 ): Promise<{ upserted: number }> => {
+  // Converts rows saved while `queue` was a Number before writing strings.
+  await ensureCallIndexes(models, subdomain);
+
   const integrationId = integration?.inboxId;
   if (!integrationId) {
     throw new Error('Integration not resolved');

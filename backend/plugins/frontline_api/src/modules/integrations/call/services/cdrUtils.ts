@@ -4,6 +4,7 @@ import { CallOperator } from '@/integrations/call/@types/integrations';
 
 const CDR_TIME_OFFSET = '+08:00';
 const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
+const RECORDING_RETRY_DELAY_MS = 5000;
 
 export const parseCdrDate = (
   value?: string | Date | null,
@@ -136,12 +137,22 @@ export const syncCdrRecording = async (
     return;
   }
 
-  const recordUrl = await generateRecordUrl(
-    cdrParams,
-    inboxId,
-    models,
-    subdomain,
-  );
+  let recordUrl: string;
+  try {
+    recordUrl = await generateRecordUrl(cdrParams, inboxId, models, subdomain);
+  } catch (error) {
+    // The UCM often has not finished writing the file when the CDR arrives.
+    console.warn(
+      `[call] recording for CDR ${acctId} failed, retrying in ${
+        RECORDING_RETRY_DELAY_MS / 1000
+      }s:`,
+      error instanceof Error ? error.message : error,
+    );
+    await new Promise((resolve) =>
+      setTimeout(resolve, RECORDING_RETRY_DELAY_MS),
+    );
+    recordUrl = await generateRecordUrl(cdrParams, inboxId, models, subdomain);
+  }
 
   if (recordUrl) {
     await models.CallCdrs.updateOne({ acctId }, { $set: { recordUrl } });
@@ -160,13 +171,18 @@ const shouldProcessRecordUrl = (recordfiles, disposition, lastapp) => {
   );
 };
 
-const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
+const generateRecordUrl = async (
+  cdrParams: ICdrParams,
+  inboxId: string,
+  models: IModels,
+  subdomain: string,
+) => {
   const fileDir = calculateFileDir(cdrParams);
 
   return await cfRecordUrl(
     {
       fileDir,
-      recordfiles: cdrParams.recordfiles,
+      recordfiles: cdrParams.recordfiles || '',
       inboxIntegrationId: inboxId,
       retryCount: 3,
     },

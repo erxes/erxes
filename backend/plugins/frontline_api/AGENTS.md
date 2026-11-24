@@ -1225,6 +1225,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `TURN_SERVER_USERNAME`, `TURN_SERVER_CREDENTIAL`, which replace stored rows
   of the same code. Unset variables or a Cloudflare failure (retried after a
   minute) return the stored rows only.
+- GraphQL `callsUpdateConfigs` (`integrationsEdit`) saves `configsMap` by code.
+  While Cloudflare TURN is on, `withoutCloudflareIceConfigs` drops
+  `ICE_SERVERS` and every STUN/TURN value that equals the current Cloudflare
+  one or names `stun.`/`turn.cloudflare.com` (a Cloudflare TURN URL also drops
+  its username and credential), so saving the form never stores short-lived
+  credentials over the permanent fallback.
 - GraphQL `callsIntegrationDetail` and `callUserIntegrations` return
   `operators` as `[CallOperator]` (`userId`, `gsUsername`, `gsPassword`,
   `gsForwardAgent`), all nullable because the model stores operators as a
@@ -1670,6 +1676,8 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   indexes. `CallQueueStatistics.queue` is a string with one row per
   `{ integrationId, queue }` (unique); `ensureCallIndexes` dedupes old
   numeric/string rows (newest wins), converts numbers and builds the index.
+  It runs once per subdomain per process, on integration create/edit and
+  before the first `/call/queueStatistics` write or `callQueueList` read.
   `CallSessions.customerPhone` is optional.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
@@ -1743,13 +1751,18 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   250 ms), then the customer lock `<subdomain>:call:customer:<phone>`, which
   is shared by every peer integration. Queue re-homing
   (`rehomeCallRecords`, `queueName` on every session sharing the
-  `uniqueid`/`linkedid`) runs inside those locks. Locks are released through
-  `releaseLocks`; the Redis client and Redlock log their errors instead of
-  crashing the process.
+  `uniqueid`/`linkedid`) runs inside those locks. `withSessionLock` and
+  `withCustomerLock` run the work through `redlock.using`, which extends the
+  lock while it runs; a lock lost or a release failing after the work is only
+  logged. When the session lock stays busy for the whole retry window the
+  routes answer `503` with `Retry-After: 1` (`CallLockBusyError`); other
+  failures stay `500`. A busy customer lock runs the work without it. The
+  Redis client and Redlock log their errors instead of crashing the process.
 - A CDR's recording never runs inside the lock or the webhook response:
   `receiveCdr` saves the CDR and session, answers the PBX, then starts
-  `syncCdrRecording` and only logs its failure. It writes `recordUrl` to the
-  CDR and to the session whose `cdrAcctId` is that leg.
+  `syncCdrRecording`, which retries once after 5 s and only logs a final
+  failure. It writes `recordUrl` to the CDR and to the session whose
+  `cdrAcctId` is that leg.
 - `CallSessions.markEnded` keeps the latest `endedAt` it has seen, and only
   the best leg so far (`ANSWERED` > `NO ANSWER` > `BUSY` > `FAILED`) may set
   `cdrAcctId`, `durationSec` and `recordUrl`, so a late unanswered leg never
@@ -1765,8 +1778,9 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
 - `getOrCreateCustomer` never overwrites a core customer's `primaryPhone`
   and reads core with `throwOnError`, so a core outage fails the webhook
   instead of creating a duplicate customer.
-- UCM requests go through `sendRequest`: a 60 s timeout covers the whole
-  body, the body is read once into a buffer, and TLS verification is skipped
+- UCM requests go through `sendRequest`: a timeout covers the whole body
+  (60 s; 5 minutes for a `recapi` recording download, and 5 minutes for its
+  upload), the body is read once into a buffer, and TLS verification is skipped
   only through the UCM `https.Agent`, never process-wide. A small JSON reply
   with `status: -6` refreshes the cookie and retries (3 by default); any other
   JSON reply to a file request throws instead of being uploaded. The cookie
@@ -1928,7 +1942,11 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   is published on the inbox that owns each extension, which is what the
   operator's widget subscribes to; CTI events and finalized CDRs both publish
   it (`publishSession`), and `callSessionUpdated:<subdomain>:uniqueid:<id>`
-  for the call itself. The subscription listens through `getTenantTopics`. `callHistories` / `callHistoriesTotalCount`
+  for the call itself. The subscription listens through `getTenantTopics`.
+  The gateway loads subscription resolvers only at startup, so
+  `publishSession` also publishes the unprefixed `callSessionUpdated:ext:…`
+  and `callSessionUpdated:uniqueid:…` topics that a gateway started before
+  this change still listens on. `callHistories` / `callHistoriesTotalCount`
   read CDR legs from the selected integration **and its peers**, still
   filtered to the caller's own extension, because any leg of a call may have
   been posted under any peer.
@@ -2107,6 +2125,10 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
 - Call recording: post an answered CDR whose `recordfiles` names a WAV over
   16 KB and confirm `/call/cdrReceive` answers before the upload finishes and
   that `recordUrl` lands on both the CDR and the session.
+- Call locks: hold `withSessionLock` for longer than 20 s and confirm a second
+  caller still waits and gets `CallLockBusyError` (a webhook answers `503`).
+  With Cloudflare TURN on, save the call config form unchanged and confirm
+  `calls_configs` keeps its stored STUN/TURN values.
 - Instagram: connect Post before Messenger for the same account and confirm each
   event reaches its own inbox. A new sender with an unavailable profile must
   still be linked to a Core customer; failed Repair must not report success.

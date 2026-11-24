@@ -18,6 +18,7 @@ import { isObjectIdOrHexString } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
 import { withCloudflareIceServers } from '@/integrations/call/services/iceServers';
+import { ensureCallIndexes } from '@/integrations/call/indexes';
 import { ICallIntegration } from '@/integrations/call/@types/integrations';
 
 const EXTENSION_PAGE_SIZE = 100;
@@ -201,11 +202,17 @@ const callQueries = {
         agent.status !== 'Unavailable',
     );
   },
-  async callQueueList(_root, { integrationId }, { models, user }: IContext) {
+  async callQueueList(
+    _root,
+    { integrationId },
+    { models, user, subdomain }: IContext,
+  ) {
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
     );
+
+    await ensureCallIndexes(models, subdomain);
 
     // `CallQueueStatistics` is a cache of live PBX counters and only exists for
     // queues the PBX has reported on, so the queues configured on the

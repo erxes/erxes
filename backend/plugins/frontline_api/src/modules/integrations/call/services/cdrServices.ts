@@ -28,11 +28,7 @@ import {
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import {
-  acquireCustomerLock,
-  acquireSessionLock,
-  releaseLocks,
-} from '@/integrations/call/redlock';
+import { withCustomerLock, withSessionLock } from '@/integrations/call/redlock';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
 
@@ -124,26 +120,19 @@ export const receiveCdr = async (
   );
   const integration = queueOwner || matched;
 
-  const sessionLock = await acquireSessionLock(subdomain, params);
-  const customerLock = await acquireCustomerLock(
-    subdomain,
-    determinePrimaryPhone(params),
+  const result = await withSessionLock(subdomain, params, () =>
+    withCustomerLock(subdomain, determinePrimaryPhone(params), async () => {
+      if (queueOwner && params.uniqueid) {
+        await rehomeCallRecords(
+          models,
+          { uniqueid: params.uniqueid, linkedid: params.linkedid },
+          queueOwner.inboxId,
+          queueOwner.phone,
+        );
+      }
+      return processCdrLocked(models, subdomain, params, integration);
+    }),
   );
-
-  let result: Awaited<ReturnType<typeof processCdrLocked>>;
-  try {
-    if (queueOwner && params.uniqueid) {
-      await rehomeCallRecords(
-        models,
-        { uniqueid: params.uniqueid, linkedid: params.linkedid },
-        queueOwner.inboxId,
-        queueOwner.phone,
-      );
-    }
-    result = await processCdrLocked(models, subdomain, params, integration);
-  } finally {
-    await releaseLocks('receiveCdr', [customerLock, sessionLock]);
-  }
 
   // The recording download and upload can take minutes on a large WAV, so it
   // runs after the CDR and session are saved and the PBX has its answer.

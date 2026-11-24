@@ -15,7 +15,30 @@ import {
 } from '@/integrations/call/utils';
 
 import express from 'express';
-import redis from '@/integrations/call/redlock';
+import redis, { CallLockBusyError } from '@/integrations/call/redlock';
+
+/*
+ * 503 when another request held the call's lock for the whole retry window,
+ * so the PBX can tell contention from a crash and retry.
+ */
+const sendWebhookError = (
+  res: express.Response,
+  label: string,
+  error: unknown,
+) => {
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (error instanceof CallLockBusyError) {
+    console.warn(`[call-webhook] ${label}: ${message}`);
+    return res
+      .status(503)
+      .set('Retry-After', '1')
+      .json({ error: 'Call is busy, retry', message });
+  }
+
+  console.error(`[call-webhook] ${label} failed:`, error);
+  return res.status(500).json({ error: 'Internal Server Error', message });
+};
 
 const authenticateApi = async (req, res, next) => {
   const integrationId = req.headers['x-integration-id'];
@@ -126,7 +149,12 @@ export const initCallApp = (app: express.Express) => {
         return res.status(400).json({ error: 'Integration not resolved' });
       }
 
-      const result = await upsertQueueStatistics(models, integration, req.body);
+      const result = await upsertQueueStatistics(
+        models,
+        subdomain,
+        integration,
+        req.body,
+      );
 
       return res
         .status(200)
@@ -151,8 +179,7 @@ export const initCallApp = (app: express.Express) => {
         .status(200)
         .json({ message: 'Call cdr received successfully' });
     } catch (error) {
-      console.error('Error receiving cdr:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      return sendWebhookError(res, 'cdrReceive', error);
     }
   });
 
@@ -168,10 +195,7 @@ export const initCallApp = (app: express.Express) => {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.error('Error handling call event:', error);
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error', message: error.message });
+      return sendWebhookError(res, 'event', error);
     }
   });
 
@@ -187,10 +211,7 @@ export const initCallApp = (app: express.Express) => {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.error('Error handling receiveCall:', error);
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error', message: error.message });
+      return sendWebhookError(res, 'receiveCall', error);
     }
   });
 

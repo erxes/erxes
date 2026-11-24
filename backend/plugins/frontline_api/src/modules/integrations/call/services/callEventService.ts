@@ -1,15 +1,10 @@
 import { IModels } from '~/connectionResolvers';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import type { Lock } from 'redlock';
 import {
   rehomeCallRecords,
   resolveQueueIntegration,
 } from '@/integrations/call/services/queueRouting';
-import {
-  acquireCustomerLock,
-  acquireSessionLock,
-  releaseLocks,
-} from '@/integrations/call/redlock';
+import { withCustomerLock, withSessionLock } from '@/integrations/call/redlock';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { debugCall } from '@/integrations/call/debuggers';
@@ -103,10 +98,20 @@ export const publishSession = async (
       inboxIntegrationId: sessionInboxId,
     },
   };
-  const topic = (suffix: string) => `callSessionUpdated:${subdomain}:${suffix}`;
+  // The gateway loads subscription resolvers only when it starts, so until it
+  // restarts popups still listen on the unprefixed topics. Publish both.
+  const publish = async (suffix: string) => {
+    await graphqlPubsub.publish(`callSessionUpdated:${suffix}`, payload);
+    if (subdomain) {
+      await graphqlPubsub.publish(
+        `callSessionUpdated:${subdomain}:${suffix}`,
+        payload,
+      );
+    }
+  };
 
   if (session.uniqueid) {
-    await graphqlPubsub.publish(topic(`uniqueid:${session.uniqueid}`), payload);
+    await publish(`uniqueid:${session.uniqueid}`);
   }
   const published = new Set<string>();
   const publishToExtension = async (extension?: string) => {
@@ -115,7 +120,7 @@ export const publishSession = async (
     const key = `${inboxId}:${extension}`;
     if (published.has(key)) return;
     published.add(key);
-    await graphqlPubsub.publish(topic(`ext:${key}`), payload);
+    await publish(`ext:${key}`);
   };
   await publishToExtension(session.answeredExtension);
   for (const op of session.ringingOperators || []) {
@@ -273,10 +278,7 @@ export const handleCallEvent = async (
   const eventPhone =
     direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
 
-  const lock = await acquireSessionLock(subdomain, ev);
-  let customerLock: Lock | null = null;
-
-  try {
+  return withSessionLock(subdomain, ev, async () => {
     if (queueOwner) {
       const callIds = [ev.uniqueid, ev.linkedid].filter((id): id is string =>
         Boolean(id),
@@ -296,168 +298,174 @@ export const handleCallEvent = async (
       );
     }
 
-    let session = await findSession(models, ev.uniqueid);
+    const existing = await findSession(models, ev.uniqueid);
 
-    if (queueOwner && session?.conversationId && !isSessionFinished(session)) {
+    if (
+      queueOwner &&
+      existing?.conversationId &&
+      !isSessionFinished(existing)
+    ) {
       await createOrUpdateErxesConversation(subdomain, {
-        conversationId: session.conversationId,
+        conversationId: existing.conversationId,
         integrationId: queueOwner.inboxId,
         updatedAt: new Date(),
       });
     }
 
-    const parent = session ? null : await findParentLegSession(models, ev);
+    const parent = existing ? null : await findParentLegSession(models, ev);
     const customerPhone =
-      session?.customerPhone ||
+      existing?.customerPhone ||
       parent?.customerPhone ||
       (isChildLeg(ev) && looksLikePhoneNumber(ev.callerIdName)
         ? ev.callerIdName
         : eventPhone) ||
       '';
 
-    customerLock = await acquireCustomerLock(subdomain, customerPhone);
+    return withCustomerLock(subdomain, customerPhone, async () => {
+      let session = existing;
 
-    if (!session) {
-      let sibling = parent;
+      if (!session) {
+        let sibling = parent;
 
-      if (!sibling) {
-        const candidate = await models.CallSessions.findSibling({
+        if (!sibling) {
+          const candidate = await models.CallSessions.findSibling({
+            inboxIntegrationId: integration.inboxId,
+            peerInboxIds: peers.map((peer) => peer.inboxId),
+            customerPhone,
+            excludeUniqueid: ev.uniqueid,
+          });
+
+          sibling = isSiblingLeg(candidate, ev, direction) ? candidate : null;
+        }
+
+        if (sibling?.conversationId) {
+          debugCall(
+            `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
+              `from ${parent ? 'parent' : 'sibling'} leg ${sibling.uniqueid} ` +
+              `(phone=${customerPhone})`,
+          );
+        }
+
+        session = await models.CallSessions.upsertSession({
+          uniqueid: ev.uniqueid,
+          linkedid: ev.linkedid,
           inboxIntegrationId: integration.inboxId,
-          peerInboxIds: peers.map((peer) => peer.inboxId),
+          callType: direction,
           customerPhone,
-          excludeUniqueid: ev.uniqueid,
+          operatorPhone: integration.phone,
+          queueName: ev.queueName,
+          startedAt: parseCdrDate(ev.startedAt) || new Date(),
+          status: 'ringing',
+          source: 'cti',
+          diversion: ev.diversion,
+          raw: ev.raw,
+          ...(sibling?.conversationId
+            ? {
+                conversationId: sibling.conversationId,
+                ...(sibling.customerId
+                  ? { customerId: sibling.customerId }
+                  : {}),
+              }
+            : {}),
         });
-
-        sibling = isSiblingLeg(candidate, ev, direction) ? candidate : null;
       }
 
-      if (sibling?.conversationId) {
-        debugCall(
-          `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
-            `from ${parent ? 'parent' : 'sibling'} leg ${sibling.uniqueid} ` +
-            `(phone=${customerPhone})`,
-        );
-      }
+      switch (ev.type) {
+        case 'ringing': {
+          if (ev.extension) {
+            const match = matchOperatorByExtension(peers, ev.extension);
+            await models.CallSessions.attachOperator(ev.uniqueid, {
+              extensionNumber: ev.extension,
+              userId: match?.operator.userId,
+              state: 'ringing',
+            });
+            session = (await findSession(models, ev.uniqueid)) || session;
+          }
+          try {
+            await ensureConversation(models, subdomain, session, integration);
+          } catch (e) {
+            debugCall(
+              `ensureConversation deferred for ${ev.uniqueid}: ${e.message}`,
+            );
+          }
+          break;
+        }
 
-      session = await models.CallSessions.upsertSession({
-        uniqueid: ev.uniqueid,
-        linkedid: ev.linkedid,
-        inboxIntegrationId: integration.inboxId,
-        callType: direction,
-        customerPhone,
-        operatorPhone: integration.phone,
-        queueName: ev.queueName,
-        startedAt: parseCdrDate(ev.startedAt) || new Date(),
-        status: 'ringing',
-        source: 'cti',
-        diversion: ev.diversion,
-        raw: ev.raw,
-        ...(sibling?.conversationId
-          ? {
-              conversationId: sibling.conversationId,
-              ...(sibling.customerId ? { customerId: sibling.customerId } : {}),
-            }
-          : {}),
-      });
-    }
-
-    switch (ev.type) {
-      case 'ringing': {
-        if (ev.extension) {
+        case 'answered':
+        case 'bridged': {
           const match = matchOperatorByExtension(peers, ev.extension);
-          await models.CallSessions.attachOperator(ev.uniqueid, {
-            extensionNumber: ev.extension,
-            userId: match?.operator.userId,
-            state: 'ringing',
-          });
-          session = (await findSession(models, ev.uniqueid)) || session;
-        }
-        try {
-          await ensureConversation(models, subdomain, session, integration);
-        } catch (e) {
-          debugCall(
-            `ensureConversation deferred for ${ev.uniqueid}: ${e.message}`,
-          );
-        }
-        break;
-      }
-
-      case 'answered':
-      case 'bridged': {
-        const match = matchOperatorByExtension(peers, ev.extension);
-        const userId = match?.operator.userId;
-        const owner =
-          queueOwner ||
-          (await resolveQueueIntegration(
-            models,
-            integration,
-            session.queueName,
-          )) ||
-          match?.integration ||
-          integration;
-        if (ev.extension) {
-          await models.CallSessions.markAnswered(
-            ev.uniqueid,
-            ev.extension,
-            userId,
-          );
-        }
-        if (
-          match &&
-          !isSessionFinished(session) &&
-          session.inboxIntegrationId !== owner.inboxId
-        ) {
-          await models.CallSessions.updateOne(
-            { uniqueid: ev.uniqueid },
-            {
-              $set: {
-                inboxIntegrationId: owner.inboxId,
-                operatorPhone: owner.phone,
+          const userId = match?.operator.userId;
+          const owner =
+            queueOwner ||
+            (await resolveQueueIntegration(
+              models,
+              integration,
+              session.queueName,
+            )) ||
+            match?.integration ||
+            integration;
+          if (ev.extension) {
+            await models.CallSessions.markAnswered(
+              ev.uniqueid,
+              ev.extension,
+              userId,
+            );
+          }
+          if (
+            match &&
+            !isSessionFinished(session) &&
+            session.inboxIntegrationId !== owner.inboxId
+          ) {
+            await models.CallSessions.updateOne(
+              { uniqueid: ev.uniqueid },
+              {
+                $set: {
+                  inboxIntegrationId: owner.inboxId,
+                  operatorPhone: owner.phone,
+                },
               },
-            },
-          );
+            );
+          }
+          session = (await findSession(models, ev.uniqueid)) || session;
+          try {
+            await ensureConversation(models, subdomain, session, owner, userId);
+          } catch (e) {
+            debugCall(
+              `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
+            );
+          }
+          break;
         }
-        session = (await findSession(models, ev.uniqueid)) || session;
-        try {
-          await ensureConversation(models, subdomain, session, owner, userId);
-        } catch (e) {
-          debugCall(
-            `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
-          );
-        }
-        break;
-      }
 
-      case 'noanswer': {
-        if (ev.extension) {
-          await models.CallSessions.attachOperator(ev.uniqueid, {
-            extensionNumber: ev.extension,
-            state: 'noanswer',
+        case 'noanswer': {
+          if (ev.extension) {
+            await models.CallSessions.attachOperator(ev.uniqueid, {
+              extensionNumber: ev.extension,
+              state: 'noanswer',
+            });
+            session = (await findSession(models, ev.uniqueid)) || session;
+          }
+          break;
+        }
+
+        case 'hangup': {
+          await models.CallSessions.markEnded(ev.uniqueid, {
+            endedAt: parseCdrDate(ev.endedAt) || new Date(),
+            hangupCause: ev.hangupCause,
           });
           session = (await findSession(models, ev.uniqueid)) || session;
+          break;
         }
-        break;
       }
 
-      case 'hangup': {
-        await models.CallSessions.markEnded(ev.uniqueid, {
-          endedAt: parseCdrDate(ev.endedAt) || new Date(),
-          hangupCause: ev.hangupCause,
-        });
-        session = (await findSession(models, ev.uniqueid)) || session;
-        break;
-      }
-    }
-
-    await publishSession(subdomain, session, integration, peers);
-    return {
-      status: 'ok',
-      uniqueid: ev.uniqueid,
-      sessionStatus: session.status,
-    };
-  } finally {
-    await releaseLocks('handleCallEvent', [customerLock, lock]);
-  }
+      await publishSession(subdomain, session, integration, peers);
+      return {
+        status: 'ok',
+        uniqueid: ev.uniqueid,
+        sessionStatus: session.status,
+      };
+    });
+  });
 };
 
 export interface IUcmCallPayload {
