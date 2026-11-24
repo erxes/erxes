@@ -8,7 +8,7 @@ import { paths } from '~/lib/paths';
 
 /**
  * Where replies to an email go: one of the organisation's verified Reply-To
- * addresses (Settings › Integrations › Email sending), or none. A saved
+ * addresses (Settings › Organization email), or none. A saved
  * address no longer verified stays shown, marked, so the editor sees why
  * sending will refuse it.
  */

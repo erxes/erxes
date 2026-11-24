@@ -55,6 +55,11 @@ export const portals = pgTable(
     phoneTexts: boolean().default(true).notNull(),
     /** The SMS connection (CallPro, Twilio) that texts its codes; null: the organisation's oldest. */
     smsConnectionId: text(),
+    /**
+     * The Mail service connection (SMTP, Amazon SES, SendGrid) its emails go through, from that
+     * connection's address; null: Organization email.
+     */
+    mailConnectionId: text(),
     /** Its emails' From, on a domain the provider verified; null: the settings' own address. */
     fromEmail: text(),
     /** A verified Reply-To address of the organisation for its emails; null: none. */
@@ -92,6 +97,11 @@ export const portals = pgTable(
       columns: [table.smsConnectionId],
       foreignColumns: [integrationConnections.id],
       name: 'core_portals_sms_connection_id_fkey',
+    }).onDelete('set null'),
+    foreignKey({
+      columns: [table.mailConnectionId],
+      foreignColumns: [integrationConnections.id],
+      name: 'core_portals_mail_connection_id_fkey',
     }).onDelete('set null'),
     check('core_portals_code_language_check', inList(table.codeLanguage, LANGUAGES)),
     foreignKey({

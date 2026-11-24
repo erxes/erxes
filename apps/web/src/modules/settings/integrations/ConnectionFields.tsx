@@ -81,11 +81,13 @@ export const CredentialsHelp = ({ integration }: { integration: Integration }) =
     <p className="flex items-start gap-2 rounded-md bg-muted/50 p-2.5 text-xs text-muted-foreground">
       <IconLock className="mt-px size-3.5 shrink-0" />
       <span>
-        {dashboard
-          ? t('help-dashboard', 'Copy these from your {{name}} dashboard.', { name })
-          : t('help-agreement', '{{name}} sends these when you sign the merchant agreement.', {
-              name,
-            })}{' '}
+        {dashboard && t('help-dashboard', 'Copy these from your {{name}} dashboard.', { name })}
+        {/* Gateways with no dashboard hand their keys over with the merchant agreement. */}
+        {!dashboard &&
+          integration.category === 'payments' &&
+          t('help-agreement', '{{name}} sends these when you sign the merchant agreement.', {
+            name,
+          })}{' '}
         {t('help-sealed', 'They are checked with the service and stored encrypted.')}{' '}
         {dashboard && (
           <a

@@ -60,6 +60,20 @@ export const ownFrom = async (
   address: address ?? settings.fromEmail,
 });
 
+/**
+ * The From of an email through a Mail service connection, on SaaS too: it is the
+ * organisation's own account, so the label, else the connection's name, else the
+ * organisation's, and always the connection's address.
+ */
+export const connectionFrom = async (
+  orgId: string,
+  from: { name: string | null; address: string },
+  label?: string,
+) => ({
+  name: cleanLabel(label) ?? (from.name || (await organizationName(orgId))),
+  address: from.address,
+});
+
 /** The organisation's own settings, as `routeFor` picks them: self-hosted only. */
 const ownSettings = async (client: Db) => {
   if (config.saas.enabled) return null;
@@ -102,7 +116,7 @@ export const requireFromAddress = async (
 ) => {
   if (!address || (await isAllowedFrom(client, address))) return;
 
-  const message = `${domainOf(address)} isn't a domain your email provider verified: verify it there, then check again in Settings › Email sending`;
+  const message = `${domainOf(address)} isn't a domain your email provider verified: verify it there, then check again in Settings › Organization email`;
 
   throw fail('INVALID_INPUT', message, { issues: [{ path, message }] });
 };
@@ -146,6 +160,6 @@ export const requireDelivery = async (client: Db) => {
 
   throw fail(
     'EMAIL_NOT_CONFIGURED',
-    'Email sending isn’t set up: set it up in Settings › Integrations › Email sending',
+    'Organization email isn’t set up: set it up in Settings › Organization email, or pick a Mail service connection',
   );
 };

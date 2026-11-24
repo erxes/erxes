@@ -93,7 +93,7 @@ export const EmailLimits = createSelectSchema(emailRamps, {
 export type EmailLimits = z.infer<typeof EmailLimits>;
 
 /**
- * The sending ramp (Settings › Integrations › Email sending › Limits,
+ * The sending ramp (Settings › Organization email › Limits,
  * `integrations.manage`): every email counts against a daily limit that
  * grows with a low bounce rate; at 10% sending halts until an admin resumes
  * with a reason. SaaS: always on, `setRamp` answers 402 NOT_IN_PLAN.

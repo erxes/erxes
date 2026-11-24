@@ -73,7 +73,12 @@ export const Portal = createSelectSchema(portals, {
   phoneTexts: true,
   /** The SMS connection that texts its codes; null: the organisation's oldest. */
   smsConnectionId: true,
-  /** Its emails' From, on a verified domain; null: the organisation's own address. */
+  /**
+   * The Mail service connection its emails go through, from its address; null, or while it is
+   * off: Organization email.
+   */
+  mailConnectionId: true,
+  /** Its emails' From through Organization email, on a verified domain; null: its own address. */
   fromEmail: true,
   /** A verified Reply-To of the organisation for the portal's emails; null: none. */
   replyTo: true,
@@ -131,6 +136,7 @@ const PortalFields = createUpdateSchema(portals, {
   androidPackages: () => listOnce(AndroidPackage, 10),
   phoneConnectionId: connection,
   smsConnectionId: connection,
+  mailConnectionId: connection,
   fromEmail: () => EmailAddress,
   replyTo: () => EmailAddress,
   codeLanguage: () => z.enum(LANGUAGES),
@@ -151,6 +157,7 @@ const PortalFields = createUpdateSchema(portals, {
   phoneConnectionId: true,
   phoneTexts: true,
   smsConnectionId: true,
+  mailConnectionId: true,
   fromEmail: true,
   replyTo: true,
   codeLanguage: true,

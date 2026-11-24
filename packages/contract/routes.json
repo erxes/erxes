@@ -1710,6 +1710,16 @@
         }
       }
     },
+    "mailConnections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/emails/mail-connections"
+        }
+      }
+    },
     "settings": {
       "~orpc": {
         "errorMap": {},

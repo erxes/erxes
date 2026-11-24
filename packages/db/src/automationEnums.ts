@@ -57,6 +57,8 @@ export const ACTION_FIELD_TYPES = [
   'plugin_record',
   'reply_to',
   'from_address',
+  /** One of the organisation's Mail service connections that are on; empty: Organization email. */
+  'mail_connection',
   'automation',
   'connection',
 ] as const;

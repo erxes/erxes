@@ -280,7 +280,7 @@ export const EmailForm = ({ saved }: { saved: EmailSettings | null }) => {
           ) : saved ? (
             t('save', 'Save changes')
           ) : (
-            t('set-up', 'Set up email sending')
+            t('set-up', 'Set up organization email')
           )}
         </Button>
       </div>

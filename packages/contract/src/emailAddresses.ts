@@ -51,7 +51,7 @@ export const EmailAddressStanding = createSelectSchema(emailAddresses, {
 
 export type EmailAddressStanding = z.infer<typeof EmailAddressStanding>;
 
-/** Each address's standing (Settings › Integrations › Email sending › Addresses). */
+/** Each address's standing (Settings › Organization email › Addresses). */
 export const emailAddressesContract = {
   addresses: oc
     .errors(COMMON_ERRORS)
