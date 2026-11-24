@@ -17,7 +17,13 @@ export const ebarimt: PagedIntegration = {
 
     if (!(await anyActive(tx))) return { state: 'off', count: null };
 
-    const failed = await listReceipts(tx, { ...CursorQuery.parse({ limit: 1 }), status: 'failed' });
+    // A failed receipt a plugin recorded is the plugin's to send again, not core's.
+    const failed = await listReceipts(tx, {
+      ...CursorQuery.parse({ limit: 1 }),
+      status: 'failed',
+      recorded: false,
+    });
+
     const count = failed.totalCount ?? 0;
 
     return count ? { state: 'attention', count } : { state: 'connected', count: null };

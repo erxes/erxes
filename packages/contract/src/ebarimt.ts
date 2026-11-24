@@ -1,10 +1,11 @@
 import { EBARIMT_TAX_TYPES } from '@erxes/core-db/enums';
-import { ebarimtReceipts, ebarimtSettings, paymentInvoices } from '@erxes/core-db/schema';
+import { ebarimtSettings } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { ebarimtPrintContract } from './ebarimtPrint';
+import { EbarimtReceipt, ebarimtRecordContract } from './ebarimtReceipts';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtReceiptStatus } from './values';
 
@@ -115,58 +116,6 @@ const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
     districtCode: true,
   });
 
-const int = () => z.int();
-
-export const EbarimtReceipt = createSelectSchema(ebarimtReceipts, {
-  id: Id,
-  invoiceId: Id,
-  previousId: () => Id,
-  totalAmount: int,
-  totalVat: int,
-  totalCityTax: int,
-  inactiveAt: isoDate,
-  createdAt: isoDate,
-  updatedAt: isoDate,
-})
-  .pick({
-    id: true,
-    invoiceId: true,
-    /** The config that sent it; null for one sent before configs, by a setup removed since. */
-    settingsId: true,
-    /** `put` issues a receipt (replacing `previousId`'s, if any); `return` cancels `previousId`'s. */
-    kind: true,
-    status: true,
-    previousId: true,
-    buyerType: true,
-    customerTin: true,
-    customerName: true,
-    consumerNo: true,
-    /** In the invoice currency's smallest unit. */
-    totalAmount: true,
-    totalVat: true,
-    totalCityTax: true,
-    billId: true,
-    billDate: true,
-    lottery: true,
-    /** The text of the receipt's QR code. */
-    qrData: true,
-    error: true,
-    /** Returned or replaced since. */
-    inactiveAt: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend(
-    createSelectSchema(paymentInvoices).pick({
-      source: true,
-      referenceType: true,
-      referenceId: true,
-      currency: true,
-    }).shape,
-  );
-
-export type EbarimtReceipt = z.infer<typeof EbarimtReceipt>;
-
 const {
   COMPANY_NOT_FOUND,
   EBARIMT_CONFIG_IN_USE,
@@ -197,7 +146,9 @@ const InvoiceRef = z.object({ invoiceId: Id });
  * else with VAT. A refund returns the receipt, or replaces it with
  * one for what is left. Receipts are sent in the background; a failed one is
  * kept with its error and sent again by `sync`. A receipt whose config is turned off is kept as
- * failed too ("… is off"), not dropped, so turning it back on and syncing sends it.
+ * failed too ("… is off"), not dropped, so turning it back on and syncing sends it. A plugin that
+ * sends its own records them with `recordReceipt`, so every receipt of the organisation lists,
+ * prints and reports in one place.
  */
 export const ebarimtContract = {
   configs: base
@@ -262,7 +213,8 @@ export const ebarimtContract = {
       method: 'GET',
       path: '/ebarimt/receipts',
       summary: 'List eBarimt receipts',
-      description: 'Receipts, newest first; a plugin sees its own invoices’ only',
+      description:
+        'Receipts, newest first, those core sent and those plugins recorded; a plugin sees its own invoices’ and its recorded ones only. `source` and `referenceId` match the invoice’s, or the recorded receipt’s own',
     })
     .input(
       CursorQuery.extend({
@@ -303,5 +255,6 @@ export const ebarimtContract = {
     })
     .input(z.object({ no: z.string().trim().min(7).max(14) }))
     .output(z.object({ tin: z.string(), name: z.string().nullable() })),
+  ...ebarimtRecordContract,
   ...ebarimtPrintContract,
 };

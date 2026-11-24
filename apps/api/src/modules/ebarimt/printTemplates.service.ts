@@ -167,14 +167,17 @@ export const previewPrint = async (
 
 /**
  * An issued receipt still in force, with its plugin's template and what it
- * prints. A plugin reaches only its own invoices' receipts. 404, 409
+ * prints. A plugin reaches only its own invoices' receipts and those it recorded. 404, 409
  * RECEIPT_NOT_PRINTABLE, 409 EBARIMT_NOT_SET_UP.
  */
 export const printableReceipt = async (client: Db, id: string) => {
   const [receipt] = await client
-    .select({ receipt: ebarimtReceipts, source: paymentInvoices.source })
+    .select({
+      receipt: ebarimtReceipts,
+      source: sql<string>`coalesce(${ebarimtReceipts.source}, ${paymentInvoices.source})`,
+    })
     .from(ebarimtReceipts)
-    .innerJoin(paymentInvoices, eq(paymentInvoices.id, ebarimtReceipts.invoiceId))
+    .leftJoin(paymentInvoices, eq(paymentInvoices.id, ebarimtReceipts.invoiceId))
     .where(eq(ebarimtReceipts.id, id))
     .limit(1);
 
@@ -190,7 +193,8 @@ export const printableReceipt = async (client: Db, id: string) => {
     throw fail('RECEIPT_NOT_PRINTABLE', 'Only an issued receipt that is still in force prints');
   }
 
-  // The config that sent it: its merchant is on the receipt.
+  // The config that sent it: its merchant is on the receipt. One a plugin recorded without a
+  // config prints with the default's.
   const settings = await setUp(client, row.settingsId);
 
   const [saved] = await client
