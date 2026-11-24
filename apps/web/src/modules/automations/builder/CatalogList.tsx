@@ -1,13 +1,16 @@
-import { IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconClock } from '@tabler/icons-react';
 import { cn, Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   type CatalogItem,
+  catalogIcon,
+  eventIcon,
   type GroupEntry,
   groupOf,
   sectionsOf,
   useCatalogLabels,
 } from './catalogGroups';
+import { LOOK, type NodeIcon } from './stepLook';
 
 export const RECENT = 'recent';
 
@@ -17,11 +20,30 @@ export type Picked = {
   category: (key: string) => boolean;
 };
 
-const Row = ({
+/** An event's icon says what happened; an action's, what it works on. */
+export const itemIcon = (kind: string, item: CatalogItem) =>
+  kind === 'action' ? catalogIcon(item) : eventIcon(item);
+
+/** Coloured as its card on the canvas: an event green, an action primary. */
+export const ItemIcon = ({ kind, icon: Icon }: { kind: string; icon: NodeIcon }) => (
+  <span
+    className={cn(
+      'flex size-8 shrink-0 items-center justify-center rounded-lg',
+      kind === 'action' ? LOOK.action.tone : LOOK.trigger.tone,
+    )}
+  >
+    <Icon className="size-4" />
+  </span>
+);
+
+/** One choice as a card: what it is, what it does, and what picking it would break. */
+const Card = ({
+  kind,
   item,
   selected,
   onSelect,
 }: {
+  kind: string;
   item: CatalogItem;
   selected: boolean;
   onSelect: () => void;
@@ -30,53 +52,56 @@ const Row = ({
     value={item.type}
     keywords={[item.label, item.description ?? '', groupOf(item).label, item.source]}
     onSelect={onSelect}
-    variant="tile"
+    variant="choice"
     checked={selected}
   >
-    <span className="min-w-0 flex-1">
-      <span className="block truncate text-sm font-medium">{item.label}</span>
-      {item.description && (
-        <span className="line-clamp-2 block text-xs text-muted-foreground">{item.description}</span>
-      )}
-      {item.warning && <span className="block text-xs text-warning-text">{item.warning}</span>}
+    <span className="flex items-start justify-between gap-2">
+      <ItemIcon kind={kind} icon={itemIcon(kind, item)} />
+      {selected && <IconCheck className="size-4 text-primary-text" />}
     </span>
-    {selected && <IconCheck className="size-4 shrink-0 text-primary-text" />}
+    <span className="line-clamp-2 text-sm leading-snug font-medium">{item.label}</span>
+    {item.description && (
+      <span className="line-clamp-2 text-xs text-muted-foreground">{item.description}</span>
+    )}
+    {item.warning && (
+      <span className="mt-auto w-fit rounded-md bg-warning/10 px-1.5 py-0.5 text-2xs font-medium text-warning-text">
+        {item.warning}
+      </span>
+    )}
   </Command.Item>
 );
 
-const Rows = ({
+const Cards = ({
+  kind,
   items,
   picked,
   onChoose,
 }: {
+  kind: string;
   items: CatalogItem[];
   picked: Picked;
   onChoose: (type: string) => void;
-}) => (
-  <div className="flex flex-col gap-0.5">
-    {items.map((item) => (
-      <Row
-        key={item.type}
-        item={item}
-        selected={picked.item(item)}
-        onSelect={() => onChoose(item.type)}
-      />
-    ))}
-  </div>
-);
+}) =>
+  items.map((item) => (
+    <Card
+      key={item.type}
+      kind={kind}
+      item={item}
+      selected={picked.item(item)}
+      onSelect={() => onChoose(item.type)}
+    />
+  ));
 
 const RailButton = ({
   label,
-  count,
-  countHint,
+  icon: Icon,
   active,
   picked = false,
   soon = false,
   onClick,
 }: {
   label: string;
-  count: number;
-  countHint: string;
+  icon: NodeIcon;
   active: boolean;
   picked?: boolean;
   soon?: boolean;
@@ -91,28 +116,18 @@ const RailButton = ({
       disabled={soon}
       aria-pressed={active}
       className={cn(
-        'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-60',
-        active && 'bg-primary/10 text-primary-text hover:bg-primary/10',
+        'flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-60',
+        active && 'bg-primary/10 text-foreground hover:bg-primary/10',
       )}
     >
-      <span className={cn('min-w-0 flex-1 truncate font-medium', picked && 'text-primary-text')}>
-        {label}
-      </span>
-      {soon ? (
+      <Icon className={cn('size-4 shrink-0', active && 'text-primary-text')} />
+      <span className="min-w-0 flex-1 truncate font-medium">{label}</span>
+      {soon && (
         <span className="shrink-0 text-xs text-muted-foreground">
           {t('coming-soon-short', 'Soon')}
         </span>
-      ) : (
-        <span
-          aria-label={countHint}
-          className={cn(
-            'text-xs tabular-nums text-muted-foreground',
-            active && 'text-primary-text/70',
-          )}
-        >
-          {count}
-        </span>
       )}
+      {picked && <span className="size-1.5 shrink-0 rounded-full bg-primary" />}
     </button>
   );
 };
@@ -144,15 +159,14 @@ const Rail = ({
   onOpen: (category: string) => void;
 }) => {
   const { t } = useTranslation('automations');
-  const { groupName, countLabel } = useCatalogLabels(kind);
+  const { groupName } = useCatalogLabels(kind);
   const plugins = groups.filter((entry) => !isCore(entry) && !isApp(entry));
 
   const button = (entry: GroupEntry) => (
     <RailButton
       key={entry.group.key}
       label={groupName(entry.group)}
-      count={entry.items.length}
-      countHint={countLabel(entry.items.length)}
+      icon={entry.group.icon}
       active={active === entry.group.key}
       picked={picked.category(entry.group.key)}
       soon={entry.group.comingSoon}
@@ -171,8 +185,7 @@ const Rail = ({
       {recentCount > 0 && (
         <RailButton
           label={t('catalog-recent', 'Recently used')}
-          count={recentCount}
-          countHint={countLabel(recentCount)}
+          icon={IconClock}
           active={active === RECENT}
           onClick={() => onOpen(RECENT)}
         />
@@ -199,19 +212,21 @@ const SearchResults = ({
   const { groupName } = useCatalogLabels(kind);
 
   return groups.map(({ group, items }) => (
-    <Command.Group key={group.key} heading={groupName(group)}>
-      <Rows items={items} picked={picked} onChoose={onChoose} />
+    <Command.Group key={group.key} heading={groupName(group)} layout="choices">
+      <Cards kind={kind} items={items} picked={picked} onChoose={onChoose} />
     </Command.Group>
   ));
 };
 
 /** One category's items: a plugin's by what they are about, when there is more than one. */
 const CategoryItems = ({
+  kind,
   items,
   sectioned,
   picked,
   onChoose,
 }: {
+  kind: string;
   items: CatalogItem[];
   sectioned: boolean;
   picked: Picked;
@@ -221,14 +236,14 @@ const CategoryItems = ({
 
   if (sections.length < 2)
     return (
-      <Command.Group>
-        <Rows items={items} picked={picked} onChoose={onChoose} />
+      <Command.Group layout="choices">
+        <Cards kind={kind} items={items} picked={picked} onChoose={onChoose} />
       </Command.Group>
     );
 
   return sections.map((section) => (
-    <Command.Group key={section.name} heading={section.name}>
-      <Rows items={section.items} picked={picked} onChoose={onChoose} />
+    <Command.Group key={section.name} heading={section.name} layout="choices">
+      <Cards kind={kind} items={section.items} picked={picked} onChoose={onChoose} />
     </Command.Group>
   ));
 };
@@ -257,7 +272,7 @@ export const CatalogList = ({
   const current = groups.find((entry) => entry.group.key === category);
 
   return (
-    <div className="flex h-96 max-h-full min-h-0">
+    <div className="flex h-112 max-h-full min-h-0">
       <Rail
         kind={kind}
         groups={groups}
@@ -277,6 +292,7 @@ export const CatalogList = ({
           />
         ) : (
           <CategoryItems
+            kind={kind}
             items={category === RECENT ? recentItems : (current?.items ?? [])}
             sectioned={current !== undefined && current.group.source !== 'core'}
             picked={picked}

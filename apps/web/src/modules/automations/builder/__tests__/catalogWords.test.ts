@@ -53,20 +53,18 @@ const item = (fields: Partial<CatalogItem> & Pick<CatalogItem, 'type' | 'source'
 
 const Shown = z.object({
   names: z.array(z.string()),
-  counts: z.array(z.string()),
   search: z.string(),
   picker: z.string(),
 });
 
 const Labels = ({ kind, groups }: { kind: string; groups: CatalogGroup[] }) => {
-  const { groupName, countLabel, searchPlaceholder, pickerLabel } = useCatalogLabels(kind);
+  const { groupName, searchPlaceholder, pickerLabel } = useCatalogLabels(kind);
 
   return createElement(
     'output',
     null,
     JSON.stringify({
       names: groups.map(groupName),
-      counts: [1, 3].map(countLabel),
       search: searchPlaceholder,
       picker: pickerLabel,
     }),
@@ -92,16 +90,14 @@ describe('the catalog’s words', () => {
 
   const generalPlugin = groupOf(item({ type: 'general.thing.done', source: 'general' }));
 
-  it('counts and prompts for actions or events', async () => {
+  it('prompts for actions or events', async () => {
     expect(await labelsOf('action', [customers])).toEqual({
       names: ['Customers'],
-      counts: ['1 action', '3 actions'],
       search: 'Search actions…',
       picker: 'Choose an action',
     });
     expect(await labelsOf('trigger', [customers])).toEqual({
       names: ['Customers'],
-      counts: ['1 event', '3 events'],
       search: 'Search events…',
       picker: 'Choose an event',
     });
@@ -112,13 +108,11 @@ describe('the catalog’s words', () => {
 
     expect(await labelsOf('action', [customers, texts, generalPlugin])).toEqual({
       names: ['Харилцагчид', 'Messages', 'General'],
-      counts: ['1 үйлдэл', '3 үйлдэл'],
       search: 'Үйлдэл хайх…',
       picker: 'Үйлдэл сонгох',
     });
     expect(await labelsOf('trigger', [customers])).toEqual({
       names: ['Харилцагчид'],
-      counts: ['1 үйл явдал', '3 үйл явдал'],
       search: 'Үйл явдал хайх…',
       picker: 'Үйл явдал сонгох',
     });
