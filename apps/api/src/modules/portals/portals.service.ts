@@ -15,6 +15,7 @@ import { and, asc, eq, getTableColumns, gt, inArray, isNull, ne, sql } from 'dri
 import type { InferContractRouterInputs } from '@orpc/contract';
 import { fail, notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
+import { lockKeys } from '~/lib/locks';
 import { unknownPortal } from '~/modules/customerAuth/customerPortals';
 import { requireReplyTo } from '~/modules/email/replyTos.service';
 import { requireFromAddress } from '~/modules/email/sender';
@@ -151,9 +152,20 @@ const portalOfRecord = (client: Db, plugin: string, recordId: string) =>
     .limit(1)
     .then(([row]) => row?.portalId);
 
+/**
+ * Holds one of the plugin's records until the request's transaction ends, so two saves or
+ * attaches of the same record at once run one after the other: the second sees what the first
+ * wrote, instead of making a second portal and failing on the record's unique key.
+ */
+const lockRecord = (client: Db, plugin: string, recordId: string) =>
+  lockKeys(client, [`core:portal-record:${plugin}:${recordId}`]);
+
 /** The portal a record runs (a content site): made and attached the first time, renamed after. */
 export const savePortal = async (client: Db, { recordId, name, origins }: Inputs['save']) => {
   const plugin = callingPlugin();
+
+  await lockRecord(client, plugin, recordId);
+
   const current = await portalOfRecord(client, plugin, recordId);
 
   if (current) return updatePortal(client, { id: current, name, origins });
@@ -171,6 +183,8 @@ export const savePortal = async (client: Db, { recordId, name, origins }: Inputs
  */
 export const attachPortal = async (client: Db, { id, recordId }: Inputs['attach']) => {
   const plugin = callingPlugin();
+
+  await lockRecord(client, plugin, recordId);
 
   const [portal] = await client
     .select({ id: portals.id })

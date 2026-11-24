@@ -74,6 +74,18 @@ describe('portals (decision 42)', { timeout: 300_000 }, () => {
     ).rejects.toMatchObject({ status: 400, code: 'SIGN_IN_UNAVAILABLE' });
   });
 
+  it('makes one portal for a record its plugin saves twice at once', async () => {
+    const save = () =>
+      t.hr().portals.save({ recordId: 'site-twice', name: 'Twice Site', origins: [] });
+
+    const [first, second] = await Promise.all([save(), save()]);
+
+    expect(second.id).toBe(first.id);
+    expect(
+      (await t.owner().portals.list()).data.filter((portal) => portal.name === 'Twice Site'),
+    ).toHaveLength(1);
+  });
+
   it("gives the portal's server a portal key it trades for tokens the plugins check", async () => {
     const made = await t.owner().portals.createKey({ id: t.sites.acme, name: 'Shop server' });
 
