@@ -67,6 +67,8 @@ export const User = createSelectSchema(users, {
   onboardedAt: true,
   /** Signs in with a second step (an authenticator app's code) since then; null when off. */
   totpEnabledAt: true,
+  /** erxes support on a visit (SaaS): an erxes.io admin, not on the team list. */
+  isSupport: true,
   createdAt: true,
   updatedAt: true,
 });

@@ -14,17 +14,42 @@ import type { Policy, ProcedurePath } from './policyRules';
 
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 
+/**
+ * What erxes support never does on a visit, owner or not: anything that would let them in or
+ * send data to them after it ends (a member, a role, an API key, an agent with its key, a
+ * webhook, a portal key) or hide what they did (audit settings).
+ */
+const DENIED_TO_SUPPORT = new Set<string>([
+  'team.invite',
+  'team.manage',
+  'roles.manage',
+  'api_keys.create',
+  'api_keys.manage',
+  'assistant.manage',
+  'webhooks.manage',
+  'portals.manage',
+  'audit.retention',
+  'audit.stream',
+  'support.manage',
+]);
+
 type Member = Extract<Caller, { type: 'user' }>;
 
 /**
  * May the member do `action`? Owners may do everything; `*` grants every
- * action except owner-only ones; otherwise the role must list it. The router
+ * action except owner-only ones; otherwise the role must list it. erxes
+ * support is an owner without `DENIED_TO_SUPPORT`. The router
  * checks a procedure's permission (`ACCESS`); services call this only for
  * rules that depend on the record (an author's own note, a shared view).
  */
-export const can = (member: Pick<Member, 'role' | 'permissions' | 'key'>, action: string) => {
+export const can = (
+  member: Pick<Member, 'role' | 'permissions' | 'key' | 'support'>,
+  action: string,
+) => {
   // A key's permissions are spelled out (keyCaller): no role, no `*`.
   if (member.key) return member.permissions.includes(action);
+
+  if (member.support && DENIED_TO_SUPPORT.has(action)) return false;
 
   if (member.role === 'owner') return true;
 

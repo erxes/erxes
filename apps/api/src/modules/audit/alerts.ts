@@ -26,7 +26,7 @@ export const ownerIds = async (client: Db) =>
       .select({ id: users.id })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.role, 'owner'), eq(users.status, 'active')))
+      .where(and(eq(users.role, 'owner'), eq(users.status, 'active'), eq(users.isSupport, false)))
   ).map((row) => row.id);
 
 interface AlertInput {

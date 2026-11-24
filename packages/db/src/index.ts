@@ -111,6 +111,7 @@ export {
   webhookDeliveries,
   webhooks,
   secrets,
+  supportVisits,
 } from './schema';
 
 export type {

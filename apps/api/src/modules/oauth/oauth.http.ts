@@ -1,9 +1,10 @@
 import { organizations, users, withOrg } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import express, { type Request, type RequestHandler, type Response, Router } from 'express';
 import { z } from 'zod';
 import { sessionClaims } from '~/http/auth';
 import { ISSUER, verifyJwt } from '~/lib/signing';
+import { actsNow } from '~/modules/supportAccess/onVisit';
 import { registerClient } from './oauthApps';
 import {
   AuthorizeQuery,
@@ -49,7 +50,7 @@ const memberOfSession = async (req: Request) => {
       .select({ user: users, subdomain: organizations.subdomain })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
-      .where(eq(users.id, claims.userId))
+      .where(and(eq(users.id, claims.userId), actsNow(tx)))
       .limit(1),
   );
 
@@ -215,7 +216,7 @@ oauthRouter.get('/userinfo', async (req, res) => {
       .select({ user: users, subdomain: organizations.subdomain })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
-      .where(eq(users.id, claims.sub))
+      .where(and(eq(users.id, claims.sub), actsNow(tx)))
       .limit(1),
   );
 

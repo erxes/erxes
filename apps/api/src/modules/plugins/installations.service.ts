@@ -185,7 +185,14 @@ export const pluginSession = async (name: string) => {
     .filter((action) => can(me, action));
 
   const token = await signJwt(
-    { org: orgId, role: me.role, permissions, ...planOfPlugin(plan, name), access },
+    {
+      org: orgId,
+      role: me.role,
+      permissions,
+      ...planOfPlugin(plan, name),
+      access,
+      support: me.support === true,
+    },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,

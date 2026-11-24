@@ -3183,6 +3183,58 @@
       }
     }
   },
+  "supportAccess": {
+    "settings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/settings/support-access"
+        }
+      }
+    },
+    "updateSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/settings/support-access"
+        }
+      }
+    },
+    "visits": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/support-access/visits"
+        }
+      }
+    },
+    "active": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/support-access/active"
+        }
+      }
+    },
+    "endVisit": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/support-access/visits/{id}/end"
+        }
+      }
+    }
+  },
   "tags": {
     "list": {
       "~orpc": {

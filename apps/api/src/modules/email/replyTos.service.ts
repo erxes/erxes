@@ -26,12 +26,18 @@ const sameEmail = (email: string) => sql`lower(${emailReplyTos.email}) = ${email
 export const listReplyTos = (client: Db) =>
   client.select().from(emailReplyTos).orderBy(asc(emailReplyTos.email));
 
-/** An active member's address is the organisation's already: it needs no link. */
+/** An active team member's address is the organisation's already: it needs no link (erxes support's does). */
 const isMemberEmail = async (client: Db, email: string) => {
   const [member] = await client
     .select({ id: users.id })
     .from(users)
-    .where(and(sql`lower(${users.email}) = ${email}`, eq(users.status, 'active')))
+    .where(
+      and(
+        sql`lower(${users.email}) = ${email}`,
+        eq(users.status, 'active'),
+        eq(users.isSupport, false),
+      ),
+    )
     .limit(1);
 
   return !!member;

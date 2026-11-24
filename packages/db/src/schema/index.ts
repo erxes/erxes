@@ -83,3 +83,5 @@ export * from './favorites';
 export * from './secrets';
 
 export * from './exchangeRates';
+
+export * from './supportVisits';

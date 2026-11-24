@@ -72,9 +72,10 @@ export const listUsers = async (
     filters.push(allowedTo(client, query.permission));
   }
 
-  if (query.ids) {
-    filters.push(inArray(users.id, query.ids.length ? query.ids : ['']));
-  }
+  // erxes support is not on the team, but records they touched still name them by id.
+  filters.push(
+    query.ids ? inArray(users.id, query.ids.length ? query.ids : ['']) : eq(users.isSupport, false),
+  );
 
   if (query.search) {
     filters.push(userSearch(query.search));
@@ -107,6 +108,11 @@ const checkUserChange = async (
 ) => {
   const me = caller('user');
   const self = target.id === me.userId;
+
+  // erxes support's address is erxes.io's: another one would get mail after the visit.
+  if (me.support && change.email !== undefined && change.email !== target.email) {
+    throw fail('NOT_ALLOWED', 'erxes support keeps the address erxes.io gave it');
+  }
 
   if (!self) {
     assertTeamManager();

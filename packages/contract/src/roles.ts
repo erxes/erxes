@@ -144,6 +144,12 @@ export const CORE_PERMISSIONS = [
     ownerOnly: true,
   },
   {
+    action: 'support.manage',
+    group: 'Security',
+    label: 'Let erxes support in, and see and end their visits',
+    ownerOnly: true,
+  },
+  {
     action: 'plugins.manage',
     group: 'Plugins',
     label: 'Install, uninstall and approve plugins',

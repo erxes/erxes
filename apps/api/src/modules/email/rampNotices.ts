@@ -12,7 +12,7 @@ const LIMITS_LINK = '/settings/email?tab=limits';
 
 const OVERVIEW_LINK = '/settings/email';
 
-/** Active members who manage integrations (the owner's `*` among them). */
+/** Active members on the team who manage integrations (the owner's `*` among them). */
 const adminIds = async (client: Db) =>
   (
     await client
@@ -22,6 +22,7 @@ const adminIds = async (client: Db) =>
       .where(
         and(
           eq(users.status, 'active'),
+          eq(users.isSupport, false),
           arrayOverlaps(roles.permissions, ['*', 'integrations.manage']),
         ),
       )

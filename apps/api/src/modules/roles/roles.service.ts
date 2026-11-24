@@ -73,7 +73,10 @@ const selectRoles = (client: Db) =>
     .select({
       ...getTableColumns(roles),
       editable: sql<boolean>`${notInArray(roles.key, FIXED_ROLES)}`,
-      members: client.$count(users, and(eq(users.role, roles.key), ne(users.status, 'disabled'))),
+      members: client.$count(
+        users,
+        and(eq(users.role, roles.key), ne(users.status, 'disabled'), eq(users.isSupport, false)),
+      ),
     })
     .from(roles);
 

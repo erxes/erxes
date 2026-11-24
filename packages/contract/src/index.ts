@@ -43,6 +43,7 @@ import { webhooksContract } from './webhooks';
 import { portalAuthContract } from './portalKeys';
 import { customerAccountsContract, portalsContract } from './portals';
 import { saasContract } from './saas';
+import { supportAccessContract } from './supportAccess';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
 import { leadsContract } from './leads';
@@ -86,6 +87,7 @@ export type CoreContract = {
   saas: typeof saasContract;
   search: typeof searchContract;
   suppressions: typeof suppressionsContract;
+  supportAccess: typeof supportAccessContract;
   tags: typeof tagsContract;
   integrations: typeof integrationsContract;
   banks: typeof banksContract;
@@ -141,6 +143,7 @@ export const coreContract: CoreContract = {
   saas: saasContract,
   search: searchContract,
   suppressions: suppressionsContract,
+  supportAccess: supportAccessContract,
   tags: tagsContract,
   integrations: integrationsContract,
   banks: banksContract,
@@ -290,6 +293,8 @@ export * from './roles';
 export * from './saas';
 
 export * from './search';
+
+export * from './supportAccess';
 
 export * from './tags';
 

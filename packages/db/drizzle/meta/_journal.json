@@ -960,6 +960,13 @@
       "when": 1795503649447,
       "tag": "0136_oauth_mcp_clients",
       "breakpoints": true
+    },
+    {
+      "idx": 137,
+      "version": "7",
+      "when": 1795536251863,
+      "tag": "0137_support_visits",
+      "breakpoints": true
     }
   ]
 }

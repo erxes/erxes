@@ -8,6 +8,7 @@ import {
   IconApps,
   IconArrowUpRight,
   IconHierarchy2,
+  IconLifebuoy,
   IconLock,
   IconMail,
   IconMoodSmile,
@@ -69,6 +70,15 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : [{ name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps }]),
     ...(plan?.saas
       ? [{ name: t('plan', 'Plan'), to: paths.settings.plan, icon: IconCreditCard }]
+      : []),
+    ...(plan?.saas && can('support.manage')
+      ? [
+          {
+            name: t('support-access', 'Support access'),
+            to: paths.settings.supportAccess,
+            icon: IconLifebuoy,
+          },
+        ]
       : []),
     ...(can('contacts.delete')
       ? [{ name: t('recycle-bin', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash }]

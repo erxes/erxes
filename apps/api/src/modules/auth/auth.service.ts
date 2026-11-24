@@ -50,6 +50,8 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
         and(
           sql`lower(${users.email}) = ${email}`,
           eq(users.canSignIn, true),
+          // erxes support comes in only through erxes.io's link.
+          eq(users.isSupport, false),
           subdomain ? sql`lower(${organizations.subdomain}) = ${subdomain}` : undefined,
         ),
       )
@@ -222,6 +224,7 @@ export const getSession = async (orgId: string, userId: string) =>
       permissions: await effectivePermissions(tx, {
         role: row.user.role,
         permissions: row.permissions,
+        ...(row.user.isSupport ? { support: true } : {}),
       }),
       hasPassword: row.hasPassword,
     };

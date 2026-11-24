@@ -41,6 +41,8 @@ export type Caller =
       via?: 'mcp';
       /** Set for a regular or management key: what it may do, besides `permissions`. */
       key?: KeyRules;
+      /** Set for erxes support on a visit: an owner, minus what would outlast the visit. */
+      support?: true;
     }
   | { type: 'plugin'; plugin: string; scopes: readonly string[] }
   | {

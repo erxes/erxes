@@ -18,6 +18,7 @@ import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { lockKeys } from '~/lib/locks';
 import { inOrder } from '~/lib/sequence';
 import { appLink, sendEmail } from '~/modules/email/email';
+import { actsNow } from '~/modules/supportAccess/onVisit';
 import { deliveryFor } from './delivery';
 
 type NotificationRow = typeof notifications.$inferSelect;
@@ -69,6 +70,8 @@ const recipientsOf = async (client: Db, source: string, inputs: NotifyInput[]) =
       email: users.email,
       status: users.status,
       settings: users.notificationSettings,
+      // erxes support hears nothing once the visit ends.
+      actsNow: sql<boolean>`coalesce(${actsNow(client)}, true)`,
     })
     .from(users)
     .where(inArray(users.id, unique(inputs.flatMap((input) => input.userIds))));
@@ -94,6 +97,7 @@ const recipientsOf = async (client: Db, source: string, inputs: NotifyInput[]) =
       .filter(
         (member) =>
           member.status === 'active' &&
+          member.actsNow &&
           member.id !== actorUserId &&
           delivery.get(member.id) !== 'off',
       )
