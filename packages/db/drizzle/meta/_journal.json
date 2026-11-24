@@ -946,6 +946,13 @@
       "when": 1795445937212,
       "tag": "0134_portal_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1795500103993,
+      "tag": "0135_manifest_portal_audience",
+      "breakpoints": true
     }
   ]
 }
