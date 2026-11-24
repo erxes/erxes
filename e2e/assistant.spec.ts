@@ -34,7 +34,7 @@ test('an admin connects an AI provider in Integrations, asks for a change and se
   await panel.getByRole('textbox', { name: 'Message' }).fill(`Add a customer named ${name}`);
   await panel.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(panel.getByText(`Added ${name} as a customer.`)).toBeVisible();
-  await expect(panel.getByRole('button', { name: '1 step' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /^Worked for \d+s$/ })).toBeVisible();
   await expectAccessible(page);
 
   await expect.poll(async () => (await api.customers.list({ search: name })).data.length).toBe(1);
@@ -185,7 +185,7 @@ test('the assistant reads a skill before it plans an automation, and says so', a
   await ask(panel, `Set up an automation that tags website leads ${unique()}`);
   await expect(panel.getByText('Shall I create the draft?')).toBeVisible();
 
-  await panel.getByRole('button', { name: '2 steps' }).click();
+  await panel.getByRole('button', { name: /^Worked for / }).click();
   await expect(panel.getByText('Read the author-automation skill')).toBeVisible();
   await panel.getByRole('button', { name: 'Looked up how to do it' }).click();
   await expect(panel.getByText('automation triggers')).toBeVisible();
