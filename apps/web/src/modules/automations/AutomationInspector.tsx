@@ -44,7 +44,6 @@ const TriggerPanel = (props: InspectorProps) => {
         sample: automation.hookSample,
       }}
       disabled={!editable}
-      costOf={draft.triggerCost}
       onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}
       onStartNow={
         automation.status === 'active' && editable

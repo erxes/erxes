@@ -36,7 +36,7 @@ export const ItemIcon = ({ kind, icon: Icon }: { kind: string; icon: NodeIcon })
   </span>
 );
 
-/** One choice as a card: what it is, what it does, and what picking it would break. */
+/** One choice as a card: what it is and what it does. */
 const Card = ({
   kind,
   item,
@@ -62,11 +62,6 @@ const Card = ({
     <span className="line-clamp-2 text-sm leading-snug font-medium">{item.label}</span>
     {item.description && (
       <span className="line-clamp-2 text-xs text-muted-foreground">{item.description}</span>
-    )}
-    {item.warning && (
-      <span className="mt-auto w-fit rounded-md bg-warning/10 px-1.5 py-0.5 text-2xs font-medium text-warning-text">
-        {item.warning}
-      </span>
     )}
   </Command.Item>
 );
