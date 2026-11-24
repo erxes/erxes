@@ -12,8 +12,6 @@ type ReferenceType = (typeof REFERENCE_TYPES)[number];
 const isReferenceType = (type: string): type is ReferenceType =>
   REFERENCE_TYPES.some((item) => item === type);
 
-const MAX_IDS = 50;
-
 const loaders: Record<ReferenceType, (tx: Db, ids: string[]) => Promise<{ id: string }[]>> = {
   customer: (tx, ids) =>
     loadSubjects(tx, 'customer', inArray(SUBJECT_TABLES.customer.id, ids), { limit: ids.length }),
@@ -63,7 +61,7 @@ export const loadReferences = async (tx: Db, input: unknown, context: Record<str
   const refs = new Map<string, unknown>();
 
   await inOrder([...wantedIds(input, context)], async ([type, ids]) => {
-    const rows = await loaders[type](tx, [...ids].slice(0, MAX_IDS));
+    const rows = await loaders[type](tx, [...ids]);
 
     for (const row of rows) refs.set(referenceKey(type, row.id), row);
   });

@@ -23,6 +23,14 @@ const ownFields = (fields: FieldInfo[]): Child[] =>
       type: field.type,
     }));
 
+export const useReferenceFieldsError = () => {
+  const { automationId } = useContext(BuilderContext);
+  const customer = useAutomationFields('customer', automationId).error;
+  const company = useAutomationFields('company', automationId).error;
+
+  return customer ?? company;
+};
+
 const useChildren = (automationId: string): Record<Reference, Child[]> => {
   const { t } = useTranslation('automations');
   const customer = useAutomationFields('customer', automationId).fields;

@@ -1,5 +1,5 @@
 import { cn } from 'erxes-ui';
-import { type DragEvent, useContext, useRef, useState } from 'react';
+import { type DragEvent, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { DATA_PATH_TYPE, DataTargetContext, rangeAt } from './dataTarget';
 import { InsertData } from './DataPicker';
 import { readableTemplate, templateParts } from './templateText';
@@ -89,7 +89,16 @@ const carriesPath = (event: DragEvent) => event.dataTransfer.types.includes(DATA
 const useDataDrop = (insert: (path: string, at?: Range | null) => void, disabled?: boolean) => {
   const targets = useContext(DataTargetContext);
   const [dropping, setDropping] = useState(false);
-  const own = () => targets.own(insert);
+  const latest = useRef(insert);
+  const [target] = useState(() => (path: string) => latest.current(path));
+
+  useLayoutEffect(() => {
+    latest.current = insert;
+  });
+
+  useEffect(() => () => targets.release(target), [targets, target]);
+
+  const own = () => targets.own(target);
 
   const onDragOver = (event: DragEvent) => {
     if (disabled || !carriesPath(event)) return;

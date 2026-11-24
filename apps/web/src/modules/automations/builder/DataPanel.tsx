@@ -10,9 +10,11 @@ import {
 import { Button, cn, Input } from 'erxes-ui';
 import { type DragEvent, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { messageOf } from '@erxes/core-contract/client';
 import { type DataItem, type DataSource, useDataSources } from './dataSources';
 import { DATA_PATH_TYPE, DataTargetContext } from './dataTarget';
 import { InfoTip } from './Field';
+import { useReferenceFieldsError } from './useStepData';
 
 const DataCard = ({
   item,
@@ -172,6 +174,7 @@ export const DataPanel = ({
 }) => {
   const { t } = useTranslation('automations');
   const sources = useDataSources(step, subject);
+  const error = useReferenceFieldsError();
   const [picked, setPicked] = useState('trigger');
   const [search, setSearch] = useState('');
   const source = sources.find((item) => item.id === picked) ?? sources[0];
@@ -200,6 +203,11 @@ export const DataPanel = ({
         />
       </div>
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+        {error && (
+          <p role="alert" className="text-xs text-destructive-text">
+            {messageOf(error)}
+          </p>
+        )}
         {groups.map((group) => (
           <section key={group.title} className="space-y-1.5">
             <h4 className="text-xs font-medium text-muted-foreground">{group.title}</h4>
