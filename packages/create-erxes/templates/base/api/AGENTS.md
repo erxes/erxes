@@ -19,7 +19,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   (`{ plugin, permissions, reason }`, the owner approves it) and call
   `core.fetchPlugin(orgId, plugin, '/v1/...')`, outside `context.tx`.
 - `src/orpc.ts`: build every procedure on `reads(action)` or `writes(action)`.
-  Both check the permission and run the handler in `withOrg(member.orgId)`, so
+  Both check the permission, name it in the API document (`checksPermission`, so
+  the assistant offers a route only to who holds it), and run the handler in `withOrg(member.orgId)`, so
   row-level security shows `context.tx` one organisation's rows. Queries carry
   no org filter; only an insert sets `orgId`, from `context.member`.
 - Call core (`core.forOrg(orgId)...`) outside `context.tx`; a failed core call

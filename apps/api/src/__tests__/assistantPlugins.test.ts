@@ -26,7 +26,10 @@ const manifestFor = (apiUrl: string) =>
     title: 'HR',
     version: '2.1.0',
     api: { url: apiUrl, docs: [{ audience: 'member', path: '/openapi/member.json' }] },
-    permissions: [{ action: 'hr.leave.view', label: 'View leave' }],
+    permissions: [
+      { action: 'hr.leave.view', label: 'View leave' },
+      { action: 'hr.leave.approve', label: 'Approve leave' },
+    ],
     assistant: {
       skills: [
         {
@@ -52,6 +55,14 @@ describe('assistant plugin contributions', () => {
 
   const ask = (text: string, api: CoreClient = t.owner()) =>
     chat(api, { model: 'kimi-k3', message: userMessage(text) });
+
+  /** The procedures searchApi found, in its order, as the model's request `back` requests ago read them. */
+  const searched = (back = 2) =>
+    [
+      ...(lastToolResult(model.chats().at(-back) ?? { model: '', messages: [] }) ?? '').matchAll(
+        /"procedure":"([^"]+)"/g,
+      ),
+    ].map(([, name]) => name);
 
   beforeAll(async () => {
     model = await fakeModel(KEY);
@@ -114,8 +125,8 @@ describe('assistant plugin contributions', () => {
 
     const before = hr.calls.length;
     const { view } = await ask('How many leave days does Bat-Erdene have?');
-    const searched = model.chats().at(-2);
-    const found = searched ? lastToolResult(searched) : '';
+    const request = model.chats().at(-2);
+    const found = request ? lastToolResult(request) : '';
 
     expect(found).toContain('hr:leave.balances');
     expect(found).toContain('/v1/leave/balances');
@@ -145,24 +156,53 @@ describe('assistant plugin contributions', () => {
 
     await ask('How many leave days are left?', t.other());
 
-    const searched = model.chats().at(-2);
-
-    expect(searched ? lastToolResult(searched) : '').not.toContain('hr:leave.balances');
+    expect(searched()).not.toContain('hr:leave.balances');
     expect(model.lastToolResult()).toContain('UNKNOWN_PROCEDURE');
+    expect(hr.calls.length).toBe(before);
+  });
+
+  it('ranks the route whose whole name the query says above routes that share more words', async () => {
+    model.script(
+      inSteps({ tool: 'searchApi', input: { query: 'leave balances' } }, { text: 'Found it.' }),
+    );
+
+    await ask('Which route reads leave balances?');
+
+    expect(searched(1).slice(0, 2)).toEqual(['hr:leave.balances', 'hr:leave.balances.export']);
+  });
+
+  it("hides a route from a member whose role lacks the permission the plugin's document names", async () => {
+    model.script(
+      inSteps(
+        { tool: 'searchApi', input: { query: 'leave balances' } },
+        { tool: 'callApi', input: { procedure: 'hr:leave.balances', input: {} } },
+        { text: 'You cannot see that.' },
+      ),
+    );
+
+    const before = hr.calls.length;
+
+    await ask('Leave balances please', t.member());
+
+    const found = searched();
+
+    expect(found).toContain('hr:leave.balances.export');
+    expect(found).not.toContain('hr:leave.balances');
+    expect(model.lastToolResult()).toContain('FORBIDDEN');
     expect(hr.calls.length).toBe(before);
   });
 
   it("surfaces the plugin's own refusal to the model", async () => {
     model.script(
       inSteps(
-        { tool: 'callApi', input: { procedure: 'hr:leave.balances', input: {} } },
-        { text: 'You cannot see that.' },
+        { tool: 'callApi', input: { procedure: 'hr:leave.approve', input: { requestId: 'r1' } } },
+        { text: 'You cannot do that.' },
       ),
     );
 
-    await ask('Leave balances please', t.member());
+    await ask('Approve leave request r1', t.member());
 
-    expect(hr.calls.at(-1)).toMatchObject({ procedure: 'leave.balances', userId: t.ids.member });
+    expect(hr.calls.at(-1)).toMatchObject({ procedure: 'leave.approve', userId: t.ids.member });
     expect(model.lastToolResult()).toContain('FORBIDDEN');
     expect(model.lastToolResult()).toContain('hr.leave.view');
   });
@@ -255,6 +295,52 @@ describe('assistant plugin contributions', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
+  it("hides a route from an agent whose key's actions leave out the permission it names", async () => {
+    const agent = await t.owner().agents.create({
+      name: 'Approver',
+      instructions: AGENT_INSTRUCTIONS,
+      access: { areas: {}, pluginAccess: { hr: 'write' }, actions: { hr: ['hr.leave.approve'] } },
+    });
+
+    model.script(
+      inSteps(
+        { tool: 'searchApi', input: { query: 'leave balances' } },
+        { tool: 'callApi', input: { procedure: 'hr:leave.balances', input: {} } },
+        { text: 'I cannot read balances.' },
+      ),
+    );
+
+    const before = hr.calls.length;
+
+    await t.owner().agents.try({ id: agent.id, text: 'Leave balances?' });
+
+    expect(searched()).not.toContain('hr:leave.balances');
+    expect(model.lastToolResult()).toContain('FORBIDDEN');
+    expect(hr.calls.length).toBe(before);
+  });
+
+  it('a PATCH of only instructions keeps the portal and provider', async () => {
+    const portal = await t.owner().portals.create({ name: 'Leave desk' });
+
+    const agent = await t.owner().agents.create({
+      name: 'Desk',
+      instructions: AGENT_INSTRUCTIONS,
+      provider: 'kimi',
+      portalId: portal.id,
+      access: { areas: {}, pluginAccess: { hr: 'read' } },
+    });
+
+    expect(
+      await t.owner().agents.update({ id: agent.id, instructions: 'Answer in one line.' }),
+    ).toMatchObject({ instructions: 'Answer in one line.', provider: 'kimi', portalId: portal.id });
+
+    expect(await t.owner().agents.update({ id: agent.id, portalId: null })).toMatchObject({
+      instructions: 'Answer in one line.',
+      provider: 'kimi',
+      portalId: null,
+    });
+  });
+
   it('keeps a plugin route that takes a credential denied whatever a skill says', async () => {
     model.script(
       inSteps(
@@ -270,10 +356,9 @@ describe('assistant plugin contributions', () => {
 
     const before = hr.calls.length;
     const { view } = await ask('Connect payroll');
-    const searched = model.chats().at(-2);
 
     expect(callsTo(view, 'callApi')).toHaveLength(1);
-    expect(searched ? lastToolResult(searched) : '').not.toContain('hr:payroll.connect');
+    expect(searched()).not.toContain('hr:payroll.connect');
     expect(model.lastToolResult()).toContain('"DENIED"');
     expect(hr.calls.length).toBe(before);
   });

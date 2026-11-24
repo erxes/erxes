@@ -211,6 +211,11 @@
  *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
  *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, audience: 'member', title, version, server: `${publicUrl}/api`, prefix: '/v1' })));
  *
+ * Wrap the middleware that checks a route's permission in `checksPermission`, so the document
+ * says which permission each route needs and the assistant offers it only to who holds one:
+ *
+ *   export const reads = (...actions: string[]) => base.use(checksPermission(base.middleware(...), actions));
+ *
  * Another plugin's API (accounting reading sales' deals when sales' events arrive, which carry
  * only ids and totals): name it in the manifest's `pluginReads`. Each organisation's owner
  * approves it like a new scope, and it works where both plugins are installed. Core issues a

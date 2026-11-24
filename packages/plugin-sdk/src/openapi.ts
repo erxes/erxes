@@ -2,11 +2,12 @@ import {
   CORE_API_PREFIX,
   CUSTOMER_TOKEN_SCHEME,
   EMPLOYEE_TOKEN_SCHEME,
+  PERMISSIONS_EXTENSION,
   PLUGIN_SESSION_SCHEME,
   type PluginApiAudience,
   PORTAL_TOKEN_SCHEME,
 } from '@erxes/core-contract';
-import { type OpenAPI, OpenAPIGenerator } from '@orpc/openapi';
+import { type OpenAPI, OpenAPIGenerator, oo } from '@orpc/openapi';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 
 /** What `OpenAPIGenerator` documents: a router or a contract. */
@@ -127,6 +128,21 @@ const signedIn = (item: PathItem): PathItem => {
 
   return copy;
 };
+
+/**
+ * Marks the middleware that checks a route's permission, or in a contract the error map item it
+ * refuses with: each route it is on lists `actions` in its operation's `x-erxes-permissions`, any
+ * one of which lets a member call it. Core's assistant, agents and MCP clients don't offer the
+ * route to a caller who holds none of them.
+ *
+ *   const inOrg = (actions: string[]) =>
+ *     checksPermission(base.middleware(({ context: { member }, next }) => { ... }), actions);
+ *   oc.errors({ FORBIDDEN: checksPermission({ status: 403 }, ['sales.deal.view']) })
+ */
+export const checksPermission = <Check extends object>(check: Check, actions: readonly string[]) =>
+  actions.length
+    ? oo.spec(check, (operation) => ({ ...operation, [PERMISSIONS_EXTENSION]: [...actions] }))
+    : check;
 
 /**
  * One OpenAPI document of a plugin's REST routes, for Settings › Developer › API reference:

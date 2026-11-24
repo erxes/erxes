@@ -1,7 +1,7 @@
 import { type Caller, enterScope } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
 import { z } from 'zod';
-import { decideKeyCall, memberMayCall } from '~/http/access';
+import { can, decideKeyCall, memberMayCall } from '~/http/access';
 import { decidePluginKey } from '~/http/keyRules';
 import { coreRouter } from '~/router';
 import { type ApiProcedure, apiCatalog, needsPerson } from './catalog';
@@ -79,6 +79,17 @@ const scoreOf = (procedure: ApiProcedure, tokens: string[]) => {
   }, 0);
 };
 
+/**
+ * Does the query name every word of the route's own name, without its plugin
+ * (`catalog.read` of `ecommerce:catalog.read`)? Such a route ranks above routes that share
+ * more words but add their own, like `catalog.products.available`.
+ */
+const coversName = ({ name }: ApiProcedure, tokens: string[]) => {
+  const words = tokensOf(name.slice(name.lastIndexOf(':') + 1));
+
+  return words.length > 0 && words.every((word) => tokens.includes(word));
+};
+
 type Entry = ApiProcedure | PluginProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
@@ -110,9 +121,10 @@ const withheld = (scope: ToolScope, entry: Entry) =>
   entry.denied || (scope.unattended && needsPerson(entry.name));
 
 /**
- * Would the call get past the caller's role or key rules? A key reaches a plugin's routes, a
- * customer's too, only when its rules open that plugin, and writes to it only when they open it
- * for writing; the plugin checks the rest.
+ * Would the call get past the caller's role or key rules? A plugin route that names its
+ * permissions needs one of them. A key reaches a plugin's routes, a customer's too, only when
+ * its rules open that plugin, and writes to it only when they open it for writing; the plugin
+ * checks the rest.
  */
 const mayCall = (member: Member, entry: Entry) => {
   if (!isPluginEntry(entry)) {
@@ -121,9 +133,13 @@ const mayCall = (member: Member, entry: Entry) => {
       : memberMayCall(entry.name, member);
   }
 
-  if (!member.key) return true;
+  const permitted =
+    entry.permissions.length === 0 || entry.permissions.some((action) => can(member, action));
+
+  if (!member.key) return permitted;
 
   return (
+    permitted &&
     decidePluginKey(member.key, entry.plugin).allowed &&
     (!entry.changes || member.key.plugins[entry.plugin] === 'write')
   );
@@ -137,9 +153,18 @@ export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_
 
   const found = (await entriesOf(scope))
     .filter((entry) => !withheld(scope, entry) && mayCall(member, entry))
-    .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
+    .map((procedure) => ({
+      procedure,
+      score: scoreOf(procedure, tokens),
+      named: coversName(procedure, tokens),
+    }))
     .filter(({ score }) => score > 0)
-    .toSorted((a, b) => b.score - a.score || a.procedure.name.localeCompare(b.procedure.name))
+    .toSorted(
+      (a, b) =>
+        Number(b.named) - Number(a.named) ||
+        b.score - a.score ||
+        a.procedure.name.localeCompare(b.procedure.name),
+    )
     .slice(0, limit)
     .map(({ procedure }) => ({
       procedure: procedure.name,

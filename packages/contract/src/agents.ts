@@ -83,18 +83,21 @@ export const AgentFailed = z.object({
   reason: z.string(),
 });
 
-/** What an agent says and runs on. */
+/**
+ * What an agent says and runs on. No defaults here: zod applies a default inside `.partial()`
+ * too, so a change of its instructions alone would clear its provider and portal.
+ */
 export const AgentSettings = z.object({
   name: z.string().trim().min(1).max(100),
   instructions: z.string().trim().min(1).max(12_000),
   /** Null: the organisation's default provider and its default model. */
-  provider: AssistantProvider.nullable().default(null),
-  model: AssistantModelId.nullable().default(null),
+  provider: AssistantProvider.nullable(),
+  model: AssistantModelId.nullable(),
   /**
    * The portal whose customers it serves: it acts for the customer a conversation is with,
    * through that portal's plugin routes. Null: it acts for nobody but itself.
    */
-  portalId: Id.nullable().default(null),
+  portalId: Id.nullable(),
 });
 
 export type AgentSettings = z.infer<typeof AgentSettings>;
@@ -108,6 +111,9 @@ const AgentAccess = z.object({
 
 /** A new agent: its settings, the template it came from and what it may do. */
 export const NewAgent = AgentSettings.extend({
+  provider: AgentSettings.shape.provider.default(null),
+  model: AgentSettings.shape.model.default(null),
+  portalId: AgentSettings.shape.portalId.default(null),
   template: AgentTemplate.nullable().default(null),
   access: AgentAccess,
 });

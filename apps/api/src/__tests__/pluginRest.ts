@@ -1,5 +1,5 @@
 import { bearerOf, verifyPluginSession } from '@erxes/plugin-sdk';
-import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
+import { checksPermission, pluginOpenApi } from '@erxes/plugin-sdk/openapi';
 import { oc } from '@orpc/contract';
 import { once } from 'node:events';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
@@ -13,14 +13,29 @@ interface Call {
   input: unknown;
 }
 
+/** The refusal of a member without `hr.leave.view`, which the document names on the route. */
+const viewsLeave = { FORBIDDEN: checksPermission({ status: 403 }, ['hr.leave.view']) };
+
+const Balances = z.object({
+  balances: z.array(z.object({ employee: z.string(), daysLeft: z.number() })),
+});
+
 const contract = {
   leave: {
     balances: oc
+      .errors(viewsLeave)
       .route({ method: 'GET', path: '/leave/balances', summary: 'Leave days left per employee' })
       .input(z.object({ employee: z.string().optional() }))
-      .output(
-        z.object({ balances: z.array(z.object({ employee: z.string(), daysLeft: z.number() })) }),
-      ),
+      .output(Balances),
+    // Shares more of "leave balances" with its summary than leave.balances does.
+    exportBalances: oc
+      .route({
+        method: 'POST',
+        path: '/leave/balances/export',
+        operationId: 'leave.balances.export',
+        summary: 'Export leave balances per employee',
+      })
+      .output(Balances),
     approve: oc
       .route({
         method: 'POST',
