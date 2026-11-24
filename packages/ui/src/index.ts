@@ -335,6 +335,8 @@ export {
 
 export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
 
+export { FieldIcon as FieldTypeIcon } from './modules/conditions/fieldIcons';
+
 export {
   ListViewsProvider,
   type TCheckedListType,
