@@ -99,6 +99,7 @@ export const paths = {
     apiReferenceOf: (api: string, audience?: string) =>
       `/settings/api-reference/${id(api)}${audience ? `/${id(audience)}` : ''}`,
     apiKeys: '/settings/api-keys',
+    mcp: '/settings/mcp',
     portalKeys: '/settings/api-keys?tab=portal',
     apiKeyNew: '/settings/api-keys/new',
     apiKeyOf: (keyId: string) => `/settings/api-keys/${id(keyId)}`,
