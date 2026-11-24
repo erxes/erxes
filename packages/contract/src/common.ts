@@ -9,6 +9,18 @@ import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);
 
+/** The OpenAPI extension that marks a POST that changes nothing (`readsByPost`). */
+export const READS_EXTENSION = 'x-erxes-reads';
+
+/**
+ * A route's `spec` for a POST that only reads, such as a dry run or a preview with a large body:
+ * agents and MCP clients run it as a read, without asking a person first.
+ */
+export const readsByPost = <Operation extends object>(operation: Operation) => ({
+  ...operation,
+  [READS_EXTENSION]: true,
+});
+
 /**
  * A timestamp column in an output schema: the handler returns the row's `Date`,
  * the client gets an ISO string. Give it to `createSelectSchema` as a

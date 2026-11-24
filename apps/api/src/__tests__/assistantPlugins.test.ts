@@ -274,7 +274,7 @@ describe('assistant plugin contributions', () => {
 
     expect(callsTo(view, 'callApi')).toHaveLength(1);
     expect(searched ? lastToolResult(searched) : '').not.toContain('hr:payroll.connect');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
+    expect(model.lastToolResult()).toContain('"DENIED"');
     expect(hr.calls.length).toBe(before);
   });
 });

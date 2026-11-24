@@ -2,8 +2,8 @@ import { ASSISTANT_PROGRAM_FAILURES } from '@erxes/core-db/assistantEnums';
 import { z } from 'zod';
 import { logger } from '~/logger';
 import type { HostAnswer, ProgramJob } from './codeMode.worker';
-import { refusal } from './tools/results';
-import { runWorker, type WorkerEnd, workerGate } from './workers';
+import { runWorker, type WorkerEnd, workerFile, workerGate } from '~/lib/workers';
+import { refusal } from './results';
 
 export const CODE_LIMITS = {
   timeMs: 10_000,
@@ -144,7 +144,7 @@ export const runProgram = async ({ code, prelude, host }: Program) => {
   };
 
   const end = await runWorker(
-    'codeMode.worker',
+    workerFile('codeMode.worker', import.meta.url),
     { data: job, heapMb: WORKER_HEAP_MB, signal: AbortSignal.timeout(CODE_LIMITS.timeMs) },
     conversation(host),
   ).finally(gate.release);

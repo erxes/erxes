@@ -2,10 +2,10 @@ import { defineExtension, GenerationTask, hook, section } from '@earendil-works/
 import { apiKeys, type Db, portalPlugins, portals, withOrg } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
+import { apiTools } from '~/modules/apiTools/agentTools';
+import { installedPlugins } from '~/modules/apiTools/plugins';
 import { modelKey } from '~/modules/assistant/connections.service';
-import { installedPlugins } from '~/modules/assistant/plugins';
 import { modelsFor } from '~/modules/assistant/providers';
-import { apiTools } from '~/modules/assistant/tools/apiTools';
 import { agentCustomerToken } from '~/modules/customerAuth/customerSessions';
 import { agentPortalToken } from '~/modules/portals/portalKeys';
 import { type Agent, answerText, madeAgentName } from './agent';
@@ -65,8 +65,7 @@ export const madeAgent = (id: string): Agent => ({
       const tools = apiTools({
         caller: () => withOrg(scope.orgId, (client) => keyCallerOf(client, row.keyId)),
         orgId: scope.orgId,
-        threadId: null,
-        codeMode: false,
+        unattended: true,
         plugins,
         ...(portal && customerId
           ? {

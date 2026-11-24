@@ -3,7 +3,7 @@ import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { Broadcast, BroadcastCreate, BroadcastUpdate, oneAudience } from './broadcast';
 import { BroadcastAudience, BroadcastRecipient, BroadcastRendered } from './broadcastRecipients';
-import { cursorPageOf, CursorQuery, Id } from './common';
+import { cursorPageOf, CursorQuery, Id, readsByPost } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { BroadcastChannel, BroadcastRecipientStatus, BroadcastStatus } from './values';
 
@@ -110,6 +110,7 @@ export const broadcastsContract = {
     .route({
       method: 'POST',
       path: '/broadcasts/audience',
+      spec: readsByPost,
       summary: 'Count a broadcast audience',
       description: 'Who an audience (a view, a filter, or everyone) would reach on a channel now',
     })
@@ -127,6 +128,7 @@ export const broadcastsContract = {
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/preview',
+      spec: readsByPost,
       summary: 'Preview a broadcast',
       description:
         "The broadcast as one customer would get it (`customerId`, else the audience's first customer, else sample values)",

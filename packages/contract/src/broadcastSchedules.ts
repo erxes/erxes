@@ -2,7 +2,7 @@ import { broadcastSchedules } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, listOf } from './common';
+import { Id, isoDate, listOf, readsByPost } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { BroadcastChannel } from './values';
 
@@ -202,6 +202,7 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'POST',
       path: '/broadcast-schedules/preview',
+      spec: readsByPost,
       summary: 'Preview repeat times',
       description:
         'The next times a schedule would run, after now and within its end, on the organisation’s clock',

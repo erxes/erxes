@@ -10,16 +10,17 @@ import { eq } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { memberOf } from '~/http/auth';
 import type { Agent, AgentScope } from '~/modules/agents/agent';
+import { apiTools, runCode } from '~/modules/apiTools/agentTools';
+import type { ToolScope } from '~/modules/apiTools/calls';
+import { installedPlugins } from '~/modules/apiTools/plugins';
 import { ASSISTANT_AGENT, MEMBER_ENTRY } from './chat.service';
 import { connectedProviders } from './connectedProviders';
 import { instructionsFor } from './instructions';
-import { installedPlugins } from './plugins';
 import { modelsFor } from './providers';
+import { referencesIn } from './references.service';
 import { getSettings } from './settings.service';
 import { loadSkill, skillsFor } from './skills/skills';
-import { apiTools, type ToolScope } from './tools/apiTools';
 import { createArtifact } from './tools/createArtifact';
-import { runCode } from './tools/runCode';
 import { uiProblem } from './ui';
 
 /** The member whose thread this is; the assistant acts as them. */
@@ -87,9 +88,9 @@ export const assistantAgent: Agent = {
         const tools: ToolScope = {
           caller: () => memberOf(scope.orgId, member.userId),
           orgId: scope.orgId,
-          threadId: scope.key,
-          codeMode,
+          unattended: true,
           plugins,
+          references: referencesIn(scope.orgId, scope.key),
         };
 
         const keys = connected.flatMap(({ key }) => (key ? [key] : []));

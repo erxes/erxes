@@ -9,7 +9,7 @@ import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
 import { automationBase as base } from './automationBase';
 import { automationRunRoutes } from './automationRunRoutes';
 import { ActionInfo, AutomationFieldPath, DataField, DryRun } from './automationRuns';
-import { Id, isoDate, listOf } from './common';
+import { Id, isoDate, listOf, readsByPost } from './common';
 
 export const CatalogSearch = z.object({
   search: z.string().trim().max(200).optional(),
@@ -95,6 +95,7 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/check',
+      spec: readsByPost,
       summary: 'Check an automation before turning it on',
       description:
         'What would stop a definition from being turned on (unknown steps, missing fields, broken templates); nothing is saved',
@@ -134,6 +135,7 @@ export const automationsContract = {
     .route({
       method: 'POST',
       path: '/automations/{id}/test',
+      spec: readsByPost,
       summary: 'Test an automation',
       description:
         'Dry run of the working copy (or a draft definition): what each step would do for a record (nothing is changed)',

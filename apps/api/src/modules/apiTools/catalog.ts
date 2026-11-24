@@ -1,6 +1,12 @@
-import { coreContract } from '@erxes/core-contract';
-import { type AnyContractProcedure, type AnySchema, isContractProcedure } from '@orpc/contract';
+import { coreContract, READS_EXTENSION } from '@erxes/core-contract';
+import {
+  type AnyContractProcedure,
+  type AnySchema,
+  getEventIteratorSchemaDetails,
+  isContractProcedure,
+} from '@orpc/contract';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
+import { z } from 'zod';
 
 export interface ApiProcedure {
   name: string;
@@ -13,18 +19,13 @@ export interface ApiProcedure {
   denied: boolean;
 }
 
-const READS_BY_POST = new Set(['automations.check', 'automations.test']);
+/** Sign-in, of members and customers: kept from every agent with the credential guard below. */
+const SIGN_IN_GROUPS = new Set(['auth', 'customerAuth', 'customerAccount']);
 
-const DENIED_GROUPS = new Set([
-  'assistant',
-  'auth',
-  'customerAuth',
-  'customerAccount',
-  'saas',
-  'plugins',
-]);
+/** Where people act themselves when nobody approves an agent's writes (`needsPerson`). */
+const PEOPLE_GROUPS = new Set(['assistant', 'saas', 'plugins']);
 
-const DENIED_PROCEDURES = new Set([
+const PEOPLE_PROCEDURES = new Set([
   'roles.create',
   'roles.update',
   'roles.remove',
@@ -62,6 +63,20 @@ const DENIED_PROCEDURES = new Set([
   'webhooks.rotateSecret',
 ]);
 
+/** Sending, access and security settings: a person does them when nobody approves each write. */
+export const needsPerson = (name: string) =>
+  PEOPLE_GROUPS.has(name.split('.')[0] ?? '') || PEOPLE_PROCEDURES.has(name);
+
+const MarkedRead = z.object({ [READS_EXTENSION]: z.literal(true) });
+
+/** Does a call change data: anything but a GET, unless its OpenAPI operation is marked a read. */
+export const changesData = (method: string, operation: unknown) =>
+  method.toUpperCase() !== 'GET' && !MarkedRead.safeParse(operation).success;
+
+type RouteSpec = AnyContractProcedure['~orpc']['route']['spec'];
+
+const operationOf = (spec: RouteSpec) => (typeof spec === 'function' ? spec({}) : spec);
+
 const words = (name: string) =>
   name
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -97,6 +112,13 @@ const converter = new ZodToJsonSchemaConverter({ maxLazyDepth: 2 });
 const isSchema = (value: unknown): value is AnySchema =>
   typeof value === 'object' && value !== null && '~standard' in value;
 
+/** An `eventIterator` output: for a page that stays open, not a one-shot call. */
+const isStream = (procedure: AnyContractProcedure) => {
+  const schema: unknown = procedure['~orpc'].outputSchema;
+
+  return isSchema(schema) && getEventIteratorSchemaDetails(schema) !== undefined;
+};
+
 const jsonSchema = (procedure: AnyContractProcedure, strategy: 'input' | 'output') => {
   const schema: unknown =
     strategy === 'input' ? procedure['~orpc'].inputSchema : procedure['~orpc'].outputSchema;
@@ -120,11 +142,9 @@ const describe = (name: string, procedure: AnyContractProcedure): ApiProcedure =
     summary: route.summary ?? '',
     description: route.description ?? '',
     input,
-    changes: method !== 'GET' && !READS_BY_POST.has(name),
+    changes: changesData(method, operationOf(route.spec)),
     denied:
-      DENIED_GROUPS.has(group) ||
-      DENIED_PROCEDURES.has(name) ||
-      carriesCredentials([input, jsonSchema(procedure, 'output')]),
+      SIGN_IN_GROUPS.has(group) || carriesCredentials([input, jsonSchema(procedure, 'output')]),
   };
 };
 
@@ -134,7 +154,7 @@ export const apiCatalog = () => {
   catalog ??= new Map(
     Object.entries(coreContract).flatMap(([group, procedures]) =>
       Object.entries(procedures).flatMap(([key, procedure]) =>
-        isContractProcedure(procedure)
+        isContractProcedure(procedure) && !isStream(procedure)
           ? [[`${group}.${key}`, describe(`${group}.${key}`, procedure)] as const]
           : [],
       ),
