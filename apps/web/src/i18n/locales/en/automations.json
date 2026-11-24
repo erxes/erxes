@@ -372,5 +372,6 @@
   "min-confidence": "Minimum confidence",
   "min-confidence-info": "Less sure than this: the run takes Otherwise",
   "confidence-any": "Any (no minimum)",
-  "remove": "Remove"
+  "remove": "Remove",
+  "close": "Close"
 }

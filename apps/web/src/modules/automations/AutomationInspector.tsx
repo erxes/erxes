@@ -1,6 +1,6 @@
 import type { ActionInfo, Automation, AutomationStep } from '@erxes/core-contract';
-import { IconFlask } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { IconFlask, IconX } from '@tabler/icons-react';
+import { Button, cn } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
@@ -24,7 +24,7 @@ export interface InspectorProps {
   built: ReturnType<typeof useBuilder>;
   editable: boolean;
   selected: Selection;
-  onSelect: (selection: Selection) => void;
+  onSelect: (selection: Selection | null) => void;
   /** The trigger in words, as its card shows it. */
   trigger: { title: string };
 }
@@ -60,39 +60,62 @@ const PanelHeader = ({
   tone,
   title,
   kind,
+  onClose,
   children,
 }: {
   icon: NodeIcon;
   tone: string;
   title: string;
   kind: string;
+  onClose: () => void;
   children?: ReactNode;
-}) => (
-  <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
-    <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tone)}>
-      <Icon className="size-4.5" />
-    </span>
-    <span className="min-w-0 flex-1">
-      <span className="block truncate text-sm font-medium">{title}</span>
-      <span className="block truncate text-xs text-muted-foreground">{kind}</span>
-    </span>
-    {children}
-  </div>
-);
+}) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
+      <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tone)}>
+        <Icon className="size-4.5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">{title}</span>
+        <span className="block truncate text-xs text-muted-foreground">{kind}</span>
+      </span>
+      {children}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        aria-label={t('close', 'Close')}
+        onClick={onClose}
+      >
+        <IconX className="size-4" />
+      </Button>
+    </div>
+  );
+};
 
 const StepPanelHeader = ({
   step,
   actions,
+  onClose,
   children,
 }: {
   step: AutomationStep;
   actions: ActionInfo[];
+  onClose: () => void;
   children: ReactNode;
 }) => {
   const look = useStepLook(step, actions);
 
   return (
-    <PanelHeader icon={look.icon} tone={look.tone} title={look.title || look.kind} kind={look.kind}>
+    <PanelHeader
+      icon={look.icon}
+      tone={look.tone}
+      title={look.title || look.kind}
+      kind={look.kind}
+      onClose={onClose}
+    >
       {children}
     </PanelHeader>
   );
@@ -101,6 +124,7 @@ const StepPanelHeader = ({
 export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
   const { draft, selected, onSelect, editable, automation, built } = props;
+  const onClose = () => onSelect(null);
   const { definition } = draft;
   const [targets] = useState(dataTargets);
 
@@ -119,6 +143,7 @@ export const AutomationInspector = (props: InspectorProps) => {
             icon={TRIGGER_ICONS[definition.trigger.kind]}
             title={props.trigger.title}
             kind={t('trigger-kind', 'When')}
+            onClose={onClose}
           />
         )}
         {selected === 'test' && (
@@ -127,10 +152,11 @@ export const AutomationInspector = (props: InspectorProps) => {
             tone="bg-muted text-muted-foreground"
             title={t('test', 'Test')}
             kind={automation.name}
+            onClose={onClose}
           />
         )}
         {step && (
-          <StepPanelHeader step={step} actions={built.actions}>
+          <StepPanelHeader step={step} actions={built.actions} onClose={onClose}>
             <StepHeader
               step={step}
               steps={definition.steps}

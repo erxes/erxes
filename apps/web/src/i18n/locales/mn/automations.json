@@ -372,5 +372,6 @@
   "min-confidence": "Доод итгэлцэл",
   "min-confidence-info": "Үүнээс бага бол Бусад үед замаар явна",
   "confidence-any": "Хязгааргүй",
-  "remove": "Устгах"
+  "remove": "Устгах",
+  "close": "Хаах"
 }
