@@ -199,6 +199,8 @@ export * from './errors';
 
 export * from './companies';
 
+export * from './contactLinks';
+
 export * from './customers';
 
 export * from './customerAccount';
