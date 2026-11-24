@@ -7,7 +7,14 @@ import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { type Buyer, type BuiltReceipt, buildReceipt, linesFor } from './build';
-import { activeReceipt, anyActive, keptAmount, readForSync, type ReceiptRow } from './plan';
+import {
+  activeReceipt,
+  configOf,
+  configOff,
+  keptAmount,
+  readForSync,
+  type ReceiptRow,
+} from './plan';
 import { deleteReceipt, findCompany, putReceipt } from './posapi';
 
 const log = logger.child({ component: 'ebarimt' });
@@ -53,8 +60,10 @@ const sameBuyer = (receipt: ReceiptRow, buyer: Buyer) =>
   receipt.customerTin === buyer.customerTin &&
   receipt.consumerNo === buyer.consumerNo;
 
+type Read = NonNullable<Awaited<ReturnType<typeof readForSync>>>;
+
 /** What the invoice's receipt should become; null: it is right as it is. Calls out (the tax office). */
-const planFor = async (read: NonNullable<Awaited<ReturnType<typeof readForSync>>>) => {
+const planFor = async (read: Read) => {
   const { invoice, settings, active } = read;
   // An invoice that gets no receipt keeps nothing to issue one for: an issued one is returned.
   const kept = invoice.taxReceipt ? keptAmount(invoice) : 0;
@@ -131,9 +140,16 @@ const rowOf = (plan: Plan) => {
  * Takes the invoice for this sync: a pending receipt row, one per invoice
  * (a unique index). A row left pending by a crash frees the invoice after
  * a while. Throws InvoiceBusy when another sync holds it or the issued
- * receipt changed since it was read.
+ * receipt changed since it was read. With `refused`, the row is stored as
+ * failed with it instead, and nothing is sent.
  */
-const claim = async (tx: Db, invoiceId: string, settingsId: string, plan: Plan) => {
+const claim = async (
+  tx: Db,
+  invoiceId: string,
+  settingsId: string,
+  plan: Plan,
+  refused: string | null,
+) => {
   await tx
     .update(ebarimtReceipts)
     .set({ status: 'failed', error: 'Interrupted before PosAPI answered', updatedAt: sql`now()` })
@@ -157,7 +173,7 @@ const claim = async (tx: Db, invoiceId: string, settingsId: string, plan: Plan) 
       settingsId,
       previousId: plan.previous?.id ?? null,
       ...rowOf(plan),
-      ...(plan.kind === 'failed' && { status: 'failed' as const, error: plan.error }),
+      ...(refused !== null && { status: 'failed' as const, error: refused }),
     })
     .onConflictDoNothing()
     .returning();
@@ -178,6 +194,13 @@ const claim = async (tx: Db, invoiceId: string, settingsId: string, plan: Plan) 
     );
 
   return row;
+};
+
+/** Why the receipt is kept as failed without asking PosAPI; null: it is sent. */
+const refusalOf = (read: Pick<Read, 'off' | 'settings'>, plan: Plan) => {
+  if (plan.kind === 'failed') return plan.error;
+
+  return read.off ? configOff(read.settings) : null;
 };
 
 /** Sends the claimed receipt to PosAPI. */
@@ -279,7 +302,14 @@ const syncReceipt = async (orgId: string, invoiceId: string) => {
 
   if (!plan) return null;
 
-  const receipt = await withOrg(orgId, (tx) => claim(tx, invoiceId, read.settings.id, plan));
+  const refused = refusalOf(read, plan);
+
+  const receipt = await withOrg(orgId, (tx) =>
+    claim(tx, invoiceId, read.settings.id, plan, refused),
+  );
+
+  if (refused !== null) return { receipt, retry: false };
+
   const answer = await send(read.settings.posApiUrl, plan);
 
   if (!answer) return { receipt, retry: false };
@@ -313,11 +343,12 @@ export const ebarimtSyncJob = defineJob({
 
 /**
  * Queues a sync of the invoice's receipt, in the caller's transaction, when
- * any eBarimt config is on (the sync picks the invoice's). Each change queues its own sync; they run
- * one at a time per invoice (the pending receipt).
+ * eBarimt is set up: the sync picks the invoice's config, and keeps a receipt it can't send
+ * because that config is off as failed. Each change queues its own sync; they run one at a time
+ * per invoice (the pending receipt).
  */
 export const queueReceiptSync = async (tx: Db, invoice: { orgId: string; id: string }) => {
-  if (!(await anyActive(tx))) return;
+  if (!(await configOf(tx))) return;
 
   await ebarimtSyncJob.enqueue(tx, { orgId: invoice.orgId, payload: { invoiceId: invoice.id } });
 };

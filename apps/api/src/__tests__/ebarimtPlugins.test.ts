@@ -134,5 +134,21 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
     await t.owner().payments.payTestInvoice({ id: invoice.id });
     await settle();
     expect((await t.owner().ebarimt.receipts({ invoiceId: invoice.id })).data).toEqual([]);
+
+    // Core sends none for it, so a config that is off is no reason to refuse.
+    const closed = await t
+      .owner()
+      .ebarimt.createConfig({ ...settings(), name: 'Closed', status: 'disabled' });
+
+    expect(
+      await t.hr().payments.createInvoice({
+        amount: 30_000,
+        currency: 'MNT',
+        description: 'Tour',
+        referenceType: 'order',
+        referenceId: 'own-closed',
+        ebarimtId: closed.id,
+      }),
+    ).toMatchObject({ ebarimtId: closed.id });
   });
 });

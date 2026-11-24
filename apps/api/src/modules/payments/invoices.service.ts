@@ -84,8 +84,8 @@ const prepareInvoice = (orgId: string, input: InvoiceInput) =>
     if (existing) return { existing };
 
     const lines = await resolveInvoiceLines(tx, input.amount, input.lines ?? []);
-    const ebarimtId = await ebarimtIdOf(tx, input.ebarimtId);
     const currency = input.currency ?? (await getOrganization(tx)).currency;
+    const ebarimtId = await ebarimtIdOf(tx, { ...input, currency });
     const gateway = await resolveGateway(tx, currency, input.gatewayId);
     const id = newId();
     // Signed in the path: some gateways (WeChat Pay) take no query in a callback address.
