@@ -81,8 +81,8 @@ describe('assistant plugin contributions', () => {
     const found = request ? lastToolResult(request) : '';
 
     expect(found).toContain('hr:leave.balances');
-    expect(found).toContain('/v1/leave/balances');
     expect(found).toContain('employee');
+    expect(found).not.toContain('"properties"');
     expect(hr.calls.slice(before)).toEqual([
       {
         procedure: 'leave.balances',

@@ -9,7 +9,7 @@ import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ConditionGroup } from '@erxes/core-db/automationDefinition';
+import { CONDITION_OPERATORS, ConditionGroup } from '@erxes/core-db/automationDefinition';
 import { Id, isoDate, listOf } from './common';
 import { PluginListType } from './values';
 
@@ -30,6 +30,14 @@ export type ViewListType = z.infer<typeof ViewListType>;
  * as JSON in `filter`.
  */
 export const RecordFilter = ConditionGroup;
+
+/** A list query's `filter`: a RecordFilter as JSON, described for the API reference and agents. */
+export const FilterJson = z
+  .string()
+  .max(20_000)
+  .describe(
+    `A condition group as JSON, e.g. {"match":"all","rules":[{"path":"subject.primaryEmail","op":"contains","value":"@gmail.com"}]}. Each rule is {path, op, value} on a subject.<field> path, or a nested group. op is one of ${CONDITION_OPERATORS.join(', ')}. views.fields lists the paths a list takes and their operators.`,
+  );
 
 /** One thing a list can be filtered by, with the operators that fit it. */
 export const FilterField = z.object({

@@ -36,17 +36,35 @@ export const describeError = (error: unknown) => {
   });
 };
 
-export const bounded = (result: unknown, issued: IssuedReference[] = []) => {
+/**
+ * Who reads a result. A model gets the first 40 000 characters of a long one, as text it can
+ * still use. A program gets whole JSON up to a megabyte, or a refusal, never a cut string it
+ * can't parse.
+ */
+export type Reader = 'model' | 'program';
+
+const PROGRAM_RESULT_CHARS = 1_000_000;
+
+export const bounded = (result: unknown, issued: IssuedReference[], reader: Reader) => {
   const json = JSON.stringify(result ?? null);
   const references = issued.length ? { references: issued } : {};
 
-  return json.length > MAX_RESULT_CHARS
-    ? {
-        ok: true as const,
-        truncated: true,
-        result: json.slice(0, MAX_RESULT_CHARS),
-        note: 'The answer was cut. Ask for less: add filters, a smaller limit, or fewer fields.',
-        ...references,
-      }
-    : { ok: true as const, result, ...references };
+  if (json.length <= (reader === 'model' ? MAX_RESULT_CHARS : PROGRAM_RESULT_CHARS)) {
+    return { ok: true as const, result, ...references };
+  }
+
+  if (reader === 'program') {
+    return refusal(
+      'TOO_LARGE',
+      `The answer is over ${PROGRAM_RESULT_CHARS} characters. Ask for less: a smaller limit or filters.`,
+    );
+  }
+
+  return {
+    ok: true as const,
+    truncated: true,
+    result: json.slice(0, MAX_RESULT_CHARS),
+    note: 'The answer was cut. Ask for less: add filters or a smaller limit, or use execute to page and pick fields.',
+    ...references,
+  };
 };

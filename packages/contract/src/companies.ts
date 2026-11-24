@@ -2,6 +2,7 @@ import { COMPANY_MERGE_FIELDS, CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { companies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
+import { FilterJson } from './views';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
@@ -181,7 +182,7 @@ export const companiesContract = {
         customerId: Id.optional(),
         ids: IdList.optional(),
         /** An advanced filter: JSON of a condition group (`RecordFilter`), as views save it. */
-        filter: z.string().max(20_000).optional(),
+        filter: FilterJson.optional(),
       }),
     )
     .output(cursorPageOf(Company)),

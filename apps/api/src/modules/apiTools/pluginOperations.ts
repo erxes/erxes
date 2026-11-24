@@ -6,7 +6,7 @@ import { type OutboundAnswer, requestOutbound } from '~/lib/outbound';
 import { logger } from '~/logger';
 import { pluginSession } from '~/modules/plugins/installations.service';
 import type { PluginProcedure } from './pluginDocument';
-import { bounded, describeError, jsonOf, refusal } from './results';
+import { describeError, jsonOf, refusal } from './results';
 
 const PLUGIN_TIMEOUT_MS = 30_000;
 
@@ -61,7 +61,7 @@ const requestFor = (entry: PluginProcedure, input: Record<string, unknown>) => {
 const resultOf = (entry: PluginProcedure, answer: OutboundAnswer) => {
   const json = jsonOf(answer.body.toString());
 
-  if (answer.status >= 200 && answer.status < 300) return bounded(json);
+  if (answer.status >= 200 && answer.status < 300) return { ok: true as const, result: json };
 
   const failure = Failure.safeParse(json).data;
 
@@ -73,8 +73,8 @@ const resultOf = (entry: PluginProcedure, answer: OutboundAnswer) => {
 };
 
 /**
- * Calls a plugin's route with the headers `credentials` gives, and answers what the model
- * reads: the bounded result, the plugin's own refusal, or that it didn't answer.
+ * Calls a plugin's route with the headers `credentials` gives, and answers its JSON, the
+ * plugin's own refusal, or that it didn't answer.
  */
 export const callPluginRoute = async (
   entry: PluginProcedure,

@@ -10,8 +10,11 @@ export const CODE_LIMITS = {
   memoryBytes: 32 * 1024 * 1024,
   stackBytes: 512 * 1024,
   outputChars: 20_000,
-  hostCalls: 50,
+  hostCalls: 200,
 };
+
+/** API calls one program has in flight; the rest of a `Promise.all` waits its turn. */
+const CALLS_AT_ONCE = 6;
 
 const PROGRAMS_AT_ONCE = 4;
 
@@ -79,21 +82,27 @@ const OUT_OF_MEMORY: ProgramResult = {
 
 const FAILED: ProgramResult = { ok: false, code: 'PROGRAM_ERROR', message: 'The program failed' };
 
+const TOO_MANY_CALLS = JSON.stringify(
+  refusal('TOO_MANY_CALLS', `A program makes at most ${CODE_LIMITS.hostCalls} API calls`),
+);
+
 const answerCall = async (
   host: Host,
-  budget: { calls: number },
+  budget: { calls: number; gate: ProgramGate; signal: AbortSignal },
   name: string,
   args: string[],
 ): Promise<HostAnswer['answer']> => {
   budget.calls += 1;
 
-  if (budget.calls > CODE_LIMITS.hostCalls) {
-    return { ok: true, json: JSON.stringify(refusal('TOO_MANY_CALLS', 'Too many API calls')) };
-  }
+  if (budget.calls > CODE_LIMITS.hostCalls) return { ok: true, json: TOO_MANY_CALLS };
 
   const call = Object.hasOwn(host, name) ? host[name] : undefined;
 
   if (!call) return { ok: false, message: 'The call failed' };
+
+  if ((await budget.gate.acquire(budget.signal)) !== 'granted') {
+    return { ok: false, message: 'The program ran out of time' };
+  }
 
   try {
     return { ok: true, json: JSON.stringify((await call(args)) ?? null) };
@@ -101,11 +110,17 @@ const answerCall = async (
     log.warn({ err: error, call: name }, 'code mode: a host call failed');
 
     return { ok: false, message: 'The call failed' };
+  } finally {
+    budget.gate.release();
   }
 };
 
-const conversation = (host: Host) => {
-  const budget = { calls: 0 };
+const conversation = (host: Host, signal: AbortSignal) => {
+  const budget = {
+    calls: 0,
+    gate: workerGate(CALLS_AT_ONCE, CODE_LIMITS.hostCalls),
+    signal,
+  };
 
   return (message: unknown, reply: (message: HostAnswer) => void): ProgramResult | undefined => {
     const parsed = FromProgram.safeParse(message);
@@ -146,10 +161,12 @@ export const runProgram = async ({ code, prelude, host }: Program, gate: Program
     outputChars: CODE_LIMITS.outputChars,
   };
 
+  const signal = AbortSignal.timeout(CODE_LIMITS.timeMs);
+
   const end = await runWorker(
     workerFile('codeMode.worker', import.meta.url),
-    { data: job, heapMb: WORKER_HEAP_MB, signal: AbortSignal.timeout(CODE_LIMITS.timeMs) },
-    conversation(host),
+    { data: job, heapMb: WORKER_HEAP_MB, signal },
+    conversation(host, signal),
   ).finally(gate.release);
 
   return resultOf(end);

@@ -7,14 +7,14 @@ import { PROGRAM_LIMITS, runApiProgram } from './program';
 /** The assistant's programs: they never wait behind MCP clients'. */
 const gate = programGate();
 
-export const CODE_MODE_INSTRUCTIONS = `Code mode is on: runCode runs a JavaScript program in a sandbox with two async functions, searchApi(query, limit) and callApi(procedure, input), which work like the tools of the same names and return their results. Use it to page through records, join and aggregate them, and compute totals, shares, deltas and scenarios, then return one JSON value; console.log lines come back too. ${PROGRAM_LIMITS}`;
+export const CODE_MODE_INSTRUCTIONS = `Code mode is on: runCode runs a JavaScript program in a sandbox with two async functions, searchApi(query, limit) and callApi(procedure, input), which work like the tools of the same names; callApi answers { ok: true, result } with the whole result, or { ok: false, code, message }. Run independent calls together with Promise.all. Use it to page through records, join and aggregate them, and compute totals, shares, deltas and scenarios, then return one JSON value; console.log lines come back too. ${PROGRAM_LIMITS}`;
 
 /** searchApi and callApi, for an agent that runs as the scope's caller. */
 export const apiTools = (scope: ToolScope) => [
   agentTool({
     name: 'searchApi',
     description:
-      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary, description (its rules and errors) and input JSON schema.',
+      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its summary, description (its rules and errors) and input as a TypeScript-like signature.',
     input: z.object({
       query: z.string().trim().min(1).max(200),
       limit: z.int().min(1).max(SEARCH_MAX).optional(),
