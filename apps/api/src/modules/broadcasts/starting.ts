@@ -3,6 +3,7 @@ import { and, eq, gt, lt, notExists, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
+import { mailRoute } from '~/modules/email/mailConnections';
 import { isVerifiedReplyTo } from '~/modules/email/replyTos.service';
 import { isAllowedFrom } from '~/modules/email/sender';
 import { defineJob, defineSchedule } from '~/modules/jobs/jobs';
@@ -76,7 +77,24 @@ const startJob = defineJob({
         return;
       }
 
-      if (broadcast.fromEmail && !(await isAllowedFrom(tx, broadcast.fromEmail))) {
+      if (
+        broadcast.mailConnectionId &&
+        !(await mailRoute(tx, broadcast.mailConnectionId)).connectionId
+      ) {
+        await failBroadcast(
+          tx,
+          broadcastId,
+          'Its Mail service connection was off when its time came',
+        );
+
+        return;
+      }
+
+      if (
+        !broadcast.mailConnectionId &&
+        broadcast.fromEmail &&
+        !(await isAllowedFrom(tx, broadcast.fromEmail))
+      ) {
         await failBroadcast(
           tx,
           broadcastId,

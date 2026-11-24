@@ -89,7 +89,7 @@ export const testBroadcast = async (client: Db, id: string, to: string[]) => {
         data: { subject: `[Test] ${copy.subject ?? ''}`, html: copy.html ?? '', text: copy.text },
         fileIds: broadcast.attachmentIds,
       })),
-      { source: 'broadcast', sourceId: broadcast.id },
+      { source: 'broadcast', sourceId: broadcast.id, connectionId: broadcast.mailConnectionId },
     );
   }
 

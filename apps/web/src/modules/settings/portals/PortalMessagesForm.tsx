@@ -3,6 +3,7 @@ import { Button, Form, Input, LANGUAGES, Select, Spinner, Textarea } from 'erxes
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FromAddressPicker } from '~/components/FromAddressPicker';
+import { MailConnectionSelect } from '~/components/MailConnectionSelect';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import { useFromAddress } from '~/components/useFromAddress';
 import { useSavePortal } from './useSavePortal';
@@ -140,28 +141,50 @@ const CodeMessages = ({
   );
 };
 
-/** Where the portal's emails come from (a verified domain's address) and where replies go. */
+/**
+ * What the portal's emails go out through (a Mail service connection, or Organization email from
+ * a verified domain's address) and where replies go.
+ */
 const Sender = ({
+  mailConnectionId,
   fromEmail,
   replyTo,
   disabled,
+  onConnection,
   onFrom,
   onReplyTo,
 }: {
+  mailConnectionId: string | null;
   fromEmail: string | null;
   replyTo: string | null;
   disabled: boolean;
+  onConnection: (mailConnectionId: string | null) => void;
   onFrom: (fromEmail: string | null) => void;
   onReplyTo: (replyTo: string | null) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'portals' });
+  const connectionId = useId();
   const fromId = useId();
   const replyToId = useId();
   const from = useFromAddress(fromEmail, onFrom);
 
   return (
     <>
-      {from.shown && (
+      <Form.Section
+        title={t('mail-connection', 'Send through')}
+        description={t(
+          'mail-connection-description',
+          'Its code and notification emails go out through this Mail service connection, from its address. While it is off: Organization email.',
+        )}
+      >
+        <MailConnectionSelect
+          id={connectionId}
+          value={mailConnectionId}
+          disabled={disabled}
+          onChange={onConnection}
+        />
+      </Form.Section>
+      {from.shown && !mailConnectionId && (
         <Form.Section
           title={t('from-email', 'From address')}
           description={t(
@@ -192,6 +215,7 @@ const Sender = ({
 export const PortalMessagesForm = ({ portal, canEdit }: { portal: Portal; canEdit: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'portals' });
   const save = useSavePortal();
+  const [mailConnectionId, setMailConnectionId] = useState(() => portal.mailConnectionId);
   const [fromEmail, setFromEmail] = useState(() => portal.fromEmail);
   const [replyTo, setReplyTo] = useState(() => portal.replyTo);
   const [language, setLanguage] = useState<Messages['codeLanguage']>(() => portal.codeLanguage);
@@ -207,9 +231,11 @@ export const PortalMessagesForm = ({ portal, canEdit }: { portal: Portal; canEdi
   return (
     <div className="space-y-4">
       <Sender
+        mailConnectionId={mailConnectionId}
         fromEmail={fromEmail}
         replyTo={replyTo}
         disabled={disabled}
+        onConnection={setMailConnectionId}
         onFrom={setFromEmail}
         onReplyTo={setReplyTo}
       />
@@ -227,6 +253,7 @@ export const PortalMessagesForm = ({ portal, canEdit }: { portal: Portal; canEdi
             onClick={() =>
               save.mutate({
                 id: portal.id,
+                mailConnectionId,
                 fromEmail,
                 replyTo,
                 codeLanguage: language,

@@ -58,9 +58,14 @@ export const Broadcast = createSelectSchema(broadcasts, {
     fromName: true,
     /**
      * Email only: an address on a domain the organisation's own provider verified
-     * (`emails.sender` lists them); null: the address in Settings › Email sending.
+     * (`emails.sender` lists them); null: the address in Settings › Organization email.
      */
     fromEmail: true,
+    /**
+     * Email only: the Mail service connection its copies go through, from its address
+     * (`emails.mailConnections`); null: Organization email.
+     */
+    mailConnectionId: true,
     replyTo: true,
     /** Email only: files (`/files`) attached to every copy and test email. */
     attachmentIds: true,
@@ -101,6 +106,7 @@ const BroadcastFields = createUpdateSchema(broadcasts, {
       .regex(/^[^<>"\r\n]*$/, 'no quotes, brackets or line breaks')
       .nullable(),
   fromEmail: () => EmailAddress.nullable(),
+  mailConnectionId: (id) => id.min(1).max(64).nullable(),
   replyTo: () => EmailAddress.nullable(),
   attachmentIds: () =>
     z
@@ -120,9 +126,14 @@ const BroadcastFields = createUpdateSchema(broadcasts, {
   fromName: true,
   /**
    * Email only: an address on a domain the organisation's own provider verified;
-   * 400 INVALID_INPUT for any other. Null: the address in Settings › Email sending.
+   * 400 INVALID_INPUT for any other. Null: the address in Settings › Organization email.
    */
   fromEmail: true,
+  /**
+   * Email only: one of the Mail service connections that are on (400 INVALID_INPUT
+   * otherwise), its copies sent from its address; null: Organization email.
+   */
+  mailConnectionId: true,
   replyTo: true,
   /**
    * Email only: ready files of the organisation, at most `BROADCAST_ATTACHMENTS_MAX` and

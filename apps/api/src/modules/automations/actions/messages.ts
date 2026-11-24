@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { postOutbound } from '~/lib/outbound';
 import { sendEmail } from '~/modules/email/email';
 import { suppressedOf } from '~/modules/email/addresses';
+import { requireMailConnection } from '~/modules/email/mailConnections';
 import { requireReplyTo } from '~/modules/email/replyTos.service';
 import { requireDelivery, requireFromAddress } from '~/modules/email/sender';
 import { notify } from '~/modules/notifications/notifications.service';
@@ -121,12 +122,20 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         description: 'Shown with the organisation’s name, e.g. “MSM Group · Support”',
       },
       {
+        key: 'mailConnection',
+        label: 'Send through',
+        type: 'mail_connection',
+        required: false,
+        description:
+          'A Mail service connection in Settings › Integrations, from its address; empty: Organization email',
+      },
+      {
         key: 'fromEmail',
         label: 'From address',
         type: 'from_address',
         required: false,
         description:
-          'Any address on a domain your email provider verified; empty: the address in Settings › Email sending',
+          'Through Organization email: any address on a domain your email provider verified; empty: the address in Settings › Organization email',
       },
       {
         key: 'replyTo',
@@ -164,10 +173,17 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       const fromName = text(ctx.input.fromName)?.trim() || undefined;
       const fromEmail = text(ctx.input.fromEmail)?.trim().toLowerCase() || undefined;
       const replyTo = text(ctx.input.replyTo)?.trim().toLowerCase() || undefined;
+      const connectionId = text(ctx.input.mailConnection)?.trim() || null;
 
-      // Email that can't be delivered, or a Reply-To or From that isn't verified (any more), fails the step.
-      await requireDelivery(ctx.tx);
-      await requireFromAddress(ctx.tx, fromEmail, ['fromEmail']);
+      // A connection that is off, email that can't be delivered, or a Reply-To or From that
+      // isn't verified (any more), fails the step.
+      if (connectionId) {
+        await requireMailConnection(ctx.tx, connectionId, ['mailConnection']);
+      } else {
+        await requireDelivery(ctx.tx);
+        await requireFromAddress(ctx.tx, fromEmail, ['fromEmail']);
+      }
+
       await requireReplyTo(ctx.tx, replyTo, ['replyTo']);
 
       // A Cc that is also a recipient, or suppressed, is left out.
@@ -197,7 +213,7 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
           cc: cc.length ? cc : undefined,
           data,
         })),
-        { source: 'automation', sourceId: ctx.automation.id },
+        { source: 'automation', sourceId: ctx.automation.id, connectionId },
       );
 
       const reasons = [

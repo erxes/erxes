@@ -16,7 +16,7 @@ import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { hmacSha256, randomInt, safeEqual } from '~/lib/crypto';
 import { lockKeys } from '~/lib/locks';
 import { sendEmail } from '~/modules/email/email';
-import { canDeliverEmail } from '~/modules/email/sender';
+import { mailRoute } from '~/modules/email/mailConnections';
 import { canDeliverSms, sendSms } from '~/modules/sms/sms';
 
 const CODE_MINUTES = 10;
@@ -51,6 +51,7 @@ export type CodePortal = Pick<
   | 'id'
   | 'name'
   | 'senderName'
+  | 'mailConnectionId'
   | 'fromEmail'
   | 'replyTo'
   | 'emailSignIn'
@@ -110,8 +111,8 @@ const assertDeliverable = async (
   if (address.kind === 'email') {
     if (!portal.emailSignIn) throw unavailable("This portal doesn't sign in with email");
 
-    if (!(await canDeliverEmail(tx))) {
-      throw unavailable("Codes can't be emailed yet: email sending isn't set up");
+    if (!(await mailRoute(tx, portal.mailConnectionId)).deliverable) {
+      throw unavailable("Codes can't be emailed yet: email isn't set up");
     }
 
     return;
@@ -236,6 +237,8 @@ export const sendCode = async (
   const defaults = DEFAULT_CODE_MESSAGES[portal.codeLanguage];
 
   if (address.kind === 'email') {
+    const { connectionId } = await mailRoute(tx, portal.mailConnectionId);
+
     await sendEmail(
       tx,
       requestOrgId(),
@@ -253,7 +256,7 @@ export const sendCode = async (
           body: fillCodeMessage(portal.codeEmailBody ?? defaults.emailBody, values),
         },
       },
-      { source: 'customer_account', sourceId: id },
+      { source: 'customer_account', sourceId: id, connectionId },
     );
   } else {
     await sendSms(tx, requestOrgId(), {

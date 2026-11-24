@@ -87,7 +87,13 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       ? [{ name: t('payments', 'Payments'), to: paths.settings.payments, icon: IconCash }]
       : []),
     ...(can('integrations.manage')
-      ? [{ name: t('email-sending', 'Email sending'), to: paths.settings.email, icon: IconMail }]
+      ? [
+          {
+            name: t('email-sending', 'Organization email'),
+            to: paths.settings.email,
+            icon: IconMail,
+          },
+        ]
       : []),
     ...(mayOpenIntegrations
       ? [

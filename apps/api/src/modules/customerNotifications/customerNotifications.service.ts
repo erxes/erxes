@@ -20,7 +20,7 @@ import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches, repeatWhile } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { sendEmail } from '~/modules/email/email';
-import { canDeliverEmail } from '~/modules/email/sender';
+import { mailRoute } from '~/modules/email/mailConnections';
 import { unknownPortal } from '~/modules/customerAuth/customerPortals';
 import { sendSms } from '~/modules/sms/sms';
 
@@ -56,6 +56,7 @@ const portalOf = async (client: Db, source: string, portalId: string | undefined
       id: portals.id,
       name: portals.name,
       senderName: portals.senderName,
+      mailConnectionId: portals.mailConnectionId,
       fromEmail: portals.fromEmail,
       replyTo: portals.replyTo,
       smsConnectionId: portals.smsConnectionId,
@@ -154,13 +155,11 @@ const deliver = async (
 
   // Email that would only reach the log is skipped; the inbox and other channels still get it.
   const wantsEmail = input.channels.includes('email');
-  const emailing = wantsEmail && (await canDeliverEmail(client));
+  const route = await mailRoute(client, portal?.mailConnectionId ?? null);
+  const emailing = wantsEmail && route.deliverable;
 
   if (wantsEmail && !emailing)
-    log.warn(
-      { orgId, kind: input.kind },
-      'customer notification not emailed: sending isn’t set up',
-    );
+    log.warn({ orgId, kind: input.kind }, 'customer notification not emailed: email isn’t set up');
 
   if (emailing) {
     await sendEmail(
@@ -181,7 +180,7 @@ const deliver = async (
             ]
           : [],
       ),
-      { source: 'customer' },
+      { source: 'customer', connectionId: route.connectionId },
     );
   }
 

@@ -1,6 +1,7 @@
 import { IconAt, IconBuilding, IconCalendar, IconClockPlus, IconUser } from '@tabler/icons-react';
 import { DatePicker, InputGroup, Select, Switch, textOf, toIsoDay } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { MailConnectionSelect } from '~/components/MailConnectionSelect';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
   type ActionInputProps,
@@ -234,6 +235,14 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       );
     case 'from_address':
       return <FromAddressField value={value} onChange={onChange} disabled={disabled} />;
+    case 'mail_connection':
+      return (
+        <MailConnectionSelect
+          value={typeof value === 'string' ? value : null}
+          onChange={(next) => onChange(next ?? undefined)}
+          disabled={disabled}
+        />
+      );
     default:
       return <TextField {...props} />;
   }

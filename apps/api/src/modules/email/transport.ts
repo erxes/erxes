@@ -32,8 +32,18 @@ export const sesSmtpPassword = (secretAccessKey: string, region: string) => {
   return Buffer.concat([Buffer.from([0x04]), signature]).toString('base64');
 };
 
-/** The SMTP server of the settings and how to sign in to it: SendGrid and SES take SMTP too. */
-const serverOf = (settings: EmailSettingsRow, secret: string) => {
+/**
+ * A server erxes sends through: Organization email's own settings, or a Mail service
+ * connection (`integrations/mail.ts`). The secret is the password, SendGrid's API key or the
+ * IAM secret access key SES's SMTP password comes from.
+ */
+export type MailServer = Pick<
+  EmailSettingsRow,
+  'provider' | 'smtpHost' | 'smtpPort' | 'smtpSecure' | 'username' | 'region'
+>;
+
+/** The SMTP server and how to sign in to it: SendGrid and SES take SMTP too. */
+const serverOf = (settings: MailServer, secret: string) => {
   if (settings.provider === 'sendgrid') {
     return {
       host: 'smtp.sendgrid.net',
@@ -65,7 +75,7 @@ const serverOf = (settings: EmailSettingsRow, secret: string) => {
  * a private one, see `publicAddressOf`) with TLS checked against its name.
  * Mail goes out encrypted, except to a development server.
  */
-const transportFor = async (settings: EmailSettingsRow, secret: string) => {
+export const transportFor = async (settings: MailServer, secret: string) => {
   const { host, ...server } = serverOf(settings, secret);
 
   return createTransport({
@@ -83,6 +93,29 @@ const transportFor = async (settings: EmailSettingsRow, secret: string) => {
 const KEEP_MS = 10 * 60_000;
 
 const kept = new Map<string, { version: string; until: number; transport: Transporter }>();
+
+/**
+ * The transport kept under `key` (the organisation's settings, or a connection) while its
+ * `version` (when it was last changed) stays, else a new one to `server`.
+ */
+export const keptTransport = async (
+  key: string,
+  version: string,
+  server: MailServer,
+  secret: string,
+) => {
+  const cached = kept.get(key);
+
+  if (cached?.version === version && cached.until > Date.now()) return cached.transport;
+
+  cached?.transport.close();
+
+  const transport = await transportFor(server, secret);
+
+  kept.set(key, { version, until: Date.now() + KEEP_MS, transport });
+
+  return transport;
+};
 
 /** The organisation's own settings and their sealed secret; null: it sends through the server's. */
 export const ownSettingsAndSecret = async (client: Db) => {
@@ -103,18 +136,12 @@ export const orgTransport = async (orgId: string) => {
 
   const { settings } = found;
 
-  const version = settings.updatedAt.toISOString();
-  const cached = kept.get(orgId);
-
-  if (cached?.version === version && cached.until > Date.now()) {
-    return { settings, transport: cached.transport };
-  }
-
-  cached?.transport.close();
-
-  const transport = await transportFor(settings, openSecret(found.secret));
-
-  kept.set(orgId, { version, until: Date.now() + KEEP_MS, transport });
+  const transport = await keptTransport(
+    `org:${orgId}`,
+    settings.updatedAt.toISOString(),
+    settings,
+    openSecret(found.secret),
+  );
 
   return { settings, transport };
 };

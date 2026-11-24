@@ -1,5 +1,5 @@
 {
-  "id": "0434bd27-33f5-4ccc-bda9-20cdcb546258",
+  "id": "528c090a-8305-4134-b75e-48ae7d93272e",
   "prevId": "ee220871-2b66-47a2-a10f-7ea447d9692c",
   "version": "7",
   "dialect": "postgresql",
@@ -11531,6 +11531,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "mail_connection_id": {
+          "name": "mail_connection_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "from_email": {
           "name": "from_email",
           "type": "text",
@@ -11672,6 +11678,19 @@
           "tableTo": "core_integration_connections",
           "columnsFrom": [
             "sms_connection_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "core_portals_mail_connection_id_fkey": {
+          "name": "core_portals_mail_connection_id_fkey",
+          "tableFrom": "core_portals",
+          "tableTo": "core_integration_connections",
+          "columnsFrom": [
+            "mail_connection_id"
           ],
           "columnsTo": [
             "id"
@@ -14933,6 +14952,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "mail_connection_id": {
+          "name": "mail_connection_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "reply_to": {
           "name": "reply_to",
           "type": "text",
@@ -15096,6 +15121,19 @@
           "tableTo": "core_views",
           "columnsFrom": [
             "view_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "core_broadcasts_mail_connection_id_fkey": {
+          "name": "core_broadcasts_mail_connection_id_fkey",
+          "tableFrom": "core_broadcasts",
+          "tableTo": "core_integration_connections",
+          "columnsFrom": [
+            "mail_connection_id"
           ],
           "columnsTo": [
             "id"
@@ -15759,31 +15797,7 @@
           "name": "invoice_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reference_type": {
-          "name": "reference_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reference_id": {
-          "name": "reference_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "dedupe_key": {
-          "name": "dedupe_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "settings_id": {
           "name": "settings_id",
@@ -16009,62 +16023,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "core_ebarimt_receipts_dedupe_key": {
-          "name": "core_ebarimt_receipts_dedupe_key",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "dedupe_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"core_ebarimt_receipts\".\"source\" is not null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "core_ebarimt_receipts_reference_idx": {
-          "name": "core_ebarimt_receipts_reference_idx",
-          "columns": [
-            {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "reference_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"core_ebarimt_receipts\".\"source\" is not null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -16116,10 +16074,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
-        "core_ebarimt_receipts_recorded_check": {
-          "name": "core_ebarimt_receipts_recorded_check",
-          "value": "(\"core_ebarimt_receipts\".\"source\" is null and \"core_ebarimt_receipts\".\"invoice_id\" is not null and \"core_ebarimt_receipts\".\"reference_type\" is null and \"core_ebarimt_receipts\".\"reference_id\" is null and \"core_ebarimt_receipts\".\"dedupe_key\" is null) or (\"core_ebarimt_receipts\".\"source\" is not null and \"core_ebarimt_receipts\".\"reference_type\" is not null and \"core_ebarimt_receipts\".\"reference_id\" is not null and \"core_ebarimt_receipts\".\"dedupe_key\" is not null)"
-        },
         "core_ebarimt_receipts_kind_check": {
           "name": "core_ebarimt_receipts_kind_check",
           "value": "\"core_ebarimt_receipts\".\"kind\" IN ('put', 'return')"
@@ -16513,6 +16467,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "connection_id": {
+          "name": "connection_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "attempts": {
           "name": "attempts",
           "type": "smallint",
@@ -16614,6 +16574,22 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "core_email_deliveries_connection_idx": {
+          "name": "core_email_deliveries_connection_idx",
+          "columns": [
+            {
+              "expression": "connection_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"core_email_deliveries\".\"connection_id\" is not null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -16628,6 +16604,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "core_email_deliveries_connection_id_fkey": {
+          "name": "core_email_deliveries_connection_id_fkey",
+          "tableFrom": "core_email_deliveries",
+          "tableTo": "core_integration_connections",
+          "columnsFrom": [
+            "connection_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },

@@ -21,6 +21,7 @@ import {
 } from '../emailEnums';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
+import { integrationConnections } from './integrations';
 import { organizations } from './organizations';
 import { secrets } from './secrets';
 
@@ -139,6 +140,11 @@ export const emailDeliveries = pgTable(
     status: text({ enum: EMAIL_DELIVERY_STATUSES }).notNull(),
     /** What its last try went out through; null until it is tried. */
     provider: text({ enum: EMAIL_DELIVERY_PROVIDERS }),
+    /**
+     * The Mail service connection it goes through; null: Organization email. Its own account
+     * sends it, so Organization email's sending ramp leaves it alone.
+     */
+    connectionId: text(),
     /** Tries so far; a refused try waits for the next. */
     attempts: smallint().default(0).notNull(),
     /** What the server said when it last refused, or why it couldn't be reached. */
@@ -158,6 +164,10 @@ export const emailDeliveries = pgTable(
       table.id.desc(),
     ),
     index('core_email_deliveries_source_idx').on(table.orgId, table.source, table.sourceId),
+    // Removing a connection clears it from its emails' rows.
+    index('core_email_deliveries_connection_idx')
+      .on(table.connectionId)
+      .where(sql`${table.connectionId} is not null`),
     check('core_email_deliveries_source_check', inList(table.source, EMAIL_SOURCES)),
     check('core_email_deliveries_status_check', inList(table.status, EMAIL_DELIVERY_STATUSES)),
     check('core_email_deliveries_provider_check', inList(table.provider, EMAIL_DELIVERY_PROVIDERS)),
@@ -166,6 +176,11 @@ export const emailDeliveries = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_email_deliveries_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.connectionId],
+      foreignColumns: [integrationConnections.id],
+      name: 'core_email_deliveries_connection_id_fkey',
+    }).onDelete('set null'),
   ],
 );
 
@@ -208,7 +223,7 @@ export const emailAddresses = pgTable(
 );
 
 /**
- * The organisation's sending ramp (Settings › Integrations › Email sending ›
+ * The organisation's sending ramp (Settings › Organization email ›
  * Limits): how many emails a day it may send now (`tier` into
  * `EMAIL_RAMP_TIERS`), what it sent today (UTC), and whether a bounce rate
  * halted it. Written when it first sends; the ramp's evaluation moves the

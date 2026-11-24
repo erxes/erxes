@@ -7,7 +7,7 @@ import { defineJob } from '~/modules/jobs/jobs';
 import { notify, type NotifyInput } from '~/modules/notifications/notifications.service';
 import { RAMP_NOTICE_QUEUE, RAMP_RULES, RampNotice, rampOf } from './ramp';
 
-/** Settings › Integrations › Email sending: its Limits tab, and its Overview. */
+/** Settings › Organization email: its Limits tab, and its Overview. */
 const LIMITS_LINK = '/settings/email?tab=limits';
 
 const OVERVIEW_LINK = '/settings/email';

@@ -1,6 +1,6 @@
 import type { PortalSignIn } from '@erxes/core-contract';
 import { withOrg } from '@erxes/core-db';
-import { canDeliverEmail } from '~/modules/email/sender';
+import { mailRoute } from '~/modules/email/mailConnections';
 import { canDeliverSms } from '~/modules/sms/sms';
 import type { SignInRequest } from './customerAuth.service';
 import { phoneMethodsOf } from './customerCodes';
@@ -20,7 +20,7 @@ export const signInMethods = async (request: SignInRequest): Promise<PortalSignI
   const { portal } = request;
 
   const { emails, texts } = await withOrg(portal.orgId, async (tx) => ({
-    emails: await canDeliverEmail(tx),
+    emails: (await mailRoute(tx, portal.mailConnectionId)).deliverable,
     texts: await canDeliverSms(tx, portal.smsConnectionId),
   }));
 

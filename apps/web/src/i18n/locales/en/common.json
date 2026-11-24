@@ -136,7 +136,7 @@
     "assistant-model": "Default model",
     "assistant-code-mode": "Code mode",
     "assistant-appearance": "Appearance",
-    "email-sending": "Email sending",
+    "email-sending": "Organization email",
     "integrations": "Integrations",
     "exchange-rates": "Exchange Rates"
   },
@@ -859,6 +859,13 @@
     "hint": "Only confirmed addresses.",
     "manage": "Manage addresses"
   },
+  "mail-connection": {
+    "organization": "Organization email",
+    "off-item": "A connection that is off",
+    "off": "This connection is off or was removed: turn it on, or choose another.",
+    "hint": "Connect SMTP, Amazon SES or SendGrid to send from your own account.",
+    "manage": "Mail service"
+  },
   "sender": {
     "label-placeholder": "Marketing",
     "from-line": "{{name}} <{{address}}> · via {{provider}}",
@@ -868,9 +875,9 @@
     "from-stale": "{{provider}} no longer sends from this domain, so this email won’t go out. Verify the domain there and check again in Settings, or choose another one."
   },
   "email-setup": {
-    "title": "Email sending isn’t set up",
+    "title": "Organization email isn’t set up",
     "description": "Emails would only be written to the server’s log, so broadcasts, tests and automation emails are not sent. Set up a provider, or set EMAIL_SMTP_URL on the server.",
-    "link": "Settings › Integrations › Email sending",
+    "link": "Settings › Organization email",
     "via": {
       "smtp": "SMTP",
       "sendgrid": "SendGrid",

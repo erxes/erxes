@@ -30,7 +30,7 @@ const useCategoryLabel = () => {
       sign_in: t('sign_in', 'Customer sign-in'),
       social: t('social', 'Social media'),
       messaging: t('messaging', 'Messaging'),
-      email: t('email', 'Email'),
+      email: t('email', 'Mail service'),
       government: t('government', 'Government'),
       developer: t('developer', 'Developer tools'),
       productivity: t('productivity', 'Productivity'),

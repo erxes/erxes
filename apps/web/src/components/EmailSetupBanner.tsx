@@ -47,7 +47,7 @@ export const EmailAlert = ({
         <p>{description}</p>
         {settingsLink && (
           <Link className="font-medium underline" to={paths.settings.email}>
-            {t('link', 'Settings › Integrations › Email sending')}
+            {t('link', 'Settings › Organization email')}
           </Link>
         )}
       </div>
@@ -68,7 +68,7 @@ export const EmailSetupBanner = ({ settingsLink = true }: { settingsLink?: boole
   return (
     <EmailAlert
       settingsLink={settingsLink}
-      title={t('title', 'Email sending isn’t set up')}
+      title={t('title', 'Organization email isn’t set up')}
       description={t(
         'description',
         'Emails would only be written to the server’s log, so broadcasts, tests and automation emails are not sent. Set up a provider, or set EMAIL_SMTP_URL on the server.',
