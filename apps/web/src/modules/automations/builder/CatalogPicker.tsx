@@ -1,12 +1,10 @@
-import { cn, Combobox, Command, Popover } from 'erxes-ui';
+import { Combobox, Command, Popover } from 'erxes-ui';
 import { useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
-import { CatalogList, type Picked, RECENT } from './CatalogList';
-import { LOOK, type NodeIcon } from './stepLook';
+import { CatalogList, ItemIcon, itemIcon, type Picked, RECENT } from './CatalogList';
 import {
   type CatalogItem,
-  catalogIcon,
   type GroupEntry,
   groupItems,
   groupOf,
@@ -17,8 +15,8 @@ import {
 
 /*
  * Picking an event or an action out of what core, the installed plugins and the connected apps
- * offer: the categories on the left, the open one's items on the right, each with a line on what
- * it does. It opens at the chosen item's category (else the recently used, else the first).
+ * offer: the categories on the left, the open one's items as cards on the right, each saying
+ * what it does. It opens at the chosen item's category (else the recently used, else the first).
  * Search looks across everything.
  */
 
@@ -64,17 +62,6 @@ const startCategory = (
   return recentCount > 0 ? RECENT : (groups[0]?.group.key ?? null);
 };
 
-/** The chosen item's icon, coloured as its card on the canvas: an event green, an action primary. */
-const ItemIcon = ({ kind, icon: Icon }: { kind: string; icon: NodeIcon }) => {
-  const tone = kind === 'action' ? LOOK.action.tone : LOOK.trigger.tone;
-
-  return (
-    <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone)}>
-      <Icon className="size-4" />
-    </span>
-  );
-};
-
 /** The button showing the chosen item and its area. */
 const PickerTrigger = ({
   kind,
@@ -95,7 +82,7 @@ const PickerTrigger = ({
 
   return (
     <Combobox.Trigger disabled={disabled} className="h-auto min-h-9">
-      {selected && <ItemIcon kind={kind} icon={catalogIcon(selected)} />}
+      {selected && <ItemIcon kind={kind} icon={itemIcon(kind, selected)} />}
       <span className="min-w-0 flex-1">
         {selected ? (
           <>
@@ -173,7 +160,7 @@ export const CatalogPicker = ({
         // Never taller than the room on its side: the list scrolls instead of
         // the search being pushed off screen.
         variant="flush"
-        className="flex max-h-(--available-height) w-(--anchor-width) min-w-120 max-w-180 flex-col"
+        className="flex max-h-(--available-height) w-160 max-w-(--available-width) flex-col"
       >
         <Command loop filter={matchWords} shouldFilter={searching} className="min-h-0 flex-1">
           <Command.Input value={search} onValueChange={setSearch} placeholder={searchPlaceholder} />

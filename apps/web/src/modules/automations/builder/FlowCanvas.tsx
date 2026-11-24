@@ -1,13 +1,14 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { IconFlag, IconFocusCentered, IconMinus, IconPlus } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
-import { Fragment, type RefObject, useContext, useRef } from 'react';
+import { Fragment, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { armsOf, type ListAddress, type StepType } from './flowModel';
 import { Connector, LINE, LINE_BORDER, Node } from './FlowNode';
 import { LOOK, useStepLook } from './stepLook';
 import { StepMenu } from './StepMenu';
+import { MAX_ZOOM, MIN_ZOOM, useCanvasView } from './useCanvasView';
 import { TRIGGER_ICONS } from '../TemplatePicker';
 
 interface FlowProps {
@@ -21,9 +22,6 @@ interface FlowProps {
 }
 
 type Flow = FlowProps & { all: AutomationStep[] };
-
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 1.5;
 
 /**
  * Where an arm meets the line its parent splits into (top) or joins back from (bottom): the
@@ -158,35 +156,20 @@ const StepList = ({
   );
 };
 
-const clampZoom = (zoom: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
-
-/** The zoom that shows the whole flow in the canvas, at most 100%. */
-const fitZoom = (box: HTMLElement | null, flow: HTMLElement | null, zoom: number) => {
-  if (!box || !flow) return zoom;
-
-  const { width, height } = flow.getBoundingClientRect();
-  const across = box.clientWidth / (width / zoom + 80);
-  const down = box.clientHeight / (height / zoom + 64);
-
-  return clampZoom(Math.floor(Math.min(1, across, down) * 20) / 20);
-};
-
 const ZoomControls = ({
   zoom,
   onZoom,
-  box,
-  flow,
+  onFit,
 }: {
   zoom: number;
   onZoom: (zoom: number) => void;
-  box: RefObject<HTMLDivElement | null>;
-  flow: RefObject<HTMLDivElement | null>;
+  onFit: () => void;
 }) => {
   const { t } = useTranslation('automations');
-  const step = (delta: number) => onZoom(clampZoom(Math.round((zoom + delta) * 10) / 10));
+  const step = (delta: number) => onZoom(Math.round((zoom + delta) * 10) / 10);
 
   return (
-    <div className="absolute right-4 bottom-4 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow-sm">
+    <div className="absolute right-4 bottom-4 z-20 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow-sm">
       <Button
         size="icon"
         variant="ghost"
@@ -222,7 +205,7 @@ const ZoomControls = ({
         className="size-7"
         aria-label={t('zoom-fit', 'Fit to screen')}
         title={t('zoom-fit', 'Fit to screen')}
-        onClick={() => onZoom(fitZoom(box.current, flow.current, zoom))}
+        onClick={onFit}
       >
         <IconFocusCentered />
       </Button>
@@ -233,13 +216,12 @@ const ZoomControls = ({
 /**
  * The automation as a flow: the trigger, then each step as a card, top to
  * bottom; branches, cases and A/B paths side by side. "+" on any line adds a
- * step there; a card opens its settings in the inspector.
+ * step there; a card opens its settings in the inspector. Drag or scroll the
+ * empty canvas to move around; pinch or ⌘/Ctrl + scroll to zoom.
  */
 export const FlowCanvas = ({
   trigger,
   steps,
-  zoom,
-  onZoom,
   onDeselect,
   ...props
 }: FlowProps & {
@@ -250,40 +232,49 @@ export const FlowCanvas = ({
     problems?: string[];
   };
   steps: AutomationStep[];
-  zoom: number;
-  onZoom: (zoom: number) => void;
   onDeselect: () => void;
 }) => {
   const { t } = useTranslation('automations');
-  const box = useRef<HTMLDivElement>(null);
-  const column = useRef<HTMLDivElement>(null);
+
+  const {
+    box,
+    flow: flowBox,
+    zoom,
+    zoomTo,
+    fit,
+    panning,
+    handlers,
+    wasDrag,
+  } = useCanvasView(props.selected);
+
   const flow: Flow = { ...props, all: steps };
 
   return (
     <div className="relative min-h-0 flex-1 bg-sidebar">
       <div
         ref={box}
-        className="dot-grid absolute inset-0 overflow-auto"
+        className={cn(
+          'absolute inset-0 touch-none overflow-hidden select-none',
+          panning ? 'cursor-grabbing' : 'cursor-grab',
+        )}
         // A pointer shortcut for Escape (the editor's key for leaving a step).
         role="presentation"
+        {...handlers}
         // Only clicks on the empty canvas (menus are portals: their clicks bubble here through React).
         onClick={(event) => {
+          if (wasDrag()) return;
+
           if (event.target instanceof HTMLElement && event.target.closest('[data-canvas-empty]'))
             onDeselect();
         }}
         data-canvas-empty
       >
-        <div
-          className="zoom flex min-w-max justify-center px-10 py-8"
-          style={{ '--zoom': zoom }}
-          data-canvas-empty
-        >
-          <div ref={column} className="flex flex-col items-center">
+        <div className="canvas-world w-max" style={{ '--zoom': zoom }} data-canvas-empty>
+          <div ref={flowBox} className="zoom flex flex-col items-center" data-canvas-empty>
             <Node
               kind={t('trigger-kind', 'When')}
               icon={TRIGGER_ICONS[trigger.kind]}
               tone={LOOK.trigger.tone}
-              dot={LOOK.trigger.dot}
               title={trigger.title}
               detail={trigger.detail}
               selected={flow.selected === 'trigger'}
@@ -294,7 +285,7 @@ export const FlowCanvas = ({
           </div>
         </div>
       </div>
-      <ZoomControls zoom={zoom} onZoom={onZoom} box={box} flow={column} />
+      <ZoomControls zoom={zoom} onZoom={zoomTo} onFit={fit} />
     </div>
   );
 };

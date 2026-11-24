@@ -170,3 +170,45 @@ test('a member sees TypeSafe and OpenAI in Decision model integrations and adds 
   );
   await expectAccessible(page);
 });
+
+test('the canvas moves by dragging, zooms at the pointer and keeps the opened step in view', async ({
+  page,
+}) => {
+  await page.goto('/automations');
+  await page.getByRole('button', { name: 'New automation' }).click();
+  await page.waitForURL(/\/automations\/\w+$/);
+
+  const step = page.getByRole('button', { name: /^Do this Add a note/i });
+  const start = await step.boundingBox();
+
+  if (!start) throw new Error('the step card has no box');
+
+  await page.mouse.move(start.x - 60, start.y + start.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(start.x + 140, start.y + start.height / 2 + 40, { steps: 8 });
+  await page.mouse.up();
+
+  const moved = await step.boundingBox();
+
+  expect(Math.round((moved?.x ?? 0) - start.x)).toBe(200);
+  expect(Math.round((moved?.y ?? 0) - start.y)).toBe(40);
+
+  await page.keyboard.down('Control');
+  await page.mouse.wheel(0, -100);
+  await page.keyboard.up('Control');
+  await expect(page.getByRole('button', { name: '150%' })).toBeVisible();
+  await page.getByRole('button', { name: '150%' }).click();
+  await expect(page.getByRole('button', { name: '100%' })).toBeVisible();
+
+  await step.click();
+  const data = page.getByRole('complementary', { name: 'Data' });
+
+  await expect(data).toBeVisible();
+  await expect
+    .poll(async () => {
+      const [card, panel] = await Promise.all([step.boundingBox(), data.boundingBox()]);
+
+      return (card?.x ?? Infinity) + (card?.width ?? 0) <= (panel?.x ?? 0);
+    })
+    .toBe(true);
+});

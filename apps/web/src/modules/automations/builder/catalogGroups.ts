@@ -1,5 +1,9 @@
 import {
+  IconActivity,
+  IconAlertTriangle,
+  IconArchive,
   IconArrowBackUp,
+  IconArrowRight,
   IconAutomation,
   IconBolt,
   IconBrandDiscord,
@@ -7,21 +11,36 @@ import {
   IconBrandInstagram,
   IconBrandTelegram,
   IconBuilding,
+  IconCash,
   IconChecklist,
+  IconCirclePlus,
+  IconCircleX,
+  IconClockX,
   IconCreditCard,
   IconFolder,
   IconForms,
+  IconGitMerge,
+  IconLink,
+  IconLogin2,
   IconMagnet,
   IconMail,
   IconMessage,
   IconMessageCircle,
   IconNote,
   IconPackage,
+  IconPencil,
   IconPhone,
   IconPlugConnected,
   IconPuzzle,
+  IconReceiptRefund,
+  IconRestore,
+  IconTag,
   IconTicket,
+  IconTransform,
+  IconTrash,
+  IconUnlink,
   IconUser,
+  IconUserCheck,
   IconUsers,
   IconWebhook,
   type TablerIcon,
@@ -142,6 +161,37 @@ export const catalogIcon = (item: CatalogItem) => {
   return found?.[1] ?? CORE_ICONS[item.type] ?? groupOf(item).icon;
 };
 
+/** What an event's last word says happened, first match first (`core.payment.paid`). */
+const VERB_ICONS: [RegExp, TablerIcon][] = [
+  [/^(created|signed_up)$/, IconCirclePlus],
+  [/^(updated|changed|role_changed|password_set)$/, IconPencil],
+  [/^deleted$/, IconTrash],
+  [/^restored$/, IconRestore],
+  [/^merged$/, IconGitMerge],
+  [/^tagged$/, IconTag],
+  [/unlinked$/, IconUnlink],
+  [/linked$/, IconLink],
+  [/^assigned$/, IconUserCheck],
+  [/^note_added$/, IconNote],
+  [/^stage_changed$/, IconArrowRight],
+  [/^converted$/, IconTransform],
+  [/^paid$/, IconCash],
+  [/^refunded$/, IconReceiptRefund],
+  [/^cancelled$/, IconCircleX],
+  [/^expired$/, IconClockX],
+  [/^archived$/, IconArchive],
+  [/^signed_in$/, IconLogin2],
+  [/^activity$/, IconActivity],
+  [/failed$/, IconAlertTriangle],
+];
+
+/** An event's icon: what happened (created, paid, merged), else what it is about. */
+export const eventIcon = (item: CatalogItem) => {
+  const verb = item.type.split('.').at(-1) ?? '';
+
+  return VERB_ICONS.find(([word]) => word.test(verb))?.[1] ?? catalogIcon(item);
+};
+
 export type GroupEntry = { group: CatalogGroup; items: CatalogItem[] };
 
 const CHANNEL_WORDS =
@@ -198,25 +248,12 @@ export const matchWords = (value: string, search: string, keywords?: string[]) =
     : 0;
 };
 
-/** A group's name and an "N events" / "N actions" count, translated. */
+/** A group's name, the search placeholder and the picker's name, translated. */
 export const useCatalogLabels = (kind: string) => {
   const { t } = useTranslation('automations');
 
   const groupName = (group: CatalogGroup) =>
     group.key.startsWith('core:') ? t(`catalog-group.${group.label}`, group.label) : group.label;
-
-  const countLabel = (count: number) =>
-    kind === 'action'
-      ? t('catalog-count-action', {
-          count,
-          defaultValue_one: '{{count}} action',
-          defaultValue_other: '{{count}} actions',
-        })
-      : t('catalog-count-event', {
-          count,
-          defaultValue_one: '{{count}} event',
-          defaultValue_other: '{{count}} events',
-        });
 
   const searchPlaceholder =
     kind === 'action'
@@ -229,7 +266,7 @@ export const useCatalogLabels = (kind: string) => {
       ? t('catalog-pick-action', 'Choose an action')
       : t('catalog-pick-event', 'Choose an event');
 
-  return { groupName, countLabel, searchPlaceholder, pickerLabel };
+  return { groupName, searchPlaceholder, pickerLabel };
 };
 
 const RECENT_LIMIT = 4;

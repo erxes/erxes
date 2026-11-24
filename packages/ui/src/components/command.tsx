@@ -156,6 +156,9 @@ const commandGroupVariants = cva(
         /** Its items side by side, three to a row: `variant="card"` choices. */
         cards:
           '**:[[cmdk-group-items]]:grid **:[[cmdk-group-items]]:grid-cols-3 **:[[cmdk-group-items]]:gap-1',
+        /** Its items two to a row: `variant="choice"` cards. */
+        choices:
+          '**:[[cmdk-group-items]]:grid **:[[cmdk-group-items]]:grid-cols-2 **:[[cmdk-group-items]]:gap-2',
       },
     },
     defaultVariants: { layout: 'list' },
@@ -199,6 +202,9 @@ const commandItemVariants = cva(
         tile: 'h-auto gap-2.5 rounded-md border border-transparent py-2',
         /** A square choice in a `layout="cards"` group: its icon over a short label. */
         card: 'h-auto min-h-16 flex-col justify-center gap-1 rounded-lg border border-transparent p-1.5 text-center text-xs data-[selected=true]:border-border',
+        /** An outlined card in a `layout="choices"` group: an icon, a name and a line on what it does. */
+        choice:
+          'h-auto cursor-pointer flex-col items-stretch gap-2 rounded-lg border p-3 data-[selected=true]:border-foreground/20',
       },
       /** The current value among the items, such as the picked icon or the open filter. */
       checked: { true: 'text-primary-text' },
@@ -211,6 +217,12 @@ const commandItemVariants = cva(
     },
     compoundVariants: [
       { variant: ['tile', 'card'], checked: true, className: 'border-primary/30 bg-primary/5' },
+      {
+        variant: 'choice',
+        checked: true,
+        className:
+          'border-primary bg-primary/10 text-foreground data-[selected=true]:border-primary',
+      },
     ],
     defaultVariants: { variant: 'default' },
   },

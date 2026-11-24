@@ -12,10 +12,16 @@
   --grid-template-columns-lead-cohort: minmax(90px, 1fr) 2fr 70px 56px;
 }
 
-/* The automation canvas: a dot every 18px. */
-@utility dot-grid {
-  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
-  background-size: 18px 18px;
+/* The automation canvas's world: a dot every 18px at --zoom, lined up with the flow, and half a
+   screen of room on each side to move the camera into. */
+@utility canvas-world {
+  padding: 50vh 50vw;
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--color-muted-foreground) 30%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: calc(18px * var(--zoom)) calc(18px * var(--zoom));
+  background-position: 50vw 50vh;
 }
 
 /* Scales an element and its layout by --zoom, as the automation canvas's zoom buttons do. */

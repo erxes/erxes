@@ -54,7 +54,6 @@ export const Node = ({
   kind,
   icon: Icon,
   tone,
-  dot,
   title,
   detail,
   selected,
@@ -66,17 +65,16 @@ export const Node = ({
   kind: string;
   icon: NodeIcon;
   tone: string;
-  dot: string;
   title: string;
   detail: string | null;
   selected: boolean;
   problems?: string[];
   stats?: { succeeded: number; failed: number };
-  /** The step's "⋯", at the header's end. */
+  /** The step's "⋯", in the card's corner on hover. */
   menu?: ReactNode;
   onSelect: () => void;
 }) => (
-  <div className="relative z-10 w-72 shrink-0">
+  <div className="group/node relative z-10 w-72 shrink-0" data-selected={selected || undefined}>
     <button
       type="button"
       onClick={(event) => {
@@ -85,26 +83,27 @@ export const Node = ({
       }}
       title={problems?.join('\n')}
       className={cn(
-        'block w-full overflow-hidden rounded-xl border bg-background text-left shadow-sm transition',
-        'hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-        selected && 'border-primary ring-4 ring-primary/15',
+        'block w-full cursor-pointer overflow-hidden rounded-xl border bg-background text-left shadow-xs transition',
+        'hover:border-foreground/20 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none',
+        selected && 'border-primary ring-4 ring-primary/15 hover:border-primary',
         problems?.length && !selected && 'border-destructive/60',
       )}
     >
-      <span className="flex h-7 items-center gap-1.5 border-b bg-muted/50 px-3 text-2xs font-medium text-muted-foreground">
-        <span className={cn('size-1.5 rounded-full', dot)} />
-        {kind}
-        {!!problems?.length && (
-          <IconAlertTriangle className="ml-auto size-3.5 text-destructive-text" />
-        )}
-      </span>
-      <span className="flex items-center gap-3 p-3">
+      <span className="flex items-start gap-3 p-3">
         <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tone)}>
           <Icon className="size-4.5" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
-          {detail && <span className="block truncate text-xs text-muted-foreground">{detail}</span>}
+          <span className="flex items-center gap-1 pr-6 text-2xs font-medium text-muted-foreground">
+            {kind}
+            {!!problems?.length && <IconAlertTriangle className="size-3 text-destructive-text" />}
+          </span>
+          <span className="mt-0.5 line-clamp-2 block text-sm leading-snug font-medium break-words">
+            {title}
+          </span>
+          {detail && (
+            <span className="mt-0.5 block truncate text-xs text-muted-foreground">{detail}</span>
+          )}
         </span>
       </span>
       {stats && (
@@ -114,7 +113,13 @@ export const Node = ({
       )}
     </button>
     {menu && (
-      <span className={cn('absolute top-0.5 flex', problems?.length ? 'right-7' : 'right-1')}>
+      <span
+        className={cn(
+          'absolute top-1.5 right-1.5 flex opacity-0 transition-opacity',
+          'group-hover/node:opacity-100 focus-within:opacity-100 has-[[data-popup-open]]:opacity-100',
+          selected && 'opacity-100',
+        )}
+      >
         {menu}
       </span>
     )}
