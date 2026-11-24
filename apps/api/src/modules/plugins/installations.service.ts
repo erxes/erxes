@@ -15,7 +15,7 @@ import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements'
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { installedPlugin } from './installedPlugin';
 import { queueInstallJobs } from './pluginJobs';
-import { requestedScopes } from './plugins.service';
+import { requestedScopes } from './requestedScopes';
 
 /** Plugin UI tokens: a member's session for one plugin's API. */
 const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;

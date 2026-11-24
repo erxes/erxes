@@ -21,6 +21,7 @@ import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
+import { requestedScopes } from '~/modules/plugins/requestedScopes';
 import { livePortal } from '~/modules/customerAuth/customerPortals';
 import { portalClaimsOfCall } from '~/modules/customerAuth/portalCalls';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
@@ -237,8 +238,10 @@ const PluginClaims = z.object({
 /**
  * A plugin token (`POST /plugins/token`), checked on every request against
  * the registry and the organisation's installation: disabling a plugin or
- * uninstalling it cuts it off at once, and scopes can only shrink. A token
- * without an organisation is the plugin's own (its manifest only).
+ * uninstalling it cuts it off at once, and a token's scopes can only shrink.
+ * When the owner granted a scope since the token was issued, the token is
+ * refused (401) so the plugin takes a new one and the approval applies at once.
+ * A token without an organisation is the plugin's own (its manifest only).
  */
 const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => {
   const claims = await verifyJwt(token, PluginClaims, {
@@ -249,7 +252,7 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
   if (!claims) throw unauthorized();
 
   const [plugin] = await db()
-    .select({ status: plugins.status })
+    .select({ status: plugins.status, manifest: plugins.manifest })
     .from(plugins)
     .where(eq(plugins.name, claims.sub))
     .limit(1);
@@ -278,6 +281,11 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
   if (installation?.status !== 'active') throw unauthorized();
 
   const granted = new Set(installation.grantedScopes);
+  const carried = (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope));
+  const held = new Set(carried);
+
+  if (requestedScopes(plugin).some((scope) => granted.has(scope) && !held.has(scope)))
+    throw unauthorized();
 
   req.log.setBindings({ orgId: org, actorId: claims.sub });
 
@@ -285,7 +293,7 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
     caller: {
       type: 'plugin',
       plugin: claims.sub,
-      scopes: (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
+      scopes: carried,
     },
     orgId: org,
   };

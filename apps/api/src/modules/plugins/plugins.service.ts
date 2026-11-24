@@ -1,10 +1,4 @@
-import {
-  CORE_PERMISSION_AREAS,
-  PLUGIN_SCOPES,
-  type PluginManifest,
-  connectionUseScope,
-  pluginReadScope,
-} from '@erxes/core-contract';
+import { CORE_PERMISSION_AREAS, type PluginManifest } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -30,6 +24,7 @@ import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { checkManifest } from './manifestChecks';
 import { manifestWarnings } from './manifestWarnings';
 import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
+import { requestedScopes } from './requestedScopes';
 
 type PluginRow = typeof plugins.$inferSelect;
 
@@ -38,22 +33,6 @@ const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 
 /** After rotation, the previous secret keeps working this long. */
 const SECRET_OVERLAP_HOURS = 24;
-
-/**
- * Scopes a plugin asks for: its manifest's, with each read of another plugin's API as
- * `reads:<permission>` and each integration whose connections it uses as `uses:<key>`, or
- * (before it sent one) what plugins could always do.
- */
-export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
-  row.manifest
-    ? [
-        ...row.manifest.scopes,
-        ...(row.manifest.pluginReads ?? []).flatMap((read) =>
-          read.permissions.map(pluginReadScope),
-        ),
-        ...(row.manifest.connections ?? []).map((use) => connectionUseScope(use.integration)),
-      ]
-    : [...PLUGIN_SCOPES];
 
 /**
  * With auto-install the deployment decides the plugins, so a newer version's scopes are granted
