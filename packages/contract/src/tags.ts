@@ -49,7 +49,12 @@ export const tagsContract = {
     .input(TagFields.required({ type: true, name: true }))
     .output(Tag),
   update: base
-    .route({ method: 'PATCH', path: '/tags/{id}', summary: 'Change a tag' })
+    .route({
+      method: 'PATCH',
+      path: '/tags/{id}',
+      summary: 'Change a tag',
+      description: 'Change the fields sent; the tag keeps its type and its records',
+    })
     .input(
       TagFields.omit({ type: true })
         .extend({ id: Id })

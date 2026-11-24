@@ -187,39 +187,25 @@ export const ExportRequest = z.object({
 
 export type ExportRequest = z.infer<typeof ExportRequest>;
 
-/** Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of lists. */
-const {
-  CROSS_SITE,
-  IMPORT_LOCKED,
-  INVALID_COLUMNS,
-  INVALID_MAPPING,
-  INVALID_OPTIONS,
-  INVALID_RECIPIENT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOT_UNDOABLE,
-  TAG_LIMIT,
-  UNSUPPORTED_FILE,
-  UPLOAD_CHANGED,
-  UPLOAD_INCOMPLETE,
-} = ERRORS;
-
-/** What these procedures answer with besides the common errors. */
+/**
+ * Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of
+ * lists. `base` adds what these procedures answer with besides the common errors.
+ */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  CROSS_SITE,
-  IMPORT_LOCKED,
-  INVALID_COLUMNS,
-  INVALID_MAPPING,
-  INVALID_OPTIONS,
-  INVALID_RECIPIENT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOT_UNDOABLE,
-  TAG_LIMIT,
-  UNSUPPORTED_FILE,
-  UPLOAD_CHANGED,
-  UPLOAD_INCOMPLETE,
+  CROSS_SITE: ERRORS.CROSS_SITE,
+  IMPORT_LOCKED: ERRORS.IMPORT_LOCKED,
+  INVALID_COLUMNS: ERRORS.INVALID_COLUMNS,
+  INVALID_MAPPING: ERRORS.INVALID_MAPPING,
+  INVALID_OPTIONS: ERRORS.INVALID_OPTIONS,
+  INVALID_RECIPIENT: ERRORS.INVALID_RECIPIENT,
+  INVALID_TAG: ERRORS.INVALID_TAG,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOT_UNDOABLE: ERRORS.NOT_UNDOABLE,
+  TAG_LIMIT: ERRORS.TAG_LIMIT,
+  UNSUPPORTED_FILE: ERRORS.UNSUPPORTED_FILE,
+  UPLOAD_CHANGED: ERRORS.UPLOAD_CHANGED,
+  UPLOAD_INCOMPLETE: ERRORS.UPLOAD_INCOMPLETE,
 });
 
 export const transferContract = {
@@ -251,7 +237,12 @@ export const transferContract = {
     .input(TransferPage)
     .output(cursorPageOf(Import)),
   import: base
-    .route({ method: 'GET', path: '/imports/{id}', summary: 'Get an import' })
+    .route({
+      method: 'GET',
+      path: '/imports/{id}',
+      summary: 'Get an import',
+      description: 'One import and how far it got',
+    })
     .input(z.object({ id: Id }))
     .output(Import),
   createImport: base

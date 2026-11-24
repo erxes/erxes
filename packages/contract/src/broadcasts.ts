@@ -61,7 +61,12 @@ export const broadcastsContract = {
     )
     .output(cursorPageOf(Broadcast)),
   get: base
-    .route({ method: 'GET', path: '/broadcasts/{id}', summary: 'Get a broadcast' })
+    .route({
+      method: 'GET',
+      path: '/broadcasts/{id}',
+      summary: 'Get a broadcast',
+      description: 'One broadcast, by id',
+    })
     .input(ById)
     .output(Broadcast),
   create: base

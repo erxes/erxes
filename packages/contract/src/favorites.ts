@@ -54,11 +54,21 @@ export const favoritesContract = {
     .input(FavoriteFields.required({ path: true, label: true }))
     .output(Favorite),
   rename: base
-    .route({ method: 'PATCH', path: '/favorites/{id}', summary: 'Rename a favorite' })
+    .route({
+      method: 'PATCH',
+      path: '/favorites/{id}',
+      summary: 'Rename a favorite',
+      description: "Change the label of one of the member's favorites",
+    })
     .input(FavoriteFields.pick({ label: true }).required().extend({ id: Id }))
     .output(Favorite),
   remove: base
-    .route({ method: 'DELETE', path: '/favorites/{id}', summary: 'Remove a favorite' })
+    .route({
+      method: 'DELETE',
+      path: '/favorites/{id}',
+      summary: 'Remove a favorite',
+      description: 'Unstar the page; the rest keep their order',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   reorder: base

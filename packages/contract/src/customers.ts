@@ -272,7 +272,12 @@ export const customersContract = {
     .input(CustomerFields.refine(identifies, 'a name, an email or a phone is required'))
     .output(Customer),
   update: base
-    .route({ method: 'PATCH', path: '/customers/{id}', summary: 'Change a customer' })
+    .route({
+      method: 'PATCH',
+      path: '/customers/{id}',
+      summary: 'Change a customer',
+      description: 'Change the fields sent; custom fields merge into the stored ones',
+    })
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Customer),
   remove: base
@@ -326,6 +331,7 @@ export const customersContract = {
       method: 'DELETE',
       path: '/customers/{id}/companies/{companyId}',
       summary: 'Unlink a customer from a company',
+      description: 'Remove the link between the customer and the company; both records stay',
     })
     .input(z.object({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),

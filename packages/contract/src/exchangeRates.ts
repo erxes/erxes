@@ -112,7 +112,12 @@ export const exchangeRatesContract = {
     )
     .output(ExchangeRate),
   remove: base
-    .route({ method: 'POST', path: '/exchange-rates/remove', summary: 'Delete rates' })
+    .route({
+      method: 'POST',
+      path: '/exchange-rates/remove',
+      summary: 'Delete rates',
+      description: 'Delete up to 100 rates by id and answer how many went; unknown ids are skipped',
+    })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(z.object({ removed: z.int() })),
 };

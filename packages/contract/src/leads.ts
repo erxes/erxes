@@ -212,11 +212,18 @@ export const leadsContract = {
       path: '/lead-stages',
       successStatus: 201,
       summary: 'Add a lead stage',
+      description: 'Add a stage at the end of the board; it is open unless `kind` says otherwise',
     })
     .input(StageFields.required({ name: true }))
     .output(LeadStage),
   updateStage: base
-    .route({ method: 'PATCH', path: '/lead-stages/{id}', summary: 'Change a lead stage' })
+    .route({
+      method: 'PATCH',
+      path: '/lead-stages/{id}',
+      summary: 'Change a lead stage',
+      description:
+        'Rename, recolour or change the kind of a stage. 409 LAST_OPEN_STAGE when it would leave no open stage',
+    })
     .input(StageFields.extend({ id: Id }))
     .output(LeadStage),
   reorderStages: base

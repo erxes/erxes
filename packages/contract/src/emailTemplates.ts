@@ -55,7 +55,12 @@ export const emailTemplatesContract = {
     .input(CursorQuery.extend({ search: z.string().trim().max(100).optional() }))
     .output(cursorPageOf(EmailTemplateItem)),
   get: base
-    .route({ method: 'GET', path: '/email-templates/{id}', summary: 'Get an email template' })
+    .route({
+      method: 'GET',
+      path: '/email-templates/{id}',
+      summary: 'Get an email template',
+      description: 'One email template with its content',
+    })
     .input(ById)
     .output(EmailTemplate),
   create: base

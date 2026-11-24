@@ -265,11 +265,22 @@ export const auditContract = {
     )
     .output(z.object({ stream: AuditStream, secret: z.string() })),
   updateStream: base
-    .route({ method: 'PATCH', path: '/audit/streams/{id}', summary: 'Change an audit log stream' })
+    .route({
+      method: 'PATCH',
+      path: '/audit/streams/{id}',
+      summary: 'Change an audit log stream',
+      description:
+        'Change the fields sent. `authHeader: null` drops the stored header, leaving it out keeps it. 400 INVALID_URL for an address core may not reach',
+    })
     .input(StreamFields.extend({ id: Id, authHeader: AuthHeader.nullable().optional() }))
     .output(AuditStream),
   removeStream: base
-    .route({ method: 'DELETE', path: '/audit/streams/{id}', summary: 'Remove an audit log stream' })
+    .route({
+      method: 'DELETE',
+      path: '/audit/streams/{id}',
+      summary: 'Remove an audit log stream',
+      description: 'Stop sending the audit log to this destination and delete it',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   testStream: base

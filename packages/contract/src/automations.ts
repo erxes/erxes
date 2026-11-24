@@ -66,11 +66,21 @@ export const automationsContract = {
       }),
     ),
   list: base
-    .route({ method: 'GET', path: '/automations', summary: 'List automations' })
+    .route({
+      method: 'GET',
+      path: '/automations',
+      summary: 'List automations',
+      description: "The organisation's automations, filtered by status when given",
+    })
     .input(z.object({ status: AutomationStatus.optional() }))
     .output(listOf(Automation)),
   get: base
-    .route({ method: 'GET', path: '/automations/{id}', summary: 'Get an automation' })
+    .route({
+      method: 'GET',
+      path: '/automations/{id}',
+      summary: 'Get an automation',
+      description: 'One automation with its definition and status',
+    })
     .input(z.object({ id: Id }))
     .output(Automation),
   create: base
@@ -79,6 +89,7 @@ export const automationsContract = {
       path: '/automations',
       successStatus: 201,
       summary: 'Create an automation',
+      description: 'Save a new automation as a draft; start it to turn it on',
     })
     .input(Fields.required({ name: true, definition: true }))
     .output(Automation),
@@ -112,7 +123,12 @@ export const automationsContract = {
     .input(z.object({ id: Id }))
     .output(Automation),
   pause: base
-    .route({ method: 'POST', path: '/automations/{id}/pause', summary: 'Pause an automation' })
+    .route({
+      method: 'POST',
+      path: '/automations/{id}/pause',
+      summary: 'Pause an automation',
+      description: 'Stop it from triggering or running on its schedule; start it again to resume',
+    })
     .input(z.object({ id: Id }))
     .output(Automation),
   start: base
@@ -232,7 +248,12 @@ export const automationsContract = {
     .input(z.object({ subject: z.enum(CONTENT_TYPES).optional(), automation: Id.optional() }))
     .output(listOf(AutomationFieldPath)),
   remove: base
-    .route({ method: 'DELETE', path: '/automations/{id}', summary: 'Delete an automation' })
+    .route({
+      method: 'DELETE',
+      path: '/automations/{id}',
+      summary: 'Delete an automation',
+      description: 'Delete the automation and stop listening for its trigger',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   ...automationRunRoutes,

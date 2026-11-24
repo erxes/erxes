@@ -167,35 +167,21 @@ const CategoryFields = createUpdateSchema(productCategories, {
  * The organisation's catalog of goods and services, shared by every plugin.
  * Products are archived, never deleted: orders and invoices keep pointing at
  * them. Plugins read with `products:read` and write with `products:write`.
+ * `base` adds what these procedures answer with besides the common errors.
  */
-const {
-  CATEGORY_HAS_CHILDREN,
-  INVALID_CATEGORY,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
-  INVALID_FILE,
-  INVALID_PRODUCT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOTHING_TO_RETRY,
-  PLUGIN_NOT_INSTALLED,
-  SUBJECT_REQUIRED,
-} = ERRORS;
-
-/** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  CATEGORY_HAS_CHILDREN,
-  INVALID_CATEGORY,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
-  INVALID_FILE,
-  INVALID_PRODUCT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOTHING_TO_RETRY,
-  PLUGIN_NOT_INSTALLED,
-  SUBJECT_REQUIRED,
+  CATEGORY_HAS_CHILDREN: ERRORS.CATEGORY_HAS_CHILDREN,
+  INVALID_CATEGORY: ERRORS.INVALID_CATEGORY,
+  INVALID_FIELD: ERRORS.INVALID_FIELD,
+  INVALID_FIELD_VALUE: ERRORS.INVALID_FIELD_VALUE,
+  INVALID_FILE: ERRORS.INVALID_FILE,
+  INVALID_PRODUCT: ERRORS.INVALID_PRODUCT,
+  INVALID_TAG: ERRORS.INVALID_TAG,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY: ERRORS.NOTHING_TO_RETRY,
+  PLUGIN_NOT_INSTALLED: ERRORS.PLUGIN_NOT_INSTALLED,
+  SUBJECT_REQUIRED: ERRORS.SUBJECT_REQUIRED,
 });
 
 export const productsContract = {
@@ -233,7 +219,12 @@ export const productsContract = {
     )
     .output(cursorPageOf(Product)),
   get: base
-    .route({ method: 'GET', path: '/products/{id}', summary: 'Get a product' })
+    .route({
+      method: 'GET',
+      path: '/products/{id}',
+      summary: 'Get a product',
+      description: 'One product, by id',
+    })
     .input(z.object({ id: Id }))
     .output(Product),
   lookup: base
@@ -295,6 +286,7 @@ export const productsContract = {
       method: 'POST',
       path: '/products/{id}/restore',
       summary: 'Restore an archived product',
+      description: 'Make an archived product active again',
     })
     .input(z.object({ id: Id }))
     .output(Product),

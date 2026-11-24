@@ -173,46 +173,26 @@ export type NewMember = z.infer<typeof NewMember>;
 /** Something to change: at least one field besides `id`. */
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 
-const {
-  BEYOND_OWN_PERMISSIONS,
-  BUILTIN_ROLE,
-  FIXED_ROLE,
-  INVALID_LINK,
-  INVALID_RECIPIENT,
-  LAST_OWNER,
-  LIMIT_EXCEEDED,
-  NOT_INVITED,
-  OWNER_ONLY,
-  OWNER_ONLY_PERMISSION,
-  OWNER_SIGNS_IN,
-  OWN_ACCOUNT,
-  OWN_ROLE,
-  ROLE_IN_USE,
-  ROLE_NOT_FOUND,
-  UNKNOWN_PERMISSION,
-  EMAIL_REQUIRED,
-} = ERRORS;
-
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  BEYOND_OWN_PERMISSIONS,
-  BUILTIN_ROLE,
-  FIXED_ROLE,
-  INVALID_LINK,
-  INVALID_RECIPIENT,
-  LAST_OWNER,
-  LIMIT_EXCEEDED,
-  NOT_INVITED,
-  OWNER_ONLY,
-  OWNER_ONLY_PERMISSION,
-  OWNER_SIGNS_IN,
-  OWN_ACCOUNT,
-  OWN_ROLE,
-  ROLE_IN_USE,
-  ROLE_NOT_FOUND,
-  UNKNOWN_PERMISSION,
-  EMAIL_REQUIRED,
+  BEYOND_OWN_PERMISSIONS: ERRORS.BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE: ERRORS.BUILTIN_ROLE,
+  FIXED_ROLE: ERRORS.FIXED_ROLE,
+  INVALID_LINK: ERRORS.INVALID_LINK,
+  INVALID_RECIPIENT: ERRORS.INVALID_RECIPIENT,
+  LAST_OWNER: ERRORS.LAST_OWNER,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOT_INVITED: ERRORS.NOT_INVITED,
+  OWNER_ONLY: ERRORS.OWNER_ONLY,
+  OWNER_ONLY_PERMISSION: ERRORS.OWNER_ONLY_PERMISSION,
+  OWNER_SIGNS_IN: ERRORS.OWNER_SIGNS_IN,
+  OWN_ACCOUNT: ERRORS.OWN_ACCOUNT,
+  OWN_ROLE: ERRORS.OWN_ROLE,
+  ROLE_IN_USE: ERRORS.ROLE_IN_USE,
+  ROLE_NOT_FOUND: ERRORS.ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION: ERRORS.UNKNOWN_PERMISSION,
+  EMAIL_REQUIRED: ERRORS.EMAIL_REQUIRED,
 });
 
 export const usersContract = {
@@ -250,7 +230,12 @@ export const usersContract = {
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   get: base
-    .route({ method: 'GET', path: '/users/{id}', summary: 'Get a team member' })
+    .route({
+      method: 'GET',
+      path: '/users/{id}',
+      summary: 'Get a team member',
+      description: 'One team member, by id',
+    })
     .input(z.object({ id: Id }))
     .output(User),
   invite: base

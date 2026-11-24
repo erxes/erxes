@@ -86,6 +86,8 @@ export const activitiesContract = {
       path: '/activities/notes',
       successStatus: 201,
       summary: 'Add a note to a timeline',
+      description:
+        "Post a note on the record's timeline. `mentions` are member ids and `fileIds` uploaded files; the caller must be able to see the record",
     })
     .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
     .output(Activity),

@@ -160,13 +160,21 @@ const ConnectionId = z.object({ id: Id });
 
 export const banksContract = {
   connections: base
-    .route({ method: 'GET', path: '/banks/connections', summary: 'List bank connections' })
+    .route({
+      method: 'GET',
+      path: '/banks/connections',
+      summary: 'List bank connections',
+      description:
+        "The organisation's bank connections, with each one's bank and whether it can send transfers",
+    })
     .output(listOf(BankConnection)),
   accounts: base
     .route({
       method: 'GET',
       path: '/banks/connections/{id}/accounts',
       summary: 'List bank accounts',
+      description:
+        'The accounts the bank lists for this connection, read live from the bank. 502 BANK_REFUSED when the bank refuses',
     })
     .input(ConnectionId)
     .output(listOf(BankAccount)),
@@ -184,6 +192,8 @@ export const banksContract = {
       method: 'GET',
       path: '/banks/connections/{id}/accounts/{account}/statement',
       summary: 'Get a bank statement',
+      description:
+        'Transactions on one account over the given dates, read live from the bank. 502 BANK_REFUSED when the bank refuses',
     })
     .input(StatementQuery)
     .output(Statement),

@@ -251,7 +251,13 @@ export const paymentsContract = {
     .input(z.object({ id: Id }))
     .output(Invoice),
   cancelInvoice: base
-    .route({ method: 'POST', path: '/payments/invoices/{id}/cancel', summary: 'Cancel an invoice' })
+    .route({
+      method: 'POST',
+      path: '/payments/invoices/{id}/cancel',
+      summary: 'Cancel an invoice',
+      description:
+        'Cancel a pending gateway invoice; the gateway is told, and its failure is only logged. 409 NOT_PENDING once it is paid or cancelled',
+    })
     .input(z.object({ id: Id }))
     .output(Invoice),
   refund: base
@@ -266,7 +272,12 @@ export const paymentsContract = {
     .input(RefundRequest)
     .output(z.object({ refund: Refund, invoice: Invoice })),
   refunds: base
-    .route({ method: 'GET', path: '/payments/invoices/{id}/refunds', summary: 'List refunds' })
+    .route({
+      method: 'GET',
+      path: '/payments/invoices/{id}/refunds',
+      summary: 'List refunds',
+      description: "The invoice's refunds, oldest first",
+    })
     .input(z.object({ id: Id }))
     .output(listOf(Refund)),
   settings: base
