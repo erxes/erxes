@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { randomToken, sha256 } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
+import { forgetTriggerData } from '~/modules/automations/eventData';
 import { removeSecretAs, saveSecret } from '~/modules/secrets/vault';
 import { appOf, channelOf, HOOK_CHANNEL, paramsSchema, triggerOf } from './apps';
 import { removeSubscription, sameTriggers } from './subscriptionState';
@@ -170,6 +171,9 @@ export const listenFor = async (
       .update(automations)
       .set({ subscriptionId: next })
       .where(eq(automations.id, automationId));
+
+  if (row?.subscriptionId && next && row.subscriptionId !== next)
+    await forgetTriggerData(tx, automationId);
 
   await refresh(
     tx,

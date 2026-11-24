@@ -91,13 +91,16 @@ export const countSteps = (steps: AutomationStep[]): number =>
     0,
   );
 
+type EventFields = { type?: string; label: string; source?: string; fields?: DataField[] };
+
+const pickedFrom = (event: EventFields | undefined) =>
+  event?.type && isAppEvent(event.type) ? { integration: event.source } : { source: event?.source };
+
 /**
  * An event's own values as fields (`event.payload.<key>`), under the event's name. One that holds
  * a record id (`recordType`) is picked from its plugin's records, or an app event's from the app's.
  */
-export const eventDataFields = (
-  event: { type?: string; label: string; source?: string; fields?: DataField[] } | undefined,
-): FieldInfo[] =>
+export const eventDataFields = (event: EventFields | undefined): FieldInfo[] =>
   (event?.fields ?? []).map((field) => ({
     path: `event.payload.${field.key}`,
     label: field.label,
@@ -105,16 +108,21 @@ export const eventDataFields = (
     group: 'event',
     groupLabel: event?.label,
     recordType: field.recordType,
-    ...(event?.type && isAppEvent(event.type)
-      ? { integration: event.source }
-      : { source: event?.source }),
+    ...pickedFrom(event),
   }));
 
 type OutputContext = {
-  events: { type: string; label: string }[];
+  events: (EventFields & { type: string })[];
   actions: ActionInfo[];
   /** The trigger event's own values, as its plugin declares them. */
   trigger?: StartingEvent;
+  learned?: Map<string, DataField[]>;
+};
+
+const withLearned = (declared: DataField[], learned: DataField[] = []) => {
+  const listed = new Set(declared.map((output) => output.key));
+
+  return [...declared, ...learned.filter((output) => !listed.has(output.key))];
 };
 
 const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[] => {
@@ -122,7 +130,7 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
     const action = context.actions.find((item) => item.type === step.action);
     const title = step.label || action?.label || step.action;
 
-    return (action?.outputs ?? []).map((output) => ({
+    return withLearned(action?.outputs ?? [], context.learned?.get(step.id)).map((output) => ({
       path: `steps.${step.id}.output.${output.key}`,
       label: `${title}: ${output.label}`,
       type: output.type,
@@ -138,8 +146,8 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
   }
 
   if (step.type === 'wait_for') {
-    const label =
-      step.label || (context.events.find((item) => item.type === step.event)?.label ?? step.event);
+    const event = context.events.find((item) => item.type === step.event);
+    const label = step.label || (event?.label ?? step.event);
 
     return [
       {
@@ -147,6 +155,13 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
         label: `${label} within the wait`,
         type: 'boolean',
       },
+      ...(event?.fields ?? []).map((field) => ({
+        path: `steps.${step.id}.output.event.payload.${field.key}`,
+        label: `${label}: ${field.label}`,
+        type: field.type,
+        recordType: field.recordType,
+        ...pickedFrom(event),
+      })),
     ];
   }
 

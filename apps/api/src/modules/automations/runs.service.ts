@@ -6,6 +6,8 @@ import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { findAutomation } from './automations.service';
+import { healedFields } from './dataFields';
+import { learnedStepOutputs } from './eventData';
 import { cancelRun, definitionOf, retryRun } from './runs';
 import { startNow } from './triggers';
 import { contactName } from '~/modules/activities/contactHistory';
@@ -175,4 +177,14 @@ export const pruneRunDetails = async (client: Db, days: number) => {
   `);
 
   return result.rowCount ?? 0;
+};
+
+export const automationOutputs = async (client: Db, id: string) => {
+  await findAutomation(client, id);
+
+  const learned = await learnedStepOutputs(client, id);
+
+  return {
+    data: learned.map(({ stepId, carried }) => ({ stepId, fields: healedFields([], carried) })),
+  };
 };

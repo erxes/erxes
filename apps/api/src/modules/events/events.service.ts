@@ -1,4 +1,11 @@
-import type { ActivityTarget, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
+import type {
+  ActivityTarget,
+  CoreEventName,
+  CursorQuery,
+  EventFailure,
+  EventInput,
+  WithCorePayload,
+} from '@erxes/core-contract';
 import { actorOf, caller, type Db, events, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -17,12 +24,18 @@ import {
 } from '~/modules/jobs/failed';
 import { storedError } from '~/modules/jobs/jobs';
 
-export type CoreEventInput = Pick<
+type EventColumns = Pick<
   typeof events.$inferInsert,
-  'type' | 'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'payload' | 'dedupeKey'
+  'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'dedupeKey'
 >;
 
-const publishCore = async (client: Db, list: CoreEventInput[]) => {
+type CoreEventInput<T extends string> = EventColumns & { type: T } & (T extends CoreEventName
+    ? WithCorePayload<T>
+    : { payload?: Record<string, unknown> });
+
+type EventRow = EventColumns & { type: string; payload?: Record<string, unknown> };
+
+const publishCore = async (client: Db, list: EventRow[]) => {
   if (!list.length) {
     return;
   }
@@ -54,8 +67,10 @@ const publishCore = async (client: Db, list: CoreEventInput[]) => {
  * Core publishes its own events (`core.customer.created`, …) in the same
  * transaction as the change, for automations and webhooks to come.
  */
-export const publishCoreEvents = (client: Db, inputs: CoreEventInput | CoreEventInput[]) =>
-  publishCore(client, Array.isArray(inputs) ? inputs : [inputs]);
+export const publishCoreEvents = <T extends string>(
+  client: Db,
+  inputs: CoreEventInput<T> | CoreEventInput<T>[],
+) => publishCore(client, Array.isArray(inputs) ? inputs : [inputs]);
 
 /**
  * A plugin publishes events over HTTP (plugins on core's database use

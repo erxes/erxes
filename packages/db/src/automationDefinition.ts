@@ -202,15 +202,18 @@ export const Audience = z.object({
 
 export type Audience = z.infer<typeof Audience>;
 
+const KEY = String.raw`[^.{}|\s](?:[^.{}|]{0,58}[^.{}|\s])?`;
+
+export const DATA_KEY = new RegExp(`^${KEY}$`);
+
+export const dataPath = (deeper: number) => new RegExp(`^${KEY}(\\.${KEY}){0,${deeper}}$`);
+
 export const HookField = z
   .string()
   .max(200)
-  .regex(/^(body|query)(\.[A-Za-z][A-Za-z0-9_]{0,59}){1,4}$/, 'body.<key> or query.<key>');
+  .regex(new RegExp(`^(body|query)(\\.${KEY}){1,4}$`), 'body.<key> or query.<key>');
 
-const AppField = z
-  .string()
-  .max(200)
-  .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}(\.[A-Za-z][A-Za-z0-9_]{0,59}){0,4}$/, '<key> of the event');
+const AppField = z.string().max(200).regex(dataPath(4), '<key> of the event');
 
 const subjectFrom = (field: z.ZodString) =>
   z.discriminatedUnion('type', [

@@ -1,107 +1,191 @@
-import type { DataField } from './automationRuns';
+import { LEAD_EVENTS } from '@erxes/core-db/enums';
+import { z } from 'zod';
+import { InvoiceLine } from './invoiceLines';
 
-type EventData = { record: string; fields: readonly DataField[] };
+const text = (title: string) => z.string().meta({ title });
 
-/** What core's invoice events carry (`eventPayload` in the payments module). */
-const INVOICE_FIELDS = [
-  { key: 'invoiceId', label: 'Invoice', type: 'text' },
-  { key: 'amount', label: 'Amount', type: 'number' },
-  { key: 'currency', label: 'Currency', type: 'text' },
-  { key: 'method', label: 'Method', type: 'text' },
-  { key: 'source', label: 'Created by', type: 'text' },
-  { key: 'referenceType', label: 'For (record type)', type: 'text' },
-  { key: 'referenceId', label: 'For (record id)', type: 'text' },
-] as const satisfies readonly DataField[];
+const maybeText = (title: string) => z.string().nullable().meta({ title });
 
-/** An invoice event's record and values: created, cancelled and expired carry the invoice. */
-export const INVOICE_DATA = { record: 'Invoice', fields: INVOICE_FIELDS } as const;
+const number = (title: string) => z.number().meta({ title });
+
+const ids = (title: string, fieldType: 'list' | 'tags' = 'list') =>
+  z.array(z.string()).meta({ title, fieldType });
+
+const member = (title: string) => z.string().nullable().meta({ title, fieldType: 'member' });
+
+const Stage = (title: string) =>
+  z
+    .object({
+      id: text(`${title} stage id`),
+      name: text(`${title} stage`),
+      kind: text(`${title} stage kind`),
+      color: maybeText(`${title} stage color`),
+    })
+    .nullable();
+
+const InvoicePayload = z.object({
+  invoiceId: text('Invoice'),
+  amount: number('Amount'),
+  currency: text('Currency'),
+  method: text('Method'),
+  source: text('Created by'),
+  referenceType: text('For (record type)'),
+  referenceId: text('For (record id)'),
+  metadata: z.record(z.string(), z.unknown()),
+  lines: z.array(InvoiceLine).meta({ title: 'Lines' }),
+});
+
+export const INVOICE_DATA = { record: 'Invoice', payload: InvoicePayload } as const;
 
 export const INVOICE_PAID_DATA = {
   record: 'Invoice',
-  fields: [
-    ...INVOICE_FIELDS,
-    { key: 'paidAmount', label: 'Paid amount', type: 'number' },
-    { key: 'gateway', label: 'Paid through', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: InvoicePayload.extend({
+    paidAmount: number('Paid amount'),
+    gateway: maybeText('Paid through'),
+  }),
+} as const;
 
 export const INVOICE_REFUNDED_DATA = {
   record: 'Invoice',
-  fields: [
-    ...INVOICE_FIELDS,
-    { key: 'refundAmount', label: 'Refunded now', type: 'number' },
-    { key: 'refundedAmount', label: 'Refunded in all', type: 'number' },
-  ],
-} as const satisfies EventData;
+  payload: InvoicePayload.extend({
+    refundId: text('Refund'),
+    refundAmount: number('Refunded now'),
+    refundedAmount: number('Refunded in all'),
+    full: z.boolean().meta({ title: 'Refunded in full' }),
+    method: text('Refunded through'),
+  }),
+} as const;
 
 export const RECEIPT_DATA = {
   record: 'eBarimt receipt',
-  fields: [
-    { key: 'receiptId', label: 'Receipt', type: 'text' },
-    { key: 'invoiceId', label: 'Invoice', type: 'text' },
-    { key: 'billId', label: 'Bill id', type: 'text' },
-    { key: 'billDate', label: 'Bill date', type: 'text' },
-    { key: 'lottery', label: 'Lottery number', type: 'text' },
-    { key: 'buyerType', label: 'Buyer type', type: 'text' },
-    { key: 'customerTin', label: 'Buyer TIN', type: 'text' },
-    { key: 'customerName', label: 'Buyer name', type: 'text' },
-    { key: 'totalAmount', label: 'Total', type: 'number' },
-    { key: 'totalVat', label: 'VAT', type: 'number' },
-    { key: 'totalCityTax', label: 'City tax', type: 'number' },
-    { key: 'previousId', label: 'Replaces receipt', type: 'text' },
-    { key: 'referenceType', label: 'For (record type)', type: 'text' },
-    { key: 'referenceId', label: 'For (record id)', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: z.object({
+    receiptId: text('Receipt'),
+    invoiceId: text('Invoice'),
+    billId: maybeText('Bill id'),
+    billDate: z.string().nullable().meta({ title: 'Bill date', fieldType: 'date' }),
+    lottery: maybeText('Lottery number'),
+    buyerType: text('Buyer type'),
+    customerTin: maybeText('Buyer TIN'),
+    customerName: maybeText('Buyer name'),
+    totalAmount: number('Total'),
+    totalVat: number('VAT'),
+    totalCityTax: number('City tax'),
+    previousId: maybeText('Replaces receipt'),
+    referenceType: text('For (record type)'),
+    referenceId: text('For (record id)'),
+  }),
+} as const;
 
 export const NOTE_DATA = {
   record: 'Note',
-  fields: [
-    { key: 'noteId', label: 'Note', type: 'text' },
-    { key: 'body', label: 'Text', type: 'text' },
-    { key: 'authorId', label: 'Written by', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: z.object({
+    noteId: text('Note'),
+    body: text('Text'),
+    authorId: z.string().meta({ title: 'Written by', fieldType: 'member' }),
+  }),
+} as const;
 
 export const SUPPRESSION_DATA = {
   record: 'Suppressed address',
-  fields: [
-    { key: 'address', label: 'Address', type: 'text' },
-    { key: 'channel', label: 'Channel', type: 'text' },
-    { key: 'reason', label: 'Reason', type: 'text' },
-    { key: 'detail', label: 'Detail', type: 'text' },
-    { key: 'broadcastId', label: 'Broadcast', type: 'text' },
-    { key: 'customerId', label: 'Customer', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: z.object({
+    address: text('Address'),
+    channel: text('Channel'),
+    reason: text('Reason'),
+    detail: maybeText('Detail'),
+    broadcastId: maybeText('Broadcast'),
+    customerId: maybeText('Customer'),
+  }),
+} as const;
 
 export const AUTOMATION_FAILED_DATA = {
   record: 'Automation',
-  fields: [
-    { key: 'automationId', label: 'Automation', type: 'text' },
-    { key: 'automationName', label: 'Automation name', type: 'text' },
-    { key: 'runId', label: 'Run', type: 'text' },
-    { key: 'stepId', label: 'Failed step', type: 'text' },
-    { key: 'error', label: 'Error', type: 'text' },
-    { key: 'recordType', label: 'About (record type)', type: 'text' },
-    { key: 'recordId', label: 'About (record id)', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: z.object({
+    automationId: text('Automation'),
+    automationName: text('Automation name'),
+    runId: text('Run'),
+    stepId: maybeText('Failed step'),
+    error: text('Error'),
+    recordType: maybeText('About (record type)'),
+    recordId: maybeText('About (record id)'),
+  }),
+} as const;
 
 export const APP_TRIGGER_FAILED_DATA = {
   record: 'App connection',
-  fields: [
-    { key: 'app', label: 'App', type: 'text' },
-    { key: 'connectionId', label: 'Connection', type: 'text' },
-    { key: 'error', label: 'Error', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: z.object({
+    app: text('App'),
+    connectionId: text('Connection'),
+    triggers: z.array(z.string()).meta({ title: 'Triggers' }),
+    error: text('Error'),
+  }),
+} as const;
 
 export const INTEGRATION_CHANGED_DATA = {
   record: 'App connection',
-  fields: [
-    { key: 'key', label: 'Integration', type: 'text' },
-    { key: 'connectionId', label: 'Connection', type: 'text' },
-    { key: 'change', label: 'Change', type: 'text' },
-  ],
-} as const satisfies EventData;
+  payload: z.object({
+    key: text('Integration'),
+    connectionId: text('Connection'),
+    change: text('Change'),
+  }),
+} as const;
+
+export const PRODUCT_DATA = {
+  record: 'Product',
+  payload: z.object({
+    productId: text('Product'),
+    name: text('Name'),
+    code: maybeText('Code'),
+    barcode: maybeText('Barcode'),
+    kind: text('Kind'),
+    status: text('Status'),
+    categoryId: maybeText('Category'),
+    unit: text('Unit'),
+    price: number('Price'),
+    currency: text('Currency'),
+    changed: z.array(z.string()).meta({ title: 'Changed fields' }),
+  }),
+} as const;
+
+export const CONTACT_CREATED_DATA = {
+  payload: z.object({ label: text('Name'), ownerId: member('Owner') }),
+} as const;
+
+export const CONTACT_UPDATED_DATA = {
+  payload: z.object({ changes: z.record(z.string(), z.unknown()) }),
+} as const;
+
+export const CONTACT_DELETED_DATA = {
+  payload: z.object({ label: text('Name') }),
+  subjectGone: true,
+} as const;
+
+export const CONTACT_MERGED_DATA = { payload: z.object({ mergedIds: ids('Merged ids') }) } as const;
+
+export const CONTACT_TAGGED_DATA = {
+  payload: z.object({ added: ids('Tags added', 'tags'), removed: ids('Tags removed', 'tags') }),
+} as const;
+
+export const COMPANY_LINK_DATA = {
+  payload: z.object({ customerId: text('Customer'), companyId: text('Company') }),
+} as const;
+
+export const SIGN_IN_DATA = {
+  payload: z.object({ kind: text('Signed in with'), portalId: text('Portal') }),
+} as const;
+
+export const LEAD_DATA = {
+  payload: z.object({
+    event: z.enum(LEAD_EVENTS).meta({ title: 'Change' }),
+    from: Stage('From'),
+    to: Stage('To'),
+    reason: maybeText('Reason'),
+  }),
+} as const;
+
+export const DATE_TRIGGER_DATA = z.object({
+  date: z.string().nullable().meta({ title: 'Date', fieldType: 'date' }),
+  day: z.string().meta({ title: 'Today', fieldType: 'date' }),
+  offsetDays: number('Days from the date'),
+});
+
+export const SCHEDULE_TRIGGER_DATA = z.object({ every: text('Repeats') });

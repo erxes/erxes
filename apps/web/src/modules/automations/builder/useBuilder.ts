@@ -1,7 +1,7 @@
 import type { AutomationDefinition } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { type Catalog, statsQuery } from '../automationQueries';
+import { type Catalog, outputsQuery, statsQuery } from '../automationQueries';
 import { startingEventType } from './AppTriggerSettings';
 import { flowProblems, stepOutputFields } from './flowChecks';
 import { actionsFor, subjectOf } from './flowFit';
@@ -17,13 +17,13 @@ export const useBuilder = (
   automationId: string,
 ) => {
   const stats = useQuery(statsQuery(automationId));
+  const learned = useQuery(outputsQuery(automationId));
 
   const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
-  const hookAutomationId = definition.trigger.kind === 'webhook' ? automationId : undefined;
 
   const { fields, error: fieldsError } = useAutomationFields(
     hasSubject ? subject : null,
-    hookAutomationId,
+    automationId,
   );
 
   const actions = useMemo(
@@ -37,7 +37,7 @@ export const useBuilder = (
   );
 
   const builder = useMemo(() => {
-    const events = catalog.triggers.filter((item) => item.subject);
+    const events = catalog.triggers.filter((item) => item.subject && item.subject === subject);
     const { trigger } = definition;
 
     const type = startingEventType(trigger);
@@ -45,7 +45,6 @@ export const useBuilder = (
 
     return {
       automationId,
-      hookAutomationId,
       events,
       stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
       outputsBefore: (stepId: string) =>
@@ -53,6 +52,7 @@ export const useBuilder = (
           events: catalog.triggers,
           actions,
           trigger: started,
+          learned: new Map((learned.data?.data ?? []).map((step) => [step.stepId, step.fields])),
         }),
       trigger: started,
       hasSubject,
@@ -63,10 +63,10 @@ export const useBuilder = (
     };
   }, [
     automationId,
-    hookAutomationId,
     catalog.triggers,
     catalog.actions,
     stats.data,
+    learned.data,
     definition,
     actions,
     hasSubject,

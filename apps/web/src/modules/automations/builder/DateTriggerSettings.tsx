@@ -195,7 +195,9 @@ export const DateTriggerSettings = (props: Props) => {
   const { trigger, onChange, disabled } = props;
 
   const dateFields = useAutomationFields(trigger.subject).fields.filter(
-    (field) => field.type === 'date' && field.path !== 'subject.createdAt',
+    (field) =>
+      field.type === 'date' &&
+      (field.path === 'subject.birthDate' || field.path.startsWith('subject.customFields.')),
   );
 
   const current = dateFields.find((field) => dateFieldKey(field.path) === trigger.field);

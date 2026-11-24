@@ -87,7 +87,7 @@ export const ConditionsEditor = ({
   /** The event's own values and earlier steps' outputs, offered next to the record's fields. */
   extraFields?: FieldInfo[];
 }) => {
-  const { fields } = useAutomationFields(subject, useContext(BuilderContext).hookAutomationId);
+  const { fields } = useAutomationFields(subject, useContext(BuilderContext).automationId);
   // A trigger with no record has no record fields to test.
   const own = subject ? fields : fields.filter((field) => !field.path.startsWith('subject.'));
   const all = [...own, ...extraFields];

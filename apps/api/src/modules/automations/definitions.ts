@@ -27,7 +27,7 @@ import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { triggerConditions } from './conditions';
 import { eachStep } from './cursor';
-import { hookFields } from './hooks';
+import { triggerFields } from './hooks';
 import { MAX_HOURS, MIN_MINUTES } from './schedule';
 
 type Catalog = Awaited<ReturnType<typeof automationCatalog>>;
@@ -39,8 +39,12 @@ type Trigger = AutomationDefinition['trigger'];
 /** Which record runs are about, given the trigger (null: none). */
 const subjectOfTrigger = (trigger: Trigger, triggers: Catalog['triggers']): SubjectKind => {
   switch (trigger.kind) {
-    case 'event':
-      return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
+    case 'event': {
+      const event = triggers.find((item) => item.type === trigger.event);
+
+      return event && !('subjectGone' in event && event.subjectGone) ? event.subject : null;
+    }
+
     case 'date':
       return trigger.subject;
     case 'webhook':
@@ -131,15 +135,21 @@ const stepProblems = (
   if (step.type === 'delay' && !step.until && !step.amount)
     return [`Step ${step.id}: how long to wait?`];
 
-  if (step.type === 'wait_for')
+  if (step.type === 'wait_for') {
+    const waited = catalog.triggers.find((item) => item.type === step.event);
+
     return [
       ...(subject
         ? []
         : [`Step ${step.id} waits for an event about the record, but runs aren't about one`]),
-      ...(catalog.triggers.some((item) => item.type === step.event)
-        ? []
-        : [`Step ${step.id}: unknown event ${step.event}`]),
+      ...(waited ? [] : [`Step ${step.id}: unknown event ${step.event}`]),
+      ...(subject && waited?.subject && waited.subject !== subject
+        ? [
+            `Step ${step.id} waits for an event about a ${waited.subject}, but runs are about a ${subject}`,
+          ]
+        : []),
     ];
+  }
 
   if (step.type === 'action') return actionProblems(step, catalog, subject, trigger);
 
@@ -275,7 +285,7 @@ export const automationFields = async (
     }
   });
 
-  const request = query.automation ? await hookFields(client, query.automation) : [];
+  const request = query.automation ? await triggerFields(client, query.automation) : [];
 
   return { data: [...COMMON_FIELDS, ...request, ...record] };
 };

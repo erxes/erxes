@@ -33,6 +33,12 @@ export const statsQuery = (id: string) =>
     ...liveOptions([`automations.runs:${id}`], 15_000),
   });
 
+export const outputsQuery = (id: string) =>
+  orpc.automations.outputs.queryOptions({
+    input: { id },
+    ...liveOptions([`automations.runs:${id}`], 60_000),
+  });
+
 export const runQuery = (run: Pick<AutomationRun, 'id' | 'automationId' | 'status'>) =>
   orpc.automations.run.queryOptions({
     input: { runId: run.id },

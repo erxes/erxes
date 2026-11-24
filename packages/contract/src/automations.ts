@@ -1,23 +1,15 @@
 import { CONTENT_TYPES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
-import { oc } from '@orpc/contract';
-import { COMMON_ERRORS, ERRORS } from './errors';
 import { createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Automation, HookSample } from './automation';
 import { AutomationApp } from './integrations';
 import { AutomationStatus } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
-import {
-  ActionInfo,
-  AutomationFieldPath,
-  AutomationRun,
-  DataField,
-  DryRun,
-  RunStatus,
-  RunStep,
-} from './automationRuns';
-import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
+import { automationBase as base } from './automationBase';
+import { automationRunRoutes } from './automationRunRoutes';
+import { ActionInfo, AutomationFieldPath, DataField, DryRun } from './automationRuns';
+import { Id, isoDate, listOf } from './common';
 
 export const CatalogSearch = z.object({
   search: z.string().trim().max(200).optional(),
@@ -37,25 +29,6 @@ const Fields = createUpdateSchema(automations, {
  * actions from core and plugins, delays and branches — for its customer or
  * company. Every run and step is logged.
  */
-/** What these procedures answer with besides the common errors. */
-const base = oc.errors({
-  ...COMMON_ERRORS,
-  CROSS_SITE: ERRORS.CROSS_SITE,
-  INVALID_AUTOMATION: ERRORS.INVALID_AUTOMATION,
-  INVALID_FILE: ERRORS.INVALID_FILE,
-  INVALID_LEAD_STAGE: ERRORS.INVALID_LEAD_STAGE,
-  INVALID_RECIPIENT: ERRORS.INVALID_RECIPIENT,
-  INVALID_STEP_INPUT: ERRORS.INVALID_STEP_INPUT,
-  INVALID_URL: ERRORS.INVALID_URL,
-  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
-  NOT_ACTIVE: ERRORS.NOT_ACTIVE,
-  NOT_AUTHOR: ERRORS.NOT_AUTHOR,
-  NOT_FAILED: ERRORS.NOT_FAILED,
-  NOT_RUNNING: ERRORS.NOT_RUNNING,
-  NO_MEMBERS: ERRORS.NO_MEMBERS,
-  NO_SUBJECT: ERRORS.NO_SUBJECT,
-});
-
 export const automationsContract = {
   catalog: base
     .route({
@@ -76,6 +49,7 @@ export const automationsContract = {
             description: z.string().nullable().optional(),
             source: z.string(),
             subject: z.enum(CONTENT_TYPES).nullable(),
+            subjectGone: z.boolean().optional(),
             /** The record it is about, as its plugin names it (`Order`). */
             record: z.string().nullable(),
             /**
@@ -196,35 +170,6 @@ export const automationsContract = {
     })
     .input(HookSample.pick({ body: true, query: true }).extend({ id: Id }))
     .output(Automation),
-  stats: base
-    .route({
-      method: 'GET',
-      path: '/automations/{id}/stats',
-      summary: 'Get automation run stats',
-      description: 'How runs went, overall and step by step (last 30 days)',
-    })
-    .input(z.object({ id: Id }))
-    .output(
-      z.object({
-        runs: z.object({
-          total: z.int(),
-          running: z.int(),
-          succeeded: z.int(),
-          failed: z.int(),
-          cancelled: z.int(),
-          goalReached: z.int(),
-        }),
-        steps: z.array(
-          z.object({
-            stepId: z.string(),
-            succeeded: z.int(),
-            failed: z.int(),
-            skipped: z.int(),
-          }),
-        ),
-        skippedByLimit: z.int(),
-      }),
-    ),
   versions: base
     .route({
       method: 'GET',
@@ -288,30 +233,5 @@ export const automationsContract = {
     .route({ method: 'DELETE', path: '/automations/{id}', summary: 'Delete an automation' })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
-  runs: base
-    .route({ method: 'GET', path: '/automations/{id}/runs', summary: 'List automation runs' })
-    .input(CursorQuery.extend({ id: Id, status: RunStatus.optional() }))
-    .output(cursorPageOf(AutomationRun)),
-  run: base
-    .route({ method: 'GET', path: '/automations/runs/{runId}', summary: 'Get an automation run' })
-    .input(z.object({ runId: Id }))
-    .output(z.object({ run: AutomationRun, steps: z.array(RunStep) })),
-  retryRun: base
-    .route({
-      method: 'POST',
-      path: '/automations/runs/{runId}/retry',
-      summary: 'Retry a failed run',
-      description: 'Continue a failed run from the step that failed',
-    })
-    .input(z.object({ runId: Id }))
-    .output(AutomationRun),
-  cancelRun: base
-    .route({
-      method: 'POST',
-      path: '/automations/runs/{runId}/cancel',
-      summary: 'Cancel a run',
-      description: 'Stop a running or waiting run',
-    })
-    .input(z.object({ runId: Id }))
-    .output(AutomationRun),
+  ...automationRunRoutes,
 };

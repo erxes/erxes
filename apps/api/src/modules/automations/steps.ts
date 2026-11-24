@@ -6,6 +6,7 @@ import { withRunCause } from '~/lib/causation';
 import { coreAction } from './actions/catalog';
 import type { ActionContext } from './actions/context';
 import { type Cursor, enterArm, nextCursor, splitPath } from './cursor';
+import { rememberStepOutput } from './eventData';
 import { automationMember, type RunContext, type RunRow, subjectRefOf } from './runs';
 import { render } from './templates';
 
@@ -125,6 +126,8 @@ const runLocalAction = async (
         }),
       ),
     );
+
+    await rememberStepOutput(tx, automation.id, step.id, output);
 
     return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
   } catch (error) {

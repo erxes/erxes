@@ -1,4 +1,4 @@
-import type { coreContract, IntegrationStatus } from '@erxes/core-contract';
+import type { coreContract, IntegrationStatus, WithCorePayload } from '@erxes/core-contract';
 import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   caller,
@@ -318,7 +318,7 @@ export const updateConnection = async (input: Inputs['update']) => {
  */
 const connectionChanged = (
   tx: Db,
-  payload: { key: string; connectionId: string; change: string },
+  payload: WithCorePayload<'core.integration.changed'>['payload'],
 ) =>
   publishCoreEvents(tx, {
     type: 'core.integration.changed',

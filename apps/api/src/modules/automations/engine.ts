@@ -13,7 +13,7 @@ import { coreAction } from './actions/catalog';
 import type { CallContext } from './actions/context';
 import { pluginForAction, runPluginAction } from './actions/plugin';
 import { automationChecker } from './conditionCheck';
-import { rememberActionOutput } from './eventData';
+import { rememberActionOutput, rememberStepOutput } from './eventData';
 import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';
 import {
   ADVANCE_QUEUE,
@@ -113,6 +113,8 @@ export const callJob = defineJob({
     const { output } = answer;
 
     await withOrg(job.orgId, async (tx) => {
+      await rememberStepOutput(tx, prepared.automationId, prepared.step.id, output);
+
       if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);
 
       const run = await lockLiveRun(tx, job.payload.runId);
@@ -168,7 +170,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
     context,
   };
 
-  const prepared = { step, steps: loaded.steps, input: ctx.input };
+  const prepared = { automationId: automation.id, step, steps: loaded.steps, input: ctx.input };
   const action = coreAction(step.action);
 
   if (action && 'call' in action)

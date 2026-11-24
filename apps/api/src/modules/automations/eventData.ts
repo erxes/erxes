@@ -1,5 +1,6 @@
+import { CORE_EVENT_TYPES, isAppEvent, learnsPayload } from '@erxes/core-contract';
 import { type Db, eventData, type events } from '@erxes/core-db';
-import { asc, eq, inArray, notLike } from 'drizzle-orm';
+import { asc, eq, inArray, notLike, sql } from 'drizzle-orm';
 import { type Carried, carriedBy } from './dataFields';
 
 type EventRow = typeof events.$inferSelect;
@@ -12,7 +13,7 @@ const OUTPUT = 'output:';
 
 const HOOK = 'hook:';
 
-const HOOK_PARTS = ['body', 'query'] as const;
+const HOOK_PARTS = ['body', 'query', 'trigger'] as const;
 
 type HookPart = (typeof HOOK_PARTS)[number];
 
@@ -21,6 +22,10 @@ export const outputType = (action: string) => `${OUTPUT}${action}`;
 export const isEventType = (type: string) => !type.startsWith(OUTPUT) && !type.startsWith(HOOK);
 
 const hookType = (automationId: string, part: HookPart) => `${HOOK}${automationId}:${part}`;
+
+const stepPrefix = (automationId: string) => `${HOOK}${automationId}:step:`;
+
+const startingWith = (prefix: string) => sql`starts_with(${eventData.type}, ${prefix})`;
 
 const hookTypes = (automationId: string) => HOOK_PARTS.map((part) => hookType(automationId, part));
 
@@ -47,8 +52,14 @@ const remember = async (tx: Db, type: string, data: Record<string, unknown>) => 
     .onConflictDoNothing();
 };
 
+const DESCRIBED = new Set<string>(
+  CORE_EVENT_TYPES.flatMap((item) =>
+    'payload' in item && !learnsPayload(item.payload) ? [item.type] : [],
+  ),
+);
+
 export const rememberEventData = async (tx: Db, event: EventRow) => {
-  if (event.source === 'core') return;
+  if (DESCRIBED.has(event.type) || isAppEvent(event.type)) return;
 
   await remember(tx, event.type, event.payload);
 };
@@ -66,6 +77,27 @@ export const rememberHookData = async (
 
   await remember(tx, hookType(automationId, 'query'), request.query);
 };
+
+export const rememberTriggerData = (
+  tx: Db,
+  automationId: string,
+  payload: Record<string, unknown>,
+) => remember(tx, hookType(automationId, 'trigger'), payload);
+
+export const forgetTriggerData = (tx: Db, automationId: string) =>
+  tx.delete(eventData).where(eq(eventData.type, hookType(automationId, 'trigger')));
+
+export const rememberStepOutput = async (
+  tx: Db,
+  automationId: string,
+  stepId: string,
+  output: unknown,
+) => {
+  if (isRecord(output)) await remember(tx, `${stepPrefix(automationId)}${stepId}`, output);
+};
+
+export const forgetAutomationData = (tx: Db, automationId: string) =>
+  tx.delete(eventData).where(startingWith(`${HOOK}${automationId}:`));
 
 export const forgetHookData = (tx: Db, automationId: string) =>
   tx.delete(eventData).where(inArray(eventData.type, hookTypes(automationId)));
@@ -107,5 +139,20 @@ export const learnedHookData = async (client: Db, automationId: string) => {
   return {
     body: learned.get(hookType(automationId, 'body')) ?? [],
     query: learned.get(hookType(automationId, 'query')) ?? [],
+    trigger: learned.get(hookType(automationId, 'trigger')) ?? [],
   };
+};
+
+export const learnedStepOutputs = async (client: Db, automationId: string) => {
+  const prefix = stepPrefix(automationId);
+
+  const learned = grouped(
+    await client
+      .select(columns)
+      .from(eventData)
+      .where(startingWith(prefix))
+      .orderBy(asc(eventData.createdAt), asc(eventData.key)),
+  );
+
+  return [...learned].map(([type, carried]) => ({ stepId: type.slice(prefix.length), carried }));
 };

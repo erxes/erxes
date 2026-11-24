@@ -1,19 +1,26 @@
 import {
+  appEventType,
   type AutomationDefinition,
   type AutomationFieldPath,
+  type DataField,
+  DATE_TRIGGER_DATA,
   HookSample,
+  keyLabel,
+  payloadFields,
+  SCHEDULE_TRIGGER_DATA,
 } from '@erxes/core-contract';
 import { automations, type Db } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { coreKey } from '~/lib/coreKey';
 import { hmacSha256 } from '~/lib/crypto';
+import { appTriggerTypes } from '~/modules/integrations/appCatalog';
 import { appLink } from '~/modules/email/email';
 import { REPLY_ACTION } from './actions/reply';
 import { automationChecker } from './conditionCheck';
 import { conditionsHold, startRun } from './consumer';
 import { eachStep } from './cursor';
-import { labelOf } from './dataFields';
+import { type Carried, healedFields } from './dataFields';
 import { forgetHookData, learnedHookData, rememberHookData } from './eventData';
 import { findHookSubject } from './hookSubject';
 
@@ -148,9 +155,30 @@ const requestField = (path: string, label: string, type: AutomationFieldPath['ty
   groupLabel: 'Webhook request',
 });
 
-export const hookFields = async (client: Db, automationId: string) => {
+const startFields = (groupLabel: string, fields: DataField[], declared: DataField[] = []) => {
+  const listed = new Set(declared.map((field) => field.key));
+
+  return fields
+    .filter(({ key }) => !listed.has(key))
+    .map(({ key, label, type }) => ({
+      path: `event.payload.${key}`,
+      label,
+      type,
+      group: 'event' as const,
+      groupLabel,
+    }));
+};
+
+const appFields = (trigger: { app: string; trigger: string }, learned: Carried[]) => {
+  const type = appEventType(trigger.app, trigger.trigger);
+  const declared = appTriggerTypes().find((item) => item.type === type);
+
+  return startFields(declared?.label ?? type, healedFields([], learned), declared?.fields);
+};
+
+export const triggerFields = async (client: Db, automationId: string) => {
   const [row] = await client
-    .select({ id: automations.id })
+    .select({ definition: automations.definition })
     .from(automations)
     .where(eq(automations.id, automationId))
     .limit(1);
@@ -159,14 +187,28 @@ export const hookFields = async (client: Db, automationId: string) => {
 
   const learned = await learnedHookData(client, automationId);
 
+  const { trigger } = row.definition;
+
+  if (trigger.kind === 'app') return appFields(trigger, learned.trigger);
+
+  if (trigger.kind === 'manual')
+    return startFields('Started with', healedFields([], learned.trigger));
+
+  if (trigger.kind === 'date') return startFields('Date', payloadFields(DATE_TRIGGER_DATA));
+
+  if (trigger.kind === 'schedule')
+    return startFields('Schedule', payloadFields(SCHEDULE_TRIGGER_DATA));
+
+  if (trigger.kind !== 'webhook' && !learned.body.length && !learned.query.length) return [];
+
   return [
     requestField('event.payload.method', 'Request method', 'text'),
     requestField('event.payload.body', 'Request body', 'text'),
     ...learned.body.map(({ key, kind }) =>
-      requestField(`event.payload.body.${key}`, labelOf(key), kind),
+      requestField(`event.payload.body.${key}`, keyLabel(key), kind),
     ),
     ...learned.query.map(({ key, kind }) =>
-      requestField(`event.payload.query.${key}`, `Query: ${labelOf(key)}`, kind),
+      requestField(`event.payload.query.${key}`, `Query: ${keyLabel(key)}`, kind),
     ),
   ];
 };

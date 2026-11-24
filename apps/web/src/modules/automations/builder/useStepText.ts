@@ -53,10 +53,10 @@ export const useTriggerText = (
 };
 
 export const useStepText = (step: AutomationStep | null | undefined) => {
-  const { knownActions, knownEvents, outputsBefore, subject, hookAutomationId } =
+  const { knownActions, knownEvents, outputsBefore, subject, automationId } =
     useContext(BuilderContext);
 
-  const { fields } = useAutomationFields(subject, hookAutomationId);
+  const { fields } = useAutomationFields(subject, automationId);
   const { stages } = useLeadStages();
   const automations = useQuery(automationsQuery()).data?.data;
   const all = step ? [...fields, ...outputsBefore(step.id)] : fields;

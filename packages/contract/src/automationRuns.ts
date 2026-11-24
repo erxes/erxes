@@ -6,6 +6,7 @@ import {
   AUTOMATION_SUBJECTS,
   RUN_STATUSES,
 } from '@erxes/core-db/enums';
+import { dataPath } from '@erxes/core-db/automationDefinition';
 import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -30,12 +31,7 @@ export const RecordType = z
  * "Insert data" and in conditions, by `label`.
  */
 export const DataField = z.object({
-  key: z
-    .string()
-    .regex(
-      /^[A-Za-z][A-Za-z0-9_]{0,59}(\.[A-Za-z][A-Za-z0-9_]{0,59}){0,3}$/,
-      'letters, digits and _, starting with a letter; a dot reaches inside an object',
-    ),
+  key: z.string().regex(dataPath(3), 'no braces or |; a dot reaches inside an object'),
   label: z.string().trim().min(1).max(100),
   type: z.enum(AUTOMATION_FIELD_TYPES),
   /**
