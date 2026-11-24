@@ -76,7 +76,7 @@ test('closing a tab keeps the conversation; deleting asks first', async ({ page 
   await expect(panel.getByRole('heading', { name: 'How can I help?' })).toBeVisible();
 
   await panel.getByRole('button', { name: 'Open conversations' }).click();
-  await page.getByRole('button', { name: 'Conversations' }).click();
+  await page.getByRole('button', { name: 'Conversations', exact: true }).click();
 
   const history = page.getByRole('dialog', { name: 'Conversations' });
 
@@ -156,7 +156,9 @@ test('a member mentions a record with @, opens it from the chat, and sends the o
   await expect(message).toHaveValue(`Tell me about @${label} `);
   await message.press('Enter');
 
-  const chips = panel.getByRole('button', { name: new RegExp(label) });
+  const chips = panel
+    .getByRole('button', { name: new RegExp(label) })
+    .and(page.locator('button:not([aria-haspopup])'));
 
   await expect(chips).toHaveCount(2);
   await expect(panel.getByText('No open deals yet')).toBeVisible();
