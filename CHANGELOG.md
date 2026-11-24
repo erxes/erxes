@@ -1,5 +1,12 @@
 
 
+## [3.4.29](https://github.com/erxes/erxes/compare/3.4.28...3.4.29) (2026-11-24)
+
+
+### Bug Fixes
+
+* conformities relations fields data losed ([4225115](https://github.com/erxes/erxes/commit/42251150071bebec6f4165bb4a87d34683968ebb))
+
 ## [3.4.28](https://github.com/erxes/erxes/compare/3.4.27...3.4.28) (2026-11-24)
 
 
