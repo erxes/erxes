@@ -1,8 +1,8 @@
 # erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container
-# images with a vulnerability scan, a smoke test of the whole stack and the daily
-# flows in Chromium on it, and the packed shared packages checked outside the
-# workspace. The five run side by side; images go to GHCR and Docker Hub on pushes
-# to postgre only after all of them pass.
+# images with a vulnerability scan, a smoke test of the whole stack, the daily flows
+# in Chromium on it, and the packed shared packages checked outside the workspace.
+# All run side by side except the flows, which start once the images are built;
+# images go to GHCR and Docker Hub on pushes to postgre only after all of them pass.
 # Require the `Check` job in branch protection.
 name: CI
 
@@ -126,11 +126,9 @@ jobs:
           if-no-files-found: ignore
 
   images:
-    # Builds the two images once. The scan, the smoke test and the daily flows
-    # (e2e/*.spec.ts in Chromium with an axe check on every page they visit) all use
-    # them. Smoke test and flows each need a fresh database, so each gets its own
-    # copy of the deploy stack: the flows' on :8080, the smoke test's on :8081.
-    name: Images, scan, smoke test and daily flows in Chromium
+    # Builds the two images once and hands them to the flows' shards before anything else, then
+    # scans them and runs the smoke test on its own copy of the deploy stack.
+    name: Images, scan and smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -158,17 +156,22 @@ jobs:
             web.cache-from=type=gha,scope=web
             ${{ env.CACHE_WRITE == 'true' && 'api.cache-to=type=gha,scope=api,mode=max' || '' }}
             ${{ env.CACHE_WRITE == 'true' && 'web.cache-to=type=gha,scope=web,mode=max' || '' }}
-      - name: Start both stacks while Trivy finds no HIGH or CRITICAL vulnerabilities that have a fix
+      - name: Save both images for the flows' shards
+        run: docker save "$API_IMAGE" "$WEB_IMAGE" | zstd -T0 -3 -q -o "$RUNNER_TEMP/images.tar.zst"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: images
+          path: ${{ runner.temp }}/images.tar.zst
+          compression-level: 0
+          retention-days: 1
+      - name: Start the stack while Trivy finds no HIGH or CRITICAL vulnerabilities that have a fix
         run: |
           deploy/make-secrets.sh
           {
             echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
             echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
           } > deploy/.env
-          compose=(docker compose -f deploy/docker-compose.yml --env-file deploy/.env)
-          "${compose[@]}" -f e2e/docker-compose.e2e.yml up -d > "$RUNNER_TEMP/flows-up.log" 2>&1 &
-          flows=$!
-          UI_PORT=8081 APP_URL=http://localhost:8081 "${compose[@]}" -p erxes-smoke up -d > "$RUNNER_TEMP/smoke-up.log" 2>&1 &
+          UI_PORT=8081 APP_URL=http://localhost:8081 docker compose -f deploy/docker-compose.yml --env-file deploy/.env -p erxes-smoke up -d > "$RUNNER_TEMP/smoke-up.log" 2>&1 &
           smoke=$!
           for image in "$API_IMAGE" "$WEB_IMAGE"; do
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy \
@@ -176,38 +179,65 @@ jobs:
               image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$image"
           done
           status=0
-          wait "$flows" || status=$?
           wait "$smoke" || status=$?
-          cat "$RUNNER_TEMP/flows-up.log" "$RUNNER_TEMP/smoke-up.log"
+          cat "$RUNNER_TEMP/smoke-up.log"
           exit "$status"
       - name: Smoke test
         run: deploy/smoke.sh http://localhost:8081
       - name: The web image reaches a recreated API at its new address
         run: deploy/web-proxy-test.sh "$WEB_IMAGE"
+      - name: Stack logs
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env -p erxes-smoke logs --no-color --tail 300 || true
+
+  flows:
+    # The daily flows (e2e/*.spec.ts in Chromium with an axe check on every page they visit) on
+    # the images job's images, split over three runners, each with its own deploy stack on :8080.
+    name: Daily flows in Chromium (${{ matrix.shard }}/3)
+    needs: images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    env:
+      API_IMAGE: erxes-api:local
+      WEB_IMAGE: erxes-web:local
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: images
+          path: ${{ runner.temp }}
+      - name: Start the stack
+        run: |
+          zstd -d -q -c "$RUNNER_TEMP/images.tar.zst" | docker load -q
+          deploy/make-secrets.sh
+          {
+            echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
+            echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
+          } > deploy/.env
+          docker compose -f deploy/docker-compose.yml -f e2e/docker-compose.e2e.yml --env-file deploy/.env up -d
       - uses: ./.github/actions/setup
       - name: Chromium (headless shell) and its system libraries
         run: pnpm exec playwright install --with-deps --only-shell chromium
       - name: Wait for the stack
         run: timeout 120 sh -c 'until curl -fsS http://localhost:8080/core/v1/setup >/dev/null; do sleep 2; done'
       - name: Daily flows, light and dark, with axe
-        run: pnpm e2e
+        run: pnpm e2e --shard=${{ matrix.shard }}/3
         env:
           E2E_BASE_URL: http://localhost:8080
       - name: Traces and screenshots of failed specs
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: e2e-traces
+          name: e2e-traces-${{ matrix.shard }}
           path: e2e/test-results/
           retention-days: 14
       - name: Stack logs
         if: always()
-        run: |
-          for project in erxes-smoke erxes-core; do
-            echo "::group::$project"
-            docker compose -f deploy/docker-compose.yml --env-file deploy/.env -p "$project" logs --no-color --tail 300 || true
-            echo "::endgroup::"
-          done
+        run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
 
   packages:
     # A package that only works inside the monorepo (an import of an undeclared
@@ -256,7 +286,7 @@ jobs:
   check:
     # The job to require. It fails when any job above failed, was cancelled or was skipped.
     name: Check
-    needs: [static, integration, models, images, packages]
+    needs: [static, integration, models, images, flows, packages]
     if: always()
     runs-on: ubuntu-latest
     steps:
