@@ -83,10 +83,24 @@ const place = (element: HTMLElement, at: Range | null, nodes: Node[]) => {
 
 const needsSpace = (range: Range | null) => {
   const node = range?.startContainer;
-  const before = node instanceof Text ? node.data.slice(0, range?.startOffset).at(-1) : undefined;
+
+  if (!range || !node) return false;
+
+  if (!(node instanceof Text)) {
+    const previous = node.childNodes[range.startOffset - 1];
+
+    return previous instanceof HTMLElement && Boolean(previous.dataset.token);
+  }
+
+  const before = node.data.slice(0, range.startOffset).at(-1);
 
   return before !== undefined && !/[\s([{"'«/@-]/.test(before);
 };
+
+const tokenNodes = (path: string, at: Range | null, fields: FieldInfo[]) => [
+  ...(needsSpace(at) ? [document.createTextNode(' ')] : []),
+  chipOf(placeholderOf(path), chipLabel(path, undefined, fields)),
+];
 
 export const useTokenField = ({
   value,
@@ -185,10 +199,10 @@ export const useTokenField = ({
     };
   }, []);
 
-  const insert = (path: string) => {
-    const space = needsSpace(caret.current) ? [document.createTextNode(' ')] : [];
+  const insert = (path: string, at?: Range | null) => {
+    if (at && ref.current?.contains(at.startContainer)) caret.current = at;
 
-    put([...space, chipOf(placeholderOf(path), chipLabel(path, undefined, fields))]);
+    put(tokenNodes(path, caret.current, fields));
   };
 
   const type = (text: string) => put([document.createTextNode(text)]);

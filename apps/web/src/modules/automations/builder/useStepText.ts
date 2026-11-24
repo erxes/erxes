@@ -11,6 +11,7 @@ import { BuilderContext } from './BuilderContext';
 import { useRecordChoices } from './ConditionsEditor';
 import { describeStep, describeTrigger, triggerConditions } from './flowText';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
+import { useStepData } from './useStepData';
 
 const Ids = z.union([z.string(), z.array(z.string())]).transform((value) => [value].flat());
 
@@ -53,13 +54,13 @@ export const useTriggerText = (
 };
 
 export const useStepText = (step: AutomationStep | null | undefined) => {
-  const { knownActions, knownEvents, outputsBefore, subject, automationId } =
-    useContext(BuilderContext);
+  const { knownActions, knownEvents, subject, automationId } = useContext(BuilderContext);
 
   const { fields } = useAutomationFields(subject, automationId);
+  const stepData = useStepData(step?.id ?? '', subject ?? 'customer');
   const { stages } = useLeadStages();
   const automations = useQuery(automationsQuery()).data?.data;
-  const all = step ? [...fields, ...outputsBefore(step.id)] : fields;
+  const all = step ? [...fields, ...stepData] : fields;
 
   const firstValue = useFirstValueText(
     step?.type === 'branch' ? step.conditions : undefined,

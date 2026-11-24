@@ -108,6 +108,7 @@ export const eventDataFields = (event: EventFields | undefined): FieldInfo[] =>
     group: 'event',
     groupLabel: event?.label,
     recordType: field.recordType,
+    refersTo: field.refersTo,
     ...pickedFrom(event),
   }));
 
@@ -136,6 +137,7 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
       path: `steps.${step.id}.output.${output.key}`,
       label: `${title}: ${output.label}`,
       type: output.type,
+      refersTo: output.refersTo,
       ...(output.recordType && action
         ? {
             recordType: output.recordType,
@@ -162,6 +164,7 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
         label: `${label}: ${field.label}`,
         type: field.type,
         recordType: field.recordType,
+        refersTo: field.refersTo,
         ...pickedFrom(event),
       })),
     ];

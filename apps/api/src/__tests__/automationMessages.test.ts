@@ -64,6 +64,26 @@ describe('automation messages', { timeout: 240_000 }, () => {
     ]);
   });
 
+  it('names the record an id points to', async () => {
+    await t.active(
+      'Owner named',
+      forCustomer('Owned', [
+        action('tell', 'core.notification.send', {
+          userIds: [t.ids.member],
+          title: '{{subject.ownerId->user.email}} owns {{subject.firstName}}',
+        }),
+      ]),
+    );
+
+    await t.owner().customers.create({ firstName: 'Owned', ownerId: t.ids.owner });
+    await settle();
+
+    const { email } = await t.owner().users.get({ id: t.ids.owner });
+
+    expect(email).toBeTruthy();
+    expect((await inboxOf(t.member())).map((item) => item.title)).toContain(`${email} owns Owned`);
+  });
+
   it('notifies from a run about no record', async () => {
     const { id } = await t.owner().automations.create({
       name: 'By hand',

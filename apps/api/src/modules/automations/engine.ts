@@ -166,7 +166,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
     run: { id: run.id, depth: run.depth },
     step: { id: step.id },
     subject: subjectRefOf(run),
-    input: renderInput(step.input, context),
+    input: await renderInput(tx, step.input, context),
     context,
   };
 

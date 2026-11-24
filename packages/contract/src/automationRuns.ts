@@ -4,6 +4,7 @@ import {
   AUTOMATION_FIELD_TYPES,
   AUTOMATION_PATH_TYPES,
   AUTOMATION_SUBJECTS,
+  CORE_RECORD_REFERENCES,
   RUN_STATUSES,
 } from '@erxes/core-db/enums';
 import { dataPath } from '@erxes/core-db/automationDefinition';
@@ -41,6 +42,7 @@ export const DataField = z.object({
    * ("Task created: Task").
    */
   recordType: RecordType.optional(),
+  refersTo: z.enum(CORE_RECORD_REFERENCES).optional(),
 });
 
 export type DataField = z.infer<typeof DataField>;
