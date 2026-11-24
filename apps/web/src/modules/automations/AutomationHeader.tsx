@@ -7,16 +7,19 @@ import {
   IconDots,
   IconFlask,
   IconHistory,
+  IconPlayerPause,
+  IconPlayerPlay,
   IconTrash,
 } from '@tabler/icons-react';
 import {
+  AppBreadcrumb,
+  Badge,
   Button,
   DropdownMenu,
   Input,
   PageHeader,
-  Switch,
   useConfirm,
-  AppBreadcrumb,
+  useFormat,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,23 +49,18 @@ const EditorActions = ({
 
   return (
     <PageHeader.End>
-      <label
-        className="flex items-center gap-2 text-sm"
-        title={blocked ? t('fix-first', 'Fix the marked steps first') : undefined}
-      >
-        <Switch
-          checked={isOn}
-          disabled={activate.isPending || pause.isPending || blocked}
-          aria-label={isOn ? t('turn-off', 'Turn off') : t('activate', 'Turn on')}
-          onCheckedChange={(next) => (next ? activate.mutate(draft.input) : pause.mutate(id))}
-        />
-        {isOn ? t('switch-on', 'On') : t('switch-off', 'Off')}
-      </label>
+      {isOn && (
+        <Badge variant="success" size="lg">
+          <span className="size-1.5 animate-pulse rounded-full bg-success" />
+          {t('live', 'Live')}
+        </Badge>
+      )}
       <Button variant="outline" onClick={onTest}>
         <IconFlask />
         {t('test', 'Test')}
       </Button>
       <Button
+        variant={isOn ? 'default' : 'outline'}
         disabled={save.isPending || !draft.dirty}
         onClick={() => save.mutate(draft.input)}
         title={isOn ? t('save-live', 'Changes apply at once while it is on') : '⌘S'}
@@ -70,7 +68,23 @@ const EditorActions = ({
         <IconDeviceFloppy />
         {t('save', 'Save')}
       </Button>
-      <MoreMenu automation={automation} remove={remove} onSettings={onSettings} />
+      {!isOn && (
+        <span title={blocked ? t('fix-first', 'Fix the marked steps first') : undefined}>
+          <Button
+            disabled={activate.isPending || blocked}
+            onClick={() => activate.mutate(draft.input)}
+          >
+            <IconPlayerPlay />
+            {t('activate', 'Turn on')}
+          </Button>
+        </span>
+      )}
+      <MoreMenu
+        automation={automation}
+        remove={remove}
+        onSettings={onSettings}
+        onPause={isOn && !pause.isPending ? () => pause.mutate(id) : undefined}
+      />
     </PageHeader.End>
   );
 };
@@ -79,10 +93,13 @@ const MoreMenu = ({
   automation,
   remove,
   onSettings,
+  onPause,
 }: {
   automation: Automation;
   remove: AutomationMutations['remove'];
   onSettings: () => void;
+  /** While it is on: stop new runs. */
+  onPause?: () => void;
 }) => {
   const { t } = useTranslation('automations');
   const { confirm } = useConfirm();
@@ -98,6 +115,15 @@ const MoreMenu = ({
           <IconDots />
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end" className="w-52">
+          {onPause && (
+            <>
+              <DropdownMenu.Item onClick={onPause}>
+                <IconPlayerPause />
+                {t('pause', 'Pause')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator />
+            </>
+          )}
           <DropdownMenu.Item onClick={onSettings}>
             <IconAdjustmentsHorizontal />
             {t('settings', 'Settings')}
@@ -187,6 +213,7 @@ export const AutomationHeader = ({
   ...props
 }: Parameters<typeof EditorActions>[0] & { editable: boolean }) => {
   const { t } = useTranslation('automations');
+  const { relative } = useFormat();
   const { draft } = props;
 
   return (
@@ -204,7 +231,13 @@ export const AutomationHeader = ({
           maxLength={120}
           onChange={(event) => draft.change({ name: event.target.value })}
         />
-        {draft.dirty && editable && <UnsavedMarker draft={draft} />}
+        {draft.dirty && editable ? (
+          <UnsavedMarker draft={draft} />
+        ) : (
+          <span className="text-xs whitespace-nowrap text-muted-foreground">
+            {t('saved-ago', 'Saved {{when}}', { when: relative(props.automation.updatedAt) })}
+          </span>
+        )}
         {draft.stale && editable && <StaleDraft draft={draft} />}
       </PageHeader.Start>
       {editable && <EditorActions {...props} />}

@@ -1,13 +1,13 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import { IconFlag, IconZoomIn, IconZoomOut } from '@tabler/icons-react';
+import { IconFlag, IconFocusCentered, IconMinus, IconPlus } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
-import { Fragment, useContext } from 'react';
+import { Fragment, type RefObject, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
-import { catalogIcon } from './catalogGroups';
-import { armsOf, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
-import { Connector, LOOK, Node } from './FlowNode';
-import { useStepText } from './useStepText';
+import { armsOf, type ListAddress, type StepType } from './flowModel';
+import { Connector, LINE, LINE_BORDER, Node } from './FlowNode';
+import { LOOK, useStepLook } from './stepLook';
+import { StepMenu } from './StepMenu';
 import { TRIGGER_ICONS } from '../TemplatePicker';
 
 interface FlowProps {
@@ -16,41 +16,78 @@ interface FlowProps {
   problems: Map<string, string[]>;
   disabled?: boolean;
   onSelect: (id: string) => void;
-  onAdd: (address: ListAddress, index: number, type: StepType) => void;
+  onAdd: (address: ListAddress, index: number, type: StepType, action?: string) => void;
+  onSteps: (steps: AutomationStep[]) => void;
 }
 
-/** A horizontal rule joining the arms, from the first arm's middle to the last one's. */
-const ArmRule = ({ at, count, edge }: { at: number; count: number; edge: 'top' | 'bottom' }) => (
-  <div
-    className={cn(
-      'absolute h-px bg-border',
-      edge === 'top' ? 'top-0' : 'bottom-0',
-      at === 0 ? 'left-1/2' : 'left-0',
-      at === count - 1 ? 'right-1/2' : 'right-0',
-    )}
-  />
-);
+type Flow = FlowProps & { all: AutomationStep[] };
+
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 1.5;
+
+/**
+ * Where an arm meets the line its parent splits into (top) or joins back from (bottom): the
+ * outer arms bend in with a rounded corner, the middle ones cross it straight.
+ */
+const Elbow = ({ at, count, edge }: { at: number; count: number; edge: 'top' | 'bottom' }) => {
+  const first = at === 0;
+  const last = at === count - 1;
+
+  if (!first && !last)
+    return (
+      <>
+        <div
+          className={cn('absolute inset-x-0 h-px', LINE, edge === 'top' ? 'top-0' : 'bottom-0')}
+        />
+        <div className={cn('absolute inset-y-0 left-1/2 w-px -translate-x-1/2', LINE)} />
+      </>
+    );
+
+  return (
+    <div
+      className={cn(
+        'absolute inset-y-0 w-1/2',
+        LINE_BORDER,
+        first ? 'right-0 border-l' : 'left-0 border-r',
+        edge === 'top' ? 'border-t' : 'border-b',
+        edge === 'top' && (first ? 'rounded-tl-xl' : 'rounded-tr-xl'),
+        edge === 'bottom' && (first ? 'rounded-bl-xl' : 'rounded-br-xl'),
+      )}
+    />
+  );
+};
 
 /** A branching step's arms side by side, each a list of its own. */
-const Arms = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
+const Arms = ({ step, flow }: { step: AutomationStep; flow: Flow }) => {
   const arms = armsOf(step);
 
   if (!arms.length) return null;
 
   return (
     <>
-      <div className="h-5 w-px shrink-0 bg-border" />
+      <div className={cn('h-5 w-px shrink-0', LINE)} />
       <div className="flex items-stretch">
         {arms.map((arm, at) => (
-          <div key={arm.key} className="relative flex flex-col items-center px-4">
-            <ArmRule at={at} count={arms.length} edge="top" />
-            <div className="h-4 w-px shrink-0 bg-border" />
-            <span className="relative z-10 rounded-full border bg-muted px-2.5 py-0.5 text-2xs font-medium text-muted-foreground">
+          <div key={arm.key} className="flex flex-col items-center">
+            <div className="relative h-5 w-full shrink-0">
+              <Elbow at={at} count={arms.length} edge="top" />
+            </div>
+            <span className="relative z-10 -mt-px rounded-full border bg-background px-2.5 py-0.5 text-2xs font-medium text-muted-foreground shadow-xs">
               {arm.label}
             </span>
-            <StepList steps={arm.steps} address={{ parentId: step.id, arm: arm.key }} flow={flow} />
-            <div className="min-h-4 w-px flex-1 bg-border" />
-            <ArmRule at={at} count={arms.length} edge="bottom" />
+            <div className="px-5">
+              <StepList
+                steps={arm.steps}
+                address={{ parentId: step.id, arm: arm.key }}
+                flow={flow}
+              />
+            </div>
+            <div className="relative min-h-5 w-full flex-1">
+              <div className={cn('absolute top-0 bottom-5 left-1/2 w-px -translate-x-1/2', LINE)} />
+              <div className="absolute inset-x-0 bottom-0 h-5">
+                <Elbow at={at} count={arms.length} edge="bottom" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -59,29 +96,21 @@ const Arms = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
 };
 
 /** One step's card: its kind (or plugin), what it does, problems and recent runs. */
-const StepNode = ({ step, flow }: { step: AutomationStep; flow: FlowProps }) => {
-  const { t } = useTranslation('automations');
+const StepNode = ({ step, flow }: { step: AutomationStep; flow: Flow }) => {
   const { stats } = useContext(BuilderContext);
-  const { title, detail } = useStepText(step) ?? { title: '', detail: null };
-
-  const action =
-    step.type === 'action' ? flow.actions.find((item) => item.type === step.action) : undefined;
-
-  const kind =
-    step.type === 'action'
-      ? t('step-kind-action', 'Do this')
-      : t(`step-type.${step.type}`, STEP_TITLES[step.type]);
+  const look = useStepLook(step, flow.actions);
 
   return (
     <Node
-      kind={kind}
-      icon={action ? catalogIcon(action) : LOOK[step.type].icon}
-      tone={LOOK[step.type].tone}
-      title={title}
-      detail={detail}
+      {...look}
       selected={flow.selected === step.id}
       problems={flow.problems.get(step.id)}
       stats={stats.get(step.id)}
+      menu={
+        !flow.disabled && (
+          <StepMenu step={step} steps={flow.all} onSteps={flow.onSteps} onSelect={flow.onSelect} />
+        )
+      }
       onSelect={() => flow.onSelect(step.id)}
     />
   );
@@ -96,26 +125,31 @@ const StepList = ({
 }: {
   steps: AutomationStep[];
   address: ListAddress;
-  flow: FlowProps;
+  flow: Flow;
   root?: boolean;
 }) => {
   const { t } = useTranslation('automations');
 
   const add = (index: number) =>
-    flow.disabled ? undefined : (type: StepType) => flow.onAdd(address, index, type);
+    flow.disabled
+      ? undefined
+      : {
+          actions: flow.actions,
+          onAdd: (type: StepType, action?: string) => flow.onAdd(address, index, type, action),
+        };
 
   return (
     <div className="flex flex-col items-center">
       {steps.map((step, index) => (
         <Fragment key={step.id}>
-          <Connector onAdd={add(index)} />
+          <Connector add={add(index)} arrow />
           <StepNode step={step} flow={flow} />
           <Arms step={step} flow={flow} />
         </Fragment>
       ))}
-      <Connector onAdd={add(steps.length)} height={root ? 'h-10' : 'h-8'} />
+      <Connector add={add(steps.length)} arrow={root} height={root ? 'h-12' : 'h-10'} />
       {root && (
-        <span className="flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground shadow-xs">
           <IconFlag className="size-3.5" />
           {t('end', 'End')}
         </span>
@@ -124,23 +158,49 @@ const StepList = ({
   );
 };
 
-const ZoomControls = ({ zoom, onZoom }: { zoom: number; onZoom: (zoom: number) => void }) => {
+const clampZoom = (zoom: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+
+/** The zoom that shows the whole flow in the canvas, at most 100%. */
+const fitZoom = (box: HTMLElement | null, flow: HTMLElement | null, zoom: number) => {
+  if (!box || !flow) return zoom;
+
+  const { width, height } = flow.getBoundingClientRect();
+  const across = box.clientWidth / (width / zoom + 80);
+  const down = box.clientHeight / (height / zoom + 64);
+
+  return clampZoom(Math.floor(Math.min(1, across, down) * 20) / 20);
+};
+
+const ZoomControls = ({
+  zoom,
+  onZoom,
+  box,
+  flow,
+}: {
+  zoom: number;
+  onZoom: (zoom: number) => void;
+  box: RefObject<HTMLDivElement | null>;
+  flow: RefObject<HTMLDivElement | null>;
+}) => {
   const { t } = useTranslation('automations');
+  const step = (delta: number) => onZoom(clampZoom(Math.round((zoom + delta) * 10) / 10));
 
   return (
-    <div className="absolute bottom-4 left-4 flex items-center gap-1 rounded-lg border bg-background p-1 shadow-xs">
+    <div className="absolute right-4 bottom-4 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow-sm">
       <Button
         size="icon"
         variant="ghost"
         className="size-7"
         aria-label={t('zoom-out', 'Zoom out')}
-        onClick={() => onZoom(Math.max(0.5, Math.round((zoom - 0.1) * 10) / 10))}
+        disabled={zoom <= MIN_ZOOM}
+        onClick={() => step(-0.1)}
       >
-        <IconZoomOut />
+        <IconMinus />
       </Button>
       <button
         type="button"
-        className="w-12 text-center text-xs text-muted-foreground"
+        className="w-11 text-center text-xs tabular-nums text-muted-foreground hover:text-foreground"
+        title={t('zoom-reset', 'Back to 100%')}
         onClick={() => onZoom(1)}
       >
         {Math.round(zoom * 100)}%
@@ -150,9 +210,21 @@ const ZoomControls = ({ zoom, onZoom }: { zoom: number; onZoom: (zoom: number) =
         variant="ghost"
         className="size-7"
         aria-label={t('zoom-in', 'Zoom in')}
-        onClick={() => onZoom(Math.min(1.5, Math.round((zoom + 0.1) * 10) / 10))}
+        disabled={zoom >= MAX_ZOOM}
+        onClick={() => step(0.1)}
       >
-        <IconZoomIn />
+        <IconPlus />
+      </Button>
+      <span className="mx-0.5 h-4 w-px bg-border" />
+      <Button
+        size="icon"
+        variant="ghost"
+        className="size-7"
+        aria-label={t('zoom-fit', 'Fit to screen')}
+        title={t('zoom-fit', 'Fit to screen')}
+        onClick={() => onZoom(fitZoom(box.current, flow.current, zoom))}
+      >
+        <IconFocusCentered />
       </Button>
     </div>
   );
@@ -169,7 +241,7 @@ export const FlowCanvas = ({
   zoom,
   onZoom,
   onDeselect,
-  ...flow
+  ...props
 }: FlowProps & {
   trigger: {
     kind: keyof typeof TRIGGER_ICONS;
@@ -183,10 +255,14 @@ export const FlowCanvas = ({
   onDeselect: () => void;
 }) => {
   const { t } = useTranslation('automations');
+  const box = useRef<HTMLDivElement>(null);
+  const column = useRef<HTMLDivElement>(null);
+  const flow: Flow = { ...props, all: steps };
 
   return (
-    <div className="relative min-h-0 flex-1">
+    <div className="relative min-h-0 flex-1 bg-sidebar">
       <div
+        ref={box}
         className="dot-grid absolute inset-0 overflow-auto"
         // A pointer shortcut for Escape (the editor's key for leaving a step).
         role="presentation"
@@ -202,11 +278,12 @@ export const FlowCanvas = ({
           style={{ '--zoom': zoom }}
           data-canvas-empty
         >
-          <div className="flex flex-col items-center">
+          <div ref={column} className="flex flex-col items-center">
             <Node
               kind={t('trigger-kind', 'When')}
               icon={TRIGGER_ICONS[trigger.kind]}
               tone={LOOK.trigger.tone}
+              dot={LOOK.trigger.dot}
               title={trigger.title}
               detail={trigger.detail}
               selected={flow.selected === 'trigger'}
@@ -217,7 +294,7 @@ export const FlowCanvas = ({
           </div>
         </div>
       </div>
-      <ZoomControls zoom={zoom} onZoom={onZoom} />
+      <ZoomControls zoom={zoom} onZoom={onZoom} box={box} flow={column} />
     </div>
   );
 };

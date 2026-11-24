@@ -1,14 +1,18 @@
-import type { Automation } from '@erxes/core-contract';
-import { useState } from 'react';
+import type { ActionInfo, Automation, AutomationStep } from '@erxes/core-contract';
+import { IconFlask } from '@tabler/icons-react';
+import { cn } from 'erxes-ui';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
 import { DataPanel } from './builder/DataPanel';
 import { DataTargetContext, dataTargets } from './builder/dataTarget';
-import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
+import { findStep, replaceStep } from './builder/flowModel';
+import { LOOK, type NodeIcon, useStepLook } from './builder/stepLook';
 import { TriggerEditor } from './builder/TriggerEditor';
 import type { useBuilder } from './builder/useBuilder';
 import { type Selection, StepHeader, StepInspector } from './StepInspector';
 import { TestPanel } from './TestPanel';
+import { TRIGGER_ICONS } from './TemplatePicker';
 import type { AutomationMutations } from './useAutomationEditor';
 import type { useFlowGuard } from './useFlowGuard';
 
@@ -21,6 +25,8 @@ export interface InspectorProps {
   editable: boolean;
   selected: Selection;
   onSelect: (selection: Selection) => void;
+  /** The trigger in words, as its card shows it. */
+  trigger: { title: string };
 }
 
 const TriggerPanel = (props: InspectorProps) => {
@@ -49,6 +55,50 @@ const TriggerPanel = (props: InspectorProps) => {
   );
 };
 
+/** The top of the panel: what is open, as its card on the canvas shows it. */
+const PanelHeader = ({
+  icon: Icon,
+  tone,
+  title,
+  kind,
+  children,
+}: {
+  icon: NodeIcon;
+  tone: string;
+  title: string;
+  kind: string;
+  children?: ReactNode;
+}) => (
+  <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
+    <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tone)}>
+      <Icon className="size-4.5" />
+    </span>
+    <span className="min-w-0 flex-1">
+      <span className="block truncate text-sm font-medium">{title}</span>
+      <span className="block truncate text-xs text-muted-foreground">{kind}</span>
+    </span>
+    {children}
+  </div>
+);
+
+const StepPanelHeader = ({
+  step,
+  actions,
+  children,
+}: {
+  step: AutomationStep;
+  actions: ActionInfo[];
+  children: ReactNode;
+}) => {
+  const look = useStepLook(step, actions);
+
+  return (
+    <PanelHeader icon={look.icon} tone={look.tone} title={look.title || look.kind} kind={look.kind}>
+      {children}
+    </PanelHeader>
+  );
+};
+
 export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
   const { draft, selected, onSelect, editable, automation, built } = props;
@@ -58,24 +108,30 @@ export const AutomationInspector = (props: InspectorProps) => {
   const step =
     selected !== 'trigger' && selected !== 'test' ? findStep(definition.steps, selected) : null;
 
-  const heading =
-    selected === 'trigger'
-      ? t('trigger-kind', 'Trigger')
-      : selected === 'test'
-        ? t('test', 'Test')
-        : step
-          ? t(`step-type.${step.type}`, STEP_TITLES[step.type])
-          : '';
-
   return (
     <DataTargetContext.Provider value={targets}>
       {step?.type === 'action' && editable && (
         <DataPanel key={step.id} step={step} subject={built.subject} />
       )}
       <aside className="flex w-136 shrink-0 flex-col border-l bg-background">
-        <div className="flex h-10 shrink-0 items-center gap-2 border-b pr-2 pl-4 text-sm font-medium">
-          <span className="min-w-0 flex-1 truncate">{heading}</span>
-          {step && (
+        {selected === 'trigger' && (
+          <PanelHeader
+            tone={LOOK.trigger.tone}
+            icon={TRIGGER_ICONS[definition.trigger.kind]}
+            title={props.trigger.title}
+            kind={t('trigger-kind', 'When')}
+          />
+        )}
+        {selected === 'test' && (
+          <PanelHeader
+            icon={IconFlask}
+            tone="bg-muted text-muted-foreground"
+            title={t('test', 'Test')}
+            kind={automation.name}
+          />
+        )}
+        {step && (
+          <StepPanelHeader step={step} actions={built.actions}>
             <StepHeader
               step={step}
               steps={definition.steps}
@@ -84,8 +140,8 @@ export const AutomationInspector = (props: InspectorProps) => {
               onSteps={draft.setSteps}
               onSelect={onSelect}
             />
-          )}
-        </div>
+          </StepPanelHeader>
+        )}
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="space-y-5 p-4">
             {selected === 'trigger' && <TriggerPanel {...props} />}

@@ -1,125 +1,35 @@
+import type { ActionInfo } from '@erxes/core-contract';
 import {
   IconAlertTriangle,
-  IconArrowsSplit,
-  IconBolt,
-  IconChevronRight,
+  IconCaretDownFilled,
   IconCircleCheck,
   IconCircleX,
-  IconClock,
-  IconGitBranch,
-  IconHandStop,
-  IconHourglass,
-  IconPlus,
-  IconRoute,
 } from '@tabler/icons-react';
-import { Button, cn, DropdownMenu } from 'erxes-ui';
-import type { ComponentType } from 'react';
-import { useTranslation } from 'react-i18next';
-import { STEP_TITLES, type StepType } from './flowModel';
+import { cn } from 'erxes-ui';
+import type { ReactNode } from 'react';
+import type { NodeIcon } from './stepLook';
+import { type AddStep, StepPicker } from './StepPicker';
 
-type NodeIcon = ComponentType<{ className?: string }>;
+/** The canvas's lines: the vertical ones as fills, the elbows as borders. */
+export const LINE = 'bg-muted-foreground/40';
+export const LINE_BORDER = 'border-muted-foreground/40';
 
-/** How each kind of node looks: icon and colour (actions, waits, logic, ends). */
-export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string }> = {
-  trigger: { icon: IconBolt, tone: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-  action: { icon: IconBolt, tone: 'bg-primary/10 text-primary-text' },
-  delay: { icon: IconClock, tone: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-  wait_for: { icon: IconHourglass, tone: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-  branch: { icon: IconGitBranch, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
-  switch: { icon: IconRoute, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
-  split: { icon: IconArrowsSplit, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
-  stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground' },
-};
-
-interface Choice {
-  type: StepType;
-  hint: string;
-}
-
-const MAIN_CHOICES: Choice[] = [
-  { type: 'action', hint: 'Send an email, add a tag, create a task' },
-  { type: 'delay', hint: 'Pause for minutes, hours or days' },
-  { type: 'branch', hint: 'Go one way or another, by conditions' },
-];
-
-const MORE_CHOICES: Choice[] = [
-  { type: 'wait_for', hint: 'Until something happens to the record' },
-  { type: 'switch', hint: 'One of several paths' },
-  { type: 'split', hint: 'Test two versions (A/B)' },
-  { type: 'stop', hint: 'End the run' },
-];
-
-const ChoiceItem = ({ type, hint, onAdd }: Choice & { onAdd: (type: StepType) => void }) => {
-  const { t } = useTranslation('automations');
-  const Icon = LOOK[type].icon;
-
-  return (
-    <DropdownMenu.Item onClick={() => onAdd(type)}>
-      <span className="flex items-start gap-3 py-2">
-        <span
-          className={cn(
-            'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md',
-            LOOK[type].tone,
-          )}
-        >
-          <Icon className="size-4" />
-        </span>
-        <span>
-          <span className="block text-sm font-medium">
-            {t(`step-type.${type}`, STEP_TITLES[type])}
-          </span>
-          <span className="block text-xs text-muted-foreground">
-            {t(`step-hint.${type}`, hint)}
-          </span>
-        </span>
-      </span>
-    </DropdownMenu.Item>
-  );
-};
-
-const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger
-        aria-label={t('add-step', 'Add a step')}
-        render={<Button variant="insert" size="icon" className="relative z-10 size-6" />}
-      >
-        <IconPlus className="size-3.5" />
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="center" className="w-72">
-        {MAIN_CHOICES.map((choice) => (
-          <ChoiceItem key={choice.type} {...choice} onAdd={onAdd} />
-        ))}
-        <DropdownMenu.Separator />
-        <DropdownMenu.Sub>
-          <DropdownMenu.SubTrigger>
-            {t('add-step-more', 'More')}
-            <IconChevronRight className="ml-auto" />
-          </DropdownMenu.SubTrigger>
-          <DropdownMenu.SubContent className="w-72" sideOffset={8}>
-            {MORE_CHOICES.map((choice) => (
-              <ChoiceItem key={choice.type} {...choice} onAdd={onAdd} />
-            ))}
-          </DropdownMenu.SubContent>
-        </DropdownMenu.Sub>
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
-};
-
-/** A vertical line, with a "+" in the middle when steps may be added here. */
+/** A vertical line, with a "+" in the middle when steps may be added here, and an arrow into the next card. */
 export const Connector = ({
-  onAdd,
-  height = 'h-10',
+  add,
+  arrow,
+  height = 'h-12',
 }: {
-  onAdd?: (type: StepType) => void;
+  add?: { actions: ActionInfo[]; onAdd: AddStep };
+  arrow?: boolean;
   height?: string;
 }) => (
   <div className={cn('relative flex w-full shrink-0 items-center justify-center', height)}>
-    <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border" />
-    {onAdd && <AddButton onAdd={onAdd} />}
+    <div className={cn('absolute inset-y-0 left-1/2 w-px -translate-x-1/2', LINE)} />
+    {arrow && (
+      <IconCaretDownFilled className="absolute -bottom-1 left-1/2 size-3.5 -translate-x-1/2 text-muted-foreground/60" />
+    )}
+    {add && <StepPicker actions={add.actions} onAdd={add.onAdd} />}
   </div>
 );
 
@@ -144,56 +54,72 @@ export const Node = ({
   kind,
   icon: Icon,
   tone,
+  dot,
   title,
   detail,
   selected,
   problems,
   stats,
+  menu,
   onSelect,
 }: {
   kind: string;
   icon: NodeIcon;
   tone: string;
+  dot: string;
   title: string;
   detail: string | null;
   selected: boolean;
   problems?: string[];
   stats?: { succeeded: number; failed: number };
+  /** The step's "⋯", at the header's end. */
+  menu?: ReactNode;
   onSelect: () => void;
 }) => (
-  <button
-    type="button"
-    onClick={(event) => {
-      event.stopPropagation();
-      onSelect();
-    }}
-    title={problems?.join('\n')}
-    className={cn(
-      'relative z-10 w-72 shrink-0 rounded-xl border bg-background text-left shadow-xs transition',
-      'hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-      selected && 'border-primary ring-2 ring-primary/20',
-      problems?.length && !selected && 'border-destructive/60',
-    )}
-  >
-    <div className="flex items-start gap-3 p-3">
-      <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone)}>
-        <Icon className="size-4" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-2xs font-medium uppercase tracking-wide text-muted-foreground">
-          {kind}
-        </span>
-        <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
-        {detail && <span className="block truncate text-xs text-muted-foreground">{detail}</span>}
-      </span>
-      {!!problems?.length && (
-        <IconAlertTriangle className="size-4 shrink-0 text-destructive-text" />
+  <div className="relative z-10 w-72 shrink-0">
+    <button
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect();
+      }}
+      title={problems?.join('\n')}
+      className={cn(
+        'block w-full overflow-hidden rounded-xl border bg-background text-left shadow-sm transition',
+        'hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+        selected && 'border-primary ring-4 ring-primary/15',
+        problems?.length && !selected && 'border-destructive/60',
       )}
-    </div>
-    {stats && (
-      <span className="flex items-center gap-3 border-t px-3 py-1.5 text-2xs text-muted-foreground">
-        <NodeStats stats={stats} />
+    >
+      <span className="flex h-7 items-center gap-1.5 border-b bg-muted/50 px-3 text-2xs font-medium text-muted-foreground">
+        <span className={cn('size-1.5 rounded-full', dot)} />
+        {kind}
+        {!!problems?.length && (
+          <IconAlertTriangle className="ml-auto size-3.5 text-destructive-text" />
+        )}
+      </span>
+      <span className="flex items-center gap-3 p-3">
+        <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tone)}>
+          <Icon className="size-4.5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
+          {detail && <span className="block truncate text-xs text-muted-foreground">{detail}</span>}
+        </span>
+      </span>
+      {stats && (
+        <span className="flex items-center gap-3 border-t px-3 py-1.5 text-2xs text-muted-foreground">
+          <NodeStats stats={stats} />
+        </span>
+      )}
+    </button>
+    {menu && (
+      <span className={cn('absolute top-0.5 flex', problems?.length ? 'right-7' : 'right-1')}>
+        {menu}
       </span>
     )}
-  </button>
+    {selected && (
+      <span className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rounded-full border-2 border-primary bg-background" />
+    )}
+  </div>
 );
