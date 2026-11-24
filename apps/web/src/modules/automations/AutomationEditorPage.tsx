@@ -15,7 +15,7 @@ import { SettingsDialog } from './AutomationSettings';
 import { automationQuery, type Catalog, catalogQuery, runsQuery } from './automationQueries';
 import { BuilderContext } from './builder/BuilderContext';
 import { FlowCanvas } from './builder/FlowCanvas';
-import { insertStep, newStep, removeStep } from './builder/flowModel';
+import { findStep, insertStep, newStep, removeStep } from './builder/flowModel';
 import { useBuilder } from './builder/useBuilder';
 import { useTriggerText } from './builder/useStepText';
 import { ProblemsPopover } from './ProblemsPopover';
@@ -29,7 +29,10 @@ const isStep = (selection: Selection) => selection !== 'trigger' && selection !=
 /** The draft, what is selected, the save and start mutations, and the editor's keys. */
 const useEditorState = (automation: Automation, editable: boolean, catalog: Catalog) => {
   const draft = useFlowGuard(useAutomationDraft(automation), catalog);
-  const [selected, setSelected] = useState<Selection>('trigger');
+  const [picked, setSelected] = useState<Selection>('trigger');
+
+  const selected = !isStep(picked) || findStep(draft.definition.steps, picked) ? picked : 'trigger';
+
   const [serverProblems, setServerProblems] = useState<string[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const mutations = useAutomationMutations(automation.id, setServerProblems);

@@ -145,7 +145,6 @@
   "needs-attention": "These steps need attention",
   "name": "Name",
   "description": "Note",
-  "nothing-selected": "Choose a step on the canvas.",
   "toggle-failed": "Could not turn it on",
   "status-all": "All",
   "no-match": "Nothing matches.",

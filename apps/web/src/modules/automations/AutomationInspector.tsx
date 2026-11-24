@@ -163,11 +163,6 @@ export const AutomationInspector = (props: InspectorProps) => {
                 onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
               />
             )}
-            {selected !== 'trigger' && selected !== 'test' && !step && (
-              <p className="text-sm text-muted-foreground">
-                {t('nothing-selected', 'Choose a step on the canvas.')}
-              </p>
-            )}
           </div>
         </div>
       </aside>
