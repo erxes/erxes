@@ -11,7 +11,7 @@ import type { TFunction } from 'i18next';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { AssistantAvatar } from './AssistantAvatar';
+import { ThinkingLine } from './ThinkingLine';
 import type { Step, StepStatus, TranscriptRow } from './transcriptRows';
 
 const STATUS_ICONS: Record<StepStatus, Icon> = {
@@ -231,26 +231,21 @@ const stoppedUnlessLive = (steps: Step[], live: boolean, stopped: string) =>
         step.status === 'running' ? { ...step, status: 'failed' as const, error: stopped } : step,
       );
 
-const liveLabel = (rows: ActivityRow[], steps: Step[], t: TFunction<'assistant'>) => {
-  const current = steps.findLast((step) => step.status === 'running');
+const labelOf = (row: ActivityRow, t: TFunction<'assistant'>) => {
+  if (row.kind === 'thinking') return intentsOf(row.text).at(-1);
 
-  if (current) return stepLabel(current, t);
+  const step = row.steps.at(-1);
 
-  const last = rows.at(-1);
+  if (!step || step.name === 'callApi') return undefined;
 
-  if (last?.kind === 'thinking')
-    return intentsOf(last.text).at(-1) ?? t('thinking.now', 'Thinking…');
-
-  return t('working', 'Working on it…');
+  return stepLabel({ ...step, status: 'running' }, t);
 };
 
-export const ThinkingLine = ({ label, children }: { label: string; children?: ReactNode }) => (
-  <span className="flex min-w-0 items-center gap-2 text-sm">
-    <AssistantAvatar size={20} state="thinking" />
-    <span className="min-w-0 truncate shimmer-text">{label}</span>
-    {children}
-  </span>
-);
+const liveLabel = (rows: ActivityRow[], t: TFunction<'assistant'>) =>
+  rows
+    .toReversed()
+    .map((row) => labelOf(row, t))
+    .find(Boolean) ?? t('working', 'Working on it…');
 
 const StepDots = ({ steps }: { steps: Step[] }) => {
   const shown = steps.slice(-MAX_DOTS);
@@ -274,15 +269,7 @@ const StepDots = ({ steps }: { steps: Step[] }) => {
   );
 };
 
-export const RunTrace = ({
-  rows,
-  live,
-  tracing = live,
-}: {
-  rows: ActivityRow[];
-  live: boolean;
-  tracing?: boolean;
-}) => {
+export const RunTrace = ({ rows, live }: { rows: ActivityRow[]; live: boolean }) => {
   const { t } = useTranslation('assistant');
   const stopped = t('step.stopped', 'Stopped');
 
@@ -293,13 +280,13 @@ export const RunTrace = ({
   const steps = shown.flatMap((row) => (row.kind === 'steps' ? row.steps : []));
   const failed = steps.filter((step) => step.status === 'failed').length;
 
-  if (!tracing && !steps.length) return null;
+  if (!steps.length && !(live && rows.length)) return null;
 
   return (
     <Collapsible className="flex flex-col">
       <LineTrigger className="w-auto self-start">
-        {tracing ? (
-          <ThinkingLine label={liveLabel(rows, steps, t)} />
+        {live ? (
+          <ThinkingLine label={liveLabel(shown, t)} />
         ) : (
           <>
             <Collapsible.TriggerIcon className="size-2.5 shrink-0" />

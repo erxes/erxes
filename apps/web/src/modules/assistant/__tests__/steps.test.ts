@@ -132,10 +132,11 @@ describe('the steps a reply took', () => {
     expect(view.container.textContent).toContain('+customers.update');
   });
 
-  it('says it is still working between steps instead of counting them', () => {
+  it('keeps showing the last step between steps instead of counting them', () => {
     const view = render([search('s1', 'deals'), call('c1', 'List open deals')], true);
 
-    expect(view.container.textContent).toContain('Working on it…');
+    expect(view.container.textContent).toContain('List open deals');
+    expect(view.container.textContent).not.toContain('Working on it…');
     expect(view.container.textContent).not.toContain('2 steps');
   });
 });

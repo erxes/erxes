@@ -2,7 +2,8 @@ import { cn, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { CopyButton } from './CopyButton';
 import { Reply, type ReplyActions } from './Reply';
-import { type ActivityRow, RunTrace, ThinkingLine } from './Steps';
+import { type ActivityRow, RunTrace } from './Steps';
+import { ThinkingLine } from './ThinkingLine';
 import { replyText, type TranscriptRow } from './transcriptRows';
 
 const ArtifactCard = lazy(() =>
@@ -71,13 +72,11 @@ export const AssistantTurn = ({
   const activity = rows.filter(isActivity);
   const shown = rows.filter((row): row is ShownRow => !isActivity(row));
   const lastText = shown.findLast((row) => row.kind === 'text')?.key;
-  const end = rows.at(-1);
-  const tracing = working && end !== undefined && isActivity(end);
   const text = replyText(rows);
 
   return (
     <article aria-busy={working} className="group/turn flex min-w-0 flex-col gap-3">
-      <RunTrace rows={activity} live={working} tracing={tracing} />
+      <RunTrace rows={activity} live={working} />
       {shown.map((row) => (
         <Row
           key={row.key}
