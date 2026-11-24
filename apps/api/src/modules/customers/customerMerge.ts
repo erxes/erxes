@@ -10,29 +10,22 @@ import {
   db,
   type Db,
 } from '@erxes/core-db';
+import type { CustomerMerge } from '@erxes/core-contract';
+import { CUSTOMER_MERGE_FIELDS } from '@erxes/core-db/enums';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { inOrder } from '~/lib/sequence';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
+import { combineContacts, combineCustomFields, pickedRow, pickFields } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CustomerRow, findCustomer, inOrg, selectCustomers } from './customerRows';
 
-const MERGE_FILLED = [
-  'firstName',
-  'middleName',
-  'lastName',
-  'avatarUrl',
-  'sex',
-  'birthDate',
-  'position',
-  'department',
-  'code',
-  'description',
-  'ownerId',
-] as const;
+/** Fields taken whole from one customer; emails and phones are combined. */
+const MERGE_FILLED = CUSTOMER_MERGE_FIELDS.filter(
+  (field) => field !== 'primaryEmail' && field !== 'primaryPhone',
+);
 
 /**
  * Accounts move to the kept customer. Where the kept customer already has an
@@ -117,19 +110,25 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
 };
 
 /** The kept customer's columns after the merge. */
-const mergedColumns = (keep: CustomerRow, others: CustomerRow[]) => {
+const mergedColumns = (
+  keep: CustomerRow,
+  others: CustomerRow[],
+  picks: CustomerMerge['fields'],
+) => {
   const email = combineContacts(
     { primary: keep.primaryEmail, list: keep.emails },
     others.map((other) => ({ primary: other.primaryEmail, list: other.emails })),
+    pickedRow(keep, others, picks.primaryEmail).primaryEmail,
   );
 
   const phone = combineContacts(
     { primary: keep.primaryPhone, list: keep.phones },
     others.map((other) => ({ primary: other.primaryPhone, list: other.phones })),
+    pickedRow(keep, others, picks.primaryPhone).primaryPhone,
   );
 
   return {
-    ...fillEmpty(keep, others, MERGE_FILLED),
+    ...pickFields(keep, others, MERGE_FILLED, picks),
     state: [keep, ...others].some((row) => row.state === 'customer')
       ? ('customer' as const)
       : ('lead' as const),
@@ -147,12 +146,13 @@ const mergedColumns = (keep: CustomerRow, others: CustomerRow[]) => {
 };
 
 /**
- * Merges customers into `keepId`: its empty fields are filled from the others
+ * Merges customers into `keepId`: each field in `fields` takes the value of
+ * the customer picked for it, other empty fields are filled from the others
  * (in the given order), emails, phones, tags and companies are combined,
  * custom field values are added where it has none, and the others are deleted.
  * Their ids keep resolving to the kept customer (`mergedIds`).
  */
-export const mergeCustomers = async (input: { ids: string[]; keepId: string }) => {
+export const mergeCustomers = async (input: CustomerMerge) => {
   const ids = unique(input.ids);
 
   if (ids.length < 2) {
@@ -183,7 +183,10 @@ export const mergeCustomers = async (input: { ids: string[]; keepId: string }) =
   // Deleting first frees their primary email and phone for the kept customer.
   await tx.delete(customers).where(inArray(customers.id, otherIds));
 
-  await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(keep.id));
+  await tx
+    .update(customers)
+    .set(mergedColumns(keep, others, input.fields))
+    .where(inOrg(keep.id));
 
   const combined = combineCustomFields(
     keep.customFields,

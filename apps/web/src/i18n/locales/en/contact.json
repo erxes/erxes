@@ -23,8 +23,8 @@
       "company": "Merge {{total}} companies"
     },
     "description": {
-      "customer": "Choose the customer to keep. Its empty fields are filled from the others; emails, phones, tags and links are combined. The others are deleted, and their links open the kept one.",
-      "company": "Choose the company to keep. Its empty fields are filled from the others; emails, phones, tags and links are combined. The others are deleted, and their links open the kept one."
+      "customer": "Choose the customer to keep, then click the value each field should keep. Emails, phones, tags and links are combined. The others are deleted, and their links open the kept one.",
+      "company": "Choose the company to keep, then click the value each field should keep. Emails, phones, names, tags and links are combined. The others are deleted, and their links open the kept one."
     },
     "legend": {
       "customer": "The customer to keep",

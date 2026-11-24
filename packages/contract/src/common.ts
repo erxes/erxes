@@ -82,6 +82,21 @@ export const IdList = z
       .slice(0, 100),
   );
 
+/**
+ * Records to merge into `keepId`. A merge input extends it with `fields`: the
+ * record each field's value comes from, checked by `namesMerged`.
+ */
+export const MergeIds = z.object({ ids: z.array(Id).min(2).max(10), keepId: Id });
+
+export const MERGE_IDS_MESSAGE = 'keepId and every fields value must be one of ids';
+
+/** `keepId` and the record picked for each field are among the merged ones. */
+export const namesMerged = (value: {
+  ids: string[];
+  keepId: string;
+  fields: Partial<Record<string, string>>;
+}) => [value.keepId, ...Object.values(value.fields)].every((id) => id && value.ids.includes(id));
+
 /** `INVALID_INPUT`'s `data`: what failed the contract, field by field. */
 export const InvalidInput = z.object({
   issues: z.array(z.object({ path: z.array(z.union([z.string(), z.int()])), message: z.string() })),

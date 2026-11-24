@@ -1,4 +1,4 @@
-import { CUSTOMER_STATES } from '@erxes/core-db/enums';
+import { CUSTOMER_MERGE_FIELDS, CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { companies, customerCompanies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -19,6 +19,9 @@ import {
   ImageAddress,
   isoDate,
   listOf,
+  MERGE_IDS_MESSAGE,
+  MergeIds,
+  namesMerged,
 } from './common';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 
@@ -159,9 +162,16 @@ const ID = z.object({ id: Id });
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 const Ids = z.object({ ids: z.array(Id).min(1).max(100) });
 
-const MergeInput = z
-  .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
-  .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
+/** Fields whose value a merge can take from any of the merged customers. */
+export const CustomerMergeField = z.enum(CUSTOMER_MERGE_FIELDS);
+
+export type CustomerMergeField = z.infer<typeof CustomerMergeField>;
+
+const MergeInput = MergeIds.extend({
+  fields: z.partialRecord(CustomerMergeField, Id).default({}),
+}).refine(namesMerged, MERGE_IDS_MESSAGE);
+
+export type CustomerMerge = z.infer<typeof MergeInput>;
 
 /** Tags to add to and remove from some customers or companies. */
 export const TagChange = z.object({
@@ -295,7 +305,7 @@ export const customersContract = {
       path: '/customers/merge',
       summary: 'Merge customers',
       description:
-        'Merge customers into `keepId`: empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
+        'Merge customers into `keepId`: each field in `fields` takes that customer’s value, other empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
     })
     .input(MergeInput)
     .output(Customer),

@@ -27,6 +27,38 @@ export const CUSTOMER_STATES = ['lead', 'customer'] as const;
 /** ISO/IEC 5218: not known, male, female, not applicable. */
 export const CUSTOMER_SEXES = [0, 1, 2, 9] as const;
 
+/** Customer fields a merge can take from any of the merged customers. */
+export const CUSTOMER_MERGE_FIELDS = [
+  'firstName',
+  'middleName',
+  'lastName',
+  'avatarUrl',
+  'primaryEmail',
+  'primaryPhone',
+  'sex',
+  'birthDate',
+  'position',
+  'department',
+  'code',
+  'description',
+  'ownerId',
+] as const;
+
+/** Company fields a merge can take from any of the merged companies. */
+export const COMPANY_MERGE_FIELDS = [
+  'primaryName',
+  'avatarUrl',
+  'primaryEmail',
+  'primaryPhone',
+  'website',
+  'industry',
+  'size',
+  'businessType',
+  'code',
+  'description',
+  'ownerId',
+] as const;
+
 /** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: not a fit (lost). */
 export const LEAD_STAGE_KINDS = ['open', 'qualified', 'disqualified'] as const;
 
