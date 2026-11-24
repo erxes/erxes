@@ -13,7 +13,7 @@ import { jsonOf } from '~/modules/apiTools/results';
 import { sanitizeProviderMessage } from '~/modules/assistant/providers';
 import { answerText, toolCallsOf } from './agent';
 import { RUN_ENTRIES_MAX, runEntries } from './blocks';
-import { openAgentStorage } from './storage';
+import { readAgentStorage } from './storage';
 import { agentTool } from './tool';
 
 const HAND_OFF = 'handOff';
@@ -52,6 +52,9 @@ export const handOffTool = agentTool({
 
 const ApiTool = AgentCall.shape.tool;
 
+/** What the agent reads in place of a call once `FAILURES_MAX` calls failed. */
+const BLOCKED = `${FAILURES_MAX} calls failed for this message, so no more calls: call ${HAND_OFF} now.`;
+
 const CallInput = z.object({ procedure: z.string().optional(), query: z.string().optional() });
 
 const Refused = z.object({
@@ -85,6 +88,7 @@ const callsOf = (entries: readonly EntryRecord[]) => {
     const result = results.get(call.id);
     const text = result ? textOf(result.content) : '';
     const refused = Refused.safeParse(jsonOf(text)).data;
+    const blocked = text.includes(BLOCKED);
     const failed = Boolean(result?.isError) || refused !== undefined;
 
     return [
@@ -95,14 +99,17 @@ const callsOf = (entries: readonly EntryRecord[]) => {
         query: tool === 'searchApi' ? (input?.query ?? null) : null,
         ok: !failed,
         status: refused?.status ?? null,
-        code: refused?.code ?? (failed ? 'ERROR' : null),
-        message: refused?.message ?? (failed ? text.slice(0, MESSAGE_MAX) : null),
+        code: refused?.code ?? (blocked ? 'BLOCKED' : failed ? 'ERROR' : null),
+        message:
+          refused?.message ?? (blocked ? BLOCKED : failed ? text.slice(0, MESSAGE_MAX) : null),
       },
     ];
   });
 };
 
-const failuresIn = (entries: readonly EntryRecord[]) => callsOf(entries).filter((call) => !call.ok);
+/** The calls that failed, not those the guard stopped before they ran. */
+const failuresIn = (entries: readonly EntryRecord[]) =>
+  callsOf(entries).filter((call) => !call.ok && call.code !== 'BLOCKED');
 
 /**
  * Why a run gave the conversation to a person, and the line the customer reads: the agent's
@@ -154,11 +161,7 @@ export const failureGuard = hook(ToolTask, {
     const input = items.findIndex(isInput);
     const failed = failuresIn(input === -1 ? items : items.slice(0, input)).length;
 
-    return failed >= FAILURES_MAX
-      ? {
-          block: `${failed} calls failed for this message, so no more calls: call ${HAND_OFF} now.`,
-        }
-      : undefined;
+    return failed >= FAILURES_MAX ? { block: BLOCKED } : undefined;
   },
 });
 
@@ -229,7 +232,9 @@ const runOf = (input: Input, entries: readonly EntryRecord[]) => {
  * the server that runs it may be another.
  */
 export const conversationRuns = async (orgId: string, storageKey: string) => {
-  const storage = await openAgentStorage(orgId, storageKey, { readOnly: true });
+  const storage = await readAgentStorage(orgId, storageKey);
+
+  if (!storage) return [];
   const conversationId = ROOT_CONVERSATION_ID;
 
   try {

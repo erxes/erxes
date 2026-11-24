@@ -171,4 +171,44 @@ describe('assistant AI providers, models and settings', () => {
 
     await t.owner().roles.update({ key: 'member', permissions: role?.permissions ?? [] });
   });
+
+  it("shows an agent's model, the organisation's default too, and why the provider refused a run", async () => {
+    const owner = t.owner();
+
+    await owner.assistant.updateSettings({ defaultProvider: 'kimi', defaultModel: 'kimi-k3' });
+
+    const { id } = await owner.agents.create({
+      name: 'Greeter',
+      instructions: 'Greet people.',
+      access: { areas: { products: 'read' } },
+    });
+
+    expect(await owner.agents.get({ id })).toMatchObject({
+      provider: null,
+      runsOn: { provider: 'kimi', model: 'kimi-k3' },
+      plugins: [],
+    });
+
+    model.script(() => ({ text: 'Hello!' }));
+
+    expect(await owner.agents.try({ id, text: 'Hi', restart: true })).toMatchObject({
+      answer: 'Hello!',
+      model: 'kimi-k3',
+      handedOff: null,
+    });
+
+    model.script(() => ({ status: 402, error: 'Insufficient balance on this account' }));
+
+    const refused = owner.agents.try({ id, text: 'Hi again' });
+
+    await expect(refused).rejects.toMatchObject({ status: 502, code: 'AGENT_RUN_FAILED' });
+    await expect(refused).rejects.toThrow('no credit left');
+
+    const [run] = (await owner.agents.runs({ id })).data[0]?.runs ?? [];
+
+    expect(run).toMatchObject({ text: 'Hi again', status: 'failed' });
+    expect(run?.failure).toContain('Insufficient balance');
+    await expect(t.other().agents.runs({ id })).rejects.toMatchObject({ status: 404 });
+    await owner.assistant.updateSettings({ defaultProvider: null, defaultModel: null });
+  });
 });
