@@ -58,17 +58,21 @@ const submitToAgent = async ({ id, key, customerId, text, requestId }: Submit) =
   return { ok: true as const };
 };
 
-/** A member tries an agent from its page: their own conversation with it, as the agent. */
+/**
+ * A member tries an agent from its page: their own conversation with it, as the agent. The run
+ * goes on outside the request's transaction, as a plugin's does, since its tools call out.
+ */
 const tryAgent = async (id: string, text: string, restart: boolean) => {
   const { userId } = sessionMember();
   const orgId = requestOrgId();
-
-  await agentOrThrow(db(), id);
-
   const agent = agentNamed(madeAgentName(id));
   const scope = { orgId, key: `try-${userId}` };
 
-  if (restart) await removeConversation(db(), agent, scope);
+  await withOrg(orgId, async (tx) => {
+    await agentOrThrow(tx, id);
+
+    if (restart) await removeConversation(tx, agent, scope);
+  });
 
   return askAgent(agent, scope, text).catch(busy);
 };
@@ -85,6 +89,6 @@ export const agentsRouter = {
     updateAgent(db(), id, input),
   ),
   remove: scoped.agents.remove.handler(({ input }) => removeAgent(db(), input.id)),
-  try: scoped.agents.try.handler(({ input }) => tryAgent(input.id, input.text, input.restart)),
+  try: unscoped.agents.try.handler(({ input }) => tryAgent(input.id, input.text, input.restart)),
   submit: unscoped.agents.submit.handler(({ input }) => submitToAgent(input)),
 };
