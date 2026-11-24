@@ -15,8 +15,9 @@
 #   daily flows (e2e/playwright.config.ts) on the other.
 # - push: on the default branch, the tested image to docker.io/erxes/<repository>.
 #
-# Caches are written only by pushes to the default branch and read by everything else: a pull
-# request's writes would evict the default branch's entries from the repository's 10 GB.
+# Caches are written by pushes to the default branch and by manual runs, and read by everything
+# else: a pull request's writes would evict the default branch's entries from the repository's
+# 10 GB.
 name: Plugin CI
 
 on:
@@ -29,7 +30,8 @@ env:
   # The plugin's image as the stack runs it and the push job loads it.
   IMAGE: ${{ github.event.repository.name }}:ci
   DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
-  WRITE_CACHE: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+  PUSH: ${{ github.repository_owner == 'erxes' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+  WRITE_CACHE: ${{ (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch) || github.event_name == 'workflow_dispatch' }}
   VP_GIT_HOOKS: '0'
 
 jobs:
@@ -351,9 +353,9 @@ jobs:
           smoke-compose logs --no-color --tail 300 || true
           docker compose logs --no-color --tail 300 || true
       - name: Keep the tested image for the push
-        if: env.WRITE_CACHE == 'true'
+        if: env.PUSH == 'true'
         run: docker save "$IMAGE" | gzip -1 > image.tar.gz
-      - if: env.WRITE_CACHE == 'true'
+      - if: env.PUSH == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: image
