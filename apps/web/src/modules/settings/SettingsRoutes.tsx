@@ -47,6 +47,11 @@ const AgentPage = lazyNamed(() => import('./agents/AgentPage'), 'AgentPage');
 
 const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
 
+const SupportAccessPage = lazyNamed(
+  () => import('./support-access/SupportAccessPage'),
+  'SupportAccessPage',
+);
+
 const ExchangeRatesPage = lazyNamed(
   () => import('./exchange-rates/ExchangeRatesPage'),
   'ExchangeRatesPage',
@@ -126,6 +131,7 @@ export const SettingsRoutes = () => (
       />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
+      <Route path="support-access" element={<SupportAccessPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />

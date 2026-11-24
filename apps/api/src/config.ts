@@ -194,6 +194,8 @@ export const config = {
     handoffSecret: env.SAAS_JWT_TOKEN_SECRET,
     /** Days a plugin that left the plan stays read-only before it is turned off. */
     graceDays: env.SAAS_GRACE_DAYS,
+    /** erxes.io's public keys for "Open as support" links (ES256, by `kid`); none: nobody enters. */
+    supportKeys: env.SUPPORT_LOGIN_JWKS,
     /** Where owners manage the subscription; `{subdomain}` is replaced. */
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
   },

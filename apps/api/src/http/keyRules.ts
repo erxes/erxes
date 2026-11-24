@@ -71,6 +71,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   products: 'products',
   roles: 'team',
   saas: 'settings',
+  // Who may enter the organisation as erxes support: owners only, never a key.
+  supportAccess: null,
   search: { lookup: true, writes: 'settings' },
   tags: { lookup: true, writes: 'settings' },
   units: { lookup: true, writes: 'team' },

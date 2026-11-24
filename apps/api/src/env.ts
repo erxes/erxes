@@ -96,6 +96,30 @@ const oauthApps = optional(z.string())
   })
   .pipe(z.record(z.string(), OAuthApp));
 
+/** A P-256 public key erxes.io signs "Open as support" links with; only the public part is kept. */
+const SupportKey = z.object({
+  kty: z.literal('EC'),
+  crv: z.literal('P-256'),
+  kid: z.string().min(1),
+  x: z.string().min(1),
+  y: z.string().min(1),
+});
+
+const supportJwks = optional(z.string()).transform((value, ctx) => {
+  if (!value) return [];
+
+  try {
+    return z.array(SupportKey).parse(JSON.parse(value));
+  } catch {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'SUPPORT_LOGIN_JWKS is JSON: [{"kty":"EC","crv":"P-256","kid":"…","x":"…","y":"…"}]',
+    });
+
+    return z.NEVER;
+  }
+});
+
 const pluginKeys = optional(z.string()).transform((value, ctx) => {
   const keys = new Map<string, string>();
 
@@ -198,6 +222,8 @@ const Env = z
     SAAS_GRACE_DAYS: positive(7),
     SAAS_BILLING_URL: text,
     SAAS_STRIPE_SECRET_KEY: text,
+    // erxes.io's public keys for "Open as support" links: a JSON array of P-256 JWKs with `kid`.
+    SUPPORT_LOGIN_JWKS: supportJwks,
 
     FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
     FILES_LOCAL_DIR: text,

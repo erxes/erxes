@@ -3,6 +3,7 @@ import { MESSAGING_ACCESS } from './messagingPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
+import { SUPPORT_ACCESS } from './supportPolicies';
 
 /**
  * The access map: one entry per procedure, checked before the procedure runs
@@ -291,6 +292,8 @@ export const ACCESS = {
   'automations.cancelRun': needs('automations.manage'),
 
   ...PAYMENT_ACCESS,
+
+  ...SUPPORT_ACCESS,
 
   'products.list': { member: 'any', plugin: 'products:read' },
   'products.get': { member: 'any', plugin: 'products:read' },

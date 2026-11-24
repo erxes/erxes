@@ -222,6 +222,7 @@ export const getSession = async (orgId: string, userId: string) =>
       permissions: await effectivePermissions(tx, {
         role: row.user.role,
         permissions: row.permissions,
+        ...(row.user.isSupport ? { support: true } : {}),
       }),
       hasPassword: row.hasPassword,
     };

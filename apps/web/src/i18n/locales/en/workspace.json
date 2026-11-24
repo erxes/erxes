@@ -346,5 +346,25 @@
       "ebarimt": "eBarimt",
       "settings": "Settings"
     }
+  },
+  "support": {
+    "title": "Support access",
+    "failed": "Couldn't save",
+    "switch": "Let erxes support in",
+    "switch-description": "erxes staff open your workspace from erxes.io when you ask them for help. They act as an owner for 4 hours, but can’t change team members, roles, API keys or audit settings. You get an email each time.",
+    "off": "Off: erxes support can’t enter, even when you ask them for help.",
+    "unavailable": "This server doesn’t take erxes support visits.",
+    "visits": "Visits",
+    "in-progress": "In progress",
+    "ended": "Ended",
+    "started-until": "{{start}}, until {{end}}",
+    "started-ended": "{{start}} to {{end}}",
+    "end": "End visit",
+    "no-visits": "erxes support hasn’t visited yet",
+    "no-visits-description": "Each visit shows here, with who came in and why.",
+    "more": "Show older visits",
+    "banner-self": "You’re in as erxes support until {{until}}. Team members, roles, API keys and audit settings are closed to you.",
+    "banner-owner": "erxes support is in your workspace: {{names}}, until {{until}}.",
+    "banner-manage": "See or end the visit"
   }
 }

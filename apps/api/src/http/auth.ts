@@ -6,10 +6,11 @@ import {
   pluginInstallations,
   plugins,
   roles,
+  supportVisits,
   users,
   withOrg,
 } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, exists, sql } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { decodeProtectedHeader } from 'jose';
 import { z } from 'zod';
@@ -25,6 +26,7 @@ import { requestedScopes } from '~/modules/plugins/requestedScopes';
 import { livePortal } from '~/modules/customerAuth/customerPortals';
 import { portalClaimsOfCall } from '~/modules/customerAuth/portalCalls';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
+import { visitInProgress } from '~/modules/supportAccess/visits';
 
 declare global {
   namespace Express {
@@ -81,7 +83,8 @@ const isCrossSiteWrite = (req: Request) => {
 /**
  * The member a token names, if still active at the token's session version,
  * with their role's permissions. Role and status are read on every request,
- * so a disabled member or a role change applies at once.
+ * so a disabled member or a role change applies at once. erxes support counts
+ * only while their visit lasts: its end cuts off every session, key and app.
  */
 export const memberOf = async (orgId: string, userId: string, sessionVersion?: number) => {
   const [user] = await withOrg(orgId, (tx) =>
@@ -93,6 +96,13 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
         canSignIn: users.canSignIn,
         sessionVersion: users.sessionVersion,
         permissions: roles.permissions,
+        isSupport: users.isSupport,
+        onVisit: sql<boolean>`${users.isSupport} and ${exists(
+          tx
+            .select({ id: supportVisits.id })
+            .from(supportVisits)
+            .where(and(eq(supportVisits.userId, users.id), visitInProgress)),
+        )}`,
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
@@ -106,11 +116,14 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
 
   if (sessionVersion !== undefined && user.sessionVersion !== sessionVersion) return null;
 
+  if (user.isSupport && !user.onVisit) return null;
+
   return {
     type: 'user',
     userId: user.id,
     role: user.role,
     permissions: user.permissions,
+    ...(user.isSupport ? { support: true } : {}),
   } satisfies Caller;
 };
 

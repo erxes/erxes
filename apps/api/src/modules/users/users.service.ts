@@ -72,9 +72,10 @@ export const listUsers = async (
     filters.push(allowedTo(client, query.permission));
   }
 
-  if (query.ids) {
-    filters.push(inArray(users.id, query.ids.length ? query.ids : ['']));
-  }
+  // erxes support is not on the team, but records they touched still name them by id.
+  filters.push(
+    query.ids ? inArray(users.id, query.ids.length ? query.ids : ['']) : eq(users.isSupport, false),
+  );
 
   if (query.search) {
     filters.push(userSearch(query.search));

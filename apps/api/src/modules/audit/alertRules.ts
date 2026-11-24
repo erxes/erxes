@@ -1,3 +1,4 @@
+import { SUPPORT_VISIT_HOURS } from '@erxes/core-contract';
 import type { auditLogs } from '@erxes/core-db';
 import { z } from 'zod';
 
@@ -62,6 +63,8 @@ const roleAfter = (changes: AuditInput['changes']) => {
 
 const ConnectionUpdate = z.object({ credentialsChanged: z.boolean().optional() });
 
+const SupportVisitEntry = z.object({ reason: z.string() });
+
 const streamChanged: OwnerRule = (label, entry) => ({
   title: `Audit log streaming to ${label} was ${entry.action.slice('audit.stream_'.length)}`,
   body: (by) => `By ${by}.`,
@@ -72,7 +75,8 @@ const streamChanged: OwnerRule = (label, entry) => ({
 /**
  * Rules that tell the owners, by risk. By email too: two-step sign-in turned
  * off; someone made owner or admin; audit retention changed; audit streaming
- * changed or stopped; a payment gateway connected or its credentials changed.
+ * changed or stopped; a payment gateway connected or its credentials changed;
+ * erxes support entered.
  * In erxes only: audit exported, a webhook created (data leaves erxes), a
  * role's permissions changed.
  */
@@ -144,5 +148,12 @@ export const OWNER_RULES: Record<string, OwnerRule> = {
     body: (by) => `By ${by}.`,
     link: '/settings/roles',
     email: false,
+  }),
+  'support.entered': (label, entry) => ({
+    title: `erxes support entered your workspace: ${label}`,
+    body: () =>
+      `Reason: ${SupportVisitEntry.safeParse(entry.metadata).data?.reason ?? 'not given'}. They act as an owner for ${SUPPORT_VISIT_HOURS} hours; see or end the visit in Settings › Support access.`,
+    link: '/settings/support-access',
+    email: true,
   }),
 };

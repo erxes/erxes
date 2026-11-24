@@ -52,6 +52,7 @@ import {
 } from '~/modules/portals/portals.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
 import { searchRouter } from '~/modules/search/search.router';
+import { supportAccessRouter } from '~/modules/supportAccess/supportAccess.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
 import { unitTypesRouter, unitsRouter } from '~/modules/units/units.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
@@ -105,6 +106,7 @@ export const coreRouter = unscoped.router({
   customerAccounts: customerAccountsRouter,
   companies: companiesRouter,
   search: searchRouter,
+  supportAccess: supportAccessRouter,
   tags: tagsRouter,
   units: unitsRouter,
   unitTypes: unitTypesRouter,

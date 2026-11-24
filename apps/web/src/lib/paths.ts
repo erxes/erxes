@@ -77,6 +77,7 @@ export const paths = {
     fileUpload: '/settings/file-upload',
     plugins: '/settings/plugins',
     plan: '/settings/plan',
+    supportAccess: '/settings/support-access',
     recycleBin: '/settings/recycle-bin',
     payments: '/settings/payments',
     integrations: '/settings/integrations',

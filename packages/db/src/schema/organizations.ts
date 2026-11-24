@@ -14,6 +14,10 @@ export interface OrganizationSettings {
     /** How long audit entries are kept; at most the deployment's AUDIT_RETENTION_DAYS. */
     retentionDays?: number;
   };
+  /** Whether erxes support may enter (SaaS): on unless an owner turned it off. */
+  supportAccess?: {
+    enabled: boolean;
+  };
 }
 
 /**

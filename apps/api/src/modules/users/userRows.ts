@@ -59,13 +59,15 @@ export const findUser = async (client: Db, id: string, lock = false) => {
 
 /**
  * The members whose role allows `action`, decided as `can` does: owners may do
- * everything, `*` covers every action that isn't owner-only.
+ * everything, `*` covers every action that isn't owner-only. erxes support is
+ * never among them: they visit, nobody routes work to them.
  */
 export const allowedTo = (client: Db, action: string) => {
   const isOwner = eq(users.role, 'owner');
+  const onTeam = eq(users.isSupport, false);
 
   if (OWNER_ONLY_PERMISSIONS.includes(action)) {
-    return isOwner;
+    return and(onTeam, isOwner);
   }
 
   const granted = client
@@ -79,15 +81,22 @@ export const allowedTo = (client: Db, action: string) => {
       ),
     );
 
-  return or(isOwner, exists(granted));
+  return and(onTeam, or(isOwner, exists(granted)));
 };
 
-/** Other active owners besides `exceptId` (an organisation always keeps one). */
+/** Other active owners on the team besides `exceptId` (an organisation always keeps one). */
 export const otherActiveOwners = async (client: Db, exceptId: string) => {
   const [result] = await client
     .select({ total: count() })
     .from(users)
-    .where(and(eq(users.role, 'owner'), eq(users.status, 'active'), ne(users.id, exceptId)));
+    .where(
+      and(
+        eq(users.role, 'owner'),
+        eq(users.status, 'active'),
+        eq(users.isSupport, false),
+        ne(users.id, exceptId),
+      ),
+    );
 
   return result?.total ?? 0;
 };

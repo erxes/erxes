@@ -9,6 +9,7 @@ import { useImportantToasts } from '~/modules/notifications/useImportantToasts';
 import { usePluginTranslations } from '~/modules/plugins/pluginText';
 import { CoreTab } from '~/modules/navigation/CoreTab';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
+import { SupportBanner } from '~/modules/saas/SupportBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
 import { PanelRecordOpener } from '~/modules/side-panel/PanelRecordOpener';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
@@ -51,6 +52,7 @@ export const MainLayout = () => {
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <CoreTab />
         <PlanBanner />
+        <SupportBanner />
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
           <main
             id="main-content"
