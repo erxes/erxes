@@ -4,6 +4,8 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
+const CALL_CONFIGS_POLL_MS = 60 * 60 * 1000;
+
 export const useCallGetConfigs = ({
   skip = false,
 }: { skip?: boolean } = {}) => {
@@ -12,6 +14,9 @@ export const useCallGetConfigs = ({
   });
   const { data, loading } = useQuery(CALL_GET_CONFIGS, {
     skip,
+    // TURN credentials expire within a day; tabs and the desktop app stay
+    // open overnight, so refresh them hourly.
+    pollInterval: CALL_CONFIGS_POLL_MS,
     onError: (e) => {
       toast({
         title: t('something-went-wrong-getting-configs'),

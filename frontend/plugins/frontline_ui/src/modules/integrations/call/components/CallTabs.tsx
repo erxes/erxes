@@ -86,7 +86,8 @@ export const Dialpad = ({ addCustomer }: { addCustomer: TAddCallCustomer }) => {
 
   const canCall =
     !!phoneNumber &&
-    sipState.sipStatus === SipStatusEnum.REGISTERED &&
+    (sipState.sipStatus === SipStatusEnum.CONNECTED ||
+      sipState.sipStatus === SipStatusEnum.REGISTERED) &&
     sipState.callStatus === CallStatusEnum.IDLE;
 
   const call = () => {

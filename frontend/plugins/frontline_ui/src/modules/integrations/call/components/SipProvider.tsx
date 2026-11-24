@@ -41,6 +41,7 @@ import { refetchCallHistories } from '@/integrations/call/hooks/useCallHistories
 
 const ICE_GATHERING_SETTLE_MS = 1000;
 const ICE_GATHERING_MAX_MS = 1500;
+const ICE_RELAY_GRACE_MS = 250;
 const DEFAULT_EXTRA_HEADERS: ExtraHeaders = { register: [], invite: [] };
 const NO_ICE_SERVERS: RTCIceServer[] = [];
 
@@ -74,11 +75,6 @@ declare global {
     };
   }
 }
-
-const countTurnUrls = (iceServers: RTCIceServer[]) =>
-  iceServers
-    .flatMap(({ urls }) => (Array.isArray(urls) ? urls : [urls]))
-    .filter((url) => /^turns?:/i.test(url)).length;
 
 const SipContext = createContext<SipContextValue | null>(null);
 
@@ -229,9 +225,15 @@ export const SipProvider = ({
       });
     } catch (error) {
       logger.error(error);
+      // A half-answered session would keep rejecting new calls with 486.
+      try {
+        session.terminate({ status_code: 480 });
+      } catch {
+        clearSession(session);
+      }
       if (answeringSessionRef.current === session) setAnswering(null);
     }
-  }, [setAnswering]);
+  }, [clearSession, setAnswering]);
 
   const startCall = useCallback(
     (destination: string) => {
@@ -333,20 +335,20 @@ export const SipProvider = ({
     [],
   );
 
-  // Sends the SDP early: once every TURN URL gave a relay candidate, one
-  // second after the last candidate, or 1.5s after the first, whichever comes
+  // Sends the SDP early: 250ms after the first relay candidate, else one
+  // second after the last candidate, and never later than 1.5s after the
   // first. Returns the cleanup for the session's end.
   const watchIceGathering = useCallback((rtcSession: RTCSession) => {
     let settleTimer: ReturnType<typeof setTimeout> | undefined;
     let capTimer: ReturnType<typeof setTimeout> | undefined;
     let pendingReady: VoidFunction | null = null;
-    let relayCandidates = 0;
+    let relayArrived = false;
 
     const clear = () => {
       clearTimeout(settleTimer);
       clearTimeout(capTimer);
       pendingReady = null;
-      relayCandidates = 0;
+      relayArrived = false;
     };
     const finish = () => {
       const ready = pendingReady;
@@ -360,15 +362,13 @@ export const SipProvider = ({
         pendingReady = ready;
         capTimer = setTimeout(finish, ICE_GATHERING_MAX_MS);
       }
+      // Once a relay is in hand, the grace timer runs out undisturbed.
+      if (relayArrived) return;
       clearTimeout(settleTimer);
       if (candidate.type === 'relay') {
-        relayCandidates += 1;
-        if (
-          relayCandidates >= Math.max(1, countTurnUrls(iceServersRef.current))
-        ) {
-          finish();
-          return;
-        }
+        relayArrived = true;
+        settleTimer = setTimeout(finish, ICE_RELAY_GRACE_MS);
+        return;
       }
       settleTimer = setTimeout(finish, ICE_GATHERING_SETTLE_MS);
     });
@@ -689,7 +689,8 @@ export const SipProvider = ({
     if (command.type === 'dial') {
       setCallNumber(command.number);
       if (
-        sipState.sipStatus === SipStatusEnum.REGISTERED &&
+        (sipState.sipStatus === SipStatusEnum.CONNECTED ||
+          sipState.sipStatus === SipStatusEnum.REGISTERED) &&
         sipState.callStatus === CallStatusEnum.IDLE
       ) {
         startCall(command.number);

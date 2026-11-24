@@ -357,19 +357,25 @@
   keeps the first non-empty name.
 - `SipProvider` never lets JsSIP wait for ICE gathering to finish on its own.
   Every `newRTCSession` subscribes to the session's `icecandidate` event and
-  calls its `ready()` once every TURN URL in `iceServers` has produced a
-  `relay` candidate, one second after the last candidate, or 1.5 seconds after
-  the first candidate, whichever comes first, so the answer or offer SDP leaves
-  at once. Its timers are cleared when the session ends. Without this, Windows
+  calls its `ready()` 250 ms after the first `relay` candidate, otherwise one
+  second after the last candidate, and never later than 1.5 seconds after the
+  first candidate, so the answer or offer SDP leaves at once. It does not wait
+  for every TURN URL: Cloudflare returns 4 to 6, and one blocked transport
+  would add 1 to 1.5 seconds. Its timers are cleared when the session ends. Without this, Windows
   hosts with Hyper-V `vEthernet` or VPN adapters keep ringing 40–50 seconds
   after Answer while the browser times out on interfaces that never reply to
   STUN/TURN. Keep the early `ready()` when changing call setup.
 - `SipContainer` builds `iceServers` from `callsGetConfigs`: the
-  `ICE_SERVERS` code holds a JSON `RTCIceServer[]` (each entry needs a
-  non-empty `urls`) for several TURN/STUN servers; when it is absent or
-  invalid, the legacy `TURN_SERVER_URL` (with `TURN_SERVER_USERNAME` and
+  `ICE_SERVERS` code holds a JSON `RTCIceServer[]` for several TURN/STUN
+  servers. Every URL must start with `stun:`, `stuns:`, `turn:` or
+  `turns:`, and an entry with a TURN URL needs a non-empty `username` and
+  `credential`; when the value is absent or any entry fails, the legacy `TURN_SERVER_URL` (with `TURN_SERVER_USERNAME` and
   `TURN_SERVER_CREDENTIAL`) and `STUN_SERVER_URL` codes apply. `iceServers`
   and the SIP config are memoized so `SipProvider`'s context stays stable.
+  `useCallGetConfigs` polls hourly because Cloudflare TURN credentials expire
+  within 24 hours and tabs and the desktop app stay open overnight; only the
+  first load gates rendering, so a poll never unmounts `SipProvider`. New
+  credentials apply from the next call without restarting the UA.
   A persisted `callConfigAtom` whose `inboxId` is not among
   `callUserIntegrations` reopens the call config picker.
 - `SipProvider` owns one call at a time through `rtcSessionRef`, kept in
@@ -392,7 +398,9 @@
   directions, bound when the session starts or on its `peerconnection`
   event, and plays immediately. `answerCall` is guarded per session by
   `answeringSessionRef`; `useSip().answering` disables Answer until the
-  session is accepted, fails or ends, and a throwing `answer()` clears it.
+  session is accepted, fails or ends. A throwing `answer()` terminates the
+  session with 480 and clears the guard, so a half-answered session cannot keep
+  rejecting new calls with 486.
 - `SipProvider` owns `callDurationAtom` (set on `accepted`, cleared at
   session end), so the trigger and in-call timers never depend on the popover
   being open. Mute and hold state come from the session's `muted`,
@@ -403,8 +411,9 @@
   ended/missed cleanup when a newer session update arrives or it unmounts, and
   refetches call histories on `ended` and `missed`.
 - The dialpad's Call button and Enter in the number input share one handler,
-  enabled only while `sipStatus` is `REGISTERED` and `callStatus` is
-  `IDLE`. Outgoing `callAddCustomer` sends no queue name. Transfer is enabled
+  enabled while `sipStatus` is `CONNECTED` or `REGISTERED`, as
+  `startCall` allows, and `callStatus` is `IDLE`, so an operator who turned off
+  queue calls can still dial out. Outgoing `callAddCustomer` sends no queue name. Transfer is enabled
   only while the call is `ACTIVE` and disables its submit while the mutation
   is in flight.
 - `useAddCallCustomer.addCustomer` is stable, blanks the previous caller and
@@ -1099,7 +1108,7 @@ owns the setup form and connection actions.
   queues: [] })` on every phone change and `phone(null)` on unmount, and runs
   `onCommand` commands `answer`, `hangUp`, `mute`, `hold` (both toggle),
   `dial` (fills the number, opens the widget and dials when idle and
-  registered) and `openPhone`. `name` is always `null` and `queues` empty;
+  connected or registered) and `openPhone`. `name` is always `null` and `queues` empty;
   the provider knows neither.
 
 - `./frontline` retains its federation path and loads the named `Frontline`

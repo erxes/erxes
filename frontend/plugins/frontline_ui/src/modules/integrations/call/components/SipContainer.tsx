@@ -12,15 +12,27 @@ const CallSessionBridge = () => {
   return null;
 };
 
+const isFilled = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim() !== '';
+
+// Every URL must be STUN or TURN, and a TURN server needs its credentials.
 const isIceServer = (value: unknown): value is RTCIceServer => {
   if (typeof value !== 'object' || value === null || !('urls' in value)) {
     return false;
   }
-  const { urls } = value;
-  const isUrl = (url: unknown) => typeof url === 'string' && url.trim() !== '';
-  return Array.isArray(urls)
-    ? urls.length > 0 && urls.every(isUrl)
-    : isUrl(urls);
+  const urls: unknown[] = Array.isArray(value.urls) ? value.urls : [value.urls];
+  const validUrls =
+    urls.length > 0 &&
+    urls.every((url) => isFilled(url) && /^(stuns?|turns?):/i.test(url));
+  if (!validUrls) return false;
+  const isTurn = urls.some((url) => isFilled(url) && /^turns?:/i.test(url));
+  return (
+    !isTurn ||
+    ('username' in value &&
+      isFilled(value.username) &&
+      'credential' in value &&
+      isFilled(value.credential))
+  );
 };
 
 // `ICE_SERVERS` holds a JSON `RTCIceServer[]`, which may list several TURN
@@ -88,9 +100,11 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
       !!callConfig?.inboxId && integration.inboxId === callConfig.inboxId,
   );
 
+  // Hourly config polls must not unmount SipProvider, so only the first
+  // load gates rendering.
   if (
     callUserIntegrationLoading ||
-    callConfigLoading ||
+    (callConfigLoading && !Object.values(callConfigs).length) ||
     !callUserIntegrations?.length ||
     !Object.values(callConfigs).length
   ) {
