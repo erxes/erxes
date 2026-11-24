@@ -682,6 +682,10 @@ const command = async () => {
     await client.connect();
 
     const db = client.db();
+    console.log(
+      `[START] Connected to MongoDB database "${db.databaseName}". Starting contact fields migration${DRY_RUN ? ' (dry run)' : ''}.`,
+    );
+
     const collections = new Set(
       (await db.listCollections({}, { nameOnly: true }).toArray()).map(
         ({ name }) => name,
