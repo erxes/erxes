@@ -153,7 +153,8 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       const to = (text(ctx.input.to) ?? '').trim();
       const recipients = recipientsOf(ctx, 'to');
 
-      if (!recipients.length) return { sent: 0, reason: 'no email address' };
+      if (!recipients.length)
+        return { sent: 0, held: 0, suppressed: 0, reason: 'no email address' };
 
       const data = {
         subject: (text(ctx.input.subject) ?? '').slice(0, 200),

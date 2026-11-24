@@ -528,16 +528,6 @@
         }
       }
     },
-    "stats": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/automations/{id}/stats"
-        }
-      }
-    },
     "versions": {
       "~orpc": {
         "errorMap": {},
@@ -585,6 +575,26 @@
         "route": {
           "method": "DELETE",
           "path": "/automations/{id}"
+        }
+      }
+    },
+    "outputs": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/{id}/outputs"
+        }
+      }
+    },
+    "stats": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/{id}/stats"
         }
       }
     },
