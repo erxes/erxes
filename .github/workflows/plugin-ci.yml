@@ -11,9 +11,10 @@
 #   no critical advisory in production dependencies.
 # - integration: `pnpm check:rls` and `vp run test` on Postgres; a pull request runs the test files
 #   its changes reach (`--changed`), a push every file.
-# - stack: the image, its Trivy scan and, with deploy/docker-compose.yml, core's published
-#   images plus the plugin started twice: the smoke test and core's tenancy guard on one, the
-#   daily flows (e2e/playwright.config.ts) on the other.
+# - image: the image, its Trivy scan and, with deploy/docker-compose.yml, the smoke test and
+#   core's tenancy guard on core's published images plus the plugin.
+# - flows: with deploy/docker-compose.yml and e2e/playwright.config.ts, the daily flows split
+#   across one runner for every four spec files, up to four, each with its own stack.
 # - push: on the default branch, the tested image to docker.io/erxes/<repository>.
 #
 # Caches are written by pushes to the default branch and by manual runs, and read by everything
@@ -170,27 +171,24 @@ jobs:
       - name: Tests (each file on its own database, as a role without BYPASSRLS)
         run: pnpm exec vp run test ${{ github.event_name == 'pull_request' && '--changed=HEAD^1 --passWithNoTests' || '' }}
 
-  stack:
-    name: Image, scan, smoke test and daily flows
+  image:
+    name: Image, scan, smoke test and tenancy guard
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       TRIVY: aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
     steps:
+      - name: Pull Trivy in the background
+        run: docker pull --quiet "$TRIVY" > /dev/null 2>&1 &
       - uses: actions/checkout@v7
-      # First, so Trivy and core's images download and core migrates while the job installs and
-      # builds. Two stacks, each on a fresh database: the smoke test sets up its own organisation
-      # (`smoke-compose`, web on :8081), and the daily flows' setup expects a database nobody set
-      # up (`docker compose`, web on :8080).
-      - name: Start core in the background
-        id: stack
+      # First, so core's images download and core migrates while the job installs and builds.
+      # Every service but the plugin's, whose image the job has yet to build.
+      - &core-up
+        name: Start core in the background
+        if: hashFiles('deploy/docker-compose.yml') != ''
         run: |
-          echo "$(nproc) cores, $(free -g | awk '/Mem:/ { print $2 }') GB"
-          docker pull --quiet "$TRIVY" > /dev/null 2>&1 &
-          [ -f deploy/docker-compose.yml ] || { echo 'No deploy/docker-compose.yml: no smoke test or daily flows.'; exit 0; }
-          files=deploy/docker-compose.yml
-          [ -f e2e/compose.yml ] && files+=:e2e/compose.yml
-          export COMPOSE_FILE=$files COMPOSE_ENV_FILES=deploy/.env
+          export COMPOSE_FILE=deploy/docker-compose.yml COMPOSE_ENV_FILES=deploy/.env
+          if [ -f e2e/compose.yml ]; then COMPOSE_FILE+=:e2e/compose.yml; fi
           deploy/make-secrets.sh
           if [ -x deploy/make-env.sh ]; then deploy/make-env.sh; fi
           # The plugin's service runs docker.io/erxes/<repository> unless <SERVICE>_IMAGE says otherwise.
@@ -198,49 +196,39 @@ jobs:
           service=$(jq -r --arg repo "${GITHUB_REPOSITORY#*/}" \
             '.services | to_entries[] | select(.value.image | test("/" + $repo + ":")) | .key' <<< "$config")
           [ -n "$service" ] || { echo "::error file=deploy/docker-compose.yml::no service runs docker.io/erxes/${GITHUB_REPOSITORY#*/}"; exit 1; }
-          port=$(jq -r --arg s "$service" '.services[$s].ports[0].published' <<< "$config")
-          export "${service^^}_IMAGE=$IMAGE"
           {
-            echo "COMPOSE_FILE=$files"
-            echo "COMPOSE_ENV_FILES=deploy/.env"
+            echo "COMPOSE_FILE=$COMPOSE_FILE"
+            echo "COMPOSE_ENV_FILES=$COMPOSE_ENV_FILES"
             echo "${service^^}_IMAGE=$IMAGE"
             echo "PLUGIN_SERVICE=$service"
             # Migrations, the plugin's role and its password: the plugin starts once they are done.
             echo "ONE_SHOTS=$(jq -r '[.services | to_entries[] | select(.value.restart == "no") | .key] | join(" ")' <<< "$config")"
-            echo "PLUGIN_PORT=$port"
-            echo "SMOKE_PLUGIN_PORT=$((port + 10000))"
+            echo "PLUGIN_PORT=$(jq -r --arg s "$service" '.services[$s].ports[0].published' <<< "$config")"
             echo "PLUGIN_ID=$(jq -r '.services["plugin-role"].command[-1]' <<< "$config")"
           } >> "$GITHUB_ENV"
-          printf 'UI_PORT=8081\nAPP_URL=http://localhost:8081\n%s_PORT=%s\n' "${service^^}" "$((port + 10000))" > "$RUNNER_TEMP/smoke.env"
-          mkdir -p "$RUNNER_TEMP/bin"
-          printf '#!/bin/sh\nCOMPOSE_ENV_FILES=deploy/.env,%s exec docker compose -p smoke "$@"\n' "$RUNNER_TEMP/smoke.env" > "$RUNNER_TEMP/bin/smoke-compose"
-          chmod +x "$RUNNER_TEMP/bin/smoke-compose"
-          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
-          echo 'up=true' >> "$GITHUB_OUTPUT"
-          e2e=false
-          if [ -f e2e/playwright.config.ts ]; then e2e=true; echo 'e2e=true' >> "$GITHUB_OUTPUT"; fi
-          # Every service but the plugin's, whose image the job has yet to build.
           mapfile -t core < <(jq -r --arg s "$service" '.services | keys[] | select(. != $s)' <<< "$config")
           {
-            docker compose pull --quiet "${core[@]}"
-            "$RUNNER_TEMP/bin/smoke-compose" up -d "${core[@]}" &
-            if [ "$e2e" = true ]; then docker compose up -d "${core[@]}" & fi
-            wait
-            touch "$RUNNER_TEMP/core-up.done"
-          } > "$RUNNER_TEMP/core-up.log" 2>&1 &
+            status=0
+            docker compose pull --quiet "${core[@]}" && docker compose up -d "${core[@]}" || status=$?
+            echo "$status" > "$RUNNER_TEMP/core-up.status"
+          } > "$RUNNER_TEMP/stack.log" 2>&1 &
       - *pnpm
       - *node
       - *modules-paths
       - *modules-restore
       - *modules-relink
       - *install
-      - name: Build the API and the UI for the image
+      - &image-context
+        name: Build the API and the UI for the image
         run: pnpm image:context
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - &buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           # The runner is thrown away after the job.
           cleanup: false
-      - name: Build the image
+      # Every job builds from the same layer cache; this one writes it.
+      - &build
+        name: Build the image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -248,25 +236,21 @@ jobs:
           tags: ${{ env.IMAGE }}
           build-args: VERSION=${{ github.sha }}
           cache-from: type=gha
-          cache-to: ${{ env.WRITE_CACHE == 'true' && 'type=gha,mode=max' || '' }}
-      - name: Start the plugin in both stacks in the background
-        if: steps.stack.outputs.up
-        env:
-          E2E: ${{ steps.stack.outputs.e2e }}
-        # `up` alone would run the finished one-shot services again, so the plugin starts on its own.
+          cache-to: ${{ env.WRITE_CACHE == 'true' && github.job == 'image' && 'type=gha,mode=max' || '' }}
+      # `up` alone would run the finished one-shot services again, so the plugin starts on its own.
+      - &plugin-up
+        name: Start the plugin in the background
+        if: hashFiles('deploy/docker-compose.yml') != ''
         run: |
-          plugin_up() {
-            while [ -n "$("$@" ps -q --status running $ONE_SHOTS)" ]; do sleep 1; done
-            "$@" up -d --no-deps "$PLUGIN_SERVICE"
-          }
           {
-            until [ -f "$RUNNER_TEMP/core-up.done" ]; do sleep 1; done
-            { plugin_up smoke-compose > "$RUNNER_TEMP/smoke-up.log" 2>&1; echo "$?" > "$RUNNER_TEMP/smoke-up.status"; } &
-            if [ "$E2E" = true ]; then
-              { plugin_up docker compose > "$RUNNER_TEMP/flows-up.log" 2>&1; echo "$?" > "$RUNNER_TEMP/flows-up.status"; } &
+            until [ -f "$RUNNER_TEMP/core-up.status" ]; do sleep 1; done
+            status=$(cat "$RUNNER_TEMP/core-up.status")
+            if [ "$status" = 0 ]; then
+              while [ -n "$ONE_SHOTS" ] && [ -n "$(docker compose ps -q --status running $ONE_SHOTS)" ]; do sleep 1; done
+              docker compose up -d --no-deps "$PLUGIN_SERVICE" || status=$?
             fi
-            wait
-          } > /dev/null 2>&1 &
+            echo "$status" > "$RUNNER_TEMP/up.status"
+          } >> "$RUNNER_TEMP/stack.log" 2>&1 &
       - name: Today's date, which keys Trivy's database
         id: trivy-date
         run: echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
@@ -288,82 +272,30 @@ jobs:
         with:
           path: ${{ runner.temp }}/trivy
           key: ${{ steps.trivy-db.outputs.cache-primary-key }}
+      - &stack-ready
+        name: Wait for the stack
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: |
+          timeout 300 sh -c 'until [ -f "$RUNNER_TEMP/up.status" ]; do sleep 1; done'
+          cat "$RUNNER_TEMP/stack.log"
+          [ "$(cat "$RUNNER_TEMP/up.status")" = 0 ]
+          timeout 180 sh -c "until curl -fsS http://localhost:8080/core/v1/setup > /dev/null && curl -fsS http://localhost:$PLUGIN_PORT/health > /dev/null; do sleep 1; done"
       - name: Smoke test
-        if: steps.stack.outputs.up
-        run: |
-          timeout 300 sh -c 'until [ -f "$RUNNER_TEMP/smoke-up.status" ]; do sleep 1; done'
-          cat "$RUNNER_TEMP/core-up.log" "$RUNNER_TEMP/smoke-up.log"
-          [ "$(cat "$RUNNER_TEMP/smoke-up.status")" = 0 ]
-          deploy/smoke.sh http://localhost:8081 "http://localhost:$SMOKE_PLUGIN_PORT"
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: deploy/smoke.sh http://localhost:8080 "http://localhost:$PLUGIN_PORT"
       - name: Core's tenancy guard passes the plugin's tables
-        if: steps.stack.outputs.up
+        if: hashFiles('deploy/docker-compose.yml') != ''
         run: |
-          problems="$(smoke-compose exec -T postgres psql -U erxes -d erxes -AtX -v ON_ERROR_STOP=1 \
+          problems="$(docker compose exec -T postgres psql -U erxes -d erxes -AtX -v ON_ERROR_STOP=1 \
             -c "SELECT * FROM core_plugin_tenancy_problems('$PLUGIN_ID')")"
           if [ -n "$problems" ]; then
             echo "$problems"
             exit 1
           fi
-      # Its checks passed: its CPU and memory go to the daily flows.
-      - name: Stop the smoke test's stack
-        if: steps.stack.outputs.up
-        run: smoke-compose down --volumes > "$RUNNER_TEMP/smoke-down.log" 2>&1 &
-      - name: Playwright's version, which keys the browser cache
-        if: steps.stack.outputs.e2e
-        id: playwright
-        run: echo "version=$(pnpm exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
-      - name: Restore Chromium
-        if: steps.stack.outputs.e2e
-        id: chromium
-        uses: actions/cache/restore@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}
-      # The runner image has Chrome, so the headless shell's system libraries are there.
-      - name: Chromium (headless shell)
-        if: steps.stack.outputs.e2e && steps.chromium.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --only-shell chromium
-      - name: Save Chromium
-        if: steps.stack.outputs.e2e && steps.chromium.outputs.cache-hit != 'true' && env.WRITE_CACHE == 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ steps.chromium.outputs.cache-primary-key }}
-      # The fresh database's owner, made by e2e/owner.setup.ts: a password for this run only.
-      - name: Wait for the daily flows' stack
-        if: steps.stack.outputs.e2e
-        run: |
-          password="E2e-$(openssl rand -hex 16)"
-          echo "::add-mask::$password"
-          echo "E2E_OWNER_PASSWORD=$password" >> "$GITHUB_ENV"
-          timeout 300 sh -c 'until [ -f "$RUNNER_TEMP/flows-up.status" ]; do sleep 1; done'
-          cat "$RUNNER_TEMP/flows-up.log"
-          [ "$(cat "$RUNNER_TEMP/flows-up.status")" = 0 ]
-          timeout 180 sh -c "until curl -fsS http://localhost:8080/core/v1/setup >/dev/null && curl -fsS http://localhost:$PLUGIN_PORT/health >/dev/null; do sleep 1; done"
-      - name: Daily flows in Chromium, light and dark, with axe
-        if: steps.stack.outputs.e2e
-        run: pnpm e2e
-        env:
-          E2E_BASE_URL: http://localhost:8080
-          E2E_PLUGIN_URL: http://localhost:${{ env.PLUGIN_PORT }}
-          E2E_OWNER_EMAIL: owner@e2e.test
-          # Playwright configs that keep their results under $TMPDIR/<plugin>-e2e.
-          TMPDIR: ${{ runner.temp }}
-      - name: Traces and screenshots of failed specs
-        if: failure() && steps.stack.outputs.e2e
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-traces
-          path: |
-            e2e/test-results/
-            ${{ runner.temp }}/*-e2e/results/
-          if-no-files-found: ignore
-          retention-days: 14
-      - name: Stack logs
-        if: failure() && steps.stack.outputs.up
-        run: |
-          smoke-compose logs --no-color --tail 300 || true
-          docker compose logs --no-color --tail 300 || true
+      - &stack-logs
+        name: Stack logs
+        if: failure() && hashFiles('deploy/docker-compose.yml') != ''
+        run: docker compose logs --no-color --tail 300 || true
       - name: Keep the tested image for the push
         if: env.PUSH == 'true'
         run: docker save "$IMAGE" | gzip -1 > image.tar.gz
@@ -375,12 +307,113 @@ jobs:
           compression-level: 0
           retention-days: 3
 
+  # The daily flows' runners: one for every four spec files, up to four, none without a stack
+  # to run them on. A few seconds that save the flows minutes.
+  plan:
+    name: Daily flows' runners
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      shards: ${{ steps.shards.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            deploy
+            e2e
+      - id: shards
+        run: |
+          shards=[]
+          if [ -f deploy/docker-compose.yml ] && [ -f e2e/playwright.config.ts ]; then
+            shopt -s globstar nullglob
+            specs=(e2e/**/*.spec.ts)
+            n=$(( (${#specs[@]} + 3) / 4 ))
+            n=$(( n < 1 ? 1 : n > 4 ? 4 : n ))
+            shards="[$(seq -s , 1 "$n")]"
+            echo "${#specs[@]} spec files: $n runners."
+          fi
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+
+  flows:
+    name: Daily flows ${{ matrix.shard }}/${{ strategy.job-total }}
+    needs: plan
+    if: needs.plan.outputs.shards != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # Every runner reports its failures.
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v7
+      - *core-up
+      - *pnpm
+      - *node
+      - *modules-paths
+      - *modules-restore
+      - *modules-relink
+      - *install
+      - *image-context
+      - *buildx
+      - *build
+      - *plugin-up
+      - name: Playwright's version, which keys the browser cache
+        id: playwright
+        run: echo "version=$(pnpm exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+      - name: Restore Chromium
+        id: chromium
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}
+      # The runner image has Chrome, so the headless shell's system libraries are there.
+      - name: Chromium (headless shell)
+        if: steps.chromium.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --only-shell chromium
+      - name: Save Chromium
+        if: steps.chromium.outputs.cache-hit != 'true' && env.WRITE_CACHE == 'true' && matrix.shard == 1
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.chromium.outputs.cache-primary-key }}
+      - *stack-ready
+      # Each runner's stack starts on a fresh database; e2e/owner.setup.ts makes its owner, with a
+      # password for this run only.
+      - name: Daily flows in Chromium, light and dark, with axe
+        run: |
+          password="E2e-$(openssl rand -hex 16)"
+          echo "::add-mask::$password"
+          E2E_OWNER_PASSWORD=$password pnpm e2e --shard="$SHARD"
+        env:
+          SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
+          E2E_BASE_URL: http://localhost:8080
+          E2E_PLUGIN_URL: http://localhost:${{ env.PLUGIN_PORT }}
+          E2E_OWNER_EMAIL: owner@e2e.test
+          # Playwright configs that keep their results under $TMPDIR/<plugin>-e2e.
+          TMPDIR: ${{ runner.temp }}
+      - name: Traces and screenshots of failed specs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces-${{ matrix.shard }}
+          path: |
+            e2e/test-results/
+            ${{ runner.temp }}/*-e2e/results/
+          if-no-files-found: ignore
+          retention-days: 14
+      - *stack-logs
+
   push:
-    # The image the stack job scanned and tested, once every job passed. Only erxes' own plugins
-    # publish to docker.io/erxes, with the DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets.
+    # The image the image job scanned, once every job passed (the flows are skipped for a plugin
+    # without them). Only erxes' own plugins publish to docker.io/erxes, with the
+    # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets.
     name: Push the image to Docker Hub
-    needs: [static, integration, stack]
-    if: github.repository_owner == 'erxes' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+    needs: [static, integration, image, plan, flows]
+    if: >-
+      always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') &&
+      github.repository_owner == 'erxes' && github.event_name == 'push' &&
+      github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
