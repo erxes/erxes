@@ -34,8 +34,7 @@ export const saveEvent = async (
     throw new Error('Name is required');
   }
 
-  let visitorId = args.visitorId;
-  let customerId = args.customerId;
+  const customerId = args.customerId;
 
   // Visitor events were only ever written to an Elasticsearch index this
   // deployment never had. The seam is kept so a real store can fill it; today

@@ -117,15 +117,15 @@ export default {
       if (!userId) {
         return false;
       }
-      const ext = variables?.extension;
+      const ext = variables?.extension ? String(variables.extension) : '';
       if (ext) {
         const op = (session.ringingOperators || []).find(
-          (o) => o.extensionNumber === ext,
+          (o) => String(o.extensionNumber) === ext,
         );
         if (op) {
           return String(op.userId) === userId;
         }
-        if (session.answeredExtension === ext) {
+        if (String(session.answeredExtension) === ext) {
           return String(session.answeredBy) === userId;
         }
         return false;
@@ -458,8 +458,14 @@ export default {
             graphqlPubsub.asyncIterator(`queueRealtimeUpdate:${subdomain}`),
           (payload, variables, context) => {
             if (!requireAuth(context, 'queueRealtimeUpdate')) return false;
-            const response = JSON.parse(payload.queueRealtimeUpdate);
-            return response.extension === variables.extension;
+            try {
+              const response = JSON.parse(payload.queueRealtimeUpdate);
+              return (
+                String(response?.extension) === String(variables.extension)
+              );
+            } catch {
+              return false;
+            }
           },
         ),
       },
@@ -467,15 +473,23 @@ export default {
       callSessionUpdated: {
         resolve: (payload) => payload.callSessionUpdated,
         subscribe: withFilter(
-          (_, { inboxIntegrationId, uniqueid, extension }) => {
+          (_, { inboxIntegrationId, uniqueid, extension }, { subdomain }) => {
             if (uniqueid) {
               return graphqlPubsub.asyncIterator(
-                `callSessionUpdated:uniqueid:${uniqueid}`,
+                getTenantTopics(
+                  'callSessionUpdated',
+                  subdomain,
+                  `uniqueid:${uniqueid}`,
+                ),
               );
             }
             if (inboxIntegrationId && extension) {
               return graphqlPubsub.asyncIterator(
-                `callSessionUpdated:ext:${inboxIntegrationId}:${extension}`,
+                getTenantTopics(
+                  'callSessionUpdated',
+                  subdomain,
+                  `ext:${inboxIntegrationId}:${extension}`,
+                ),
               );
             }
             return graphqlPubsub.asyncIterator(`callSessionUpdated:__denied__`);

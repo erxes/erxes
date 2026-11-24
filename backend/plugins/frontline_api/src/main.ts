@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import initCallApp from '@/integrations/call/initApp';
+import { initCallApp } from '@/integrations/call/initApp';
 import { initDiscord } from '@/integrations/discord/services/gateway/ownership';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { startFacebookCommentOutboxWorker } from '@/integrations/facebook/commentOutboxWorker';
@@ -78,7 +78,7 @@ startPlugin({
 
   expressRouter: router,
   onServerInit: async (app) => {
-    await initCallApp(app);
+    initCallApp(app);
     // initDiscord();
     startFacebookCommentOutboxWorker();
     startFacebookInputTimeoutWorker();

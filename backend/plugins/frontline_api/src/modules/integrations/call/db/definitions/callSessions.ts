@@ -43,7 +43,7 @@ export const callSessionSchema = new Schema(
       optional: true,
       label: 'erxes customer id',
     }),
-    customerPhone: field({ type: String, required: true }),
+    customerPhone: field({ type: String, optional: true }),
     operatorPhone: field({ type: String, optional: true }),
     callType: field({
       type: String,

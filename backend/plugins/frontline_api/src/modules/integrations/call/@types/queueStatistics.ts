@@ -1,6 +1,6 @@
 export interface ICallQueueStatistics extends Document {
   queuechairman: string;
-  queue: number;
+  queue: string;
   totalCalls: number;
   answeredCalls: number;
   answeredRate: number;

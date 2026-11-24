@@ -859,6 +859,9 @@ buttons, files or proactive sends.
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
 | Call operator resolution | `src/modules/integrations/call/services/operatorResolution.ts`                                                                                                   | Which peer call integration (`CallIntegrations.findPeers`: same trunk or phone) owns the extension that rang or answered                                                                                               |
 | Call queue routing       | `src/modules/integrations/call/services/queueRouting.ts`                                                                                                         | Which peer call integration owns the queue a leg or event names (`QUEUE[n]` action type, CTI `queue`); re-homes the call's sessions, CDR legs and conversation to it                                                   |
+| Call locks               | `src/modules/integrations/call/redlock.ts`                                                                                                                       | Redis client and Redlock with error listeners; session lock per linkedid (else uniqueid), customer lock per phone across peers                                                                                         |
+| Call UCM client          | `src/modules/integrations/call/utils.ts`                                                                                                                         | `sendToGrandStream`: buffered UCM requests with timeouts, per-`wsServer` cookie with single-flight refresh, recording download and upload                                                                              |
+| Call ICE servers         | `src/modules/integrations/call/services/iceServers.ts`                                                                                                           | Cloudflare Realtime TURN credentials cached in Redis and memory, merged into `callsGetConfigs`                                                                                                                         |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
@@ -1213,15 +1216,51 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   counter stays nullable because that fallback row carries none.
 - GraphQL `callsGetConfigs` returns `[CallConfig]` (`_id`, `code`, `value`).
   `value` stays `JSON` because the model stores it as a free-form `Object`.
+  When `CF_TURN_KEY_ID` and `CF_TURN_API_TOKEN` are set, it asks Cloudflare
+  Realtime for 24-hour TURN credentials (5 s timeout), caches them 12 hours in
+  Redis (`callCfTurnIceServers:<keyId>`) and memory with one request in flight,
+  and returns the stored rows plus `ICE_SERVERS` (`_id: cf-ice-servers`,
+  `value` = the `iceServers` array as a JSON string) and `STUN_SERVER_URL`,
+  `TURN_SERVER_URL` (host:port, no scheme or `?transport`),
+  `TURN_SERVER_USERNAME`, `TURN_SERVER_CREDENTIAL`, which replace stored rows
+  of the same code. Unset variables or a Cloudflare failure (retried after a
+  minute) return the stored rows only.
+- GraphQL `callsUpdateConfigs` (`integrationsEdit`) saves `configsMap` by code.
+  While Cloudflare TURN is on, `withoutCloudflareIceConfigs` drops
+  `ICE_SERVERS` and every STUN/TURN value that equals the current Cloudflare
+  one or names `stun.`/`turn.cloudflare.com` (a Cloudflare TURN URL also drops
+  its username and credential), so saving the form never stores short-lived
+  credentials over the permanent fallback.
 - GraphQL `callsIntegrationDetail` and `callUserIntegrations` return
   `operators` as `[CallOperator]` (`userId`, `gsUsername`, `gsPassword`,
   `gsForwardAgent`), all nullable because the model stores operators as a
   free-form `Object`. The `CallIntegrationConfigs` input keeps
-  `operators: JSON`.
+  `operators: JSON`. `callsIntegrationDetail` returns every `gsPassword` to
+  an owner (the only role `callsIntegrationUpdate` accepts, and the edit form
+  needs them) and only the caller's own to anyone else; the rest are `''`.
+  `callUserIntegrations` lists only the caller's own operator row.
+- `callQueries` require a signed-in user (no `skipPermission`).
+- GraphQL `callHistoryDetail(_id, conversationId)` takes a CDR `_id` or a PBX
+  `uniqueid` in `_id`; a value that is not a 24-hex ObjectId is looked up by
+  `uniqueid`, so it never throws a `CastError`.
+- GraphQL `CallHistory.customer` resolves the core customer by
+  `customerPrimaryPhone`.
+- GraphQL `callsPauseAgent` and `callTransfer` use the caller's own operator
+  extension and throw when the caller has none (there is no default
+  extension). Both read the UCM `status`: `callsPauseAgent` records the
+  operator state and returns `need_apply` only on `status === 0`, else
+  `'failed'`; `callTransfer` throws when no bridged channel carries the
+  caller's extension and returns `'success'` only on `status === 0`.
+- GraphQL `callSyncRecordFile(acctId, inboxId)` uploads an answered CDR's
+  recording again and writes `recordUrl` to the CDR and every session whose
+  `cdrAcctId` is that leg. It throws when the call was not answered, the UCM
+  has no recording, or the upload returns no `.wav` URL.
 - GraphQL `callExtensionList(integrationId)` returns `[CallExtension]`
   (`extension`, `fullname`, `status`) read from the PBX `listAccount` reply,
-  filtered to the integration's operators. It returns `[]` when the PBX has no
-  accounts and throws when the PBX request fails, never a string.
+  filtered to the integration's operators. It pages `listAccount` 100 at a
+  time (up to 50 pages) until a short page or `total_page`. It returns `[]`
+  when the PBX has no accounts and throws when a PBX request fails, never a
+  string.
 - GraphQL `callReportIntegrations` lists the `calls_integrations` rows the
   user may report on (`_id`, `inboxId`, `name`, `phone`, `queues`), sorted by
   phone. `name` is the owning inbox integration's name read from
@@ -1632,6 +1671,14 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
 ## Data and State
 
 - `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (kept as they are; only their indexes are dropped), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
+- Call: `calls_cdrs` is indexed on `conversationId`, `{ dst, start }`,
+  `{ src, start }` and `{ inboxIntegrationId, session }` besides its older
+  indexes. `CallQueueStatistics.queue` is a string with one row per
+  `{ integrationId, queue }` (unique); `ensureCallIndexes` dedupes old
+  numeric/string rows (newest wins), converts numbers and builds the index.
+  It runs once per subdomain per process, on integration create/edit and
+  before the first `/call/queueStatistics` write or `callQueueList` read.
+  `CallSessions.customerPhone` is optional.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's
@@ -1695,6 +1742,54 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   status, type and search filters, and never for the `connected` filter. A
   follow-me leg answers under its own `uniqueid`, so it does not clear the
   queue legs of the same call.
+- `callHistories` counts a leg as the operator's when they are `dstchannelExt`
+  or `dstanswer`, or, on an `Outbound` leg, `src`, `channelExt` or
+  `newSrc`. A `VM` leg is never answered by the operator. A `FOLLOWME` leg
+  is an incoming call with `src` as the customer, whatever its `userfield`.
+- `/call/event` and `/call/cdrReceive` take the session lock
+  `<subdomain>:call:session:<linkedid || uniqueid>` (20 s, 40 retries of
+  250 ms), then the customer lock `<subdomain>:call:customer:<phone>`, which
+  is shared by every peer integration. Queue re-homing
+  (`rehomeCallRecords`, `queueName` on every session sharing the
+  `uniqueid`/`linkedid`) runs inside those locks. `withSessionLock` and
+  `withCustomerLock` run the work through `redlock.using`, which extends the
+  lock while it runs; a lock lost or a release failing after the work is only
+  logged. When the session lock stays busy for the whole retry window the
+  routes answer `503` with `Retry-After: 1` (`CallLockBusyError`); other
+  failures stay `500`. A busy customer lock runs the work without it. The
+  Redis client and Redlock log their errors instead of crashing the process.
+- A CDR's recording never runs inside the lock or the webhook response:
+  `receiveCdr` saves the CDR and session, answers the PBX, then starts
+  `syncCdrRecording`, which retries once after 5 s and only logs a final
+  failure. It writes `recordUrl` to the CDR and to the session whose
+  `cdrAcctId` is that leg.
+- `CallSessions.markEnded` keeps the latest `endedAt` it has seen, and only
+  the best leg so far (`ANSWERED` > `NO ANSWER` > `BUSY` > `FAILED`) may set
+  `cdrAcctId`, `durationSec` and `recordUrl`, so a late unanswered leg never
+  replaces the answered one. Once a session is `ended`, `missed` or
+  `failed`, CTI events no longer move or reopen its conversation, and
+  operator assignment never rewrites conversation `content` (the inbox
+  `create-or-update-conversation` handler keeps `content` when the payload
+  omits it).
+- Call webhooks match integrations by non-empty trunk names only
+  (`findIntegrationByTrunk`); a payload without trunks matches nothing. A
+  call without a caller number has an empty `customerPhone` and no customer
+  (`getOrCreateCustomer` returns null), never a shared placeholder.
+- `getOrCreateCustomer` never overwrites a core customer's `primaryPhone`
+  and reads core with `throwOnError`, so a core outage fails the webhook
+  instead of creating a duplicate customer.
+- UCM requests go through `sendRequest`: a timeout covers the whole body
+  (60 s; 5 minutes for a `recapi` recording download, and 5 minutes for its
+  upload), the body is read once into a buffer, and TLS verification is skipped
+  only through the UCM `https.Agent`, never process-wide. A small JSON reply
+  with `status: -6` refreshes the cookie and retries (3 by default); any other
+  JSON reply to a file request throws instead of being uploaded. The cookie
+  lives at `callCookie:<wsServer>`, logins check `status === 0` and a
+  challenge, and one process logs in once per UCM at a time. Cookies are
+  cleared after the `/call/*` routes are registered at startup; there is no
+  HTTP route that resets them.
+- `recordfiles` is an `@`-separated list of paths; `recordFileName` sends the
+  bare name of the first one to `recapi`.
 
 - Removing a Facebook integration keeps its page's bot, marked `broken` with its config intact. `facebookCreateIntegration` reconnects such a bot through `FacebookBots.reconnectByPageId` (new token and account, then `repair`, which re-syncs and verifies the profile); a failed reconnect is logged on the bot and never undoes the integration.
 - `FacebookBots.connectBotPageMessenger` sends `persistent_menu` only when the bot has a menu item of its own (Get Started is then prepended), and deletes `persistent_menu` and `ice_breakers` from `/me/messenger_profile` when they are empty — a field left out of the POST keeps its old value on Facebook. `greeting` is not in the DELETE whitelist (Graph error #100), so it is never sent there. `get_started` is always sent. `buildExpectedPersistentMenus` follows the same rule, so an empty menu checks as healthy.
@@ -1843,9 +1938,15 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   rewrites an existing conversation's `integrationId` (the inbox
   `create-or-update-conversation` handler leaves it alone when the payload
   omits it); a conversation created before anyone answered stays on the
-  integration that posted the first leg. `callSessionUpdated:ext:<inbox>:<ext>`
+  integration that posted the first leg. `callSessionUpdated:<subdomain>:ext:<inbox>:<ext>`
   is published on the inbox that owns each extension, which is what the
-  operator's widget subscribes to. `callHistories` / `callHistoriesTotalCount`
+  operator's widget subscribes to; CTI events and finalized CDRs both publish
+  it (`publishSession`), and `callSessionUpdated:<subdomain>:uniqueid:<id>`
+  for the call itself. The subscription listens through `getTenantTopics`.
+  The gateway loads subscription resolvers only at startup, so
+  `publishSession` also publishes the unprefixed `callSessionUpdated:ext:…`
+  and `callSessionUpdated:uniqueid:…` topics that a gateway started before
+  this change still listens on. `callHistories` / `callHistoriesTotalCount`
   read CDR legs from the selected integration **and its peers**, still
   filtered to the caller's own extension, because any leg of a call may have
   been posted under any peer.
@@ -2017,6 +2118,17 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   other's history must not list the call. `inboxCallStatus.test.ts` runs
   without the flag: a call answered only on a follow-me target reads
   `NO ANSWER`.
+- Call TURN: set `CF_TURN_KEY_ID` / `CF_TURN_API_TOKEN`, query
+  `callsGetConfigs` twice and confirm `ICE_SERVERS` plus the four legacy
+  codes, with one Cloudflare request between them. Unset them and the stored
+  rows come back unchanged.
+- Call recording: post an answered CDR whose `recordfiles` names a WAV over
+  16 KB and confirm `/call/cdrReceive` answers before the upload finishes and
+  that `recordUrl` lands on both the CDR and the session.
+- Call locks: hold `withSessionLock` for longer than 20 s and confirm a second
+  caller still waits and gets `CallLockBusyError` (a webhook answers `503`).
+  With Cloudflare TURN on, save the call config form unchanged and confirm
+  `calls_configs` keeps its stored STUN/TURN values.
 - Instagram: connect Post before Messenger for the same account and confirm each
   event reaches its own inbox. A new sender with an unavailable profile must
   still be linked to a Core customer; failed Repair must not report success.

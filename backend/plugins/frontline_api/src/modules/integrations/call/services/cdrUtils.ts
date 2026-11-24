@@ -4,6 +4,7 @@ import { CallOperator } from '@/integrations/call/@types/integrations';
 
 const CDR_TIME_OFFSET = '+08:00';
 const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
+const RECORDING_RETRY_DELAY_MS = 5000;
 
 export const parseCdrDate = (
   value?: string | Date | null,
@@ -52,10 +53,9 @@ export const formatCdrApiDate = (value?: string | Date | null): string => {
 
 export const findOrCreateCdr = async (
   models: IModels,
-  subdomain,
-  cdrParams,
-  inboxId,
-  conversationId,
+  cdrParams: ICdrParams,
+  inboxId: string,
+  conversationId: string,
 ) => {
   validateRequiredParams(cdrParams);
 
@@ -68,7 +68,6 @@ export const findOrCreateCdr = async (
   }
 
   const newCdr = await createNewCdr(models, cdrParams, inboxId, conversationId);
-  await processRecordUrl(models, cdrParams, inboxId, subdomain, acctId);
 
   return { cdr: newCdr, created: true };
 };
@@ -121,32 +120,46 @@ const createNewCdr = async (
   });
 };
 
-const processRecordUrl = async (
+/*
+ * Downloads an answered leg's recording from the UCM, uploads it, and stores
+ * the file URL on the CDR and on the session that leg finalized. Callers run
+ * it outside any lock and log its rejection.
+ */
+export const syncCdrRecording = async (
   models: IModels,
-  cdrParams,
-  inboxId,
-  subdomain,
-  acctId,
+  subdomain: string,
+  cdrParams: ICdrParams,
+  inboxId: string,
 ) => {
-  const { recordfiles, lastapp, disposition } = cdrParams;
+  const { AcctId: acctId, recordfiles, lastapp, disposition } = cdrParams;
 
-  if (!shouldProcessRecordUrl(recordfiles, disposition, lastapp)) {
+  if (!acctId || !shouldProcessRecordUrl(recordfiles, disposition, lastapp)) {
     return;
   }
 
+  let recordUrl: string;
   try {
-    const recordUrl = await generateRecordUrl(
-      cdrParams,
-      inboxId,
-      models,
-      subdomain,
-    );
-
-    if (recordUrl) {
-      await updateCdrWithRecordUrl(models, acctId, recordUrl);
-    }
+    recordUrl = await generateRecordUrl(cdrParams, inboxId, models, subdomain);
   } catch (error) {
-    console.error('Failed to process record URL:', error);
+    // The UCM often has not finished writing the file when the CDR arrives.
+    console.warn(
+      `[call] recording for CDR ${acctId} failed, retrying in ${
+        RECORDING_RETRY_DELAY_MS / 1000
+      }s:`,
+      error instanceof Error ? error.message : error,
+    );
+    await new Promise((resolve) =>
+      setTimeout(resolve, RECORDING_RETRY_DELAY_MS),
+    );
+    recordUrl = await generateRecordUrl(cdrParams, inboxId, models, subdomain);
+  }
+
+  if (recordUrl) {
+    await models.CallCdrs.updateOne({ acctId }, { $set: { recordUrl } });
+    await models.CallSessions.updateMany(
+      { cdrAcctId: acctId },
+      { $set: { recordUrl } },
+    );
   }
 };
 
@@ -158,13 +171,18 @@ const shouldProcessRecordUrl = (recordfiles, disposition, lastapp) => {
   );
 };
 
-const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
+const generateRecordUrl = async (
+  cdrParams: ICdrParams,
+  inboxId: string,
+  models: IModels,
+  subdomain: string,
+) => {
   const fileDir = calculateFileDir(cdrParams);
 
   return await cfRecordUrl(
     {
       fileDir,
-      recordfiles: cdrParams.recordfiles,
+      recordfiles: cdrParams.recordfiles || '',
       inboxIntegrationId: inboxId,
       retryCount: 3,
     },
@@ -172,10 +190,6 @@ const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
     models,
     subdomain,
   );
-};
-
-const updateCdrWithRecordUrl = async (models: IModels, acctId, recordUrl) => {
-  await models.CallCdrs.updateOne({ acctId }, { $set: { recordUrl } });
 };
 
 export const determinePrimaryPhone = (params) => {
@@ -449,6 +463,23 @@ export interface ICdrOperatorParams {
   new_src?: string;
   lastapp?: string;
   action_type?: string;
+}
+
+/* A CDR as the UCM posts it to `/call/cdrReceive`. */
+export interface ICdrParams extends ICdrOperatorParams {
+  AcctId?: string;
+  uniqueid?: string;
+  linkedid?: string;
+  session?: string;
+  src_trunk_name?: string;
+  dst_trunk_name?: string;
+  start?: string;
+  answer?: string;
+  end?: string;
+  disposition?: string;
+  billsec?: string | number;
+  recordfiles?: string;
+  [field: string]: unknown;
 }
 
 export const resolveCdrOperator = (

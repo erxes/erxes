@@ -9,10 +9,36 @@ import {
   isSignatureEnforced,
   verifyWebhookSignature,
 } from '@/integrations/call/webhookAuth';
-import { upsertQueueStatistics } from '@/integrations/call/utils';
+import {
+  clearCallCookies,
+  upsertQueueStatistics,
+} from '@/integrations/call/utils';
 
 import express from 'express';
-import redis from '@/integrations/call/redlock';
+import redis, { CallLockBusyError } from '@/integrations/call/redlock';
+
+/*
+ * 503 when another request held the call's lock for the whole retry window,
+ * so the PBX can tell contention from a crash and retry.
+ */
+const sendWebhookError = (
+  res: express.Response,
+  label: string,
+  error: unknown,
+) => {
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (error instanceof CallLockBusyError) {
+    console.warn(`[call-webhook] ${label}: ${message}`);
+    return res
+      .status(503)
+      .set('Retry-After', '1')
+      .json({ error: 'Call is busy, retry', message });
+  }
+
+  console.error(`[call-webhook] ${label} failed:`, error);
+  return res.status(500).json({ error: 'Internal Server Error', message });
+};
 
 const authenticateApi = async (req, res, next) => {
   const integrationId = req.headers['x-integration-id'];
@@ -67,10 +93,7 @@ const authenticateApi = async (req, res, next) => {
   return next();
 };
 
-const initCallApp = async (app) => {
-  console.log('********* INIT CALL ********');
-  await redis.del('callCookie');
-
+export const initCallApp = (app: express.Express) => {
   app.use(
     express.json({
       limit: '15mb',
@@ -79,15 +102,6 @@ const initCallApp = async (app) => {
       },
     }),
   );
-
-  app.use((_req, _res, next) => {
-    next();
-  });
-
-  app.get('/resetCallCookie', async (req, res) => {
-    await redis.del('callCookie');
-    return res.send('Reseted call cookie');
-  });
 
   app.post('/call/queueRealtimeUpdate', authenticateApi, async (req, res) => {
     try {
@@ -135,7 +149,12 @@ const initCallApp = async (app) => {
         return res.status(400).json({ error: 'Integration not resolved' });
       }
 
-      const result = await upsertQueueStatistics(models, integration, req.body);
+      const result = await upsertQueueStatistics(
+        models,
+        subdomain,
+        integration,
+        req.body,
+      );
 
       return res
         .status(200)
@@ -144,11 +163,6 @@ const initCallApp = async (app) => {
       console.error('Error receiving queue statistics:', error);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
-
-  app.use((error, _req, res, _next) => {
-    console.error('Error in middleware:', error);
-    res.status(500).send(error.message);
   });
 
   app.post('/call/cdrReceive', authenticateApi, async (req, res) => {
@@ -165,8 +179,7 @@ const initCallApp = async (app) => {
         .status(200)
         .json({ message: 'Call cdr received successfully' });
     } catch (error) {
-      console.error('Error receiving cdr:', error);
-      res.status(500).json({ error: 'Internal Server Error sda' });
+      return sendWebhookError(res, 'cdrReceive', error);
     }
   });
 
@@ -182,10 +195,7 @@ const initCallApp = async (app) => {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.error('Error handling call event:', error);
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error', message: error.message });
+      return sendWebhookError(res, 'event', error);
     }
   });
 
@@ -201,12 +211,12 @@ const initCallApp = async (app) => {
       );
       return res.status(200).json(result);
     } catch (error) {
-      console.error('Error handling receiveCall:', error);
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error', message: error.message });
+      return sendWebhookError(res, 'receiveCall', error);
     }
   });
-};
 
-export default initCallApp;
+  // Cookies from before a restart may be dead; the next UCM call logs in again.
+  clearCallCookies().catch((error) => {
+    console.error('[call] could not clear UCM cookies on startup:', error);
+  });
+};
