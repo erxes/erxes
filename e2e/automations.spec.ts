@@ -105,3 +105,55 @@ test('switching triggers with no steps keeps the draft without an error and acce
   await expect(page.getByText('Order id')).toBeVisible({ timeout: 10_000 });
   await expectAccessible(page);
 });
+
+test('a member sees TypeSafe and OpenAI in Decision model integrations and adds a decision node', async ({
+  page,
+}) => {
+  const suffix = unique();
+
+  await page.goto('/settings/integrations?tab=browse');
+  await expect(page.getByRole('heading', { name: 'AI Provider' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Decision model' })).toBeVisible();
+  await expectAccessible(page);
+
+  await page.getByRole('button', { name: 'Decision model' }).click();
+  await expect(page.getByRole('heading', { name: 'Decision model' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'AI Provider' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /TypeSafe/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /OpenAI/ })).toBeVisible();
+  await expectAccessible(page);
+
+  await page.goto('/automations');
+  await page.getByRole('button', { name: 'New automation' }).click();
+  await page.waitForURL(/\/automations\/\w+$/);
+
+  await page.getByRole('textbox', { name: 'Name' }).fill(`Triage ${suffix}`);
+  await page.getByRole('button', { name: 'Add a step' }).first().click();
+  await page.getByRole('menuitem', { name: 'More' }).hover();
+  await page.getByRole('menuitem', { name: /Decision model/ }).click();
+
+  await expect(page.getByRole('complementary', { name: 'Data' })).toBeVisible();
+  const inspector = page.getByRole('complementary').last();
+
+  await expect(inspector.getByRole('button', { name: /^TypeSafe/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(inspector.getByRole('button', { name: /^OpenAI/ })).toBeVisible();
+  await inspector.getByRole('textbox', { name: 'Question' }).click();
+  await page.keyboard.type('Which team should take this?');
+  await inspector.getByRole('button', { name: /^OpenAI/ }).click();
+  await expect(inspector.getByRole('button', { name: /^OpenAI/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByText('Otherwise')).toBeVisible();
+  await expectAccessible(page);
+
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
+
+  await page.reload();
+  await expect(page.getByRole('button', { name: /Which team should take this\?/ })).toBeVisible();
+  await expectAccessible(page);
+});

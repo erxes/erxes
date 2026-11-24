@@ -9,12 +9,14 @@ import {
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { defineJob } from '~/modules/jobs/jobs';
+import type { AutomationStep } from '@erxes/core-contract';
 import { coreAction } from './actions/catalog';
-import type { CallContext } from './actions/context';
+import { type CallContext, text } from './actions/context';
 import { pluginForAction, runPluginAction } from './actions/plugin';
 import { automationChecker } from './conditionCheck';
+import { type Cursor, enterArm, nextCursor, sameCursor, stepAt } from './cursor';
+import { type DecideStep, decide, decisionOutput } from './decide';
 import { rememberActionOutput, rememberStepOutput } from './eventData';
-import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';
 import {
   ADVANCE_QUEUE,
   automationMember,
@@ -24,6 +26,7 @@ import {
   finishRun,
   lockLiveRun,
   queueAdvance,
+  type RunContext,
   RunPayload,
   type RunRow,
   subjectRefOf,
@@ -93,16 +96,13 @@ export const callJob = defineJob({
 
     if (!prepared) return;
 
-    const answer = await prepared.call().then(
-      (output) => ({ output }),
-      (error: unknown) => {
-        const final = finalError(error);
+    const answer = await prepared.call().catch((error: unknown) => {
+      const final = finalError(error);
 
-        if (!final) throw error;
+      if (!final) throw error;
 
-        return { final };
-      },
-    );
+      return { final };
+    });
 
     if ('final' in answer) {
       await withOrg(job.orgId, (tx) => failRun(tx, job, answer.final));
@@ -110,12 +110,10 @@ export const callJob = defineJob({
       return;
     }
 
-    const { output } = answer;
+    const { output, next } = answer;
 
     await withOrg(job.orgId, async (tx) => {
-      await rememberStepOutput(tx, prepared.automationId, prepared.step, output);
-
-      if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);
+      await prepared.remember?.(tx, output);
 
       const run = await lockLiveRun(tx, job.payload.runId);
 
@@ -128,38 +126,34 @@ export const callJob = defineJob({
         run,
         prepared.step,
         { ...run.context, subject },
-        {
-          input: prepared.input,
-          output,
-          next: nextCursor(prepared.steps, run.cursor),
-          attempt: job.attempt,
-          startedAt,
-        },
+        { input: prepared.input, output, next, attempt: job.attempt, startedAt },
       );
     });
   },
   onDead: (job, error, tx) => failRun(tx, job, error),
 });
 
-/** What a call needs, read in a short transaction; null when the run moved on. */
-const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; cursor: Cursor }) => {
-  const run = await lockLiveRun(tx, payload.runId);
+interface PreparedCall {
+  step: AutomationStep;
+  input: unknown;
+  call(): Promise<{ output: unknown; next: Cursor | null }>;
+  remember?(tx: Db, output: unknown): Promise<void>;
+}
 
-  if (run?.status !== 'running' || !sameCursor(run.cursor, payload.cursor)) return null;
+interface CallSetup {
+  orgId: string;
+  run: RunRow;
+  automation: typeof automations.$inferSelect;
+  steps: AutomationStep[];
+  context: RunContext;
+  member: Awaited<ReturnType<typeof automationMember>>;
+}
 
-  const loaded = await loadStep(tx, run);
-
-  if (loaded?.step.type !== 'action') return null;
-
-  const { automation, step } = loaded;
-
-  const context = {
-    ...run.context,
-    subject: await subjectOf(tx, run.subjectType, run.subjectId),
-  };
-
-  const member = await automationMember(orgId, automation.activatedBy);
-
+const prepareAction = async (
+  tx: Db,
+  { orgId, run, automation, steps, context, member }: CallSetup,
+  step: Extract<AutomationStep, { type: 'action' }>,
+): Promise<PreparedCall> => {
   const ctx: CallContext = {
     orgId,
     automation: { id: automation.id, name: automation.name },
@@ -170,19 +164,83 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
     context,
   };
 
-  const prepared = { automationId: automation.id, step, steps: loaded.steps, input: ctx.input };
-  const action = coreAction(step.action);
-
-  if (action && 'call' in action)
-    return { ...prepared, call: () => enterScope(member, orgId, () => action.call(ctx)) };
-
-  const plugin = await pluginForAction(tx, step.action);
+  const { send, learns } = await actionSender(tx, ctx, step.action);
 
   return {
-    ...prepared,
-    call: () => enterScope(member, orgId, () => runPluginAction(ctx, plugin, step.action)),
-    learnsOutput: true,
+    step,
+    input: ctx.input,
+    call: async () => ({
+      output: await enterScope(member, orgId, send),
+      next: nextCursor(steps, run.cursor),
+    }),
+    async remember(rememberTx, output) {
+      await rememberStepOutput(rememberTx, automation.id, step, output);
+
+      if (learns) await rememberActionOutput(rememberTx, step.action, output);
+    },
   };
+};
+
+const actionSender = async (tx: Db, ctx: CallContext, type: string) => {
+  const action = coreAction(type);
+
+  if (action && 'call' in action) return { send: () => action.call(ctx), learns: false };
+
+  const plugin = await pluginForAction(tx, type);
+
+  return { send: () => runPluginAction(ctx, plugin, type), learns: true };
+};
+
+const prepareDecision = async (
+  tx: Db,
+  { orgId, run, steps, context, member }: CallSetup,
+  step: DecideStep,
+): Promise<PreparedCall> => {
+  const filled = await renderInput(tx, { question: step.question, state: step.state }, context);
+
+  const asked = {
+    question: text(filled.question) ?? '',
+    state: text(filled.state) || JSON.stringify({ subject: context.subject, event: context.event }),
+  };
+
+  return {
+    step,
+    input: asked,
+    call: async () => {
+      const decision = await enterScope(member, orgId, () => decide(orgId, step, asked));
+      const { arm, output } = decisionOutput(step, decision);
+
+      return { output, next: enterArm(steps, run.cursor, arm) };
+    },
+  };
+};
+
+/** What a call needs, read in a short transaction; null when the run moved on. */
+const prepareCall = async (
+  tx: Db,
+  orgId: string,
+  payload: { runId: string; cursor: Cursor },
+): Promise<PreparedCall | null> => {
+  const run = await lockLiveRun(tx, payload.runId);
+
+  if (run?.status !== 'running' || !sameCursor(run.cursor, payload.cursor)) return null;
+
+  const loaded = await loadStep(tx, run);
+
+  if (!loaded || (loaded.step.type !== 'action' && loaded.step.type !== 'decide')) return null;
+
+  const { automation, step, steps } = loaded;
+
+  const setup: CallSetup = {
+    orgId,
+    run,
+    automation,
+    steps,
+    context: { ...run.context, subject: await subjectOf(tx, run.subjectType, run.subjectId) },
+    member: await automationMember(orgId, automation.activatedBy),
+  };
+
+  return step.type === 'decide' ? prepareDecision(tx, setup, step) : prepareAction(tx, setup, step);
 };
 
 /**

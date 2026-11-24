@@ -142,6 +142,8 @@ const staleCount = (step: AutomationStep, stale: (path: string) => boolean) => {
       return countRules(step.conditions, stale);
     case 'switch':
       return step.cases.reduce((sum, item) => sum + countRules(item.conditions, stale), 0);
+    case 'decide':
+      return countIn([step.question, step.state], stale);
     default:
       return 0;
   }
@@ -167,6 +169,12 @@ const scrubStep = (step: AutomationStep, stale: (path: string) => boolean): Auto
           ...item,
           conditions: scrubGroup(item.conditions, stale),
         })),
+      };
+    case 'decide':
+      return {
+        ...step,
+        question: scrubText(step.question, stale),
+        state: scrubText(step.state, stale),
       };
     default:
       return step;
@@ -195,6 +203,12 @@ const withoutSteps = (steps: AutomationStep[], drop: Set<string>): AutomationSte
             ...step,
             paths: step.paths.map((path) => ({ ...path, steps: withoutSteps(path.steps, drop) })),
           };
+        case 'decide':
+          return {
+            ...step,
+            paths: step.paths.map((path) => ({ ...path, steps: withoutSteps(path.steps, drop) })),
+            otherwise: withoutSteps(step.otherwise, drop),
+          };
         default:
           return step;
       }
@@ -220,6 +234,12 @@ const mapSteps = (
         return {
           ...next,
           paths: next.paths.map((path) => ({ ...path, steps: mapSteps(path.steps, change) })),
+        };
+      case 'decide':
+        return {
+          ...next,
+          paths: next.paths.map((path) => ({ ...path, steps: mapSteps(path.steps, change) })),
+          otherwise: mapSteps(next.otherwise, change),
         };
       default:
         return next;

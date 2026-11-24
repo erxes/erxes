@@ -170,6 +170,9 @@ export const runStep = async (state: StepState, step: AutomationStep): Promise<S
       return done({ case: chosen, label }, enterArm(steps, cursor, `case:${chosen}`));
     }
 
+    case 'decide':
+      return { kind: 'call' };
+
     case 'split': {
       const path = splitPath(run.id, step);
 

@@ -2,6 +2,7 @@ import {
   IconAlertTriangle,
   IconArrowsSplit,
   IconBolt,
+  IconBrain,
   IconChevronRight,
   IconCircleCheck,
   IconCircleX,
@@ -28,6 +29,7 @@ export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string }
   branch: { icon: IconGitBranch, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
   switch: { icon: IconRoute, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
   split: { icon: IconArrowsSplit, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
+  decide: { icon: IconBrain, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
   stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground' },
 };
 
@@ -46,6 +48,7 @@ const MORE_CHOICES: Choice[] = [
   { type: 'wait_for', hint: 'Until something happens to the record' },
   { type: 'switch', hint: 'One of several paths' },
   { type: 'split', hint: 'Test two versions (A/B)' },
+  { type: 'decide', hint: 'A model picks the path' },
   { type: 'stop', hint: 'End the run' },
 ];
 

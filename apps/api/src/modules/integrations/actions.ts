@@ -25,7 +25,7 @@ import { INTEGRATIONS } from './registry';
 
 const RETRIED = new Set([408, 409, 425, 429]);
 
-const refused = (error: unknown): error is GatewayError =>
+export const refused = (error: unknown): error is GatewayError =>
   error instanceof GatewayError &&
   error.status !== null &&
   error.status >= 400 &&

@@ -24,7 +24,9 @@ const armSteps = (step: AutomationStep, arm: string): AutomationStep[] | null =>
     if (arm.startsWith('case:')) return step.cases[Number(arm.slice(5))]?.steps ?? null;
   }
 
-  if (step.type === 'split' && arm.startsWith('path:'))
+  if (step.type === 'decide' && arm === 'otherwise') return step.otherwise;
+
+  if ((step.type === 'split' || step.type === 'decide') && arm.startsWith('path:'))
     return step.paths[Number(arm.slice(5))]?.steps ?? null;
 
   return null;
@@ -90,6 +92,11 @@ export const eachStep = (steps: AutomationStep[], visit: (step: AutomationStep) 
     }
 
     if (step.type === 'split') step.paths.forEach((path) => eachStep(path.steps, visit));
+
+    if (step.type === 'decide') {
+      step.paths.forEach((path) => eachStep(path.steps, visit));
+      eachStep(step.otherwise, visit);
+    }
   }
 };
 

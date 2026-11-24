@@ -345,6 +345,17 @@ export const describeStep = (
             .join(' · '),
         detail: 'Each run takes one path',
       };
+    case 'decide': {
+      const question = readableTemplate(step.question, context.fields).trim();
+      const provider = step.provider === 'typesafe' ? 'TypeSafe' : 'OpenAI';
+      const paths = step.paths.map((path, index) => path.label || `Path ${index + 1}`).join(' / ');
+
+      return {
+        title: step.label || (question ? truncate(question) : 'No question yet'),
+        detail: `${provider} · ${paths}`,
+      };
+    }
+
     default:
       return { title: step.label || 'The run ends here', detail: null };
   }

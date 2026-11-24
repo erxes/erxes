@@ -11,6 +11,7 @@ import {
   BROADCAST_STATUSES,
   CUSTOMER_SEXES,
   CUSTOMER_STATES,
+  DECISION_PROVIDERS,
   EBARIMT_PAPER_SIZES,
   EBARIMT_PRINT_BLOCKS,
   EBARIMT_RECEIPT_STATUSES,
@@ -339,6 +340,8 @@ export type FieldValidation = z.infer<typeof FieldValidation>;
 // ─── Automations and audit ──────────────────────────────────────────────────
 
 export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
+
+export const DecisionProvider = z.enum(DECISION_PROVIDERS);
 
 /** Who changed what in core (owners and admins). */
 export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
