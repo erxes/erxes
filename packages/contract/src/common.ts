@@ -22,6 +22,13 @@ export const readsByPost = <Operation extends object>(operation: Operation) => (
 });
 
 /**
+ * The OpenAPI extension that lists the permissions a plugin route checks, any one of which lets a
+ * member call it (`checksPermission` in `@erxes/plugin-sdk/openapi`). Agents and MCP clients
+ * don't offer the route to a caller who holds none of them.
+ */
+export const PERMISSIONS_EXTENSION = 'x-erxes-permissions';
+
+/**
  * A timestamp column in an output schema: the handler returns the row's `Date`,
  * the client gets an ISO string. Give it to `createSelectSchema` as a
  * refinement (`{ createdAt: isoDate }`), so a nullable column stays nullable.

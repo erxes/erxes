@@ -66,7 +66,9 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      between. A route that is not a GET changes data, unless its route sets
      `spec: readsByPost` (`x-erxes-reads` in the document); after a call to one, web reads the
      page's data again. A route whose input or answer names a credential is never offered. A
-     route's `operationId`, method, path and `x-erxes-reads` are the contract;
+     route whose permission middleware the SDK's `checksPermission` wraps lists those permissions
+     in `x-erxes-permissions`, and is offered only to a member or key holding one of them. A
+     route's `operationId`, method, path, `x-erxes-reads` and `x-erxes-permissions` are the contract;
    - import and export (`packages/contract/src/pluginTransfer.ts`,
      `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
      types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and

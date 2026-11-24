@@ -1,4 +1,8 @@
-import { type PluginApiAudience, READS_EXTENSION } from '@erxes/core-contract';
+import {
+  PERMISSIONS_EXTENSION,
+  type PluginApiAudience,
+  READS_EXTENSION,
+} from '@erxes/core-contract';
 import { z } from 'zod';
 import { requestOutbound } from '~/lib/outbound';
 import { logger } from '~/logger';
@@ -32,6 +36,7 @@ const Content = z.record(z.string(), z.object({ schema: JsonSchema.default({}) }
 const Operation = z.object({
   operationId: z.string().min(1).optional(),
   [READS_EXTENSION]: z.literal(true).optional(),
+  [PERMISSIONS_EXTENSION]: z.array(z.string().min(1)).default([]),
   summary: z.string().optional(),
   description: z.string().optional(),
   parameters: z
@@ -71,6 +76,8 @@ export type PluginAudience = Exclude<PluginApiAudience, 'employee'>;
 export interface PluginProcedure extends ApiProcedure {
   plugin: string;
   audience: PluginAudience;
+  /** The permissions the route checks, any one of which lets a member call it; none: the plugin decides. */
+  permissions: string[];
   url: string;
   pathNames: string[];
   queryNames: string[];
@@ -180,6 +187,7 @@ const procedureOf = (
       [...id.split('.'), ...path.split('/')].some(isCredentialName),
     plugin,
     audience,
+    permissions: operation[PERMISSIONS_EXTENSION],
     url,
     pathNames: pathNamesOf(path),
     queryNames: operation.parameters.filter((item) => item.in === 'query').map(({ name }) => name),
