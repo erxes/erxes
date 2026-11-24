@@ -83,14 +83,20 @@ jobs:
     env:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
+      # A pull request's checkout is its merge commit; its first parent is the base.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          filter: blob:none
       - uses: ./.github/actions/setup
       # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
       - name: Migrated schema has forced row level security on every org_id table and core_ names
         if: matrix.shard == 1
         run: pnpm check:rls
+      # A pull request runs the test files its changes reach through imports, and every file when it
+      # changes an input vite.config.ts's forceRerunTriggers lists. Pushes run every file.
       - name: Tests (API test files run in parallel, each on its own database as a role without BYPASSRLS)
-        run: pnpm exec vp run test --shard=${{ matrix.shard }}/2
+        run: pnpm exec vp run test --shard=${{ matrix.shard }}/2 ${{ github.event_name == 'pull_request' && '--changed=HEAD^1 --passWithNoTests' || '' }}
 
   models:
     name: TLA+ models
@@ -98,15 +104,23 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          filter: blob:none
+      - id: reach
+        name: Does the pull request change a model or its checker?
+        run: tools/pr-reaches.sh '^(verify/|tools/verify-models\.sh)'
       # The pinned Java and tla2tools.jar; the script checks their checksums either way.
-      - uses: actions/cache@v6
+      - if: steps.reach.outputs.run == 'true'
+        uses: actions/cache@v6
         with:
           path: ~/.cache/erxes-verify
           key: tla-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/verify-models.sh') }}
       - name: Real designs pass, broken designs fail
+        if: steps.reach.outputs.run == 'true'
         run: tools/verify-models.sh
       - name: Keep TLC's output and counterexample traces
-        if: always()
+        if: always() && steps.reach.outputs.run == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: tlc-traces
@@ -219,15 +233,25 @@ jobs:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          filter: blob:none
+      - id: reach
+        name: Does the pull request change a package or a consumer?
+        run: tools/pr-reaches.sh '^(packages/|consumers/)'
+      - if: steps.reach.outputs.run == 'true'
+        uses: ./.github/actions/setup
       - name: Build and pack @erxes/ui, @erxes/core-contract, @erxes/plugin-sdk, @erxes/lint and create-erxes
+        if: steps.reach.outputs.run == 'true'
         run: |
           filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk --filter @erxes/lint --filter create-erxes)
           pnpm "${filters[@]}" build
           pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
       - name: A plugin UI and a plugin server build against the tarballs
+        if: steps.reach.outputs.run == 'true'
         run: consumers/run.sh "$RUNNER_TEMP/packs"
       - name: New and migrated plugins from create-erxes pass their own gates against the tarballs
+        if: steps.reach.outputs.run == 'true'
         run: pnpm exec vp test run --project create-erxes-e2e
         env:
           CREATE_ERXES_PACKS: ${{ runner.temp }}/packs
