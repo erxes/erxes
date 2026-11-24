@@ -41,6 +41,50 @@ const Tile = ({
   </Command.Item>
 );
 
+const ActionGroup = ({ actions, onAdd }: { actions: ActionInfo[]; onAdd: AddStep }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Command.Group heading={t('step-kind-action', 'Do this')} layout="cards">
+      {actions.map((action) => (
+        <Tile
+          key={action.type}
+          value={action.type}
+          keywords={[action.label, action.description ?? '']}
+          label={action.label}
+          icon={catalogIcon(action)}
+          tone={LOOK.action.tone}
+          onSelect={() => onAdd('action', action.type)}
+        />
+      ))}
+    </Command.Group>
+  );
+};
+
+const LogicGroup = ({ onAdd }: { onAdd: AddStep }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Command.Group heading={t('logic', 'Logic')} layout="cards">
+      {LOGIC.map((type) => {
+        const label = t(`step-type.${type}`, STEP_TITLES[type]);
+
+        return (
+          <Tile
+            key={type}
+            value={`step:${type}`}
+            keywords={[label]}
+            label={label}
+            icon={LOOK[type].icon}
+            tone={LOOK[type].tone}
+            onSelect={() => onAdd(type)}
+          />
+        );
+      })}
+    </Command.Group>
+  );
+};
+
 /** The "+" on a line: actions and logic as tiles, with a search across every action. */
 export const StepPicker = ({ actions, onAdd }: { actions: ActionInfo[]; onAdd: AddStep }) => {
   const { t } = useTranslation('automations');
@@ -55,6 +99,9 @@ export const StepPicker = ({ actions, onAdd }: { actions: ActionInfo[]; onAdd: A
     onAdd(type, action);
     setOpen(false);
   };
+
+  const actionGroup = <ActionGroup key="actions" actions={shown} onAdd={add} />;
+  const logic = <LogicGroup key="logic" onAdd={add} />;
 
   return (
     <Popover
@@ -86,36 +133,7 @@ export const StepPicker = ({ actions, onAdd }: { actions: ActionInfo[]; onAdd: A
           />
           <Command.List className="max-h-none min-h-0 flex-1 overflow-y-auto">
             <Command.Empty>{t('no-matches', 'No matches')}</Command.Empty>
-            <Command.Group heading={t('step-kind-action', 'Do this')} layout="cards">
-              {shown.map((action) => (
-                <Tile
-                  key={action.type}
-                  value={action.type}
-                  keywords={[action.label, action.description ?? '']}
-                  label={action.label}
-                  icon={catalogIcon(action)}
-                  tone={LOOK.action.tone}
-                  onSelect={() => add('action', action.type)}
-                />
-              ))}
-            </Command.Group>
-            <Command.Group heading={t('logic', 'Logic')} layout="cards">
-              {LOGIC.map((type) => {
-                const label = t(`step-type.${type}`, STEP_TITLES[type]);
-
-                return (
-                  <Tile
-                    key={type}
-                    value={`step:${type}`}
-                    keywords={[label]}
-                    label={label}
-                    icon={LOOK[type].icon}
-                    tone={LOOK[type].tone}
-                    onSelect={() => add(type)}
-                  />
-                );
-              })}
-            </Command.Group>
+            {search ? [logic, actionGroup] : [actionGroup, logic]}
           </Command.List>
         </Command>
       </Popover.Content>
