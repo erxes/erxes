@@ -232,13 +232,16 @@ export const newStep = (
   type: StepType,
   actions: ActionInfo[],
   subject: 'customer' | 'company',
+  action?: string,
 ): AutomationStep => {
   const id = newStepId();
 
   const firstAction =
+    actions.find((item) => item.type === action) ??
     actions.find(
       (item) => item.subject === null || item.subject === 'any' || item.subject === subject,
-    ) ?? actions[0];
+    ) ??
+    actions[0];
 
   switch (type) {
     case 'action':

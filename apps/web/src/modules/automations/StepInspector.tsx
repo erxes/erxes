@@ -1,88 +1,18 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import {
-  IconAlertTriangle,
-  IconArrowDown,
-  IconArrowUp,
-  IconCopy,
-  IconTrash,
-} from '@tabler/icons-react';
-import { Badge, Button, IconTip } from 'erxes-ui';
+import { IconAlertTriangle } from '@tabler/icons-react';
+import { Badge, IconTip } from 'erxes-ui';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cloneStep, insertStep, locate, moveStep, removeStep } from './builder/flowModel';
 import { emptyRequired, fillIn } from './builder/flowChecks';
 import { BuilderContext } from './builder/BuilderContext';
 import { NodeStats } from './builder/FlowNode';
+import { StepMenu } from './builder/StepMenu';
 import { StepSettings } from './builder/StepSettings';
 
 /** What the inspector shows: the trigger, the test, or a step (by id). */
 export type Selection = string;
 
-const StepTools = ({
-  step,
-  steps,
-  onSteps,
-  onSelect,
-}: {
-  step: AutomationStep;
-  steps: AutomationStep[];
-  onSteps: (steps: AutomationStep[]) => void;
-  onSelect: (selection: Selection) => void;
-}) => {
-  const { t } = useTranslation('automations');
-  const place = locate(steps, step.id);
-
-  return (
-    <div className="flex shrink-0 gap-0.5">
-      <Button
-        size="icon"
-        variant="ghost"
-        aria-label={t('move-up', 'Move up')}
-        disabled={!place || place.index === 0}
-        onClick={() => onSteps(moveStep(steps, step.id, -1))}
-      >
-        <IconArrowUp />
-      </Button>
-      <Button
-        size="icon"
-        variant="ghost"
-        aria-label={t('move-down', 'Move down')}
-        disabled={!place || place.index === place.length - 1}
-        onClick={() => onSteps(moveStep(steps, step.id, 1))}
-      >
-        <IconArrowDown />
-      </Button>
-      <Button
-        size="icon"
-        variant="ghost"
-        aria-label={t('duplicate', 'Duplicate')}
-        onClick={() => {
-          if (!place) return;
-
-          const copy = cloneStep(step);
-
-          onSteps(insertStep(steps, place.address, place.index + 1, copy));
-          onSelect(copy.id);
-        }}
-      >
-        <IconCopy />
-      </Button>
-      <Button
-        size="icon"
-        variant="ghost"
-        tone="destructive"
-        aria-label={t('remove-step', 'Remove step')}
-        onClick={() => {
-          onSteps(removeStep(steps, step.id));
-          onSelect('trigger');
-        }}
-      >
-        <IconTrash />
-      </Button>
-    </div>
-  );
-};
-
+/** The panel header's end for a step: its problems, recent runs and "⋯". */
 export const StepHeader = ({
   step,
   steps,
@@ -116,7 +46,15 @@ export const StepHeader = ({
           </span>
         </IconTip>
       )}
-      {!disabled && <StepTools step={step} steps={steps} onSteps={onSteps} onSelect={onSelect} />}
+      {!disabled && (
+        <StepMenu
+          step={step}
+          steps={steps}
+          onSteps={onSteps}
+          onSelect={onSelect}
+          className="size-8"
+        />
+      )}
     </div>
   );
 };

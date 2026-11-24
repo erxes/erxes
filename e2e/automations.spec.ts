@@ -15,8 +15,9 @@ test('a member creates an automation, turns it on and it runs', async ({ page, a
   await page.getByRole('textbox', { name: 'Name' }).fill(`Welcome note ${suffix}`);
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
-  await page.getByRole('switch', { name: 'Turn on' }).click();
-  await expect(page.getByRole('switch', { name: 'Turn off' })).toBeVisible();
+  await page.getByRole('button', { name: 'Turn on' }).click();
+  await expect(page.getByText('Live', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Turn on' })).toHaveCount(0);
   await expectAccessible(page);
 
   const customer = await api.customers.create({ firstName: `Ada ${suffix}` });
@@ -57,7 +58,8 @@ test('a reload keeps edits that are not ready to save', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill(`Half done ${suffix}`);
   await page.getByRole('button', { name: /^Do this Add a note/i }).click();
-  await page.getByRole('button', { name: 'Remove step' }).click();
+  await page.getByRole('button', { name: 'Step actions' }).last().click();
+  await page.getByRole('menuitem', { name: 'Remove step' }).click();
   await expect(page.getByRole('button', { name: /^Do this Add a note/i })).toHaveCount(0);
 
   await page.reload();
@@ -129,8 +131,7 @@ test('a member sees TypeSafe and OpenAI in Decision model integrations and adds 
 
   await page.getByRole('textbox', { name: 'Name' }).fill(`Triage ${suffix}`);
   await page.getByRole('button', { name: 'Add a step' }).first().click();
-  await page.getByRole('menuitem', { name: 'More' }).hover();
-  await page.getByRole('menuitem', { name: /Decision model/ }).click();
+  await page.getByRole('option', { name: /Decision model/ }).click();
 
   await expect(page.getByRole('complementary', { name: 'Data' })).toBeVisible();
   const inspector = page.getByRole('complementary').last();

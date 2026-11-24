@@ -5,12 +5,13 @@ import { BuilderContext } from './BuilderContext';
 import { findStep, STEP_TITLES } from './flowModel';
 import { type StepData, useStepData } from './useStepData';
 
-export type DataItem = { path: string; label: string; parent?: string };
+export type DataItem = { path: string; label: string; type: string; parent?: string };
 
 export type DataSource = {
   id: string;
   label: string;
-  step: boolean;
+  /** The earlier step it comes from; null for the trigger. */
+  step: AutomationStep | null;
   groups: { title: string; items: DataItem[] }[];
 };
 
@@ -19,6 +20,7 @@ const stepIdOf = (path: string) => /^steps\.([^.]+)\./.exec(path)?.[1];
 const asItem = (field: StepData, prefix = ''): DataItem => ({
   path: field.path,
   label: prefix && field.label.startsWith(prefix) ? field.label.slice(prefix.length) : field.label,
+  type: field.type,
   ...(field.parent && { parent: field.parent }),
 });
 
@@ -45,7 +47,7 @@ const useEarlierSteps = (fields: StepData[]): DataSource[] => {
       .filter((field) => stepIdOf(field.path) === id)
       .map((field) => asItem(field, `${label}: `));
 
-    return { id, label, step: true, groups: [{ title: label, items }] };
+    return { id, label, step: found ?? null, groups: [{ title: label, items }] };
   });
 };
 
@@ -73,9 +75,9 @@ export const useDataSources = (
     },
     {
       title: t('other-data', 'Other'),
-      items: [{ path: 'now | date', label: t('today-date', "Today's date") }],
+      items: [{ path: 'now | date', label: t('today-date', "Today's date"), type: 'date' }],
     },
   ].filter((group) => group.items.length);
 
-  return [{ id: 'trigger', label: triggerLabel, step: false, groups }, ...earlier];
+  return [{ id: 'trigger', label: triggerLabel, step: null, groups }, ...earlier];
 };

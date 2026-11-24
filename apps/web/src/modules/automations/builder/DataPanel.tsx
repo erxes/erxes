@@ -1,170 +1,140 @@
 import type { AutomationStep } from '@erxes/core-contract';
-import {
-  IconBolt,
-  IconCheck,
-  IconChevronDown,
-  IconChevronRight,
-  IconCopy,
-  IconRoute,
-} from '@tabler/icons-react';
-import { Button, cn, Input } from 'erxes-ui';
-import { type DragEvent, useContext, useState } from 'react';
+import { IconChevronDown, IconVariable } from '@tabler/icons-react';
+import { cn, Input } from 'erxes-ui';
+import { type ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
+import { BuilderContext } from './BuilderContext';
 import { type DataItem, type DataSource, useDataSources } from './dataSources';
-import { DATA_PATH_TYPE, DataTargetContext } from './dataTarget';
-import { InfoTip } from './Field';
+import { DataTiles } from './DataTiles';
+import { LOOK, useStepLook } from './stepLook';
 import { useReferenceFieldsError } from './useStepData';
 
-const DataCard = ({
-  item,
-  open,
-  onToggle,
-}: {
-  item: DataItem;
-  open?: boolean;
-  onToggle?: () => void;
-}) => {
-  const { t } = useTranslation('automations');
-  const targets = useContext(DataTargetContext);
-  const [copied, setCopied] = useState(false);
-  const token = `{{${item.path}}}`;
-  const Chevron = open ? IconChevronDown : IconChevronRight;
+const ICON_TILE = 'flex size-6 shrink-0 items-center justify-center rounded-md';
 
-  const copy = () => {
-    void navigator.clipboard.writeText(token).then(() => setCopied(true));
-  };
-
-  const onDragStart = (event: DragEvent) => {
-    event.dataTransfer.setData(DATA_PATH_TYPE, item.path);
-    event.dataTransfer.setData('text/plain', token);
-    event.dataTransfer.effectAllowed = 'copy';
-  };
+/** An earlier step's icon, as its card on the canvas shows it. */
+const StepIcon = ({ step }: { step: AutomationStep }) => {
+  const { knownActions } = useContext(BuilderContext);
+  const { icon: Icon, tone } = useStepLook(step, knownActions);
 
   return (
-    <div
-      draggable
-      onDragStart={onDragStart}
-      onMouseLeave={() => setCopied(false)}
-      className="group flex cursor-grab items-center gap-1.5 rounded-md border bg-background px-2 py-1.5 hover:border-primary/50 active:cursor-grabbing"
-    >
-      {onToggle && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          tone="muted"
-          className="size-5 shrink-0"
-          aria-label={item.label}
-          aria-expanded={open}
-          onClick={onToggle}
-        >
-          <Chevron className="size-3.5" />
-        </Button>
-      )}
-      <button
-        type="button"
-        className="min-w-0 flex-1 cursor-pointer text-left"
-        onClick={() => targets.insert(item.path) || copy()}
-      >
-        <span className="block truncate text-sm">{item.label}</span>
-        <span className="block truncate font-mono text-3xs text-muted-foreground">{item.path}</span>
-      </button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        tone="muted"
-        className={cn(
-          'size-6 shrink-0',
-          copied ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-        )}
-        aria-label={t('copy-data', 'Copy')}
-        onClick={copy}
-      >
-        {copied ? (
-          <IconCheck className="size-3.5 text-success" />
-        ) : (
-          <IconCopy className="size-3.5" />
-        )}
-      </Button>
-    </div>
+    <span className={cn(ICON_TILE, tone)}>
+      <Icon className="size-3.5" />
+    </span>
   );
 };
 
-const DataEntry = ({ item, items }: { item: DataItem; items: DataItem[] }) => {
-  const [open, setOpen] = useState(false);
-  const children = items.filter((child) => child.parent === item.path);
-  const prefix = `${item.label} · `;
-
-  if (!children.length) return <DataCard item={item} />;
+const TriggerIcon = () => {
+  const Icon = LOOK.trigger.icon;
 
   return (
-    <div className="space-y-1.5">
-      <DataCard item={item} open={open} onToggle={() => setOpen(!open)} />
-      {open && (
-        <div className="ml-4 space-y-1.5 border-l pl-2">
-          {children.map((child) => (
-            <DataCard
-              key={child.path}
-              item={{
-                ...child,
-                label: child.label.startsWith(prefix)
-                  ? child.label.slice(prefix.length)
-                  : child.label,
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    <span className={cn(ICON_TILE, LOOK.trigger.tone)}>
+      <Icon className="size-3.5" />
+    </span>
   );
 };
-
-const SourceChips = ({
-  sources,
-  active,
-  onPick,
-}: {
-  sources: DataSource[];
-  active: string;
-  onPick: (id: string) => void;
-}) => (
-  <div className="flex flex-wrap gap-1.5">
-    {sources.map((source) => {
-      const Icon = source.step ? IconRoute : IconBolt;
-
-      return (
-        <button
-          key={source.id}
-          type="button"
-          aria-pressed={source.id === active}
-          onClick={() => onPick(source.id)}
-          className={cn(
-            'flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
-            source.id === active
-              ? 'border-primary text-primary-text'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          <Icon className="size-3 shrink-0" />
-          <span className="truncate">{source.label}</span>
-        </button>
-      );
-    })}
-  </div>
-);
 
 const matches = (item: DataItem, search: string) =>
   `${item.label} ${item.path}`.toLowerCase().includes(search.trim().toLowerCase());
 
-const GroupItems = ({ items, searching }: { items: DataItem[]; searching: boolean }) =>
-  searching
-    ? items.map((item) => <DataCard key={item.path} item={item} />)
-    : items
-        .filter((item) => !item.parent)
-        .map((item) => <DataEntry key={item.path} item={item} items={items} />);
+/** The trigger or an earlier step, as a card that opens into the values it gives. */
+const SourceCard = ({ source, search }: { source: DataSource; search: string }) => {
+  const [open, setOpen] = useState(true);
+  const searching = search.trim() !== '';
 
+  const groups = source.groups
+    .map((group) => ({ ...group, items: group.items.filter((item) => matches(item, search)) }))
+    .filter((group) => group.items.length);
+
+  const count = groups.reduce(
+    (sum, group) => sum + group.items.filter((item) => searching || !item.parent).length,
+    0,
+  );
+
+  if (searching && !count) return null;
+
+  return (
+    <li className="relative overflow-hidden rounded-xl border bg-background shadow-xs">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-accent/50"
+      >
+        {source.step ? <StepIcon step={source.step} /> : <TriggerIcon />}
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">{source.label}</span>
+        <span className="text-xs text-muted-foreground tabular-nums">{count}</span>
+        <IconChevronDown
+          className={cn('size-4 text-muted-foreground transition', !open && '-rotate-90')}
+        />
+      </button>
+      {(open || searching) &&
+        groups.map((group) => (
+          <div key={group.title} className="border-t px-2 pt-2 pb-2">
+            {group.title !== source.label && (
+              <h4 className="px-1 pb-1.5 text-2xs font-medium text-muted-foreground">
+                {group.title}
+              </h4>
+            )}
+            <DataTiles items={group.items} searching={searching} />
+          </div>
+        ))}
+    </li>
+  );
+};
+
+/** The step being edited, at the end of the line: the data above flows into it. */
+const ThisStep = ({ step }: { step: AutomationStep }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <li className="relative flex items-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-background px-3 py-2">
+      <StepIcon step={step} />
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+        <StepTitle step={step} />
+      </span>
+      <span className="text-xs text-primary-text">{t('this-step', 'This step')}</span>
+    </li>
+  );
+};
+
+const StepTitle = ({ step }: { step: AutomationStep }) => {
+  const { knownActions } = useContext(BuilderContext);
+  const look = useStepLook(step, knownActions);
+
+  return look.title || look.kind;
+};
+
+const Header = ({ children }: { children: ReactNode }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <div className="shrink-0 space-y-3 border-b bg-background px-4 py-3">
+      <div className="flex items-center gap-3">
+        <span
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center rounded-lg',
+            LOOK.trigger.tone,
+          )}
+        >
+          <IconVariable className="size-4.5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium">{t('data', 'Data')}</span>
+          <span className="block truncate text-xs text-muted-foreground">
+            {t('data-help-short', 'Drag or click to insert')}
+          </span>
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+};
+
+/**
+ * Where a step's data comes from, as a small flow: the trigger and each earlier step as a card
+ * of value tiles, joined by a line down to the step being edited.
+ */
 export const DataPanel = ({
   step,
   subject,
@@ -175,48 +145,33 @@ export const DataPanel = ({
   const { t } = useTranslation('automations');
   const sources = useDataSources(step, subject);
   const error = useReferenceFieldsError();
-  const [picked, setPicked] = useState('trigger');
   const [search, setSearch] = useState('');
-  const source = sources.find((item) => item.id === picked) ?? sources[0];
-  const searching = search.trim() !== '';
-
-  const groups = (source?.groups ?? [])
-    .map((group) => ({ ...group, items: group.items.filter((item) => matches(item, search)) }))
-    .filter((group) => group.items.length);
 
   return (
     <aside
       aria-label={t('data', 'Data')}
-      className="flex w-72 shrink-0 flex-col border-l bg-background"
+      className="flex w-80 shrink-0 flex-col border-l bg-sidebar"
     >
-      <div className="flex h-10 shrink-0 items-center gap-1 border-b px-4 text-sm font-medium">
-        {t('data', 'Data')}
-        <InfoTip text={t('data-help', 'Drag into a field, or click to put it at the cursor')} />
-      </div>
-      <div className="space-y-3 p-3">
-        <SourceChips sources={sources} active={source?.id ?? 'trigger'} onPick={setPicked} />
+      <Header>
         <Input
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder={t('insert-data-search', 'Search data…')}
         />
-      </div>
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+      </Header>
+      <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {error && (
-          <p role="alert" className="text-xs text-destructive-text">
+          <p role="alert" className="mb-3 text-xs text-destructive-text">
             {messageOf(error)}
           </p>
         )}
-        {groups.map((group) => (
-          <section key={group.title} className="space-y-1.5">
-            <h4 className="text-xs font-medium text-muted-foreground">{group.title}</h4>
-            <GroupItems items={group.items} searching={searching} />
-          </section>
-        ))}
-        {!groups.length && (
-          <p className="text-xs text-muted-foreground">{t('catalog-empty', 'Nothing matches')}</p>
-        )}
+        <ol className="relative space-y-3 before:absolute before:top-4 before:bottom-4 before:left-6 before:w-px before:bg-muted-foreground/40">
+          {sources.map((source) => (
+            <SourceCard key={source.id} source={source} search={search} />
+          ))}
+          <ThisStep step={step} />
+        </ol>
       </div>
     </aside>
   );

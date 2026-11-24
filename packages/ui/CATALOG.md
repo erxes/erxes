@@ -154,6 +154,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.
 - `<EmailListField recordId onValueChange onValidationStatusChange noValidation primaryEmail>` An editable list of a record's emails, each with its own menu.
 - `<EntityPicker items itemKey renderItem value onValueChange>` The searchable list behind every record picker; build a picker on it.
+- `<FieldTypeIcon field>` A field's icon on pickers and chips: its own, else its type's.
 - `<FullNameField firstName lastName onValueChange scope>` First and last name inputs in a popover, saved when it closes.
 - `<FullNameValue>` The name `FullNameField` is editing, or "Unknown" when it is empty.
 - `<IconComponent name>` A Tabler icon by its name, such as one stored on a record.
