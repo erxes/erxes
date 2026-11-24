@@ -75,17 +75,20 @@ const ChatSwitcher = ({ tabs, onHistory }: { tabs: AssistantTabs; onHistory: () 
   const [open, setOpen] = useState(false);
   const active = tabs.active ?? tabs.tabs[0];
   const { title } = useTabTitle(active ?? { key: '', threadId: null });
+  const extra = tabs.tabs.length - 1;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger
-        aria-label={t('open-conversations', 'Open conversations')}
+        aria-label={t('open-conversations', '{{title}}, open conversations', {
+          title: extra > 0 ? `${title} +${extra}` : title,
+        })}
         render={<Button variant="ghost" size="sm" className="min-w-0 justify-start" />}
       >
         <span className="min-w-0 truncate font-semibold">{title}</span>
-        {tabs.tabs.length > 1 && (
+        {extra > 0 && (
           <span aria-hidden className="shrink-0 text-xs text-muted-foreground">
-            +{tabs.tabs.length - 1}
+            +{extra}
           </span>
         )}
         <IconChevronDown aria-hidden className="shrink-0 text-muted-foreground" />
