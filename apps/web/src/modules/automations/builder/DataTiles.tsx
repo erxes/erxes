@@ -42,7 +42,7 @@ const Tile = ({
         draggable
         title={`${item.label}\n${token}`}
         onDragStart={onDragStart}
-        onClick={() => targets.insert(item.path) || copy()}
+        onClick={(event) => event.detail > 1 || targets.insert(item.path) || copy()}
         className={cn(
           TILE,
           'cursor-grab flex-col items-start justify-start bg-muted/40 pb-6 text-left transition hover:border-primary/50 hover:bg-primary/5 active:cursor-grabbing',
