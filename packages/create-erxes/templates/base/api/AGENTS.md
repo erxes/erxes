@@ -23,6 +23,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   the assistant offers a route only to who holds it), and run the handler in `withOrg(member.orgId)`, so
   row-level security shows `context.tx` one organisation's rows. Queries carry
   no org filter; only an insert sets `orgId`, from `context.member`.
+- `reads` also marks its route a read (`readsByPost`). Routes are POSTs, and agents and MCP
+  clients ask the member before any unmarked POST, so a `reads` procedure never changes data.
 - Call core (`core.forOrg(orgId)...`) outside `context.tx`; a failed core call
   must not roll back the plugin's own change.
 - What happens to a record is an event: publish it with core's core_publish_event SQL function

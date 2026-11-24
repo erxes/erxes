@@ -36,8 +36,9 @@ oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
   documents them (`pluginOpenApi`), and core's Settings › Developer › API reference
   shows it. The assistant finds and calls those member routes as the member, with no
   step in between, so check the member's permission in every procedure. One that takes
-  or returns a credential is never offered. Give a read `method: 'GET'`: after any other
-  call web reads the page's data again. Routes for employees in the plugin's own app, customers or a portal's server get
+  or returns a credential is never offered. `reads(...)` marks its route a read
+  (`readsByPost`), and a GET is one too: the assistant runs a read without asking, and
+  after any other call web reads the page's data again. Routes for employees in the plugin's own app, customers or a portal's server get
   their own document with that `audience`, listed in the manifest's `api.docs`. Renaming a procedure breaks those scripts. A caller outside erxes (a webhook) reaches a path
   the manifest's `publicPaths` lists through core, which names the organisation:
   check it with `verifyPublicCall` (`@erxes/plugin-sdk`'s overview has the route).

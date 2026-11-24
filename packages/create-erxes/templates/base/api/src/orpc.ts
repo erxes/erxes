@@ -1,3 +1,4 @@
+import { readsByPost } from '@erxes/core-contract/common';
 import type { PluginMember } from '@erxes/plugin-sdk';
 import { checksPermission } from '@erxes/plugin-sdk/openapi';
 import { ORPCError, os } from '@orpc/server';
@@ -23,8 +24,12 @@ const inOrg = (action: string, change: boolean) =>
     [action],
   );
 
-/** A read: the member holds `action`; `context.tx` is their organisation's transaction. */
-export const reads = (action: string) => base.use(inOrg(action, false));
+/**
+ * A read: the member holds `action`; `context.tx` is their organisation's transaction. The API
+ * document marks it a read (`readsByPost`), so agents and MCP clients run it without asking.
+ */
+export const reads = (action: string) =>
+  base.route({ spec: readsByPost }).use(inOrg(action, false));
 
 /** A change: like `reads`, and refused while the organisation is read-only. */
 export const writes = (action: string) => base.use(inOrg(action, true));
