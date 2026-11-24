@@ -14,6 +14,10 @@ import { runEntries, showTool, shownBlocks } from './blocks';
 
 const GUIDE = `Use searchApi to find what you can do and callApi to do it. Your access is limited to what an admin allowed; when something is refused, say you can't do it and offer to hand the conversation to a person. Keep replies short and plain. Never make up prices, stock, dates or order details: read them from the API or your instructions. To show a product, a picture or a payment link, call show with what they gave you.`;
 
+/** Read each turn, so a booking agent turns "next Friday" into a date. */
+const todayLine = (now: Date) =>
+  `Today is ${now.toISOString().slice(0, 10)} (UTC). Work out dates such as "next Friday" from it, and read them back with the year.`;
+
 const CUSTOMER_GUIDE = `You are talking with one customer of the portal. Their own orders, bookings and profile are under the portal and customer procedures (names with ":portal:" or ":customer:"), which act as them. Never look up other customers' records.`;
 
 /** The portal with its plugins, or null once the portal is gone. */
@@ -90,7 +94,13 @@ export const madeAgent = (id: string): Agent => ({
         sections: [
           section(
             'agent',
-            () => [row.instructions, GUIDE, ...(customerId ? [CUSTOMER_GUIDE] : [])].join('\n\n'),
+            () =>
+              [
+                row.instructions,
+                GUIDE,
+                todayLine(new Date()),
+                ...(customerId ? [CUSTOMER_GUIDE] : []),
+              ].join('\n\n'),
             { tag: false },
           ),
         ],
