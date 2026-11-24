@@ -39,7 +39,7 @@ export const pinColumns = (start: string[], fresh: string[], sticky: string[]) =
 export const withStructuralFirst = (start: string[], structural: string[]) => {
   const missing = structural.filter((id) => !start.includes(id));
 
-  return start.length && missing.length ? [...missing, ...start] : start;
+  return start.length && missing.length ? [...start, ...missing] : start;
 };
 
 /** Identifies the columns and sticky columns a layout is fitted to. */
