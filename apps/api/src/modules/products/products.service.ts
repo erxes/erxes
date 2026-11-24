@@ -253,12 +253,16 @@ export const useProducts = async (client: Db, ids: string[], used: boolean) => {
   return lookupProducts(client, wanted);
 };
 
-export const clearCategory = async (client: Db, categoryId: string) => {
+const CLEAR_PAGE = 500;
+
+export const clearCategory = async (client: Db, categoryId: string): Promise<void> => {
   const ids = (
     await client
       .select({ id: products.id })
       .from(products)
       .where(eq(products.categoryId, categoryId))
+      .orderBy(products.id)
+      .limit(CLEAR_PAGE)
   ).map((row) => row.id);
 
   if (!ids.length) return;
@@ -281,6 +285,8 @@ export const clearCategory = async (client: Db, categoryId: string) => {
     );
 
   await announceUpdated(client, before);
+
+  if (ids.length === CLEAR_PAGE) await clearCategory(client, categoryId);
 };
 
 /** Archives (`archived`) or restores (`active`) a product; asking twice changes nothing. */

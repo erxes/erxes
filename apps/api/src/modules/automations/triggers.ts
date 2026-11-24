@@ -343,7 +343,7 @@ export const startNow = async (
   const audience =
     trigger.kind === 'manual' || trigger.kind === 'schedule' ? trigger.audience : undefined;
 
-  if (start.data) await rememberTriggerData(tx, automation.id, start.data);
+  if (start.data) await rememberTriggerData(tx, automation.id, 'manual', start.data);
 
   if (subjects?.length) {
     const chosen = audienceEnrollment(

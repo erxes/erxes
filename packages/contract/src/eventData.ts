@@ -183,6 +183,7 @@ export const LEAD_DATA = {
 } as const;
 
 export const DATE_TRIGGER_DATA = z.object({
+  field: text('Date field'),
   date: z.string().nullable().meta({ title: 'Date', fieldType: 'date' }),
   day: z.string().meta({ title: 'Today', fieldType: 'date' }),
   offsetDays: number('Days from the date'),

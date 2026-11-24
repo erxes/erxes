@@ -13,7 +13,7 @@ const OUTPUT = 'output:';
 
 const HOOK = 'hook:';
 
-const HOOK_PARTS = ['body', 'query', 'trigger'] as const;
+const HOOK_PARTS = ['body', 'query'] as const;
 
 type HookPart = (typeof HOOK_PARTS)[number];
 
@@ -24,6 +24,9 @@ export const isEventType = (type: string) => !type.startsWith(OUTPUT) && !type.s
 const hookType = (automationId: string, part: HookPart) => `${HOOK}${automationId}:${part}`;
 
 const stepPrefix = (automationId: string) => `${HOOK}${automationId}:step:`;
+
+const triggerType = (automationId: string, scope: string) =>
+  `${HOOK}${automationId}:trigger:${scope}`;
 
 const startingWith = (prefix: string) => sql`starts_with(${eventData.type}, ${prefix})`;
 
@@ -81,19 +84,23 @@ export const rememberHookData = async (
 export const rememberTriggerData = (
   tx: Db,
   automationId: string,
+  scope: string,
   payload: Record<string, unknown>,
-) => remember(tx, hookType(automationId, 'trigger'), payload);
+) => remember(tx, triggerType(automationId, scope), payload);
 
-export const forgetTriggerData = (tx: Db, automationId: string) =>
-  tx.delete(eventData).where(eq(eventData.type, hookType(automationId, 'trigger')));
+export const rememberAppEvent = async (tx: Db, automationId: string, event: EventRow) => {
+  if (event.entityId)
+    await rememberTriggerData(tx, automationId, `app:${event.entityId}`, event.payload);
+};
 
 export const rememberStepOutput = async (
   tx: Db,
   automationId: string,
-  stepId: string,
+  step: { id: string; action: string },
   output: unknown,
 ) => {
-  if (isRecord(output)) await remember(tx, `${stepPrefix(automationId)}${stepId}`, output);
+  if (isRecord(output))
+    await remember(tx, `${stepPrefix(automationId)}${step.id}:${step.action}`, output);
 };
 
 export const forgetAutomationData = (tx: Db, automationId: string) =>
@@ -108,7 +115,8 @@ const grouped = (rows: { type: string; key: string; kind: Carried['kind'] | 'see
   for (const row of rows) {
     const carried = learned.get(row.type) ?? [];
 
-    if (row.kind !== 'seen') carried.push({ key: row.key, kind: row.kind });
+    if (row.kind !== 'seen' && carried.length < MAX_KEYS)
+      carried.push({ key: row.key, kind: row.kind });
 
     learned.set(row.type, carried);
   }
@@ -139,8 +147,19 @@ export const learnedHookData = async (client: Db, automationId: string) => {
   return {
     body: learned.get(hookType(automationId, 'body')) ?? [],
     query: learned.get(hookType(automationId, 'query')) ?? [],
-    trigger: learned.get(hookType(automationId, 'trigger')) ?? [],
   };
+};
+
+export const learnedTriggerData = async (client: Db, automationId: string, scope: string) => {
+  const type = triggerType(automationId, scope);
+
+  const rows = await client
+    .select(columns)
+    .from(eventData)
+    .where(eq(eventData.type, type))
+    .orderBy(asc(eventData.createdAt), asc(eventData.key));
+
+  return grouped(rows).get(type) ?? [];
 };
 
 export const learnedStepOutputs = async (client: Db, automationId: string) => {
@@ -154,5 +173,9 @@ export const learnedStepOutputs = async (client: Db, automationId: string) => {
       .orderBy(asc(eventData.createdAt), asc(eventData.key)),
   );
 
-  return [...learned].map(([type, carried]) => ({ stepId: type.slice(prefix.length), carried }));
+  return [...learned].map(([type, carried]) => {
+    const [stepId = '', ...action] = type.slice(prefix.length).split(':');
+
+    return { stepId, action: action.join(':'), carried };
+  });
 };

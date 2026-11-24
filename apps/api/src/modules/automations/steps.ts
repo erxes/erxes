@@ -127,7 +127,7 @@ const runLocalAction = async (
       ),
     );
 
-    await rememberStepOutput(tx, automation.id, step.id, output);
+    await rememberStepOutput(tx, automation.id, step, output);
 
     return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
   } catch (error) {

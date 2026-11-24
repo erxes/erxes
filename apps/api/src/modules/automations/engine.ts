@@ -113,7 +113,7 @@ export const callJob = defineJob({
     const { output } = answer;
 
     await withOrg(job.orgId, async (tx) => {
-      await rememberStepOutput(tx, prepared.automationId, prepared.step.id, output);
+      await rememberStepOutput(tx, prepared.automationId, prepared.step, output);
 
       if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);
 

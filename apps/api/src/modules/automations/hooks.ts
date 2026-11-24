@@ -21,7 +21,7 @@ import { automationChecker } from './conditionCheck';
 import { conditionsHold, startRun } from './consumer';
 import { eachStep } from './cursor';
 import { type Carried, healedFields } from './dataFields';
-import { forgetHookData, learnedHookData, rememberHookData } from './eventData';
+import { forgetHookData, learnedHookData, learnedTriggerData, rememberHookData } from './eventData';
 import { findHookSubject } from './hookSubject';
 
 type AutomationRow = typeof automations.$inferSelect;
@@ -178,26 +178,35 @@ const appFields = (trigger: { app: string; trigger: string }, learned: Carried[]
 
 export const triggerFields = async (client: Db, automationId: string) => {
   const [row] = await client
-    .select({ definition: automations.definition })
+    .select({ definition: automations.definition, subscriptionId: automations.subscriptionId })
     .from(automations)
     .where(eq(automations.id, automationId))
     .limit(1);
 
   if (!row) return [];
 
-  const learned = await learnedHookData(client, automationId);
-
   const { trigger } = row.definition;
 
-  if (trigger.kind === 'app') return appFields(trigger, learned.trigger);
+  if (trigger.kind === 'app')
+    return row.subscriptionId
+      ? appFields(
+          trigger,
+          await learnedTriggerData(client, automationId, `app:${row.subscriptionId}`),
+        )
+      : [];
 
   if (trigger.kind === 'manual')
-    return startFields('Started with', healedFields([], learned.trigger));
+    return startFields(
+      'Started with',
+      healedFields([], await learnedTriggerData(client, automationId, 'manual')),
+    );
 
   if (trigger.kind === 'date') return startFields('Date', payloadFields(DATE_TRIGGER_DATA));
 
   if (trigger.kind === 'schedule')
     return startFields('Schedule', payloadFields(SCHEDULE_TRIGGER_DATA));
+
+  const learned = await learnedHookData(client, automationId);
 
   if (trigger.kind !== 'webhook' && !learned.body.length && !learned.query.length) return [];
 

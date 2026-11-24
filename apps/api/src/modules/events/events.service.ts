@@ -1,13 +1,15 @@
-import type {
-  ActivityTarget,
-  CoreEventName,
-  CursorQuery,
-  EventFailure,
-  EventInput,
-  WithCorePayload,
+import {
+  type ActivityTarget,
+  CORE_EVENT_TYPES,
+  type CoreEventName,
+  type CursorQuery,
+  type EventFailure,
+  type EventInput,
+  type WithCorePayload,
 } from '@erxes/core-contract';
 import { actorOf, caller, type Db, events, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
+import type { ZodObject } from 'zod';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
@@ -35,6 +37,13 @@ type CoreEventInput<T extends string> = EventColumns & { type: T } & (T extends 
 
 type EventRow = EventColumns & { type: string; payload?: Record<string, unknown> };
 
+const PAYLOADS = new Map<string, ZodObject>(
+  CORE_EVENT_TYPES.flatMap((item) => ('payload' in item ? [[item.type, item.payload]] : [])),
+);
+
+const checkedPayload = ({ type, payload = {} }: EventRow): Record<string, unknown> =>
+  PAYLOADS.get(type)?.parse(payload) ?? payload;
+
 const publishCore = async (client: Db, list: EventRow[]) => {
   if (!list.length) {
     return;
@@ -53,8 +62,8 @@ const publishCore = async (client: Db, list: EventRow[]) => {
         ...input,
         ...actor,
         payload: imported
-          ? { ...input.payload, _import: { id: imported.importId, quiet: imported.quiet } }
-          : (input.payload ?? {}),
+          ? { ...checkedPayload(input), _import: { id: imported.importId, quiet: imported.quiet } }
+          : checkedPayload(input),
         // Caused by an automation's action: that run, one level deeper.
         causedByRun: cause?.runId ?? null,
         depth: cause ? cause.depth + 1 : 0,

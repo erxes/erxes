@@ -143,10 +143,8 @@ const stepProblems = (
         ? []
         : [`Step ${step.id} waits for an event about the record, but runs aren't about one`]),
       ...(waited ? [] : [`Step ${step.id}: unknown event ${step.event}`]),
-      ...(subject && waited?.subject && waited.subject !== subject
-        ? [
-            `Step ${step.id} waits for an event about a ${waited.subject}, but runs are about a ${subject}`,
-          ]
+      ...(subject && waited && waited.subject !== subject
+        ? [`Step ${step.id} waits for an event that is not about the ${subject} runs are about`]
         : []),
     ];
   }

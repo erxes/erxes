@@ -32,12 +32,15 @@ const FieldType = z.enum(AUTOMATION_FIELD_TYPES);
 
 const RecordType = z.string().min(1);
 
+const MAX_PATH_KEYS = 4;
+
 export const payloadFields = (payload: z.ZodObject, prefix = ''): DataField[] =>
   Object.entries<z.core.$ZodType>(payload.shape).flatMap(([name, value]) => {
     const key = `${prefix}${name}`;
     const inner = unwrapped(value);
 
-    if (inner instanceof z.ZodObject) return payloadFields(inner, `${key}.`);
+    if (inner instanceof z.ZodObject)
+      return key.split('.').length < MAX_PATH_KEYS ? payloadFields(inner, `${key}.`) : [];
 
     const meta = z.globalRegistry.get(value);
     const type = FieldType.safeParse(meta?.fieldType).data ?? fieldType(inner);

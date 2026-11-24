@@ -52,7 +52,12 @@ export const useBuilder = (
           events: catalog.triggers,
           actions,
           trigger: started,
-          learned: new Map((learned.data?.data ?? []).map((step) => [step.stepId, step.fields])),
+          learned: new Map(
+            (learned.data?.data ?? []).map((step) => [
+              `${step.stepId}:${step.action}`,
+              step.fields,
+            ]),
+          ),
         }),
       trigger: started,
       hasSubject,

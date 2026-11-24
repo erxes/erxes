@@ -17,11 +17,17 @@ import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────
 
+const KEY = String.raw`[^.{}|\s](?:[^.{}|]{0,58}[^.{}|\s])?`;
+
+export const DATA_KEY = new RegExp(`^${KEY}$`);
+
+export const dataPath = (deeper: number) => new RegExp(`^${KEY}(\\.${KEY}){0,${deeper}}$`);
+
 /** Where a condition or template reads from: `event.payload.amount`, `subject.primaryEmail`, `steps.s2.output.id`. */
 export const ContextPath = z
   .string()
   .trim()
-  .regex(/^(event|subject|steps|run)(\.[A-Za-z0-9_-]+)*$/, 'a path like subject.primaryEmail');
+  .regex(new RegExp(`^(event|subject|steps|run)(\\.${KEY})*$`), 'a path like subject.primaryEmail');
 
 export { CONDITION_OPERATORS };
 
@@ -201,12 +207,6 @@ export const Audience = z.object({
 });
 
 export type Audience = z.infer<typeof Audience>;
-
-const KEY = String.raw`[^.{}|\s](?:[^.{}|]{0,58}[^.{}|\s])?`;
-
-export const DATA_KEY = new RegExp(`^${KEY}$`);
-
-export const dataPath = (deeper: number) => new RegExp(`^${KEY}(\\.${KEY}){0,${deeper}}$`);
 
 export const HookField = z
   .string()

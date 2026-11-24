@@ -16,7 +16,13 @@ export const automationRunRoutes = {
     .output(
       z.object({
         data: z
-          .array(z.object({ stepId: z.string(), fields: z.array(DataField).max(51) }))
+          .array(
+            z.object({
+              stepId: z.string(),
+              action: z.string(),
+              fields: z.array(DataField).max(50),
+            }),
+          )
           .max(500),
       }),
     ),

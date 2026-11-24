@@ -91,6 +91,7 @@ describe('automation messages', { timeout: 240_000 }, () => {
     });
     expect((await t.owner().automations.outputs({ id })).data).toContainEqual({
       stepId: 'tell',
+      action: 'core.notification.send',
       fields: [{ key: 'sent', label: 'Sent', type: 'number' }],
     });
     await expect(t.other().automations.outputs({ id })).rejects.toMatchObject({ status: 404 });

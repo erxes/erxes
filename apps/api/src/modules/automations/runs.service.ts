@@ -185,6 +185,10 @@ export const automationOutputs = async (client: Db, id: string) => {
   const learned = await learnedStepOutputs(client, id);
 
   return {
-    data: learned.map(({ stepId, carried }) => ({ stepId, fields: healedFields([], carried) })),
+    data: learned.map(({ stepId, action, carried }) => ({
+      stepId,
+      action,
+      fields: healedFields([], carried),
+    })),
   };
 };

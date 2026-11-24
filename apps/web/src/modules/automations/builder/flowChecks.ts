@@ -130,7 +130,9 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
     const action = context.actions.find((item) => item.type === step.action);
     const title = step.label || action?.label || step.action;
 
-    return withLearned(action?.outputs ?? [], context.learned?.get(step.id)).map((output) => ({
+    const learned = context.learned?.get(`${step.id}:${step.action}`);
+
+    return withLearned(action?.outputs ?? [], learned).map((output) => ({
       path: `steps.${step.id}.output.${output.key}`,
       label: `${title}: ${output.label}`,
       type: output.type,
