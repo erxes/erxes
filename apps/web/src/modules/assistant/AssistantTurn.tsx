@@ -2,9 +2,10 @@ import { cn, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { CopyButton } from './CopyButton';
 import { Reply, type ReplyActions } from './Reply';
-import { type ActivityRow, RunTrace } from './Steps';
+import { RunTrace } from './RunTrace';
+import type { ActivityRow } from './stepLabels';
 import { ThinkingLine } from './ThinkingLine';
-import { replyText, type TranscriptRow } from './transcriptRows';
+import { replyText, type TranscriptMessage, type TranscriptRow } from './transcriptRows';
 
 const ArtifactCard = lazy(() =>
   import('./artifacts/ArtifactCard').then((module) => ({ default: module.ArtifactCard })),
@@ -60,11 +61,11 @@ export const WorkingRow = ({ label }: { label: string }) => (
 );
 
 export const AssistantTurn = ({
-  rows,
+  message: { rows, startedAt, endedAt },
   last,
   actions,
 }: {
-  rows: TranscriptRow[];
+  message: Extract<TranscriptMessage, { role: 'assistant' }>;
   last: boolean;
   actions: TranscriptActions;
 }) => {
@@ -76,7 +77,7 @@ export const AssistantTurn = ({
 
   return (
     <article aria-busy={working} className="group/turn flex min-w-0 flex-col gap-3">
-      <RunTrace rows={activity} live={working} />
+      <RunTrace rows={activity} live={working} startedAt={startedAt} endedAt={endedAt} />
       {shown.map((row) => (
         <Row
           key={row.key}

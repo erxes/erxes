@@ -5,7 +5,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { i18n, i18nReady } from '~/i18n';
-import { RunTrace } from '../Steps';
+import { RunTrace } from '../RunTrace';
 import { transcriptOf } from '../transcriptRows';
 
 let root: Root | null = null;
@@ -43,8 +43,18 @@ const call = (id: string, title: string): Call => ({
   output: { ok: true, result: {} },
 });
 
+const ASKED_AT = 1_795_554_000_000;
+
+const answeredAt = (index: number, count: number) =>
+  ASKED_AT + (index === count - 1 ? 201_000 : 2_000 * (index + 1));
+
 const entriesOf = (calls: Call[]) => [
-  { id: 1, kind: 'assistant.user', data: [{ type: 'text', text: 'Tag Anna VIP' }] },
+  {
+    id: 1,
+    kind: 'assistant.user',
+    data: [{ type: 'text', text: 'Tag Anna VIP' }],
+    model: [{ role: 'user', content: 'Tag Anna VIP', timestamp: ASKED_AT }],
+  },
   {
     id: 2,
     kind: 'pi.assistant',
@@ -58,10 +68,11 @@ const entriesOf = (calls: Call[]) => [
           arguments: args,
         })),
         stopReason: 'toolUse',
+        timestamp: ASKED_AT + 500,
       },
     ],
   },
-  ...calls.map(({ id, name, output }) => ({
+  ...calls.map(({ id, name, output }, index) => ({
     id: 100,
     kind: 'pi.toolResult',
     model: [
@@ -71,6 +82,7 @@ const entriesOf = (calls: Call[]) => [
         toolName: name,
         content: [{ type: 'text', text: JSON.stringify(output) }],
         isError: false,
+        timestamp: answeredAt(index, calls.length),
       },
     ],
   })),
@@ -78,7 +90,10 @@ const entriesOf = (calls: Call[]) => [
 
 const render = (calls: Call[], live = false) => {
   const reply = transcriptOf({ entries: entriesOf(calls), docs: {} }).messages.at(-1);
-  const row = reply?.role === 'assistant' ? reply.rows.find((item) => item.kind === 'steps') : null;
+
+  if (reply?.role !== 'assistant') throw new Error('no reply');
+
+  const row = reply.rows.find((item) => item.kind === 'steps');
 
   if (row?.kind !== 'steps') throw new Error('no steps row');
 
@@ -86,7 +101,8 @@ const render = (calls: Call[], live = false) => {
 
   document.body.append(container);
   root = createRoot(container);
-  const steps = createElement(RunTrace, { rows: [row], live });
+  const { startedAt, endedAt } = reply;
+  const steps = createElement(RunTrace, { rows: [row], live, startedAt, endedAt });
 
   const translated = createElement(I18nextProvider, { i18n }, steps);
 
@@ -117,12 +133,14 @@ describe('the steps a reply took', () => {
       call('c2', 'Tag Anna Keller VIP'),
     ]);
 
-    view.open('5 steps');
+    view.open('Worked for 3m 21s');
 
     const text = view.container.textContent;
 
     expect(text).toContain('Looked up how to do it');
-    expect(text).toContain('3 searches');
+    expect(text).toContain('×3');
+    expect(text).toContain('0:08');
+    expect(text).toContain('3:21');
     expect(text).toContain('Find the VIP tag');
     expect(text).toContain('Tag Anna Keller VIP');
     expect(text).not.toContain('+customers.update');

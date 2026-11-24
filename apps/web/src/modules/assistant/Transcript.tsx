@@ -97,7 +97,7 @@ export const Transcript = ({
                 <UserMessage parts={message.parts} />
               ) : (
                 <AssistantTurn
-                  rows={message.rows}
+                  message={message}
                   last={index === messages.length - 1}
                   actions={actions}
                 />
