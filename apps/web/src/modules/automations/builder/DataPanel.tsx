@@ -7,7 +7,6 @@ import { messageOf } from '@erxes/core-contract/client';
 import { BuilderContext } from './BuilderContext';
 import { type DataItem, type DataSource, useDataSources } from './dataSources';
 import { DataTiles } from './DataTiles';
-import { LINE } from './FlowNode';
 import { LOOK, useStepLook } from './stepLook';
 import { useReferenceFieldsError } from './useStepData';
 
@@ -167,8 +166,7 @@ export const DataPanel = ({
             {messageOf(error)}
           </p>
         )}
-        <ol className="relative space-y-3">
-          <span className={cn('absolute top-4 bottom-4 left-6 w-px', LINE)} />
+        <ol className="relative space-y-3 before:absolute before:top-4 before:bottom-4 before:left-6 before:w-px before:bg-muted-foreground/40">
           {sources.map((source) => (
             <SourceCard key={source.id} source={source} search={search} />
           ))}
