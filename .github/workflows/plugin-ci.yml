@@ -9,7 +9,8 @@
 # What runs follows the plugin's files, so there is nothing to configure:
 # - static: `vp run check`, migrations against the schema, applied migrations unchanged, and
 #   no critical advisory in production dependencies.
-# - integration: `pnpm check:rls` and `vp run test` on Postgres.
+# - integration: `pnpm check:rls` and `vp run test` on Postgres; a pull request runs the test files
+#   its changes reach (`--changed`), a push every file.
 # - stack: the image, its Trivy scan and, with deploy/docker-compose.yml, core's published
 #   images plus the plugin started twice: the smoke test and core's tenancy guard on one, the
 #   daily flows (e2e/playwright.config.ts) on the other.
@@ -149,6 +150,10 @@ jobs:
             --health-cmd 'pg_isready -U ci' --health-interval 1s --health-retries 60 \
             postgres:18
       - uses: actions/checkout@v7
+        with:
+          # A pull request's checkout is its merge commit; its first parent is the base.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          filter: blob:none
       - *pnpm
       - *node
       - *modules-paths
@@ -160,8 +165,10 @@ jobs:
       # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
       - name: Every table has org_id with forced row level security, or is listed
         run: pnpm check:rls
+      # A pull request runs the test files its changes reach through imports, and every file when
+      # it changes an input the plugin's vite.config.ts lists in forceRerunTriggers. Pushes run every file.
       - name: Tests (each file on its own database, as a role without BYPASSRLS)
-        run: pnpm exec vp run test
+        run: pnpm exec vp run test ${{ github.event_name == 'pull_request' && '--changed=HEAD^1 --passWithNoTests' || '' }}
 
   stack:
     name: Image, scan, smoke test and daily flows
