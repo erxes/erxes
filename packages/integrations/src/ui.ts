@@ -11,6 +11,7 @@ import { openrouterUi } from './openrouter/ui';
 import { qpayUi } from './qpay/ui';
 import { stripeUi } from './stripe/ui';
 import { twilioUi } from './twilio/ui';
+import { typesafeUi } from './typesafe/ui';
 import { verifyMnUi } from './verify-mn/ui';
 
 export const INTEGRATION_UIS = [
@@ -28,4 +29,5 @@ export const INTEGRATION_UIS = [
   kimiUi,
   kimiCodeUi,
   grokUi,
+  typesafeUi,
 ];

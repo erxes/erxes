@@ -62,6 +62,21 @@ const stepProblems = (
         : [];
     case 'delay':
       return step.until === '' ? ['Choose the date to wait until'] : [];
+    case 'decide': {
+      const problems: string[] = [];
+
+      if (!step.question.trim()) problems.push('Ask the model a question');
+
+      if (step.paths.some((path) => !path.label.trim())) problems.push('Name every path');
+
+      const labels = step.paths.map((path) => path.label.trim().toLowerCase()).filter(Boolean);
+
+      if (new Set(['otherwise', ...labels]).size !== labels.length + 1)
+        problems.push('Give each path its own name, other than “otherwise”');
+
+      return problems;
+    }
+
     default:
       return [];
   }
@@ -167,6 +182,17 @@ const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[
         refersTo: field.refersTo,
         ...pickedFrom(event),
       })),
+    ];
+  }
+
+  if (step.type === 'decide') {
+    const title = step.label || 'Decision model';
+
+    return [
+      { path: `steps.${step.id}.output.path`, label: `${title}: Path`, type: 'text' },
+      { path: `steps.${step.id}.output.choice`, label: `${title}: Choice`, type: 'text' },
+      { path: `steps.${step.id}.output.confidence`, label: `${title}: Confidence`, type: 'number' },
+      { path: `steps.${step.id}.output.model`, label: `${title}: Model`, type: 'text' },
     ];
   }
 

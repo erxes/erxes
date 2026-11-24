@@ -986,7 +986,8 @@
       "government": "Government",
       "developer": "Developer tools",
       "productivity": "Productivity",
-      "ai": "AI Provider"
+      "ai": "AI Provider",
+      "decision": "Decision model"
     },
     "made-for": "Made for {{countries}}",
     "anywhere": "Works in any country",

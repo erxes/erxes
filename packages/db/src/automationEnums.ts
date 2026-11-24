@@ -10,6 +10,8 @@ export const REENTRY_RULES = ['always', 'once', 'daily'] as const;
 
 export const DELAY_UNITS = ['minutes', 'hours', 'days'] as const;
 
+export const DECISION_PROVIDERS = ['typesafe', 'openai'] as const;
+
 /** How often a scheduled trigger fires. */
 export const SCHEDULE_INTERVALS = ['minute', 'hour', 'day', 'week', 'month'] as const;
 

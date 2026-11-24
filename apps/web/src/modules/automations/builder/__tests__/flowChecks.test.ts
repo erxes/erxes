@@ -1,6 +1,8 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { describe, expect, it } from 'vite-plus/test';
-import { stepOutputFields } from '../flowChecks';
+import { flowProblems, stepOutputFields } from '../flowChecks';
+import { armsOf, cloneStep } from '../flowModel';
+import { describeStep } from '../flowText';
 
 const actions: ActionInfo[] = [
   {
@@ -141,5 +143,69 @@ describe('stepOutputFields', () => {
     expect(pathsFor('c1')).toEqual([]);
     expect(pathsFor('ow')).toEqual([]);
     expect(pathsFor('p1')).toEqual(['steps.c0.output.ownerId']);
+  });
+
+  it('handles decide arms, labels, problems, outputs and cloning', () => {
+    const decide: AutomationStep = {
+      id: 'dec',
+      type: 'decide',
+      provider: 'typesafe',
+      question: 'Which team?',
+      state: '',
+      paths: [
+        { label: 'Billing', steps: [assign('a')] },
+        { label: 'Support', steps: [] },
+      ],
+      otherwise: [{ id: 'o1', type: 'stop' }],
+    };
+
+    expect(armsOf(decide).map((arm) => [arm.key, arm.label])).toEqual([
+      ['path:0', 'Billing'],
+      ['path:1', 'Support'],
+      ['otherwise', 'Otherwise'],
+    ]);
+    expect(describeStep(decide, { actions, events: [], fields: [] })).toEqual({
+      title: 'Which team?',
+      detail: 'TypeSafe · Billing / Support',
+    });
+
+    const outputs = stepOutputFields([decide, { id: 'after', type: 'stop' }], 'after', {
+      events: [],
+      actions,
+    });
+
+    expect(outputs.map((item) => item.path)).toEqual([
+      'steps.dec.output.path',
+      'steps.dec.output.choice',
+      'steps.dec.output.confidence',
+      'steps.dec.output.model',
+      'steps.a.output.ownerId',
+    ]);
+
+    const bad = flowProblems(
+      [
+        {
+          ...decide,
+          id: 'bad',
+          question: '   ',
+          paths: [
+            { label: 'Billing', steps: [] },
+            { label: 'billing', steps: [] },
+            { label: 'Otherwise', steps: [] },
+          ],
+        },
+      ],
+      actions,
+    );
+
+    expect(bad.get('bad')).toEqual([
+      'Ask the model a question',
+      'Give each path its own name, other than “otherwise”',
+    ]);
+
+    const copy = cloneStep(decide);
+
+    expect(copy.id).not.toBe('dec');
+    expect(copy.type === 'decide' && copy.otherwise[0]?.id).not.toBe('o1');
   });
 });

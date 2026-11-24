@@ -4,7 +4,7 @@ import { createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Automation, HookSample } from './automation';
 import { AutomationApp } from './integrations';
-import { AutomationStatus } from './values';
+import { AutomationStatus, DecisionProvider } from './values';
 import { AutomationDefinition } from '@erxes/core-db/automationDefinition';
 import { automationBase as base } from './automationBase';
 import { automationRunRoutes } from './automationRunRoutes';
@@ -17,6 +17,14 @@ export const CatalogSearch = z.object({
 });
 
 export type CatalogSearch = z.infer<typeof CatalogSearch>;
+
+export const DecisionModel = z.object({
+  id: z.string(),
+  name: z.string(),
+  recommended: z.boolean(),
+});
+
+export type DecisionModel = z.infer<typeof DecisionModel>;
 
 const Fields = createUpdateSchema(automations, {
   name: (name) => name.trim().min(1).max(120),
@@ -247,6 +255,23 @@ export const automationsContract = {
     })
     .input(z.object({ subject: z.enum(CONTENT_TYPES).optional(), automation: Id.optional() }))
     .output(listOf(AutomationFieldPath)),
+  decisionModels: base
+    .route({
+      method: 'GET',
+      path: '/automations/decision-models',
+      summary: 'List decision models',
+      description:
+        'Models available on the chosen decision provider connection (the default active one when connection is omitted); empty with `error` when the provider cannot be reached. 403 NOT_ALLOWED; 404 NOT_FOUND when the named connection is missing or off',
+    })
+    .input(z.object({ provider: DecisionProvider, connection: Id.optional() }))
+    .output(
+      z.object({
+        defaultModel: z.string(),
+        defaultModelName: z.string(),
+        models: z.array(DecisionModel),
+        error: z.string().nullable(),
+      }),
+    ),
   remove: base
     .route({
       method: 'DELETE',

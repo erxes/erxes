@@ -588,6 +588,16 @@
         }
       }
     },
+    "decisionModels": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/decision-models"
+        }
+      }
+    },
     "remove": {
       "~orpc": {
         "errorMap": {},

@@ -13,6 +13,7 @@ export const exceptions = [
     // children), and an email chip inside triggers that are buttons already.
     files: [
       'apps/web/src/modules/activity/NoteComposer.tsx',
+      'apps/web/src/modules/automations/builder/TemplateInput.tsx',
       'apps/web/src/modules/side-panel/RecordSidePanelResizeHandle.tsx',
       'packages/ui/src/modules/display/components/EmailDisplay.tsx',
     ],

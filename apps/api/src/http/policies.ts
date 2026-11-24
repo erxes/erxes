@@ -285,6 +285,7 @@ export const ACCESS = {
   'automations.restoreVersion': needs('automations.manage'),
   'automations.templates': needs('automations.view'),
   'automations.fields': needs('automations.view'),
+  'automations.decisionModels': needs('automations.view'),
   'automations.runs': needs('automations.view'),
   'automations.run': needs('automations.view'),
   'automations.retryRun': needs('automations.manage'),

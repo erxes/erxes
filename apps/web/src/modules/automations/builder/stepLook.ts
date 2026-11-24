@@ -2,6 +2,7 @@ import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
 import {
   IconArrowsSplit,
   IconBolt,
+  IconBrain,
   IconClock,
   IconGitBranch,
   IconHandStop,
@@ -29,6 +30,7 @@ export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string; 
   branch: { icon: IconGitBranch, tone: VIOLET, dot: 'bg-violet-500' },
   switch: { icon: IconRoute, tone: VIOLET, dot: 'bg-violet-500' },
   split: { icon: IconArrowsSplit, tone: VIOLET, dot: 'bg-violet-500' },
+  decide: { icon: IconBrain, tone: VIOLET, dot: 'bg-violet-500' },
   stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground', dot: 'bg-muted-foreground' },
 };
 

@@ -9,6 +9,7 @@ import { SplitPaths, SwitchCases } from './ArmSettings';
 import { BuilderContext } from './BuilderContext';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
+import { DecideSettings } from './DecideSettings';
 import { Field, InfoTip } from './Field';
 import { emptyRequired, isEmpty } from './flowChecks';
 import { actionDefaults } from './flowModel';
@@ -227,6 +228,8 @@ const StepBody = ({
       return <SwitchCases {...props} step={step} outputs={outputs} />;
     case 'split':
       return <SplitPaths step={step} disabled={disabled} onChange={onChange} />;
+    case 'decide':
+      return <DecideSettings {...props} step={step} />;
     default:
       return null;
   }

@@ -12,6 +12,7 @@ export const INTEGRATION_CATEGORIES = [
   'developer',
   'productivity',
   'ai',
+  'decision',
 ] as const;
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;

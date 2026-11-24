@@ -1,3 +1,4 @@
+import type { IntegrationCategory } from '@erxes/core-contract';
 import { z } from 'zod';
 import {
   type ClientOptions,
@@ -15,6 +16,7 @@ interface ModelProviderSpec {
   summary: string;
   dashboard: string;
   baseUrl: string;
+  category?: IntegrationCategory;
   modelsPath?: string;
   checkPath?: string;
   headers?: (apiKey: string) => Record<string, string>;
@@ -47,7 +49,7 @@ export const modelProvider = (spec: ModelProviderSpec) =>
     name: spec.name,
     summary: spec.summary,
     dashboard: spec.dashboard,
-    category: 'ai',
+    category: spec.category ?? 'ai',
     countries: [],
     permission: 'assistant.manage',
     keys,

@@ -2,7 +2,7 @@ import type { AutomationStep } from '@erxes/core-contract';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
-import { findStep } from './flowModel';
+import { findStep, STEP_TITLES } from './flowModel';
 import { type StepData, useStepData } from './useStepData';
 
 export type DataItem = { path: string; label: string; type: string; parent?: string };
@@ -41,7 +41,7 @@ const useEarlierSteps = (fields: StepData[]): DataSource[] => {
         ? knownActions.find((item) => item.type === found.action)
         : undefined;
 
-    const label = found?.label || action?.label || id;
+    const label = found?.label || action?.label || (found ? STEP_TITLES[found.type] : id);
 
     const items = fields
       .filter((field) => stepIdOf(field.path) === id)

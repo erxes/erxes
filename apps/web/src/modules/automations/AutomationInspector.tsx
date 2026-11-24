@@ -110,7 +110,7 @@ export const AutomationInspector = (props: InspectorProps) => {
 
   return (
     <DataTargetContext.Provider value={targets}>
-      {step?.type === 'action' && editable && (
+      {(step?.type === 'action' || step?.type === 'decide') && editable && (
         <DataPanel key={step.id} step={step} subject={built.subject} />
       )}
       <aside className="flex w-136 shrink-0 flex-col border-l bg-background">

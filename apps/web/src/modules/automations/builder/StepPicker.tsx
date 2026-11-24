@@ -7,7 +7,7 @@ import { catalogIcon, matchWords, useRecent } from './catalogGroups';
 import { STEP_TITLES, type StepType } from './flowModel';
 import { LOOK } from './stepLook';
 
-const LOGIC: StepType[] = ['delay', 'wait_for', 'branch', 'switch', 'split', 'stop'];
+const LOGIC: StepType[] = ['delay', 'wait_for', 'branch', 'switch', 'split', 'decide', 'stop'];
 const TOP_ACTIONS = 6;
 
 export type AddStep = (type: StepType, action?: string) => void;
