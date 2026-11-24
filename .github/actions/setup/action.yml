@@ -7,10 +7,13 @@ description: pnpm, Node and node_modules, restored from postgre's cache when the
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
     - uses: actions/setup-node@v7
       with:
         node-version-file: .node-version
+    # The pnpm version package.json pins, straight from npm. pnpm/action-setup installs its
+    # own pnpm first and then switches to the pinned one, which took 8.5 s.
+    - shell: bash
+      run: npm install --global --no-fund --no-audit "$(jq -r .packageManager package.json)"
     - id: modules
       uses: actions/cache/restore@v6
       with:
