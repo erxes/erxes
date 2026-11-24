@@ -21,6 +21,7 @@ import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
+import { requestedScopes } from '~/modules/plugins/requestedScopes';
 import { livePortal } from '~/modules/customerAuth/customerPortals';
 import { portalClaimsOfCall } from '~/modules/customerAuth/portalCalls';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
@@ -235,10 +236,31 @@ const PluginClaims = z.object({
 });
 
 /**
+ * Scopes the owner granted after the token was issued that the plugin still asks for. Read
+ * only when the installation grants more than the token carries, so most requests skip it.
+ */
+const grantedSince = async (plugin: string, granted: string[], carried: Set<string>) => {
+  const newer = granted.filter((scope) => !carried.has(scope));
+
+  if (newer.length === 0) return [];
+
+  const [row] = await db()
+    .select({ manifest: plugins.manifest })
+    .from(plugins)
+    .where(eq(plugins.name, plugin))
+    .limit(1);
+
+  const requested = new Set(row ? requestedScopes(row) : []);
+
+  return newer.filter((scope) => requested.has(scope));
+};
+
+/**
  * A plugin token (`POST /plugins/token`), checked on every request against
  * the registry and the organisation's installation: disabling a plugin or
- * uninstalling it cuts it off at once, and scopes can only shrink. A token
- * without an organisation is the plugin's own (its manifest only).
+ * uninstalling it cuts it off at once, and a scope the owner approved after
+ * the token was issued works at once. A token without an organisation is the
+ * plugin's own (its manifest only).
  */
 const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => {
   const claims = await verifyJwt(token, PluginClaims, {
@@ -278,6 +300,8 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
   if (installation?.status !== 'active') throw unauthorized();
 
   const granted = new Set(installation.grantedScopes);
+  const carried = (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope));
+  const since = await grantedSince(claims.sub, installation.grantedScopes, new Set(carried));
 
   req.log.setBindings({ orgId: org, actorId: claims.sub });
 
@@ -285,7 +309,7 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
     caller: {
       type: 'plugin',
       plugin: claims.sub,
-      scopes: (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
+      scopes: [...carried, ...since],
     },
     orgId: org,
   };
