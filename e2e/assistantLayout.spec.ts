@@ -22,7 +22,7 @@ test('a long conversation keeps its newest reply in view, and two open conversat
   await ask(panel, `Add a customer named ${name}`);
   await expect(panel.getByText(`Added ${name} as a customer.`)).toBeInViewport();
 
-  await panel.getByRole('button', { name: 'New chat' }).click();
+  await panel.getByRole('button', { name: 'New chat', exact: true }).click();
   await expect(panel.getByRole('textbox', { name: 'Message' })).toBeFocused();
 
   await ask(panel, 'Draft a welcome message');
@@ -31,7 +31,7 @@ test('a long conversation keeps its newest reply in view, and two open conversat
   await expect(chats).toContainText('Welcome message for new customers');
   await chats.click();
 
-  const open = page.getByRole('button', { name: /^Close / });
+  const open = page.getByRole('dialog').getByRole('button', { name: /^Close / });
 
   await expect(open).toHaveCount(2);
 
