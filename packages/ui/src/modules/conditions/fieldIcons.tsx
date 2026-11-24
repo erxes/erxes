@@ -27,7 +27,7 @@ const FIELD_ICONS: Partial<Record<string, typeof IconHash>> = {
   list: IconList,
 };
 
-/** A field's icon in the pickers and on its chips: its own, else its type's. */
+/** A field's icon on pickers and chips: its own, else its type's. */
 export const FieldIcon = ({
   field,
   className,

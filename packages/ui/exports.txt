@@ -144,6 +144,7 @@ value Empty
 value EntityPicker
 value EnumCursorDirection
 value Export
+value FieldTypeIcon
 value Filter
 value Form
 value FullNameField
