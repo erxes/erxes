@@ -2,11 +2,11 @@ import { IconArrowDown } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AssistantTurn, type TranscriptActions } from './TaskCard';
-import { type TranscriptMessage, userText } from './transcriptRows';
+import { AssistantTurn, type TranscriptActions } from './AssistantTurn';
+import type { TranscriptMessage } from './transcriptRows';
 import { UserMessage } from './UserMessage';
 
-export { type TranscriptActions, WorkingRow } from './TaskCard';
+export { type TranscriptActions, WorkingRow } from './AssistantTurn';
 
 const LatestButton = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation('assistant');
@@ -75,12 +75,6 @@ const useFollowBottom = (asked: string | undefined) => {
   return { scroller, list, onScroll, away, toLatest };
 };
 
-const askedBefore = (messages: TranscriptMessage[], index: number) => {
-  const asked = messages.slice(0, index).findLast((message) => message.role === 'user');
-
-  return asked?.role === 'user' ? userText(asked.parts) : '';
-};
-
 export const Transcript = ({
   messages,
   actions,
@@ -96,15 +90,14 @@ export const Transcript = ({
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
-        <ol ref={list} className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4">
+        <ol ref={list} className="mx-auto flex w-full max-w-3xl flex-col gap-7 px-4 pt-6 pb-8">
           {messages.map((message, index) => (
-            <li key={message.key}>
+            <li key={message.key} className="animate-in fade-in slide-in-from-bottom-1">
               {message.role === 'user' ? (
                 <UserMessage parts={message.parts} />
               ) : (
                 <AssistantTurn
-                  rows={message.rows}
-                  asked={askedBefore(messages, index)}
+                  message={message}
                   last={index === messages.length - 1}
                   actions={actions}
                 />

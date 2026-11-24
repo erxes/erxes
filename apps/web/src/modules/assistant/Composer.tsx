@@ -186,7 +186,7 @@ export const Composer = ({
     <form
       {...drop}
       data-dropping={over || undefined}
-      className="relative m-3 mt-0 flex flex-col gap-1 rounded-xl border bg-background p-2 shadow-xs focus-within:shadow-focus data-dropping:border-primary"
+      className="relative mx-auto flex w-full max-w-3xl flex-col gap-1 rounded-2xl border bg-background p-2 shadow-lg transition-shadow focus-within:shadow-focus data-dropping:border-primary"
       onSubmit={(event) => {
         event.preventDefault();
         draft.send();

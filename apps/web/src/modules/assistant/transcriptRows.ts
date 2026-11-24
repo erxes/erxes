@@ -11,6 +11,10 @@ const MEMBER_ENTRY = 'assistant.user';
  */
 const MemberParts = z.array(z.looseObject({ type: z.string() }));
 
+const Stamped = z.array(z.looseObject({ timestamp: z.number() }));
+
+const Timestamp = z.number().optional();
+
 const CallApiInput = z.object({
   procedure: z.string(),
   input: z.record(z.string(), z.unknown()).optional(),
@@ -51,6 +55,7 @@ const known = (parts: unknown[]) => parts.flatMap((part) => Content.safeParse(pa
 const AssistantMessage = z.object({
   role: z.literal('assistant'),
   content: z.array(z.unknown()).transform(known),
+  timestamp: Timestamp,
 });
 
 const ToolResult = z.object({
@@ -58,6 +63,7 @@ const ToolResult = z.object({
   toolCallId: z.string(),
   content: z.array(z.looseObject({ type: z.string() })),
   isError: z.boolean(),
+  timestamp: Timestamp,
 });
 
 type ToolResult = z.infer<typeof ToolResult>;
@@ -86,7 +92,7 @@ const failureText = ({ reason, detail }: RunFailure) =>
     ? `Stopped after ${detail ?? 'too many turns'}, the most one reply may take. Send a message to go on.`
     : (detail ?? reason);
 
-export type StepStatus = 'running' | 'done' | 'failed';
+type StepStatus = 'running' | 'done' | 'failed';
 
 export interface Step {
   key: string;
@@ -98,17 +104,24 @@ export interface Step {
   input: unknown;
   output: unknown;
   error: string | null;
+  at: number | null;
 }
 
 export type TranscriptRow =
   | { kind: 'text'; key: string; text: string; streaming: boolean }
-  | { kind: 'thinking'; key: string; text: string; streaming: boolean }
+  | { kind: 'thinking'; key: string; text: string; streaming: boolean; at: number | null }
   | { kind: 'steps'; key: string; steps: Step[] }
   | { kind: 'artifact'; key: string; artifact: AssistantArtifact };
 
 export type TranscriptMessage =
   | { role: 'user'; key: string; parts: AssistantMessagePart[] }
-  | { role: 'assistant'; key: string; rows: TranscriptRow[] };
+  | {
+      role: 'assistant';
+      key: string;
+      rows: TranscriptRow[];
+      startedAt: number | null;
+      endedAt: number | null;
+    };
 
 /** What a conversation view needs to have; the server's `ConversationView` is one. */
 export interface ViewLike {
@@ -143,7 +156,7 @@ const errorOf = (result: ToolResult | undefined, output: unknown) => {
   return result?.isError ? resultText(result) : null;
 };
 
-const stepOf = (call: ToolCall, result: ToolResult | undefined): Step => {
+const stepOf = (call: ToolCall, result: ToolResult | undefined, calledAt: number | null): Step => {
   const tool = call.name;
   const api = tool === 'callApi' ? CallApiInput.safeParse(call.arguments).data : undefined;
   const skill = tool === 'loadSkill' ? LoadSkillInput.safeParse(call.arguments).data : undefined;
@@ -160,6 +173,7 @@ const stepOf = (call: ToolCall, result: ToolResult | undefined): Step => {
     input: api?.input ?? call.arguments,
     output: result?.isError ? null : output,
     error: errorOf(result, output),
+    at: result?.timestamp ?? calledAt,
   };
 };
 
@@ -167,12 +181,17 @@ interface ReplyPart {
   part: Content;
   key: string;
   streaming: boolean;
+  at: number | null;
 }
 
 type Results = Map<string, ToolResult>;
 
-const rowOfCall = (call: ToolCall, results: Results): TranscriptRow | Step => {
-  const step = stepOf(call, results.get(call.id));
+const rowOfCall = (
+  call: ToolCall,
+  results: Results,
+  calledAt: number | null,
+): TranscriptRow | Step => {
+  const step = stepOf(call, results.get(call.id), calledAt);
 
   if (call.name === 'createArtifact') {
     const artifact = AssistantArtifact.safeParse(step.output).data;
@@ -184,16 +203,18 @@ const rowOfCall = (call: ToolCall, results: Results): TranscriptRow | Step => {
 };
 
 const rowOf = (
-  { part, key, streaming }: ReplyPart,
+  { part, key, streaming, at }: ReplyPart,
   results: Results,
 ): TranscriptRow | Step | null => {
-  if (part.type === 'toolCall') return rowOfCall(part, results);
+  if (part.type === 'toolCall') return rowOfCall(part, results, at);
 
   if (part.type === 'text') {
     return part.text.trim() ? { kind: 'text', key, text: part.text, streaming } : null;
   }
 
-  return part.thinking.trim() ? { kind: 'thinking', key, text: part.thinking, streaming } : null;
+  return part.thinking.trim()
+    ? { kind: 'thinking', key, text: part.thinking, streaming, at }
+    : null;
 };
 
 const isStep = (row: TranscriptRow | Step): row is Step => !('kind' in row);
@@ -226,16 +247,29 @@ const rowsOf = (parts: ReplyPart[], results: Results) => {
   return rows;
 };
 
-type Item =
-  | { role: 'user'; key: string; parts: AssistantMessagePart[] }
-  | { role: 'assistant'; key: string; messages: { content: Content[]; streaming: boolean }[] };
+interface ReplyMessage {
+  content: Content[];
+  streaming: boolean;
+  at: number | null;
+}
 
-const replyParts = (key: string, messages: { content: Content[]; streaming: boolean }[]) =>
+type Item =
+  | { role: 'user'; key: string; parts: AssistantMessagePart[]; at: number | null }
+  | { role: 'assistant'; key: string; messages: ReplyMessage[]; endedAt: number | null };
+
+const replyParts = (key: string, messages: ReplyMessage[]) =>
   messages
-    .flatMap(({ content, streaming }) =>
-      content.map((part, at) => ({ part, streaming: streaming && at === content.length - 1 })),
+    .flatMap(({ content, streaming, at }) =>
+      content.map((part, index) => ({
+        part,
+        at,
+        streaming: streaming && index === content.length - 1,
+      })),
     )
     .map((part, index) => ({ ...part, key: `${key}-${index}` }));
+
+const later = (current: number | null, next: number | undefined) =>
+  next === undefined ? current : Math.max(current ?? next, next);
 
 const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
   const items: Item[] = [];
@@ -246,7 +280,12 @@ const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
 
     if (last?.role === 'assistant') return last;
 
-    const next: Item = { role: 'assistant', key: `reply-${last?.key ?? 'start'}`, messages: [] };
+    const next: Item = {
+      role: 'assistant',
+      key: `reply-${last?.key ?? 'start'}`,
+      messages: [],
+      endedAt: null,
+    };
 
     items.push(next);
 
@@ -258,22 +297,33 @@ const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
 
     if (entry?.kind === MEMBER_ENTRY) {
       const parts = MemberParts.safeParse(entry.data).data ?? [];
+      const at = Stamped.safeParse(entry.model).data?.[0]?.timestamp ?? null;
 
-      items.push({ role: 'user', key: entry.id, parts });
+      items.push({ role: 'user', key: entry.id, parts, at });
     } else {
       for (const message of entry?.model ?? []) {
         const parsed = ModelMessage.safeParse(message).data;
 
-        if (parsed?.role === 'assistant') {
-          reply().messages.push({ content: parsed.content, streaming: false });
-        } else if (parsed) {
+        if (!parsed) continue;
+
+        const current = reply();
+
+        current.endedAt = later(current.endedAt, parsed.timestamp);
+
+        if (parsed.role === 'assistant') {
+          current.messages.push({
+            content: parsed.content,
+            streaming: false,
+            at: parsed.timestamp ?? null,
+          });
+        } else {
           results.set(parsed.toolCallId, parsed);
         }
       }
     }
   }
 
-  if (streamed) reply().messages.push({ content: streamed, streaming: true });
+  if (streamed) reply().messages.push({ content: streamed, streaming: true, at: null });
 
   return { items, results };
 };
@@ -303,12 +353,19 @@ export const transcriptOf = (view: ViewLike) => {
 
   const { items, results } = itemsOf(view, streamed);
 
+  let askedAt: number | null = null;
+
   const messages = items.flatMap((item): TranscriptMessage[] => {
-    if (item.role === 'user') return [item];
+    if (item.role === 'user') {
+      askedAt = item.at;
+
+      return [{ role: 'user', key: item.key, parts: item.parts }];
+    }
 
     const rows = rowsOf(replyParts(item.key, item.messages), results);
+    const { key, endedAt } = item;
 
-    return rows.length ? [{ role: 'assistant', key: item.key, rows }] : [];
+    return rows.length ? [{ role: 'assistant', key, rows, startedAt: askedAt, endedAt }] : [];
   });
 
   const last = messages.at(-1);

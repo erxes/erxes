@@ -30,3 +30,29 @@
     background-image: radial-gradient(#0d0d0d, #161616);
   }
 }
+
+@utility shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-muted-foreground) 35%,
+    var(--color-foreground) 50%,
+    var(--color-muted-foreground) 65%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-text 2.2s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background-position: 100% 0;
+  }
+}
+
+@keyframes shimmer-text {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
