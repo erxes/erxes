@@ -26,16 +26,21 @@ export const useCommonDealSearch = () => {
   const [debouncedNameSearch] = useDebounce(trimmedNameSearch, 350);
   const [debouncedNumberSearch] = useDebounce(trimmedNumberSearch, 350);
   const dealNumber = debouncedNumberSearch.replace(/^#\s*/, '');
-  const nameSearchReady = isDealSearchReady(debouncedNameSearch, 'name');
-  const numberSearchReady = isDealSearchReady(dealNumber, 'number');
+  const nameSearchReady =
+    category === 'name' && isDealSearchReady(debouncedNameSearch, 'name');
+  const numberSearchReady =
+    category === 'number' && isDealSearchReady(dealNumber, 'number');
+  const dateSearchReady = category === 'date' && Boolean(dateRange?.from);
   const activeSearch = category === 'date' ? '' : searches[category].trim();
   const normalizedActiveSearch =
     category === 'number' ? activeSearch.replace(/^#\s*/, '') : activeSearch;
   const searchSettled =
-    debouncedNameSearch === trimmedNameSearch &&
-    debouncedNumberSearch === trimmedNumberSearch;
+    category === 'date' ||
+    (category === 'name'
+      ? debouncedNameSearch === trimmedNameSearch
+      : debouncedNumberSearch === trimmedNumberSearch);
   const hasSearchFilter =
-    Boolean(dateRange?.from) || nameSearchReady || numberSearchReady;
+    dateSearchReady || nameSearchReady || numberSearchReady;
   const hasIncompleteActiveSearch =
     category !== 'date' &&
     Boolean(activeSearch) &&
@@ -46,16 +51,17 @@ export const useCommonDealSearch = () => {
   const searchResult = useDealSearch(
     nameSearchReady ? debouncedNameSearch : '',
     sortOrder,
-    dateRange?.from ? dateRange : undefined,
+    dateSearchReady ? dateRange ?? undefined : undefined,
     numberSearchReady ? dealNumber : undefined,
   );
+  const { loadMore } = searchResult;
   const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
 
   useEffect(() => {
     if (loadMoreInView) {
-      searchResult.loadMore();
+      loadMore();
     }
-  }, [loadMoreInView, searchResult.loadMore]);
+  }, [loadMoreInView, loadMore]);
 
   const setActiveSearch = (value: string) => {
     if (category === 'date') return;
