@@ -25,10 +25,15 @@ export interface ToolScope {
   /** Turns the records in a result into references the reader can open; the assistant's chat. */
   references?: (schema: unknown, result: unknown) => Promise<IssuedReference[]>;
   /**
-   * An agent talking to a customer of a portal: the portal and customer routes of the plugins
-   * on it run as them, with the headers `credentials` gives (their token and a portal token).
+   * An agent serving a portal's visitors: the guest routes of the plugins on the portal run with
+   * the headers `credentials` gives (a portal token). When the conversation is with a customer
+   * (`signedIn`), their own routes run too, as them (their token as well).
    */
-  customer?: { plugins: string[]; credentials: () => Promise<Record<string, string>> };
+  portal?: {
+    plugins: string[];
+    signedIn: boolean;
+    credentials: () => Promise<Record<string, string>>;
+  };
 }
 
 export const SEARCH_LIMIT = 8;
@@ -94,23 +99,25 @@ type Entry = ApiProcedure | PluginProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
 
-/** The portal and customer routes of the plugins on the customer's portal. */
-const customerProcedures = async ({ customer, plugins }: ToolScope) => {
-  const onPortal = plugins.filter((plugin) => customer?.plugins.includes(plugin.name));
+/** The routes of the plugins on the scope's portal: guests', and a signed-in customer's own. */
+const portalProcedures = async ({ portal, plugins }: ToolScope) => {
+  const onPortal = plugins.filter((plugin) => portal?.plugins.includes(plugin.name));
 
-  return onPortal.length
-    ? [
-        ...(await pluginProcedures(onPortal, 'portal')),
-        ...(await pluginProcedures(onPortal, 'customer')),
-      ]
-    : [];
+  if (!portal || !onPortal.length) return [];
+
+  const routes = [
+    ...(await pluginProcedures(onPortal, 'portal')),
+    ...(await pluginProcedures(onPortal, 'customer')),
+  ];
+
+  return portal.signedIn ? routes : routes.filter((route) => !route.signedIn);
 };
 
-/** Every route the scope reaches: core's, plugins' member routes, and a customer's when it has one. */
+/** Every route the scope reaches: core's, plugins' member routes, and its portal's. */
 const entriesOf = async (scope: ToolScope): Promise<Entry[]> => [
   ...apiCatalog().values(),
   ...(await pluginProcedures(scope.plugins)),
-  ...(await customerProcedures(scope)),
+  ...(await portalProcedures(scope)),
 ];
 
 const findEntry = async (scope: ToolScope, name: string) =>
@@ -229,13 +236,13 @@ export const callProcedure = async (
     return refusal('FORBIDDEN', `Your access does not include this ${entry.plugin} route`);
   }
 
-  const { customer } = scope;
+  const { portal } = scope;
 
   const run = () => {
     if (!isPluginEntry(entry)) return runCore(scope, name, input);
 
-    if (entry.audience !== 'member' && customer) {
-      return callPluginRoute(entry, input, customer.credentials);
+    if (entry.audience !== 'member' && portal) {
+      return callPluginRoute(entry, input, portal.credentials);
     }
 
     return callPluginProcedure(scope.orgId, entry, input);

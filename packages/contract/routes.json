@@ -192,6 +192,26 @@
         }
       }
     },
+    "runs": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/agents/{id}/runs"
+        }
+      }
+    },
+    "restart": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/agents/{id}/conversations/{key}/restart"
+        }
+      }
+    },
     "submit": {
       "~orpc": {
         "errorMap": {},

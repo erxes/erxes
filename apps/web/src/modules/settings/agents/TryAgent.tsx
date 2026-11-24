@@ -1,7 +1,7 @@
 import type { AgentBlock } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconRefresh, IconSend } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,14 +13,40 @@ interface Turn {
   from: 'you' | 'agent' | 'error';
   text: string;
   blocks: AgentBlock[];
+  /** The model that answered, and why it handed the conversation to a person. */
+  model: string | null;
+  handedOff: string | null;
 }
 
-const turnOf = (from: Turn['from'], text: string, blocks: AgentBlock[] = []): Turn => ({
+const turnOf = (
+  from: Turn['from'],
+  text: string,
+  answered: Partial<Pick<Turn, 'blocks' | 'model' | 'handedOff'>> = {},
+): Turn => ({
   id: crypto.randomUUID(),
   from,
   text,
-  blocks,
+  blocks: answered.blocks ?? [],
+  model: answered.model ?? null,
+  handedOff: answered.handedOff ?? null,
 });
+
+/** Under an answer: the model that gave it, and the hand off to a person. */
+const AnswerNote = ({ turn }: { turn: Turn }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'agents' });
+
+  return (
+    <p className="text-xs text-muted-foreground">
+      {turn.model}
+      {turn.handedOff && (
+        <span className="text-destructive-text">
+          {' · '}
+          {t('handed-off', 'Handed to a person: {{reason}}', { reason: turn.handedOff })}
+        </span>
+      )}
+    </p>
+  );
+};
 
 /** The conversation so far: the member's messages right, the agent's answers left. */
 const Transcript = ({ turns, pending }: { turns: Turn[]; pending: boolean }) => {
@@ -47,6 +73,7 @@ const Transcript = ({ turns, pending }: { turns: Turn[]; pending: boolean }) => 
               <Markdown text={turn.text} streaming={false} />
             </div>
             <AgentBlocks blocks={turn.blocks} />
+            <AnswerNote turn={turn} />
           </div>
         ) : (
           <p key={turn.id} className="text-sm text-destructive-text">
@@ -64,7 +91,13 @@ export const TryAgent = ({ agentId }: { agentId: string }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'agents' });
   const [turns, setTurns] = useState<Turn[]>([]);
   const [text, setText] = useState('');
-  const ask = useMutation(orpc.agents.try.mutationOptions());
+  const client = useQueryClient();
+
+  const ask = useMutation(
+    orpc.agents.try.mutationOptions({
+      onSettled: () => client.invalidateQueries({ queryKey: orpc.agents.runs.key() }),
+    }),
+  );
 
   const send = () => {
     const message = text.trim();
@@ -77,8 +110,8 @@ export const TryAgent = ({ agentId }: { agentId: string }) => {
     ask.mutate(
       { id: agentId, text: message, restart: turns.length === 0 },
       {
-        onSuccess: ({ answer, blocks }) =>
-          setTurns((was) => [...was, turnOf('agent', answer, blocks)]),
+        onSuccess: ({ answer, ...answered }) =>
+          setTurns((was) => [...was, turnOf('agent', answer, answered)]),
         onError: (failure) => setTurns((was) => [...was, turnOf('error', messageOf(failure))]),
       },
     );
@@ -90,7 +123,7 @@ export const TryAgent = ({ agentId }: { agentId: string }) => {
         <p className="text-sm text-muted-foreground">
           {t(
             'try-intro',
-            'It answers as it will answer customers, with only its own access. Not signed in as a customer.',
+            "It answers as it will answer a visitor, with only its own access. With a portal it uses the portal's guest routes, such as checkout; it isn't signed in as a customer.",
           )}
         </p>
         <Button

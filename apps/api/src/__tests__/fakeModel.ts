@@ -26,7 +26,9 @@ export type ChatRequest = z.infer<typeof ChatRequest>;
 
 export type Reply =
   | { text: string; delayMs?: number; reasoning?: string }
-  | { tool: string; input: Record<string, unknown>; reasoning?: string };
+  | { tool: string; input: Record<string, unknown>; reasoning?: string }
+  /** The provider refuses the request, as with no credit left (402). */
+  | { status: number; error: string };
 
 export type Script = (request: ChatRequest) => Reply;
 
@@ -79,7 +81,9 @@ const chunk = (delta: Record<string, unknown>, finish: string | null = null) =>
     choices: [{ index: 0, delta, finish_reason: finish }],
   })}\n\n`;
 
-const streamReply = async (res: ServerResponse, reply: Reply, calls: number) => {
+type Answer = Exclude<Reply, { status: number }>;
+
+const streamReply = async (res: ServerResponse, reply: Answer, calls: number) => {
   res.writeHead(200, { 'content-type': 'text/event-stream' });
 
   if (reply.reasoning) res.write(chunk({ role: 'assistant', reasoning_content: reply.reasoning }));
@@ -112,7 +116,7 @@ const streamReply = async (res: ServerResponse, reply: Reply, calls: number) => 
   res.end('data: [DONE]\n\n');
 };
 
-const jsonReply = (res: ServerResponse, reply: Reply) => {
+const jsonReply = (res: ServerResponse, reply: Answer) => {
   const text = 'text' in reply ? reply.text : '';
 
   res.writeHead(200, { 'content-type': 'application/json' }).end(
@@ -177,7 +181,11 @@ export const fakeModel = async (apiKey: string, port = 0) => {
         ? { text: titleOf(request, state.titles) }
         : state.script(request);
 
-      if (request.stream) void streamReply(res, reply, requests.length);
+      if ('status' in reply) {
+        res
+          .writeHead(reply.status, { 'content-type': 'application/json' })
+          .end(JSON.stringify({ error: { message: reply.error } }));
+      } else if (request.stream) void streamReply(res, reply, requests.length);
       else jsonReply(res, reply);
     });
   }).listen(port);

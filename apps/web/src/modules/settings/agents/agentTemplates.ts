@@ -19,7 +19,7 @@ export interface Template {
   instructions: string;
 }
 
-const SELLER = `Answer in the customer's language, in short messages. Never invent prices, stock or dates: look them up, and say so when a lookup fails. Write each price with the currency it comes with. Ask one question at a time.`;
+const SELLER = `Answer in the customer's language, in short messages. Never invent prices, stock or dates: look them up, and hand the conversation to a person when a lookup fails. Write each price with the currency it comes with. Ask one question at a time.`;
 
 export const TEMPLATES: Template[] = [
   {
@@ -36,7 +36,7 @@ export const TEMPLATES: Template[] = [
 - When the customer names a kind of product, show two or three that fit as product cards, with price and stock, then ask one question to narrow it down.
 - Suggest one or two alternatives when an item is out of stock.
 - When the customer is signed in, show their orders and place new ones for them. Confirm the items, quantities and total before you place an order.
-- For returns and complaints, collect the order number and the problem, then say a person will follow up.
+- For returns and complaints, collect the order number and the problem, then hand the conversation to a person.
 
 ${SELLER}`,
   },
@@ -80,13 +80,13 @@ ${SELLER}`,
     title: 'Support',
     description: 'Answers from the knowledge base and hands the rest to a person.',
     plugin: 'frontline',
-    actions: /\.(knowledgebase|help_center)\.view$/,
+    actions: /\.knowledgebase\.view$/,
     customers: false,
     name: 'Support assistant',
     instructions: `You answer customers' questions for our support team.
 
 - Search the knowledge base first and answer from its articles, with a link when there is one. The search matches words, not meaning: use one to three short keywords, then a synonym or the other language when nothing comes back.
-- When no article answers it, say so plainly and tell the customer a person will reply.
+- When no article answers it, hand the conversation to a person.
 - Never promise refunds, discounts or dates.
 
 Answer in the customer's language, in short messages.`,

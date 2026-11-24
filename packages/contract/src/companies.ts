@@ -20,7 +20,8 @@ import {
   MergeIds,
   namesMerged,
 } from './common';
-import { ContactLink, ContactLinkInput, TagChange } from './customers';
+import { ContactLink, ContactLinkInput } from './contactLinks';
+import { TagChange } from './customers';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 import { CompanyId, CustomerId } from './records';
 

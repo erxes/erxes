@@ -6,7 +6,7 @@ import { type OutboundAnswer, requestOutbound } from '~/lib/outbound';
 import { logger } from '~/logger';
 import { pluginSession } from '~/modules/plugins/installations.service';
 import type { PluginProcedure } from './pluginDocument';
-import { bounded, describeError, refusal } from './results';
+import { bounded, describeError, jsonOf, refusal } from './results';
 
 const PLUGIN_TIMEOUT_MS = 30_000;
 
@@ -56,14 +56,6 @@ const requestFor = (entry: PluginProcedure, input: Record<string, unknown>) => {
       ? JSON.stringify(Object.fromEntries(rest.filter((item) => !inQuery(item))))
       : '',
   };
-};
-
-const jsonOf = (text: string): unknown => {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text === '' ? null : text;
-  }
 };
 
 const resultOf = (entry: PluginProcedure, answer: OutboundAnswer) => {

@@ -246,6 +246,12 @@ export const API_KEY_KINDS = ['member', 'regular', 'management'] as const;
 /** The templates an agent can start from (Settings › AI agents). */
 export const AGENT_TEMPLATES = ['shop', 'hotel', 'tours', 'support'] as const;
 
+/** The tools of an agent's calls its run log lists. */
+export const AGENT_API_TOOLS = ['searchApi', 'callApi'] as const;
+
+/** How an agent's run stands: still running, answered, or ended without an answer. */
+export const AGENT_RUN_STATUSES = ['running', 'done', 'failed'] as const;
+
 /** The areas a regular key works with: data. */
 export const API_KEY_DATA_AREAS = [
   'contacts',

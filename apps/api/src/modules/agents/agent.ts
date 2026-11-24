@@ -39,10 +39,18 @@ export const madeAgentName = (id: string) => `${MADE_PREFIX}${id}`;
 export const madeAgentId = (name: string) =>
   name.startsWith(MADE_PREFIX) ? name.slice(MADE_PREFIX.length) : null;
 
+const assistantParts = (entries: readonly (EntryRecord | undefined)[]) =>
+  entries
+    .flatMap((entry) => entry?.model ?? [])
+    .flatMap((message) => (message.role === 'assistant' ? message.content : []));
+
 /** What the model said in an answer entry, its text parts joined. */
 export const answerText = (entry: EntryRecord | undefined) =>
-  (entry?.model ?? [])
-    .flatMap((message) => (message.role === 'assistant' ? message.content : []))
+  assistantParts([entry])
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
     .join('\n')
     .trim();
+
+/** The tool calls the model made in these entries, in order. */
+export const toolCallsOf = (entries: readonly EntryRecord[]) =>
+  assistantParts(entries).flatMap((part) => (part.type === 'toolCall' ? [part] : []));

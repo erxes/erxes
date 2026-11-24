@@ -1,4 +1,5 @@
 import {
+  CUSTOMER_TOKEN_SCHEME,
   PERMISSIONS_EXTENSION,
   type PluginApiAudience,
   READS_EXTENSION,
@@ -52,6 +53,7 @@ const Operation = z.object({
     .default([]),
   requestBody: z.object({ content: Content.default({}) }).optional(),
   responses: z.record(z.string(), z.object({ content: Content.optional() })).default({}),
+  security: z.array(z.record(z.string(), z.array(z.string()))).optional(),
 });
 
 type Operation = z.infer<typeof Operation>;
@@ -78,6 +80,8 @@ export interface PluginProcedure extends ApiProcedure {
   audience: PluginAudience;
   /** The permissions the route checks, any one of which lets a member call it; none: the plugin decides. */
   permissions: string[];
+  /** It needs a signed-in customer's token: every customer route, and a portal route that says so. */
+  signedIn: boolean;
   url: string;
   pathNames: string[];
   queryNames: string[];
@@ -188,6 +192,11 @@ const procedureOf = (
     plugin,
     audience,
     permissions: operation[PERMISSIONS_EXTENSION],
+    signedIn:
+      audience === 'customer' ||
+      (audience === 'portal' &&
+        Boolean(operation.security?.length) &&
+        (operation.security ?? []).every((needs) => CUSTOMER_TOKEN_SCHEME in needs)),
     url,
     pathNames: pathNamesOf(path),
     queryNames: operation.parameters.filter((item) => item.in === 'query').map(({ name }) => name),
