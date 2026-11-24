@@ -140,6 +140,11 @@ test('a member sees TypeSafe and OpenAI in Decision model integrations and adds 
     'true',
   );
   await expect(inspector.getByRole('button', { name: /^OpenAI/ })).toBeVisible();
+  await expect(inspector.getByRole('textbox', { name: 'Model' })).toHaveCount(0);
+  await expect(inspector.getByRole('button', { name: /^Model:/ })).toBeDisabled();
+  await expect(inspector.getByRole('button', { name: /^Model:/ })).toContainText('Connect first');
+  await inspector.getByRole('combobox', { name: 'Minimum confidence' }).click();
+  await page.getByRole('option', { name: '80%' }).click();
   await inspector.getByRole('textbox', { name: 'Question' }).click();
   await page.keyboard.type('Which team should take this?');
   await inspector.getByRole('button', { name: /^OpenAI/ }).click();
@@ -147,6 +152,10 @@ test('a member sees TypeSafe and OpenAI in Decision model integrations and adds 
     'aria-pressed',
     'true',
   );
+  await expect(inspector.getByRole('combobox', { name: 'Minimum confidence' })).toHaveCount(0);
+  await inspector.getByRole('button', { name: /^TypeSafe/ }).click();
+  await inspector.getByRole('combobox', { name: 'Minimum confidence' }).click();
+  await page.getByRole('option', { name: '80%' }).click();
   await expect(page.getByText('Otherwise')).toBeVisible();
   await expectAccessible(page);
 
@@ -154,6 +163,9 @@ test('a member sees TypeSafe and OpenAI in Decision model integrations and adds 
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
 
   await page.reload();
-  await expect(page.getByRole('button', { name: /Which team should take this\?/ })).toBeVisible();
+  await page.getByRole('button', { name: /Which team should take this\?/ }).click();
+  await expect(inspector.getByRole('combobox', { name: 'Minimum confidence' })).toContainText(
+    '80%',
+  );
   await expectAccessible(page);
 });

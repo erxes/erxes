@@ -1,53 +1,20 @@
-import { once } from 'node:events';
-import { createServer, type ServerResponse } from 'node:http';
 import { newId, roles, users } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { z } from 'zod';
 import { config } from '~/config';
 import { action, forCustomer, useAutomations } from './automations.fixture';
 import { adminDb, useTestDatabase } from './db';
+import { OPENAI_KEY, startDecisionServer, TYPESAFE_KEY } from './decisionServer.fixture';
 import { settle } from './settle';
 
-const TYPESAFE_KEY = 'ts-test-key-0001';
-const OPENAI_KEY = 'sk-test-key-0001';
-
-const JevRequest = z.object({
-  model: z.string(),
-  state: z.string(),
-  questions: z.object({
-    path: z.object({
-      type: z.literal('choice'),
-      instructions: z.string(),
-      criteria: z.record(z.string(), z.string().nullable()),
-    }),
-  }),
-});
-
-const OpenAiRequest = z.object({
-  model: z.string(),
-  messages: z.array(z.object({ role: z.string(), content: z.string() })),
-  response_format: z.object({
-    type: z.literal('json_schema'),
-    json_schema: z.object({
-      strict: z.literal(true),
-      schema: z.object({
-        properties: z.object({ choice: z.object({ enum: z.array(z.string()) }) }),
-      }),
-    }),
-  }),
-});
-
 const note = (id: string, body: string) => action(id, 'core.note.add', { body });
-
-const sendJson = (res: ServerResponse, status: number, body: unknown) =>
-  res.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify(body));
 
 const decideStep = (
   provider: 'typesafe' | 'openai',
   overrides: {
     question?: string;
     state?: string;
+    model?: string;
     minConfidence?: number;
     connection?: string;
   } = {},
@@ -57,6 +24,7 @@ const decideStep = (
   provider,
   question: overrides.question ?? 'Which team should take {{subject.firstName}}?',
   state: overrides.state ?? 'Note: {{subject.lastName}}',
+  model: overrides.model,
   minConfidence: overrides.minConfidence,
   connection: overrides.connection,
   paths: [
@@ -74,81 +42,6 @@ const decideStep = (
   otherwise: [note('o', 'Fallback {{steps.pick.output.path}} {{steps.pick.output.choice}}')],
 });
 
-const startDecisionServer = async () => {
-  const jevCalls: z.infer<typeof JevRequest>[] = [];
-  const openAiCalls: z.infer<typeof OpenAiRequest>[] = [];
-
-  const next = {
-    jev: {
-      choice: 'billing',
-      confidence: 0.92,
-      probabilities: { billing: 0.92, support: 0.05, otherwise: 0.03 },
-      model: 'jev-1.14.0',
-    },
-    openai: { choice: 'support', model: 'gpt-5.6-luna' },
-  };
-
-  const server = createServer((req, res) => {
-    let raw = '';
-
-    req.on('data', (chunk: Buffer) => {
-      raw += chunk.toString();
-    });
-    req.on('end', () => {
-      const auth = req.headers.authorization;
-      const url = req.url ?? '';
-
-      if (url.endsWith('/models')) {
-        const ok = auth === `Bearer ${TYPESAFE_KEY}` || auth === `Bearer ${OPENAI_KEY}`;
-
-        sendJson(res, ok ? 200 : 401, ok ? { data: [{ id: 'jev-latest' }] } : { error: 'Denied' });
-
-        return;
-      }
-
-      if (url.endsWith('/systemone') && auth === `Bearer ${TYPESAFE_KEY}`) {
-        jevCalls.push(JevRequest.parse(JSON.parse(raw)));
-        sendJson(res, 200, {
-          model: next.jev.model,
-          answers: { path: { type: 'choice', ...next.jev } },
-        });
-
-        return;
-      }
-
-      if (url.endsWith('/chat/completions') && auth === `Bearer ${OPENAI_KEY}`) {
-        openAiCalls.push(OpenAiRequest.parse(JSON.parse(raw)));
-        sendJson(res, 200, {
-          model: next.openai.model,
-          choices: [{ message: { content: JSON.stringify({ choice: next.openai.choice }) } }],
-        });
-
-        return;
-      }
-
-      sendJson(res, 401, { error: 'Unauthorized' });
-    });
-  }).listen(0);
-
-  await once(server, 'listening');
-
-  const address = server.address();
-
-  if (!address || typeof address === 'string') throw new Error('not listening on a port');
-
-  return {
-    url: `http://127.0.0.1:${address.port}/v1`,
-    jevCalls,
-    openAiCalls,
-    next,
-    close: () => {
-      server.closeAllConnections();
-
-      return new Promise<void>((resolve) => server.close(() => resolve()));
-    },
-  };
-};
-
 describe('automation decision model node', { timeout: 180_000 }, () => {
   useTestDatabase();
 
@@ -165,7 +58,7 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
   const connect = (key: 'typesafe' | 'openai', apiKey: string, name: string) =>
     t.owner().integrations.connect({ key, name, keys: { apiKey } });
 
-  it('lists TypeSafe in the decision category, rejects bad keys, and validates definitions', async () => {
+  it('lists TypeSafe in decision, lists selectable models, and validates definitions', async () => {
     const listed = (await t.owner().integrations.list()).data;
 
     expect(listed.find((item) => item.key === 'typesafe')?.category).toBe('decision');
@@ -192,8 +85,57 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
       },
     });
 
-    await connect('typesafe', TYPESAFE_KEY, 'TypeSafe');
+    expect(await t.owner().automations.decisionModels({ provider: 'typesafe' })).toEqual({
+      defaultModel: 'jev-latest',
+      defaultModelName: 'Jev latest',
+      models: [],
+      error: null,
+    });
+
+    const tsConn = await connect('typesafe', TYPESAFE_KEY, 'TypeSafe');
+
     expect((await t.owner().assistant.providers({})).data).toEqual([]);
+
+    expect(
+      await t.owner().automations.decisionModels({ provider: 'typesafe', connection: tsConn.id }),
+    ).toEqual({
+      defaultModel: 'jev-latest',
+      defaultModelName: 'Jev latest',
+      models: [
+        { id: 'jev-latest', name: 'Jev latest', recommended: true },
+        { id: 'jev-1.14.0', name: 'Jev 1.14.0', recommended: false },
+        { id: 'jev-1.13.0', name: 'Jev 1.13.0', recommended: false },
+        { id: 'jev-preview', name: 'Jev preview', recommended: false },
+      ],
+      error: null,
+    });
+
+    remote.next.typeSafeModelsStatus = 404;
+    expect(await t.owner().automations.decisionModels({ provider: 'typesafe' })).toEqual({
+      defaultModel: 'jev-latest',
+      defaultModelName: 'Jev latest',
+      models: [
+        { id: 'jev-latest', name: 'Jev latest', recommended: true },
+        { id: 'jev-preview', name: 'Jev preview', recommended: false },
+      ],
+      error: null,
+    });
+    remote.next.typeSafeModelsStatus = 200;
+
+    expect(await t.other().automations.decisionModels({ provider: 'typesafe' })).toEqual({
+      defaultModel: 'jev-latest',
+      defaultModelName: 'Jev latest',
+      models: [],
+      error: null,
+    });
+
+    await expect(
+      t.other().automations.decisionModels({ provider: 'typesafe', connection: tsConn.id }),
+    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
+
+    await expect(
+      t.member().automations.decisionModels({ provider: 'typesafe' }),
+    ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
   });
 
   it('routes through TypeSafe Jev, falls back on low confidence, and dry-runs without calling out', async () => {
@@ -222,10 +164,7 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
       outcome: 'Would ask TypeSafe to pick a path; assumed path 1 (billing)',
       input: { question: 'Which team should take Probe?', state: 'Note: Dry' },
     });
-    expect(dry.trace[1]).toMatchObject({
-      stepId: 'b',
-      input: { body: 'Billing billing ' },
-    });
+    expect(dry.trace[1]).toMatchObject({ stepId: 'b', input: { body: 'Billing billing ' } });
 
     await t.owner().customers.create({ firstName: 'JevHigh', lastName: 'Double charge' });
     await settle();
@@ -272,12 +211,25 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
     expect(low.steps[1]?.input).toEqual({ body: 'Fallback otherwise billing' });
   });
 
-  it('reuses the OpenAI AI provider connection and enforces assistant.manage at runtime', async () => {
+  it('reuses the OpenAI AI provider connection, lists chat models, and enforces assistant.manage', async () => {
     const conn = await connect('openai', OPENAI_KEY, 'OpenAI');
 
     expect((await t.owner().assistant.providers({})).data).toEqual([{ provider: 'openai' }]);
 
-    const okId = await t.active('OpenAI triage', forCustomer('OpenAiOk', [decideStep('openai')]));
+    const openAiCatalog = await t
+      .owner()
+      .automations.decisionModels({ provider: 'openai', connection: conn.id });
+
+    expect(openAiCatalog.error).toBeNull();
+    expect(openAiCatalog.models.map((item) => item.id)).toEqual(['gpt-5.6-luna', 'gpt-4o-mini']);
+    expect(openAiCatalog.models.find((item) => item.id === 'gpt-4o-mini')?.name).toBe(
+      'GPT-4o mini',
+    );
+
+    const okId = await t.active(
+      'OpenAI triage',
+      forCustomer('OpenAiOk', [decideStep('openai', { model: 'gpt-4o-mini' })]),
+    );
 
     const fallbackId = await t.active(
       'OpenAI fallback',
@@ -297,6 +249,7 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
       probabilities: null,
       model: 'gpt-5.6-luna',
     });
+    expect(remote.openAiCalls.at(-1)?.model).toBe('gpt-4o-mini');
     expect(
       remote.openAiCalls.at(-1)?.response_format.json_schema.schema.properties.choice.enum,
     ).toEqual(['billing', 'support', 'otherwise']);

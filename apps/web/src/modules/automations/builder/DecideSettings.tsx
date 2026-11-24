@@ -1,12 +1,13 @@
 import { DecisionProvider } from '@erxes/core-contract';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, cn, ConnectionPicker, Input, useItemKeys } from 'erxes-ui';
+import { Badge, Button, cn, ConnectionPicker, Input, Select, useItemKeys } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useIntegrations } from '~/modules/settings/integrations/catalog';
 import {
   IntegrationMark,
   IntegrationStatusBadge,
 } from '~/modules/settings/integrations/IntegrationStatusBadge';
+import { DecisionModelPicker } from './DecisionModelPicker';
 import { Field } from './Field';
 import type { SettingsProps } from './stepSettingsProps';
 import { TemplateInput } from './TemplateInput';
@@ -18,6 +19,10 @@ type Path = DecideProps['step']['paths'][number];
 
 const MAX_PATHS = 10;
 
+const CONFIDENCE_LEVELS = [50, 60, 70, 80, 90, 95] as const;
+
+const ANY_CONFIDENCE = 'any';
+
 const PROVIDER_NAMES: Record<DecideProps['step']['provider'], string> = {
   typesafe: 'TypeSafe',
   openai: 'OpenAI',
@@ -27,7 +32,7 @@ const Providers = ({ step, disabled, onChange }: DecideProps) => {
   const { integrations } = useIntegrations();
 
   return (
-    <div className="space-y-1.5">
+    <div className="grid grid-cols-2 gap-2">
       {DecisionProvider.options.map((provider) => {
         const integration = integrations.find((item) => item.key === provider);
         const picked = step.provider === provider;
@@ -49,17 +54,19 @@ const Providers = ({ step, disabled, onChange }: DecideProps) => {
               })
             }
             className={cn(
-              'flex w-full items-center gap-3 rounded-lg border p-2 text-left text-sm transition-colors hover:bg-accent/50',
+              'flex min-w-0 items-center gap-2.5 rounded-lg border p-2 text-left text-sm transition-colors hover:bg-accent/50',
               picked && 'border-primary ring-1 ring-primary',
             )}
           >
             {integration && <IntegrationMark integration={integration} />}
-            <span className="min-w-0 flex-1 font-medium">
-              {integration?.name ?? PROVIDER_NAMES[provider]}
+            <span className="min-w-0 flex-1 space-y-0.5">
+              <span className="block truncate font-medium">
+                {integration?.name ?? PROVIDER_NAMES[provider]}
+              </span>
+              {integration && integration.status.state !== 'not-set-up' && (
+                <IntegrationStatusBadge status={integration.status} />
+              )}
             </span>
-            {integration && integration.status.state !== 'not-set-up' && (
-              <IntegrationStatusBadge status={integration.status} />
-            )}
           </button>
         );
       })}
@@ -87,8 +94,12 @@ const Paths = ({ step, disabled, onChange }: DecideProps) => {
       {step.paths.map((path, index) => (
         <div key={keys.keyAt(index)} className="space-y-1.5 rounded-md border p-2">
           <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="shrink-0">
+              {index + 1}
+            </Badge>
             <Input
               className="h-8"
+              aria-label={t('path-name-n', 'Path {{n}} name', { n: index + 1 })}
               aria-invalid={invalidPathAt(step.paths, index) || undefined}
               value={path.label}
               maxLength={60}
@@ -113,6 +124,7 @@ const Paths = ({ step, disabled, onChange }: DecideProps) => {
           </div>
           <Input
             className="h-8"
+            aria-label={t('path-meaning-n', 'Path {{n}} meaning', { n: index + 1 })}
             value={path.meaning ?? ''}
             maxLength={500}
             placeholder={t('path-meaning', 'When it means…')}
@@ -149,35 +161,44 @@ const Paths = ({ step, disabled, onChange }: DecideProps) => {
 const Confidence = ({ step, disabled, onChange }: DecideProps) => {
   const { t } = useTranslation('automations');
 
+  const percent =
+    step.minConfidence === undefined ? undefined : Math.round(step.minConfidence * 100);
+
+  const value = percent && percent > 0 ? String(percent) : ANY_CONFIDENCE;
+
+  const custom =
+    value !== ANY_CONFIDENCE && !CONFIDENCE_LEVELS.some((level) => String(level) === value);
+
   return (
     <Field
       label={t('min-confidence', 'Minimum confidence')}
       info={t('min-confidence-info', 'Less sure than this: the run takes Otherwise')}
     >
-      <div className="flex items-center gap-2">
-        <Input
-          className="w-24"
-          type="number"
-          min={0}
-          max={100}
-          value={step.minConfidence === undefined ? '' : Math.round(step.minConfidence * 100)}
-          placeholder="0"
-          disabled={disabled}
-          onChange={(event) => {
-            const raw = event.target.value;
-            const parsed = Number(raw);
-
-            onChange({
-              ...step,
-              minConfidence:
-                raw === '' || !Number.isFinite(parsed)
-                  ? undefined
-                  : Math.min(100, Math.max(0, parsed)) / 100,
-            });
-          }}
-        />
-        <span className="text-sm text-muted-foreground">%</span>
-      </div>
+      <Select
+        value={value}
+        disabled={disabled}
+        onValueChange={(next) =>
+          onChange({
+            ...step,
+            minConfidence: next === ANY_CONFIDENCE ? undefined : Number(next) / 100,
+          })
+        }
+      >
+        <Select.Trigger aria-label={t('min-confidence', 'Minimum confidence')}>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value={ANY_CONFIDENCE}>
+            {t('confidence-any', 'Any (no minimum)')}
+          </Select.Item>
+          {CONFIDENCE_LEVELS.map((level) => (
+            <Select.Item key={level} value={String(level)}>
+              {level}%
+            </Select.Item>
+          ))}
+          {custom && <Select.Item value={value}>{value}%</Select.Item>}
+        </Select.Content>
+      </Select>
     </Field>
   );
 };
@@ -189,7 +210,7 @@ export const DecideSettings = (props: DecideProps) => {
 
   return (
     <>
-      <Field label={t('decision-model', 'Decision model')}>
+      <Field label={t('provider', 'Provider')}>
         <Providers {...props} />
       </Field>
       <Field label={t('connection', 'Connection')}>
@@ -197,18 +218,25 @@ export const DecideSettings = (props: DecideProps) => {
           key={step.provider}
           integration={step.provider}
           value={step.connection ?? null}
-          onValueChange={(connection) => onChange({ ...step, connection: connection ?? undefined })}
+          onValueChange={(connection) =>
+            onChange({
+              ...step,
+              connection: connection ?? undefined,
+              model: undefined,
+            })
+          }
           noneLabel={t('default-connection', 'The default connection')}
           disabled={disabled}
         />
       </Field>
       <Field label={t('model', 'Model')}>
-        <Input
-          value={step.model ?? ''}
-          maxLength={100}
-          placeholder={step.provider === 'typesafe' ? 'jev-latest' : t('default-model', 'Default')}
+        <DecisionModelPicker
+          key={`${step.provider}:${step.connection ?? ''}`}
+          provider={step.provider}
+          connection={step.connection}
+          value={step.model}
           disabled={disabled}
-          onChange={(event) => onChange({ ...step, model: event.target.value || undefined })}
+          onChange={(model) => onChange({ ...step, model })}
         />
       </Field>
       <Field label={t('decision-question', 'Question')} required invalid={!step.question.trim()}>

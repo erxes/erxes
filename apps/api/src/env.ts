@@ -178,6 +178,7 @@ const Env = z
     ASSISTANT_KIMI_URL: overrideUrl,
     ASSISTANT_KIMI_CODE_URL: overrideUrl,
     ASSISTANT_GROK_URL: overrideUrl,
+    ASSISTANT_TYPESAFE_URL: overrideUrl,
     EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
     // QPay QuickQR's vendor account: the names erxes 3.x used, so its settings carry over.
     QUICK_QR_URL: baseUrl('https://quickqr.qpay.mn'),

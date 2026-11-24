@@ -343,6 +343,8 @@ export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 
 export const DecisionProvider = z.enum(DECISION_PROVIDERS);
 
+export type DecisionProvider = z.infer<typeof DecisionProvider>;
+
 /** Who changed what in core (owners and admins). */
 export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 

@@ -34,6 +34,7 @@ const assistantEndpoints: Partial<Record<string, string>> = {
   kimi: env.ASSISTANT_KIMI_URL,
   'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
   grok: env.ASSISTANT_GROK_URL,
+  typesafe: env.ASSISTANT_TYPESAFE_URL,
 };
 
 const oauthApps: Record<string, { clientId: string; clientSecret: string }> = {

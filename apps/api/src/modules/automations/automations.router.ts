@@ -13,6 +13,7 @@ import {
   updateAutomation,
 } from '~/modules/automations/automations.service';
 import { automationCatalog } from '~/modules/automations/automationCatalog';
+import { listDecisionModels } from '~/modules/automations/decisionModels';
 import { automationFields, definitionProblems } from '~/modules/automations/definitions';
 import { testAutomation } from '~/modules/automations/dryRun';
 import {
@@ -24,7 +25,7 @@ import {
   retryAutomationRun,
   startAutomation,
 } from '~/modules/automations/runs.service';
-import { scoped } from '~/orpc';
+import { scoped, unscoped } from '~/orpc';
 
 export const automationsRouter = {
   catalog: scoped.automations.catalog.handler(({ input }) => automationCatalog(db(), input)),
@@ -57,6 +58,9 @@ export const automationsRouter = {
   ),
   templates: scoped.automations.templates.handler(() => ({ data: AUTOMATION_TEMPLATES })),
   fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input)),
+  decisionModels: unscoped.automations.decisionModels.handler(({ input }) =>
+    listDecisionModels(input),
+  ),
   runs: scoped.automations.runs.handler(({ input }) => listRuns(db(), input)),
   run: scoped.automations.run.handler(({ input }) => getRun(db(), input.runId)),
   retryRun: scoped.automations.retryRun.handler(({ input }) =>

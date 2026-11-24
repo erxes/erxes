@@ -65,6 +65,7 @@ export const useConnectionsChanged = () => {
       client.invalidateQueries({ queryKey: orpc.banks.key() }),
       client.invalidateQueries({ queryKey: orpc.assistant.providers.key() }),
       client.invalidateQueries({ queryKey: orpc.assistant.models.key() }),
+      client.invalidateQueries({ queryKey: orpc.automations.decisionModels.key() }),
     ]);
 };
 

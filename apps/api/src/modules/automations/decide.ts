@@ -5,11 +5,11 @@ import { parse } from '@erxes/plugin-sdk/integrations';
 import { and, eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
-import { DEFAULT_MODELS } from '~/modules/assistant/providers';
 import { connectionFor, refused } from '~/modules/integrations/actions';
 import { manages } from '~/modules/integrations/connectable';
 import { clientOf } from '~/modules/integrations/connections';
 import { eachStep } from './cursor';
+import { DEFAULT_DECISION_MODELS } from './decisionModels';
 
 export type DecideStep = Extract<AutomationStep, { type: 'decide' }>;
 
@@ -28,11 +28,6 @@ interface Decision {
 }
 
 const OTHERWISE = 'otherwise';
-
-const DECISION_MODELS: Record<Provider, string> = {
-  typesafe: 'jev-latest',
-  openai: DEFAULT_MODELS.openai,
-};
 
 const INSTRUCTIONS =
   'You pick the path of a business automation. Read the state, then answer the question with exactly one of the options. An option may say what it means.';
@@ -58,7 +53,7 @@ const askJev = async (client: ModelClient, step: DecideStep, asked: Question) =>
     method: 'POST',
     headers: client.headers,
     body: JSON.stringify({
-      model: step.model || DECISION_MODELS.typesafe,
+      model: step.model || DEFAULT_DECISION_MODELS.typesafe,
       state: asked.state,
       questions: {
         path: { type: 'choice', instructions: asked.question, criteria: criteriaOf(step) },
@@ -85,7 +80,7 @@ const askOpenAi = async (client: ModelClient, step: DecideStep, asked: Question)
     method: 'POST',
     headers: client.headers,
     body: JSON.stringify({
-      model: step.model || DECISION_MODELS.openai,
+      model: step.model || DEFAULT_DECISION_MODELS.openai,
       messages: [
         { role: 'system', content: INSTRUCTIONS },
         {
