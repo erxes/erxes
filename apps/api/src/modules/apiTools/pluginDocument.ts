@@ -1,9 +1,9 @@
-import type { PluginApiAudience } from '@erxes/core-contract';
+import { type PluginApiAudience, READS_EXTENSION } from '@erxes/core-contract';
 import { z } from 'zod';
 import { requestOutbound } from '~/lib/outbound';
 import { logger } from '~/logger';
-import type { InstalledPlugin } from '../plugins';
-import { type ApiProcedure, carriesCredentials, isCredentialName } from './apiCatalog';
+import type { InstalledPlugin } from './plugins';
+import { type ApiProcedure, carriesCredentials, changesData, isCredentialName } from './catalog';
 
 const DOCUMENT_TIMEOUT_MS = 10_000;
 
@@ -31,6 +31,7 @@ const Content = z.record(z.string(), z.object({ schema: JsonSchema.default({}) }
 
 const Operation = z.object({
   operationId: z.string().min(1).optional(),
+  [READS_EXTENSION]: z.literal(true).optional(),
   summary: z.string().optional(),
   description: z.string().optional(),
   parameters: z
@@ -173,7 +174,7 @@ const procedureOf = (
     summary: (operation.summary ?? '').slice(0, SUMMARY_MAX),
     description: (operation.description ?? '').slice(0, SUMMARY_MAX),
     input,
-    changes: method !== 'get',
+    changes: changesData(method, operation),
     denied:
       carriesCredentials([input, schemaOf(answerOf(operation), schemas)]) ||
       [...id.split('.'), ...path.split('/')].some(isCredentialName),

@@ -1,5 +1,5 @@
+import { CODE_MODE_INSTRUCTIONS } from '~/modules/apiTools/agentTools';
 import { type Skill, skillCatalog } from './skills/skills';
-import { CODE_MODE_INSTRUCTIONS } from './tools/runCode';
 import { UI_EXAMPLES, uiFormat } from './ui';
 
 const RULES = `You are the member's working assistant in erxes, their business workspace. Help them understand their business and get work done here. Speak naturally, directly, and in the member's language. Refer to their workspace and records as part of the current conversation, not as an unfamiliar external system. Do not repeatedly introduce yourself, explain that you are an AI, or narrate internal tool names.

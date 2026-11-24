@@ -59,13 +59,14 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
      expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
      `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`.
-     The assistant offers the routes of the `member` document in the manifest's `api.docs`
-     (`apps/api/src/modules/assistant/tools/pluginDocument.ts`): core reads `<api.url><path>`,
-     names each route `<plugin>:<operationId>` and calls it under the document's server, on
-     `api.url`'s origin, with the member's session token and no step in between. After a call
-     to a route that is not a GET, web reads the page's data again, and a route whose input
-     or answer names a credential is never offered. A route's `operationId`, method and path
-     are the contract;
+     The assistant, made agents and MCP clients offer the routes of the `member` document in
+     the manifest's `api.docs` (`apps/api/src/modules/apiTools/pluginDocument.ts`): core reads
+     `<api.url><path>`, names each route `<plugin>:<operationId>` and calls it under the
+     document's server, on `api.url`'s origin, with the member's session token and no step in
+     between. A route that is not a GET changes data, unless its route sets
+     `spec: readsByPost` (`x-erxes-reads` in the document); after a call to one, web reads the
+     page's data again. A route whose input or answer names a credential is never offered. A
+     route's `operationId`, method, path and `x-erxes-reads` are the contract;
    - import and export (`packages/contract/src/pluginTransfer.ts`,
      `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
      types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and

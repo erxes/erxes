@@ -1,28 +1,29 @@
-import { type Caller, enterScope, withOrg } from '@erxes/core-db';
+import { type Caller, enterScope } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
 import { z } from 'zod';
 import { decideKeyCall, memberMayCall } from '~/http/access';
 import { decidePluginKey } from '~/http/keyRules';
-import { agentTool } from '~/modules/agents/tool';
 import { coreRouter } from '~/router';
-import type { InstalledPlugin } from '../plugins';
-import { identitiesIn } from '../records';
-import { issueReferences } from '../references.service';
-import { type ApiProcedure, apiCatalog } from './apiCatalog';
+import { type ApiProcedure, apiCatalog, needsPerson } from './catalog';
 import { type PluginProcedure, pluginProcedures } from './pluginDocument';
 import { callPluginProcedure, callPluginRoute } from './pluginOperations';
-import { bounded, describeError, refusal } from './results';
+import type { InstalledPlugin } from './plugins';
+import { bounded, describeError, type IssuedReference, refusal } from './results';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
 export interface ToolScope {
-  /** Who each call runs as, read again for each: the chat's member, or an agent's key; null once gone. */
+  /** Who each call runs as, read again for each: a member, or an agent's key; null once gone. */
   caller: () => Promise<Member | null>;
   orgId: string;
-  /** The assistant thread its references belong to; an automation step has none. */
-  threadId: string | null;
-  codeMode: boolean;
+  /**
+   * Nobody approves each write, as in the assistant and made agents: what people do themselves
+   * (sending, access, security settings) stays out. An MCP client asks its human for each write.
+   */
+  unattended: boolean;
   plugins: InstalledPlugin[];
+  /** Turns the records in a result into references the reader can open; the assistant's chat. */
+  references?: (schema: unknown, result: unknown) => Promise<IssuedReference[]>;
   /**
    * An agent talking to a customer of a portal: the portal and customer routes of the plugins
    * on it run as them, with the headers `credentials` gives (their token and a portal token).
@@ -104,20 +105,28 @@ const entriesOf = async (scope: ToolScope): Promise<Entry[]> => [
 const findEntry = async (scope: ToolScope, name: string) =>
   apiCatalog().get(name) ?? (await entriesOf(scope)).find((entry) => entry.name === name);
 
+/** Kept from every caller (credentials), or from one nobody watches (what people do themselves). */
+const withheld = (scope: ToolScope, entry: Entry) =>
+  entry.denied || (scope.unattended && needsPerson(entry.name));
+
 /**
  * Would the call get past the caller's role or key rules? A key reaches a plugin's routes, a
- * customer's too, only when its rules allow that plugin; the plugin checks the rest.
+ * customer's too, only when its rules open that plugin, and writes to it only when they open it
+ * for writing; the plugin checks the rest.
  */
 const mayCall = (member: Member, entry: Entry) => {
-  if (entry.denied) return false;
-
   if (!isPluginEntry(entry)) {
     return member.key
       ? decideKeyCall({ ...member, key: member.key }, entry.name).allowed
       : memberMayCall(entry.name, member);
   }
 
-  return !member.key || decidePluginKey(member.key, entry.plugin).allowed;
+  if (!member.key) return true;
+
+  return (
+    decidePluginKey(member.key, entry.plugin).allowed &&
+    (!entry.changes || member.key.plugins[entry.plugin] === 'write')
+  );
 };
 
 export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
@@ -127,7 +136,7 @@ export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_
   if (!member) return { procedures: [] };
 
   const found = (await entriesOf(scope))
-    .filter((entry) => mayCall(member, entry))
+    .filter((entry) => !withheld(scope, entry) && mayCall(member, entry))
     .map((procedure) => ({ procedure, score: scoreOf(procedure, tokens) }))
     .filter(({ score }) => score > 0)
     .toSorted((a, b) => b.score - a.score || a.procedure.name.localeCompare(b.procedure.name))
@@ -138,26 +147,15 @@ export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_
       path: procedure.path,
       summary: procedure.summary,
       description: procedure.description,
+      changes: procedure.changes,
       input: procedure.input,
     }));
 
   return { procedures: found };
 };
 
-const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) => {
-  const identities = identitiesIn(schema, result);
-
-  const { threadId } = scope;
-
-  if (identities.length === 0 || threadId === null) return bounded(result);
-
-  const issued = await withOrg(scope.orgId, (tx) => issueReferences(tx, threadId, identities));
-
-  return bounded(
-    result,
-    issued.map(({ ref, type, label }) => ({ ref, type, label })),
-  );
-};
+const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) =>
+  bounded(result, (await scope.references?.(schema, result)) ?? []);
 
 const runCore = async (scope: ToolScope, name: string, input: Record<string, unknown>) => {
   const path = name.split('.');
@@ -171,20 +169,30 @@ const runCore = async (scope: ToolScope, name: string, input: Record<string, unk
   );
 };
 
+/** What `callProcedure` lets through: anything, or only procedures that change nothing. */
+export type CallKind = 'any' | 'read';
+
 export const callProcedure = async (
   scope: ToolScope,
   name: string,
   input: Record<string, unknown> = {},
+  kind: CallKind = 'any',
 ) => {
   const entry = await findEntry(scope, name);
 
   if (!entry) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}; use searchApi`);
 
-  if (entry.denied) {
+  if (withheld(scope, entry)) {
     return refusal(
-      'ASSISTANT_DENIED',
-      `${name} is not available to the assistant (sign-in, credentials and security settings stay with people)`,
+      'DENIED',
+      entry.denied
+        ? `${name} is not available to agents: sign-in and credentials stay with people`
+        : `${name} is not available here: a person does it in erxes`,
     );
+  }
+
+  if (kind === 'read' && entry.changes) {
+    return refusal('CHANGES_DATA', `${name} changes data; call it as a write`);
   }
 
   const member = await scope.caller();
@@ -193,7 +201,7 @@ export const callProcedure = async (
 
   // Core checks its own procedures when they run; a plugin's routes are checked here.
   if (isPluginEntry(entry) && !mayCall(member, entry)) {
-    return refusal('FORBIDDEN', `Your access does not include the ${entry.plugin} plugin`);
+    return refusal('FORBIDDEN', `Your access does not include this ${entry.plugin} route`);
   }
 
   const { customer } = scope;
@@ -212,23 +220,3 @@ export const callProcedure = async (
 
   return result.ok ? { ...result, changed: entry.changes } : result;
 };
-
-export const apiTools = (scope: ToolScope) => [
-  agentTool({
-    name: 'searchApi',
-    description:
-      'Find the erxes API procedures you can call for a task, including those of installed plugins. Search with plain words (e.g. "customers by email", "create tag"). Returns each procedure with its method, summary, description (its rules and errors) and input JSON schema.',
-    input: z.object({
-      query: z.string().trim().min(1).max(200),
-      limit: z.int().min(1).max(SEARCH_MAX).optional(),
-    }),
-    execute: ({ query, limit }) => searchApi(scope, query, limit),
-  }),
-  agentTool({
-    name: 'callApi',
-    description:
-      'Run one erxes API procedure with your permissions. Pass the procedure name from searchApi and one input object.',
-    input: CallApiInput,
-    execute: ({ procedure, input }) => callProcedure(scope, procedure, input),
-  }),
-];

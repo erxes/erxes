@@ -13,7 +13,7 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
-import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf, readsByPost } from './common';
 import { PluginListType } from './values';
 
 /** Customers, leads, companies, or an installed plugin's records (`frontline:ticket`, its manifest's `transfer`). */
@@ -285,6 +285,7 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/check',
+      spec: readsByPost,
       summary: 'Check an import',
       description:
         'A dry run: what each row would do (create, update, skip, error), changing nothing',

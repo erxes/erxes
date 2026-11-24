@@ -2,7 +2,7 @@ import { apiKeys } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, listOf } from './common';
+import { Id, isoDate, listOf, readsByPost } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import {
   API_KEY_LIFETIMES,
@@ -178,6 +178,7 @@ export const apiKeysContract = {
     .route({
       method: 'POST',
       path: '/api-keys/{id}/try',
+      spec: readsByPost,
       summary: 'Check what a key may call',
       description:
         'Would the key be allowed each call it can be given (from this address, on this contact)? Says which rule decided each; nothing is called',

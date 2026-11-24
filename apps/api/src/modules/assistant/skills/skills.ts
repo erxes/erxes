@@ -1,8 +1,8 @@
 import type { PluginAssistantSkill } from '@erxes/core-contract';
 import { z } from 'zod';
 import { agentTool } from '~/modules/agents/tool';
-import type { InstalledPlugin } from '../plugins';
-import { refusal } from '../tools/results';
+import type { InstalledPlugin } from '~/modules/apiTools/plugins';
+import { refusal } from '~/modules/apiTools/results';
 import { AUTOMATION_SKILL } from './automationAuthoring';
 import { BROADCAST_SKILL } from './broadcastDrafting';
 import { REPORT_SKILL } from './reportCreation';

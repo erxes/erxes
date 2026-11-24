@@ -82,8 +82,8 @@ describe('assistant tools', () => {
 
     const { view } = await ask("Reset the member's password");
 
-    expect(JSON.stringify(resultsOf(view, 'callApi'))).toContain('ASSISTANT_DENIED');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
+    expect(JSON.stringify(resultsOf(view, 'callApi'))).toContain('"DENIED"');
+    expect(model.lastToolResult()).toContain('"DENIED"');
   });
 
   it("refuses what the member's role can't do, and doesn't offer it", async () => {

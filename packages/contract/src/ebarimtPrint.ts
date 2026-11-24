@@ -2,7 +2,7 @@ import { ebarimtPrintTemplates } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, listOf } from './common';
+import { Id, isoDate, listOf, readsByPost } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtPaperSize, EbarimtPrintBlockType } from './values';
 
@@ -89,6 +89,7 @@ export const ebarimtPrintContract = {
     .route({
       method: 'POST',
       path: '/ebarimt/print-templates/preview',
+      spec: readsByPost,
       summary: 'Preview a receipt print',
       description:
         'A sample receipt printed with this template, before saving it. 409 EBARIMT_NOT_SET_UP',

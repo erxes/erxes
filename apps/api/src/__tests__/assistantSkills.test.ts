@@ -72,7 +72,7 @@ describe('assistant built-in skills', () => {
     expect(first ? systemOf(first) : '').toContain('author-automation');
     expect(skill ? lastToolResult(skill) : '').toContain('draft');
     expect(checked ? lastToolResult(checked) : '').toContain('"problems":[]');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
+    expect(model.lastToolResult()).toContain('"DENIED"');
 
     const { data } = await t.owner().automations.list({});
 
@@ -123,7 +123,7 @@ describe('assistant built-in skills', () => {
     expect(skill ? lastToolResult(skill) : '').toContain('Never send');
     expect(updated ? lastToolResult(updated) : '').toContain('"changed":true');
     expect(
-      denied.map(lastToolResult).filter((result) => result?.includes('ASSISTANT_DENIED')),
+      denied.map(lastToolResult).filter((result) => result?.includes('"DENIED"')),
     ).toHaveLength(refused.length);
     expect(await t.owner().broadcasts.get({ id: draft.id })).toMatchObject({
       status: 'draft',

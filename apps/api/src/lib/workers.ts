@@ -3,11 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import { logger } from '~/logger';
 
-const EXTENSION = extname(fileURLToPath(import.meta.url));
-
 const YOUNG_HEAP_MB = 16;
 
-const log = logger.child({ component: 'assistant' });
+const log = logger.child({ component: 'workers' });
+
+/** The worker module `name` beside the module at `from` (its `import.meta.url`), .ts in dev, .js built. */
+export const workerFile = (name: string, from: string) =>
+  new URL(`./${name}${extname(fileURLToPath(from))}`, from);
 
 export type WorkerEnd<T> =
   | { ended: 'answer'; answer: T }
@@ -54,12 +56,12 @@ export const workerGate = (atOnce: number, waiting: number) => {
 };
 
 export const runWorker = <T>(
-  name: string,
+  file: URL,
   { data, heapMb, signal }: { data: unknown; heapMb: number; signal: AbortSignal },
   answerOf: (message: unknown, reply: (message: unknown) => void) => T | undefined,
 ) =>
   new Promise<WorkerEnd<T>>((resolve) => {
-    const worker = new Worker(new URL(`./${name}${EXTENSION}`, import.meta.url), {
+    const worker = new Worker(file, {
       workerData: data,
       execArgv: [],
       resourceLimits: { maxOldGenerationSizeMb: heapMb, maxYoungGenerationSizeMb: YOUNG_HEAP_MB },
@@ -95,7 +97,7 @@ export const runWorker = <T>(
         return;
       }
 
-      log.warn({ err: error, worker: name }, 'assistant: a worker failed');
+      log.warn({ err: error, worker: file.pathname }, 'a worker failed');
       finish({ ended: 'failed' });
     });
     worker.once('exit', () => finish({ ended: 'failed' }));
