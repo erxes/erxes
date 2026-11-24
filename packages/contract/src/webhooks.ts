@@ -101,7 +101,12 @@ export const webhooksContract = {
     })
     .output(listOf(EventTypeInfo)),
   list: base
-    .route({ method: 'GET', path: '/webhooks', summary: 'List webhooks' })
+    .route({
+      method: 'GET',
+      path: '/webhooks',
+      summary: 'List webhooks',
+      description: "The organisation's webhook endpoints; their secrets are never shown again",
+    })
     .output(listOf(Webhook)),
   create: base
     .route({
@@ -114,11 +119,21 @@ export const webhooksContract = {
     .input(WebhookFields.omit({ status: true }).required({ url: true, eventTypes: true }))
     .output(z.object({ webhook: Webhook, secret: z.string() })),
   update: base
-    .route({ method: 'PATCH', path: '/webhooks/{id}', summary: 'Change a webhook' })
+    .route({
+      method: 'PATCH',
+      path: '/webhooks/{id}',
+      summary: 'Change a webhook',
+      description: 'Change the fields sent. 400 INVALID_URL for an address core may not reach',
+    })
     .input(WebhookFields.extend({ id: Id }))
     .output(Webhook),
   remove: base
-    .route({ method: 'DELETE', path: '/webhooks/{id}', summary: 'Remove a webhook' })
+    .route({
+      method: 'DELETE',
+      path: '/webhooks/{id}',
+      summary: 'Remove a webhook',
+      description: 'Delete the endpoint; it gets no more deliveries',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   rotateSecret: base

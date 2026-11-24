@@ -83,9 +83,9 @@ export const areas = [
     },
   },
   {
-    // A route's summary is a short title; its rules and error codes go in description.
+    // A route's summary is a short title; its rules and error codes go in description, required too.
     files: ['packages/contract/src/**'],
-    rules: { 'core/route-summary': 'error' },
+    rules: { 'core/route-docs': 'error' },
   },
   {
     // A procedure's permission is its ACCESS policy (src/http/policies.ts), checked before it runs.

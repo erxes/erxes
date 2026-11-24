@@ -56,11 +56,21 @@ export const automationRunRoutes = {
       }),
     ),
   runs: base
-    .route({ method: 'GET', path: '/automations/{id}/runs', summary: 'List automation runs' })
+    .route({
+      method: 'GET',
+      path: '/automations/{id}/runs',
+      summary: 'List automation runs',
+      description: "The automation's runs, filtered by status when given",
+    })
     .input(CursorQuery.extend({ id: Id, status: RunStatus.optional() }))
     .output(cursorPageOf(AutomationRun)),
   run: base
-    .route({ method: 'GET', path: '/automations/runs/{runId}', summary: 'Get an automation run' })
+    .route({
+      method: 'GET',
+      path: '/automations/runs/{runId}',
+      summary: 'Get an automation run',
+      description: 'One run with its steps, in the order they finished',
+    })
     .input(z.object({ runId: Id }))
     .output(z.object({ run: AutomationRun, steps: z.array(RunStep) })),
   retryRun: base

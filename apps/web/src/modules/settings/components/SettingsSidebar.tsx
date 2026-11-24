@@ -19,6 +19,7 @@ import {
   IconSparkles,
   IconCode,
   IconKey,
+  IconPlug,
   IconTrash,
   IconCreditCard,
   IconCurrencyDollar,
@@ -108,6 +109,7 @@ const useSettingsDeveloperPaths = (): SettingsPath[] => {
       icon: IconSourceCode,
     },
     { name: t('api-keys', 'API keys'), to: paths.settings.apiKeys, icon: IconKey },
+    { name: t('mcp', 'MCP server'), to: paths.settings.mcp, icon: IconPlug },
     ...(can('contacts.view')
       ? [{ name: t('portals', 'Portals'), to: paths.settings.portals, icon: IconWorldWww }]
       : []),

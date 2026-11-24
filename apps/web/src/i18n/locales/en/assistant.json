@@ -185,7 +185,7 @@
     "no-provider-description": "Connect OpenAI, Anthropic or another AI provider in Integrations. The assistant and agents run on it.",
     "connect-provider": "Connect an AI provider",
     "code-mode-title": "Assistant code mode",
-    "code-mode-intro": "This applies to every member. Off by default.",
+    "code-mode-intro": "This applies to every member, and to apps connected through the MCP server, whose programs only read. Off by default.",
     "code-mode-label": "Let the assistant run code",
     "code-mode-description": "For questions over many records, the assistant writes a short program that reads through the API and computes totals, shares and comparisons, then answers with the result.",
     "code-mode-on": "Code mode is on",

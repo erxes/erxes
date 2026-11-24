@@ -168,7 +168,12 @@ export const assistantContract = {
     .input(CursorQuery.extend({ pinned: QueryBoolean.optional() }))
     .output(cursorPageOf(AssistantThread)),
   thread: base
-    .route({ method: 'GET', path: '/assistant/threads/{id}', summary: 'Get a conversation' })
+    .route({
+      method: 'GET',
+      path: '/assistant/threads/{id}',
+      summary: 'Get a conversation',
+      description: "One of the signed-in member's assistant conversations, by id",
+    })
     .input(z.object({ id: Id }))
     .output(AssistantThread),
   send: sending
@@ -196,6 +201,8 @@ export const assistantContract = {
       method: 'PATCH',
       path: '/assistant/threads/{id}',
       summary: 'Rename or pin a conversation',
+      description:
+        'Give the conversation a new title (1 to 120 characters), or pin or unpin it; send at least one',
     })
     .input(
       z
@@ -220,7 +227,12 @@ export const assistantContract = {
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   removeThread: base
-    .route({ method: 'DELETE', path: '/assistant/threads/{id}', summary: 'Delete a conversation' })
+    .route({
+      method: 'DELETE',
+      path: '/assistant/threads/{id}',
+      summary: 'Delete a conversation',
+      description: 'Delete the conversation and its messages',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   reference: base

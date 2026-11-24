@@ -229,7 +229,12 @@ export const unitsContract = {
       }),
     ),
   get: base
-    .route({ method: 'GET', path: '/units/{id}', summary: 'Get a branch or department' })
+    .route({
+      method: 'GET',
+      path: '/units/{id}',
+      summary: 'Get a branch or department',
+      description: 'One branch or department, by id',
+    })
     .input(z.object({ id: Id }))
     .output(Unit),
   create: base

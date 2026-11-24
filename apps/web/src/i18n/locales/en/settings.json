@@ -625,6 +625,23 @@
     "search": "Search connections",
     "unknown-connection": "Connection"
   },
+  "mcp": {
+    "title": "MCP server",
+    "intro": "Connect an AI app or coding agent to erxes. It signs in as you, so it sees and changes only what your role allows, and the audit log records its changes as made through MCP.",
+    "address": "Server address",
+    "command": "Command",
+    "connect": "Connect a client",
+    "claude-code-hint": "Then run /mcp in Claude Code and sign in.",
+    "codex-hint": "Then run codex mcp login erxes and sign in.",
+    "apps": "Claude, ChatGPT and other apps",
+    "apps-hint": "Add a custom connector with this address, then sign in when the app asks.",
+    "key": "With an API key",
+    "key-hint": "For scripts and agents that run unattended: no sign-in, and the key's rules limit what they do. Make one under <keys>API keys</keys>.",
+    "tools": "What a client can do",
+    "tool-read": "Search every endpoint of erxes and its installed plugins, and read through any of them. Reading changes nothing, so apps don't ask first.",
+    "tool-write": "Create, change and delete through a separate tool, which apps ask you to approve.",
+    "tool-execute": "Run a short program that reads through the API and computes totals, when <codeMode>code mode</codeMode> is on. A program can't change anything."
+  },
   "webhooks": {
     "title": "Webhooks"
   },
