@@ -21,17 +21,17 @@ const GREEN = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
 const AMBER = 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
 const VIOLET = 'bg-violet-500/10 text-violet-600 dark:text-violet-400';
 
-/** How each kind of node looks: icon, tile colour and the dot by its kind's name. */
-export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string; dot: string }> = {
-  trigger: { icon: IconBolt, tone: GREEN, dot: 'bg-emerald-500' },
-  action: { icon: IconBolt, tone: 'bg-primary/10 text-primary-text', dot: 'bg-primary' },
-  delay: { icon: IconClock, tone: AMBER, dot: 'bg-amber-500' },
-  wait_for: { icon: IconHourglass, tone: AMBER, dot: 'bg-amber-500' },
-  branch: { icon: IconGitBranch, tone: VIOLET, dot: 'bg-violet-500' },
-  switch: { icon: IconRoute, tone: VIOLET, dot: 'bg-violet-500' },
-  split: { icon: IconArrowsSplit, tone: VIOLET, dot: 'bg-violet-500' },
-  decide: { icon: IconBrain, tone: VIOLET, dot: 'bg-violet-500' },
-  stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground', dot: 'bg-muted-foreground' },
+/** How each kind of node looks: icon and tile colour. */
+export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string }> = {
+  trigger: { icon: IconBolt, tone: GREEN },
+  action: { icon: IconBolt, tone: 'bg-primary/10 text-primary-text' },
+  delay: { icon: IconClock, tone: AMBER },
+  wait_for: { icon: IconHourglass, tone: AMBER },
+  branch: { icon: IconGitBranch, tone: VIOLET },
+  switch: { icon: IconRoute, tone: VIOLET },
+  split: { icon: IconArrowsSplit, tone: VIOLET },
+  decide: { icon: IconBrain, tone: VIOLET },
+  stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground' },
 };
 
 /** A step as its card shows it: its kind, icon (the action's own), colours, title and detail. */

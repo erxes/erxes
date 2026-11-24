@@ -106,7 +106,6 @@ const BuildCanvas = ({
   selected: Selection;
   onSelect: (selection: Selection) => void;
 }) => {
-  const [zoom, setZoom] = useState(1);
   const { definition } = draft;
 
   return (
@@ -117,8 +116,6 @@ const BuildCanvas = ({
       selected={selected}
       problems={built.problems}
       disabled={!editable}
-      zoom={zoom}
-      onZoom={setZoom}
       onSelect={onSelect}
       onDeselect={() => onSelect('trigger')}
       onSteps={draft.setSteps}
