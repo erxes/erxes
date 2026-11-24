@@ -1,4 +1,4 @@
-import { CODE_LIMITS, runProgram } from './codeMode';
+import { CODE_LIMITS, type ProgramGate, runProgram } from './codeMode';
 import {
   CallApiInput,
   type CallKind,
@@ -35,13 +35,20 @@ const callFromProgram = async (
  * Runs a program that calls `searchApi(query, limit)` and `callApi(procedure, input)` as the
  * scope's caller; with `kind` 'read', `callApi` runs only procedures that change nothing.
  */
-export const runApiProgram = (scope: ToolScope, code: string, kind: CallKind) =>
-  runProgram({
-    code,
-    prelude: PRELUDE,
-    host: {
-      searchApi: ([query = '', limit = '']) =>
-        searchApi(scope, query, Math.min(Number(limit) || SEARCH_LIMIT, SEARCH_MAX)),
-      callApi: (args) => callFromProgram(scope, kind, args),
+export const runApiProgram = (
+  scope: ToolScope,
+  code: string,
+  { kind, gate }: { kind: CallKind; gate: ProgramGate },
+) =>
+  runProgram(
+    {
+      code,
+      prelude: PRELUDE,
+      host: {
+        searchApi: ([query = '', limit = '']) =>
+          searchApi(scope, query, Math.min(Number(limit) || SEARCH_LIMIT, SEARCH_MAX)),
+        callApi: (args) => callFromProgram(scope, kind, args),
+      },
     },
-  });
+    gate,
+  );

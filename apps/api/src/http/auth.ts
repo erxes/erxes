@@ -316,6 +316,43 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   enterScope(resolved.caller, resolved.orgId, next);
 };
 
+const AppTokenClaims = z.object({
+  sub: z.string(),
+  org: z.string(),
+  sv: z.int(),
+  client_id: z.string(),
+});
+
+/**
+ * A caller of the MCP server at `resource`: an app's token for it (OAuth), acting as the member
+ * while their session version holds, or an API key with its rules. Bearer only: a session cookie
+ * never reaches the MCP server. Null for a token that isn't one; a refused key throws its refusal.
+ */
+export const mcpCallerOf = async (
+  req: Request,
+  bearer: string,
+  resource: string,
+): Promise<Resolved | null> => {
+  if (isApiKey(bearer)) {
+    const { caller, orgId } = await resolveApiKey(req, bearer);
+
+    return { caller: caller.type === 'user' ? { ...caller, via: 'mcp' } : caller, orgId };
+  }
+
+  const claims = await verifyJwt(bearer, AppTokenClaims, {
+    typ: 'at+jwt',
+    audience: resource,
+  }).catch(() => null);
+
+  const member = claims && (await memberOf(claims.org, claims.sub, claims.sv));
+
+  if (!claims || !member) return null;
+
+  req.log.setBindings({ orgId: claims.org, actorId: member.userId, clientId: claims.client_id });
+
+  return { caller: { ...member, via: 'mcp' }, orgId: claims.org };
+};
+
 /** Who a session cookie belongs to, if it is still valid (for sign-out). */
 export const sessionClaims = async (
   req: Request,

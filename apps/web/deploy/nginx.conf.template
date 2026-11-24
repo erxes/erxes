@@ -48,6 +48,14 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 
+  # OAuth discovery for MCP clients (RFC 8414, RFC 9728): at the site's root, the API answers.
+  location ^~ /.well-known/oauth- {
+    proxy_pass $core_api;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
   location /core/ {
     proxy_pass $core_api;
     proxy_http_version 1.1;

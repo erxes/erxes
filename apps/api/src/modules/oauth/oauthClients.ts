@@ -35,8 +35,11 @@ export const sameHash = (stored: string, value: string) => safeEqual(stored, sha
 export const oauthError = (res: Response, status: number, error: string, description: string) =>
   res.status(status).json({ error, error_description: description });
 
+/** The address this request came to, through a trusted proxy's forwarded host. */
+export const originOf = (req: Request) => `${req.protocol}://${req.host}`;
+
 /** Where core's API is reached on this request: the OAuth issuer of apps, and their base. */
-export const apiBaseOf = (req: Request) => `${req.protocol}://${req.get('host')}/core/v1`;
+export const apiBaseOf = (req: Request) => `${originOf(req)}/core/v1`;
 
 /** The MCP server on that base: the only resource an app's token is for (RFC 8707). */
 export const mcpResourceOf = (base: string) => `${base}/mcp`;

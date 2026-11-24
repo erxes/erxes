@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { agentTool } from '~/modules/agents/tool';
 import { CallApiInput, callProcedure, SEARCH_MAX, searchApi, type ToolScope } from './calls';
+import { programGate } from './codeMode';
 import { PROGRAM_LIMITS, runApiProgram } from './program';
+
+/** The assistant's programs: they never wait behind MCP clients'. */
+const gate = programGate();
 
 export const CODE_MODE_INSTRUCTIONS = `Code mode is on: runCode runs a JavaScript program in a sandbox with two async functions, searchApi(query, limit) and callApi(procedure, input), which work like the tools of the same names and return their results. Use it to page through records, join and aggregate them, and compute totals, shares, deltas and scenarios, then return one JSON value; console.log lines come back too. ${PROGRAM_LIMITS}`;
 
@@ -33,5 +37,5 @@ export const runCode = (scope: ToolScope) =>
     description:
       'Run a JavaScript program in a sandbox that can call searchApi and callApi, to compute over many records and return one JSON value. Write the body of an async function and return the result.',
     input: z.object({ code: z.string().min(1).max(20_000) }),
-    execute: ({ code }) => runApiProgram(scope, code, 'any'),
+    execute: ({ code }) => runApiProgram(scope, code, { kind: 'any', gate }),
   });

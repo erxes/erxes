@@ -52,7 +52,8 @@ const { WEB_PORT, CORE_API_URL } = process.env;
 
 /**
  * The erxes core UI (apps/web). Same-origin with the API: in development
- * the dev server forwards /core to apps/api; in production a reverse proxy
+ * the dev server forwards /core (and OAuth discovery under /.well-known) to apps/api; in
+ * production a reverse proxy
  * serves both under one address, so the session cookie stays first-party.
  * It is also the Module Federation host for plugin UIs (PUBLIC_PLUGINS).
  */
@@ -116,8 +117,11 @@ export default defineConfig({
   },
   server: {
     port: Number(WEB_PORT) || 3500,
+    // X-Forwarded-Host tells the API the address the browser used, as nginx's Host does.
     proxy: {
-      '/core': CORE_API_URL || 'http://localhost:3400',
+      '/core': { target: CORE_API_URL || 'http://localhost:3400', xfwd: true },
+      // OAuth discovery for MCP clients, at the root as in production (deploy/nginx.conf.template).
+      '/.well-known/oauth-': { target: CORE_API_URL || 'http://localhost:3400', xfwd: true },
     },
   },
   tools: {
