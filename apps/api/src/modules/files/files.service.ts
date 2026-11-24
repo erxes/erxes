@@ -27,6 +27,7 @@ import { assertStreamable, queueCloudflareMove } from './cloudflareMove';
 import { fileWithUrl } from './fileColumns';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
 import { bucketAndSecret, storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
+import { linkFor } from './pluginLink';
 import { canShowInline } from './storage';
 import { logger } from '~/logger';
 import { withSecret } from '~/modules/secrets/vault';
@@ -194,7 +195,7 @@ export const getFile = async (client: Db, id: string) => {
     return { ...row, downloadUrl: null };
   }
 
-  return { ...row, downloadUrl: await downloadUrlOf(client, row, false) };
+  return { ...row, downloadUrl: await linkFor(client, await downloadUrlOf(client, row, false)) };
 };
 
 export const downloadUrlOf = async (client: Db, row: FileRow, forceDownload: boolean) =>
