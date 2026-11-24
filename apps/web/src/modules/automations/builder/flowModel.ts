@@ -43,6 +43,15 @@ export const armsOf = (step: AutomationStep): Arm[] => {
         label: `${path.label || String.fromCharCode(65 + index)} · ${pathShare(step.paths, index)}%`,
         steps: path.steps,
       }));
+    case 'decide':
+      return [
+        ...step.paths.map((path, index) => ({
+          key: `path:${index}`,
+          label: path.label || `Path ${index + 1}`,
+          steps: path.steps,
+        })),
+        { key: 'otherwise', label: 'Otherwise', steps: step.otherwise },
+      ];
     default:
       return [];
   }
@@ -63,16 +72,24 @@ const withArm = (step: AutomationStep, arm: string, steps: AutomationStep[]): Au
     };
   }
 
-  if (step.type === 'split') {
-    const index = Number(arm.split(':')[1]);
+  if (step.type === 'split') return { ...step, paths: withPathSteps(step.paths, arm, steps) };
 
-    return {
-      ...step,
-      paths: step.paths.map((path, at) => (at === index ? { ...path, steps } : path)),
-    };
-  }
+  if (step.type === 'decide')
+    return arm === 'otherwise'
+      ? { ...step, otherwise: steps }
+      : { ...step, paths: withPathSteps(step.paths, arm, steps) };
 
   return step;
+};
+
+const withPathSteps = <T extends { steps: AutomationStep[] }>(
+  paths: T[],
+  arm: string,
+  steps: AutomationStep[],
+) => {
+  const index = Number(arm.split(':')[1]);
+
+  return paths.map((path, at) => (at === index ? { ...path, steps } : path));
 };
 
 /** Applies `fn` to the list at `address` (deep), leaving everything else as is. */
@@ -179,7 +196,16 @@ export const cloneStep = (step: AutomationStep): AutomationStep => {
   );
 };
 
-const STEP_TYPES = ['action', 'delay', 'wait_for', 'branch', 'switch', 'split', 'stop'] as const;
+const STEP_TYPES = [
+  'action',
+  'delay',
+  'wait_for',
+  'branch',
+  'switch',
+  'split',
+  'decide',
+  'stop',
+] as const;
 
 export type StepType = (typeof STEP_TYPES)[number];
 
@@ -190,6 +216,7 @@ export const STEP_TITLES: Record<StepType, string> = {
   branch: 'If / otherwise',
   switch: 'Choose a path',
   split: 'A/B split',
+  decide: 'Decision model',
   stop: 'Stop',
 };
 
@@ -242,6 +269,19 @@ export const newStep = (
           { label: 'A', weight: 50, steps: [] },
           { label: 'B', weight: 50, steps: [] },
         ],
+      };
+    case 'decide':
+      return {
+        id,
+        type,
+        provider: 'typesafe',
+        question: '',
+        state: '',
+        paths: [
+          { label: 'Yes', steps: [] },
+          { label: 'No', steps: [] },
+        ],
+        otherwise: [],
       };
     default:
       return { id, type: 'stop' };

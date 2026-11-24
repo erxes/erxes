@@ -168,6 +168,7 @@
     "branch": "Хэрэв / үгүй бол",
     "switch": "Зам сонгох",
     "split": "A/B туршилт",
+    "decide": "Шийдвэрийн загвар",
     "stop": "Зогсоох"
   },
   "step-hint": {
@@ -177,6 +178,7 @@
     "branch": "Нөхцлөөс хамаарч нэг замаар явах",
     "switch": "Хэд хэдэн замын нэг",
     "split": "Хоёр хувилбар турших (A/B)",
+    "decide": "Загвар аль замаар явахыг сонгоно",
     "stop": "Ажиллагааг дуусгах"
   },
   "choose": "Сонгох…",
@@ -362,5 +364,26 @@
   "step-label-short": "Нэр",
   "step-stats-title": "Сүүлийн 30 хоног",
   "connect-first": "Эхлээд холбоно уу",
-  "insert-data-or-brace": "Өгөгдөл оруулах, эсвэл { гэж бичнэ үү"
+  "insert-data-or-brace": "Өгөгдөл оруулах, эсвэл { гэж бичнэ үү",
+  "decision-model": "Шийдвэрийн загвар",
+  "provider": "Үйлчилгээ",
+  "connection": "Холболт",
+  "model": "Загвар",
+  "model-label": "Загвар: {{name}}",
+  "default-model": "Үндсэн",
+  "default-model-named": "Үндсэн ({{model}})",
+  "find-model": "Загвар хайх…",
+  "decision-question": "Асуулт",
+  "decision-question-placeholder": "Аль баг үүнийг авах вэ?",
+  "decision-state": "Унших мэдээлэл",
+  "decision-state-placeholder": "Хоосон бол бүртгэл болон үйл явдал",
+  "decision-paths": "Замууд",
+  "path-n": "Зам {{n}}",
+  "path-name-n": "Зам {{n}} нэр",
+  "path-meaning": "Хэзээ сонгох вэ…",
+  "path-meaning-n": "Зам {{n}} утга",
+  "min-confidence": "Доод итгэлцэл",
+  "min-confidence-info": "Үүнээс бага бол Бусад үед замаар явна",
+  "confidence-any": "Хязгааргүй",
+  "remove": "Устгах"
 }

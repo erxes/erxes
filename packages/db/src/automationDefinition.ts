@@ -2,6 +2,7 @@ import {
   CONDITION_MATCHES,
   CONDITION_OPERATORS,
   CONTENT_TYPES,
+  DECISION_PROVIDERS,
   DELAY_UNITS,
   HOOK_COMPANY_KEYS,
   HOOK_CUSTOMER_KEYS,
@@ -124,7 +125,50 @@ export type AutomationStep =
       paths: { label?: string; weight: number; steps: AutomationStep[] }[];
       label?: string;
     }
+  | {
+      id: string;
+      type: 'decide';
+      provider: (typeof DECISION_PROVIDERS)[number];
+      connection?: string;
+      model?: string;
+      question: string;
+      state: string;
+      minConfidence?: number;
+      paths: { label: string; meaning?: string; steps: AutomationStep[] }[];
+      otherwise: AutomationStep[];
+      label?: string;
+    }
   | { id: string; type: 'stop'; label?: string };
+
+const decideStep = (step: z.ZodType<AutomationStep>) =>
+  z.object({
+    id: StepId,
+    type: z.literal('decide'),
+    provider: z.enum(DECISION_PROVIDERS),
+    connection: z.string().max(64).optional(),
+    model: z.string().trim().max(100).optional(),
+    question: z.string().trim().max(2000),
+    state: z.string().max(20_000),
+    minConfidence: z.number().min(0).max(1).optional(),
+    paths: z
+      .array(
+        z.object({
+          label: z.string().trim().min(1, 'Name the path').max(60),
+          meaning: z.string().trim().max(500).optional(),
+          steps: z.array(step).max(100),
+        }),
+      )
+      .min(2)
+      .max(10)
+      .refine(
+        (paths) =>
+          new Set(['otherwise', ...paths.map((path) => path.label.toLowerCase())]).size ===
+          paths.length + 1,
+        'Give each path its own name, other than “otherwise”',
+      ),
+    otherwise: z.array(step).max(100),
+    label: Label,
+  });
 
 export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
   () =>
@@ -192,6 +236,7 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
           .max(5),
         label: Label,
       }),
+      decideStep(AutomationStep),
       z.object({ id: StepId, type: z.literal('stop'), label: Label }),
     ]) as z.ZodType<AutomationStep>,
 );

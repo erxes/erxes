@@ -12,6 +12,7 @@ import { openai } from './openai/server';
 import { openrouter } from './openrouter/server';
 import { qpay } from './qpay/server';
 import { stripe } from './stripe/server';
+import { typesafe } from './typesafe/server';
 
 export type { ModelClient } from './modelProvider';
 
@@ -24,6 +25,8 @@ export const MODEL_PROVIDERS = {
   grok,
 };
 
+export const DECISION_INTEGRATIONS = { typesafe, openai };
+
 /** Ways portals' customers sign in, which portals pick a connection of (Settings › Portals). */
 export const SIGN_IN_INTEGRATIONS = [googleSignIn, appleSignIn, facebookLogin, verifyMn];
 
@@ -35,5 +38,6 @@ export const INTEGRATIONS = [
   stripe,
   ...SMS_INTEGRATIONS,
   ...Object.values(MODEL_PROVIDERS),
+  typesafe,
   ...SIGN_IN_INTEGRATIONS,
 ];

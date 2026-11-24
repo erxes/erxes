@@ -1,4 +1,8 @@
-import { type Integration as ListedIntegration, IntegrationCategory } from '@erxes/core-contract';
+import {
+  DecisionProvider,
+  type Integration as ListedIntegration,
+  IntegrationCategory,
+} from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { useQuery } from '@tanstack/react-query';
 import type { ComponentType } from 'react';
@@ -10,6 +14,15 @@ import { initialMark, logoOf, packageUiOf } from './logos';
 export const CATEGORIES = IntegrationCategory.options;
 
 export type Category = IntegrationCategory;
+
+const DECISION_KEYS = new Set<string>(DecisionProvider.options);
+
+export const categoriesOf = (
+  integration: Pick<ListedIntegration, 'key' | 'category' | 'plugin'>,
+): Category[] =>
+  !integration.plugin && DECISION_KEYS.has(integration.key) && integration.category !== 'decision'
+    ? [integration.category, 'decision']
+    : [integration.category];
 
 /** A listed integration with its address (`qpay`, `frontline.meta`) and what its UI adds. */
 type Listed = ListedIntegration & {

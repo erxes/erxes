@@ -27,6 +27,7 @@ import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { triggerConditions } from './conditions';
 import { eachStep } from './cursor';
+import { decisionProblems } from './decide';
 import { triggerFields } from './hooks';
 import { MAX_HOURS, MIN_MINUTES } from './schedule';
 
@@ -219,6 +220,8 @@ const templateProblems = (definition: AutomationDefinition) => {
 
   eachStep(definition.steps, (step) => {
     if (step.type === 'action') templates.push(step.input);
+
+    if (step.type === 'decide') templates.push(step.question, step.state);
   });
 
   try {
@@ -371,6 +374,7 @@ export const definitionProblems = async (client: Db, definition: AutomationDefin
     problems.push(...stepProblems(step, catalog, subject, definition.trigger));
   });
   problems.push(...templateProblems(definition));
+  problems.push(...(await decisionProblems(client, definition.steps)));
   problems.push(...(await conditionProblems(client, definition, subject)));
 
   return problems;

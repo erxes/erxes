@@ -8,6 +8,7 @@ import { countryNames } from '~/lib/region';
 import { useSession } from '~/modules/auth/session';
 import {
   CATEGORIES,
+  categoriesOf,
   type Category,
   type Integration,
   servesCountry,
@@ -34,6 +35,7 @@ const useCategoryLabel = () => {
       developer: t('developer', 'Developer tools'),
       productivity: t('productivity', 'Productivity'),
       ai: t('ai', 'AI Provider'),
+      decision: t('decision', 'Decision model'),
     })[category];
 };
 
@@ -144,7 +146,7 @@ export const useSections = (search: string, chosen: Category | null) => {
   const needle = search.trim().toLocaleLowerCase();
 
   const categories = CATEGORIES.filter((item) =>
-    integrations.some((integration) => integration.category === item),
+    integrations.some((integration) => categoriesOf(integration).includes(item)),
   );
 
   const category = categories.find((item) => item === chosen) ?? null;
@@ -152,7 +154,7 @@ export const useSections = (search: string, chosen: Category | null) => {
   const matches = (integration: Integration) => {
     const { name, summary } = textOf(integration);
 
-    return [name, summary, categoryLabel(integration.category)].some((text) =>
+    return [name, summary, ...categoriesOf(integration).map(categoryLabel)].some((text) =>
       text.toLocaleLowerCase().includes(needle),
     );
   };
@@ -165,7 +167,8 @@ export const useSections = (search: string, chosen: Category | null) => {
 
   const shown = integrations
     .filter(
-      (integration) => (!category || integration.category === category) && matches(integration),
+      (integration) =>
+        (!category || categoriesOf(integration).includes(category)) && matches(integration),
     )
     .map((integration): Placed => ({ integration, rank: rankOf(integration) }))
     .toSorted((a, b) => RANKS.indexOf(a.rank) - RANKS.indexOf(b.rank));
@@ -177,7 +180,9 @@ export const useSections = (search: string, chosen: Category | null) => {
     category,
     shown,
     sections: categories.flatMap((item) => {
-      const items = shown.filter(({ integration }) => integration.category === item);
+      if (category && item !== category) return [];
+
+      const items = shown.filter(({ integration }) => categoriesOf(integration).includes(item));
 
       return items.length ? [{ category: item, title: categoryLabel(item), items }] : [];
     }),

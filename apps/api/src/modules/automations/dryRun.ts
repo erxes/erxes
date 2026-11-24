@@ -1,5 +1,6 @@
 import type { AutomationDefinition, AutomationStep, DryRunStep } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
+import { DECISION_INTEGRATIONS } from '@erxes/integrations/server';
 import { callerCan } from '~/http/access';
 import { invalidInput, notAllowed, notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
@@ -100,6 +101,17 @@ const probeArm = (
       outcome: match ? `Case ${labelled(chosen, match.label)}` : 'Otherwise',
       output: { case: match ? chosen : 'otherwise' },
       next: enterArm(steps, cursor, match ? `case:${chosen}` : 'otherwise'),
+    };
+  }
+
+  if (step.type === 'decide') {
+    const asked = DECISION_INTEGRATIONS[step.provider].name;
+
+    return {
+      outcome: `Would ask ${asked} to pick a path; assumed path ${labelled(0, step.paths[0]?.label)}`,
+      input: render({ question: step.question, state: step.state }, dry.context),
+      output: { path: step.paths[0]?.label ?? null },
+      next: enterArm(steps, cursor, 'path:0'),
     };
   }
 

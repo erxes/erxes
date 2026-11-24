@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CONNECTION_CONTENT_TYPE } from 'erxes-ui';
 import { z } from 'zod';
 import { useSidePanelDraft } from '~/modules/side-panel/useSidePanel';
-import { type Integration, useIntegrations } from '../integrations/catalog';
+import { categoriesOf, type Integration, useIntegrations } from '../integrations/catalog';
 
 export interface ConnectionScope {
   integration?: string;
@@ -30,7 +30,7 @@ export const useConnections = () =>
 const inScope = (integration: Integration, scope: ConnectionScope) =>
   integration.keyed &&
   (!scope.integration || integration.key === scope.integration) &&
-  (!scope.category || integration.category === scope.category);
+  (!scope.category || categoriesOf(integration).some((item) => item === scope.category));
 
 export const useKeyedIntegrations = (scope: ConnectionScope = {}) => {
   const { integrations, listed } = useIntegrations();
