@@ -67,6 +67,7 @@ export {
   productFieldValues,
   fieldGroups,
   fields,
+  oauthClients,
   oauthCodes,
   oauthRefreshTokens,
   organizations,

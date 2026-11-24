@@ -139,6 +139,18 @@
     "integrations": "Integrations",
     "exchange-rates": "Exchange Rates"
   },
+  "connect": {
+    "title": "Allow {{app}} to use erxes as you?",
+    "subtitle": "In {{organisation}}",
+    "can": "It can read and change what you can in erxes, as your role allows, until you sign out everywhere.",
+    "verified": "Published by {{address}}",
+    "unverified": "This app registered itself: erxes can't confirm who made it.",
+    "returns-to": "You go back to {{host}} after you answer.",
+    "allow": "Allow",
+    "deny": "Don't allow",
+    "missing": "This link lost the app's request. Start again from the app.",
+    "failed": "This request can't be answered"
+  },
   "auth": {
     "welcome": "Welcome",
     "sign-in-to-continue": "Please sign in to your account to continue",

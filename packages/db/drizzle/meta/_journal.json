@@ -953,6 +953,13 @@
       "when": 1795500103993,
       "tag": "0135_manifest_portal_audience",
       "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1795503649447,
+      "tag": "0136_oauth_mcp_clients",
+      "breakpoints": true
     }
   ]
 }

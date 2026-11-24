@@ -134,7 +134,8 @@ export const ERRORS = {
   TAG_LIMIT: { status: 409 },
   /** A member keeps at most FAVORITES_MAX favorites. */
   FAVORITE_LIMIT: { status: 409 },
-  // Branches and departments: at most LIST_MAX per organisation, read whole.
+  /** An app's request on the consent page: expired, altered, or another member's. */
+  APP_REQUEST_INVALID: { status: 400 }, // Branches and departments: at most LIST_MAX per organisation, read whole.
   UNIT_LIMIT: { status: 409 },
   /** Units still have the type: move them to another first. */
   UNIT_TYPE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },

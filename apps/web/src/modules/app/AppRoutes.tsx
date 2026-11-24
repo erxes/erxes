@@ -34,6 +34,8 @@ const BroadcastsRoutes = lazyNamed(
 
 const ReportsRoutes = lazyNamed(() => import('~/modules/reports/ReportsRoutes'), 'ReportsRoutes');
 
+const ConnectAppPage = lazyNamed(() => import('~/modules/auth/ConnectAppPage'), 'ConnectAppPage');
+
 // The settings pages' words load beside their code, so they never show untranslated.
 const SettingsRoutes = lazyNamed(async () => {
   const [routes] = await Promise.all([
@@ -80,6 +82,8 @@ export const AppRoutes = () => (
   <Routes>
     {/* First sign-in steps, full screen. */}
     <Route path="welcome" element={<MainOnboardingPage />} />
+    {/* An app asking to act as the member: full screen, before onboarding too. */}
+    <Route path="connect" element={<ConnectAppPage />} />
     {/* The module's name, so the URL people guess goes there too. */}
     <Route path="onboarding" element={<Navigate to={paths.welcome} replace />} />
     <Route

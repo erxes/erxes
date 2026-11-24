@@ -1,63 +1,42 @@
-import { newId, oauthCodes, organizations, users, withOrg } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
-import express, { type Request, type Response, Router } from 'express';
+import { organizations, users, withOrg } from '@erxes/core-db';
+import { eq } from 'drizzle-orm';
+import express, { type Request, type RequestHandler, type Response, Router } from 'express';
 import { z } from 'zod';
 import { sessionClaims } from '~/http/auth';
-import { sha256 } from '~/lib/crypto';
 import { ISSUER, verifyJwt } from '~/lib/signing';
+import { registerClient } from './oauthApps';
 import {
+  AuthorizeQuery,
+  answerTo,
+  checkAuthorization,
+  consentRequest,
+  issueCode,
+} from './oauthAuthorize';
+import {
+  APP_SCOPES,
+  apiBaseOf,
   clientOf,
-  clientTitle,
-  installed,
-  type OAuthClient,
-  newSecret,
   oauthError,
   param,
-  SCOPES,
+  redirectAllowed,
+  usable,
 } from './oauthClients';
 import { exchangeCode, refreshGrant, revokeFamily } from './oauthGrants';
 
 /**
- * "Sign in with erxes": OAuth 2.1 with OpenID Connect for plugins' own apps
- * (a plugin is the client; its manifest lists its redirect addresses).
- * Authorization code + PKCE (S256) only; access and ID tokens are ES256
- * JWTs anyone can check with the JWKS; refresh tokens rotate and a reused one
- * revokes its family.
+ * OAuth 2.1 with OpenID Connect. Two kinds of client: a plugin's own app ("Sign in with erxes",
+ * its manifest lists its redirect addresses, the organisation installing the plugin allows it)
+ * and an app acting as the member through the MCP server, which the member allows on the consent
+ * page. Authorization code + PKCE (S256) only; access and ID tokens are ES256 JWTs anyone can
+ * check with the JWKS; refresh tokens rotate and a reused one revokes its family.
  */
-export const oauthRouter = Router();
-
-const CODE_SECONDS = 60;
+const oauthRouter = Router();
 
 /** RFC 6749 3.1: a parameter sent twice (or nested) is an invalid request. */
 const REPEATED = 'Send each parameter once, as text';
 
-const AuthorizeQuery = z.object({
-  client_id: param,
-  redirect_uri: param,
-  response_type: param,
-  code_challenge: param,
-  code_challenge_method: param,
-  scope: param,
-  state: param,
-  nonce: param,
-});
-
-type AuthorizeRequest = z.infer<typeof AuthorizeQuery> & { redirect_uri: string };
-
-/** The redirect address, if the client lists it (with `{subdomain}` the organisation's). */
-const allowedRedirect = (templates: string[], given: string, subdomain: string | null) =>
-  templates.some(
-    (template) => (subdomain ? template.replaceAll('{subdomain}', subdomain) : template) === given,
-  );
-
-const withParams = (url: string, params: Record<string, string | undefined>) => {
-  const target = new URL(url);
-
-  for (const [key, value] of Object.entries(params))
-    if (value !== undefined) target.searchParams.set(key, value);
-
-  return target.toString();
-};
+/** Where web shows an app's request for the member to allow or refuse. */
+const CONSENT_PAGE = '/connect';
 
 /** The signed-in member behind the session cookie, if still valid. */
 const memberOfSession = async (req: Request) => {
@@ -85,66 +64,17 @@ const memberOfSession = async (req: Request) => {
   return row;
 };
 
-/** The redirect back to the app: a code, or the OAuth error. */
-const codeRedirect = (
-  client: OAuthClient,
-  query: AuthorizeRequest,
-  user: { orgId: string; id: string },
-) => {
-  const back = (params: Record<string, string | undefined>) =>
-    withParams(query.redirect_uri, { ...params, state: query.state, iss: ISSUER });
-
-  if (query.response_type !== 'code') return back({ error: 'unsupported_response_type' });
-
-  const codeChallenge = query.code_challenge;
-
-  if (
-    !codeChallenge ||
-    query.code_challenge_method !== 'S256' ||
-    !/^[A-Za-z0-9_-]{43}$/.test(codeChallenge)
-  ) {
-    return back({ error: 'invalid_request', error_description: 'PKCE with S256 is required' });
-  }
-
-  const scope = (query.scope ?? 'openid').split(' ').filter((item) => SCOPES.has(item));
-
-  return withOrg(user.orgId, async (tx) => {
-    if (!(await installed(tx, client.name))) {
-      return back({
-        error: 'access_denied',
-        error_description: `${clientTitle(client)} is not installed in your organisation`,
-      });
-    }
-
-    const id = newId();
-    const secret = newSecret();
-
-    await tx.insert(oauthCodes).values({
-      id,
-      clientId: client.name,
-      userId: user.id,
-      codeHash: sha256(secret),
-      redirectUri: query.redirect_uri,
-      codeChallenge,
-      scope: scope.join(' ') || 'openid',
-      nonce: query.nonce?.slice(0, 200) ?? null,
-      expiresAt: sql`now() + make_interval(secs => ${CODE_SECONDS})`,
-    });
-
-    return back({ code: `${id}.${secret}` });
-  });
-};
-
 oauthRouter.get('/authorize', async (req: Request, res: Response) => {
   const { data: query } = AuthorizeQuery.safeParse(req.query);
 
   if (!query) return oauthError(res, 400, 'invalid_request', REPEATED);
 
   const client = await clientOf(query.client_id);
-  const templates = client?.manifest?.oauth?.redirectUris ?? [];
 
   // Until the redirect address is known to be the client's, errors are shown here, never sent there.
-  if (!client || !templates.length) return oauthError(res, 400, 'invalid_client', 'Unknown app');
+  if (!client || !client.redirectUris.length) {
+    return oauthError(res, 400, 'invalid_client', 'Unknown app');
+  }
 
   const redirectUri = query.redirect_uri;
 
@@ -157,7 +87,7 @@ oauthRouter.get('/authorize', async (req: Request, res: Response) => {
     return res.redirect(302, `/?next=${encodeURIComponent(req.originalUrl)}`);
   }
 
-  if (!allowedRedirect(templates, redirectUri, member.subdomain)) {
+  if (!redirectAllowed(client, redirectUri, member.subdomain)) {
     return oauthError(
       res,
       400,
@@ -166,10 +96,37 @@ oauthRouter.get('/authorize', async (req: Request, res: Response) => {
     );
   }
 
-  res.redirect(
-    302,
-    await codeRedirect(client, { ...query, redirect_uri: redirectUri }, member.user),
+  const checked = checkAuthorization(
+    client,
+    { ...query, redirect_uri: redirectUri },
+    apiBaseOf(req),
   );
+
+  if ('refused' in checked) return res.redirect(302, checked.refused);
+
+  const { authorization } = checked;
+  const { user } = member;
+
+  // An app acts as the member: they allow it themselves.
+  if (client.kind === 'app') {
+    const request = await consentRequest(authorization, client, {
+      orgId: user.orgId,
+      userId: user.id,
+    });
+
+    return res.redirect(302, `${CONSENT_PAGE}?request=${encodeURIComponent(request)}`);
+  }
+
+  const answer = await withOrg(user.orgId, async (tx) =>
+    (await usable(tx, client))
+      ? answerTo(authorization, { code: await issueCode(tx, authorization, user.id) })
+      : answerTo(authorization, {
+          error: 'access_denied',
+          error_description: `${client.title} is not installed in your organisation`,
+        }),
+  );
+
+  res.redirect(302, answer);
 });
 
 const TokenForm = z.object({
@@ -179,6 +136,7 @@ const TokenForm = z.object({
   redirect_uri: param,
   code_verifier: param,
   refresh_token: param,
+  resource: param,
 });
 
 const RevokeForm = z.object({ token: param });
@@ -228,6 +186,8 @@ tokenRouter.post('/revoke', async (req: Request, res: Response) => {
 
 oauthRouter.use(tokenRouter);
 
+oauthRouter.post('/register', express.json({ limit: '16kb' }), registerClient);
+
 const AccessTokenClaims = z.object({
   sub: z.string(),
   org: z.string(),
@@ -236,7 +196,7 @@ const AccessTokenClaims = z.object({
   permissions: z.array(z.string()).optional(),
 });
 
-/** OpenID Connect userinfo for an access token. */
+/** OpenID Connect userinfo for a plugin app's access token. */
 oauthRouter.get('/userinfo', async (req, res) => {
   const token = req.headers.authorization?.startsWith('Bearer ')
     ? req.headers.authorization.slice(7)
@@ -280,22 +240,27 @@ oauthRouter.get('/userinfo', async (req, res) => {
   });
 });
 
-/** OpenID Connect discovery (addresses relative to where core is reached). */
-export const openidConfiguration = (req: Request, res: Response) => {
-  const base = `${req.protocol}://${req.get('host')}/core/v1`;
+/** The endpoints both kinds of client use, on this request's address. */
+const endpointsOf = (base: string) => ({
+  authorization_endpoint: `${base}/oauth/authorize`,
+  token_endpoint: `${base}/oauth/token`,
+  revocation_endpoint: `${base}/oauth/revoke`,
+  response_types_supported: ['code'],
+  grant_types_supported: ['authorization_code', 'refresh_token'],
+  code_challenge_methods_supported: ['S256'],
+  token_endpoint_auth_methods_supported: ['none'],
+});
+
+/** OpenID Connect discovery for plugins' own apps (addresses relative to where core is reached). */
+const openidConfiguration = (req: Request, res: Response) => {
+  const base = apiBaseOf(req);
 
   res.set('Cache-Control', 'public, max-age=300').json({
     issuer: ISSUER,
-    authorization_endpoint: `${base}/oauth/authorize`,
-    token_endpoint: `${base}/oauth/token`,
+    ...endpointsOf(base),
     userinfo_endpoint: `${base}/oauth/userinfo`,
-    revocation_endpoint: `${base}/oauth/revoke`,
     jwks_uri: `${base}/.well-known/jwks.json`,
-    response_types_supported: ['code'],
-    grant_types_supported: ['authorization_code', 'refresh_token'],
-    code_challenge_methods_supported: ['S256'],
-    token_endpoint_auth_methods_supported: ['none'],
-    scopes_supported: [...SCOPES],
+    scopes_supported: ['openid', 'profile', 'email', 'offline_access'],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['ES256'],
     claims_supported: [
@@ -311,4 +276,36 @@ export const openidConfiguration = (req: Request, res: Response) => {
       'nonce',
     ],
   });
+};
+
+/**
+ * Authorization server metadata (RFC 8414) for apps: the issuer is core's API address, from
+ * which this document is found at `/.well-known/oauth-authorization-server/core/v1`. Apps name
+ * themselves with a metadata document or register.
+ */
+const authorizationServerMetadata = (req: Request, res: Response) => {
+  const base = apiBaseOf(req);
+
+  res.set('Cache-Control', 'public, max-age=300').json({
+    issuer: base,
+    ...endpointsOf(base),
+    registration_endpoint: `${base}/oauth/register`,
+    scopes_supported: APP_SCOPES,
+    client_id_metadata_document_supported: true,
+    authorization_response_iss_parameter_supported: true,
+  });
+};
+
+/** OAuth's routes, from the app's root, with the limits they take: they sign in on their own. */
+export const oauthRoutes = (limits: { register: RequestHandler; token: RequestHandler }) => {
+  const routes = Router();
+
+  routes.use('/core/v1/oauth/register', limits.register);
+  routes.use('/core/v1/oauth', limits.token, oauthRouter);
+  routes.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
+  // RFC 8414 puts the issuer's path after the well-known name; some clients look under it.
+  routes.get('/.well-known/oauth-authorization-server/core/v1', authorizationServerMetadata);
+  routes.get('/core/v1/.well-known/oauth-authorization-server', authorizationServerMetadata);
+
+  return routes;
 };

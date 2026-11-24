@@ -38,6 +38,7 @@ import { transferRouter } from '~/modules/transfer/transfer.router';
 import { leadsRouter } from '~/modules/leads/leads.router';
 import { viewsRouter } from '~/modules/views/views.router';
 import { favoritesRouter } from '~/modules/favorites/favorites.router';
+import { oauthConsentRouter } from '~/modules/oauth/oauthConsent.router';
 import { customersRouter } from '~/modules/customers/customers.router';
 import {
   customerAccountRouter,
@@ -94,6 +95,7 @@ export const coreRouter = unscoped.router({
   leads: leadsRouter,
   views: viewsRouter,
   favorites: favoritesRouter,
+  oauthConsent: oauthConsentRouter,
   customers: customersRouter,
   customerAccount: customerAccountRouter,
   customerAuth: customerAuthRouter,

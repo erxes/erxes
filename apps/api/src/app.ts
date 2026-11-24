@@ -19,7 +19,7 @@ import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
-import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
+import { oauthRoutes } from '~/modules/oauth/oauth.http';
 import { customerCors } from '~/modules/customerAuth/customerPortals';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
@@ -217,9 +217,8 @@ export const createApp = (log: Logger = logger): Express => {
   // Pictures in emails: files uploaded as public, which mail clients fetch with no sign-in.
   app.use('/core/v1', publicFilesRouter);
 
-  // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
-  app.use('/core/v1/oauth', limit.token, oauthRouter);
-  app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
+  // OAuth 2.1 / OpenID Connect, for plugins' own apps and MCP clients: its own authentication.
+  app.use(oauthRoutes({ register: limit.oauthRegister, token: limit.token }));
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
   app.use(

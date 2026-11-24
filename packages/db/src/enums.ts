@@ -512,3 +512,6 @@ export * from './integrationEnums';
 export const PORTAL_KEY_KINDS = ['secret', 'publishable'] as const;
 
 export const PORTAL_TOKEN_KINDS = [...PORTAL_KEY_KINDS, 'agent'] as const;
+
+/** The OAuth grants core's authorization server takes: the code flow and refresh. */
+export const OAUTH_GRANT_TYPES = ['authorization_code', 'refresh_token'] as const;
