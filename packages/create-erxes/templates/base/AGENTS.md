@@ -18,7 +18,7 @@ oRPC and Drizzle. `ui/` is the Module Federation remote web loads. Read the
   run in `ui/`, explains a React Doctor hit.
 - Other gates: `vp run test` on real Postgres via `DATA_TEST_URL`,
   `pnpm check:rls`, `pnpm build`. `vp run fix` formats and fixes lint.
-- CI is core's `plugin-ci.yml`, which `.github/workflows/ci.yml` calls. It runs the gates
+- CI is core's reusable plugin workflow, which `.github/workflows/ci.yml` calls. It runs the gates
   above, the image and its scan, and decides the rest from this repo's files.
 - Core finds the plugin by these names, so they stay fixed: plugin `__id__`,
   remote `__id___ui` exposing `./config` and `./__id__`, pages under `/__id__/*`.
