@@ -45,11 +45,11 @@ const Tile = ({
         onClick={() => targets.insert(item.path) || copy()}
         className={cn(
           TILE,
-          'cursor-grab flex-col items-start justify-end bg-muted/40 pt-5 text-left transition hover:border-primary/50 hover:bg-primary/5 active:cursor-grabbing',
+          'cursor-grab flex-col items-start justify-start bg-muted/40 pb-6 text-left transition hover:border-primary/50 hover:bg-primary/5 active:cursor-grabbing',
           open && 'border-primary/50 bg-primary/5',
         )}
       >
-        <span className="absolute top-1.5 left-2 flex text-muted-foreground/70 [&>svg]:size-3">
+        <span className="absolute bottom-1.5 left-2 flex text-muted-foreground/70 [&>svg]:size-3">
           {copied ? (
             <IconCheck className="text-success" />
           ) : (
