@@ -19,6 +19,10 @@ type InvoiceRow = typeof paymentInvoices.$inferSelect;
 /** PosAPI takes tögrög only. */
 export const RECEIPT_CURRENCY = 'MNT';
 
+/** Why a turned-off config sent nothing: the receipt's error, and the 400's message. */
+export const configOff = (settings: Pick<SettingsRow, 'name'>) =>
+  `The eBarimt config "${settings.name}" is turned off (Settings › Integrations)`;
+
 /** The invoice's issued receipt: a put that succeeded and wasn't returned or replaced since. */
 export const activeReceipt = async (tx: Db, invoiceId: string) => {
   const [row] = await tx
@@ -66,13 +70,6 @@ export const anyActive = async (tx: Db) => {
 
   return Boolean(row);
 };
-
-/** Does the organisation issue receipts for this invoice? */
-const issuesFor = (
-  settings: SettingsRow | null,
-  invoice: Pick<InvoiceRow, 'currency'>,
-): settings is SettingsRow =>
-  settings?.status === 'active' && invoice.currency === RECEIPT_CURRENCY;
 
 /** What the invoice still holds: paid less refunded (nothing unless it was paid). */
 export const keptAmount = (invoice: InvoiceRow) =>
@@ -138,7 +135,13 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
   // through the invoice's config, else the default.
   const settings = await configOf(tx, active?.settingsId ?? invoice.ebarimtId);
 
-  if (!issuesFor(settings, invoice)) return null;
+  if (!settings || invoice.currency !== RECEIPT_CURRENCY) return null;
+
+  // The default turned off is eBarimt off: nothing to send. A config the invoice names, or the
+  // one that issued its receipt, turned off leaves a receipt unsent: the sync keeps it as failed.
+  const off = settings.status !== 'active';
+
+  if (off && !invoice.ebarimtId && !active) return null;
 
   if ((await ownReceiptPlugins(tx, [invoice.source])).size) return null;
 
@@ -147,6 +150,7 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
   return {
     invoice,
     settings,
+    off,
     active,
     products: await productInfo(tx, ids),
   };
