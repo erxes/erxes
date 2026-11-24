@@ -1,10 +1,12 @@
-import { Combobox, Command, Popover } from 'erxes-ui';
+import { cn, Combobox, Command, Popover } from 'erxes-ui';
 import { useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { CatalogList, type Picked, RECENT } from './CatalogList';
+import { LOOK, type NodeIcon } from './stepLook';
 import {
   type CatalogItem,
+  catalogIcon,
   type GroupEntry,
   groupItems,
   groupOf,
@@ -62,6 +64,17 @@ const startCategory = (
   return recentCount > 0 ? RECENT : (groups[0]?.group.key ?? null);
 };
 
+/** The chosen item's icon, coloured as its card on the canvas: an event green, an action primary. */
+const ItemIcon = ({ kind, icon: Icon }: { kind: string; icon: NodeIcon }) => {
+  const tone = kind === 'action' ? LOOK.action.tone : LOOK.trigger.tone;
+
+  return (
+    <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone)}>
+      <Icon className="size-4" />
+    </span>
+  );
+};
+
 /** The button showing the chosen item and its area. */
 const PickerTrigger = ({
   kind,
@@ -82,13 +95,14 @@ const PickerTrigger = ({
 
   return (
     <Combobox.Trigger disabled={disabled} className="h-auto min-h-9">
+      {selected && <ItemIcon kind={kind} icon={catalogIcon(selected)} />}
       <span className="min-w-0 flex-1">
         {selected ? (
           <>
+            <span className="block truncate text-sm font-medium">{selected.label}</span>
             <span className="block truncate text-xs text-muted-foreground">
               {groupName(groupOf(selected))}
             </span>
-            <span className="block truncate text-sm font-medium">{selected.label}</span>
           </>
         ) : (
           <span className="block truncate text-sm text-muted-foreground">
