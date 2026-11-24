@@ -40,6 +40,11 @@ export interface PluginMember {
    * live on Stripe, one per bundle bought. Empty on self-hosted.
    */
   bundles: string[];
+  /**
+   * erxes support on a visit (SaaS): an owner for a few hours. Refuse what would
+   * outlast the visit: credentials, webhooks, forwarding to an address.
+   */
+  support: boolean;
 }
 
 /**
@@ -90,6 +95,7 @@ const member = (claims: {
   access: PluginMember['access'];
   saas: boolean;
   bundles: string[];
+  support?: boolean;
 }): PluginMember => ({
   userId: claims.sub,
   orgId: claims.org,
@@ -101,6 +107,7 @@ const member = (claims: {
   canChange: () => claims.access === 'full' || claims.access === 'warning',
   saas: claims.saas,
   bundles: claims.bundles,
+  support: claims.support ?? false,
 });
 
 /** The plan core signs into session and plugin-call tokens (self-hosted: `pro`, `full`, no bundles). */
@@ -112,11 +119,15 @@ const PlanClaims = {
   bundles: z.array(z.string()),
 };
 
+// Tokens from before core signed it are a team member's.
+const SupportClaim = z.boolean().default(false);
+
 const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
+  support: SupportClaim,
   ...PlanClaims,
 });
 
@@ -203,6 +214,7 @@ const AccessTokenClaims = z.object({
   access: PluginAccess.default('off'),
   saas: z.boolean().default(false),
   bundles: z.array(z.string()).default([]),
+  support: SupportClaim,
   scope: z.string().transform((scope) => scope.split(' ')),
 });
 

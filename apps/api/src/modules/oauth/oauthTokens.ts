@@ -84,6 +84,7 @@ const accessToken = (issued: Issued, member: Member) => {
       client_id: issued.clientId,
       role: member.user.role,
       permissions,
+      support: member.user.isSupport,
     },
     {
       typ: 'at+jwt',

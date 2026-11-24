@@ -109,6 +109,11 @@ const checkUserChange = async (
   const me = caller('user');
   const self = target.id === me.userId;
 
+  // erxes support's address is erxes.io's: another one would get mail after the visit.
+  if (me.support && change.email !== undefined && change.email !== target.email) {
+    throw fail('NOT_ALLOWED', 'erxes support keeps the address erxes.io gave it');
+  }
+
   if (!self) {
     assertTeamManager();
     await assertNotAbove(tx, target.role);

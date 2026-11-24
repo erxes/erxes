@@ -108,6 +108,13 @@ describe('erxes support visits', { timeout: 300_000 }, () => {
     await expect(
       support.auth.changePassword({ newPassword: 'Support-pass-123' }),
     ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
+    // Nor an address of their own that would get mail after the visit.
+    await expect(
+      support.users.update({ id: session.user.id, email: 'me@elsewhere.test' }),
+    ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
+    await expect(
+      support.users.update({ id: session.user.id, phone: '99112233' }),
+    ).resolves.toMatchObject({ phone: '99112233' });
 
     await expect(support.audit.settings({})).resolves.toMatchObject({ retentionDays: 365 });
     await expect(support.supportAccess.settings({})).rejects.toMatchObject({

@@ -28,8 +28,8 @@ const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
 /** What the member may do now, spelled out: a key keeps this list, not a role or `*`. */
 const permissionsOf = (member: Member) => {
-  const core = CORE_PERMISSIONS.map((permission) => permission.action).filter(
-    (action) => member.role === 'owner' || can(member, action),
+  const core = CORE_PERMISSIONS.map((permission) => permission.action).filter((action) =>
+    can(member, action),
   );
 
   const own = member.permissions.filter((action) => action !== '*' && !OWNER_ONLY.has(action));
