@@ -2,6 +2,7 @@ import { newId } from '@erxes/core-db';
 import { exportJWK, generateKeyPair, type CryptoKey, SignJWT } from 'jose';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
+import { READ_CONTACTS } from './apiKeySupport';
 import { useTestDatabase } from './db';
 import { useSaas } from './saasSupport';
 import { useTwoOrgs } from './support';
@@ -87,22 +88,22 @@ describe('erxes support visits', { timeout: 300_000 }, () => {
       role: 'owner',
       isSupport: true,
     });
+    // Everything an owner does, to set the workspace up; only the owners' say over support isn't theirs.
     expect(session.permissions).toEqual(
-      expect.arrayContaining(['plugins.manage', 'contacts.delete']),
+      expect.arrayContaining([
+        'plugins.manage',
+        'contacts.delete',
+        'team.invite',
+        'team.manage',
+        'roles.manage',
+        'api_keys.create',
+        'assistant.manage',
+        'webhooks.manage',
+        'portals.manage',
+        'audit.retention',
+      ]),
     );
-
-    for (const denied of [
-      'team.invite',
-      'team.manage',
-      'roles.manage',
-      'api_keys.create',
-      'support.manage',
-      'assistant.manage',
-      'webhooks.manage',
-      'portals.manage',
-    ]) {
-      expect(session.permissions).not.toContain(denied);
-    }
+    expect(session.permissions).not.toContain('support.manage');
 
     // No password: the link is their only way in.
     await expect(
@@ -115,15 +116,18 @@ describe('erxes support visits', { timeout: 300_000 }, () => {
     await expect(
       support.users.update({ id: session.user.id, phone: '99112233' }),
     ).resolves.toMatchObject({ phone: '99112233' });
+    // A member's address is theirs to fix.
+    await expect(
+      support.users.update({ id: t.ids.member, email: 'member.fixed@acme.mn' }),
+    ).resolves.toMatchObject({ email: 'member.fixed@acme.mn' });
 
     await expect(support.audit.settings({})).resolves.toMatchObject({ retentionDays: 365 });
     await expect(support.supportAccess.settings({})).rejects.toMatchObject({
       status: 403,
       code: 'NOT_ALLOWED',
     });
-    await expect(support.users.invite({ email: 'mole@acme.mn' })).rejects.toMatchObject({
-      status: 403,
-      code: 'NOT_ALLOWED',
+    await expect(support.users.invite({ email: 'new.hire@acme.mn' })).resolves.toMatchObject({
+      email: 'new.hire@acme.mn',
     });
     // Their own visit only, for the banner.
     expect((await support.supportAccess.active({})).data).toEqual([
@@ -167,6 +171,13 @@ describe('erxes support visits', { timeout: 300_000 }, () => {
   it('ends a visit when an owner says so, and an earlier visit’s cookie never comes back', async () => {
     const first = await open(await link({ staff: 'staff03' }));
 
+    // A key support makes for the client's integration is the organisation's: it outlives the visit.
+    const { key } = await first.support.apiKeys.create({
+      ...READ_CONTACTS,
+      name: 'Website',
+      lifetimeDays: 90,
+    });
+
     const ended = await Promise.all(
       (await t.owner().supportAccess.active({})).data.map((item) =>
         t.owner().supportAccess.endVisit({ id: item.id }),
@@ -175,6 +186,7 @@ describe('erxes support visits', { timeout: 300_000 }, () => {
 
     expect(ended.every((item) => item.endedBy === t.ids.owner)).toBe(true);
     await expect(first.support.auth.me({})).rejects.toMatchObject({ status: 401 });
+    await expect(t.client(key).customers.list({})).resolves.toBeDefined();
     await expect(
       t.owner().supportAccess.endVisit({ id: ended[0]?.id ?? '' }),
     ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });

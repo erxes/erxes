@@ -12,7 +12,6 @@ import {
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { BlockList, isIP } from 'node:net';
 import { areaPermissions } from '~/http/keyRules';
-import { actsNow } from '~/modules/supportAccess/onVisit';
 
 type KeyRow = typeof apiKeys.$inferSelect;
 
@@ -108,7 +107,6 @@ export const keyCaller = async (
     .select({
       role: users.role,
       permissions: roles.permissions,
-      actsNow: sql<boolean>`coalesce(${actsNow(client)}, true)`,
     })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
@@ -116,8 +114,6 @@ export const keyCaller = async (
     .limit(1);
 
   if (!maker) return refused('role', "Its maker's role was removed");
-
-  if (!maker.actsNow) return refused('support', 'Its maker was erxes support, whose visit ended');
 
   const allows = roleAllows(maker.role, maker.permissions);
   const opened = new Set<string>(areaPermissions(key.areas, key.actions));
