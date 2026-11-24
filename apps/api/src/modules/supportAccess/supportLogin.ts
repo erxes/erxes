@@ -108,7 +108,15 @@ const supportMember = async (tx: Db, staff: SupportClaims) => {
     return oneRow(
       await tx
         .insert(users)
-        .values({ id: newId(), ...profile, role: 'owner', status: 'active', isSupport: true })
+        .values({
+          id: newId(),
+          ...profile,
+          role: 'owner',
+          status: 'active',
+          isSupport: true,
+          // Straight to work: the welcome steps (password, profile) are the team's.
+          onboardedAt: sql`now()`,
+        })
         .returning({ id: users.id, sessionVersion: users.sessionVersion }),
     );
   }
@@ -122,6 +130,7 @@ const supportMember = async (tx: Db, staff: SupportClaims) => {
         role: 'owner',
         status: 'active',
         passwordHash: null,
+        onboardedAt: sql`coalesce(${users.onboardedAt}, now())`,
         sessionVersion: sql`${users.sessionVersion} + 1`,
         updatedAt: sql`now()`,
       })

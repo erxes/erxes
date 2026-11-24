@@ -67,7 +67,7 @@ const AccessSwitch = () => {
               <span className="block text-sm text-muted-foreground">
                 {t(
                   'switch-description',
-                  'erxes staff open your workspace from erxes.io when you ask them for help. They act as an owner for 4 hours, but can’t change team members, roles, API keys or audit settings. You get an email each time.',
+                  'erxes staff open your workspace from erxes.io when you ask them for help. They act as an owner for 4 hours, but can’t change team members, roles, API keys, agents, webhooks, portal keys or audit settings. You get an email each time.',
                 )}
               </span>
             </span>
