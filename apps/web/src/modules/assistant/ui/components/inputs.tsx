@@ -26,11 +26,9 @@ import { useTranslation } from 'react-i18next';
 import { useUiHost } from '../host';
 import { Weighted, weighted } from './children';
 import { Field, Problems } from './field';
-import { listOf, optionalText, textOf } from './values';
+import { listOf, optionalText, pickedEntry, pickedRecord, textOf } from './values';
 
 const BUTTON_VARIANTS = { default: 'outline', primary: 'default', borderless: 'ghost' } as const;
-
-const MEMBER_ID = /\(member id ([\w-]+)\)$/;
 
 export const Button = createComponentImplementation(ButtonApi, ({ props, buildChild }) => {
   const host = useUiHost();
@@ -177,14 +175,21 @@ export const MemberPicker = createComponentImplementation(MemberPickerApi, ({ pr
   const id = useId();
   const host = useUiHost();
   const { t } = useTranslation('assistant');
-  const ids = listOf(props.value).flatMap((entry) => MEMBER_ID.exec(entry)?.[1] ?? []);
+
+  const ids = listOf(props.value).flatMap((entry) => {
+    const picked = pickedRecord(entry);
+
+    return picked?.kind === 'member' ? [picked.id] : [];
+  });
+
   const members = useMemberOptions(memberQueries, true, ids);
 
-  const named = (memberId: string) => {
-    const label = members.options.find((option) => option.value === memberId)?.label;
-
-    return label ? `${label} (member id ${memberId})` : `(member id ${memberId})`;
-  };
+  const named = (memberId: string) =>
+    pickedEntry(
+      'member',
+      memberId,
+      members.options.find((option) => option.value === memberId)?.label,
+    );
 
   return (
     <Field label={optionalText(props.label)}>

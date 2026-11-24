@@ -1,132 +1,12 @@
-import { IconArrowDown, IconLoader2 } from '@tabler/icons-react';
-import { Button, Spinner } from 'erxes-ui';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { IconArrowDown } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AssistantAvatar } from './AssistantAvatar';
-import { CopyButton } from './CopyButton';
-import { type OnUiAction, Reply } from './Reply';
-import { StepsGroup, ThinkingBlock } from './Steps';
-import { replyText, type TranscriptMessage, type TranscriptRow } from './transcriptRows';
+import { AssistantTurn, type TranscriptActions } from './TaskCard';
+import { type TranscriptMessage, userText } from './transcriptRows';
 import { UserMessage } from './UserMessage';
 
-const ArtifactCard = lazy(() =>
-  import('./artifacts/ArtifactCard').then((module) => ({ default: module.ArtifactCard })),
-);
-
-export interface TranscriptActions {
-  busy: boolean;
-  onAction: OnUiAction;
-}
-
-interface RowPlace {
-  live: boolean;
-  last: boolean;
-  superseded: boolean;
-}
-
-const Row = ({
-  row,
-  place,
-  actions,
-}: {
-  row: TranscriptRow;
-  place: RowPlace;
-  actions: TranscriptActions;
-}) => {
-  switch (row.kind) {
-    case 'text':
-      return (
-        <Reply
-          text={row.text}
-          state={{
-            streaming: row.streaming,
-            working: place.last && actions.busy,
-            live: place.last && !actions.busy,
-            superseded: place.superseded,
-          }}
-          onAction={actions.onAction}
-        />
-      );
-    case 'thinking':
-      return <ThinkingBlock text={row.text} streaming={row.streaming} />;
-    case 'steps':
-      return <StepsGroup steps={row.steps} live={place.live} />;
-    case 'artifact':
-      return (
-        <Suspense fallback={<Spinner />}>
-          <ArtifactCard artifact={row.artifact} />
-        </Suspense>
-      );
-  }
-};
-
-const AssistantMessage = ({
-  rows,
-  last,
-  actions,
-}: {
-  rows: TranscriptRow[];
-  last: boolean;
-  actions: TranscriptActions;
-}) => {
-  const { t } = useTranslation('assistant');
-  const text = replyText(rows);
-  const working = last && actions.busy;
-  const thinking = working && !rows.some((row) => row.kind === 'text');
-  const [first] = rows;
-  const lead = first?.kind === 'steps' || first?.kind === 'thinking' ? first : null;
-  const liveKey = working ? rows.at(-1)?.key : undefined;
-  const lastText = rows.findLast((row) => row.kind === 'text')?.key;
-
-  const placeOf = (row: TranscriptRow): RowPlace => ({
-    live: row.key === liveKey,
-    last,
-    superseded: row.kind === 'text' && row.key !== lastText,
-  });
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex min-w-0 items-start gap-2">
-        <AssistantAvatar
-          size={28}
-          state={thinking ? 'thinking' : 'idle'}
-          animated={last}
-          follow={last && !thinking}
-        />
-        {lead ? (
-          <div className="min-w-0 flex-1">
-            <Row row={lead} place={placeOf(lead)} actions={actions} />
-          </div>
-        ) : (
-          thinking && (
-            <span className="self-center text-sm text-muted-foreground">
-              {t('working', 'Working on it…')}
-            </span>
-          )
-        )}
-      </div>
-      {rows.slice(lead ? 1 : 0).map((row) => (
-        <Row key={row.key} row={row} place={placeOf(row)} actions={actions} />
-      ))}
-      {last && !working && text && (
-        <div className="flex items-center gap-0.5">
-          <CopyButton text={text} />
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const WorkingRow = ({ label, avatar = false }: { label: string; avatar?: boolean }) => (
-  <p className="flex items-center gap-2 text-sm text-muted-foreground">
-    {avatar ? (
-      <AssistantAvatar size={28} state="thinking" />
-    ) : (
-      <IconLoader2 aria-hidden className="size-3.5 animate-spin" />
-    )}
-    {label}
-  </p>
-);
+export { type TranscriptActions, WorkingRow } from './TaskCard';
 
 const LatestButton = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation('assistant');
@@ -195,6 +75,12 @@ const useFollowBottom = (asked: string | undefined) => {
   return { scroller, list, onScroll, away, toLatest };
 };
 
+const askedBefore = (messages: TranscriptMessage[], index: number) => {
+  const asked = messages.slice(0, index).findLast((message) => message.role === 'user');
+
+  return asked?.role === 'user' ? userText(asked.parts) : '';
+};
+
 export const Transcript = ({
   messages,
   actions,
@@ -210,14 +96,15 @@ export const Transcript = ({
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
-        <ol ref={list} className="flex flex-col gap-5 px-4 py-4">
+        <ol ref={list} className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4">
           {messages.map((message, index) => (
             <li key={message.key}>
               {message.role === 'user' ? (
                 <UserMessage parts={message.parts} />
               ) : (
-                <AssistantMessage
+                <AssistantTurn
                   rows={message.rows}
+                  asked={askedBefore(messages, index)}
                   last={index === messages.length - 1}
                   actions={actions}
                 />

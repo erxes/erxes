@@ -55,7 +55,7 @@ const cellParts = (text: string) => {
   return parts;
 };
 
-const CellText = ({ text }: { text: string }) =>
+export const CellText = ({ text }: { text: string }) =>
   cellParts(text).map((part) =>
     'handle' in part ? (
       <ReferenceChip key={part.at} handle={part.handle} />

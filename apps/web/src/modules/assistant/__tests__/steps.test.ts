@@ -4,7 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { i18n, i18nReady } from '~/i18n';
-import { StepsGroup } from '../Steps';
+import { ActivityGroup } from '../Steps';
 import { transcriptOf } from '../transcriptRows';
 
 let root: Root | null = null;
@@ -85,7 +85,7 @@ const render = (calls: Call[], live = false) => {
 
   document.body.append(container);
   root = createRoot(container);
-  const steps = createElement(StepsGroup, { steps: row.steps, live });
+  const steps = createElement(ActivityGroup, { rows: [row], live });
 
   act(() => root?.render(createElement(I18nextProvider, { i18n }, steps)));
 

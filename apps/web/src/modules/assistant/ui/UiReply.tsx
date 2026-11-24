@@ -1,11 +1,13 @@
 import { A2uiSurface } from '@erxes/assistant-catalog/react';
-import { IconAlertTriangle, IconLoader2 } from '@tabler/icons-react';
+import { IconAlertTriangle, IconLayoutSidebarRight, IconLoader2 } from '@tabler/icons-react';
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Markdown } from '../Markdown';
-import type { OnUiAction, ReplyState } from '../Reply';
+import { useCanvas } from '../canvas';
+import type { ReplyActions, ReplyState } from '../Reply';
 import { createAnswer, type UiPart } from './answer';
 import { openPagesWith } from './catalog';
 import { UiHostContext } from './host';
@@ -32,18 +34,40 @@ const Drawing = () => {
   );
 };
 
+const OnCanvas = () => {
+  const { t } = useTranslation('assistant');
+
+  return (
+    <p className="flex items-center gap-1.5 self-start rounded-md border px-2 py-1 text-xs text-muted-foreground">
+      <IconLayoutSidebarRight aria-hidden className="size-3.5 shrink-0" />
+      {t('ui.on-canvas', 'Shown on the right')}
+    </p>
+  );
+};
+
 const Part = ({ part, typing, state }: { part: UiPart; typing: boolean; state: ReplyState }) => {
+  const canvas = useCanvas();
+
   if (part.type === 'text') {
     return part.text.trim() ? <Markdown text={part.text} streaming={typing} /> : null;
   }
 
   if (part.type === 'surface') {
-    return (
+    const surface = (
       <ErrorBoundary fallback={<Undrawn />}>
         <section className="flex min-w-0 flex-col text-sm">
           <A2uiSurface surface={part.surface} />
         </section>
       </ErrorBoundary>
+    );
+
+    if (!canvas || !(state.live || state.working)) return surface;
+
+    return (
+      <>
+        {createPortal(surface, canvas)}
+        <OnCanvas />
+      </>
     );
   }
 
@@ -58,15 +82,16 @@ const keyOf = (part: UiPart, index: number) =>
 export const UiReply = ({
   text,
   state,
-  onAction,
+  actions,
 }: {
   text: string;
   state: ReplyState;
-  onAction: OnUiAction;
+  actions: ReplyActions;
 }) => {
   const navigate = useNavigate();
   const [answer] = useState(() => createAnswer(text, state.streaming));
   const view = useSyncExternalStore(answer.subscribe, answer.view);
+  const { onAction, onAsk } = actions;
 
   useEffect(() => answer.sendWith(onAction), [answer, onAction]);
 
@@ -74,7 +99,7 @@ export const UiReply = ({
 
   useEffect(() => answer.sync(text, state.streaming), [answer, text, state.streaming]);
 
-  const host = { live: state.live, press: answer.press };
+  const host = { live: state.live, press: answer.press, ask: onAsk };
 
   return (
     <UiHostContext value={host}>

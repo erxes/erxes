@@ -3,10 +3,14 @@ import {
   AssistantMentions,
   type AssistantMessagePart,
 } from '@erxes/core-contract';
+import { IconTag } from '@tabler/icons-react';
+import { badgeVariants, cn } from 'erxes-ui';
 import { CopyButton } from './CopyButton';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageText } from './MessageText';
+import { RecordChip } from './RecordChip';
 import { userText } from './transcriptRows';
+import { pickedRecord } from './ui/components/values';
 
 const mentionsOf = (parts: AssistantMessagePart[]) =>
   parts.flatMap((part) =>
@@ -15,10 +19,27 @@ const mentionsOf = (parts: AssistantMessagePart[]) =>
       : [],
   );
 
-const valueText = (value: unknown) => {
-  if (Array.isArray(value)) return value.filter((item) => typeof item === 'string').join(', ');
+const valueItems = (value: unknown) => {
+  if (Array.isArray(value)) return value.filter((item) => typeof item === 'string');
 
-  return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  return typeof value === 'string' || typeof value === 'number' ? [String(value)] : [];
+};
+
+const ValueItem = ({ item }: { item: string }) => {
+  const picked = pickedRecord(item);
+
+  if (!picked) return <span>{item}</span>;
+
+  if (picked.kind === 'tag') {
+    return (
+      <span className={cn(badgeVariants({ variant: 'secondary' }), 'max-w-full')}>
+        <IconTag aria-hidden className="size-3 shrink-0" />
+        <span className="truncate">{picked.name || picked.id}</span>
+      </span>
+    );
+  }
+
+  return <RecordChip type={picked.kind} id={picked.id} label={picked.name || picked.id} />;
 };
 
 const nameOf = (key: string) => {
@@ -37,8 +58,8 @@ const valuesOf = (parts: AssistantMessagePart[]) =>
         ? Object.entries(AssistantAction.safeParse(part['data']).data?.context ?? {})
         : [],
     )
-    .map(([key, value]) => ({ name: nameOf(key), text: valueText(value) }))
-    .filter(({ text }) => text);
+    .map(([key, value]) => ({ name: nameOf(key), items: valueItems(value) }))
+    .filter(({ items }) => items.length > 0);
 
 const ActionValues = ({ parts }: { parts: AssistantMessagePart[] }) => {
   const values = valuesOf(parts);
@@ -46,11 +67,15 @@ const ActionValues = ({ parts }: { parts: AssistantMessagePart[] }) => {
   if (!values.length) return null;
 
   return (
-    <dl className="flex max-w-5/6 flex-col gap-0.5 text-xs text-muted-foreground">
-      {values.map(({ name, text }) => (
-        <div key={name} className="flex justify-end gap-2">
+    <dl className="flex max-w-5/6 flex-col gap-1 rounded-xl border px-3 py-2 text-xs text-muted-foreground">
+      {values.map(({ name, items }) => (
+        <div key={name} className="flex items-center justify-between gap-3">
           <dt className="shrink-0">{name}</dt>
-          <dd className="min-w-0 break-words text-foreground">{text}</dd>
+          <dd className="flex min-w-0 flex-wrap justify-end gap-1 break-words text-foreground">
+            {items.map((item) => (
+              <ValueItem key={item} item={item} />
+            ))}
+          </dd>
         </div>
       ))}
     </dl>
@@ -68,7 +93,7 @@ export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
           <div className="flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <CopyButton text={text} />
           </div>
-          <p className="max-w-5/6 rounded-xl rounded-br-sm bg-accent px-3 py-2 text-sm whitespace-pre-wrap break-words">
+          <p className="max-w-5/6 rounded-2xl rounded-br-md border bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
             <MessageText text={text} mentions={mentionsOf(parts)} />
           </p>
         </div>

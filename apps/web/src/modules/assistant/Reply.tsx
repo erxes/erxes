@@ -12,16 +12,19 @@ export interface ReplyState {
   superseded: boolean;
 }
 
-export type OnUiAction = (action: AssistantAction, label: string) => void;
+export interface ReplyActions {
+  onAction: (action: AssistantAction, label: string) => void;
+  onAsk: (text: string) => void;
+}
 
 export const Reply = ({
   text,
   state,
-  onAction,
+  actions,
 }: {
   text: string;
   state: ReplyState;
-  onAction: OnUiAction;
+  actions: ReplyActions;
 }) => {
   if (!hasUi(text)) {
     return <Markdown text={withoutPartialTag(text, state.streaming)} streaming={state.streaming} />;
@@ -29,7 +32,7 @@ export const Reply = ({
 
   return (
     <Suspense fallback={<Markdown text={withoutUi(text)} streaming={state.streaming} />}>
-      <UiReply text={text} state={state} onAction={onAction} />
+      <UiReply text={text} state={state} actions={actions} />
     </Suspense>
   );
 };

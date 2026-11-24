@@ -295,6 +295,7 @@ value toIsoDay
 value toast
 value useBoardScroll
 value useConfirm
+value useContactOptions
 value useCurrentRecord
 value useFieldControl
 value useFilterContext
