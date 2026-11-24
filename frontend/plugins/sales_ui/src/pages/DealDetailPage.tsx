@@ -7,6 +7,7 @@ import {
   IconListCheck,
   IconPackage,
   IconSandbox,
+  IconX,
 } from '@tabler/icons-react';
 import {
   Breadcrumb,
@@ -22,6 +23,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   type ISidePanelNavigator,
   PageHeader,
+  RecordPageMinimize,
   RecordSidePanel,
   SidePanelNavigatorContext,
   useSidePanel,
@@ -179,6 +181,26 @@ const DealPageBody = ({ dealId }: { dealId: string }) => (
   </DealPanelLoader>
 );
 
+const DealPageCloseButton = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { close } = useSidePanel();
+  const label = t('close');
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="size-7 flex-none"
+      onClick={close}
+      title={label}
+      aria-label={label}
+    >
+      <IconX className="size-4" />
+    </Button>
+  );
+};
+
 const DealPageNavigator = ({
   dealId,
   children,
@@ -237,8 +259,10 @@ export const DealDetailPage = () => {
               <PageHeader.Start className="flex-auto min-w-0">
                 <DealPageBreadcrumb dealId={dealId} />
               </PageHeader.Start>
-              <PageHeader.End>
+              <PageHeader.End minimize={false}>
                 <DealPanelActions dealId={dealId} expanded />
+                <RecordPageMinimize />
+                <DealPageCloseButton />
               </PageHeader.End>
             </PageHeader>
             <DealPageBody dealId={dealId} />
