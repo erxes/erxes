@@ -1,4 +1,4 @@
-import type { AutomationFieldPath } from '@erxes/core-contract';
+import type { AutomationFieldPath, DataField } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { orpc } from '@erxes/core-contract/client';
 import { liveOptions } from '~/lib/live';
@@ -13,6 +13,7 @@ export type FieldInfo = AutomationFieldPath & {
   recordType?: string;
   source?: string;
   integration?: string;
+  refersTo?: DataField['refersTo'];
 };
 
 /**

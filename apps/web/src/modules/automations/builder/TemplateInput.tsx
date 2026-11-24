@@ -1,5 +1,6 @@
 import { cn } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { type DragEvent, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { DATA_PATH_TYPE, DataTargetContext, rangeAt } from './dataTarget';
 import { InsertData } from './DataPicker';
 import { readableTemplate, templateParts } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
@@ -80,7 +81,48 @@ const usePickedData = ({
     type('{');
   };
 
-  return { ref, open, onPick, onOpenChange };
+  return { ref, insert, picking: { open, onPick, onOpenChange } };
+};
+
+const carriesPath = (event: DragEvent) => event.dataTransfer.types.includes(DATA_PATH_TYPE);
+
+const useDataDrop = (insert: (path: string, at?: Range | null) => void, disabled?: boolean) => {
+  const targets = useContext(DataTargetContext);
+  const [dropping, setDropping] = useState(false);
+  const latest = useRef(insert);
+  const [target] = useState(() => (path: string) => latest.current(path));
+
+  useLayoutEffect(() => {
+    latest.current = insert;
+  });
+
+  useEffect(() => () => targets.release(target), [targets, target]);
+
+  const own = () => targets.own(target);
+
+  const onDragOver = (event: DragEvent) => {
+    if (disabled || !carriesPath(event)) return;
+
+    event.preventDefault();
+    setDropping(true);
+  };
+
+  const onDrop = (event: DragEvent) => {
+    setDropping(false);
+
+    const path = event.dataTransfer.getData(DATA_PATH_TYPE);
+
+    if (disabled || !path) return;
+
+    event.preventDefault();
+    own();
+    insert(path, rangeAt(event.clientX, event.clientY));
+  };
+
+  return {
+    dropping,
+    handlers: { onFocus: own, onDragOver, onDragLeave: () => setDropping(false), onDrop },
+  };
 };
 
 /**
@@ -91,17 +133,20 @@ const usePickedData = ({
  */
 export const TemplateInput = (props: FieldProps) => {
   const { label, fields, subject, multiline, placeholder, disabled, invalid } = props;
-  const { ref, ...picking } = usePickedData(props);
+  const { ref, insert, picking } = usePickedData(props);
+  const { dropping, handlers } = useDataDrop(insert, disabled);
   const box = multiline ? 'px-3 pt-1.5 pb-0.5' : 'py-0.5';
 
   const picker = <InsertData fields={fields} subject={subject} {...picking} />;
 
   return (
     <div
+      {...handlers}
       className={cn(
         'flex w-full rounded-sm bg-background shadow-xs transition focus-within:shadow-focus',
         multiline ? 'flex-col' : 'items-start gap-1 py-1 pr-1 pl-3',
         invalid && 'shadow-destructive',
+        dropping && 'shadow-focus',
         disabled && 'opacity-50',
       )}
     >

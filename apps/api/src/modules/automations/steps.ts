@@ -7,6 +7,7 @@ import { coreAction } from './actions/catalog';
 import type { ActionContext } from './actions/context';
 import { type Cursor, enterArm, nextCursor, splitPath } from './cursor';
 import { rememberStepOutput } from './eventData';
+import { loadReferences } from './references';
 import { automationMember, type RunContext, type RunRow, subjectRefOf } from './runs';
 import { render } from './templates';
 
@@ -63,8 +64,13 @@ export const armConditions = (step: AutomationStep) => {
 const SECONDS = { minutes: 60, hours: 3600, days: 86_400 } as const;
 
 /** An action step's input with its placeholders filled from the run's context. */
-export const renderInput = (input: Record<string, unknown>, context: RunContext) =>
-  Object.fromEntries(Object.entries(input).map(([key, value]) => [key, render(value, context)]));
+export const renderInput = async (tx: Db, input: Record<string, unknown>, context: RunContext) => {
+  const filled = { ...context, refs: await loadReferences(tx, input, context) };
+
+  return Object.fromEntries(
+    Object.entries(input).map(([key, value]) => [key, render(value, filled)]),
+  );
+};
 
 const delayUntil = (step: Extract<AutomationStep, { type: 'delay' }>, context: RunContext) => {
   if (step.until) {
@@ -94,7 +100,7 @@ const runLocalAction = async (
   run: (ctx: ActionContext) => Promise<unknown>,
 ): Promise<StepOutcome> => {
   const { tx, automation, context } = state;
-  const input = renderInput(step.input, context);
+  const input = await renderInput(tx, step.input, context);
 
   const member = await automationMember(state.run.orgId, automation.activatedBy);
 

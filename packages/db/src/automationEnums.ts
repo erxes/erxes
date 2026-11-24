@@ -18,6 +18,8 @@ export const HOOK_CUSTOMER_KEYS = ['id', 'primaryEmail', 'primaryPhone'] as cons
 export const HOOK_COMPANY_KEYS = ['id', 'primaryName'] as const;
 
 /** How the values of a path conditions and placeholders read compare. */
+export const CORE_RECORD_REFERENCES = ['customer', 'company', 'product'] as const;
+
 export const AUTOMATION_FIELD_TYPES = [
   'text',
   'number',

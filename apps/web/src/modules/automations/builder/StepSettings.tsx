@@ -13,7 +13,8 @@ import { Field, InfoTip } from './Field';
 import { emptyRequired, isEmpty } from './flowChecks';
 import { actionDefaults } from './flowModel';
 import type { SettingsProps } from './stepSettingsProps';
-import { type FieldInfo, useAutomationFields } from './useAutomationFields';
+import type { FieldInfo } from './useAutomationFields';
+import { useStepData } from './useStepData';
 import { DelaySettings, WaitForSettings } from './WaitSettings';
 
 const NameField = ({
@@ -158,17 +159,11 @@ const ActionInputs = ({
 
 const ActionSettings = ({
   actions,
-  outputs,
   ...props
-}: SettingsProps<'action'> & { actions: ActionInfo[]; outputs: FieldInfo[] }) => {
+}: SettingsProps<'action'> & { actions: ActionInfo[] }) => {
   const { step, subject, disabled, onChange } = props;
   const action = actions.find((item) => item.type === step.action);
-  const { hasSubject, automationId } = useContext(BuilderContext);
-  const { fields } = useAutomationFields(subject, automationId);
-
-  const recordFields = hasSubject
-    ? fields
-    : fields.filter((field) => field.path.startsWith('event.payload.'));
+  const dataFields = useStepData(step.id, subject);
 
   return (
     <>
@@ -191,7 +186,7 @@ const ActionSettings = ({
           key={`${step.id}:${step.action}`}
           {...props}
           action={action}
-          dataFields={[...recordFields, ...outputs]}
+          dataFields={dataFields}
         />
       )}
     </>
@@ -209,7 +204,7 @@ const StepBody = ({
 
   switch (step.type) {
     case 'action':
-      return <ActionSettings {...props} step={step} actions={actions} outputs={outputs} />;
+      return <ActionSettings {...props} step={step} actions={actions} />;
     case 'delay':
       return <DelaySettings {...props} step={step} />;
     case 'wait_for':

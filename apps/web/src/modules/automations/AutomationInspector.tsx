@@ -1,6 +1,9 @@
 import type { Automation } from '@erxes/core-contract';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
+import { DataPanel } from './builder/DataPanel';
+import { DataTargetContext, dataTargets } from './builder/dataTarget';
 import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
 import { TriggerEditor } from './builder/TriggerEditor';
 import type { useBuilder } from './builder/useBuilder';
@@ -50,6 +53,7 @@ export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
   const { draft, selected, onSelect, editable, automation, built } = props;
   const { definition } = draft;
+  const [targets] = useState(dataTargets);
 
   const step =
     selected !== 'trigger' && selected !== 'test' ? findStep(definition.steps, selected) : null;
@@ -64,48 +68,53 @@ export const AutomationInspector = (props: InspectorProps) => {
           : '';
 
   return (
-    <aside className="flex w-136 shrink-0 flex-col border-l bg-background">
-      <div className="flex h-10 shrink-0 items-center gap-2 border-b pr-2 pl-4 text-sm font-medium">
-        <span className="min-w-0 flex-1 truncate">{heading}</span>
-        {step && (
-          <StepHeader
-            step={step}
-            steps={definition.steps}
-            disabled={!editable}
-            problems={built.problems.get(step.id)?.length ?? 0}
-            onSteps={draft.setSteps}
-            onSelect={onSelect}
-          />
-        )}
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="space-y-5 p-4">
-          {selected === 'trigger' && <TriggerPanel {...props} />}
-          {selected === 'test' && (
-            <TestPanel
-              automation={automation}
-              definition={definition}
-              subject={built.hasSubject ? built.subject : null}
-              dirty={draft.dirty}
-            />
-          )}
+    <DataTargetContext.Provider value={targets}>
+      {step?.type === 'action' && editable && (
+        <DataPanel key={step.id} step={step} subject={built.subject} />
+      )}
+      <aside className="flex w-136 shrink-0 flex-col border-l bg-background">
+        <div className="flex h-10 shrink-0 items-center gap-2 border-b pr-2 pl-4 text-sm font-medium">
+          <span className="min-w-0 flex-1 truncate">{heading}</span>
           {step && (
-            <StepInspector
+            <StepHeader
               step={step}
-              actions={built.actions}
-              subject={built.subject}
+              steps={definition.steps}
               disabled={!editable}
-              problems={built.problems.get(step.id) ?? []}
-              onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
+              problems={built.problems.get(step.id)?.length ?? 0}
+              onSteps={draft.setSteps}
+              onSelect={onSelect}
             />
-          )}
-          {selected !== 'trigger' && selected !== 'test' && !step && (
-            <p className="text-sm text-muted-foreground">
-              {t('nothing-selected', 'Choose a step on the canvas.')}
-            </p>
           )}
         </div>
-      </div>
-    </aside>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="space-y-5 p-4">
+            {selected === 'trigger' && <TriggerPanel {...props} />}
+            {selected === 'test' && (
+              <TestPanel
+                automation={automation}
+                definition={definition}
+                subject={built.hasSubject ? built.subject : null}
+                dirty={draft.dirty}
+              />
+            )}
+            {step && (
+              <StepInspector
+                step={step}
+                actions={built.actions}
+                subject={built.subject}
+                disabled={!editable}
+                problems={built.problems.get(step.id) ?? []}
+                onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
+              />
+            )}
+            {selected !== 'trigger' && selected !== 'test' && !step && (
+              <p className="text-sm text-muted-foreground">
+                {t('nothing-selected', 'Choose a step on the canvas.')}
+              </p>
+            )}
+          </div>
+        </div>
+      </aside>
+    </DataTargetContext.Provider>
   );
 };

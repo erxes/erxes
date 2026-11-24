@@ -93,7 +93,7 @@ export const SUPPRESSION_DATA = {
     reason: text('Reason'),
     detail: maybeText('Detail'),
     broadcastId: maybeText('Broadcast'),
-    customerId: maybeText('Customer'),
+    customerId: z.string().nullable().meta({ title: 'Customer', refersTo: 'customer' }),
   }),
 } as const;
 
@@ -166,7 +166,10 @@ export const CONTACT_TAGGED_DATA = {
 } as const;
 
 export const COMPANY_LINK_DATA = {
-  payload: z.object({ customerId: text('Customer'), companyId: text('Company') }),
+  payload: z.object({
+    customerId: z.string().meta({ title: 'Customer', refersTo: 'customer' }),
+    companyId: z.string().meta({ title: 'Company', refersTo: 'company' }),
+  }),
 } as const;
 
 export const SIGN_IN_DATA = {

@@ -15,11 +15,33 @@ const nowText = (filters = '') => {
   return `${count} ${count === 1 ? 'day' : 'days'} ${days > 0 ? 'after' : 'before'} it runs`;
 };
 
+const labelOf = (path: string, fields: FieldInfo[]) =>
+  fields.find((field) => field.path === path)?.label.replace(/ \(custom\)$/, '');
+
+const words = (key: string) => {
+  const spaced = key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
+
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+};
+
+const referenceLabel = (path: string, fields: FieldInfo[]) => {
+  const [idPath = '', rest = ''] = path.split('->');
+  const parent = labelOf(idPath.trim(), fields);
+  const key = rest.split('.').slice(1).join('.');
+
+  return parent && key ? `${parent} · ${words(key)}` : undefined;
+};
+
 /** What a placeholder's path and filters read as ("First name", "Today's date"), when known. */
-export const placeholderLabel = (path: string, filters: string | undefined, fields: FieldInfo[]) =>
-  path === 'now'
-    ? nowText(filters)
-    : fields.find((field) => field.path === path)?.label.replace(/ \(custom\)$/, '');
+export const placeholderLabel = (
+  path: string,
+  filters: string | undefined,
+  fields: FieldInfo[],
+) => {
+  if (path === 'now') return nowText(filters);
+
+  return labelOf(path, fields) ?? (path.includes('->') ? referenceLabel(path, fields) : undefined);
+};
 
 /**
  * Text with its placeholders named as the data picker names them: "Welcome

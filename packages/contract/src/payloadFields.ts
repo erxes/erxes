@@ -1,4 +1,4 @@
-import { AUTOMATION_FIELD_TYPES } from '@erxes/core-db/enums';
+import { AUTOMATION_FIELD_TYPES, CORE_RECORD_REFERENCES } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import type { DataField } from './automationRuns';
 
@@ -32,6 +32,8 @@ const FieldType = z.enum(AUTOMATION_FIELD_TYPES);
 
 const RecordType = z.string().min(1);
 
+const RefersTo = z.enum(CORE_RECORD_REFERENCES);
+
 const MAX_PATH_KEYS = 4;
 
 export const payloadFields = (payload: z.ZodObject, prefix = ''): DataField[] =>
@@ -45,9 +47,18 @@ export const payloadFields = (payload: z.ZodObject, prefix = ''): DataField[] =>
     const meta = z.globalRegistry.get(value);
     const type = FieldType.safeParse(meta?.fieldType).data ?? fieldType(inner);
     const recordType = RecordType.safeParse(meta?.recordType).data;
+    const refersTo = RefersTo.safeParse(meta?.refersTo).data;
 
     return type
-      ? [{ key, label: meta?.title ?? keyLabel(key), type, ...(recordType && { recordType }) }]
+      ? [
+          {
+            key,
+            label: meta?.title ?? keyLabel(key),
+            type,
+            ...(recordType && { recordType }),
+            ...(refersTo && { refersTo }),
+          },
+        ]
       : [];
   });
 
