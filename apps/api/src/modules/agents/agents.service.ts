@@ -1,4 +1,4 @@
-import type { AgentSettings, NewAgent } from '@erxes/core-contract';
+import { AGENT_RUNS_MAX, type AgentSettings, type NewAgent } from '@erxes/core-contract';
 import {
   agentChats,
   agents,
@@ -7,17 +7,21 @@ import {
   type Db,
   newId,
   portals,
+  requestOrgId,
   withOrg,
 } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
-import { createApiKey, sessionMember } from '~/modules/apiKeys/apiKeys.service';
+import { agentKey, createApiKey, sessionMember } from '~/modules/apiKeys/apiKeys.service';
 import { connectedProviders } from '~/modules/assistant/connectedProviders';
+import { chosenModel } from '~/modules/assistant/connections.service';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { madeAgentName } from './agent';
+import { agentNamed, removeAgent as removeConversation } from './host';
 
 const log = logger.child({ component: 'agents' });
 
@@ -195,4 +199,92 @@ export const chatOf = async (client: Db, agentId: string, key: string) => {
     .limit(1);
 
   return chat ?? null;
+};
+
+/** One agent for its page: its key, the model it runs on now, and the plugins that send to it. */
+export const agentDetails = async (client: Db, id: string) => {
+  const agent = await agentOrThrow(client, id);
+
+  const { connection, model } = await chosenModel(client, {
+    provider: agent.provider ?? undefined,
+    model: agent.model ?? undefined,
+  });
+
+  const senders = await client
+    .selectDistinct({ plugin: agentChats.plugin })
+    .from(agentChats)
+    .where(eq(agentChats.agentId, id));
+
+  return {
+    ...agent,
+    key: await agentKey(client, agent.keyId),
+    runsOn: connection && model ? { provider: connection.provider, model } : null,
+    plugins: senders.map((sender) => sender.plugin),
+  };
+};
+
+/** A member's own conversation with an agent from its page. */
+export const tryKey = (userId: string) => `try-${userId}`;
+
+/** The conversation as the caller may reach it: a plugin only its own, else 404. */
+const reachableChat = async (client: Db, agentId: string, key: string) => {
+  await agentOrThrow(client, agentId);
+
+  const chat = await chatOf(client, agentId, key);
+  const who = caller();
+
+  if (who.type === 'plugin' && chat?.plugin !== who.plugin) throw notFound('Agent conversation');
+
+  return chat;
+};
+
+/**
+ * The conversations whose runs the caller reads: the one `key` names, else a member's own Try it
+ * and the agent's newest conversations, a plugin only its own.
+ */
+export const conversationsOf = async (client: Db, agentId: string, key: string | undefined) => {
+  if (key) {
+    const chat = await reachableChat(client, agentId, key);
+
+    return [{ key, plugin: chat?.plugin ?? null, customerId: chat?.customerId ?? null }];
+  }
+
+  await agentOrThrow(client, agentId);
+
+  const who = caller();
+
+  const chats = await client
+    .select({ key: agentChats.key, plugin: agentChats.plugin, customerId: agentChats.customerId })
+    .from(agentChats)
+    .where(
+      and(
+        eq(agentChats.agentId, agentId),
+        who.type === 'plugin' ? eq(agentChats.plugin, who.plugin) : undefined,
+      ),
+    )
+    .orderBy(desc(agentChats.createdAt))
+    .limit(AGENT_RUNS_MAX);
+
+  const own =
+    who.type === 'user' ? [{ key: tryKey(who.userId), plugin: null, customerId: null }] : [];
+
+  return [...own, ...chats].slice(0, AGENT_RUNS_MAX);
+};
+
+/** Forgets what the agent said in one conversation (`removeConversation`), keeping its chat. */
+export const restartConversation = async (client: Db, agentId: string, key: string) => {
+  await reachableChat(client, agentId, key);
+  await removeConversation(client, agentNamed(madeAgentName(agentId)), {
+    orgId: requestOrgId(),
+    key,
+  });
+
+  await recordAudit(client, {
+    action: 'agent.conversation_restarted',
+    targetType: 'agent',
+    targetId: agentId,
+    targetLabel: key,
+  });
+
+  return { ok: true as const };
 };

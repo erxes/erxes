@@ -18,20 +18,32 @@ const usable = (connected: ConnectedProvider | undefined) => {
   return connected.key;
 };
 
-export const modelKey = async (
-  client: Db,
-  asked: { provider?: AssistantProvider | undefined; model?: string | undefined } = {},
-) => {
+type Asked = { provider?: AssistantProvider | undefined; model?: string | undefined };
+
+/**
+ * The connection and model a run asks for, else the organisation's default provider and model;
+ * no connection when that provider isn't connected.
+ */
+export const chosenModel = async (client: Db, asked: Asked = {}) => {
   const connected = await connectedProviders(client);
   const settings = await getSettings(client);
   const byDefault = connected.find((entry) => entry.provider === settings.defaultProvider);
   const provider = asked.provider ?? (byDefault ?? connected[0])?.provider;
-  const key = usable(connected.find((entry) => entry.provider === provider));
 
   const fallback =
-    key.provider === settings.defaultProvider && settings.defaultModel
+    provider && provider === settings.defaultProvider && settings.defaultModel
       ? settings.defaultModel
-      : DEFAULT_MODELS[key.provider];
+      : provider && DEFAULT_MODELS[provider];
 
-  return { ...key, model: asked.model ?? fallback };
+  return {
+    connection: connected.find((entry) => entry.provider === provider),
+    model: asked.model ?? fallback,
+  };
+};
+
+export const modelKey = async (client: Db, asked: Asked = {}) => {
+  const { connection, model } = await chosenModel(client, asked);
+  const key = usable(connection);
+
+  return { ...key, model: model ?? DEFAULT_MODELS[key.provider] };
 };
