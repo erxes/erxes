@@ -21,11 +21,13 @@ interface Issued {
   userId: string;
   clientId: string;
   scope: string;
+  /** The MCP server an app's tokens are for; null for a plugin's own app. */
+  resource: string | null;
   nonce?: string | null;
   familyId?: string;
 }
 
-/** The member a token is for, with their organisation, permissions and the client's manifest. */
+/** The member a token is for, with their organisation, permissions and a plugin client's manifest. */
 const memberOf = async (tx: Db, issued: Issued) => {
   const [row] = await tx
     .select({
@@ -37,7 +39,7 @@ const memberOf = async (tx: Db, issued: Issued) => {
     .from(users)
     .innerJoin(organizations, eq(organizations.id, users.orgId))
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .innerJoin(plugins, eq(plugins.name, issued.clientId))
+    .leftJoin(plugins, eq(plugins.name, issued.clientId))
     .where(eq(users.id, issued.userId))
     .limit(1);
 
@@ -46,7 +48,24 @@ const memberOf = async (tx: Db, issued: Issued) => {
 
 type Member = NonNullable<Awaited<ReturnType<typeof memberOf>>>;
 
+/**
+ * An app's token for the MCP server: the member at their session version, so signing out
+ * everywhere ends it. What they may do is read on every call, not carried in the token.
+ */
+const appAccessToken = (issued: Issued, resource: string, member: Member) =>
+  signJwt(
+    {
+      org: issued.orgId,
+      scope: issued.scope,
+      client_id: issued.clientId,
+      sv: member.user.sessionVersion,
+    },
+    { typ: 'at+jwt', audience: resource, subject: issued.userId, expiresInSeconds: ACCESS_TTL },
+  );
+
 const accessToken = (issued: Issued, member: Member) => {
+  if (issued.resource) return appAccessToken(issued, issued.resource, member);
+
   const actor = { role: member.user.role, permissions: member.permissions };
 
   const permissions = (member.manifest?.permissions ?? [])
@@ -101,6 +120,7 @@ const refreshToken = async (tx: Db, issued: Issued, member: Member) => {
     familyId: issued.familyId ?? id,
     tokenHash: sha256(secret),
     scope: issued.scope,
+    resource: issued.resource,
     sessionVersion: member.user.sessionVersion,
     expiresAt: sql`now() + make_interval(days => ${REFRESH_DAYS})`,
   });
@@ -108,7 +128,10 @@ const refreshToken = async (tx: Db, issued: Issued, member: Member) => {
   return `${id}.${secret}`;
 };
 
-/** Access token, ID token (openid) and a refresh token (offline_access), in the member's organisation. */
+/**
+ * Access token, ID token (openid) and a refresh token (offline_access, or always for an app), in
+ * the member's organisation.
+ */
 export const issueTokens = async (tx: Db, issued: Issued) => {
   const member = await memberOf(tx, issued);
 
@@ -122,7 +145,7 @@ export const issueTokens = async (tx: Db, issued: Issued) => {
     expires_in: ACCESS_TTL,
     scope: issued.scope,
     ...(scopes.includes('openid') ? { id_token: await idToken(issued, member, scopes) } : {}),
-    ...(scopes.includes('offline_access')
+    ...(scopes.includes('offline_access') || issued.resource
       ? { refresh_token: await refreshToken(tx, issued, member) }
       : {}),
   };

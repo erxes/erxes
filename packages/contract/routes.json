@@ -2449,6 +2449,28 @@
       }
     }
   },
+  "oauthConsent": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/oauth-consent"
+        }
+      }
+    },
+    "decide": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/oauth-consent"
+        }
+      }
+    }
+  },
   "organizations": {
     "current": {
       "~orpc": {

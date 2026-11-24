@@ -23,6 +23,7 @@ import { fieldGroupsContract } from './fieldGroups';
 import { fieldsContract } from './fields';
 import { filesContract } from './files';
 import { notificationsContract } from './notifications';
+import { oauthConsentContract } from './oauthConsent';
 import { organizationsContract } from './organizations';
 import { paymentsContract } from './payments';
 import { ebarimtContract } from './ebarimt';
@@ -73,6 +74,7 @@ export type CoreContract = {
   files: typeof filesContract;
   leads: typeof leadsContract;
   notifications: typeof notificationsContract;
+  oauthConsent: typeof oauthConsentContract;
   organizations: typeof organizationsContract;
   payments: typeof paymentsContract;
   ebarimt: typeof ebarimtContract;
@@ -127,6 +129,7 @@ export const coreContract: CoreContract = {
   files: filesContract,
   leads: leadsContract,
   notifications: notificationsContract,
+  oauthConsent: oauthConsentContract,
   organizations: organizationsContract,
   payments: paymentsContract,
   ebarimt: ebarimtContract,
@@ -229,6 +232,8 @@ export * from './stream';
 export * from './money';
 
 export * from './notifications';
+
+export * from './oauthConsent';
 
 export * from './platform';
 

@@ -1,10 +1,21 @@
 import { type Db, pluginInstallations, plugins, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
+import {
+  type AppClient,
+  appRedirectAllowed,
+  isMetadataAddress,
+  metadataClient,
+  registeredClient,
+} from './oauthApps';
 
-export const SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
+/** What a plugin's own app may ask for: OpenID Connect sign-in. */
+const PLUGIN_SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
+
+/** What an app asks for: the MCP server, as the member. */
+export const APP_SCOPES = ['mcp', 'offline_access'];
 
 /** A form or query parameter: text, or missing (a repeated or nested one fails the parse). */
 export const param = z.string().optional();
@@ -24,10 +35,14 @@ export const sameHash = (stored: string, value: string) => safeEqual(stored, sha
 export const oauthError = (res: Response, status: number, error: string, description: string) =>
   res.status(status).json({ error, error_description: description });
 
-/** An active plugin acting as an OAuth client. */
-export const clientOf = async (clientId: string | undefined) => {
-  if (!clientId) return null;
+/** Where core's API is reached on this request: the OAuth issuer of apps, and their base. */
+export const apiBaseOf = (req: Request) => `${req.protocol}://${req.get('host')}/core/v1`;
 
+/** The MCP server on that base: the only resource an app's token is for (RFC 8707). */
+export const mcpResourceOf = (base: string) => `${base}/mcp`;
+
+/** An active plugin's own app: "Sign in with erxes". Its manifest lists its redirect addresses. */
+const pluginClient = async (clientId: string) => {
   const [row] = await withSystem('oauth client', (tx) =>
     tx
       .select({ name: plugins.name, status: plugins.status, manifest: plugins.manifest })
@@ -36,18 +51,57 @@ export const clientOf = async (clientId: string | undefined) => {
       .limit(1),
   );
 
-  return row?.status === 'active' ? row : null;
+  return row?.status === 'active'
+    ? {
+        kind: 'plugin' as const,
+        id: row.name,
+        title: row.manifest?.title ?? row.name,
+        redirectUris: row.manifest?.oauth?.redirectUris ?? [],
+        manifest: row.manifest,
+      }
+    : null;
 };
 
-export type OAuthClient = NonNullable<Awaited<ReturnType<typeof clientOf>>>;
+/** A plugin's own app, an app with a metadata document, or one that registered itself. */
+export const clientOf = async (clientId: string | undefined) => {
+  if (!clientId) return null;
 
-export const clientTitle = (client: OAuthClient) => client.manifest?.title ?? client.name;
+  if (isMetadataAddress(clientId)) return metadataClient(clientId);
 
-/** Whether the organisation has the client's plugin installed. */
-export const installed = (tx: Db, clientId: string) =>
-  tx
+  return (await pluginClient(clientId)) ?? registeredClient(clientId);
+};
+
+export type OAuthClient = NonNullable<Awaited<ReturnType<typeof pluginClient>>> | AppClient;
+
+/** The redirect address, if the client lists it (in a plugin's, `{subdomain}` the organisation's). */
+export const redirectAllowed = (client: OAuthClient, given: string, subdomain: string | null) =>
+  client.kind === 'app'
+    ? appRedirectAllowed(client, given)
+    : client.redirectUris.some(
+        (template) =>
+          (subdomain ? template.replaceAll('{subdomain}', subdomain) : template) === given,
+      );
+
+/** The scopes asked for that the client may have, or its default. */
+export const scopeFor = (client: OAuthClient, asked: string | undefined) => {
+  const allowed = client.kind === 'app' ? new Set(APP_SCOPES) : PLUGIN_SCOPES;
+  const given = (asked ?? '').split(' ').filter((item) => allowed.has(item));
+
+  // An app always gets the MCP server: a client that asks for nothing means it.
+  if (client.kind === 'app') return [...new Set(['mcp', ...given])].join(' ');
+
+  return given.join(' ') || 'openid';
+};
+
+/** Whether the organisation can use the client: its plugin installed, or any app. */
+export const usable = async (tx: Db, client: OAuthClient) => {
+  if (client.kind === 'app') return true;
+
+  const [row] = await tx
     .select({ status: pluginInstallations.status })
     .from(pluginInstallations)
-    .where(eq(pluginInstallations.plugin, clientId))
-    .limit(1)
-    .then(([row]) => row?.status === 'active');
+    .where(eq(pluginInstallations.plugin, client.id))
+    .limit(1);
+
+  return row?.status === 'active';
+};

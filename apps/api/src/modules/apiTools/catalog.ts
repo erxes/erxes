@@ -20,7 +20,7 @@ export interface ApiProcedure {
 }
 
 /** Sign-in, of members and customers: kept from every agent with the credential guard below. */
-const SIGN_IN_GROUPS = new Set(['auth', 'customerAuth', 'customerAccount']);
+const SIGN_IN_GROUPS = new Set(['auth', 'customerAuth', 'customerAccount', 'oauthConsent']);
 
 /** Where people act themselves when nobody approves an agent's writes (`needsPerson`). */
 const PEOPLE_GROUPS = new Set(['assistant', 'saas', 'plugins']);

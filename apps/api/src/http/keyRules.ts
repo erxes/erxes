@@ -43,6 +43,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   companies: 'contacts',
   customers: 'contacts',
   favorites: null,
+  // An app acting as the member: they allow it themselves, signed in.
+  oauthConsent: null,
   customerAccount: null,
   // Staff blocking or signing out a customer's account: a signed-in member's call.
   customerAccounts: null,

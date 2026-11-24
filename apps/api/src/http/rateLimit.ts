@@ -84,6 +84,12 @@ export const createRateLimits = () => ({
     max: 10,
     key: (req) => (req.method === 'POST' ? `customer-code:${ip(req)}` : null),
   }),
+  /** Apps registering themselves for OAuth: 20 an hour per address. */
+  oauthRegister: rateLimit({
+    windowSeconds: 3600,
+    max: 20,
+    key: (req) => (req.method === 'POST' ? `oauth-register:${ip(req)}` : null),
+  }),
   /** Plugin token requests: 120 a minute per address. */
   token: rateLimit({
     windowSeconds: 60,
