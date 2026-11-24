@@ -48,6 +48,12 @@ curl -fsS "$BASE/core/v1/stream" | grep -q '^api-1 /core/v1/stream' || fail "the
 curl -fsS "$BASE/.well-known/oauth-protected-resource/core/v1/mcp" |
   grep -q '^api-1 /.well-known/oauth-protected-resource/core/v1/mcp' || fail "MCP's OAuth discovery"
 
+echo "== the API gets the scheme a TLS proxy in front says, so it builds https addresses"
+for path in /core/v1/setup /.well-known/oauth-authorization-server/core/v1; do
+  curl -fsS -H 'X-Forwarded-Proto: https' "$BASE$path" | grep -qx "api-1 $path xfp=https" ||
+    fail "$path: $(curl -sS -H 'X-Forwarded-Proto: https' "$BASE$path")"
+done
+
 echo "== the app's scripts go out gzipped to a browser that takes it, and cached for good"
 script=$(curl -fsS "$BASE/" | grep -o '/static/js/[^"]*\.js' | head -n 1)
 [ -n "$script" ] || fail "index.html names no script"
