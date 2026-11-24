@@ -78,7 +78,7 @@ export const RunTrace = ({
           <>
             <ThinkingLine label={liveLabel(shown, t)} />
             {elapsed !== null && (
-              <span className="shrink-0 font-mono text-muted-foreground/60 tabular-nums">
+              <span className="shrink-0 font-mono text-muted-foreground tabular-nums">
                 {clock(elapsed)}
               </span>
             )}

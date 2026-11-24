@@ -42,7 +42,7 @@ export const LineTrigger = ({
 );
 
 const Time = ({ at, startedAt, running }: Timing & { running?: boolean }) => (
-  <span className="flex w-9 shrink-0 justify-end font-mono text-muted-foreground/60 tabular-nums">
+  <span className="flex w-9 shrink-0 justify-end font-mono text-muted-foreground tabular-nums">
     {running ? (
       <IconLoader2 aria-hidden className="size-3 animate-spin" />
     ) : (
@@ -103,7 +103,7 @@ const SearchesRow = ({ searches, startedAt }: { searches: Step[]; startedAt: num
           <Time at={searches.at(-1)?.at ?? null} startedAt={startedAt} running={running} />
           <span className="min-w-0 truncate">{searchLabel(running, t)}</span>
           {searches.length > 1 && (
-            <span className="shrink-0 text-muted-foreground/60">×{searches.length}</span>
+            <span className="shrink-0 text-muted-foreground">×{searches.length}</span>
           )}
           <Caret />
         </LineTrigger>
@@ -120,7 +120,7 @@ const SearchesRow = ({ searches, startedAt }: { searches: Step[]; startedAt: num
 };
 
 const IntentRow = ({ intent, ...timing }: Timing & { intent: string }) => (
-  <li className="flex h-6 items-center gap-1 px-2 text-xs text-muted-foreground/70 italic">
+  <li className="flex h-6 items-center gap-1 px-2 text-xs text-muted-foreground italic">
     <Time {...timing} />
     <span className="min-w-0 truncate">{intent}</span>
   </li>
