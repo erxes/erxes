@@ -6,11 +6,10 @@ import {
   pluginInstallations,
   plugins,
   roles,
-  supportVisits,
   users,
   withOrg,
 } from '@erxes/core-db';
-import { and, eq, exists, sql } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { decodeProtectedHeader } from 'jose';
 import { z } from 'zod';
@@ -26,7 +25,7 @@ import { requestedScopes } from '~/modules/plugins/requestedScopes';
 import { livePortal } from '~/modules/customerAuth/customerPortals';
 import { portalClaimsOfCall } from '~/modules/customerAuth/portalCalls';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
-import { visitInProgress } from '~/modules/supportAccess/visits';
+import { actsNow } from '~/modules/supportAccess/onVisit';
 
 declare global {
   namespace Express {
@@ -97,26 +96,18 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
         sessionVersion: users.sessionVersion,
         permissions: roles.permissions,
         isSupport: users.isSupport,
-        onVisit: sql<boolean>`${users.isSupport} and ${exists(
-          tx
-            .select({ id: supportVisits.id })
-            .from(supportVisits)
-            .where(and(eq(supportVisits.userId, users.id), visitInProgress)),
-        )}`,
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(eq(users.id, userId))
+      .where(and(eq(users.id, userId), actsNow(tx)))
       .limit(1),
   );
 
-  // Disabled, kept on the team without sign-in, or the session predates a password change,
-  // reset or sign-out everywhere.
+  // Disabled, kept on the team without sign-in, erxes support after the visit, or the session
+  // predates a password change, reset or sign-out everywhere.
   if (user?.status !== 'active' || !user.canSignIn) return null;
 
   if (sessionVersion !== undefined && user.sessionVersion !== sessionVersion) return null;
-
-  if (user.isSupport && !user.onVisit) return null;
 
   return {
     type: 'user',

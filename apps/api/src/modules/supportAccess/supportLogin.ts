@@ -20,7 +20,8 @@ import { lockOrganization } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { subdomainFromHost } from '~/modules/auth/auth.service';
-import { supportAccessSettings, supportAvailable, visitInProgress } from './visits';
+import { visitInProgress } from './onVisit';
+import { supportAccessSettings, supportAvailable } from './visits';
 
 /** erxes.io signs a link that lives a minute; core refuses one made to last longer. */
 const TOKEN_SECONDS = 60;
@@ -78,9 +79,6 @@ const supportEmail = (email: string) => email.replace(/@/, '+erxes-support@');
 
 /** The admin's support member in the organisation, made on their first visit. */
 const supportMember = async (tx: Db, staff: SupportClaims) => {
-  // Two first visits at once make one member.
-  await lockOrganization(tx);
-
   const profile = {
     email: supportEmail(staff.email),
     fullName: `${staff.name} (erxes support)`,
@@ -115,7 +113,7 @@ const supportMember = async (tx: Db, staff: SupportClaims) => {
     );
   }
 
-  // Cookies from an earlier visit stop working.
+  // Cookies from an earlier visit stop working, and no password lets them in.
   return oneRow(
     await tx
       .update(users)
@@ -123,6 +121,7 @@ const supportMember = async (tx: Db, staff: SupportClaims) => {
         ...profile,
         role: 'owner',
         status: 'active',
+        passwordHash: null,
         sessionVersion: sql`${users.sessionVersion} + 1`,
         updatedAt: sql`now()`,
       })
@@ -134,6 +133,9 @@ const supportMember = async (tx: Db, staff: SupportClaims) => {
 /** Opens a visit, or null when the owners turned support access off. */
 const enter = (orgId: string, staff: SupportClaims) =>
   withOrg(orgId, async (tx) => {
+    // First, so two first visits make one member and an owner turning support off wins.
+    await lockOrganization(tx);
+
     if (!(await supportAccessSettings(tx)).enabled) return null;
 
     const member = await supportMember(tx, staff);

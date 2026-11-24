@@ -15,8 +15,9 @@ import type { Policy, ProcedurePath } from './policyRules';
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 
 /**
- * What erxes support never does on a visit, owner or not: anything that would let them in
- * after it ends (a member, a role, an API key) or hide what they did (audit settings).
+ * What erxes support never does on a visit, owner or not: anything that would let them in or
+ * send data to them after it ends (a member, a role, an API key, an agent with its key, a
+ * webhook, a portal key) or hide what they did (audit settings).
  */
 const DENIED_TO_SUPPORT = new Set<string>([
   'team.invite',
@@ -24,6 +25,9 @@ const DENIED_TO_SUPPORT = new Set<string>([
   'roles.manage',
   'api_keys.create',
   'api_keys.manage',
+  'assistant.manage',
+  'webhooks.manage',
+  'portals.manage',
   'audit.retention',
   'audit.stream',
   'support.manage',

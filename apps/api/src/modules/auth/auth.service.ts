@@ -50,6 +50,8 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
         and(
           sql`lower(${users.email}) = ${email}`,
           eq(users.canSignIn, true),
+          // erxes support comes in only through erxes.io's link.
+          eq(users.isSupport, false),
           subdomain ? sql`lower(${organizations.subdomain}) = ${subdomain}` : undefined,
         ),
       )

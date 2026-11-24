@@ -6,9 +6,7 @@ import { notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-
-/** A visit that still lets its support member in. */
-export const visitInProgress = sql`${supportVisits.endedAt} is null and ${supportVisits.endsAt} > now()`;
+import { signOutSupport, visitInProgress } from './onVisit';
 
 /** The most visits in progress at once that `active` lists (one per erxes.io admin). */
 const ACTIVE_MAX = 50;
@@ -44,10 +42,16 @@ export const updateSupportAccess = async (client: Db, input: { enabled: boolean 
 
   // Off keeps everyone out, including whoever is in now.
   if (!input.enabled) {
-    await client
+    const ended = await client
       .update(supportVisits)
       .set({ endedAt: sql`now()`, endedBy: caller('user').userId })
-      .where(visitInProgress);
+      .where(visitInProgress)
+      .returning({ userId: supportVisits.userId });
+
+    await signOutSupport(
+      client,
+      ended.map((visit) => visit.userId),
+    );
   }
 
   await recordAudit(client, {
@@ -100,6 +104,8 @@ export const endVisit = async (client: Db, id: string) => {
     .returning();
 
   if (!visit) throw notFound('Support visit in progress');
+
+  await signOutSupport(client, [visit.userId]);
 
   return visit;
 };

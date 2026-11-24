@@ -11,6 +11,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { sha256 } from '~/lib/crypto';
 import { signJwt } from '~/lib/signing';
+import { actsNow } from '~/modules/supportAccess/onVisit';
 import { newSecret } from './oauthClients';
 
 const ACCESS_TTL = 3600;
@@ -40,7 +41,7 @@ const memberOf = async (tx: Db, issued: Issued) => {
     .innerJoin(organizations, eq(organizations.id, users.orgId))
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .leftJoin(plugins, eq(plugins.name, issued.clientId))
-    .where(eq(users.id, issued.userId))
+    .where(and(eq(users.id, issued.userId), actsNow(tx)))
     .limit(1);
 
   return row?.user.status === 'active' && row.user.canSignIn ? row : null;
@@ -66,7 +67,11 @@ const appAccessToken = (issued: Issued, resource: string, member: Member) =>
 const accessToken = (issued: Issued, member: Member) => {
   if (issued.resource) return appAccessToken(issued, issued.resource, member);
 
-  const actor = { role: member.user.role, permissions: member.permissions };
+  const actor = {
+    role: member.user.role,
+    permissions: member.permissions,
+    ...(member.user.isSupport ? { support: true as const } : {}),
+  };
 
   const permissions = (member.manifest?.permissions ?? [])
     .map((item) => item.action)

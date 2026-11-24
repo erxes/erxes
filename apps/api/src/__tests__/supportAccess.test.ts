@@ -97,9 +97,17 @@ describe('erxes support visits', { timeout: 300_000 }, () => {
       'roles.manage',
       'api_keys.create',
       'support.manage',
+      'assistant.manage',
+      'webhooks.manage',
+      'portals.manage',
     ]) {
       expect(session.permissions).not.toContain(denied);
     }
+
+    // No password: the link is their only way in.
+    await expect(
+      support.auth.changePassword({ newPassword: 'Support-pass-123' }),
+    ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
 
     await expect(support.audit.settings({})).resolves.toMatchObject({ retentionDays: 365 });
     await expect(support.supportAccess.settings({})).rejects.toMatchObject({
