@@ -94,7 +94,7 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
     });
   });
 
-  it('turns away a token from before the owner’s approval, so the plugin takes a new one at once', async () => {
+  it('lets a token from before the owner’s approval use the approved access at once', async () => {
     await register([]);
 
     const before = await t.pluginToken(undefined, t.ids.org);
@@ -106,8 +106,12 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
         headers: { authorization: `Bearer ${token}` },
       });
 
-    expect((await usable(before)).status).toBe(401);
-    expect((await usable(await t.pluginToken(undefined, t.ids.org))).status).toBe(200);
+    expect((await usable(before)).status).toBe(200);
+
+    // A version that no longer asks for it: the same token is refused again.
+    await register([]);
+
+    expect((await usable(before)).status).toBe(403);
   });
 
   it('lists the connections and gives a fresh token and the app once the owner approved it', async () => {
