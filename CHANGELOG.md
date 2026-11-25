@@ -1,5 +1,19 @@
 
 
+## [3.4.31](https://github.com/erxes/erxes/compare/3.4.30...3.4.31) (2026-11-25)
+
+
+### Bug Fixes
+
+* **accounting:** add filter on tunable report ([bd8ef4d](https://github.com/erxes/erxes/commit/bd8ef4d74f8c9b2c735875e96ca64b2d50f50490))
+* **accounting:** relaccounts to panel ([27fecdf](https://github.com/erxes/erxes/commit/27fecdf6e0b2f24cb5aeef39b29b0f3a30b946be))
+* **accounting:** transaction and account journal mapped validation ([4dd2aaa](https://github.com/erxes/erxes/commit/4dd2aaa92220350c125c7623fd92f95ba3d97a56))
+
+
+### Features
+
+* **accounting:** tax customer on config, some report filter, some list with customer ([c9aa0f5](https://github.com/erxes/erxes/commit/c9aa0f5f0d15b5941150fba74d4c5c63bf54300b))
+
 ## [3.4.30](https://github.com/erxes/erxes/compare/3.4.29...3.4.30) (2026-11-25)
 
 
