@@ -1,3 +1,4 @@
+import type { GithubAppFacts } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconBrandGithub, IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import { UserAvatar } from '~/components/UserAvatar';
 import { useCan } from '~/modules/auth/session';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { useConnectionsChanged } from '../integrations/ConnectionFields';
+import { AppSetNote } from './AppSetNote';
 import { GithubAppForm } from './GithubAppForm';
 
 /** The organisation connects GitHub only through a GitHub App, never with a token. */
@@ -20,6 +22,8 @@ const Ticket = z.object({
   ),
   installUrl: z.string(),
 });
+
+type Ticket = z.output<typeof Ticket>;
 
 /** The ticket core signs after the GitHub sign-in: readable JSON, then core's signature. */
 const ticketOf = (token: string | null) => {
@@ -34,16 +38,26 @@ const ticketOf = (token: string | null) => {
   }
 };
 
-/** The App's installations the member manages on GitHub, to pick the organisation's from. */
-export const GithubAppPicker = () => {
+/** No App yet: the next step waits, and a member who may sets the App up right here. */
+const NeedsApp = ({ facts }: { facts: GithubAppFacts }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.github-app' });
+  const canSetApp = useCan()('integrations.manage');
+
+  return (
+    <div className="space-y-3">
+      <Button className="w-full" disabled>
+        <IconBrandGithub />
+        {t('needs-app', 'Set up your GitHub App first')}
+      </Button>
+      {canSetApp && <GithubAppForm facts={facts} />}
+    </div>
+  );
+};
+
+/** The App is set: say which, then send the member to GitHub to pick an account. */
+const SignInStep = ({ facts }: { facts: GithubAppFacts }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.github-app' });
   const { toast } = useToast();
-  const [token, setToken] = useQueryState('github');
-  const ticket = ticketOf(token);
-  const changed = useConnectionsChanged();
-  const showCreated = useCreatedPanelRecord(CONNECTION_CONTENT_TYPE);
-  const app = useQuery(orpc.githubApp.app.queryOptions());
-  const canSetApp = useCan()('integrations.manage');
 
   const signIn = useMutation(
     orpc.githubApp.signIn.mutationOptions({
@@ -51,6 +65,30 @@ export const GithubAppPicker = () => {
       onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),
     }),
   );
+
+  return (
+    <div className="space-y-3">
+      {facts.source === 'organization' && (
+        <AppSetNote
+          name={facts.slug ?? 'GitHub App'}
+          detail={t('app-id-short', 'ID {{id}}', { id: facts.appId })}
+        />
+      )}
+      <Button className="w-full" disabled={signIn.isPending} onClick={() => signIn.mutate({})}>
+        <IconBrandGithub />
+        {t('sign-in', 'Choose a GitHub account')}
+      </Button>
+    </div>
+  );
+};
+
+/** Back from GitHub: the accounts the App is installed on, one click each to connect. */
+const InstallationList = ({ token, ticket }: { token: string; ticket: Ticket }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.github-app' });
+  const { toast } = useToast();
+  const [, setToken] = useQueryState('github');
+  const changed = useConnectionsChanged();
+  const showCreated = useCreatedPanelRecord(CONNECTION_CONTENT_TYPE);
 
   const connect = useMutation(
     orpc.githubApp.connect.mutationOptions({
@@ -63,27 +101,6 @@ export const GithubAppPicker = () => {
       onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),
     }),
   );
-
-  if (!app.data) return null;
-
-  if (!app.data.source)
-    return (
-      <div className="space-y-3">
-        <Button className="w-full" disabled>
-          <IconBrandGithub />
-          {t('needs-app', 'Set up your GitHub App first')}
-        </Button>
-        {canSetApp && <GithubAppForm facts={app.data} />}
-      </div>
-    );
-
-  if (!token || !ticket)
-    return (
-      <Button className="w-full" disabled={signIn.isPending} onClick={() => signIn.mutate({})}>
-        <IconBrandGithub />
-        {t('sign-in', 'Choose a GitHub account')}
-      </Button>
-    );
 
   return (
     <div className="space-y-2">
@@ -114,4 +131,19 @@ export const GithubAppPicker = () => {
       </a>
     </div>
   );
+};
+
+/** The organisation's GitHub: set up its App, sign in to GitHub, then pick an installation. */
+export const GithubAppPicker = () => {
+  const [token] = useQueryState('github');
+  const ticket = ticketOf(token);
+  const app = useQuery(orpc.githubApp.app.queryOptions());
+
+  if (!app.data) return null;
+
+  if (!app.data.source) return <NeedsApp facts={app.data} />;
+
+  if (!token || !ticket) return <SignInStep facts={app.data} />;
+
+  return <InstallationList token={token} ticket={ticket} />;
 };

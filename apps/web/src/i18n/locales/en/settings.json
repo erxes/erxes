@@ -976,7 +976,9 @@
     "connected": "Connected",
     "off": "Off",
     "attention": "Needs attention",
+    "ready": "Ready",
     "not-set-up": "Not set up",
+    "app-set": "{{name}} is set up",
     "search": "Search integrations…",
     "categories": "Categories",
     "all": "All",
@@ -1416,7 +1418,8 @@
       "cancel": "Cancel",
       "sign-in": "Sign in with {{name}}",
       "sign-in-again": "Sign in again",
-      "one-per-account": "Each account connects once, named after the account. Signing in again with an account renews its connection."
+      "one-per-account": "Each account connects once, named after the account. Signing in again with an account renews its connection.",
+      "your-app": "Your {{name}} app"
     }
   },
   "team-member": {

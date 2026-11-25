@@ -19,7 +19,10 @@ export const GithubAppSummary = () => {
 
   const remove = useMutation(
     orpc.githubApp.removeApp.mutationOptions({
-      onSuccess: (facts) => queryClient.setQueryData(orpc.githubApp.app.queryKey(), facts),
+      onSuccess: (facts) => {
+        queryClient.setQueryData(orpc.githubApp.app.queryKey(), facts);
+        void queryClient.invalidateQueries({ queryKey: orpc.integrations.list.key() });
+      },
       onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),
     }),
   );
@@ -146,6 +149,7 @@ export const GithubAppForm = ({ facts }: { facts: GithubAppFacts }) => {
     orpc.githubApp.setApp.mutationOptions({
       onSuccess: (saved) => {
         queryClient.setQueryData(orpc.githubApp.app.queryKey(), saved);
+        void queryClient.invalidateQueries({ queryKey: orpc.integrations.list.key() });
         toast({ title: t('app-saved', 'GitHub App {{slug}} is set', { slug: saved.slug }) });
       },
       onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),

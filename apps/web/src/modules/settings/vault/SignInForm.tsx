@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import { useCan } from '~/modules/auth/session';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { AppSetNote } from './AppSetNote';
 import { ConnectionScopePicker, useConnectionScope } from './ConnectionScope';
 
 type OAuthIntegration = Integration & { oauth: NonNullable<Integration['oauth']> };
@@ -160,6 +161,12 @@ export const SignInForm = ({
         <span className="font-medium">{brand}</span>
       </div>
       {integration.oauth.client === null && canSetApp && <OAuthAppForm integration={integration} />}
+      {integration.oauth.client === 'organization' && (
+        <AppSetNote
+          name={t('your-app', 'Your {{name}} app', { name: brand })}
+          detail={integration.oauth.clientId}
+        />
+      )}
       <ConnectionScopePicker open={open} scope={scope} onChange={setScope} />
       <p className="text-sm text-muted-foreground">
         {t(

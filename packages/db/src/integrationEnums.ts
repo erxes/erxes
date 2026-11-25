@@ -38,7 +38,8 @@ export const VAULT_HOLDERS = [
   'plugin',
 ] as const;
 
-export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
+/** `ready`: its app is set up, and no account is connected through it yet. */
+export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'ready', 'not-set-up'] as const;
 
 export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch', 'select', 'hidden'] as const;
 
