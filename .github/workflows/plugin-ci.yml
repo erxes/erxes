@@ -87,8 +87,10 @@ jobs:
             copy="$injected/node_modules/$(jq -r .name "$dir/package.json")"
             find "$copy" -mindepth 1 -maxdepth 1 ! -name node_modules -exec rm -rf {} +
             (cd "$dir" && pnpm pack --dry-run --json) | jq -r '.files[].path' | while read -r file; do
+              src="$dir/$file"
+              [ -e "$src" ] || src="$file"
               mkdir -p "$copy/$(dirname "$file")"
-              ln "$dir/$file" "$copy/$file"
+              ln "$src" "$copy/$file"
             done
           done
       - &install
