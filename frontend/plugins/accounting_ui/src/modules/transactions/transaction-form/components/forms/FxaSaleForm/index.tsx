@@ -7,7 +7,6 @@ import {
 import { CustomerFields } from '../../helpers/CustomerFields';
 import { CtaxForm } from '../../helpers/CtaxForm';
 import { VatForm } from '../../helpers/VatForm';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { FixedAssetForm } from './FixedAssetForm';
 import { FxaSaleAccountFields } from './FxaSaleAccountFields';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
@@ -67,10 +66,6 @@ export const FxaSaleForm = ({
       </div>
 
       <FxaOutAccountWarning form={form} index={index} sale />
-
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
-      </div>
 
       <FixedAssetForm form={form} journalIndex={index} />
     </>

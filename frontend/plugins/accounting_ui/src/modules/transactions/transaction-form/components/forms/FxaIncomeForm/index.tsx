@@ -9,7 +9,6 @@ import {
 } from '../../GeneralFormFields';
 import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { FixedAssetForm } from './FixedAssetForm';
 import { FxaIncomeOwnerRecordsSync } from './FxaIncomeOwnerRecordsSheet';
@@ -56,10 +55,6 @@ export const FxaIncomeForm = ({
           isWithTax={false}
           isSameSide
         />
-      </div>
-
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
 
       <FixedAssetForm form={form} journalIndex={index} />

@@ -10,7 +10,6 @@ import {
 } from '../../GeneralFormFields';
 import { TR_SIDES } from '../../../../types/constants';
 import { CustomerFields } from '../../helpers/CustomerFields';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { InventoryForm } from './InventoryForm';
 
 export const InvJustifyForm = ({
@@ -40,10 +39,6 @@ export const InvJustifyForm = ({
         <DepartmentField form={form} index={index} />
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-      </div>
-
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
 
       <InventoryForm form={form} journalIndex={index} />

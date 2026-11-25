@@ -13,21 +13,25 @@ import {
 } from '@/settings/components/panel/SettingsPanelLayout';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { Badge, Button, ScrollArea, useQueryState } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import {
   ActivityLogCustomActivity,
   ActivityLogs,
   AddInternalNote,
   MembersInline,
+  NEW_RECORD_ID,
   PanelField,
   TActivityLog,
   useSidePanel,
 } from 'ui-modules';
 import {
-  TRANSACTION_ACTIVITY_TAB,
   TRANSACTION_CONTENT_TYPE,
+  TRANSACTION_DETAIL_TAB,
 } from '@/transactions/constants/transactionPanel';
+import { transactionPanelFormState } from '../states/trStates';
+import { RelAccountsForm } from './helpers/RelAccountsForm';
 
 const Sentence = ({ children }: { children: ReactNode }) => (
   <div className="flex flex-wrap items-center gap-1 text-sm text-foreground">
@@ -226,6 +230,28 @@ const useRelatedContentHref = (contentType?: string, contentId?: string) => {
   );
 };
 
+const TransactionPanelRelatedAccounts = ({
+  contentId,
+}: {
+  contentId: string;
+}) => {
+  const binding = useAtomValue(transactionPanelFormState);
+
+  return binding?.contentId === contentId ? (
+    <RelAccountsForm
+      key={contentId}
+      form={binding.form}
+      canEdit={binding.canEdit}
+    />
+  ) : null;
+};
+
+const TransactionPanelNew = ({ contentId }: ISettingsPanelViewProps) => (
+  <SettingsPanelDetailLayout loading={false} hasRecord>
+    <TransactionPanelRelatedAccounts contentId={contentId} />
+  </SettingsPanelDetailLayout>
+);
+
 const TransactionPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
   const { t } = useTranslation('accounting');
   const { activeTrs, loading } = useTransactionsDetail({
@@ -281,6 +307,7 @@ const TransactionPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
           )}
         </>
       )}
+      <TransactionPanelRelatedAccounts contentId={contentId} />
     </SettingsPanelDetailLayout>
   );
 };
@@ -308,6 +335,7 @@ const TransactionPanelActivity = ({ contentId }: ISettingsPanelViewProps) => (
 export const TRANSACTION_PANEL: ISettingsPanelViews = {
   addLabel: 'transaction',
   editLabel: 'transaction',
+  New: TransactionPanelNew,
   Detail: TransactionPanelDetail,
   Activity: TransactionPanelActivity,
 };
@@ -315,36 +343,33 @@ export const TRANSACTION_PANEL: ISettingsPanelViews = {
 export const TrRightSidebar = () => {
   const { t } = useTranslation('accounting');
   const [parentId] = useQueryState<string>('parentId');
-  const { openDetail } = useSettingsPanel(TRANSACTION_CONTENT_TYPE);
+  const { openDetail, openDraft } = useSettingsPanel(TRANSACTION_CONTENT_TYPE);
   const { record, setTab } = useSidePanel();
-  const [activityRequested, setActivityRequested] = useState(false);
-
-  useEffect(() => {
-    if (
-      activityRequested &&
-      record?.contentType === TRANSACTION_CONTENT_TYPE &&
-      record.contentId === parentId
-    ) {
-      setTab(TRANSACTION_ACTIVITY_TAB);
-      setActivityRequested(false);
-    }
-  }, [activityRequested, parentId, record, setTab]);
-
-  if (!parentId) {
-    return null;
-  }
 
   const handleOpen = () => {
-    openDetail(parentId);
-    setActivityRequested(true);
+    if (
+      record?.contentType === TRANSACTION_CONTENT_TYPE &&
+      record.contentId === (parentId || NEW_RECORD_ID)
+    ) {
+      if (parentId) {
+        setTab(TRANSACTION_DETAIL_TAB);
+      }
+      return;
+    }
+
+    if (parentId) {
+      openDetail(parentId, { tab: TRANSACTION_DETAIL_TAB });
+    } else {
+      openDraft();
+    }
   };
 
   return (
     <Button
       type="button"
       variant="secondary"
-      title={t('activities')}
-      aria-label={t('activities')}
+      title={t('details')}
+      aria-label={t('details')}
       onClick={handleOpen}
     >
       <IconActivity />

@@ -23,7 +23,6 @@ import {
 } from '../../GeneralFormFields';
 import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 
@@ -148,10 +147,6 @@ export const InvSaleForm = ({
           isWithTax={false}
           isSameSide={true}
         />
-      </div>
-
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
 
       <InventoryForm form={form} journalIndex={index} />

@@ -2,7 +2,6 @@ import { JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES } from '../../../types/constants';
 import { ITransactionGroupForm } from '../../types/JournalForms';
 import { CustomerFields } from '../helpers/CustomerFields';
-import { RelAccountsForm } from '../helpers/RelAccountsForm';
 import {
   AccountField,
   AmountField,
@@ -35,9 +34,6 @@ export const MainJournalForm = ({
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-      </div>
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
     </>
   );

@@ -9,10 +9,15 @@ import {
   Spinner,
   useQueryState,
 } from 'erxes-ui';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { FieldErrors, useForm, useWatch } from 'react-hook-form';
-import { currentUserState, IUser, SelectMember } from 'ui-modules';
+import {
+  currentUserState,
+  IUser,
+  NEW_RECORD_ID,
+  SelectMember,
+} from 'ui-modules';
 import {
   TR_STATUS_GROUPS,
   TR_STATUS_LABELS,
@@ -24,7 +29,11 @@ import { transactionGroupSchema } from '../contants/transactionSchema';
 import { useTransactionsCreate } from '../hooks/useTransactionsCreate';
 import { useTransactionsDetail } from '../hooks/useTransactionsDetail';
 import { useTransactionsUpdate } from '../hooks/useTransactionsUpdate';
-import { activeJournalState, followTrDocsState } from '../states/trStates';
+import {
+  activeJournalState,
+  followTrDocsState,
+  transactionPanelFormState,
+} from '../states/trStates';
 import { TAddTransactionGroup } from '../types/JournalForms';
 import { Summary } from './Summary';
 import { TransactionsTabsList } from './TransactionTabs';
@@ -183,6 +192,7 @@ export const TransactionsGroupForm = () => {
     resolver: zodResolver(transactionGroupSchema),
     defaultValues: {
       date: new Date(),
+      relatedAccountReplacements: [],
     },
   });
 
@@ -190,7 +200,8 @@ export const TransactionsGroupForm = () => {
   const [trId] = useQueryState<string>('trId');
 
   const setActiveJournal = useSetAtom(activeJournalState);
-  const setFollowTrDocs = useSetAtom(followTrDocsState);
+  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setPanelForm = useSetAtom(transactionPanelFormState);
 
   const { createTransaction, loading: createLoading } = useTransactionsCreate();
   const { updateTransaction, loading: updateLoading } = useTransactionsUpdate();
@@ -221,7 +232,7 @@ export const TransactionsGroupForm = () => {
       return;
     }
 
-    const trDocs = cleanTrDocs(data);
+    const trDocs = cleanTrDocs(data, followTrDocs);
 
     if (parentId) {
       updateTransaction({
@@ -249,6 +260,27 @@ export const TransactionsGroupForm = () => {
   );
   const responder = !!parentId && isTrResponder(savedWorkflow, currentUser._id);
   const decisionView = responder && !manageOpen;
+  const panelContentId = parentId || NEW_RECORD_ID;
+  const canEditPanel =
+    !decisionView && !error && !createLoading && !updateLoading && !deciding;
+
+  useEffect(() => {
+    if (loading || configsLoading) {
+      return;
+    }
+
+    const binding = { contentId: panelContentId, form, canEdit: canEditPanel };
+    setPanelForm(binding);
+    return () =>
+      setPanelForm((current) => (current === binding ? null : current));
+  }, [
+    canEditPanel,
+    configsLoading,
+    form,
+    loading,
+    panelContentId,
+    setPanelForm,
+  ]);
   const showDecision =
     responder &&
     hasSavedWorkflow(savedWorkflow, {
@@ -317,6 +349,7 @@ export const TransactionsGroupForm = () => {
         status: TR_STATUSES.COMPLETE,
         mentionOwnerId: currentUser._id,
         mentionUserIds: [],
+        relatedAccountReplacements: [],
         trDocs: [],
       });
       setFollowTrDocs([]);
@@ -337,6 +370,7 @@ export const TransactionsGroupForm = () => {
         status: currentTr?.status || TR_STATUSES.COMPLETE,
         mentionOwnerId: currentTr?.mentionOwnerId || currentUser._id,
         mentionUserIds: currentTr?.mentionUserIds ?? [],
+        relatedAccountReplacements: [],
         trDocs: activeTrs.map((atr) =>
           JOURNALS_BY_JOURNAL(atr?.journal || '', atr),
         ),
@@ -348,6 +382,7 @@ export const TransactionsGroupForm = () => {
         date: new Date(),
         status: TR_STATUSES.COMPLETE,
         mentionOwnerId: currentUser._id,
+        relatedAccountReplacements: [],
         trDocs: [JOURNALS_BY_JOURNAL(defaultJournal)],
       });
     }

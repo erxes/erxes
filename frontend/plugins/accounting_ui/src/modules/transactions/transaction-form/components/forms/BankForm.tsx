@@ -4,7 +4,6 @@ import { ITransactionGroupForm } from '../../types/JournalForms';
 import { CtaxForm } from '../helpers/CtaxForm';
 import { CurrencyForm, useCurrencyAmountSync } from '../helpers/CurrencyForm';
 import { CustomerFields } from '../helpers/CustomerFields';
-import { RelAccountsForm } from '../helpers/RelAccountsForm';
 import { VatForm } from '../helpers/VatForm';
 import {
   AccountField,
@@ -63,9 +62,6 @@ export const BankTransaction = ({
           isSameSide={false}
         />
         <BankField form={form} index={index} />
-      </div>
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
     </>
   );

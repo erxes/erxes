@@ -12,7 +12,6 @@ import {
 } from '../../GeneralFormFields';
 import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { ExpenseForm } from './ExpenseForm';
 import { InventoryForm } from './InventoryForm';
@@ -54,9 +53,6 @@ export const InvIncomeForm = ({
 
       <div className="pt-3">
         <ExpenseForm form={form} journalIndex={index} />
-      </div>
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
 
       <InventoryForm form={form} journalIndex={index} />

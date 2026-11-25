@@ -3,6 +3,7 @@ import { AccountKind, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '../../types/constants';
 import { ITransaction, ITrDetail } from '../../types/Transaction';
 import { TAddTransactionGroup, TTrDoc } from '../types/JournalForms';
+import { getRelatedAccountGroups } from '../utils/relatedAccounts';
 
 export const isHiddenTransaction = (transaction?: object) =>
   Boolean(
@@ -109,10 +110,33 @@ export const cleanTrDoc = (
   };
 };
 
-export const cleanTrDocs = (data: TAddTransactionGroup) => {
-  return data.trDocs.map((trD) =>
-    cleanTrDoc({
+export const cleanTrDocs = (
+  data: TAddTransactionGroup,
+  followTrDocs: ITransaction[] = [],
+) => {
+  const accountsByTransaction = new Map(
+    data.relatedAccountReplacements?.length
+      ? [
+          ...getRelatedAccountGroups(
+            data.trDocs,
+            followTrDocs,
+            data.relatedAccountReplacements,
+          ).values(),
+        ]
+          .flat()
+          .filter((row) => row.isMain)
+          .map((row) => [row.transactionId, row] as const)
+      : [],
+  );
+
+  return data.trDocs.map((trD) => {
+    const related = accountsByTransaction.get(trD._id);
+
+    return cleanTrDoc({
       ...trD,
+      relAccounts: related
+        ? { customDt: related.dt.custom, customCt: related.ct.custom }
+        : trD.relAccounts,
       followExtras: undefined,
       details: trD.details.map((det) => ({
         ...det,
@@ -124,8 +148,8 @@ export const cleanTrDocs = (data: TAddTransactionGroup) => {
       status: data.status,
       mentionOwnerId: data.mentionOwnerId,
       mentionUserIds: data.mentionUserIds,
-    }),
-  );
+    });
+  });
 };
 
 export const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';

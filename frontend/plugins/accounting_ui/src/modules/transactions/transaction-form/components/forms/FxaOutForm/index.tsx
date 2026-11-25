@@ -6,7 +6,6 @@ import {
   DescriptionField,
 } from '../../GeneralFormFields';
 import { CustomerFields } from '../../helpers/CustomerFields';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { FixedAssetForm } from './FixedAssetForm';
 import { useFxaDisposalFollowTrs } from '../hooks/useFxaDisposalFollowTrs';
 import { FxaOutAccountWarning } from '@/transactions/transaction-form/components/forms/FxaOutForm/FxaOutAccountWarning';
@@ -36,10 +35,6 @@ export const FxaOutForm = ({
       </div>
 
       <FxaOutAccountWarning form={form} index={index} />
-
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
-      </div>
 
       <FixedAssetForm form={form} journalIndex={index} />
     </>

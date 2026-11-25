@@ -745,6 +745,13 @@ export const trDocSchema = z
 
 // cash
 
+export const relatedAccountReplacementSchema = z.object({
+  ptrId: z.string(),
+  side: z.enum(['dt', 'ct']),
+  code: z.string(),
+  replacement: z.string().trim(),
+});
+
 export const transactionGroupSchema = z.object({
   parentId: undefed(z.string()),
   number: undefed(z.string()),
@@ -763,6 +770,9 @@ export const transactionGroupSchema = z.object({
   ),
   mentionOwnerId: z.string().optional(),
   mentionUserIds: z.array(z.string()).optional(),
+  relatedAccountReplacements: z
+    .array(relatedAccountReplacementSchema)
+    .optional(),
   trDocs: z.array(trDocSchema).min(1),
 });
 // #endregion core

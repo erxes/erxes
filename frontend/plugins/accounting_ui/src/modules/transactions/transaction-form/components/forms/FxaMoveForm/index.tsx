@@ -5,7 +5,6 @@ import {
   AssignToField,
   DescriptionField,
 } from '../../GeneralFormFields';
-import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { FixedAssetForm } from './FixedAssetForm';
 import { FxaMoveAccountFields } from './FxaMoveAccountFields';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
@@ -39,10 +38,6 @@ export const FxaMoveForm = ({
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
         <FxaMoveAccountFields form={form} index={index} />
-      </div>
-
-      <div className="pt-3">
-        <RelAccountsForm form={form} index={index} />
       </div>
 
       <FixedAssetForm form={form} journalIndex={index} />
