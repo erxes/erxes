@@ -1,5 +1,17 @@
 
 
+## [3.4.30](https://github.com/erxes/erxes/compare/3.4.29...3.4.30) (2026-11-25)
+
+
+### Bug Fixes
+
+* **frontline-widgets:** validate only visible fields on form submit ([23120ca](https://github.com/erxes/erxes/commit/23120ca7c3724f15934faa4125379cb91d6d87c9))
+
+
+### Features
+
+* **sales:** papa logistics integration ([#10456](https://github.com/erxes/erxes/issues/10456)) ([3ef2392](https://github.com/erxes/erxes/commit/3ef23927295a0b9bd6acf7feb45f7418d574e1d6))
+
 ## [3.4.29](https://github.com/erxes/erxes/compare/3.4.28...3.4.29) (2026-11-24)
 
 

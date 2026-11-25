@@ -8,6 +8,7 @@ import {
   IconDotsVertical,
   IconLink,
   IconSettings,
+  IconTruckDelivery,
 } from '@tabler/icons-react';
 import {
   Button,
@@ -104,6 +105,12 @@ function PosItem({ pos }: posItemProps) {
                 path={`sales/pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
+              />
+              <NavigationMenuLinkItem
+                name={t('papa-deliveries', 'Papa deliveries')}
+                path={`sales/pos/${pos._id}/deliveries`}
+                className="pl-6 font-medium"
+                icon={IconTruckDelivery}
               />
               <NavigationMenuLinkItem
                 name={t('pos-orders-by-customer')}

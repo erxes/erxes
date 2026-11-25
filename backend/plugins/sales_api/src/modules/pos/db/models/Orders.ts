@@ -41,8 +41,12 @@ export const loadPosOrderClass = (
     public static async createOrUpdate(document: IPosOrderUpsertInput) {
       const { _id, ...doc } = document;
 
-      // The links to loyalty are sales' own; a synced order never sets them.
+      // Loyalty links and Papa delivery state are sales' own; a synced order
+      // never sets them.
       delete doc.scoreLogIds;
+      delete doc.papaDelivery;
+      delete doc.papaDeal;
+      delete doc.papaAutoSend;
 
       const oldOrder = await models.PosOrders.findOne({ _id }).lean();
 

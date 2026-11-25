@@ -419,13 +419,17 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
   }
 };
 
-const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
+/**
+ * Creates (or refreshes) the delivery deal of a POS delivery order and
+ * returns its id. Used by the POS "done" step and by Papa delivery.
+ */
+export const createDeliveryDeal = async ({
+  subdomain,
+  models,
+  doneOrder,
+  pos,
+}): Promise<string | undefined> => {
   const { deliveryConfig = {} } = pos;
-
-  // A POS that keeps no delivery board still finishes its deliveries
-  if (!deliveryConfig.stageId) {
-    return;
-  }
   const deliveryInfo = doneOrder.deliveryInfo || {};
   const { marker = {}, description } = deliveryInfo;
 
@@ -483,7 +487,17 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     };
   }
 
-  if (doneOrder.deliveryInfo?.dealId) {
+  // Papa delivery keeps the deal id on `papaDeal`, which POS client sync
+  // never overwrites (it does overwrite `deliveryInfo`).
+  const existingDealId =
+    doneOrder.deliveryInfo?.dealId || doneOrder.papaDeal?.dealId;
+
+  if (existingDealId) {
+    // Papa statuses own the stage of a deal they have moved.
+    if (doneOrder.papaDeal?.step) {
+      delete dealsData.stageId;
+    }
+
     const deal = await sendTRPCMessage({
       subdomain,
       method: 'mutation',
@@ -491,7 +505,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       module: 'deal',
       action: 'updateOne',
       input: {
-        selector: { _id: doneOrder.deliveryInfo.dealId },
+        selector: { _id: existingDealId },
         modifier: dealsData,
       },
       throwOnError: true,
@@ -552,7 +566,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     });
 
     await models.PosOrders.updateOne(
-      { _id: doneOrder },
+      { _id: doneOrder._id },
       {
         $set: {
           deliveryInfo: {
@@ -562,7 +576,11 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         },
       },
     );
+
+    return deal._id;
   }
+
+  return existingDealId;
 };
 
 export const statusToDone = async ({
@@ -583,14 +601,6 @@ export const statusToDone = async ({
 
   if (!doneOrder) {
     return {};
-  }
-
-  // The order's own record says it is done, which is what its events watch
-  if (doneOrder.status !== order.status && order.status) {
-    await models.PosOrders.updateOrder(
-      { _id: doneOrder._id },
-      { status: order.status },
-    );
   }
 
   await createDeliveryDeal({ subdomain, models, doneOrder, pos });
@@ -849,9 +859,7 @@ export const syncOrderFromClient = async ({
     }
   }
 
-  // Only a paid order goes on to the sub-branch's offline POS; an unpaid one
-  // is synced here so people and AI agents can see it.
-  if (pos.isOnline && newOrder.subBranchId && newOrder.paidDate) {
+  if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
       branchId: newOrder.subBranchId,
       _id: { $ne: pos._id },

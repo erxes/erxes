@@ -90,13 +90,13 @@ export const ErxesForm = ({
   step,
   stepsLength,
   defaultValue,
-  schema,
+  schemaShape,
   isLastStep,
 }: {
   step: IFormStep;
   stepsLength: number;
   defaultValue: any;
-  schema: z.ZodSchema;
+  schemaShape: Record<string, z.ZodType>;
   isLastStep: boolean;
 }) => {
   const formData = useErxesForm();
@@ -115,22 +115,33 @@ export const ErxesForm = ({
     setAttachments((prev) => [...prev, attachment]);
   };
 
-  const form = useForm({
-    defaultValues: defaultValue,
-    resolver: zodResolver(schema),
-  });
-
-  const currentStepValues = form.watch();
-
-  // Merge saved values from all steps with the current step's live values so
-  // that logic referencing fields on other pages resolves correctly.
-  const formValues = {
+  const mergeWithSavedSteps = (stepValues: Record<string, any>) => ({
     ...Object.values(globalFormValues || {}).reduce<Record<string, any>>(
-      (acc, stepValues) => ({ ...acc, ...stepValues }),
+      (acc, savedValues) => ({ ...acc, ...savedValues }),
       {},
     ),
-    ...currentStepValues,
-  };
+    ...stepValues,
+  });
+
+  const form = useForm({
+    defaultValues: defaultValue,
+    resolver: (values, context, options) => {
+      const allValues = mergeWithSavedSteps(values);
+      const visibleShape = Object.fromEntries(
+        Object.entries(schemaShape).filter(([fieldId]) => {
+          const field = fields.find((f) => f._id === fieldId);
+          return (
+            !field ||
+            isFieldVisible(field.logics, field.logicAction, allValues)
+          );
+        }),
+      );
+
+      return zodResolver(z.object(visibleShape))(values, context, options);
+    },
+  });
+
+  const formValues = mergeWithSavedSteps(form.watch());
 
   const handleSubmit = (values: any) => {
     const updatedFormValues = {

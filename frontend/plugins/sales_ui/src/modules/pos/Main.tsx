@@ -52,6 +52,12 @@ const PosSummaryMain = lazy(() =>
   })),
 );
 
+const PosPapaDeliveriesMain = lazy(() =>
+  import('~/pages/PosPapaDeliveriesPage').then((module) => ({
+    default: module.PosPapaDeliveriesPage,
+  })),
+);
+
 const PosOrdersByCustomerMain = lazy(() =>
   import('~/pages/PosOrdersByCustomerPage').then((module) => ({
     default: module.PosOrdersByCustomerPage,
@@ -91,6 +97,7 @@ const App = () => {
         <Route path=":posId/by-items" element={<PosByItemsMain />} />
         <Route path=":posId/items" element={<PosItemsMain />} />
         <Route path=":posId/summary" element={<PosSummaryMain />} />
+        <Route path=":posId/deliveries" element={<PosPapaDeliveriesMain />} />
         <Route
           path=":posId/orders-by-customer"
           element={<PosOrdersByCustomerMain />}

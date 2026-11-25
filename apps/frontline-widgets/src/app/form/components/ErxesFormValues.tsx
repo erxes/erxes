@@ -152,7 +152,7 @@ export const ErxesFormValues = ({
   return (
     <ErxesForm
       defaultValue={formValues?.[step.order] || defaultValues}
-      schema={z.object(formSchema)}
+      schemaShape={formSchema}
       step={step}
       stepsLength={stepsLength}
       isLastStep={isLastStep}
