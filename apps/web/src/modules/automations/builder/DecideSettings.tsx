@@ -266,7 +266,7 @@ export const DecideSettings = (props: DecideProps) => {
       <Field label={t('decision-paths', 'Paths')}>
         <Paths {...props} />
       </Field>
-      {step.provider === 'typesafe' && <Confidence {...props} />}
+      <Confidence {...props} />
     </>
   );
 };

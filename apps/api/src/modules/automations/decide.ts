@@ -9,7 +9,7 @@ import { connectionFor, refused } from '~/modules/integrations/actions';
 import { manages } from '~/modules/integrations/connectable';
 import { clientOf } from '~/modules/integrations/connections';
 import { eachStep } from './cursor';
-import { DEFAULT_DECISION_MODELS } from './decisionModels';
+import { DEFAULT_DECISION_MODELS, OPENAI_DECISION_MODELS } from './decisionModels';
 
 export type DecideStep = Extract<AutomationStep, { type: 'decide' }>;
 
@@ -22,8 +22,8 @@ export interface Question {
 
 interface Decision {
   choice: string;
-  confidence: number | null;
-  probabilities: Record<string, number> | null;
+  confidence: number;
+  probabilities: Record<string, number>;
   model: string;
 }
 
@@ -66,53 +66,59 @@ const askJev = async (client: ModelClient, step: DecideStep, asked: Question) =>
   return { ...answers.path, model };
 };
 
-const ChatAnswer = z.object({
+const OpenAiDecision = z.object({
   model: z.string(),
-  choices: z.array(z.object({ message: z.object({ content: z.string() }) })).min(1),
+  answers: z
+    .array(
+      z.discriminatedUnion('type', [
+        z.object({
+          type: z.literal('choice'),
+          choice: z.string(),
+          confidence: z.number(),
+          probabilities: z.array(z.object({ value: z.string(), probability: z.number() })),
+        }),
+        z.object({ type: z.literal('refusal') }),
+      ]),
+    )
+    .length(1),
 });
 
-const Picked = z.object({ choice: z.string() });
-
 const askOpenAi = async (client: ModelClient, step: DecideStep, asked: Question) => {
-  const criteria = criteriaOf(step);
-
-  const body = await client.send('/chat/completions', {
+  const body = await client.send('/decisions', {
     method: 'POST',
     headers: client.headers,
     body: JSON.stringify({
       model: step.model || DEFAULT_DECISION_MODELS.openai,
-      messages: [
-        { role: 'system', content: INSTRUCTIONS },
+      input: [
+        { role: 'developer', content: INSTRUCTIONS },
+        { role: 'user', content: asked.state },
+      ],
+      questions: [
         {
-          role: 'user',
-          content: JSON.stringify({
-            question: asked.question,
-            options: criteria,
-            state: asked.state,
-          }),
+          type: 'choice',
+          name: 'path',
+          instructions: asked.question,
+          choices: Object.entries(criteriaOf(step)).map(([value, description]) =>
+            description ? { value, description } : { value },
+          ),
         },
       ],
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'decision',
-          strict: true,
-          schema: {
-            type: 'object',
-            properties: { choice: { type: 'string', enum: Object.keys(criteria) } },
-            required: ['choice'],
-            additionalProperties: false,
-          },
-        },
-      },
     }),
   });
 
-  const answer = parse('OpenAI', ChatAnswer, body, 'an unreadable decision');
-  const content = answer.choices.at(0)?.message.content ?? '';
-  const { choice } = parse('OpenAI', Picked, content, 'a decision outside the options');
+  const { model, answers } = parse('OpenAI', OpenAiDecision, body, 'an unreadable decision');
+  const [answer] = answers;
 
-  return { choice, confidence: null, probabilities: null, model: answer.model };
+  if (answer?.type !== 'choice') throw fail('GATEWAY_REFUSED', 'OpenAI refused to decide');
+
+  return {
+    choice: answer.choice,
+    confidence: answer.confidence,
+    probabilities: Object.fromEntries(
+      answer.probabilities.map((item) => [item.value, item.probability]),
+    ),
+    model,
+  };
 };
 
 const ASK: Record<
@@ -155,10 +161,7 @@ export const decide = async (orgId: string, step: DecideStep, asked: Question) =
 const decisionArm = (step: DecideStep, decision: Decision) => {
   const index = step.paths.findIndex((path) => path.label === decision.choice);
 
-  const unsure =
-    decision.confidence !== null &&
-    step.minConfidence !== undefined &&
-    decision.confidence < step.minConfidence;
+  const unsure = step.minConfidence !== undefined && decision.confidence < step.minConfidence;
 
   return index < 0 || unsure ? OTHERWISE : `path:${index}`;
 };
@@ -195,6 +198,11 @@ export const decisionProblems = async (client: Db, steps: AutomationStep[]) => {
     const problems: string[] = [];
 
     if (!step.question.trim()) problems.push(`Step ${step.id}: ask the model a question`);
+
+    if (step.provider === 'openai' && step.model && !OPENAI_DECISION_MODELS.has(step.model))
+      problems.push(
+        `Step ${step.id}: ${step.model} can't make decisions, pick ${[...OPENAI_DECISION_MODELS].join(' or ')}`,
+      );
 
     if (!manages(integration))
       problems.push(`Step ${step.id}: your role can't use ${integration.name}`);

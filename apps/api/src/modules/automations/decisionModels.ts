@@ -5,14 +5,9 @@ import { and, asc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { fail, notFound } from '~/http/errors';
 import { logger } from '~/logger';
-import { buildModelCatalog } from '~/modules/assistant/modelCatalog';
 import { modelDisplayName } from '~/modules/assistant/modelThinking';
 import { fetchProviderModels } from '~/modules/assistant/providerModels';
-import {
-  DEFAULT_MODELS,
-  providerErrorMessage,
-  sanitizeProviderMessage,
-} from '~/modules/assistant/providers';
+import { providerErrorMessage, sanitizeProviderMessage } from '~/modules/assistant/providers';
 import { manages } from '~/modules/integrations/connectable';
 import { clientOf, connectionsWithSecret } from '~/modules/integrations/connections';
 
@@ -20,8 +15,10 @@ const log = logger.child({ component: 'automations' });
 
 export const DEFAULT_DECISION_MODELS: Record<DecisionProvider, string> = {
   typesafe: 'jev-latest',
-  openai: DEFAULT_MODELS.openai,
+  openai: 'gpt-6-luna',
 };
+
+export const OPENAI_DECISION_MODELS = new Set([DEFAULT_DECISION_MODELS.openai]);
 
 const formatJevName = (id: string) => (/^jev-/i.test(id) ? `Jev ${id.slice(4)}` : id);
 
@@ -168,16 +165,20 @@ const listOpenAiModels = async (client: ModelClient) => {
 
   if (listing.error !== null) return { ...defaultsOf('openai'), models: [], error: listing.error };
 
-  const catalog = buildModelCatalog('openai', listing.entries, [DEFAULT_MODELS.openai]);
+  const models = listing.entries
+    .filter((entry) => OPENAI_DECISION_MODELS.has(entry.id))
+    .map((entry) => ({
+      id: entry.id,
+      name: modelDisplayName('openai', entry.id) ?? entry.id,
+      recommended: entry.id === DEFAULT_DECISION_MODELS.openai,
+    }));
 
   return {
     ...defaultsOf('openai'),
-    models: catalog.map((model) => ({
-      id: model.id,
-      name: modelDisplayName('openai', model.id) ?? model.id,
-      recommended: model.recommended,
-    })),
-    error: null,
+    models,
+    error: models.length
+      ? null
+      : `This OpenAI key can't use a decision model (${[...OPENAI_DECISION_MODELS].join(', ')}). Allow it in the key's project on platform.openai.com.`,
   };
 };
 
