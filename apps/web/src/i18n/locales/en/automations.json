@@ -373,5 +373,10 @@
   "min-confidence-info": "Less sure than this: the run takes Otherwise",
   "confidence-any": "Any (no minimum)",
   "remove": "Remove",
-  "close": "Close"
+  "close": "Close",
+  "n-paths_one": "{{count}} path",
+  "n-paths_other": "{{count}} paths",
+  "n-steps_one": "{{count}} step",
+  "n-steps_other": "{{count}} steps",
+  "fold-paths": "Fold paths"
 }
