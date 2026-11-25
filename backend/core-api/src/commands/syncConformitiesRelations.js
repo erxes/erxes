@@ -42,6 +42,11 @@ const command = async () => {
       { mainType: 'deal', relType: 'company' },
       { mainType: 'customer', relType: 'deal' },
       { mainType: 'company', relType: 'deal' },
+      { mainType: 'company', relType: 'car' },
+      { mainType: 'car', relType: 'company' },
+      { mainType: 'customer', relType: 'car' },
+      { mainType: 'car', relType: 'customer' },
+      
     ]
   }
 

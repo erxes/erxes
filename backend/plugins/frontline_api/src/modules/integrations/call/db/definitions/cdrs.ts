@@ -62,3 +62,7 @@ CDRSchema.index({ uniqueid: 1 });
 CDRSchema.index({ dstchannelExt: 1 });
 CDRSchema.index({ dstanswer: 1 });
 CDRSchema.index({ src: 1 });
+CDRSchema.index({ conversationId: 1 });
+CDRSchema.index({ dst: 1, start: -1 });
+CDRSchema.index({ src: 1, start: -1 });
+CDRSchema.index({ inboxIntegrationId: 1, session: 1 });

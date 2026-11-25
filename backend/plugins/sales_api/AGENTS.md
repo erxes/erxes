@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-22`
+- **Last synchronized:** `2026-11-24`
 
 ## Scope
 
@@ -578,6 +578,10 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   so later saves cannot restore stale input prices. Integrations use root fields.
 - Default missing product-row currencies before calculating deal totals; read
   Core `configs.getConfig` with the current tenant's `subdomain`.
+- Single-row edits in Sales and the client portal preserve the target row's
+  ID and the saved product order. Convert Mongoose rows to plain objects
+  before UOM and currency normalization so those steps keep the other rows'
+  IDs and product fields.
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.

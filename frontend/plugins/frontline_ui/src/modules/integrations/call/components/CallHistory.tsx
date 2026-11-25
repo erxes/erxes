@@ -136,26 +136,28 @@ export const CallHistoryList = ({
                   ? safeFormatDate(callHistory.callStartTime, 'MMM, dd, HH:mm')
                   : ''}
               </span>
-              <Tooltip.Provider>
-                <Tooltip>
-                  <Tooltip.Trigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-6"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(
-                          `/frontline/inbox?conversationId=${callHistory.conversationId}`,
-                        );
-                      }}
-                    >
-                      <IconArrowUpRight />
-                    </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>{t('go-to-conversation')}</Tooltip.Content>
-                </Tooltip>
-              </Tooltip.Provider>
+              {callHistory.conversationId && (
+                <Tooltip.Provider>
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-6"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(
+                            `/frontline/inbox?conversationId=${callHistory.conversationId}`,
+                          );
+                        }}
+                      >
+                        <IconArrowUpRight />
+                      </Button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{t('go-to-conversation')}</Tooltip.Content>
+                  </Tooltip>
+                </Tooltip.Provider>
+              )}
             </Command.Item>
           );
         })}

@@ -1,12 +1,12 @@
-import { CallDirectionEnum } from '@/integrations/call/types/sipTypes';
 import { formatInTimeZone } from 'date-fns-tz';
 
+// `"Bob" <sip:99112233@pbx;transport=ws>` and a bare `99112233@pbx` both
+// give `99112233`.
 export const extractPhoneNumberFromCounterpart = (counterpart: string) => {
   if (!counterpart) return '';
-  const startIndex = counterpart.indexOf(':') + 1;
-  const endIndex = counterpart.indexOf('@');
-  if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
-  return counterpart.slice(startIndex, endIndex);
+  const sipUser = counterpart.match(/sips?:([^@;>\s]+)@/i);
+  if (sipUser) return sipUser[1];
+  return counterpart.match(/^\s*<?([^@;>\s<:]+)@/)?.[1] ?? '';
 };
 
 interface ISipMessageWithHeaders {
@@ -24,17 +24,6 @@ export const isCallCompletedElsewhere = (message: unknown): boolean => {
   const reason = (message.getHeader('Reason') || '').toLowerCase();
   return reason.includes('cause=200') || reason.includes('completed elsewhere');
 };
-
-export function parseCallDirection(
-  direction: string | null,
-): CallDirectionEnum {
-  if (!direction) return CallDirectionEnum.OUTGOING;
-  const parts = direction.split('/');
-  if (parts.length > 1) {
-    return parts[1].toLowerCase() as CallDirectionEnum;
-  }
-  return direction.toLowerCase() as CallDirectionEnum;
-}
 
 export const logger = {
   log: (a: any) => {
@@ -68,12 +57,12 @@ export function safeFormatDate(value: unknown, fmt = 'MM-dd HH:mm'): string {
   }
 
   if (!value) {
-    return formatInTimeZone(new Date(), timeZone, fmt);
+    return '-';
   }
 
   const date = new Date(value as string | number | Date);
   if (isNaN(date.getTime())) {
-    return formatInTimeZone(new Date(), timeZone, fmt);
+    return '-';
   }
 
   return formatInTimeZone(date, timeZone, fmt);

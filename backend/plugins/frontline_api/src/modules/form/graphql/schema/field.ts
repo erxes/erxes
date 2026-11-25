@@ -150,6 +150,8 @@ export const fieldsTypes = `
     matchingCount: Int!
     examples: [FrontlineFormConversionExample!]!
     hasMore: Boolean!
+    customersToFill: Int
+    customersKept: Int
   }
 
   input FrontlineFormUpdateInput {

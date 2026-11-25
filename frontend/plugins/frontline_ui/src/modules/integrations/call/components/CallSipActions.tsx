@@ -1,6 +1,11 @@
 import { useSip } from '@/integrations/call/components/SipProvider';
 import { usePauseAgent } from '@/integrations/call/hooks/usePauseAgent';
-import { historyIdAtom } from '@/integrations/call/states/callStates';
+import {
+  callDurationAtom,
+  currentCallConversationIdAtom,
+  historyIdAtom,
+  inCallViewAtom,
+} from '@/integrations/call/states/callStates';
 import { callSelectConfigDialogAtom } from '@/integrations/call/states/callSelectConfigDialogAtom';
 import { callWidgetOpenAtom } from '@/integrations/call/states/callWidgetOpenAtom';
 import { callWidgetPositionState } from '@/integrations/call/states/callWidgetStates';
@@ -8,6 +13,7 @@ import {
   callConfigAtom,
   callEnabledIntegrationIdsAtom,
   callInfoAtom,
+  rtcSessionAtom,
   sipStateAtom,
 } from '@/integrations/call/states/sipStates';
 import { SipStatusEnum } from '@/integrations/call/types/sipTypes';
@@ -20,7 +26,7 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Button, toast, Tooltip, useConfirm } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { RESET } from 'jotai/utils';
+import { RESET, useResetAtom } from 'jotai/utils';
 import { useTranslation } from 'react-i18next';
 
 export const CallSipActions = () => {
@@ -46,9 +52,21 @@ export const ClearCallCacheButton = () => {
   const setWidgetPosition = useSetAtom(callWidgetPositionState);
   const setWidgetOpen = useSetAtom(callWidgetOpenAtom);
   const setSelectConfigDialogOpen = useSetAtom(callSelectConfigDialogAtom);
+  const resetSipState = useResetAtom(sipStateAtom);
+  const setRtcSession = useSetAtom(rtcSessionAtom);
+  const setCurrentCallConversationId = useSetAtom(
+    currentCallConversationIdAtom,
+  );
+  const setInCallView = useSetAtom(inCallViewAtom);
+  const setCallDuration = useSetAtom(callDurationAtom);
 
   const clearCache = () => {
     setWidgetOpen(false);
+    resetSipState();
+    setRtcSession(null);
+    setCurrentCallConversationId(null);
+    setInCallView(null);
+    setCallDuration(null);
     setEnabledIntegrationIds(RESET);
     setCallInfo(RESET);
     setHistoryId(RESET);
@@ -125,7 +143,7 @@ export const TurnOffButton = () => {
         variant="secondary"
         onClick={() => {
           setCallInfo((prev) => ({ ...prev, isUnregistered: false }));
-          reconnectSip();
+          reconnectSip({ register: true });
         }}
       >
         <IconRefresh /> {t('reconnect')}

@@ -17,13 +17,16 @@ export const CallSelectConfig = ({
     keyPrefix: 'modules.integrations',
   });
   const [open, setOpen] = useAtom(callSelectConfigDialogAtom);
-  const [selectedIntegrationId, setSelectedIntegrationId] = useState(
-    callUserIntegrations[0]?._id ?? undefined,
-  );
+  const [selectedIntegrationId, setSelectedIntegrationId] = useState<string>();
   const setCallConfig = useSetAtom(callConfigAtom);
-  const selectedIntegration = callUserIntegrations.find(
-    (integration) => integration._id === selectedIntegrationId,
+  const integrations = callUserIntegrations.filter(
+    (integration) => !!integration._id,
   );
+  // Falls back to the first one when the list changes under the selection.
+  const selectedIntegration =
+    integrations.find(
+      (integration) => integration._id === selectedIntegrationId,
+    ) ?? integrations[0];
 
   const handleSubmit = (isAvailable: boolean) => {
     if (!selectedIntegration) {
@@ -42,7 +45,7 @@ export const CallSelectConfig = ({
           <div className="space-y-2">
             <Label>{t('call-config')}</Label>
             <Select
-              value={selectedIntegrationId}
+              value={selectedIntegration?._id ?? undefined}
               onValueChange={setSelectedIntegrationId}
             >
               <Select.Trigger>
@@ -51,8 +54,8 @@ export const CallSelectConfig = ({
               <Select.Content>
                 <Select.Group>
                   <Select.Label>{t('call-configs')}</Select.Label>
-                  {callUserIntegrations.map((config) => (
-                    <Select.Item key={config._id} value={config._id ?? ''}>
+                  {integrations.map((config) => (
+                    <Select.Item key={config._id} value={config._id || ''}>
                       {config.phone}
                     </Select.Item>
                   ))}
@@ -125,7 +128,7 @@ export const CallSelectConfig = ({
         </div>
         <Dialog.Footer className="gap-0 pt-4">
           <Button
-            onClick={() => setSelectedIntegrationId('')}
+            onClick={() => setOpen(false)}
             variant="secondary"
             size="lg"
             className="mr-auto"
@@ -136,10 +139,15 @@ export const CallSelectConfig = ({
             onClick={() => handleSubmit(false)}
             variant="secondary"
             size="lg"
+            disabled={!selectedIntegration}
           >
             {t('skip-connection')}
           </Button>
-          <Button onClick={() => handleSubmit(true)} size="lg">
+          <Button
+            onClick={() => handleSubmit(true)}
+            size="lg"
+            disabled={!selectedIntegration}
+          >
             {t('save')}
           </Button>
         </Dialog.Footer>

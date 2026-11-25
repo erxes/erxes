@@ -1,7 +1,4 @@
-import {
-  rtcSessionAtom,
-  sipStateAtom,
-} from '@/integrations/call/states/sipStates';
+import { sipStateAtom } from '@/integrations/call/states/sipStates';
 import { CallStatusEnum } from '@/integrations/call/types/sipTypes';
 import {
   IconDialpad,
@@ -12,18 +9,15 @@ import {
   IconPlayerPlay,
 } from '@tabler/icons-react';
 import { Button, ButtonProps, cn, Popover } from 'erxes-ui';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import React, { useEffect, useState } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import React, { useState } from 'react';
 import { useSip } from '@/integrations/call/components/SipProvider';
 import {
   Transfer,
   TransferTrigger,
 } from '@/integrations/call/components/CallTransfer';
 import { useNavigate } from 'react-router-dom';
-import {
-  callDurationAtom,
-  currentCallConversationIdAtom,
-} from '@/integrations/call/states/callStates';
+import { currentCallConversationIdAtom } from '@/integrations/call/states/callStates';
 import { useCallDuration } from '@/integrations/call/hooks/useCallDuration';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { ICallChannels, ICustomer } from '@/integrations/call/types/callTypes';
@@ -109,31 +103,14 @@ export const Mute = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const { mute, isMuted, unmute } = useSip();
-  const [isMutedState, setIsMutedState] = useState(isMuted());
-  const [checkIsMuted, setCheckIsMuted] = useState(false);
-  const handleClick = () => {
-    if (isMuted()) {
-      unmute();
-    } else {
-      mute();
-    }
-    setCheckIsMuted(true);
-  };
-
-  useEffect(() => {
-    if (checkIsMuted) {
-      setIsMutedState(isMuted());
-      setCheckIsMuted(false);
-    }
-  }, [checkIsMuted, isMuted]);
+  const { mute, muted, unmute } = useSip();
   return (
     <InCallActionButton
-      onClick={handleClick}
-      className={cn(isMutedState && 'text-destructive hover:text-destructive')}
+      onClick={muted ? unmute : mute}
+      className={cn(muted && 'text-destructive hover:text-destructive')}
     >
-      {isMutedState ? <IconMicrophoneOff /> : <IconMicrophone />}
-      {isMutedState ? t('unmute') : t('mute')}
+      {muted ? <IconMicrophoneOff /> : <IconMicrophone />}
+      {muted ? t('unmute') : t('mute')}
     </InCallActionButton>
   );
 };
@@ -215,27 +192,17 @@ export const Hold = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const { hold, unhold, isHeld } = useSip();
+  const { hold, unhold, held } = useSip();
   const sip = useAtomValue(sipStateAtom);
-  const [isHeldState, setIsHeldState] = useState(!!isHeld().localHold);
-
-  const handleClick = () => {
-    if (isHeld().localHold) {
-      unhold();
-    } else {
-      hold();
-    }
-    setTimeout(() => setIsHeldState(!!isHeld().localHold), 100);
-  };
 
   return (
     <InCallActionButton
-      onClick={handleClick}
+      onClick={held ? unhold : hold}
       disabled={sip.callStatus !== CallStatusEnum.ACTIVE}
-      className={cn(isHeldState && 'text-warning hover:text-warning')}
+      className={cn(held && 'text-warning hover:text-warning')}
     >
-      {isHeldState ? <IconPlayerPlay /> : <IconPlayerPause />}
-      {isHeldState ? t('unhold') : t('hold')}
+      {held ? <IconPlayerPlay /> : <IconPlayerPause />}
+      {held ? t('unhold') : t('hold')}
     </InCallActionButton>
   );
 };
@@ -257,17 +224,7 @@ const CallInfo = ({
     keyPrefix: 'modules.integrations',
   });
   const sip = useAtomValue(sipStateAtom);
-  const setStartDate = useSetAtom(callDurationAtom);
   const time = useCallDuration();
-  const [rtcSessionState] = useAtom(rtcSessionAtom);
-
-  useEffect(() => {
-    if (sip.callStatus === CallStatusEnum.ACTIVE) {
-      setStartDate(rtcSessionState?.start_time || new Date());
-    } else {
-      setStartDate(null);
-    }
-  }, [setStartDate, sip.callStatus]);
 
   return (
     <>

@@ -34,8 +34,8 @@ export const useExtentionList = (
 };
 
 export const useTransferCall = () => {
-  const [transferCall] = useMutation(CALL_TRANSFER, {
+  const [transferCall, { loading }] = useMutation(CALL_TRANSFER, {
     refetchQueries: [CALL_EXTENSION_LIST],
   });
-  return { transferCall };
+  return { transferCall, loading };
 };

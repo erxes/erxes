@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { ApolloClient, useQuery } from '@apollo/client';
 import { isDefined } from 'erxes-ui';
 import { CALL_HISTORIES } from '../graphql/queries/callHistories';
 import { useAtomValue } from 'jotai';
@@ -6,6 +6,10 @@ import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import type { CallHistoriesQuery } from '~/gql/graphql';
 
 export const CALL_HISTORIES_PER_PAGE = 20;
+
+/** Refreshes every mounted call history list, e.g. once a call ends. */
+export const refetchCallHistories = (client: ApolloClient<object>) =>
+  client.refetchQueries({ include: [CALL_HISTORIES] });
 
 export type ICallHistoryItem = NonNullable<
   NonNullable<CallHistoriesQuery['callHistories']>[number]
@@ -31,6 +35,7 @@ export const useCallHistories = ({
       ...(searchValue ? { searchValue } : {}),
     },
     skip: !config?.inboxId,
+    fetchPolicy: 'cache-and-network',
   });
 
   const callHistories = data?.callHistories?.filter(isDefined);

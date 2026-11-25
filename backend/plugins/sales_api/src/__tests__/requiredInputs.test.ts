@@ -4,6 +4,7 @@ import {
   graphql,
   GraphQLFieldResolver,
 } from 'graphql';
+import { model, Schema } from 'mongoose';
 import { selectFields } from './helpers/graphql';
 import type { IContext } from '../connectionResolvers';
 import posMutations from '../modules/pos/graphql/resolvers/mutations/pos';
@@ -55,15 +56,20 @@ jest.mock(
   '../modules/sales/graphql/resolvers/mutations/loyaltyUtils',
   () => ({}),
 );
-jest.mock('../modules/sales/utils/productCurrency', () => ({
-  normalizeProductCurrencies: async (
-    _subdomain: string,
-    rows: IProductData[],
-  ) => rows,
-}));
 jest.mock('../modules/sales/utils/discountInfos', () => ({
   normalizeProductDiscountInfos: (rows: IProductData[]) => rows,
 }));
+
+const DealWithProductRows = model(
+  'SalesRequiredInputDeal',
+  new Schema({
+    _id: String,
+    stageId: String,
+    productsData: [
+      new Schema({ _id: String, productId: String, currency: String }),
+    ],
+  }),
+);
 
 // Use the actual argument SDL and resolvers. Output stubs keep these input
 // boundary tests independent of federation and unrelated entity resolvers.
@@ -556,7 +562,10 @@ describe('supported requests keep their behavior', () => {
         { _id: 'deal' },
         expect.objectContaining({
           $set: expect.objectContaining({
-            productsData: [{ _id: 'row' }, { ...doc, tickUsed: true }],
+            productsData: [
+              { _id: 'row', currency: 'MNT' },
+              { ...doc, currency: 'MNT', tickUsed: true },
+            ],
           }),
         }),
         { new: true },
@@ -565,23 +574,38 @@ describe('supported requests keep their behavior', () => {
   );
 
   it.each(['dealsEditProductData', 'cpDealsEditProductData'])(
-    '%s still replaces the selected product row',
+    '%s keeps the edited row in place when defaulting a legacy currency',
     async (operation) => {
+      const first = { _id: 'first', productId: 'other' };
+      const last = { _id: 'last', productId: 'other', currency: 'USD' };
+      context.models.Deals.getDeal.mockResolvedValueOnce(
+        new DealWithProductRows({
+          _id: 'deal',
+          stageId: 'stage',
+          productsData: [first, { _id: 'row', productId: 'product' }, last],
+        }),
+      );
       const doc = {
-        _id: 'row',
         productId: 'product',
         quantity: 2,
         unitPrice: 100,
+        currency: 'USD',
       };
       const result = await run(
         `mutation salesRequiredInputEditProduct ($doc: JSON) { ${operation}(dealId: "deal", dataId: "row", doc: $doc) }`,
         { doc },
       );
       expect(result.errors).toBeUndefined();
+      const productsData = [
+        { ...first, currency: 'MNT' },
+        { ...doc, _id: 'row' },
+        last,
+      ];
+      expect(result.data?.[operation]).toEqual({ dataId: 'row', productsData });
       expect(context.models.Deals.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: 'deal' },
         expect.objectContaining({
-          $set: expect.objectContaining({ productsData: [doc] }),
+          $set: expect.objectContaining({ productsData }),
         }),
         { new: true },
       );

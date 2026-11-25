@@ -4,15 +4,22 @@ import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContaine
 import { InternalNotes } from '@/integrations/call/components/InternalNotes';
 
 export const CallConversationNotes = () => {
-  const { callConversationNotes, handleFetchMore, loading } =
-    useCallConversationNotes();
+  const {
+    callConversationNotes,
+    conversationId,
+    handleFetchMore,
+    hasMore,
+    loading,
+  } = useCallConversationNotes();
+  const notesCount = callConversationNotes?.length || 0;
 
   return (
     <InboxMessagesContainer
       fetchMore={handleFetchMore}
-      messagesLength={callConversationNotes?.length || 0}
-      totalCount={callConversationNotes?.length || 0}
+      messagesLength={notesCount}
+      totalCount={hasMore ? notesCount + 1 : notesCount}
       loading={loading}
+      conversationId={conversationId ?? undefined}
     >
       {callConversationNotes?.map((message) => (
         <callConversationNoteContext.Provider

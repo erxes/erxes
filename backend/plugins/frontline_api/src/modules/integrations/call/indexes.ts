@@ -1,7 +1,10 @@
+import { Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { debugError } from '@/integrations/call/debuggers';
 
 const QUEUE_INDEX = 'wsServer_1_queues_1';
+
+const QUEUE_STATISTICS_INDEX = 'integrationId_1_queue_1';
 
 const LEGACY_PHONE_INDEX = 'phone_1';
 
@@ -58,6 +61,46 @@ const reconcileCallIntegrationIndexes = async (models: IModels) => {
       partialFilterExpression: { queues: { $gt: '' } },
       name: QUEUE_INDEX,
     },
+  );
+
+  await reconcileQueueStatistics(models);
+};
+
+/*
+ * `queue` used to be a Number, so a queue can have a numeric and a string
+ * row. Keep the newest row per integration and queue, store every queue as a
+ * string, then enforce one row each.
+ */
+const reconcileQueueStatistics = async (models: IModels) => {
+  const collection = models.CallQueueStatistics.collection;
+
+  const duplicates = await collection
+    .aggregate<{ ids: Types.ObjectId[] }>([
+      { $sort: { _id: -1 } },
+      {
+        $group: {
+          _id: {
+            integrationId: '$integrationId',
+            queue: { $toString: '$queue' },
+          },
+          ids: { $push: '$_id' },
+        },
+      },
+      { $match: { 'ids.1': { $exists: true } } },
+    ])
+    .toArray();
+
+  for (const { ids } of duplicates) {
+    await collection.deleteMany({ _id: { $in: ids.slice(1) } });
+  }
+
+  await collection.updateMany({ queue: { $type: 'number' } }, [
+    { $set: { queue: { $toString: '$queue' } } },
+  ]);
+
+  await collection.createIndex(
+    { integrationId: 1, queue: 1 },
+    { unique: true, name: QUEUE_STATISTICS_INDEX },
   );
 };
 

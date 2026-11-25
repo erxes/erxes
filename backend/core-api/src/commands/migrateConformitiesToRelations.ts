@@ -22,6 +22,7 @@ const confTypeRelType: Record<string, string> = {
   product: 'core:product',
   deal: 'sales:deal',
   ticket: 'frontline:ticket',
+  car: 'car:car'
 };
 
 const BATCH_SIZE = 5000;

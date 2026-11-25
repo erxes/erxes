@@ -27,6 +27,8 @@ import {
   PropertiesFilter,
   SegmentsFilter,
   SelectBranches,
+  SelectCompany,
+  SelectCustomer,
   SelectDepartments,
 } from 'ui-modules';
 
@@ -46,6 +48,8 @@ const TicketsFilterPopover = () => {
     statusChangedStartDate: string;
     branchIds: string[];
     departmentIds: string[];
+    companyId: string;
+    customerId: string;
     propertiesData: string;
   }>([
     'searchValue',
@@ -61,6 +65,8 @@ const TicketsFilterPopover = () => {
     'statusChangedStartDate',
     'branchIds',
     'departmentIds',
+    'companyId',
+    'customerId',
     'propertiesData',
   ]);
   const hasFilters = Object.values(queries || {}).some(
@@ -80,6 +86,8 @@ const TicketsFilterPopover = () => {
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
+    companyId,
+    customerId,
     propertiesData,
   } = queries || {};
   const segments = JSON.stringify(queries?.segments);
@@ -102,6 +110,8 @@ const TicketsFilterPopover = () => {
     statusChangedStartDate,
     branchIds,
     departmentIds,
+    companyId,
+    customerId,
     propertiesData,
     setFetchedTickets,
   ]);
@@ -150,6 +160,14 @@ const TicketsFilterPopover = () => {
                   value="departmentIds"
                   label={t('department-label', 'Department')}
                 />
+                <SelectCompany.FilterItem
+                  value="companyId"
+                  label={t('company-label', { keyPrefix: '' })}
+                />
+                <SelectCustomer.FilterItem
+                  value="customerId"
+                  label={t('customer-label', { keyPrefix: '' })}
+                />
                 <PropertiesFilter />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdStartDate">
@@ -179,6 +197,8 @@ const TicketsFilterPopover = () => {
             mode="multiple"
             filterKey="departmentIds"
           />
+          <SelectCompany.FilterView mode="single" filterKey="companyId" />
+          <SelectCustomer.FilterView mode="single" filterKey="customerId" />
           <PropertiesFilter.View contentType="frontline:ticket" />
           <SegmentsFilter.View contentType="frontline:tickets.tickets" />
           <Filter.View filterKey="createdStartDate">
@@ -364,6 +384,17 @@ export const TicketsFilter = () => {
           mode="multiple"
           filterKey="departmentIds"
           label={t('department-label', 'Department')}
+        />
+        <SelectCompany.FilterBar
+          mode="single"
+          filterKey="companyId"
+          label={t('company-label', { keyPrefix: '' })}
+          cursorKey={TICKETS_CURSOR_SESSION_KEY}
+        />
+        <SelectCustomer.FilterBar
+          mode="single"
+          filterKey="customerId"
+          label={t('customer-label', { keyPrefix: '' })}
         />
         <PropertiesFilter.Bar contentType="frontline:ticket" />
       </Filter.Bar>

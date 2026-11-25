@@ -15,6 +15,8 @@ const NOT_SAFE_PATTERN = `:not(Literal):not(CallExpression[callee.name='escapeRe
 
 module.exports = [
   ...baseConfig,
+  // Built messenger widget, committed for the plugin to serve.
+  { ignores: ['src/public/**'] },
   {
     files: ['**/*.ts'],
     rules: {

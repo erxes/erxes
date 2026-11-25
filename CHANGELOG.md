@@ -1,5 +1,49 @@
 
 
+## [3.4.29](https://github.com/erxes/erxes/compare/3.4.28...3.4.29) (2026-11-24)
+
+
+### Bug Fixes
+
+* conformities relations fields data losed ([4225115](https://github.com/erxes/erxes/commit/42251150071bebec6f4165bb4a87d34683968ebb))
+
+## [3.4.28](https://github.com/erxes/erxes/compare/3.4.27...3.4.28) (2026-11-24)
+
+
+### Bug Fixes
+
+* **frontline:** keep calls alive across REGISTER refreshes and second rings ([#10982](https://github.com/erxes/erxes/issues/10982)) ([b572ab9](https://github.com/erxes/erxes/commit/b572ab9eac0cb91d13bb23e903458ea30802e3d5))
+* **frontline:** stabilize call webhooks, recordings, locks and TURN ([#10983](https://github.com/erxes/erxes/issues/10983)) ([d19ec7f](https://github.com/erxes/erxes/commit/d19ec7f92fbde3f69fba12e7f3708fc2728abaec))
+* products data cancel reorder ([bcd80d6](https://github.com/erxes/erxes/commit/bcd80d692edf4af655a00ef086a62d516152d797))
+
+
+### Features
+
+* **frontline:** filter tickets by company and customer ([9b520e5](https://github.com/erxes/erxes/commit/9b520e5a3819b0940381f8c30aed290d8f3051e2))
+
+## [3.4.27](https://github.com/erxes/erxes/compare/3.4.26...3.4.27) (2026-11-23)
+
+
+### Bug Fixes
+
+* **frontline:** fill customer profiles when a form field is converted  ([2925e9c](https://github.com/erxes/erxes/commit/2925e9c1c1d05bc30ffd066d4f0eabd078d26948))
+
+## [3.4.26](https://github.com/erxes/erxes/compare/3.4.25...3.4.26) (2026-11-23)
+
+
+### Bug Fixes
+
+* **accounting:** adjust closing transaction ([e655d67](https://github.com/erxes/erxes/commit/e655d67c3c2d2578b5bd4f51f539d53dabe443ac))
+* **accounting:** live transaction lists across users without refetch ([#10822](https://github.com/erxes/erxes/issues/10822)) ([ef5630e](https://github.com/erxes/erxes/commit/ef5630ed1412c63577e907170f6987a206375dae))
+* **accounting:** transaction status upgrade and with migration([#10877](https://github.com/erxes/erxes/issues/10877)) ([b7afb88](https://github.com/erxes/erxes/commit/b7afb882a9f46adb57bac6067c1df17ea58371a2))
+
+
+### Features
+
+* **accounting:** pick tunable report formula sources by report, section, row and column ([#10871](https://github.com/erxes/erxes/issues/10871)) ([31247b8](https://github.com/erxes/erxes/commit/31247b8f01f67d642a2cbcbfa9eb391f7762ba08))
+* **accounting:** tunable report layout preview, Excel export and organization placeholders ([#10851](https://github.com/erxes/erxes/issues/10851)) ([dfec090](https://github.com/erxes/erxes/commit/dfec09073d3a14111e5e4d582832875f01758427))
+* **payment:** Toki mini-program flow in one payment method ([#10830](https://github.com/erxes/erxes/issues/10830)) ([6630862](https://github.com/erxes/erxes/commit/663086261a06c9f5df1d667baf3fea71db7de4ec))
+
 ## [3.4.25](https://github.com/erxes/erxes/compare/3.4.24...3.4.25) (2026-11-19)
 
 
