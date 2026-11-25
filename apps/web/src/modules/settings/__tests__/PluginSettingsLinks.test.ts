@@ -85,7 +85,7 @@ describe('plugins in core’s settings', () => {
       [...container.querySelectorAll('[aria-label="Categories"] button')].map(
         (item) => item.textContent,
       ),
-    ).toEqual(['All', 'Social media', 'Messaging', 'Government']);
+    ).toEqual(['All4', 'Social media1', 'Messaging2', 'Government1']);
     expect(container.textContent).not.toContain('Archive');
   });
 
