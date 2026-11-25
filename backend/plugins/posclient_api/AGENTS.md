@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-25`
 
 ## Scope
 

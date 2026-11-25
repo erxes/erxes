@@ -37,7 +37,10 @@ export interface IDataExtensionsProof {
 const secret = () => {
   const value = process.env.JWT_TOKEN_SECRET;
 
-  if (value) {
+  if (
+    value?.trim() &&
+    !(process.env.NODE_ENV === 'production' && value === 'SECRET')
+  ) {
     return value;
   }
 

@@ -9,6 +9,7 @@ import {
 import type { IContext } from '~/connectionResolvers';
 
 jest.mock('erxes-api-shared/utils', () => ({
+  getJwtTokenSecret: () => process.env.JWT_TOKEN_SECRET || 'SECRET',
   isEnabled: jest.fn(),
   markResolvers: jest.fn(),
   sendTRPCMessage: jest.fn(),

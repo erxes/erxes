@@ -1,7 +1,10 @@
 import { createHmac } from 'crypto';
 import * as jwt from 'jsonwebtoken';
 
-jest.mock('erxes-api-shared/utils', () => ({ sendTRPCMessage: jest.fn() }));
+jest.mock('erxes-api-shared/utils', () => ({
+  getJwtTokenSecret: () => process.env.JWT_TOKEN_SECRET || 'SECRET',
+  sendTRPCMessage: jest.fn(),
+}));
 
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {

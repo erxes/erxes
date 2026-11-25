@@ -39,4 +39,12 @@ describe('getJwtTokenSecret', () => {
     set('NODE_ENV', 'production');
     expect(() => getJwtTokenSecret()).toThrow('JWT_TOKEN_SECRET must be set');
   });
+
+  it('treats a blank secret as unset', () => {
+    set('JWT_TOKEN_SECRET', '   ');
+    set('NODE_ENV', 'production');
+    expect(() => getJwtTokenSecret()).toThrow('JWT_TOKEN_SECRET must be set');
+    set('NODE_ENV', 'development');
+    expect(getJwtTokenSecret()).toBe('SECRET');
+  });
 });

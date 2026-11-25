@@ -1,6 +1,6 @@
 import { createHmac } from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getJwtTokenSecret, sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { IModels } from '~/connectionResolvers';
 
 export const WIDGET_SESSION_HEADER = 'erxes-widget-token';
@@ -23,17 +23,8 @@ type TRequestLike = {
 };
 
 // Derived from the staff secret so a widget token can never pass as a staff one.
-const widgetSecret = () => {
-  const base = process.env.JWT_TOKEN_SECRET;
-
-  if (!base && process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_TOKEN_SECRET must be set');
-  }
-
-  return createHmac('sha256', base || 'SECRET')
-    .update(AUDIENCE)
-    .digest('hex');
-};
+const widgetSecret = () =>
+  createHmac('sha256', getJwtTokenSecret()).update(AUDIENCE).digest('hex');
 
 export const signWidgetSession = ({
   integrationId,

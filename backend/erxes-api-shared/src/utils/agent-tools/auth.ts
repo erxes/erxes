@@ -26,7 +26,11 @@ export interface AgentToolsAuthPayload {
 const getAgentToolsSecret = (): string => {
   const secret = process.env.JWT_TOKEN_SECRET;
 
-  if (!secret || secret.trim() === '') {
+  if (
+    !secret ||
+    secret.trim() === '' ||
+    (process.env.NODE_ENV === 'production' && secret === 'SECRET')
+  ) {
     throw new Error(
       'JWT_TOKEN_SECRET is required to sign and verify the agent-tools ' +
         'auth header used for service-to-service authentication. Set ' +
