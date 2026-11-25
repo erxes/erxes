@@ -4251,6 +4251,18 @@
       }
     }
   },
+  "portalContact": {
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal/contact"
+        }
+      }
+    }
+  },
   "customerAccounts": {
     "list": {
       "~orpc": {

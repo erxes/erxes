@@ -176,6 +176,15 @@ export const SIGN_IN_DATA = {
   payload: z.object({ kind: text('Signed in with'), portalId: text('Portal') }),
 } as const;
 
+export const WROTE_IN_DATA = {
+  payload: z.object({
+    portalId: text('Portal'),
+    subject: text('Subject'),
+    message: text('Message'),
+    phone: maybeText('Phone'),
+  }),
+} as const;
+
 export const LEAD_DATA = {
   payload: z.object({
     event: z.enum(LEAD_EVENTS).meta({ title: 'Change' }),

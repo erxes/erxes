@@ -15,6 +15,10 @@ export type ApiAudience = 'member' | 'portal';
 
 const POLICIES = new Map<string, Policy>(Object.entries(ACCESS));
 
+/** Public procedures a portal calls with its own token: sign-in and the contact form. */
+const takesPortalToken = (procedure: string) =>
+  procedure.startsWith('customerAuth.') || procedure.startsWith('portalContact.');
+
 const METHODS = ['get', 'put', 'post', 'delete', 'patch'] as const;
 
 /** Whose reference lists a procedure; `plugins.token` is a plugin's own sign-in. */
@@ -22,7 +26,7 @@ const audienceOf = (procedure: string, policy: Policy): ApiAudience | undefined 
   if ('customer' in policy) return 'portal';
 
   if ('public' in policy) {
-    if (procedure.startsWith('customerAuth.') || procedure.startsWith('portalAuth.')) {
+    if (takesPortalToken(procedure) || procedure.startsWith('portalAuth.')) {
       return 'portal';
     }
 
@@ -90,9 +94,9 @@ const operationsFor = (item: OpenAPI.PathItemObject | undefined, audience: ApiAu
       kept[method] = {
         ...operation,
         tags: [sectionOf(procedure)],
-        // Signing in takes the portal's token only; the trade itself takes neither.
+        // Signing in and the contact form take the portal's token only; the trade itself takes neither.
         ...('public' in policy
-          ? { security: procedure.startsWith('customerAuth.') ? [{ portalToken: [] }] : [] }
+          ? { security: takesPortalToken(procedure) ? [{ portalToken: [] }] : [] }
           : {}),
       };
     }

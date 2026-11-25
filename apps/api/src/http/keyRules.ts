@@ -87,6 +87,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   // Portals hold sign-in settings and portal keys: members set them up in erxes only.
   portals: null,
   portalAuth: null,
+  portalContact: null,
 };
 
 const GROUPS = new Map<string, GroupRule>(Object.entries(GROUP_RULES));

@@ -1,5 +1,7 @@
 import { db } from '@erxes/core-db';
 import { audited, httpOf, recordOf, scoped, unscoped } from '~/orpc';
+import { portalOfCall } from '~/modules/customerAuth/portalCalls';
+import { sendContactMessage } from './portalContact';
 import { createPortalKey, listPortalKeys, portalToken, removePortalKey } from './portalKeys';
 import {
   attachPortal,
@@ -79,6 +81,17 @@ export const portalAuthRouter = {
   token: unscoped.portalAuth.token.handler(({ input, context }) =>
     portalToken(input.key, httpOf(context).req.get('origin')),
   ),
+};
+
+export const portalContactRouter = {
+  send: unscoped.portalContact.send.handler(async ({ input, context }) => {
+    const { req } = httpOf(context);
+
+    return sendContactMessage(
+      input,
+      await portalOfCall(req.get('x-portal-token'), req.get('origin')),
+    );
+  }),
 };
 
 export const customerAccountsRouter = {

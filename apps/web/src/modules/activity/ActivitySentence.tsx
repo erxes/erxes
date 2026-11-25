@@ -18,6 +18,7 @@ import {
   readLead,
   readMerged,
   readTagged,
+  readWroteIn,
   verbOf,
 } from './activityData';
 
@@ -280,6 +281,23 @@ const EmailedSentence = ({ activity }: { activity: Activity }) => {
   );
 };
 
+/** A message the customer sent from a portal's contact form: the portal, subject and phone (the words show below). */
+const WroteInSentence = ({ activity }: { activity: Activity }) => {
+  const message = readWroteIn(activity);
+
+  if (!message) return <SentenceLine name="other" values={{ actor: '', type: activity.type }} />;
+
+  return (
+    <>
+      <SentenceLine
+        name="wrote-in"
+        values={{ portal: message.portalName, subject: message.subject }}
+      />
+      {message.phone && <span className="text-muted-foreground"> · {message.phone}</span>}
+    </>
+  );
+};
+
 /** A plugin entry's own summary, in the member's language when the plugin translates it. */
 const PluginSummary = ({ activity }: { activity: Activity }) => {
   const sentence = usePluginSentence();
@@ -318,6 +336,8 @@ export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
       return <LeadSentence activity={activity} actor={actor} />;
     case 'emailed':
       return <EmailedSentence activity={activity} />;
+    case 'wrote_in':
+      return <WroteInSentence activity={activity} />;
     default:
       return <SentenceLine name="other" values={{ actor, type: activity.type }} />;
   }

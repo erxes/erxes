@@ -101,6 +101,15 @@ export const createRateLimits = () => ({
     max: 10,
     key: (req) => (req.method === 'POST' ? `customer-code:${ip(req)}` : null),
   }),
+  /**
+   * Portal contact form messages: 10 a minute per address (each email address on a portal is
+   * limited to 5 an hour too, `portalContact`).
+   */
+  portalContact: rateLimit({
+    windowSeconds: 60,
+    max: 10,
+    key: (req) => (req.method === 'POST' ? `portal-contact:${ip(req)}` : null),
+  }),
   ...appLimits(),
   /** Plugin token requests: 120 a minute per address. */
   token: rateLimit({

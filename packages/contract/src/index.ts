@@ -41,6 +41,7 @@ import { unitTypesContract, unitsContract } from './units';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
 import { portalAuthContract } from './portalKeys';
+import { portalContactContract } from './portalContact';
 import { customerAccountsContract, portalsContract } from './portals';
 import { saasContract } from './saas';
 import { supportAccessContract } from './supportAccess';
@@ -101,6 +102,7 @@ export type CoreContract = {
   webhooks: typeof webhooksContract;
   portals: typeof portalsContract;
   portalAuth: typeof portalAuthContract;
+  portalContact: typeof portalContactContract;
   customerAccounts: typeof customerAccountsContract;
 };
 
@@ -157,6 +159,7 @@ export const coreContract: CoreContract = {
   webhooks: webhooksContract,
   portals: portalsContract,
   portalAuth: portalAuthContract,
+  portalContact: portalContactContract,
   customerAccounts: customerAccountsContract,
 };
 
@@ -323,6 +326,8 @@ export * from './views';
 export * from './webhooks';
 
 export * from './portalKeys';
+
+export * from './portalContact';
 
 export * from './portalMessages';
 

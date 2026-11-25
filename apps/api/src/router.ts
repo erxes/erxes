@@ -48,6 +48,7 @@ import { customerNotificationsRouter } from '~/modules/customerNotifications/cus
 import {
   customerAccountsRouter,
   portalAuthRouter,
+  portalContactRouter,
   portalsRouter,
 } from '~/modules/portals/portals.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
@@ -103,6 +104,7 @@ export const coreRouter = unscoped.router({
   customerNotifications: customerNotificationsRouter,
   portals: portalsRouter,
   portalAuth: portalAuthRouter,
+  portalContact: portalContactRouter,
   customerAccounts: customerAccountsRouter,
   companies: companiesRouter,
   search: searchRouter,
