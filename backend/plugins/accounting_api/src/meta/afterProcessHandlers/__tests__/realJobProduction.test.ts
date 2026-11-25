@@ -143,7 +143,7 @@ describe('real job shortage production', () => {
   it.each(['invOut', 'invSale'])(
     'does not auto-produce for a manual %s even with a linked sales content type',
     async (journal) => {
-      const { models } = setup();
+      const { models, raw } = setup();
       const doc: ITransaction = {
         ...source(),
         journal,
@@ -155,6 +155,14 @@ describe('real job shortage production', () => {
           allowRealJobProduction: true,
         },
       };
+      raw.Accounts.find.mockReturnValueOnce({
+        lean: async () => [
+          {
+            _id: 'inventory',
+            journal: journal === 'invSale' ? 'invFollow' : 'inventory',
+          },
+        ],
+      });
       const result = await commonSave('tenant', models, 'user', doc);
       expect(result.otherTrs).toHaveLength(journal === 'invSale' ? 2 : 0);
       expect(models.Jobs.findOne).not.toHaveBeenCalled();
@@ -175,7 +183,7 @@ describe('real job shortage production', () => {
   );
 
   it('preserves location-aware sale cost pricing without changing revenue or running jobs', async () => {
-    const { models } = setup();
+    const { models, raw } = setup();
     const doc: ITransaction = {
       ...source([2, 3]),
       journal: 'invSale',
@@ -186,6 +194,9 @@ describe('real job shortage production', () => {
     };
     doc.details[1].branchId = 'other-branch';
     doc.details[1].departmentId = 'other-department';
+    raw.Accounts.find.mockReturnValueOnce({
+      lean: async () => [{ _id: 'inventory', journal: 'invFollow' }],
+    });
     jest
       .mocked(activeCost)
       .mockImplementation(async (_models, _account, branch) => ({

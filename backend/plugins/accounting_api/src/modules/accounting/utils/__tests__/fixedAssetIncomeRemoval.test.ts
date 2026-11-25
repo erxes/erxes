@@ -40,7 +40,11 @@ type RemovalRecord = Pick<
   '_id' | 'journal' | 'details' | 'originId'
 >;
 
-const setup = (records: RemovalRecord[] = [], ownsMaster = false) => {
+const setup = (
+  records: RemovalRecord[] = [],
+  ownsMaster = false,
+  accountJournal = 'fixedAsset',
+) => {
   const calls = {
     deleteMasters: jest.fn(),
     deleteOwners: jest.fn(),
@@ -64,6 +68,9 @@ const setup = (records: RemovalRecord[] = [], ownsMaster = false) => {
     ),
   };
   const models = {
+    Accounts: {
+      find: () => query([{ _id: 'account', journal: accountJournal }]),
+    },
     AdjustClosings: { findOne: () => query(null) },
     AdjustFixedAssets: { findOne: () => query(null) },
     AdjustInventories: { findOne: () => query(null) },
@@ -159,20 +166,20 @@ test('a blocked later income prevents any cleanup during group preflight', async
 });
 
 test.each([
-  JOURNALS.MAIN,
-  JOURNALS.INV_INCOME,
-  JOURNALS.INV_OUT,
-  JOURNALS.INV_MOVE,
-  JOURNALS.INV_SALE,
-  JOURNALS.INV_JUSTIFY,
-  JOURNALS.FXA_MOVE,
-  JOURNALS.FXA_OUT,
-  JOURNALS.FXA_SALE,
+  [JOURNALS.MAIN, 'main'],
+  [JOURNALS.INV_INCOME, 'inventory'],
+  [JOURNALS.INV_OUT, 'inventory'],
+  [JOURNALS.INV_MOVE, 'inventory'],
+  [JOURNALS.INV_SALE, 'invFollow'],
+  [JOURNALS.INV_JUSTIFY, 'inventory'],
+  [JOURNALS.FXA_MOVE, 'fixedAsset'],
+  [JOURNALS.FXA_OUT, 'fixedAsset'],
+  [JOURNALS.FXA_SALE, 'fxaFollow'],
 ])(
   'generic preflight never runs destructive cleanup for %s',
-  async (journal) => {
+  async (journal, accountJournal) => {
     const transaction = { ...income(), journal };
-    const { models, calls } = setup([income('related')]);
+    const { models, calls } = setup([income('related')], false, accountJournal);
     const stockSync = jest
       .spyOn(transactionUtils, 'removeSyncProductsInventory')
       .mockResolvedValue(undefined);

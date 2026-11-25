@@ -1,4 +1,5 @@
 import { validateTransactionDate } from './transactionDateValidation';
+import { validateTransactionAccounts } from './transactionAccountValidation';
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import CurrencyTr from './currencyTr';
@@ -45,6 +46,7 @@ export const commonSaveValidation = async (
   oldTr?: ITransactionDocument,
 ): Promise<void> => {
   await validateTransactionDate(models, doc, oldTr);
+  await validateTransactionAccounts(models, doc);
   const validators: Record<
     string,
     (
@@ -75,6 +77,7 @@ export const commonSave = async (
   }
 
   await validateTransactionDate(models, doc, oldTr);
+  await validateTransactionAccounts(models, doc);
   const normalizedDoc = normalizeInvSplitTransaction(doc);
   const handler = getJournalHandler(normalizedDoc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
