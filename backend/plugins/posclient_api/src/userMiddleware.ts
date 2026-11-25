@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
+import { getJwtTokenSecret } from 'erxes-api-shared/utils';
 
 export default async function posUserMiddleware(
   req: Request & { posUser?: any },
@@ -16,10 +17,7 @@ export default async function posUserMiddleware(
   if (token) {
     try {
       // verify user token and retrieve stored user information
-      const { user }: any = jwt.verify(
-        token,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const { user }: any = jwt.verify(token, getJwtTokenSecret());
 
       // save user in request
       req.posUser = user;

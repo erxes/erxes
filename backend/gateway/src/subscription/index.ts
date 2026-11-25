@@ -22,7 +22,7 @@ import { gql } from '@apollo/client/core';
 import { getSubdomain } from '../util/subdomain';
 import * as jwt from 'jsonwebtoken';
 import { createHmac } from 'crypto';
-import { redis } from 'erxes-api-shared/utils';
+import { redis, getJwtTokenSecret } from 'erxes-api-shared/utils';
 import { generateModels } from '../connectionResolver';
 import {
   SECURE_SESSION_COOKIE,
@@ -66,10 +66,7 @@ async function extractSubscriptionUser(request: any, subdomain: string) {
     const token = readCookie(rawCookie, 'auth-token');
 
     if (!userId && token) {
-      const decoded: any = jwt.verify(
-        token,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const decoded: any = jwt.verify(token, getJwtTokenSecret());
       const legacyUserId = decoded?.user?._id;
 
       if (
@@ -117,10 +114,7 @@ function extractWidgetSession(
   }
 
   try {
-    const secret = createHmac(
-      'sha256',
-      process.env.JWT_TOKEN_SECRET || 'SECRET',
-    )
+    const secret = createHmac('sha256', getJwtTokenSecret())
       .update(WIDGET_AUDIENCE)
       .digest('hex');
     const { integrationId, customerId, visitorId } = jwt.verify(token, secret, {

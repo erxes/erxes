@@ -6,6 +6,7 @@ import sha256 from 'sha256';
 import { IConfigDocument } from '@/posclient/@types/configs';
 import { IPosUserDocument, IPosUser } from '@/posclient/@types/posUsers';
 import { posUserSchema } from '@/posclient/db/definitions/posUsers';
+import { getJwtTokenSecret } from 'erxes-api-shared/utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -96,7 +97,7 @@ export const loadPosUserClass = (models) => {
     }
 
     public static getSecret() {
-      return process.env.JWT_TOKEN_SECRET || 'SECRET';
+      return getJwtTokenSecret();
     }
 
     /**

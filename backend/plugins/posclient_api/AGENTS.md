@@ -50,7 +50,9 @@
   a failed fiscal return never marks the order returned. Cancellation and
   return changes are recorded in POS-local audit logs.
 - Syncs and exposes `isShowRemainder` independently from stock validation.
-- Authenticates POS users against POS client context.
+- Authenticates POS users against POS client context. POS user tokens are
+  signed and verified with `getJwtTokenSecret()` from `erxes-api-shared/utils`,
+  which refuses the development fallback in production.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
 - Stores order and order-item change logs inside POS client data and exposes
   them only to POS admins. Order edits and order/item status changes capture

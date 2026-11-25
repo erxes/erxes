@@ -24,7 +24,11 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { escapeRegExp, redis } from 'erxes-api-shared/utils';
+import {
+  escapeRegExp,
+  getJwtTokenSecret,
+  redis,
+} from 'erxes-api-shared/utils';
 import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
@@ -368,7 +372,7 @@ export const loadUserClass = (
     }
 
     public static getSecret() {
-      return process.env.JWT_TOKEN_SECRET || 'SECRET';
+      return getJwtTokenSecret();
     }
 
     /**
