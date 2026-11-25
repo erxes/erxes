@@ -13,21 +13,23 @@ const TotalAmount = ({ receipt = false }: { receipt?: boolean }) => {
 
   if (receipt) {
     return (
-      <div className="col-span-2 flex items-center justify-between gap-4 rounded-lg border border-primary/15 bg-primary/5 px-3 py-2">
-        <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-primary">
-            Нийт дүн
+      <div className="col-span-2 flex flex-col gap-1.5 px-0.5">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Бараа</span>
+          <span className="tabular-nums">
+            {cart.length} нэр төрөл ·{" "}
+            {cart.reduce((sum, item) => sum + (item.count || 0), 0)} ширхэг
           </span>
-          <span className="truncate text-xl font-semibold leading-tight tracking-tight tabular-nums">
+        </div>
+        <div className="flex items-baseline justify-between gap-4">
+          <span className="text-[13px] font-medium">Нийт дүн</span>
+          <span className="truncate text-xl font-semibold leading-none tracking-tight tabular-nums">
             {formatNum(total)}
-            <span className="ml-1 text-xs font-normal text-muted-foreground">
+            <span className="ml-0.5 text-sm font-medium text-muted-foreground">
               ₮
             </span>
           </span>
         </div>
-        <span className="shrink-0 rounded-full bg-background px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground shadow-xs">
-          {cart.length} бараа
-        </span>
       </div>
     )
   }

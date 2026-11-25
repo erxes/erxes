@@ -7,7 +7,7 @@ import {
 import { customerPopoverAtom } from "@/store/ui.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue } from "jotai"
-import { Check, ChevronsUpDown, Plus, XIcon } from "lucide-react"
+import { Check, Plus, XIcon } from "lucide-react"
 
 import {
   Customer as CustomerT,
@@ -102,7 +102,7 @@ const Customer = () => {
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="h-8 w-full justify-between rounded border-0 px-2.5 text-[13px] font-normal shadow-xs"
+              className="h-8 w-full justify-start rounded border-0 px-2.5 text-[13px] font-normal shadow-xs"
             >
               {!!customer ? (
                 getCustomerLabel(customer)
@@ -112,7 +112,6 @@ const Customer = () => {
                   <Kbd className="ml-1 px-1 text-[10px]">F9</Kbd>
                 </span>
               )}
-              <ChevronsUpDown className="ml-2 size-3.5 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           {!!customer && (

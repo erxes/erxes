@@ -75,7 +75,7 @@ export function LoginForm({
   const inputClassName =
     "h-10 rounded-sm border-0 px-3 text-base shadow-xs placeholder:text-zinc-400 sm:h-7 sm:text-[13px] aria-invalid:shadow-focus-destructive"
   const actionClassName =
-    "h-8 px-2 text-[13px] font-medium text-foreground hover:bg-transparent hover:underline"
+    "h-8 px-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
 
   return (
     <div className="grid gap-5">

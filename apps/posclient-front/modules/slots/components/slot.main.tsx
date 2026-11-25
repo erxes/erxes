@@ -35,9 +35,9 @@ const Slot = (
         className={cn("size-1.5 shrink-0 rounded-full", dotClassName)}
         aria-hidden="true"
       />
-      <span className="min-w-0 flex-1 truncate">{name}</span>
+      <span className="min-w-0 shrink-0 truncate">{name}</span>
       {status !== "available" && (
-        <span className="hidden truncate text-xs font-normal text-muted-foreground group-hover/slot:hidden xl:block">
+        <span className="ml-auto hidden min-w-0 truncate text-xs font-normal text-muted-foreground group-hover/slot:hidden xl:block">
           {label}
         </span>
       )}

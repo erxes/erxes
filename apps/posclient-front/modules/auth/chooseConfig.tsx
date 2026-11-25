@@ -3,7 +3,7 @@ import { resetAtom } from "@/store"
 import { configAtom, configsAtom } from "@/store/config.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
-import { CheckIcon, ChevronsUpDown, Store } from "lucide-react"
+import { CheckIcon, Loader2, Store } from "lucide-react"
 
 import { cn, resetLocal } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,6 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Label } from "@/components/ui/label"
-import Loader from "@/components/ui/loader"
 import {
   Popover,
   PopoverContent,
@@ -33,21 +32,33 @@ export function ChooseConfig() {
   const configs = useAtomValue(configsAtom) ?? []
   const reset = useSetAtom(resetAtom)
 
+  const [pendingToken, setPendingToken] = useState<string | null>(null)
+
   const [chooseConfig, { loading }] = useMutation(mutations.chooseConfig, {
     refetchQueries: ["CurrentConfig"],
-    onCompleted: reset,
+    awaitRefetchQueries: true,
+    onCompleted() {
+      setPendingToken(null)
+      reset()
+    },
     onError({ message }) {
+      setPendingToken(null)
       onError(message)
     },
   })
 
+  const activeToken = pendingToken || config?.token
+  const activeConfig = configs.find(({ token }) => token === activeToken)
   const selectedName =
-    config?.name?.trim() || (config?.token ? "POS" : "Select point of sale")
+    activeConfig?.name?.trim() ||
+    config?.name?.trim() ||
+    (config?.token ? "POS" : "Select point of sale")
 
   const handleChange = (token: string) => {
     setOpen(false)
-    if (token === config?.token) return
+    if (token === activeToken) return
 
+    setPendingToken(token)
     resetLocal()
     void chooseConfig({ variables: { token } })
   }
@@ -73,19 +84,19 @@ export function ChooseConfig() {
                 variant="ghost"
                 className="h-7 w-full justify-start gap-2 rounded-md bg-background px-3 text-[13px] font-normal text-primary shadow-sm hover:bg-background"
                 aria-labelledby={`${id}-label ${id}-value`}
-                loading={loading}
+                disabled={loading}
               >
-                <Store aria-hidden="true" className="size-4" />
+                {loading ? (
+                  <Loader2 aria-hidden="true" className="size-4 animate-spin" />
+                ) : (
+                  <Store aria-hidden="true" className="size-4" />
+                )}
                 <span
                   id={`${id}-value`}
                   className="min-w-0 flex-1 truncate text-left"
                 >
                   {selectedName}
                 </span>
-                <ChevronsUpDown
-                  aria-hidden="true"
-                  className="size-4 text-muted-foreground"
-                />
               </Button>
             </PopoverTrigger>
           </div>
@@ -114,7 +125,7 @@ export function ChooseConfig() {
                         aria-hidden="true"
                         className={cn(
                           "size-4 shrink-0 text-primary",
-                          conf.token !== config?.token && "invisible"
+                          conf.token !== activeToken && "invisible"
                         )}
                       />
                       {conf.name}
@@ -126,7 +137,6 @@ export function ChooseConfig() {
           </PopoverContent>
         </Popover>
       )}
-      {loading && <Loader className="fixed inset-0 z-50 bg-black/10" />}
     </div>
   )
 }

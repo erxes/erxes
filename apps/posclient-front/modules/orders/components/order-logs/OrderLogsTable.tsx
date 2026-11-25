@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 
 import { getOrderAuditUserLabel, OrderAuditLog } from "../../graphql/orderAudit"
+import { OrderLogItemAction } from "./OrderLogItemAction"
 import {
   changeSummary,
   logDate,
@@ -34,6 +35,16 @@ const badgeClassName = "h-6 rounded-sm py-0"
 const createColumns = (
   onOpen: (id: string) => void
 ): ColumnDef<OrderAuditLog>[] => [
+  {
+    id: "more",
+    size: 33,
+    enableHiding: false,
+    enableResizing: false,
+    header: () => null,
+    cell: ({ row }) => (
+      <OrderLogItemAction log={row.original} onOpen={onOpen} />
+    ),
+  },
   {
     id: "target",
     size: 190,
@@ -155,7 +166,7 @@ export const OrderLogsTable = ({
   <RecordTable.Provider
     columns={createColumns(onOpen)}
     data={logs}
-    stickyColumns={["target"]}
+    stickyColumns={["more", "target"]}
     tableId="pos_order_logs"
     className="h-full"
   >

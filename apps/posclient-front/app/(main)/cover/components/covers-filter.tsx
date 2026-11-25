@@ -4,7 +4,7 @@ import { Filter, FilterSelectBar, FilterSelectView } from "@/modules/filter"
 import { CalendarIcon, CircleDotIcon } from "lucide-react"
 
 import { useMultiQueryState } from "@/lib/useQueryState"
-import { Command, CommandList, CommandSeparator } from "@/components/ui/command"
+import { Command, CommandList } from "@/components/ui/command"
 
 import {
   COVERS_FILTER_ID,
@@ -38,7 +38,6 @@ const CoversFilterPopover = () => {
                   <CircleDotIcon />
                   {LABELS.status}
                 </Filter.Item>
-                <CommandSeparator className="my-1" />
                 <Filter.Item
                   value="created"
                   label={LABELS.created}

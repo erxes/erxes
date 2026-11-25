@@ -31,10 +31,22 @@ const ChooseBulkSimilarity = dynamic(
   }
 )
 
+const initialsOf = (value?: string) =>
+  (value || "")
+    .split(/\s+/)
+    .map((word) => word.match(/^\p{L}/u)?.[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?"
+
 const remainderClass =
   "rounded border bg-muted px-1 text-[11px] font-medium tabular-nums text-muted-foreground"
 
-const ProductItem = (props: IProduct) => {
+const ProductItem = ({
+  inCart = 0,
+  ...props
+}: IProduct & { inCart?: number }) => {
   const {
     attachment,
     name,
@@ -76,22 +88,32 @@ const ProductItem = (props: IProduct) => {
       <Card
         className={cn(
           "group relative isolate flex min-w-0 flex-col overflow-hidden rounded-lg bg-background p-1 text-left shadow-sm transition-shadow hover:shadow-lg focus-within:shadow-focus",
-          isShowRemainder && isCheckRem && remainder === 0 && "opacity-60"
+          isShowRemainder && isCheckRem && remainder === 0 && "opacity-60",
+          inCart > 0 && "ring-1 ring-primary/40"
         )}
       >
         <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-muted">
-          <Image
-            src={attachment?.url || ""}
-            alt=""
-            width={320}
-            height={256}
-            className={cn(
-              "size-full",
-              attachment?.url
-                ? "object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                : "object-contain p-8 text-muted-foreground/40"
-            )}
-          />
+          {attachment?.url ? (
+            <Image
+              src={attachment.url}
+              alt=""
+              width={320}
+              height={256}
+              className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="flex size-full items-center justify-center bg-linear-to-br from-primary/10 to-primary/5 text-2xl font-semibold tracking-tight text-primary/70"
+            >
+              {initialsOf(name)}
+            </div>
+          )}
+          {inCart > 0 && (
+            <span className="absolute right-1.5 top-1.5 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold tabular-nums text-primary-foreground shadow-sm">
+              {inCart}
+            </span>
+          )}
         </div>
         <CardContent className="flex min-w-0 flex-col gap-1.5 px-2 pb-1 pt-2">
           <div

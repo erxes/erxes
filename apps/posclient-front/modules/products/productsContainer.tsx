@@ -18,7 +18,7 @@ const ProductsContainer = () => {
     <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
       {mode !== "restaurant" && <Slots />}
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="flex h-10 shrink-0 items-center justify-between gap-3 bg-background px-3">
+        <header className="flex h-10 shrink-0 items-center justify-between gap-3 border-b bg-background px-3">
           <nav
             aria-label="Breadcrumb"
             className="flex min-w-0 items-center gap-1 text-[13px]"
@@ -44,12 +44,12 @@ const ProductsContainer = () => {
           </nav>
           <Search />
         </header>
-        <div className="flex min-w-0 flex-none items-center gap-1 overflow-x-auto border-y bg-background px-3 py-1">
+        <div className="flex min-w-0 flex-none items-center gap-1 overflow-x-auto border-b bg-background px-3 py-1">
           <ProductCategories />
           <InitialCategories />
           <ToggleRemainder />
         </div>
-        <div className="relative flex min-h-0 flex-1 overflow-hidden bg-background px-3 pt-3">
+        <div className="relative flex min-h-0 flex-1 overflow-hidden bg-sidebar px-3 pt-3">
           <Products />
           <BarcodeResult />
         </div>

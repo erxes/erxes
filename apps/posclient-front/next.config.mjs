@@ -11,6 +11,7 @@ const ignoredWatchPaths = [
 
 const nextConfig = {
   reactStrictMode: false,
+  devIndicators: false,
   turbopack: {},
   compiler: {
     removeConsole: process.env.NODE_ENV !== "development",

@@ -3,6 +3,7 @@ import { modeAtom } from "@/store"
 import {
   activeOrderIdAtom,
   billTypeAtom,
+  orderNumberAtom,
   paidDateAtom,
   registerNumberAtom,
   unPaidAmountAtom,
@@ -13,13 +14,14 @@ import { useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
 import useTab from "@/lib/useTab"
-import { onError } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import useRenderEbarimt from "./useRenderBillTypes"
 
 const usePrintBill = (onCompleted?: () => void) => {
   const mode = useAtomValue(modeAtom)
   const _id = useAtomValue(activeOrderIdAtom)
+  const orderNumber = useAtomValue(orderNumberAtom)
   const billType = useAtomValue(billTypeAtom)
   const registerNumber = useAtomValue(registerNumberAtom)
   const paidDate = useAtomValue(paidDateAtom)
@@ -39,6 +41,13 @@ const usePrintBill = (onCompleted?: () => void) => {
           billType === BILL_TYPES.ENTITY ? registerNumber : undefined,
       },
       onCompleted() {
+        toast({
+          variant: "success",
+          title: "Төлбөр амжилттай төлөгдлөө",
+          description: orderNumber
+            ? `Захиалга #${orderNumber.split("_")[1] || orderNumber}`
+            : undefined,
+        })
         if (mode === "mobile") {
           return openNewWindow("/reciept/ebarimt?id=" + _id)
         }

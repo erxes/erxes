@@ -69,7 +69,7 @@ const SettingsHeader = () => {
 
 const Layout = ({ children }: { children?: React.ReactNode }) => (
   <Suspense fallback={null}>
-    <div className="flex h-screen w-screen flex-col bg-background md:flex-row">
+    <div className="flex h-screen w-full flex-col bg-background md:flex-row">
       <SettingsNavigation />
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         <SettingsHeader />

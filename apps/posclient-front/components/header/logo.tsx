@@ -6,6 +6,7 @@ import { configAtom } from "@/store/config.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import Image from "@/components/ui/image"
+import { useSidebarVisible } from "@/components/sidebar/appSidebar"
 
 const Logo = () => {
   const pathname = usePathname()
@@ -13,7 +14,10 @@ const Logo = () => {
   const reset = useSetAtom(resetAtom)
   const config = useAtomValue(configAtom)
 
+  const sidebarVisible = useSidebarVisible()
   const { logo } = config?.uiOptions || {}
+
+  if (sidebarVisible) return null
 
   return (
     <div className="mx-1 block flex-none">

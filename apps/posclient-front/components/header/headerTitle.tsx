@@ -12,14 +12,12 @@ const HeaderTitle = ({
 }) => {
   const content = (
     <>
-      <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-primary/10 text-primary">
-        <Icon className="h-4 w-4" />
-      </span>
+      <Icon className="size-4 flex-none" aria-hidden="true" />
       <span className="truncate">{children}</span>
     </>
   )
   const className =
-    "inline-flex min-w-0 items-center gap-2 rounded-lg py-1 pl-1 pr-2.5 text-sm font-semibold"
+    "inline-flex h-7 min-w-0 items-center gap-2 rounded-md px-2 text-[13px] font-medium leading-4"
 
   if (!href) {
     return <h1 className={className}>{content}</h1>

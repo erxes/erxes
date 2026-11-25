@@ -1,6 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
+import { cartAtom } from "@/store/cart.store"
+import { useAtomValue } from "jotai"
 import { PackageSearchIcon } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 
@@ -17,6 +19,14 @@ const Products = () => {
   })
 
   const { products, productsCount, loading, handleLoadMore } = useProducts()
+  const cart = useAtomValue(cartAtom)
+  const cartCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    cart.forEach(({ productId, count }) =>
+      counts.set(productId, (counts.get(productId) || 0) + (count || 0))
+    )
+    return counts
+  }, [cart])
 
   useEffect(() => {
     inView && handleLoadMore()
@@ -41,7 +51,11 @@ const Products = () => {
     <ScrollArea className="min-w-0 flex-1">
       <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,9rem),1fr))] gap-3 p-px pb-3 sm:grid-cols-[repeat(auto-fill,minmax(min(100%,10rem),1fr))]">
         {products.map((product) => (
-          <ProductItem key={product._id} {...product} />
+          <ProductItem
+            key={product._id}
+            {...product}
+            inCart={cartCounts.get(product._id) || 0}
+          />
         ))}
       </div>
       {productsCount > FETCH_MORE_PER_PAGE &&

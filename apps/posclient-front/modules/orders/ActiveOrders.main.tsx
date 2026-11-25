@@ -50,7 +50,7 @@ const ActiveOrders = () => {
   }, [])
 
   return (
-    <div className="h-12 min-w-0 flex-auto overflow-hidden">
+    <div className="h-10 min-w-0 flex-auto overflow-hidden">
       <HorizontalScrollMenu>
         {[
           ...fullOrders.map((order) => (
@@ -64,7 +64,7 @@ const ActiveOrders = () => {
                 size="sm"
                 loading={loading}
                 variant="outline"
-                className="mx-1 my-2.5 h-7 whitespace-nowrap rounded-md border-0 text-xs font-medium shadow-xs"
+                className="mx-1 my-1.5 h-7 whitespace-nowrap rounded-md border-0 text-xs font-medium shadow-xs"
                 onClick={handleLoadMore}
               >
                 Цааш үзэх {fullOrders.length} / {totalCount}

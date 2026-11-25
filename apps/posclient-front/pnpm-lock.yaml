@@ -17,6 +17,9 @@ importers:
       '@internationalized/date':
         specifier: ^3.8.2
         version: 3.12.4
+      '@tabler/icons-react':
+        specifier: ^3.34.0
+        version: 3.52.0(react@19.3.1)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1336,6 +1339,14 @@ packages:
   '@tabby_ai/hijri-converter@1.0.5':
     resolution: {integrity: sha512-r5bClKrcIusDoo049dSL8CawnHR6mRdDwhlQuIgZRNty68q0x8k3Lf1BtPAMxRf/GgnHBnIO4ujd3+GQdLWzxQ==}
     engines: {node: '>=16.0.0'}
+
+  '@tabler/icons-react@3.52.0':
+    resolution: {integrity: sha512-tN22mz4KLVpR+psqu9bAsT4b1IdhKcPGA1fDhyQerIv+8azyowdWzf8e0hWxQSsIxDTfkipGfiL0/uHNmpbvgw==}
+    peerDependencies:
+      react: '>= 16'
+
+  '@tabler/icons@3.52.0':
+    resolution: {integrity: sha512-dldKlJNfO/gZnGLcIY0X2EFFKIMGwL/rEvTqglvBgAPFiwj9pZOCN5V3Sf0Gyjq6foX4VQmLdOmsS4w5FdWKAw==}
 
   '@tailwindcss/node@4.3.5':
     resolution: {integrity: sha512-yT53FzV4ke0cr/BguDxhWMpm5MJu1O2muzk+tKw6lKHjODAsYArBbWwFbJiaksfzFv1tpkO9QHGzmfs1hJT66g==}
@@ -4491,6 +4502,13 @@ snapshots:
       tslib: 2.9.1
 
   '@tabby_ai/hijri-converter@1.0.5': {}
+
+  '@tabler/icons-react@3.52.0(react@19.3.1)':
+    dependencies:
+      '@tabler/icons': 3.52.0
+      react: 19.3.1
+
+  '@tabler/icons@3.52.0': {}
 
   '@tailwindcss/node@4.3.5':
     dependencies:

@@ -32,16 +32,6 @@ export const CoverPrintPanel = () => {
           </span>
         }
         title="Хаалтын баримт"
-        actions={
-          <Button
-            className="h-7 gap-1.5 rounded px-2.5 text-xs"
-            disabled={loadedId !== printId}
-            onClick={() => frameRef.current?.contentWindow?.print()}
-          >
-            <PrinterIcon className="size-3.5" />
-            Хэвлэх
-          </Button>
-        }
         onClose={() => setPrintId(null)}
       />
       <iframe
@@ -52,6 +42,26 @@ export const CoverPrintPanel = () => {
         onLoad={() => setLoadedId(printId)}
         className="min-h-0 w-full flex-1 border-0 bg-sidebar"
       />
+      <div className="flex h-14 flex-none items-center justify-end gap-2 border-t bg-background px-5">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-8 rounded px-3 text-[13px] font-medium"
+          onClick={() => setPrintId(null)}
+        >
+          Болих
+        </Button>
+        <Button
+          type="button"
+          className="h-8 gap-1.5 rounded px-3 text-[13px] font-medium"
+          disabled={loadedId !== printId}
+          loading={!!printId && loadedId !== printId}
+          onClick={() => frameRef.current?.contentWindow?.print()}
+        >
+          {loadedId === printId && <PrinterIcon className="size-4" />}
+          Хэвлэх
+        </Button>
+      </div>
     </RecordSidePanel>
   )
 }

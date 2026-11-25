@@ -9,12 +9,14 @@ import {
   activeOrderIdAtom,
   buttonTypeAtom,
   orderTypeAtom,
+  previewTotalAmountAtom,
 } from "@/store/order.store"
 import { showRecieptAtom } from "@/store/progress.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { CheckCircleIcon, PrinterIcon } from "lucide-react"
 
 import { ORDER_TYPES } from "@/lib/constants"
+import { formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import SplitButton from "@/components/ui/split-button"
@@ -29,6 +31,7 @@ const BuyAction = () => {
   const setActiveOrder = useSetAtom(activeOrderIdAtom)
   const setShowRecieptId = useSetAtom(showRecieptAtom)
   const type = useAtomValue(orderTypeAtom)
+  const total = useAtomValue(previewTotalAmountAtom)
   const setCheckoutDialogOpen = useSetAtom(checkoutDialogOpenAtom)
   const setPaymentType = useSetAtom(currentPaymentTypeAtom)
 
@@ -59,11 +62,12 @@ const BuyAction = () => {
   const disableOrder = disabled || ORDER_TYPES.OUT.includes(type)
 
   return (
-    <>
+    <div className="col-span-2 flex items-center gap-2">
+      <SettingsTrigger />
       <SplitButton
         size="sm"
         variant="outline"
-        className="h-8 divide-border rounded bg-background shadow-xs [&>button]:h-8 [&>button]:border-0 [&>button]:bg-transparent [&>button]:text-[13px] [&>button]:font-medium [&>button]:shadow-none [&>button:last-child]:w-8"
+        className="h-9 flex-none divide-border rounded-md border bg-background shadow-xs [&>button]:h-9 [&>button]:border-0 [&>button]:bg-transparent [&>button]:text-[13px] [&>button]:font-medium [&>button]:shadow-none [&>button:first-child]:px-3 [&>button:last-child]:w-8 [&>button:last-child]:text-muted-foreground"
         onClick={() => {
           setButtonType("order")
           setTimeout(orderCU)
@@ -95,27 +99,29 @@ const BuyAction = () => {
       >
         Захиалах
       </SplitButton>
-      <div className="flex col-span-2 gap-2 items-center">
-        <SettingsTrigger />
-        {ORDER_TYPES.SALES.includes(type) ? (
-          <Button
-            size="lg"
-            className="h-9 flex-auto rounded-md text-sm font-semibold"
-            loading={loading && buttonType === "pay"}
-            disabled={disabled}
-            onClick={() => {
-              setButtonType("pay")
-              setTimeout(orderCU)
-            }}
-          >
-            Төлбөр төлөх
-          </Button>
-        ) : (
+      {ORDER_TYPES.SALES.includes(type) ? (
+        <Button
+          size="lg"
+          className="h-9 min-w-0 flex-1 justify-between gap-3 rounded-md px-3 text-[13px] font-semibold"
+          loading={loading && buttonType === "pay"}
+          disabled={disabled}
+          onClick={() => {
+            setButtonType("pay")
+            setTimeout(orderCU)
+          }}
+        >
+          <span className="truncate">Төлбөр төлөх</span>
+          <span className="flex-none tabular-nums opacity-90">
+            {formatNum(total)}₮
+          </span>
+        </Button>
+      ) : (
+        <div className="flex min-w-0 flex-1 [&>button]:h-9">
           <OrderFinish />
-        )}
-      </div>
+        </div>
+      )}
       <PrintProgress />
-    </>
+    </div>
   )
 }
 

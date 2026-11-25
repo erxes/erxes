@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { configAtom, configsAtom, currentUserAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
-import { Loader2, ServerOffIcon } from "lucide-react"
+import { Loader2, RefreshCwIcon, ServerOffIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 import ConfigsFetch from "./configsFetch"
 import { LoginPage } from "./LoginPage"
@@ -51,14 +51,26 @@ const CheckAuth = ({ children }: any) => {
 
   if (!Array.isArray(configs))
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-1 bg-muted text-center">
-        <ServerOffIcon
-          className={cn("m-4 h-12 w-12 text-muted-foreground")}
-          strokeWidth={0.8}
-        />
-        <h5>Network Error</h5>
-        <br />
-        <p>Сервертэй холбогдоход алдаа гарлаа</p>
+      <div className="flex h-screen items-center justify-center bg-muted p-4">
+        <div className="flex w-full max-w-sm flex-col items-center rounded-2xl bg-background p-8 text-center shadow-xl">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <ServerOffIcon className="h-6 w-6" strokeWidth={1.5} />
+          </div>
+          <h3 className="mt-4 text-base font-semibold">
+            Сервертэй холбогдож чадсангүй
+          </h3>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Сервер ажиллаж байгаа эсэх, интернэт холболтоо шалгаад дахин
+            оролдоно уу
+          </p>
+          <Button
+            className="mt-6 h-10 w-full font-semibold"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCwIcon className="mr-2 h-4 w-4" />
+            Дахин оролдох
+          </Button>
+        </div>
       </div>
     )
 

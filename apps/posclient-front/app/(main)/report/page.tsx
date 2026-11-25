@@ -1,16 +1,10 @@
 "use client"
 
-import { reportEndDateAtom, reportStartDateAtom } from "@/store"
+import { Suspense } from "react"
 import { isAdminAtom, permissionConfigAtom } from "@/store/config.store"
 import { useLazyQuery } from "@apollo/client"
-import { format } from "date-fns"
 import { useAtomValue } from "jotai"
-import {
-  CalendarIcon,
-  FileBarChart2Icon,
-  ReceiptTextIcon,
-  ShieldXIcon,
-} from "lucide-react"
+import { FileBarChart2Icon, ReceiptTextIcon, ShieldXIcon } from "lucide-react"
 
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -60,9 +54,9 @@ const ReportPlaceholder = ({ loading }: { loading: boolean }) => {
       <div className="mb-4 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
         <FileBarChart2Icon className="size-5" aria-hidden="true" />
       </div>
-      <h3 className="text-sm font-medium">Тайлан гаргаагүй байна</h3>
+      <h3 className="text-sm font-medium">Тайлан ачаалагдсангүй</h3>
       <p className="mt-1 max-w-xs text-[13px] text-muted-foreground">
-        Зүүн талд ажилчид, хугацаагаа сонгоод «Тайлан шүүх» дарна уу.
+        Шүүлтүүрээ өөрчлөх эсвэл «Шинэчлэх» дарж дахин оролдоно уу.
       </p>
     </div>
   )
@@ -74,8 +68,6 @@ const Report = () => {
     ReportVariables
   >(queries.report)
   const { report } = data?.dailyReport || {}
-  const reportStartDate = useAtomValue(reportStartDateAtom)
-  const reportEndDate = useAtomValue(reportEndDateAtom)
   const isAdmin = useAtomValue(isAdminAtom)
   const permissionConfig = useAtomValue(permissionConfigAtom)
 
@@ -94,25 +86,10 @@ const Report = () => {
 
   return (
     <div className="flex min-h-0 w-full flex-auto flex-col overflow-hidden bg-background print:block print:w-[72mm] print:overflow-visible">
-      <div className="flex h-10 flex-none items-center gap-2 border-b px-4 md:pl-6 md:pr-4 print:hidden">
-        <FileBarChart2Icon className="h-4 w-4 text-muted-foreground" />
-        <span className="text-[13px] font-medium">Тайлан</span>
-        <span className="h-4 w-px bg-border" />
-        <span className="rounded-md bg-muted px-2 py-1 text-[13px] font-medium">
-          Өдрийн тайлан
-        </span>
-        {!!report && !!reportStartDate && !!reportEndDate && (
-          <span className="ml-auto hidden items-center gap-1.5 text-xs tabular-nums text-muted-foreground sm:inline-flex">
-            <CalendarIcon className="h-3.5 w-3.5" />
-            {format(reportStartDate, "yyyy.MM.dd HH:mm")} –{" "}
-            {format(reportEndDate, "yyyy.MM.dd HH:mm")}
-          </span>
-        )}
-      </div>
-      <div className="flex min-h-0 flex-auto flex-col md:flex-row print:block">
-        <aside className="flex-none overflow-y-auto border-b bg-sidebar md:w-72 md:border-b-0 md:border-r print:hidden">
-          <ReportForm getReport={getReport} loading={loading} />
-        </aside>
+      <Suspense fallback={<div className="h-10 flex-none border-b" />}>
+        <ReportForm getReport={getReport} loading={loading} />
+      </Suspense>
+      <div className="flex min-h-0 flex-auto flex-col print:block">
         <div className="flex min-h-0 min-w-0 flex-auto flex-col overflow-y-auto xl:flex-row xl:overflow-hidden print:block print:overflow-visible">
           <main className="min-w-0 flex-auto xl:overflow-y-auto print:hidden">
             {report ? (

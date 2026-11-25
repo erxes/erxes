@@ -58,7 +58,7 @@ const ChooseOrder = ({
 }
 
 const statusVariants = cva(
-  "relative mx-0.5 my-2.5 h-7 gap-1 overflow-visible whitespace-nowrap rounded-md px-2.5 text-[13px] font-medium tabular-nums ring-1 ring-inset",
+  "relative mx-0.5 my-1.5 h-7 gap-1 overflow-visible whitespace-nowrap rounded-md px-2.5 text-[13px] font-medium tabular-nums ring-1 ring-inset",
   {
     variants: {
       status: {
