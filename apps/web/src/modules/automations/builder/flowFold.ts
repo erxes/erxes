@@ -1,13 +1,6 @@
 import type { AutomationStep } from '@erxes/core-contract';
 import { armsOf } from './flowModel';
 
-/** How many steps a list holds, its arms' steps included. */
-export const countSteps = (steps: AutomationStep[]): number =>
-  steps.reduce(
-    (total, step) => total + 1 + armsOf(step).reduce((sum, arm) => sum + countSteps(arm.steps), 0),
-    0,
-  );
-
 const branchingIds = (steps: AutomationStep[]): string[] =>
   steps.flatMap((step) => {
     const arms = armsOf(step);

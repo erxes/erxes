@@ -4,7 +4,8 @@ import { cn } from 'erxes-ui';
 import { Fragment, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
-import { countSteps, foldedAtStart } from './flowFold';
+import { countSteps } from './flowChecks';
+import { foldedAtStart } from './flowFold';
 import { armsOf, findStep, type ListAddress, type StepType } from './flowModel';
 import { Connector, LINE, LINE_BORDER, Node } from './FlowNode';
 import { LOOK, useStepLook } from './stepLook';
@@ -110,7 +111,7 @@ const Arms = ({ step, flow }: { step: AutomationStep; flow: Flow }) => {
     return (
       <FoldedArms
         paths={arms.length}
-        steps={arms.reduce((sum, arm) => sum + countSteps(arm.steps), 0)}
+        steps={countSteps(arms.flatMap((arm) => arm.steps))}
         onOpen={() => flow.onFold(step.id, false)}
       />
     );
