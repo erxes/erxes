@@ -15,7 +15,7 @@ const gate = programGate();
 
 const INSTRUCTIONS = `erxes is the organisation's business workspace: contacts, products, automations, broadcasts and what each installed plugin adds. You act as the member who connected you, with their permissions.
 
-Find procedures with search, in plain words. Run one with read when it changes nothing, and with write when it does; a write asks the member first. Pass one input object with path, query and body fields together, as the procedure's input schema says. Lists take a limit and return a cursor page with totalCount: ask for what you need, with filters. Sign-in and credentials stay with people.`;
+Find procedures with search, in plain words. Run one with read when it changes nothing, and with write when it does; a write asks the member first. Pass one input object, as the procedure's input signature says. Lists take a limit and return a page with totalCount: to count records, ask for limit 1 and read totalCount. Ask for what you need, with filters. To page, join or count over many records, use execute and run its calls with Promise.all. Sign-in and credentials stay with people.`;
 
 const Search = z.object({
   query: z.string().trim().min(1).max(200).describe('Plain words, e.g. "customers by email"'),
@@ -53,7 +53,7 @@ export const mcpServer = (scope: ToolScope, codeMode: boolean) => {
     {
       title: 'Search the erxes API',
       description:
-        "Find the procedures you can call, core's and installed plugins'. Returns each with its method, summary, description (its rules and errors), whether it changes data, and its input JSON schema.",
+        "Find the procedures you can call, core's and installed plugins'. Returns each with its summary, description (its rules and errors), whether it changes data, and its input as a TypeScript-like signature.",
       inputSchema: Search,
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
@@ -69,7 +69,8 @@ export const mcpServer = (scope: ToolScope, codeMode: boolean) => {
       inputSchema: Call,
       annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
     },
-    async ({ procedure, input }) => answer(await callProcedure(scope, procedure, input, 'read')),
+    async ({ procedure, input }) =>
+      answer(await callProcedure(scope, procedure, input, { kind: 'read' })),
   );
 
   server.registerTool(
@@ -89,7 +90,7 @@ export const mcpServer = (scope: ToolScope, codeMode: boolean) => {
       'execute',
       {
         title: 'Run a program over erxes',
-        description: `Run a JavaScript program with two async functions, searchApi(query, limit) and callApi(procedure, input), to page through records, join and aggregate them, and return one JSON value; console.log lines come back too. callApi only reads here: make changes with write. ${PROGRAM_LIMITS}`,
+        description: `Run a JavaScript program with two async functions, searchApi(query, limit) and callApi(procedure, input), to page through records, join and aggregate them, and return one JSON value; console.log lines come back too. callApi answers { ok: true, result } with the whole result, or { ok: false, code, message }. Run independent calls together with Promise.all. callApi only reads here: make changes with write. ${PROGRAM_LIMITS}`,
         inputSchema: Execute,
         annotations: { readOnlyHint: true, openWorldHint: false },
       },

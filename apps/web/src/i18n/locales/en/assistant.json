@@ -193,7 +193,7 @@
     "code-mode-off": "Code mode is off",
     "code-mode-limits": "What a program can do",
     "code-mode-fact-api": "Only search and call the API, as the member who asked and within their role.",
-    "code-mode-fact-time": "It stops after 10 seconds or 50 API calls, and returns at most 20,000 characters.",
+    "code-mode-fact-time": "It stops after 10 seconds or 200 API calls, and returns at most 20,000 characters.",
     "code-mode-fact-sandbox": "It runs in an isolated JavaScript sandbox on this server, with 32 MB of memory and no network, files or timers."
   },
   "appearance": {

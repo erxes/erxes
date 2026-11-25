@@ -2,6 +2,7 @@ import { PRODUCT_STATUSES } from '@erxes/core-db/enums';
 import { productCategories, products } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
+import { FilterJson } from './views';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ProductId } from './records';
@@ -207,7 +208,7 @@ export const productsContract = {
         plugin: PluginName.optional(),
         all: QueryBoolean.default(false),
         /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
-        filter: z.string().max(20_000).optional(),
+        filter: FilterJson.optional(),
         /** With `departmentId`, the place `minRemainder` and `maxRemainder` read (either left out for none). */
         branchId: Id.optional(),
         departmentId: Id.optional(),

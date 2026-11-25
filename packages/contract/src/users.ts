@@ -2,6 +2,7 @@ import { USER_STATUSES } from '@erxes/core-db/enums';
 import { users } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
+import { FilterJson } from './views';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
@@ -203,7 +204,8 @@ export const usersContract = {
       method: 'GET',
       path: '/users',
       summary: 'List team members',
-      description: 'Team members of the organisation, newest first',
+      description:
+        'Team members of the organisation, newest first: active, invited and disabled ones, by status, role or name',
     })
     .input(
       CursorQuery.extend({
@@ -218,7 +220,7 @@ export const usersContract = {
         canSignIn: QueryBoolean.optional(),
         ids: IdList.optional(),
         /** The team members list's filter bar: JSON of a condition group on `subject.<field>` paths (role, status, dates…). */
-        filter: z.string().max(20_000).optional(),
+        filter: FilterJson.optional(),
       }),
     )
     .output(cursorPageOf(User)),

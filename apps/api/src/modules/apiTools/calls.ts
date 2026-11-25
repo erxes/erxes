@@ -1,5 +1,6 @@
 import { type Caller, enterScope } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
+import MiniSearch from 'minisearch';
 import { z } from 'zod';
 import { can, decideKeyCall, memberMayCall } from '~/http/access';
 import { decidePluginKey } from '~/http/keyRules';
@@ -8,7 +9,8 @@ import { type ApiProcedure, apiCatalog, needsPerson } from './catalog';
 import { type PluginProcedure, pluginProcedures } from './pluginDocument';
 import { callPluginProcedure, callPluginRoute } from './pluginOperations';
 import type { InstalledPlugin } from './plugins';
-import { bounded, describeError, type IssuedReference, refusal } from './results';
+import { bounded, describeError, type IssuedReference, type Reader, refusal } from './results';
+import { signatureOf } from './signature';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
@@ -61,39 +63,29 @@ export const CallApiInput = z.object({
 
 export type CallApiInput = z.infer<typeof CallApiInput>;
 
-const tokensOf = (text: string) =>
-  text
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter((token) => token.length > 1)
-    .map((token) => token.replace(/(ies|s)$/, (end) => (end === 'ies' ? 'y' : '')));
+/** Words of a name or text: `hr:leaveRequests.list` gives hr, leave, requests and list. */
+const tokenize = (text: string) =>
+  text.replaceAll(/([a-z])([A-Z])/g, '$1 $2').split(/[^\dA-Za-z]+/);
 
-const stemmed = (text: string) => tokensOf(text).join(' ');
-
-const scoreOf = (procedure: ApiProcedure, tokens: string[]) => {
-  const name = stemmed(procedure.name);
-  const path = stemmed(procedure.path);
-  const summary = stemmed(`${procedure.summary} ${procedure.description}`);
-
-  return tokens.reduce((score, token) => {
-    const inName = name.includes(token) ? 3 : 0;
-    const inPath = path.includes(token) ? 2 : 0;
-    const inSummary = summary.includes(token) ? 1 : 0;
-
-    return score + inName + inPath + inSummary;
-  }, 0);
-};
+/** Lower case and singular, so "companies" finds companies.list and "member" finds members. */
+const processTerm = (term: string) =>
+  term.length > 1
+    ? term.toLowerCase().replace(/(ies|s)$/, (end) => (end === 'ies' ? 'y' : ''))
+    : null;
 
 /**
  * Does the query name every word of the route's own name, without its plugin
  * (`catalog.read` of `ecommerce:catalog.read`)? Such a route ranks above routes that share
  * more words but add their own, like `catalog.products.available`.
  */
-const coversName = ({ name }: ApiProcedure, tokens: string[]) => {
-  const words = tokensOf(name.slice(name.lastIndexOf(':') + 1));
+const coversName = (name: string, terms: Set<string>) => {
+  const words = termsOf(name.slice(name.lastIndexOf(':') + 1));
 
-  return words.length > 0 && words.every((word) => tokens.includes(word));
+  return words.size > 0 && [...words].every((word) => terms.has(word));
 };
+
+const termsOf = (text: string) =>
+  new Set(tokenize(text).flatMap((token) => processTerm(token) ?? []));
 
 type Entry = ApiProcedure | PluginProcedure;
 
@@ -152,53 +144,67 @@ const mayCall = (member: Member, entry: Entry) => {
   );
 };
 
+/**
+ * The procedures the caller may run that best match plain words: a route whose whole name the
+ * words cover first, then by summary, name and description, with prefixes and typos matching too. Each comes with its input as a one-line
+ * signature, a fraction of its JSON schema's tokens.
+ */
 export const searchApi = async (scope: ToolScope, query: string, limit = SEARCH_LIMIT) => {
-  const tokens = tokensOf(query);
   const member = await scope.caller();
 
   if (!member) return { procedures: [] };
 
-  const found = (await entriesOf(scope))
-    .filter((entry) => !withheld(scope, entry) && mayCall(member, entry))
-    .map((procedure) => ({
-      procedure,
-      score: scoreOf(procedure, tokens),
-      named: coversName(procedure, tokens),
-    }))
-    .filter(({ score }) => score > 0)
-    .toSorted(
-      (a, b) =>
-        Number(b.named) - Number(a.named) ||
-        b.score - a.score ||
-        a.procedure.name.localeCompare(b.procedure.name),
-    )
+  const entries = (await entriesOf(scope)).filter(
+    (entry) => !withheld(scope, entry) && mayCall(member, entry),
+  );
+
+  const index = new MiniSearch<Entry>({
+    idField: 'name',
+    fields: ['name', 'summary', 'description'],
+    tokenize,
+    processTerm,
+  });
+
+  index.addAll(entries);
+
+  const byName = new Map(entries.map((entry) => [entry.name, entry]));
+
+  const terms = termsOf(query);
+
+  const found = index
+    .search(query, { boost: { summary: 3, name: 1, description: 0.5 }, prefix: true, fuzzy: 0.2 })
+    .flatMap(({ id }) => byName.get(String(id)) ?? [])
+    .toSorted((a, b) => Number(coversName(b.name, terms)) - Number(coversName(a.name, terms)))
     .slice(0, limit)
-    .map(({ procedure }) => ({
-      procedure: procedure.name,
-      method: procedure.method,
-      path: procedure.path,
-      summary: procedure.summary,
-      description: procedure.description,
-      changes: procedure.changes,
-      input: procedure.input,
+    .map((entry) => ({
+      procedure: entry.name,
+      ...(entry.summary ? { summary: entry.summary } : {}),
+      ...(entry.description ? { description: entry.description } : {}),
+      changes: entry.changes,
+      input: signatureOf(entry.input),
     }));
 
   return { procedures: found };
 };
 
-const withReferences = async (scope: ToolScope, schema: unknown, result: unknown) =>
-  bounded(result, (await scope.references?.(schema, result)) ?? []);
+type Answer = ReturnType<typeof refusal> | { ok: true; result: unknown };
 
-const runCore = async (scope: ToolScope, name: string, input: Record<string, unknown>) => {
+const runCore = async (
+  scope: ToolScope,
+  name: string,
+  input: Record<string, unknown>,
+  reader: Reader,
+) => {
   const path = name.split('.');
   const procedure = getRouter(coreRouter, path);
 
   if (!isProcedure(procedure)) return refusal('UNKNOWN_PROCEDURE', `No procedure is named ${name}`);
 
-  return call(procedure, input, { context: {}, path }).then(
-    (result) => withReferences(scope, procedure['~orpc'].outputSchema, result),
-    describeError,
-  );
+  return call(procedure, input, { context: {}, path }).then(async (result) => {
+    const schema = procedure['~orpc'].outputSchema;
+
+    return bounded(result, (await scope.references?.(schema, result)) ?? [], reader);
+  }, describeError);
 };
 
 /** What `callProcedure` lets through: anything, or only procedures that change nothing. */
@@ -208,7 +214,7 @@ export const callProcedure = async (
   scope: ToolScope,
   name: string,
   input: Record<string, unknown> = {},
-  kind: CallKind = 'any',
+  { kind = 'any', reader = 'model' }: { kind?: CallKind; reader?: Reader } = {},
 ) => {
   const entry = await findEntry(scope, name);
 
@@ -238,14 +244,15 @@ export const callProcedure = async (
 
   const { portal } = scope;
 
-  const run = () => {
-    if (!isPluginEntry(entry)) return runCore(scope, name, input);
+  const run = async () => {
+    if (!isPluginEntry(entry)) return runCore(scope, name, input, reader);
 
-    if (entry.audience !== 'member' && portal) {
-      return callPluginRoute(entry, input, portal.credentials);
-    }
+    const answer: Answer =
+      entry.audience !== 'member' && portal
+        ? await callPluginRoute(entry, input, portal.credentials)
+        : await callPluginProcedure(scope.orgId, entry, input);
 
-    return callPluginProcedure(scope.orgId, entry, input);
+    return answer.ok ? bounded(answer.result, [], reader) : answer;
   };
 
   const result = await enterScope(member, scope.orgId, run);

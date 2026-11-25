@@ -28,7 +28,10 @@ const callFromProgram = async (
   if (!parsed.success)
     return refusal('INVALID_INPUT', 'callApi takes a procedure name and an object');
 
-  return callProcedure(scope, parsed.data.procedure, parsed.data.input, kind);
+  return callProcedure(scope, parsed.data.procedure, parsed.data.input, {
+    kind,
+    reader: 'program',
+  });
 };
 
 /**
