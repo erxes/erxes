@@ -26,6 +26,7 @@ const ToggleGroupRoot = <Value extends string>({
       className={cn(
         'flex items-center justify-center gap-1 isolate',
         variant === 'outline' && 'gap-0 bg-muted rounded',
+        variant === 'chip' && 'gap-2',
         className,
       )}
       {...props}
