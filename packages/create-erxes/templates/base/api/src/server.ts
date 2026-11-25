@@ -1,6 +1,6 @@
 import { bearerOf, verifyCoreJob, verifyPluginCall, verifyPluginSession } from '@erxes/plugin-sdk';
-import { pluginOpenApi } from '@erxes/plugin-sdk/openapi';
-import { OpenAPIHandler } from '@orpc/openapi/node';
+import { pluginOpenApi, pluginRestHandler } from '@erxes/plugin-sdk/openapi';
+
 import { onError, ORPCError } from '@orpc/server';
 import { RPCHandler } from '@orpc/server/node';
 import cors from 'cors';
@@ -18,7 +18,7 @@ const logFailure = (error: unknown) => {
 
 // The same procedures twice: RPC for the plugin UI, REST (documented below) for scripts.
 const rpc = new RPCHandler(router, { interceptors: [onError(logFailure)] });
-const rest = new OpenAPIHandler(router, { interceptors: [onError(logFailure)] });
+const rest = pluginRestHandler(router, { interceptors: [onError(logFailure)] });
 
 /**
  * Settings › Developer › API reference shows it (the manifest's `api.docs`). Routes for
