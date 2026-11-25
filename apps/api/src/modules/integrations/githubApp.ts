@@ -1,4 +1,4 @@
-import { type Db, integrationConnections } from '@erxes/core-db';
+import { type Db, integrationConnections, integrationOAuthApps } from '@erxes/core-db';
 import { gatewayHttp, parse } from '@erxes/plugin-sdk/integrations';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -23,11 +23,42 @@ export const ensureNotAppOnly = (key: string, ownerId: string | null) => {
     throw fail('NOT_ALLOWED', 'Connect GitHub for the organisation through the GitHub App');
 };
 
-/** The GitHub App organisations connect through; 400 NOT_SET_UP when the server has none. */
-export const githubApp = () => {
-  const app = config.integrations.githubApp;
+export const GithubApp = z.object({
+  id: z.string().regex(/^\d+$/),
+  slug: z.string().min(1),
+  privateKey: z.string().min(1),
+  clientId: z.string().min(1),
+  clientSecret: z.string().min(1),
+});
 
-  if (!app) throw fail('NOT_SET_UP', 'This server has no GitHub App: set GITHUB_APP_* in .env');
+export type GithubApp = z.output<typeof GithubApp>;
+
+/** The organisation's own GitHub App, kept with the OAuth apps under the key `github`. */
+export const ownApp = async (tx: Db) => {
+  const [row] = await tx
+    .select({ id: integrationOAuthApps.id, secretId: integrationOAuthApps.secretId })
+    .from(integrationOAuthApps)
+    .where(eq(integrationOAuthApps.key, 'github'))
+    .limit(1);
+
+  return row
+    ? {
+        rowId: row.id,
+        secretId: row.secretId,
+        ...GithubApp.parse(JSON.parse(await readSecret(tx, row.secretId))),
+      }
+    : null;
+};
+
+/** The server's App (GITHUB_APP_* in .env), else the organisation's own; null: none. */
+const appOf = async (tx: Db): Promise<GithubApp | null> =>
+  config.integrations.githubApp ?? (await ownApp(tx));
+
+/** The App the organisation connects GitHub through; 400 NOT_SET_UP without one. */
+export const appIn = async (tx: Db) => {
+  const app = await appOf(tx);
+
+  if (!app) throw fail('NOT_SET_UP', 'Set up the GitHub App in Settings › Integrations › GitHub');
 
   return app;
 };
@@ -35,8 +66,7 @@ export const githubApp = () => {
 const base64url = (value: string | Buffer) => Buffer.from(value).toString('base64url');
 
 /** The App's own token: a 9-minute RS256 JWT, for the /app endpoints. */
-const appJwt = () => {
-  const app = githubApp();
+const appJwt = (app: GithubApp) => {
   const now = Math.floor(Date.now() / 1000);
   const head = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const body = base64url(JSON.stringify({ iat: now - 60, exp: now + 540, iss: app.id }));
@@ -67,6 +97,12 @@ const send = async <T>(
   return parse('GitHub', schema, text, `an unreadable ${url} answer`);
 };
 
+/** The App as GitHub knows it, read with its own JWT: proves the id and private key match. */
+export const appProfile = (app: Omit<GithubApp, 'slug'>) =>
+  send(z.object({ slug: z.string().min(1), name: z.string() }), `${API}/app`, {
+    token: appJwt({ ...app, slug: '' }),
+  });
+
 const Account = z.object({ login: z.string(), avatar_url: z.string().nullish() });
 
 const Installation = z.object({ id: z.int(), account: Account });
@@ -82,9 +118,7 @@ const installationOf = (item: z.output<typeof Installation>): GithubInstallation
 });
 
 /** The member's GitHub sign-in: a user token for the code GitHub sent back. */
-export const userToken = async (code: string) => {
-  const app = githubApp();
-
+export const userToken = async (app: GithubApp, code: string) => {
   const answer = await send(
     z.object({ access_token: z.string().min(1) }),
     'https://github.com/login/oauth/access_token',
@@ -108,17 +142,17 @@ export const userInstallations = async (token: string) =>
     )
   ).installations.map(installationOf);
 
-export const signInUrl = (state: string) => {
+export const signInUrl = (app: GithubApp, state: string) => {
   const url = new URL('https://github.com/login/oauth/authorize');
 
-  url.searchParams.set('client_id', githubApp().clientId);
+  url.searchParams.set('client_id', app.clientId);
   url.searchParams.set('state', state);
 
   return url.toString();
 };
 
-export const installUrl = (state: string) =>
-  `https://github.com/apps/${encodeURIComponent(githubApp().slug)}/installations/new?state=${encodeURIComponent(state)}`;
+export const installUrl = (app: GithubApp, state: string) =>
+  `https://github.com/apps/${encodeURIComponent(app.slug)}/installations/new?state=${encodeURIComponent(state)}`;
 
 const signed = (body: string) =>
   hmacSha256(coreKey('erxes-github-app-ticket-v1'), body, 'base64url');
@@ -160,11 +194,11 @@ export const openTicket = (token: string) => {
 const AccessToken = z.object({ token: z.string().min(1), expires_at: z.iso.datetime() });
 
 /** A 1-hour installation token, minted with the App's JWT. */
-export const installationToken = async (installationId: number) => {
+export const installationToken = async (app: GithubApp, installationId: number) => {
   const answer = await send(
     AccessToken,
     `${API}/app/installations/${installationId}/access_tokens`,
-    { method: 'POST', token: appJwt() },
+    { method: 'POST', token: appJwt(app) },
   );
 
   return {
@@ -204,7 +238,7 @@ export const installationKeys = async (tx: Db, row: ConnectionRow) => {
 
   if (fresh(current)) return { accessToken: current.accessToken, installation: true as const };
 
-  const next = await installationToken(current.installationId);
+  const next = await installationToken(await appIn(tx), current.installationId);
 
   await saveSecret(tx, JSON.stringify(next), row.secretId);
 

@@ -2,7 +2,7 @@ import { enterScope, withOrg } from '@erxes/core-db';
 import { type RequestHandler, Router } from 'express';
 import { z } from 'zod';
 import { appLink } from '~/modules/email/email';
-import { userInstallations, userToken } from './githubApp';
+import { appIn, userInstallations, userToken } from './githubApp';
 import { connectInstallation, ticketFor } from './githubAppConnect';
 import { openState } from './oauth';
 import { startedHere } from './oauth.http';
@@ -54,12 +54,13 @@ const callback: RequestHandler = async (req, res) => {
       member,
       state.orgId,
       async (): Promise<Record<string, string>> => {
-        const installations = await userInstallations(await userToken(code));
+        const app = await withOrg(state.orgId, appIn);
+        const installations = await userInstallations(await userToken(app, code));
         const fresh = installations.find((item) => item.id === installed);
 
         return fresh
           ? { connected: (await connectInstallation(fresh)).id }
-          : { github: ticketFor(installations) };
+          : { github: ticketFor(app, installations) };
       },
     );
 

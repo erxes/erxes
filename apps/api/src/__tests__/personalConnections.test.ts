@@ -94,6 +94,24 @@ describe('Personal and organisation-wide GitHub connections', { timeout: 300_000
     ]);
   });
 
+  it('keeps the server’s App out of sight and out of reach of Settings', async () => {
+    const app = await t.owner().githubApp.app();
+
+    expect({ source: app.source, appId: app.appId, clientId: app.clientId }).toEqual({
+      source: 'server',
+      appId: null,
+      clientId: null,
+    });
+    await expect(
+      t.owner().githubApp.setApp({
+        appId: '1',
+        clientId: 'Iv1.mine',
+        clientSecret: 'mine',
+        privateKey: '-----BEGIN PRIVATE KEY-----',
+      }),
+    ).rejects.toMatchObject({ code: 'NOT_ALLOWED' });
+  });
+
   it('refuses an installation the GitHub sign-in did not list', async () => {
     await expect(
       t

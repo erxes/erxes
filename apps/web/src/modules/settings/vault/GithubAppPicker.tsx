@@ -1,15 +1,17 @@
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconBrandGithub, IconChevronRight, IconPlus } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, buttonVariants, cn, CONNECTION_CONTENT_TYPE, useToast } from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { UserAvatar } from '~/components/UserAvatar';
+import { useCan } from '~/modules/auth/session';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { useConnectionsChanged } from '../integrations/ConnectionFields';
+import { GithubAppForm } from './GithubAppForm';
 
-/** The organisation connects GitHub only through the server's GitHub App, never with a token. */
+/** The organisation connects GitHub only through a GitHub App, never with a token. */
 export const connectsThroughApp = (key: string) => key === 'github';
 
 const Ticket = z.object({
@@ -40,6 +42,8 @@ export const GithubAppPicker = () => {
   const ticket = ticketOf(token);
   const changed = useConnectionsChanged();
   const showCreated = useCreatedPanelRecord(CONNECTION_CONTENT_TYPE);
+  const app = useQuery(orpc.githubApp.app.queryOptions());
+  const canSetApp = useCan()('integrations.manage');
 
   const signIn = useMutation(
     orpc.githubApp.signIn.mutationOptions({
@@ -59,6 +63,19 @@ export const GithubAppPicker = () => {
       onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),
     }),
   );
+
+  if (!app.data) return null;
+
+  if (!app.data.source)
+    return (
+      <div className="space-y-3">
+        <Button className="w-full" disabled>
+          <IconBrandGithub />
+          {t('needs-app', 'Set up your GitHub App first')}
+        </Button>
+        {canSetApp && <GithubAppForm facts={app.data} />}
+      </div>
+    );
 
   if (!token || !ticket)
     return (

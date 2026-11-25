@@ -19,7 +19,10 @@ export const INTEGRATION_ACCESS = {
   'integrations.authorize': MEMBER,
   'integrations.setOAuthApp': MEMBER,
   'integrations.removeOAuthApp': MEMBER,
-  // The organisation's GitHub, through the server's GitHub App.
+  // The organisation's GitHub, through the server's GitHub App or its own.
+  'githubApp.app': MEMBER,
+  'githubApp.setApp': needs('integrations.manage'),
+  'githubApp.removeApp': needs('integrations.manage'),
   'githubApp.signIn': needs('integrations.manage'),
   'githubApp.connect': needs('integrations.manage'),
 } as const;

@@ -1441,7 +1441,20 @@
       "sign-in": "GitHub бүртгэл сонгох",
       "connected": "{{name}} холбогдлоо",
       "none": "Таны бүртгэлүүдэд хараахан суулгаагүй байна",
-      "install": "Өөр бүртгэлд суулгах"
+      "install": "Өөр бүртгэлд суулгах",
+      "needs-app": "Эхлээд GitHub App-аа тохируулна уу",
+      "app": "GitHub App",
+      "create-app": "Үүсгэх",
+      "callback-url": "Callback URL",
+      "app-id": "App ID",
+      "app-id-short": "ID {{id}}",
+      "client-id": "Client ID",
+      "client-secret": "Client secret",
+      "private-key": "Хувийн түлхүүр",
+      "save-app": "App хадгалах",
+      "app-saved": "GitHub App {{slug}} тохируулагдлаа",
+      "app-in-use": "Эхлээд холболтуудыг нь устгана уу",
+      "remove-app": "Устгах"
     },
     "oauth": {
       "app-saved": "Хадгаллаа. Одоо нэвтэрч болно.",

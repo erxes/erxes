@@ -3430,6 +3430,36 @@
     }
   },
   "githubApp": {
+    "app": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "setApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "removeApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
     "signIn": {
       "~orpc": {
         "errorMap": {},

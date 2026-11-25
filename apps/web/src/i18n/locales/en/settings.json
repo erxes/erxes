@@ -1391,7 +1391,20 @@
       "sign-in": "Choose a GitHub account",
       "connected": "{{name}} is connected",
       "none": "Not installed on any of your accounts yet",
-      "install": "Install on another account"
+      "install": "Install on another account",
+      "needs-app": "Set up your GitHub App first",
+      "app": "GitHub App",
+      "create-app": "Create one",
+      "callback-url": "Callback URL",
+      "app-id": "App ID",
+      "app-id-short": "ID {{id}}",
+      "client-id": "Client ID",
+      "client-secret": "Client secret",
+      "private-key": "Private key",
+      "save-app": "Save App",
+      "app-saved": "GitHub App {{slug}} is set",
+      "app-in-use": "Remove its connections first",
+      "remove-app": "Remove"
     },
     "oauth": {
       "app-saved": "Saved. You can sign in now.",

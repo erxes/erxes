@@ -4,6 +4,7 @@ import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
+import { GithubAppSummary } from '../vault/GithubAppForm';
 import { connectsThroughApp } from '../vault/GithubAppPicker';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
@@ -77,6 +78,7 @@ const Overview = ({ integration }: { integration: Integration }) => {
       </OverviewSection>
       <JoinedUses integration={integration} />
       <AutomationTriggers integration={integration} />
+      {connectsThroughApp(integration.key) && <GithubAppSummary />}
       {isOAuthIntegration(integration) && integration.oauth.client === 'organization' && (
         <OverviewSection title={t('app', 'App')}>
           {connectionsOf(connections.data?.data ?? [], [integration]).length ? (

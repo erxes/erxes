@@ -12,6 +12,30 @@ import { ConnectionScopePicker, useConnectionScope } from './ConnectionScope';
 
 type OAuthIntegration = Integration & { oauth: NonNullable<Integration['oauth']> };
 
+/** An app's client secret: typed once, never shown back. */
+export const ClientSecretInput = ({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) => (
+  <div className="space-y-1.5">
+    <Label htmlFor={id}>{label}</Label>
+    <Input
+      id={id}
+      type="password"
+      autoComplete="off"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    />
+  </div>
+);
+
 /** The organisation's own app: the redirect URL to give it, then its client id and secret. */
 export const OAuthAppForm = ({ integration }: { integration: OAuthIntegration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
@@ -53,16 +77,12 @@ export const OAuthAppForm = ({ integration }: { integration: OAuthIntegration })
           onChange={(event) => setClientId(event.target.value)}
         />
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-secret`}>{t('client-secret', 'Client secret')}</Label>
-        <Input
-          id={`${id}-secret`}
-          type="password"
-          autoComplete="off"
-          value={clientSecret}
-          onChange={(event) => setClientSecret(event.target.value)}
-        />
-      </div>
+      <ClientSecretInput
+        id={`${id}-secret`}
+        label={t('client-secret', 'Client secret')}
+        value={clientSecret}
+        onChange={setClientSecret}
+      />
       <Button
         variant="outline"
         disabled={!clientId.trim() || !clientSecret.trim() || save.isPending}

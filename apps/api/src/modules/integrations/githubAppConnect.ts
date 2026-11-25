@@ -10,8 +10,9 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { randomToken } from '~/lib/crypto';
 import {
+  appIn,
+  type GithubApp,
   type GithubInstallation,
-  githubApp,
   installationToken,
   installUrl,
   openTicket,
@@ -26,14 +27,16 @@ import { freeName } from './signIns';
 
 const STATE_MINUTES = 10;
 
-/** The GitHub integration, refused unless the member may connect it for the organisation. */
-const forOrganisation = () => {
+/**
+ * The GitHub integration and the App it connects through, refused unless the member may connect
+ * it for the organisation. Reads the App in its own scope: call it outside any.
+ */
+const forOrganisation = async () => {
   const integration = keyedOf('github');
 
   ownerFor(integration, 'org');
-  githubApp();
 
-  return integration;
+  return { integration, app: await withOrg(requestOrgId(), appIn) };
 };
 
 const newState = () =>
@@ -46,19 +49,19 @@ const newState = () =>
     expiresAt: Date.now() + STATE_MINUTES * 60_000,
   });
 
-export const githubSignIn = () => {
-  forOrganisation();
+export const githubSignIn = async () => {
+  const { app } = await forOrganisation();
 
-  return { url: signInUrl(newState()) };
+  return { url: signInUrl(app, newState()) };
 };
 
 /** What Settings gets back: the installations the member manages, and where to install more. */
-export const ticketFor = (installations: GithubInstallation[]) =>
+export const ticketFor = (app: GithubApp, installations: GithubInstallation[]) =>
   sealTicket({
     orgId: requestOrgId(),
     userId: caller('user').userId,
     installations,
-    installUrl: installUrl(newState()),
+    installUrl: installUrl(app, newState()),
   });
 
 const installationColumn = sql`(${integrationConnections.settings} ->> 'installationId')::bigint`;
@@ -86,9 +89,9 @@ const connectionOfInstallation = async (tx: Db, installationId: number) => {
  * outside any scope.
  */
 export const connectInstallation = async (installation: GithubInstallation) => {
-  const integration = forOrganisation();
+  const { integration, app } = await forOrganisation();
   const orgId = requestOrgId();
-  const minted = await installationToken(installation.id);
+  const minted = await installationToken(app, installation.id);
   const keys = { ...minted, installationId: installation.id, account: installation.account };
 
   return withOrg(orgId, async (tx) => {

@@ -258,6 +258,8 @@ export * from './integrations';
 
 export * from './pluginIntegrations';
 
+export * from './githubApp';
+
 export * from './payments';
 
 export * from './invoiceLines';
