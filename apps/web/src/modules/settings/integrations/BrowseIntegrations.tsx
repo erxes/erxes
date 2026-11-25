@@ -140,7 +140,7 @@ const Chip = ({
   <ToggleGroup.Item value={value}>
     <ChipIcon />
     {label}
-    <span className="-ml-0.5 text-xs tabular-nums opacity-60">{count}</span>
+    <span className="-ml-0.5 text-xs font-medium tabular-nums">{count}</span>
   </ToggleGroup.Item>
 );
 
