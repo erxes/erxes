@@ -7,6 +7,7 @@ import { wholeList } from '~/lib/keyset';
 import { connectionsWithSecret } from './connections';
 import { appClientOf, freshKeys } from './oauth';
 import { keyedOf } from './registry';
+import { withinReach } from './scopes';
 
 // Plugins use the organisation's connections of core's integrations (decision 52): the
 // organisation connects an account once, and every plugin the owner approved uses it.
@@ -31,7 +32,9 @@ export const usableConnections = async (client: Db, key: string) => {
         .select()
         .from(integrationConnections)
         .where(
-          and(eq(integrationConnections.key, key), eq(integrationConnections.status, 'active')),
+          withinReach(
+            and(eq(integrationConnections.key, key), eq(integrationConnections.status, 'active')),
+          ),
         )
         .orderBy(asc(integrationConnections.createdAt), asc(integrationConnections.id))
         .limit(limit),
@@ -44,9 +47,10 @@ export const usableConnections = async (client: Db, key: string) => {
  * expire), and the app it signed in through, whose secret checks the service's webhooks.
  */
 export const connectionCredentials = async (client: Db, id: string) => {
-  const [row] = await connectionsWithSecret(client)
-    .where(and(eq(integrationConnections.id, id), eq(integrationConnections.status, 'active')))
-    .limit(1);
+  const [row] = await connectionsWithSecret(
+    client,
+    and(eq(integrationConnections.id, id), eq(integrationConnections.status, 'active')),
+  ).limit(1);
 
   if (!row) throw notFound('Connection');
 

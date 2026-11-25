@@ -17,15 +17,23 @@ import { ActionInfo, RecordType } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
 import { connectionUseContract } from './connectionUse';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { Country } from './money';
-import { IntegrationCategory, IntegrationKey } from './values';
+
+import { IntegrationCategory, IntegrationKey, IntegrationScope } from './values';
 
 export const IntegrationConnection = createSelectSchema(integrationConnections, {
   id: Id,
   createdAt: isoDate,
   /** The values a member reads and changes (`invoiceCode`, `sandbox`); never a secret. */
   settings: z.record(z.string(), z.unknown()),
-}).pick({ id: true, key: true, name: true, settings: true, status: true, createdAt: true });
+}).pick({
+  id: true,
+  key: true,
+  name: true,
+  settings: true,
+  status: true,
+  ownerId: true,
+  createdAt: true,
+});
 
 export type IntegrationConnection = z.infer<typeof IntegrationConnection>;
 
@@ -80,6 +88,8 @@ export const Integration = z.object({
   category: IntegrationCategory,
   countries: z.array(z.string()),
   permission: z.string(),
+  /** Who its connections can serve: `org`, `personal`, or both. */
+  scopes: z.array(IntegrationScope),
   dashboard: z.string().nullable(),
   keyed: z.boolean(),
   fields: z.array(IntegrationField),
@@ -99,39 +109,6 @@ export const Integration = z.object({
 });
 
 export type Integration = z.infer<typeof Integration>;
-
-/**
- * An integration a plugin brings to Settings › Integrations (`facebook`), listed next to core's
- * for members with `integrations.manage` and `permission`, one of the manifest's own
- * permissions. The plugin keeps its keys in core's vault (`secrets.*`), draws the page's tabs
- * in its UI, and reports where it stands with `integrations.report`.
- */
-export const PluginIntegration = z.object({
-  /** Unique within the plugin; its page is `/settings/integrations/<plugin>.<key>`. */
-  key: IntegrationKey,
-  name: z.string().trim().min(1).max(80),
-  /** One line on its tile and under its name. */
-  summary: z.string().trim().min(1).max(300),
-  category: IntegrationCategory,
-  /** The ISO 3166 countries it serves (`MN`); none: any. */
-  countries: z.array(Country).max(250).optional(),
-  permission: z.string().trim().min(1).max(100),
-  /**
-   * The core integration its accounts connect through (`facebook`), one the manifest's
-   * `connections` names. It gets no tile of its own: its tabs join that integration's page, which
-   * lists it under "Used by".
-   */
-  connection: IntegrationKey.optional(),
-});
-
-/** The manifest's `integrations`, each key once, at most 20. */
-export const PluginIntegrations = z
-  .array(PluginIntegration)
-  .max(20)
-  .refine(
-    (list) => new Set(list.map((integration) => integration.key)).size === list.length,
-    'each key once',
-  );
 
 const ReportedState = createUpdateSchema(pluginIntegrationStates, stateColumns)
   .pick({ state: true, count: true })
@@ -187,6 +164,12 @@ const ConnectionName = z.string().trim().min(1).max(80);
 
 const ConnectionKeys = z.record(z.string(), z.unknown());
 
+export const AuthorizeInput = z.object({
+  key: IntegrationKey,
+  name: ConnectionName.optional(),
+  scope: IntegrationScope.default('org'),
+});
+
 /** One of an app's records as a picker offers it: its id, and the name a member reads. */
 export const AppRecord = z.object({ value: z.string(), label: z.string() });
 
@@ -224,7 +207,7 @@ export const integrationsContract = {
       description:
         "Where to send the member to sign in to the app; the app sends them back to the callback, which saves the connection. One connection per account: signing in again with it renews that connection's sign-in and keeps its name. A new account's connection takes `name`, or else the account's name. 400 NOT_SET_UP without the app's client id and secret",
     })
-    .input(z.object({ key: IntegrationKey, name: ConnectionName.optional() }))
+    .input(AuthorizeInput)
     .output(z.object({ url: z.string() })),
   setOAuthApp: base
     .route({
@@ -309,7 +292,7 @@ export const integrationsContract = {
       description:
         'Connect with these keys, checked against the service first. 400 GATEWAY_REFUSED',
     })
-    .input(z.object({ key: IntegrationKey, name: ConnectionName, keys: ConnectionKeys }))
+    .input(AuthorizeInput.extend({ name: ConnectionName, keys: ConnectionKeys }))
     .output(IntegrationConnection),
   update: base
     .route({

@@ -4,7 +4,7 @@ import type { InferContractRouterInputs } from '@orpc/contract';
 import { GatewayError } from '@erxes/plugin-sdk/integrations';
 import { fail } from '~/http/errors';
 import { connectionFor } from './actions';
-import { connectable } from './connectable';
+import { listable } from './scopes';
 import { clientOf } from './connections';
 
 const MOST = 200;
@@ -18,7 +18,7 @@ const MOST = 200;
 export const listAppRecords = async (
   input: InferContractRouterInputs<typeof coreContract>['integrations']['records'],
 ) => {
-  const integration = connectable(input.key);
+  const integration = listable(input.key);
   const search = input.search?.toLowerCase() ?? '';
 
   const records = Object.entries(integration.records ?? {}).find(

@@ -54,7 +54,12 @@ const connect = (member: Caller, state: State, code: string) =>
     const { keys } = await exchangeCode(app, state, code);
 
     const connection = await withOrg(state.orgId, (tx) =>
-      saveSignIn(tx, app.integration, { orgId: state.orgId, name: state.name, keys }),
+      saveSignIn(tx, app.integration, {
+        orgId: state.orgId,
+        name: state.name,
+        scope: state.scope,
+        keys,
+      }),
     );
 
     return connection.id;

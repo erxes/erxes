@@ -981,6 +981,13 @@
       "when": 1795552357391,
       "tag": "0139_ebarimt_recorded_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 140,
+      "version": "7",
+      "when": 1795628927890,
+      "tag": "0140_personal_connections",
+      "breakpoints": true
     }
   ]
 }

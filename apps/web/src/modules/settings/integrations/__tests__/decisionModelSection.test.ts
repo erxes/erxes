@@ -31,6 +31,7 @@ const integration = (
   category,
   countries: [],
   permission: 'assistant.manage',
+  scopes: ['org', 'personal'],
   dashboard: null,
   keyed: true,
   fields: [{ key: 'apiKey', label: 'API key', type: 'secret', optional: false }],

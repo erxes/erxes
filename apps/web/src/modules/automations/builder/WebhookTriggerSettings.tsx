@@ -12,7 +12,7 @@ import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
 import { Field } from './Field';
 import { HookSampleCall } from './HookSampleCall';
-import { Segmented } from './Segmented';
+import { Segmented } from '~/components/Segmented';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 type WebhookTrigger = Extract<AutomationTrigger, { kind: 'webhook' }>;

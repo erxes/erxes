@@ -253,6 +253,8 @@ export * from './connectionUse';
 
 export * from './integrations';
 
+export * from './pluginIntegrations';
+
 export * from './payments';
 
 export * from './invoiceLines';

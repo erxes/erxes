@@ -8,7 +8,7 @@ import { and, asc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { inOrder } from '~/lib/sequence';
 import { HOOK_CHANNEL, triggerOf } from './apps';
-import { connectable } from './connectable';
+import { listable, usable } from './scopes';
 import { enqueueSync } from './subscriptionSync';
 
 const CONNECTION_OFF = 'The connection is off';
@@ -25,7 +25,7 @@ const listeningAutomations = sql<{ id: string; name: string }[]>`coalesce((
 ), '[]'::json)`;
 
 export const appSubscriptionsOf = async (client: Db, key: string) => {
-  const app = connectable(key);
+  const app = listable(key);
 
   const rows = await wholeList((limit) =>
     client
@@ -39,7 +39,7 @@ export const appSubscriptionsOf = async (client: Db, key: string) => {
         integrationConnections,
         eq(integrationConnections.id, integrationSubscriptions.connectionId),
       )
-      .where(eq(integrationConnections.key, app.key))
+      .where(and(eq(integrationConnections.key, app.key), usable(app)))
       .orderBy(asc(integrationConnections.createdAt), asc(integrationSubscriptions.createdAt))
       .limit(limit),
   );

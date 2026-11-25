@@ -1,4 +1,4 @@
-import type { coreContract, IntegrationStatus, WithCorePayload } from '@erxes/core-contract';
+import type { coreContract, IntegrationScope, WithCorePayload } from '@erxes/core-contract';
 import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   caller,
@@ -14,114 +14,15 @@ import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { releaseBank } from '~/modules/banks/banks.service';
-import { payingPlugins, releaseGateway } from '~/modules/payments/gateways.service';
-import { INTEGRATION_ACTIONS } from './actions';
+import { releaseGateway } from '~/modules/payments/gateways.service';
 import { isBank } from './banks';
-import {
-  clientOptions,
-  connectionsWithSecret,
-  keysOf,
-  listConnections,
-  sealValues,
-} from './connections';
-import { connectable, manages } from './connectable';
+import { clientOptions, connectionsWithSecret, keysOf, sealValues } from './connections';
 import { ensureNameFree } from './connectionNames';
 import { fieldsOf } from '@erxes/plugin-sdk/integrations';
 import { type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
-import { oauthFacts } from './oauth';
-import { pluginIntegrations } from './pluginIntegrations';
-import { INTEGRATIONS, keyedOf } from './registry';
-
-const activeCounts = async (client: Db) => {
-  const rows = await client
-    .select({
-      key: integrationConnections.key,
-      active:
-        sql<number>`count(*) filter (where ${integrationConnections.status} = 'active')`.mapWith(
-          Number,
-        ),
-    })
-    .from(integrationConnections)
-    .groupBy(integrationConnections.key);
-
-  return new Map(rows.map((row) => [row.key, row.active]));
-};
-
-const connectionStatus = (active: number | undefined): IntegrationStatus => {
-  if (active === undefined) return { state: 'not-set-up', count: null };
-
-  return active ? { state: 'connected', count: active } : { state: 'off', count: null };
-};
-
-export const listIntegrations = async (client: Db) => {
-  const counts = await activeCounts(client);
-
-  const own = await Promise.all(
-    INTEGRATIONS.filter(manages).map(async (integration) => ({
-      ...integration,
-      plugin: null,
-      connection: null,
-      dashboard: integration.dashboard ?? null,
-      keyed: Boolean(integration.keys),
-      fields: integration.keys && !integration.oauth ? fieldsOf(integration.keys) : [],
-      payments: integration.payments ?? null,
-      sms: Boolean(integration.smsSending),
-      oauth: integration.oauth ? await oauthFacts(client, integration.key) : null,
-      status: integration.status
-        ? await integration.status(client)
-        : connectionStatus(counts.get(integration.key)),
-      actions: INTEGRATION_ACTIONS.filter(
-        (action) => action.integration?.key === integration.key,
-      ).map(({ type, label, description }) => ({ type, label, description })),
-    })),
-  );
-
-  return { data: [...own, ...(await pluginIntegrations(client))] };
-};
-
-const managedKeys = () =>
-  INTEGRATIONS.flatMap((integration) =>
-    integration.keys && manages(integration) ? [integration.key] : [],
-  );
-
-/** The integrations that read through a bank's connection (transfer payments). */
-const readerKeys = () =>
-  INTEGRATIONS.flatMap((integration) =>
-    integration.keys && integration.readsThrough ? [integration.key] : [],
-  );
-
-export const integrationConnectionsOf = async (client: Db, key?: string) => {
-  const { data } = await listConnections(client, key ? [connectable(key).key] : managedKeys());
-  const plugins = await payingPlugins(client);
-
-  // A bank connection is used by the payments that read their statement through it.
-  const readers = data.some((connection) => isBank(connection.key))
-    ? (await listConnections(client, readerKeys())).data.filter(
-        (connection) => connection.status === 'active',
-      )
-    : [];
-
-  const listeners = await listenersOf(
-    client,
-    data.map((connection) => connection.id),
-  );
-
-  const usedBy = (connection: (typeof data)[number]) => {
-    if (isBank(connection.key))
-      return readers.flatMap((reader) =>
-        reader.settings.connectionId === connection.id ? [reader.name] : [],
-      );
-
-    // Gateways serve the whole organisation: every plugin taking payments, while it is on.
-    return [
-      ...(connection.status === 'active' && keyedOf(connection.key).payments ? plugins : []),
-      ...listeners(connection.id),
-    ];
-  };
-
-  return { data: data.map((connection) => ({ ...connection, usedBy: usedBy(connection) })) };
-};
+import { keyedOf } from './registry';
+import { ensureEditable, ownerFor } from './scopes';
 
 const parsedKeys = (integration: KeyedIntegration, keys: unknown) => {
   const parsed = integration.keys.safeParse(keys);
@@ -174,9 +75,7 @@ const verified = async (
 };
 
 export const connectionOf = async (client: Db, integration: KeyedIntegration, id: string) => {
-  const [row] = await connectionsWithSecret(client)
-    .where(eq(integrationConnections.id, id))
-    .limit(1);
+  const [row] = await connectionsWithSecret(client, eq(integrationConnections.id, id)).limit(1);
 
   if (!row) throw notFound('Connection');
 
@@ -190,7 +89,7 @@ export const connectionOf = async (client: Db, integration: KeyedIntegration, id
 export const insertConnection = async (
   tx: Db,
   integration: KeyedIntegration,
-  input: { id: string; name: string; keys: Record<string, unknown> },
+  input: { id: string; name: string; ownerId: string | null; keys: Record<string, unknown> },
 ) => {
   const row = oneRow(
     await tx
@@ -201,6 +100,7 @@ export const insertConnection = async (
         name: input.name,
         auth: integration.oauth ? 'oauth' : 'keys',
         ...(await sealValues(tx, integration, input.keys)),
+        ownerId: input.ownerId,
         createdBy: caller('user').userId,
       })
       .returning(),
@@ -220,8 +120,9 @@ export const insertConnection = async (
 
 type Inputs = InferContractRouterInputs<typeof coreContract>['integrations'];
 
-export const connect = async (input: Inputs['connect']) => {
-  const integration = connectable(input.key);
+export const connect = async (input: Inputs['connect'] & { scope: IntegrationScope }) => {
+  const integration = keyedOf(input.key);
+  const ownerId = ownerFor(integration, input.scope);
 
   if (integration.oauth)
     throw fail('NOT_ALLOWED', `${integration.name} connects by signing in, not with keys`);
@@ -229,7 +130,7 @@ export const connect = async (input: Inputs['connect']) => {
   const id = newId();
   const orgId = requestOrgId();
 
-  await withOrg(orgId, (tx) => ensureNameFree(tx, integration, input.name));
+  await withOrg(orgId, (tx) => ensureNameFree(tx, integration, ownerId, input.name));
 
   const keys = await verified(
     orgId,
@@ -238,17 +139,24 @@ export const connect = async (input: Inputs['connect']) => {
     parsedKeys(integration, memberValues(integration, input.keys)),
   );
 
-  return withOrg(orgId, (tx) => insertConnection(tx, integration, { id, name: input.name, keys }));
+  return withOrg(orgId, (tx) =>
+    insertConnection(tx, integration, { id, name: input.name, ownerId, keys }),
+  );
 };
 
 export const updateConnection = async (input: Inputs['update']) => {
-  const integration = connectable(input.key);
+  const integration = keyedOf(input.key);
   const orgId = requestOrgId();
 
   const before = await withOrg(orgId, async (tx) => {
-    if (input.name !== undefined) await ensureNameFree(tx, integration, input.name, input.id);
+    const row = await connectionOf(tx, integration, input.id);
 
-    return connectionOf(tx, integration, input.id);
+    ensureEditable(integration, row);
+
+    if (input.name !== undefined)
+      await ensureNameFree(tx, integration, row.ownerId, input.name, input.id);
+
+    return row;
   });
 
   const kept: Record<string, unknown> = keysOf(integration, before);
@@ -328,8 +236,11 @@ export const connectionChanged = (
   });
 
 export const removeConnection = async (client: Db, key: string, id: string) => {
-  const integration = connectable(key);
+  const integration = keyedOf(key);
   const row = await connectionOf(client, integration, id);
+
+  ensureEditable(integration, row);
+
   const listening = (await listenersOf(client, [id]))(id);
 
   if (listening.length)

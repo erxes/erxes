@@ -10,6 +10,7 @@ import { fetchProviderModels } from '~/modules/assistant/providerModels';
 import { providerErrorMessage, sanitizeProviderMessage } from '~/modules/assistant/providers';
 import { manages } from '~/modules/integrations/connectable';
 import { clientOf, connectionsWithSecret } from '~/modules/integrations/connections';
+import { ownFirst, pickable } from '~/modules/integrations/scopes';
 
 const log = logger.child({ component: 'automations' });
 
@@ -186,14 +187,14 @@ const openDecisionClient = async (provider: DecisionProvider, connectionId?: str
   const integration = DECISION_INTEGRATIONS[provider];
 
   return withOrg(requestOrgId(), async (tx) => {
-    const active = await connectionsWithSecret(tx)
-      .where(
-        and(
-          eq(integrationConnections.key, integration.key),
-          eq(integrationConnections.status, 'active'),
-        ),
-      )
-      .orderBy(asc(integrationConnections.createdAt), asc(integrationConnections.id));
+    const active = await connectionsWithSecret(
+      tx,
+      and(
+        eq(integrationConnections.key, integration.key),
+        eq(integrationConnections.status, 'active'),
+        pickable(),
+      ),
+    ).orderBy(ownFirst, asc(integrationConnections.createdAt), asc(integrationConnections.id));
 
     const row = connectionId ? active.find((item) => item.id === connectionId) : active[0];
 

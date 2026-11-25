@@ -13,6 +13,7 @@ import {
 import { getOrganization } from '~/modules/organizations/organizations.service';
 import { INVOICE_ACTIONS } from '~/modules/payments/invoiceActions';
 import { manages } from './connectable';
+import { allowsPersonal, ownFirst, usable, withinReach } from './scopes';
 import { clientOf, connectionsWithSecret } from './connections';
 import {
   CONNECTION_FIELD,
@@ -61,14 +62,14 @@ const keyedAction = (action: AppAction<unknown>): KeyedAction<unknown> => ({
  * default gateway when it is one of the integration's, else the integration's oldest active one.
  */
 export const connectionFor = async (tx: Db, integration: KeyedIntegration, requested?: string) => {
-  const active = await connectionsWithSecret(tx)
-    .where(
-      and(
-        eq(integrationConnections.key, integration.key),
-        eq(integrationConnections.status, 'active'),
-      ),
-    )
-    .orderBy(integrationConnections.createdAt);
+  const active = await connectionsWithSecret(
+    tx,
+    and(
+      eq(integrationConnections.key, integration.key),
+      eq(integrationConnections.status, 'active'),
+      usable(integration),
+    ),
+  ).orderBy(ownFirst, integrationConnections.createdAt);
 
   const preferred = requested ?? (await getOrganization(tx)).defaultGatewayId;
   const row = active.find((item) => item.id === preferred) ?? (requested ? null : active[0]);
@@ -98,7 +99,7 @@ const permitted = (
 ): KeyedAction<unknown> => ({
   ...action,
   call: (ctx) => {
-    if (!manages(integration))
+    if (!manages(integration) && !allowsPersonal(integration))
       throw fail(
         'NOT_ALLOWED',
         `The member who turned this automation on may no longer use ${integration.name}`,
@@ -157,14 +158,17 @@ export const connectedIntegrations = async (client: Db): Promise<Connections> =>
       key: integrationConnections.key,
       id: integrationConnections.id,
       name: integrationConnections.name,
+      ownerId: integrationConnections.ownerId,
     })
     .from(integrationConnections)
-    .where(eq(integrationConnections.status, 'active'))
-    .orderBy(integrationConnections.createdAt);
+    .where(withinReach(eq(integrationConnections.status, 'active')))
+    .orderBy(ownFirst, integrationConnections.createdAt);
 
   const choicesOf = async (integration: Integration): Promise<Choices | null> => {
     if (integration.keys) {
-      const own = rows.filter((row) => row.key === integration.key);
+      const own = rows.filter(
+        (row) => row.key === integration.key && (row.ownerId !== null || manages(integration)),
+      );
 
       return own.length ? own.map((row) => ({ value: row.id, label: row.name })) : null;
     }

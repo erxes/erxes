@@ -4,6 +4,7 @@ import { type Db, integrationConnections } from '@erxes/core-db';
 import { and, asc, eq, inArray } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { logger } from '~/logger';
+import { ownFirst, pickable } from '~/modules/integrations/scopes';
 import {
   clientOf,
   type ConnectionRow,
@@ -21,14 +22,15 @@ export interface ConnectedProvider {
 
 const activeRows = (client: Db) =>
   wholeList((limit) =>
-    connectionsWithSecret(client)
-      .where(
-        and(
-          inArray(integrationConnections.key, AssistantProvider.options),
-          eq(integrationConnections.status, 'active'),
-        ),
-      )
-      .orderBy(asc(integrationConnections.createdAt), asc(integrationConnections.id))
+    connectionsWithSecret(
+      client,
+      and(
+        inArray(integrationConnections.key, AssistantProvider.options),
+        eq(integrationConnections.status, 'active'),
+        pickable(),
+      ),
+    )
+      .orderBy(ownFirst, asc(integrationConnections.createdAt), asc(integrationConnections.id))
       .limit(limit),
   );
 

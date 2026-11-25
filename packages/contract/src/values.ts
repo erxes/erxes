@@ -26,7 +26,7 @@ import {
   SEARCH_RECORD_TYPES,
   SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
-import { INTEGRATION_CATEGORIES } from '@erxes/core-db/integrationEnums';
+import { INTEGRATION_CATEGORIES, INTEGRATION_SCOPES } from '@erxes/core-db/integrationEnums';
 import {
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
@@ -355,6 +355,11 @@ export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
 
 export type IntegrationCategory = z.infer<typeof IntegrationCategory>;
+
+/** `org`: the whole organisation's connection; `personal`: only the member who added it. */
+export const IntegrationScope = z.enum(INTEGRATION_SCOPES);
+
+export type IntegrationScope = z.infer<typeof IntegrationScope>;
 
 /** An integration's key, core's (`qpay`) or one a plugin declares (`facebook`). */
 export const IntegrationKey = z

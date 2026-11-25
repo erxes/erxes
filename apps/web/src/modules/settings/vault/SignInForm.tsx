@@ -1,4 +1,4 @@
-import type { VaultConnection } from '@erxes/core-contract';
+import type { IntegrationScope, VaultConnection } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconCopy, IconLogin2 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,9 @@ import { Button, CopyText, Input, Label, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
+import { useCan } from '~/modules/auth/session';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { ConnectionScopePicker, useConnectionScope } from './ConnectionScope';
 
 type OAuthIntegration = Integration & { oauth: NonNullable<Integration['oauth']> };
 
@@ -95,7 +97,13 @@ const useAuthorize = () => {
 };
 
 /** Signs in again, to renew the sign-in or grant more (Facebook pages): the same connection. */
-export const SignInAgain = ({ integration }: { integration: OAuthIntegration }) => {
+export const SignInAgain = ({
+  integration,
+  scope,
+}: {
+  integration: OAuthIntegration;
+  scope: IntegrationScope;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
   const authorize = useAuthorize();
 
@@ -104,7 +112,7 @@ export const SignInAgain = ({ integration }: { integration: OAuthIntegration }) 
       size="sm"
       variant="outline"
       disabled={!integration.oauth.client || authorize.isPending}
-      onClick={() => authorize.mutate({ key: integration.key })}
+      onClick={() => authorize.mutate({ key: integration.key, scope })}
     >
       <IconLogin2 />
       {t('sign-in-again', 'Sign in again')}
@@ -122,6 +130,8 @@ export const SignInForm = ({
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
   const brand = useIntegrationText()(integration).name;
   const authorize = useAuthorize();
+  const { open, scope, setScope } = useConnectionScope(integration);
+  const canSetApp = useCan()(integration.permission);
 
   return (
     <div className="space-y-4 p-4">
@@ -129,7 +139,8 @@ export const SignInForm = ({
         <IntegrationMark integration={integration} />
         <span className="font-medium">{brand}</span>
       </div>
-      {integration.oauth.client === null && <OAuthAppForm integration={integration} />}
+      {integration.oauth.client === null && canSetApp && <OAuthAppForm integration={integration} />}
+      <ConnectionScopePicker open={open} scope={scope} onChange={setScope} />
       <p className="text-sm text-muted-foreground">
         {t(
           'one-per-account',
@@ -142,7 +153,7 @@ export const SignInForm = ({
         </Button>
         <Button
           disabled={!integration.oauth.client || authorize.isPending}
-          onClick={() => authorize.mutate({ key: integration.key })}
+          onClick={() => authorize.mutate({ key: integration.key, scope })}
         >
           <IconLogin2 />
           {t('sign-in', 'Sign in with {{name}}', { name: brand })}

@@ -17,6 +17,9 @@ export const INTEGRATION_CATEGORIES = [
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
 
+/** Who a connection serves: the whole organisation, or only the member who added it. */
+export const INTEGRATION_SCOPES = ['org', 'personal'] as const;
+
 export const INTEGRATION_AUTH_KINDS = ['keys', 'oauth'] as const;
 
 export const INTEGRATION_SUBSCRIPTION_STATUSES = ['syncing', 'listening', 'broken'] as const;

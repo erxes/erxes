@@ -18,6 +18,7 @@ import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
 import { manages } from '~/modules/integrations/connectable';
+import { allowsPersonal, usable } from '~/modules/integrations/scopes';
 import { INTEGRATIONS } from '~/modules/integrations/registry';
 import { resolveAppTrigger } from '~/modules/integrations/subscriptions';
 import { subjectCompiler } from '~/modules/views/recordFilter';
@@ -70,7 +71,9 @@ const appsNotAllowed = (action: Catalog['actions'][number]) => {
     ? integration.actions?.some((item) => `${integration.key}.${item.key}` === action.type)
     : false;
 
-  return integration && own && !manages(integration) ? [integration.name] : [];
+  return integration && own && !manages(integration) && !allowsPersonal(integration)
+    ? [integration.name]
+    : [];
 };
 
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
@@ -86,6 +89,12 @@ const actionProblems = (
 
   if (!action) return [owner ? notConnected : `Step ${step.id}: unknown action ${step.action}`];
 
+  const refused = appsNotAllowed(action).map(
+    (name) => `Step ${step.id} (${action.label}): your role can't use ${name}`,
+  );
+
+  if (refused.length) return refused;
+
   const connection = action.fields.find((field) => field.type === 'connection');
 
   if (owner && connection && !connection.options?.length) return [notConnected];
@@ -93,9 +102,6 @@ const actionProblems = (
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))
     .map((field) => `Step ${step.id} (${action.label}): ${field.label} is required`);
-
-  for (const name of appsNotAllowed(action))
-    problems.push(`Step ${step.id} (${action.label}): your role can't use ${name}`);
 
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
@@ -176,12 +182,13 @@ const appTriggerProblems = async (client: Db, trigger: Extract<Trigger, { kind: 
 
   if (!resolved.ok) return [resolved.problem];
 
-  if (!manages(resolved.app)) return [`Your role can't use ${resolved.app.name} for the trigger`];
+  if (!manages(resolved.app) && !allowsPersonal(resolved.app))
+    return [`Your role can't use ${resolved.app.name} for the trigger`];
 
   const [connection] = await client
     .select({ key: integrationConnections.key, status: integrationConnections.status })
     .from(integrationConnections)
-    .where(eq(integrationConnections.id, trigger.connectionId))
+    .where(and(eq(integrationConnections.id, trigger.connectionId), usable(resolved.app)))
     .limit(1);
 
   if (connection?.key !== resolved.app.key)

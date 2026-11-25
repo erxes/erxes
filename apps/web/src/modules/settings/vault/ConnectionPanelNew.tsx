@@ -16,6 +16,7 @@ import {
 } from '../integrations/ConnectionFields';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { ConnectionNameInput, useConnectionName } from './ConnectionName';
+import { ConnectionScopePicker, useConnectionScope } from './ConnectionScope';
 import { isOAuthIntegration, SignInForm } from './SignInForm';
 import { useConnectionDraft, useKeyedIntegrations } from './useVault';
 
@@ -70,6 +71,7 @@ const ConnectForm = ({
   const [values, setValues] = useState<ConnectionValues>({});
   const connect = useConnect(onConnected);
   const { keys, ready } = connectionKeys(integration, values);
+  const { open, scope, setScope } = useConnectionScope(integration);
 
   return (
     <form
@@ -80,7 +82,7 @@ const ConnectForm = ({
         if (taken) return;
 
         if (ready && named) {
-          connect.mutate({ key: integration.key, name: name.trim(), keys });
+          connect.mutate({ key: integration.key, name: name.trim(), scope, keys });
         } else {
           toast({
             variant: 'destructive',
@@ -100,6 +102,7 @@ const ConnectForm = ({
             <span className="font-medium">{brand}</span>
           </div>
           <CredentialsHelp integration={integration} />
+          <ConnectionScopePicker open={open} scope={scope} onChange={setScope} />
           <ConnectionNameInput
             id={`${id}-name`}
             integration={integration}

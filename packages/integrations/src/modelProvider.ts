@@ -1,4 +1,4 @@
-import type { IntegrationCategory } from '@erxes/core-contract';
+import type { IntegrationCategory, IntegrationScope } from '@erxes/core-contract';
 import { z } from 'zod';
 import {
   type ClientOptions,
@@ -17,6 +17,7 @@ interface ModelProviderSpec {
   dashboard: string;
   baseUrl: string;
   category?: IntegrationCategory;
+  scopes?: readonly IntegrationScope[];
   modelsPath?: string;
   checkPath?: string;
   headers?: (apiKey: string) => Record<string, string>;
@@ -52,6 +53,7 @@ export const modelProvider = (spec: ModelProviderSpec) =>
     category: spec.category ?? 'ai',
     countries: [],
     permission: 'assistant.manage',
+    scopes: spec.scopes ?? ['org', 'personal'],
     keys,
     client: ({ apiKey }, options: ClientOptions) => modelClient(spec, apiKey, options),
     async verify({ send, headers }) {
