@@ -340,8 +340,8 @@ export const dealMutations: Record<string, Resolver> = {
       normalizeProductDiscountInfos(
         await normalizeProductUomInfo(
           subdomain,
-          (deal.productsData || []).map((data) =>
-            data._id === dataId ? { ...doc } : data,
+          (deal.toObject<IDeal>().productsData || []).map((data) =>
+            data._id === dataId ? { ...doc, _id: dataId } : data,
           ),
         ),
       ),
@@ -454,8 +454,8 @@ export const dealMutations: Record<string, Resolver> = {
       normalizeProductDiscountInfos(
         await normalizeProductUomInfo(
           subdomain,
-          (deal.productsData || []).map((data) =>
-            data._id === dataId ? { ...doc } : data,
+          (deal.toObject<IDeal>().productsData || []).map((data) =>
+            data._id === dataId ? { ...doc, _id: dataId } : data,
           ),
         ),
       ),

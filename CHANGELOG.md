@@ -1,5 +1,26 @@
 
 
+## [3.4.29](https://github.com/erxes/erxes/compare/3.4.28...3.4.29) (2026-11-24)
+
+
+### Bug Fixes
+
+* conformities relations fields data losed ([4225115](https://github.com/erxes/erxes/commit/42251150071bebec6f4165bb4a87d34683968ebb))
+
+## [3.4.28](https://github.com/erxes/erxes/compare/3.4.27...3.4.28) (2026-11-24)
+
+
+### Bug Fixes
+
+* **frontline:** keep calls alive across REGISTER refreshes and second rings ([#10982](https://github.com/erxes/erxes/issues/10982)) ([b572ab9](https://github.com/erxes/erxes/commit/b572ab9eac0cb91d13bb23e903458ea30802e3d5))
+* **frontline:** stabilize call webhooks, recordings, locks and TURN ([#10983](https://github.com/erxes/erxes/issues/10983)) ([d19ec7f](https://github.com/erxes/erxes/commit/d19ec7f92fbde3f69fba12e7f3708fc2728abaec))
+* products data cancel reorder ([bcd80d6](https://github.com/erxes/erxes/commit/bcd80d692edf4af655a00ef086a62d516152d797))
+
+
+### Features
+
+* **frontline:** filter tickets by company and customer ([9b520e5](https://github.com/erxes/erxes/commit/9b520e5a3819b0940381f8c30aed290d8f3051e2))
+
 ## [3.4.27](https://github.com/erxes/erxes/compare/3.4.26...3.4.27) (2026-11-23)
 
 

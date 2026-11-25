@@ -65,6 +65,7 @@ import {
   PosOrderPanelPayments,
 } from '~/widgets/record-panel/PosOrderPanelDetail';
 import { PosPanelActivity } from '~/widgets/record-panel/PosPanelShared';
+import { PapaDeliveryPanel } from '@/pos/papa/components/PapaDeliveryPanel';
 
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
@@ -214,6 +215,10 @@ const renderPosOrderView = (
 
   if (view === 'tab' && tab === 'payments') {
     return <PosOrderPanelPayments orderId={orderId} />;
+  }
+
+  if (view === 'tab' && tab === 'delivery') {
+    return <PapaDeliveryPanel orderId={orderId} />;
   }
 
   if (view === 'activity') {

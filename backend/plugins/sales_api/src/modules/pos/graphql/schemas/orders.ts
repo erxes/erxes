@@ -65,6 +65,9 @@ export const types = () => `
     syncErkhetInfo: String
     putResponses: JSON
     deliveryInfo: JSON
+    papaDelivery: JSON
+    papaDeal: JSON
+    papaAutoSend: JSON
     deal: JSON
     dealLink: String
   }
