@@ -272,6 +272,17 @@ export const permissions: IPermissionConfig = {
           description: 'Remove POS covers',
         },
         {
+          title: 'Manage Papa delivery settings',
+          name: 'posPapaConfigManage',
+          description:
+            'Configure Papa Logistic credentials and pickup addresses',
+        },
+        {
+          title: 'Send orders to Papa',
+          name: 'posOrderPapaManage',
+          description: 'Quote, send, cancel and track Papa Logistic deliveries',
+        },
+        {
           title: 'Export POS items',
           name: 'posItemsExportManage',
           description: 'Export POS items',
@@ -373,6 +384,8 @@ export const permissions: IPermissionConfig = {
             'posSlotBulkUpdate',
             'posCoversEdit',
             'posCoversRemove',
+            'posPapaConfigManage',
+            'posOrderPapaManage',
             'posItemsExportManage',
             'posOrdersExportManage',
           ],

@@ -10,31 +10,40 @@ import {
 import { syncPosToClient } from '~/modules/pos/graphql/resolvers/mutations/utils';
 import { IPos } from '~/modules/pos/@types/pos';
 import { cancelSyncedPosOrder } from '~/modules/pos/utils/cancelOrder';
+import { autoSendPapaDelivery } from '~/modules/pos/papa/autoSend';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
+// A paid delivery order goes to Papa in the background: the POS client's
+// sync must not wait for Papa.
+const startPapaAutoSend = (
+  subdomain: string,
+  models: IModels,
+  orderId?: string,
+) => {
+  if (orderId) {
+    autoSendPapaDelivery({ subdomain, models, orderId }).catch(() => undefined);
+  }
+};
+
 export const posTrpcRouter = t.router({
   pos: t.router({
-    findOne: t.procedure
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const query = input?.query || input?.selector || input;
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const query = input?.query || input?.selector || input;
 
-        if (!query || !Object.keys(query).length) {
-          return {};
-        }
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
-        return await models.Pos.findOne(query).lean();
-      }),
-    find: t.procedure
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await models.Pos.find(input || {}).lean();
-      }),
+      return await models.Pos.findOne(query).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      return await models.Pos.find(input || {}).lean();
+    }),
     create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
       const { doc, user } = input;
@@ -162,6 +171,8 @@ export const posTrpcRouter = t.router({
           responses,
         });
 
+        startPapaAutoSend(subdomain, models, order?._id);
+
         return null;
       }),
     createOrUpdateOrdersMany: t.procedure
@@ -188,6 +199,8 @@ export const posTrpcRouter = t.router({
               posToken,
               responses,
             });
+
+            startPapaAutoSend(subdomain, models, order?._id);
           } catch (e) {
             console.log(
               `createOrUpdateOrdersMany per warning: ${e.message}, #${order?.number}`,
@@ -199,34 +212,30 @@ export const posTrpcRouter = t.router({
       }),
   }),
   orders: t.router({
-    findOne: t.procedure
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const query = input?.query || input?.selector || input;
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const query = input?.query || input?.selector || input;
 
-        if (!query || !Object.keys(query).length) {
-          return {};
-        }
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
-        return await models.PosOrders.findOne(query).lean();
-      }),
-    find: t.procedure
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { query, skip, limit, sort = {} } = input || {};
+      return await models.PosOrders.findOne(query).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { query, skip, limit, sort = {} } = input || {};
 
-        if (!query) {
-          return await models.PosOrders.find(input || {}).lean();
-        }
+      if (!query) {
+        return await models.PosOrders.find(input || {}).lean();
+      }
 
-        return await models.PosOrders.find(query)
-          .skip(skip || 0)
-          .limit(limit || 0)
-          .sort(sort)
-          .lean();
-      }),
+      return await models.PosOrders.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
+    }),
     updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { selector, modifier } = input;
       const { models } = ctx;

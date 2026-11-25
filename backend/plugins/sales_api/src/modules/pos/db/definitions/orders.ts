@@ -155,6 +155,21 @@ export const posOrderSchema = schemaWrapper(
       optional: true,
       label: 'Delivery Info, address, map, etc',
     },
+    papaDelivery: {
+      type: Object,
+      optional: true,
+      label: 'Papa Logistic delivery state (sales-owned)',
+    },
+    papaAutoSend: {
+      type: Object,
+      optional: true,
+      label: 'Automatic Papa send result (sales-owned)',
+    },
+    papaDeal: {
+      type: Object,
+      optional: true,
+      label: 'Delivery deal moved by Papa statuses (sales-owned)',
+    },
     description: {
       type: String,
       label: 'Description',
