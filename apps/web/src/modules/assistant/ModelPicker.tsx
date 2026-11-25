@@ -4,7 +4,7 @@ import type {
   AssistantThinkingLevel,
 } from '@erxes/core-contract';
 import { IconBrain, IconCheck, IconChevronDown, IconSettings } from '@tabler/icons-react';
-import { Button, Command, IconTip, Popover, ToggleGroup } from 'erxes-ui';
+import { Button, cn, Command, IconTip, Popover, Slider } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -122,28 +122,45 @@ export const ModelPicker = ({ state, disabled }: { state: ModelRunState; disable
       </IconTip>
       <Popover.Content variant="flush" align="end" className="w-80">
         {level && (
-          <div className="flex flex-col gap-1.5 border-b p-2">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <IconBrain aria-hidden className="size-3.5" />
-              {t('thinking.title', 'Thinking')}
-            </span>
-            <ToggleGroup
-              variant="outline"
-              size="sm"
-              value={[level]}
-              aria-label={t('thinking.label', 'Thinking: {{level}}', { level: levelName })}
-              onValueChange={([value]) => {
-                const next = levels.find((candidate) => candidate === value);
+          <div className="flex flex-col gap-2.5 border-b px-3 pt-2.5 pb-3">
+            <div className="flex items-center gap-1.5 text-xs">
+              <IconBrain aria-hidden className="size-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">{t('thinking.title', 'Thinking')}</span>
+              <span
+                key={level}
+                aria-hidden
+                className="ml-auto font-medium animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ease-out motion-reduce:animate-none"
+              >
+                {levelName}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Slider
+                min={0}
+                max={levels.length - 1}
+                step={1}
+                value={Math.max(0, levels.indexOf(level))}
+                aria-label={t('thinking.label', 'Thinking: {{level}}', { level: levelName })}
+                onValueChange={(index) => {
+                  const next = levels[index];
 
-                if (next) state.setPicked({ ...state.picked, thinkingLevel: next });
-              }}
-            >
-              {levels.map((option) => (
-                <ToggleGroup.Item key={option} value={option} className="flex-1">
-                  {t(`thinking.${option}`, LEVEL_LABELS[option])}
-                </ToggleGroup.Item>
-              ))}
-            </ToggleGroup>
+                  if (next && next !== level) {
+                    state.setPicked({ ...state.picked, thinkingLevel: next });
+                  }
+                }}
+              />
+              <div aria-hidden className="flex justify-between px-1.5">
+                {levels.map((option, index) => (
+                  <span
+                    key={option}
+                    className={cn(
+                      'size-1 rounded-full transition-colors',
+                      index <= levels.indexOf(level) ? 'bg-primary' : 'bg-border',
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         )}
         <ModelList state={state} onDone={() => setOpen(false)} />

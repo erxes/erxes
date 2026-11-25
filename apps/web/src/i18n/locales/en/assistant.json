@@ -1,5 +1,6 @@
 {
   "title": "Assistant",
+  "back": "Back",
   "composer": {
     "label": "Message",
     "placeholder": "Ask anything, @ to mention a record",
