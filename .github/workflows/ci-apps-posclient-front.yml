@@ -25,13 +25,13 @@ jobs:
           node-version: 22.19.0
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@53751a9789c7351e4924f01fe68370252a4f1f18 # v2.4.1
         with:
           version: 9
 
       - name: Install dependencies
         working-directory: apps/posclient-front
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Lint
         working-directory: apps/posclient-front
@@ -43,8 +43,11 @@ jobs:
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           cd apps/posclient-front
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:latest -f Dockerfile .
           docker push erxes/posclient-front:latest
