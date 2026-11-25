@@ -1,6 +1,6 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.1.0-v2.49",
+  "version": "0.1.0-v2.50",
   "private": false,
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
@@ -74,6 +74,7 @@
     "./invoiceLines": "./src/invoiceLines.ts",
     "./leads": "./src/leads.ts",
     "./money": "./src/money.ts",
+    "./mongolianBanks": "./src/mongolianBanks.ts",
     "./notificationGroups": "./src/notificationGroups.ts",
     "./notifications": "./src/notifications.ts",
     "./oauthConsent": "./src/oauthConsent.ts",
@@ -178,6 +179,7 @@
       "./invoiceLines": "./dist/invoiceLines.js",
       "./leads": "./dist/leads.js",
       "./money": "./dist/money.js",
+      "./mongolianBanks": "./dist/mongolianBanks.js",
       "./notificationGroups": "./dist/notificationGroups.js",
       "./notifications": "./dist/notifications.js",
       "./oauthConsent": "./dist/oauthConsent.js",

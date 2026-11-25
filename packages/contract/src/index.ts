@@ -236,6 +236,8 @@ export * from './stream';
 
 export * from './money';
 
+export * from './mongolianBanks';
+
 export * from './notifications';
 
 export * from './oauthConsent';
