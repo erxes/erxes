@@ -9,8 +9,6 @@ import {
   organizations,
   requestOrgId,
   sourceOf,
-  portalPlugins,
-  portals,
 } from '@erxes/core-db';
 import { and, asc, count, eq, exists, gt, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -21,7 +19,7 @@ import { deleteInBatches, repeatWhile } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { sendEmail } from '~/modules/email/email';
 import { mailRoute } from '~/modules/email/mailConnections';
-import { unknownPortal } from '~/modules/customerAuth/customerPortals';
+import { type PluginPortal, pluginPortal } from '~/modules/portals/pluginPortal';
 import { sendSms } from '~/modules/sms/sms';
 
 const log = logger.child({ component: 'customer-notifications' });
@@ -48,34 +46,10 @@ const signedUp = (portalId: string | undefined) =>
 type Input = CustomerNotificationInput;
 
 /** The portal a notification is for: one the sending plugin is on. */
-const portalOf = async (client: Db, source: string, portalId: string | undefined) => {
-  if (!portalId) return null;
+const portalOf = (client: Db, source: string, portalId: string | undefined) =>
+  portalId ? pluginPortal(client, source, portalId) : null;
 
-  const [portal] = await client
-    .select({
-      id: portals.id,
-      name: portals.name,
-      senderName: portals.senderName,
-      mailConnectionId: portals.mailConnectionId,
-      fromEmail: portals.fromEmail,
-      replyTo: portals.replyTo,
-      smsConnectionId: portals.smsConnectionId,
-      origins: portals.origins,
-    })
-    .from(portals)
-    .innerJoin(
-      portalPlugins,
-      and(eq(portalPlugins.portalId, portals.id), eq(portalPlugins.plugin, source)),
-    )
-    .where(eq(portals.id, portalId))
-    .limit(1);
-
-  if (!portal) throw unknownPortal();
-
-  return portal;
-};
-
-type NotifiedPortal = NonNullable<Awaited<ReturnType<typeof portalOf>>>;
+type NotifiedPortal = PluginPortal;
 
 /** The row every recipient gets, without its id and customer. */
 const rowOf = (source: string, input: Input) => ({

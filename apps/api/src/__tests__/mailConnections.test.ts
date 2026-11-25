@@ -128,4 +128,36 @@ describe('mail service connections', () => {
       t.owner().portals.update({ id: portal.id, mailConnectionId: payments.id }),
     ).rejects.toMatchObject({ code: 'UNKNOWN_CONNECTION' });
   });
+
+  it('sends a plugin’s email as its portal’s go, and through Organization email once the connection is off', async () => {
+    const shop = await connectSmtp('Portal mail', 'hello@shop.mn');
+    const portal = await t.owner().portals.create({ name: 'Nomad Shop' });
+    const message = { to: ['guest@mail.mn'], subject: 'Your booking', body: 'See you soon.' };
+
+    // Only a portal the plugin is on.
+    await expect(t.hr().emails.send({ ...message, portalId: portal.id })).rejects.toMatchObject({
+      code: 'UNKNOWN_PORTAL',
+    });
+
+    await t.hr().portals.attach({ id: portal.id, recordId: 'shop-1' });
+    await t.owner().portals.update({ id: portal.id, mailConnectionId: shop.id });
+
+    await expect(
+      t.hr().emails.send({ ...message, portalId: portal.id, connectionId: shop.id }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
+
+    await t.hr().emails.send({ ...message, portalId: portal.id });
+    await settle();
+    expect(mailTo('guest@mail.mn').at(-1)?.data).toContain('From: Nomad Shop <hello@shop.mn>');
+
+    await t.owner().integrations.update({ key: 'smtp', id: shop.id, status: 'disabled' });
+    await t.hr().emails.send({ ...message, to: ['later@mail.mn'], portalId: portal.id });
+    await settle();
+
+    expect(mailTo('later@mail.mn')).toEqual([]);
+    expect((await t.owner().emails.deliveries({ search: 'later@mail.mn' })).data[0]).toMatchObject({
+      provider: 'log',
+      status: 'sent',
+    });
+  });
 });
