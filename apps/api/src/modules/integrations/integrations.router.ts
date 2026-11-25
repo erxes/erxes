@@ -2,15 +2,15 @@ import { caller, db } from '@erxes/core-db';
 import { connectionCredentials, usableConnections } from '~/modules/integrations/connectionUse';
 import {
   connect,
-  integrationConnectionsOf,
-  listIntegrations,
   removeConnection,
   updateConnection,
 } from '~/modules/integrations/integrations.service';
+import { integrationConnectionsOf, listIntegrations } from '~/modules/integrations/integrationList';
 import { reportIntegrationState } from '~/modules/integrations/pluginIntegrations';
 import { appSubscriptionsOf } from '~/modules/integrations/listeners';
 import { listAppRecords } from '~/modules/integrations/records';
-import { authorizeUrl, removeOAuthApp, setOAuthApp } from '~/modules/integrations/oauth';
+import { authorizeUrl } from '~/modules/integrations/oauth';
+import { removeOAuthApp, setOAuthApp } from '~/modules/integrations/oauthApps';
 import { audited, recordOf, scoped, unscoped } from '~/orpc';
 
 export const integrationsRouter = {

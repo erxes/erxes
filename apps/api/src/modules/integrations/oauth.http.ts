@@ -35,7 +35,7 @@ const refuse = (res: Response, status: number, text: string) => {
   res.status(status).type('text/plain').send(text);
 };
 
-const startedHere = async (req: Request, state: State) => {
+export const startedHere = async (req: Request, state: State) => {
   const session = await sessionClaims(req);
 
   if (session?.userId !== state.userId || session.orgId !== state.orgId) return null;
@@ -54,7 +54,12 @@ const connect = (member: Caller, state: State, code: string) =>
     const { keys } = await exchangeCode(app, state, code);
 
     const connection = await withOrg(state.orgId, (tx) =>
-      saveSignIn(tx, app.integration, { orgId: state.orgId, name: state.name, keys }),
+      saveSignIn(tx, app.integration, {
+        orgId: state.orgId,
+        name: state.name,
+        scope: state.scope,
+        keys,
+      }),
     );
 
     return connection.id;

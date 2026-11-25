@@ -2,7 +2,8 @@ import type { ActionField, DataField } from '@erxes/core-contract';
 import { z } from 'zod';
 import { GatewayError, Text } from '@erxes/plugin-sdk/integrations';
 
-export type GithubKeys = { accessToken: string };
+/** `installation`: an organisation's GitHub App token, which reads no /user endpoints. */
+export type GithubKeys = { accessToken: string; installation?: true };
 
 export const words = (max: number) => Text.pipe(z.string().trim().min(1).max(max));
 

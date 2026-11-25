@@ -1,5 +1,5 @@
 import type { VaultConnection } from '@erxes/core-contract';
-import { IconChevronRight } from '@tabler/icons-react';
+import { IconChevronRight, IconUser } from '@tabler/icons-react';
 import { Badge, cn, CONNECTION_CONTENT_TYPE, useCurrentRecord, useOpenRecord } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -55,6 +55,12 @@ export const ConnectionList = ({
                   <span className={cn('font-medium', !active && 'text-muted-foreground')}>
                     {connection.name}
                   </span>
+                  {connection.ownerId !== null && (
+                    <Badge variant="secondary">
+                      <IconUser />
+                      {connectionT('personal-badge', 'only you')}
+                    </Badge>
+                  )}
                   {!active && <Badge>{connectionT('off-badge', 'off')}</Badge>}
                   {connection.settings.sandbox === true && (
                     <Badge variant="warning">{connectionT('sandbox-badge', 'sandbox')}</Badge>

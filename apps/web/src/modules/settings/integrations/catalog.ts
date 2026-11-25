@@ -35,7 +35,7 @@ type Listed = ListedIntegration & {
 /** One with its tile, and the plugins' integrations that connect through it (`joined`). */
 export type Integration = Listed & { joined: Listed[] };
 
-const URGENCY = { 'not-set-up': 0, off: 1, connected: 2, attention: 3 } as const;
+const URGENCY = { 'not-set-up': 0, ready: 1, off: 2, connected: 3, attention: 4 } as const;
 
 /** Its own state, unless one that joins it is in a more urgent one (a broken page). */
 const statusWith = (host: Listed, joined: Listed[]): Listed['status'] => {

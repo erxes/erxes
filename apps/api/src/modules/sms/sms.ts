@@ -26,13 +26,10 @@ export const loggedSms: SmsPayload[] = [];
  * while it is active, else its oldest active one of an integration that sends texts.
  */
 const smsConnection = (tx: Db, preferred?: string | null) =>
-  connectionsWithSecret(tx)
-    .where(
-      and(
-        inArray(integrationConnections.key, SMS_KEYS),
-        eq(integrationConnections.status, 'active'),
-      ),
-    )
+  connectionsWithSecret(
+    tx,
+    and(inArray(integrationConnections.key, SMS_KEYS), eq(integrationConnections.status, 'active')),
+  )
     .orderBy(
       sql`${integrationConnections.id} = ${preferred ?? ''} desc`,
       asc(integrationConnections.createdAt),

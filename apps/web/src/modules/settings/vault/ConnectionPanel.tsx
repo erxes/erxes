@@ -71,7 +71,10 @@ const ConnectionFacts = ({
         <Fact label={t('account', 'Account')}>
           <span className="flex flex-wrap items-center gap-2">
             {account ?? t('account-unknown', 'Not known')}
-            <SignInAgain integration={integration} />
+            <SignInAgain
+              integration={integration}
+              scope={connection.ownerId === null ? 'org' : 'personal'}
+            />
           </span>
         </Fact>
       )}

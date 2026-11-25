@@ -38,6 +38,7 @@ describe('plugin integrations', { timeout: 120_000 }, () => {
         connection: null,
         countries: [],
         dashboard: null,
+        scopes: ['org'],
         keyed: false,
         fields: [],
         payments: null,

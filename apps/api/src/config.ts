@@ -44,6 +44,21 @@ const oauthApps: Record<string, { clientId: string; clientSecret: string }> = {
     : {}),
 };
 
+const githubApp =
+  env.GITHUB_APP_ID &&
+  env.GITHUB_APP_SLUG &&
+  env.GITHUB_APP_PRIVATE_KEY &&
+  env.GITHUB_APP_CLIENT_ID &&
+  env.GITHUB_APP_CLIENT_SECRET
+    ? {
+        id: env.GITHUB_APP_ID,
+        slug: env.GITHUB_APP_SLUG,
+        privateKey: env.GITHUB_APP_PRIVATE_KEY,
+        clientId: env.GITHUB_APP_CLIENT_ID,
+        clientSecret: env.GITHUB_APP_CLIENT_SECRET,
+      }
+    : null;
+
 /** SES's API for its domains: the region's own endpoint unless `endpoint` is set. */
 const sesApi: { endpoint?: string } = {};
 
@@ -168,6 +183,8 @@ export const config = {
   },
   integrations: {
     oauthApps,
+    /** The GitHub App organisations connect GitHub through; null: personal tokens only. */
+    githubApp,
     oauthCallbackUrl: env.INTEGRATION_OAUTH_CALLBACK_URL,
     metaRelay:
       env.META_RELAY_URL && env.META_RELAY_KEY

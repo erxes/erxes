@@ -96,6 +96,7 @@ export const github = defineIntegration({
   category: 'developer',
   countries: [],
   permission: 'integrations.manage',
+  scopes: ['org', 'personal'],
   dashboard: 'https://github.com/settings/tokens',
   keys: z.object({ accessToken: secret('Personal access token') }),
   client: (keys) => keys,

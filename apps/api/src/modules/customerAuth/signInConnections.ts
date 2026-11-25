@@ -13,14 +13,10 @@ const unavailable = () =>
  */
 const openSignInConnection = async (orgId: string, connectionId: string) => {
   const opened = await withOrg(orgId, async (tx) => {
-    const [row] = await connectionsWithSecret(tx)
-      .where(
-        and(
-          eq(integrationConnections.id, connectionId),
-          eq(integrationConnections.status, 'active'),
-        ),
-      )
-      .limit(1);
+    const [row] = await connectionsWithSecret(
+      tx,
+      and(eq(integrationConnections.id, connectionId), eq(integrationConnections.status, 'active')),
+    ).limit(1);
 
     if (!row) return null;
 

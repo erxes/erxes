@@ -17,7 +17,7 @@ import {
 import { FromAddressField } from './FromAddressField';
 import { PluginRecordSelect } from './recordSelects';
 import { JsonEditor } from './JsonEditor';
-import { Segmented } from './Segmented';
+import { Segmented } from '~/components/Segmented';
 import { TemplateInput } from './TemplateInput';
 
 const TextField = ({

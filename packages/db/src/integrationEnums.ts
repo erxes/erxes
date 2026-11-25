@@ -17,7 +17,11 @@ export const INTEGRATION_CATEGORIES = [
 
 export const INTEGRATION_CONNECTION_STATUSES = ['active', 'disabled'] as const;
 
-export const INTEGRATION_AUTH_KINDS = ['keys', 'oauth'] as const;
+/** Who a connection serves: the whole organisation, or only the member who added it. */
+export const INTEGRATION_SCOPES = ['org', 'personal'] as const;
+
+/** `app`: an installation of the server's GitHub App, with a token core mints on use. */
+export const INTEGRATION_AUTH_KINDS = ['keys', 'oauth', 'app'] as const;
 
 export const INTEGRATION_SUBSCRIPTION_STATUSES = ['syncing', 'listening', 'broken'] as const;
 
@@ -34,7 +38,8 @@ export const VAULT_HOLDERS = [
   'plugin',
 ] as const;
 
-export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'not-set-up'] as const;
+/** `ready`: its app is set up, and no account is connected through it yet. */
+export const INTEGRATION_STATES = ['connected', 'off', 'attention', 'ready', 'not-set-up'] as const;
 
 export const INTEGRATION_FIELD_TYPES = ['text', 'secret', 'switch', 'select', 'hidden'] as const;
 

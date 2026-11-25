@@ -3,18 +3,17 @@ import {
   type Db,
   integrationConnections,
   integrationOAuthApps,
-  newId,
   requestOrgId,
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { type AuthorizeInput, IntegrationScope } from '@erxes/core-contract';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
 import { coreKey } from '~/lib/coreKey';
 import { hmacSha256, randomToken, safeEqual, sha256 } from '~/lib/crypto';
-import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink } from '~/modules/email/email';
 import { readSecret, saveSecret } from '~/modules/secrets/vault';
 import type { ConnectionRow } from './connections';
@@ -24,7 +23,9 @@ import {
   oauthKeys,
   type OAuthSetup,
 } from '@erxes/plugin-sdk/integrations';
-import { connectable } from './connectable';
+import { installationKeys } from './githubApp';
+import { keyedOf } from './registry';
+import { ownerFor } from './scopes';
 import { ensureNameFree } from './connectionNames';
 import { type KeyedIntegration, sealedValues, splitValues } from './define';
 import { metaRelayFor, withoutRelayPrefix } from './metaRelay';
@@ -35,15 +36,16 @@ const REFRESH_MARGIN_SECONDS = 60;
 
 const CALLBACK_PATH = '/core/v1/integrations/oauth/callback';
 
-const Client = z.object({ clientId: z.string().min(1), clientSecret: z.string().min(1) });
+export const Client = z.object({ clientId: z.string().min(1), clientSecret: z.string().min(1) });
 
-type Client = z.infer<typeof Client>;
+export type Client = z.infer<typeof Client>;
 
 const State = z.object({
   orgId: z.string(),
   userId: z.string(),
   key: z.string(),
   name: z.string().optional(),
+  scope: IntegrationScope,
   nonce: z.string(),
   expiresAt: z.number(),
 });
@@ -56,14 +58,12 @@ const Tokens = z.object({
   expires_in: z.coerce.number().positive().optional(),
 });
 
-type OAuthIntegration = KeyedIntegration & { oauth: OAuthSetup };
+export type OAuthIntegration = KeyedIntegration & { oauth: OAuthSetup };
 
 const isOAuth = (integration: KeyedIntegration): integration is OAuthIntegration =>
   Boolean(integration.oauth);
 
-const oauthOf = (key: string) => {
-  const integration = connectable(key);
-
+export const withSignIn = (integration: KeyedIntegration) => {
   if (!isOAuth(integration)) throw fail('NOT_FOUND', `${integration.name} has no sign-in`);
 
   return integration;
@@ -85,7 +85,7 @@ const orgClient = async (tx: Db, key: string): Promise<AppClient | null> => {
     : null;
 };
 
-const serverClient = (key: string): AppClient | null => {
+export const serverClient = (key: string): AppClient | null => {
   const client = config.integrations.oauthApps[key];
 
   return client ? { ref: SERVER_CLIENT, ...client } : null;
@@ -104,23 +104,6 @@ export const oauthFacts = async (tx: Db, key: string) => {
     callbackUrl: relay?.redirectUrl ?? (await callbackUrl(tx)),
     clientId: own?.clientId ?? null,
   };
-};
-
-const ensureAppFree = async (tx: Db, integration: OAuthIntegration) => {
-  if (serverClient(integration.key))
-    throw fail('NOT_ALLOWED', `${integration.name} signs in through the server's app`);
-
-  const [used] = await tx
-    .select({ id: integrationConnections.id })
-    .from(integrationConnections)
-    .where(eq(integrationConnections.key, integration.key))
-    .limit(1);
-
-  if (used)
-    throw fail(
-      'APP_IN_USE',
-      `Connections sign in through your ${integration.name} app: remove them to change it`,
-    );
 };
 
 export const appClientOf = async (tx: Db, key: string) => serverClient(key) ?? orgClient(tx, key);
@@ -163,7 +146,7 @@ const signed = (body: string) =>
 const verifierOf = (state: State) =>
   hmacSha256(coreKey('erxes-integration-oauth-pkce-v1'), state.nonce, 'base64url');
 
-const sealState = (state: State) => {
+export const sealState = (state: State) => {
   const body = Buffer.from(JSON.stringify(state)).toString('base64url');
 
   return `${body}.${signed(body)}`;
@@ -182,13 +165,14 @@ export const openState = (token: string) => {
 };
 
 /** `name` is for a new account's connection; without it, the account's name. */
-export const authorizeUrl = async (tx: Db, input: { key: string; name?: string }) => {
-  const integration = oauthOf(input.key);
+export const authorizeUrl = async (tx: Db, input: z.output<typeof AuthorizeInput>) => {
+  const integration = withSignIn(keyedOf(input.key));
+  const ownerId = ownerFor(integration, input.scope);
   const client = await appClientOf(tx, integration.key);
 
   if (!client) throw fail('NOT_SET_UP', `Add your ${integration.name} app's client id and secret`);
 
-  if (input.name) await ensureNameFree(tx, integration, input.name);
+  if (input.name) await ensureNameFree(tx, integration, ownerId, input.name);
 
   const { oauth } = integration;
 
@@ -197,6 +181,7 @@ export const authorizeUrl = async (tx: Db, input: { key: string; name?: string }
     userId: caller('user').userId,
     key: integration.key,
     name: input.name,
+    scope: input.scope,
     nonce: randomToken(24),
     expiresAt: Date.now() + STATE_MINUTES * 60_000,
   };
@@ -248,7 +233,7 @@ const keysFrom = (tokens: z.infer<typeof Tokens>, before?: OAuthKeys): OAuthKeys
 });
 
 export const signInApp = async (tx: Db, key: string) => {
-  const integration = oauthOf(key);
+  const integration = withSignIn(keyedOf(key));
   const client = await appClientOf(tx, integration.key);
 
   if (!client) throw new Error(`${integration.name} has no OAuth app`);
@@ -304,6 +289,8 @@ const renewable = (keys: OAuthKeys): keys is OAuthKeys & { refreshToken: string 
   );
 
 export const freshKeys = async (tx: Db, integration: KeyedIntegration, row: ConnectionRow) => {
+  if (row.auth === 'app') return installationKeys(tx, row);
+
   if (!isOAuth(integration)) return integration.keys.parse(await storedKeys(tx, row));
 
   const seen = oauthKeys.parse(await storedKeys(tx, row));
@@ -337,53 +324,4 @@ export const freshKeys = async (tx: Db, integration: KeyedIntegration, row: Conn
   await saveSecret(tx, JSON.stringify(splitValues(integration.keys, next).secrets), row.secretId);
 
   return next;
-};
-
-export const setOAuthApp = async (tx: Db, input: { key: string } & Client) => {
-  const integration = oauthOf(input.key);
-
-  await ensureAppFree(tx, integration);
-
-  const [row] = await tx
-    .select({ secretId: integrationOAuthApps.secretId })
-    .from(integrationOAuthApps)
-    .where(eq(integrationOAuthApps.key, integration.key))
-    .limit(1);
-
-  const value = JSON.stringify(Client.parse(input));
-
-  if (row) {
-    await saveSecret(tx, value, row.secretId);
-    await tx
-      .update(integrationOAuthApps)
-      .set({ updatedAt: sql`now()` })
-      .where(eq(integrationOAuthApps.key, integration.key));
-  } else {
-    await tx.insert(integrationOAuthApps).values({
-      id: newId(),
-      key: integration.key,
-      secretId: await saveSecret(tx, value),
-      createdBy: caller('user').userId,
-    });
-  }
-
-  await recordAudit(tx, {
-    action: 'integration.oauth_app_set',
-    targetType: 'integration',
-    targetId: integration.key,
-    targetLabel: integration.name,
-    metadata: { clientId: input.clientId },
-  });
-
-  return { ok: true as const };
-};
-
-export const removeOAuthApp = async (tx: Db, key: string) => {
-  const integration = oauthOf(key);
-
-  await ensureAppFree(tx, integration);
-
-  await tx.delete(integrationOAuthApps).where(eq(integrationOAuthApps.key, integration.key));
-
-  return { ok: true as const };
 };

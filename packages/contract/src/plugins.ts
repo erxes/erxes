@@ -13,7 +13,7 @@ import { PluginName } from './values';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
 import { PluginConnectionUse } from './connectionUse';
-import { PluginIntegrations } from './integrations';
+import { PluginIntegrations } from './pluginIntegrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';

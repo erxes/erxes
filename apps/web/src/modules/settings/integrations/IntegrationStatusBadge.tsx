@@ -8,10 +8,11 @@ const VARIANT = {
   connected: 'success',
   off: 'secondary',
   attention: 'warning',
+  ready: 'info',
   'not-set-up': 'secondary',
 } as const;
 
-/** "Connected", "Off", "Needs attention" or "Not set up"; nothing while it loads. */
+/** "Connected", "Off", "Needs attention", "Ready" or "Not set up"; nothing while it loads. */
 export const IntegrationStatusBadge = ({
   status,
 }: {
@@ -25,6 +26,7 @@ export const IntegrationStatusBadge = ({
     connected: t('connected', 'Connected'),
     off: t('off', 'Off'),
     attention: t('attention', 'Needs attention'),
+    ready: t('ready', 'Ready'),
     'not-set-up': t('not-set-up', 'Not set up'),
   }[status.state];
 

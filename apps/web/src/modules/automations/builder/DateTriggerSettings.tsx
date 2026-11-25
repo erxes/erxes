@@ -15,7 +15,7 @@ import { useMinuteClock } from '~/lib/useMinuteClock';
 import { paths } from '~/lib/paths';
 import { ConditionsEditor } from './ConditionsEditor';
 import { Field } from './Field';
-import { Segmented } from './Segmented';
+import { Segmented } from '~/components/Segmented';
 import { TimeOfDay } from './triggerFields';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 

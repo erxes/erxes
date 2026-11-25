@@ -8,6 +8,7 @@ import { fail } from '~/http/errors';
 import { connectionFor, refused } from '~/modules/integrations/actions';
 import { manages } from '~/modules/integrations/connectable';
 import { clientOf } from '~/modules/integrations/connections';
+import { allowsPersonal, pickable } from '~/modules/integrations/scopes';
 import { eachStep } from './cursor';
 import { DEFAULT_DECISION_MODELS, OPENAI_DECISION_MODELS } from './decisionModels';
 
@@ -183,18 +184,27 @@ export const decisionProblems = async (client: Db, steps: AutomationStep[]) => {
   if (decisions.length === 0) return [];
 
   const active = await client
-    .select({ id: integrationConnections.id, key: integrationConnections.key })
+    .select({
+      id: integrationConnections.id,
+      key: integrationConnections.key,
+      ownerId: integrationConnections.ownerId,
+    })
     .from(integrationConnections)
     .where(
       and(
         inArray(integrationConnections.key, [...new Set(decisions.map((step) => step.provider))]),
         eq(integrationConnections.status, 'active'),
+        pickable(),
       ),
     );
 
   return decisions.flatMap((step) => {
     const integration = DECISION_INTEGRATIONS[step.provider];
-    const mine = active.filter((row) => row.key === step.provider);
+
+    const mine = active.filter(
+      (row) => row.key === step.provider && (row.ownerId !== null || manages(integration)),
+    );
+
     const problems: string[] = [];
 
     if (!step.question.trim()) problems.push(`Step ${step.id}: ask the model a question`);
@@ -204,7 +214,7 @@ export const decisionProblems = async (client: Db, steps: AutomationStep[]) => {
         `Step ${step.id}: ${step.model} can't make decisions, pick ${[...OPENAI_DECISION_MODELS].join(' or ')}`,
       );
 
-    if (!manages(integration))
+    if (!manages(integration) && !allowsPersonal(integration))
       problems.push(`Step ${step.id}: your role can't use ${integration.name}`);
     else if (mine.length === 0)
       problems.push(`Step ${step.id}: connect ${integration.name} in Settings › Integrations`);

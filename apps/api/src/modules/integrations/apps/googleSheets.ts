@@ -17,6 +17,7 @@ export const googleSheets = defineIntegration({
   category: 'productivity',
   countries: [],
   permission: 'integrations.manage',
+  scopes: ['org', 'personal'],
   dashboard: 'https://console.cloud.google.com/apis/credentials',
   keys: oauthKeys,
   oauth: {

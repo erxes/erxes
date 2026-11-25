@@ -3429,6 +3429,58 @@
       }
     }
   },
+  "githubApp": {
+    "app": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "setApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "removeApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "signIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/github/app/sign-in"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/github/app/connections"
+        }
+      }
+    }
+  },
   "banks": {
     "connections": {
       "~orpc": {

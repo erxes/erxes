@@ -21,6 +21,7 @@ import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 import { pluginInstallations } from './plugins';
 import { secrets } from './secrets';
+import { users } from './users';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -35,6 +36,8 @@ export const integrationConnections = pgTable(
     secretId: text().notNull(),
     auth: text({ enum: INTEGRATION_AUTH_KINDS }).default('keys').notNull(),
     status: text({ enum: INTEGRATION_CONNECTION_STATUSES }).default('active').notNull(),
+    /** The member it is personal to; null: the whole organisation's. */
+    ownerId: text(),
     createdBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -45,6 +48,7 @@ export const integrationConnections = pgTable(
       table.orgId,
       table.key,
       sql`lower(${table.name})`,
+      sql`coalesce(${table.ownerId}, '')`,
     ),
     check('core_integration_connections_auth_check', inList(table.auth, INTEGRATION_AUTH_KINDS)),
     foreignKey({
@@ -57,6 +61,11 @@ export const integrationConnections = pgTable(
       foreignColumns: [secrets.id],
       name: 'core_integration_connections_secret_id_fkey',
     }),
+    foreignKey({
+      columns: [table.ownerId],
+      foreignColumns: [users.id],
+      name: 'core_integration_connections_owner_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 

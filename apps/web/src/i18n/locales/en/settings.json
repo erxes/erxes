@@ -976,7 +976,9 @@
     "connected": "Connected",
     "off": "Off",
     "attention": "Needs attention",
+    "ready": "Ready",
     "not-set-up": "Not set up",
+    "app-set": "{{name}} is set up",
     "search": "Search integrations…",
     "categories": "Categories",
     "all": "All",
@@ -1055,6 +1057,10 @@
       "help-sealed": "They are checked with the service and stored encrypted.",
       "open-dashboard": "Open dashboard",
       "off-badge": "off",
+      "personal-badge": "only you",
+      "scope": "Who uses it",
+      "scope-org": "Organisation",
+      "scope-personal": "Only me",
       "sandbox-badge": "sandbox",
       "turn-off": "Turn off",
       "turn-on": "Turn on",
@@ -1383,6 +1389,26 @@
         "off-smtp": "Your SMTP server reports no bounces, so erxes counts emails but neither paces nor halts sending."
       }
     },
+    "github-app": {
+      "sign-in": "Choose a GitHub account",
+      "connected": "{{name}} is connected",
+      "none": "Not installed on any of your accounts yet",
+      "install": "Install on another account",
+      "needs-app": "Set up your GitHub App first",
+      "app": "GitHub App",
+      "create-app": "Create one",
+      "callback-url": "Callback URL",
+      "app-id": "App ID",
+      "app-id-short": "ID {{id}}",
+      "client-id": "Client ID",
+      "client-secret": "Client secret",
+      "private-key": "Private key",
+      "save-app": "Save App",
+      "app-saved": "GitHub App {{slug}} is set",
+      "app-in-use": "Remove its connections first",
+      "remove-app": "Remove",
+      "upload-pem": "Upload .pem"
+    },
     "oauth": {
       "app-saved": "Saved. You can sign in now.",
       "app-needed": "First create an app in your developer account and add this address as its redirect URL. Then paste its client id and secret.",
@@ -1392,7 +1418,8 @@
       "cancel": "Cancel",
       "sign-in": "Sign in with {{name}}",
       "sign-in-again": "Sign in again",
-      "one-per-account": "Each account connects once, named after the account. Signing in again with an account renews its connection."
+      "one-per-account": "Each account connects once, named after the account. Signing in again with an account renews its connection.",
+      "your-app": "Your {{name}} app"
     }
   },
   "team-member": {

@@ -116,6 +116,7 @@ describe('app records for the builder’s pickers', { timeout: 300_000 }, () => 
       await t.owner().integrations.connect({
         key: 'github',
         name: 'Acme code',
+        scope: 'personal',
         keys: { accessToken: 'ghp_test_acme' },
       })
     ).id;

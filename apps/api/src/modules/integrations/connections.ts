@@ -1,5 +1,5 @@
 import { type Db, integrationConnections, secrets } from '@erxes/core-db';
-import { eq, getTableColumns, inArray } from 'drizzle-orm';
+import { eq, getTableColumns, inArray, type SQL } from 'drizzle-orm';
 import { config } from '~/config';
 import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
@@ -9,14 +9,17 @@ import type { Keys } from '@erxes/plugin-sdk/integrations';
 import { type ClientOptions, type KeyedIntegration, sealedValues, splitValues } from './define';
 import { freshKeys } from './oauth';
 import { keyedOf } from './registry';
+import { withinReach } from './scopes';
 
 export type ConnectionRow = WithSecret<typeof integrationConnections.$inferSelect>;
 
-export const connectionsWithSecret = (client: Db) =>
+/** The connections matching `where` that the caller reaches, with their secrets. */
+export const connectionsWithSecret = (client: Db, where?: SQL) =>
   client
     .select({ ...getTableColumns(integrationConnections), secret: secrets })
     .from(integrationConnections)
-    .innerJoin(secrets, eq(secrets.id, integrationConnections.secretId));
+    .innerJoin(secrets, eq(secrets.id, integrationConnections.secretId))
+    .where(withinReach(where));
 
 export const keysOf = (integration: KeyedIntegration, row: ConnectionRow) =>
   integration.keys.parse({ ...row.settings, ...sealedValues(openSecret(row.secret)) });
@@ -59,9 +62,10 @@ export const clientOptions = async (
   const bankName = keyedOf(bankKey).name;
   const connectionId = typeof keys.connectionId === 'string' ? keys.connectionId : '';
 
-  const [row] = await connectionsWithSecret(client)
-    .where(eq(integrationConnections.id, connectionId))
-    .limit(1);
+  const [row] = await connectionsWithSecret(
+    client,
+    eq(integrationConnections.id, connectionId),
+  ).limit(1);
 
   if (row?.key !== bankKey)
     throw fail('GATEWAY_REFUSED', `Pick one of your ${bankName} connections`);
@@ -75,7 +79,10 @@ export const clientOf = async <C>(
   integration: KeyedIntegration<Keys, C>,
   row: ConnectionRow,
 ) => {
-  const keys = integration.oauth ? await freshKeys(tx, integration, row) : keysOf(integration, row);
+  const keys =
+    integration.oauth || row.auth === 'app'
+      ? await freshKeys(tx, integration, row)
+      : keysOf(integration, row);
 
   return integration.client(keys, await clientOptions(tx, integration, row.id, keys));
 };
@@ -85,7 +92,7 @@ export const listConnections = async (client: Db, keys: string[]) => ({
     client
       .select()
       .from(integrationConnections)
-      .where(inArray(integrationConnections.key, keys))
+      .where(withinReach(inArray(integrationConnections.key, keys)))
       .orderBy(integrationConnections.createdAt)
       .limit(limit),
   ),

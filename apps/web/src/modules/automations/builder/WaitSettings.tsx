@@ -7,7 +7,7 @@ import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
 import { eventDataFields } from './flowChecks';
-import { Segmented } from './Segmented';
+import { Segmented } from '~/components/Segmented';
 import type { SettingsProps } from './stepSettingsProps';
 import { useAutomationFields } from './useAutomationFields';
 

@@ -41,9 +41,9 @@ export const connectionKeys = async (
   integration: KeyedIntegration,
   connectionId: string,
 ) => {
-  const [row] = await connectionsWithSecret(tx)
-    .where(eq(integrationConnections.id, connectionId))
-    .limit(1);
+  const [row] = await connectionsWithSecret(tx, eq(integrationConnections.id, connectionId)).limit(
+    1,
+  );
 
   if (row?.key !== integration.key)
     throw fail('INVALID_STEP_INPUT', `Pick a ${integration.name} connection`);

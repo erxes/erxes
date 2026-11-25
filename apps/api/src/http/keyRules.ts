@@ -60,6 +60,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   fields: { lookup: true, writes: 'settings' },
   files: 'files',
   integrations: 'settings',
+  // A member's own GitHub sign-in picks the installation: no key does it for them.
+  githubApp: null,
   leads: 'contacts',
   notifications: null,
   organizations: { lookup: true, writes: 'settings' },

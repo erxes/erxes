@@ -26,6 +26,7 @@ import {
 } from '~/modules/products/products.router';
 import { banksRouter } from '~/modules/banks/banks.router';
 import { integrationsRouter } from '~/modules/integrations/integrations.router';
+import { githubAppRouter } from '~/modules/integrations/githubApp.router';
 import { secretsRouter } from '~/modules/secrets/secrets.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
 import { trashRouter } from '~/modules/trash/trash.router';
@@ -84,6 +85,7 @@ export const coreRouter = unscoped.router({
   products: productsRouter,
   webhooks: webhooksRouter,
   integrations: integrationsRouter,
+  githubApp: githubAppRouter,
   banks: banksRouter,
   secrets: secretsRouter,
   apiKeys: apiKeysRouter,

@@ -1,4 +1,8 @@
-import type { CorePermission, Integration as IntegrationListing } from '@erxes/core-contract';
+import type {
+  CorePermission,
+  Integration as IntegrationListing,
+  IntegrationScope,
+} from '@erxes/core-contract';
 import type { z } from 'zod';
 import type { AppAction, AppClient, AppRecords, Apps } from './apps';
 import { fieldsOf, type Keys, oauthKeys } from './fields';
@@ -40,6 +44,8 @@ export interface Listing {
   countries: string[];
   permission: CorePermission;
   dashboard?: string;
+  /** Who its connections can serve; without it, only the whole organisation. */
+  scopes?: readonly IntegrationScope[];
 }
 
 export interface OAuthSetup {

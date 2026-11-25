@@ -3,6 +3,8 @@ import { asc, inArray } from 'drizzle-orm';
 import { appEventType } from '@erxes/core-contract';
 import { APPS, paramsSchema } from './apps';
 import { fieldsOf } from '@erxes/plugin-sdk/integrations';
+import { manages } from './connectable';
+import { ownFirst, withinReach } from './scopes';
 
 export const appTriggerTypes = () =>
   APPS.flatMap((app) =>
@@ -25,15 +27,18 @@ export const appCatalog = async (client: Db) => {
           key: integrationConnections.key,
           name: integrationConnections.name,
           status: integrationConnections.status,
+          ownerId: integrationConnections.ownerId,
         })
         .from(integrationConnections)
         .where(
-          inArray(
-            integrationConnections.key,
-            APPS.map((app) => app.key),
+          withinReach(
+            inArray(
+              integrationConnections.key,
+              APPS.map((app) => app.key),
+            ),
           ),
         )
-        .orderBy(asc(integrationConnections.createdAt))
+        .orderBy(ownFirst, asc(integrationConnections.createdAt))
     : [];
 
   return APPS.map((app) => ({
@@ -53,8 +58,8 @@ export const appCatalog = async (client: Db) => {
       };
     }),
     records: Object.keys(app.records ?? {}),
-    connections: connections.flatMap(({ key, ...connection }) =>
-      key === app.key ? [connection] : [],
+    connections: connections.flatMap(({ key, ownerId, ...connection }) =>
+      key === app.key && (ownerId !== null || manages(app)) ? [connection] : [],
     ),
   }));
 };

@@ -3,7 +3,8 @@ import { fail } from '~/http/errors';
 import type { Integration } from './define';
 import { keyedOf } from './registry';
 
-export const manages = (integration: Integration) => callerCan(integration.permission);
+export const manages = (integration: Pick<Integration, 'permission'>) =>
+  callerCan(integration.permission);
 
 export const connectable = (key: string) => {
   const integration = keyedOf(key);

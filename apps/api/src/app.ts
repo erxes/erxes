@@ -29,6 +29,7 @@ import { automationHooksRouter } from '~/modules/automations/hooks.http';
 import { appHooksRouter } from '~/modules/integrations/appHooks.http';
 import { appWideHooksRouter } from '~/modules/integrations/appWideHooks.http';
 import { oauthCallbackRouter } from '~/modules/integrations/oauth.http';
+import { githubAppRouter } from '~/modules/integrations/githubApp.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -169,7 +170,7 @@ export const createApp = (log: Logger = logger): Express => {
 
   app.use('/core/v1', appWideHooksRouter(limit.appWideHooks));
 
-  app.use('/core/v1', oauthCallbackRouter);
+  app.use('/core/v1', oauthCallbackRouter, githubAppRouter);
 
   app.use(express.json({ limit: '1mb' }));
 

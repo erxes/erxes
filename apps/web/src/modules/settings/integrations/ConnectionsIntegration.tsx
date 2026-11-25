@@ -1,7 +1,11 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Badge, Button, CONNECTION_CONTENT_TYPE, useOpenRecord } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
+import { GithubAppSummary } from '../vault/GithubAppForm';
+import { connectsThroughApp } from '../vault/GithubAppPicker';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
 import { isOAuthIntegration, OAuthAppForm } from '../vault/SignInForm';
@@ -74,6 +78,7 @@ const Overview = ({ integration }: { integration: Integration }) => {
       </OverviewSection>
       <JoinedUses integration={integration} />
       <AutomationTriggers integration={integration} />
+      {connectsThroughApp(integration.key) && <GithubAppSummary />}
       {isOAuthIntegration(integration) && integration.oauth.client === 'organization' && (
         <OverviewSection title={t('app', 'App')}>
           {connectionsOf(connections.data?.data ?? [], [integration]).length ? (
@@ -105,6 +110,15 @@ const Connect = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { openNew } = useOpenRecord();
   const connected = (useConnections().data?.data ?? []).some(({ key }) => key === integration.key);
+  const [picking] = useQueryState('github');
+  const reopened = useRef(false);
+
+  useEffect(() => {
+    if (!picking || reopened.current || !connectsThroughApp(integration.key)) return;
+
+    reopened.current = true;
+    openNew(CONNECTION_CONTENT_TYPE, { integration: integration.key });
+  }, [picking, integration.key, openNew]);
 
   return (
     <Button

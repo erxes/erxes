@@ -6,4 +6,5 @@ export const kimiCode = modelProvider({
   summary: 'The Kimi For Coding plan, for the assistant and agents.',
   dashboard: 'https://www.kimi.com/code/console',
   baseUrl: 'https://api.kimi.com/coding/v1',
+  scopes: ['personal'],
 });

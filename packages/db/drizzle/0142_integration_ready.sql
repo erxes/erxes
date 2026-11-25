@@ -1,0 +1,2 @@
+ALTER TABLE "core_plugin_integration_states" DROP CONSTRAINT "core_plugin_integration_states_state_check";--> statement-breakpoint
+ALTER TABLE "core_plugin_integration_states" ADD CONSTRAINT "core_plugin_integration_states_state_check" CHECK ("core_plugin_integration_states"."state" IN ('connected', 'off', 'attention', 'ready', 'not-set-up'));
