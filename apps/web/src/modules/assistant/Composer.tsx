@@ -4,7 +4,7 @@ import type {
   AssistantPage,
   AssistantSelection,
 } from '@erxes/core-contract';
-import { IconArrowUp, IconPlayerStopFilled } from '@tabler/icons-react';
+import { IconPlayerStopFilled, IconSend2 } from '@tabler/icons-react';
 import { Button, IconTip, Textarea } from 'erxes-ui';
 import { type ClipboardEvent, type DragEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -57,7 +57,7 @@ const SendButton = ({
   ) : (
     <IconTip label={t('composer.send', 'Send')} hotkey="Enter">
       <Button type="submit" size="icon" aria-label={t('composer.send', 'Send')} disabled={!canSend}>
-        <IconArrowUp className="size-4" />
+        <IconSend2 className="size-4" />
       </Button>
     </IconTip>
   );

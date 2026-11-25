@@ -1,8 +1,18 @@
-import { IconPlus, IconSparkles } from '@tabler/icons-react';
-import { AppBreadcrumb, Button, Command, PageContainer, PageHeader, Spinner } from 'erxes-ui';
+import { IconArrowLeft, IconPlus, IconSparkles } from '@tabler/icons-react';
+import {
+  AppBreadcrumb,
+  Button,
+  Command,
+  IconTip,
+  PageContainer,
+  PageHeader,
+  Spinner,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 import { paths } from '~/lib/paths';
 import { assistantOpenState, wantComposerFocus } from './assistantState';
 import { lazyNamed } from '~/lib/lazyNamed';
@@ -10,6 +20,8 @@ import { HistoryList } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';
 import { useAssistantTabs } from './useAssistantTabs';
 import { threadTitle, useThread } from './useThread';
+
+const cameFrom = z.object({ from: z.string().startsWith('/') });
 
 const Conversation = lazyNamed(() => import('./Conversation'), 'Conversation');
 
@@ -46,6 +58,9 @@ export const AssistantPage = () => {
   const setPanelOpen = useSetAtom(assistantOpenState);
   const thread = useThread(tabs.active?.threadId ?? null).data;
 
+  const navigate = useNavigate();
+  const from = cameFrom.safeParse(useLocation().state).data?.from ?? paths.home;
+
   useEffect(() => setPanelOpen(false), [setPanelOpen]);
 
   const title = tabs.active?.threadId ? threadTitle(thread, t) : t('new-chat', 'New chat');
@@ -54,6 +69,19 @@ export const AssistantPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
+          <IconTip label={t('back', 'Back')}>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t('back', 'Back')}
+              onClick={() => {
+                void navigate(from);
+                setPanelOpen(true);
+              }}
+            >
+              <IconArrowLeft />
+            </Button>
+          </IconTip>
           <AppBreadcrumb
             items={[
               { label: t('title', 'Assistant'), to: paths.assistant, icon: IconSparkles },

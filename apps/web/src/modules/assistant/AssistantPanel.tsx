@@ -28,7 +28,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
   const tabs = useAssistantTabs();
   const shown = useShownRecords();
   const { openNewRecord } = useSidePanel();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const { openPage } = useRecordPageNavigation();
   const { type } = usePanelRecordType(shown.top?.record.contentType ?? '');
@@ -45,7 +45,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
       id="assistant-panel"
       label={t('title', 'Assistant')}
       hidden={!open}
-      className="max-md:fixed max-md:inset-0 max-md:z-50 max-md:w-full"
+      className="absolute top-12 right-2 bottom-2 z-30 rounded-xl border shadow-xl max-md:fixed max-md:inset-0 max-md:z-50 max-md:w-full max-md:rounded-none max-md:border-0"
       width={width}
       maxWidth={ASSISTANT_WIDTH.max}
       onWidthChange={setWidth}
@@ -74,7 +74,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
             onClose={close}
             onExpand={() => {
               setOpen(false);
-              void navigate(paths.assistant);
+              void navigate(paths.assistant, { state: { from: `${pathname}${search}` } });
             }}
           />
           {tabs.active && (
