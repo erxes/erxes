@@ -142,14 +142,14 @@ describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, ()
     saas.setStripe(subscribed('past_due', pluginItem('hr', 'plus')));
     await refresh();
     expect(await hrEntry()).toMatchObject({ status: 'past_due', access: 'warning' });
-    // Writes pass the plan check: what stops this one is only the scope this
-    // installation never granted, not READ_ONLY or a payment error.
+    // A payment that retries only warns: the plugin's writes still go through.
     const plugin = await hr();
+    const { user } = await owner.api.auth.me({});
 
     expect(await plugin.saas.pluginPlan({})).toMatchObject({ access: 'warning' });
-    await expect(
-      plugin.notifications.create({ userIds: [], kind: 'hr.ping', title: 'x' }),
-    ).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
+    expect(
+      await plugin.notifications.create({ userIds: [user.id], kind: 'hr.ping', title: 'x' }),
+    ).toMatchObject({ created: 1 });
   });
 
   it('a plugin that leaves the plan is read-only for the grace days, then off; bought again, it is back', async () => {
