@@ -153,7 +153,8 @@ test('a member sees TypeSafe and OpenAI in Decision model integrations and adds 
     'aria-pressed',
     'true',
   );
-  await expect(inspector.getByRole('combobox', { name: 'Minimum confidence' })).toHaveCount(0);
+  // OpenAI decide steps return a confidence too since #11043, so the threshold stays.
+  await expect(inspector.getByRole('combobox', { name: 'Minimum confidence' })).toBeVisible();
   await inspector.getByRole('button', { name: /^TypeSafe/ }).click();
   await inspector.getByRole('combobox', { name: 'Minimum confidence' }).click();
   await page.getByRole('option', { name: '80%' }).click();
