@@ -23,6 +23,19 @@ test('run settings round trip through a standalone preview URL without losing ze
   });
 });
 
+test('location filters survive the preview URL and clearing one omits it', () => {
+  const filtered = { ...settings, branchId: 'branch/1', departmentId: 'dept 1' };
+  const params = new URL(reportRunPath('report', filtered), 'http://localhost')
+    .searchParams;
+  expect(parseReportRunSettings(params, t)).toEqual({
+    success: true,
+    data: filtered,
+  });
+  expect(reportRunPath('report', { ...filtered, branchId: '' })).not.toContain(
+    'branchId=',
+  );
+});
+
 test.each([
   { fromDate: '2026-02-30' },
   { fromDate: '2027-01-01' },

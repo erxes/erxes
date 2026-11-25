@@ -40,8 +40,8 @@ export const REPORT_REMOVE = gql(`
 `);
 
 export const REPORT_GENERATE = gql(`
-  query AccountingTunableReportGenerate($_id: String!, $fromDate: String!, $toDate: String!, $amountUnit: String, $decimals: Int) {
-    accountingTunableReportGenerate(_id: $_id, fromDate: $fromDate, toDate: $toDate, amountUnit: $amountUnit, decimals: $decimals) {
+  query AccountingTunableReportGenerate($_id: String!, $fromDate: String!, $toDate: String!, $amountUnit: String, $decimals: Int, $branchId: String, $departmentId: String) {
+    accountingTunableReportGenerate(_id: $_id, fromDate: $fromDate, toDate: $toDate, amountUnit: $amountUnit, decimals: $decimals, branchId: $branchId, departmentId: $departmentId) {
       report { ...AccountingTunableReportFields }
       fromDate toDate amountUnit decimals
       cells { sectionId rowId columnId value }

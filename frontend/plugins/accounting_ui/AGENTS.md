@@ -24,6 +24,8 @@
 
 ## Current Capabilities
 
+- Tunable report generation offers optional branch and department selectors. The generated preview URL carries the selections, and reopening Generate on the preview restores them for reruns. Print and Excel use the same filtered calculation.
+
 - Journal reports configured through `ReportForm` offer company and team-member counterparty selectors. The journal report filter map defines their URL parameters (`companyId` and `customerUserId`). Team member refers to the transaction's customer reference. When companies or team members are selected, customer-group drill-downs narrow through `customerIds` while preserving the original selectors. VAT and city-tax report forms filter by period, branch, and department.
 
 - In `/accounting/settings/config`, the enabled VAT and city-tax sections each offer a contact type and matching customer, company, or team member picker. The `VatCustomer` and `CtaxCustomer` config values save the type and id together and refresh through `accountingsConfigsByCode`. Clearing a selection saves null. TBalance uses the matching config pair on tax follow rows, falling back to the source journal's contact when the config is empty.

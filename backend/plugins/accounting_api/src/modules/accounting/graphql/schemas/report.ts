@@ -39,7 +39,7 @@ export const types = `
 export const queries = `
   accountingTunableReports(searchValue: String, page: Int, perPage: Int): AccountingTunableReportList!
   accountingTunableReportDetail(_id: String!): AccountingTunableReport!
-  accountingTunableReportGenerate(_id: String!, fromDate: String!, toDate: String!, amountUnit: String, decimals: Int): AccountingTunableReportGenerated!
+  accountingTunableReportGenerate(_id: String!, fromDate: String!, toDate: String!, amountUnit: String, decimals: Int, branchId: String, departmentId: String): AccountingTunableReportGenerated!
 `;
 export const mutations = `
   accountingTunableReportSave(_id: String, expectedVersion: Int, input: AccountingTunableReportInput!): AccountingTunableReport!

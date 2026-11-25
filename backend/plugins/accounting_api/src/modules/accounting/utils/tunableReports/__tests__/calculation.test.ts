@@ -157,12 +157,41 @@ test('calculates dependencies once from rounded amounts; ratios keep full precis
   const { models, aggregate } = setup();
   const report = definition();
   report.sections[0].formulas[1].percent = '33';
-  const result = await generateTunableReport(models, report, settings, user);
+  const result = await generateTunableReport(
+    models,
+    report,
+    { ...settings, branchId: 'branch-1', departmentId: 'dept-1' },
+    user,
+  );
   // 33% of the rounded 123.46 is 40.7418 → 40.74; the ratio is unrounded.
   const [balance, copy, ratio, negative] = result.map((cell) => cell.value);
   expect([balance, copy, negative]).toEqual([123.46, 40.74, 0]);
   expect(ratio).toBeCloseTo(123.46 / 40.74, 12);
   expect(aggregate).toHaveBeenCalledTimes(1);
+  expect(aggregate.mock.calls[0][0].slice(1, 3)).toEqual([
+    { $unwind: '$details' },
+    {
+      $match: {
+        'details.accountId': { $in: ['a', 'b'] },
+        $expr: {
+          $and: [
+            {
+              $eq: [
+                { $ifNull: ['$details.branchId', '$branchId'] },
+                { $literal: 'branch-1' },
+              ],
+            },
+            {
+              $eq: [
+                { $ifNull: ['$details.departmentId', '$departmentId'] },
+                { $literal: 'dept-1' },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  ]);
   expect(generateFilter).toHaveBeenCalledWith(
     models,
     { permissionMode: 'read' },

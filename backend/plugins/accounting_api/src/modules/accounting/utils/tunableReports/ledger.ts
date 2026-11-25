@@ -1,6 +1,6 @@
 import { PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { IReportFormula } from '../../@types/report';
+import { IReportFormula, IReportGenerateParams } from '../../@types/report';
 import { TR_STATUSES } from '../../@types/constants';
 
 export interface ReportAccount {
@@ -63,9 +63,18 @@ const effectiveRelated = (side: 'Dt' | 'Ct') => {
 export const createReportLedger = (
   models: IModels,
   accountIds: string[],
+  { branchId, departmentId }: Pick<
+    IReportGenerateParams,
+    'branchId' | 'departmentId'
+  > = {},
 ): ReportLedger => {
   const balanceCache = new Map<string, Promise<Map<string, number>>>();
   const turnoverCache = new Map<string, Promise<ReportTurnover[]>>();
+  const locationFilters = Object.entries({ branchId, departmentId })
+    .filter(([, id]) => !!id)
+    .map(([key, id]) => ({
+      $eq: [{ $ifNull: [`$details.${key}`, `$${key}`] }, { $literal: id }],
+    }));
   const detailStages = (date: Record<string, Date>): PipelineStage[] => [
     {
       $match: {
@@ -75,8 +84,13 @@ export const createReportLedger = (
       },
     },
     { $unwind: '$details' },
-    // Unrelated details of a matching voucher must not sum.
-    { $match: { 'details.accountId': { $in: accountIds } } },
+    // Match both the visible account and effective location on the same detail.
+    {
+      $match: {
+        'details.accountId': { $in: accountIds },
+        ...(locationFilters.length && { $expr: { $and: locationFilters } }),
+      },
+    },
   ];
   return {
     balances: (date) => {

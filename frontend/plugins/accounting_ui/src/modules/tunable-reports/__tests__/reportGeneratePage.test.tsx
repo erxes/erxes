@@ -121,7 +121,7 @@ test('print calls Generate with the run parameters and passes generated cells to
     },
     loading: false,
   });
-  render(<Page search={params} />);
+  render(<Page search={`${params}&branchId=branch-1&departmentId=dept-1`} />);
   expect(mockQuery).toHaveBeenCalledWith(
     REPORT_GENERATE,
     expect.objectContaining({
@@ -131,6 +131,8 @@ test('print calls Generate with the run parameters and passes generated cells to
         toDate: '2026-12-31',
         amountUnit: 'thousands',
         decimals: 0,
+        branchId: 'branch-1',
+        departmentId: 'dept-1',
       },
       skip: false,
       fetchPolicy: 'network-only',

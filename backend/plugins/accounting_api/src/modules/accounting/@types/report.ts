@@ -100,6 +100,8 @@ export const reportGenerateInputSchema = z
     _id: id,
     fromDate: reportDate,
     toDate: reportDate,
+    branchId: id.nullish(),
+    departmentId: id.nullish(),
     amountUnit: z.enum(['units', 'thousands']).default('units'),
     decimals: z.number().int().min(0).max(6).default(2),
   })

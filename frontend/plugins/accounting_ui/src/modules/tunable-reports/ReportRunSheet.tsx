@@ -3,6 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, DatePicker, Form, Input, Sheet } from 'erxes-ui';
 import { IconReport } from '@tabler/icons-react';
 import { format, parseISO } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { Choice } from '@/tunable-reports/fields';
 import { useReportTranslation } from '@/tunable-reports/locales';
 import {
@@ -11,6 +13,15 @@ import {
   reportRunPath,
   ReportRunSettings,
 } from '@/tunable-reports/runReport';
+
+const locationFields = [
+  { name: 'branchId', label: 'branch', Select: SelectBranches.FormItem },
+  {
+    name: 'departmentId',
+    label: 'department',
+    Select: SelectDepartments.FormItem,
+  },
+] as const;
 
 export const ReportRunSheet = ({
   report,
@@ -25,9 +36,10 @@ export const ReportRunSheet = ({
   defaultValues?: ReportRunSettings;
   onRun?: (settings: ReportRunSettings) => void;
 }) => {
-  const { t } = useReportTranslation();
+  const { t: tReport } = useReportTranslation();
+  const { t } = useTranslation('accounting');
   const form = useForm<ReportRunSettings>({
-    resolver: zodResolver(getReportRunSchema(t)),
+    resolver: zodResolver(getReportRunSchema(tReport)),
     defaultValues: defaultValues ?? defaultReportRunSettings(),
   });
   const submit = form.handleSubmit((settings) => {
@@ -47,7 +59,7 @@ export const ReportRunSheet = ({
       <Sheet.View className="sm:max-w-lg bg-background">
         <Sheet.Header className="h-auto py-2">
           <div className="min-w-0">
-            <Sheet.Title>{t('run')}</Sheet.Title>
+            <Sheet.Title>{tReport('run')}</Sheet.Title>
             <Sheet.Description className="truncate">
               {report.name}
             </Sheet.Description>
@@ -64,7 +76,7 @@ export const ReportRunSheet = ({
                   name={name}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t(name)}</Form.Label>
+                      <Form.Label>{tReport(name)}</Form.Label>
                       <DatePicker
                         value={field.value ? parseISO(field.value) : undefined}
                         onChange={(value) =>
@@ -81,19 +93,37 @@ export const ReportRunSheet = ({
                   )}
                 />
               ))}
+              {locationFields.map(({ name, label, Select }) => (
+                <Form.Field
+                  key={name}
+                  control={form.control}
+                  name={name}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t(label)}</Form.Label>
+                      <Select
+                        mode="single"
+                        value={field.value || undefined}
+                        onValueChange={(value) => field.onChange(value ?? '')}
+                      />
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              ))}
               <Form.Field
                 control={form.control}
                 name="amountUnit"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('amountUnit')}</Form.Label>
+                    <Form.Label>{tReport('amountUnit')}</Form.Label>
                     <Choice
-                      label={t('amountUnit')}
+                      label={tReport('amountUnit')}
                       value={field.value}
                       onChange={field.onChange}
                       options={['units', 'thousands'].map((value) => ({
                         value,
-                        label: t(value),
+                        label: tReport(value),
                       }))}
                     />
                     <Form.Message />
@@ -105,7 +135,7 @@ export const ReportRunSheet = ({
                 name="decimals"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('decimals')}</Form.Label>
+                    <Form.Label>{tReport('decimals')}</Form.Label>
                     <Form.Control>
                       <Input
                         type="number"
@@ -132,11 +162,11 @@ export const ReportRunSheet = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                {t('cancel')}
+                {tReport('cancel')}
               </Button>
               <Button type="submit">
                 <IconReport />
-                {t('run')}
+                {tReport('run')}
               </Button>
             </Sheet.Footer>
           </form>

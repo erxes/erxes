@@ -88,6 +88,7 @@ export const generateTunableReport = async (
         data: createReportLedger(
           models,
           accounts.map((account) => account._id),
+          settings,
         ),
       };
     })());

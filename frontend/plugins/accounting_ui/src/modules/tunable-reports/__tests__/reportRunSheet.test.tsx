@@ -11,6 +11,27 @@ import { ReportRunSheet } from '../ReportRunSheet';
 jest.mock('../locales', () => ({
   useReportTranslation: () => ({ t: (key: string) => key }),
 }));
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+jest.mock('ui-modules', () => {
+  const Picker = ({
+    value,
+    onValueChange,
+  }: {
+    value?: string;
+    onValueChange: (value?: string) => void;
+  }) => (
+    <input
+      value={value ?? ''}
+      onChange={(event) => onValueChange(event.target.value || undefined)}
+    />
+  );
+  return {
+    SelectBranches: { FormItem: Picker },
+    SelectDepartments: { FormItem: Picker },
+  };
+});
 jest.mock('../fields', () => ({
   Choice: ({
     value,
@@ -117,6 +138,8 @@ test('on the print page the sheet starts from the period on screen and hands the
         toDate: '2026-12-31',
         amountUnit: 'thousands',
         decimals: 0,
+        branchId: 'branch-1',
+        departmentId: 'dept-1',
       }}
       onRun={onRun}
     />,
@@ -125,6 +148,12 @@ test('on the print page the sheet starts from the period on screen and hands the
   expect(field('fromDate').value).toBe('2026-01-01');
   expect(field('toDate').value).toBe('2026-12-31');
   expect(field('decimals').value).toBe('0');
+  const branch = screen.getByLabelText<HTMLInputElement>('branch');
+  const department = screen.getByLabelText<HTMLInputElement>('department');
+  expect(branch.value).toBe('branch-1');
+  expect(department.value).toBe('dept-1');
+  fireEvent.change(branch, { target: { value: '' } });
+  fireEvent.change(department, { target: { value: 'dept-2' } });
   fireEvent.change(field('toDate'), { target: { value: '2026-06-30' } });
   submit();
   await waitFor(() =>
@@ -133,6 +162,8 @@ test('on the print page the sheet starts from the period on screen and hands the
       toDate: '2026-06-30',
       amountUnit: 'thousands',
       decimals: 0,
+      branchId: '',
+      departmentId: 'dept-2',
     }),
   );
   expect(open).not.toHaveBeenCalled();

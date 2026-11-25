@@ -59,6 +59,9 @@ jest.mock('@/tunable-reports/ReportPreview', () => ({
     </>
   ),
 }));
+jest.mock('@/tunable-reports/ReportRunSheet', () => ({
+  ReportRunSheet: () => null,
+}));
 jest.mock('@/journal-reports/hooks/useJournalReportOrganizationName', () => ({
   useJournalReportOrganizationName: () => ({
     organizationName: 'Алтай Тайга Тур ХХК',
