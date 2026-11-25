@@ -20,16 +20,17 @@ const JevRequest = z.object({
 
 const OpenAiRequest = z.object({
   model: z.string(),
-  messages: z.array(z.object({ role: z.string(), content: z.string() })),
-  response_format: z.object({
-    type: z.literal('json_schema'),
-    json_schema: z.object({
-      strict: z.literal(true),
-      schema: z.object({
-        properties: z.object({ choice: z.object({ enum: z.array(z.string()) }) }),
+  input: z.array(z.object({ role: z.string(), content: z.string() })),
+  questions: z
+    .array(
+      z.object({
+        type: z.literal('choice'),
+        name: z.string(),
+        instructions: z.string(),
+        choices: z.array(z.object({ value: z.string(), description: z.string().optional() })),
       }),
-    }),
-  }),
+    )
+    .length(1),
 });
 
 const sendJson = (res: ServerResponse, status: number, body: unknown) =>
@@ -46,7 +47,16 @@ export const startDecisionServer = async () => {
       probabilities: { billing: 0.92, support: 0.05, otherwise: 0.03 },
       model: 'jev-1.14.0',
     },
-    openai: { choice: 'support', model: 'gpt-5.6-luna' },
+    openai: {
+      choice: 'support',
+      confidence: 0.81,
+      probabilities: [
+        { value: 'billing', probability: 0.1 },
+        { value: 'support', probability: 0.81 },
+        { value: 'otherwise', probability: 0.09 },
+      ],
+      model: 'gpt-6-luna',
+    },
     typeSafeModelsStatus: 200,
     typeSafeModels: [
       { id: 'jev-preview' },
@@ -55,6 +65,7 @@ export const startDecisionServer = async () => {
       { id: 'jev-latest' },
     ],
     openAiModels: [
+      { id: 'gpt-6-luna' },
       { id: 'gpt-5.6-luna' },
       { id: 'gpt-4o-mini' },
       { id: 'whisper-1' },
@@ -106,12 +117,12 @@ export const startDecisionServer = async () => {
         return;
       }
 
-      if (url.endsWith('/chat/completions') && auth === `Bearer ${OPENAI_KEY}`) {
+      if (url.endsWith('/decisions') && auth === `Bearer ${OPENAI_KEY}`) {
         openAiCalls.push(OpenAiRequest.parse(JSON.parse(raw)));
-        sendJson(res, 200, {
-          model: next.openai.model,
-          choices: [{ message: { content: JSON.stringify({ choice: next.openai.choice }) } }],
-        });
+
+        const { model, ...answer } = next.openai;
+
+        sendJson(res, 200, { model, answers: [{ type: 'choice', name: 'path', ...answer }] });
 
         return;
       }

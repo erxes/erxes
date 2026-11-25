@@ -211,7 +211,7 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
     expect(low.steps[1]?.input).toEqual({ body: 'Fallback otherwise billing' });
   });
 
-  it('reuses the OpenAI AI provider connection, lists chat models, and enforces assistant.manage', async () => {
+  it('reuses the OpenAI AI provider connection, lists decision models, and enforces assistant.manage', async () => {
     const conn = await connect('openai', OPENAI_KEY, 'OpenAI');
 
     expect((await t.owner().assistant.providers({})).data).toEqual([{ provider: 'openai' }]);
@@ -221,14 +221,23 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
       .automations.decisionModels({ provider: 'openai', connection: conn.id });
 
     expect(openAiCatalog.error).toBeNull();
-    expect(openAiCatalog.models.map((item) => item.id)).toEqual(['gpt-5.6-luna', 'gpt-4o-mini']);
-    expect(openAiCatalog.models.find((item) => item.id === 'gpt-4o-mini')?.name).toBe(
-      'GPT-4o mini',
-    );
+    expect(openAiCatalog.models).toEqual([
+      { id: 'gpt-6-luna', name: 'GPT-6 Luna', recommended: true },
+    ]);
+
+    const chatModel = await t.owner().automations.create({
+      name: 'Chat model',
+      definition: forCustomer('ChatModel', [decideStep('openai', { model: 'gpt-4o-mini' })]),
+    });
+
+    await expect(t.owner().automations.activate({ id: chatModel.id })).rejects.toMatchObject({
+      code: 'INVALID_AUTOMATION',
+      data: { problems: ["Step pick: gpt-4o-mini can't make decisions, pick gpt-6-luna"] },
+    });
 
     const okId = await t.active(
       'OpenAI triage',
-      forCustomer('OpenAiOk', [decideStep('openai', { model: 'gpt-4o-mini' })]),
+      forCustomer('OpenAiOk', [decideStep('openai', { model: 'gpt-6-luna' })]),
     );
 
     const fallbackId = await t.active(
@@ -245,16 +254,18 @@ describe('automation decision model node', { timeout: 180_000 }, () => {
     expect(okRun.steps[0]?.output).toEqual({
       path: 'support',
       choice: 'support',
-      confidence: null,
-      probabilities: null,
-      model: 'gpt-5.6-luna',
+      confidence: 0.81,
+      probabilities: { billing: 0.1, support: 0.81, otherwise: 0.09 },
+      model: 'gpt-6-luna',
     });
-    expect(remote.openAiCalls.at(-1)?.model).toBe('gpt-4o-mini');
-    expect(
-      remote.openAiCalls.at(-1)?.response_format.json_schema.schema.properties.choice.enum,
-    ).toEqual(['billing', 'support', 'otherwise']);
+    expect(remote.openAiCalls.at(-1)?.model).toBe('gpt-6-luna');
+    expect(remote.openAiCalls.at(-1)?.questions[0]?.choices.map((choice) => choice.value)).toEqual([
+      'billing',
+      'support',
+      'otherwise',
+    ]);
 
-    remote.next.openai = { choice: 'otherwise', model: 'gpt-5.6-luna' };
+    remote.next.openai = { ...remote.next.openai, choice: 'otherwise' };
     await t.owner().customers.create({ firstName: 'OpenAiOther', lastName: 'Hello' });
     await settle();
     expect((await t.onlyRun(fallbackId)).steps.map((step) => step.stepId)).toEqual(['pick', 'o']);
