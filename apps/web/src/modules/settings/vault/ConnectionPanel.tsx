@@ -19,6 +19,7 @@ import { SidePanelEmpty, SidePanelFailed } from '~/modules/side-panel/SidePanelE
 import type { Integration } from '../integrations/catalog';
 import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { ConnectionEdit, useConnectionChanges } from './ConnectionEdit';
+import { isOAuthIntegration, SignInAgain, signedInAccount } from './SignInForm';
 import { useConnections, useKeyedIntegrations } from './useVault';
 
 const Fact = ({ label, children }: { label: string; children: ReactNode }) => (
@@ -40,6 +41,7 @@ const ConnectionFacts = ({
   const { update } = useConnectionChanges();
   const active = connection.status === 'active';
   const { name } = useIntegrationText()(integration);
+  const account = signedInAccount(connection);
 
   return (
     <dl className="space-y-2 rounded-lg border p-3">
@@ -65,6 +67,14 @@ const ConnectionFacts = ({
           </Button>
         </span>
       </Fact>
+      {isOAuthIntegration(integration) && (
+        <Fact label={t('account', 'Account')}>
+          <span className="flex flex-wrap items-center gap-2">
+            {account ?? t('account-unknown', 'Not known')}
+            <SignInAgain integration={integration} />
+          </span>
+        </Fact>
+      )}
       <Fact label={t('used-by', 'Used by')}>
         {connection.usedBy.length ? connection.usedBy.join(', ') : t('unused', 'Nothing')}
       </Fact>

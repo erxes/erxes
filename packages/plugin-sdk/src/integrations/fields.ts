@@ -60,6 +60,7 @@ export const oauthKeys = z.object({
   refreshToken: secret('Refresh token', z.string().min(1).max(4000)).optional(),
   expiresAt: labelled(z.int().positive(), { label: 'Sign-in expires', type: 'secret' }).optional(),
   account: field('Account').optional(),
+  accountId: kept('Account id'),
 });
 
 export type OAuthKeys = z.output<typeof oauthKeys>;

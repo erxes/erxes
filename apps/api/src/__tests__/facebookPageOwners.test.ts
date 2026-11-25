@@ -29,7 +29,7 @@ const reply = (method: string, url: string, auth: string | null, body: string) =
       expires_in: 5_184_000,
     };
 
-  if (url.startsWith(`${GRAPH}/me?fields=name`)) return { name: 'Dana Bat' };
+  if (url.startsWith(`${GRAPH}/me?fields=id,name`)) return { id: '1040', name: 'Dana Bat' };
 
   if (url.startsWith(`${GRAPH}/${PAGE}?fields=access_token`))
     return auth === ADMIN_TOKEN ? { id: PAGE, access_token: 'page-token' } : { id: PAGE };

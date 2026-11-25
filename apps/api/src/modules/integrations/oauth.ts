@@ -43,7 +43,7 @@ const State = z.object({
   orgId: z.string(),
   userId: z.string(),
   key: z.string(),
-  name: z.string(),
+  name: z.string().optional(),
   nonce: z.string(),
   expiresAt: z.number(),
 });
@@ -181,13 +181,14 @@ export const openState = (token: string) => {
   return state.success && state.data.expiresAt > Date.now() ? state.data : null;
 };
 
-export const authorizeUrl = async (tx: Db, input: { key: string; name: string }) => {
+/** `name` is for a new account's connection; without it, the account's name. */
+export const authorizeUrl = async (tx: Db, input: { key: string; name?: string }) => {
   const integration = oauthOf(input.key);
   const client = await appClientOf(tx, integration.key);
 
   if (!client) throw fail('NOT_SET_UP', `Add your ${integration.name} app's client id and secret`);
 
-  await ensureNameFree(tx, integration, input.name);
+  if (input.name) await ensureNameFree(tx, integration, input.name);
 
   const { oauth } = integration;
 
@@ -287,7 +288,7 @@ export const exchangeCode = async (
 
   const account = await integration.oauth.account(keys.accessToken);
 
-  return { keys: { ...keys, account } };
+  return { keys: { ...keys, account: account.name, accountId: account.id } };
 };
 
 const storedKeys = async (tx: Db, row: ConnectionRow): Promise<unknown> => ({

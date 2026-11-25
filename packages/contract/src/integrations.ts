@@ -222,9 +222,9 @@ export const integrationsContract = {
       path: '/integrations/{key}/authorize',
       summary: 'Start an app sign-in',
       description:
-        "Where to send the member to sign in to the app; the app sends them back to the callback, which saves the connection. 400 NOT_SET_UP without the app's client id and secret",
+        "Where to send the member to sign in to the app; the app sends them back to the callback, which saves the connection. One connection per account: signing in again with it renews that connection's sign-in and keeps its name. A new account's connection takes `name`, or else the account's name. 400 NOT_SET_UP without the app's client id and secret",
     })
-    .input(z.object({ key: IntegrationKey, name: ConnectionName }))
+    .input(z.object({ key: IntegrationKey, name: ConnectionName.optional() }))
     .output(z.object({ url: z.string() })),
   setOAuthApp: base
     .route({

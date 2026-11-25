@@ -53,7 +53,8 @@ export interface OAuthSetup {
    * verifier (Meta's business apps). The signed state and the app's secret still guard the code.
    */
   pkce?: false;
-  account(accessToken: string): Promise<string>;
+  /** Who signed in: the service's id for the account (one connection each) and its name. */
+  account(accessToken: string): Promise<{ id: string; name: string }>;
   longLived?(
     input: { accessToken: string } & AppClient,
   ): Promise<{ accessToken: string; expiresIn?: number }>;

@@ -46,7 +46,7 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
 
   const facebook = fakeGateway([
     [`POST ${GRAPH}/oauth/access_token`, { access_token: 'short-token', expires_in: 5000 }],
-    [`GET ${GRAPH}/me?fields=name`, { name: 'Dana Bat' }],
+    [`GET ${GRAPH}/me?fields=id,name`, { id: '1040', name: 'Dana Bat' }],
     [`GET ${GRAPH}/${PAGE}?fields=access_token`, { id: PAGE, access_token: 'page-token' }],
     [`POST ${GRAPH}/${APP_ID}/subscriptions`, { success: true }],
     [`POST ${GRAPH}/${PAGE}/subscribed_apps`, { success: true }],
@@ -151,7 +151,7 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
     expect(exchange.get('grant_type')).toBe('fb_exchange_token');
     expect(exchange.get('fb_exchange_token')).toBe('short-token');
     expect(exchange.get('client_secret')).toBe(APP_SECRET);
-    expect(calls('GET', '/me?fields=name').at(-1)?.auth).toBe('Bearer long-token');
+    expect(calls('GET', '/me?fields=id,name').at(-1)?.auth).toBe('Bearer long-token');
 
     const { data } = await t.owner().integrations.connections({ key: 'facebook' });
 

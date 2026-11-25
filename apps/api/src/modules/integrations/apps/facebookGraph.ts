@@ -75,10 +75,10 @@ export const graph = async <T>(
 
 export const Done = z.object({ success: z.literal(true) });
 
-const Person = z.object({ name: z.string().min(1) });
+const Person = z.object({ id: z.string().min(1), name: z.string().min(1) });
 
 export const accountOf = async (accessToken: string, options: ClientOptions = {}) =>
-  (await graph('/me?fields=name', Person, { token: accessToken }, options)).name;
+  graph('/me?fields=id,name', Person, { token: accessToken }, options);
 
 const Lasting = z.object({
   access_token: z.string().min(1),

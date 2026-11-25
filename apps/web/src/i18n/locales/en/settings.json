@@ -623,7 +623,9 @@
     "choose": "Choose a connection",
     "change": "Change the connection",
     "search": "Search connections",
-    "unknown-connection": "Connection"
+    "unknown-connection": "Connection",
+    "account": "Account",
+    "account-unknown": "Not known"
   },
   "mcp": {
     "title": "MCP server",
@@ -1077,7 +1079,8 @@
         "paypal": "Payers pay with PayPal or a card",
         "wechat": "Payers scan a QR code in WeChat",
         "test": "Nothing is charged: for trying out plugins"
-      }
+      },
+      "add-account": "Add account"
     },
     "ebarimt": {
       "remove-title": "Remove this config",
@@ -1379,6 +1382,17 @@
         "off": "The ramp is off: erxes counts emails but neither paces nor halts sending.",
         "off-smtp": "Your SMTP server reports no bounces, so erxes counts emails but neither paces nor halts sending."
       }
+    },
+    "oauth": {
+      "app-saved": "Saved. You can sign in now.",
+      "app-needed": "First create an app in your developer account and add this address as its redirect URL. Then paste its client id and secret.",
+      "client-id": "Client id",
+      "client-secret": "Client secret",
+      "save-app": "Save app",
+      "cancel": "Cancel",
+      "sign-in": "Sign in with {{name}}",
+      "sign-in-again": "Sign in again",
+      "one-per-account": "Each account connects once, named after the account. Signing in again with an account renews its connection."
     }
   },
   "team-member": {

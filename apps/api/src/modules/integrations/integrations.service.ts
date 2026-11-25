@@ -173,7 +173,7 @@ const verified = async (
   }
 };
 
-const connectionOf = async (client: Db, integration: KeyedIntegration, id: string) => {
+export const connectionOf = async (client: Db, integration: KeyedIntegration, id: string) => {
   const [row] = await connectionsWithSecret(client)
     .where(eq(integrationConnections.id, id))
     .limit(1);
@@ -316,7 +316,7 @@ export const updateConnection = async (input: Inputs['update']) => {
  * `core.integration.changed`: plugins that use the integration's connections (decision 52) read
  * them again. `change`: `connected`, `active`, `disabled` or `removed`.
  */
-const connectionChanged = (
+export const connectionChanged = (
   tx: Db,
   payload: WithCorePayload<'core.integration.changed'>['payload'],
 ) =>

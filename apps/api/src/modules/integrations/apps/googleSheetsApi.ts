@@ -40,7 +40,7 @@ export type SheetParams = z.output<typeof sheetParams>;
 
 const Values = z.object({ values: z.array(z.array(Cell)).optional() });
 
-const Profile = z.object({ email: z.string().min(1) });
+const Profile = z.object({ sub: z.string().min(1), email: z.string().min(1) });
 
 const googleMessage = (text: string) => {
   const quoted = /"message":\s*("(?:[^"\\]|\\.)*")/.exec(text)?.[1];
@@ -107,13 +107,16 @@ const send = async (
 const post = (keys: OAuthKeys, url: URL | string, body: unknown) =>
   send(keys.accessToken, url.toString(), {}, body);
 
-export const accountOf = async (accessToken: string, options: ClientOptions = {}) =>
-  parse(
+export const accountOf = async (accessToken: string, options: ClientOptions = {}) => {
+  const profile = parse(
     NAME,
     Profile,
     await send(accessToken, 'https://www.googleapis.com/oauth2/v3/userinfo', options),
     'no account email',
-  ).email;
+  );
+
+  return { id: profile.sub, name: profile.email };
+};
 
 /** `cells` (`A2:ZZZ`, `C5`) on the named sheet, or on the first one. */
 export const rangeOf = (sheet: string | undefined, cells: string) =>

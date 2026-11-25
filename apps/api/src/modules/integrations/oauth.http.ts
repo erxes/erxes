@@ -1,11 +1,11 @@
-import { type Caller, newId, runAs, withOrg } from '@erxes/core-db';
+import { type Caller, runAs, withOrg } from '@erxes/core-db';
 import { type Request, type RequestHandler, type Response, Router } from 'express';
 import { z } from 'zod';
 import { config } from '~/config';
 import { memberOf, sessionClaims } from '~/http/auth';
 import { appLink } from '~/modules/email/email';
-import { insertConnection } from './integrations.service';
 import { exchangeCode, openState, signInApp } from './oauth';
+import { saveSignIn } from './signIns';
 
 const CALLBACK = '/integrations/oauth/callback';
 
@@ -54,7 +54,7 @@ const connect = (member: Caller, state: State, code: string) =>
     const { keys } = await exchangeCode(app, state, code);
 
     const connection = await withOrg(state.orgId, (tx) =>
-      insertConnection(tx, app.integration, { id: newId(), name: state.name, keys }),
+      saveSignIn(tx, app.integration, { orgId: state.orgId, name: state.name, keys }),
     );
 
     return connection.id;

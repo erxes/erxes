@@ -112,7 +112,11 @@ const Connect = ({ integration }: { integration: Integration }) => {
       onClick={() => openNew(CONNECTION_CONTENT_TYPE, { integration: integration.key })}
     >
       <IconPlus />
-      {connected ? t('add-another', 'Add another') : t('connect', 'Connect')}
+      {!connected
+        ? t('connect', 'Connect')
+        : isOAuthIntegration(integration)
+          ? t('add-account', 'Add account')
+          : t('add-another', 'Add another')}
     </Button>
   );
 };

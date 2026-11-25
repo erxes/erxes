@@ -19,7 +19,7 @@ describe('app records for the builder’s pickers', { timeout: 300_000 }, () => 
 
   const facebook = fakeGateway([
     [`POST ${GRAPH}/oauth/access_token`, { access_token: 'user-token', expires_in: 5_184_000 }],
-    [`GET ${GRAPH}/me?fields=name`, { name: 'Dana Bat' }],
+    [`GET ${GRAPH}/me?fields=id,name`, { id: '1040', name: 'Dana Bat' }],
     [
       `GET ${GRAPH}/me/accounts?fields=id,name`,
       {

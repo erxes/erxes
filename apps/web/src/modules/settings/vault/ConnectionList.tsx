@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
+import { signedInAccount } from './SignInForm';
 
 export const ConnectionList = ({
   rows,
@@ -25,6 +26,12 @@ export const ConnectionList = ({
     <ul className="divide-y rounded-lg border">
       {rows.map(({ connection, integration }) => {
         const active = connection.status === 'active';
+        const account = signedInAccount(connection);
+
+        const under = [
+          showService && text(integration).name,
+          account !== null && account !== connection.name && account,
+        ].filter(Boolean);
 
         const shown =
           current?.contentType === CONNECTION_CONTENT_TYPE && current.contentId === connection.id;
@@ -53,9 +60,9 @@ export const ConnectionList = ({
                     <Badge variant="warning">{connectionT('sandbox-badge', 'sandbox')}</Badge>
                   )}
                 </span>
-                {showService && (
-                  <span className="block text-xs text-muted-foreground">
-                    {text(integration).name}
+                {under.length > 0 && (
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {under.join(' · ')}
                   </span>
                 )}
               </span>

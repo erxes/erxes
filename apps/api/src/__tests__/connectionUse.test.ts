@@ -14,7 +14,7 @@ describe('plugins use the organisation’s connections (decision 52)', { timeout
 
   const facebook = fakeGateway([
     [`POST ${GRAPH}/oauth/access_token`, { access_token: 'user-token', expires_in: 5_184_000 }],
-    [`GET ${GRAPH}/me?fields=name`, { name: 'Dana Bat' }],
+    [`GET ${GRAPH}/me?fields=id,name`, { id: '1040', name: 'Dana Bat' }],
   ]);
 
   const register = async (connections: { integration: string; reason: string }[]) =>

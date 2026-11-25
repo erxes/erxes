@@ -13,6 +13,8 @@ import { useTestServer } from './support';
 
 const SALES = { email: 'sales@initech.mn', password: 'Sales-pass-1' };
 
+const SALES_ACCOUNT = { sub: 'g-sales', email: SALES.email };
+
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
 const Keys = z.object({ accessToken: z.string() });
@@ -60,6 +62,7 @@ describe('Signing in to an app from Settings', { timeout: 300_000 }, () => {
   const liveRefreshTokens = new Set<string>();
   let orgId = '';
   let held = Promise.resolve();
+  let account = SALES_ACCOUNT;
 
   const google = async (form: URLSearchParams) => {
     tokenForms.push(form);
@@ -80,13 +83,16 @@ describe('Signing in to an app from Settings', { timeout: 300_000 }, () => {
 
   const refreshes = () => tokenForms.filter((form) => form.get('grant_type') === 'refresh_token');
 
-  const startSignIn = async (name: string) => {
+  const startSignIn = async (name?: string) => {
     const { url } = await member.api.integrations.authorize({ key: 'googlesheets', name });
 
     return server.url(
-      `/core/v1/integrations/oauth/callback?code=code-${name}&state=${new URL(url).searchParams.get('state') ?? ''}`,
+      `/core/v1/integrations/oauth/callback?code=code-${name ?? 'unnamed'}&state=${new URL(url).searchParams.get('state') ?? ''}`,
     );
   };
+
+  const connections = async () =>
+    (await member.api.integrations.connections({ key: 'googlesheets' })).data;
 
   beforeAll(async () => {
     vi.stubGlobal('fetch', async (input: string | URL | Request, init?: RequestInit) => {
@@ -95,8 +101,7 @@ describe('Signing in to an app from Settings', { timeout: 300_000 }, () => {
       if (url === TOKEN_URL)
         return google(new URLSearchParams(typeof init?.body === 'string' ? init.body : ''));
 
-      if (url.startsWith('https://www.googleapis.com/oauth2/v3/userinfo'))
-        return json({ email: SALES.email });
+      if (url.startsWith('https://www.googleapis.com/oauth2/v3/userinfo')) return json(account);
 
       return realFetch(input, init);
     });
@@ -141,6 +146,35 @@ describe('Signing in to an app from Settings', { timeout: 300_000 }, () => {
     expect((await member.api.integrations.connections({ key: 'googlesheets' })).data).toEqual([
       expect.objectContaining({ id: connectedIn(started), name: 'Sales' }),
     ]);
+  });
+
+  it('keeps one connection per account: signing in again renews it and keeps its name', async () => {
+    const [sales] = await connections();
+
+    const again = await back(await startSignIn(), member.cookie());
+
+    expect(connectedIn(again)).toBe(sales?.id);
+    expect(await connections()).toEqual([
+      expect.objectContaining({
+        id: sales?.id,
+        name: 'Sales',
+        settings: { account: SALES.email, accountId: 'g-sales' },
+      }),
+    ]);
+
+    account = { sub: 'g-ops', email: 'ops@initech.mn' };
+
+    try {
+      const other = connectedIn(await back(await startSignIn(), member.cookie()));
+
+      expect((await connections()).map(({ id, name }) => [id, name])).toEqual([
+        [sales?.id, 'Sales'],
+        [other, 'ops@initech.mn'],
+      ]);
+      await member.api.integrations.remove({ key: 'googlesheets', id: other });
+    } finally {
+      account = SALES_ACCOUNT;
+    }
   });
 
   it('sends a sign-in that comes back to the fixed callback address on to the organisation’s own address to finish', async () => {

@@ -1,3 +1,4 @@
+import type { VaultConnection } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconCopy, IconLogin2 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +7,6 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Integration } from '../integrations/catalog';
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
-import { ConnectionNameInput, useConnectionName } from './ConnectionName';
 
 type OAuthIntegration = Integration & { oauth: NonNullable<Integration['oauth']> };
 
@@ -78,6 +78,40 @@ export const OAuthAppForm = ({ integration }: { integration: OAuthIntegration })
   );
 };
 
+/** The account a sign-in connection is signed in as, as the app names it. */
+export const signedInAccount = (connection: VaultConnection) =>
+  typeof connection.settings.account === 'string' ? connection.settings.account : null;
+
+/** Sends the member to the app's sign-in; the callback saves one connection per account. */
+const useAuthorize = () => {
+  const { toast } = useToast();
+
+  return useMutation(
+    orpc.integrations.authorize.mutationOptions({
+      onSuccess: ({ url }) => window.location.assign(url),
+      onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),
+    }),
+  );
+};
+
+/** Signs in again, to renew the sign-in or grant more (Facebook pages): the same connection. */
+export const SignInAgain = ({ integration }: { integration: OAuthIntegration }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
+  const authorize = useAuthorize();
+
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={!integration.oauth.client || authorize.isPending}
+      onClick={() => authorize.mutate({ key: integration.key })}
+    >
+      <IconLogin2 />
+      {t('sign-in-again', 'Sign in again')}
+    </Button>
+  );
+};
+
 export const SignInForm = ({
   integration,
   onCancel,
@@ -86,17 +120,8 @@ export const SignInForm = ({
   onCancel: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.oauth' });
-  const id = useId();
-  const { toast } = useToast();
   const brand = useIntegrationText()(integration).name;
-  const { name, setName, taken, ready } = useConnectionName(integration);
-
-  const authorize = useMutation(
-    orpc.integrations.authorize.mutationOptions({
-      onSuccess: ({ url }) => window.location.assign(url),
-      onError: (error) => toast({ variant: 'destructive', title: messageOf(error) }),
-    }),
-  );
+  const authorize = useAuthorize();
 
   return (
     <div className="space-y-4 p-4">
@@ -105,20 +130,19 @@ export const SignInForm = ({
         <span className="font-medium">{brand}</span>
       </div>
       {integration.oauth.client === null && <OAuthAppForm integration={integration} />}
-      <ConnectionNameInput
-        id={`${id}-name`}
-        integration={integration}
-        name={name}
-        taken={taken}
-        onChange={setName}
-      />
+      <p className="text-sm text-muted-foreground">
+        {t(
+          'one-per-account',
+          'Each account connects once, named after the account. Signing in again with an account renews its connection.',
+        )}
+      </p>
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onCancel}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button
-          disabled={!integration.oauth.client || !ready || authorize.isPending}
-          onClick={() => authorize.mutate({ key: integration.key, name: name.trim() })}
+          disabled={!integration.oauth.client || authorize.isPending}
+          onClick={() => authorize.mutate({ key: integration.key })}
         >
           <IconLogin2 />
           {t('sign-in', 'Sign in with {{name}}', { name: brand })}

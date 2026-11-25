@@ -62,7 +62,7 @@ describe('Google Sheets triggers', { timeout: 300_000 }, () => {
 
   const google = fakeGateway([
     ['POST https://oauth2.googleapis.com/token', tokens],
-    ['GET https://www.googleapis.com/oauth2/v3/userinfo', { email: 'sales@acme.mn' }],
+    ['GET https://www.googleapis.com/oauth2/v3/userinfo', { sub: '1170', email: 'sales@acme.mn' }],
     [
       'GET https://www.googleapis.com/drive/v3/files',
       { files: [{ id: SPREADSHEET, name: 'Leads' }] },

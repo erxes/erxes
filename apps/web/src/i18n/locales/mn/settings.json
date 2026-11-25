@@ -606,7 +606,9 @@
     "choose": "Холболт сонгох",
     "change": "Холболт солих",
     "search": "Холболт хайх",
-    "unknown-connection": "Холболт"
+    "unknown-connection": "Холболт",
+    "account": "Бүртгэл",
+    "account-unknown": "Тодорхойгүй"
   },
   "mcp": {
     "title": "MCP сервер",
@@ -1127,7 +1129,8 @@
         "configurationSet": "Configuration set",
         "apiKey": "API түлхүүр",
         "merchantCategoryCode": "Мерчантын ангиллын код (MCC)"
-      }
+      },
+      "add-account": "Бүртгэл нэмэх"
     },
     "ebarimt": {
       "remove-title": "Энэ тохиргоог устгах",
@@ -1429,6 +1432,17 @@
         "off": "Ramp унтарсан: erxes имэйлийг тоолдог ч хязгаарлахгүй, зогсоохгүй.",
         "off-smtp": "Таны SMTP server bounce мэдээлдэггүй тул erxes имэйлийг тоолдог ч хязгаарлахгүй, зогсоохгүй."
       }
+    },
+    "oauth": {
+      "app-saved": "Хадгаллаа. Одоо нэвтэрч болно.",
+      "app-needed": "Эхлээд хөгжүүлэгчийн бүртгэлдээ апп үүсгээд энэ хаягийг redirect URL болгон нэмнэ үү. Дараа нь client id болон secret-ийг оруулна уу.",
+      "client-id": "Client id",
+      "client-secret": "Client secret",
+      "save-app": "Апп хадгалах",
+      "cancel": "Болих",
+      "sign-in": "{{name}}-ээр нэвтрэх",
+      "sign-in-again": "Дахин нэвтрэх",
+      "one-per-account": "Бүртгэл бүр нэг удаа холбогдож, бүртгэлийн нэрээр нэрлэгдэнэ. Тухайн бүртгэлээр дахин нэвтэрвэл түүний холболт шинэчлэгдэнэ."
     }
   },
   "team-member": {
