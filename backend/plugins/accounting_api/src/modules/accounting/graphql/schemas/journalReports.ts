@@ -67,6 +67,8 @@ const trsQueryParams = `
   fixedAssetCategoryId: String,
   fixedAssetSearchValue: String,
   customerId: String,
+  companyId: String,
+  customerUserId: String,
   customerIds: [String],
   customerTagIds: [String],
   companyTagIds: [String],

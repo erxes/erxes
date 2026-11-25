@@ -23,7 +23,19 @@ jest.mock(
   },
   { virtual: true },
 );
-jest.mock('ui-modules', () => ({}), { virtual: true });
+jest.mock('ui-modules', () => {
+  const { useState } = jest.requireActual<typeof import('react')>('react');
+  return {
+    CustomerType: { CUSTOMER: 'customer', COMPANY: 'company', USER: 'user' },
+    CustomersInline: ({ customerIds }: { customerIds: string[] }) => (
+      <span>Customer {customerIds[0]}</span>
+    ),
+    CompaniesInline: ({ companyIds }: { companyIds: string[] }) => {
+      const [loadedId] = useState(companyIds[0]);
+      return <span>Company {loadedId}</span>;
+    },
+  };
+});
 jest.mock('@/settings/fixed-assets/hooks/useFixedAssetDetail', () => ({}));
 jest.mock('@/settings/account/components/AccountsInline', () => ({}));
 jest.mock('@/transactions/transaction-form/states/trStates', () => ({}));
@@ -64,4 +76,31 @@ describe('trial balance quantity column', () => {
     const { container } = renderQuantity({ amount: 70000, count: 4 });
     expect(container.textContent).toBe('');
   });
+});
+
+it('resolves the current contact when the same balance row changes selection', () => {
+  const contactColumn = tbalanceColumns(translate).find(
+    (col) => col.id === 'customerId',
+  ) as ColumnDef<ITBalanceTransaction> & {
+    cell: (props: { row: Row<ITBalanceTransaction> }) => JSX.Element;
+  };
+  const contactCell = (customerType?: string, customerId?: string) =>
+    contactColumn.cell({
+      row: {
+        original: { customerType, customerId },
+      } as Row<ITBalanceTransaction>,
+    });
+
+  const { rerender } = render(contactCell(undefined, 'person-1'));
+  expect(screen.getByText('Customer person-1')).toBeTruthy();
+
+  rerender(contactCell('company', 'company-1'));
+  expect(screen.getByText('Company company-1')).toBeTruthy();
+
+  rerender(contactCell('company', 'company-2'));
+  expect(screen.getByText('Company company-2')).toBeTruthy();
+  expect(screen.queryByText('Company company-1')).toBeNull();
+
+  rerender(contactCell('company'));
+  expect(screen.getByText('-')).toBeTruthy();
 });

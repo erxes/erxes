@@ -11,12 +11,15 @@ import { useMainConfigs } from '../hooks/useMainConfigs';
 import { useEffect } from 'react';
 import { useMainUpdateConfigs } from '../hooks/useMainUpdateConfigs';
 import deepEqual from 'deep-equal';
-import { SelectMember } from 'ui-modules';
+import { CustomerType, SelectMember } from 'ui-modules';
+import { TaxCustomerFields } from './TaxCustomerFields';
 
 const DEFAULT_VALUES: TMainSettings = {
   MainCurrency: 'MNT',
   HasVat: false,
+  VatCustomer: { customerType: CustomerType.CUSTOMER, customerId: '' },
   HasCtax: false,
+  CtaxCustomer: { customerType: CustomerType.CUSTOMER, customerId: '' },
   dominantReadAccountUsers: [],
   dominantWriteAccountUsers: [],
 };
@@ -27,31 +30,33 @@ export const MainSettingsForm = () => {
   const { updateConfigs, loading: saving } = useMainUpdateConfigs();
   const form = useForm<TMainSettings>({
     resolver: zodResolver(mainSettingsSchema),
-    defaultValues: {
-      MainCurrency: 'MNT',
-      HasVat: false,
-      HasCtax: false,
-      dominantReadAccountUsers: [],
-      dominantWriteAccountUsers: [],
-    },
+    defaultValues: DEFAULT_VALUES,
   });
-  const { reset } = form;
+  const { getValues, reset } = form;
 
   useEffect(() => {
     if (Object.keys(configs || {}).length > 0 && configs) {
       // Only reset if configs are different from current form values
-      const currentValues = form.getValues();
-      const hasChanges = !deepEqual(configs, currentValues);
+      const currentValues = getValues();
+      const nextValues = {
+        ...DEFAULT_VALUES,
+        ...configs,
+        VatCustomer: configs.VatCustomer ?? DEFAULT_VALUES.VatCustomer,
+        CtaxCustomer: configs.CtaxCustomer ?? DEFAULT_VALUES.CtaxCustomer,
+      };
+      const hasChanges = !deepEqual(nextValues, currentValues);
 
       if (hasChanges) {
-        reset({ ...DEFAULT_VALUES, ...configs });
+        reset(nextValues);
       }
     }
-  }, [configs, reset]);
+  }, [configs, getValues, reset]);
 
   const onSubmit = (data: TMainSettings) => {
     updateConfigs({
       ...data,
+      VatCustomer: data.VatCustomer?.customerId ? data.VatCustomer : null,
+      CtaxCustomer: data.CtaxCustomer?.customerId ? data.CtaxCustomer : null,
     });
   };
   return (
@@ -237,6 +242,7 @@ export const VatFormFields = ({
               </Form.Item>
             )}
           />
+          <TaxCustomerFields form={form} name="VatCustomer" />
         </>
       )}
     </>
@@ -268,20 +274,23 @@ export const CtaxFormFields = ({
         )}
       />
       {HasCtax && (
-        <Form.Field
-          control={form.control}
-          name="CtaxPayableAccount"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('city-tax-payable-account')}</Form.Label>
-              <SelectAccount
-                value={field.value}
-                onValueChange={field.onChange}
-                defaultFilter={{ journals: ['tax'] }}
-              />
-            </Form.Item>
-          )}
-        />
+        <>
+          <Form.Field
+            control={form.control}
+            name="CtaxPayableAccount"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('city-tax-payable-account')}</Form.Label>
+                <SelectAccount
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  defaultFilter={{ journals: ['tax'] }}
+                />
+              </Form.Item>
+            )}
+          />
+          <TaxCustomerFields form={form} name="CtaxCustomer" />
+        </>
       )}
     </>
   );

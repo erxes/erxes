@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ACCOUNTINGS_MAIN_CONFIGS_UPDATE } from '../graphql/mutations/updateConfig';
+import { CONFIGS_BY_CODE } from '../graphql/queries/mainConfigs';
 
 export const useMainUpdateConfigs = () => {
   const { t } = useTranslation('accounting');
@@ -12,7 +13,8 @@ export const useMainUpdateConfigs = () => {
   const updateConfigs = (configsMap: Record<string, unknown>) => {
     return updateConfig({
       variables: { configsMap },
-      refetchQueries: ['accountingsConfig'],
+      refetchQueries: ['accountingsConfig', CONFIGS_BY_CODE],
+      awaitRefetchQueries: true,
       onError: (error) => {
         toast({
           title: t('error'),

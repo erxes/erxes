@@ -1,6 +1,8 @@
 import type { TFunction } from 'i18next';
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { render, screen } from '@testing-library/react';
+import { RecordTable } from 'erxes-ui';
+import { TransactionContactColumnOrder } from '@/transactions/components/transactionContactColumn';
 import { transactionColumns } from '@/transactions/components/TransactionsTableColumns';
 import { TrJournalEnum } from '@/transactions/types/constants';
 import { ITransaction } from '@/transactions/types/Transaction';
@@ -32,6 +34,7 @@ jest.mock(
         InlineHead: Passthrough,
         MoreButton: () => null,
         checkboxColumn: { id: 'check' },
+        useRecordTable: jest.fn(),
       },
       RecordTableInlineCell: InlineCell,
       useConfirm: () => ({ confirm: jest.fn() }),
@@ -56,6 +59,27 @@ jest.mock(
 const translate = ((key: string) => key) as unknown as TFunction<'accounting'>;
 const columns = transactionColumns(translate);
 
+it.each([
+  [['sumCt', 'branch', 'department']],
+  [['customerId', 'sumCt', 'branch', 'department']],
+])('places Contact after Credit in the saved order %j', (savedOrder) => {
+  const setColumnOrder = jest.fn((update: (order: string[]) => string[]) =>
+    update(savedOrder),
+  );
+  (RecordTable.useRecordTable as jest.Mock).mockReturnValue({
+    table: { setColumnOrder },
+  });
+
+  render(<TransactionContactColumnOrder creditColumnId="sumCt" />);
+
+  expect(setColumnOrder).toHaveReturnedWith([
+    'sumCt',
+    'customerId',
+    'branch',
+    'department',
+  ]);
+});
+
 const renderCell = (columnId: string, transaction: Partial<ITransaction>) => {
   const column = columns.find(
     (col) => col.id === columnId,
@@ -66,6 +90,15 @@ const renderCell = (columnId: string, transaction: Partial<ITransaction>) => {
 
   return render(column.cell({ row }));
 };
+
+it('displays the full name returned by the transaction customer resolver', () => {
+  renderCell('customerId', {
+    customerId: 'customer-1',
+    customer: { _id: 'customer-1', firstName: 'Ariun', lastName: 'Bold' },
+  });
+
+  expect(screen.getByText('Ariun Bold')).toBeTruthy();
+});
 
 const bankReceipt: Partial<ITransaction> = {
   _id: 'tr-bank-1',

@@ -26,7 +26,7 @@ import {
   SelectProduct,
   SelectTags,
 } from 'ui-modules';
-import { SelectCustomer } from 'ui-modules/modules/contacts';
+import { ReportContactSelect } from './ReportContactSelect';
 import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { SelectFixedAssetCategory } from '~/modules/settings/fixed-assets/components/SelectFixedAssetCategory';
@@ -50,6 +50,8 @@ interface ReportFormValues {
   accountCategoryId?: string;
   accountIds?: string[];
   customerId?: string;
+  companyId?: string;
+  customerUserId?: string;
   customerTagIds?: string[];
   companyTagIds?: string[];
   productCategoryId?: string;
@@ -177,20 +179,17 @@ const ReportFormField = ({
     );
   }
 
-  if (field === 'customerId') {
+  if (field === 'customerId' || field === 'companyId' || field === 'customerUserId') {
     return (
       <Form.Field
         control={form.control}
         name={field}
         render={({ field: control }) => (
-          <Form.Item>
-            <Form.Label>{label}</Form.Label>
-            <SelectCustomer.FormItem
-              value={control.value}
-              onValueChange={control.onChange}
-              mode="single"
-            />
-          </Form.Item>
+          <ReportContactSelect
+            name={field}
+            value={control.value}
+            onChange={control.onChange}
+          />
         )}
       />
     );

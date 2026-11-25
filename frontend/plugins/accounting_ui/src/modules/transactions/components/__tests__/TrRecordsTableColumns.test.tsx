@@ -60,6 +60,17 @@ const renderCell = (columnId: string, record: Partial<ITrRecord>) => {
   return render(column.cell({ row }));
 };
 
+it('displays the company name returned by the journal record customer resolver', () => {
+  renderCell('customerId', {
+    customerId: 'company-1',
+    customerType: 'company',
+    customer: { _id: 'company-1', firstName: 'Example Company' },
+  });
+
+  expect(screen.getByText('Example Company')).toBeTruthy();
+  expect(screen.queryByText('company', { exact: true })).toBeNull();
+});
+
 const journalLine = (side?: string): Partial<ITrRecord> => ({
   _id: 'tr-1-detail-1',
   journal: 'main',

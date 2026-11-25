@@ -30,7 +30,6 @@ jest.mock('erxes-ui', () => {
   };
 });
 jest.mock('ui-modules', () => ({}));
-jest.mock('ui-modules/modules/contacts', () => ({}));
 
 const row = (
   number: string,

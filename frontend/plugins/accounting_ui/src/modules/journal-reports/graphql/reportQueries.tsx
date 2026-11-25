@@ -1,7 +1,7 @@
 import { gql } from '~/gql';
 
 export const JOURNAL_REPORT_QUERY = gql(`
-query accountingJournalReportData($status: String, $searchValue: String, $number: String, $ptrId: String, $accountId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountIsTemp: Boolean, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $productId: String, $productIds: [String], $productCategoryId: String, $productSearchValue: String, $fixedAssetId: String, $fixedAssetIds: [String], $fixedAssetCategoryId: String, $fixedAssetSearchValue: String, $customerId: String, $customerIds: [String], $customerTagIds: [String], $companyTagIds: [String], $contentType: String, $contentId: String, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $trKind: String, $trKinds: [String], $getTrKind: String, $statuses: [String], $createdUserId: String, $modifiedUserId: String, $assignedUserId: String, $fromDate: Date, $toDate: Date, $report: String!, $groupRule: JSON) {
+query accountingJournalReportData($status: String, $searchValue: String, $number: String, $ptrId: String, $accountId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountIsTemp: Boolean, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $productId: String, $productIds: [String], $productCategoryId: String, $productSearchValue: String, $fixedAssetId: String, $fixedAssetIds: [String], $fixedAssetCategoryId: String, $fixedAssetSearchValue: String, $customerId: String, $companyId: String, $customerUserId: String, $customerIds: [String], $customerTagIds: [String], $companyTagIds: [String], $contentType: String, $contentId: String, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $trKind: String, $trKinds: [String], $getTrKind: String, $statuses: [String], $createdUserId: String, $modifiedUserId: String, $assignedUserId: String, $fromDate: Date, $toDate: Date, $report: String!, $groupRule: JSON) {
   journalReportData(
     status: $status
     searchValue: $searchValue
@@ -30,6 +30,8 @@ query accountingJournalReportData($status: String, $searchValue: String, $number
     fixedAssetCategoryId: $fixedAssetCategoryId
     fixedAssetSearchValue: $fixedAssetSearchValue
     customerId: $customerId
+    companyId: $companyId
+    customerUserId: $customerUserId
     customerIds: $customerIds
     customerTagIds: $customerTagIds
     companyTagIds: $companyTagIds
@@ -58,7 +60,7 @@ query accountingJournalReportData($status: String, $searchValue: String, $number
 `);
 
 export const JOURNAL_REPORT_MORE_QUERY = gql(`
-query accountingJournalReportMore($status: String, $searchValue: String, $number: String, $ptrId: String, $accountId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountIsTemp: Boolean, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $productId: String, $productIds: [String], $productCategoryId: String, $productSearchValue: String, $fixedAssetId: String, $fixedAssetIds: [String], $fixedAssetCategoryId: String, $fixedAssetSearchValue: String, $customerId: String, $customerIds: [String], $customerTagIds: [String], $companyTagIds: [String], $contentType: String, $contentId: String, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $trKind: String, $trKinds: [String], $getTrKind: String, $statuses: [String], $createdUserId: String, $modifiedUserId: String, $assignedUserId: String, $fromDate: Date, $toDate: Date, $report: String!, $groupRule: JSON) {
+query accountingJournalReportMore($status: String, $searchValue: String, $number: String, $ptrId: String, $accountId: String, $accountIds: [String], $accountKind: String, $accountExcludeIds: Boolean, $accountStatus: String, $accountCategoryId: String, $accountIsTemp: Boolean, $accountIsOutBalance: Boolean, $accountBranchId: String, $accountDepartmentId: String, $accountCurrency: String, $accountJournal: String, $brandId: String, $isOutBalance: Boolean, $productId: String, $productIds: [String], $productCategoryId: String, $productSearchValue: String, $fixedAssetId: String, $fixedAssetIds: [String], $fixedAssetCategoryId: String, $fixedAssetSearchValue: String, $customerId: String, $companyId: String, $customerUserId: String, $customerIds: [String], $customerTagIds: [String], $companyTagIds: [String], $contentType: String, $contentId: String, $branchId: String, $departmentId: String, $currency: String, $journal: String, $journals: [String], $trKind: String, $trKinds: [String], $getTrKind: String, $statuses: [String], $createdUserId: String, $modifiedUserId: String, $assignedUserId: String, $fromDate: Date, $toDate: Date, $report: String!, $groupRule: JSON) {
   journalReportMore(
     status: $status
     searchValue: $searchValue
@@ -87,6 +89,8 @@ query accountingJournalReportMore($status: String, $searchValue: String, $number
     fixedAssetCategoryId: $fixedAssetCategoryId
     fixedAssetSearchValue: $fixedAssetSearchValue
     customerId: $customerId
+    companyId: $companyId
+    customerUserId: $customerUserId
     customerIds: $customerIds
     customerTagIds: $customerTagIds
     companyTagIds: $companyTagIds

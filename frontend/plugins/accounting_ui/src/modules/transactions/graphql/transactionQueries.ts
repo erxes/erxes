@@ -26,6 +26,12 @@ fragment AccountingTransactionListFields on AccCommonTransaction {
   departmentId
   customerType
   customerId
+  customer {
+    _id
+    code
+    firstName
+    lastName
+  }
   assignedUserIds
   branch {
     _id
@@ -255,6 +261,12 @@ fragment AccountingTrRecordListFields on AccCommonTrRecord {
   departmentId
   customerType
   customerId
+  customer {
+    _id
+    code
+    firstName
+    lastName
+  }
   assignedUserIds
   branch {
     _id

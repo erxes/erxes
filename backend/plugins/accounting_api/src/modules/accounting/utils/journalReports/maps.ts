@@ -384,8 +384,26 @@ export const getFilter = async (
     transactionMatch.scopeBrandIds = { $in: [params.brandId] };
   }
 
+  const hasTypedContacts = Boolean(params.companyId || params.customerUserId);
+  if (hasTypedContacts) {
+    const contacts: ReportQuery[] = [];
+    if (params.customerId) {
+      contacts.push({ customerId: params.customerId });
+    }
+    if (params.companyId) {
+      contacts.push({ customerType: 'company', customerId: params.companyId });
+    }
+    if (params.customerUserId) {
+      contacts.push({
+        customerType: 'user',
+        customerId: params.customerUserId,
+      });
+    }
+    andFilters.push({ $or: contacts });
+  }
+
   const explicitCustomerIds = buildIdsFilter(
-    params.customerId,
+    hasTypedContacts ? undefined : params.customerId,
     params.customerIds,
   )?.$in;
   const customerIds = mergeIdSets(explicitCustomerIds, taggedContactIds);
@@ -710,7 +728,7 @@ const fetchUsers = async (
     action: 'find',
     input: {
       query: { _id: { $in: userIds } },
-      fields: { _id: 1, username: 1, email: 1, details: 1 },
+      fields: { _id: 1, code: 1, username: 1, email: 1, details: 1 },
       limit: userIds.length,
     },
     defaultValue: [],
@@ -744,6 +762,31 @@ const fetchCustomers = async (
   return Object.fromEntries(
     customers.map((customer) => [customer._id, customer]),
   );
+};
+
+const fetchCompanies = async (
+  subdomain: string,
+  companyIds: string[],
+): Promise<ReportLookup> => {
+  if (!companyIds.length) {
+    return {};
+  }
+
+  const companies = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'companies',
+    action: 'findActiveCompanies',
+    input: {
+      query: { _id: { $in: companyIds } },
+      fields: { _id: 1, code: 1, primaryName: 1 },
+      limit: companyIds.length,
+    },
+    defaultValue: [],
+  });
+
+  return Object.fromEntries(companies.map((company) => [company._id, company]));
 };
 
 const enrichRecords = async (
@@ -802,10 +845,9 @@ const enrichRecords = async (
     subdomain,
     uniqueStringValues(records, 'productId'),
   );
-  const customerById = await fetchCustomers(
-    subdomain,
-    uniqueStringValues(records, 'customerId'),
-  );
+  const contactIds = uniqueStringValues(records, 'customerId');
+  const customerById = await fetchCustomers(subdomain, contactIds);
+  const unresolvedContactIds = contactIds.filter((id) => !customerById[id]);
   const fixedAssets = await models.FixedAssets.find(
     { _id: { $in: uniqueStringValues(records, 'fixedAssetId') } },
     { _id: 1, code: 1, name: 1, categoryId: 1 },
@@ -813,10 +855,15 @@ const enrichRecords = async (
   const fixedAssetById: ReportLookup = Object.fromEntries(
     fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
   );
-  const userById = await fetchUsers(
-    subdomain,
-    uniqueStringValues(records, 'createdBy'),
-  );
+  const [companyById, userById] = await Promise.all([
+    fetchCompanies(subdomain, unresolvedContactIds),
+    fetchUsers(subdomain, [
+      ...new Set([
+        ...uniqueStringValues(records, 'createdBy'),
+        ...unresolvedContactIds,
+      ]),
+    ]),
+  ]);
 
   return records.map((record) => {
     const account =
@@ -836,10 +883,11 @@ const enrichRecords = async (
       typeof record.productId === 'string'
         ? productById[record.productId]
         : undefined;
-    const customer =
-      typeof record.customerId === 'string'
-        ? customerById[record.customerId]
-        : undefined;
+    const contactId =
+      typeof record.customerId === 'string' ? record.customerId : '';
+    const customer = customerById[contactId];
+    const company = companyById[contactId];
+    const member = userById[contactId];
     const fixedAsset =
       typeof record.fixedAssetId === 'string'
         ? fixedAssetById[record.fixedAssetId]
@@ -873,8 +921,15 @@ const enrichRecords = async (
       productName: product?.name,
       productCategoryId: product?.categoryId,
       productUnitPrice: product?.unitPrice,
-      customerCode: customer?.code,
-      customerName: customer?.primaryName || customerName,
+      customerCode: customer?.code || company?.code || member?.code,
+      customerName:
+        customer?.primaryName ||
+        customerName ||
+        company?.primaryName ||
+        getStringField(member?.details, 'fullName') ||
+        member?.username ||
+        member?.email ||
+        '',
       fixedAssetCode: fixedAsset?.code,
       fixedAssetName: fixedAsset?.name,
       fixedAssetCategoryId: fixedAsset?.categoryId,

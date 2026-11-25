@@ -4,6 +4,8 @@ export type ReportFilterField =
   | 'branchId'
   | 'departmentId'
   | 'customerId'
+  | 'companyId'
+  | 'customerUserId'
   | 'customerTagIds'
   | 'companyTagIds'
   | 'productCategoryId'
@@ -80,6 +82,8 @@ export const REPORT_FILTER_DEFINITIONS: Record<
     'accountIsOutBalance',
   ),
   customerId: define('customerId', 'contacts', 'contact'),
+  companyId: define('companyId', 'contacts', 'organization'),
+  customerUserId: define('customerUserId', 'contacts', 'employee'),
   customerTagIds: define('customerTagIds', 'contacts', 'contact-tag'),
   companyTagIds: define('companyTagIds', 'contacts', 'company-tag'),
   productCategoryId: define(
@@ -135,8 +139,15 @@ const BASE_FIELDS: ReportFilterField[] = [
   'toDate',
 ];
 
-const CONTACT_FIELDS: ReportFilterField[] = [
+const COUNTERPARTY_FIELDS = ['companyId', 'customerUserId'] as const;
+
+export const REPORT_CONTACT_FIELDS = [
   'customerId',
+  ...COUNTERPARTY_FIELDS,
+] as const;
+
+const CONTACT_FIELDS: ReportFilterField[] = [
+  ...REPORT_CONTACT_FIELDS,
   'customerTagIds',
   'companyTagIds',
 ];
@@ -153,7 +164,8 @@ const FIXED_ASSET_FIELDS: ReportFilterField[] = [
   'fixedAssetSearchValue',
 ];
 
-const withFields = (...groups: ReportFilterField[][]) => groups.flat();
+const withFields = (...groups: ReadonlyArray<ReportFilterField>[]) =>
+  groups.flat();
 
 export const REPORT_FILTERS_BY_REPORT: Record<string, ReportFilterField[]> = {
   ac: withFields(BASE_FIELDS, CONTACT_FIELDS),
@@ -163,19 +175,20 @@ export const REPORT_FILTERS_BY_REPORT: Record<string, ReportFilterField[]> = {
   mjs: withFields(BASE_FIELDS, CONTACT_FIELDS),
   fund: withFields(BASE_FIELDS, CONTACT_FIELDS),
   debt: withFields(BASE_FIELDS, CONTACT_FIELDS),
-  invCost: withFields(BASE_FIELDS, PRODUCT_FIELDS),
+  invCost: withFields(BASE_FIELDS, PRODUCT_FIELDS, COUNTERPARTY_FIELDS),
   invSale: withFields(BASE_FIELDS, PRODUCT_FIELDS, CONTACT_FIELDS),
   invSaleCost: withFields(BASE_FIELDS, PRODUCT_FIELDS, CONTACT_FIELDS),
   invSaleCostPeriod: withFields(BASE_FIELDS, PRODUCT_FIELDS, CONTACT_FIELDS),
-  invByPrice: withFields(BASE_FIELDS, PRODUCT_FIELDS),
-  invProfit: withFields(BASE_FIELDS, PRODUCT_FIELDS),
-  invShipper: withFields(BASE_FIELDS, PRODUCT_FIELDS),
+  invByPrice: withFields(BASE_FIELDS, PRODUCT_FIELDS, COUNTERPARTY_FIELDS),
+  invProfit: withFields(BASE_FIELDS, PRODUCT_FIELDS, COUNTERPARTY_FIELDS),
+  invShipper: withFields(BASE_FIELDS, PRODUCT_FIELDS, COUNTERPARTY_FIELDS),
   invSaleDaily: withFields(BASE_FIELDS, PRODUCT_FIELDS, CONTACT_FIELDS),
-  invSellerSubsys: BASE_FIELDS,
-  fxa: withFields(BASE_FIELDS, FIXED_ASSET_FIELDS),
+  invSellerSubsys: withFields(BASE_FIELDS, COUNTERPARTY_FIELDS),
+  fxa: withFields(BASE_FIELDS, FIXED_ASSET_FIELDS, COUNTERPARTY_FIELDS),
 };
 
 export const getReportFilterDefinitions = (report: string) =>
-  (REPORT_FILTERS_BY_REPORT[report] || BASE_FIELDS).map(
-    (field) => REPORT_FILTER_DEFINITIONS[field],
-  );
+  (
+    REPORT_FILTERS_BY_REPORT[report] ||
+    withFields(BASE_FIELDS, COUNTERPARTY_FIELDS)
+  ).map((field) => REPORT_FILTER_DEFINITIONS[field]);

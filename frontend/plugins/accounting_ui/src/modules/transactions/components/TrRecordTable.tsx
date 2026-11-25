@@ -8,6 +8,7 @@ import { useTrRecords } from '@/transactions/hooks/useTrRecords';
 import { trRecordColumns } from '@/transactions/components/TrRecordsTableColumns';
 import { useMemo } from 'react';
 import { TransactionsCommandbar } from '@/transactions/components/TransactionsCommandBar';
+import { TransactionContactColumnOrder } from './transactionContactColumn';
 
 const hasInventoryLikeDetails = (journal?: string) =>
   journal?.includes('inv') || journal?.includes('fxa');
@@ -39,6 +40,7 @@ export const TrRecordTable = () => {
       tableId="accounting_transaction_records_record_table"
       className="relative m-3"
     >
+      <TransactionContactColumnOrder creditColumnId="Credit" />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}

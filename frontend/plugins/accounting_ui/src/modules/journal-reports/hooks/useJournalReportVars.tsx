@@ -86,6 +86,8 @@ export const useTransactionsQueryParams = () => {
     fixedAssetCategoryId: string;
     fixedAssetSearchValue: string;
     customerId: string;
+    companyId: string;
+    customerUserId: string;
     customerIds: string;
     customerTagIds: string;
     companyTagIds: string;
@@ -136,6 +138,8 @@ export const useTransactionsQueryParams = () => {
     'fixedAssetCategoryId',
     'fixedAssetSearchValue',
     'customerId',
+    'companyId',
+    'customerUserId',
     'customerIds',
     'customerTagIds',
     'companyTagIds',

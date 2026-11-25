@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import { transactionContactColumn } from '@/transactions/components/transactionContactColumn';
 import { TR_SIDES } from '@/transactions/types/constants';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { Cell, ColumnDef, Row } from '@tanstack/react-table';
@@ -14,7 +15,15 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
-import { ProductsInline, BranchesInline, DepartmentsInline } from 'ui-modules';
+import {
+  BranchesInline,
+  CompaniesInline,
+  CustomersInline,
+  CustomerType,
+  DepartmentsInline,
+  MembersInline,
+  ProductsInline,
+} from 'ui-modules';
 import { useFixedAssetDetail } from '@/settings/fixed-assets/hooks/useFixedAssetDetail';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
 import { activeJournalState } from '../states/trStates';
@@ -42,6 +51,26 @@ export const getTBalanceLocation = (
 const TextCell = ({ value }: { value?: string }) => (
   <RecordTableInlineCell>{value}</RecordTableInlineCell>
 );
+
+const TBalanceContactName = ({
+  customerId,
+  customerType,
+}: Pick<ITBalanceTransaction, 'customerId' | 'customerType'>) => {
+  if (!customerId) {
+    return '-';
+  }
+
+  switch (customerType || CustomerType.CUSTOMER) {
+    case CustomerType.CUSTOMER:
+      return <CustomersInline customerIds={[customerId]} placeholder="-" />;
+    case CustomerType.COMPANY:
+      return <CompaniesInline companyIds={[customerId]} placeholder="-" />;
+    case CustomerType.USER:
+      return <MembersInline memberIds={[customerId]} placeholder="-" />;
+    default:
+      return '-';
+  }
+};
 
 const AmountCell = ({ value }: { value: number }) => {
   return (
@@ -239,22 +268,6 @@ export const tbalanceColumns = (
     cell: ({ row }) => <DateCell row={row} />,
   },
   {
-    id: 'debit',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label={t('debit')} />
-    ),
-    accessorKey: 'debit',
-    cell: ({ row }) => <DebitCell row={row} />,
-  },
-  {
-    id: 'credit',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label={t('credit')} />
-    ),
-    accessorKey: 'credit',
-    cell: ({ row }) => <CreditCell row={row} />,
-  },
-  {
     id: 'item-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('item')} />
@@ -282,6 +295,32 @@ export const tbalanceColumns = (
       <CountProdCell row={row} value={row.original?.detail?.count ?? 0} />
     ),
   },
+  {
+    id: 'debit',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('debit')} />
+    ),
+    accessorKey: 'debit',
+    cell: ({ row }) => <DebitCell row={row} />,
+  },
+  {
+    id: 'credit',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('credit')} />
+    ),
+    accessorKey: 'credit',
+    cell: ({ row }) => <CreditCell row={row} />,
+  },
+  transactionContactColumn<ITBalanceTransaction>(
+    t,
+    ({ customerId, customerType }) => (
+      <TBalanceContactName
+        key={customerId}
+        customerId={customerId}
+        customerType={customerType}
+      />
+    ),
+  ),
   {
     id: 'branch',
     header: () => (

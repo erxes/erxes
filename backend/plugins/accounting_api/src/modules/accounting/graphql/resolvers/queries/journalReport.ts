@@ -40,6 +40,8 @@ export interface IReportFilterParams {
   fixedAssetCategoryId?: string;
   fixedAssetSearchValue?: string;
   customerId?: string;
+  companyId?: string;
+  customerUserId?: string;
   customerIds?: string[];
   customerTagIds?: string[];
   companyTagIds?: string[];

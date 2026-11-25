@@ -7,6 +7,23 @@ import {
 } from '@/journal-reports/utils/reportNavigation';
 
 describe('journal report drill-down navigation', () => {
+  it('narrows the contact group without changing the original contact selectors', () => {
+    const path = buildDetailedReportPath(
+      {
+        pathname: '/report',
+        search: '?report=debt&customerId=customer&companyId=company&customerUserId=member',
+      },
+      'debt',
+      'customerId+member',
+    );
+    const params = new URLSearchParams(path.split('?')[1]);
+
+    expect(params.get('customerId')).toBe('customer');
+    expect(params.get('companyId')).toBe('company');
+    expect(params.get('customerUserId')).toBe('member');
+    expect(params.get('customerIds')).toBe('member');
+  });
+
   it('keeps the report and adds every grouped-row filter', () => {
     const path = buildDetailedReportPath(
       {

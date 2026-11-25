@@ -5,7 +5,6 @@ export const queries = `
     toDate: Date!
     branchId: String
     departmentId: String
-    customerId: String
     createdUserId: String
     modifiedUserId: String
     assignedUserId: String

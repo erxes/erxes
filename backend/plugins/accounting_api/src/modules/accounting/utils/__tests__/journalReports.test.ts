@@ -3,7 +3,7 @@
 import { JOURNALS } from '../../@types/constants';
 import { getRecMore } from '../journalReports';
 import { resolveErkhetReportJournals } from '../journalReports/erkhetKinds';
-import { getReportDetailRecords } from '../journalReports/maps';
+import { getFilter, getReportDetailRecords } from '../journalReports/maps';
 
 const mockSendTRPCMessage = jest.fn();
 
@@ -27,6 +27,43 @@ describe('resolveErkhetReportJournals', () => {
 describe('journal report filters', () => {
   beforeEach(() => {
     mockSendTRPCMessage.mockReset();
+  });
+
+  it('matches company and employee counterparties by both type and id in a drill-down', async () => {
+    const models = {
+      AccountCategories: { find: jest.fn().mockResolvedValue([]) },
+      Accounts: {
+        find: jest.fn(() => ({
+          lean: jest.fn().mockResolvedValue([{ _id: 'account' }]),
+        })),
+      },
+    } as unknown as Parameters<typeof getFilter>[1];
+    const { transactionMatch } = await getFilter(
+      'test',
+      models,
+      {
+        accountBranchId: '',
+        accountDepartmentId: '',
+        accountCurrency: '',
+        accountJournal: '',
+        customerId: 'contact',
+        companyId: 'company',
+        customerUserId: 'member',
+        customerIds: ['member'],
+        assignedUserId: 'owner',
+      },
+      { _id: 'user', isOwner: true } as Parameters<typeof getFilter>[3],
+    );
+
+    expect(transactionMatch.assignedUserIds).toBe('owner');
+    expect(transactionMatch.customerId).toEqual({ $in: ['member'] });
+    expect(transactionMatch.$and).toContainEqual({
+      $or: [
+        { customerId: 'contact' },
+        { customerType: 'company', customerId: 'company' },
+        { customerType: 'user', customerId: 'member' },
+      ],
+    });
   });
 
   it('keeps manually balanced main entries outside the fixed asset report', async () => {

@@ -28,6 +28,10 @@ import {
   buildTransactionEditPath,
   getCurrentTransactionReturnPath,
 } from '../utils/transactionNavigation';
+import {
+  getTransactionContactName,
+  transactionContactColumn,
+} from './transactionContactColumn';
 
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ row }: { row: Row<ITransaction> }) => {
@@ -282,6 +286,7 @@ export const transactionColumns = (
     accessorKey: 'sumCt',
     cell: ({ row }) => <AmountCell value={row.original.sumCt} />,
   },
+  transactionContactColumn<ITransaction>(t, getTransactionContactName),
   {
     id: 'branch',
     header: () => (

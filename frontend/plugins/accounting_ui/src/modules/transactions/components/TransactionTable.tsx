@@ -8,6 +8,7 @@ import { useTransactions } from '@/transactions/hooks/useTransactions';
 import { AccountingTableRow } from '@/transactions/components/AccountingTableRow';
 import { transactionColumns } from '@/transactions/components/TransactionsTableColumns';
 import { TransactionCommandBar } from '@/transactions/components/TransactionCommandBar';
+import { TransactionContactColumnOrder } from './transactionContactColumn';
 
 export const TransactionTable = () => {
   const { t } = useTranslation('accounting');
@@ -25,6 +26,7 @@ export const TransactionTable = () => {
       tableId="accounting_transactions_record_table"
       className="relative m-3"
     >
+      <TransactionContactColumnOrder creditColumnId="sumCt" />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}

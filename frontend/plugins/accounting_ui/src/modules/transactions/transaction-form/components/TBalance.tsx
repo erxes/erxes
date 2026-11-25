@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { IconReceiptOff } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { TransactionContactColumnOrder } from '@/transactions/components/transactionContactColumn';
 import { followTrDocsState } from '../states/trStates';
 import { ITBalanceTransaction } from '../types/TBalance';
 import { ITransactionGroupForm } from '../types/JournalForms';
@@ -106,6 +107,7 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
         tableId="accounting_transaction_balance_record_table"
         className="m-3"
       >
+        <TransactionContactColumnOrder creditColumnId="credit" />
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />

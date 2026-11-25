@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
-import { SelectCustomer } from 'ui-modules/modules/contacts';
 import { getReportPeriodSchema } from '@/journal-reports/types/reportFormSchema';
 import {
   getReportPeriodParam,
@@ -19,10 +18,9 @@ export interface TaxReportFormValues {
   toDate?: Date;
   branchId?: string;
   departmentId?: string;
-  customerId?: string;
 }
 
-const OPTIONAL_FILTERS = ['branchId', 'departmentId', 'customerId'] as const;
+const OPTIONAL_FILTERS = ['branchId', 'departmentId'] as const;
 
 export const buildTaxReportPath = (values: TaxReportFormValues) => {
   const params = new URLSearchParams({ kind: values.kind });
@@ -133,20 +131,6 @@ export const TaxReportForm = ({ kind }: { kind: TaxReportKind }) => {
                   <Form.Item>
                     <Form.Label>{t('department')}</Form.Label>
                     <SelectDepartments.FormItem
-                      mode="single"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="customerId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('contact')}</Form.Label>
-                    <SelectCustomer.FormItem
                       mode="single"
                       value={field.value}
                       onValueChange={field.onChange}

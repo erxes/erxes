@@ -74,6 +74,7 @@ export const VatForm = ({
   }, [details, isHandleVat, vatPercent, sumPercent, isWithTax, trDoc.vatAmount]);
 
   const { configs } = useMainConfigs();
+  const { customerType, customerId } = configs?.VatCustomer ?? trDoc;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
@@ -103,6 +104,8 @@ export const VatForm = ({
         side,
         originId: trDoc._id,
         originType: 'vat',
+        customerType,
+        customerId,
         details: [
           {
             ...(curr?.details || [{}])[0],
@@ -138,6 +141,8 @@ export const VatForm = ({
     configs?.VatAfterReceivableAccount,
     configs?.VatPayableAccount,
     configs?.VatReceivableAccount,
+    customerType,
+    customerId,
     setFollowTrDocs,
   ]);
 

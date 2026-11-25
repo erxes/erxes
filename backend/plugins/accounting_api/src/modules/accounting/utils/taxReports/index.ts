@@ -31,7 +31,6 @@ export interface ITaxReportParams {
   toDate?: Date;
   branchId?: string;
   departmentId?: string;
-  customerId?: string;
   createdUserId?: string;
   modifiedUserId?: string;
   assignedUserId?: string;

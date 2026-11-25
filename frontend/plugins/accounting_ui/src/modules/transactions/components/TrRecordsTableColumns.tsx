@@ -35,6 +35,10 @@ import {
   buildTransactionEditPath,
   getCurrentTransactionReturnPath,
 } from '../utils/transactionNavigation';
+import {
+  getTransactionContactName,
+  transactionContactColumn,
+} from './transactionContactColumn';
 
 const NumberCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { number } = row.original;
@@ -375,15 +379,7 @@ export const trRecordColumns = (
     accessorKey: 'Credit',
     cell: ({ row }) => <CreditCell row={row} />,
   },
-  {
-    id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
-    ),
-    accessorKey: 'description',
-    cell: ({ row }) => <DescriptionCell row={row} />,
-    size: 200,
-  },
+  transactionContactColumn<ITrRecord>(t, getTransactionContactName),
   {
     id: 'branch',
     header: () => (
@@ -399,5 +395,14 @@ export const trRecordColumns = (
     ),
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
+  },
+  {
+    id: 'description',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
+    accessorKey: 'description',
+    cell: ({ row }) => <DescriptionCell row={row} />,
+    size: 200,
   },
 ];

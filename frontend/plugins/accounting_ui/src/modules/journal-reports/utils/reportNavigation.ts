@@ -118,6 +118,14 @@ export const buildDetailedReportPath = (
       return;
     }
 
+    if (
+      group === 'customerId' &&
+      (params.get('companyId') || params.get('customerUserId'))
+    ) {
+      params.set('customerIds', id);
+      return;
+    }
+
     const queryParam = queryParamByGroup[group];
     if (queryParam) {
       params.set(queryParam, id);

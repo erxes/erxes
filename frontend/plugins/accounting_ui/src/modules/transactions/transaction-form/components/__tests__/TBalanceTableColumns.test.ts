@@ -2,7 +2,7 @@ import { getTBalanceLocation } from '@/transactions/transaction-form/components/
 import { ITBalanceTransaction } from '@/transactions/transaction-form/types/TBalance';
 
 jest.mock('erxes-ui', () => ({}), { virtual: true });
-jest.mock('ui-modules', () => ({}), { virtual: true });
+jest.mock('ui-modules', () => ({}));
 jest.mock('@/settings/fixed-assets/hooks/useFixedAssetDetail', () => ({}));
 jest.mock('@/settings/account/components/AccountsInline', () => ({}));
 jest.mock('@/transactions/transaction-form/states/trStates', () => ({}));

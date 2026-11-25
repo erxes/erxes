@@ -5,6 +5,8 @@ export interface ITBalanceTransaction {
   number?: string;
   ptrId?: string;
   side?: string;
+  customerId?: string | null;
+  customerType?: string | null;
   branchId?: string;
   departmentId?: string;
   detail: ITrDetail;

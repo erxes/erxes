@@ -4,6 +4,7 @@ import { IConfigDocument } from '../../@types/config';
 import { model, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { validateSyncConfig } from '~/modules/accounting/utils/syncConfigValidation';
+import { validateTaxCustomerConfig } from '~/modules/accounting/utils/taxCustomerConfig';
 
 export const Config = model('configs', configSchema);
 
@@ -118,6 +119,7 @@ export const loadConfigClass = (
       subId?: string;
     }) {
       validateSyncConfig({ code, subId, value });
+      validateTaxCustomerConfig(code, value);
 
       const newConfig = await models.Configs.create({
         code,
@@ -141,6 +143,7 @@ export const loadConfigClass = (
       const oldConf = await models.Configs.getConfigDetail(_id);
 
       validateSyncConfig({ code: oldConf.code, subId, value });
+      validateTaxCustomerConfig(oldConf.code, value);
 
       await models.Configs.updateOne(
         { _id },
@@ -180,6 +183,7 @@ export const loadConfigClass = (
      */
     public static async updateSingleByCode(code: string, value: any) {
       validateSyncConfig({ code, subId: '', value });
+      validateTaxCustomerConfig(code, value);
 
       const oldConf = await models.Configs.getConfig(code);
 

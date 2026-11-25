@@ -4,6 +4,10 @@ import { JOURNALS, TR_FOLLOW_TYPES } from '../@types/constants';
 import { ICtaxRow } from '../@types/ctaxRow';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import { IVatRow } from '../@types/vatRow';
+import {
+  TaxCustomerConfig,
+  taxCustomerConfigSchema,
+} from './taxCustomerConfig';
 import { createOrUpdateTr } from './utils';
 
 class TaxTrs {
@@ -17,6 +21,8 @@ class TaxTrs {
   private ctaxAccountId?: string;
   private vatRow?: IVatRow;
   private ctaxRow?: ICtaxRow;
+  private vatCustomer?: TaxCustomerConfig | null;
+  private ctaxCustomer?: TaxCustomerConfig | null;
 
   private vatTrDoc?: ITransaction;
   private ctaxTrDoc?: ITransaction;
@@ -63,6 +69,9 @@ class TaxTrs {
       this.vatRow = await this.models.VatRows.getVatRow({
         _id: this.doc.vatRowId,
       });
+      this.vatCustomer = taxCustomerConfigSchema.parse(
+        await this.models.Configs.getConfigValue('VatCustomer'),
+      );
     }
 
     if (hasCtax && this.doc.hasCtax) {
@@ -77,6 +86,9 @@ class TaxTrs {
       this.ctaxRow = await this.models.CtaxRows.getCtaxRow({
         _id: this.doc.ctaxRowId,
       });
+      this.ctaxCustomer = taxCustomerConfigSchema.parse(
+        await this.models.Configs.getConfigValue('CtaxCustomer'),
+      );
     }
   };
 
@@ -101,6 +113,7 @@ class TaxTrs {
       return;
     }
 
+    const customer = this.vatCustomer ?? this.doc;
     this.vatTrDoc = {
       ptrId: this.doc.ptrId,
       parentId: this.doc.parentId,
@@ -111,8 +124,8 @@ class TaxTrs {
       side: this.side,
       branchId: this.doc.branchId,
       departmentId: this.doc.departmentId,
-      customerType: this.doc.customerType,
-      customerId: this.doc.customerId,
+      customerType: customer.customerType,
+      customerId: customer.customerId,
       details: [
         {
           _id: nanoid(),
@@ -147,6 +160,7 @@ class TaxTrs {
     }
 
     if (this.side === 'ct') {
+      const customer = this.ctaxCustomer ?? this.doc;
       this.ctaxTrDoc = {
         ptrId: this.doc.ptrId,
         parentId: this.doc.parentId,
@@ -157,8 +171,8 @@ class TaxTrs {
         side: this.side,
         branchId: this.doc.branchId,
         departmentId: this.doc.departmentId,
-        customerType: this.doc.customerType,
-        customerId: this.doc.customerId,
+        customerType: customer.customerType,
+        customerId: customer.customerId,
         details: [
           {
             _id: nanoid(),

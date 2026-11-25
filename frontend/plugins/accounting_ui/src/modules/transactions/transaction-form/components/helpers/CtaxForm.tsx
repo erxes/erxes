@@ -81,6 +81,7 @@ export const CtaxForm = ({
   ]);
 
   const { configs } = useMainConfigs();
+  const { customerType, customerId } = configs?.CtaxCustomer ?? trDoc;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
@@ -119,6 +120,8 @@ export const CtaxForm = ({
         side,
         originId: trDoc._id,
         originType: 'ctax',
+        customerType,
+        customerId,
         details: [
           {
             ...(curr?.details || [{}])[0],
@@ -144,6 +147,8 @@ export const CtaxForm = ({
     calcedAmount,
     trDoc._id,
     configs?.CtaxPayableAccount,
+    customerType,
+    customerId,
     setFollowTrDocs,
   ]);
 

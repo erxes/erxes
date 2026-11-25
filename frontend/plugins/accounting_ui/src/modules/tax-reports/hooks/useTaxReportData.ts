@@ -4,7 +4,7 @@ import { TAX_REPORT_QUERY } from '../graphql/taxReportQueries';
 import { isTaxReportKind } from '../types';
 import { parseTaxReportRows } from '../utils/taxReportRows';
 
-const OPTIONAL_FILTERS = ['branchId', 'departmentId', 'customerId'] as const;
+const OPTIONAL_FILTERS = ['branchId', 'departmentId'] as const;
 
 export const useTaxReportData = () => {
   const [searchParams] = useSearchParams();
