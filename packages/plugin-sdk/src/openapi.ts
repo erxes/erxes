@@ -6,8 +6,12 @@ import {
   PLUGIN_SESSION_SCHEME,
   type PluginApiAudience,
   PORTAL_TOKEN_SCHEME,
+  READS_EXTENSION,
 } from '@erxes/core-contract';
+import { SmartCoercionPlugin } from '@orpc/json-schema';
 import { type OpenAPI, OpenAPIGenerator, oo } from '@orpc/openapi';
+import { OpenAPIHandler } from '@orpc/openapi/node';
+import type { Context } from '@orpc/server';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 
 /** What `OpenAPIGenerator` documents: a router or a contract. */
@@ -133,16 +137,39 @@ const signedIn = (item: PathItem): PathItem => {
  * Marks the middleware that checks a route's permission, or in a contract the error map item it
  * refuses with: each route it is on lists `actions` in its operation's `x-erxes-permissions`, any
  * one of which lets a member call it. Core's assistant, agents and MCP clients don't offer the
- * route to a caller who holds none of them.
+ * route to a caller who holds none of them. With `reads`, the route's POST changes nothing
+ * (`x-erxes-reads`), so they run it as a read, without asking a person first.
  *
- *   const inOrg = (actions: string[]) =>
- *     checksPermission(base.middleware(({ context: { member }, next }) => { ... }), actions);
+ *   const inOrg = (action: string, change: boolean) =>
+ *     checksPermission(base.middleware(({ context: { member }, next }) => { ... }), [action], { reads: !change });
  *   oc.errors({ FORBIDDEN: checksPermission({ status: 403 }, ['sales.deal.view']) })
  */
-export const checksPermission = <Check extends object>(check: Check, actions: readonly string[]) =>
-  actions.length
-    ? oo.spec(check, (operation) => ({ ...operation, [PERMISSIONS_EXTENSION]: [...actions] }))
+export const checksPermission = <Check extends object>(
+  check: Check,
+  actions: readonly string[],
+  { reads = false }: { reads?: boolean } = {},
+) =>
+  actions.length || reads
+    ? oo.spec(check, (operation) => ({
+        ...operation,
+        ...(actions.length ? { [PERMISSIONS_EXTENSION]: [...actions] } : {}),
+        ...(reads ? { [READS_EXTENSION]: true } : {}),
+      }))
     : check;
+
+type RestHandlerArgs<T extends Context> = ConstructorParameters<typeof OpenAPIHandler<T>>;
+
+export const pluginRestHandler = <T extends Context>(
+  router: RestHandlerArgs<T>[0],
+  options: RestHandlerArgs<T>[1] = {},
+) =>
+  new OpenAPIHandler(router, {
+    ...options,
+    plugins: [
+      new SmartCoercionPlugin({ schemaConverters: [new ZodToJsonSchemaConverter()] }),
+      ...(options.plugins ?? []),
+    ],
+  });
 
 /**
  * One OpenAPI document of a plugin's REST routes, for Settings › Developer › API reference:

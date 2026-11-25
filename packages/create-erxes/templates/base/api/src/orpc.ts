@@ -21,6 +21,7 @@ const inOrg = (action: string, change: boolean) =>
       return withOrg(member.orgId, async (tx) => next({ context: { tx } }));
     }),
     [action],
+    { reads: !change },
   );
 
 /** A read: the member holds `action`; `context.tx` is their organisation's transaction. */
