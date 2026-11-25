@@ -35,12 +35,12 @@ const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 const SECRET_OVERLAP_HOURS = 24;
 
 /**
- * With auto-install the deployment decides the plugins, so a newer version's scopes are granted
- * where it is installed, as an owner approving them on Settings › Plugins would (that page is
- * hidden then); its `onInstall` jobs run for what it could not do before. Not on SaaS.
+ * With auto-install the deployment decides the plugins, and on SaaS the plan does, so a newer
+ * version's scopes are granted where it is installed, as an owner approving them on
+ * Settings › Plugins would; its `onInstall` jobs run for what it could not do before.
  */
 const approveNewScopes = async (tx: Db, plugin: string, manifest: PluginManifest) => {
-  if (!config.plugins.autoInstall || config.saas.enabled) return;
+  if (!config.plugins.autoInstall && !config.saas.enabled) return;
 
   const scopes = requestedScopes({ manifest });
 

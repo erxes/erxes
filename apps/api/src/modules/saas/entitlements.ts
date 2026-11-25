@@ -19,6 +19,7 @@ import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { requestedScopes } from '~/modules/plugins/requestedScopes';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { accessOf, type EntitlementRow, NOT_IN_PLAN } from './access';
 import { readStripe, type StripeEntitlements } from './stripe';
@@ -100,7 +101,7 @@ const reconcilePlugins = async (tx: Db, row: EntitlementRow, now = new Date()) =
       .values(
         toInstall.map((plugin) => ({
           plugin: plugin.name,
-          grantedScopes: plugin.manifest?.scopes ?? [],
+          grantedScopes: requestedScopes(plugin),
         })),
       )
       .onConflictDoNothing();

@@ -4,6 +4,7 @@ import { SignJWT } from 'jose';
 import { describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
+import { HR_SECRET } from './plugin';
 import {
   CUSTOMER,
   HANDOFF_SECRET,
@@ -188,6 +189,48 @@ describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, ()
       { code: 'hr', tier: 'pro', access: 'full', installed: true },
     ]);
     expect(await tokenStatus()).toBe(200);
+  });
+
+  it('gives a plan’s plugin everything it asks for, with no approval on Settings › Plugins', async () => {
+    const scopesIn = async (org: string) => {
+      const token = await server.client().plugins.token({
+        grant_type: 'client_credentials',
+        client_id: 'hr',
+        client_secret: HR_SECRET,
+        org,
+      });
+
+      return token.scope?.split(' ') ?? [];
+    };
+
+    // A newer version asks to use the Facebook connection: granted where the plan installed it.
+    await server.client(await server.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '9.0.0',
+      scopes: ['notifications:write'],
+      connections: [{ integration: 'facebook', reason: 'Messenger in the inbox' }],
+    });
+
+    expect(
+      (await owner.api.plugins.list({})).data.find((item) => item.name === 'hr'),
+    ).toMatchObject({ needsApproval: false });
+    expect(await scopesIn(ORG_ID)).toContain('uses:facebook');
+
+    // A workspace erxes.io creates now gets it at install.
+    const second = 'saasOrg0000000002';
+
+    expect(
+      (
+        await fromErxesIo('PUT', `/organizations/${second}`, {
+          organization: { subdomain: 'second', name: 'Second Co' },
+          owner: { email: 'owner@second.mn' },
+          stripeCustomerId: CUSTOMER,
+        })
+      ).status,
+    ).toBe(201);
+    expect(await scopesIn(second)).toEqual(
+      expect.arrayContaining(['notifications:write', 'uses:facebook']),
+    );
   });
 
   it('a disabled workspace lets nobody in but its plan page', async () => {
