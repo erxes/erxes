@@ -125,8 +125,10 @@ describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, ()
     });
 
     expect(again.headers.get('location')).toMatch(/signin=failed/);
+    // The plan installs the plugins and grants their access: no Settings › Plugins.
     expect(await plan()).toMatchObject({
       saas: true,
+      pluginsManaged: true,
       organizationStatus: 'active',
       plugins: [{ code: 'hr', tier: 'plus', status: 'active', access: 'full', installed: true }],
       manageUrl: 'https://erxes.io/organizations/cloud/billing',
