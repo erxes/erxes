@@ -25,6 +25,12 @@ export const EmailMessage = z.object({
    * (`emails.mailConnections`); left out: Organization email. 400 for one that isn't on.
    */
   connectionId: z.string().min(1).max(64).optional(),
+  /**
+   * A portal the plugin is on (a store, a site): the email goes out as that portal's emails do,
+   * through its Send through connection (Organization email while it is off), under its sender
+   * name, with its Reply-To unless `replyTo` is given. Not with `connectionId`.
+   */
+  portalId: z.string().min(1).max(64).optional(),
   button: z
     .object({
       label: z.string().trim().min(1).max(60),
@@ -49,14 +55,18 @@ export type MailConnection = z.infer<typeof MailConnection>;
 
 export const emailsContract = {
   send: oc
-    .errors({ ...COMMON_ERRORS, EMAIL_NOT_CONFIGURED: ERRORS.EMAIL_NOT_CONFIGURED })
+    .errors({
+      ...COMMON_ERRORS,
+      EMAIL_NOT_CONFIGURED: ERRORS.EMAIL_NOT_CONFIGURED,
+      UNKNOWN_PORTAL: ERRORS.UNKNOWN_PORTAL,
+    })
     .route({
       method: 'POST',
       path: '/emails',
       successStatus: 202,
       summary: 'Send an email',
       description:
-        "Email up to 50 addresses through a Mail service connection (`connectionId`) or Organization email (plugins with emails:write). Queued and retried; an address that fails doesn't stop the others. 400 INVALID_INPUT for a replyTo that isn't verified or a connection that isn't on, 409 EMAIL_NOT_CONFIGURED when Organization email can't be delivered",
+        "Email up to 50 addresses as a portal's emails go (`portalId`), through a Mail service connection (`connectionId`), or through Organization email (plugins with emails:write). Queued and retried; an address that fails doesn't stop the others. 400 INVALID_INPUT for a replyTo that isn't verified, a connection that isn't on, or both portalId and connectionId; 400 UNKNOWN_PORTAL for a portal the plugin isn't on; 409 EMAIL_NOT_CONFIGURED when Organization email can't be delivered",
     })
     .input(EmailMessage)
     .output(z.object({ queued: z.int() })),
