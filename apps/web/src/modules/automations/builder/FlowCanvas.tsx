@@ -1,14 +1,17 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import { IconFlag, IconFocusCentered, IconMinus, IconPlus } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
-import { Fragment, useContext } from 'react';
+import { IconChevronDown, IconChevronUp, IconFlag } from '@tabler/icons-react';
+import { cn } from 'erxes-ui';
+import { Fragment, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
-import { armsOf, type ListAddress, type StepType } from './flowModel';
+import { countSteps } from './flowChecks';
+import { foldedAtStart } from './flowFold';
+import { armsOf, findStep, type ListAddress, type StepType } from './flowModel';
 import { Connector, LINE, LINE_BORDER, Node } from './FlowNode';
 import { LOOK, useStepLook } from './stepLook';
 import { StepMenu } from './StepMenu';
-import { MAX_ZOOM, MIN_ZOOM, useCanvasView } from './useCanvasView';
+import { useCanvasView } from './useCanvasView';
+import { ZoomControls } from './ZoomControls';
 import { TRIGGER_ICONS } from '../TemplatePicker';
 
 interface FlowProps {
@@ -21,7 +24,11 @@ interface FlowProps {
   onSteps: (steps: AutomationStep[]) => void;
 }
 
-type Flow = FlowProps & { all: AutomationStep[] };
+type Flow = FlowProps & {
+  all: AutomationStep[];
+  folded: Set<string>;
+  onFold: (id: string, fold: boolean) => void;
+};
 
 /**
  * Where an arm meets the line its parent splits into (top) or joins back from (bottom): the
@@ -55,15 +62,79 @@ const Elbow = ({ at, count, edge }: { at: number; count: number; edge: 'top' | '
   );
 };
 
-/** A branching step's arms side by side, each a list of its own. */
-const Arms = ({ step, flow }: { step: AutomationStep; flow: Flow }) => {
-  const arms = armsOf(step);
+const FOLD_BUTTON =
+  'relative z-10 flex items-center justify-center rounded-full border bg-background text-muted-foreground shadow-xs hover:border-foreground/20 hover:text-foreground';
 
-  if (!arms.length) return null;
+/** A folded step's arms as one pill: how many paths and steps; clicking it opens them. */
+const FoldedArms = ({
+  paths,
+  steps,
+  onOpen,
+}: {
+  paths: number;
+  steps: number;
+  onOpen: () => void;
+}) => {
+  const { t } = useTranslation('automations');
 
   return (
     <>
       <div className={cn('h-5 w-px shrink-0', LINE)} />
+      <button
+        type="button"
+        className={cn(FOLD_BUTTON, 'gap-1 px-2.5 py-0.5 text-2xs font-medium')}
+        onClick={(event) => {
+          event.stopPropagation();
+          onOpen();
+        }}
+      >
+        <IconChevronDown className="size-3" />
+        {t('n-paths', '{{count}} paths', { count: paths })} ·{' '}
+        {t('n-steps', '{{count}} steps', { count: steps })}
+      </button>
+    </>
+  );
+};
+
+/** A branching step's arms side by side, each a list of its own, or folded into one pill. */
+const Arms = ({ step, flow }: { step: AutomationStep; flow: Flow }) => {
+  const { t } = useTranslation('automations');
+  const arms = armsOf(step);
+  const { selected } = flow;
+
+  if (!arms.length) return null;
+
+  const holdsSelected =
+    selected !== null && arms.some((arm) => findStep(arm.steps, selected) !== null);
+
+  if (flow.folded.has(step.id) && !holdsSelected)
+    return (
+      <FoldedArms
+        paths={arms.length}
+        steps={countSteps(arms.flatMap((arm) => arm.steps))}
+        onOpen={() => flow.onFold(step.id, false)}
+      />
+    );
+
+  return (
+    <>
+      <div className="relative flex h-8 w-full shrink-0 items-center justify-center">
+        <div className={cn('absolute inset-y-0 left-1/2 w-px -translate-x-1/2', LINE)} />
+        <button
+          type="button"
+          className={cn(FOLD_BUTTON, 'size-5')}
+          aria-label={t('fold-paths', 'Fold paths')}
+          title={t('fold-paths', 'Fold paths')}
+          onClick={(event) => {
+            event.stopPropagation();
+            flow.onFold(step.id, true);
+
+            if (holdsSelected) flow.onSelect(step.id);
+          }}
+        >
+          <IconChevronUp className="size-3" />
+        </button>
+      </div>
       <div className="flex items-stretch">
         {arms.map((arm, at) => (
           <div key={arm.key} className="flex flex-col items-center">
@@ -99,18 +170,25 @@ const StepNode = ({ step, flow }: { step: AutomationStep; flow: Flow }) => {
   const look = useStepLook(step, flow.actions);
 
   return (
-    <Node
-      {...look}
-      selected={flow.selected === step.id}
-      problems={flow.problems.get(step.id)}
-      stats={stats.get(step.id)}
-      menu={
-        !flow.disabled && (
-          <StepMenu step={step} steps={flow.all} onSteps={flow.onSteps} onSelect={flow.onSelect} />
-        )
-      }
-      onSelect={() => flow.onSelect(step.id)}
-    />
+    <div data-step-id={step.id}>
+      <Node
+        {...look}
+        selected={flow.selected === step.id}
+        problems={flow.problems.get(step.id)}
+        stats={stats.get(step.id)}
+        menu={
+          !flow.disabled && (
+            <StepMenu
+              step={step}
+              steps={flow.all}
+              onSteps={flow.onSteps}
+              onSelect={flow.onSelect}
+            />
+          )
+        }
+        onSelect={() => flow.onSelect(step.id)}
+      />
+    </div>
   );
 };
 
@@ -156,68 +234,12 @@ const StepList = ({
   );
 };
 
-const ZoomControls = ({
-  zoom,
-  onZoom,
-  onFit,
-}: {
-  zoom: number;
-  onZoom: (zoom: number) => void;
-  onFit: () => void;
-}) => {
-  const { t } = useTranslation('automations');
-  const step = (delta: number) => onZoom(Math.round((zoom + delta) * 10) / 10);
-
-  return (
-    <div className="absolute right-4 bottom-4 z-20 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow-sm">
-      <Button
-        size="icon"
-        variant="ghost"
-        className="size-7"
-        aria-label={t('zoom-out', 'Zoom out')}
-        disabled={zoom <= MIN_ZOOM}
-        onClick={() => step(-0.1)}
-      >
-        <IconMinus />
-      </Button>
-      <button
-        type="button"
-        className="w-11 text-center text-xs tabular-nums text-muted-foreground hover:text-foreground"
-        title={t('zoom-reset', 'Back to 100%')}
-        onClick={() => onZoom(1)}
-      >
-        {Math.round(zoom * 100)}%
-      </button>
-      <Button
-        size="icon"
-        variant="ghost"
-        className="size-7"
-        aria-label={t('zoom-in', 'Zoom in')}
-        disabled={zoom >= MAX_ZOOM}
-        onClick={() => step(0.1)}
-      >
-        <IconPlus />
-      </Button>
-      <span className="mx-0.5 h-4 w-px bg-border" />
-      <Button
-        size="icon"
-        variant="ghost"
-        className="size-7"
-        aria-label={t('zoom-fit', 'Fit to screen')}
-        title={t('zoom-fit', 'Fit to screen')}
-        onClick={onFit}
-      >
-        <IconFocusCentered />
-      </Button>
-    </div>
-  );
-};
-
 /**
  * The automation as a flow: the trigger, then each step as a card, top to
- * bottom; branches, cases and A/B paths side by side. "+" on any line adds a
- * step there; a card opens its settings in the inspector. Drag or scroll the
- * empty canvas to move around; pinch or ⌘/Ctrl + scroll to zoom.
+ * bottom; branches, cases and A/B paths side by side, the deeper ones folded
+ * when the flow would be too wide. "+" on any line adds a step there; a card
+ * opens its settings in the inspector. Drag or scroll the empty canvas to move
+ * around; pinch or ⌘/Ctrl + scroll to zoom.
  */
 export const FlowCanvas = ({
   trigger,
@@ -245,9 +267,24 @@ export const FlowCanvas = ({
     panning,
     handlers,
     wasDrag,
+    keepInPlace,
   } = useCanvasView(props.selected);
 
-  const flow: Flow = { ...props, all: steps };
+  const [folded, setFolded] = useState(() => foldedAtStart(steps));
+
+  const onFold = (id: string, fold: boolean) =>
+    keepInPlace(id, () =>
+      setFolded((current) => {
+        const next = new Set(current);
+
+        if (fold) next.add(id);
+        else next.delete(id);
+
+        return next;
+      }),
+    );
+
+  const flow: Flow = { ...props, all: steps, folded, onFold };
 
   return (
     <div className="relative min-h-0 flex-1 bg-sidebar">

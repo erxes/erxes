@@ -247,10 +247,6 @@
   "catalog-choose-action": "Үйлдэл сонгох",
   "insert-data": "Өгөгдөл оруулах",
   "insert-data-search": "Өгөгдөл хайх…",
-  "fit-removes_one": "{{count}} алхам хасагдана",
-  "fit-removes_other": "{{count}} алхам хасагдана",
-  "fit-clears_one": "{{count}} өгөгдлийн талбар цэвэрлэгдэнэ",
-  "fit-clears_other": "{{count}} өгөгдлийн талбар цэвэрлэгдэнэ",
   "fit-removes-steps": "Эдгээр алхам үүнтэй ажиллахгүй тул хасагдана: {{steps}}.",
   "fit-clears-fields_one": "{{count}} талбар эсвэл нөхцөл байхгүй болсон өгөгдөл ашиглаж байсан тул цэвэрлэгдэнэ.",
   "fit-clears-fields_other": "{{count}} талбар эсвэл нөхцөл байхгүй болсон өгөгдөл ашиглаж байсан тул цэвэрлэгдэнэ.",
@@ -376,5 +372,11 @@
   "min-confidence": "Доод итгэлцэл",
   "min-confidence-info": "Үүнээс бага бол Бусад үед замаар явна",
   "confidence-any": "Хязгааргүй",
-  "remove": "Устгах"
+  "remove": "Устгах",
+  "close": "Хаах",
+  "n-paths_one": "{{count}} зам",
+  "n-paths_other": "{{count}} зам",
+  "n-steps_one": "{{count}} алхам",
+  "n-steps_other": "{{count}} алхам",
+  "fold-paths": "Замуудыг хураах"
 }

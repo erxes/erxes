@@ -247,10 +247,6 @@
   "catalog-choose-action": "Choose an action",
   "insert-data": "Insert data",
   "insert-data-search": "Search data…",
-  "fit-removes_one": "Removes {{count}} step",
-  "fit-removes_other": "Removes {{count}} steps",
-  "fit-clears_one": "Clears {{count}} data field",
-  "fit-clears_other": "Clears {{count}} data fields",
   "fit-removes-steps": "These steps can’t run with it and are removed: {{steps}}.",
   "fit-clears-fields_one": "{{count}} data field or condition used data it no longer has and is cleared.",
   "fit-clears-fields_other": "{{count}} data fields or conditions used data it no longer has and are cleared.",
@@ -376,5 +372,11 @@
   "min-confidence": "Minimum confidence",
   "min-confidence-info": "Less sure than this: the run takes Otherwise",
   "confidence-any": "Any (no minimum)",
-  "remove": "Remove"
+  "remove": "Remove",
+  "close": "Close",
+  "n-paths_one": "{{count}} path",
+  "n-paths_other": "{{count}} paths",
+  "n-steps_one": "{{count}} step",
+  "n-steps_other": "{{count}} steps",
+  "fold-paths": "Fold paths"
 }

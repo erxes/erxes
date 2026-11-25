@@ -1,5 +1,5 @@
 import { type AutomationTrigger, type DataField, isAppEvent } from '@erxes/core-contract';
-import { IconAlertTriangle, IconHandFinger } from '@tabler/icons-react';
+import { IconHandFinger } from '@tabler/icons-react';
 import { Badge, Button, ChoiceboxGroup, Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from '../automationQueries';
@@ -75,18 +75,14 @@ type EventInfo = {
   seen?: boolean;
 };
 
-type CostOf = (trigger: AutomationTrigger) => string;
-
 const KindPicker = ({
   value,
   onChange,
   disabled,
-  costOf,
 }: {
   value: AutomationTrigger['kind'];
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
-  costOf?: CostOf;
 }) => {
   const { t } = useTranslation('automations');
 
@@ -104,40 +100,27 @@ const KindPicker = ({
             onChange(defaults(picked.kind));
         }}
       >
-        {KINDS.map(({ kind, label, hint, comingSoon }) => {
-          const cost = kind === value || comingSoon ? '' : costOf?.(defaults(kind));
-
-          return (
-            <ChoiceboxGroup.Item key={kind} value={kind} disabled={Boolean(disabled) || comingSoon}>
-              <Tooltip>
-                <Tooltip.Trigger render={<span className="flex w-full items-center" />}>
-                  <TriggerIcon kind={kind} className="mr-2 size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">
-                    {t(`trigger-${kind}-title`, label)}
-                  </span>
-                  {comingSoon && (
-                    <Badge variant="muted" size="sm" className="ml-1 shrink-0">
-                      {t('coming-soon-short', 'Soon')}
-                    </Badge>
-                  )}
-                  {cost && (
-                    <IconAlertTriangle
-                      aria-label={cost}
-                      className="ml-1 size-3.5 shrink-0 text-warning-text"
-                    />
-                  )}
-                </Tooltip.Trigger>
-                <Tooltip.Content side="bottom" className="max-w-56 whitespace-normal">
-                  {comingSoon && (
-                    <span className="block font-medium">{t('coming-soon', 'Coming soon')}</span>
-                  )}
-                  {t(`trigger-${kind}-hint`, hint)}
-                  {cost && <span className="block text-warning">{cost}</span>}
-                </Tooltip.Content>
-              </Tooltip>
-            </ChoiceboxGroup.Item>
-          );
-        })}
+        {KINDS.map(({ kind, label, hint, comingSoon }) => (
+          <ChoiceboxGroup.Item key={kind} value={kind} disabled={Boolean(disabled) || comingSoon}>
+            <Tooltip>
+              <Tooltip.Trigger render={<span className="flex w-full items-center" />}>
+                <TriggerIcon kind={kind} className="mr-2 size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">{t(`trigger-${kind}-title`, label)}</span>
+                {comingSoon && (
+                  <Badge variant="muted" size="sm" className="ml-1 shrink-0">
+                    {t('coming-soon-short', 'Soon')}
+                  </Badge>
+                )}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom" className="max-w-56 whitespace-normal">
+                {comingSoon && (
+                  <span className="block font-medium">{t('coming-soon', 'Coming soon')}</span>
+                )}
+                {t(`trigger-${kind}-hint`, hint)}
+              </Tooltip.Content>
+            </Tooltip>
+          </ChoiceboxGroup.Item>
+        ))}
       </ChoiceboxGroup>
     </Tooltip.Provider>
   );
@@ -173,13 +156,11 @@ const EventTriggerSettings = ({
   events,
   onChange,
   disabled,
-  costOf,
 }: {
   trigger: Extract<AutomationTrigger, { kind: 'event' }>;
   events: EventInfo[];
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
-  costOf?: CostOf;
 }) => {
   const { t } = useTranslation('automations');
   const started = events.find((event) => event.type === trigger.event);
@@ -196,11 +177,7 @@ const EventTriggerSettings = ({
       <Field label={t('event', 'Event')}>
         <CatalogPicker
           kind="event"
-          items={events.map((event) => ({
-            ...event,
-            warning:
-              event.type === trigger.event ? '' : costOf?.({ kind: 'event', event: event.type }),
-          }))}
+          items={events}
           value={trigger.event}
           disabled={disabled}
           onChange={(event) => onChange({ ...trigger, event })}
@@ -237,7 +214,6 @@ export const TriggerEditor = ({
   onChange,
   disabled,
   onStartNow,
-  costOf,
 }: {
   trigger: AutomationTrigger;
   events: Catalog['triggers'];
@@ -246,13 +222,12 @@ export const TriggerEditor = ({
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;
-  costOf?: CostOf;
 }) => {
   const { t } = useTranslation('automations');
 
   return (
     <div className="space-y-5">
-      <KindPicker value={trigger.kind} disabled={disabled} onChange={onChange} costOf={costOf} />
+      <KindPicker value={trigger.kind} disabled={disabled} onChange={onChange} />
 
       {trigger.kind === 'event' && (
         <EventTriggerSettings
@@ -260,7 +235,6 @@ export const TriggerEditor = ({
           events={events.filter((event) => !isAppEvent(event.type))}
           disabled={disabled}
           onChange={onChange}
-          costOf={costOf}
         />
       )}
       {trigger.kind === 'schedule' && (

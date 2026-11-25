@@ -64,8 +64,6 @@ export interface CatalogItem {
   /** The integration an action belongs to (`qpay`, `frontline.facebook`), and its name. */
   integration?: string | null;
   integrationName?: string | null;
-  /** What picking it would break in the flow ("Removes 1 step"). */
-  warning?: string;
   /** Listed, but not offered yet. */
   comingSoon?: boolean;
 }

@@ -7,8 +7,9 @@ import {
   useRef,
   useState,
 } from 'react';
+import { flushSync } from 'react-dom';
 
-export const MIN_ZOOM = 0.3;
+export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 1.5;
 
 const TOP_GAP = 32;
@@ -140,14 +141,20 @@ const useKeepInView = (box: RefObject<HTMLDivElement | null>, selected: string |
   }, [box]);
 };
 
-/** Dragging the empty canvas moves the camera; cards, buttons and fields keep their pointer. */
+/**
+ * Dragging the empty canvas moves the camera; cards, buttons and fields keep their pointer.
+ * The drag ends on release, and also when the button turns out to be up already: a native
+ * menu (Ctrl+click on a Mac) or a window switch can swallow the release.
+ */
 const useDragPan = () => {
   const [panning, setPanning] = useState(false);
   const drag = useRef<Point & { moved: boolean }>(null);
   const dragged = useRef(false);
 
   const end = () => {
-    dragged.current = Boolean(drag.current?.moved);
+    if (!drag.current) return;
+
+    dragged.current = drag.current.moved;
     drag.current = null;
     setPanning(false);
   };
@@ -167,6 +174,12 @@ const useDragPan = () => {
     const start = drag.current;
 
     if (!start) return;
+
+    if (event.buttons % 2 === 0) {
+      end();
+
+      return;
+    }
 
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
@@ -192,7 +205,14 @@ const useDragPan = () => {
   return {
     panning,
     wasDrag,
-    handlers: { onPointerDown, onPointerMove, onPointerUp: end, onPointerCancel: end },
+    handlers: {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp: end,
+      onPointerCancel: end,
+      onLostPointerCapture: end,
+      onContextMenu: end,
+    },
   };
 };
 
@@ -256,8 +276,24 @@ export const useCanvasView = (selected: string | null) => {
     if (box.current && flow.current && move) applyPending(box.current, flow.current, move, zoom);
   }, [zoom]);
 
+  /** Runs a change to the flow and moves the camera so the card `id` stays where it was. */
+  const keepInPlace = (id: string, change: () => void) => {
+    const el = box.current;
+    const card = () => el?.querySelector(`[data-step-id="${CSS.escape(id)}"]`);
+    const before = card()?.getBoundingClientRect();
+
+    flushSync(change);
+
+    const after = card()?.getBoundingClientRect();
+
+    if (!el || !before || !after) return;
+
+    el.scrollLeft += after.left - before.left;
+    el.scrollTop += after.top - before.top;
+  };
+
   useWheel(box, zoomBy);
   useKeepInView(box, selected);
 
-  return { box, flow, zoom, zoomTo, fit, ...useDragPan() };
+  return { box, flow, zoom, zoomTo, fit, keepInPlace, ...useDragPan() };
 };

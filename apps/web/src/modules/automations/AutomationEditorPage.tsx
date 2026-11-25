@@ -24,14 +24,15 @@ import type { Selection } from './StepInspector';
 import { useAutomationDraft, useAutomationMutations } from './useAutomationEditor';
 import { useFlowGuard } from './useFlowGuard';
 
-const isStep = (selection: Selection) => selection !== 'trigger' && selection !== 'test';
+const isStep = (selection: Selection | null): selection is Selection =>
+  selection !== null && selection !== 'trigger' && selection !== 'test';
 
 /** The draft, what is selected, the save and start mutations, and the editor's keys. */
 const useEditorState = (automation: Automation, editable: boolean, catalog: Catalog) => {
   const draft = useFlowGuard(useAutomationDraft(automation), catalog);
-  const [picked, setSelected] = useState<Selection>('trigger');
+  const [picked, setSelected] = useState<Selection | null>('trigger');
 
-  const selected = !isStep(picked) || findStep(draft.definition.steps, picked) ? picked : 'trigger';
+  const selected = !isStep(picked) || findStep(draft.definition.steps, picked) ? picked : null;
 
   const [serverProblems, setServerProblems] = useState<string[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -45,12 +46,12 @@ const useEditorState = (automation: Automation, editable: boolean, catalog: Cata
     },
     { preventDefault: true, enableOnFormTags: true, enableOnContentEditable: true },
   );
-  usePageHotkey('escape', () => setSelected('trigger'));
+  usePageHotkey('escape', () => setSelected(null));
   usePageHotkey('delete, backspace', () => {
     if (!editable || !isStep(selected)) return;
 
     draft.setSteps(removeStep(draft.definition.steps, selected));
-    setSelected('trigger');
+    setSelected(null);
   });
 
   return {
@@ -103,8 +104,8 @@ const BuildCanvas = ({
   draft: ReturnType<typeof useAutomationDraft>;
   trigger: ReturnType<typeof useTriggerText>;
   editable: boolean;
-  selected: Selection;
-  onSelect: (selection: Selection) => void;
+  selected: Selection | null;
+  onSelect: (selection: Selection | null) => void;
 }) => {
   const { definition } = draft;
 
@@ -117,7 +118,7 @@ const BuildCanvas = ({
       problems={built.problems}
       disabled={!editable}
       onSelect={onSelect}
-      onDeselect={() => onSelect('trigger')}
+      onDeselect={() => onSelect(null)}
       onSteps={draft.setSteps}
       onAdd={(address, index, type, action) => {
         const step = newStep(type, built.actions, built.subject, action);
@@ -182,17 +183,19 @@ const AutomationEditor = ({
               selected={selected}
               onSelect={setSelected}
             />
-            <AutomationInspector
-              automation={automation}
-              draft={draft}
-              mutations={mutations}
-              catalog={catalog}
-              built={built}
-              editable={editable}
-              selected={selected}
-              onSelect={setSelected}
-              trigger={trigger}
-            />
+            {selected && (
+              <AutomationInspector
+                automation={automation}
+                draft={draft}
+                mutations={mutations}
+                catalog={catalog}
+                built={built}
+                editable={editable}
+                selected={selected}
+                onSelect={setSelected}
+                trigger={trigger}
+              />
+            )}
           </Tabs.Content>
           <Tabs.Content value="runs" className="mt-0 flex min-h-0 flex-1">
             <RunsPanel automationId={automation.id} />
