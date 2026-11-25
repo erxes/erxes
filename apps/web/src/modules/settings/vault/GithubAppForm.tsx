@@ -1,6 +1,6 @@
 import type { GithubAppFacts } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { IconBrandGithub, IconCopy, IconExternalLink } from '@tabler/icons-react';
+import { IconBrandGithub, IconCopy, IconExternalLink, IconUpload } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CopyText, Input, Label, Textarea, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
@@ -82,6 +82,55 @@ const AppSetupHead = ({ callbackUrl }: { callbackUrl: string }) => {
   );
 };
 
+/** Reads the picked .pem file into the key, then clears the picker for the next pick. */
+const readKey = async (input: HTMLInputElement, onChange: (value: string) => void) => {
+  const file = input.files?.[0];
+
+  if (!file) return;
+
+  onChange((await file.text()).trim());
+  input.value = '';
+};
+
+/** The App's private key: the .pem file GitHub downloads, picked or pasted. */
+const PrivateKeyInput = ({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.github-app' });
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <Label htmlFor={id}>{t('private-key', 'Private key')}</Label>
+        <label className="inline-flex cursor-pointer items-center gap-1 text-xs text-primary hover:underline">
+          <IconUpload className="size-3" />
+          {t('upload-pem', 'Upload .pem')}
+          <input
+            type="file"
+            accept=".pem,application/x-pem-file"
+            className="sr-only"
+            onChange={(event) => void readKey(event.target, onChange)}
+          />
+        </label>
+      </div>
+      <Textarea
+        id={id}
+        rows={4}
+        spellCheck={false}
+        placeholder="-----BEGIN RSA PRIVATE KEY-----"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
+  );
+};
+
 /** The organisation's own GitHub App, for a server without one in its .env. */
 export const GithubAppForm = ({ facts }: { facts: GithubAppFacts }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.github-app' });
@@ -135,17 +184,7 @@ export const GithubAppForm = ({ facts }: { facts: GithubAppFacts }) => {
         value={clientSecret}
         onChange={setClientSecret}
       />
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-key`}>{t('private-key', 'Private key')}</Label>
-        <Textarea
-          id={`${id}-key`}
-          rows={4}
-          spellCheck={false}
-          placeholder="-----BEGIN RSA PRIVATE KEY-----"
-          value={privateKey}
-          onChange={(event) => setPrivateKey(event.target.value)}
-        />
-      </div>
+      <PrivateKeyInput id={`${id}-key`} value={privateKey} onChange={setPrivateKey} />
       <Button
         className="w-full"
         disabled={!filled || save.isPending}

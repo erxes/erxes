@@ -1454,7 +1454,8 @@
       "save-app": "App хадгалах",
       "app-saved": "GitHub App {{slug}} тохируулагдлаа",
       "app-in-use": "Эхлээд холболтуудыг нь устгана уу",
-      "remove-app": "Устгах"
+      "remove-app": "Устгах",
+      "upload-pem": ".pem оруулах"
     },
     "oauth": {
       "app-saved": "Хадгаллаа. Одоо нэвтэрч болно.",

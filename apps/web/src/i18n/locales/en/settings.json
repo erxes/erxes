@@ -1404,7 +1404,8 @@
       "save-app": "Save App",
       "app-saved": "GitHub App {{slug}} is set",
       "app-in-use": "Remove its connections first",
-      "remove-app": "Remove"
+      "remove-app": "Remove",
+      "upload-pem": "Upload .pem"
     },
     "oauth": {
       "app-saved": "Saved. You can sign in now.",
