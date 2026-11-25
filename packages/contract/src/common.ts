@@ -21,6 +21,18 @@ export const readsByPost = <Operation extends object>(operation: Operation) => (
   [READS_EXTENSION]: true,
 });
 
+/** The OpenAPI extension that marks a route that hands out sign-in or a credential (`forPeople`). */
+export const PEOPLE_ONLY_EXTENSION = 'x-erxes-people-only';
+
+/**
+ * A route's `spec` for one that hands out sign-in or a credential whose fields don't say so,
+ * such as a login link: agents and MCP clients never offer or call it.
+ */
+export const forPeople = <Operation extends object>(operation: Operation) => ({
+  ...operation,
+  [PEOPLE_ONLY_EXTENSION]: true,
+});
+
 /**
  * The OpenAPI extension that lists the permissions a plugin route checks, any one of which lets a
  * member call it (`checksPermission` in `@erxes/plugin-sdk/openapi`). Agents and MCP clients
