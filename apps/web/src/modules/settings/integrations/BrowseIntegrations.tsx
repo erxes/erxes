@@ -1,3 +1,18 @@
+import {
+  type Icon,
+  IconBrain,
+  IconBuildingBank,
+  IconBuildingCommunity,
+  IconChecklist,
+  IconCode,
+  IconCreditCard,
+  IconLayoutGrid,
+  IconLogin2,
+  IconMail,
+  IconMessageCircle,
+  IconShare3,
+  IconSparkles,
+} from '@tabler/icons-react';
 import { Spinner, ToggleGroup } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -97,14 +112,48 @@ const Section = ({ title, items }: { title: string; items: Placed[] }) => {
   );
 };
 
+const CATEGORY_ICONS: Record<Category, Icon> = {
+  payments: IconCreditCard,
+  banks: IconBuildingBank,
+  sign_in: IconLogin2,
+  social: IconShare3,
+  messaging: IconMessageCircle,
+  email: IconMail,
+  government: IconBuildingCommunity,
+  developer: IconCode,
+  productivity: IconChecklist,
+  ai: IconSparkles,
+  decision: IconBrain,
+};
+
+const Chip = ({
+  value,
+  icon: ChipIcon,
+  label,
+  count,
+}: {
+  value: string;
+  icon: Icon;
+  label: string;
+  count: number;
+}) => (
+  <ToggleGroup.Item value={value}>
+    <ChipIcon />
+    {label}
+    <span className="-ml-0.5 text-xs font-medium tabular-nums">{count}</span>
+  </ToggleGroup.Item>
+);
+
 const CategoryFilter = ({
   category,
   categories,
+  counts,
   onChange,
 }: {
   category: Category | null;
   /** The categories with at least one listed integration. */
   categories: Category[];
+  counts: ReturnType<typeof useSections>['counts'];
   onChange: (category: Category | null) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
@@ -112,19 +161,24 @@ const CategoryFilter = ({
 
   return (
     <ToggleGroup
-      variant="outline"
-      size="sm"
-      className="w-fit max-w-full flex-wrap justify-start"
+      variant="chip"
+      className="flex-wrap justify-start"
       aria-label={t('categories', 'Categories')}
       value={[category ?? 'all']}
       onValueChange={([next]) => onChange(categories.find((item) => item === next) ?? null)}
     >
-      <ToggleGroup.Item value="all">{t('all', 'All')}</ToggleGroup.Item>
-      {categories.map((item) => (
-        <ToggleGroup.Item key={item} value={item}>
-          {categoryLabel(item)}
-        </ToggleGroup.Item>
-      ))}
+      <Chip value="all" icon={IconLayoutGrid} label={t('all', 'All')} count={counts.all} />
+      {categories
+        .filter((item) => item === category || counts.of(item) > 0)
+        .map((item) => (
+          <Chip
+            key={item}
+            value={item}
+            icon={CATEGORY_ICONS[item]}
+            label={categoryLabel(item)}
+            count={counts.of(item)}
+          />
+        ))}
     </ToggleGroup>
   );
 };
@@ -165,11 +219,10 @@ export const useSections = (search: string, chosen: Category | null) => {
     return !country || servesCountry(integration, country) ? 'local' : 'elsewhere';
   };
 
-  const shown = integrations
-    .filter(
-      (integration) =>
-        (!category || categoriesOf(integration).includes(category)) && matches(integration),
-    )
+  const matching = integrations.filter(matches);
+
+  const shown = matching
+    .filter((integration) => !category || categoriesOf(integration).includes(category))
     .map((integration): Placed => ({ integration, rank: rankOf(integration) }))
     .toSorted((a, b) => RANKS.indexOf(a.rank) - RANKS.indexOf(b.rank));
 
@@ -178,6 +231,11 @@ export const useSections = (search: string, chosen: Category | null) => {
     total: integrations.length,
     categories,
     category,
+    counts: {
+      all: matching.length,
+      of: (item: Category) =>
+        matching.filter((integration) => categoriesOf(integration).includes(item)).length,
+    },
     shown,
     sections: categories.flatMap((item) => {
       if (category && item !== category) return [];
@@ -203,6 +261,7 @@ export const BrowseIntegrations = ({
       <CategoryFilter
         category={sections.category}
         categories={sections.categories}
+        counts={sections.counts}
         onChange={onCategory}
       />
       {sections.listed.isPending ? (
