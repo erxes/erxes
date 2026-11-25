@@ -3429,6 +3429,28 @@
       }
     }
   },
+  "githubApp": {
+    "signIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/github/app/sign-in"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/github/app/connections"
+        }
+      }
+    }
+  },
   "banks": {
     "connections": {
       "~orpc": {
