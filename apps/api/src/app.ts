@@ -147,6 +147,7 @@ export const createApp = (log: Logger = logger): Express => {
   );
   app.use(TOKEN_PATHS, limit.token);
   app.use(CUSTOMER_CODE_PATHS, limit.customerCode);
+  app.use('/core/v1/portal/contact', limit.portalContact);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
   // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).

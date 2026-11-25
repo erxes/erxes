@@ -816,6 +816,7 @@
       "email-complained": "Email marked as spam: <b>{{subject}}</b>",
       "email-suppressed": "Email not sent, the address is suppressed: <b>{{subject}}</b>",
       "email-held": "Email held by the sending limit: <b>{{subject}}</b>",
+      "wrote-in": "Wrote from <b>{{portal}}</b>: <b>{{subject}}</b>",
       "on-record": "· on <record/>"
     },
     "deleted": "a deleted record",

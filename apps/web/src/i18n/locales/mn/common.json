@@ -850,6 +850,7 @@
       "email-complained": "Имэйлийг spam гэж тэмдэглэсэн: <b>{{subject}}</b>",
       "email-suppressed": "Хаяг хаалттай тул имэйл илгээгээгүй: <b>{{subject}}</b>",
       "email-held": "Илгээлтийн хязгаараар имэйл хүлээлгэсэн: <b>{{subject}}</b>",
+      "wrote-in": "<b>{{portal}}</b> порталаас бичсэн: <b>{{subject}}</b>",
       "on-record": "· <record/> дээр"
     },
     "deleted": "устгасан бичлэг",

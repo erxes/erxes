@@ -103,6 +103,8 @@ export const ERRORS = {
   INVALID_SOCIAL_TOKEN: { status: 401 },
   /** A portal's connection that isn't one of the organisation's for that integration. */
   UNKNOWN_CONNECTION: { status: 400 },
+  /** A visitor's message can't reach the organisation: email isn't set up, or no address takes it. */
+  CONTACT_UNAVAILABLE: { status: 503 },
 
   // Timeline, notifications, events.
   NOT_AUTHOR: { status: 403 },

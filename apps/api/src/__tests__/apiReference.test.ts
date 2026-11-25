@@ -61,9 +61,11 @@ describe('API references (/core/v1/openapi/<audience>.json)', () => {
       expect.arrayContaining([
         'POST /portal-auth/token',
         'POST /portal/auth/code',
+        'POST /portal/contact',
         'GET /portal/me',
       ]),
     );
+    expect(doc.paths['/portal/contact']?.post?.security).toEqual([{ portalToken: [] }]);
     expect(listed.every((name) => /^\w+ \/portal(-auth)?\//.test(name))).toBe(true);
     expect(doc.paths['/portal/me']?.get?.tags).toEqual(['Customer account']);
     expect(doc.paths['/portal/auth/code']?.post?.security).toEqual([{ portalToken: [] }]);

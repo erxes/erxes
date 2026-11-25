@@ -7,6 +7,7 @@ import {
   CONTACT_UPDATED_DATA,
   LEAD_DATA,
   SIGN_IN_DATA,
+  WROTE_IN_DATA,
 } from './eventData';
 import { event } from './eventTypeInfo';
 
@@ -91,6 +92,15 @@ export const CONTACT_EVENT_TYPES = [
       'A person signs in to one of your portals with a code',
     ),
     ...SIGN_IN_DATA,
+  },
+  {
+    ...event(
+      'core.customer.wrote_in',
+      'Customer wrote in',
+      'customer',
+      'A person sends a message from one of your portals’ contact forms',
+    ),
+    ...WROTE_IN_DATA,
   },
   {
     ...event(

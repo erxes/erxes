@@ -217,6 +217,18 @@ export const isVerifiedReplyTo = async (client: Db, email: string) => {
   return !!row;
 };
 
+/** The organisation's first verified Reply-To address, or null while it has none. */
+export const firstVerifiedReplyTo = async (client: Db) => {
+  const [row] = await client
+    .select({ email: emailReplyTos.email })
+    .from(emailReplyTos)
+    .where(eq(emailReplyTos.status, 'verified'))
+    .orderBy(asc(emailReplyTos.verifiedAt), asc(emailReplyTos.id))
+    .limit(1);
+
+  return row?.email ?? null;
+};
+
 /**
  * A Reply-To the organisation may use: one of its verified addresses. Anything
  * else is a 400 on `path`, so no email asks replies to go to another's inbox.

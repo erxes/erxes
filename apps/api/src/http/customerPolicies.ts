@@ -1,7 +1,9 @@
 import { CUSTOMER, PUBLIC } from './policyRules';
 
-/** The customer side of the access map: their sign-in, account and notifications. */
+/** The customer side of the access map: their sign-in, account, notifications and contact form. */
 export const CUSTOMER_ACCESS = {
+  'portalContact.send': PUBLIC,
+
   'customerAuth.methods': PUBLIC,
   'customerAuth.social': PUBLIC,
   'customerAuth.fields': PUBLIC,
