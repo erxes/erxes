@@ -244,4 +244,23 @@ describe('assistant plugin contributions', () => {
     expect(model.lastToolResult()).toContain('"DENIED"');
     expect(hr.calls.length).toBe(before);
   });
+
+  it('keeps a route the plugin marks for people denied, though its fields name no credential', async () => {
+    model.script(
+      inSteps(
+        { tool: 'searchApi', input: { query: 'payroll portal' } },
+        { tool: 'callApi', input: { procedure: 'hr:payroll.portal', input: {} } },
+        { text: 'Done.' },
+      ),
+    );
+
+    const before = hr.calls.length;
+
+    await ask('Open the payroll portal for me');
+
+    expect(searched()).not.toContain('hr:payroll.portal');
+    expect(model.lastToolResult()).toContain('"DENIED"');
+    expect(model.lastToolResult()).not.toContain('portal-ticket-0001');
+    expect(hr.calls.length).toBe(before);
+  });
 });

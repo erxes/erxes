@@ -1,4 +1,4 @@
-import type { PluginManifest } from '@erxes/core-contract';
+import { forPeople, type PluginManifest } from '@erxes/core-contract';
 import { bearerOf, verifyPluginSession } from '@erxes/plugin-sdk';
 import { checksPermission, pluginOpenApi } from '@erxes/plugin-sdk/openapi';
 import { oc } from '@orpc/contract';
@@ -54,6 +54,14 @@ const contract = {
       .route({ method: 'POST', path: '/payroll/connect', summary: 'Connect the payroll provider' })
       .input(z.object({ apiKey: z.string() }))
       .output(z.object({ connected: z.boolean() })),
+    portal: oc
+      .route({
+        method: 'POST',
+        path: '/payroll/portal',
+        summary: "Open the payroll provider's portal signed in",
+        spec: forPeople,
+      })
+      .output(z.object({ url: z.url() })),
   },
 };
 
@@ -147,6 +155,14 @@ const routeOf = (method: string, path: string, query: URLSearchParams, body: unk
 
   if (method === 'POST' && path === '/api/v1/payroll/connect') {
     return { procedure: 'payroll.connect', input: body, answer: { connected: true } };
+  }
+
+  if (method === 'POST' && path === '/api/v1/payroll/portal') {
+    return {
+      procedure: 'payroll.portal',
+      input: body,
+      answer: { url: 'https://payroll.example.com/sso?ticket=portal-ticket-0001' },
+    };
   }
 
   return null;

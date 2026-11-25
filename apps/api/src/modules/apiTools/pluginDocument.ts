@@ -1,5 +1,6 @@
 import {
   CUSTOMER_TOKEN_SCHEME,
+  PEOPLE_ONLY_EXTENSION,
   PERMISSIONS_EXTENSION,
   type PluginApiAudience,
   READS_EXTENSION,
@@ -37,6 +38,7 @@ const Content = z.record(z.string(), z.object({ schema: JsonSchema.default({}) }
 const Operation = z.object({
   operationId: z.string().min(1).optional(),
   [READS_EXTENSION]: z.literal(true).optional(),
+  [PEOPLE_ONLY_EXTENSION]: z.literal(true).optional(),
   [PERMISSIONS_EXTENSION]: z.array(z.string().min(1)).default([]),
   summary: z.string().optional(),
   description: z.string().optional(),
@@ -187,6 +189,7 @@ const procedureOf = (
     input,
     changes: changesData(method, operation),
     denied:
+      operation[PEOPLE_ONLY_EXTENSION] === true ||
       carriesCredentials([input, schemaOf(answerOf(operation), schemas)]) ||
       [...id.split('.'), ...path.split('/')].some(isCredentialName),
     plugin,
