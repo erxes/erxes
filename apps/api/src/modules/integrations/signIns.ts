@@ -66,7 +66,7 @@ const renewSignIn = async (tx: Db, integration: KeyedIntegration, id: string, ke
 };
 
 /** `name`, or "name 2" and on while another of the integration's connections has it. */
-const freeName = async (tx: Db, key: string, ownerId: string | null, name: string) => {
+export const freeName = async (tx: Db, key: string, ownerId: string | null, name: string) => {
   const taken = new Set(
     (
       await tx

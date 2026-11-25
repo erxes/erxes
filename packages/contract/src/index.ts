@@ -32,6 +32,7 @@ import { productInventoriesContract } from './productInventories';
 import { productCategoriesContract, productsContract } from './products';
 import { banksContract } from './banks';
 import { integrationsContract } from './integrations';
+import { githubAppContract } from './githubApp';
 import { secretsContract } from './secrets';
 import { rolesContract } from './roles';
 import { searchContract } from './search';
@@ -91,6 +92,7 @@ export type CoreContract = {
   supportAccess: typeof supportAccessContract;
   tags: typeof tagsContract;
   integrations: typeof integrationsContract;
+  githubApp: typeof githubAppContract;
   banks: typeof banksContract;
   secrets: typeof secretsContract;
   units: typeof unitsContract;
@@ -148,6 +150,7 @@ export const coreContract: CoreContract = {
   supportAccess: supportAccessContract,
   tags: tagsContract,
   integrations: integrationsContract,
+  githubApp: githubAppContract,
   banks: banksContract,
   secrets: secretsContract,
   units: unitsContract,

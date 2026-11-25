@@ -1,7 +1,10 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Badge, Button, CONNECTION_CONTENT_TYPE, useOpenRecord } from 'erxes-ui';
+import { useQueryState } from 'nuqs';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
+import { connectsThroughApp } from '../vault/GithubAppPicker';
 import { useSession } from '~/modules/auth/session';
 import { ConnectionList } from '../vault/ConnectionList';
 import { isOAuthIntegration, OAuthAppForm } from '../vault/SignInForm';
@@ -105,6 +108,15 @@ const Connect = ({ integration }: { integration: Integration }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
   const { openNew } = useOpenRecord();
   const connected = (useConnections().data?.data ?? []).some(({ key }) => key === integration.key);
+  const [picking] = useQueryState('github');
+  const reopened = useRef(false);
+
+  useEffect(() => {
+    if (!picking || reopened.current || !connectsThroughApp(integration.key)) return;
+
+    reopened.current = true;
+    openNew(CONNECTION_CONTENT_TYPE, { integration: integration.key });
+  }, [picking, integration.key, openNew]);
 
   return (
     <Button

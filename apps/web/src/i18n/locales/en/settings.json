@@ -1387,6 +1387,12 @@
         "off-smtp": "Your SMTP server reports no bounces, so erxes counts emails but neither paces nor halts sending."
       }
     },
+    "github-app": {
+      "sign-in": "Choose a GitHub account",
+      "connected": "{{name}} is connected",
+      "none": "Not installed on any of your accounts yet",
+      "install": "Install on another account"
+    },
     "oauth": {
       "app-saved": "Saved. You can sign in now.",
       "app-needed": "First create an app in your developer account and add this address as its redirect URL. Then paste its client id and secret.",

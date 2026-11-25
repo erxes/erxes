@@ -35,7 +35,7 @@ const refuse = (res: Response, status: number, text: string) => {
   res.status(status).type('text/plain').send(text);
 };
 
-const startedHere = async (req: Request, state: State) => {
+export const startedHere = async (req: Request, state: State) => {
   const session = await sessionClaims(req);
 
   if (session?.userId !== state.userId || session.orgId !== state.orgId) return null;

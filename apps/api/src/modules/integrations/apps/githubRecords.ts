@@ -24,8 +24,22 @@ const Releases = z.array(z.object({ tag_name: z.string(), name: z.string().nulli
 const read = async <T>(keys: GithubKeys, path: string, schema: z.ZodType<T>) =>
   parse('GitHub', schema, await githubSend(keys, 'GET', path), `an unreadable ${path} answer`);
 
-const repos = (keys: GithubKeys) =>
-  read(keys, withQuery('/user/repos', { per_page: PAGE, sort: 'updated' }), Repos);
+const InstalledRepos = z.object({ repositories: Repos });
+
+const repos = async (keys: GithubKeys) =>
+  keys.installation
+    ? (
+        await read(
+          keys,
+          withQuery('/installation/repositories', { per_page: PAGE }),
+          InstalledRepos,
+        )
+      ).repositories
+    : read(keys, withQuery('/user/repos', { per_page: PAGE, sort: 'updated' }), Repos);
+
+/** The token's own login: none for an App token, which acts for an installation. */
+const ownLogin = async (keys: GithubKeys) =>
+  keys.installation ? [] : [(await read(keys, '/user', Login)).login];
 
 const names = (list: string[]) => [...new Set(list)].map((name) => ({ value: name, label: name }));
 
@@ -59,13 +73,15 @@ const inRepo = async <T>(
 export const GITHUB_RECORDS: AppRecords<GithubKeys> = {
   owner: {
     async list({ client: keys }) {
-      const [user, listed] = await Promise.all([read(keys, '/user', Login), repos(keys)]);
+      const [own, listed] = await Promise.all([ownLogin(keys), repos(keys)]);
 
-      return names([user.login, ...listed.map((repo) => repo.owner.login)]);
+      return names([...own, ...listed.map((repo) => repo.owner.login)]);
     },
   },
   organization: {
     async list({ client: keys }) {
+      if (keys.installation) return names((await repos(keys)).map((repo) => repo.owner.login));
+
       const orgs = await read(keys, withQuery('/user/orgs', { per_page: PAGE }), z.array(Login));
 
       return names(orgs.map((org) => org.login));

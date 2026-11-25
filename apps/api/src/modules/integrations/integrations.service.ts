@@ -23,6 +23,7 @@ import { type KeyedIntegration, splitValues } from './define';
 import { connectionTurned, hooksSyncing, listenersOf } from './listeners';
 import { keyedOf } from './registry';
 import { ensureEditable, ownerFor } from './scopes';
+import { ensureNotAppOnly } from './githubApp';
 
 const parsedKeys = (integration: KeyedIntegration, keys: unknown) => {
   const parsed = integration.keys.safeParse(keys);
@@ -89,7 +90,13 @@ export const connectionOf = async (client: Db, integration: KeyedIntegration, id
 export const insertConnection = async (
   tx: Db,
   integration: KeyedIntegration,
-  input: { id: string; name: string; ownerId: string | null; keys: Record<string, unknown> },
+  input: {
+    id: string;
+    name: string;
+    ownerId: string | null;
+    auth?: 'app';
+    keys: Record<string, unknown>;
+  },
 ) => {
   const row = oneRow(
     await tx
@@ -98,7 +105,7 @@ export const insertConnection = async (
         id: input.id,
         key: integration.key,
         name: input.name,
-        auth: integration.oauth ? 'oauth' : 'keys',
+        auth: input.auth ?? (integration.oauth ? 'oauth' : 'keys'),
         ...(await sealValues(tx, integration, input.keys)),
         ownerId: input.ownerId,
         createdBy: caller('user').userId,
@@ -123,6 +130,8 @@ type Inputs = InferContractRouterInputs<typeof coreContract>['integrations'];
 export const connect = async (input: Inputs['connect'] & { scope: IntegrationScope }) => {
   const integration = keyedOf(input.key);
   const ownerId = ownerFor(integration, input.scope);
+
+  ensureNotAppOnly(integration.key, ownerId);
 
   if (integration.oauth)
     throw fail('NOT_ALLOWED', `${integration.name} connects by signing in, not with keys`);
@@ -152,6 +161,8 @@ export const updateConnection = async (input: Inputs['update']) => {
     const row = await connectionOf(tx, integration, input.id);
 
     ensureEditable(integration, row);
+
+    if (input.keys) ensureNotAppOnly(integration.key, row.ownerId);
 
     if (input.name !== undefined)
       await ensureNameFree(tx, integration, row.ownerId, input.name, input.id);

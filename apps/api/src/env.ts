@@ -1,12 +1,7 @@
-import {
-  BOOLEAN_STRINGS,
-  EMAIL_DRIVERS,
-  FILE_STORAGES,
-  LOG_FORMATS,
-  LOG_LEVELS,
-} from '@erxes/core-db/enums';
+import { EMAIL_DRIVERS, FILE_STORAGES, LOG_FORMATS, LOG_LEVELS } from '@erxes/core-db/enums';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { baseUrl, flag, list, optional, overrideUrl, positive, text } from './envFields';
 
 /** Settings that may also come from a file named by `<NAME>_FILE` (Docker and Kubernetes secrets). */
 const SECRETS = [
@@ -33,6 +28,8 @@ const SECRETS = [
   'INTEGRATION_OAUTH_APPS',
   'META_APP_SECRET',
   'META_RELAY_KEY',
+  'GITHUB_APP_PRIVATE_KEY',
+  'GITHUB_APP_CLIENT_SECRET',
 ] as const;
 
 const readSecret = (name: string) => {
@@ -40,34 +37,6 @@ const readSecret = (name: string) => {
 
   return file ? readFileSync(file, 'utf8') : process.env[name];
 };
-
-/** Blank counts as unset; values are trimmed. */
-const optional = <T extends z.ZodType>(schema: T) =>
-  z.preprocess(
-    (value) => (typeof value === 'string' ? value.trim() || undefined : value),
-    schema.optional(),
-  );
-
-const text = optional(z.string());
-
-const flag = optional(z.enum(BOOLEAN_STRINGS).transform((value) => value === 'true'));
-
-const positive = (fallback: number) =>
-  optional(z.coerce.number().positive()).transform((value) => value ?? fallback);
-
-const baseUrl = (fallback: string) =>
-  optional(z.url())
-    .transform((value) => value ?? fallback)
-    .transform((value) => value.replace(/\/+$/, ''));
-
-const overrideUrl = optional(z.url()).transform((value) => value?.replace(/\/+$/, ''));
-
-const list = optional(z.string()).transform((value) =>
-  (value ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean),
-);
 
 const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
 
@@ -213,6 +182,11 @@ const Env = z
     INTEGRATION_OAUTH_CALLBACK_URL: optional(z.url()),
     META_APP_ID: optional(z.string().regex(/^\d+$/, 'META_APP_ID is the Meta app id, digits only')),
     META_APP_SECRET: text,
+    GITHUB_APP_ID: optional(z.string().regex(/^\d+$/, 'GITHUB_APP_ID is the App id, digits only')),
+    GITHUB_APP_SLUG: text,
+    GITHUB_APP_PRIVATE_KEY: optional(z.string().transform((value) => value.replace(/\\n/g, '\n'))),
+    GITHUB_APP_CLIENT_ID: text,
+    GITHUB_APP_CLIENT_SECRET: text,
     META_RELAY_URL: overrideUrl,
     META_RELAY_KEY: optional(z.string().min(16)),
 

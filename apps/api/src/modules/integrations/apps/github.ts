@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { config } from '~/config';
 import { defineIntegration, secret, hookTrigger } from '@erxes/plugin-sdk/integrations';
 import { GITHUB_ACTIONS } from './githubActions';
 import { type GithubEvent, githubOutputs } from './githubEvents';
@@ -96,7 +97,7 @@ export const github = defineIntegration({
   category: 'developer',
   countries: [],
   permission: 'integrations.manage',
-  scopes: ['org', 'personal'],
+  scopes: config.integrations.githubApp ? ['org', 'personal'] : ['personal'],
   dashboard: 'https://github.com/settings/tokens',
   keys: z.object({ accessToken: secret('Personal access token') }),
   client: (keys) => keys,

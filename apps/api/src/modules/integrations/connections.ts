@@ -79,7 +79,10 @@ export const clientOf = async <C>(
   integration: KeyedIntegration<Keys, C>,
   row: ConnectionRow,
 ) => {
-  const keys = integration.oauth ? await freshKeys(tx, integration, row) : keysOf(integration, row);
+  const keys =
+    integration.oauth || row.auth === 'app'
+      ? await freshKeys(tx, integration, row)
+      : keysOf(integration, row);
 
   return integration.client(keys, await clientOptions(tx, integration, row.id, keys));
 };

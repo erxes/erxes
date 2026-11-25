@@ -17,6 +17,7 @@ import {
 import { IntegrationMark, useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { ConnectionNameInput, useConnectionName } from './ConnectionName';
 import { ConnectionScopePicker, useConnectionScope } from './ConnectionScope';
+import { connectsThroughApp, GithubAppPicker } from './GithubAppPicker';
 import { isOAuthIntegration, SignInForm } from './SignInForm';
 import { useConnectionDraft, useKeyedIntegrations } from './useVault';
 
@@ -72,6 +73,18 @@ const ConnectForm = ({
   const connect = useConnect(onConnected);
   const { keys, ready } = connectionKeys(integration, values);
   const { open, scope, setScope } = useConnectionScope(integration);
+
+  if (scope === 'org' && connectsThroughApp(integration.key))
+    return (
+      <div className="space-y-3 p-4">
+        <div className="flex items-center gap-3">
+          <IntegrationMark integration={integration} />
+          <span className="font-medium">{brand}</span>
+        </div>
+        <ConnectionScopePicker open={open} scope={scope} onChange={setScope} />
+        <GithubAppPicker />
+      </div>
+    );
 
   return (
     <form

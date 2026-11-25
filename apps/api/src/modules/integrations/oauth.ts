@@ -23,6 +23,7 @@ import {
   oauthKeys,
   type OAuthSetup,
 } from '@erxes/plugin-sdk/integrations';
+import { installationKeys } from './githubApp';
 import { keyedOf } from './registry';
 import { ownerFor } from './scopes';
 import { ensureNameFree } from './connectionNames';
@@ -145,7 +146,7 @@ const signed = (body: string) =>
 const verifierOf = (state: State) =>
   hmacSha256(coreKey('erxes-integration-oauth-pkce-v1'), state.nonce, 'base64url');
 
-const sealState = (state: State) => {
+export const sealState = (state: State) => {
   const body = Buffer.from(JSON.stringify(state)).toString('base64url');
 
   return `${body}.${signed(body)}`;
@@ -288,6 +289,8 @@ const renewable = (keys: OAuthKeys): keys is OAuthKeys & { refreshToken: string 
   );
 
 export const freshKeys = async (tx: Db, integration: KeyedIntegration, row: ConnectionRow) => {
+  if (row.auth === 'app') return installationKeys(tx, row);
+
   if (!isOAuth(integration)) return integration.keys.parse(await storedKeys(tx, row));
 
   const seen = oauthKeys.parse(await storedKeys(tx, row));

@@ -4,6 +4,7 @@ import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policy
 import { CUSTOMER_ACCESS } from './customerPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 import { SUPPORT_ACCESS } from './supportPolicies';
+import { INTEGRATION_ACCESS } from './integrationPolicies';
 
 /**
  * The access map: one entry per procedure, checked before the procedure runs
@@ -321,20 +322,7 @@ export const ACCESS = {
   'secrets.read': { plugin: 'secrets:write' },
   'secrets.remove': { plugin: 'secrets:write' },
 
-  'integrations.list': MEMBER,
-  'integrations.connections': MEMBER,
-  'integrations.subscriptions': MEMBER,
-  'integrations.records': MEMBER,
-  'integrations.connect': MEMBER,
-  'integrations.update': MEMBER,
-  'integrations.remove': MEMBER,
-  'integrations.report': { plugin: 'installed' },
-  // Plugins the owner approved (`uses:<key>`, checked in connectionUse.ts) use the connections.
-  'integrations.usable': { plugin: 'installed' },
-  'integrations.credentials': { plugin: 'installed' },
-  'integrations.authorize': MEMBER,
-  'integrations.setOAuthApp': MEMBER,
-  'integrations.removeOAuthApp': MEMBER,
+  ...INTEGRATION_ACCESS,
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

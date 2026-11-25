@@ -74,6 +74,7 @@ describe('GitHub triggers', { timeout: 300_000 }, () => {
       await t.owner().integrations.connect({
         key: 'github',
         name: 'Shop repo',
+        scope: 'personal',
         keys: { accessToken: 'ghp_test_shop' },
       })
     ).id;
