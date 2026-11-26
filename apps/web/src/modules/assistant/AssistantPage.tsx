@@ -9,12 +9,13 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useQueryState } from 'nuqs';
 import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { paths } from '~/lib/paths';
-import { assistantOpenState, wantComposerFocus } from './assistantState';
+import { assistantOpenState, openThreadAction, wantComposerFocus } from './assistantState';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { HistoryList } from './HistoryDialog';
 import { ThreadActions } from './ThreadActions';
@@ -62,6 +63,16 @@ export const AssistantPage = () => {
   const from = cameFrom.safeParse(useLocation().state).data?.from ?? paths.home;
 
   useEffect(() => setPanelOpen(false), [setPanelOpen]);
+
+  const [linked, setLinked] = useQueryState('thread');
+  const openThread = useSetAtom(openThreadAction);
+
+  useEffect(() => {
+    if (!linked) return;
+
+    openThread(linked);
+    void setLinked(null);
+  }, [linked, openThread, setLinked]);
 
   const title = tabs.active?.threadId ? threadTitle(thread, t) : t('new-chat', 'New chat');
 

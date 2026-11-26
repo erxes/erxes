@@ -1,5 +1,6 @@
 import {
   AssistantAction,
+  AssistantAutomation,
   AssistantMentions,
   type AssistantMessagePart,
 } from '@erxes/core-contract';
@@ -82,8 +83,14 @@ const ActionValues = ({ parts }: { parts: AssistantMessagePart[] }) => {
   );
 };
 
+const automationOf = (parts: AssistantMessagePart[]) =>
+  parts.flatMap((part) =>
+    part.type === 'data-automation' ? (AssistantAutomation.safeParse(part['data']).data ?? []) : [],
+  )[0];
+
 export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
   const text = userText(parts);
+  const automation = automationOf(parts);
 
   return (
     <div className="flex flex-col items-end gap-1.5">
@@ -93,8 +100,15 @@ export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
           <div className="flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <CopyButton text={text} />
           </div>
-          <p className="max-w-5/6 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
-            <MessageText text={text} mentions={mentionsOf(parts)} />
+          <p className="flex max-w-5/6 items-center gap-1.5 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
+            {automation && (
+              <span className="flex max-w-40 shrink-0">
+                <RecordChip type="automation" id={automation.id} label={automation.name} />
+              </span>
+            )}
+            <span className="min-w-0">
+              <MessageText text={text} mentions={mentionsOf(parts)} />
+            </span>
           </p>
         </div>
       )}

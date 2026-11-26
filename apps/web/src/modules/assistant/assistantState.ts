@@ -67,6 +67,22 @@ export const newChatAction = atom(null, (get, set) => {
   set(assistantActiveTabState, tab.key);
 });
 
+export const openThreadAction = atom(null, (get, set, threadId: string) => {
+  const tabs = get(assistantTabsState);
+  const open = tabs.find((tab) => tab.threadId === threadId);
+
+  if (open) {
+    set(assistantActiveTabState, open.key);
+
+    return;
+  }
+
+  const tab = { key: crypto.randomUUID(), threadId };
+
+  set(assistantTabsState, [...tabs, tab]);
+  set(assistantActiveTabState, tab.key);
+});
+
 export const assistantUnreadState = atom(false);
 
 /** A question asked from elsewhere (the top bar search), for a new chat to send. */

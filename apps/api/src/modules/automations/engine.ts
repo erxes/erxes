@@ -83,55 +83,73 @@ const CallPayload = RunPayload.extend({ cursor: z.array(z.union([z.number(), z.s
  * The call runs outside any transaction, so a slow remote holds no database
  * connection or row lock; then a short transaction records the answer and
  * moves the run on, unless it was cancelled or moved meanwhile. A retry sends
- * the same `Idempotency-Key`, so the remote does the work once.
+ * the same `Idempotency-Key`, so the remote does the work once. A slow action's call
+ * (`slowCallJob`) may take ten minutes and is never retried.
  */
-export const callJob = defineJob({
-  queue: 'automation.call',
-  payload: CallPayload,
-  timeoutSeconds: 120,
-  retry: RETRY,
-  async handle(job) {
-    const startedAt = new Date();
-    const prepared = await withOrg(job.orgId, (tx) => prepareCall(tx, job.orgId, job.payload));
+const callStep = async (job: {
+  orgId: string;
+  payload: z.output<typeof CallPayload>;
+  attempt: number;
+}) => {
+  const startedAt = new Date();
+  const prepared = await withOrg(job.orgId, (tx) => prepareCall(tx, job.orgId, job.payload));
 
-    if (!prepared) return;
+  if (!prepared) return;
 
-    const answer = await prepared.call().catch((error: unknown) => {
-      const final = finalError(error);
+  const answer = await prepared.call().catch((error: unknown) => {
+    const final = finalError(error);
 
-      if (!final) throw error;
+    if (!final) throw error;
 
-      return { final };
-    });
+    return { final };
+  });
 
-    if ('final' in answer) {
-      await withOrg(job.orgId, (tx) => failRun(tx, job, answer.final));
+  if ('final' in answer) {
+    await withOrg(job.orgId, (tx) => failRun(tx, job, answer.final));
 
-      return;
-    }
+    return;
+  }
 
-    const { output, next } = answer;
+  const { output, next } = answer;
 
-    await withOrg(job.orgId, async (tx) => {
-      await prepared.remember?.(tx, output);
+  await withOrg(job.orgId, async (tx) => {
+    await prepared.remember?.(tx, output);
 
-      const run = await lockLiveRun(tx, job.payload.runId);
+    const run = await lockLiveRun(tx, job.payload.runId);
 
-      if (run?.status !== 'running' || !sameCursor(run.cursor, job.payload.cursor)) return;
+    if (run?.status !== 'running' || !sameCursor(run.cursor, job.payload.cursor)) return;
 
-      const subject = await subjectOf(tx, run.subjectType, run.subjectId);
+    const subject = await subjectOf(tx, run.subjectType, run.subjectId);
 
-      await continueAfter(
-        tx,
-        run,
-        prepared.step,
-        { ...run.context, subject },
-        { input: prepared.input, output, next, attempt: job.attempt, startedAt },
-      );
-    });
-  },
-  onDead: (job, error, tx) => failRun(tx, job, error),
-});
+    await continueAfter(
+      tx,
+      run,
+      prepared.step,
+      { ...run.context, subject },
+      { input: prepared.input, output, next, attempt: job.attempt, startedAt },
+    );
+  });
+};
+
+const callJobOn = (queue: string, timeoutSeconds: number, retry: typeof RETRY) =>
+  defineJob({
+    queue,
+    payload: CallPayload,
+    timeoutSeconds,
+    retry,
+    handle: callStep,
+    onDead: (job, error, tx) => failRun(tx, job, error),
+  });
+
+export const callJob = callJobOn('automation.call', 120, RETRY);
+
+export const slowCallJob = callJobOn('automation.call.slow', 600, { ...RETRY, attempts: 1 });
+
+const isSlow = (step: AutomationStep) => {
+  const action = step.type === 'action' ? coreAction(step.action) : undefined;
+
+  return action !== undefined && 'call' in action && action.slow === true;
+};
 
 interface PreparedCall {
   step: AutomationStep;
@@ -298,7 +316,7 @@ export const advanceJob = defineJob({
 
     if (outcome.kind === 'call') {
       // Keyed by this job: its retries queue one call, a later retry of the run a new one.
-      await callJob.enqueue(tx, {
+      await (isSlow(step) ? slowCallJob : callJob).enqueue(tx, {
         orgId: run.orgId,
         payload: { runId: run.id, cursor: run.cursor },
         dedupeKey: `call:${job.id}`,

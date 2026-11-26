@@ -110,6 +110,13 @@ export const AssistantAction = z.object({
 
 export type AssistantAction = z.infer<typeof AssistantAction>;
 
+export const AssistantAutomation = z.object({
+  id: z.string().min(1).max(64),
+  name: z.string().max(200),
+});
+
+export type AssistantAutomation = z.infer<typeof AssistantAutomation>;
+
 export const ASSISTANT_DATA_PARTS = {
   mentions: AssistantMentions,
   page: AssistantPage,

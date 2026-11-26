@@ -17,14 +17,10 @@ import { StorageBusy } from '~/modules/agents/storage';
 import { readContents } from './attachments';
 import type { ProviderKey } from './connectedProviders';
 import { modelKey } from './connections.service';
+import { ASSISTANT_AGENT, MEMBER_ENTRY } from './names';
 import { modelOf } from './providers';
 import { findThread, removeThread } from './threads.service';
 import { modelInput, readTurnContext, withTurnContext } from './turnContext';
-
-/** The assistant's agent name; `./agent` registers it under this name. */
-export const ASSISTANT_AGENT = 'assistant';
-
-export const MEMBER_ENTRY = 'assistant.user';
 
 const TITLE_INSTRUCTIONS =
   'Write a short title of at most six words for a conversation that starts with the message below. Use the language of the message. Reply with the title only, without quotes or punctuation at the end.';
