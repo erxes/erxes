@@ -90,6 +90,7 @@ export const assistantAgent: Agent = {
           orgId: scope.orgId,
           unattended: true,
           plugins,
+          apps: true,
           references: referencesIn(scope.orgId, scope.key),
         };
 
