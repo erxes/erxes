@@ -3,6 +3,7 @@ import { AgentHandedOff } from '@erxes/core-contract';
 import { apiKeys, customers, type Db, portalPlugins, portals, withOrg } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
+import { opensSomething } from '~/modules/apiKeys/keyRulesInput';
 import { apiTools } from '~/modules/apiTools/agentTools';
 import { installedPlugins } from '~/modules/apiTools/plugins';
 import { modelKey } from '~/modules/assistant/connections.service';
@@ -16,9 +17,11 @@ import { agentOrThrow, chatOf, notifyRun } from './agents.service';
 import { runEntries, showTool, shownBlocks } from './blocks';
 import { failureGuard, handOffOf, handOffTool, replyOf } from './runs';
 
-const GUIDE = `Use searchApi to find what you can do and callApi to do it. Keep replies short and plain, in the customer's language. Never make up prices, stock, dates or order details: read them from the API or your instructions. Money from the API is in its currency's smallest unit, as erxes keeps it: divide by 100 before you show it, so 150000 MNT is ₮1,500 and 134000 USD is $1,340. To show a product, a picture or a payment link, call show with what they gave you.
+const API_GUIDE = `Use searchApi to find what you can do and callApi to do it. Never make up prices, stock, dates or order details: read them from the API or your instructions. Money from the API is in its currency's smallest unit, as erxes keeps it: divide by 100 before you show it, so 150000 MNT is ₮1,500 and 134000 USD is $1,340. To show a product, a picture or a payment link, call show with what they gave you. When a call is refused or fails and no other call does the job, don't try it again: call handOff with the reason for the team and one short line telling the customer, in their language, that a person will reply.`;
 
-Never tell the customer about permissions, access, errors or how you work. When a call is refused or fails and no other call does the job, don't try it again: call handOff with the reason for the team and one short line telling the customer, in their language, that a person will reply. Do the same when the customer asks for a person.`;
+const INSTRUCTIONS_ONLY = `Answer from your instructions above: they are all you know. Never make up prices, dates or details they don't give. When they don't answer the question, call handOff with the reason for the team and one short line telling the customer, in their language, that a person will reply.`;
+
+const GUIDE = `Keep replies short and plain, in the customer's language. Never tell the customer about permissions, access, errors or how you work. When the customer asks for a person, call handOff.`;
 
 /** Read each turn, so a booking agent turns "next Friday" into a date. */
 const todayLine = (now: Date) =>
@@ -65,6 +68,17 @@ const portalOf = async (client: Db, id: string | null) => {
   return first
     ? { id: first.id, plugins: rows.flatMap((row) => (row.plugin ? [row.plugin] : [])) }
     : null;
+};
+
+/** Whether the key opens an area or a plugin: an agent whose key opens none calls no API. */
+const keyOpens = async (client: Db, keyId: string) => {
+  const [key] = await client
+    .select({ areas: apiKeys.areas, pluginAccess: apiKeys.pluginAccess })
+    .from(apiKeys)
+    .where(eq(apiKeys.id, keyId))
+    .limit(1);
+
+  return key ? opensSomething(key) : false;
 };
 
 /** The key's caller now, or null once the key, its maker or the maker's role is gone. */
@@ -121,16 +135,21 @@ export const madeAgent = (id: string): Agent => ({
       const customerId = portal ? (chat?.customerId ?? null) : null;
       const customer = customerId ? await customerLine(tx, customerId) : null;
 
-      const tools = apiTools({
-        caller: () => withOrg(scope.orgId, (client) => keyCallerOf(client, row.keyId)),
-        orgId: scope.orgId,
-        unattended: true,
-        plugins: await installedPlugins(tx),
-        ...(portal ? { portal: portalAccess(scope, id, portal, customerId) } : {}),
-      });
+      const callsApi = portal !== null || (await keyOpens(tx, row.keyId));
+
+      const tools = callsApi
+        ? apiTools({
+            caller: () => withOrg(scope.orgId, (client) => keyCallerOf(client, row.keyId)),
+            orgId: scope.orgId,
+            unattended: true,
+            plugins: await installedPlugins(tx),
+            ...(portal ? { portal: portalAccess(scope, id, portal, customerId) } : {}),
+          })
+        : [];
 
       const instructions = [
         row.instructions,
+        callsApi ? API_GUIDE : INSTRUCTIONS_ONLY,
         GUIDE,
         todayLine(new Date()),
         ...(portal && !customerId ? [GUEST_GUIDE] : []),

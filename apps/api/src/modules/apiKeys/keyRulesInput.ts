@@ -24,13 +24,14 @@ export type KeyRulesInput = Omit<ApiKeyRules, 'name' | 'lifetimeDays'>;
 const invalid = (field: string, message: string) =>
   fail('INVALID_INPUT', message, { issues: [{ path: [field], message }] });
 
-export const mustOpenSomething = ({
+export const opensSomething = ({
   areas,
   pluginAccess,
-}: Pick<ApiKeyRules, 'areas' | 'pluginAccess'>) => {
-  if (!API_KEY_AREAS.some((area) => areas[area]) && !Object.keys(pluginAccess).length) {
-    throw invalid('areas', 'Choose at least one area');
-  }
+}: Pick<ApiKeyRules, 'areas' | 'pluginAccess'>) =>
+  API_KEY_AREAS.some((area) => areas[area]) || Object.keys(pluginAccess).length > 0;
+
+export const mustOpenSomething = (rules: Pick<ApiKeyRules, 'areas' | 'pluginAccess'>) => {
+  if (!opensSomething(rules)) throw invalid('areas', 'Choose at least one area');
 };
 
 const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
