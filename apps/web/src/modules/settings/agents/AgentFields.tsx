@@ -1,7 +1,8 @@
 import type { AgentSettings } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
+import { IconWorld } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Form, Input, Select, Textarea } from 'erxes-ui';
+import { Form, Input, Select, Switch, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PROVIDER_LABELS } from '~/modules/assistant/providers';
 
@@ -144,6 +145,15 @@ export const AgentFields = ({
         )}
       >
         <PortalSelect draft={draft} onChange={onChange} />
+      </Form.Section>
+      <Form.Section title={t('web', 'Web')}>
+        <label className="flex items-center justify-between gap-4 rounded-lg border px-3 py-2 text-sm">
+          <span className="flex items-center gap-2">
+            <IconWorld className="size-4 text-muted-foreground" />
+            {t('web-label', 'Search the web and read pages')}
+          </span>
+          <Switch checked={draft.web} onCheckedChange={(web) => onChange({ ...draft, web })} />
+        </label>
       </Form.Section>
     </div>
   );

@@ -116,7 +116,7 @@ const Setup = ({ agent }: { agent: SavedAgent }) => {
     }),
   );
 
-  const { name, instructions, provider, model, portalId } = draft;
+  const { name, instructions, provider, model, portalId, web } = draft;
 
   return (
     <div className="space-y-4">
@@ -136,7 +136,7 @@ const Setup = ({ agent }: { agent: SavedAgent }) => {
         <Button
           disabled={update.isPending || !name.trim() || !instructions.trim()}
           onClick={() =>
-            update.mutate({ id: agent.id, name, instructions, provider, model, portalId })
+            update.mutate({ id: agent.id, name, instructions, provider, model, portalId, web })
           }
         >
           {update.isPending && <Spinner size="sm" />}

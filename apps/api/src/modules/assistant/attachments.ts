@@ -17,13 +17,13 @@ import { readFileBytes, readyFilesOfCaller } from '~/modules/files/files.service
 import { DocumentTextError, documentText } from './documentText';
 import type { DocumentFormat } from './documentText.worker';
 
-const ATTACHMENT_TEXT_MAX = 30_000;
+export const ATTACHMENT_TEXT_MAX = 30_000;
 
 const READ_TIMEOUT_MS = 15_000;
 
 const MB = 1024 * 1024;
 
-const DOCUMENT_FORMATS: Record<AssistantDocumentType, DocumentFormat> = {
+export const DOCUMENT_FORMATS: Record<AssistantDocumentType, DocumentFormat> = {
   'application/pdf': 'pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',

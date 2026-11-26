@@ -13,6 +13,7 @@ import type { Agent, AgentScope } from '~/modules/agents/agent';
 import { apiTools, runCode } from '~/modules/apiTools/agentTools';
 import type { ToolScope } from '~/modules/apiTools/calls';
 import { installedPlugins } from '~/modules/apiTools/plugins';
+import { webTools } from '~/modules/web/webTools';
 import { ASSISTANT_AGENT, MEMBER_ENTRY } from './names';
 import { connectedProviders } from './connectedProviders';
 import { instructionsFor } from './instructions';
@@ -101,6 +102,7 @@ export const assistantAgent: Agent = {
           tools: [
             ...apiTools(tools),
             createArtifact,
+            ...webTools,
             loadSkill(skills),
             ...(codeMode ? [runCode(tools)] : []),
           ],

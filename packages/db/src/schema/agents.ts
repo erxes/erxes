@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, index, primaryKey, text } from 'drizzle-orm/pg-core';
+import { boolean, check, foreignKey, index, primaryKey, text } from 'drizzle-orm/pg-core';
 import { ASSISTANT_PROVIDERS } from '../assistantEnums';
 import { AGENT_TEMPLATES } from '../enums';
 import { inList, orgIdColumn, pgTable } from '../table';
@@ -27,6 +27,7 @@ export const agents = pgTable(
     model: text(),
     keyId: text().notNull(),
     portalId: text(),
+    web: boolean().notNull().default(false),
     createdBy: text().notNull(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
