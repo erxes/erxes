@@ -16,7 +16,7 @@ import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { type KeyRulesInput, keyRuleColumns } from './keyRulesInput';
+import { type KeyRulesInput, keyRuleColumns, mustOpenSomething } from './keyRulesInput';
 
 /** Keys read `erxes_<id>.<secret>`: the prefix tells them from session and plugin tokens. */
 const KEY_PREFIX = 'erxes_';
@@ -102,12 +102,14 @@ const mustExpire = (kind: KeyRulesInput['kind'], lifetimeDays: number | null | u
 const auditRules = ({ permissions: _held, ...rules }: Awaited<ReturnType<typeof keyRuleColumns>>) =>
   rules;
 
-export const createApiKey = async (client: Db, input: ApiKeyRules) => {
+export const createApiKey = async (client: Db, input: ApiKeyRules, { forAgent = false } = {}) => {
   const me = sessionMember();
 
   mustExpire(input.kind, input.lifetimeDays);
 
   const rules = await keyRuleColumns(client, me, input);
+
+  if (!forAgent) mustOpenSomething(rules);
 
   const [held] = await client
     .select({ total: count() })
@@ -162,6 +164,14 @@ export const updateApiKey = async (
   mustExpire(input.kind, keepsExpiry && !row.expiresAt ? null : input.lifetimeDays);
 
   const rules = await keyRuleColumns(client, me, input);
+
+  const [agent] = await client
+    .select({ id: agents.id })
+    .from(agents)
+    .where(eq(agents.keyId, id))
+    .limit(1);
+
+  if (!agent) mustOpenSomething(rules);
 
   await client
     .update(apiKeys)

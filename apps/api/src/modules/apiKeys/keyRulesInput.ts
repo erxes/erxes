@@ -24,6 +24,15 @@ export type KeyRulesInput = Omit<ApiKeyRules, 'name' | 'lifetimeDays'>;
 const invalid = (field: string, message: string) =>
   fail('INVALID_INPUT', message, { issues: [{ path: [field], message }] });
 
+export const mustOpenSomething = ({
+  areas,
+  pluginAccess,
+}: Pick<ApiKeyRules, 'areas' | 'pluginAccess'>) => {
+  if (!API_KEY_AREAS.some((area) => areas[area]) && !Object.keys(pluginAccess).length) {
+    throw invalid('areas', 'Choose at least one area');
+  }
+};
+
 const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
 /** What the member may do now, spelled out: a key keeps this list, not a role or `*`. */
@@ -147,8 +156,6 @@ const checkKeyRules = async (client: Db, me: Member, input: KeyRulesInput) => {
 
   const opened = API_KEY_AREAS.filter((area) => input.areas[area]);
   const plugins = Object.keys(input.pluginAccess);
-
-  if (!opened.length && !plugins.length) throw invalid('areas', 'Choose at least one area');
 
   if (plugins.length && input.kind !== 'regular') {
     throw invalid('pluginAccess', 'Only regular keys call plugins');

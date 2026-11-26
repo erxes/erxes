@@ -211,4 +211,44 @@ describe('assistant AI providers, models and settings', () => {
     await expect(t.other().agents.runs({ id })).rejects.toMatchObject({ status: 404 });
     await owner.assistant.updateSettings({ defaultProvider: null, defaultModel: null });
   });
+
+  it('makes an agent with no access that answers from its instructions, and clears an agent’s access', async () => {
+    const owner = t.owner();
+    const rules = { kind: 'regular', pluginAccess: {}, actions: {}, ownRecords: false } as const;
+    const limits = { unitIds: [], tagIds: [], allowedIps: [] };
+
+    const { id } = await owner.agents.create({
+      name: 'Opening hours',
+      instructions: 'We open 9-18, Mon-Fri.',
+      access: { areas: {} },
+    });
+
+    expect((await owner.agents.get({ id })).key).toMatchObject({ areas: {}, pluginAccess: {} });
+
+    model.script(() => ({ text: 'We open 9-18, Mon-Fri.' }));
+
+    expect(await owner.agents.try({ id, text: 'When are you open?' })).toMatchObject({
+      answer: 'We open 9-18, Mon-Fri.',
+    });
+
+    const reader = await owner.agents.create({
+      name: 'Reader',
+      instructions: 'Read contacts.',
+      access: { areas: { contacts: 'read' } },
+    });
+
+    const cleared = await owner.apiKeys.update({
+      id: reader.keyId,
+      name: 'Agent: Reader',
+      areas: {},
+      ...rules,
+      ...limits,
+    });
+
+    expect(cleared).toMatchObject({ areas: {}, pluginAccess: {} });
+
+    await expect(
+      owner.apiKeys.create({ name: 'Empty', areas: {}, ...rules, ...limits, lifetimeDays: 30 }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT', message: 'Choose at least one area' });
+  });
 });
