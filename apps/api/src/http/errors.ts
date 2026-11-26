@@ -3,7 +3,7 @@ import { caller } from '@erxes/core-db';
 import { ORPCError, type ValidationError } from '@orpc/server';
 import type { NextFunction, Request, Response } from 'express';
 import { DatabaseError } from 'pg';
-import type { z } from 'zod';
+import { z } from 'zod';
 
 type DataOf<C extends ErrorCode> = (typeof ERRORS)[C] extends { data: infer S extends z.ZodType }
   ? z.input<S>
@@ -175,11 +175,24 @@ export const fromDatabase = (error: unknown) => {
  * Express's error handler, for what fails outside oRPC (Express routes, auth,
  * body parsing): the same body oRPC sends, or a logged 500.
  */
+const TooLarge = z.object({ type: z.literal('entity.too.large'), limit: z.number() });
+
+const fromBodyParser = (error: unknown) => {
+  if (error instanceof SyntaxError && 'body' in error) {
+    return fail('INVALID_JSON', 'The request body is not valid JSON');
+  }
+
+  const tooLarge = TooLarge.safeParse(error);
+
+  if (!tooLarge.success) return fromDatabase(error);
+
+  const maxSizeMb = tooLarge.data.limit / (1024 * 1024);
+
+  return fail('REQUEST_TOO_LARGE', `Requests can be up to ${maxSizeMb} MB`, { maxSizeMb });
+};
+
 export const answerError = (error: unknown, req: Request, res: Response, _next: NextFunction) => {
-  const known =
-    error instanceof SyntaxError && 'body' in error
-      ? fail('INVALID_JSON', 'The request body is not valid JSON')
-      : fromDatabase(error);
+  const known = fromBodyParser(error);
 
   if (known instanceof ORPCError) {
     res.status(known.status).json(known.toJSON());

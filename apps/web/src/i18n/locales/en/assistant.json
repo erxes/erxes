@@ -128,7 +128,8 @@
     "remove": "Remove {{name}}",
     "max": "Attach up to {{max}} files",
     "type": "{{name}} can't be attached",
-    "size": "{{name}} is over {{max}} MB"
+    "size": "{{name}} is over {{max}} MB",
+    "pasted": "Pasted text"
   },
   "select": {
     "start": "Select part of the page",

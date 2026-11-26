@@ -42,6 +42,7 @@ export const ERRORS = {
   // `id` is that record when known), a stale list cursor.
   INVALID_INPUT: { status: 400, data: InvalidInput },
   INVALID_JSON: { status: 400 },
+  REQUEST_TOO_LARGE: { status: 413, data: z.object({ maxSizeMb: z.number() }) },
   NOT_FOUND: { status: 404 },
   TAKEN: {
     status: 409,

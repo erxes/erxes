@@ -1,4 +1,4 @@
-import type { AssistantMessagePart } from '@erxes/core-contract';
+import { ASSISTANT_TEXT_MAX, type AssistantMessagePart } from '@erxes/core-contract';
 import { OfficeParser } from 'officeparser';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import writeXlsxFile from 'write-excel-file/node';
@@ -168,6 +168,22 @@ describe('assistant attachments and page selections', () => {
     expect(text.length).toBeLessThan(60_000);
     expect(text).toContain('Sales call notes.');
     expect(text).toMatch(/cut off/i);
+  });
+
+  it('refuses message text too long to send, saying why, before the model sees it', async () => {
+    const asked = model.chats().length;
+
+    await expect(send({ message: message('a'.repeat(1_100_000)) })).rejects.toMatchObject({
+      status: 413,
+      code: 'REQUEST_TOO_LARGE',
+      data: { maxSizeMb: 1 },
+    });
+
+    await expect(
+      send({ message: message('a'.repeat(ASSISTANT_TEXT_MAX + 1)) }),
+    ).rejects.toMatchObject({ status: 400, code: 'ASSISTANT_INVALID_MESSAGE' });
+
+    expect(model.chats()).toHaveLength(asked);
   });
 
   it('keeps the attachments with the message under the names core stored', async () => {

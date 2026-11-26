@@ -1,8 +1,9 @@
-import type {
-  AssistantAttachment,
-  AssistantMention,
-  AssistantPage,
-  AssistantSelection,
+import {
+  ASSISTANT_TEXT_MAX,
+  type AssistantAttachment,
+  type AssistantMention,
+  type AssistantPage,
+  type AssistantSelection,
 } from '@erxes/core-contract';
 import { IconPlayerStopFilled, IconSend2 } from '@tabler/icons-react';
 import { Button, IconTip, Textarea } from 'erxes-ui';
@@ -73,6 +74,16 @@ export interface ComposerMessage {
 
 const filesOf = (transfer: DataTransfer) => [...transfer.files];
 
+const pastedFiles = (event: ClipboardEvent<HTMLTextAreaElement>, name: string) => {
+  if (event.clipboardData.files.length) return filesOf(event.clipboardData);
+
+  const pasted = event.clipboardData.getData('text/plain');
+  const { value, selectionStart, selectionEnd } = event.currentTarget;
+  const length = value.length - (selectionEnd - selectionStart) + pasted.length;
+
+  return length > ASSISTANT_TEXT_MAX ? [new File([pasted], name, { type: 'text/plain' })] : [];
+};
+
 const useDraft = (
   canSend: boolean,
   page: AssistantPage | null,
@@ -105,6 +116,7 @@ const useDraft = (
 };
 
 const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
+  const { t } = useTranslation('assistant');
   const [over, setOver] = useState(false);
 
   return {
@@ -128,11 +140,13 @@ const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
       event.preventDefault();
       add(filesOf(event.dataTransfer));
     },
-    onPaste: (event: ClipboardEvent) => {
-      if (!enabled || !event.clipboardData.files.length) return;
+    onPaste: (event: ClipboardEvent<HTMLTextAreaElement>) => {
+      const files = enabled ? pastedFiles(event, `${t('attach.pasted', 'Pasted text')}.txt`) : [];
+
+      if (!files.length) return;
 
       event.preventDefault();
-      add(filesOf(event.clipboardData));
+      add(files);
     },
   };
 };
@@ -207,6 +221,7 @@ export const Composer = ({
         disabled={locked}
         value={draft.text}
         rows={2}
+        maxLength={ASSISTANT_TEXT_MAX}
         className="max-h-48 min-h-14 resize-none"
         onPaste={onPaste}
         onChange={(event) => {
