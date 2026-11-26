@@ -203,15 +203,18 @@ const countRun = async (orgId: string) => {
   }
 };
 
+type Root = Awaited<ReturnType<Harness['root']>>;
+
 /**
- * Starts a run in the root conversation: counts it (`countRun`), applies `change` to its agent,
- * then submits `input`. Rejects with `StorageBusy` while another server runs the conversation.
+ * Opens the root conversation for a run, counted (`countRun`), applies `change` to its agent
+ * and hands it to `use` while the Harness is open. Rejects with `StorageBusy` while another
+ * server runs the conversation.
  */
-export const startRun = async (
+const inRoot = async <T>(
   agent: Agent,
   scope: AgentScope,
-  input: InputSubmissionDraft,
-  change?: AgentChange,
+  change: AgentChange | undefined,
+  use: (root: Root) => Promise<T>,
 ) => {
   await countRun(scope.orgId);
 
@@ -220,30 +223,30 @@ export const startRun = async (
 
     if (change) await root.configure(change, BACKGROUND_CONTEXT);
 
-    return root.submit(input, BACKGROUND_CONTEXT);
+    return use(root);
   });
 };
 
-/**
- * Sends `input` to the root conversation, counted (`countRun`), after applying `change` to its
- * agent, and waits for the answer, with the model that gave it and why it handed off; 502
- * `AGENT_RUN_FAILED` says why it gave none.
- */
-export const askAgent = async (
+/** Starts a run in the root conversation by submitting `input`; see `inRoot`. */
+export const startRun = (
   agent: Agent,
   scope: AgentScope,
   input: InputSubmissionDraft,
   change?: AgentChange,
-) => {
-  await countRun(scope.orgId);
+) => inRoot(agent, scope, change, (root) => root.submit(input, BACKGROUND_CONTEXT));
 
-  return withHarness(agent, scope, async (harness) => {
-    const root = await harness.root(BACKGROUND_CONTEXT);
-
-    if (change) await root.configure(change, BACKGROUND_CONTEXT);
-
+/**
+ * Sends `input` to the root conversation (`inRoot`) and waits for the answer, with the model
+ * that gave it and why it handed off; 502 `AGENT_RUN_FAILED` says why it gave none.
+ */
+export const askAgent = (
+  agent: Agent,
+  scope: AgentScope,
+  input: InputSubmissionDraft,
+  change?: AgentChange,
+) =>
+  inRoot(agent, scope, change, async (root) => {
     const submission = await root.submit(input, BACKGROUND_CONTEXT);
-
     const settled = await submission.wait(BACKGROUND_CONTEXT);
 
     if (settled.status !== 'done') {
@@ -266,7 +269,6 @@ export const askAgent = async (
       handedOff: handOffOf(run)?.reason ?? null,
     };
   });
-};
 
 /** Reads a conversation another server runs: a read-only Harness over what it committed. */
 const readView = async (agent: Agent, scope: AgentScope, conversationId: ConversationId) => {
