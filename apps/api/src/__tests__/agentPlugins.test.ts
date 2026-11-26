@@ -87,6 +87,38 @@ describe('agents that plugins send their conversations to', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
+  it('gives an agent with no access no API to search, so it answers from its instructions', async () => {
+    const seen: { tools: string[]; system: string }[] = [];
+
+    model.script((request) => {
+      seen.push({
+        tools: (request.tools ?? []).map((tool) => tool.function.name),
+        system: systemOf(request),
+      });
+
+      return { text: 'Open 08:00 to 20:00.' };
+    });
+
+    const create = (
+      access: Parameters<ReturnType<typeof t.owner>['agents']['create']>[0]['access'],
+    ) =>
+      t.owner().agents.create({ name: 'Page bot', instructions: 'Open 08:00 to 20:00.', access });
+
+    const facts = await create({ areas: {} });
+    const reader = await create({ areas: {}, pluginAccess: { hr: 'read' } });
+
+    await t.hr().agents.submit({ id: facts.id, key: 'page-1', text: 'When are you open?' });
+    await settledEvents('core.agent.finished', 'page-1');
+    await t.hr().agents.submit({ id: reader.id, key: 'page-2', text: 'When are you open?' });
+    await settledEvents('core.agent.finished', 'page-2');
+
+    const [alone, withApi] = seen;
+
+    expect(alone?.tools).toEqual(['show', 'handOff']);
+    expect(alone?.system).not.toContain('searchApi');
+    expect(withApi?.tools).toEqual(expect.arrayContaining(['searchApi', 'callApi', 'handOff']));
+  });
+
   it('a PATCH of only instructions keeps the portal and provider', async () => {
     const portal = await t.owner().portals.create({ name: 'Leave desk' });
 
