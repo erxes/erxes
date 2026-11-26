@@ -54,7 +54,13 @@ export const ASSISTANT_ACTIONS: CoreAction[] = [
         {
           type: 'input',
           content: unattended(ctx.automation.name, prompt),
-          entry: { kind: MEMBER_ENTRY, data: [{ type: 'text', text: prompt }] },
+          entry: {
+            kind: MEMBER_ENTRY,
+            data: [
+              { type: 'data-automation', data: ctx.automation },
+              { type: 'text', text: prompt },
+            ],
+          },
         },
         { model: { provider: key.provider, modelId: key.model }, thinkingLevel: 'off' },
       );

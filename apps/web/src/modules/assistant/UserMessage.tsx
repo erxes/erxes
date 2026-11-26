@@ -1,10 +1,14 @@
 import {
   AssistantAction,
+  AssistantAutomation,
   AssistantMentions,
   type AssistantMessagePart,
 } from '@erxes/core-contract';
-import { IconTag } from '@tabler/icons-react';
+import { IconBolt, IconTag } from '@tabler/icons-react';
 import { badgeVariants, cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { CopyButton } from './CopyButton';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageText } from './MessageText';
@@ -82,8 +86,29 @@ const ActionValues = ({ parts }: { parts: AssistantMessagePart[] }) => {
   );
 };
 
+const automationOf = (parts: AssistantMessagePart[]) =>
+  parts.flatMap((part) =>
+    part.type === 'data-automation' ? (AssistantAutomation.safeParse(part['data']).data ?? []) : [],
+  )[0];
+
+const AutomationTag = ({ automation }: { automation: AssistantAutomation }) => {
+  const { t } = useTranslation('assistant');
+
+  return (
+    <Link
+      to={paths.automations.automation(automation.id)}
+      title={automation.name}
+      className={cn(badgeVariants({ variant: 'secondary' }), 'mr-1.5 align-text-bottom')}
+    >
+      <IconBolt aria-hidden className="size-3 shrink-0" />
+      {t('from-automation', 'Automation')}
+    </Link>
+  );
+};
+
 export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
   const text = userText(parts);
+  const automation = automationOf(parts);
 
   return (
     <div className="flex flex-col items-end gap-1.5">
@@ -94,6 +119,7 @@ export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
             <CopyButton text={text} />
           </div>
           <p className="max-w-5/6 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
+            {automation && <AutomationTag automation={automation} />}
             <MessageText text={text} mentions={mentionsOf(parts)} />
           </p>
         </div>
