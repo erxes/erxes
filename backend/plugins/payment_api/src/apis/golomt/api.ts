@@ -354,7 +354,14 @@ export class GolomtAPI extends BaseAPI {
       data,
     }).then((r) => r.json());
 
-    if (response.status && response.status === 'SENT') {
+    // status SENT only means the card payment was attempted: a declined card
+    // (expired, insufficient funds, ...) is also SENT, with errorCode != '000'.
+    // Paid only when Golomt reports success and the full amount was withdrawn.
+    if (
+      response.status === 'SENT' &&
+      response.errorCode === '000' &&
+      Number(response.amount) >= Number(transaction.amount)
+    ) {
       return PAYMENT_STATUS.PAID;
     }
 
