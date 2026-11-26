@@ -102,7 +102,9 @@ export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
           </div>
           <p className="flex max-w-5/6 items-center gap-1.5 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
             {automation && (
-              <RecordChip type="automation" id={automation.id} label={automation.name} />
+              <span className="flex max-w-40 shrink-0">
+                <RecordChip type="automation" id={automation.id} label={automation.name} />
+              </span>
             )}
             <span className="min-w-0">
               <MessageText text={text} mentions={mentionsOf(parts)} />
