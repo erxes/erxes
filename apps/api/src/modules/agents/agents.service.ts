@@ -77,16 +77,20 @@ export const createAgent = async (client: Db, input: NewAgent) => {
 
   await checkSettings(client, input);
 
-  const { apiKey } = await createApiKey(client, {
-    kind: 'regular',
-    name: `Agent: ${input.name}`,
-    ...input.access,
-    ownRecords: false,
-    unitIds: [],
-    tagIds: [],
-    allowedIps: [],
-    lifetimeDays: null,
-  });
+  const { apiKey } = await createApiKey(
+    client,
+    {
+      kind: 'regular',
+      name: `Agent: ${input.name}`,
+      ...input.access,
+      ownRecords: false,
+      unitIds: [],
+      tagIds: [],
+      allowedIps: [],
+      lifetimeDays: null,
+    },
+    { forAgent: true },
+  );
 
   const [row] = await client
     .insert(agents)

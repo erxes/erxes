@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { AccessSection } from '../developer/keys/KeyAccess';
-import { fitLimits, type KeyDraft, keyRules, newDraft, opensAny } from '../developer/keys/keyDraft';
+import { fitLimits, type KeyDraft, keyRules, newDraft } from '../developer/keys/keyDraft';
 import { type KeyPlugin, useGiver, useKeyPlugins } from '../developer/keys/useKeyPlugins';
 import { AgentFields } from './AgentFields';
 import { type Template, TEMPLATES, templateAccess } from './agentTemplates';
@@ -100,7 +100,7 @@ const AgentForm = ({
   );
 
   const { areas, pluginAccess, actions } = keyRules(access);
-  const ready = draft.name.trim() && draft.instructions.trim() && opensAny(access);
+  const ready = draft.name.trim() && draft.instructions.trim();
 
   return (
     <div className="space-y-4">
