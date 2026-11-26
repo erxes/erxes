@@ -144,6 +144,7 @@ export const AgentSettings = z.object({
    * through that portal's plugin routes. Null: it acts for nobody but itself.
    */
   portalId: Id.nullable(),
+  web: z.boolean(),
 });
 
 export type AgentSettings = z.infer<typeof AgentSettings>;
@@ -160,6 +161,7 @@ export const NewAgent = AgentSettings.extend({
   provider: AgentSettings.shape.provider.default(null),
   model: AgentSettings.shape.model.default(null),
   portalId: AgentSettings.shape.portalId.default(null),
+  web: AgentSettings.shape.web.default(false),
   template: AgentTemplate.nullable().default(null),
   access: AgentAccess,
 });

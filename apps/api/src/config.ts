@@ -218,6 +218,7 @@ export const config = {
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
   },
   assistant: { endpoints: assistantEndpoints },
+  web: { searchUrl: 'https://html.duckduckgo.com/html/' },
   /** Secret → plugin name. */
   pluginKeys: env.CORE_PLUGIN_KEYS,
   plugins: {

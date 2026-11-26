@@ -7,6 +7,8 @@ import { apiTools } from '~/modules/apiTools/agentTools';
 import { installedPlugins } from '~/modules/apiTools/plugins';
 import { modelKey } from '~/modules/assistant/connections.service';
 import { modelsFor } from '~/modules/assistant/providers';
+import { WEB_RESEARCH_GUIDE } from '~/modules/assistant/skills/webResearch';
+import { webTools } from '~/modules/web/webTools';
 import { agentCustomerToken } from '~/modules/customerAuth/customerSessions';
 import { agentPortalToken } from '~/modules/portals/portalKeys';
 import { type Agent, type AgentScope, madeAgentName } from './agent';
@@ -133,11 +135,12 @@ export const madeAgent = (id: string): Agent => ({
         todayLine(new Date()),
         ...(portal && !customerId ? [GUEST_GUIDE] : []),
         ...(customerId ? [CUSTOMER_GUIDE, customer ?? ''] : []),
+        ...(row.web ? [WEB_RESEARCH_GUIDE] : []),
       ];
 
       const extension = defineExtension({
         name: 'made-agent',
-        tools: [...tools, showTool, handOffTool],
+        tools: [...tools, ...(row.web ? webTools : []), showTool, handOffTool],
         sections: [section('agent', () => instructions.join('\n\n'), { tag: false })],
         hooks: [
           failureGuard,

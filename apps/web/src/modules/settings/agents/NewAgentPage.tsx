@@ -76,6 +76,7 @@ const AgentForm = ({
     provider: null,
     model: null,
     portalId,
+    web: false,
   });
 
   const [access, setAccess] = useState<KeyDraft>(() => ({
