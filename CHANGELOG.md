@@ -1,5 +1,13 @@
 
 
+## [3.4.32](https://github.com/erxes/erxes/compare/3.4.31...3.4.32) (2026-11-26)
+
+
+### Bug Fixes
+
+* **accounting:** get company ([607138e](https://github.com/erxes/erxes/commit/607138e37151c1cc473741874e853cce3fdceca7))
+* **payment:** check golomt errorCode when verifying payment ([#11071](https://github.com/erxes/erxes/issues/11071)) ([96a8add](https://github.com/erxes/erxes/commit/96a8adda5681044f26bedbedb2dee71706dc8d77))
+
 ## [3.4.31](https://github.com/erxes/erxes/compare/3.4.30...3.4.31) (2026-11-25)
 
 
