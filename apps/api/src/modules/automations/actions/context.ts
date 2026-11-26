@@ -30,7 +30,8 @@ export interface ActionContext extends CallContext {
  * A core action. `run` changes core's data inside the step's transaction, so
  * the change and the run's progress commit together. `call` reaches another
  * system: it runs outside any transaction, may run more than once, and sends
- * `idempotencyKey(ctx)` so the other side does the work once.
+ * `idempotencyKey(ctx)` so the other side does the work once. A `slow` call may take minutes and
+ * runs once, never retried.
  */
 export type CoreAction = ActionSpec & {
   type: string;
@@ -38,7 +39,7 @@ export type CoreAction = ActionSpec & {
   integration?: { key: string; name: string };
 } & (
     | { run: (ctx: ActionContext) => Promise<unknown> }
-    | { call: (ctx: CallContext) => Promise<unknown> }
+    | { call: (ctx: CallContext) => Promise<unknown>; slow?: true }
   );
 
 /** What an action is, apart from its type and how it runs. */

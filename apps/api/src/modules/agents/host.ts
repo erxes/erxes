@@ -225,16 +225,24 @@ export const startRun = async (
 };
 
 /**
- * Sends `prompt` to the root conversation, counted (`countRun`), and waits for the answer, with
- * the model that gave it and why it handed off; 502 `AGENT_RUN_FAILED` says why it gave none.
+ * Sends `input` to the root conversation, counted (`countRun`), after applying `change` to its
+ * agent, and waits for the answer, with the model that gave it and why it handed off; 502
+ * `AGENT_RUN_FAILED` says why it gave none.
  */
-export const askAgent = async (agent: Agent, scope: AgentScope, prompt: string) => {
+export const askAgent = async (
+  agent: Agent,
+  scope: AgentScope,
+  input: InputSubmissionDraft,
+  change?: AgentChange,
+) => {
   await countRun(scope.orgId);
 
   return withHarness(agent, scope, async (harness) => {
     const root = await harness.root(BACKGROUND_CONTEXT);
 
-    const submission = await root.submit({ type: 'input', content: prompt }, BACKGROUND_CONTEXT);
+    if (change) await root.configure(change, BACKGROUND_CONTEXT);
+
+    const submission = await root.submit(input, BACKGROUND_CONTEXT);
 
     const settled = await submission.wait(BACKGROUND_CONTEXT);
 

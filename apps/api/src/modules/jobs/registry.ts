@@ -4,7 +4,7 @@ import { pollSchedule } from '~/modules/integrations/polls';
 import { APP_WIDE_JOBS } from '~/modules/integrations/appWideEvents';
 import { subscriptionSync } from '~/modules/integrations/subscriptionSync';
 import { resealSchedule } from '~/modules/secrets/vault';
-import { advanceJob, callJob } from '~/modules/automations/engine';
+import { advanceJob, callJob, slowCallJob } from '~/modules/automations/engine';
 import { broadcastRepeat } from '~/modules/broadcasts/repeating';
 import { BROADCAST_JOBS } from '~/modules/broadcasts/starting';
 import { fireJob } from '~/modules/automations/triggers';
@@ -31,6 +31,7 @@ export const JOBS = [
   deliverJob,
   advanceJob,
   callJob,
+  slowCallJob,
   fireJob,
   emailJob,
   rampSchedule,

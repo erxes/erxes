@@ -13,7 +13,7 @@ import type { Agent, AgentScope } from '~/modules/agents/agent';
 import { apiTools, runCode } from '~/modules/apiTools/agentTools';
 import type { ToolScope } from '~/modules/apiTools/calls';
 import { installedPlugins } from '~/modules/apiTools/plugins';
-import { ASSISTANT_AGENT, MEMBER_ENTRY } from './chat.service';
+import { ASSISTANT_AGENT, MEMBER_ENTRY } from './names';
 import { connectedProviders } from './connectedProviders';
 import { instructionsFor } from './instructions';
 import { modelsFor } from './providers';

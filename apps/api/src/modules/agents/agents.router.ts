@@ -88,7 +88,7 @@ const tryAgent = async (id: string, text: string, restart: boolean) => {
     if (restart) await removeConversation(tx, agent, scope);
   });
 
-  return askAgent(agent, scope, text).catch(busy);
+  return askAgent(agent, scope, { type: 'input', content: text }).catch(busy);
 };
 
 /** The runs of the conversations the caller may read, read outside a transaction. */
