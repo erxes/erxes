@@ -1,5 +1,6 @@
 import { createHmac } from 'crypto';
 import * as jwt from 'jsonwebtoken';
+import { getJwtTokenSecret } from 'erxes-api-shared/utils';
 
 const AUDIENCE = 'erxes-form-link';
 
@@ -24,15 +25,8 @@ export type TFormLink = {
 };
 
 // Derived from the staff secret so a form link can never pass as another token.
-const formLinkSecret = () => {
-  const base = process.env.JWT_TOKEN_SECRET;
-
-  if (!base && process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_TOKEN_SECRET must be set');
-  }
-
-  return createHmac('sha256', base || 'SECRET').update(AUDIENCE).digest('hex');
-};
+const formLinkSecret = () =>
+  createHmac('sha256', getJwtTokenSecret()).update(AUDIENCE).digest('hex');
 
 export const readFormLinkDays = (value: unknown) => {
   const days = Number(value);

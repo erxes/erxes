@@ -9,6 +9,7 @@ import {
   setClientPortalHeader,
   setCPUserHeader,
   setUserHeader,
+  getJwtTokenSecret,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
@@ -273,7 +274,7 @@ export default async function userMiddleware(
     try {
       const clientPortalTokenDecoded: any = jwt.verify(
         clientPortalTokenString,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
+        getJwtTokenSecret(),
       );
 
       const clientPortal = await models.ClientPortals.findOne(
@@ -299,7 +300,7 @@ export default async function userMiddleware(
 
           const clientAuthTokenDecoded: any = jwt.verify(
             clientAuthTokenString,
-            process.env.JWT_TOKEN_SECRET || 'SECRET',
+            getJwtTokenSecret(),
           );
 
           const clientPortalUser = await models.CPUsers.findOne({
@@ -407,10 +408,7 @@ export default async function userMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const decoded: any = jwt.verify(
-      token,
-      process.env.JWT_TOKEN_SECRET || 'SECRET',
-    );
+    const decoded: any = jwt.verify(token, getJwtTokenSecret());
     const user = decoded.user;
 
     if (!user?._id) {

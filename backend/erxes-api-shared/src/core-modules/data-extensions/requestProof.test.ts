@@ -97,4 +97,15 @@ describe('missing secret', () => {
       'JWT_TOKEN_SECRET must be set',
     );
   });
+
+  it('refuses the literal SECRET and a blank secret in production', () => {
+    process.env.NODE_ENV = 'production';
+
+    for (const value of ['SECRET', '  ']) {
+      process.env.JWT_TOKEN_SECRET = value;
+      expect(() => signDataExtensionsProof('gateway', { a: 1 })).toThrow(
+        'JWT_TOKEN_SECRET must be set',
+      );
+    }
+  });
 });

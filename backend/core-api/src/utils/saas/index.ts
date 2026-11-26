@@ -4,6 +4,7 @@ import {
   getSubdomain,
   redis,
   USER_ROLES,
+  getJwtTokenSecret,
 } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -102,7 +103,7 @@ export const magiclinkCallback = async (
     // State is signed by loginWithMagicLink and names its own tenant
     const { typ, jti, userId, subdomain } = jwt.verify(
       stateStr,
-      process.env.JWT_TOKEN_SECRET || 'SECRET',
+      getJwtTokenSecret(),
     ) as IMagicLinkState;
 
     if (typ !== MAGIC_LINK_STATE || !jti || !userId || !subdomain) {

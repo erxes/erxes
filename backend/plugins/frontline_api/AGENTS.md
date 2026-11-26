@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-23`
+- **Last synchronized:** `2026-11-25`
 
 ## Scope
 
@@ -135,7 +135,8 @@
 - Automation action `frontline:form.links.create` ("Create form link",
   `form/meta/automation/createFormLinkAction.ts`): signs a form link token
   (`form/formLink.ts`, audience `erxes-form-link`, secret derived from
-  `JWT_TOKEN_SECRET`, `expiresInDays` default 30, max 365) carrying `linkId`,
+  `getJwtTokenSecret()`, which refuses an unset, blank or `SECRET` value in
+  production, `expiresInDays` default 30, max 365) carrying `linkId`,
   `formId`, the target's `customerId` / first `customerIds`, and
   `aboutRecord` = the trigger type without its relation (a ticket is
   `frontline:tickets.tickets`) + target `_id`. Output `url`
@@ -1816,8 +1817,8 @@ value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
   `updatePipeline` moves it), the same rule as `channelUpdate`.
   `createPipeline` still checks only that a user is signed in.
 - Widget identity comes only from the signed session token in the
-  `erxes-widget-token` header (`src/modules/inbox/widgetSession.ts`), issued
-  by `widgetsMessengerConnect` as `sessionToken`. Widget operations take no
+  `erxes-widget-token` header (`src/modules/inbox/widgetSession.ts`, secret
+  derived from `getJwtTokenSecret()`), issued by `widgetsMessengerConnect` as `sessionToken`. Widget operations take no
   `customerId`/`visitorId` arguments; anything addressed by id (conversation,
   ticket, comment) passes `assertOwnsConversation` / `assertOwnsTicket` and
   answers "not found" otherwise. A claimed email, phone or code never finds an

@@ -1,5 +1,9 @@
 import * as jwt from 'jsonwebtoken';
-import { getEnv, authCookieOptions } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  authCookieOptions,
+  getJwtTokenSecret,
+} from 'erxes-api-shared/utils';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
@@ -23,14 +27,7 @@ const DEFAULT_AUTH_CONFIG = {
 
 export class JwtManager {
   private getJwtSecret(): string {
-    const secret = process.env.JWT_TOKEN_SECRET || 'SECRET';
-    const NODE_ENV = process.env.NODE_ENV;
-
-    if (NODE_ENV === 'production' && (!secret || secret === 'SECRET')) {
-      throw new Error('JWT_TOKEN_SECRET must be set in production');
-    }
-
-    return secret;
+    return getJwtTokenSecret();
   }
 
   private getAuthConfig(

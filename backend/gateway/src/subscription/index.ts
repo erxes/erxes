@@ -22,7 +22,7 @@ import { gql } from '@apollo/client/core';
 import { getSubdomain } from '../util/subdomain';
 import * as jwt from 'jsonwebtoken';
 import { createHmac } from 'crypto';
-import { redis } from 'erxes-api-shared/utils';
+import { redis, getJwtTokenSecret } from 'erxes-api-shared/utils';
 import { generateModels } from '../connectionResolver';
 import {
   SECURE_SESSION_COOKIE,
@@ -49,6 +49,23 @@ function readCookie(rawCookie: string | undefined, name: string) {
   return undefined;
 }
 
+let secretErrorLogged = false;
+
+// The callers below treat any error as "not signed in"; say once why every
+// subscription is anonymous when the secret is misconfigured.
+const subscriptionJwtSecret = () => {
+  try {
+    return getJwtTokenSecret();
+  } catch (e) {
+    if (!secretErrorLogged) {
+      secretErrorLogged = true;
+      console.error(`Subscription auth disabled: ${(e as Error).message}`);
+    }
+
+    throw e;
+  }
+};
+
 // Same checks as the HTTP middleware: live session or still-valid legacy token, active user
 async function extractSubscriptionUser(request: any, subdomain: string) {
   try {
@@ -66,10 +83,7 @@ async function extractSubscriptionUser(request: any, subdomain: string) {
     const token = readCookie(rawCookie, 'auth-token');
 
     if (!userId && token) {
-      const decoded: any = jwt.verify(
-        token,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const decoded: any = jwt.verify(token, subscriptionJwtSecret());
       const legacyUserId = decoded?.user?._id;
 
       if (
@@ -117,10 +131,7 @@ function extractWidgetSession(
   }
 
   try {
-    const secret = createHmac(
-      'sha256',
-      process.env.JWT_TOKEN_SECRET || 'SECRET',
-    )
+    const secret = createHmac('sha256', subscriptionJwtSecret())
       .update(WIDGET_AUDIENCE)
       .digest('hex');
     const { integrationId, customerId, visitorId } = jwt.verify(token, secret, {

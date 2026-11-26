@@ -109,4 +109,18 @@ describe('encode/decode agent tools auth header', () => {
 
     expect(decodeAgentToolsAuthHeader(headersWith(header))).toBeNull();
   });
+
+  it('fails closed on the literal SECRET in production', () => {
+    const env = process.env.NODE_ENV;
+    process.env.JWT_TOKEN_SECRET = 'SECRET';
+    process.env.NODE_ENV = 'production';
+
+    try {
+      expect(() => encodeAgentToolsAuthHeader('tenant', 'user-1')).toThrow(
+        'JWT_TOKEN_SECRET is required',
+      );
+    } finally {
+      process.env.NODE_ENV = env;
+    }
+  });
 });
