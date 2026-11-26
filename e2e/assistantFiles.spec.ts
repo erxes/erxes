@@ -1,3 +1,4 @@
+import { ASSISTANT_TEXT_MAX } from '@erxes/core-contract';
 import type { Locator, Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { ask, connectFakeModel, openAssistant } from './assistantPanel';
@@ -50,6 +51,35 @@ test('a member attaches a file, the reply reads it, and its card stays after a r
   await page.reload();
   await expect(panel.getByRole('link', { name: new RegExp(name) })).toBeVisible();
   await expect(panel.getByText(/Its first line is: City,Orders\./)).toBeVisible();
+});
+
+test('a long paste becomes a text file the reply reads, and the message box stays empty', async ({
+  page,
+}) => {
+  const panel = await openAssistant(page);
+  const composer = panel.getByRole('textbox', { name: 'Message' });
+  const line = `Order ${unique()} shipped to Darkhan\n`;
+
+  await composer.evaluate(
+    (box, text) => {
+      const clipboardData = new DataTransfer();
+
+      clipboardData.setData('text/plain', text);
+      box.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true }));
+    },
+    line.repeat(Math.ceil(ASSISTANT_TEXT_MAX / line.length) + 1),
+  );
+
+  const tray = panel.getByRole('list', { name: 'To send' });
+
+  await expect(tray.getByText('Pasted text.txt')).toBeVisible();
+  await expect(tray.getByText(/^TXT · \d+ KB$/)).toBeVisible();
+  await expect(composer).toHaveValue('');
+
+  await ask(panel, 'What is in the file I attached?');
+  await expect(
+    panel.getByText(`I read Pasted text.txt. Its first line is: ${line.trim()}.`),
+  ).toBeVisible();
 });
 
 test('a member selects part of the page and the reply knows what and where it is', async ({

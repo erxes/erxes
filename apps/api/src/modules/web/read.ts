@@ -1,7 +1,7 @@
 import { extractFromHtml } from '@extractus/article-extractor';
-import { AssistantDocumentType } from '@erxes/core-contract';
+import { ASSISTANT_TEXT_MAX, AssistantDocumentType } from '@erxes/core-contract';
 import { NodeHtmlMarkdown } from 'node-html-markdown';
-import { ATTACHMENT_TEXT_MAX, DOCUMENT_FORMATS } from '~/modules/assistant/attachments';
+import { DOCUMENT_FORMATS } from '~/modules/assistant/attachments';
 import { documentText } from '~/modules/assistant/documentText';
 import { getPage, type Page } from './getPage';
 
@@ -37,7 +37,7 @@ const contentOf = async (page: Page) => {
     const read = await documentText(
       page.bytes,
       DOCUMENT_FORMATS[document.data],
-      ATTACHMENT_TEXT_MAX,
+      ASSISTANT_TEXT_MAX,
     );
 
     return { title: '', text: read.text };
@@ -57,7 +57,7 @@ export const readPage = async (url: string) => {
   return {
     url: page.url,
     title,
-    content: content.slice(0, ATTACHMENT_TEXT_MAX),
-    truncated: content.length > ATTACHMENT_TEXT_MAX,
+    content: content.slice(0, ASSISTANT_TEXT_MAX),
+    truncated: content.length > ASSISTANT_TEXT_MAX,
   };
 };

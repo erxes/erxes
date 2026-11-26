@@ -18,6 +18,8 @@ const ASSISTANT_FILE_MAX_MB = 10;
 
 export const ASSISTANT_SELECTION_TEXT_MAX = 8000;
 
+export const ASSISTANT_TEXT_MAX = 30_000;
+
 export const ASSISTANT_ARTIFACT_MAX_CHARS = 200_000;
 
 export const AssistantImageType = z.enum(ASSISTANT_IMAGE_TYPES);

@@ -1,5 +1,6 @@
 import {
   ASSISTANT_DATA_PARTS,
+  ASSISTANT_TEXT_MAX,
   AssistantAction,
   type AssistantAttachment,
   type AssistantSendRequest,
@@ -107,6 +108,12 @@ export const readTurnContext = async (
   );
 
   if (other) throw invalid(`A message cannot carry ${other.type} parts; attach files instead`);
+
+  if (textOf(message.parts).length > ASSISTANT_TEXT_MAX) {
+    throw invalid(
+      `A message can be up to ${ASSISTANT_TEXT_MAX.toLocaleString('en-US')} characters; attach longer text as a file`,
+    );
+  }
 
   const mentions = await readMentions(message.parts);
   const page = await readPage(message.parts);
