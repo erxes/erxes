@@ -1,10 +1,15 @@
-import { type Caller, enterScope } from '@erxes/core-db';
+import { type Caller, enterScope, withOrg } from '@erxes/core-db';
 import { call, getRouter, isProcedure } from '@orpc/server';
 import { z } from 'zod';
 import { can, decideKeyCall, memberMayCall } from '~/http/access';
 import { decidePluginKey } from '~/http/keyRules';
 import { coreRouter } from '~/router';
 import { type ApiProcedure, apiCatalog, needsPerson } from './catalog';
+import {
+  type IntegrationProcedure,
+  integrationProcedures,
+  runIntegrationAction,
+} from './integrationActions';
 import { type PluginProcedure, pluginProcedures } from './pluginDocument';
 import { callPluginProcedure, callPluginRoute } from './pluginOperations';
 import type { InstalledPlugin } from './plugins';
@@ -22,6 +27,8 @@ export interface ToolScope {
    */
   unattended: boolean;
   plugins: InstalledPlugin[];
+  /** The assistant: also the connected apps' actions, on the member's own connection first. */
+  apps?: true;
   /** Turns the records in a result into references the reader can open; the assistant's chat. */
   references?: (schema: unknown, result: unknown) => Promise<IssuedReference[]>;
   /**
@@ -95,9 +102,20 @@ const coversName = ({ name }: ApiProcedure, tokens: string[]) => {
   return words.length > 0 && words.every((word) => tokens.includes(word));
 };
 
-type Entry = ApiProcedure | PluginProcedure;
+type Entry = ApiProcedure | PluginProcedure | IntegrationProcedure;
 
 const isPluginEntry = (entry: Entry): entry is PluginProcedure => 'plugin' in entry;
+
+const isAppEntry = (entry: Entry): entry is IntegrationProcedure => 'integration' in entry;
+
+/** The actions of the apps the member has a connection to, read as them. */
+const appProcedures = async (scope: ToolScope) => {
+  const member = scope.apps ? await scope.caller() : null;
+
+  return member
+    ? enterScope(member, scope.orgId, () => withOrg(scope.orgId, integrationProcedures))
+    : [];
+};
 
 /** The routes of the plugins on the scope's portal: guests', and a signed-in customer's own. */
 const portalProcedures = async ({ portal, plugins }: ToolScope) => {
@@ -113,11 +131,12 @@ const portalProcedures = async ({ portal, plugins }: ToolScope) => {
   return portal.signedIn ? routes : routes.filter((route) => !route.signedIn);
 };
 
-/** Every route the scope reaches: core's, plugins' member routes, and its portal's. */
+/** Every route the scope reaches: core's, plugins' member routes, its portal's and its apps'. */
 const entriesOf = async (scope: ToolScope): Promise<Entry[]> => [
   ...apiCatalog().values(),
   ...(await pluginProcedures(scope.plugins)),
   ...(await portalProcedures(scope)),
+  ...(await appProcedures(scope)),
 ];
 
 const findEntry = async (scope: ToolScope, name: string) =>
@@ -134,6 +153,8 @@ const withheld = (scope: ToolScope, entry: Entry) =>
  * checks the rest.
  */
 const mayCall = (member: Member, entry: Entry) => {
+  if (isAppEntry(entry)) return !member.key;
+
   if (!isPluginEntry(entry)) {
     return member.key
       ? decideKeyCall({ ...member, key: member.key }, entry.name).allowed
@@ -239,6 +260,8 @@ export const callProcedure = async (
   const { portal } = scope;
 
   const run = () => {
+    if (isAppEntry(entry)) return runIntegrationAction(scope.orgId, name, input);
+
     if (!isPluginEntry(entry)) return runCore(scope, name, input);
 
     if (entry.audience !== 'member' && portal) {

@@ -119,6 +119,10 @@ const isStream = (procedure: AnyContractProcedure) => {
   return isSchema(schema) && getEventIteratorSchemaDetails(schema) !== undefined;
 };
 
+/** The JSON schema of what a zod schema takes. */
+export const inputSchemaOf = (schema: AnySchema) =>
+  converter.convert(schema, { strategy: 'input' })[1];
+
 const jsonSchema = (procedure: AnyContractProcedure, strategy: 'input' | 'output') => {
   const schema: unknown =
     strategy === 'input' ? procedure['~orpc'].inputSchema : procedure['~orpc'].outputSchema;
