@@ -4,11 +4,8 @@ import {
   AssistantMentions,
   type AssistantMessagePart,
 } from '@erxes/core-contract';
-import { IconBolt, IconTag } from '@tabler/icons-react';
+import { IconTag } from '@tabler/icons-react';
 import { badgeVariants, cn } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { paths } from '~/lib/paths';
 import { CopyButton } from './CopyButton';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageText } from './MessageText';
@@ -91,21 +88,6 @@ const automationOf = (parts: AssistantMessagePart[]) =>
     part.type === 'data-automation' ? (AssistantAutomation.safeParse(part['data']).data ?? []) : [],
   )[0];
 
-const AutomationTag = ({ automation }: { automation: AssistantAutomation }) => {
-  const { t } = useTranslation('assistant');
-
-  return (
-    <Link
-      to={paths.automations.automation(automation.id)}
-      title={automation.name}
-      className={cn(badgeVariants({ variant: 'secondary' }), 'mr-1.5 align-text-bottom')}
-    >
-      <IconBolt aria-hidden className="size-3 shrink-0" />
-      {t('from-automation', 'Automation')}
-    </Link>
-  );
-};
-
 export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
   const text = userText(parts);
   const automation = automationOf(parts);
@@ -118,9 +100,13 @@ export const UserMessage = ({ parts }: { parts: AssistantMessagePart[] }) => {
           <div className="flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             <CopyButton text={text} />
           </div>
-          <p className="max-w-5/6 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
-            {automation && <AutomationTag automation={automation} />}
-            <MessageText text={text} mentions={mentionsOf(parts)} />
+          <p className="flex max-w-5/6 items-center gap-1.5 rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
+            {automation && (
+              <RecordChip type="automation" id={automation.id} label={automation.name} />
+            )}
+            <span className="min-w-0">
+              <MessageText text={text} mentions={mentionsOf(parts)} />
+            </span>
           </p>
         </div>
       )}

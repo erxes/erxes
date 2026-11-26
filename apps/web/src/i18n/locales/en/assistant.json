@@ -1,7 +1,6 @@
 {
   "title": "Assistant",
   "back": "Back",
-  "from-automation": "Automation",
   "composer": {
     "label": "Message",
     "placeholder": "Ask anything, @ to mention a record",
