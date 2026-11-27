@@ -61,9 +61,7 @@ const cleanup = async () => {
 
   await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
   await purgeDeletedRecords();
-  await withSystem('cleanup: data extension values of removed records', (tx) =>
-    sweepRemovedRecords(tx),
-  );
+  await sweepRemovedRecords();
   // Read-only plugins past their grace period turn off here.
   await refreshAllEntitlements();
   await withSystem('cleanup: deletion counters', (tx) =>

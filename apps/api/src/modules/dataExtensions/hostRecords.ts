@@ -7,6 +7,7 @@ import {
   products,
   trash,
   withOrg,
+  withSystem,
 } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { and, eq, type SQL, sql } from 'drizzle-orm';
@@ -196,13 +197,17 @@ const goneFromCore =
     }`;
 
 /**
- * Housekeeping (system scope), each organisation that uses Data Extensions: values and links
- * of core records deleted for good, and the value history of custom records purged.
+ * Housekeeping, each organisation that uses Data Extensions: values and links of core records
+ * deleted for good, and the value history of custom records purged. Each organisation commits
+ * on its own, so the job holds one organisation's locks at a time: one transaction over all of
+ * them would fill Postgres's lock table and fail other organisations' requests.
  */
-export const sweepRemovedRecords = async (client: Db) => {
-  const tables = await client
-    .select({ orgId: dataTables.orgId, recordType: dataTables.recordType, kind: dataTables.kind })
-    .from(dataTables);
+export const sweepRemovedRecords = async () => {
+  const tables = await withSystem('cleanup: data extension values of removed records', (tx) =>
+    tx
+      .select({ orgId: dataTables.orgId, recordType: dataTables.recordType, kind: dataTables.kind })
+      .from(dataTables),
+  );
 
   const orgs = [...new Set(tables.map((table) => table.orgId))];
 
