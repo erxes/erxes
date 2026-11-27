@@ -21,7 +21,7 @@ export const DashboardToolbar = () => {
       // Narrow screens stack the tiles, so there is nothing to arrange there
       <Button
         variant="secondary"
-        className="hidden md:inline-flex"
+        className="hidden shadow-2xs transition-[transform,box-shadow] duration-150 hover:shadow-xs active:scale-95 md:inline-flex"
         disabled={loading}
         onClick={startEditing}
       >
@@ -34,15 +34,29 @@ export const DashboardToolbar = () => {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {isCustomized && (
-        <Button variant="ghost" disabled={saving} onClick={resetLayout}>
+        <Button
+          variant="ghost"
+          className="transition-transform active:scale-95"
+          disabled={saving}
+          onClick={resetLayout}
+        >
           <IconRestore />
           {t('reset')}
         </Button>
       )}
-      <Button variant="ghost" disabled={saving} onClick={cancelEditing}>
+      <Button
+        variant="ghost"
+        className="transition-transform active:scale-95"
+        disabled={saving}
+        onClick={cancelEditing}
+      >
         {t('cancel')}
       </Button>
-      <Button disabled={saving} onClick={() => finishEditing()}>
+      <Button
+        className="shadow-xs transition-transform active:scale-95"
+        disabled={saving}
+        onClick={() => finishEditing()}
+      >
         {saving && <Spinner size="sm" />}
         {t('done')}
       </Button>

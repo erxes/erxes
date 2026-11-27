@@ -10,12 +10,12 @@ export const SettingsAppearancePage = () => {
   return (
     <PageContainer>
       <SettingsBreadcrumbs />
-      <ScrollArea>
-        <section className="relative mx-auto w-full max-w-2xl">
-          <h2 className="mt-4 mb-8 px-4 text-lg font-semibold">
+      <ScrollArea className="ui-home-backdrop bg-muted/20">
+        <section className="relative mx-auto w-full max-w-2xl px-4 py-6">
+          <h2 className="mb-6 text-xl font-semibold tracking-tight">
             {t('appearance', 'Appearance')}
           </h2>
-          <div className="mb-5 px-4">
+          <div className="mb-6">
             <AppearanceSettings />
           </div>
         </section>

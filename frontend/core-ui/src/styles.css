@@ -568,3 +568,102 @@
   50% { transform: translate3d(-18px, 52vh, 0) rotate(160deg); }
   to { transform: translate3d(14px, 105vh, 0) rotate(320deg); }
 }
+
+/* Interactive surfaces, spotlight hover, and subtle ambient motion */
+.ui-spotlight-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    background-color 200ms ease,
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ui-spotlight-card::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 240ms ease;
+  background: radial-gradient(
+    220px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    color-mix(in oklch, var(--primary) 13%, transparent),
+    transparent 70%
+  );
+}
+
+.ui-spotlight-card:hover::before {
+  opacity: 1;
+}
+
+.ui-banner-spotlight::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 320ms ease;
+  background: radial-gradient(
+    520px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    color-mix(in oklch, var(--primary) 26%, transparent),
+    transparent 65%
+  );
+}
+
+.ui-banner-spotlight:hover::before {
+  opacity: 1;
+}
+
+.ui-home-backdrop {
+  background-image:
+    radial-gradient(
+      60% 42% at 12% 0%,
+      color-mix(in oklch, var(--primary) 8%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 36% at 88% 4%,
+      color-mix(in oklch, var(--info) 6%, transparent),
+      transparent 72%
+    );
+}
+
+.dark .ui-home-backdrop {
+  background-image:
+    radial-gradient(
+      60% 42% at 12% 0%,
+      color-mix(in oklch, var(--primary) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 36% at 88% 4%,
+      color-mix(in oklch, var(--info) 10%, transparent),
+      transparent 72%
+    );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-spotlight-card:hover {
+    transform: translateY(-2px);
+  }
+  .ui-spotlight-card:active {
+    transform: translateY(0) scale(0.985);
+  }
+  .ui-orb-float {
+    animation: ui-orb-float 16s ease-in-out infinite alternate;
+  }
+  .ui-orb-float-delayed {
+    animation: ui-orb-float 20s ease-in-out -6s infinite alternate-reverse;
+  }
+}
+
+@keyframes ui-orb-float {
+  from {
+    transform: translate3d(-12px, -8px, 0) scale(1);
+  }
+  to {
+    transform: translate3d(18px, 14px, 0) scale(1.08);
+  }
+}

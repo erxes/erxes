@@ -93,7 +93,7 @@ export const CoreTab = ({
         variant="ghost"
       >
         <Link aria-label={companyName} to={AppPath.Index}>
-          <span className="flex size-6 items-center justify-center rounded-md border border-border/60 bg-background shadow-xs [&>img]:size-4! [&>svg]:size-4!">
+          <span className="flex size-6 items-center justify-center rounded-md border border-border/70 bg-background shadow-xs transition-[transform,border-color,box-shadow] duration-200 hover:scale-105 hover:border-primary/40 hover:shadow-sm active:scale-95 [&>img]:size-4! [&>svg]:size-4!">
             <OrgLogoIcon className="text-primary" />
           </span>
         </Link>
@@ -192,7 +192,7 @@ export const CoreTab = ({
   return (
     <CoreTabSideContext.Provider value={atEnd ? 'top' : 'bottom'}>
       <Tooltip.Provider delayDuration={300}>
-        <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2 group-data-[framed=true]/layout:border-b-0 group-data-[framed=true]/layout:bg-transparent dark:group-data-[framed=true]/layout:text-primary-foreground">
+        <header className="flex h-12 shrink-0 items-center gap-1 border-b border-border/80 bg-sidebar/90 px-2 backdrop-blur-md group-data-[framed=true]/layout:border-b-0 group-data-[framed=true]/layout:bg-transparent group-data-[framed=true]/layout:backdrop-blur-none dark:group-data-[framed=true]/layout:text-primary-foreground">
           {brand}
           {switcher}
           {appTabs}

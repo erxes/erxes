@@ -41,10 +41,18 @@ export function SettingsBreadcrumbs({
         <Breadcrumb>
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
-              <Button variant="ghost" asChild>
+              <Button
+                variant="ghost"
+                className="gap-2 rounded-lg px-2 font-medium transition-[background-color,transform] duration-150 active:scale-[0.98]"
+                asChild
+              >
                 <Link to={pathname}>
-                  {Icon && <Icon />}
-                  {currentPath?.name}
+                  {Icon && (
+                    <span className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <Icon className="size-3.5" />
+                    </span>
+                  )}
+                  <span>{currentPath?.name}</span>
                 </Link>
               </Button>
             </Breadcrumb.Item>

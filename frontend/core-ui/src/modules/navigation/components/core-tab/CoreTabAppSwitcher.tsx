@@ -58,9 +58,9 @@ const CoreTabAppSwitcherItem = ({
       ref={setNodeRef}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group/app h-8 min-w-0 justify-start gap-2 pr-1 pl-2 text-sm font-medium',
+        'group/app h-9 min-w-0 justify-start gap-2.5 rounded-lg pr-1.5 pl-2 text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-150 hover:bg-accent/80 active:scale-[0.98]',
         active &&
-          'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary',
+          'bg-primary/10 text-primary ring-1 ring-primary/15 hover:bg-primary/15 hover:text-primary',
         isDragging && 'relative z-10 bg-accent opacity-80 shadow-sm',
       )}
       style={{ transform: CSS.Transform.toString(transform), transition }}
@@ -68,7 +68,14 @@ const CoreTabAppSwitcherItem = ({
       type="button"
       variant="ghost"
     >
-      <Icon className="size-4 shrink-0" />
+      <span
+        className={cn(
+          'flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/80 text-muted-foreground transition-[background-color,color,transform] duration-150 group-hover/app:scale-105 group-hover/app:bg-primary/12 group-hover/app:text-primary',
+          active && 'bg-primary/15 text-primary',
+        )}
+      >
+        <Icon className="size-3.5 shrink-0" />
+      </span>
       <span className="flex-1 truncate text-left">{activity.label}</span>
       <IconGripVertical
         aria-hidden
@@ -204,7 +211,7 @@ export const CoreTabAppSwitcher = ({
       </CoreTabTooltip>
       <Popover.Content
         align="start"
-        className="flex max-h-[var(--radix-popover-content-available-height)] w-80 flex-col overflow-hidden rounded-xl border-border/60 p-1.5 shadow-lg"
+        className="flex max-h-[var(--radix-popover-content-available-height)] w-80 flex-col overflow-hidden rounded-xl border-border/70 bg-background/95 p-2 shadow-xl backdrop-blur-md"
         side={side}
         sideOffset={8}
       >

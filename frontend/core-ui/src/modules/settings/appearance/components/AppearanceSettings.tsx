@@ -1,5 +1,7 @@
-import { IconCalendarEvent } from '@tabler/icons-react';
+import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
+import { IconCalendarEvent, IconCheck } from '@tabler/icons-react';
 import { ToggleGroup, cn } from 'erxes-ui';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   APPEARANCE_LAYOUTS,
@@ -43,7 +45,10 @@ const POSITION_LABELS: Record<
 };
 
 const swatchClassName =
-  'h-auto gap-2 rounded-lg border py-1.5 pr-3 pl-1.5 data-[state=on]:border-primary data-[state=on]:ring-1 data-[state=on]:ring-primary';
+  'group/swatch h-auto gap-2 rounded-xl border border-border/80 bg-background/80 py-1.5 pr-3 pl-1.5 shadow-2xs transition-[transform,border-color,background-color,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xs active:scale-95 data-[state=on]:border-primary data-[state=on]:bg-primary/5 data-[state=on]:ring-2 data-[state=on]:ring-primary/20';
+
+const settingsCardClassName =
+  'space-y-4 rounded-2xl border border-border/75 bg-background/95 p-5 shadow-2xs backdrop-blur-xs';
 
 // A thumbnail of the shell: navigation bar or rail plus the app area.
 const LayoutPreview = ({
@@ -61,7 +66,7 @@ const LayoutPreview = ({
   return (
     <div
       className={cn(
-        'flex h-24 w-full overflow-hidden rounded-md border bg-background',
+        'flex h-24 w-full overflow-hidden rounded-lg border border-border/70 bg-background shadow-2xs transition-transform duration-200 group-hover/layout-card:scale-[1.015]',
         framed && 'frame-fill',
         layout === 'sidebar' && (atEnd ? 'flex-row-reverse' : 'flex-row'),
         layout !== 'sidebar' && (atEnd ? 'flex-col-reverse' : 'flex-col'),
@@ -106,6 +111,7 @@ const LayoutPreview = ({
 export const AppearanceSettings = () => {
   const { t } = useTranslation('organization');
   const { appearance, setAppearance } = useAppearance();
+  const prefersReducedMotion = useReducedMotion();
   const frame = resolveFrameStyle(appearance.frameColor);
   const frameDisabled = appearance.layout === 'default';
   const positionLabels =
@@ -121,21 +127,26 @@ export const AppearanceSettings = () => {
     <ToggleGroup.Item key={color} value={color} className={swatchClassName}>
       <span
         className={cn(
-          'flex size-5 items-center justify-center rounded-full border border-foreground/10',
+          'flex size-5 items-center justify-center rounded-full border border-foreground/15 shadow-2xs transition-transform duration-150 group-hover/swatch:scale-110',
           swatchProps(color).className,
         )}
         style={swatchProps(color).style}
       >
         {color === 'seasonal' && <IconCalendarEvent className="size-3" />}
       </span>
-      <span className="text-sm">{t(`notch-${color}`)}</span>
+      <span className="text-sm font-medium">{t(`notch-${color}`)}</span>
     </ToggleGroup.Item>
   );
 
   return (
-    <div className="space-y-8">
-      <section className="space-y-3">
-        <div>
+    <div className="space-y-5">
+      <motion.section
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: NAVIGATION_EASE }}
+        className={settingsCardClassName}
+      >
+        <div className="space-y-1">
           <h3 className="text-sm font-semibold">
             {t('appearance-layout', 'Layout')}
           </h3>
@@ -147,7 +158,7 @@ export const AppearanceSettings = () => {
           </p>
         </div>
         <ToggleGroup
-          className="grid grid-cols-3 gap-3"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-3"
           type="single"
           value={appearance.layout}
           onValueChange={(value) => {
@@ -156,69 +167,98 @@ export const AppearanceSettings = () => {
             }
           }}
         >
-          {APPEARANCE_LAYOUTS.map((layout) => (
-            <ToggleGroup.Item
-              key={layout}
-              value={layout}
-              className="h-auto flex-col items-stretch gap-2 rounded-lg border p-2 data-[state=on]:border-primary data-[state=on]:bg-primary/5 data-[state=on]:ring-1 data-[state=on]:ring-primary"
-            >
-              <LayoutPreview
-                layout={layout}
-                frame={frame}
-                navPosition={appearance.navPosition}
-              />
-              <span className="text-sm font-medium">
-                {t(`appearance-${layout}`)}
-              </span>
-            </ToggleGroup.Item>
-          ))}
+          {APPEARANCE_LAYOUTS.map((layout) => {
+            const selected = appearance.layout === layout;
+
+            return (
+              <ToggleGroup.Item
+                key={layout}
+                value={layout}
+                className="group/layout-card relative h-auto flex-col items-stretch gap-2.5 rounded-xl border border-border/80 bg-muted/20 p-2.5 transition-[transform,border-color,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm active:scale-[0.985] data-[state=on]:border-primary data-[state=on]:bg-primary/5 data-[state=on]:shadow-xs data-[state=on]:ring-2 data-[state=on]:ring-primary/20"
+              >
+                <LayoutPreview
+                  layout={layout}
+                  frame={frame}
+                  navPosition={appearance.navPosition}
+                />
+                <span className="flex items-center justify-center gap-1.5 text-sm font-medium">
+                  {selected && (
+                    <span className="flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <IconCheck className="size-2.5" stroke={3} />
+                    </span>
+                  )}
+                  <span>{t(`appearance-${layout}`)}</span>
+                </span>
+              </ToggleGroup.Item>
+            );
+          })}
         </ToggleGroup>
-      </section>
+      </motion.section>
 
-      {positionLabels && (
-        <section className="space-y-3">
-          <div>
-            <h3 className="text-sm font-semibold">
-              {t('appearance-position', 'Position')}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                'appearance-position-description',
-                'Which edge of the frame the app tabs sit on.',
-              )}
-            </p>
-          </div>
-          <ToggleGroup
-            className="flex justify-start gap-3"
-            type="single"
-            value={appearance.navPosition}
-            onValueChange={(value) => {
-              if (isNavPosition(value)) {
-                setAppearance({ navPosition: value });
-              }
-            }}
+      <AnimatePresence initial={false}>
+        {positionLabels && (
+          <motion.section
+            key="appearance-position"
+            initial={
+              prefersReducedMotion ? false : { opacity: 0, y: -6, scale: 0.99 }
+            }
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={
+              prefersReducedMotion
+                ? undefined
+                : { opacity: 0, y: -6, scale: 0.99 }
+            }
+            transition={{ duration: 0.22, ease: NAVIGATION_EASE }}
+            className={settingsCardClassName}
           >
-            {NAV_POSITIONS.map((position) => {
-              const label = positionLabels[position];
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold">
+                {t('appearance-position', 'Position')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  'appearance-position-description',
+                  'Which edge of the frame the app tabs sit on.',
+                )}
+              </p>
+            </div>
+            <ToggleGroup
+              className="flex justify-start gap-2.5"
+              type="single"
+              value={appearance.navPosition}
+              onValueChange={(value) => {
+                if (isNavPosition(value)) {
+                  setAppearance({ navPosition: value });
+                }
+              }}
+            >
+              {NAV_POSITIONS.map((position) => {
+                const label = positionLabels[position];
 
-              return (
-                <ToggleGroup.Item
-                  key={position}
-                  value={position}
-                  className={swatchClassName}
-                >
-                  <span className="px-1.5 text-sm">
-                    {t(`appearance-position-${label}`)}
-                  </span>
-                </ToggleGroup.Item>
-              );
-            })}
-          </ToggleGroup>
-        </section>
-      )}
+                return (
+                  <ToggleGroup.Item
+                    key={position}
+                    value={position}
+                    className={swatchClassName}
+                  >
+                    <span className="px-2 text-sm font-medium">
+                      {t(`appearance-position-${label}`)}
+                    </span>
+                  </ToggleGroup.Item>
+                );
+              })}
+            </ToggleGroup>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
-      <section className="space-y-3">
-        <div>
+      <motion.section
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.06, ease: NAVIGATION_EASE }}
+        className={cn(settingsCardClassName, frameDisabled && 'opacity-70')}
+      >
+        <div className="space-y-1">
           <h3 className="text-sm font-semibold">
             {t('appearance-notch-color', 'Frame color')}
           </h3>
@@ -235,7 +275,7 @@ export const AppearanceSettings = () => {
           </p>
         </div>
         <ToggleGroup
-          className="flex flex-wrap justify-start gap-3"
+          className="flex flex-wrap justify-start gap-2.5"
           disabled={frameDisabled}
           type="single"
           value={appearance.frameColor}
@@ -243,7 +283,7 @@ export const AppearanceSettings = () => {
         >
           {COLORS.map(renderSwatch)}
         </ToggleGroup>
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2.5 border-t border-border/60 pt-4">
           <p className="text-sm text-muted-foreground">
             {t(
               'appearance-themes-description',
@@ -251,7 +291,7 @@ export const AppearanceSettings = () => {
             )}
           </p>
           <ToggleGroup
-            className="flex flex-wrap justify-start gap-3"
+            className="flex flex-wrap justify-start gap-2.5"
             disabled={frameDisabled}
             type="single"
             value={appearance.frameColor}
@@ -260,7 +300,7 @@ export const AppearanceSettings = () => {
             {THEMES.map(renderSwatch)}
           </ToggleGroup>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };
