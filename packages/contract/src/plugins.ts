@@ -55,6 +55,23 @@ export const PluginManifest = z.object({
    * none for an `own` plugin's invoices, so no invoice gets two.
    */
   taxReceipts: z.enum(TAX_RECEIPT_ISSUERS).optional(),
+  /**
+   * Self-hosted, it runs only where the server's erxes license names it (`ERXES_LICENSE`):
+   * without one, members can't open it. On erxes.io the plan decides, as for every plugin.
+   */
+  requiresLicense: z.boolean().optional(),
+  /**
+   * Whose part it is: `core`, or the plugin it extends (`sales`, for sales' enterprise edition).
+   * Web lists its apps with that one's: with core's modules, or right after the plugin's.
+   */
+  extends: z.union([z.literal('core'), PluginName]).optional(),
+  /**
+   * A sign-in provider: members sign in with their account in another system (a company
+   * directory). The sign-in screen offers it under `label`; core POSTs what they type to
+   * `<api.url>/auth/sign-in` (`verifyCoreSignIn`) and the plugin answers who they are. Only where
+   * the owner granted `users:sign_in`.
+   */
+  signIn: z.object({ label: z.string().trim().min(1).max(60) }).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */
   ui: z
     .object({
@@ -243,6 +260,7 @@ export const Plugin = createSelectSchema(plugins, {
       version: true,
       description: true,
       countries: true,
+      extends: true,
       ui: true,
       api: true,
       search: true,

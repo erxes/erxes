@@ -4,6 +4,7 @@ import { pollSchedule } from '~/modules/integrations/polls';
 import { APP_WIDE_JOBS } from '~/modules/integrations/appWideEvents';
 import { subscriptionSync } from '~/modules/integrations/subscriptionSync';
 import { resealSchedule } from '~/modules/secrets/vault';
+import { licenseSchedule } from '~/modules/license/activation';
 import { advanceJob, callJob, slowCallJob } from '~/modules/automations/engine';
 import { broadcastRepeat } from '~/modules/broadcasts/repeating';
 import { BROADCAST_JOBS } from '~/modules/broadcasts/starting';
@@ -59,6 +60,7 @@ export const JOBS = [
   ...MAINTENANCE,
   auditStreamsSchedule,
   resealSchedule,
+  licenseSchedule,
   subscriptionSync,
   ...APP_WIDE_JOBS,
   pollSchedule,

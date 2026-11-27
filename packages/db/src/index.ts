@@ -107,10 +107,12 @@ export {
   tags,
   trash,
   deletionCounters,
+  userIdentities,
   users,
   webhookDeliveries,
   webhooks,
   secrets,
+  serverLicense,
   supportVisits,
 } from './schema';
 

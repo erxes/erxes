@@ -1,4 +1,5 @@
 import { env } from './env';
+import { ERXES_LICENSE_KEYS } from './modules/license/keys';
 
 const isProduction = env.NODE_ENV === 'production';
 const dataUrl = env.DATA_URL ?? 'postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes';
@@ -217,6 +218,20 @@ export const config = {
     /** Where owners manage the subscription; `{subdomain}` is replaced. */
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
   },
+  /**
+   * Self-hosted: the erxes license (`ERXES_LICENSE`, a JWT erxes signs) and erxes' public keys
+   * that verify it, built into core (`ERXES_LICENSE_KEYS`). A plugin whose manifest says
+   * `requiresLicense` runs only where the license names it; every other plugin runs regardless.
+   * With `activationKey` instead, core fetches the license from erxes.io (`issuer`) every day.
+   */
+  license: {
+    token: env.ERXES_LICENSE,
+    keys: ERXES_LICENSE_KEYS,
+    activationKey: env.ERXES_ACTIVATION_KEY,
+    issuer: env.SAAS_PLATFORM_URL,
+  },
+  /** The build this is, as a self-hosted server reports it to erxes.io. */
+  version: env.VERSION ?? 'dev',
   assistant: { endpoints: assistantEndpoints },
   web: { searchUrl: 'https://html.duckduckgo.com/html/' },
   /** Secret → plugin name. */

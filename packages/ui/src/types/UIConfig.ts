@@ -299,6 +299,12 @@ export type IUIConfig = {
      */
     subGroup?: () => React.ReactNode;
   };
+  /**
+   * Its apps: each gets its own tab and mounts at `/<path>/*`, rendering the remote's
+   * `./<name>`. Record and settings pages go under one of them. None: one app at `path`.
+   * A plugin whose manifest `extends` core sits with core's modules; one that extends a plugin,
+   * right after that plugin's.
+   */
   modules?: {
     name: string;
     icon?: React.ElementType;

@@ -22,6 +22,7 @@ import {
   IconKey,
   IconPlug,
   IconTrash,
+  IconCertificate,
   IconCreditCard,
   IconCurrencyDollar,
   IconUserCircle,
@@ -70,6 +71,9 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : [{ name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps }]),
     ...(plan?.saas
       ? [{ name: t('plan', 'Plan'), to: paths.settings.plan, icon: IconCreditCard }]
+      : []),
+    ...(plan && !plan.saas
+      ? [{ name: t('license', 'License'), to: paths.settings.license, icon: IconCertificate }]
       : []),
     ...(plan?.saas && can('support.manage')
       ? [

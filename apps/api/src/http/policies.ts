@@ -1,4 +1,5 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
+import { AUTH_ACCESS } from './authPolicies';
 import { MESSAGING_ACCESS } from './messagingPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
@@ -62,21 +63,7 @@ export const ACCESS = {
   'audit.removeStream': needs('audit.stream'),
   'audit.testStream': needs('audit.stream'),
 
-  'auth.setupStatus': PUBLIC,
-  'auth.setup': PUBLIC,
-  'auth.signIn': PUBLIC,
-  'auth.signOut': PUBLIC,
-  'auth.signOutEverywhere': MEMBER,
-  'auth.signInTwoFactor': PUBLIC,
-  'auth.twoFactorSetup': MEMBER,
-  'auth.twoFactorEnable': MEMBER,
-  'auth.twoFactorDisable': MEMBER,
-  'auth.twoFactorRecoveryCodes': MEMBER,
-  'auth.requestPasswordReset': PUBLIC,
-  'auth.resetPassword': PUBLIC,
-  'auth.invitation': PUBLIC,
-  'auth.acceptInvitation': PUBLIC,
-  'auth.me': MEMBER,
+  ...AUTH_ACCESS,
   // Transfer checks per record type: contacts.import and contacts.export for core's,
   // the manifest's exportPermission and importPermission for a plugin's.
   'transfer.types': MEMBER,
@@ -107,10 +94,10 @@ export const ACCESS = {
   'views.fields': MEMBER,
   'views.matches': { plugin: 'views:read' },
   'saas.plan': MEMBER,
+  // Every member sees whether the license holds; who manages plugins asks erxes.io again.
+  'license.status': MEMBER,
+  'license.refresh': needs('plugins.manage'),
   'saas.pluginPlan': { plugin: 'installed' },
-  'auth.onboarded': MEMBER,
-  'auth.changePassword': MEMBER,
-  'auth.signIns': MEMBER,
 
   ...CUSTOMER_ACCESS,
 

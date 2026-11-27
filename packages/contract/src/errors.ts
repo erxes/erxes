@@ -93,7 +93,10 @@ export const ERRORS = {
   TOO_MANY_CODES: { status: 429 },
   ORIGIN_NOT_ALLOWED: { status: 403 },
   UNKNOWN_PORTAL: { status: 400 },
-  /** The portal doesn't sign in this way, or codes can't reach this kind of address here. */
+  /**
+   * The portal doesn't sign in this way, or codes can't reach this kind of address here; for
+   * members, the plugin named isn't a sign-in provider of the organisation.
+   */
   SIGN_IN_UNAVAILABLE: { status: 400 },
   LAST_LOGIN: { status: 409 },
   /** The customer hasn't texted the code yet (verify.mn): ask again in a moment. */

@@ -49,6 +49,7 @@ import { supportAccessContract } from './supportAccess';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
 import { leadsContract } from './leads';
+import { licenseContract } from './license';
 
 /** The whole core API's type, each module by name, so its declaration stays small. */
 export type CoreContract = {
@@ -76,6 +77,7 @@ export type CoreContract = {
   fields: typeof fieldsContract;
   files: typeof filesContract;
   leads: typeof leadsContract;
+  license: typeof licenseContract;
   notifications: typeof notificationsContract;
   oauthConsent: typeof oauthConsentContract;
   organizations: typeof organizationsContract;
@@ -134,6 +136,7 @@ export const coreContract: CoreContract = {
   fields: fieldsContract,
   files: filesContract,
   leads: leadsContract,
+  license: licenseContract,
   notifications: notificationsContract,
   oauthConsent: oauthConsentContract,
   organizations: organizationsContract,
@@ -282,6 +285,8 @@ export * from './emailLimits';
 
 export * from './pluginJobs';
 
+export * from './pluginSignIn';
+
 export * from './plugins';
 
 export * from './pluginAssistant';
@@ -303,6 +308,8 @@ export * from './products';
 export * from './records';
 
 export * from './roles';
+
+export * from './license';
 
 export * from './saas';
 

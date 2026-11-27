@@ -85,3 +85,7 @@ export * from './secrets';
 export * from './exchangeRates';
 
 export * from './supportVisits';
+
+export * from './identities';
+
+export * from './license';

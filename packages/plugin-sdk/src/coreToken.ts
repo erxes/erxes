@@ -12,6 +12,27 @@ const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
  */
 const CLOCK_TOLERANCE_SECONDS = 60;
 
+/** Where core is, and the plugin a token must be for. */
+export interface VerifyOptions {
+  coreUrl: string;
+  plugin: string;
+}
+
+/** A body's SHA-256, base64url, as core's tokens carry it (`sha`): text as UTF-8, or its bytes as they came. */
+export const bodyDigest = async (body: string | Uint8Array<ArrayBuffer>) => {
+  const digest = new Uint8Array(
+    await crypto.subtle.digest(
+      'SHA-256',
+      typeof body === 'string' ? new TextEncoder().encode(body) : body,
+    ),
+  );
+
+  return btoa(String.fromCharCode(...digest))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
 /** A token core signed (its public keys), for this plugin (or `audience`), of this kind, unexpired; its claims parsed. */
 export const verifyCoreToken = async <T>(
   token: string,

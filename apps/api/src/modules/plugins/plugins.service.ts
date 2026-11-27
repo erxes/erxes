@@ -20,6 +20,7 @@ import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { licenseWarnings } from '~/modules/license/license';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { checkManifest } from './manifestChecks';
 import { manifestWarnings } from './manifestWarnings';
@@ -274,5 +275,8 @@ export const registerManifest = async (manifest: PluginManifest) => {
     );
   });
 
-  return { ok: true as const, warnings: manifestWarnings(manifest) };
+  return {
+    ok: true as const,
+    warnings: [...manifestWarnings(manifest), ...(await licenseWarnings(plugin, manifest))],
+  };
 };

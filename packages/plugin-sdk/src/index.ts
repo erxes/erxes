@@ -264,4 +264,6 @@ export { PluginCallError } from './pluginCalls';
 
 export * from './portal';
 
+export * from './signIn';
+
 export * from './verify';

@@ -49,7 +49,7 @@ const FULL = {
   name: 'pms',
   path: 'pms',
   icon: slot,
-  modules: [{ name: 'Rooms', path: 'rooms', icon: slot }],
+  modules: [{ name: 'pms', path: 'pms', icon: slot }],
   checkAccess: async () => true,
   recordSections: [
     { contentType: 'core:customer', title: 'Stays', icon: slot, component: slot },
@@ -238,6 +238,58 @@ describe('where a plugin mounts', () => {
     expect(
       (await parse({ name: 'pms', path: '//hotel/pms//', settings: [page] }))?.settings,
     ).toEqual([page]);
+  });
+
+  it('mounts each of its apps at its own path, and keeps their pages', async () => {
+    const { pluginApps } = await load();
+
+    const apps = [
+      { name: 'rooms', path: 'rooms', icon: slot },
+      { name: 'stays', path: 'stays', icon: slot },
+    ];
+
+    const stay = {
+      ...service,
+      contentType: 'pms:stay',
+      detailPath: (id: string) => `/stays/${id}`,
+    };
+
+    const rates = { path: '/rooms/rates', label: 'Rates', icon: slot };
+
+    const parsed = await parse({
+      name: 'pms',
+      path: 'pms',
+      modules: apps,
+      recordTypes: [stay],
+      settings: [rates],
+    });
+
+    expect(parsed && pluginApps(parsed)).toEqual(apps);
+    expect(parsed).toMatchObject({ recordTypes: [stay], settings: [rates] });
+  });
+
+  it('mounts a plugin without apps as one, at its path', async () => {
+    const { pluginApps } = await load();
+
+    expect(pluginApps({ name: 'pms', path: 'pms', icon: slot })).toEqual([
+      { name: 'pms', path: 'pms', icon: slot },
+    ]);
+  });
+
+  it('leaves out a page under none of its apps, even under its own path', async () => {
+    using errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    expect(
+      (
+        await parse({
+          name: 'pms',
+          path: 'pms',
+          modules: [{ name: 'rooms', path: 'rooms' }],
+          settings: [{ path: '/pms/rates', label: 'Rates', icon: slot }],
+        })
+      )?.settings,
+    ).toEqual([]);
+    expect(errors).toHaveBeenCalledOnce();
   });
 
   it.each([
