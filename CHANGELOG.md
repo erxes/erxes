@@ -1,5 +1,13 @@
 
 
+## [3.4.33](https://github.com/erxes/erxes/compare/3.4.32...3.4.33) (2026-11-27)
+
+
+### Bug Fixes
+
+* pos order to accounting transaction when createdBy missed ([ceacb63](https://github.com/erxes/erxes/commit/ceacb63ac3eda1a33a5edd059f9b685d3e41a0de))
+* posclient show products remainder with allowedBranches ([e317ad3](https://github.com/erxes/erxes/commit/e317ad3ec383cb4ff0e2c623b9886ecefd5bdc89))
+
 ## [3.4.32](https://github.com/erxes/erxes/compare/3.4.31...3.4.32) (2026-11-26)
 
 
