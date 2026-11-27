@@ -3,7 +3,9 @@ import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
+import { CompaniesSelectedNames } from './CompaniesSelectedNames';
 import { CompaniesMerge } from './merge/CompaniesMerge';
+import { getCompanyMergeName } from '@/contacts/companies/utils/companyMerge';
 
 export const CompaniesCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -16,6 +18,9 @@ export const CompaniesCommandBar = () => {
   };
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const companyIds = selectedRows.map((row) => row.original._id);
+  const companyNames = selectedRows.map((row) =>
+    getCompanyMergeName(row.original),
+  );
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
@@ -82,6 +87,7 @@ export const CompaniesCommandBar = () => {
         <Can action="contactsDelete">
           <>
             <Separator.Inline />
+            <CompaniesSelectedNames names={companyNames} />
             <CompaniesDelete companyIds={companyIds} />
           </>
         </Can>
