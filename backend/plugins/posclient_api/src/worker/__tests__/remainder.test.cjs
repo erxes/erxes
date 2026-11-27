@@ -196,3 +196,68 @@ test('sync errors propagate with cleanup enabled for existing tenant jobs', asyn
   await assert.rejects(runner(job), (error) => error === failure);
   assert.equal(job.opts.removeOnFail, true);
 });
+
+test('product remainder details include every allowed branch and department', async () => {
+  const { checkRemainders } = loadSource(
+    '../modules/posclient/utils/products.ts',
+    {
+      'erxes-api-shared/utils': {
+        sendTRPCMessage: async () => [
+          {
+            _id: 'product',
+            inventories: {
+              branch1: {
+                department1: { remainder: 2 },
+                department2: { remainder: 5 },
+              },
+              branch2: {
+                department1: { remainder: 7 },
+                department3: { remainder: 11 },
+              },
+              branch3: { department1: { remainder: 13 } },
+            },
+          },
+        ],
+      },
+    },
+  );
+  const products = [{ _id: 'product' }];
+
+  await checkRemainders(
+    'tenant',
+    { Products: {} },
+    {
+      isShowRemainder: true,
+      isOnline: false,
+      branchId: 'branch1',
+      allowBranchIds: ['branch2'],
+      departmentId: 'department1',
+      token: 'pos',
+    },
+    products,
+  );
+
+  assert.equal(products[0].remainder, 2);
+  assert.equal(products[0].remainders.length, 4);
+  assert.ok(
+    products[0].remainders.some(
+      (remainder) =>
+        remainder.branchId === 'branch1' &&
+        remainder.departmentId === 'department2' &&
+        remainder.remainder === 5,
+    ),
+  );
+  assert.ok(
+    products[0].remainders.some(
+      (remainder) =>
+        remainder.branchId === 'branch2' &&
+        remainder.departmentId === 'department3' &&
+        remainder.remainder === 11,
+    ),
+  );
+  assert.ok(
+    products[0].remainders.every(
+      (remainder) => remainder.branchId !== 'branch3',
+    ),
+  );
+});

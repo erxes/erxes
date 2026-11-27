@@ -17,7 +17,7 @@ export interface IProduct extends IProductBase {
   barcodeDescription?: string | null
   attachment?: { url?: string } | null
   remainder?: number
-  remainders?: { location: string; remainder: number }[]
+  remainders?: IProductRemainder[]
   discount?: {
     planId: string
     discount: number
@@ -31,6 +31,14 @@ export interface IProduct extends IProductBase {
   hasSimilarity?: boolean
   propertiesData?: Record<string, string>
   category?: ICategory
+}
+
+export interface IProductRemainder {
+  branchId: string
+  departmentId: string
+  remainder: number
+  soonIn: number
+  soonOut: number
 }
 
 export interface IUseProducts {

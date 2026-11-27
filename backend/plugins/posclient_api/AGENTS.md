@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-27`
 
 ## Scope
 
@@ -50,6 +50,7 @@
   a failed fiscal return never marks the order returned. Cancellation and
   return changes are recorded in POS-local audit logs.
 - Syncs and exposes `isShowRemainder` independently from stock validation.
+- Product `remainder` totals use the requested branch when supplied, otherwise the POS's own `branchId`, always scoped to its configured department. Product `remainders` details include every department in the union of the POS's own branch and `allowBranchIds`, regardless of online mode; each detail contains `branchId`, `departmentId`, `remainder`, `soonIn`, and `soonOut`.
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
 - Stores order and order-item change logs inside POS client data and exposes

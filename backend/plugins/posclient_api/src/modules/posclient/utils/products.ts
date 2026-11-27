@@ -27,14 +27,23 @@ export const getRemBranchId = (
 const getRemainderScope = (config: IConfigDocument, paramBranchId?: string) => {
   const branchIds = paramBranchId
     ? [paramBranchId]
-    : config.isOnline
-      ? config.allowBranchIds || []
-      : (config.branchId && [config.branchId]) || [];
+    : config.branchId
+      ? [config.branchId]
+      : [];
 
   return {
     branchIds,
     departmentIds: config.departmentId ? [config.departmentId] : [],
   };
+};
+
+const getRemainderDisplayBranchIds = (config: IConfigDocument) => {
+  return Array.from(
+    new Set([
+      ...(config.branchId ? [config.branchId] : []),
+      ...(config.allowBranchIds || []),
+    ]),
+  );
 };
 
 const calcRemainderFromInventories = (
@@ -70,7 +79,7 @@ const calcRemainderFromInventories = (
       result.remainders.push({
         branchId,
         departmentId,
-        count,
+        remainder: count,
         soonIn,
         soonOut,
       });
@@ -644,15 +653,19 @@ export const checkRemainders = async (
   const remBranchId = config.saveRemainder
     ? getRemBranchId(config, paramBranchId)
     : '';
+  const displayBranchIds = getRemainderDisplayBranchIds(config);
 
   for (const product of products) {
+    const inventories = coreProductsById[product._id]?.inventories;
     const remainderInfo = calcRemainderFromInventories(
-      coreProductsById[product._id]?.inventories,
+      inventories,
       branchIds,
       departmentIds,
     );
 
-    product.remainders = remainderInfo.remainders;
+    product.remainders = displayBranchIds.length
+      ? calcRemainderFromInventories(inventories, displayBranchIds).remainders
+      : [];
     product.remainder = remainderInfo.remainder;
     product.soonIn = remainderInfo.soonIn;
     product.soonOut = remainderInfo.soonOut;

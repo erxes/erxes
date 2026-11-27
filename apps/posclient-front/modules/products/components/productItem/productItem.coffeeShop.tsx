@@ -4,7 +4,7 @@ import { addToCartAtom } from "@/store/cart.store"
 import { isShowRemainderAtom } from "@/store/config.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
-import { IProduct } from "@/types/product.types"
+import { IProduct, IProductRemainder } from "@/types/product.types"
 import { blockNoteToPlainText } from "@/lib/richText"
 import { cn } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -167,7 +167,7 @@ export const ProductItemPriceWithWrapper = ({
   className?: string
   unitPrice?: number
   remainder?: number
-  remainders?: { location: string; remainder: number }[]
+  remainders?: IProductRemainder[]
 }) => {
   const isShowRemainder = useAtomValue(isShowRemainderAtom)
   return (
@@ -181,19 +181,21 @@ export const ProductItemPriceWithWrapper = ({
               <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>
               <HoverCardContent className="w-48">
                 <div className="flex flex-col border border-b-0">
-                  {remainders?.map(({ location, remainder }) => (
-                    <div
-                      key={location}
-                      className="flex items-center border-b font-semibold"
-                    >
-                      <span className="flex-1 border-r p-1 text-left text-neutral-600">
-                        {location}
-                      </span>
-                      <span className="flex-1 p-1 text-right ">
-                        {remainder}
-                      </span>
-                    </div>
-                  ))}
+                  {remainders?.map(
+                    ({ branchId, departmentId, remainder }) => (
+                      <div
+                        key={`${branchId}-${departmentId}`}
+                        className="flex items-center border-b font-semibold"
+                      >
+                        <span className="flex-1 border-r p-1 text-left text-neutral-600">
+                          {`${branchId} / ${departmentId}`}
+                        </span>
+                        <span className="flex-1 p-1 text-right ">
+                          {remainder}
+                        </span>
+                      </div>
+                    ),
+                  )}
                 </div>
               </HoverCardContent>
             </HoverCard>
