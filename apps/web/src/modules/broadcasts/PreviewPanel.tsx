@@ -12,12 +12,16 @@ import { splitAddresses } from './BroadcastBits';
 import { useBroadcastHandlers } from './broadcastQueries';
 
 /**
- * An inbox's look, the same in the app's light and dark themes: the shadow root would
- * otherwise inherit the page's text colour and colour scheme.
+ * The email in the app's theme, as the editor shows it: `all: initial` keeps the page's styles
+ * out, and the theme's colour tokens, which are custom properties, still reach in. Colours the
+ * email sets itself (a button, a picked text colour) stay as they are, except core's footer
+ * (`data-footer`, `render.ts`), whose grey is for a white inbox. The host's box (size, padding,
+ * background) is set from the page, whose rules win over `:host`.
  */
-const INBOX_STYLE = `:host { all: initial; display: block; color-scheme: light; color: #111;
-  background: #f6f7f9; padding: 24px; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
-a { color: #1d4ed8; }`;
+const INBOX_STYLE = `:host { all: initial; display: block; color: var(--foreground);
+  font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
+a { color: var(--primary-text); }
+[data-footer], [data-footer] a { color: var(--muted-foreground) !important; }`;
 
 /**
  * The email's HTML in a shadow root, so its inline styles and the app's stay apart. Core renders
@@ -28,7 +32,7 @@ const EmailHtml = ({ html, label }: { html: string; label: string }) => (
   <div
     role="document"
     aria-label={label}
-    className="h-130 overflow-auto bg-white"
+    className="h-130 overflow-auto bg-background p-6"
     ref={(host) => {
       if (!host) return;
 

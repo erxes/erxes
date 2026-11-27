@@ -125,7 +125,8 @@ export const EmailEditor = ({
       <LabelRow label={label} onPick={insertField}>
         {actions}
       </LabelRow>
-      <div className="min-h-64 overflow-hidden rounded-md bg-white text-sm text-black shadow-xs scheme-light focus-within:shadow-focus">
+      {/* In the app's theme; styles.css maps maily's colours to it in dark mode. */}
+      <div className="min-h-64 overflow-hidden rounded-md bg-background px-4 py-3 text-sm text-foreground shadow-xs focus-within:shadow-focus">
         <Editor.Root
           ref={root}
           content={value ?? undefined}
