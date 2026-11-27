@@ -59,6 +59,12 @@ export interface StoredPluginManifest {
   countries?: string[];
   /** `own`: it issues its invoices' tax receipts itself, so core's eBarimt never does. */
   taxReceipts?: (typeof TAX_RECEIPT_ISSUERS)[number];
+  /** Self-hosted, it runs only where the server's erxes license names it. */
+  requiresLicense?: boolean;
+  /** Whose part it is: `core`, or the plugin it extends; web lists its apps with that one's. */
+  extends?: string;
+  /** A sign-in provider: members sign in with their account in another system, shown as `label`. */
+  signIn?: { label: string };
   ui?: { remote: string; entry: string };
   /** `docs`: its OpenAPI documents' paths under `url`, one per audience, shown in the API reference. */
   api?: {

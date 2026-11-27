@@ -10,6 +10,7 @@ import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { licenseAccess, stricter } from '~/modules/license/license';
 import { accessOf, planOfPlugin } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
@@ -177,7 +178,13 @@ export const pluginSession = async (name: string) => {
 
   if (planAccess === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
 
-  const access = me.key?.plugins[name] === 'read' ? 'read_only' : planAccess;
+  // Self-hosted: a plugin that needs an erxes license runs only where it names the plugin.
+  const licensed = await licenseAccess(name, plugin.manifest);
+
+  if (licensed === 'off')
+    throw fail('NOT_IN_PLAN', `${name} needs an erxes license for this server`);
+
+  const access = me.key?.plugins[name] === 'read' ? 'read_only' : stricter(planAccess, licensed);
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (plugin.manifest?.permissions ?? [])

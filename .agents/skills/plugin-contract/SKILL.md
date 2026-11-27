@@ -26,8 +26,12 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
      plugin's API: events to `/events`, actions to `/automations/actions/<type>`, jobs to
-     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`), and
-     transfer requests to `/transfer/export` and `/transfer/import` (below).
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`),
+     transfer requests to `/transfer/export` and `/transfer/import` (below), and, for a plugin
+     with `signIn` and the `users:sign_in` scope, a member's login and password to `/auth/sign-in`
+     (`PluginSignInRequest` in `src/pluginSignIn.ts`, checked by `verifyCoreSignIn`), answered
+     200 with a `PluginSignInIdentity` or 401. Core links the identity's `subject` to a member,
+     so a `subject` that changes signs the same person in as someone new.
      An action field `{ type: 'plugin_record', recordType, dependsOn?, multiple? }` (`ActionField` in
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the

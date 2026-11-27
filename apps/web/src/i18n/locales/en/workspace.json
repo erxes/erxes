@@ -276,6 +276,33 @@
       "failed": "Failed"
     }
   },
+  "license": {
+    "title": "License",
+    "banner-off": "{{plugins}} need an erxes license for this server.",
+    "banner-read-only": "The erxes license has ended: {{plugins}} only read until {{date}}, then stop.",
+    "banner-ending": "The erxes license ends on {{date}}: renew it to keep {{plugins}}.",
+    "see-license": "See the license",
+    "through": "Through {{date}}, {{count}} days left",
+    "grace": "Ended {{date}}: its plugins only read until {{end}}, then stop.",
+    "over": "Ended {{date}}: its plugins have stopped.",
+    "checked": "Fetched from erxes.io",
+    "not-checked": "Not fetched from erxes.io yet",
+    "check-now": "Check now",
+    "check-error": "The last fetch failed, so the license above stays: {{error}}",
+    "none": "No erxes license",
+    "none-description": "Register this server on erxes.io › Self-hosted and set its activation key as ERXES_ACTIVATION_KEY in core's .env, then restart core. A server without internet sets the license itself as ERXES_LICENSE.",
+    "from-file": "Given by hand as ERXES_LICENSE.",
+    "from-activation": "Fetched every day from erxes.io with this server's activation key.",
+    "plugins": "Plugins that need it",
+    "no-plugins": "No plugin installed here needs an erxes license.",
+    "saas": "On erxes.io your plan decides what each plugin may do: see Settings › Plan.",
+    "access": {
+      "full": "Full",
+      "warning": "Warning",
+      "read_only": "Read-only",
+      "off": "Off"
+    }
+  },
   "plan": {
     "past-due": "payment retrying",
     "canceling": "ends at the end of the period",

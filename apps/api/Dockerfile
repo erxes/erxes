@@ -36,7 +36,9 @@ RUN pnpm --filter @erxes/api build \
 FROM node:26-bookworm-slim
 # The runtime only runs node; npm and corepack bring their own dependencies (and advisories).
 RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
-ENV NODE_ENV=production PORT=3400
+# The build this image is (CI passes its commit): what a self-hosted server tells erxes.io it runs.
+ARG VERSION=dev
+ENV NODE_ENV=production PORT=3400 VERSION=$VERSION
 WORKDIR /app
 COPY --from=build --chown=node:node /out/package.json ./
 COPY --from=build --chown=node:node /out/node_modules ./node_modules

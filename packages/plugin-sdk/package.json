@@ -25,6 +25,7 @@
     "./openapi": "./src/openapi.ts",
     "./pluginCalls": "./src/pluginCalls.ts",
     "./portal": "./src/portal.ts",
+    "./signIn": "./src/signIn.ts",
     "./verify": "./src/verify.ts",
     "./package.json": "./package.json"
   },
@@ -40,6 +41,7 @@
       "./openapi": "./dist/openapi.js",
       "./pluginCalls": "./dist/pluginCalls.js",
       "./portal": "./dist/portal.js",
+      "./signIn": "./dist/signIn.js",
       "./verify": "./dist/verify.js",
       "./package.json": "./package.json"
     },

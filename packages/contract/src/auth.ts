@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { base } from './authBase';
 import { twoFactorContract } from './authTwoFactor';
 import { isoDate } from './common';
-import { NewPassword } from './values';
+import { ERRORS } from './errors';
+import { NewPassword, PluginName } from './values';
 import { Organization, OrganizationRegion } from './organizations';
 import { User } from './users';
 
@@ -17,6 +18,18 @@ export const Session = z.object({
 });
 
 export type Session = z.infer<typeof Session>;
+
+/** A sign-in's answer: the session, or the second step two-factor members owe. */
+const SignedIn = z.union([
+  Session,
+  /** Two-factor sign-in: send a code with this challenge to `/auth/sign-in/2fa` (5 minutes). */
+  z.object({ twoFactorRequired: z.literal(true), challenge: z.string() }),
+]);
+
+/** Names the organisation where the address doesn't. */
+const Subdomain = z.string().trim().max(63).optional();
+
+const { EMAIL_REQUIRED, PLUGIN_UNREACHABLE, SIGN_IN_UNAVAILABLE } = ERRORS;
 
 export const authContract = {
   setupStatus: base
@@ -65,16 +78,39 @@ export const authContract = {
         email: z.string().trim().check(z.email()).max(254),
         password: z.string().min(1).max(200),
         /** Needed only when the address does not name the organisation. */
-        subdomain: z.string().trim().max(63).optional(),
+        subdomain: Subdomain,
       }),
     )
-    .output(
-      z.union([
-        Session,
-        /** Two-factor sign-in: send a code with this challenge to `/auth/sign-in/2fa` (5 minutes). */
-        z.object({ twoFactorRequired: z.literal(true), challenge: z.string() }),
-      ]),
-    ),
+    .output(SignedIn),
+  signInProviders: base
+    .route({
+      method: 'GET',
+      path: '/auth/sign-in/providers',
+      summary: 'List the ways to sign in besides email',
+      description:
+        "The organisation's sign-in providers, for the sign-in screen: plugins that check a member's login with another system (a company directory), each with the label to show. The organisation is the one `subdomain`, the address or DEFAULT_SUBDOMAIN names, else a self-hosted server's only one; none when that names none",
+    })
+    .input(z.object({ subdomain: Subdomain }))
+    .output(z.object({ providers: z.array(z.object({ plugin: z.string(), label: z.string() })) })),
+  signInWithProvider: base
+    .errors({ EMAIL_REQUIRED, PLUGIN_UNREACHABLE, SIGN_IN_UNAVAILABLE })
+    .route({
+      method: 'POST',
+      path: '/auth/sign-in/provider',
+      summary: 'Sign in through a sign-in provider',
+      description:
+        "Sets the session cookie. The plugin named checks the login and password with its system and says who the member is; core signs them in, the first time as a new member. 401 INVALID_CREDENTIALS, 400 SIGN_IN_UNAVAILABLE when the plugin can't sign members in here, 400 EMAIL_REQUIRED or 409 TAKEN when a new member has no email or another member has it, 502 PLUGIN_UNREACHABLE",
+    })
+    .input(
+      z.object({
+        plugin: PluginName,
+        /** What the member types to that system: a username or an email. */
+        login: z.string().trim().min(1).max(200),
+        password: z.string().min(1).max(200),
+        subdomain: Subdomain,
+      }),
+    )
+    .output(SignedIn),
   requestPasswordReset: base
     .route({
       method: 'POST',

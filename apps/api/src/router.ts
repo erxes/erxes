@@ -37,6 +37,7 @@ import { saasRouter } from '~/modules/saas/saas.router';
 import { usersRouter } from '~/modules/users/users.router';
 import { transferRouter } from '~/modules/transfer/transfer.router';
 import { leadsRouter } from '~/modules/leads/leads.router';
+import { licenseRouter } from '~/modules/license/license.router';
 import { viewsRouter } from '~/modules/views/views.router';
 import { favoritesRouter } from '~/modules/favorites/favorites.router';
 import { oauthConsentRouter } from '~/modules/oauth/oauthConsent.router';
@@ -97,6 +98,7 @@ export const coreRouter = unscoped.router({
   users: usersRouter,
   transfer: transferRouter,
   leads: leadsRouter,
+  license: licenseRouter,
   views: viewsRouter,
   favorites: favoritesRouter,
   oauthConsent: oauthConsentRouter,

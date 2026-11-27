@@ -812,6 +812,26 @@
         }
       }
     },
+    "signInProviders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/auth/sign-in/providers"
+        }
+      }
+    },
+    "signInWithProvider": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/auth/sign-in/provider"
+        }
+      }
+    },
     "requestPasswordReset": {
       "~orpc": {
         "errorMap": {},
@@ -2413,6 +2433,28 @@
         "route": {
           "method": "GET",
           "path": "/leads/report"
+        }
+      }
+    }
+  },
+  "license": {
+    "status": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/license"
+        }
+      }
+    },
+    "refresh": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/license/refresh"
         }
       }
     }

@@ -1,6 +1,6 @@
 import { paths } from '~/lib/paths';
-import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
-import { cn, useFormat } from 'erxes-ui';
+import { useFormat } from 'erxes-ui';
+import { BANNER_LINK, PageBanner } from '~/components/PageBanner';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useMinuteClock } from '~/lib/useMinuteClock';
@@ -50,31 +50,15 @@ export const PlanBanner = () => {
   }
 
   return (
-    <output
-      className={cn(
-        'flex shrink-0 items-center gap-2 px-4 py-1.5 text-sm',
-        severe ? 'bg-destructive/10 text-destructive-text' : 'bg-warning/10 text-warning-text',
-      )}
-    >
-      {severe ? (
-        <IconLock className="size-4 shrink-0" />
-      ) : (
-        <IconAlertTriangle className="size-4 shrink-0" />
-      )}
-      <span className="min-w-0 flex-1 truncate">{message}</span>
-      <Link to={paths.settings.plan} className="shrink-0 font-medium underline underline-offset-2">
+    <PageBanner severe={severe} message={message}>
+      <Link to={paths.settings.plan} className={BANNER_LINK}>
         {t('see-plan', 'See your plan')}
       </Link>
       {data.manageUrl && (
-        <a
-          href={data.manageUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="shrink-0 font-medium underline underline-offset-2"
-        >
+        <a href={data.manageUrl} target="_blank" rel="noreferrer" className={BANNER_LINK}>
           {t('manage', 'Manage on erxes.io')}
         </a>
       )}
-    </output>
+    </PageBanner>
   );
 };

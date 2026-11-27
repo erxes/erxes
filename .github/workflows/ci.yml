@@ -307,6 +307,7 @@ jobs:
           set: |
             api.cache-from=type=gha,scope=api
             web.cache-from=type=gha,scope=web
+            api.args.VERSION=${{ steps.names.outputs.sha }}
             api.tags=${{ steps.names.outputs.registry }}/erxes-api:${{ steps.names.outputs.sha }}
             api.tags=${{ steps.names.outputs.registry }}/erxes-api:postgre
             api.tags=${{ steps.names.outputs.hub }}/core-api:${{ steps.names.outputs.sha }}

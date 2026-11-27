@@ -10,6 +10,7 @@ import { closeAgents } from '~/modules/agents/host';
 import { recoverAgents } from '~/modules/agents/recovery';
 import { startJobs, stopJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
+import { fetchLicense } from '~/modules/license/activation';
 import { liveHub } from '~/modules/live/hub';
 import { syncPluginSecrets } from '~/modules/plugins/plugins.service';
 import { logger } from '~/logger';
@@ -58,6 +59,12 @@ const start = async () => {
 
   await syncPluginSecrets();
   await startJobs(JOBS, { work: true });
+
+  // A new activation key takes effect now, not at the next daily fetch. It waits on erxes.io, so the
+  // API starts without it; a failure keeps the last license and says why in Settings › License.
+  fetchLicense().catch((error: unknown) => {
+    log.error({ err: error }, 'could not store the erxes license');
+  });
 
   const server = createApp().listen(config.port, () => {
     log.info({ port: config.port, tracing: Boolean(config.otel.endpoint) }, 'api ready');

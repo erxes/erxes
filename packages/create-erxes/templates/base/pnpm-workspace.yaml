@@ -12,6 +12,9 @@ minimumReleaseAgeExclude:
   - '@erxes/*'
 overrides:
   'vite@*': 'catalog:'
+  # One OpenTelemetry API, the one @opentelemetry/core 3 and the instrumentation need: react-doctor's
+  # Sentry pulls an older one, which lacks `logs`, so the API would fail to start.
+  '@opentelemetry/api': '1.10.0'
 # Install scripts nothing here needs: esbuild ships its binary as an optional
 # dependency, and the other two only print or check.
 allowBuilds:

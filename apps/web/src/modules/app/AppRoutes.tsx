@@ -3,7 +3,7 @@ import { PageSpinner } from '~/components/PageSpinner';
 import { i18n } from '~/i18n';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { paths } from '~/lib/paths';
-import { pluginBasePath } from '~/modules/plugins/pluginConfig';
+import { pluginApps, pluginBasePath } from '~/modules/plugins/pluginConfig';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { OnboardingGuard } from '~/modules/onboarding/OnboardingGuard';
 import { MainLayout } from './MainLayout';
@@ -60,19 +60,25 @@ const MainOnboardingPage = lazyNamed(
 
 const PluginPage = lazyNamed(() => import('~/modules/plugins/PluginPage'), 'PluginPage');
 
-/** Plugin pages mount at `/<CONFIG.path>/*` once their config has loaded. */
+/** Each plugin app's pages mount at its `/<path>/*` once the plugin's config has loaded. */
 const PluginRoutes = () => {
   const { plugins, loading } = usePlugins();
 
   return (
     <Routes>
-      {plugins.map((plugin) => (
-        <Route
-          key={plugin.remote}
-          path={`${pluginBasePath(plugin.config.path)}/*`}
-          element={<PluginPage key={plugin.remote} plugin={plugin} />}
-        />
-      ))}
+      {plugins.flatMap((plugin) =>
+        pluginApps(plugin.config).map((app) => {
+          const key = `${plugin.remote}/${app.name}`;
+
+          return (
+            <Route
+              key={key}
+              path={`${pluginBasePath(app.path)}/*`}
+              element={<PluginPage key={key} plugin={plugin} module={app.name} />}
+            />
+          );
+        }),
+      )}
       <Route path="*" element={loading ? <PageSpinner /> : <NotFoundPage />} />
     </Routes>
   );

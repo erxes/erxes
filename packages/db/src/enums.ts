@@ -365,6 +365,8 @@ export const PLUGIN_SCOPES = [
   'units:write',
   'users:read',
   'users:write',
+  /** Sign members in: the plugin vouches for who someone is (`manifest.signIn`). */
+  'users:sign_in',
   'views:read',
   'portals:write',
 ] as const;

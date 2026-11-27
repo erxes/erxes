@@ -1009,6 +1009,13 @@
       "when": 1795711111957,
       "tag": "0143_agent_web",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1795764520940,
+      "tag": "0144_identities_and_server_license",
+      "breakpoints": true
     }
   ]
 }

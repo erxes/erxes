@@ -8,7 +8,7 @@ import {
   RecordAccessCheck,
 } from '@erxes/core-contract';
 import { z } from 'zod';
-import { verifyCoreToken } from './coreToken';
+import { bodyDigest, verifyCoreToken, type VerifyOptions } from './coreToken';
 
 /** The signed-in member a plugin UI calls the plugin's API for. */
 export interface PluginMember {
@@ -78,11 +78,6 @@ export const DeliveredEvent = z.object({
 });
 
 export type DeliveredEvent = z.infer<typeof DeliveredEvent>;
-
-interface VerifyOptions {
-  coreUrl: string;
-  plugin: string;
-}
 
 // A claim of the wrong type or an unknown value fails verification: it never grants access.
 const Tier = PluginTier.nullable();
@@ -335,21 +330,6 @@ export const verifyPortalToken = async (
   return verifyCoreToken(token, options, 'portal+jwt', PortalClaims, 'erxes-portal');
 };
 
-/** A body's SHA-256, base64url: text as UTF-8, or its bytes as they came. */
-const sha256 = async (body: string | Uint8Array<ArrayBuffer>) => {
-  const digest = new Uint8Array(
-    await crypto.subtle.digest(
-      'SHA-256',
-      typeof body === 'string' ? new TextEncoder().encode(body) : body,
-    ),
-  );
-
-  return btoa(String.fromCharCode(...digest))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-};
-
 const EventClaims = z.object({ sha: z.string(), event: z.string(), org: z.string() });
 
 /**
@@ -370,7 +350,8 @@ export const verifyCoreEvent = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-event+jwt', EventClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const event = DeliveredEvent.parse(JSON.parse(rawBody));
 
@@ -408,7 +389,8 @@ export const verifyPublicCall = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-public+jwt', PublicClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   return { orgId: claims.org, callId: claims.public };
 };
@@ -433,7 +415,8 @@ export const verifyCoreJob = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-job+jwt', JobClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const job = PluginJobDelivery.parse(JSON.parse(rawBody));
 
@@ -462,7 +445,8 @@ export const verifyCoreAccessCheck = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-access+jwt', AccessClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const check = RecordAccessCheck.parse(JSON.parse(rawBody));
 
@@ -494,7 +478,8 @@ export const verifyCoreTransfer = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-transfer+jwt', TransferClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const request = PluginTransferRequest.parse(JSON.parse(rawBody));
 

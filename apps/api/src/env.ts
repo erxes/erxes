@@ -29,6 +29,8 @@ const SECRETS = [
   'META_APP_SECRET',
   'META_RELAY_KEY',
   'GITHUB_APP_PRIVATE_KEY',
+  'ERXES_LICENSE',
+  'ERXES_ACTIVATION_KEY',
   'GITHUB_APP_CLIENT_SECRET',
 ] as const;
 
@@ -199,6 +201,12 @@ const Env = z
     SAAS_STRIPE_SECRET_KEY: text,
     // erxes.io's public keys for "Open as support" links: a JSON array of P-256 JWKs with `kid`.
     SUPPORT_LOGIN_JWKS: supportJwks,
+    // Self-hosted: the erxes license (a JWT) given by hand, or the server's activation key, with
+    // which core fetches it from erxes.io every day. Core verifies it with keys built into it.
+    ERXES_LICENSE: text,
+    ERXES_ACTIVATION_KEY: text,
+    // The build this is (the image's commit), as a self-hosted server reports it to erxes.io.
+    VERSION: text,
 
     FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
     FILES_LOCAL_DIR: text,
