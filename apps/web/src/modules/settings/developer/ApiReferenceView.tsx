@@ -75,6 +75,9 @@ const configFor = (
   // No proxy, telemetry, agent or remote fonts: calls go straight to core or the plugin.
   // Scalar's own toolbar (share, SDKs, deploy) links to its hosted services.
   showDeveloperTools: 'never',
+  // "Open API client" sends the document's address to client.scalar.com, which can't fetch it
+  // (no CORS, no session); "try it" in the reference is the client.
+  hideClientButton: true,
   withDefaultFonts: false,
   telemetry: false,
   persistAuth: false,
