@@ -81,6 +81,12 @@ const productImportMap = {
         dataType: 'multiSelect' as const,
         example: '4820000001, 4820000002',
       },
+      {
+        label: 'Image',
+        key: 'image',
+        aliases: ['Image URL'],
+        example: 'https://example.com/product.jpg',
+      },
     ],
     processRows: (models: IModels, rows: any[]) =>
       processProductRows(models, rows),
