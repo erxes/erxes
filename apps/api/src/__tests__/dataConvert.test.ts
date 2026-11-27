@@ -1,4 +1,3 @@
-import { withSystem } from '@erxes/core-db';
 import { describe, expect, it } from 'vite-plus/test';
 import { sweepRemovedRecords } from '~/modules/dataExtensions/hostRecords';
 import { useTestDatabase } from './db';
@@ -175,7 +174,7 @@ describe('Data Extensions: values of merged and removed customers', () => {
       values: { memberNo: 'C-2' },
     });
     await owner.customers.remove({ ids: [gone.id] });
-    await withSystem('test', (tx) => sweepRemovedRecords(tx));
+    await sweepRemovedRecords();
 
     const takeCode = () =>
       owner.dataValues.update({
@@ -190,7 +189,7 @@ describe('Data Extensions: values of merged and removed customers', () => {
     const binned = (await owner.trash.list({})).data.find((item) => item.recordId === gone.id);
 
     await owner.trash.purge({ ids: [binned?.id ?? ''] });
-    await withSystem('test', (tx) => sweepRemovedRecords(tx));
+    await sweepRemovedRecords();
 
     // Purged for good: its unique code is free again.
     await expect(takeCode()).resolves.toMatchObject({ values: { memberNo: 'C-2' } });
