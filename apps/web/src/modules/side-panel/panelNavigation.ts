@@ -69,10 +69,12 @@ const recordPageNavigation = (
 ) => {
   const routerState = RouterState.safeParse(location.state).data;
 
-  const openPage = (page: string, tab: string) => {
+  // `replace` takes the place of the panel just opened, so Back skips it.
+  const openPage = (page: string, tab: string, { replace = false } = {}) => {
     const { pathname, search } = location;
 
     void navigate(recordPageHref(page, tab), {
+      replace,
       state: { recordPageFrom: { pathname, search, state: routerState } },
     });
   };

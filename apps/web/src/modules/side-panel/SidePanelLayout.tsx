@@ -23,7 +23,12 @@ import {
 } from './recordView';
 import { SidePanelRecordStack } from './SidePanelRecordStack';
 import { NEW_RECORD_ID, SIDE_PANEL_ROOT_PATH } from './sidePanelPaths';
-import { sidePanelWidthState, useSidePanel } from './useSidePanel';
+import {
+  recordOpenModeState,
+  sidePanelSessionState,
+  sidePanelWidthState,
+  useSidePanel,
+} from './useSidePanel';
 
 // A record not created yet: its draft, saved as the record on Save.
 const SidePanelDraft = ({
@@ -217,22 +222,52 @@ const SidePanelRoute = () => {
   );
 };
 
+// The last top-level open `useOpenFullPage` has dealt with.
+const handledOpenSessionState = atom(0);
+
+/**
+ * With records set to open full screen, a record just opened from a list or board goes on to
+ * its own page in place of the panel. Records opened from inside one, ones put back in the
+ * panel from their page, drafts and types without a page stay in the panel. True while it is
+ * about to go, so the panel doesn't flash first.
+ */
+const useOpenFullPage = (recordPage: string | null, loading: boolean, tab: string) => {
+  const openMode = useAtomValue(recordOpenModeState);
+  const session = useAtomValue(sidePanelSessionState);
+  const handled = useAtomValue(handledOpenSessionState);
+  const setHandled = useSetAtom(handledOpenSessionState);
+  const { openPage } = useRecordPageNavigation();
+  const fresh = session !== handled;
+
+  useLayoutEffect(() => {
+    if (!fresh) return;
+
+    if (openMode === 'page' && recordPage) openPage(recordPage, tab, { replace: true });
+
+    // A plugin's record waits for its plugin to tell whether it has a page.
+    if (openMode !== 'page' || recordPage || !loading) setHandled(session);
+  }, [fresh, openMode, recordPage, loading, openPage, tab, session, setHandled]);
+
+  return fresh && openMode === 'page' && (Boolean(recordPage) || loading);
+};
+
 const SidePanelColumn = () => {
   const { open, record, tab } = useSidePanel();
   const [width, setWidth] = useAtom(sidePanelWidthState);
   const [expanded] = useQueryState('panelExpanded', parseAsBoolean);
   const { pathname } = useLocation();
   const { openPage } = useRecordPageNavigation();
-  const { type } = usePanelRecordType(record?.contentType ?? '');
+  const { type, loading } = usePanelRecordType(record?.contentType ?? '');
 
   // Saved records expand into their own pages.
   const recordPage = record ? recordPagePath(type, record, pathname) : null;
+  const openingPage = useOpenFullPage(recordPage, loading, tab);
 
   return (
     <>
       {/* Links saved while records still expanded in place. */}
       {recordPage && expanded && <Navigate to={recordPage} replace />}
-      {open && !(recordPage && expanded) && (
+      {open && !openingPage && !(recordPage && expanded) && (
         <RecordSidePanel
           key="record"
           expanded={false}

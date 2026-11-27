@@ -33,6 +33,21 @@ export const sidePanelWidthState = stored({
   initial: SIDE_PANEL_WIDTH.default,
 });
 
+/** Where a record opens from a list or board: beside the page, or on its own page. */
+const RECORD_OPEN_MODES = ['panel', 'page'] as const;
+
+export const RecordOpenMode = z.enum(RECORD_OPEN_MODES);
+
+export type TRecordOpenMode = z.infer<typeof RecordOpenMode>;
+
+// The member's choice, kept across reloads like the theme.
+export const recordOpenModeState = stored({
+  key: 'erxes:side-panel:open-mode',
+  schema: RecordOpenMode,
+  initial: 'panel',
+});
+
+// Counts top-level opens; records opened from inside one (stacked) leave it as is.
 export const sidePanelSessionState = atom(0);
 
 /** What a draft starts with, from its opener (a contact's lead stage, a plugin's stage). */
