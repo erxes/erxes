@@ -1,4 +1,3 @@
-import { withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { sweepRemovedRecords } from '~/modules/dataExtensions/hostRecords';
@@ -246,7 +245,7 @@ describe('Data Extensions values on core’s records', { timeout: 300_000 }, () 
     const gone = await owner.customers.create({ firstName: 'Binned', values: { tier: 'gold' } });
 
     await owner.customers.remove({ ids: [gone.id] });
-    await withSystem('test', (tx) => sweepRemovedRecords(tx));
+    await sweepRemovedRecords();
     expect(await keptRows(gone.id)).toBe(1);
 
     const [binned] = (await owner.trash.list({})).data;
@@ -257,7 +256,7 @@ describe('Data Extensions values on core’s records', { timeout: 300_000 }, () 
     // Purged for good: the hourly sweep removes its values.
     await owner.customers.remove({ ids: [gone.id] });
     await owner.trash.purge({ ids: (await owner.trash.list({})).data.map((item) => item.id) });
-    await withSystem('test', (tx) => sweepRemovedRecords(tx));
+    await sweepRemovedRecords();
 
     expect(await keptRows(gone.id)).toBe(0);
   });
