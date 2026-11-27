@@ -47,9 +47,26 @@ const applyThemeValue = (html: HTMLElement, themeValue: ThemeValue) => {
     return;
   }
 
+  const css = document.createElement('style');
+  css.appendChild(
+    document.createTextNode(
+      `* {
+          -webkit-transition: none !important;
+          -moz-transition: none !important;
+          -o-transition: none !important;
+          -ms-transition: none !important;
+          transition: none !important;
+        }`,
+    ),
+  );
+  document.head.appendChild(css);
+
   html.classList.remove(otherValue);
   html.classList.add(themeValue);
   html.style.colorScheme = themeValue;
+
+  window.getComputedStyle(css).getPropertyValue('opacity');
+  document.head.removeChild(css);
 };
 
 export const ThemeEffect = () => {
@@ -69,24 +86,7 @@ export const ThemeEffect = () => {
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
 
-    const css = document.createElement('style');
-    css.appendChild(
-      document.createTextNode(
-        `* {
-            -webkit-transition: none !important;
-            -moz-transition: none !important;
-            -o-transition: none !important;
-            -ms-transition: none !important;
-            transition: none !important;
-          }`,
-      ),
-    );
-    document.head.appendChild(css);
-
     applySelectedTheme();
-
-    window.getComputedStyle(css).getPropertyValue('opacity');
-    document.head.removeChild(css);
 
     const observer = new MutationObserver(applySelectedTheme);
 
