@@ -63,6 +63,7 @@ describe.each(['deal', 'order', 'movement'] as const)(
             stageId: 'stage',
             posId: 'pos',
             status: 'complete',
+            ...(source === 'order' ? { userId: 'cashier' } : {}),
           },
         };
         if (event === 'created')
@@ -95,6 +96,7 @@ describe.each(['deal', 'order', 'movement'] as const)(
           expect.objectContaining({
             ...(source === 'movement' ? {} : { allowRealJobProduction: true }),
             subdomain: 'tenant',
+            userId: source === 'order' ? 'cashier' : 'user',
           }),
         );
       },

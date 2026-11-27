@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-25`
+- **Last synchronized:** `2026-11-27`
 
 ## Scope
 
@@ -267,6 +267,7 @@
 - `safeRemainders(statuses)` applies only to a non-empty list, combines with the other filters, and shares one query between rows and `totalCount`.
 
 - POS order sale sync uses valid `order.paidDate` for sale and payment transaction dates on initial sync and resync, without `dateRule`.
+- POS order sale and return after-process sync uses `order.userId` as the transaction creator when present, falling back to the event actor when the POS order has no cashier. This preserves cashier attribution in accounting `createdBy` while retaining the existing event behavior for older orders.
 - POS order return sync uses valid `order.returnInfo.returnAt` for return and refund transaction dates on initial sync and resync, without `dateRule`.
 - Sale, movement, and return sync handlers throw actionable errors for failed prerequisites (missing/invalid POS dates, missing sale/movement products, or missing original sale for a return). Event and manual-sync callers catch these errors and persist them through `setOrderAccountingResponse` or the configured deal response property through `setDealAccountingResponse`; failed validation must never resolve as success. Missing payment-account configuration remains an intentional row skip.
 

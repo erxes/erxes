@@ -270,7 +270,7 @@ export const afterProcess: AfterProcessConfigs = {
               if (currentDocument.status === 'return') {
                 await orderToReturnTrs({
                   models,
-                  userId,
+                  userId: currentDocument.userId || userId,
                   order: currentDocument,
                   config: configOrder,
                 });
@@ -279,7 +279,7 @@ export const afterProcess: AfterProcessConfigs = {
                   allowRealJobProduction: true,
                   subdomain,
                   models,
-                  userId,
+                  userId: currentDocument.userId || userId,
                   order: currentDocument,
                   config: configOrder,
                 });
@@ -399,7 +399,7 @@ export const afterProcess: AfterProcessConfigs = {
                 allowRealJobProduction: true,
                 subdomain,
                 models,
-                userId,
+                userId: currentDocument.userId || userId,
                 order: currentDocument,
                 config: configOrder,
               });
