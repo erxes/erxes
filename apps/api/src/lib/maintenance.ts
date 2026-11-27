@@ -60,7 +60,7 @@ const cleanup = async () => {
   );
 
   await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
-  await withSystem('cleanup: custom records recycle bin', (tx) => purgeDeletedRecords(tx));
+  await purgeDeletedRecords();
   await withSystem('cleanup: data extension values of removed records', (tx) =>
     sweepRemovedRecords(tx),
   );
