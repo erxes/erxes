@@ -34,7 +34,8 @@ const reply = (method: string, url: string, auth: string | null, body: string) =
   if (url.startsWith(`${GRAPH}/${PAGE}?fields=access_token`))
     return auth === ADMIN_TOKEN ? { id: PAGE, access_token: 'page-token' } : { id: PAGE };
 
-  if (method === 'POST' && url === `${GRAPH}/${APP_ID}/subscriptions`) return { success: true };
+  if (url === `${GRAPH}/${APP_ID}/subscriptions`)
+    return method === 'POST' ? { success: true } : { data: [] };
 
   if (url === `${GRAPH}/${PAGE}/subscribed_apps`) return { success: true };
 
@@ -144,7 +145,7 @@ describe(
       Reflect.deleteProperty(config.integrations.oauthApps, 'facebook');
     });
 
-    it('a page reaches only the organisation whose account manages it, and its teardown is its own', async () => {
+    it('a page reaches only the organisation whose account manages it, and its teardown leaves the page alone', async () => {
       const acme = await t.active(
         'Answer comments',
         comments(await signIn('acme', t.ids.owner, t.ids.org)),
@@ -173,7 +174,7 @@ describe(
       await t.owner().automations.pause({ id: acme });
       await settle();
 
-      expect(pageCalls('DELETE').map((call) => call.auth)).toEqual(['Bearer page-token']);
+      expect(pageCalls('DELETE')).toEqual([]);
     });
 
     it('keeps the server’s app out of sight and out of reach', async () => {
