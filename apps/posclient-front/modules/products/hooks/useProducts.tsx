@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   activeCategoryAtom,
   isSimilarityModeAtom,
@@ -98,25 +98,32 @@ export const useProducts = (props?: {
   const products = (data || {}).poscProducts || []
   const productsCount = (countQuery.data || {}).poscProductsTotalCount || 0
 
-  const handleLoadMore = () => {
-    if (productsCount > products.length) {
-      fetchMore({
-        variables: {
-          page: Math.ceil(products.length / FETCH_MORE_PER_PAGE) + 1,
-          perPage: FETCH_MORE_PER_PAGE,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev
-          return Object.assign({}, prev, {
-            poscProducts: [
-              ...(prev.poscProducts || []),
-              ...fetchMoreResult.poscProducts,
-            ],
-          })
-        },
-      })
+  const loadingMoreRef = useRef(false)
+
+  const handleLoadMore = useCallback(() => {
+    if (loadingMoreRef.current || productsCount <= products.length) {
+      return
     }
-  }
+
+    loadingMoreRef.current = true
+    fetchMore({
+      variables: {
+        page: Math.ceil(products.length / FETCH_MORE_PER_PAGE) + 1,
+        perPage: FETCH_MORE_PER_PAGE,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev
+        return Object.assign({}, prev, {
+          poscProducts: [
+            ...(prev.poscProducts || []),
+            ...fetchMoreResult.poscProducts,
+          ],
+        })
+      },
+    }).finally(() => {
+      loadingMoreRef.current = false
+    })
+  }, [fetchMore, products.length, productsCount])
 
   useEffect(() => {
     const timeOutId = setTimeout(() => setSearchValue(search), 500)

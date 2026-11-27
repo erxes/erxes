@@ -1,30 +1,22 @@
-import { useSearchParams } from "next/navigation"
+import { PanelField, PanelSection } from "@/modules/record-side-panel"
 import {
-  calcCashAtom,
   cashAtom,
   currentCashTotalAtom,
+  markCoverEditedAtom,
 } from "@/store/cover.store"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { BanknoteIcon, SigmaIcon } from "lucide-react"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
+
+import { AmountInput, formatAmount } from "./cover-ui"
 
 const CashAmounts = () => {
   const [cash, setCash] = useAtom(cashAtom)
-  const calcCash = useAtomValue(calcCashAtom)
   const cashTotal = useAtomValue(currentCashTotalAtom)
-  const id = useSearchParams().get("id")
+  const markEdited = useSetAtom(markCoverEditedAtom)
 
-  const onChange = (value: string, idx: number) => {
-    const formatedValue = Number(value) > 0 ? Number(value) : 0
+  const onChange = (count: number, idx: number) => {
     setCash({
       ...cash,
       paidSummary: (cash.paidSummary || []).map((p, i) =>
@@ -32,71 +24,48 @@ const CashAmounts = () => {
           ? p
           : {
               ...p,
-              value: formatedValue > 0 ? formatedValue : 0,
-              amount: formatedValue * p.kindOfVal,
+              value: count,
+              amount: count * p.kindOfVal,
               kind: p.kindOfVal + "",
             }
       ),
     })
+    markEdited()
   }
 
-  const calcAmount = id === "create" ? calcCash : cash.paidDetail
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Мөнгөн дэвсгэртийн задаргаа</CardTitle>
-        <CardDescription>
-          Дэвсгэрт тус бүрийн тоог оруулж, системээс гаргасан дүнтэй харьцуулж
-          хянана уу
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center space-x-2 pb-1">
-          <Label className="w-1/3">Дэвсгэрт</Label>
-          <Label className="w-1/3">Дэвсгэртийн тоо</Label>
-          <Label className="w-1/3">Дүн</Label>
-        </div>
-        {(cash.paidSummary || []).map(({ kindOfVal, value }, idx) => (
-          <div className="flex items-center space-x-2 pb-2" key={kindOfVal}>
-            <Input
-              className="w-1/3 text-right"
-              disabled
-              value={kindOfVal.toLocaleString()}
-            />
-            <Input
-              className="w-1/3"
-              type="number"
+    <PanelSection title="Бэлэн мөнгө" nested>
+      {(cash.paidSummary || []).map(({ kindOfVal, value }, idx) => (
+        <PanelField
+          key={kindOfVal}
+          icon={BanknoteIcon}
+          label={`${formatAmount(kindOfVal)}₮`}
+          bare
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <AmountInput
+              ariaLabel={`${kindOfVal}₮ дэвсгэртийн тоо`}
               value={value}
-              onChange={(e) => onChange(e.target.value, idx)}
+              onChange={(next) => onChange(next, idx)}
+              className="w-20 flex-none text-xs"
             />
-            <Input
-              className="w-1/3 text-right"
-              disabled
-              value={((value || 0) * kindOfVal).toLocaleString()}
-            />
+            <span
+              className={cn(
+                "ml-auto truncate pr-2 text-xs tabular-nums",
+                value ? "font-medium" : "text-zinc-400"
+              )}
+            >
+              {formatAmount((value || 0) * kindOfVal)}₮
+            </span>
           </div>
-        ))}
-
-        <CardFooter className="flex items-center space-x-2 p-0 ">
-          <div className="w-1/3">
-            <Label>Систем дүн</Label>
-            <Input disabled value={(calcAmount || 0).toLocaleString()} />
-          </div>
-          <div className="w-1/3">
-            <Label>Зөрүү</Label>
-            <Input
-              disabled
-              value={(Number(calcAmount) - cashTotal).toLocaleString()}
-            />
-          </div>
-          <div className="w-1/3">
-            <Label>Бүгд</Label>
-            <Input value={cashTotal.toLocaleString()} disabled />
-          </div>
-        </CardFooter>
-      </CardContent>
-    </Card>
+        </PanelField>
+      ))}
+      <PanelField icon={SigmaIcon} label="Нийт тоолсон">
+        <span className="ml-auto font-semibold tabular-nums">
+          {formatAmount(cashTotal)}₮
+        </span>
+      </PanelField>
+    </PanelSection>
   )
 }
 

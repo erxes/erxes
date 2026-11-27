@@ -9,13 +9,10 @@ import {
   type ThermalPaperWidth,
 } from "@/store"
 import { configAtom } from "@/store/config.store"
-import type { CheckedState } from "@radix-ui/react-checkbox"
-import { Label } from "@radix-ui/react-label"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import useQzPrinters from "@/lib/useQzPrinters"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -31,6 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+
+import { SettingsRow } from "./SettingsSection"
 
 const PAPER_WIDTHS: ThermalPaperWidth[] = ["48", "58", "72"]
 
@@ -55,9 +55,7 @@ const QzTraySettings = () => {
     setShowInstallDialog(false)
   }
 
-  const handleToggle = (checked: CheckedState) => {
-    const isChecked = checked === true
-
+  const handleToggle = (isChecked: boolean) => {
     if (isChecked) {
       if (!qzEnabled) {
         setShowInstallDialog(true)
@@ -73,18 +71,89 @@ const QzTraySettings = () => {
   }
 
   return (
-    <div className="w-full pb-5 space-y-2">
-      <Label
-        className="flex items-center w-full gap-2 cursor-pointer"
+    <>
+      <SettingsRow
+        title="Автоматаар хэвлэх"
+        description="QZ Tray-ээр хэвлэх цонхгүйгээр принтер рүү шууд илгээнэ"
         htmlFor="qzTrayEnabled"
+        control={
+          <Switch
+            id="qzTrayEnabled"
+            checked={qzEnabled}
+            onCheckedChange={handleToggle}
+          />
+        }
       >
-        <Checkbox
-          id="qzTrayEnabled"
-          checked={qzEnabled}
-          onCheckedChange={handleToggle}
-        />
-        Автоматаар хэвлэх / QZ Tray ашиглах
-      </Label>
+        {qzEnabled && (
+          <div className="space-y-2">
+            {error && (
+              <div className="flex items-center gap-2 text-xs text-destructive">
+                <span>{error}</span>
+                <button
+                  type="button"
+                  onClick={() => refresh()}
+                  className="underline"
+                >
+                  Дахин оролдох
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <div className="text-xs text-muted-foreground">
+                  Цаасны өргөн
+                </div>
+                <Select
+                  value={paperWidth}
+                  onValueChange={(value) =>
+                    setPaperWidth(value as ThermalPaperWidth)
+                  }
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Өргөн сонгох" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAPER_WIDTHS.map((w) => (
+                      <SelectItem key={w} value={w}>
+                        {w}mm
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-xs text-muted-foreground">
+                  Үндсэн принтер
+                </div>
+                <Select
+                  value={mainPrinter || ""}
+                  onValueChange={(value) => setMainPrinter(value)}
+                  disabled={!connected || loading}
+                >
+                  <SelectTrigger className="h-8" loading={loading}>
+                    <SelectValue placeholder="Принтер сонгох" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {printers.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {p}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {showPrintBlock && !connected && !error && (
+              <div className="text-xs text-muted-foreground">
+                QZ Tray-тэй холболт үүсгэж байна...
+              </div>
+            )}
+          </div>
+        )}
+      </SettingsRow>
 
       <Dialog open={showInstallDialog} onOpenChange={setShowInstallDialog}>
         <DialogContent>
@@ -121,77 +190,7 @@ const QzTraySettings = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {qzEnabled && (
-        <div className="space-y-2">
-          {error && (
-            <div className="flex items-center gap-2 text-xs text-red-500">
-              <span>{error}</span>
-              <button
-                type="button"
-                onClick={() => refresh()}
-                className="underline"
-              >
-                Дахин оролдох
-              </button>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div>
-              <div className="text-xs text-muted-foreground">
-                Хэвлэлтийн цаасны өргөн
-              </div>
-              <Select
-                value={paperWidth}
-                onValueChange={(value) =>
-                  setPaperWidth(value as ThermalPaperWidth)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Өргөн сонгох" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAPER_WIDTHS.map((w) => (
-                    <SelectItem key={w} value={w}>
-                      {w}mm
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <div className="text-xs text-muted-foreground">
-                Үндсэн принтер
-              </div>
-              <Select
-                value={mainPrinter || ""}
-                onValueChange={(value) => setMainPrinter(value)}
-                disabled={!connected || loading}
-              >
-                <SelectTrigger loading={loading}>
-                  <SelectValue placeholder="Принтер сонгох" />
-                </SelectTrigger>
-                <SelectContent>
-                  {printers.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {showPrintBlock && !connected && !error && (
-            <div className="text-xs text-center text-muted-foreground">
-              QZ Tray-тэй холболт үүсгэж байна...
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    </>
   )
 }
 

@@ -1,165 +1,212 @@
 import { useState } from "react"
-import Link from "next/link"
+import { filterItemClass } from "@/modules/filter"
+import { RecordTable } from "@/modules/record-table"
+import { coverPrintIdAtom } from "@/store/cover.store"
 import { useMutation, type ApolloError } from "@apollo/client"
 import { Row } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
+import { useSetAtom } from "jotai"
+import {
+  CheckCircle2Icon,
+  PencilIcon,
+  PrinterIcon,
+  Trash2Icon,
+} from "lucide-react"
 
 import { Cover } from "@/types/cover.types"
+import { useQueryState } from "@/lib/useQueryState"
+import { cn } from "@/lib/utils"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+  Command,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { onError, toast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
+type ConfirmAction = "confirm" | "delete"
+
+const CONFIRM_TEXT: Record<
+  ConfirmAction,
+  { title: string; description: string; ok: string; success: string }
+> = {
+  confirm: {
+    title: "Хаалтыг баталгаажуулах уу?",
+    description: "Баталгаажуулсан хаалтыг дахин өөрчлөх боломжгүй.",
+    ok: "Баталгаажуулах",
+    success: "Хаалт баталгаажлаа",
+  },
+  delete: {
+    title: "Хаалтыг устгах уу?",
+    description: "Энэ үйлдлийг буцаах боломжгүй. Хаалт бүрмөсөн устгагдана.",
+    ok: "Устгах",
+    success: "Хаалт устлаа",
+  },
+}
+
+const buttonClassName = "h-8 rounded px-3 text-[13px] font-semibold"
+
 export const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
   const { _id, status, details } = row.original
+  const [, setCoverId] = useQueryState<string>("id")
+  const setPrintId = useSetAtom(coverPrintIdAtom)
+  const [open, setOpen] = useState(false)
+  const [action, setAction] = useState<ConfirmAction | null>(null)
   const terminalResults = (details || []).flatMap(
     (detail) => detail.terminalResults || []
   )
-  const [actionType, setActionType] = useState("")
-  const [openSheet, setOpenSheet] = useState(false)
 
-  const options = {
-    variables: {
-      _id,
-    },
+  const options = (kind: ConfirmAction) => ({
+    variables: { _id },
     onCompleted() {
-      if (actionType === "delete") toast({ description: "Амжилттай устлаа" })
+      toast({ description: CONFIRM_TEXT[kind].success, variant: "success" })
+      setAction(null)
     },
     onError({ message }: ApolloError) {
       onError(message)
     },
     refetchQueries: ["Covers"],
-  }
+  })
 
-  const [coversConfirm, { loading }] = useMutation(
+  const [coversConfirm, { loading: loadingConfirm }] = useMutation(
     mutations.coversConfirm,
-    options
+    options("confirm")
   )
   const [coversDelete, { loading: loadingDelete }] = useMutation(
     mutations.coversDelete,
-    options
+    options("delete")
   )
 
-  const handleSubmit = () =>
-    actionType === "delete" ? coversDelete() : coversConfirm()
-
-  const disabled = status === "confirm" || status === "confirming"
-  const cannotDelete = disabled
+  const locked = status === "confirm" || status === "confirming"
   const cannotPublish =
     status === "confirm" ||
     status === "draft" ||
-    !!terminalResults?.some((result) => result.response == null)
+    terminalResults.some((result) => result.response == null)
+
+  const run = (fn: () => void) => () => {
+    setOpen(false)
+    fn()
+  }
 
   return (
     <>
-      <AlertDialog>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Үйлдэлүүд</DropdownMenuLabel>
-            <DropdownMenuItem
-              disabled={status !== "confirm"}
-              onClick={() => setOpenSheet(true)}
-            >
-              Хэвлэх
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild={!disabled} disabled={disabled}>
-              {disabled ? (
-                "Өөрчлөх"
-              ) : (
-                <Link href={`/cover/detail?id=${_id}`}>Өөрчлөх</Link>
-              )}
-            </DropdownMenuItem>
-            <AlertDialogTrigger
-              asChild
-              onClick={() => setActionType("confirm")}
-              disabled={cannotPublish}
-            >
-              <DropdownMenuItem>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <RecordTable.MoreButton className="h-full w-full" />
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          sideOffset={8}
+          className="w-56 overflow-hidden rounded-md bg-background p-0"
+        >
+          <Command>
+            <CommandList className="m-1 max-h-none">
+              <CommandItem
+                value="print"
+                className={filterItemClass}
+                disabled={status !== "confirm"}
+                onSelect={run(() => {
+                  setCoverId(null)
+                  setPrintId(_id)
+                })}
+              >
+                <PrinterIcon />
+                Хэвлэх
+              </CommandItem>
+              <CommandItem
+                value="edit"
+                className={filterItemClass}
+                disabled={locked}
+                onSelect={run(() => {
+                  setPrintId(null)
+                  setCoverId(_id)
+                })}
+              >
+                <PencilIcon />
+                Өөрчлөх
+              </CommandItem>
+              <CommandItem
+                value="confirm"
+                className={filterItemClass}
+                disabled={cannotPublish}
+                onSelect={run(() => setAction("confirm"))}
+              >
+                <CheckCircle2Icon />
                 {status === "confirming"
                   ? "Дахин баталгаажуулах"
                   : "Баталгаажуулах"}
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-            <DropdownMenuSeparator />
-
-            <AlertDialogTrigger
-              asChild
-              onClick={() => setActionType("delete")}
-              disabled={cannotDelete}
-            >
-              <DropdownMenuItem className="text-destructive">
+              </CommandItem>
+              <CommandSeparator className="my-1" />
+              <CommandItem
+                value="delete"
+                className={cn(
+                  filterItemClass,
+                  "text-destructive aria-selected:bg-destructive/10 aria-selected:text-destructive"
+                )}
+                disabled={locked}
+                onSelect={run(() => setAction("delete"))}
+              >
+                <Trash2Icon />
                 Устгах
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Та үнэхээр итгэлтэй байна уу?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Энэ үйлдлийг буцаах боломжгүй. Энэ нь таны хаалтыг бүрмөсөн{" "}
-              {actionType === "delete" ? "устгана" : "баталгаажуулна"}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Цуцлах</AlertDialogCancel>
-            <AlertDialogAction
-              variant={actionType === "delete" ? "destructive" : "default"}
-              asChild
-              onClick={handleSubmit}
-            >
-              <Button loading={loading || loadingDelete}>Үргэлжлүүлэх</Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <Sheet
-        open={openSheet}
-        onOpenChange={() => setOpenSheet((prev) => !prev)}
+              </CommandItem>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      <AlertDialog
+        open={!!action}
+        onOpenChange={(next) => {
+          if (!next) setAction(null)
+        }}
       >
-        <SheetContent
-          closable
-          className="flex flex-col p-4 sm:max-w-xs overflow-hidden"
-        >
-          <div className="flex-auto overflow-hidden ">
-            <ScrollArea className="h-full">
-              {openSheet && (
-                <iframe
-                  src={"/reciept/cover?id=" + _id}
-                  className="block flex-auto min-h-screen"
-                />
-              )}
-            </ScrollArea>
-          </div>
-        </SheetContent>
-      </Sheet>
+        {action && (
+          <AlertDialogContent
+            overlayClassName="bg-black/80"
+            className="border shadow-lg sm:rounded-lg"
+          >
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-lg">
+                {CONFIRM_TEXT[action].title}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm">
+                {CONFIRM_TEXT[action].description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="pt-2">
+              <AlertDialogCancel className={cn(buttonClassName, "mt-0")}>
+                Болих
+              </AlertDialogCancel>
+              <Button
+                type="button"
+                variant={action === "delete" ? "destructive" : "default"}
+                className={buttonClassName}
+                loading={loadingConfirm || loadingDelete}
+                onClick={() =>
+                  action === "delete" ? coversDelete() : coversConfirm()
+                }
+              >
+                {CONFIRM_TEXT[action].ok}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        )}
+      </AlertDialog>
     </>
   )
 }

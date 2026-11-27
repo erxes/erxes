@@ -14,22 +14,29 @@ const SyncConfig = ({
 }: ButtonProps & { configType: "products" | "config" | "slots" }) => {
   const success = () =>
     toast({
-      description: `${configType} has been synced successfully.`,
+      description:
+        configType === "config"
+          ? "ПОС тохиргоог шинэчиллээ."
+          : `${configType} has been synced successfully.`,
     })
 
-  const [syncConfigProductsConfigs] = useMutation(mutations.syncConfig, {
-    variables: { type: "productsConfigs" },
-  })
+  const [syncProductsConfigs, { loading: syncingProductsConfigs }] =
+    useMutation(mutations.syncConfig, {
+      variables: { type: "productsConfigs" },
+      onCompleted: success,
+      onError: (error) => onError(error.message),
+    })
 
   const [syncConfig, { loading }] = useMutation(mutations.syncConfig, {
     onCompleted() {
       if (configType !== "config") return success()
-      syncConfigProductsConfigs()
+      void syncProductsConfigs()
     },
     onError(error) {
       return onError(error.message)
     },
     refetchQueries: ["CurrentConfig", "posclientConfigs"],
+    awaitRefetchQueries: true,
   })
 
   return (
@@ -42,7 +49,7 @@ const SyncConfig = ({
           },
         })
       }
-      loading={loading}
+      loading={loading || syncingProductsConfigs}
     />
   )
 }

@@ -1,10 +1,10 @@
 import { printOnlyNewItemsAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
-import type { CheckedState } from "@radix-ui/react-checkbox"
-import { Label } from "@radix-ui/react-label"
 import { useAtom, useAtomValue } from "jotai"
 
-import { Checkbox } from "@/components/ui/checkbox"
+import { Switch } from "@/components/ui/switch"
+
+import { SettingsRow } from "./SettingsSection"
 
 const PrintItemStatus = () => {
   const [printOnlyNew, setPrintOnlyNew] = useAtom(printOnlyNewItemsAtom)
@@ -16,19 +16,18 @@ const PrintItemStatus = () => {
   }
 
   return (
-    <Label
-      className="w-full pb-5 flex gap-2 items-center"
+    <SettingsRow
+      title="Зөвхөн шинэ барааг хэвлэх"
+      description="Гал тогооны баримтад шинээр нэмэгдсэн барааг л хэвлэнэ"
       htmlFor="printOnlyNew"
-    >
-      <Checkbox
-        checked={printOnlyNew}
-        id="printOnlyNew"
-        onCheckedChange={(checked: CheckedState) =>
-          setPrintOnlyNew(checked === true)
-        }
-      />
-      Зөвхөн шинэ бүтээгдэхүүнийг хэвлэх
-    </Label>
+      control={
+        <Switch
+          id="printOnlyNew"
+          checked={printOnlyNew}
+          onCheckedChange={setPrintOnlyNew}
+        />
+      }
+    />
   )
 }
 

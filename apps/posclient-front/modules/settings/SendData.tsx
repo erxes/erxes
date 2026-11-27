@@ -19,7 +19,7 @@ const SendData = () => {
       .then((res: any) => res.json())
       .then((res) => {
         if (res.success) {
-          return toast({ description: `Амжилттай.` })
+          return toast({ description: `Амжилттай.`, variant: "success" })
         }
         return onError(res.message)
       })
@@ -31,7 +31,7 @@ const SendData = () => {
 
   return (
     <SettingsButton disabled={loading} onClick={handleClick}>
-      Send - Data
+      И-баримт илгээх
     </SettingsButton>
   )
 }

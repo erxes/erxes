@@ -2,13 +2,15 @@ import { endPoint, initialData } from "@/modules/checkout/hooks/useGolomt"
 import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 import { z } from "zod"
+
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { getLocal, parseBase64 } from "@/lib/utils"
-import { BankAmountUi } from "./bank-amount-ui"
+
 import {
-  useCoverTerminalFetch,
   readTerminalResponse,
+  useCoverTerminalFetch,
 } from "../hooks/useCoverTerminalFetch"
+import { BankAmountUi } from "./bank-amount-ui"
 
 export const Golomt = () => {
   const paymentTypes = useAtomValue(paymentTypesAtom) || []

@@ -41,30 +41,34 @@ const ConfigsFetch = () => {
     posConfigsFetch({ variables: data })
 
   return (
-    <Form {...form}>
-      <form className="w-80 space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="token"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Token</FormLabel>
-              <FormControl>
-                <Input placeholder="token" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button
-          type="submit"
-          className="w-full font-bold uppercase"
-          loading={loading}
-        >
-          Init
-        </Button>
-      </form>
-    </Form>
+    <div className="flex h-screen items-center justify-center bg-muted p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-background p-8 shadow-xl">
+        <Form {...form}>
+          <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+            <FormField
+              control={form.control}
+              name="token"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Token</FormLabel>
+                  <FormControl>
+                    <Input placeholder="token" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              className="w-full h-11 font-semibold"
+              loading={loading}
+            >
+              Init
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </div>
   )
 }
 

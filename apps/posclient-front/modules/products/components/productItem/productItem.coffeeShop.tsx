@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react"
+import { forwardRef, memo, useState } from "react"
 import dynamic from "next/dynamic"
 import { addToCartAtom } from "@/store/cart.store"
 import { isShowRemainderAtom } from "@/store/config.store"
@@ -229,4 +229,4 @@ export const ProductItemButton = ({
 
 ProductItemWrapper.displayName = "ProductItemWrapper"
 
-export default ProductItem
+export default memo(ProductItem)

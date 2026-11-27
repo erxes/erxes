@@ -1,19 +1,15 @@
-import Link from "next/link"
 import { HistoryIcon } from "lucide-react"
 
 import HeaderLayout from "@/components/header/headerLayout"
+import HeaderTitle from "@/components/header/headerTitle"
 
 const HistoryLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <HeaderLayout>
-        <Link
-          className="inline-flex items-end text-sm font-semibold"
-          href={"/history"}
-        >
-          <HistoryIcon className="mr-1" />
+        <HeaderTitle href="/history" icon={HistoryIcon}>
           Захиалгын түүх
-        </Link>
+        </HeaderTitle>
       </HeaderLayout>
       <div className="flex-auto overflow-hidden">{children}</div>
     </>

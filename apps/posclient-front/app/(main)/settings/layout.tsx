@@ -1,27 +1,82 @@
+"use client"
+
+import { Fragment, Suspense } from "react"
 import Link from "next/link"
-import { XCircleIcon } from "lucide-react"
+import { useSettingsSections } from "@/modules/settings/useSettingsSections"
+import { ChevronLeftIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
 
-const Layout = ({ children }: { children?: React.ReactNode }) => {
+const navItemClass =
+  "flex h-8 flex-none items-center gap-2 rounded-sm px-2 text-left text-[13px] font-medium transition-colors hover:bg-accent focus-visible:shadow-focus focus-visible:outline-hidden [&>svg]:size-4 [&>svg]:flex-none"
+
+const SettingsNavigation = () => {
+  const { sections, active, setSection } = useSettingsSections()
+
   return (
-    <div className="flex h-screen w-screen md:items-center justify-center bg-black">
-      <ScrollArea className="bg-white md:rounded-lg h-screen md:h-[44rem] md:max-h-[95vh] overflow-hidden">
-        <div className="mx-auto flex  w-screen max-w-lg flex-col items-center justify-center px-4 md:px-8 py-5">
-          {children}
-        </div>
-      </ScrollArea>
-      <Button
-        Component={Link}
-        className="absolute right-5 top-5 h-auto rounded-lg md:rounded-full p-1 hover:bg-white/20 hover:text-white bg-neutral-300 md:bg-transparent"
-        variant="ghost"
-        href="/"
+    <aside className="flex w-full flex-none flex-col border-b bg-sidebar md:w-60 md:border-b-0 md:border-r">
+      <div className="hidden h-10 flex-none items-center px-4 text-[13px] font-medium md:flex">
+        Тохиргоо
+      </div>
+      <nav
+        aria-label="Тохиргоо"
+        className="flex gap-1 overflow-x-auto p-2 md:flex-col md:overflow-visible md:pt-0"
       >
-        <XCircleIcon className="h-6 w-6 text-white" />
-      </Button>
+        <Link href="/" className={cn(navItemClass, "text-foreground")}>
+          <ChevronLeftIcon aria-hidden="true" />
+          Тохиргооноос гарах
+        </Link>
+        {sections.map((item, index) => {
+          const isActive = item.value === active.value
+          const startsGroup =
+            index === 0 || sections[index - 1].group !== item.group
+
+          return (
+            <Fragment key={item.value}>
+              {startsGroup && <div className="hidden h-2 md:block" />}
+              <button
+                type="button"
+                aria-current={isActive ? "page" : undefined}
+                onClick={() => setSection(item.value)}
+                className={cn(
+                  navItemClass,
+                  isActive
+                    ? "bg-primary/10 text-primary hover:bg-primary/10"
+                    : "[&>svg]:text-muted-foreground"
+                )}
+              >
+                <item.icon aria-hidden="true" />
+                <span className="whitespace-nowrap">{item.label}</span>
+              </button>
+            </Fragment>
+          )
+        })}
+      </nav>
+    </aside>
+  )
+}
+
+const SettingsHeader = () => {
+  const { active } = useSettingsSections()
+
+  return (
+    <div className="flex h-10 flex-none items-center gap-2 border-b bg-background px-4 text-[13px] font-medium">
+      <active.icon className="size-4 flex-none" aria-hidden="true" />
+      <span className="truncate">{active.label}</span>
     </div>
   )
 }
+
+const Layout = ({ children }: { children?: React.ReactNode }) => (
+  <Suspense fallback={null}>
+    <div className="flex h-screen w-full flex-col bg-background md:flex-row">
+      <SettingsNavigation />
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <SettingsHeader />
+        <div className="min-h-0 flex-auto overflow-y-auto">{children}</div>
+      </main>
+    </div>
+  </Suspense>
+)
 
 export default Layout

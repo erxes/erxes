@@ -53,7 +53,7 @@ const Image: FC<
     return (
       <Package
         className={cn(
-          "text-zinc-300",
+          "text-scroll",
           updatedProps.fill &&
             "h-12 w-12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute",
           className
@@ -76,7 +76,12 @@ const Image: FC<
       }
       loader={getLoader()}
       onLoad={handleComplete}
-      className={cn(className, isImageLoading && "blur-2xl", "text-black")}
+      className={cn(
+        "transition-opacity duration-300",
+        className,
+        isImageLoading && "opacity-0",
+        "text-black"
+      )}
       unoptimized={fromCF}
       sizes={
         sizes ||

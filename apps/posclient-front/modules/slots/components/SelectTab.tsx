@@ -9,15 +9,21 @@ const SelectTab = () => {
   const slot = useAtomValue(slotCodeAtom)
   return (
     <Tabs
-      className="absolute bottom-3 left-1/2 -translate-x-1/2"
+      className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2"
       value={selectedTab}
-      onValueChange={(val) => setSelectedTab(val as any)}
+      onValueChange={(val) => setSelectedTab(val as "plan" | "products")}
     >
-      <TabsList className="w-full">
-        <TabsTrigger value="plan" className="flex-auto min-w-[180px]">
+      <TabsList className="h-auto w-full gap-1 rounded-lg bg-muted p-1 shadow-lg">
+        <TabsTrigger
+          value="plan"
+          className="h-8 min-w-36 flex-auto rounded-md text-[13px] font-medium text-muted-foreground hover:bg-accent data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+        >
           Заал {slot ? ` (${slot})` : ""}
         </TabsTrigger>
-        <TabsTrigger value="products" className="flex-auto min-w-[180px]">
+        <TabsTrigger
+          value="products"
+          className="h-8 min-w-36 flex-auto rounded-md text-[13px] font-medium text-muted-foreground hover:bg-accent data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+        >
           Бараа
         </TabsTrigger>
       </TabsList>

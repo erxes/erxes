@@ -1,26 +1,25 @@
 "use client"
 
+import { useState } from "react"
 import { useMutation } from "@apollo/client"
 
-import Login from "./components/login"
+import { LoginForm, type LoginValues } from "./components/login"
 import { mutations } from "./graphql"
-import { onError } from '@/components/ui/use-toast'
 
-const LoginContainer = () => {
+export function LoginContainer() {
+  const [error, setError] = useState<string>()
   const [login, { loading }] = useMutation(mutations.login, {
     onError({ message }) {
-      onError(message)
+      setError(message)
     },
     refetchQueries: ["posCurrentUser"],
+    awaitRefetchQueries: true,
   })
 
-  const handleLogin: IHandleLogin = ({ email, password }) => {
-    login({ variables: { email, password } })
+  const handleLogin = (values: LoginValues) => {
+    setError(undefined)
+    void login({ variables: values })
   }
 
-  return <Login loading={loading} login={handleLogin} />
+  return <LoginForm loading={loading} error={error} login={handleLogin} />
 }
-
-export type IHandleLogin = (params: { email: string; password: string }) => void
-
-export default LoginContainer

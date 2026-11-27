@@ -1,22 +1,20 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { parseISO } from "date-fns"
+import { atom, useAtomValue } from "jotai"
+
+const nowAtom = atom(Date.now())
+
+nowAtom.onMount = (setNow) => {
+  setNow(Date.now())
+  const interval = setInterval(() => setNow(Date.now()), 1000)
+
+  return () => clearInterval(interval)
+}
 
 const useTimer = (targetDate: string) => {
-  const [remainingTime, setRemainingTime] = useState<number>(
-    parseISO(targetDate).getTime() - new Date().getTime()
-  )
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentTime = new Date()
-      const distance = parseISO(targetDate).getTime() - currentTime.getTime()
-      setRemainingTime(distance)
-    }, 1000)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [targetDate])
+  const now = useAtomValue(nowAtom)
+  const targetTime = useMemo(() => parseISO(targetDate).getTime(), [targetDate])
+  const remainingTime = targetTime - now
 
   const _0 = (value: number) => {
     return value < 10 ? `0${value}` : value

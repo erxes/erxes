@@ -11,12 +11,12 @@ import {
 } from "./dropdown-menu"
 
 const optionVariants = cva(
-  "rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10 flex-none px-0",
+  "rounded-none shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 flex-none px-0",
   {
     variants: {
       size: {
         default: "h-10 w-10",
-        lg: "h-11 w-11",
+        lg: "h-12 w-12",
         sm: "h-9 w-9",
         icon: "h-9 w-9",
       },
@@ -39,12 +39,15 @@ export default function SplitButton({
   return (
     <div
       className={cn(
-        "inline-flex divide-x divide-primary-foreground/30 rounded-lg shadow-sm shadow-black/5",
+        "inline-flex divide-x divide-primary-foreground/30 rounded-lg shadow-button-primary",
         className
       )}
     >
       <Button
-        className="rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10 flex-auto px-0"
+        className={cn(
+          "rounded-none shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 flex-auto px-0",
+          size === "lg" && "h-12"
+        )}
         size={size}
         onClick={onClick}
         loading={loading}

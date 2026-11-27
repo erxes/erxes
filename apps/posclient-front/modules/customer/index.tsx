@@ -7,7 +7,7 @@ import {
 import { customerPopoverAtom } from "@/store/ui.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue } from "jotai"
-import { Check, ChevronsUpDown, Plus, XIcon } from "lucide-react"
+import { Check, Plus, XIcon } from "lucide-react"
 
 import {
   Customer as CustomerT,
@@ -94,34 +94,33 @@ const Customer = () => {
 
   return (
     <>
-      <div className="flex items-center gap-1 relative">
-        <CustomerType className="h-5 w-5" />
+      <div className="relative flex items-center gap-2">
+        <CustomerType className="size-4" />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between px-2"
+              className="h-8 w-full justify-start rounded border-0 px-2.5 text-[13px] font-normal shadow-xs"
             >
               {!!customer ? (
                 getCustomerLabel(customer)
               ) : (
-                <span>
+                <span className="text-muted-foreground">
                   {`${placeHolder(customerType)} сонгох`}{" "}
-                  <Kbd className="bg-neutral-200/70 px-1">F9</Kbd>
+                  <Kbd className="ml-1 px-1 text-[10px]">F9</Kbd>
                 </span>
               )}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           {!!customer && (
             <Button
               variant="secondary"
-              className="h-5 w-5 p-0.5 rounded-full absolute right-2 top-1/2 -translate-y-1/2"
+              className="absolute right-8 top-1/2 size-5 -translate-y-1/2 rounded-full p-0.5"
               onClick={handleClean}
             >
-              <XIcon className="h-4 w-4" />
+              <XIcon className="size-3.5" />
             </Button>
           )}
           <PopoverContent className="w-[var(--radix-popper-anchor-width)] p-0">
@@ -187,7 +186,9 @@ const Customer = () => {
         onCreated={handleCreated}
         onClose={() => setAddOpen(false)}
       />
-      {loadingCU && <Loader className="absolute inset-0 bg-white/50" />}
+      {loadingCU && (
+        <Loader className="absolute inset-0 bg-background/60 backdrop-blur-[1px]" />
+      )}
     </>
   )
 }

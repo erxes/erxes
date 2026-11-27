@@ -12,33 +12,32 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { SettingsRow } from "./components/SettingsSection"
+
 const ChooseTheme = () => {
   const [mode, setMode] = useAtom(modeAtom)
 
   return (
-    <div className="relative w-full rounded-lg bg-black text-sm">
-      <Select
-        value={mode}
-        onValueChange={(value: modeT) => {
-          setMode(value)
-        }}
-      >
-        <SelectTrigger className="h-auto border-none p-3 pt-7 text-sm font-extrabold text-white">
-          <SelectValue placeholder="сонгох" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="main">Үндсэн</SelectItem>
-          <SelectItem value="market">Дэлгүүр</SelectItem>
-          <SelectItem value="coffee-shop">Кофе шоп</SelectItem>
-          <SelectItem value="restaurant">Ресторан</SelectItem>
-          <SelectItem value="kiosk">Киоск</SelectItem>
-          <SelectItem value="mobile">Mobile</SelectItem>
-        </SelectContent>
-      </Select>
-      <small className="absolute left-3 top-2 font-bold leading-4 text-white/80">
-        Theme сонгох
-      </small>
-    </div>
+    <SettingsRow
+      title="Загвар"
+      description="Кассын дэлгэцийн төрөл"
+      htmlFor="posTheme"
+      control={
+        <Select value={mode} onValueChange={(value: modeT) => setMode(value)}>
+          <SelectTrigger id="posTheme" className="h-8 w-40 font-medium">
+            <SelectValue placeholder="Сонгох" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="main">Үндсэн</SelectItem>
+            <SelectItem value="market">Дэлгүүр</SelectItem>
+            <SelectItem value="coffee-shop">Кофе шоп</SelectItem>
+            <SelectItem value="restaurant">Ресторан</SelectItem>
+            <SelectItem value="kiosk">Киоск</SelectItem>
+            <SelectItem value="mobile">Mobile</SelectItem>
+          </SelectContent>
+        </Select>
+      }
+    />
   )
 }
 

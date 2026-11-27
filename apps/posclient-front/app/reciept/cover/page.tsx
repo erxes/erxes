@@ -15,6 +15,7 @@ import { queries } from "@/app/(main)/cover/graphql"
 const Cover = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
+  const embedded = searchParams.get("embed") === "1"
   const { loading, data } = useQuery(queries.recieptDetail, {
     variables: { id },
   })
@@ -156,14 +157,15 @@ const Cover = () => {
         <span className="font-semibold">Гарын үсэг:</span>{" "}
         ________________________
       </div>
-      <Button
-        onClick={() => window.print()}
-        // variant="secondary"
-        className="w-full text-xs print:hidden"
-        size={"sm"}
-      >
-        Хэвлэх
-      </Button>
+      {!embedded && (
+        <Button
+          onClick={() => window.print()}
+          className="w-full text-xs print:hidden"
+          size={"sm"}
+        >
+          Хэвлэх
+        </Button>
+      )}
     </div>
   )
 }

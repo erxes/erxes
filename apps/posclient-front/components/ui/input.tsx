@@ -16,10 +16,10 @@ const Input = React.forwardRef<
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2  ring-offset-background file:border-0 file:bg-transparent file:font-medium placeholder:text-muted-foreground  disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 transition-[color,box-shadow,border-color] file:border-0 file:bg-transparent file:font-medium placeholder:text-muted-foreground  disabled:cursor-not-allowed disabled:opacity-50",
           focus
-            ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            : "focus-visible:outline-none",
+            ? "focus-visible:outline-hidden focus-visible:border-primary focus-visible:shadow-focus"
+            : "focus-visible:outline-hidden",
           className
         )}
         ref={ref}

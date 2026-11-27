@@ -74,7 +74,7 @@ const ValidateOrderChange = () => {
             захиалгын өөрчлөлтийг хадгалах уу
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Хэрэв та "Хадгалахгүй" дээр дарвал таны сүүлийн өөрчлөлт
+            Хэрэв та &quot;Хадгалахгүй&quot; дээр дарвал таны сүүлийн өөрчлөлт
             хадгалагдахгүй.
           </AlertDialogDescription>
         </AlertDialogHeader>

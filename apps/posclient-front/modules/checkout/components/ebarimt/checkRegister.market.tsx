@@ -2,17 +2,19 @@ import { useEffect, useState } from "react"
 import useCheckRegister from "@/modules/checkout/hooks/useCheckRegister"
 import { registerNumberAtom } from "@/store/order.store"
 import { useSetAtom } from "jotai"
-import { CornerDownLeft } from "lucide-react"
+import { CheckCircle2Icon, SearchIcon, XCircleIcon } from "lucide-react"
 
 import useFocus from "@/lib/useFocus"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
+
+const REGISTER_PATTERN = /^[А-ЯЁӨҮ]{2}\d{8}$|^\d{7}$/
 
 const CheckRegister = () => {
   const [current, setCurrent] = useState("")
+  const [error, setError] = useState("")
   const setRegister = useSetAtom(registerNumberAtom)
   const { checkRegister, loading, data } = useCheckRegister()
   const { found, name } = data || {}
@@ -20,19 +22,20 @@ const CheckRegister = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!current.match(/^[А-ЯЁӨҮ]{2}\d{8}$|^\d{7}$/))
-      return toast({
-        description: "Зөв регистерийн дугаараа оруулана уу",
-        variant: "destructive",
-      })
+    const value = current.trim().toUpperCase()
+    if (!REGISTER_PATTERN.test(value)) {
+      setError("Регистрийн дугаар буруу байна (7 оронтой тоо эсвэл АА12345678)")
+      return
+    }
+    setError("")
     checkRegister({
       variables: {
-        registerNumber: current,
+        registerNumber: value,
       },
       onCompleted(data) {
         const { ordersCheckCompany } = data || {}
         if (ordersCheckCompany.found) {
-          setRegister(current)
+          setRegister(value)
         }
       },
     })
@@ -43,39 +46,60 @@ const CheckRegister = () => {
   }, [])
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Label className="block pb-2" htmlFor="registerNumber">
-        Байгууллагын РД
+    <form onSubmit={handleSubmit} className="space-y-1.5">
+      <Label
+        className="block text-xs font-medium text-muted-foreground"
+        htmlFor="registerNumber"
+      >
+        Байгууллагын регистрийн дугаар
       </Label>
-      <div className="relative">
+      <div className="flex gap-2">
         <Input
-          className="pl-4 pr-8"
+          className="h-10 flex-auto"
           id="registerNumber"
-          placeholder="Байгууллагын РД"
+          placeholder="Жишээ: 1234567"
           disabled={loading}
           value={current}
-          onChange={(e) => setCurrent(e.target.value)}
+          aria-invalid={!!error}
+          onChange={(e) => {
+            setCurrent(e.target.value)
+            setError("")
+          }}
           ref={htmlElRef}
-        ></Input>
+        />
         <Button
-          className="absolute right-0 top-0 bg-white"
+          className="h-10 flex-none gap-1.5"
           type="submit"
           loading={loading}
-          variant={"outline"}
+          variant="outline"
         >
-          {!loading && <CornerDownLeft className="h-4 w-4 -ml-1 mr-2" />}
-          Enter
+          {!loading && <SearchIcon className="h-4 w-4" />}
+          Шалгах
         </Button>
       </div>
-      {data && (
-        <p
+      {error && (
+        <p role="alert" className="text-xs font-medium text-destructive">
+          {error}
+        </p>
+      )}
+      {data && !error && (
+        <div
           className={cn(
-            "mt-[6px] font-bold",
-            found ? "text-green-500" : "text-red-500"
+            "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold",
+            found
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-destructive/10 text-destructive"
           )}
         >
-          {found ? name || "Test company" : "Байгуулга олдсонгүй"}
-        </p>
+          {found ? (
+            <CheckCircle2Icon className="h-4 w-4 flex-none" />
+          ) : (
+            <XCircleIcon className="h-4 w-4 flex-none" />
+          )}
+          <span className="truncate">
+            {found ? name || "Test company" : "Байгууллага олдсонгүй"}
+          </span>
+        </div>
       )}
     </form>
   )

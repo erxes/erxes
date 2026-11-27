@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-25`
 
 ## Scope
 
@@ -218,6 +218,10 @@
 - Pricing bonuses append separate zero-price order lines with unique IDs and
   `isPackage: true`, so the existing generated-item lifecycle removes and rebuilds
   them on each save. Never average a bonus into a paid line or reduce paid quantity.
+
+- Take-away/delivery package matching (`catProdMappings` in `utils/orderUtils.ts`)
+  must tolerate mappings whose category is not synced locally: such mappings
+  never match and never fail `ordersAdd`/`ordersEdit`.
 
 - Terminal result IDs make reservation/completion retries idempotent. Completed
   responses are immutable; saving manual cover fields must retain every result.

@@ -7,7 +7,7 @@ const syncOrders = gql`
 `
 const refetchRemainder = gql`
   mutation refetchRemainder($categoryId: String, $searchValue: String) {
-    refetchRemainder (categoryId: $categoryId, searchValue: $searchValue)
+    refetchRemainder(categoryId: $categoryId, searchValue: $searchValue)
   }
 `
 

@@ -13,11 +13,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const mainOrder = useSearchParams().get("mainOrder")
   return (
-    <div className="relative flex flex-auto items-center justify-center bg-black text-white">
+    <div className="relative flex flex-auto items-center justify-center bg-muted/60 p-4">
       <Button
         variant="ghost"
         size={"sm"}
-        className="absolute top-4 right-4 px-2 rounded-full bg-black hover:bg-slate-800 hover:text-white"
+        className="absolute right-4 top-4 h-8 w-8 rounded-full px-0"
+        aria-label="Хаах"
         onClick={() => {
           mainOrder
             ? router.push(`/checkout?orderId=${mainOrder}`)

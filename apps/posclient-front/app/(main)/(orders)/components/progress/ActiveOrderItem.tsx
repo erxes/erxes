@@ -35,7 +35,7 @@ const ActiveOrderItem = ({
   const isDone = status === ORDER_ITEM_STATUSES.DONE
 
   return (
-    <div className="hover:bg-slate-100 rounded">
+    <div className="hover:bg-slate-100 rounded-sm">
       <Toggle
         disabled={loading}
         pressed={isDone}
@@ -77,7 +77,7 @@ const ActiveOrderItem = ({
             <Input
               id="description"
               placeholder="Тайлбар бичих"
-              value={description}
+              value={description ?? ""}
               disabled
             />
           </div>

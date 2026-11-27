@@ -49,8 +49,8 @@ const SelectPaymentTypeMain = () => {
   const { printDocument } = useInvoicePrintSupplement()
 
   const printRef = useRef<HTMLDivElement>(null)
-  const hasPrintInvoice = mappedPts.some(
-    (payment) => Boolean(payment.config?.printInvoice)
+  const hasPrintInvoice = mappedPts.some((payment) =>
+    Boolean(payment.config?.printInvoice)
   )
 
   const handlePrint = async () => {
@@ -71,12 +71,12 @@ const SelectPaymentTypeMain = () => {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-3">
         <Term
           Icon={Wallet}
           title="Бэлнээр"
           type="cash"
-          disabled={disabledTerms}
+          disabled={disabledTerms || !notPaidAmount}
         />
         {!!paymentIds?.length && (
           <Term
@@ -139,7 +139,7 @@ const SelectPaymentTypeMain = () => {
         )}
       </div>
 
-      {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
+      {error && <div className="mt-3 text-sm text-destructive">{error}</div>}
 
       {showUserForm && (
         <UserInfoForm onSubmit={handlePrint} onCancel={cancelPrint} />
@@ -175,15 +175,18 @@ const Term = ({
 
   return (
     <Button
-      variant="secondary"
-      className="flex items-center bg-transparent text-white p-4 font-semibold text-sm rounded-lg border border-slate-500 h-auto hover:bg-secondary/10 justify-between"
+      variant="outline"
+      className="group h-auto justify-between gap-3 rounded-xl bg-background p-3 text-sm font-semibold shadow-xs transition-colors hover:border-primary/40 hover:bg-primary/5"
       onClick={handleClick}
       disabled={disabled}
     >
-      <span className="flex items-center">
-        <Icon className="mr-2" /> {title}
+      <span className="flex min-w-0 items-center gap-3">
+        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
+        </span>
+        <span className="truncate">{title}</span>
       </span>
-      <ChevronRight className="h-5 w-5" />
+      <ChevronRight className="h-4 w-4 flex-none text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
     </Button>
   )
 }

@@ -24,7 +24,7 @@ const DeleteOrders = () => {
 
   return (
     <SettingsButton disabled={loading} onClick={handleClick}>
-      Delete Less order
+      Захиалга цэвэрлэх
     </SettingsButton>
   )
 }

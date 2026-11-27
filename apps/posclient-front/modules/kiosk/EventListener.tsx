@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { activeCategoryAtom } from "@/store"
 import { setInitialAtom } from "@/store/order.store"
-import { AlertDialogCancel } from "@radix-ui/react-alert-dialog"
+import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
 import { addSeconds, formatISO } from "date-fns"
 import { useSetAtom } from "jotai"
 
@@ -114,11 +114,11 @@ const Restart = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel asChild>
+        <AlertDialogPrimitive.Cancel asChild>
           <Button className="font-bold" variant="outline" onClick={reset}>
             Цуцлах
           </Button>
-        </AlertDialogCancel>
+        </AlertDialogPrimitive.Cancel>
         <Button className="font-bold" onClick={restartAutoReset}>
           Үргэлжлүүлэх
         </Button>

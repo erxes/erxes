@@ -1,9 +1,7 @@
-import { userLabelAtom } from "@/store/config.store"
-import { useAtomValue } from "jotai"
-
-import { cn } from "@/lib/utils"
 import HeaderMenu from "@/components/headerMenu"
+import { useSidebarVisible } from "@/components/sidebar/appSidebar"
 
+import HeaderUser from "./headerUser"
 import Logo from "./logo"
 
 const HeaderLayout = ({
@@ -13,21 +11,25 @@ const HeaderLayout = ({
   children?: React.ReactNode
   hideUser?: boolean
 }) => {
-  const label = useAtomValue(userLabelAtom)
+  const sidebarVisible = useSidebarVisible()
+
   return (
-    <header className="flex flex-none items-center justify-between border-b px-3 md:px-5 py-1.5 print:hidden h-14 ">
-      <div className={cn("flex w-auto items-center", !hideUser && "sm:w-1/3")}>
-        <HeaderMenu />
-        <Logo />
-        {!hideUser && (
-          <p className="hidden flex-auto text-center text-black/60 sm:block">
-            {label}
-          </p>
-        )}
-      </div>
-      <div className={cn("pl-2 text-right sm:pl-4", !hideUser && "sm:w-2/3")}>
-        {children}
-      </div>
+    <header className="sticky top-0 z-30 flex h-10 flex-none items-center gap-1 border-b bg-background/80 px-2 backdrop-blur-md print:hidden">
+      <HeaderMenu />
+      <Logo />
+      {!!children && (
+        <>
+          {!sidebarVisible && (
+            <span className="mx-1.5 h-5 w-px flex-none bg-border" />
+          )}
+          <div className="flex min-w-0 items-center">{children}</div>
+        </>
+      )}
+      {!hideUser && (
+        <div className="ml-auto flex min-w-0 items-center pl-2">
+          <HeaderUser />
+        </div>
+      )}
     </header>
   )
 }

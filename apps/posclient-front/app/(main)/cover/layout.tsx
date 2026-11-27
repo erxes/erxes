@@ -1,20 +1,16 @@
 import { ReactNode } from "react"
-import Link from "next/link"
 import { TimerResetIcon } from "lucide-react"
 
 import HeaderLayout from "@/components/header/headerLayout"
+import HeaderTitle from "@/components/header/headerTitle"
 
 const CoverLayout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <HeaderLayout>
-        <Link
-          className="inline-flex items-end text-sm font-semibold"
-          href={"/cover"}
-        >
-          <TimerResetIcon className="mr-1" />
+        <HeaderTitle href="/cover" icon={TimerResetIcon}>
           Хаалт / Cover
-        </Link>
+        </HeaderTitle>
       </HeaderLayout>
       {children}
     </>

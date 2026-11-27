@@ -1,31 +1,22 @@
 import { memo } from "react"
-import { selectedTabAtom, slotFilterAtom } from "@/store"
-import {
-  activeOrderIdAtom,
-  setInitialAtom,
-  slotCodeAtom,
-} from "@/store/order.store"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { CheckCircle2, Circle, ListFilterIcon, XCircleIcon } from "lucide-react"
+import { slotFilterAtom } from "@/store"
+import { setInitialAtom } from "@/store/order.store"
+import { useSetAtom } from "jotai"
+import { ListFilterIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 
+import { SLOT_MENU_ITEM_CLASS, SlotStatus, slotStatusOf } from "../slotStatuses"
 import CreateSlot from "./createSlot"
 import PreDates from "./preDates"
 import SetSlot from "./setSlot"
-
-const statusIcons = {
-  serving: CheckCircle2,
-  available: Circle,
-  reserved: XCircleIcon,
-}
 
 const SlotActions = ({
   code,
@@ -34,39 +25,47 @@ const SlotActions = ({
   status,
   children,
 }: ISlot & {
-  status?: "serving" | "available" | "reserved"
+  status?: SlotStatus
   children: React.ReactNode
 }) => {
   const setInitialState = useSetAtom(setInitialAtom)
   const setFilterSlots = useSetAtom(slotFilterAtom)
-  const Icon = statusIcons[status || "available"]
+  const { label, dotClassName, badgeClassName } = slotStatusOf(status)
 
   return (
     <DropdownMenu>
       {children}
-      <DropdownMenuContent className="min-w-[13rem]">
-        <div className="flex items-center justify-between px-2 py-1.5">
-          <div className="flex items-center">
-            {name} ({code})
+      <DropdownMenuContent align="start" className="w-56 p-1">
+        <div className="flex items-center gap-2 px-2 pb-2 pt-1.5">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-medium">{name}</p>
+            <p className="font-mono text-xs text-muted-foreground">{code}</p>
           </div>
-          <div className="flex items-center gap-1">
-            <Icon className="h-5 w-5" />
-            {status}
-          </div>
+          <span
+            className={cn(
+              "inline-flex h-5 flex-none items-center gap-1.5 rounded-sm border px-1.5 text-xs font-medium",
+              badgeClassName
+            )}
+          >
+            <span
+              className={cn("size-1.5 rounded-full", dotClassName)}
+              aria-hidden="true"
+            />
+            {label}
+          </span>
         </div>
-
         <DropdownMenuSeparator />
         <SetSlot code={code} />
         <CreateSlot code={code} />
         <DropdownMenuItem
-          className="flex items-center"
+          className={SLOT_MENU_ITEM_CLASS}
           onClick={() => {
             setInitialState()
             setFilterSlots(code)
           }}
           disabled={status === "available"}
         >
-          <ListFilterIcon className="h-4 w-4 mr-2" />
+          <ListFilterIcon />
           Захиалга сонгох
         </DropdownMenuItem>
         <PreDates isPreDates={isPreDates} />

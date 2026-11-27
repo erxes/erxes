@@ -114,7 +114,7 @@ export const useSendTransaction = ({
           const { response_code, response_msg } = response
           if (response_code === "000") {
             await onCompleted(response)
-            toast({ description: "Transaction was successful" })
+            toast({ description: "Transaction was successful", variant: "success" })
             return setLoading(false)
           }
           return error(response_msg || "Transaction failed")
@@ -169,7 +169,7 @@ export const useSettlement = ({
         if (status && response) {
           const { response_code, response_msg } = response
           if (response_code === true) {
-            toast({ description: "Settlement was successful" })
+            toast({ description: "Settlement was successful", variant: "success" })
             onCompleted && onCompleted(response)
             return setLoading(false)
           }

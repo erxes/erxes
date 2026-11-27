@@ -1,30 +1,28 @@
 "use client"
 
 import { orderNotificationEnabledAtom } from "@/store"
-import type { CheckedState } from "@radix-ui/react-checkbox"
-import { Label } from "@radix-ui/react-label"
 import { useAtom } from "jotai"
 
-import { Checkbox } from "@/components/ui/checkbox"
+import { Switch } from "@/components/ui/switch"
+
+import { SettingsRow } from "./SettingsSection"
 
 const ActivateOrderQr = () => {
   const [isEnabled, setIsEnabled] = useAtom(orderNotificationEnabledAtom)
-  const handleCheckboxChange = (checked: CheckedState) => {
-    setIsEnabled(checked === true)
-  }
 
   return (
-    <Label
-      className="w-full pb-5 flex gap-2 items-center cursor-pointer"
+    <SettingsRow
+      title="QR мэню идэвхтэй"
+      description="QR мэнюгээр ирсэн захиалгын мэдэгдэл авна"
       htmlFor="orderNotification"
-    >
-      <Checkbox
-        id="orderNotification"
-        checked={isEnabled}
-        onCheckedChange={handleCheckboxChange}
-      />
-      QR мэню идэвхтэй
-    </Label>
+      control={
+        <Switch
+          id="orderNotification"
+          checked={isEnabled}
+          onCheckedChange={setIsEnabled}
+        />
+      }
+    />
   )
 }
 

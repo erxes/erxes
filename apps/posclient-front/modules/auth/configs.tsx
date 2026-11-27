@@ -39,7 +39,11 @@ const Configs = ({ children }: { children: ReactNode }) => {
     }
   )
 
-  const { data: configsData, loading: loadingConfigsQuery } = useQuery(
+  const {
+    data: configsData,
+    loading: loadingConfigsQuery,
+    error: configsError,
+  } = useQuery(
     queries.configs,
     {
       onError: ({ message }) => {
@@ -65,9 +69,9 @@ const Configs = ({ children }: { children: ReactNode }) => {
       return
     }
 
-    setConfigs(configsData?.posclientConfigs || [])
+    setConfigs(configsError ? null : configsData?.posclientConfigs || [])
     setTimeout(() => setLoadingConfigs(false), 20)
-  }, [configsData, loadingConfigsQuery, setConfigs])
+  }, [configsData, configsError, loadingConfigsQuery, setConfigs])
 
   const { currentConfig } = config || {}
   const { _id, allowTypes, uiOptions } = currentConfig || {}

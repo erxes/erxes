@@ -1,6 +1,6 @@
 const CartHeader = () => {
   return (
-    <div className="mb-1 flex rounded border-transparent bg-primary px-3.5 py-3 text-sm leading-4 text-white">
+    <div className="mb-1 flex rounded-sm border-transparent bg-primary px-3.5 py-3 text-sm leading-4 text-white">
       <div className="flex w-5/12">
         <small className="w-1/12">#</small>
         <small className="w-11/12">Барааны нэр</small>

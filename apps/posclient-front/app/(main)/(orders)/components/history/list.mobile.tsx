@@ -1,15 +1,15 @@
-import { filterAtom } from "@/store/history.store"
+import { historyPerPageAtom } from "@/store/history.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 import { SoupIcon, TruckIcon } from "lucide-react"
 
 import { IOrderHistory } from "@/types/order.types"
 import { typeTextDef } from "@/lib/constants"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { StatusBadge } from "./columns"
 import HistoryItemAction from "./historyItemAction"
 
 const ListMobile = ({
@@ -31,7 +31,7 @@ const ListMobile = ({
 }
 
 const Loading = () => {
-  const { perPage } = useAtomValue(filterAtom)
+  const perPage = useAtomValue(historyPerPageAtom)
   const uniqueIndexes = []
   for (let i = 0; i < perPage; i++) {
     uniqueIndexes.push(i)
@@ -84,7 +84,7 @@ const OrderItem = (props: IOrderHistory) => {
             <TypeIcon />
             {typeTextDef[type]}
           </span>
-          <Badge>{status}</Badge>
+          <StatusBadge status={status} />
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-neutral-600">Үүсгэсэн огноо</span>

@@ -1,3 +1,9 @@
+import {
+  LoyaltyDiscountBadge,
+  LoyaltyDiscountReason,
+} from "@/modules/customer/components/LoyaltyDiscountBadge"
+import { StrikedPrice } from "@/modules/customer/components/StrikedPrice"
+import { usePreviewUnitPrice } from "@/modules/customer/hooks/usePreviewUnitPrice"
 import ProductPrice from "@/modules/products/productPriceInfo"
 import { updateCartAtom } from "@/store/cart.store"
 import { banFractionsAtom } from "@/store/config.store"
@@ -7,7 +13,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { ChevronDown, Minus, Plus } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
-import { cn } from "@/lib/utils"
+import { cn, formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -26,12 +32,6 @@ import {
 } from "@/components/ui/tooltip"
 import Uploader from "@/components/ui/uploader"
 
-import {
-  LoyaltyDiscountBadge,
-  LoyaltyDiscountReason,
-} from "@/modules/customer/components/LoyaltyDiscountBadge"
-import { StrikedPrice } from "@/modules/customer/components/StrikedPrice"
-import { usePreviewUnitPrice } from "@/modules/customer/hooks/usePreviewUnitPrice"
 import { CartItemCondition, CartItemConditionBadge } from "./CartItemCondition"
 import CartItemStatus from "./cartItemStatus"
 
@@ -55,74 +55,57 @@ const CartItem = ({
   const { price, originalPrice } = usePreviewUnitPrice(_id, unitPrice)
 
   return (
-    <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
+    <Collapsible
+      className={cn(
+        "group/item bg-background transition-colors hover:bg-accent/40",
+        idx === 0 && "bg-primary/[0.03]"
+      )}
+    >
       <motion.div
         variants={itemVariants}
         animate="animate"
         initial="initial"
-        className="border-b mx-4"
         exit="exit"
         transition={{
           duration: 0.3,
         }}
       >
-        <div className={"flex items-stretch overflow-hidden"}>
-          <Label
-            className="flex w-1/12 flex-col justify-between pt-4 pb-3"
-            htmlFor={_id}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Checkbox
-                    id={_id}
-                    checked={isTake}
-                    disabled={type !== "eat"}
-                    onCheckedChange={(checked) =>
-                      changeItem({ _id, isTake: !!checked })
-                    }
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Авч явах</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <CollapsibleTrigger asChild>
-                    <Button className="h-6 w-6 p-0" variant="ghost">
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </CollapsibleTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Нэмэлт мэдээлэл</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        <div className={cn(CART_ROW_GRID, "px-3 py-2")}>
+          <Label className="flex" htmlFor={_id}>
+            {type === "eat" && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Checkbox
+                      id={_id}
+                      aria-label="Авч явах"
+                      checked={isTake}
+                      onCheckedChange={(checked) =>
+                        changeItem({ _id, isTake: !!checked })
+                      }
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Авч явах</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </Label>
-          <div className=" w-7/12 py-4 pl-3 text-sm">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <small className="block h-8 overflow-hidden leading-4">
-                    {productName}
-                  </small>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{productName}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <div className="mt-1 flex items-center">
+          <div className="min-w-0">
+            <p
+              title={productName}
+              className="truncate text-[13px] font-medium leading-5"
+            >
+              {productName}
+            </p>
+            <div className="flex min-w-0 flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
               <CartItemStatus status={status} />
+              <span className="tabular-nums">{count} ×</span>
               <ProductPrice
                 unitPrice={price}
                 productId={productId}
-                className="ml-2 text-xs"
+                className="h-auto p-0 text-xs font-normal text-muted-foreground tabular-nums hover:bg-transparent hover:text-foreground"
               />
               <StrikedPrice price={originalPrice} />
               <CartItemConditionBadge
@@ -136,18 +119,21 @@ const CartItem = ({
             </div>
             <LoyaltyDiscountReason itemId={_id} discountInfos={discountInfos} />
           </div>
-          <div className="flex w-5/12 items-center justify-end">
+          <div className="flex h-7 w-[5.25rem] items-center rounded-md border bg-background">
             <Button
-              className={countBtnClass}
+              variant="ghost"
+              aria-label="Хасах"
+              className={stepButtonClass}
               onClick={() =>
                 changeItem({ _id, count: (count || 0) - 1, status })
               }
             >
-              <Minus className="h-3 w-3" strokeWidth={4} />
+              <Minus className="size-3" />
             </Button>
             <FocusChanger>
               <Input
-                className="mx-2 w-10 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                aria-label="Тоо ширхэг"
+                className="h-6 w-8 rounded-none border-0 bg-transparent px-0 text-center text-xs font-medium tabular-nums shadow-none focus-visible:shadow-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 type="number"
                 onChange={(e) =>
                   changeItem({
@@ -162,32 +148,58 @@ const CartItem = ({
               />
             </FocusChanger>
             <Button
-              className={countBtnClass}
+              variant="ghost"
+              aria-label="Нэмэх"
+              className={stepButtonClass}
               onClick={() => changeItem({ _id, count: (count || 0) + 1 })}
             >
-              <Plus className="h-3 w-3" strokeWidth={4} />
+              <Plus className="size-3" />
             </Button>
           </div>
+          <span className="text-right text-[13px] font-semibold tabular-nums">
+            {formatNum(price * (count || 0))}
+          </span>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              aria-label="Нэмэлт мэдээлэл"
+              title="Нэмэлт мэдээлэл"
+              className="size-6 rounded-md p-0 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground [&[data-state=open]>svg]:rotate-180"
+            >
+              <ChevronDown className="size-3.5 transition-transform" />
+            </Button>
+          </CollapsibleTrigger>
         </div>
-        <CollapsibleContent className="w-full pb-3 space-y-2">
+        <CollapsibleContent className="space-y-2.5 px-3 pb-3 pt-0.5">
           <CartItemCondition
             _id={_id}
             productId={productId}
             conditionCode={conditionCode}
           />
-          <div>
-            <Label htmlFor="description">Тайлбар</Label>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`description-${_id}`}
+              className="block text-xs font-medium text-muted-foreground"
+            >
+              Тайлбар
+            </Label>
             <Input
-              id="description"
+              id={`description-${_id}`}
+              className="h-7 rounded-sm border-0 bg-background text-[13px] shadow-xs focus-visible:shadow-focus"
               placeholder="Тайлбар бичих"
-              value={description}
+              value={description ?? ""}
               onChange={(e) => changeItem({ _id, description: e.target.value })}
             />
           </div>
-          <div>
-            <Label htmlFor="attachment">Хавсралт</Label>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`attachment-${_id}`}
+              className="block text-xs font-medium text-muted-foreground"
+            >
+              Хавсралт
+            </Label>
             <Uploader
-              id="attachment"
+              id={`attachment-${_id}`}
               attachment={attachment}
               setAttachment={(attachment?: { url?: string } | null) =>
                 changeItem({ _id, attachment })
@@ -200,8 +212,14 @@ const CartItem = ({
   )
 }
 
+export const CART_ROW_GRID =
+  "grid grid-cols-[auto_minmax(0,1fr)_auto_minmax(3.5rem,auto)_auto] items-center gap-x-2"
+
+const stepButtonClass =
+  "size-6 flex-none rounded-[5px] p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+
 export const countBtnClass =
-  "h-7 w-7 rounded-full p-0 bg-amber-400 hover:bg-amber-400/90 text-black"
+  "h-7 w-7 rounded-sm p-0 bg-transparent text-primary shadow-none [text-shadow:none] before:hidden after:hidden hover:bg-primary hover:text-primary-foreground"
 
 const itemVariants: Variants = {
   animate: {

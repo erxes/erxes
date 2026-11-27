@@ -11,9 +11,9 @@ const PaidType = ({
 }) => {
   const { getLabel } = usePaymentLabel()
   return (
-    <div className="mb-2 flex items-center justify-between w-full max-w-[250px] text-sm">
-      <div className="text-slate-500">{getLabel(type)}</div>
-      <div className="font-bold">
+    <div className="flex w-full items-center justify-between py-1 text-sm">
+      <div className="text-muted-foreground">{getLabel(type)}</div>
+      <div className="font-semibold tabular-nums">
         {percent ? `${amount}%` : (amount || 0).toLocaleString()}
       </div>
     </div>

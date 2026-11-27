@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { SettingsRow } from "./SettingsSection"
+
 const isSameOrDescendant = (value: string, candidate: string) =>
   value === candidate || value.startsWith(`${candidate}/`)
 
@@ -91,12 +93,18 @@ const CategoriesToPrint = () => {
       return prev.slice(0, categoriesToPrint.length)
     })
   }, [categoriesToPrint.length])
-  
+
   if (isActive || !isPrint) {
     return null
   }
 
-  if (loading) return <Loader />
+  if (loading) {
+    return (
+      <div className="px-2 py-2">
+        <Loader />
+      </div>
+    )
+  }
 
   const addNewFilter = () => {
     setCategoriesToPrint((prev) => [...prev, []])
@@ -140,93 +148,100 @@ const CategoriesToPrint = () => {
   }))
 
   return (
-    <div className="w-full space-y-3">
-      {filterRows.map(({ filterGroup, filterKey, index }) => {
-        const canRemove = categoriesToPrint.length > 1
+    <SettingsRow
+      title="Ангиллаар хэвлэх"
+      description="Сонгосон ангиллын барааг тусдаа баримтаар бэлтгэлд хэвлэнэ"
+    >
+      <div className="space-y-2">
+        {filterRows.map(({ filterGroup, filterKey, index }) => {
+          const canRemove = categoriesToPrint.length > 1
 
-        return (
-          <div
-            key={filterKey}
-            className={cn(
-              "grid gap-2 border border-border/70 rounded-md p-2 sm:items-end",
-              qzEnabled &&
-                canRemove &&
-                "sm:grid-cols-[minmax(0,1.25fr)_minmax(150px,1fr)_2.25rem]",
-              qzEnabled &&
-                !canRemove &&
-                "sm:grid-cols-[minmax(0,1.25fr)_minmax(150px,1fr)]",
-              !qzEnabled && canRemove && "sm:grid-cols-[minmax(0,1fr)_2.25rem]",
-              !qzEnabled && !canRemove && "sm:grid-cols-1"
-            )}
-          >
-            <div className="min-w-0 space-y-1">
-              <div className="px-1 text-[11px] font-medium text-muted-foreground">
-                Ангилал
-              </div>
-              <FacetedFilter
-                options={(categories || []).map((category) => ({
-                  label: category.name,
-                  value: category.order,
-                }))}
-                title="бэлтгэх"
-                values={filterGroup}
-                onSelect={(value) => updateFilter(index, value)}
-                className="min-w-0 overflow-hidden text-xs border-solid shadow-sm h-9 border-input bg-background"
-              />
-            </div>
-
-            {qzEnabled && (
+          return (
+            <div
+              key={filterKey}
+              className={cn(
+                "grid gap-2 rounded-lg border bg-sidebar p-2 sm:items-end",
+                qzEnabled &&
+                  canRemove &&
+                  "sm:grid-cols-[minmax(0,1.25fr)_minmax(150px,1fr)_2.25rem]",
+                qzEnabled &&
+                  !canRemove &&
+                  "sm:grid-cols-[minmax(0,1.25fr)_minmax(150px,1fr)]",
+                !qzEnabled &&
+                  canRemove &&
+                  "sm:grid-cols-[minmax(0,1fr)_2.25rem]",
+                !qzEnabled && !canRemove && "sm:grid-cols-1"
+              )}
+            >
               <div className="min-w-0 space-y-1">
                 <div className="px-1 text-[11px] font-medium text-muted-foreground">
-                  Принтер
+                  Ангилал
                 </div>
-                <Select
-                  value={categoryPrinters[index] || ""}
-                  onValueChange={(value) => updatePrinter(index, value)}
-                  disabled={printersLoading || printers.length === 0}
-                >
-                  <SelectTrigger
-                    className="text-xs shadow-sm h-9 bg-background"
-                    loading={printersLoading}
-                  >
-                    <SelectValue placeholder="Принтер сонгох" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {printers.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FacetedFilter
+                  options={(categories || []).map((category) => ({
+                    label: category.name,
+                    value: category.order,
+                  }))}
+                  title="бэлтгэх"
+                  values={filterGroup}
+                  onSelect={(value) => updateFilter(index, value)}
+                  className="min-w-0 overflow-hidden text-xs border-solid shadow-xs h-8 border-input bg-background"
+                />
               </div>
-            )}
 
-            {canRemove && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeFilter(index)}
-                className="h-9 w-9 justify-self-end text-muted-foreground hover:bg-red-50 hover:text-red-600"
-                aria-label={`Remove filter group ${index + 1}`}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        )
-      })}
+              {qzEnabled && (
+                <div className="min-w-0 space-y-1">
+                  <div className="px-1 text-[11px] font-medium text-muted-foreground">
+                    Принтер
+                  </div>
+                  <Select
+                    value={categoryPrinters[index] || ""}
+                    onValueChange={(value) => updatePrinter(index, value)}
+                    disabled={printersLoading || printers.length === 0}
+                  >
+                    <SelectTrigger
+                      className="text-xs shadow-xs h-8 bg-background"
+                      loading={printersLoading}
+                    >
+                      <SelectValue placeholder="Принтер сонгох" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {printers.map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={addNewFilter}
-        className="w-full h-8 text-xs border-dashed text-muted-foreground hover:border-solid"
-      >
-        <Plus className="w-3 h-3 mr-1" />
-        Шинэ принт нэмэх
-      </Button>
-    </div>
+              {canRemove && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeFilter(index)}
+                  className="h-8 w-9 justify-self-end text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                  aria-label={`Remove filter group ${index + 1}`}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          )
+        })}
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={addNewFilter}
+          className="w-full h-8 text-xs border-dashed text-muted-foreground hover:border-solid"
+        >
+          <Plus className="w-3 h-3 mr-1" />
+          Шинэ принт нэмэх
+        </Button>
+      </div>
+    </SettingsRow>
   )
 }
 

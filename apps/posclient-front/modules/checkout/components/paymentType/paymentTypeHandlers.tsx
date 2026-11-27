@@ -13,10 +13,6 @@ const PaymentTypeHandlers = () => {
     paymentAmountTypeAtom
   )
   const mode = useAtomValue(modeAtom)
-  const triggerClassName =
-    mode !== "mobile"
-      ? "text-white data-[state=active]:bg-black data-[state=active]:text-white"
-      : undefined
 
   return (
     <Tabs
@@ -28,19 +24,13 @@ const PaymentTypeHandlers = () => {
     >
       <TabsList
         className={cn(
-          "grid w-full grid-cols-3 my-4 flex-none",
-          mode !== "mobile" && "bg-neutral-700"
+          "grid w-full flex-none grid-cols-3",
+          mode === "mobile" ? "my-4" : "mb-3 h-10 rounded-xl"
         )}
       >
-        <TabsTrigger value="amount" className={triggerClassName}>
-          Дүнгээр
-        </TabsTrigger>
-        <TabsTrigger value="percent" className={triggerClassName}>
-          Хувиар
-        </TabsTrigger>
-        <TabsTrigger value="items" className={triggerClassName}>
-          Бараагаар
-        </TabsTrigger>
+        <TabsTrigger value="amount">Дүнгээр</TabsTrigger>
+        <TabsTrigger value="percent">Хувиар</TabsTrigger>
+        <TabsTrigger value="items">Бараагаар</TabsTrigger>
       </TabsList>
       <TabsContent value="amount">
         <Keys />

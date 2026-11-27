@@ -25,6 +25,8 @@ export interface Cover {
   createdUser: Customer
   modifiedUser?: Customer
   description?: string
+  createdAt?: string
+  modifiedAt?: string
 }
 
 export interface CoverTerminalResult {

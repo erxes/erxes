@@ -88,7 +88,7 @@ export const useInvoicePrintSupplement = () => {
     printWindow.addEventListener('load', () => handleWindowReady(printWindow))
   }
   
-  const printDocument = (printRef: React.RefObject<HTMLDivElement>) => {
+  const printDocument = (printRef: React.RefObject<HTMLDivElement | null>) => {
     clearAllTimers()
     
     if (!printRef.current) {

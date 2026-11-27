@@ -1,10 +1,12 @@
 import { format } from "date-fns"
+
 import { BANK_CARD_TYPES } from "@/lib/constants"
-import { BankAmountUi } from "./bank-amount-ui"
+
 import {
-  useCoverTerminalFetch,
   readTerminalResponse,
+  useCoverTerminalFetch,
 } from "../hooks/useCoverTerminalFetch"
+import { BankAmountUi } from "./bank-amount-ui"
 
 export const Khaan = () => {
   const { fetchTerminal, loading } = useCoverTerminalFetch()

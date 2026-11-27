@@ -27,7 +27,11 @@ const CustomerType = ({
   }
 
   return (
-    <Button onClick={handleClick} variant="outline" className="px-2.5">
+    <Button
+      onClick={handleClick}
+      variant="outline"
+      className="size-8 shrink-0 rounded border-0 px-0 text-muted-foreground shadow-xs hover:text-foreground"
+    >
       {type === "" && <UserCircleIcon className={className} />}
       {type === "company" && <Building2Icon className={className} />}
       {type === "user" && <UserCheckIcon className={className} />}

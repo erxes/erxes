@@ -3,8 +3,8 @@
   "style": "default",
   "rsc": true,
   "tailwind": {
-    "config": "tailwind.config.js",
-    "css": "app/globals.css",
+    "config": "",
+    "css": "styles/globals.css",
     "baseColor": "stone",
     "cssVariables": false
   },

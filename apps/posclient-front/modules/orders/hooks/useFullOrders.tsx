@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { configAtom } from "@/store/config.store"
 import {
   DocumentNode,
@@ -12,6 +12,8 @@ import { useAtomValue } from "jotai"
 import { IOrder } from "@/types/order.types"
 
 import { queries, subscriptions } from "../graphql"
+
+const REFETCH_DEBOUNCE_MS = 300
 
 const checkIsArray = (statuses: string[]) =>
   Array.isArray(statuses) ? statuses : [statuses]
@@ -89,6 +91,41 @@ const useFullOrders = ({
   const fullOrders = (data || {}).fullOrders || []
   const totalCount = (countData || {}).ordersTotalCount || 0
 
+  const refetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const refetchCountPendingRef = useRef(false)
+
+  const scheduleRefetch = useCallback(
+    (withCount: boolean) => {
+      if (withCount) {
+        refetchCountPendingRef.current = true
+      }
+
+      if (refetchTimerRef.current) {
+        clearTimeout(refetchTimerRef.current)
+      }
+
+      refetchTimerRef.current = setTimeout(() => {
+        refetchTimerRef.current = null
+        refetch()
+
+        if (refetchCountPendingRef.current) {
+          refetchCountPendingRef.current = false
+          refetchCount()
+        }
+      }, REFETCH_DEBOUNCE_MS)
+    },
+    [refetch, refetchCount]
+  )
+
+  useEffect(
+    () => () => {
+      if (refetchTimerRef.current) {
+        clearTimeout(refetchTimerRef.current)
+      }
+    },
+    []
+  )
+
   const subToOrderStatuses = useCallback(
     (subStatuses: string[], callBack?: any) =>
       subscribeToMore({
@@ -98,14 +135,13 @@ const useFullOrders = ({
           if (!subscriptionData.data) return prev
           const changedOrder = subscriptionData.data.ordersOrdered
           if (changedOrder) {
-            refetch()
-            refetchCount()
+            scheduleRefetch(true)
             callBack && callBack()
           }
           return prev
         },
       }),
-    [refetch, subscribeToMore]
+    [scheduleRefetch, subscribeToMore]
   )
 
   const subToItems = useCallback(
@@ -117,12 +153,13 @@ const useFullOrders = ({
           if (!subscriptionData.data) return prev
           const changedOrderItem = subscriptionData.data.orderItemsOrdered
           if (changedOrderItem) {
-            refetch()
+            scheduleRefetch(false)
             callBack && callBack()
           }
+          return prev
         },
       }),
-    [refetch, subscribeToMore]
+    [scheduleRefetch, subscribeToMore]
   )
 
   const handleLoadMore = useCallback(() => {

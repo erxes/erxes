@@ -13,9 +13,9 @@ const Checkout = () => {
 
   return (
     <OrderDetail>
-      <div className="flex max-h-screen min-h-[600px] w-auto min-w-[880px] flex-auto items-stretch">
+      <div className="flex max-h-screen min-h-[600px] w-auto min-w-[880px] flex-auto items-stretch gap-4">
         <Payment />
-        <div className="w-5/12 rounded-3xl bg-white p-5 text-black flex flex-col">
+        <div className="flex w-5/12 flex-col gap-3 rounded-2xl border bg-background p-5 shadow-xs">
           <Detail />
           <EbarimtMain />
         </div>

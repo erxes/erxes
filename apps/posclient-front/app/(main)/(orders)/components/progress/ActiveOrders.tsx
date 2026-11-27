@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { queries } from "@/modules/orders/graphql"
 import useFullOrders from "@/modules/orders/hooks/useFullOrders"
-import { columnNumberAtom, filterAtom } from "@/store/progress.store"
+import { useOrdersFilterVariables } from "@/modules/orders/hooks/useOrdersFilterVariables"
+import { columnNumberAtom } from "@/store/progress.store"
 import { useAtomValue } from "jotai"
 
 import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
@@ -12,7 +13,7 @@ import ActiveOrder from "./ActiveOrder"
 import PrintProgress from "./PrintProgress"
 
 const ActiveOrders = () => {
-  const filter = useAtomValue(filterAtom)
+  const filter = useOrdersFilterVariables(ORDER_STATUSES.ACTIVE)
   const num = useAtomValue(columnNumberAtom)
 
   const {

@@ -13,8 +13,8 @@ const Keys = () => {
   return (
     <div
       className={cn(
-        "grid grid-cols-4 gap-2 max-w-md mx-auto py-0",
-        mode === "mobile" && "grid-cols-3 py-4 max-w-xs md:max-w-sm"
+        "grid grid-cols-3 gap-2 py-0",
+        mode === "mobile" && "mx-auto max-w-xs py-4 md:max-w-sm"
       )}
     >
       {Array.from({ length: 9 }).map((_, idx) => (
@@ -46,20 +46,25 @@ const ControlButton = ({ value }: { value: string | number }) => {
     return handleValueChange(displayAmount.toString() + value)
   }
 
-  return (
-    <AspectRatio ratio={mode === "mobile" ? 1.5 : 0.9}>
-      <Button
-        onClick={handleClick}
-        className={cn(
-          "h-full w-full rounded-full text-base font-black hover:bg-secondary/10 hover:text-white",
-          mode === "mobile" && "hover:text-black"
-        )}
-        variant="outline"
-      >
-        {mode === "mobile" && value === "CE" ? <DeleteIcon /> : value}
-      </Button>
-    </AspectRatio>
+  const button = (
+    <Button
+      onClick={handleClick}
+      className={cn(
+        "h-full w-full rounded-xl text-lg font-semibold tabular-nums shadow-xs hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+        mode !== "mobile" && "h-12",
+        typeof value === "string" && "text-muted-foreground"
+      )}
+      variant="outline"
+    >
+      {value === "CE" ? <DeleteIcon className="h-5 w-5" /> : value}
+    </Button>
   )
+
+  if (mode !== "mobile") {
+    return button
+  }
+
+  return <AspectRatio ratio={1.5}>{button}</AspectRatio>
 }
 
 export default Keys

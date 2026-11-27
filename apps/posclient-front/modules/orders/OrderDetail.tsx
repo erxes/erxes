@@ -30,6 +30,11 @@ const OrderDetail = ({
   const setOrderCollapsible = useSetAtom(orderCollapsibleAtom)
   const [loading, setLoading] = useState(true)
   const initialLoadRef = useRef(true)
+  const activeOrderIdRef = useRef(_id)
+
+  useEffect(() => {
+    activeOrderIdRef.current = _id
+  }, [_id])
 
   const [getOrderDetail, { data, refetch, subscribeToMore }] = useLazyQuery(
     queries.orderDetail,
@@ -42,13 +47,13 @@ const OrderDetail = ({
   )
 
   useEffect(() => {
-    subscribeToMore({
+    return subscribeToMore({
       document: gql(subscriptions.ordersOrdered),
       variables: { token, statuses: ORDER_STATUSES.ALL },
       updateQuery: (prev, { subscriptionData }) => {
         const { ordersOrdered } = subscriptionData.data || {}
         if (!ordersOrdered) return prev
-        if (ordersOrdered._id === _id) {
+        if (ordersOrdered._id === activeOrderIdRef.current) {
           refetch()
           setRefetchOrder(true)
           setPaymentSheet(false)

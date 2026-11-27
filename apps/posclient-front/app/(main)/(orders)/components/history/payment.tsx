@@ -1,96 +1,57 @@
+import { PanelField, PanelSection } from "@/modules/record-side-panel"
 import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
-
-import { CardTitle } from "@/components/ui/card"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  BanknoteIcon,
+  CreditCardIcon,
+  SmartphoneIcon,
+  WalletIcon,
+} from "lucide-react"
+
+const formatAmount = (amount?: number | string) =>
+  `${Number(amount || 0).toLocaleString()}₮`
 
 const Payment = ({
   cashAmount,
   mobileAmount,
   totalAmount,
-  finalAmount,
   paidAmounts,
 }: {
   cashAmount: number
   mobileAmount: number
   totalAmount: number
-  finalAmount: number
+  finalAmount?: number
   paidAmounts: {
     _id: string
     type: string
     amount: string
-    info: any
   }[]
 }) => {
   const paymentTypes = useAtomValue(paymentTypesAtom)
 
   return (
-    <div>
-      <CardTitle className="pb-1">Төлбөр</CardTitle>
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader className="border-b">
-            <TableHead className="h-8">Төрөл</TableHead>
-            <TableHead className="h-8">Дүн</TableHead>
-          </TableHeader>
-          <TableBody>
-            <TableRow className="border-b">
-              <TableCell className="h-8">Нийт дүн</TableCell>
-              <TableCell className="h-8">
-                {(totalAmount || 0).toLocaleString()}
-              </TableCell>
-              <TableCell />
-            </TableRow>
-            <TableRow className="border-b">
-              <TableCell className="h-8">Бэлнээр</TableCell>
-              <TableCell className="h-8">
-                {(cashAmount || 0).toLocaleString()}
-              </TableCell>
-              <TableCell />
-            </TableRow>
-            <TableRow className="border-b">
-              <TableCell className="h-8">Цахимаар</TableCell>
-              <TableCell className="h-8">
-                {(mobileAmount || 0).toLocaleString()}
-              </TableCell>
-              <TableCell />
-            </TableRow>
-            {(paymentTypes || []).map((type) => {
-              const pAmounts = paidAmounts.filter((pt) => pt.type === type.type)
-              if (!pAmounts.length) {
-                <TableRow className="border-b" key={type._id}>
-                  <TableCell className="h-8">{type.title}</TableCell>
-                  <TableCell className="h-8">
-                    {(0).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="h-8">
-                    {"-"}
-                  </TableCell>
-                </TableRow>
-              }
-              return pAmounts.map(pa => (
-                <TableRow className="border-b" key={type._id}>
-                  <TableCell className="h-8">{type.title}</TableCell>
-                  <TableCell className="h-8">
-                    {(pa?.amount || 0).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="h-8">
-                    {!!pa?.info ? <div /> : "-"}
-                  </TableCell>
-                </TableRow>
-              ))
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+    <PanelSection title="Төлбөр" nested>
+      <PanelField icon={WalletIcon} label="Нийт дүн">
+        <span className="font-semibold tabular-nums">
+          {formatAmount(totalAmount)}
+        </span>
+      </PanelField>
+      <PanelField icon={BanknoteIcon} label="Бэлнээр">
+        <span className="tabular-nums">{formatAmount(cashAmount)}</span>
+      </PanelField>
+      <PanelField icon={SmartphoneIcon} label="Цахимаар">
+        <span className="tabular-nums">{formatAmount(mobileAmount)}</span>
+      </PanelField>
+      {(paymentTypes || []).flatMap((type) =>
+        (paidAmounts || [])
+          .filter((paid) => paid.type === type.type)
+          .map((paid) => (
+            <PanelField key={paid._id} icon={CreditCardIcon} label={type.title}>
+              <span className="tabular-nums">{formatAmount(paid.amount)}</span>
+            </PanelField>
+          ))
+      )}
+    </PanelSection>
   )
 }
 

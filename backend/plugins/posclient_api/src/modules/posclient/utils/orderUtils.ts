@@ -418,7 +418,7 @@ export const prepareEbarimtData = async (
 const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
   for (const order of matchOrders) {
     const matchMaps = lastCatProdMaps.filter(
-      (lcp) => lcp.category.order === order,
+      (lcp) => lcp.category?.order === order,
     );
 
     if (matchMaps.length) {

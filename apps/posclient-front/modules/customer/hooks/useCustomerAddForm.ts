@@ -134,7 +134,7 @@ export const useCustomerAddForm = ({
     }
 
     if (result?.customer) {
-      toast({ description: "Хэрэглэгч бүртгэгдлээ" })
+      toast({ description: "Хэрэглэгч бүртгэгдлээ", variant: "success" })
       onCreated(result.customer)
     }
   })

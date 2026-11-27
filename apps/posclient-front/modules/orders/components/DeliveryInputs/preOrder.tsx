@@ -1,7 +1,8 @@
+import { PanelFormRow } from "@/modules/record-side-panel"
 import { getTotalPaidAmountAtom, isPreAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
+import { AlarmClockIcon } from "lucide-react"
 
-import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
 const PreOrder = () => {
@@ -9,15 +10,17 @@ const PreOrder = () => {
   const paidAmount = useAtomValue(getTotalPaidAmountAtom)
 
   return (
-    <div className="flex items-center gap-2">
-      <Switch
-        id="isPre"
-        checked={isPre}
-        onCheckedChange={() => setIsPre(!isPre)}
-        disabled={paidAmount > 0}
-      />
-      <Label htmlFor="isPre">Урьдчилсан захиалга эсэх</Label>
-    </div>
+    <PanelFormRow label="Урьдчилсан" icon={AlarmClockIcon}>
+      <div className="flex h-7 items-center px-2">
+        <Switch
+          id="isPre"
+          aria-label="Урьдчилсан захиалга эсэх"
+          checked={isPre}
+          onCheckedChange={() => setIsPre(!isPre)}
+          disabled={paidAmount > 0}
+        />
+      </div>
+    </PanelFormRow>
   )
 }
 

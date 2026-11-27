@@ -99,7 +99,7 @@ const OrderNotf = () => {
   return (
     <Dialog open={isShow} onOpenChange={setIsShow}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
+        <Button variant="outline" size="icon" className="relative h-9 w-9 flex-none rounded-lg">
           {totalCount > 0 && (
             <Bell className="h-5 w-5 text-orange-500" />
           )}

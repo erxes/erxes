@@ -37,16 +37,29 @@ const ChangeOrderStatus = ({
     [_id, changeStatus, setShowReciept]
   )
 
-  useEffect(() => {
-    const doneItems = items.filter(
-      (item) => item.status === ORDER_STATUSES.DONE
-    )
-    if (doneItems.length > 0 && status !== ORDER_STATUSES.DOING)
-      handleChangeStatus(ORDER_STATUSES.DOING)
+  const totalCount = items.length
+  const doneCount = items.filter(
+    (item) => item.status === ORDER_STATUSES.DONE
+  ).length
 
-    if (doneItems.length === items.length)
+  useEffect(() => {
+    if (
+      loading ||
+      status === ORDER_STATUSES.DONE ||
+      status === ORDER_STATUSES.COMPLETE
+    ) {
+      return
+    }
+
+    if (doneCount === totalCount) {
       handleChangeStatus(ORDER_STATUSES.DONE)
-  }, [handleChangeStatus, items, status])
+      return
+    }
+
+    if (doneCount > 0 && status !== ORDER_STATUSES.DOING) {
+      handleChangeStatus(ORDER_STATUSES.DOING)
+    }
+  }, [doneCount, handleChangeStatus, loading, status, totalCount])
 
   return (
     <>

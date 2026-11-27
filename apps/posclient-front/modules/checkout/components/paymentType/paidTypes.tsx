@@ -38,7 +38,9 @@ const PaidTypes = () => {
   return (
     <>
       {mode === "main" && (
-        <Label className="block pb-2">Төлбөрийн төрөл:</Label>
+        <Label className="block pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Төлбөрийн төрөл
+        </Label>
       )}
       {!!cashAmount && <PaidType type="cash" amount={cashAmount} />}
       {!!mobileAmount && <PaidType type="mobile" amount={mobileAmount} />}

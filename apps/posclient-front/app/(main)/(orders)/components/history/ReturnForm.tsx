@@ -1,169 +1,155 @@
 import { mutations } from "@/modules/orders/graphql"
+import {
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormLayout,
+  PanelFormRow,
+} from "@/modules/record-side-panel"
 import { paymentTypesAtom } from "@/store/config.store"
-import { openReturnDialogAtom, paymentDetailAtom } from "@/store/history.store"
+import { openReturnDialogAtom } from "@/store/history.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
+import {
+  BanknoteIcon,
+  CreditCardIcon,
+  MessageSquareTextIcon,
+} from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import { IPaidAmount } from "@/types/order.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
-import {
-  AlertDialogCancel,
-  AlertDialogFooter,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { onError } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import ReturnOdd from "./ReturnOdd"
+
+export type ReturnFormValues = Record<string, string | number>
 
 const ReturnForm = ({
   totalAmount,
   _id,
+  cashAmount,
+  paidAmounts,
 }: {
   totalAmount: number
   _id: string
+  cashAmount?: number
+  paidAmounts?: IPaidAmount[]
 }) => {
   const changeOpen = useSetAtom(openReturnDialogAtom)
   const paymentTypes = useAtomValue(paymentTypesAtom) || []
 
-  const notBankPts = paymentTypes?.filter(
+  const notBankPts = paymentTypes.filter(
     (pt) => !ALL_BANK_CARD_TYPES.includes(pt.type)
   )
 
-  const { cashAmount, paidAmounts } = useAtomValue(paymentDetailAtom) || {}
+  const amounts: Record<string, number> = {}
+  ;(paidAmounts || [])
+    .filter((pa: IPaidAmount) => !ALL_BANK_CARD_TYPES.includes(pa.type))
+    .forEach((pa: IPaidAmount) => {
+      amounts[pa.type] = pa.amount
+    })
 
-  let amounts: { [key: string]: number } = {}
-
-  const nonBankPas = paidAmounts?.filter(
-    (pt: IPaidAmount) => !ALL_BANK_CARD_TYPES.includes(pt.type)
-  )
-
-  nonBankPas?.map((pa: { type: string; amount: number }) => {
-    amounts[pa.type] = pa.amount
+  const form = useForm<ReturnFormValues>({
+    defaultValues: { cashAmount: cashAmount ?? 0, description: "", ...amounts },
   })
-
-  const form = useForm<any>({
-    defaultValues: { cashAmount, description: "", ...amounts },
-  })
+  const { errors } = form.formState
 
   const [orderReturn, { loading: loadingReturn }] = useMutation(
     mutations.ordersReturn,
     {
       onError(err) {
         onError(err.message)
-        changeOpen(null)
       },
       onCompleted() {
+        toast({ description: "Буцаалт амжилттай хадгалагдлаа", variant: "success" })
         changeOpen(null)
       },
       refetchQueries: ["OrdersHistory"],
     }
   )
 
-  const onSubmit = (data: any) => {
-    const { cashAmount, description, ...rest } = data
-    const paidAmounts = Object.keys(rest).map((key: string) => ({
+  const onSubmit = (data: ReturnFormValues) => {
+    const { cashAmount: cash, description, ...rest } = data
+    const returnedAmounts = Object.keys(rest).map((key) => ({
       type: key,
-      amount: isNaN(Number(rest[key])) ? 0 : Number(rest[key]),
+      amount: Number.isNaN(Number(rest[key])) ? 0 : Number(rest[key]),
     }))
     orderReturn({
       variables: {
         _id,
-        cashAmount: Number(cashAmount || 0),
-        paidAmounts,
-        description: description?.trim() || "",
+        cashAmount: Number(cash || 0),
+        paidAmounts: returnedAmounts,
+        description: String(description ?? "").trim(),
       },
     })
   }
 
+  const amountClassName = cn(PANEL_INPUT_CLASS_NAME, "tabular-nums")
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-2">
-          <FormField
-            control={form.control}
-            name="cashAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cash</FormLabel>
-                <FormControl>
-                  <Input {...field} type="number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      <PanelFormLayout
+        onCancel={() => changeOpen(null)}
+        saving={loadingReturn}
+        saveLabel="Буцаалт хадгалах"
+        summary={<ReturnOdd totalAmount={totalAmount} control={form.control} />}
+      >
+        <h3 className="flex h-7 items-center px-1 text-xs font-normal text-muted-foreground">
+          Буцаах дүн
+        </h3>
+        <PanelFormRow icon={BanknoteIcon} label="Бэлэн мөнгө">
+          <Input
+            {...form.register("cashAmount")}
+            type="number"
+            inputMode="decimal"
+            aria-label="Бэлэн мөнгө"
+            className={amountClassName}
+          />
+        </PanelFormRow>
+        {notBankPts.map((pt) => (
+          <PanelFormRow key={pt.type} icon={CreditCardIcon} label={pt.title}>
+            <Input
+              {...form.register(pt.type)}
+              type="number"
+              inputMode="decimal"
+              aria-label={pt.title}
+              className={amountClassName}
+            />
+          </PanelFormRow>
+        ))}
+        <h3 className="mt-2 flex h-7 items-center px-1 text-xs font-normal text-muted-foreground">
+          Тайлбар
+        </h3>
+        <PanelFormRow
+          icon={MessageSquareTextIcon}
+          label="Шалтгаан"
+          required
+          error={errors.description?.message}
+        >
+          <Textarea
+            {...form.register("description", {
+              validate: (value) =>
+                String(value ?? "").trim()
+                  ? true
+                  : "Буцаалтын тайлбар оруулна уу",
+            })}
+            aria-label="Буцаалтын шалтгаан"
+            aria-invalid={!!errors.description || undefined}
+            placeholder="Яагаад буцааж байгааг бичнэ үү"
+            rows={3}
+            className={cn(
+              PANEL_INPUT_CLASS_NAME,
+              "h-auto min-h-20 py-1.5 aria-invalid:shadow-focus-destructive"
             )}
           />
-          {notBankPts.map((pt) => (
-            <FormField
-              control={form.control}
-              name={pt.type}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{pt.title}</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-              key={pt.type}
-            />
-          ))}
-        </div>
-        <FormField
-          control={form.control}
-          name="description"
-          rules={{
-            validate: (value) =>
-              value?.trim() ? true : "Буцаалтын тайлбар оруулна уу",
-          }}
-          render={({ field }) => (
-            <FormItem className="pt-3">
-              <FormLabel>Буцаалтын тайлбар</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Яагаад буцааж байгааг тайлбарлана уу"
-                  rows={3}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <AlertDialogFooter className="pt-4 sm:justify-between items-center">
-          <ReturnOdd totalAmount={totalAmount} control={form.control} />
-          <div className="flex items-center gap-2">
-            <AlertDialogCancel asChild>
-              <Button
-                className="font-semibold px-6"
-                type="button"
-                variant="outline"
-              >
-                Болих
-              </Button>
-            </AlertDialogCancel>
-            <Button
-              className="font-semibold"
-              type="submit"
-              loading={loadingReturn}
-            >
-              Буцаалт хадгалах
-            </Button>
-          </div>
-        </AlertDialogFooter>
-      </form>
-    </Form>
+        </PanelFormRow>
+      </PanelFormLayout>
+    </form>
   )
 }
 

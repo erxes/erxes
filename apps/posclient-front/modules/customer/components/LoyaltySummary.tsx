@@ -24,7 +24,7 @@ const Chip = ({
 }) => (
   <span
     className={cn(
-      "inline-flex max-w-full items-center gap-1 rounded px-1.5 py-0.5",
+      "inline-flex max-w-full items-center gap-1 rounded-sm px-1.5 py-0.5",
       tone === "muted" && "bg-neutral-100 text-neutral-700",
       tone === "accent" && "bg-indigo-50 text-indigo-700",
       tone === "danger" && "bg-red-50 text-red-600"

@@ -1,4 +1,13 @@
+import { useState } from "react"
 import { queries } from "@/modules/orders/graphql"
+import {
+  IRecordSidePanelTab,
+  PanelField,
+  PanelSection,
+  RecordSidePanel,
+  usePanelWidth,
+} from "@/modules/record-side-panel"
+import { modeAtom } from "@/store"
 import { configAtom, isAdminAtom } from "@/store/config.store"
 import { detailIdAtom } from "@/store/history.store"
 import { gql, useQuery, useSubscription } from "@apollo/client"
@@ -14,41 +23,32 @@ import {
   CircleIcon,
   GaugeCircle,
   HashIcon,
+  HistoryIcon,
+  InfoIcon,
   LampIcon,
-  LucideIcon,
   Luggage,
+  PackageIcon,
+  ReceiptTextIcon,
   StopCircle,
   StoreIcon,
   TruckIcon,
   User,
   UserCog,
-  XIcon,
 } from "lucide-react"
 
 import { IOrderStatus } from "@/types/order.types"
-import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
+import {
+  ORDER_ITEM_STATUSES,
+  ORDER_STATUSES,
+  typeTextDef,
+} from "@/lib/constants"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 
+import { StatusBadge } from "./columns"
 import Items from "./items"
+import OrderChangeLogs, { OrderChangeLog } from "./orderChangeLogs"
 import Payment from "./payment"
-
-type OrderChangeEntry = {
-  field: string
-  oldValue?: unknown
-  newValue?: unknown
-}
-
-type OrderChangeLog = {
-  _id: string
-  createdAt?: string
-  changes?: OrderChangeEntry[]
-  user?: {
-    email?: string
-    primaryEmail?: string
-  }
-}
 
 type OrderChangeLogsData = {
   orderChangeLogs?: OrderChangeLog[]
@@ -95,6 +95,11 @@ const OrderDetail = () => {
   const [detailId, setDetailId] = useAtom(detailIdAtom)
   const isAdmin = useAtomValue(isAdminAtom)
   const { token } = useAtomValue(configAtom) || {}
+  const isMobile = useAtomValue(modeAtom) === "mobile"
+  const [tab, setTab] = useState("detail")
+  const [panelWidth, setPanelWidth] = usePanelWidth(
+    "pos_order_detail_panel_width"
+  )
   const { loading, data } = useQuery(queries.historyDetail, {
     skip: !detailId,
     variables: { id: detailId },
@@ -146,241 +151,170 @@ const OrderDetail = () => {
   const { primaryPhone, primaryEmail, email } = user || {}
 
   const formatDate = (date: string) =>
-    !!date ? format(new Date(date), "yyyy.MM.dd HH:mm") : ""
+    date ? format(new Date(date), "yyyy.MM.dd HH:mm") : ""
 
-  if (loading || !detailId) {
+  if (!detailId) {
     return null
   }
 
-  return (
-    <Sheet open={!!detailId} onOpenChange={() => setDetailId(null)}>
-      <SheetContent className="sm:max-w-3xl w-full p-4 overflow-y-auto">
-        <div className="pb-3 text-sm font-bold flex items-start justify-between">
-          Захиалгын дэлгэрэнгүй
-          <SheetClose asChild>
-            <Button variant="ghost" size="icon" className="-mt-2.5">
-              <XIcon className="h-5 w-5" />
-            </Button>
-          </SheetClose>
-        </div>
-        <div className="space-y-3">
-          <div className="grid md:grid-cols-3 gap-2">
-            <DescriptionCard
-              title="Захиалгын дугаар"
-              value={number}
-              Icon={HashIcon}
-            />
-            <DescriptionCard
-              title="Төлөв"
-              value={status}
-              Icon={StatusIcons[status as IOrderStatus]}
-            />
-            <DescriptionCard
-              title="Төрөл"
-              value={type}
-              Icon={TypeIcons[type as keyof typeof TypeIcons]}
-            />
-            <DescriptionCard
-              title="Үүсгэсэн огноо"
-              value={formatDate(createdAt)}
-              Icon={CalendarPlusIcon}
-            />
-            <DescriptionCard
-              title="Төлбөр төлсөн огноо"
-              value={formatDate(paidDate)}
-              Icon={CalendarCheckIcon}
-            />
-            <DescriptionCard
-              title="Өөрчилсөн огноо"
-              value={formatDate(modifiedAt)}
-              Icon={CalendarIcon}
-            />
-            {!!dueDate && (
-              <DescriptionCard
-                title="Дуусах огноо /DueDate/"
-                value={formatDate(dueDate)}
-                Icon={CalendarClockIcon}
-              />
-            )}
-            {!!isPre && (
-              <DescriptionCard
-                title="Урьдчилсан захиалга эсэх"
-                value={isPre ? "Тийм" : "Үгүй"}
-                Icon={AlarmClockIcon}
-              />
-            )}
-            {!!slotCode && (
-              <DescriptionCard
-                title="Байрлал"
-                value={slotCode || ""}
-                Icon={LampIcon}
-              />
-            )}
+  const customerName = customer
+    ? customer.firstName || customer.lastName
+      ? `${customer.firstName || ""} ${customer.lastName || ""}`.trim()
+      : `${customer.primaryEmail || customer.email || ""} ${customer.primaryPhone || ""}`.trim()
+    : ""
+  const cashier = `${primaryEmail || email || ""} ${primaryPhone || ""}`.trim()
+  const StatusIcon = StatusIcons[status as IOrderStatus] || CircleIcon
+  const TypeIcon = TypeIcons[type as keyof typeof TypeIcons] || StoreIcon
+  const isLoading = loading && !data?.orderDetail
 
-            <DescriptionCard
-              title="Кассчин"
-              value={`${primaryEmail || email || ""} ${primaryPhone || ""}`}
-              Icon={UserCog}
-            />
-            {!!customer && (
-              <DescriptionCard
-                title="Харилцагч"
-                value={
-                  customer?.firstName || customer?.lastName
-                    ? `${customer.firstName || ""} ${customer.lastName || ""}`
-                    : `${customer.primaryEmail || customer.email || ""} ${
-                        customer.primaryPhone || ""
-                      }`
-                }
-                Icon={User}
-              />
+  const detailContent = isLoading ? (
+    <PanelLoading />
+  ) : (
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="border-b px-3 pb-2">
+        <PanelSection title="Ерөнхий" nested>
+          <PanelField icon={HashIcon} label="Захиалгын дугаар">
+            <span className="tabular-nums">{number}</span>
+          </PanelField>
+          <PanelField icon={StatusIcon} label="Төлөв">
+            {!!status && <StatusBadge status={status} />}
+          </PanelField>
+          <PanelField icon={TypeIcon} label="Төрөл">
+            {!!type && (
+              <Badge className="h-6 rounded-sm py-0">
+                {typeTextDef[type] || type}
+              </Badge>
             )}
-            {!!description && (
-              <Card className="col-span-3">
-                <CardHeader className="p-2 pb-1">
-                  <CardTitle className="text-xs text-slate-500 font-medium ">
-                    Тайлбар
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex px-2 pb-2 items-center">
-                  <div className="text-sm text-slate-800">{description}</div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-          <Payment
-            cashAmount={cashAmount}
-            mobileAmount={mobileAmount}
-            totalAmount={totalAmount}
-            finalAmount={finalAmount}
-            paidAmounts={paidAmounts}
-          />
-          <Items items={items} />
-          {isAdmin && (
-            <OrderChangeLogs
-              logs={changeLogData?.orderChangeLogs || []}
-              formatDate={formatDate}
-            />
+          </PanelField>
+          <PanelField icon={LampIcon} label="Байрлал">
+            {slotCode}
+          </PanelField>
+          {!!isPre && (
+            <PanelField icon={AlarmClockIcon} label="Урьдчилсан">
+              Тийм
+            </PanelField>
           )}
-        </div>
-      </SheetContent>
-    </Sheet>
+        </PanelSection>
+        <PanelSection title="Хүмүүс" nested>
+          <PanelField icon={UserCog} label="Кассчин">
+            {cashier}
+          </PanelField>
+          <PanelField icon={User} label="Харилцагч">
+            {customerName}
+          </PanelField>
+        </PanelSection>
+        <PanelSection title="Огноо" nested>
+          <PanelField icon={CalendarPlusIcon} label="Үүсгэсэн">
+            <span className="tabular-nums">{formatDate(createdAt)}</span>
+          </PanelField>
+          <PanelField icon={CalendarIcon} label="Өөрчилсөн">
+            <span className="tabular-nums">{formatDate(modifiedAt)}</span>
+          </PanelField>
+          <PanelField icon={CalendarCheckIcon} label="Төлбөр төлсөн">
+            {!!paidDate && (
+              <span className="tabular-nums">{formatDate(paidDate)}</span>
+            )}
+          </PanelField>
+          {!!dueDate && (
+            <PanelField icon={CalendarClockIcon} label="Дуусах огноо">
+              <span className="tabular-nums">{formatDate(dueDate)}</span>
+            </PanelField>
+          )}
+        </PanelSection>
+        <Payment
+          cashAmount={cashAmount}
+          mobileAmount={mobileAmount}
+          totalAmount={totalAmount}
+          finalAmount={finalAmount}
+          paidAmounts={paidAmounts}
+        />
+      </div>
+      {!!description && (
+        <PanelSection title="Тайлбар">
+          <p className="whitespace-pre-wrap px-1 text-xs">{description}</p>
+        </PanelSection>
+      )}
+    </div>
   )
-}
 
-const fieldLabels: Record<string, string> = {
-  itemActions: "Барааны үйлдэл",
-  items: "Бараанууд",
-  status: "Төлөв",
-  saleStatus: "Борлуулалтын төлөв",
-  totalAmount: "Нийт дүн",
-  directDiscount: "Хөнгөлөлт",
-  directIsAmount: "Хөнгөлөлт дүнгээр",
-  customerId: "Харилцагч",
-  customerType: "Харилцагчийн төрөл",
-  brokerId: "Зуучлагч",
-  brokerType: "Зуучлагчийн төрөл",
-  type: "Захиалгын төрөл",
-  billType: "Баримтын төрөл",
-  registerNumber: "Регистрийн дугаар",
-  slotCode: "Ширээ",
-  subBranchId: "Дэд салбар",
-  departmentId: "Хэлтэс",
-  taxInfo: "Татварын мэдээлэл",
-  extraInfo: "Нэмэлт мэдээлэл",
-  dueDate: "Дуусах огноо",
-  branchId: "Салбар",
-  deliveryInfo: "Хүргэлтийн мэдээлэл",
-  description: "Тайлбар",
-}
-
-const formatChangeValue = (value: unknown) => {
-  if (value === null || value === undefined || value === "") {
-    return "-"
-  }
-
-  if (typeof value === "string" || typeof value === "number") {
-    return `${value}`
-  }
-
-  if (typeof value === "boolean") {
-    return value ? "Тийм" : "Үгүй"
-  }
-
-  return JSON.stringify(value)
-}
-
-const OrderChangeLogs = ({
-  logs,
-  formatDate,
-}: {
-  logs: OrderChangeLog[]
-  formatDate: (date: string) => string
-}) => {
-  if (!logs.length) {
-    return null
-  }
+  const tabs: IRecordSidePanelTab[] = [
+    {
+      value: "detail",
+      label: "Дэлгэрэнгүй",
+      icon: InfoIcon,
+      content: detailContent,
+    },
+    {
+      value: "items",
+      label: "Бараа",
+      icon: PackageIcon,
+      count: (items || []).length,
+      content: isLoading ? (
+        <PanelLoading />
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+          <Items items={items} />
+        </div>
+      ),
+    },
+    ...(isAdmin
+      ? [
+          {
+            value: "activity",
+            label: "Түүх",
+            icon: HistoryIcon,
+            content: (
+              <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+                <OrderChangeLogs
+                  logs={changeLogData?.orderChangeLogs || []}
+                  items={items}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ]
 
   return (
-    <Card>
-      <CardHeader className="p-2 pb-1">
-        <CardTitle className="text-xs text-slate-500 font-medium">
-          Өөрчлөлтийн лог
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3 px-2 pb-2">
-        {logs.map((log) => (
-          <div
-            key={log._id}
-            className="border-b pb-2 last:border-b-0 last:pb-0"
-          >
-            <div className="mb-1 text-xs text-slate-500">
-              {formatDate(log.createdAt || "")}
-              {log.user?.primaryEmail || log.user?.email
-                ? ` · ${log.user.primaryEmail || log.user.email}`
-                : ""}
-            </div>
-            <div className="space-y-1">
-              {(log.changes || []).map((change) => (
-                <div
-                  key={`${log._id}-${change.field}`}
-                  className="text-sm text-slate-800 break-words min-w-0"
-                >
-                  <span className="font-semibold">
-                    {fieldLabels[change.field] || change.field}:
-                  </span>{" "}
-                  {formatChangeValue(change.oldValue)} →{" "}
-                  {formatChangeValue(change.newValue)}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+    <RecordSidePanel
+      width={panelWidth}
+      onWidthChange={isMobile ? undefined : setPanelWidth}
+      expanded={isMobile || undefined}
+      expandable={false}
+    >
+      <RecordSidePanel.Layout
+        header={
+          <RecordSidePanel.Header
+            avatar={
+              <span className="flex size-7 flex-none items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <ReceiptTextIcon className="size-4" aria-hidden="true" />
+              </span>
+            }
+            title={
+              isLoading ? (
+                <Skeleton className="h-4 w-32" />
+              ) : (
+                <span className="tabular-nums">{number}</span>
+              )
+            }
+            onClose={() => setDetailId(null)}
+          />
+        }
+        tabs={tabs}
+        value={tab}
+        onValueChange={setTab}
+      />
+    </RecordSidePanel>
   )
 }
 
-const DescriptionCard = ({
-  title,
-  value,
-  Icon,
-}: {
-  title: string
-  value: string
-  Icon: LucideIcon
-}) => (
-  <Card>
-    <CardHeader className="p-2 pb-1">
-      <CardTitle className="text-xs text-slate-500 font-medium ">
-        {title}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="flex px-2 pb-2 items-center">
-      <Icon className="mr-1 h-5 w-5 text-slate-800" strokeWidth={1.9} />
-      <div className="text-sm font-semibold text-slate-800">{value}</div>
-    </CardContent>
-  </Card>
+const PanelLoading = () => (
+  <div className="flex flex-col gap-2 p-3">
+    {Array.from({ length: 6 }).map((_, index) => (
+      <Skeleton key={index} className="h-7 w-full" />
+    ))}
+  </div>
 )
 
 export default OrderDetail

@@ -1,4 +1,4 @@
-import { SelectProps } from "@radix-ui/react-select"
+import type { Select as SelectPrimitive } from "radix-ui"
 
 import { ISlot } from "@/types/slots.type"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -12,7 +12,7 @@ import {
 
 import useSlots from "../hooks/useSlots"
 
-const SelectSlot = (props: SelectProps) => {
+const SelectSlot = (props: SelectPrimitive.SelectProps) => {
   const { slots, loading } = useSlots()
 
   return (
