@@ -26,12 +26,18 @@ const sameEmail = (email: string) => sql`lower(${emailReplyTos.email}) = ${email
 export const listReplyTos = (client: Db) =>
   client.select().from(emailReplyTos).orderBy(asc(emailReplyTos.email));
 
-/** An active member's address is the organisation's already: it needs no link. */
+/** An active team member's address is the organisation's already: it needs no link (erxes support's does). */
 const isMemberEmail = async (client: Db, email: string) => {
   const [member] = await client
     .select({ id: users.id })
     .from(users)
-    .where(and(sql`lower(${users.email}) = ${email}`, eq(users.status, 'active')))
+    .where(
+      and(
+        sql`lower(${users.email}) = ${email}`,
+        eq(users.status, 'active'),
+        eq(users.isSupport, false),
+      ),
+    )
     .limit(1);
 
   return !!member;
@@ -211,6 +217,18 @@ export const isVerifiedReplyTo = async (client: Db, email: string) => {
   return !!row;
 };
 
+/** The organisation's first verified Reply-To address, or null while it has none. */
+export const firstVerifiedReplyTo = async (client: Db) => {
+  const [row] = await client
+    .select({ email: emailReplyTos.email })
+    .from(emailReplyTos)
+    .where(eq(emailReplyTos.status, 'verified'))
+    .orderBy(asc(emailReplyTos.verifiedAt), asc(emailReplyTos.id))
+    .limit(1);
+
+  return row?.email ?? null;
+};
+
 /**
  * A Reply-To the organisation may use: one of its verified addresses. Anything
  * else is a 400 on `path`, so no email asks replies to go to another's inbox.
@@ -222,7 +240,7 @@ export const requireReplyTo = async (
 ) => {
   if (!email || (await isVerifiedReplyTo(client, email))) return;
 
-  const message = `${email} isn't a verified Reply-To address: add it in Settings › Email sending`;
+  const message = `${email} isn't a verified Reply-To address: add it in Settings › Organization email`;
 
   throw fail('INVALID_INPUT', message, { issues: [{ path, message }] });
 };

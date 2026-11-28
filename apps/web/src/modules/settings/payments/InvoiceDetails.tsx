@@ -23,8 +23,16 @@ import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
 import { EbarimtReceipts } from './EbarimtReceipts';
-import { GATEWAY_NAMES } from './gatewayCatalog';
+import { useIntegrationText } from '../integrations/IntegrationStatusBadge';
 import { STATUS_BADGE } from './invoiceStatus';
+
+const GatewayName = ({ gatewayKey }: { gatewayKey: string }) => {
+  const listed = useQuery(orpc.integrations.list.queryOptions());
+  const textOf = useIntegrationText();
+  const integration = listed.data?.data.find((item) => item.key === gatewayKey);
+
+  return integration ? textOf(integration).name : gatewayKey;
+};
 
 const Refunds = ({ invoice }: { invoice: Invoice }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
@@ -200,11 +208,13 @@ export const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose
           <dd>{invoice.paidAmount === null ? '—' : money(invoice.paidAmount, invoice.currency)}</dd>
           <dt className="text-muted-foreground">{t('paid-with', 'Paid with')}</dt>
           <dd>
-            {invoice.method !== 'gateway'
-              ? t(`method.${invoice.method}`, invoice.method)
-              : invoice.gatewayKind
-                ? GATEWAY_NAMES[invoice.gatewayKind]
-                : '—'}
+            {invoice.method !== 'gateway' ? (
+              t(`method.${invoice.method}`, invoice.method)
+            ) : invoice.gatewayKind ? (
+              <GatewayName gatewayKey={invoice.gatewayKind} />
+            ) : (
+              '—'
+            )}
           </dd>
           <dt className="text-muted-foreground">{t('refunded-total', 'Refunded')}</dt>
           <dd>{money(invoice.refundedAmount, invoice.currency)}</dd>

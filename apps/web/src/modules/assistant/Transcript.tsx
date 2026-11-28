@@ -1,123 +1,12 @@
-import { IconArrowDown, IconLoader2 } from '@tabler/icons-react';
-import { Button, Spinner } from 'erxes-ui';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { IconArrowDown } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AssistantAvatar } from './AssistantAvatar';
-import { CopyButton } from './CopyButton';
-import { QuestionCard } from './QuestionCard';
-import { Reply } from './Reply';
-import { StepsGroup, ThinkingBlock } from './Steps';
-import {
-  answerMessage,
-  replyText,
-  type TranscriptMessage,
-  type TranscriptRow,
-} from './transcriptRows';
+import { AssistantTurn, type TranscriptActions } from './AssistantTurn';
+import type { TranscriptMessage } from './transcriptRows';
 import { UserMessage } from './UserMessage';
 
-const ArtifactCard = lazy(() =>
-  import('./artifacts/ArtifactCard').then((module) => ({ default: module.ArtifactCard })),
-);
-
-export interface TranscriptActions {
-  busy: boolean;
-  onAnswer: (text: string) => void;
-}
-
-const Row = ({
-  row,
-  live,
-  actions,
-}: {
-  row: TranscriptRow;
-  live: boolean;
-  actions: TranscriptActions;
-}) => {
-  switch (row.kind) {
-    case 'text':
-      return <Reply text={row.text} streaming={row.streaming} />;
-    case 'thinking':
-      return <ThinkingBlock text={row.text} streaming={row.streaming} />;
-    case 'steps':
-      return <StepsGroup steps={row.steps} live={live} />;
-    case 'question':
-      return (
-        <QuestionCard
-          questions={row.questions}
-          disabled={actions.busy}
-          onAnswer={(answers) => actions.onAnswer(answerMessage(row.questions, answers))}
-        />
-      );
-    case 'artifact':
-      return (
-        <Suspense fallback={<Spinner />}>
-          <ArtifactCard artifact={row.artifact} />
-        </Suspense>
-      );
-  }
-};
-
-const AssistantMessage = ({
-  rows,
-  last,
-  actions,
-}: {
-  rows: TranscriptRow[];
-  last: boolean;
-  actions: TranscriptActions;
-}) => {
-  const { t } = useTranslation('assistant');
-  const text = replyText(rows);
-  const waiting = rows.some((row) => row.kind === 'question');
-  const working = last && actions.busy;
-  const thinking = working && !rows.some((row) => row.kind === 'text');
-  const [first] = rows;
-  const lead = first?.kind === 'steps' || first?.kind === 'thinking' ? first : null;
-  const liveKey = working ? rows.at(-1)?.key : undefined;
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex min-w-0 items-start gap-2">
-        <AssistantAvatar
-          size={28}
-          state={thinking ? 'thinking' : 'idle'}
-          animated={last}
-          follow={last && !thinking}
-        />
-        {lead ? (
-          <div className="min-w-0 flex-1">
-            <Row row={lead} live={lead.key === liveKey} actions={actions} />
-          </div>
-        ) : (
-          thinking && (
-            <span className="self-center text-sm text-muted-foreground">
-              {t('working', 'Working on it…')}
-            </span>
-          )
-        )}
-      </div>
-      {rows.slice(lead ? 1 : 0).map((row) => (
-        <Row key={row.key} row={row} live={row.key === liveKey} actions={actions} />
-      ))}
-      {last && !working && !waiting && text && (
-        <div className="flex items-center gap-0.5">
-          <CopyButton text={text} />
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const WorkingRow = ({ label, avatar = false }: { label: string; avatar?: boolean }) => (
-  <p className="flex items-center gap-2 text-sm text-muted-foreground">
-    {avatar ? (
-      <AssistantAvatar size={28} state="thinking" />
-    ) : (
-      <IconLoader2 aria-hidden className="size-3.5 animate-spin" />
-    )}
-    {label}
-  </p>
-);
+export { type TranscriptActions, WorkingRow } from './AssistantTurn';
 
 const LatestButton = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation('assistant');
@@ -201,14 +90,14 @@ export const Transcript = ({
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
-        <ol ref={list} className="flex flex-col gap-5 px-4 py-4">
+        <ol ref={list} className="mx-auto flex w-full max-w-3xl flex-col gap-7 px-4 pt-6 pb-8">
           {messages.map((message, index) => (
-            <li key={message.key}>
+            <li key={message.key} className="animate-in fade-in slide-in-from-bottom-1">
               {message.role === 'user' ? (
                 <UserMessage parts={message.parts} />
               ) : (
-                <AssistantMessage
-                  rows={message.rows}
+                <AssistantTurn
+                  message={message}
                   last={index === messages.length - 1}
                   actions={actions}
                 />

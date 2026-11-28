@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsdown';
 
-// The publishable build: one ES module per source file, so `client`, `filter`, `jobs`, `openapi` and `verify` are
+// The publishable build: one ES module per source file, so `client`, `filter`, `integrations`, `jobs`, `openapi` and `verify` are
 // also subpaths. The workspace imports the sources: tsdown writes `exports` pointing
 // at src/ and puts the dist ones in `publishConfig`. `onlyImport` fails the build when
 // dist imports anything outside `dependencies`.
@@ -15,11 +15,14 @@ export default defineConfig({
       '@erxes/core-contract',
       '@orpc/client',
       '@orpc/contract',
+      '@orpc/json-schema',
       '@orpc/openapi',
       '@orpc/openapi-client',
+      '@orpc/server',
       '@orpc/zod',
       'drizzle-orm',
       'jose',
+      'qrcode',
       'zod',
     ],
   },

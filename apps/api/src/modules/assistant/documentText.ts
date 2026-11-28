@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { DocumentFormat, DocumentJob } from './documentText.worker';
-import { runWorker, workerGate } from './workers';
+import { runWorker, workerFile, workerGate } from '~/lib/workers';
 
 const PARSE_TIMEOUT_MS = 20_000;
 
@@ -63,7 +63,7 @@ const gate = workerGate(PARSES_AT_ONCE, PARSES_WAITING);
 
 const parse = async (job: DocumentJob, signal: AbortSignal) => {
   const end = await runWorker(
-    'documentText.worker',
+    workerFile('documentText.worker', import.meta.url),
     { data: job, heapMb: WORKER_HEAP_MB, signal },
     (message) => Result.safeParse(message),
   ).finally(gate.release);

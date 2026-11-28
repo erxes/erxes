@@ -1,8 +1,10 @@
+import { CONNECTION_CONTENT_TYPE } from 'erxes-ui';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { paths } from '~/lib/paths';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { usePlan } from '~/modules/saas/usePlan';
+import { RecordPage } from '~/modules/side-panel/RecordPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
@@ -11,6 +13,7 @@ import { NotificationSettingsPage } from './notifications/NotificationSettingsPa
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
+import { LicensePage } from './license/LicensePage';
 import { PlanPage } from './plan/PlanPage';
 import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
@@ -23,9 +26,9 @@ const PluginPropertiesSettings = lazyNamed(
   'PluginPropertiesSettings',
 );
 
-const AssistantKeysPage = lazyNamed(
-  () => import('./assistant/AssistantKeysPage'),
-  'AssistantKeysPage',
+const AssistantModelPage = lazyNamed(
+  () => import('./assistant/AssistantModelPage'),
+  'AssistantModelPage',
 );
 
 const AssistantCodeModePage = lazyNamed(
@@ -39,7 +42,21 @@ const AssistantAppearancePage = lazyNamed(
 );
 
 // Fetched on first visit: few members open these, so they stay out of settings' chunk.
+const AgentsPage = lazyNamed(() => import('./agents/AgentsPage'), 'AgentsPage');
+const NewAgentPage = lazyNamed(() => import('./agents/NewAgentPage'), 'NewAgentPage');
+const AgentPage = lazyNamed(() => import('./agents/AgentPage'), 'AgentPage');
+
 const StructurePage = lazyNamed(() => import('./structure/StructurePage'), 'StructurePage');
+
+const SupportAccessPage = lazyNamed(
+  () => import('./support-access/SupportAccessPage'),
+  'SupportAccessPage',
+);
+
+const ExchangeRatesPage = lazyNamed(
+  () => import('./exchange-rates/ExchangeRatesPage'),
+  'ExchangeRatesPage',
+);
 
 const ApiReferencePage = lazyNamed(
   () => import('./developer/ApiReferencePage'),
@@ -47,6 +64,7 @@ const ApiReferencePage = lazyNamed(
 );
 
 const ApiKeysPage = lazyNamed(() => import('./developer/ApiKeysPage'), 'ApiKeysPage');
+const McpPage = lazyNamed(() => import('./developer/McpPage'), 'McpPage');
 const KeyEditorPage = lazyNamed(() => import('./developer/keys/KeyEditorPage'), 'KeyEditorPage');
 
 const PaymentsSettingsPage = lazyNamed(
@@ -58,6 +76,13 @@ const IntegrationsSettingsPage = lazyNamed(
   () => import('./integrations/IntegrationsSettingsPage'),
   'IntegrationsSettingsPage',
 );
+
+const PortalsSettingsPage = lazyNamed(
+  () => import('./portals/PortalsSettingsPage'),
+  'PortalsSettingsPage',
+);
+
+const PortalPage = lazyNamed(() => import('./portals/PortalPage'), 'PortalPage');
 
 const EmailSettingsPage = lazyNamed(() => import('./email/EmailSettingsPage'), 'EmailSettingsPage');
 
@@ -87,22 +112,35 @@ export const SettingsRoutes = () => (
       <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="api-reference/:api?/:audience?" element={<ApiReferencePage />} />
       <Route path="api-keys" element={<ApiKeysPage />} />
+      <Route path="mcp" element={<McpPage />} />
       <Route path="api-keys/new" element={<KeyEditorPage />} />
       <Route path="api-keys/:id" element={<KeyEditorPage />} />
       <Route path="plugins" element={<PluginsRoute />} />
       <Route path="roles" element={<RolesSettingsPage />} />
       <Route path="structure" element={<StructurePage />} />
+      <Route path="exchange-rates" element={<ExchangeRatesPage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
+      <Route path="portals" element={<PortalsSettingsPage />} />
+      <Route path="portals/:id" element={<PortalPage />} />
       <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="email" element={<EmailSettingsPage />} />
       <Route path="integrations" element={<IntegrationsSettingsPage />} />
       <Route path="integrations/:key" element={<IntegrationPage />} />
+      <Route
+        path="integrations/connections/:id"
+        element={<RecordPage contentType={CONNECTION_CONTENT_TYPE} />}
+      />
       <Route path="recycle-bin" element={<RecycleBinPage />} />
       <Route path="plan" element={<PlanPage />} />
+      <Route path="license" element={<LicensePage />} />
+      <Route path="support-access" element={<SupportAccessPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="security" element={<SecuritySettingsPage />} />
-      <Route path="assistant" element={<AssistantKeysPage />} />
+      <Route path="assistant-model" element={<AssistantModelPage />} />
+      <Route path="agents" element={<AgentsPage />} />
+      <Route path="agents/new" element={<NewAgentPage />} />
+      <Route path="agents/:id" element={<AgentPage />} />
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
       <Route path="properties/*" element={<PluginPropertiesSettings />} />

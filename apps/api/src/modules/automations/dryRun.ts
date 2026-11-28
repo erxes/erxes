@@ -1,14 +1,20 @@
 import type { AutomationDefinition, AutomationStep, DryRunStep } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
-import { notFound } from '~/http/errors';
+import { DECISION_INTEGRATIONS } from '@erxes/integrations/server';
+import { callerCan } from '~/http/access';
+import { invalidInput, notAllowed, notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
 import { type ConditionChecker, conditionChecker, type SubjectRef } from './conditionCheck';
 import { type Cursor, enterArm, nextCursor, splitPath, stepAt } from './cursor';
+import { definitionProblems } from './definitions';
 import { automationCatalog } from './automationCatalog';
+import { HookRequest, hookEvent } from './hooks';
+import { findHookSubject, noHookSubject } from './hookSubject';
 import { armConditions } from './steps';
 import { subjectOf } from './subjects';
 import { render } from './templates';
-import { dateConditions } from './conditions';
+import { triggerConditions } from './conditions';
+import { triggerKey } from './triggerKey';
 
 /** The most steps a dry run follows (a loop guard). */
 const MAX_DRY_STEPS = 200;
@@ -98,6 +104,17 @@ const probeArm = (
     };
   }
 
+  if (step.type === 'decide') {
+    const asked = DECISION_INTEGRATIONS[step.provider].name;
+
+    return {
+      outcome: `Would ask ${asked} to pick a path; assumed path ${labelled(0, step.paths[0]?.label)}`,
+      input: render({ question: step.question, state: step.state }, dry.context),
+      output: { path: step.paths[0]?.label ?? null },
+      next: enterArm(steps, cursor, 'path:0'),
+    };
+  }
+
   if (step.type === 'split') {
     const path = splitPath(dry.seed, step);
 
@@ -126,15 +143,6 @@ const probeStep = (step: AutomationStep, cursor: Cursor, dry: DryRun, arms: bool
     };
 
   return probeArm(step, cursor, dry, arms) ?? { outcome: 'Stops here', next: null };
-};
-
-/** The trigger's own conditions; a date trigger's rules on the event's date read the record's. */
-const triggerConditions = (trigger: AutomationDefinition['trigger']) => {
-  if (trigger.kind === 'event') return trigger.conditions;
-
-  if (trigger.kind === 'date') return dateConditions(trigger);
-
-  return trigger.audience?.conditions;
 };
 
 /**
@@ -188,42 +196,78 @@ const trace = async (dry: DryRun, checker: ConditionChecker, subject: SubjectRef
   return lines;
 };
 
+interface TestInput {
+  definition?: AutomationDefinition;
+  subjectType?: ContentType;
+  subjectId?: string;
+  payload?: Record<string, unknown>;
+  assumeEventHappens: boolean;
+}
+
+const testEvent = (trigger: AutomationDefinition['trigger'], input: TestInput) => {
+  const occurredAt = new Date().toISOString();
+
+  if (trigger.kind !== 'webhook')
+    return {
+      type:
+        trigger.kind === 'event' || trigger.kind === 'app' ? triggerKey({ trigger }) : trigger.kind,
+      occurredAt,
+      payload: input.payload ?? {},
+    };
+
+  const request = HookRequest.safeParse(input.payload ?? {});
+
+  if (!request.success) throw invalidInput(request.error);
+
+  return hookEvent(request.data);
+};
+
+const testSubject = async (
+  client: Db,
+  trigger: AutomationDefinition['trigger'],
+  input: TestInput,
+  event: Record<string, unknown>,
+) => {
+  const { subjectType = null, subjectId = null } = input;
+
+  if (!subjectId) {
+    if ((trigger.kind !== 'webhook' && trigger.kind !== 'app') || !trigger.subject) return null;
+
+    const found = await findHookSubject(client, trigger.subject, { event });
+
+    if (!found) throw noHookSubject();
+
+    return found;
+  }
+
+  const subject = await subjectOf(client, subjectType, subjectId);
+
+  if (!subject) throw notFound(subjectType === 'customer' ? 'Customer' : 'Company');
+
+  return subject;
+};
+
 /**
  * A dry run of the working copy for one record: which way each branch goes,
  * what each action would get (placeholders filled), where it would wait.
  * Nothing is changed.
  */
-export const testAutomation = async (
-  client: Db,
-  id: string,
-  input: {
-    subjectType?: ContentType;
-    subjectId?: string;
-    payload?: Record<string, unknown>;
-    assumeEventHappens: boolean;
-  },
-) => {
+export const testAutomation = async (client: Db, id: string, input: TestInput) => {
+  if (input.definition !== undefined && !callerCan('automations.manage')) {
+    throw notAllowed('automations.manage');
+  }
+
   const row = await findAutomation(client, id);
-  const { definition } = row;
+  const definition = input.definition ?? row.definition;
   const { trigger } = definition;
 
-  const { subjectType = null, subjectId = null } = input;
-  const subject = await subjectOf(client, subjectType, subjectId);
-
-  if (subjectId && !subject) throw notFound(subjectType === 'customer' ? 'Customer' : 'Company');
+  const event = testEvent(trigger, input);
+  const subject = await testSubject(client, trigger, input, event);
+  const subjectType = subject?.type ?? null;
+  const subjectId = subject?.id ?? null;
 
   // Shaped like a delivered event, so conditions on `event.subjectId` read the same as in a run.
-  const context = {
-    event: {
-      type: trigger.kind === 'event' ? trigger.event : trigger.kind,
-      occurredAt: new Date().toISOString(),
-      payload: input.payload ?? {},
-      subjectType,
-      subjectId,
-    },
-    subject,
-    steps: {},
-  };
+  const context = { event: { ...event, subjectType, subjectId }, subject, steps: {} };
 
   const dry: DryRun = {
     definition,
@@ -236,7 +280,7 @@ export const testAutomation = async (
 
   // As the member testing: their "me", the relations they may see.
   const checker = conditionChecker(client);
-  const ref = subjectType && subjectId ? { type: subjectType, id: subjectId } : null;
+  const ref = subject ? { type: subject.type, id: subject.id } : null;
 
   const [triggerMatches = false, goalMet = false] = await checker.check(ref, [
     { group: triggerConditions(trigger), context },
@@ -246,6 +290,7 @@ export const testAutomation = async (
   return {
     triggerMatches,
     goalMetAtStart: Boolean(definition.goal && goalMet),
+    problems: await definitionProblems(client, definition),
     trace: await trace(dry, checker, ref),
   };
 };

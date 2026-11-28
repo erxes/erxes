@@ -35,7 +35,7 @@ const RuleRow = ({
   onChange: (rule: Rule) => void;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   const operators: Record<Rule['operator'], string> = {
     is: t('logic-is', 'is'),
@@ -116,7 +116,7 @@ export const PropertyLogicField = ({
   contentType: PropertyContentType;
   fieldId?: string;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const rules = useFieldArray({ control: form.control, name: 'logic.rules' });
   const watched = useWatch({ control: form.control, name: 'logic.rules' });
   const action = useWatch({ control: form.control, name: 'logic.action' });

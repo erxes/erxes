@@ -53,5 +53,14 @@ export const readEmailed = reader(
   }),
 );
 
+export const readWroteIn = reader(
+  z.object({
+    portalName: z.string(),
+    subject: z.string(),
+    message: z.string(),
+    phone: z.string().nullable(),
+  }),
+);
+
 /** `customer.tagged` → `tagged`. */
 export const verbOf = (activity: Activity) => activity.type.slice(activity.type.indexOf('.') + 1);

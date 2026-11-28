@@ -8,20 +8,27 @@ import {
   IconApps,
   IconArrowUpRight,
   IconHierarchy2,
+  IconLifebuoy,
   IconLock,
   IconMail,
   IconMoodSmile,
   IconPlugConnected,
+  IconRobot,
   IconSettings,
   IconShieldCheck,
   IconShieldHalf,
+  IconSparkles,
   IconCode,
   IconKey,
+  IconPlug,
   IconTrash,
+  IconCertificate,
   IconCreditCard,
+  IconCurrencyDollar,
   IconUserCircle,
   IconUsersGroup,
   IconWebhook,
+  IconWorldWww,
   type Icon,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
@@ -33,6 +40,7 @@ import { pluginPropertyTypes } from '~/modules/plugins/pluginProperties';
 import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { usePlan } from '~/modules/saas/usePlan';
+import { useMayOpenIntegrations } from '../integrations/catalog';
 
 interface SettingsPath {
   name: string;
@@ -44,6 +52,7 @@ interface SettingsPath {
 const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
+  const mayOpenIntegrations = useMayOpenIntegrations();
   const plan = usePlan().data;
 
   return [
@@ -52,11 +61,28 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('roles', 'Roles'), to: paths.settings.roles, icon: IconShieldHalf },
     { name: t('structure', 'Structure'), to: paths.settings.structure, icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), to: paths.settings.fileUpload, icon: IconCloudUpload },
+    {
+      name: t('exchange-rates', 'Exchange Rates'),
+      to: paths.settings.exchangeRates,
+      icon: IconCurrencyDollar,
+    },
     ...(plan?.pluginsManaged
       ? []
       : [{ name: t('plugins', 'Plugins'), to: paths.settings.plugins, icon: IconApps }]),
     ...(plan?.saas
       ? [{ name: t('plan', 'Plan'), to: paths.settings.plan, icon: IconCreditCard }]
+      : []),
+    ...(plan && !plan.saas
+      ? [{ name: t('license', 'License'), to: paths.settings.license, icon: IconCertificate }]
+      : []),
+    ...(plan?.saas && can('support.manage')
+      ? [
+          {
+            name: t('support-access', 'Support access'),
+            to: paths.settings.supportAccess,
+            icon: IconLifebuoy,
+          },
+        ]
       : []),
     ...(can('contacts.delete')
       ? [{ name: t('recycle-bin', 'Recycle bin'), to: paths.settings.recycleBin, icon: IconTrash }]
@@ -66,7 +92,15 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
       : []),
     ...(can('integrations.manage')
       ? [
-          { name: t('email-sending', 'Email sending'), to: paths.settings.email, icon: IconMail },
+          {
+            name: t('email-sending', 'Organization email'),
+            to: paths.settings.email,
+            icon: IconMail,
+          },
+        ]
+      : []),
+    ...(mayOpenIntegrations
+      ? [
           {
             name: t('integrations', 'Integrations'),
             to: paths.settings.integrations,
@@ -80,7 +114,10 @@ const useSettingsWorkspacePaths = (): SettingsPath[] => {
   ];
 };
 
-/** The settings "Developer" group: the API reference (core's and the plugins'), then what sends events out. */
+/**
+ * The settings "Developer" group: the API reference (core's and the plugins'), keys, the portals
+ * customers sign in to (their apps, sign-in and portal keys), then what sends events out.
+ */
 const useSettingsDeveloperPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
@@ -92,6 +129,10 @@ const useSettingsDeveloperPaths = (): SettingsPath[] => {
       icon: IconSourceCode,
     },
     { name: t('api-keys', 'API keys'), to: paths.settings.apiKeys, icon: IconKey },
+    { name: t('mcp', 'MCP server'), to: paths.settings.mcp, icon: IconPlug },
+    ...(can('contacts.view')
+      ? [{ name: t('portals', 'Portals'), to: paths.settings.portals, icon: IconWorldWww }]
+      : []),
     ...(can('webhooks.manage')
       ? [{ name: t('webhooks', 'Webhooks'), to: paths.settings.webhooks, icon: IconWebhook }]
       : []),
@@ -184,19 +225,20 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
     ...(can('assistant.chat')
       ? [
           {
-            name: t('assistant-keys', 'Provider keys'),
-            to: paths.settings.assistant,
-            icon: IconKey,
-          },
-          {
             name: t('assistant-appearance', 'Appearance'),
             to: paths.settings.assistantAppearance,
             icon: IconMoodSmile,
           },
+          { name: t('agents', 'Agents'), to: paths.settings.agents, icon: IconRobot },
         ]
       : []),
     ...(can('assistant.manage')
       ? [
+          {
+            name: t('assistant-model', 'Default model'),
+            to: paths.settings.assistantModel,
+            icon: IconSparkles,
+          },
           {
             name: t('assistant-code-mode', 'Code mode'),
             to: paths.settings.assistantCodeMode,

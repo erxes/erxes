@@ -49,7 +49,8 @@ export const trashContract = {
     .route({
       method: 'GET',
       path: '/trash',
-      summary: 'Deleted customers and companies, newest first (contacts.delete)',
+      summary: 'List deleted contacts',
+      description: 'Deleted customers and companies, newest first (contacts.delete)',
     })
     .input(
       CursorQuery.extend({
@@ -62,7 +63,8 @@ export const trashContract = {
     .route({
       method: 'POST',
       path: '/trash/restore',
-      summary:
+      summary: 'Restore deleted contacts',
+      description:
         'Bring records back with their tags, links and timeline (409 when an email or phone is taken now)',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(500) }))
@@ -76,7 +78,8 @@ export const trashContract = {
     .route({
       method: 'POST',
       path: '/trash/purge',
-      summary: 'Delete for good now (privacy requests; owners)',
+      summary: 'Delete contacts for good',
+      description: 'Delete for good now (privacy requests; owners)',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(500) }))
     .output(z.object({ purged: z.int() })),

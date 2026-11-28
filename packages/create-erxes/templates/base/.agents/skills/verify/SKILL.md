@@ -6,19 +6,16 @@ description: Show a change works in erxes, not only in tests. Use before calling
 Use synthetic data only.
 
 1. Run the gates: `vp run check`, `vp run test`, `pnpm build`.
-2. Start core from an erxes checkout on branch `postgre`, following its
-   `verify-feature` skill. Give core
-   `CORE_PLUGIN_KEYS=__id__:<32+ character secret>`, and web
-   `PUBLIC_PLUGINS=__id___ui@http://localhost:__uiPort__/remoteEntry.js`.
-3. Give the plugin role a database by running `core$ pnpm db:plugin-role __id__` in core, then
-   put its URL in this repo's `.env` as `DATA_URL`, with the same secret as
-   `PLUGIN_SECRET`.
-4. Run `pnpm dev:api` and `pnpm dev:ui`. The API log ends with its address; a
-   failed `registerManifest` means the secret or `CORE_URL` is wrong.
-5. In web, open the plugin's tab, walk the change, reload, and check it
+2. In an erxes core checkout on branch `postgre`, run `core$ vp run dev:stack up <this repo's path>`,
+   adding the paths of plugins this one works with. It starts core, gives each plugin a database
+   role and a secret, starts its API and UI dev servers and installs it in the e2e organisation.
+   It prints the addresses and the sign-in; core's `verify-feature` skill has the rest.
+   `core$ vp run dev:stack status` prints where the logs are; a failed `registerManifest` there
+   means the plugin could not reach core.
+3. In web, open the plugin's tab, walk the change, reload, and check it
    persisted. Repeat as a member whose role lacks the permission and check
    they are refused.
-6. Keep screenshots and logs in `.scratch/` (git ignores it).
+4. Keep screenshots and logs in `.scratch/` (git ignores it).
 
 Done when the handoff lists what you saw at each step, the refusal included,
 and where the screenshots are.

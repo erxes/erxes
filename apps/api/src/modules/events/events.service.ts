@@ -1,6 +1,15 @@
-import type { ActivityTarget, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
+import {
+  type ActivityTarget,
+  CORE_EVENT_TYPES,
+  type CoreEventName,
+  type CursorQuery,
+  type EventFailure,
+  type EventInput,
+  type WithCorePayload,
+} from '@erxes/core-contract';
 import { actorOf, caller, type Db, events, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
+import type { ZodObject } from 'zod';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { fail } from '~/http/errors';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
@@ -17,12 +26,25 @@ import {
 } from '~/modules/jobs/failed';
 import { storedError } from '~/modules/jobs/jobs';
 
-export type CoreEventInput = Pick<
+type EventColumns = Pick<
   typeof events.$inferInsert,
-  'type' | 'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'payload' | 'dedupeKey'
+  'subjectType' | 'subjectId' | 'entityType' | 'entityId' | 'dedupeKey'
 >;
 
-export const publishEventsFrom = async (client: Db, source: string, list: CoreEventInput[]) => {
+type CoreEventInput<T extends string> = EventColumns & { type: T } & (T extends CoreEventName
+    ? WithCorePayload<T>
+    : { payload?: Record<string, unknown> });
+
+type EventRow = EventColumns & { type: string; payload?: Record<string, unknown> };
+
+const PAYLOADS = new Map<string, ZodObject>(
+  CORE_EVENT_TYPES.flatMap((item) => ('payload' in item ? [[item.type, item.payload]] : [])),
+);
+
+const checkedPayload = ({ type, payload = {} }: EventRow): Record<string, unknown> =>
+  PAYLOADS.get(type)?.parse(payload) ?? payload;
+
+const publishCore = async (client: Db, list: EventRow[]) => {
   if (!list.length) {
     return;
   }
@@ -36,12 +58,12 @@ export const publishEventsFrom = async (client: Db, source: string, list: CoreEv
     .values(
       list.map((input) => ({
         id: newId(),
-        source,
+        source: 'core',
         ...input,
         ...actor,
         payload: imported
-          ? { ...input.payload, _import: { id: imported.importId, quiet: imported.quiet } }
-          : (input.payload ?? {}),
+          ? { ...checkedPayload(input), _import: { id: imported.importId, quiet: imported.quiet } }
+          : checkedPayload(input),
         // Caused by an automation's action: that run, one level deeper.
         causedByRun: cause?.runId ?? null,
         depth: cause ? cause.depth + 1 : 0,
@@ -54,8 +76,10 @@ export const publishEventsFrom = async (client: Db, source: string, list: CoreEv
  * Core publishes its own events (`core.customer.created`, …) in the same
  * transaction as the change, for automations and webhooks to come.
  */
-export const publishCoreEvents = (client: Db, inputs: CoreEventInput | CoreEventInput[]) =>
-  publishEventsFrom(client, 'core', Array.isArray(inputs) ? inputs : [inputs]);
+export const publishCoreEvents = <T extends string>(
+  client: Db,
+  inputs: CoreEventInput<T> | CoreEventInput<T>[],
+) => publishCore(client, Array.isArray(inputs) ? inputs : [inputs]);
 
 /**
  * A plugin publishes events over HTTP (plugins on core's database use

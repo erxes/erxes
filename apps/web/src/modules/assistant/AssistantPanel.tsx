@@ -1,7 +1,8 @@
 import { RecordOpenerProvider } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { paths } from '~/lib/paths';
 import { useRecordPageNavigation } from '~/modules/side-panel/panelNavigation';
 import { recordPagePath, usePanelRecordType } from '~/modules/side-panel/panelRecordTypes';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
@@ -27,7 +28,8 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
   const tabs = useAssistantTabs();
   const shown = useShownRecords();
   const { openNewRecord } = useSidePanel();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const { openPage } = useRecordPageNavigation();
   const { type } = usePanelRecordType(shown.top?.record.contentType ?? '');
   const recordPage = shown.top ? recordPagePath(type, shown.top.record, pathname) : null;
@@ -43,7 +45,7 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
       id="assistant-panel"
       label={t('title', 'Assistant')}
       hidden={!open}
-      className="max-md:fixed max-md:inset-0 max-md:z-50 max-md:w-full"
+      className="absolute top-12 right-2 bottom-2 z-30 rounded-xl border shadow-xl max-md:fixed max-md:inset-0 max-md:z-50 max-md:w-full max-md:rounded-none max-md:border-0"
       width={width}
       maxWidth={ASSISTANT_WIDTH.max}
       onWidthChange={setWidth}
@@ -67,7 +69,14 @@ export const AssistantPanel = ({ open }: { open: boolean }) => {
           inert={!chatShown}
           className={chatShown ? 'flex min-h-0 flex-1 flex-col' : 'hidden'}
         >
-          <PanelHeader tabs={tabs} onClose={close} />
+          <PanelHeader
+            tabs={tabs}
+            onClose={close}
+            onExpand={() => {
+              setOpen(false);
+              void navigate(paths.assistant, { state: { from: `${pathname}${search}` } });
+            }}
+          />
           {tabs.active && (
             <Conversation key={tabs.active.key} tab={tabs.active} tabs={tabs} open={open} />
           )}

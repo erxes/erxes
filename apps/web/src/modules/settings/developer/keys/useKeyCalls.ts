@@ -8,15 +8,12 @@ import { useKeyPlugins } from './useKeyPlugins';
 export interface KeyCallChoice {
   name: string;
   label: string;
+  description: string | null;
   method: string;
   path: string;
   access: ApiKeyAccess;
   permission: string | null;
 }
-
-/** A call's summary up to its first full stop or aside: "Create a customer". */
-const labelOf = (summary: string | null, name: string) =>
-  summary?.split(/\.\s|\s\(|;\s/)[0]?.replace(/\.$/, '') || name;
 
 /** The calls a key can make, by area, and the words for a call or a plugin action. */
 export const useKeyCalls = () => {
@@ -27,7 +24,8 @@ export const useKeyCalls = () => {
     const all: (KeyCallChoice & { area: string | null })[] = (calls.data?.data ?? []).map(
       (call) => ({
         name: call.procedure,
-        label: labelOf(call.summary, call.procedure),
+        label: call.summary ?? call.procedure,
+        description: call.description,
         method: call.method,
         path: call.path,
         access: call.access,

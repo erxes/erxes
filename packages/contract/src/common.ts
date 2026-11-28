@@ -9,6 +9,37 @@ import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);
 
+/** The OpenAPI extension that marks a POST that changes nothing (`readsByPost`). */
+export const READS_EXTENSION = 'x-erxes-reads';
+
+/**
+ * A route's `spec` for a POST that only reads, such as a dry run or a preview with a large body:
+ * agents and MCP clients run it as a read, without asking a person first.
+ */
+export const readsByPost = <Operation extends object>(operation: Operation) => ({
+  ...operation,
+  [READS_EXTENSION]: true,
+});
+
+/** The OpenAPI extension that marks a route that hands out sign-in or a credential (`forPeople`). */
+export const PEOPLE_ONLY_EXTENSION = 'x-erxes-people-only';
+
+/**
+ * A route's `spec` for one that hands out sign-in or a credential whose fields don't say so,
+ * such as a login link: agents and MCP clients never offer or call it.
+ */
+export const forPeople = <Operation extends object>(operation: Operation) => ({
+  ...operation,
+  [PEOPLE_ONLY_EXTENSION]: true,
+});
+
+/**
+ * The OpenAPI extension that lists the permissions a plugin route checks, any one of which lets a
+ * member call it (`checksPermission` in `@erxes/plugin-sdk/openapi`). Agents and MCP clients
+ * don't offer the route to a caller who holds none of them.
+ */
+export const PERMISSIONS_EXTENSION = 'x-erxes-permissions';
+
 /**
  * A timestamp column in an output schema: the handler returns the row's `Date`,
  * the client gets an ISO string. Give it to `createSelectSchema` as a
@@ -63,6 +94,21 @@ export const IdList = z
       .slice(0, 100),
   );
 
+/**
+ * Records to merge into `keepId`. A merge input extends it with `fields`: the
+ * record each field's value comes from, checked by `namesMerged`.
+ */
+export const MergeIds = z.object({ ids: z.array(Id).min(2).max(10), keepId: Id });
+
+export const MERGE_IDS_MESSAGE = 'keepId and every fields value must be one of ids';
+
+/** `keepId` and the record picked for each field are among the merged ones. */
+export const namesMerged = (value: {
+  ids: string[];
+  keepId: string;
+  fields: Partial<Record<string, string>>;
+}) => [value.keepId, ...Object.values(value.fields)].every((id) => id && value.ids.includes(id));
+
 /** `INVALID_INPUT`'s `data`: what failed the contract, field by field. */
 export const InvalidInput = z.object({
   issues: z.array(z.object({ path: z.array(z.union([z.string(), z.int()])), message: z.string() })),
@@ -75,11 +121,17 @@ export const cursorPageOf = <T extends z.ZodType>(item: T) =>
   z.object({
     data: z.array(item),
     pageInfo: PageInfo,
-    /** Records matching the filters, across all pages. */
-    totalCount: z.int(),
+    /**
+     * Records matching the filters, across all pages. Only on a list's first page (no
+     * cursor, or reopening at one with `inclusive`): the pages after it don't count again.
+     */
+    totalCount: z.int().optional(),
     /** Big lists stop counting: `totalCount` is the cap and there are more ("10,000+"). */
     totalCapped: z.boolean().optional(),
   });
+
+/** A page of `T`s, as a `cursorPageOf` list answers. */
+export type CursorPage<T> = z.infer<ReturnType<typeof cursorPageOf<z.ZodType<T>>>>;
 
 /**
  * Most items a list read whole may hold. Whole lists are small config

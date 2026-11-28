@@ -76,7 +76,7 @@ export const runPluginAction = async (ctx: CallContext, plugin: ActionPlugin, ty
       Authorization: `Bearer ${token}`,
       'Idempotency-Key': idempotencyKey(ctx),
     },
-    30_000,
+    { timeoutMs: 30_000 },
   );
 
   if (response.status < 200 || response.status >= 300) {

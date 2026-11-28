@@ -1,0 +1,1 @@
+ALTER TABLE "core_users" ADD COLUMN "code" text;

@@ -4,7 +4,13 @@ import { z } from 'zod';
 import { config } from '~/config';
 import { chat, userPartsOf } from './assistantChat';
 import { useTestDatabase } from './db';
-import { type ChatRequest, fakeModel, lastToolResult, type Script } from './fakeModel';
+import {
+  type ChatRequest,
+  connectProvider,
+  fakeModel,
+  lastToolResult,
+  type Script,
+} from './fakeModel';
 import { type CoreClient, useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0004';
@@ -74,7 +80,7 @@ describe('assistant references, mentions and page context', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());

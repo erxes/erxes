@@ -1,10 +1,11 @@
 import { EBARIMT_TAX_TYPES } from '@erxes/core-db/enums';
-import { ebarimtReceipts, ebarimtSettings, paymentInvoices } from '@erxes/core-db/schema';
+import { ebarimtSettings } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 import { ebarimtPrintContract } from './ebarimtPrint';
+import { EbarimtReceipt, ebarimtRecordContract } from './ebarimtReceipts';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtReceiptStatus } from './values';
 
@@ -44,12 +45,23 @@ export type EbarimtTaxRule = z.infer<typeof EbarimtTaxRule>;
 const percent = (column: z.ZodNumber) => column.min(0).max(100);
 const code = (max: number) => (column: z.ZodString) => column.trim().max(max);
 
+/** One eBarimt config: a merchant's PosAPI and how its receipts are taxed. */
 export const EbarimtSettings = createSelectSchema(ebarimtSettings, {
+  id: Id,
   rules: z.array(EbarimtTaxRule),
   createdAt: isoDate,
   updatedAt: isoDate,
 }).pick({
-  /** `disabled`: no receipts are sent; the settings stay. */
+  id: true,
+  /** What staff call it: `Main shop`, `Airport branch`. */
+  name: true,
+  /** Issues the receipts of invoices that name no config. One per organisation. */
+  isDefault: true,
+  /**
+   * `disabled`: no receipts are sent; the settings stay. An invoice can't name it (400
+   * EBARIMT_CONFIG_OFF); a receipt it would send for an invoice that names it, or one it issued,
+   * is kept as failed with an error saying it is off.
+   */
   status: true,
   posApiUrl: true,
   companyName: true,
@@ -61,8 +73,6 @@ export const EbarimtSettings = createSelectSchema(ebarimtSettings, {
   vatPercent: true,
   cityTaxPercent: true,
   classificationCode: true,
-  /** The plugins whose paid invoices get receipts (`core` for core's own). */
-  plugins: true,
   rules: true,
   createdAt: true,
   updatedAt: true,
@@ -71,6 +81,7 @@ export const EbarimtSettings = createSelectSchema(ebarimtSettings, {
 export type EbarimtSettings = z.infer<typeof EbarimtSettings>;
 
 const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
+  name: (name) => name.trim().min(1).max(100),
   posApiUrl: (url) => url.trim().min(1).max(500),
   companyName: (name) => name.trim().min(1).max(200),
   merchantTin: (tin) => tin.trim().regex(/^\d{11,14}$/, '11 to 14 digits'),
@@ -80,10 +91,11 @@ const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
   vatPercent: percent,
   cityTaxPercent: percent,
   classificationCode: code(20),
-  plugins: z.array(z.string().min(1).max(40)).max(50).optional(),
   rules: z.array(EbarimtTaxRule).max(100).optional(),
 })
   .pick({
+    name: true,
+    isDefault: true,
     status: true,
     posApiUrl: true,
     companyName: true,
@@ -94,75 +106,28 @@ const EbarimtSettingsInput = createUpdateSchema(ebarimtSettings, {
     vatPercent: true,
     cityTaxPercent: true,
     classificationCode: true,
-    plugins: true,
     rules: true,
   })
-  .required({ posApiUrl: true, companyName: true, merchantTin: true, districtCode: true });
+  .required({
+    name: true,
+    posApiUrl: true,
+    companyName: true,
+    merchantTin: true,
+    districtCode: true,
+  });
 
-/** A plugin that takes payments; `ownReceipts`: its manifest says `taxReceipts: 'own'`. */
-export const EbarimtPlugin = z.object({
-  plugin: z.string(),
-  title: z.string(),
-  ownReceipts: z.boolean(),
-});
-
-export type EbarimtPlugin = z.infer<typeof EbarimtPlugin>;
-
-const int = () => z.int();
-
-export const EbarimtReceipt = createSelectSchema(ebarimtReceipts, {
-  id: Id,
-  invoiceId: Id,
-  previousId: () => Id,
-  totalAmount: int,
-  totalVat: int,
-  totalCityTax: int,
-  inactiveAt: isoDate,
-  createdAt: isoDate,
-  updatedAt: isoDate,
-})
-  .pick({
-    id: true,
-    invoiceId: true,
-    /** `put` issues a receipt (replacing `previousId`'s, if any); `return` cancels `previousId`'s. */
-    kind: true,
-    status: true,
-    previousId: true,
-    buyerType: true,
-    customerTin: true,
-    customerName: true,
-    consumerNo: true,
-    /** In the invoice currency's smallest unit. */
-    totalAmount: true,
-    totalVat: true,
-    totalCityTax: true,
-    billId: true,
-    billDate: true,
-    lottery: true,
-    /** The text of the receipt's QR code. */
-    qrData: true,
-    error: true,
-    /** Returned or replaced since. */
-    inactiveAt: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend(
-    createSelectSchema(paymentInvoices).pick({
-      source: true,
-      referenceType: true,
-      referenceId: true,
-      currency: true,
-    }).shape,
-  );
-
-export type EbarimtReceipt = z.infer<typeof EbarimtReceipt>;
-
-const { COMPANY_NOT_FOUND, EBARIMT_NOT_SET_UP, INVALID_URL, TAX_OFFICE_UNAVAILABLE } = ERRORS;
+const {
+  COMPANY_NOT_FOUND,
+  EBARIMT_CONFIG_IN_USE,
+  EBARIMT_NOT_SET_UP,
+  INVALID_URL,
+  TAX_OFFICE_UNAVAILABLE,
+} = ERRORS;
 
 const base = oc.errors({
   ...COMMON_ERRORS,
   COMPANY_NOT_FOUND,
+  EBARIMT_CONFIG_IN_USE,
   EBARIMT_NOT_SET_UP,
   INVALID_URL,
   TAX_OFFICE_UNAVAILABLE,
@@ -172,51 +137,66 @@ const InvoiceRef = z.object({ invoiceId: Id });
 
 /**
  * eBarimt, Mongolia's tax receipts, as an integration (Settings ›
- * Integrations, `integrations.manage`). When it is active, every paid
- * invoice of the plugins it names gets a receipt from the merchant's
- * PosAPI, built from the invoice's lines and its `taxBuyer`. A line is taxed
+ * Integrations, `integrations.manage`). An organisation keeps one or more configs, each a
+ * merchant's PosAPI; an invoice's `ebarimtId` picks one, else the default issues. When that
+ * config is active, every paid invoice in tögrög gets a receipt from its PosAPI, built from the
+ * invoice's lines and its `taxBuyer`, except a plugin's whose manifest says
+ * `taxReceipts: 'own'`. A line is taxed
  * by the organisation's rule for its product, else by the line's `tax`,
  * else with VAT. A refund returns the receipt, or replaces it with
  * one for what is left. Receipts are sent in the background; a failed one is
- * kept with its error and sent again by `sync`.
+ * kept with its error and sent again by `sync`. A receipt whose config is turned off is kept as
+ * failed too ("… is off"), not dropped, so turning it back on and syncing sends it. A plugin that
+ * sends its own records them with `recordReceipt`, so every receipt of the organisation lists,
+ * prints and reports in one place.
  */
 export const ebarimtContract = {
-  settings: base
+  configs: base
     .route({
       method: 'GET',
-      path: '/ebarimt/settings',
-      summary: 'The organisation’s eBarimt settings; null when it is not set up',
+      path: '/ebarimt/configs',
+      summary: 'List eBarimt configs',
+      description:
+        'The organisation’s eBarimt configs, the default first; empty when it is not set up',
     })
-    .output(EbarimtSettings.nullable()),
-  plugins: base
+    .output(listOf(EbarimtSettings)),
+  createConfig: base
     .route({
-      method: 'GET',
-      path: '/ebarimt/plugins',
-      summary:
-        'The installed plugins that take payments, to pick in the settings; `ownReceipts`: it sends its own, so it can’t be picked',
-    })
-    .output(listOf(EbarimtPlugin)),
-  saveSettings: base
-    .route({
-      method: 'PUT',
-      path: '/ebarimt/settings',
-      summary:
-        'Set up eBarimt or change its settings. 400 INVALID_URL for a PosAPI address core may not call, INVALID_INPUT for a plugin that sends its own receipts',
+      method: 'POST',
+      path: '/ebarimt/configs',
+      successStatus: 201,
+      summary: 'Add an eBarimt config',
+      description:
+        'Add a merchant’s PosAPI. The first one, or one with `isDefault`, becomes the default. 400 INVALID_URL for a PosAPI address core may not call',
     })
     .input(EbarimtSettingsInput)
     .output(EbarimtSettings),
-  removeSettings: base
+  updateConfig: base
+    .route({
+      method: 'PUT',
+      path: '/ebarimt/configs/{id}',
+      summary: 'Change an eBarimt config',
+      description:
+        'Change a config; `isDefault` makes it the default. 400 INVALID_URL, 404 NOT_FOUND',
+    })
+    .input(EbarimtSettingsInput.extend({ id: Id }))
+    .output(EbarimtSettings),
+  removeConfig: base
     .route({
       method: 'DELETE',
-      path: '/ebarimt/settings',
-      summary: 'Remove eBarimt; issued receipts stay',
+      path: '/ebarimt/configs/{id}',
+      summary: 'Remove an eBarimt config',
+      description:
+        'Remove a config that sent no receipts; the oldest left becomes the default. 409 EBARIMT_CONFIG_IN_USE: turn it off instead',
     })
+    .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   testConnection: base
     .route({
       method: 'POST',
       path: '/ebarimt/settings/test',
-      summary: 'Ask a PosAPI for its state, before saving it. 400 INVALID_URL',
+      summary: 'Test a PosAPI connection',
+      description: 'Ask a PosAPI for its state, before saving it. 400 INVALID_URL',
     })
     .input(z.object({ posApiUrl: z.string().trim().min(1).max(500) }))
     .output(
@@ -232,7 +212,9 @@ export const ebarimtContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/receipts',
-      summary: 'Receipts, newest first; a plugin sees its own invoices’ only',
+      summary: 'List eBarimt receipts',
+      description:
+        'Receipts, newest first, those core sent and those plugins recorded; a plugin sees its own invoices’ and its recorded ones only. `source` and `referenceId` match the invoice’s, or the recorded receipt’s own',
     })
     .input(
       CursorQuery.extend({
@@ -247,7 +229,8 @@ export const ebarimtContract = {
     .route({
       method: 'POST',
       path: '/ebarimt/invoices/{invoiceId}/sync',
-      summary:
+      summary: 'Sync an invoice’s receipt',
+      description:
         'Bring the invoice’s receipt up to date in the background: send a failed one again, issue a missing one. 409 EBARIMT_NOT_SET_UP',
     })
     .input(InvoiceRef)
@@ -256,7 +239,8 @@ export const ebarimtContract = {
     .route({
       method: 'PUT',
       path: '/ebarimt/invoices/{invoiceId}/buyer',
-      summary:
+      summary: 'Change a receipt’s buyer',
+      description:
         'Change who the invoice’s receipt is for (an issued one is replaced), or whether it gets one (`taxReceipt: false` returns an issued one). 404 COMPANY_NOT_FOUND, 503 TAX_OFFICE_UNAVAILABLE, 409 EBARIMT_NOT_SET_UP',
     })
     .input(InvoiceRef.extend({ taxBuyer: TaxBuyer.optional(), taxReceipt: z.boolean().optional() }))
@@ -265,10 +249,12 @@ export const ebarimtContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/companies/{no}',
-      summary:
+      summary: 'Find a company by tax number',
+      description:
         'A company’s tax number and name from its registration or tax number. 404 COMPANY_NOT_FOUND, 503 TAX_OFFICE_UNAVAILABLE',
     })
     .input(z.object({ no: z.string().trim().min(7).max(14) }))
     .output(z.object({ tin: z.string(), name: z.string().nullable() })),
+  ...ebarimtRecordContract,
   ...ebarimtPrintContract,
 };

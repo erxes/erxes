@@ -1,7 +1,6 @@
-import { caller, requestOrgId, sourceOf, withOrg } from '@erxes/core-db';
+import { requestOrgId, withOrg } from '@erxes/core-db';
 import { unscoped } from '~/orpc';
 import {
-  customerAppOrigin,
   customerUnreadCount,
   listCustomerNotifications,
   markCustomerNotificationsRead,
@@ -12,12 +11,9 @@ import {
 const inOrg = <T>(run: Parameters<typeof withOrg<T>>[1]) => withOrg(requestOrgId(), run);
 
 export const customerNotificationsRouter = {
-  // The app's address is a system lookup, made before the organisation's transaction.
-  create: unscoped.customerNotifications.create.handler(async ({ input }) => {
-    const appOrigin = await customerAppOrigin(sourceOf(caller()));
-
-    return inOrg((tx) => notifyCustomers(tx, input, appOrigin));
-  }),
+  create: unscoped.customerNotifications.create.handler(({ input }) =>
+    inOrg((tx) => notifyCustomers(tx, input)),
+  ),
   list: unscoped.customerNotifications.list.handler(({ input }) =>
     inOrg((tx) => listCustomerNotifications(tx, input)),
   ),

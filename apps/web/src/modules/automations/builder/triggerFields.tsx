@@ -1,27 +1,10 @@
 import type { ConditionGroup } from '@erxes/core-contract';
 import { Input, Select, Switch } from 'erxes-ui';
-import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { zoneLabel } from '~/lib/timeZones';
 import { useSession } from '~/modules/auth/session';
 import { ConditionsEditor } from './ConditionsEditor';
-
-/** One labelled setting of the trigger. */
-export const Field = ({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: ReactNode;
-}) => (
-  <div className="space-y-1.5">
-    <div className="text-xs font-medium text-muted-foreground">{label}</div>
-    {children}
-    {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-  </div>
-);
+import { InfoTip } from './Field';
 
 /** A time of day on the organisation's clock (Settings › General sets its zone). */
 export const TimeOfDay = ({
@@ -46,9 +29,7 @@ export const TimeOfDay = ({
         onChange={(event) => onChange(event.target.value)}
         aria-label={t('at', 'at')}
       />
-      <span className="min-w-0 truncate text-xs text-muted-foreground">
-        {t('org-zone', '{{zone}}, the organisation’s time zone', { zone })}
-      </span>
+      <span className="min-w-0 truncate text-xs text-muted-foreground">{zone}</span>
     </div>
   );
 };
@@ -69,14 +50,17 @@ export const AudienceEditor = ({
 
   return (
     <div className="space-y-3 rounded-lg border p-3">
-      <label className="flex items-center gap-2 text-sm font-medium">
-        <Switch
-          checked={Boolean(value)}
-          disabled={disabled}
-          onCheckedChange={(on) => onChange(on ? { type: 'customer' } : undefined)}
-        />
-        {t('for-each-record', 'Run for each matching record')}
-      </label>
+      <div className="flex items-center gap-1">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Switch
+            checked={Boolean(value)}
+            disabled={disabled}
+            onCheckedChange={(on) => onChange(on ? { type: 'customer' } : undefined)}
+          />
+          {t('for-each-record', 'Run for each matching record')}
+        </label>
+        <InfoTip text={t('audience-hint', 'Up to 10,000 records a run; re-entry rules apply.')} />
+      </div>
       {value && (
         <>
           <Select
@@ -100,9 +84,6 @@ export const AudienceEditor = ({
             disabled={disabled}
             onChange={(conditions) => onChange({ ...value, conditions })}
           />
-          <p className="text-xs text-muted-foreground">
-            {t('audience-hint', 'Up to 10,000 records a run; re-entry rules apply.')}
-          </p>
         </>
       )}
     </div>

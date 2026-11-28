@@ -1,8 +1,6 @@
 import {
   ACTOR_TYPES,
   INVOICE_STATUSES,
-  PAYMENT_GATEWAY_KINDS,
-  PAYMENT_GATEWAY_STATUSES,
   PAYMENT_METHODS,
   REFUND_METHODS,
   REFUND_STATUSES,
@@ -16,14 +14,13 @@ import {
   foreignKey,
   index,
   jsonb,
-  primaryKey,
   text,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
-import { organizations } from './organizations';
+import { integrationConnections } from './integrations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -54,35 +51,6 @@ export interface TaxBuyer {
   companyNo?: string;
   consumerNo?: string;
 }
-
-/**
- * An organisation's payment gateway connection (QPay, …). Credentials are
- * sealed (`src/lib/secrets.ts`); the API never returns them.
- */
-export const paymentGateways = pgTable(
-  'payment_gateways',
-  {
-    id: text().primaryKey(),
-    orgId: orgIdColumn(),
-    kind: text({ enum: PAYMENT_GATEWAY_KINDS }).notNull(),
-    name: text().notNull(),
-    /** Sealed JSON of the gateway's settings (client id, secret, invoice code, …). */
-    configSealed: text().notNull(),
-    status: text({ enum: PAYMENT_GATEWAY_STATUSES }).default('active').notNull(),
-    createdBy: text(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    uniqueIndex('core_payment_gateways_org_id_id_key').on(table.orgId, table.id),
-    check('core_payment_gateways_kind_check', inList(table.kind, PAYMENT_GATEWAY_KINDS)),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_payment_gateways_org_id_fkey',
-    }).onDelete('cascade'),
-  ],
-);
 
 /**
  * An invoice at a gateway, made for a plugin's (or core's) record — the
@@ -119,6 +87,8 @@ export const paymentInvoices = pgTable(
     taxBuyer: jsonb().$type<TaxBuyer>(),
     /** Send an eBarimt receipt once it is paid; false: this order needs none. */
     taxReceipt: boolean().default(true).notNull(),
+    /** The eBarimt config that issues its receipt; null: the organisation's default. */
+    ebarimtId: text(),
     /** What the gateway says was paid, and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),
@@ -158,7 +128,7 @@ export const paymentInvoices = pgTable(
     ),
     foreignKey({
       columns: [table.orgId, table.gatewayId],
-      foreignColumns: [paymentGateways.orgId, paymentGateways.id],
+      foreignColumns: [integrationConnections.orgId, integrationConnections.id],
       name: 'core_payment_invoices_gateway_fkey',
     }),
   ],
@@ -200,34 +170,6 @@ export const paymentRefunds = pgTable(
       columns: [table.orgId, table.invoiceId],
       foreignColumns: [paymentInvoices.orgId, paymentInvoices.id],
       name: 'core_payment_refunds_invoice_fkey',
-    }).onDelete('cascade'),
-  ],
-);
-
-/**
- * How a plugin takes payments in an organisation, set by its owner: the
- * gateway it uses unless it names one, and the only gateways it may use
- * (none listed: any active one).
- */
-export const paymentPluginSettings = pgTable(
-  'payment_plugin_settings',
-  {
-    orgId: orgIdColumn(),
-    plugin: text().notNull(),
-    defaultGatewayId: text(),
-    allowedGatewayIds: text()
-      .array()
-      .default(sql`'{}'::text[]`)
-      .notNull(),
-    updatedBy: text(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    primaryKey({ columns: [table.orgId, table.plugin], name: 'core_payment_plugin_settings_pkey' }),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_payment_plugin_settings_org_id_fkey',
     }).onDelete('cascade'),
   ],
 );

@@ -1,3 +1,4 @@
+import type { NewMember } from '@erxes/core-contract';
 import { apiKeys, caller, callerUserId, db, type Db, newId, users } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -6,16 +7,13 @@ import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
-import { profileChanges, type UserChanges } from './userProfile';
+import { profileChanges } from './userProfile';
 import { findUser, type UserRow } from './userRows';
 
 const labelOf = (row: UserRow) => row.email ?? row.fullName ?? row.id;
 
 /** Someone on the team who doesn't sign in: no invitation, no password, no seat. */
-export const addMember = async (
-  client: Db,
-  input: Omit<UserChanges, 'username' | 'avatarUrl' | 'links'> & { fullName: string },
-) => {
+export const addMember = async (client: Db, input: NewMember) => {
   const role = input.role ?? 'member';
 
   // A plugin gives the default role only; a member gives what their own role allows.
@@ -102,8 +100,8 @@ export const stopSignIn = async (target: UserRow) => {
         canSignIn: false,
         ...(target.status === 'invited' ? { status: 'active' as const } : {}),
         passwordHash: null,
-        totpSecretSealed: null,
-        totpPendingSealed: null,
+        totpSecretId: null,
+        totpPendingSecretId: null,
         totpEnabledAt: null,
         recoveryCodes: null,
         sessionVersion: sql`${users.sessionVersion} + 1`,

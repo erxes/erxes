@@ -8,7 +8,9 @@ import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotif
 import { useImportantToasts } from '~/modules/notifications/useImportantToasts';
 import { usePluginTranslations } from '~/modules/plugins/pluginText';
 import { CoreTab } from '~/modules/navigation/CoreTab';
+import { LicenseBanner } from '~/modules/license/LicenseBanner';
 import { PlanBanner } from '~/modules/saas/PlanBanner';
+import { SupportBanner } from '~/modules/saas/SupportBanner';
 import { useSettingsReturn } from '~/modules/settings/components/SettingsSidebar';
 import { PanelRecordOpener } from '~/modules/side-panel/PanelRecordOpener';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
@@ -45,13 +47,15 @@ export const MainLayout = () => {
 
   return (
     <Sidebar.Provider
-      className="relative h-svh w-screen overflow-hidden"
+      className="relative h-svh w-full overflow-hidden"
       sidebarKeyboardShortcut={false}
     >
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <CoreTab />
         <PlanBanner />
-        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+        <LicenseBanner />
+        <SupportBanner />
+        <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
           <main
             id="main-content"
             tabIndex={-1}

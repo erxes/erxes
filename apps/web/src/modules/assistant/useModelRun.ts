@@ -6,25 +6,33 @@ import { modelToRun } from './modelChoice';
 
 const CATALOG_STALE_MS = 5 * 60_000;
 
+const NO_DEFAULT = { defaultProvider: null, defaultModel: null };
+
 export const useModelRun = () => {
   const [picked, setPicked] = useAtom(assistantPickedModelState);
-  const connections = useQuery(orpc.assistant.connections.queryOptions());
+  const connected = useQuery(orpc.assistant.providers.queryOptions());
+  const settings = useQuery(orpc.assistant.settings.queryOptions());
 
   const catalog = useQuery({
     ...orpc.assistant.models.queryOptions(),
-    enabled: Boolean(connections.data?.data.length),
+    enabled: Boolean(connected.data?.data.length),
     staleTime: CATALOG_STALE_MS,
   });
 
-  const saved = connections.data?.data ?? [];
+  const providers = (connected.data?.data ?? []).map(({ provider }) => provider);
   const entries = catalog.data?.data ?? [];
 
   return {
-    run: modelToRun({ connections: saved, catalog: entries, picked }),
+    run: modelToRun({
+      providers,
+      preferred: settings.data ?? NO_DEFAULT,
+      catalog: entries,
+      picked,
+    }),
     picked,
     setPicked,
     entries,
-    noKey: connections.isSuccess && saved.length === 0,
+    noKey: connected.isSuccess && providers.length === 0,
   };
 };
 

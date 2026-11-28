@@ -7,12 +7,13 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNull, ne, sql } from 'drizzle-orm';
 import { type Request, Router } from 'express';
 import { z } from 'zod';
 import { fail } from '~/http/errors';
 import { escapeHtml } from '~/modules/email/templates';
 import { organizationName } from './broadcasts.service';
+import { publishSuppressed } from './lists';
 import { isRecipientSignature, isTargetSignature } from './links';
 
 const Params = z.object({ recipientId: z.string().max(64), sig: z.string().max(128) });
@@ -50,6 +51,7 @@ const unsubscribe = async (tx: Db, recipientId: string) => {
     .returning({
       address: broadcastRecipients.address,
       broadcastId: broadcastRecipients.broadcastId,
+      customerId: broadcastRecipients.customerId,
     });
 
   if (!recipient) return;
@@ -63,7 +65,7 @@ const unsubscribe = async (tx: Db, recipientId: string) => {
   if (!broadcast) return;
 
   // An earlier manual or bounce entry becomes the person's own word.
-  await tx
+  const [suppressed] = await tx
     .insert(suppressions)
     .values({
       id: newId(),
@@ -75,7 +77,12 @@ const unsubscribe = async (tx: Db, recipientId: string) => {
     .onConflictDoUpdate({
       target: [suppressions.orgId, suppressions.channel, suppressions.address],
       set: { reason: 'unsubscribed', broadcastId: recipient.broadcastId },
-    });
+      setWhere: ne(suppressions.reason, 'unsubscribed'),
+    })
+    .returning();
+
+  if (suppressed)
+    await publishSuppressed(tx, [{ row: suppressed, customerId: recipient.customerId }]);
 };
 
 /** A small page in the organisation's name. */

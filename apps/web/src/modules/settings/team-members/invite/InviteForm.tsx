@@ -124,9 +124,8 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
   return (
     <FormProvider {...form}>
       <form onSubmit={(event) => void form.handleSubmit(submit)(event)} className="h-full">
-        <ScrollArea className="max-h-100 flex flex-col">
+        <ScrollArea className="max-h-100">
           <InviteTable form={form} />
-          <ScrollArea.Bar />
         </ScrollArea>
         <div className="mt-3 w-full flex gap-3 justify-end">
           <Button

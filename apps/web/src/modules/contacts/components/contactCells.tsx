@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CustomFieldCell } from '~/modules/properties/CustomFieldCell';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { useCompanyEdit } from '../companies/useCompanies';
 import { useCustomerEdit } from '../customers/useCustomers';
@@ -32,7 +32,7 @@ const useContactEdit = (record: Contact) => {
 /** The row's menu: Edit opens the record in the side panel. */
 export const ContactMoreCell = ({ record }: { record: Contact }) => {
   const { t } = useTranslation('contact');
-  const { openRecord } = useSidePanel();
+  const openRecord = useOpenPanelRecord();
   const isCompany = 'primaryName' in record;
 
   return (

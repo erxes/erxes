@@ -19,6 +19,8 @@ export const CORE_ACTIVITY_TYPES = [
   'customer.company_unlinked',
   /** An email to the customer was sent or failed: `{ deliveryId, subject, source, sourceId, status, error }`. */
   'customer.emailed',
+  /** The customer wrote from a portal's contact form: `{ portalId, portalName, subject, message, phone }`. */
+  'customer.wrote_in',
   'company.created',
   'company.updated',
   'company.tagged',

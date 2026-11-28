@@ -5,7 +5,7 @@ import { config } from '~/config';
 import { chat, userMessage } from './assistantChat';
 import { field, say } from './broadcasts.fixture';
 import { useTestDatabase } from './db';
-import { fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
+import { connectProvider, fakeModel, inSteps, lastToolResult, systemOf } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0012';
@@ -26,7 +26,7 @@ describe('assistant built-in skills', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());
@@ -72,7 +72,7 @@ describe('assistant built-in skills', () => {
     expect(first ? systemOf(first) : '').toContain('author-automation');
     expect(skill ? lastToolResult(skill) : '').toContain('draft');
     expect(checked ? lastToolResult(checked) : '').toContain('"problems":[]');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
+    expect(model.lastToolResult()).toContain('"DENIED"');
 
     const { data } = await t.owner().automations.list({});
 
@@ -123,7 +123,7 @@ describe('assistant built-in skills', () => {
     expect(skill ? lastToolResult(skill) : '').toContain('Never send');
     expect(updated ? lastToolResult(updated) : '').toContain('"changed":true');
     expect(
-      denied.map(lastToolResult).filter((result) => result?.includes('ASSISTANT_DENIED')),
+      denied.map(lastToolResult).filter((result) => result?.includes('"DENIED"')),
     ).toHaveLength(refused.length);
     expect(await t.owner().broadcasts.get({ id: draft.id })).toMatchObject({
       status: 'draft',

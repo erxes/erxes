@@ -41,6 +41,8 @@ export const inputVariants = cva(
         bordered: 'border border-input shadow-none aria-invalid:border-destructive',
         // No border or corners: a cell in a grid that draws its own lines.
         flush: 'rounded-none shadow-none',
+        // A value beside its label in a side panel row: no drop shadow, regular weight.
+        field: 'shadow-none font-normal',
       },
       text: fieldTextVariants,
     },
@@ -104,17 +106,30 @@ const InputMain = ({
   );
 };
 
-/** A number with thousands separators; `onChange` gets the number, or '' when cleared. */
+/**
+ * A number with thousands separators; `onChange` gets the number, or '' when cleared. It keeps
+ * `scale` decimal places, 2 unless given (an exchange rate takes more). `min` and `max` bound it
+ * as 3.x's did: a key that would pass a bound is refused (`min={0}` refuses the minus sign), and
+ * a value still outside them on blur is set to the nearest bound. `variant` is `Input`'s.
+ */
 const InputNumber = ({
   value,
   onChange,
   className,
   onInvalid,
+  variant,
+  scale = 2,
   ...props
-}: ReactElementProps<HTMLInputElement> & {
-  onChange?: (value?: number | '') => void;
-  value?: number;
-}) => {
+}: Except<ReactElementProps<HTMLInputElement>, 'onChange'> &
+  Pick<VariantProps<typeof inputVariants>, 'variant'> & {
+    onChange?: (value?: number | '') => void;
+    value?: number;
+    scale?: number;
+    /** The smallest value it takes. */
+    min?: number;
+    /** The largest value it takes. */
+    max?: number;
+  }) => {
   const field = useFieldControl();
   const handleInvalid = useValidationMessage(onInvalid);
 
@@ -123,6 +138,7 @@ const InputNumber = ({
       {...field}
       onInvalid={handleInvalid}
       mask={Number}
+      scale={scale}
       onAccept={(accepted) => {
         onChange?.(accepted ? Number(accepted) : '');
       }}
@@ -130,7 +146,7 @@ const InputNumber = ({
       autoComplete="off"
       radix="."
       thousandsSeparator={','}
-      className={cn(inputVariants({ type: 'number' }), className)}
+      className={cn(inputVariants({ type: 'number', variant }), className)}
       unmask
       {...props}
     />

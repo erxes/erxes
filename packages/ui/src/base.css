@@ -37,6 +37,19 @@
     --warning-text: oklch(0.5 0.12 54.63);
     --destructive-text: oklch(0.5 0.19 25.33);
     --info-text: oklch(0.5 0.17 259.6);
+    /* A second shade of a status, for two states of one kind side by side (a run that is
+       running, yellow, and one that is processing, orange; a light and a deep red). */
+    --warning-soft: oklch(0.795 0.184 86.047);
+    --warning-strong: oklch(0.705 0.213 47.604);
+    --destructive-soft: oklch(0.704 0.191 22.216);
+    --destructive-strong: oklch(0.505 0.213 27.518);
+
+    /* Grounds that mark one cell or control: a value repeated elsewhere (pink), and an option
+       turned on (yellow), with its hover; an error's pale red. */
+    --tint-repeated: oklch(0.971 0.014 343.198 / 80%);
+    --tint-highlight: oklch(0.987 0.026 102.212);
+    --tint-highlight-strong: oklch(0.973 0.071 103.193);
+    --tint-destructive: oklch(0.971 0.013 17.38);
 
     --scroll: oklch(0.8634 0.0059 286.27);
     --border: oklch(0.9197 0.0041 286.32);
@@ -93,6 +106,15 @@
     --warning-text: var(--warning);
     --destructive-text: oklch(0.72 0.17 25.33);
     --info-text: oklch(0.72 0.15 259.6);
+    --warning-soft: oklch(0.795 0.184 86.047);
+    --warning-strong: oklch(0.705 0.213 47.604);
+    --destructive-soft: oklch(0.704 0.191 22.216);
+    --destructive-strong: oklch(0.505 0.213 27.518);
+
+    --tint-repeated: oklch(0.284 0.109 3.907 / 30%);
+    --tint-highlight: oklch(0.795 0.184 86.047 / 10%);
+    --tint-highlight-strong: oklch(0.795 0.184 86.047 / 20%);
+    --tint-destructive: oklch(0.637 0.237 25.331 / 15%);
 
     --scroll: oklch(0.3701 0.0113 285.84);
     --border: oklch(0.28 0.0104 285.76);

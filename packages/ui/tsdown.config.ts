@@ -11,7 +11,12 @@ export default defineConfig({
   platform: 'browser',
   unbundle: true,
   dts: true,
-  copy: CSS.map((file) => ({ from: `src/${file}`, to: 'dist' })),
+  copy: [
+    ...CSS.map((file) => ({ from: `src/${file}`, to: 'dist' })),
+    // The block editor imports its sheet: it ships beside it for the app's bundler.
+    { from: 'src/modules/blocks/editor.css', to: 'dist/modules/blocks' },
+  ],
+  deps: { neverBundle: [/\.css$/] },
   exports: {
     devExports: true,
     // Only the root is listed; every other module is reached through `./*`.

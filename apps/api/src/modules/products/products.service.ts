@@ -1,6 +1,6 @@
 import { type CustomValue, type ProductKind, type ProductStatus } from '@erxes/core-contract';
 import { actorOf, caller, type Db, newId, organizations, products } from '@erxes/core-db';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { diffCustomFields, diffRows, mergeChanges } from '~/lib/changes';
 import { unique } from '~/lib/contacts';
@@ -104,8 +104,19 @@ const announce = async (
       type: `core.product.${action}`,
       entityType: 'product',
       entityId: row.id,
-      // Like every core event, it names the record: a subscriber reads the product from core.
-      payload: { changed: Object.keys(changes ?? {}) },
+      payload: {
+        productId: row.id,
+        name: row.name,
+        code: row.code,
+        barcode: row.barcode,
+        kind: row.kind,
+        status: row.status,
+        categoryId: row.categoryId,
+        unit: row.unit,
+        price: row.price,
+        currency: row.currency,
+        changed: Object.keys(changes ?? {}),
+      },
     })),
   );
 };
@@ -148,6 +159,34 @@ export const createProduct = async (
   await announce(client, 'created', [{ row }]);
 
   return row;
+};
+
+const announceUpdated = async (client: Db, before: ProductRow[]) => {
+  if (!before.length) return;
+
+  const after = new Map(
+    (
+      await client
+        .select(productColumns)
+        .from(products)
+        .where(
+          inArray(
+            products.id,
+            before.map((row) => row.id),
+          ),
+        )
+    ).map((row) => [row.id, row]),
+  );
+
+  await announce(
+    client,
+    'updated',
+    before.flatMap((previous) => {
+      const row = after.get(previous.id);
+
+      return row ? [{ row, before: previous }] : [];
+    }),
+  );
 };
 
 /** Changes a product; custom fields are merged with what is stored (others' edits wait, then build on it). */
@@ -208,22 +247,46 @@ export const useProducts = async (client: Db, ids: string[], used: boolean) => {
       })
       .where(where);
 
-    const after = new Map(
-      (await client.select(productColumns).from(products).where(where)).map((row) => [row.id, row]),
-    );
-
-    await announce(
-      client,
-      'updated',
-      changed.flatMap((previous) => {
-        const row = after.get(previous.id);
-
-        return row ? [{ row, before: previous }] : [];
-      }),
-    );
+    await announceUpdated(client, changed);
   }
 
   return lookupProducts(client, wanted);
+};
+
+const CLEAR_PAGE = 500;
+
+export const clearCategory = async (client: Db, categoryId: string): Promise<void> => {
+  const ids = (
+    await client
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.categoryId, categoryId))
+      .orderBy(products.id)
+      .limit(CLEAR_PAGE)
+  ).map((row) => row.id);
+
+  if (!ids.length) return;
+
+  await lockRows(client, 'core_products', ids);
+
+  const before = await client
+    .select(productColumns)
+    .from(products)
+    .where(and(inArray(products.id, ids), eq(products.categoryId, categoryId)));
+
+  await client
+    .update(products)
+    .set({ categoryId: null, updatedAt: sql`now()` })
+    .where(
+      inArray(
+        products.id,
+        before.map((row) => row.id),
+      ),
+    );
+
+  await announceUpdated(client, before);
+
+  if (ids.length === CLEAR_PAGE) await clearCategory(client, categoryId);
 };
 
 /** Archives (`archived`) or restores (`active`) a product; asking twice changes nothing. */

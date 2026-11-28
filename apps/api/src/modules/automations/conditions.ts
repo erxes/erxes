@@ -166,6 +166,20 @@ export const dateConditions = (trigger: DateTrigger) =>
     trigger.field === 'birthDate' ? 'subject.birthDate' : `subject.customFields.${trigger.field}`,
   );
 
+export const triggerConditions = (trigger: AutomationDefinition['trigger']) => {
+  switch (trigger.kind) {
+    case 'event':
+    case 'webhook':
+    case 'app':
+      return trigger.conditions;
+    case 'date':
+      return dateConditions(trigger);
+    case 'schedule':
+    case 'manual':
+      return trigger.audience?.conditions;
+  }
+};
+
 export const evaluateGroup = (
   group: ConditionGroup | undefined,
   context: Record<string, unknown>,

@@ -55,7 +55,7 @@ const LayoutItem = ({ field }: { field: Field }) => {
 };
 
 const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () => void }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const [items, setItems] = useState(fields);
   const { mutate, isPending } = useReorder('fields', fields[0]?.contentType ?? 'customer');
 
@@ -133,7 +133,7 @@ export const PropertyGroupLayoutSheet = ({
 }: {
   fieldsOf: (groupId: string) => Field[];
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const [group, setGroup] = useAtom(activeLayoutGroupState);
   const close = () => setGroup(null);
 

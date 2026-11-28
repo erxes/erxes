@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "paths": {
+      "erxes-ui": ["../ui/src/index.ts"],
+      "erxes-ui/*": ["../ui/src/*"]
+    }
+  },
+  "include": ["src", "../ui/css.d.ts"]
+}

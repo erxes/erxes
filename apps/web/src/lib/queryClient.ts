@@ -1,6 +1,7 @@
 import { hashKey, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { orpc } from '@erxes/core-contract/client';
 import { isSignedOut } from '~/modules/auth/session';
+import { keepFirstPageOnLeave } from './cursorList';
 
 const SESSION_KEY = orpc.auth.me.queryKey();
 
@@ -22,3 +23,6 @@ export const queryClient: QueryClient = new QueryClient({
   mutationCache: new MutationCache({ onError: (error) => onSignedOut(error) }),
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
 });
+
+// A paged list nothing shows keeps one page, so showing it again refetches one.
+keepFirstPageOnLeave(queryClient);

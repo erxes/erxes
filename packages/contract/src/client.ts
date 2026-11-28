@@ -27,11 +27,10 @@ const client: ContractRouterClient<typeof coreContract> = createORPCClient(
  * outside React Query. The key is the procedure and its input, so the same
  * request is cached once wherever it's used, in web and in a plugin (they share
  * web's QueryClient), and `invalidateQueries({ queryKey: orpc.users.key() })`
- * reaches every users query. Never write a query key by hand.
+ * reaches every users query. Never write a query key by hand. Its type is named, since the
+ * declaration build won't write out one this large.
  */
-// Named, since the declaration of the type spelled out is past what tsc writes.
-export const orpc: RouterUtils<ContractRouterClient<typeof coreContract>> =
-  createTanstackQueryUtils(client);
+export const orpc: RouterUtils<typeof client> = createTanstackQueryUtils(client);
 
 /**
  * Where erxes-ui's member pickers and `useMembersById` read members:
@@ -136,6 +135,38 @@ export const productSearchQueries = {
     orpc.products.list.queryOptions({ input: { limit: 20, search, all: true }, staleTime: 60_000 }),
   byIds: (ids: string[]) =>
     orpc.products.lookup.queryOptions({ input: { ids: ids.join(',') }, staleTime: 5 * 60_000 }),
+};
+
+/**
+ * Where erxes-ui's product pickers read the catalog: `<SelectProduct.InlineCell
+ * products={productQueries} … />`. A page of products after `cursor` (archived ones too, as a
+ * picker's search lists them), products by id, and every category.
+ */
+export const productQueries = {
+  page: ({
+    search,
+    categoryId,
+    cursor,
+  }: {
+    search?: string;
+    categoryId?: string;
+    cursor?: string;
+  }) =>
+    orpc.products.list.queryOptions({
+      input: { limit: 20, search, categoryId, cursor, all: true },
+      staleTime: 60_000,
+    }),
+  byIds: (ids: string[]) => productSearchQueries.byIds(ids),
+  categories: orpc.productCategories.list.queryOptions({ staleTime: 60_000 }),
+};
+
+/**
+ * Where erxes-ui's branch and department pickers read core's units:
+ * `<SelectBranches.InlineCell units={unitQueries} … />`. One request per kind, parents first.
+ */
+export const unitQueries = {
+  list: (kind: 'branch' | 'department') =>
+    orpc.units.list.queryOptions({ input: { kind }, staleTime: 60_000 }),
 };
 
 /** Any error core answers with: one per code in `ERRORS`, with that code's `data`. */

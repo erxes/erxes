@@ -40,7 +40,7 @@ const ArchivedRow = ({
   onRestore: () => void;
   onDelete: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
 
   return (
@@ -78,7 +78,7 @@ export const PropertiesArchivedSection = ({
 }: {
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const fmt = useFormat();
   const date = (value: string | null) => (value ? fmt.date(value) : '');
   const { groups, fields, error } = useArchivedProperties(contentType);

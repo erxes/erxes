@@ -99,6 +99,26 @@ describe('team members (/core/v1/users)', () => {
     expect(emails(await other.users.list({}))).toEqual(['owner@globex.mn']);
   });
 
+  /** The owner's list under the filter bar's `rules`, all of them. */
+  const filtered = (rules: object[]) =>
+    owner.users.list({ filter: JSON.stringify({ match: 'all', rules }) });
+
+  it("filters the list by the filter bar's conditions, and refuses one that doesn't fit", async () => {
+    expect(emails(await filtered([{ path: 'subject.role', op: 'eq', value: 'owner' }]))).toEqual([
+      'owner@acme.mn',
+    ]);
+    expect(
+      emails(await filtered([{ path: 'subject.status', op: 'in', value: ['invited'] }])),
+    ).toEqual(['dorj@acme.mn', 'bat@acme.mn']);
+    expect(
+      emails(await filtered([{ path: 'subject.email', op: 'contains', value: 'dorj' }])),
+    ).toEqual(['dorj@acme.mn']);
+    await expect(filtered([{ path: 'subject.password', op: 'exists' }])).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_FILTER',
+    });
+  });
+
   it('hides team members of other organisations', async () => {
     await expect(other.users.get({ id: ids.owner })).rejects.toMatchObject({ status: 404 });
   });

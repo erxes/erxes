@@ -66,7 +66,8 @@ export const decideAtSend = async (client: Db, deliveryId: string): Promise<Send
     return hold?.status === 'held' ? { send: false, until: hold.until } : { send: true };
   }
 
-  if (isAuthSource(row.source)) return { send: true };
+  // A halt is Organization email's: a Mail service connection's emails go on.
+  if (isAuthSource(row.source) || row.connectionId) return { send: true };
 
   const ramp = await rampOf(client);
 

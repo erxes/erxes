@@ -1,24 +1,20 @@
+import type { CompanyMerge } from '@erxes/core-contract';
 import { companies, customerCompanies, db, type Db } from '@erxes/core-db';
+import { COMPANY_MERGE_FIELDS } from '@erxes/core-db/enums';
 import { asc, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
+import { combineContacts, combineCustomFields, pickedRow, pickFields } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { mergeHostValues } from '~/modules/dataExtensions/hostRecords';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CompanyRow, findCompany, inOrg, selectCompanies } from './companyRows';
 
-const MERGE_FILLED = [
-  'avatarUrl',
-  'website',
-  'industry',
-  'size',
-  'businessType',
-  'code',
-  'description',
-  'ownerId',
-] as const;
+/** Fields taken whole from one company; names, emails and phones are combined. */
+const MERGE_FILLED = COMPANY_MERGE_FIELDS.filter(
+  (field) => field !== 'primaryName' && field !== 'primaryEmail' && field !== 'primaryPhone',
+);
 
 /** People links and tags move to the kept company before the others go. */
 const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
@@ -35,16 +31,23 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
 };
 
 /** The kept company's columns after the merge: the others' names become extra names. */
-const mergedColumns = (keep: CompanyRow, others: CompanyRow[]) => {
-  const contacts = (pick: (row: CompanyRow) => { primary: string | null; list: string[] }) =>
-    combineContacts(pick(keep), others.map(pick));
+const mergedColumns = (keep: CompanyRow, others: CompanyRow[], picks: CompanyMerge['fields']) => {
+  const contacts = (
+    field: 'primaryName' | 'primaryEmail' | 'primaryPhone',
+    list: (row: CompanyRow) => string[],
+  ) => {
+    const of = (row: CompanyRow) => ({ primary: row[field], list: list(row) });
 
-  const name = contacts((row) => ({ primary: row.primaryName, list: row.names }));
-  const email = contacts((row) => ({ primary: row.primaryEmail, list: row.emails }));
-  const phone = contacts((row) => ({ primary: row.primaryPhone, list: row.phones }));
+    return combineContacts(of(keep), others.map(of), pickedRow(keep, others, picks[field])[field]);
+  };
+
+  const name = contacts('primaryName', (row) => row.names);
+  const email = contacts('primaryEmail', (row) => row.emails);
+  const phone = contacts('primaryPhone', (row) => row.phones);
 
   return {
-    ...fillEmpty(keep, others, MERGE_FILLED),
+    ...pickFields(keep, others, MERGE_FILLED, picks),
+    primaryName: name.primary ?? keep.primaryName,
     names: name.list,
     primaryEmail: email.primary,
     emails: email.list,
@@ -60,7 +63,7 @@ const mergedColumns = (keep: CompanyRow, others: CompanyRow[]) => {
 };
 
 /** Merges companies into `keepId`, as `mergeCustomers` does; the others' names become extra names. */
-export const mergeCompanies = async (input: { ids: string[]; keepId: string }) => {
+export const mergeCompanies = async (input: CompanyMerge) => {
   const ids = unique(input.ids);
 
   if (ids.length < 2) {
@@ -90,7 +93,10 @@ export const mergeCompanies = async (input: { ids: string[]; keepId: string }) =
   await mergeHostValues(tx, 'core.company', keep.id, otherIds);
   await tx.delete(companies).where(inArray(companies.id, otherIds));
 
-  await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(keep.id));
+  await tx
+    .update(companies)
+    .set(mergedColumns(keep, others, input.fields))
+    .where(inOrg(keep.id));
 
   const combined = combineCustomFields(
     keep.customFields,

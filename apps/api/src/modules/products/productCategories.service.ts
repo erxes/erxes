@@ -1,10 +1,11 @@
-import { actorOf, caller, type Db, newId, productCategories, products } from '@erxes/core-db';
+import { actorOf, caller, type Db, newId, productCategories } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkCategory } from './productChecks';
+import { clearCategory } from './products.service';
 
 const findCategory = async (client: Db, id: string) => {
   const [row] = await client
@@ -49,7 +50,7 @@ export const listCategories = async (client: Db) => {
 
 export const createCategory = async (
   client: Db,
-  input: { name: string; parentId?: string | null },
+  input: { name: string; code?: string | null; parentId?: string | null },
 ) => {
   await checkCategory(client, input.parentId);
 
@@ -59,6 +60,7 @@ export const createCategory = async (
       .values({
         id: newId(),
         name: input.name,
+        code: input.code ?? null,
         parentId: input.parentId ?? null,
         createdBy: actorOf(caller()).actorId,
       })
@@ -78,7 +80,7 @@ export const createCategory = async (
 export const updateCategory = async (
   client: Db,
   id: string,
-  changes: { name?: string; parentId?: string | null },
+  changes: { name?: string; code?: string | null; parentId?: string | null },
 ) => {
   await findCategory(client, id);
 
@@ -119,10 +121,7 @@ export const removeCategory = async (client: Db, id: string) => {
     throw fail('CATEGORY_HAS_CHILDREN', 'Move or delete its subcategories first');
   }
 
-  await client
-    .update(products)
-    .set({ categoryId: null, updatedAt: sql`now()` })
-    .where(eq(products.categoryId, id));
+  await clearCategory(client, id);
   await client.delete(productCategories).where(eq(productCategories.id, id));
   await recordAudit(client, {
     action: 'product_category.deleted',

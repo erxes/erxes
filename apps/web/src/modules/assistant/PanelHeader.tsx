@@ -1,6 +1,13 @@
-import { IconHistory, IconPin, IconPlus, IconX } from '@tabler/icons-react';
-import { Button, cn, IconTip } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import {
+  IconArrowsMaximize,
+  IconChevronDown,
+  IconHistory,
+  IconPin,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
+import { Button, cn, IconTip, Popover } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
 import { type AssistantTab, wantComposerFocus } from './assistantState';
@@ -9,7 +16,17 @@ import { ThreadActions } from './ThreadActions';
 import type { AssistantTabs } from './useAssistantTabs';
 import { threadTitle, useThread } from './useThread';
 
-const Tab = ({
+const useTabTitle = (tab: AssistantTab) => {
+  const { t } = useTranslation('assistant');
+  const thread = useThread(tab.threadId).data;
+
+  return {
+    title: tab.threadId === null ? t('new-chat', 'New chat') : threadTitle(thread, t),
+    pinned: thread?.pinned === true,
+  };
+};
+
+const OpenChat = ({
   tab,
   selected,
   onSelect,
@@ -21,100 +38,102 @@ const Tab = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('assistant');
-  const thread = useThread(tab.threadId).data;
-
-  const title = tab.threadId === null ? t('new-chat', 'New chat') : threadTitle(thread, t);
-  const button = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (selected) button.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  }, [selected]);
+  const { title, pinned } = useTabTitle(tab);
 
   return (
-    <button
-      ref={button}
-      type="button"
-      role="tab"
-      id={`assistant-tab-${tab.key}`}
-      aria-selected={selected}
-      aria-controls="assistant-conversation"
-      tabIndex={selected ? 0 : -1}
-      onClick={onSelect}
-      onKeyDown={(event) => {
-        if (event.key !== 'Delete') return;
-
-        event.preventDefault();
-        onClose();
-      }}
+    <li
       className={cn(
-        'group relative flex h-7 min-w-20 items-center gap-1 rounded-md px-2.5 text-sm outline-none focus-visible:shadow-focus',
-        selected
-          ? 'max-w-48 shrink-0 bg-accent text-foreground'
-          : 'max-w-44 text-muted-foreground hover:bg-accent/60',
+        'group flex min-w-0 items-center gap-1 rounded-md pr-1 hover:bg-accent',
+        selected && 'bg-accent',
       )}
     >
-      {thread?.pinned && <IconPin aria-hidden className="size-3.5 shrink-0" />}
-      <span className="min-w-0 flex-1 truncate text-left">{title}</span>
-      <span
-        aria-hidden
-        title={t('close-tab', 'Close tab (the conversation stays in history)')}
-        className={cn(
-          'size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-foreground',
-          selected
-            ? '-mr-1.5 inline-flex hover:bg-background'
-            : 'absolute top-1 right-1 hidden bg-accent group-hover:inline-flex group-focus-visible:inline-flex',
-        )}
-        onClick={(event) => {
-          event.stopPropagation();
-          onClose();
-        }}
+      <button
+        type="button"
+        aria-current={selected || undefined}
+        onClick={onSelect}
+        className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left text-sm outline-none focus-visible:shadow-focus"
       >
-        <IconX className="size-3" />
-      </span>
-    </button>
+        {pinned && <IconPin aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />}
+        <span className="min-w-0 flex-1 truncate">{title}</span>
+      </button>
+      <IconTip label={t('close-tab', 'Close tab (the conversation stays in history)')}>
+        <Button
+          variant="ghost"
+          size="xs"
+          aria-label={t('close-chat', 'Close {{title}}', { title })}
+          onClick={onClose}
+        >
+          <IconX />
+        </Button>
+      </IconTip>
+    </li>
   );
 };
 
-const moveFocus = (event: React.KeyboardEvent<HTMLDivElement>, tabs: AssistantTabs) => {
-  const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
-  const index = tabs.tabs.findIndex((tab) => tab.key === tabs.active?.key);
-
-  if (!step || index < 0) return;
-
-  const next = tabs.tabs[(index + step + tabs.tabs.length) % tabs.tabs.length];
-
-  if (!next) return;
-
-  event.preventDefault();
-  tabs.setActiveKey(next.key);
-  document.getElementById(`assistant-tab-${next.key}`)?.focus();
-};
-
-const TabStrip = ({ tabs }: { tabs: AssistantTabs }) => {
+const ChatSwitcher = ({ tabs, onHistory }: { tabs: AssistantTabs; onHistory: () => void }) => {
   const { t } = useTranslation('assistant');
+  const [open, setOpen] = useState(false);
+  const active = tabs.active ?? tabs.tabs[0];
+  const { title } = useTabTitle(active ?? { key: '', threadId: null });
+  const extra = tabs.tabs.length - 1;
 
   return (
-    <div
-      role="tablist"
-      tabIndex={-1}
-      aria-label={t('open-conversations', 'Open conversations')}
-      onKeyDown={(event) => moveFocus(event, tabs)}
-      className="flex min-w-0 items-center gap-0.5 overflow-x-auto font-normal hide-scroll"
-    >
-      {tabs.tabs.map((tab) => (
-        <Tab
-          key={tab.key}
-          tab={tab}
-          selected={tab.key === tabs.active?.key}
-          onSelect={() => tabs.setActiveKey(tab.key)}
-          onClose={() => tabs.closeTab(tab.key)}
-        />
-      ))}
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger
+        aria-label={t('open-conversations', '{{title}}, open conversations', {
+          title: extra > 0 ? `${title} +${extra}` : title,
+        })}
+        render={<Button variant="ghost" size="sm" className="min-w-0 justify-start" />}
+      >
+        <span className="min-w-0 truncate font-semibold">{title}</span>
+        {extra > 0 && (
+          <span aria-hidden className="shrink-0 text-xs text-muted-foreground">
+            +{extra}
+          </span>
+        )}
+        <IconChevronDown aria-hidden className="shrink-0 text-muted-foreground" />
+      </Popover.Trigger>
+      <Popover.Content align="start" className="w-72">
+        <ul className="flex flex-col gap-0.5 pb-1">
+          {tabs.tabs.map((tab) => (
+            <OpenChat
+              key={tab.key}
+              tab={tab}
+              selected={tab.key === active?.key}
+              onSelect={() => {
+                tabs.setActiveKey(tab.key);
+                setOpen(false);
+              }}
+              onClose={() => tabs.closeTab(tab.key)}
+            />
+          ))}
+        </ul>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start"
+          onClick={() => {
+            setOpen(false);
+            onHistory();
+          }}
+        >
+          <IconHistory />
+          {t('history', 'Conversations')}
+        </Button>
+      </Popover.Content>
+    </Popover>
   );
 };
 
-export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: () => void }) => {
+export const PanelHeader = ({
+  tabs,
+  onClose,
+  onExpand,
+}: {
+  tabs: AssistantTabs;
+  onClose: () => void;
+  onExpand: () => void;
+}) => {
   const { t } = useTranslation('assistant');
   const [history, setHistory] = useState(false);
 
@@ -134,21 +153,21 @@ export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: (
           <IconPlus className="size-4" />
         </Button>
       </IconTip>
-      <IconTip label={t('history', 'Conversations')}>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t('history', 'Conversations')}
-          onClick={() => setHistory(true)}
-        >
-          <IconHistory className="size-4" />
-        </Button>
-      </IconTip>
       <ThreadActions
         threadId={tabs.active?.threadId ?? null}
         onCloseTab={() => tabs.active && tabs.closeTab(tabs.active.key)}
         onDeleted={tabs.forgetThread}
       />
+      <IconTip label={t('expand', 'Open as a page')}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('expand', 'Open as a page')}
+          onClick={onExpand}
+        >
+          <IconArrowsMaximize className="size-4" />
+        </Button>
+      </IconTip>
       <IconTip label={t('close-panel', 'Close assistant')} hotkey="Ctrl+J">
         <Button
           variant="ghost"
@@ -171,6 +190,10 @@ export const PanelHeader = ({ tabs, onClose }: { tabs: AssistantTabs; onClose: (
   );
 
   return (
-    <RecordSidePanel.Header title={<TabStrip tabs={tabs} />} heading={false} actions={actions} />
+    <RecordSidePanel.Header
+      title={<ChatSwitcher tabs={tabs} onHistory={() => setHistory(true)} />}
+      heading={false}
+      actions={actions}
+    />
   );
 };

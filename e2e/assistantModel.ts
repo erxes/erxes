@@ -108,26 +108,40 @@ const topCustomers = ({ calls, records }: Turn): Reply => {
   return { text: topCustomersTable(records) };
 };
 
-const welcome = ({ calls }: Turn): Reply =>
-  calls.length === 0
-    ? {
-        tool: 'ask_user',
-        input: {
-          questions: [
-            {
-              question: 'Which channel should the welcome message go out on?',
-              selectionMode: 'single_select',
-              options: [
-                { label: 'Email', description: 'From your verified sender' },
-                { label: 'SMS' },
-                { label: 'Messenger' },
-              ],
-            },
-            { question: 'Anything the message must mention?' },
-          ],
-        },
-      }
-    : { text: 'Thanks. I will draft the welcome message for that channel.' };
+const WELCOME_FORM = [
+  'Two details before I draft it.',
+  '',
+  '<a2ui>',
+  'surface("welcome")',
+  '$/form/channel = ["email"]',
+  '$/form/mention = ""',
+  'root = Card(Column([channel, mention, send]))',
+  'channel = ChoicePicker("Channel", "mutuallyExclusive", [{label: "Email", value: "email"}, {label: "SMS", value: "sms"}, {label: "Messenger", value: "messenger"}], $/form/channel)',
+  'mention = TextField("Anything the message must mention?", $/form/mention, "A discount code, a link…")',
+  'send = Button(Text("Draft message"), "primary", Event("draft_welcome", {channel: $/form/channel, mention: $/form/mention}))',
+  '</a2ui>',
+].join('\n');
+
+const Pressed = z.object({ context: z.object({ channel: z.array(z.string()) }) });
+
+const welcomeDraft = ({ seen }: Turn): Reply => {
+  const sent = Pressed.safeParse(JSON.parse(seen.slice(seen.indexOf('{"event"')))).data;
+
+  return { text: `Thanks. I will draft the welcome message for ${sent?.context.channel[0]}.` };
+};
+
+const SALES = [
+  'Sales this quarter, all channels, in MNT.',
+  '',
+  '<a2ui>',
+  'surface("sales-quarter")',
+  'root = Column([stats, chart, table, next])',
+  'stats = Row([Stat("Revenue", "₮118.9M", "+8%", "good"), Stat("Orders", "412", "+5%", "good"), Stat("Average order", "₮288.6K", "-2%", "bad")])',
+  'chart = Chart("bar", ["Jul", "Aug", "Sep"], [{name: "Revenue, ₮M", values: [31.2, 40.1, 47.6]}], "Revenue by month")',
+  'table = Table([{label: "City"}, {label: "Status"}, {label: "Revenue", align: "end"}], [["Ulaanbaatar", "Growing", "₮84.4M"], ["Darkhan", "Flat", "₮21.3M"], ["Erdenet", "Growing", "₮13.2M"]])',
+  'next = Row([Button(Text("Break down by channel"), "primary", Event("sales_by_channel")), Button(Text("Compare with last quarter"), "default", Event("compare_quarter"))])',
+  '</a2ui>',
+].join('\n');
 
 const aboutRecords = (refs: string[]): Reply => ({
   text: [
@@ -267,7 +281,19 @@ export const script = (request: ChatRequest): Reply => {
 
   if (turn.asked.startsWith('Who are our top')) return topCustomers(turn);
 
-  if (turn.asked.startsWith('Draft a welcome')) return welcome(turn);
+  if (turn.seen.includes('"event":"draft_welcome"')) return welcomeDraft(turn);
+
+  if (turn.seen.includes('"event":"sales_by_channel"'))
+    return { text: 'Web brought ₮71.2M, stores ₮47.7M.' };
+
+  if (turn.asked.startsWith('Draft a welcome')) return { text: WELCOME_FORM };
+
+  if (turn.asked.startsWith('Show sales this quarter')) return { text: SALES };
+
+  if (turn.asked.startsWith('Show a gauge') || turn.asked.startsWith('[UI check]'))
+    return {
+      text: 'Orders so far.\n\n<a2ui>\nsurface("gauge")\nroot = Gauge("Orders", 312)\n</a2ui>',
+    };
 
   if (turn.asked.startsWith('Set up an automation')) return automationPlan(turn);
 
@@ -306,6 +332,8 @@ export const titles: Titles = (prompt) => {
   if (prompt.startsWith('Who are our top')) return 'Top customers this quarter';
 
   if (prompt.startsWith('Draft a welcome')) return 'Welcome message for new customers';
+
+  if (prompt.startsWith('Show sales this quarter')) return 'Sales this quarter';
 
   if (prompt.startsWith('Set up an automation')) return 'Tag website leads';
 

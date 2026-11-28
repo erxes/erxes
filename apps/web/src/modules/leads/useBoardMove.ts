@@ -1,4 +1,4 @@
-import type { Company, Customer, LeadRecordType } from '@erxes/core-contract';
+import type { Company, CursorPage, Customer, LeadRecordType } from '@erxes/core-contract';
 import {
   type InfiniteData,
   type QueryClient,
@@ -8,7 +8,6 @@ import {
 import { useToast } from 'erxes-ui';
 import { z } from 'zod';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import type { CursorPage } from '~/lib/cursorList';
 import { useLeadsT } from './i18n';
 import { leadStagesQuery } from './useLeads';
 
@@ -42,7 +41,7 @@ const withoutLead = (cache: BoardCache, id: string): BoardCache => ({
   pages: cache.pages.map((page, index) => ({
     ...page,
     data: page.data.filter((item) => item.id !== id),
-    totalCount: index === 0 ? Math.max(0, page.totalCount - 1) : page.totalCount,
+    totalCount: index === 0 && page.totalCount ? page.totalCount - 1 : page.totalCount,
   })),
 });
 
@@ -50,7 +49,8 @@ const withoutLead = (cache: BoardCache, id: string): BoardCache => ({
 const withLead = (cache: BoardCache, moved: BoardLead): BoardCache => {
   const pages = cache.pages.map((page, index) => ({
     ...page,
-    totalCount: index === 0 ? page.totalCount + 1 : page.totalCount,
+    totalCount:
+      index === 0 && page.totalCount !== undefined ? page.totalCount + 1 : page.totalCount,
   }));
 
   const last = pages.at(-1);

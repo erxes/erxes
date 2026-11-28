@@ -21,7 +21,9 @@ import {
 } from '../emailEnums';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
+import { integrationConnections } from './integrations';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -46,14 +48,25 @@ export const emailSettings = pgTable(
     username: text().default('').notNull(),
     /** `ses`: the AWS region, for example `us-east-1`. */
     region: text().default('').notNull(),
-    /** The password, API key or secret access key, sealed (`lib/secrets`); never sent out. */
-    secretSealed: text().notNull(),
+    secretId: text().notNull(),
     /** `sendgrid`: the Signed Event Webhook's verification key (public), checked on every event batch. */
     eventsKey: text().default('').notNull(),
     /** `ses`: the configuration set every email names, whose event destination is the SNS topic. */
     configurationSet: text().default('').notNull(),
     /** `ses`: the SNS topic its events come through; notifications from any other are refused. */
     eventsTopicArn: text().default('').notNull(),
+    /**
+     * `sendgrid`, `ses`: the domains the provider last said it sends from,
+     * lower-cased. Any address on them may be an email's From.
+     */
+    verifiedDomains: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    /** When the provider last answered; null: never asked. */
+    domainsCheckedAt: timestamptz(),
+    /** What the provider said when it last couldn't answer; null once it does. */
+    domainsError: text(),
     updatedBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -65,6 +78,11 @@ export const emailSettings = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_email_settings_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.secretId],
+      foreignColumns: [secrets.id],
+      name: 'core_email_settings_secret_id_fkey',
+    }),
   ],
 );
 
@@ -122,6 +140,11 @@ export const emailDeliveries = pgTable(
     status: text({ enum: EMAIL_DELIVERY_STATUSES }).notNull(),
     /** What its last try went out through; null until it is tried. */
     provider: text({ enum: EMAIL_DELIVERY_PROVIDERS }),
+    /**
+     * The Mail service connection it goes through; null: Organization email. Its own account
+     * sends it, so Organization email's sending ramp leaves it alone.
+     */
+    connectionId: text(),
     /** Tries so far; a refused try waits for the next. */
     attempts: smallint().default(0).notNull(),
     /** What the server said when it last refused, or why it couldn't be reached. */
@@ -141,6 +164,10 @@ export const emailDeliveries = pgTable(
       table.id.desc(),
     ),
     index('core_email_deliveries_source_idx').on(table.orgId, table.source, table.sourceId),
+    // Removing a connection clears it from its emails' rows.
+    index('core_email_deliveries_connection_idx')
+      .on(table.connectionId)
+      .where(sql`${table.connectionId} is not null`),
     check('core_email_deliveries_source_check', inList(table.source, EMAIL_SOURCES)),
     check('core_email_deliveries_status_check', inList(table.status, EMAIL_DELIVERY_STATUSES)),
     check('core_email_deliveries_provider_check', inList(table.provider, EMAIL_DELIVERY_PROVIDERS)),
@@ -149,6 +176,11 @@ export const emailDeliveries = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_email_deliveries_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.connectionId],
+      foreignColumns: [integrationConnections.id],
+      name: 'core_email_deliveries_connection_id_fkey',
+    }).onDelete('set null'),
   ],
 );
 
@@ -191,7 +223,7 @@ export const emailAddresses = pgTable(
 );
 
 /**
- * The organisation's sending ramp (Settings › Integrations › Email sending ›
+ * The organisation's sending ramp (Settings › Organization email ›
  * Limits): how many emails a day it may send now (`tier` into
  * `EMAIL_RAMP_TIERS`), what it sent today (UTC), and whether a bounce rate
  * halted it. Written when it first sends; the ramp's evaluation moves the

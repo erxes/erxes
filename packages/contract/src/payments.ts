@@ -1,14 +1,5 @@
-import {
-  GATEWAY_REFUND_KINDS,
-  PAYMENT_GATEWAY_STATUSES,
-  RECORDED_PAYMENT_METHODS,
-} from '@erxes/core-db/enums';
-import {
-  paymentGateways,
-  paymentInvoices,
-  paymentPluginSettings,
-  paymentRefunds,
-} from '@erxes/core-db/schema';
+import { GATEWAY_REFUND_KINDS, RECORDED_PAYMENT_METHODS } from '@erxes/core-db/enums';
+import { organizations, paymentInvoices, paymentRefunds } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
@@ -19,16 +10,8 @@ import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { TaxBuyer } from './ebarimt';
 import { InvoiceLine, InvoiceLineInput } from './invoiceLines';
-import { GatewayConfig, PaymentGatewayKind } from './paymentGateways';
-
-export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
-  .pick({ id: true, kind: true, name: true, status: true, createdAt: true })
-  .extend({
-    /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
-    settings: z.record(z.string(), z.unknown()),
-  });
-
-export type PaymentGateway = z.infer<typeof PaymentGateway>;
+import { IntegrationConnection } from './integrations';
+import { PayerInstructions } from './paymentPayer';
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z
@@ -50,6 +33,11 @@ const InvoiceFields = z.object({
   taxBuyer: TaxBuyer.optional(),
   /** False: no tax receipt for it, as for an order that needs none. */
   taxReceipt: z.boolean().default(true),
+  /**
+   * The eBarimt config that issues its receipt (`ebarimt.configs`); none: the default. 404 for an
+   * unknown one; 400 EBARIMT_CONFIG_OFF for one turned off, when the invoice gets a receipt.
+   */
+  ebarimtId: Id.optional(),
 });
 
 const int = () => z.int();
@@ -57,18 +45,14 @@ const int = () => z.int();
 export const Invoice = createSelectSchema(paymentInvoices, {
   id: Id,
   gatewayId: () => Id.nullable(),
+  ebarimtId: () => Id.nullable(),
   amount: int,
   metadata: z.record(z.string(), z.unknown()),
   lines: z.array(InvoiceLine),
   taxBuyer: () => z.object({ companyNo: z.string().optional(), consumerNo: z.string().optional() }),
   paidAmount: int,
   refundedAmount: int,
-  payment: z.object({
-    qrText: z.string().nullable(),
-    qrImage: z.string().nullable(),
-    shortUrl: z.string().nullable(),
-    links: z.array(z.object({ name: z.string(), logo: z.string().nullable(), link: z.string() })),
-  }),
+  payment: PayerInstructions,
   expiresAt: isoDate,
   paidAt: isoDate,
   createdAt: isoDate,
@@ -95,6 +79,8 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     taxBuyer: true,
     /** Whether it gets a tax receipt (eBarimt) once paid. */
     taxReceipt: true,
+    /** The eBarimt config that issues its receipt; null: the organisation's default. */
+    ebarimtId: true,
     /** What the gateway says was paid, and how much of it was given back. */
     paidAmount: true,
     refundedAmount: true,
@@ -106,7 +92,7 @@ export const Invoice = createSelectSchema(paymentInvoices, {
   })
   .extend({
     /** The gateway's kind, joined in the query; null without a gateway. */
-    gatewayKind: PaymentGatewayKind.nullable(),
+    gatewayKind: z.string().nullable(),
     /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
     refundable: z.object({ amount: z.int(), gateway: z.enum(GATEWAY_REFUND_KINDS) }),
   });
@@ -135,15 +121,27 @@ export const Refund = createSelectSchema(paymentRefunds, {
 
 export type Refund = z.infer<typeof Refund>;
 
-/** How a plugin takes payments here: its default gateway, and the only ones it may use (none: any). */
-export const PluginPaymentSettings = createSelectSchema(paymentPluginSettings, {
-  defaultGatewayId: () => Id,
-  allowedGatewayIds: () => z.array(Id),
-})
-  .pick({ plugin: true, defaultGatewayId: true, allowedGatewayIds: true })
-  .extend({ title: z.string() });
+export const PaymentSettings = createSelectSchema(organizations, {
+  defaultGatewayId: () => Id.nullable(),
+}).pick({ defaultGatewayId: true });
 
-export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
+export type PaymentSettings = z.infer<typeof PaymentSettings>;
+
+/** Money back for a paid invoice: all that is left unless `amount`. */
+export const RefundRequest = z.object({
+  id: Id,
+  amount: z.int().min(1).optional(),
+  reason: z.string().trim().min(1).max(255),
+  manual: z.boolean().default(false),
+  dedupeKey: DedupeKey.optional(),
+});
+
+export type RefundRequest = z.infer<typeof RefundRequest>;
+
+/** A payment taken outside a gateway, recorded as a paid invoice. */
+export const RecordedPayment = InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) });
+
+export type RecordedPayment = z.infer<typeof RecordedPayment>;
 
 /**
  * Payments: an organisation's gateway connections (QPay, …) and invoices
@@ -152,13 +150,10 @@ export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
  */
 const {
   CURRENCY_NOT_SUPPORTED,
-  DEFAULT_NOT_ALLOWED,
-  GATEWAY_IN_USE,
-  GATEWAY_NOT_ALLOWED,
+  EBARIMT_CONFIG_OFF,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
-  KIND_CHANGED,
   LIMIT_EXCEEDED,
   LINES_MISMATCH,
   NOTHING_TO_RETRY,
@@ -174,13 +169,10 @@ const {
 const base = oc.errors({
   ...COMMON_ERRORS,
   CURRENCY_NOT_SUPPORTED,
-  DEFAULT_NOT_ALLOWED,
-  GATEWAY_IN_USE,
-  GATEWAY_NOT_ALLOWED,
+  EBARIMT_CONFIG_OFF,
   GATEWAY_REFUSED,
   INVALID_PRODUCT,
   INVALID_SUBDOMAIN,
-  KIND_CHANGED,
   LIMIT_EXCEEDED,
   LINES_MISMATCH,
   NOTHING_TO_RETRY,
@@ -192,45 +184,35 @@ const base = oc.errors({
   SUBJECT_REQUIRED,
 });
 
+/**
+ * A connected gateway with its service: `integrationName` is what payers know it as (`QPay`),
+ * `pays` how they pay (`bank-qr`, `card`, `installments`), next to the connection's own `name`.
+ */
+export const PaymentGateway = IntegrationConnection.extend({
+  integrationName: z.string(),
+  pays: z.string(),
+});
+
+export type PaymentGateway = z.infer<typeof PaymentGateway>;
+
 export const paymentsContract = {
   gateways: base
-    .route({ method: 'GET', path: '/payments/gateways' })
-    .output(listOf(PaymentGateway)),
-  addGateway: base
     .route({
-      method: 'POST',
+      method: 'GET',
       path: '/payments/gateways',
-      successStatus: 201,
-      summary: 'Connect a gateway (checked against it first)',
+      summary: 'List payment gateways',
+      description:
+        'The payment gateways connected on Settings › Integrations (plugins: payments:read), so a plugin can pick one as `gatewayId`',
     })
-    .input(z.object({ name: z.string().trim().min(1).max(80), config: GatewayConfig }))
-    .output(PaymentGateway),
-  updateGateway: base
-    .route({ method: 'PATCH', path: '/payments/gateways/{id}' })
-    .input(
-      z.object({
-        id: Id,
-        name: z.string().trim().min(1).max(80).optional(),
-        config: GatewayConfig.optional(),
-        status: z.enum(PAYMENT_GATEWAY_STATUSES).optional(),
-      }),
-    )
-    .output(PaymentGateway),
-  removeGateway: base
-    .route({
-      method: 'DELETE',
-      path: '/payments/gateways/{id}',
-      summary: 'Remove a gateway without invoices (turn it off otherwise)',
-    })
-    .input(z.object({ id: Id }))
-    .output(z.object({ ok: z.literal(true) })),
+    .output(listOf(PaymentGateway)),
   createInvoice: base
     .route({
       method: 'POST',
       path: '/payments/invoices',
       successStatus: 201,
-      summary:
-        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the first allowed gateway that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
+      summary: 'Create an invoice',
+      description:
+        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the organisation's default gateway, else the oldest active one that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT. 400 EBARIMT_CONFIG_OFF when `ebarimtId` names a config that is turned off and the invoice gets a receipt from it",
     })
     .input(
       InvoiceFields.extend({
@@ -258,21 +240,29 @@ export const paymentsContract = {
       method: 'POST',
       path: '/payments/invoices/recorded',
       successStatus: 201,
-      summary:
-        'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT',
+      summary: 'Record an outside payment',
+      description:
+        'Record a payment taken outside a gateway (cash, a card terminal, a bank transfer) as a paid invoice (plugins: payments:write). It publishes core.payment.paid, so eBarimt issues its receipt; refunds are recorded by hand. 400 LINES_MISMATCH, INVALID_PRODUCT; 400 EBARIMT_CONFIG_OFF when `ebarimtId` names a config that is turned off and the payment gets a receipt from it',
     })
-    .input(InvoiceFields.extend({ method: z.enum(RECORDED_PAYMENT_METHODS) }))
+    .input(RecordedPayment)
     .output(Invoice),
   getInvoice: base
     .route({
       method: 'GET',
       path: '/payments/invoices/{id}',
-      summary: 'An invoice; a pending one is checked with the gateway',
+      summary: 'Get an invoice',
+      description: 'An invoice; a pending one is checked with the gateway',
     })
     .input(z.object({ id: Id }))
     .output(Invoice),
   cancelInvoice: base
-    .route({ method: 'POST', path: '/payments/invoices/{id}/cancel' })
+    .route({
+      method: 'POST',
+      path: '/payments/invoices/{id}/cancel',
+      summary: 'Cancel an invoice',
+      description:
+        'Cancel a pending gateway invoice; the gateway is told, and its failure is only logged. 409 NOT_PENDING once it is paid or cancelled',
+    })
     .input(z.object({ id: Id }))
     .output(Invoice),
   refund: base
@@ -280,42 +270,47 @@ export const paymentsContract = {
       method: 'POST',
       path: '/payments/invoices/{id}/refunds',
       successStatus: 201,
-      summary:
+      summary: 'Refund an invoice',
+      description:
         'Give money back for a paid invoice (all that is left unless `amount`). Through the gateway, or `manual` to record a refund made outside erxes. A refused refund is kept as failed. 409 NOT_REFUNDABLE / PARTIAL_NOT_SUPPORTED',
     })
-    .input(
-      z.object({
-        id: Id,
-        amount: z.int().min(1).optional(),
-        reason: z.string().trim().min(1).max(255),
-        manual: z.boolean().default(false),
-        dedupeKey: DedupeKey.optional(),
-      }),
-    )
+    .input(RefundRequest)
     .output(z.object({ refund: Refund, invoice: Invoice })),
   refunds: base
-    .route({ method: 'GET', path: '/payments/invoices/{id}/refunds' })
-    .input(z.object({ id: Id }))
-    .output(listOf(Refund)),
-  pluginSettings: base
     .route({
       method: 'GET',
-      path: '/payments/plugins',
-      summary: 'Installed plugins that take payments, with their gateway settings',
+      path: '/payments/invoices/{id}/refunds',
+      summary: 'List refunds',
+      description: "The invoice's refunds, oldest first",
     })
-    .output(listOf(PluginPaymentSettings)),
-  updatePluginSettings: base
-    .route({ method: 'PUT', path: '/payments/plugins/{plugin}' })
-    .input(
-      z.object({
-        plugin: z.string().min(1).max(60),
-        defaultGatewayId: Id.nullable(),
-        allowedGatewayIds: z.array(Id).max(50),
-      }),
-    )
-    .output(PluginPaymentSettings),
+    .input(z.object({ id: Id }))
+    .output(listOf(Refund)),
+  settings: base
+    .route({
+      method: 'GET',
+      path: '/payments/settings',
+      summary: 'Get the default gateway',
+      description:
+        'The organisation’s default gateway, which an invoice goes through unless it names one; null: the oldest active one that takes its currency',
+    })
+    .output(PaymentSettings),
+  saveSettings: base
+    .route({
+      method: 'PUT',
+      path: '/payments/settings',
+      summary: 'Set the default gateway',
+      description:
+        'Set or clear the default gateway, for every invoice of the organisation. 400 NO_GATEWAY when it is not an active gateway here',
+    })
+    .input(z.object({ defaultGatewayId: Id.nullable() }))
+    .output(PaymentSettings),
   invoices: base
-    .route({ method: 'GET', path: '/payments/invoices', summary: 'Invoices, newest first' })
+    .route({
+      method: 'GET',
+      path: '/payments/invoices',
+      summary: 'List invoices',
+      description: 'Invoices, newest first',
+    })
     .input(
       CursorQuery.extend({
         status: InvoiceStatus.optional(),
@@ -328,8 +323,26 @@ export const paymentsContract = {
     .route({
       method: 'POST',
       path: '/payments/invoices/{id}/test-pay',
-      summary: 'Pay an invoice of the test gateway (development)',
+      summary: 'Pay a test invoice',
+      description: 'Pay an invoice of the test gateway (development)',
     })
     .input(z.object({ id: Id }))
     .output(Invoice),
+  quickQrDistricts: base
+    .route({
+      method: 'GET',
+      path: '/payments/quickqr/districts/{city}',
+      summary: 'List QuickQR districts',
+      description:
+        "QPay QuickQR's districts of a city or aimag (by code), for a merchant's address",
+    })
+    .input(
+      z.object({
+        city: z
+          .string()
+          .trim()
+          .regex(/^\d{1,10}$/),
+      }),
+    )
+    .output(listOf(z.object({ code: z.string(), name: z.string() }))),
 };

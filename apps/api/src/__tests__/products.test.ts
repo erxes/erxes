@@ -37,6 +37,24 @@ describe('products', { timeout: 120_000 }, () => {
     return t.client((await token(t.ids.org)).access_token);
   };
 
+  it("keeps a category's own code, unique whatever its case", async () => {
+    const drinks = await t.owner().productCategories.create({ name: 'Drinks', code: 'DR-1' });
+
+    expect(drinks).toMatchObject({ name: 'Drinks', code: 'DR-1', parentId: null });
+    await expect(
+      t.owner().productCategories.create({ name: 'Tea', code: 'dr-1' }),
+    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'code' } });
+
+    const renamed = await t.owner().productCategories.update({ id: drinks.id, code: 'DR-2' });
+
+    expect(renamed.code).toBe('DR-2');
+    expect((await t.owner().productCategories.list()).data).toContainEqual(
+      expect.objectContaining({ id: drinks.id, code: 'DR-2' }),
+    );
+    expect((await t.other().productCategories.list()).data).toEqual([]);
+    await t.owner().productCategories.remove({ id: drinks.id });
+  });
+
   it('keeps one catalog that members manage and only their organisation sees', async () => {
     const category = await t.owner().productCategories.create({ name: 'Phones' });
     const created = await t.owner().products.create({ ...phone, categoryId: category.id });
@@ -132,8 +150,20 @@ describe('products', { timeout: 120_000 }, () => {
       ]),
     );
 
-    // Events name the product; subscribers read it from core.
-    for (const event of events.data) expect(Object.keys(event.payload)).toEqual(['changed']);
+    for (const event of events.data)
+      expect(Object.keys(event.payload).toSorted()).toEqual([
+        'barcode',
+        'categoryId',
+        'changed',
+        'code',
+        'currency',
+        'kind',
+        'name',
+        'price',
+        'productId',
+        'status',
+        'unit',
+      ]);
   });
 
   it('lets plugins share products: each lists its own and uses others by choice', async () => {
@@ -184,7 +214,7 @@ describe('products', { timeout: 120_000 }, () => {
   });
 
   it('bills one invoice for several plugins’ lines and lets each read it', async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     const api = await pluginApi(t.url(''), 'tms');
 
@@ -242,6 +272,16 @@ describe('products', { timeout: 120_000 }, () => {
 
     // tms has a line: it reads the invoice, but only hr may cancel it.
     expect((await other.payments.getInvoice({ id: invoice.id })).id).toBe(invoice.id);
+
+    const hrOnly = await t.hr().payments.createInvoice({
+      ...base,
+      amount: phone.price,
+      lines: [{ productId: phoneRow.id, quantity: 1, unitPrice: phone.price }],
+    });
+
+    await expect(other.payments.getInvoice({ id: hrOnly.id })).rejects.toMatchObject({
+      status: 404,
+    });
     await expect(other.payments.cancelInvoice({ id: invoice.id })).rejects.toMatchObject({
       status: 404,
     });
@@ -250,7 +290,10 @@ describe('products', { timeout: 120_000 }, () => {
     await t.owner().payments.payTestInvoice({ id: invoice.id });
     await settle();
     expect(api.rejected).toEqual([]);
-    expect(api.received.map((event) => event.type)).toEqual(['core.payment.paid']);
+    expect(api.received.map((event) => event.type).toSorted((a, b) => a.localeCompare(b))).toEqual([
+      'core.payment.created',
+      'core.payment.paid',
+    ]);
     expect(api.received[0]?.payload).toMatchObject({ invoiceId: invoice.id, source: 'hr' });
   });
 });

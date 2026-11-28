@@ -251,6 +251,109 @@ describe('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300_000 }
     expect(signIns).toContainEqual({ targetType: 'plugin', targetId: 'hr' });
   });
 
+  it('lets a member allow an app that registered itself, for tokens bound to the MCP server', async () => {
+    await owner.api.auth.signIn(OWNER);
+
+    const base = server.url('/core/v1');
+
+    const metadata = await (
+      await fetch(server.url('/.well-known/oauth-authorization-server/core/v1'))
+    ).json();
+
+    expect(metadata).toMatchObject({
+      issuer: base,
+      registration_endpoint: `${base}/oauth/register`,
+      client_id_metadata_document_supported: true,
+    });
+
+    const loopback = 'http://127.0.0.1/callback';
+
+    const registered = await fetch(server.url('/core/v1/oauth/register'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ client_name: 'Claude Code', redirect_uris: [loopback] }),
+    });
+
+    expect(registered.status).toBe(201);
+
+    const { client_id: clientId } = z
+      .object({ client_id: z.string() })
+      .parse(await registered.json());
+
+    const { verifier, challenge } = pkce();
+    // A native app listens on a port it picks: the same callback on any port is its own.
+    const redirectUri = 'http://127.0.0.1:43123/callback';
+
+    const asked = await authorize({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      state: 's-1',
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      resource: `${base}/mcp`,
+    });
+
+    const consentPage = new URL(asked.headers.get('location') ?? '', server.url('/'));
+
+    expect(consentPage.pathname).toBe('/connect');
+
+    const request = consentPage.searchParams.get('request') ?? '';
+
+    expect(await owner.api.oauthConsent.get({ request })).toEqual({
+      app: 'Claude Code',
+      address: null,
+      redirectHost: '127.0.0.1:43123',
+      organisation: 'Acme',
+    });
+    await expect(owner.api.oauthConsent.get({ request: `${request}x` })).rejects.toMatchObject({
+      code: 'APP_REQUEST_INVALID',
+    });
+
+    const { redirectTo } = await owner.api.oauthConsent.decide({ request, allow: true });
+    const back = new URL(redirectTo);
+
+    expect(back.searchParams.get('iss')).toBe(base);
+    expect(back.searchParams.get('state')).toBe('s-1');
+
+    const code = back.searchParams.get('code') ?? '';
+    const forApp = { client_id: clientId, redirect_uri: redirectUri, code_verifier: verifier };
+
+    // A token for another resource is refused.
+    expect(
+      (await token({ ...forApp, grant_type: 'authorization_code', code, resource: base })).body,
+    ).toEqual(refused);
+
+    const fresh = await owner.api.oauthConsent.decide({ request, allow: true });
+
+    const issued = await granted({
+      ...forApp,
+      grant_type: 'authorization_code',
+      code: new URL(fresh.redirectTo).searchParams.get('code') ?? '',
+      resource: `${base}/mcp`,
+    });
+
+    const discovery = Discovery.parse(
+      await (await fetch(server.url('/core/v1/.well-known/openid-configuration'))).json(),
+    );
+
+    const { payload } = await jwtVerify(
+      issued.access_token,
+      createRemoteJWKSet(new URL(discovery.jwks_uri)),
+      { audience: `${base}/mcp`, typ: 'at+jwt' },
+    );
+
+    expect(payload).toMatchObject({ client_id: clientId, scope: 'mcp' });
+    expect(issued.refresh_token).toBeDefined();
+
+    const { redirectTo: refusedTo } = await owner.api.oauthConsent.decide({
+      request,
+      allow: false,
+    });
+
+    expect(new URL(refusedTo).searchParams.get('error')).toBe('access_denied');
+  });
+
   it('refuses a refresh token with a changed secret, past its expiry, or of a member no longer active', async () => {
     await owner.api.auth.signIn(OWNER);
 

@@ -17,24 +17,35 @@ const PluginTransferColumn = z.object({
   aliases: z.array(z.string().trim().min(1).max(100)).max(20).optional(),
 });
 
-const PluginTransfer = z.object({
-  /** `<plugin>:<record>` (`frontline:ticket`), the record type imports and exports carry. */
-  type: PluginListType,
-  /** What the records are called in a list (`Tickets`). */
-  label: z.string().trim().min(1).max(100),
-  /** The plugin's permission that lets a member export them (`frontline.ticket.export`). */
-  exportPermission: z.string().trim().min(1).max(100),
-  /** The plugin's permission that lets a member import them (`frontline.ticket.import`). */
-  importPermission: z.string().trim().min(1).max(100),
-  columns: z
-    .array(PluginTransferColumn)
-    .min(1)
-    .max(200)
-    .refine(
-      (columns) => new Set(columns.map((column) => column.key)).size === columns.length,
-      'each column key once',
-    ),
-});
+const PluginTransfer = z
+  .object({
+    /** `<plugin>:<record>` (`frontline:ticket`), the record type imports and exports carry. */
+    type: PluginListType,
+    /** What the records are called in a list (`Tickets`). */
+    label: z.string().trim().min(1).max(100),
+    /** The plugin's permission that lets a member export them (`frontline.ticket.export`). */
+    exportPermission: z.string().trim().min(1).max(100),
+    /** The plugin's permission that lets a member import them (`frontline.ticket.import`). */
+    importPermission: z.string().trim().min(1).max(100),
+    columns: z
+      .array(PluginTransferColumn)
+      .min(1)
+      .max(200)
+      .refine(
+        (columns) => new Set(columns.map((column) => column.key)).size === columns.length,
+        'each column key once',
+      ),
+    /**
+     * A column whose rows start a group (a voucher's date, with its lines on the rows below it):
+     * an import batch ends only before a row where it is filled, so a group is never split
+     * between two batches. Without it, batches are cut at any row.
+     */
+    batchStart: z.string().optional(),
+  })
+  .refine(
+    (spec) => !spec.batchStart || spec.columns.some((column) => column.key === spec.batchStart),
+    { message: 'batchStart names one of the columns', path: ['batchStart'] },
+  );
 
 /**
  * The manifest's `transfer`: its record types members import from CSV or Excel and export to

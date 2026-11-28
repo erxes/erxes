@@ -14,7 +14,8 @@ import type { EventConsumer } from '~/modules/events/consumers';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { checkersByMember } from './conditionCheck';
 import { nextCursor, stepAt } from './cursor';
-import { rememberEventData } from './eventData';
+import { rememberAppEvent, rememberEventData } from './eventData';
+import { findHookSubject } from './hookSubject';
 import { advanceJob, continueAfter, definitionsOf, finishRun, log, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
 
@@ -23,7 +24,7 @@ type AutomationRow = typeof automations.$inferSelect;
 type EventRow = typeof events.$inferSelect;
 
 /** Automations started by events that automations caused stop this deep. */
-const MAX_CHAIN_DEPTH = 5;
+export const MAX_CHAIN_DEPTH = 5;
 
 export interface RunStart {
   eventId: string;
@@ -236,12 +237,30 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
   await inOrder(eligible, async ({ automation, version }) => {
     const definition = definitions.get(automation.id, version);
 
-    if (definition?.trigger.kind !== 'event') return;
+    const trigger = definition?.trigger;
 
-    const { conditions } = definition.trigger;
+    if (!definition || (trigger?.kind !== 'event' && trigger?.kind !== 'app')) return;
+
+    if (trigger.kind === 'app' && automation.subscriptionId !== event.entityId) return;
+
+    if (trigger.kind === 'app') await rememberAppEvent(tx, automation.id, event);
+
+    const found =
+      trigger.kind === 'app' && trigger.subject
+        ? await findHookSubject(tx, trigger.subject, { event: dto })
+        : null;
+
+    if (trigger.kind === 'app' && trigger.subject && !found) return;
+
+    const own = found ? { type: found.type, id: found.id } : ref;
+    const loaded = found ?? subject;
 
     const matched = await conditionsHold(
-      () => checkerOf(automation.activatedBy).holds(ref, conditions, context),
+      () =>
+        checkerOf(automation.activatedBy).holds(own, trigger.conditions, {
+          ...context,
+          subject: loaded,
+        }),
       { automation: automation.id, event: event.id },
     );
 
@@ -250,10 +269,10 @@ const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
     await startRun(tx, automation, definition, {
       eventId: event.id,
       eventType: event.type,
-      subject: ref,
+      subject: own,
       event: dto,
       depth: event.depth,
-      loaded: subject,
+      loaded,
     });
   });
 };
@@ -267,7 +286,10 @@ const subjectRefOf = (event: EventRow) =>
  * checked (a value the field can't take, the member who turned it on is gone) count as not
  * holding for this one automation, logged, and leave the event's other automations be.
  */
-const conditionsHold = async (check: () => Promise<boolean>, facts: Record<string, string>) => {
+export const conditionsHold = async (
+  check: () => Promise<boolean>,
+  facts: Record<string, string>,
+) => {
   try {
     return await savepoint(check);
   } catch (error) {

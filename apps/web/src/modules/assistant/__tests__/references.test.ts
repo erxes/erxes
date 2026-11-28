@@ -8,7 +8,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { orpc } from '@erxes/core-contract/client';
 import { MessageText } from '../MessageText';
-import { Reply } from '../Reply';
+import { Markdown } from '../Markdown';
 
 let root: Root | null = null;
 
@@ -67,7 +67,7 @@ const render = (element: ReactElement, references: Record<string, AssistantRecor
   return { container, opened, chip, click };
 };
 
-const reply = (text: string) => createElement(Reply, { text, streaming: false });
+const reply = (text: string) => createElement(Markdown, { text, streaming: false });
 
 const NOMIN: AssistantRecord = {
   available: true,

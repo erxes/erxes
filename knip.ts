@@ -38,6 +38,9 @@ const config: KnipConfig = {
     'packages/plugin-sdk': {
       project: ['src/**/*.ts'],
     },
+    'packages/integrations': {
+      project: ['src/**/*.ts'],
+    },
     'packages/lint': {
       entry: ['src/**/*.test.ts'],
       project: ['src/**/*.ts'],

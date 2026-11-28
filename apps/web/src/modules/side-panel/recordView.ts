@@ -36,5 +36,10 @@ export interface ISidePanelNavigator {
 
 export const SidePanelNavigatorContext = createContext<ISidePanelNavigator | null>(null);
 
+/** Opens a record as `useSidePanel().openRecord(entity)` does there; `PanelRecordOpener` gives it. */
+export const PanelOpenRecordContext = createContext<((entity: TRelationEntity) => void) | null>(
+  null,
+);
+
 // The panel route of the record a view belongs to (one stack entry).
 export const SidePanelRecordPathContext = createContext<string | null>(null);

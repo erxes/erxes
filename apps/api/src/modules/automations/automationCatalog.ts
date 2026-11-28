@@ -1,10 +1,13 @@
 import { type Db, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
-import { integrationActions } from '~/modules/integrations/actions';
+import { connectedIntegrations } from '~/modules/integrations/actions';
+import { appCatalog, appTriggerTypes } from '~/modules/integrations/appCatalog';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
+import { type CatalogSearch, keyLabel } from '@erxes/core-contract';
 import { actionCatalog } from './actions/catalog';
-import { type Carried, healedFields, labelOf } from './dataFields';
-import { isOutputType, learnedEventData, outputType } from './eventData';
+import { actionText, ranked } from './catalogSearch';
+import { type Carried, healedFields } from './dataFields';
+import { isEventType, learnedEventData, outputType } from './eventData';
 
 const installedPlugins = (client: Db) =>
   client
@@ -21,12 +24,12 @@ const unexpectedTriggers = (
   [...learned.entries()].flatMap(([type, carried]) => {
     const [source = '', ...rest] = type.split('.');
 
-    if (declared.has(type) || isOutputType(type) || !installed.has(source)) return [];
+    if (declared.has(type) || !isEventType(type) || !installed.has(source)) return [];
 
     return [
       {
         type,
-        label: labelOf(rest.join(' ')),
+        label: keyLabel(rest.join(' ')),
         description: null,
         source,
         subject: null,
@@ -37,11 +40,35 @@ const unexpectedTriggers = (
     ];
   });
 
-export const automationCatalog = async (client: Db) => {
-  const triggers = await eventTypeCatalog(client);
+const matching = ({ triggers, actions, apps }: Catalog, search: string, limit: number) => {
+  const found = {
+    triggers: ranked(triggers, search, (trigger) => ({
+      label: `${trigger.label} ${trigger.type}`,
+      rest: `${trigger.description ?? ''} ${trigger.record ?? ''} ${trigger.source}`,
+    })).slice(0, limit),
+    actions: ranked(actions, search, actionText).slice(0, limit),
+  };
+
+  const types = new Set(found.triggers.map((trigger) => trigger.type));
+
+  const keys = new Set([
+    ...found.triggers.map((trigger) => trigger.source),
+    ...found.actions.flatMap((action) => (action.integration ? [action.integration] : [])),
+  ]);
+
+  return {
+    ...found,
+    apps: apps
+      .filter((app) => keys.has(app.key))
+      .map((app) => ({ ...app, triggers: app.triggers.filter(({ type }) => types.has(type)) })),
+  };
+};
+
+const fullCatalog = async (client: Db) => {
+  const triggers = [...(await eventTypeCatalog(client)), ...appTriggerTypes()];
   const installed = await installedPlugins(client);
   const learned = await learnedEventData(client);
-  const actions = [...actionCatalog(installed), ...(await integrationActions(client))];
+  const actions = actionCatalog(installed, await connectedIntegrations(client));
 
   return {
     triggers: [
@@ -61,5 +88,16 @@ export const automationCatalog = async (client: Db) => {
 
       return carried ? { ...action, outputs: healedFields(action.outputs, carried) } : action;
     }),
+    apps: await appCatalog(client),
   };
+};
+
+const SEARCH_LIMIT = 5;
+
+type Catalog = Awaited<ReturnType<typeof fullCatalog>>;
+
+export const automationCatalog = async (client: Db, { search, limit }: CatalogSearch = {}) => {
+  const catalog = await fullCatalog(client);
+
+  return search ? matching(catalog, search, limit ?? SEARCH_LIMIT) : catalog;
 };

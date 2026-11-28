@@ -1,8 +1,14 @@
 import { paths } from '~/lib/paths';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { useCan } from '~/modules/auth/session';
-import { AutomationEditorPage } from './AutomationEditorPage';
 import { AutomationsListPage } from './AutomationsListPage';
+
+// The builder loads when an automation is opened, not with the list.
+const AutomationEditorPage = lazyNamed(
+  () => import('./AutomationEditorPage'),
+  'AutomationEditorPage',
+);
 
 /** The Automations app, mounted at `automations/*`. */
 export const AutomationsRoutes = () => {

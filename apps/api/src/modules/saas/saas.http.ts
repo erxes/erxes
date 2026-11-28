@@ -5,6 +5,7 @@ import { config } from '~/config';
 import { fail, invalidInput } from '~/http/errors';
 import { startSession } from '~/http/session';
 import { sessionVersionOf } from '~/modules/auth/account.service';
+import { supportLogin } from '~/modules/supportAccess/supportLogin';
 import { refreshEntitlements } from './entitlements';
 import { redeemHandoff } from './handoff';
 import { applyWorkspace, platformAuthorized, workspaceUsage } from './workspace';
@@ -16,7 +17,7 @@ import { applyWorkspace, platformAuthorized, workspaceUsage } from './workspace'
  * - `POST /organizations/:id/refresh`: read its plugins from Stripe now (after a purchase);
  * - `GET /organizations/:id`: the workspace and its usage.
  * And the members' sign-in hand-off: `GET /login?token=` (also at erxes.io's
- * `/gateway/pl:core/core-login`).
+ * `/gateway/pl:core/core-login`), and erxes support's: `GET /support-login?token=`.
  */
 export const saasRouter = Router();
 
@@ -94,3 +95,5 @@ export const saasLogin = async (req: Request, res: Response) => {
 };
 
 saasRouter.get('/login', saasLogin);
+
+saasRouter.get('/support-login', supportLogin);

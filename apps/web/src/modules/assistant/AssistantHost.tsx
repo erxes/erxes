@@ -22,7 +22,7 @@ export const AssistantHost = () => {
       <Suspense
         fallback={
           open && (
-            <div className="flex w-md shrink-0 items-center justify-center border-l max-md:hidden">
+            <div className="absolute top-12 right-2 bottom-2 z-30 flex w-md items-center justify-center rounded-xl border bg-background shadow-xl max-md:hidden">
               <Spinner />
             </div>
           )

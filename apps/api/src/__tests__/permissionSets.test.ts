@@ -73,7 +73,11 @@ describe('plugin permission sets', () => {
   it('refuses a set naming a permission the plugin does not declare, or a key twice', async () => {
     await expect(
       register([{ key: 'admin', label: 'HR admin', permissions: ['hr.payroll.run'] }]),
-    ).rejects.toMatchObject({ status: 400, code: 'UNKNOWN_PERMISSION' });
+    ).rejects.toMatchObject({
+      status: 400,
+      code: 'UNKNOWN_PERMISSION',
+      data: { permissions: ['hr.payroll.run'] },
+    });
     await expect(
       register([
         { key: 'viewer', label: 'A', permissions: ['hr.leave.view'] },

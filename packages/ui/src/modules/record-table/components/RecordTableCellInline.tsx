@@ -23,6 +23,8 @@ const cellTriggerVariants = cva(
       },
       // Shows a placeholder, not a value.
       empty: { true: 'text-muted-foreground' },
+      /** `highlight` marks a value to fill in on a pale yellow ground (3.x's counted quantities). */
+      tint: { none: '', highlight: 'bg-tint-highlight' },
     },
     defaultVariants: { variant: 'cell' },
   },
@@ -38,6 +40,7 @@ const RecordTableCellTrigger = ({
   id,
   variant,
   empty,
+  tint,
   ...props
 }: RecordTableCellTriggerProps) => {
   const label = useCellLabel(id);
@@ -48,7 +51,7 @@ const RecordTableCellTrigger = ({
         <Button
           {...label}
           variant="ghost"
-          className={cn(cellTriggerVariants({ variant, empty }), className)}
+          className={cn(cellTriggerVariants({ variant, empty, tint }), className)}
           ref={ref}
           {...props}
         />
@@ -135,6 +138,26 @@ const RecordTableInlineAnchor = ({
 };
 
 /**
+ * A cell's value as plain text that opens something when clicked or on Enter, such as the
+ * record's details (3.x's clickable code and name cells). Use it inside a bare cell.
+ */
+const RecordTableInlineTextButton = ({
+  className,
+  onClick,
+  ...props
+}: Omit<React.ComponentProps<'button'>, 'type'>) => (
+  <button
+    type="button"
+    className={cn('w-full min-w-0 cursor-pointer text-left', className)}
+    onClick={(event) => {
+      event.stopPropagation();
+      onClick?.(event);
+    }}
+    {...props}
+  />
+);
+
+/**
  * A table cell value, and the trigger and popover that edit it in place.
  * Used bare it shows a read-only value. `Trigger` and `Content` go inside a `Popover` or
  * `PopoverScoped`; `Trigger`'s `variant="field"` fits a side panel row.
@@ -145,4 +168,5 @@ export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {
   Trigger: RecordTableCellTrigger,
   Content: RecordTableCellContent,
   Anchor: RecordTableInlineAnchor,
+  TextButton: RecordTableInlineTextButton,
 });

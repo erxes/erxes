@@ -9,7 +9,7 @@ import { usePropertyTypeLabel } from '../usePropertyTypeLabel';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
 export const PropertiesHeader = ({ contentType }: { contentType: PropertyContentType }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
   const { area, list, add } = propertyPaths(contentType);
   const onList = !!useMatch(list);

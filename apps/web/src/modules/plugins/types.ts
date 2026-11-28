@@ -39,4 +39,9 @@ export interface LoadedPlugin {
   /** Module Federation remote name, e.g. `hr_ui`. */
   remote: string;
   config: LoadedPluginConfig;
+  /**
+   * Whose part it is, by its manifest's `extends`: `core`, or the remote of the installed plugin
+   * it extends. Its apps sit with core's, or right after that plugin's.
+   */
+  extends?: string;
 }
