@@ -6,10 +6,19 @@ import { needs } from './policyRules';
  * `payments:*` scopes.
  */
 export const PAYMENT_ACCESS = {
-  'payments.gateways': needs('payments.manage'),
-  'payments.addGateway': needs('payments.manage'),
-  'payments.updateGateway': needs('payments.manage'),
-  'payments.removeGateway': needs('payments.manage'),
+  // Banks: the organisation's accounts. Seeing them and sending money are two
+  // permissions (connecting one is Settings › Integrations'); no plugin or
+  // API key reaches them.
+  'banks.connections': needs('banks.view'),
+  'banks.accounts': needs('banks.view'),
+  'banks.account': needs('banks.view'),
+  'banks.statement': needs('banks.view'),
+  'banks.transfers': needs('banks.view'),
+  'banks.transfer': needs('banks.transfer'),
+  'banks.taxpayer': needs('banks.view'),
+  'banks.taxInvoices': needs('banks.view'),
+  'payments.gateways': { member: 'payments.manage', plugin: 'payments:read' },
+  'payments.quickQrDistricts': needs('payments.manage'),
   'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.recordPayment': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },
@@ -17,15 +26,18 @@ export const PAYMENT_ACCESS = {
   'payments.invoices': needs('payments.manage'),
   'payments.refund': { member: 'payments.refund', plugin: 'payments:write' },
   'payments.refunds': { member: 'payments.manage', plugin: 'payments:read' },
-  'payments.pluginSettings': needs('payments.manage'),
-  'payments.updatePluginSettings': needs('payments.manage'),
+  'payments.settings': needs('payments.manage'),
+  'payments.saveSettings': needs('payments.manage'),
   'payments.payTestInvoice': needs('payments.manage'),
-  'ebarimt.settings': needs('integrations.manage'),
-  'ebarimt.plugins': needs('integrations.manage'),
-  'ebarimt.saveSettings': needs('integrations.manage'),
-  'ebarimt.removeSettings': needs('integrations.manage'),
+  // A plugin lists the configs so its settings can pick one as an invoice's `ebarimtId`.
+  'ebarimt.configs': { member: 'integrations.manage', plugin: 'payments:read' },
+  'ebarimt.createConfig': needs('integrations.manage'),
+  'ebarimt.updateConfig': needs('integrations.manage'),
+  'ebarimt.removeConfig': needs('integrations.manage'),
   'ebarimt.testConnection': needs('integrations.manage'),
   'ebarimt.receipts': { member: 'payments.manage', plugin: 'payments:read' },
+  // A plugin that sends its own receipts (`taxReceipts: 'own'`) records them in core's register.
+  'ebarimt.recordReceipt': { plugin: 'payments:write' },
   'ebarimt.sync': { member: 'payments.manage', plugin: 'payments:write' },
   'ebarimt.setBuyer': { member: 'payments.manage', plugin: 'payments:write' },
   'ebarimt.findCompany': { member: 'any', plugin: 'payments:read' },

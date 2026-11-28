@@ -1,9 +1,16 @@
 import 'erxes-ui/fonts.css';
-// BlockNote's own styles for erxes-ui's block editor (menus, toolbar).
-import '@blocknote/shadcn/style.css';
 import './styles.css';
 import { StrictMode } from 'react';
-import { setFileStorage, setPluginRuntime, setRecordPage, setRecordTimeline } from 'erxes-ui';
+import {
+  setConnectionPicker,
+  setFileStorage,
+  setIntegrationLogo,
+  setPluginRuntime,
+  setRecordPage,
+  setReceiptPrintSettings,
+  setRecordTimeline,
+  setTransferButtons,
+} from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { i18nReady } from './i18n';
@@ -13,17 +20,40 @@ import { lazyNamed } from './lib/lazyNamed';
 import { pluginLive } from './lib/live';
 import { recheckSession } from './lib/queryClient';
 import { isSignedOut } from './modules/auth/session';
-import { SharedTimeline } from './modules/activity/SharedTimeline';
 
 // erxes-ui's upload hooks (and plugin UIs) store files through core.
 setFileStorage(coreFileStorage);
 
-// Plugin UIs show core's timeline for their own records.
-setRecordTimeline(SharedTimeline);
+// Plugin UIs show core's timeline for their own records; it loads the first time one shows.
+setRecordTimeline(lazyNamed(() => import('./modules/activity/SharedTimeline'), 'SharedTimeline'));
 
 // A plugin record's own page draws like a customer's; it loads the first time a plugin page
 // shows it.
 setRecordPage(lazyNamed(() => import('./modules/side-panel/RecordPage'), 'RecordPageView'));
+
+setConnectionPicker(
+  lazyNamed(() => import('./modules/settings/vault/ConnectionPicker'), 'ConnectionPicker'),
+);
+
+// Plugin pages import and export their records through core's transfer; the buttons load the
+// first time a plugin page shows one.
+setTransferButtons({
+  Import: lazyNamed(() => import('./modules/transfer/PluginTransfer'), 'PluginImport'),
+  Export: lazyNamed(() => import('./modules/transfer/PluginTransfer'), 'PluginExport'),
+});
+
+// A plugin's settings set how its eBarimt receipts print with core's editor, loaded on first use.
+setReceiptPrintSettings(
+  lazyNamed(() => import('./modules/settings/integrations/EbarimtPrint'), 'PluginReceiptPrint'),
+);
+
+// Plugin UIs show a gateway's or integration's logo as Settings › Integrations does.
+setIntegrationLogo(
+  lazyNamed(
+    () => import('./modules/settings/integrations/PluginIntegrationLogo'),
+    'PluginIntegrationLogo',
+  ),
+);
 
 // Plugin UIs call their own API with a per-plugin token and hear live signals.
 // A plugin page has its own queries, so core refusing its token is passed on

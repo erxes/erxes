@@ -40,11 +40,9 @@ const pluginMaySee = (
 ) => {
   if (event.source === plugin) return false;
 
-  // An agent's runs go to the plugin that declared it only.
+  // An agent's runs go only to the plugin that talks in the conversation.
   if (event.type.startsWith('core.agent.')) {
-    const parsed = z.object({ agent: z.string() }).safeParse(event.payload);
-
-    return parsed.success && parsed.data.agent.startsWith(`${plugin}.`);
+    return z.object({ plugin: z.literal(plugin) }).safeParse(event.payload).success;
   }
 
   if (event.type.startsWith('core.payment.')) {

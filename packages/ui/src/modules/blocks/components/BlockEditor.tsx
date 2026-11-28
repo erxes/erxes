@@ -1,3 +1,5 @@
+// BlockNote's styles and ours for its markup load with the editor's chunk, not with every page.
+import '../editor.css';
 import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
 import { useState } from 'react';
 import { SuggestionMenuController, TableHandlesController } from '@blocknote/react';

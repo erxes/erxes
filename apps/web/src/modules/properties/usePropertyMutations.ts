@@ -25,7 +25,7 @@ const usePropertiesRefresh = () => {
 };
 
 const useFeedback = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const { toast } = useToast();
 
   return {

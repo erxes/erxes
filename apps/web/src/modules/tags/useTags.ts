@@ -46,7 +46,7 @@ export const useTags = (type: FieldContentType) => {
 export const useTagCreate = ({ onTaken }: { onTaken?: (message: string) => void } = {}) => {
   const client = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'tags' });
 
   return useMutation(
     orpc.tags.create.mutationOptions({

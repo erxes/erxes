@@ -1,0 +1,1 @@
+ALTER TABLE "core_agents" ADD COLUMN "web" boolean DEFAULT false NOT NULL;

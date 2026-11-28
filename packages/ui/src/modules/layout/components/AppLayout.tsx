@@ -195,7 +195,7 @@ const AppLayoutDesktop = ({
           <AppLayoutSidebarHeader title={title} onCollapse={() => setOpen(false)} />
           <div
             data-navigation-context
-            className="styled-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1"
+            className="hide-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1"
           >
             {sidebar}
           </div>
@@ -250,7 +250,7 @@ const AppLayoutMobile = ({
             <span className="px-2 text-sm font-medium">{title}</span>
           </Sidebar.Header>
         )}
-        <div data-navigation-context className="styled-scroll min-h-0 flex-1 overflow-y-auto pb-1">
+        <div data-navigation-context className="hide-scroll min-h-0 flex-1 overflow-y-auto pb-1">
           {sidebar}
         </div>
         <AppLayoutFooter>{footer}</AppLayoutFooter>

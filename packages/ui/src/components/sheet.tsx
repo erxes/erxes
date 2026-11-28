@@ -33,13 +33,18 @@ const sheetVariants = cva(
         right:
           'inset-y-2 right-2 max-sm:left-2 flex flex-col data-closed:slide-out-to-right-full data-open:slide-in-from-right-full overflow-hidden',
       },
-      // A right sheet's width from the sm breakpoint.
-      size: { md: '', lg: '', xl: '' },
+      // A right sheet's width from the sm breakpoint. The wide ones (3.x's sheet widths) fill
+      // the viewport below md and three quarters of it from md, up to their size.
+      size: { md: '', lg: '', xl: '', '2xl': '', '5xl': '', '6xl': '', '7xl': '' },
     },
     compoundVariants: [
       { side: 'right', size: 'md', className: 'sm:w-md' },
       { side: 'right', size: 'lg', className: 'sm:w-lg' },
       { side: 'right', size: 'xl', className: 'sm:w-xl' },
+      { side: 'right', size: '2xl', className: 'w-sheet md:w-3/4 sm:max-w-2xl' },
+      { side: 'right', size: '5xl', className: 'w-sheet md:w-3/4 sm:max-w-5xl' },
+      { side: 'right', size: '6xl', className: 'w-sheet md:w-3/4 sm:max-w-6xl' },
+      { side: 'right', size: '7xl', className: 'w-sheet md:w-3/4 sm:max-w-7xl' },
     ],
     defaultVariants: {
       side: 'right',
@@ -134,19 +139,49 @@ const SheetHeader = ({ className, children, ...props }: React.HTMLAttributes<HTM
   );
 };
 
-const SheetContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn('rounded-b-lg bg-background border-b flex-1 px-5 py-4', className)}
-    {...props}
-  />
+const sheetContentVariants = cva('rounded-b-lg bg-background flex-1 min-h-0 overflow-y-auto', {
+  variants: {
+    inset: {
+      default: 'px-5 py-4',
+      /** 1rem all round (3.x's form sheets). */
+      sm: 'p-4',
+      /** None: the content draws its own, as a list with a bar above it. */
+      none: '',
+    },
+    /** The rule under the content; `false` when a ruled-off section follows it. */
+    divider: { true: 'border-b', false: '' },
+  },
+  defaultVariants: { inset: 'default', divider: true },
+});
+
+const SheetContent = ({
+  className,
+  inset,
+  divider,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof sheetContentVariants>) => (
+  <div className={cn(sheetContentVariants({ inset, divider }), className)} {...props} />
 );
 
-const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    data-save-bar
-    className={cn('flex flex-row gap-2 sm:justify-end sm:items-center h-14 px-5', className)}
-    {...props}
-  />
+const sheetFooterVariants = cva('flex flex-row sm:justify-end sm:items-center h-14', {
+  variants: {
+    variant: {
+      default: 'gap-2 px-5',
+      /** Ruled off from the content above, 1rem in (3.x's chooser). */
+      divided: 'border-t p-4 gap-2 sm:gap-4',
+      /** A tight bar on the sheet's muted ground (3.x's pick-a-voucher sheet). */
+      compact: 'bg-muted p-2.5 gap-1 sm:gap-3',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+});
+
+const SheetFooter = ({
+  className,
+  variant,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof sheetFooterVariants>) => (
+  <div data-save-bar className={cn(sheetFooterVariants({ variant }), className)} {...props} />
 );
 
 const SheetTitle = ({ className, ...props }: SheetPrimitive.Title.Props) => (
@@ -156,9 +191,21 @@ const SheetTitle = ({ className, ...props }: SheetPrimitive.Title.Props) => (
   />
 );
 
-const SheetDescription = ({ className, ...props }: SheetPrimitive.Description.Props) => (
+const sheetDescriptionVariants = cva('order-last basis-full text-sm leading-snug', {
+  variants: {
+    /** `destructive` while what it counts is out of bounds (more owners than the line holds). */
+    tone: { default: 'text-muted-foreground', destructive: 'text-destructive-text' },
+  },
+  defaultVariants: { tone: 'default' },
+});
+
+const SheetDescription = ({
+  className,
+  tone,
+  ...props
+}: SheetPrimitive.Description.Props & VariantProps<typeof sheetDescriptionVariants>) => (
   <SheetPrimitive.Description
-    className={cn('order-last basis-full text-sm leading-snug text-muted-foreground', className)}
+    className={cn(sheetDescriptionVariants({ tone }), className)}
     {...props}
   />
 );

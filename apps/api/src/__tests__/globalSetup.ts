@@ -92,7 +92,7 @@ export const setup = async (project: TestProject) => {
 
     // Migrate as the owner, then grant the runtime role; copies keep both.
     configureDb({ url: databaseUrl(url, template), applicationName: 'erxes-core-test-migrate' });
-    await runMigrations();
+    await runMigrations({});
     await closeDb();
     await admin(databaseUrl(url, template), `SELECT core_grant_runtime('${TEST_RUNTIME_ROLE}')`);
   }

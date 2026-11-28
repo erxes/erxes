@@ -1,4 +1,5 @@
 import { env } from './env';
+import { ERXES_LICENSE_KEYS } from './modules/license/keys';
 
 const isProduction = env.NODE_ENV === 'production';
 const dataUrl = env.DATA_URL ?? 'postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes';
@@ -26,6 +27,41 @@ const listenUrl = (): string | undefined => {
 
   return url.toString();
 };
+
+const assistantEndpoints: Partial<Record<string, string>> = {
+  openai: env.ASSISTANT_OPENAI_URL,
+  anthropic: env.ASSISTANT_ANTHROPIC_URL,
+  openrouter: env.ASSISTANT_OPENROUTER_URL,
+  kimi: env.ASSISTANT_KIMI_URL,
+  'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
+  grok: env.ASSISTANT_GROK_URL,
+  typesafe: env.ASSISTANT_TYPESAFE_URL,
+};
+
+const oauthApps: Record<string, { clientId: string; clientSecret: string }> = {
+  ...env.INTEGRATION_OAUTH_APPS,
+  ...(env.META_APP_ID && env.META_APP_SECRET
+    ? { facebook: { clientId: env.META_APP_ID, clientSecret: env.META_APP_SECRET } }
+    : {}),
+};
+
+const githubApp =
+  env.GITHUB_APP_ID &&
+  env.GITHUB_APP_SLUG &&
+  env.GITHUB_APP_PRIVATE_KEY &&
+  env.GITHUB_APP_CLIENT_ID &&
+  env.GITHUB_APP_CLIENT_SECRET
+    ? {
+        id: env.GITHUB_APP_ID,
+        slug: env.GITHUB_APP_SLUG,
+        privateKey: env.GITHUB_APP_PRIVATE_KEY,
+        clientId: env.GITHUB_APP_CLIENT_ID,
+        clientSecret: env.GITHUB_APP_CLIENT_SECRET,
+      }
+    : null;
+
+/** SES's API for its domains: the region's own endpoint unless `endpoint` is set. */
+const sesApi: { endpoint?: string } = {};
 
 export const config = {
   isProduction,
@@ -95,8 +131,8 @@ export const config = {
     signingKeyFile: env.CORE_SIGNING_KEY_DEV_FILE ?? './data/keys/signing-key.pem',
     /** Previous keys (PEM, public or private), still published so older signatures verify. */
     retiredSigningKeys: env.CORE_SIGNING_KEYS_RETIRED,
-    /** Seals secrets core reads back (webhook secrets, gateway keys); default: derived from CORE_JWT_SECRET. */
-    encryptionKey: env.CORE_ENCRYPTION_KEY,
+    encryptionKey: env.CORE_ENCRYPTION_KEY ?? 'erxes-core-local-development-encryption-key',
+    retiredEncryptionKeys: (env.CORE_ENCRYPTION_KEYS_RETIRED ?? '').split(/[\s,]+/).filter(Boolean),
   },
   app: {
     /**
@@ -128,17 +164,16 @@ export const config = {
       /** SES: the SNS topics its events may come through; a notification from any other is refused. */
       sesTopicArns: env.SES_EVENTS_TOPIC_ARNS,
     },
+    /** Where an organisation's own SendGrid or SES is asked which domains it verified (`domains.ts`). */
+    domainApis: {
+      sendgrid: 'https://api.sendgrid.com/v3',
+      /** SES answers at its region's endpoint unless one is set here. */
+      ses: sesApi,
+    },
   },
   broadcast: {
     /** Copies one broadcast sends a minute, within what the mail or SMS provider allows. */
     perMinute: env.BROADCAST_PER_MINUTE,
-  },
-  sms: {
-    /**
-     * How customer sign-in codes reach phones. `log` (development: written to
-     * the log, not sent); country providers are drivers in `modules/sms`.
-     */
-    driver: env.SMS_DRIVER ?? 'log',
   },
   outbound: {
     /**
@@ -146,6 +181,16 @@ export const config = {
      * (development only: refused in production, against SSRF).
      */
     allowPrivate: env.OUTBOUND_ALLOW_PRIVATE ?? !isProduction,
+  },
+  integrations: {
+    oauthApps,
+    /** The GitHub App organisations connect GitHub through; null: personal tokens only. */
+    githubApp,
+    oauthCallbackUrl: env.INTEGRATION_OAUTH_CALLBACK_URL,
+    metaRelay:
+      env.META_RELAY_URL && env.META_RELAY_KEY
+        ? { url: env.META_RELAY_URL, key: env.META_RELAY_KEY }
+        : null,
   },
   ebarimt: {
     /** The tax office's taxpayer lookup (`getTinInfo`, `getInfo`): company receipts check the number there. */
@@ -168,17 +213,27 @@ export const config = {
     handoffSecret: env.SAAS_JWT_TOKEN_SECRET,
     /** Days a plugin that left the plan stays read-only before it is turned off. */
     graceDays: env.SAAS_GRACE_DAYS,
+    /** erxes.io's public keys for "Open as support" links (ES256, by `kid`); none: nobody enters. */
+    supportKeys: env.SUPPORT_LOGIN_JWKS,
     /** Where owners manage the subscription; `{subdomain}` is replaced. */
     billingUrl: env.SAAS_BILLING_URL ?? 'https://erxes.io/organizations',
   },
-  assistant: {
-    endpoints: {
-      openai: env.ASSISTANT_OPENAI_URL,
-      grok: env.ASSISTANT_GROK_URL,
-      kimi: env.ASSISTANT_KIMI_URL,
-      'kimi-code': env.ASSISTANT_KIMI_CODE_URL,
-    },
+  /**
+   * Self-hosted: the erxes license (`ERXES_LICENSE`, a JWT erxes signs) and erxes' public keys
+   * that verify it, built into core (`ERXES_LICENSE_KEYS`). A plugin whose manifest says
+   * `requiresLicense` runs only where the license names it; every other plugin runs regardless.
+   * With `activationKey` instead, core fetches the license from erxes.io (`issuer`) every day.
+   */
+  license: {
+    token: env.ERXES_LICENSE,
+    keys: ERXES_LICENSE_KEYS,
+    activationKey: env.ERXES_ACTIVATION_KEY,
+    issuer: env.SAAS_PLATFORM_URL,
   },
+  /** The build this is, as a self-hosted server reports it to erxes.io. */
+  version: env.VERSION ?? 'dev',
+  assistant: { endpoints: assistantEndpoints },
+  web: { searchUrl: 'https://html.duckduckgo.com/html/' },
   /** Secret → plugin name. */
   pluginKeys: env.CORE_PLUGIN_KEYS,
   plugins: {
@@ -253,4 +308,9 @@ export const config = {
     /** Runs one organisation may start a minute, counted across every server. */
     runsPerMinute: env.AGENT_RUNS_PER_MINUTE,
   },
+  /** QPay QuickQR's vendor account, which merchants are signed up under; unset: QuickQR can't be connected. */
+  quickQr:
+    env.QUICK_QR_USERNAME && env.QUICK_QR_PASSWORD
+      ? { url: env.QUICK_QR_URL, username: env.QUICK_QR_USERNAME, password: env.QUICK_QR_PASSWORD }
+      : undefined,
 };

@@ -19,7 +19,7 @@ export default defineConfig({
     tasks: {
       // A rerun with no edits replays the last result.
       check: {
-        command: `erxes-check-escapes && ${tsrs} vp check && ${reactDoctor} && knip && erxes-check-docs && pnpm check:generated`,
+        command: `erxes-check-escapes && erxes-check-copies && ${tsrs} vp check && ${reactDoctor} && knip && erxes-check-docs && pnpm check:generated`,
         cache: tracked,
       },
       fix: { command: `${tsrs} vp check --fix`, cache: false },

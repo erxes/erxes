@@ -1,3 +1,4 @@
+import type { DataExtensionComputedPreview } from '@erxes/core-contract';
 import { type Db, type DataFieldSettings, dataFields, newId } from '@erxes/core-db';
 import { and, eq, inArray, not, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -129,7 +130,7 @@ const unsaved = (input: { formula?: Formula; rollup?: Rollup }): Computed => {
  */
 export const previewComputed = async (
   client: Db,
-  input: { recordType: string; formula?: Formula; rollup?: Rollup; recordId?: string },
+  input: z.infer<typeof DataExtensionComputedPreview>,
 ) => {
   const recordType = await extendableType(client, input.recordType);
   const { value, model, join } = await compiled(client, input.recordType, unsaved(input));

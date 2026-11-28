@@ -1,16 +1,15 @@
+import { SUPPORT_VISIT_HOURS } from '@erxes/core-contract';
+import type { auditLogs } from '@erxes/core-db';
 import { z } from 'zod';
 
-/** An audit entry, as the alert rules read it. */
-export interface Entry {
-  action: string;
-  targetType?: string | null;
-  targetId?: string | null;
-  targetLabel?: string | null;
-  changes?: Record<string, unknown> | null;
-  metadata?: Record<string, unknown> | null;
-  ip?: string | null;
-  userAgent?: string | null;
-}
+/**
+ * An audit entry as a service records it and the alert rules read it. Plugins pass the end
+ * user's `ip` and `userAgent`; otherwise they are the request's.
+ */
+export type AuditInput = Pick<
+  typeof auditLogs.$inferInsert,
+  'action' | 'targetType' | 'targetId' | 'targetLabel' | 'changes' | 'metadata' | 'ip' | 'userAgent'
+>;
 
 /** What the owners are told; `body` names who did it. */
 interface OwnerAlert {
@@ -21,7 +20,7 @@ interface OwnerAlert {
   email: boolean;
 }
 
-type OwnerRule = (label: string, entry: Entry) => OwnerAlert | null;
+type OwnerRule = (label: string, entry: AuditInput) => OwnerAlert | null;
 
 export const describeDevice = (userAgent?: string | null) => {
   if (!userAgent) return 'an unknown device';
@@ -56,13 +55,15 @@ const RoleChange = z.object({
   role: z.union([z.array(z.unknown()), z.object({ after: z.unknown() })]).optional(),
 });
 
-const roleAfter = (changes: Entry['changes']) => {
+const roleAfter = (changes: AuditInput['changes']) => {
   const role = RoleChange.safeParse(changes).data?.role;
 
   return Array.isArray(role) ? role[1] : role?.after;
 };
 
-const GatewayUpdate = z.object({ credentialsChanged: z.boolean().optional() });
+const ConnectionUpdate = z.object({ credentialsChanged: z.boolean().optional() });
+
+const SupportVisitEntry = z.object({ reason: z.string() });
 
 const streamChanged: OwnerRule = (label, entry) => ({
   title: `Audit log streaming to ${label} was ${entry.action.slice('audit.stream_'.length)}`,
@@ -74,7 +75,8 @@ const streamChanged: OwnerRule = (label, entry) => ({
 /**
  * Rules that tell the owners, by risk. By email too: two-step sign-in turned
  * off; someone made owner or admin; audit retention changed; audit streaming
- * changed or stopped; a payment gateway connected or its credentials changed.
+ * changed or stopped; a payment gateway connected or its credentials changed;
+ * erxes support entered.
  * In erxes only: audit exported, a webhook created (data leaves erxes), a
  * role's permissions changed.
  */
@@ -108,21 +110,27 @@ export const OWNER_RULES: Record<string, OwnerRule> = {
   'audit.stream_paused': streamChanged,
   'audit.stream_resumed': streamChanged,
   'audit.stream_removed': streamChanged,
-  'payment.gateway_added': (label) => ({
-    title: `A payment gateway was connected: ${label}`,
-    body: (by) => `By ${by}. Payments from now on may go to it.`,
-    link: '/settings/payments',
+  'integration.connected': (label) => ({
+    title: `An integration was connected: ${label}`,
+    body: (by) => `By ${by}. Payments and data from now on may go to it.`,
+    link: '/settings/integrations',
     email: true,
   }),
-  'payment.gateway_updated': (label, entry) =>
-    GatewayUpdate.safeParse(entry.metadata).data?.credentialsChanged
+  'integration.updated': (label, entry) =>
+    ConnectionUpdate.safeParse(entry.metadata).data?.credentialsChanged
       ? {
-          title: `${label}'s payment credentials were changed`,
-          body: (by) => `By ${by}. Check that payments still go to your account.`,
-          link: '/settings/payments',
+          title: `${label}'s credentials were changed`,
+          body: (by) => `By ${by}. Check that it still goes to your account.`,
+          link: '/settings/integrations',
           email: true,
         }
       : null,
+  'bank.transfer_sent': (label) => ({
+    title: `Money was sent: ${label}`,
+    body: (by) => `By ${by}. See its bank's Transfers in Settings › Integrations.`,
+    link: '/settings/integrations',
+    email: true,
+  }),
   'audit.exported': () => ({
     title: 'The audit log was exported',
     body: (by) => `By ${by}.`,
@@ -140,5 +148,12 @@ export const OWNER_RULES: Record<string, OwnerRule> = {
     body: (by) => `By ${by}.`,
     link: '/settings/roles',
     email: false,
+  }),
+  'support.entered': (label, entry) => ({
+    title: `erxes support entered your workspace: ${label}`,
+    body: () =>
+      `Reason: ${SupportVisitEntry.safeParse(entry.metadata).data?.reason ?? 'not given'}. They act as an owner for ${SUPPORT_VISIT_HOURS} hours; see or end the visit in Settings › Support access.`,
+    link: '/settings/support-access',
+    email: true,
   }),
 };

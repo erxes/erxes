@@ -1,11 +1,11 @@
-import { createGateway } from '@erxes/payment-gateways';
+import { openGateway } from '~/modules/integrations/registry';
 import { describe, expect, it } from 'vite-plus/test';
 import { hmacSha256 } from '~/lib/crypto';
 import { fakeGateway, tugrugInvoice as invoice, urlOf } from './fakeGateway';
 
 const hmac = (key: string, text: string) => hmacSha256(key, text, 'hex');
 
-describe('Mongolian gateway drivers', () => {
+describe('Mongolian gateways', () => {
   it('SocialPay signs a deeplink invoice, shows it as QR, and checks it with the same signature', async () => {
     const gateway = fakeGateway([
       [
@@ -21,12 +21,13 @@ describe('Mongolian gateway drivers', () => {
       ],
     ]);
 
-    const driver = createGateway(
-      { kind: 'socialpay', terminal: 'T1', terminalKey: 'k' },
+    const { payments, client } = openGateway(
+      'socialpay',
+      { terminal: 'T1', terminalKey: 'k' },
       { fetch: gateway.fetch },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/qr/deeplink')).toEqual({
       amount: '1500',
@@ -39,7 +40,13 @@ describe('Mongolian gateway drivers', () => {
       links: [{ name: 'SocialPay', link: 'socialpay://pay/1' }],
     });
     expect(created.payment.qrImage).toMatch(/^data:image\/png;base64,/);
-    expect(await driver.check(created.gatewayInvoiceId, 150_000, {})).toEqual({
+    expect(
+      await payments.check(client, {
+        gatewayInvoiceId: created.gatewayInvoiceId,
+        amount: 150_000,
+        state: {},
+      }),
+    ).toEqual({
       paid: true,
       paidAmount: 150_000,
       paymentId: 'inv1',
@@ -55,8 +62,9 @@ describe('Mongolian gateway drivers', () => {
 
     const gateway = fakeGateway(replies);
 
-    const driver = createGateway(
-      { kind: 'monpay', username: 'branch', accountId: 'acc' },
+    const { payments, client } = openGateway(
+      'monpay',
+      { username: 'branch', accountId: 'acc' },
       {
         fetch: (url, init) =>
           urlOf(url).includes('/check?uuid=u-1')
@@ -65,7 +73,7 @@ describe('Mongolian gateway drivers', () => {
       },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/generate')).toMatchObject({
       amount: 1500,
@@ -73,9 +81,13 @@ describe('Mongolian gateway drivers', () => {
     });
     expect(gateway.calls[0]?.auth).toBe(`Basic ${Buffer.from('branch:acc').toString('base64')}`);
     expect(created).toMatchObject({ gatewayInvoiceId: 'u-1', payment: { qrText: 'MONPAYQR' } });
-    expect((await driver.check('u-1', 150_000, {})).paid).toBe(false);
+    expect(
+      (await payments.check(client, { gatewayInvoiceId: 'u-1', amount: 150_000, state: {} })).paid,
+    ).toBe(false);
     code = 0;
-    expect((await driver.check('u-1', 150_000, {})).paid).toBe(true);
+    expect(
+      (await payments.check(client, { gatewayInvoiceId: 'u-1', amount: 150_000, state: {} })).paid,
+    ).toBe(true);
   });
 
   it('StorePay needs the payer’s phone, lends within their limit, and refunds by cancelling the loan', async () => {
@@ -87,21 +99,18 @@ describe('Mongolian gateway drivers', () => {
       ['/merchant/loan', { status: 'Success', value: 77 }],
     ]);
 
-    const driver = createGateway(
-      {
-        kind: 'storepay',
-        storeId: '12',
-        username: 'u',
-        password: 'p',
-        appUsername: 'a',
-        appPassword: 'b',
-      },
+    const { payments, client } = openGateway(
+      'storepay',
+      { storeId: '12', username: 'u', password: 'p', appUsername: 'a', appPassword: 'b' },
       { fetch: gateway.fetch, cacheKey: 'storepay-test' },
     );
 
-    await expect(driver.createInvoice(invoice)).rejects.toMatchObject({ status: 400 });
+    await expect(payments.createInvoice(client, invoice)).rejects.toMatchObject({ status: 400 });
 
-    const created = await driver.createInvoice({ ...invoice, payerPhone: '+976 9911 2233' });
+    const created = await payments.createInvoice(client, {
+      ...invoice,
+      payerPhone: '+976 9911 2233',
+    });
 
     expect(gateway.sent('/merchant/loan')).toMatchObject({
       storeId: 12,
@@ -110,9 +119,16 @@ describe('Mongolian gateway drivers', () => {
       requestId: 'inv1',
     });
     expect(created).toMatchObject({ gatewayInvoiceId: '77', payment: { qrText: null } });
-    expect(await driver.check('77', 150_000, {})).toMatchObject({ paid: true, paymentId: '77' });
+    expect(
+      await payments.check(client, { gatewayInvoiceId: '77', amount: 150_000, state: {} }),
+    ).toMatchObject({ paid: true, paymentId: '77' });
 
-    await driver.refund({ paymentId: '77', amount: 150_000, note: 'Returned' }, {});
+    await payments.refund(client, {
+      paymentId: '77',
+      amount: 150_000,
+      note: 'Returned',
+      state: {},
+    });
     expect(gateway.sent('/merchant/loanChange')).toEqual({
       changeTypeId: 2,
       loanId: 77,
@@ -127,12 +143,13 @@ describe('Mongolian gateway drivers', () => {
       ['/invoices/invoice-id', { state: 'paid' }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'pocket', terminalId: '9', clientId: 'c', clientSecret: 's' },
+    const { payments, client } = openGateway(
+      'pocket',
+      { terminalId: '9', clientId: 'c', clientSecret: 's' },
       { fetch: gateway.fetch, cacheKey: 'pocket-test' },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/generate-invoice')).toMatchObject({
       terminalId: 9,
@@ -140,7 +157,9 @@ describe('Mongolian gateway drivers', () => {
       orderNumber: 'inv1',
     });
     expect(created).toMatchObject({ gatewayInvoiceId: '501', payment: { qrText: 'POCKETQR' } });
-    expect(await driver.check('501', 150_000, {})).toMatchObject({ paid: true });
+    expect(
+      await payments.check(client, { gatewayInvoiceId: '501', amount: 150_000, state: {} }),
+    ).toMatchObject({ paid: true });
     expect(gateway.sent('/invoices/invoice-id')).toEqual({ terminalId: 9, invoiceId: 501 });
   });
 
@@ -151,18 +170,26 @@ describe('Mongolian gateway drivers', () => {
       ['/status?requestId=tx-1', { code: 200, data: { status: 'APPROVED' } }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'toki', merchantId: 'm', username: 'u', password: 'p' },
+    const { payments, client } = openGateway(
+      'toki',
+      { merchantId: 'm', username: 'u', password: 'p' },
       { fetch: gateway.fetch, cacheKey: 'toki-test' },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(created).toMatchObject({
       gatewayInvoiceId: 'req-1',
-      state: { tokiTransactionId: 'tx-1' },
+      payment: { qrText: 'req-1', inApp: { app: 'toki' } },
+      state: { tokiOrderId: 'inv1', tokiRequestId: 'req-1', tokiTransactionId: 'tx-1' },
     });
-    expect(await driver.check('req-1', 150_000, created.state ?? {})).toMatchObject({ paid: true });
+    expect(
+      await payments.check(client, {
+        gatewayInvoiceId: 'req-1',
+        amount: 150_000,
+        state: created.state ?? {},
+      }),
+    ).toMatchObject({ paid: true });
     expect(gateway.calls.at(-1)?.auth).toBe('Bearer tk');
   });
 
@@ -172,19 +199,22 @@ describe('Mongolian gateway drivers', () => {
       ['/api/inquiry', { status: 'SENT', amount: '1500' }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'golomt', checksumKey: 'ck', token: 'gt' },
+    const { payments, client } = openGateway(
+      'golomt',
+      { checksumKey: 'ck', token: 'gt' },
       { fetch: gateway.fetch },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/api/invoice')).toMatchObject({
       callback: invoice.returnUrl,
       checksum: hmac('ck', `inv11500GET${invoice.returnUrl}`),
     });
     expect(created.payment.shortUrl).toBe('https://ecommerce.golomtbank.com/payment/mn/G-INV');
-    expect(await driver.check('inv1', 150_000, {})).toMatchObject({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'inv1', amount: 150_000, state: {} }),
+    ).toMatchObject({
       paid: true,
       paidAmount: 150_000,
     });
@@ -200,12 +230,13 @@ describe('Mongolian gateway drivers', () => {
       ['POST /order', { order: { id: 31, password: 'pw', hppUrl: 'https://hpp.tdb.mn/flex' } }],
     ]);
 
-    const driver = createGateway(
-      { kind: 'tdb', username: 'u', password: 'p', apiUrl: 'https://tdb.test:8000/' },
+    const { payments, client } = openGateway(
+      'tdb',
+      { username: 'u', password: 'p', apiUrl: 'https://tdb.test:8000/' },
       { fetch: gateway.fetch },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/order')).toMatchObject({
       order: { amount: 1500, hppRedirectUrl: invoice.returnUrl },
@@ -215,7 +246,13 @@ describe('Mongolian gateway drivers', () => {
       state: { tdbPassword: 'pw' },
       payment: { shortUrl: 'https://hpp.tdb.mn/flex?id=31&password=pw' },
     });
-    expect(await driver.check('31', 150_000, created.state ?? {})).toMatchObject({ paid: true });
+    expect(
+      await payments.check(client, {
+        gatewayInvoiceId: '31',
+        amount: 150_000,
+        state: created.state ?? {},
+      }),
+    ).toMatchObject({ paid: true });
     expect(gateway.calls.at(-1)?.url).toBe('https://tdb.test:8000/order/31?password=pw');
   });
 
@@ -233,12 +270,13 @@ describe('Mongolian gateway drivers', () => {
       ['/payment/cancel', [{ description: 'SUCCESS', correction_paymentId: 'corr-1' }]],
     ]);
 
-    const driver = createGateway(
-      { kind: 'hipay', entityId: 'e1', clientSecret: 'hs', apiUrl: 'https://hipay.test/v2' },
+    const { payments, client } = openGateway(
+      'hipay',
+      { entityId: 'e1', clientSecret: 'hs', apiUrl: 'https://hipay.test/v2' },
       { fetch: gateway.fetch },
     );
 
-    const created = await driver.createInvoice(invoice);
+    const created = await payments.createInvoice(client, invoice);
 
     expect(gateway.sent('/checkout')).toMatchObject({
       entityId: 'e1',
@@ -248,15 +286,24 @@ describe('Mongolian gateway drivers', () => {
     });
     expect(gateway.calls[0]?.auth).toBe('Bearer hs');
     expect(created).toMatchObject({ gatewayInvoiceId: 'HPS1', payment: { qrText: 'HIPAYQR' } });
-    expect(await driver.check('HPS1', 150_000, {})).toEqual({
+    expect(
+      await payments.check(client, { gatewayInvoiceId: 'HPS1', amount: 150_000, state: {} }),
+    ).toEqual({
       paid: true,
       paidAmount: 150_000,
       paymentId: 'pay-1',
     });
-    expect(await driver.refund({ paymentId: 'pay-1', amount: 150_000, note: '' }, {})).toEqual({
+    expect(
+      await payments.refund(client, {
+        paymentId: 'pay-1',
+        amount: 150_000,
+        note: '',
+        state: {},
+      }),
+    ).toEqual({
       refundId: 'corr-1',
     });
-    await driver.cancel('HPS1', 150_000, {});
+    await payments.cancel(client, { gatewayInvoiceId: 'HPS1', amount: 150_000, state: {} });
     expect(gateway.sent('/checkout/cancel')).toEqual({ checkoutId: 'HPS1' });
   });
 });

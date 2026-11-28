@@ -42,6 +42,7 @@ export const ERRORS = {
   // `id` is that record when known), a stale list cursor.
   INVALID_INPUT: { status: 400, data: InvalidInput },
   INVALID_JSON: { status: 400 },
+  REQUEST_TOO_LARGE: { status: 413, data: z.object({ maxSizeMb: z.number() }) },
   NOT_FOUND: { status: 404 },
   TAKEN: {
     status: 409,
@@ -91,8 +92,23 @@ export const ERRORS = {
   INVALID_TOKEN: { status: 401 },
   TOO_MANY_CODES: { status: 429 },
   ORIGIN_NOT_ALLOWED: { status: 403 },
-  UNKNOWN_APP: { status: 400 },
+  UNKNOWN_PORTAL: { status: 400 },
+  /**
+   * The portal doesn't sign in this way, or codes can't reach this kind of address here; for
+   * members, the plugin named isn't a sign-in provider of the organisation.
+   */
+  SIGN_IN_UNAVAILABLE: { status: 400 },
   LAST_LOGIN: { status: 409 },
+  /** The customer hasn't texted the code yet (verify.mn): ask again in a moment. */
+  CODE_PENDING: { status: 409 },
+  /** A phone proven by texting a code has no account on the portal: sign up. */
+  NO_ACCOUNT: { status: 404 },
+  /** Google, Apple or Facebook didn't vouch for the token, or it is for another app. */
+  INVALID_SOCIAL_TOKEN: { status: 401 },
+  /** A portal's connection that isn't one of the organisation's for that integration. */
+  UNKNOWN_CONNECTION: { status: 400 },
+  /** A visitor's message can't reach the organisation: email isn't set up, or no address takes it. */
+  CONTACT_UNAVAILABLE: { status: 503 },
 
   // Timeline, notifications, events.
   NOT_AUTHOR: { status: 403 },
@@ -111,6 +127,9 @@ export const ERRORS = {
   NOT_ACTIVE: { status: 409 },
   NOT_FAILED: { status: 409 },
   NOT_RUNNING: { status: 409 },
+  // An integration's step with no active connection of that integration to run on.
+  NOT_CONNECTED: { status: 409 },
+  SUBJECT_NOT_FOUND: { status: 422 },
 
   // Contacts, leads, tags, custom fields.
   NOT_A_LEAD: { status: 400 },
@@ -121,7 +140,8 @@ export const ERRORS = {
   TAG_LIMIT: { status: 409 },
   /** A member keeps at most FAVORITES_MAX favorites. */
   FAVORITE_LIMIT: { status: 409 },
-  // Branches and departments: at most LIST_MAX per organisation, read whole.
+  /** An app's request on the consent page: expired, altered, or another member's. */
+  APP_REQUEST_INVALID: { status: 400 }, // Branches and departments: at most LIST_MAX per organisation, read whole.
   UNIT_LIMIT: { status: 409 },
   /** Units still have the type: move them to another first. */
   UNIT_TYPE_IN_USE: { status: 409, data: z.object({ count: z.int() }) },
@@ -166,10 +186,10 @@ export const ERRORS = {
 
   // Payments.
   CURRENCY_NOT_SUPPORTED: { status: 400, data: z.object({ currency: z.string() }) },
-  DEFAULT_NOT_ALLOWED: { status: 400 },
-  GATEWAY_NOT_ALLOWED: { status: 403 },
   GATEWAY_REFUSED: { status: 400 },
   GATEWAY_IN_USE: { status: 409 },
+  CONNECTION_IN_USE: { status: 409, data: z.object({ automations: z.array(z.string()) }) },
+  APP_IN_USE: { status: 409 },
   KIND_CHANGED: { status: 400 },
   NO_GATEWAY: { status: 400 },
   NOT_PENDING: { status: 409 },
@@ -191,11 +211,21 @@ export const ERRORS = {
   REPEAT_STATE: { status: 409, data: z.object({ state: z.string() }) },
   // Production with no way to send email: it would only be written to the server's log.
   EMAIL_NOT_CONFIGURED: { status: 409 },
+  // Production with no SMS connection (CallPro, Twilio in Settings › Integrations).
+  SMS_NOT_CONFIGURED: { status: 409 },
 
   // eBarimt: not set up (Settings › Integrations), an unknown company number, the tax office down,
   // a receipt that can't print (not issued, or a return).
   EBARIMT_NOT_SET_UP: { status: 409 },
+  // An eBarimt config that sent receipts: turn it off instead, so they can still be returned.
+  EBARIMT_CONFIG_IN_USE: { status: 409 },
+  // An invoice names an eBarimt config that is turned off, so its receipt could not be sent.
+  EBARIMT_CONFIG_OFF: { status: 400 },
   RECEIPT_NOT_PRINTABLE: { status: 409 },
+  // A plugin records only the receipts it sends itself (manifest `taxReceipts: 'own'`).
+  TAX_RECEIPTS_NOT_OWN: { status: 403 },
+  // A recorded return or replacement names a receipt that isn't an issued one still in force.
+  RECEIPT_NOT_IN_FORCE: { status: 409 },
   COMPANY_NOT_FOUND: { status: 404 },
   TAX_OFFICE_UNAVAILABLE: { status: 503 },
 
@@ -217,6 +247,8 @@ export const ERRORS = {
   READ_NOT_APPROVED: { status: 403 },
   INVALID_SUBDOMAIN: { status: 400 },
   UNKNOWN_PERMISSION: { status: 400, data: Permissions },
+  // A manifest's action names an integration the manifest's `integrations` don't declare.
+  UNKNOWN_INTEGRATION: { status: 400 },
   DUPLICATE_PERMISSION_SET: { status: 400 },
   OWNER_ONLY_PERMISSION: { status: 400, data: Permissions },
   BEYOND_OWN_PERMISSIONS: { status: 403, data: Permissions.optional() },
@@ -247,6 +279,8 @@ export const ERRORS = {
   ASSISTANT_NO_CONNECTION: { status: 400 },
   ASSISTANT_KEY_UNREADABLE: { status: 400 },
   ASSISTANT_BUSY: { status: 409 },
+  // An agent's run ended without an answer: the AI provider refused it, or it ran out of turns.
+  AGENT_RUN_FAILED: { status: 502 },
 
   // Import and export.
   UNSUPPORTED_FILE: { status: 400 },
@@ -255,6 +289,10 @@ export const ERRORS = {
   INVALID_OPTIONS: { status: 400 },
   IMPORT_LOCKED: { status: 409 },
   NOT_UNDOABLE: { status: 409 },
+  NOT_SUPPORTED: { status: 400 },
+  BANK_REFUSED: { status: 502 },
+  BANK_IN_USE: { status: 409 },
+  TRANSFER_REPEATED: { status: 409 },
 } satisfies ErrorMap;
 
 export type ErrorCode = keyof typeof ERRORS;

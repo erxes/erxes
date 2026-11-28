@@ -16,6 +16,7 @@ const Reference = z.object({
     securitySchemes: z.record(z.string(), z.unknown()),
     schemas: z.record(z.string(), z.unknown()),
   }),
+  security: z.array(z.record(z.string(), z.array(z.string()))),
 });
 
 /** `GET /customers`-style names of every operation in a document. */
@@ -44,7 +45,7 @@ describe('API references (/core/v1/openapi/<audience>.json)', () => {
     expect(listed).toEqual(
       expect.arrayContaining(['GET /customers', 'POST /auth/sign-in', 'GET /users']),
     );
-    expect(listed.filter((name) => /\/customer(-auth)?\//.test(name))).toEqual([]);
+    expect(listed.filter((name) => / \/portal(-auth)?\//.test(name))).toEqual([]);
     expect(listed).not.toContain('POST /plugins/token');
     expect(listed).not.toContain('POST /activities');
     expect(doc.paths['/customers']?.get?.tags).toEqual(['Customers']);
@@ -52,15 +53,24 @@ describe('API references (/core/v1/openapi/<audience>.json)', () => {
     expect(Object.keys(doc.components.securitySchemes)).toEqual(['memberToken']);
   });
 
-  it('lists what customers can call: sign-in and their own account', async () => {
-    const doc = await reference('customer');
+  it("lists what a portal's apps call: its token, sign-in and the customer's own account", async () => {
+    const doc = await reference('portal');
     const listed = operations(doc);
 
     expect(listed).toEqual(
-      expect.arrayContaining(['POST /customer-auth/code', 'GET /customer/me']),
+      expect.arrayContaining([
+        'POST /portal-auth/token',
+        'POST /portal/auth/code',
+        'POST /portal/contact',
+        'GET /portal/me',
+      ]),
     );
-    expect(listed.every((name) => /^\w+ \/customer(-auth)?\//.test(name))).toBe(true);
-    expect(doc.paths['/customer/me']?.get?.tags).toEqual(['Customer account']);
+    expect(doc.paths['/portal/contact']?.post?.security).toEqual([{ portalToken: [] }]);
+    expect(listed.every((name) => /^\w+ \/portal(-auth)?\//.test(name))).toBe(true);
+    expect(doc.paths['/portal/me']?.get?.tags).toEqual(['Customer account']);
+    expect(doc.paths['/portal/auth/code']?.post?.security).toEqual([{ portalToken: [] }]);
+    expect(doc.paths['/portal-auth/token']?.post?.security).toEqual([]);
+    expect(doc.security).toEqual([{ portalToken: [], customerToken: [] }]);
     expect(Object.keys(doc.components.schemas)).not.toContain('Invoice');
   });
 

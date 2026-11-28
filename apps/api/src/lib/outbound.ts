@@ -82,7 +82,7 @@ const safeLookup: LookupFunction = (hostname, options, callback) => {
 
 export interface OutboundResponse {
   status: number;
-  /** The first 2 KB of the body. */
+  /** The first 2 KB of the body, or all of it up to the `maxBytes` asked for. */
   body: string;
   ms: number;
 }
@@ -170,18 +170,27 @@ export const requestOutbound = async (raw: string, request: OutboundRequest) => 
   });
 };
 
-/** POSTs `body` and reads the first 2 KB of the answer, as `requestOutbound`. */
+/**
+ * POSTs `body` and reads the first 2 KB of the answer, as `requestOutbound`; with `maxBytes`,
+ * the whole answer up to that size, and an answer over it rejects.
+ */
 export const postOutbound = async (
   raw: string,
   body: string,
   headers: Record<string, string>,
-  timeoutMs = 10_000,
+  { timeoutMs = 10_000, maxBytes }: { timeoutMs?: number; maxBytes?: number } = {},
 ): Promise<OutboundResponse> => {
-  const answer = await requestOutbound(raw, { method: 'POST', body, headers, timeoutMs });
+  const answer = await requestOutbound(raw, {
+    method: 'POST',
+    body,
+    headers,
+    timeoutMs,
+    ...(maxBytes ? { maxBytes, overflow: 'fail' as const } : {}),
+  });
 
   return {
     status: answer.status,
-    body: answer.body.toString('utf8').slice(0, 2048),
+    body: answer.body.toString('utf8').slice(0, maxBytes ? undefined : 2048),
     ms: answer.ms,
   };
 };

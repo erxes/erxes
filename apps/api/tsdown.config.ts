@@ -14,7 +14,7 @@ export default defineConfig({
     grant: 'scripts/grant.ts',
     'plugin-role': 'scripts/plugin-role.ts',
     'documentText.worker': 'src/modules/assistant/documentText.worker.ts',
-    'codeMode.worker': 'src/modules/assistant/codeMode.worker.ts',
+    'codeMode.worker': 'src/modules/apiTools/codeMode.worker.ts',
   },
   platform: 'node',
   target: 'node26',

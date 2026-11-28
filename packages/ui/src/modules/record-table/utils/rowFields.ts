@@ -20,3 +20,7 @@ export const readRow = (original: unknown) => {
 
   return { id: legacyId ?? id, cursor, order };
 };
+
+/** A row's `field`, whatever it holds; undefined when the row isn't a record. */
+export const readRowField = (original: unknown, field: string) =>
+  Row.safeParse(original).data?.[field];

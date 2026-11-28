@@ -58,6 +58,7 @@ const nameTaken =
  * `search` are what the list's filter bar holds (erxes-ui's `useListFilterParams()`).
  */
 const list = reads(PERMISSIONS.view)
+  .route({ summary: 'List items, newest first, filtered and searched by name' })
   .input(
     z.object({
       search: z.string().trim().max(200).optional(),
@@ -95,6 +96,7 @@ const list = reads(PERMISSIONS.view)
 
 /** One item, for its panel in core's side panel and its own page. */
 const get = reads(PERMISSIONS.view)
+  .route({ summary: 'Get one item' })
   .input(z.object({ id: z.string() }))
   .output(Item)
   .handler(async ({ input, context: { tx } }) => {
@@ -106,6 +108,7 @@ const get = reads(PERMISSIONS.view)
   });
 
 const create = writes(PERMISSIONS.manage)
+  .route({ summary: 'Create an item' })
   .errors(itemErrors)
   .input(z.object({ name: Name, description: Description.default('') }))
   .output(Item)
@@ -122,6 +125,7 @@ const create = writes(PERMISSIONS.manage)
   });
 
 const update = writes(PERMISSIONS.manage)
+  .route({ summary: 'Rename an item or change its description' })
   .errors(itemErrors)
   .input(z.object({ id: z.string(), name: Name, description: Description.optional() }))
   .output(Item)
@@ -139,6 +143,7 @@ const update = writes(PERMISSIONS.manage)
   });
 
 const remove = writes(PERMISSIONS.manage)
+  .route({ summary: 'Delete an item' })
   .input(z.object({ id: z.string() }))
   .output(z.object({ id: z.string() }))
   .handler(async ({ input, context: { tx } }) => {

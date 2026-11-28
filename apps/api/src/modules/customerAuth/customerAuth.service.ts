@@ -1,187 +1,155 @@
-import type { CustomerProfile, CustomerTokens } from '@erxes/core-contract';
+import type { CustomerTokens } from '@erxes/core-contract';
 import {
-  caller,
+  customerAccounts,
+  type CustomerLoginKind,
   customerLogins,
-  customers,
-  customerSessions,
   type Db,
   newId,
-  organizations,
-  requestOrgId,
   runAs,
   system,
   withOrg,
 } from '@erxes/core-db';
-import { and, asc, count, desc, eq, getTableColumns, gt, isNull, sql } from 'drizzle-orm';
-import { fail, notFound } from '~/http/errors';
+import { and, eq, sql } from 'drizzle-orm';
+import { fail } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
-import { wholeList } from '~/lib/keyset';
-import { lockKeys } from '~/lib/locks';
-import { contactUpdated } from '~/modules/activities/contactHistory';
-import { findCustomer } from '~/modules/customers/customerRows';
-import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { type AppRequest, appServes, customerAppFor } from './customerApps';
-import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
+import { issueCode, proveCode } from './customerCodeReplies';
+import { type Address, addressOf, invalidCode, type PhoneMethod } from './customerCodes';
+import { profileOf } from './customerFields';
+import { findLogin } from './customerLogins';
 import { createSession, revokeSessionToken, rotateSession, sessionOf } from './customerSessions';
+import type { LivePortal } from './customerPortals';
 
-/** Which app signs in, and to which organisation (a subdomain, for apps without one in core's address). */
-interface AppInput {
-  clientId: string;
-  organization?: string;
+/** A call to core's portal API: the portal its `X-Portal-Token` names (`portalOfCall`). */
+export interface SignInRequest {
+  portal: LivePortal;
 }
 
-/** One sign-up per address at a time (advisory locks span organisations). */
-const lockLogin = (tx: Db, address: Address) =>
-  lockKeys(tx, [`customer-login:${requestOrgId()}:${address.kind}:${address.value}`]);
-
-const findLogin = (tx: Db, address: Address) =>
-  tx
-    .select()
-    .from(customerLogins)
-    .where(and(eq(customerLogins.kind, address.kind), eq(customerLogins.value, address.value)))
-    .limit(1)
-    .then(([row]) => row);
-
-const loginTaken = () =>
-  fail('TAKEN', 'Someone already signs in with this address', { field: 'value' });
-
-/** Adds a proven address as a login, and to the customer's emails or phones. */
-const addLogin = async (tx: Db, customerId: string, address: Address) => {
-  const [row] = await tx
-    .insert(customerLogins)
-    .values({ id: newId(), customerId, kind: address.kind, value: address.value })
-    .returning();
-
-  if (!row) throw new Error('the login was not saved');
-
-  const list = address.kind === 'email' ? customers.emails : customers.phones;
-  const primary = address.kind === 'email' ? customers.primaryEmail : customers.primaryPhone;
-
-  await tx
-    .update(customers)
-    .set(
-      address.kind === 'email'
-        ? {
-            emails: sql`case when ${address.value} = any(${list}) then ${list} else array_append(${list}, ${address.value}) end`,
-            primaryEmail: sql`coalesce(${primary}, ${address.value})`,
-          }
-        : {
-            phones: sql`case when ${address.value} = any(${list}) then ${list} else array_append(${list}, ${address.value}) end`,
-            primaryPhone: sql`coalesce(${primary}, ${address.value})`,
-          },
+/** The customer's account on the portal, made the first time. */
+export const accountOf = async (tx: Db, portalId: string, customerId: string) => {
+  const [found] = await tx
+    .select({ id: customerAccounts.id })
+    .from(customerAccounts)
+    .where(
+      and(eq(customerAccounts.portalId, portalId), eq(customerAccounts.customerId, customerId)),
     )
-    .where(eq(customers.id, customerId));
+    .limit(1);
 
-  return row;
+  if (found) return { ...found, signedUp: false };
+
+  const [made] = await tx
+    .insert(customerAccounts)
+    .values({ id: newId(), portalId, customerId })
+    .returning({ id: customerAccounts.id });
+
+  if (!made) throw new Error('the account was not saved');
+
+  return { ...made, signedUp: true };
 };
 
 /**
- * The customer who signs in with this proven address: its login's, else the
- * customer who already has the address (it becomes their login), else a new one.
+ * A new session for the account that proved itself (by `kind`: an address's code, Google, …),
+ * with its tokens; `signedUp` publishes `core.customer.signed_up` too. Runs as core: nobody is
+ * signed in yet.
  */
-const customerForLogin = async (tx: Db, address: Address) => {
-  await lockLogin(tx, address);
-
-  const login = await findLogin(tx, address);
-
-  if (login) {
-    await tx
-      .update(customerLogins)
-      .set({ lastUsedAt: sql`now()` })
-      .where(eq(customerLogins.id, login.id));
-
-    return { customerId: login.customerId, created: false, signedUp: false };
-  }
-
-  const { customer, created } = await findOrCreateCustomer(tx, {
-    ...(address.kind === 'email'
-      ? { primaryEmail: address.value }
-      : { primaryPhone: address.value }),
-    source: 'sign_in',
-  });
-
-  const [existing] = await tx
-    .select({ logins: count() })
-    .from(customerLogins)
-    .where(eq(customerLogins.customerId, customer.id));
-
-  const saved = await addLogin(tx, customer.id, address);
+export const openSession = async (
+  tx: Db,
+  portal: Pick<LivePortal, 'id' | 'orgId'>,
+  kind: CustomerLoginKind,
+  account: { accountId: string; customerId: string; signedUp: boolean; created: boolean },
+) => {
+  const { accountId, customerId } = account;
 
   await tx
-    .update(customerLogins)
-    .set({ lastUsedAt: sql`now()` })
-    .where(eq(customerLogins.id, saved.id));
+    .update(customerAccounts)
+    .set({ lastSignedInAt: sql`now()` })
+    .where(eq(customerAccounts.id, accountId));
 
-  return { customerId: customer.id, created, signedUp: !existing?.logins };
+  const { ip, userAgent } = requestInfo();
+
+  const tokens = await createSession(tx, {
+    orgId: portal.orgId,
+    customerId,
+    accountId,
+    portalId: portal.id,
+    userAgent,
+    ip,
+  });
+
+  const subject = { subjectType: 'customer' as const, subjectId: customerId };
+  const payload = { kind, portalId: portal.id };
+
+  await publishCoreEvents(tx, [
+    ...(account.signedUp ? [{ type: 'core.customer.signed_up', ...subject, payload }] : []),
+    { type: 'core.customer.signed_in', ...subject, payload },
+  ]);
+
+  return { ...tokens, customer: await profileOf(tx, customerId), created: account.created };
 };
 
-/** Sends a sign-in code; the answer is the same whether or not the address has an account. */
-export const sendSignInCode = async (input: Address & AppInput, request: AppRequest) => {
-  const { organization } = await customerAppFor(input, request);
+/**
+ * Sends a sign-in code for an account on the portal. An address with no account gets none,
+ * with the same answer, so nobody learns who has one: the portal offers sign-up instead.
+ */
+export const sendSignInCode = async (
+  input: Address & { method?: PhoneMethod },
+  request: SignInRequest,
+) => {
+  const { portal } = request;
+  const address = addressOf(input);
+  const { ip } = requestInfo();
 
-  return withOrg(organization.id, (tx) =>
-    sendCode(tx, organization, addressOf(input), 'sign_in', { ip: requestInfo().ip }),
+  return issueCode(
+    portal,
+    address,
+    'sign_in',
+    async (tx) => ({ ip, deliver: Boolean(await findLogin(tx, portal.id, address)) }),
+    input.method,
   );
 };
 
-/** Signs in (or up) with a code: a new session in the app, and its tokens. */
-export const signInWithCode = async (
-  input: Address & AppInput & { code: string },
-  request: AppRequest,
-) => {
-  const { clientId, organization } = await customerAppFor(input, request);
+const noAccount = () =>
+  fail('NO_ACCOUNT', 'This phone has no account on the portal: sign up with it');
+
+/** Signs in to the portal's account with a code: a new session, and its tokens. */
+export const signInWithCode = async (input: Address & { code: string }, request: SignInRequest) => {
+  const { portal } = request;
   const address = addressOf(input);
+  const used = await proveCode(portal, address, 'sign_in', input.code);
 
-  // Its own transaction: a wrong try counts even though this call fails.
-  const valid = await withOrg(organization.id, (tx) => useCode(tx, address, 'sign_in', input.code));
-
-  if (!valid) throw invalidCode();
-
-  // Core signs the customer in (or up) on its own: nobody is signed in yet.
-  return withOrg(organization.id, (tx) =>
+  return withOrg(portal.orgId, (tx) =>
     runAs(system('customer sign-in'), async () => {
-      const { customerId, created, signedUp } = await customerForLogin(tx, address);
+      const login = await findLogin(tx, portal.id, address);
 
-      const { ip, userAgent } = requestInfo();
+      // A texted code proved the phone, which has no account; or the login went after the code
+      // was sent (removed, or merged away).
+      if (!login) throw used.replySessionId ? noAccount() : invalidCode();
 
-      const tokens = await createSession(tx, {
-        orgId: organization.id,
-        customerId,
-        clientId,
-        userAgent,
-        ip,
+      await tx
+        .update(customerLogins)
+        .set({ lastUsedAt: sql`now()` })
+        .where(eq(customerLogins.id, login.id));
+
+      return openSession(tx, portal, address.kind, {
+        accountId: login.accountId,
+        customerId: login.customerId,
+        signedUp: false,
+        created: false,
       });
-
-      const subject = { subjectType: 'customer' as const, subjectId: customerId };
-      const payload = { kind: address.kind, app: clientId };
-
-      await publishCoreEvents(tx, [
-        ...(signedUp ? [{ type: 'core.customer.signed_up', ...subject, payload }] : []),
-        { type: 'core.customer.signed_in', ...subject, payload },
-      ]);
-
-      return { ...tokens, customer: await findCustomer(tx, customerId), created };
     }),
   );
 };
 
 const invalidToken = () => fail('INVALID_TOKEN', 'The refresh token is not valid: sign in again');
 
-/** New tokens for the app's refresh token, while the app still serves the organisation. */
+/** New tokens for the portal's refresh token, while the portal still signs customers in. */
 export const refreshTokens = async (
-  input: { clientId: string; refreshToken: string },
-  request: AppRequest,
+  input: { refreshToken: string },
+  request: SignInRequest,
 ): Promise<CustomerTokens> => {
   const found = await sessionOf(input.refreshToken);
 
-  if (
-    !found ||
-    found.row.clientId !== input.clientId ||
-    !(await appServes(found.row.clientId, found.row.orgId, request.origin))
-  ) {
-    throw invalidToken();
-  }
+  if (found?.row.portalId !== request.portal.id) throw invalidToken();
 
   const tokens = await rotateSession(found);
 
@@ -195,147 +163,3 @@ export const signOut = async (refreshToken: string) => {
 
   return { ok: true as const };
 };
-
-// The signed-in customer (`caller('customer')`), in their organisation's scope.
-
-export const myProfile = () =>
-  withOrg(requestOrgId(), (tx) => findCustomer(tx, caller('customer').customerId));
-
-export const updateMyProfile = (
-  changes: Partial<Pick<CustomerProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'birthDate'>>,
-) =>
-  withOrg(requestOrgId(), async (tx) => {
-    const { customerId } = caller('customer');
-    const before = await findCustomer(tx, customerId);
-
-    await tx
-      .update(customers)
-      .set({ ...changes, updatedAt: sql`now()` })
-      .where(eq(customers.id, customerId));
-
-    const after = await findCustomer(tx, customerId);
-
-    await contactUpdated(tx, 'customer', before, after);
-
-    return after;
-  });
-
-export const myLogins = () =>
-  withOrg(requestOrgId(), async (tx) => ({
-    data: await wholeList((limit) =>
-      tx
-        .select()
-        .from(customerLogins)
-        .where(eq(customerLogins.customerId, caller('customer').customerId))
-        .orderBy(asc(customerLogins.createdAt))
-        .limit(limit),
-    ),
-  }));
-
-/** Sends a code to a new address; refused when it already signs someone in. */
-export const sendAddLoginCode = (input: Address) =>
-  withOrg(requestOrgId(), async (tx) => {
-    const address = addressOf(input);
-
-    const [organization] = await tx
-      .select({ id: organizations.id, name: organizations.name })
-      .from(organizations)
-      .limit(1);
-
-    if (!organization) throw notFound('Organisation');
-
-    if (await findLogin(tx, address)) throw loginTaken();
-
-    return sendCode(tx, organization, address, 'add_login', {
-      customerId: caller('customer').customerId,
-      ip: requestInfo().ip,
-    });
-  });
-
-export const confirmAddLogin = async (input: Address & { code: string }) => {
-  const { customerId } = caller('customer');
-  const address = addressOf(input);
-
-  const valid = await withOrg(requestOrgId(), (tx) =>
-    useCode(tx, address, 'add_login', input.code, customerId),
-  );
-
-  if (!valid) throw invalidCode();
-
-  return withOrg(requestOrgId(), async (tx) => {
-    await lockLogin(tx, address);
-
-    if (await findLogin(tx, address)) throw loginTaken();
-
-    return addLogin(tx, customerId, address);
-  });
-};
-
-export const removeMyLogin = (id: string) =>
-  withOrg(requestOrgId(), async (tx) => {
-    const { customerId } = caller('customer');
-
-    // One removal at a time per customer: two at once can't remove the last two.
-    await lockKeys(tx, [`customer-logins:${requestOrgId()}:${customerId}`]);
-
-    const mine = await tx
-      .select({ id: customerLogins.id })
-      .from(customerLogins)
-      .where(eq(customerLogins.customerId, customerId));
-
-    if (!mine.some((login) => login.id === id)) throw notFound('Login');
-
-    if (mine.length === 1) {
-      throw fail('LAST_LOGIN', 'Add another address before removing your last one');
-    }
-
-    await tx.delete(customerLogins).where(eq(customerLogins.id, id));
-
-    return { ok: true as const };
-  });
-
-/** The signed-in customer's live sessions. */
-const activeSessions = () =>
-  and(
-    eq(customerSessions.customerId, caller('customer').customerId),
-    isNull(customerSessions.revokedAt),
-    gt(customerSessions.expiresAt, sql`now()`),
-  );
-
-export const mySessions = () =>
-  withOrg(requestOrgId(), async (tx) => ({
-    data: await wholeList((limit) =>
-      tx
-        .select({
-          ...getTableColumns(customerSessions),
-          current: sql<boolean>`${customerSessions.id} = ${caller('customer').sessionId}`,
-        })
-        .from(customerSessions)
-        .where(activeSessions())
-        .orderBy(desc(customerSessions.lastUsedAt))
-        .limit(limit),
-    ),
-  }));
-
-export const revokeMySession = (id: string) =>
-  withOrg(requestOrgId(), async (tx) => {
-    const [revoked] = await tx
-      .update(customerSessions)
-      .set({ revokedAt: sql`now()` })
-      .where(and(activeSessions(), eq(customerSessions.id, id)))
-      .returning({ id: customerSessions.id });
-
-    if (!revoked) throw notFound('Session');
-
-    return { ok: true as const };
-  });
-
-export const signOutEverywhere = () =>
-  withOrg(requestOrgId(), async (tx) => {
-    await tx
-      .update(customerSessions)
-      .set({ revokedAt: sql`now()` })
-      .where(activeSessions());
-
-    return { ok: true as const };
-  });

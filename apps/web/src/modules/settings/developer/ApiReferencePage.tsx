@@ -1,18 +1,22 @@
 import { type PluginApiAudience } from '@erxes/core-contract';
 import { messageOf } from '@erxes/core-contract/client';
 import { IconSourceCode } from '@tabler/icons-react';
-import { PageContainer, PageHeader } from 'erxes-ui';
+import { PageContainer, PageHeader, AppBreadcrumb } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { type ApiGroup, ApiReferencePicker } from './ApiReferencePicker';
-import { type ApiAudience, ApiReferenceView, type ReferenceSource } from './ApiReferenceView';
+import {
+  API_AUDIENCES,
+  type ApiAudience,
+  ApiReferenceView,
+  type ReferenceSource,
+} from './ApiReferenceView';
 import { usePluginReferences } from './pluginReferences';
 
 const isAudience = (value: string): value is ApiAudience =>
-  value === 'member' || value === 'customer';
+  API_AUDIENCES.some((audience) => audience === value);
 
 /** The names of the APIs, by who calls them. */
 const useAudienceLabels = (): Record<PluginApiAudience, string> => {
@@ -22,14 +26,14 @@ const useAudienceLabels = (): Record<PluginApiAudience, string> => {
     member: t('member', 'Team member API'),
     customer: t('customer', 'Customer API'),
     employee: t('employee', 'Employee API'),
-    website: t('website', 'Website API'),
+    portal: t('portal', 'Portal API'),
   };
 };
 
 /**
  * Settings › API reference: every endpoint a team member or a customer can call, from
  * core's OpenAPI documents, and each installed plugin's own (for its members, customers or
- * websites), with a client to try them. The address names the one shown:
+ * portals), with a client to try them. The address names the one shown:
  * `/settings/api-reference/<member|customer>` or `/settings/api-reference/<plugin>/<audience>`.
  */
 export const ApiReferencePage = () => {
@@ -54,7 +58,7 @@ export const ApiReferencePage = () => {
   const groups: ApiGroup[] = [
     {
       heading: t('core', 'Core'),
-      choices: (['member', 'customer'] as const).map((value) => ({
+      choices: API_AUDIENCES.map((value) => ({
         key: value,
         label: labels[value],
         title: labels[value],

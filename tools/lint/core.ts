@@ -174,9 +174,74 @@ const noStringLinkRule = defineRule({
   },
 });
 
+const SUMMARY_MAX = 48;
+
+/** A status, an error code, a code span, or a second clause: what belongs in `description`. */
+const DETAIL = /\b\d{3}\b|\b[A-Z]+_[A-Z_]+\b|`|[.;:(]/;
+
+const propertyNamed = (node: ESTree.ObjectExpression, name: string) => {
+  const found = node.properties.find(
+    (property) => property.type === 'Property' && keyName(property.key) === name,
+  );
+
+  return found?.type === 'Property' ? found : undefined;
+};
+
+/**
+ * A procedure's `summary` is its title in API key pickers, the assistant's API search and the
+ * OpenAPI document; its rules and error codes go in `description`, which agents read on the MCP
+ * server before they call it.
+ */
+const routeDocsRule = defineRule({
+  meta: {
+    type: 'problem',
+    docs: { description: 'Require a short summary and a description on every contract route.' },
+    messages: {
+      summary: `Give the route a summary: a title of at most ${SUMMARY_MAX} characters that starts with a verb ('Add a product'). Rules, statuses and error codes go in description.`,
+      description:
+        "Give the route a description: what it does and returns, its rules, and when its own error codes answer ('409 TAKEN when the name is taken'). Agents read it before they call.",
+    },
+  },
+  createOnce(context) {
+    return {
+      CallExpression(node) {
+        const { callee } = node;
+        const [options] = node.arguments;
+
+        if (
+          callee.type !== 'MemberExpression' ||
+          keyName(callee.property) !== 'route' ||
+          options?.type !== 'ObjectExpression' ||
+          !propertyNamed(options, 'path')
+        ) {
+          return;
+        }
+
+        const summary = propertyNamed(options, 'summary')?.value;
+        const description = propertyNamed(options, 'description')?.value;
+
+        const fits =
+          summary?.type === 'Literal' &&
+          typeof summary.value === 'string' &&
+          summary.value.length > 0 &&
+          summary.value.length <= SUMMARY_MAX &&
+          !DETAIL.test(summary.value);
+
+        if (!fits) context.report({ node: options, messageId: 'summary' });
+
+        // A template or a joined string counts: only a missing or empty one is reported.
+        const empty = !description || (description.type === 'Literal' && description.value === '');
+
+        if (empty) context.report({ node: options, messageId: 'description' });
+      },
+    };
+  },
+});
+
 const corePlugin = eslintCompatPlugin({
   meta: { name: 'core' },
   rules: {
+    'route-docs': routeDocsRule,
     'no-inline-enum': noInlineEnumRule,
     'no-service-permission': noServicePermissionRule,
     'no-string-link': noStringLinkRule,

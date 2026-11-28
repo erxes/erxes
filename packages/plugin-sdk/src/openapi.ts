@@ -2,11 +2,16 @@ import {
   CORE_API_PREFIX,
   CUSTOMER_TOKEN_SCHEME,
   EMPLOYEE_TOKEN_SCHEME,
+  PERMISSIONS_EXTENSION,
   PLUGIN_SESSION_SCHEME,
   type PluginApiAudience,
-  WEBSITE_KEY_SCHEME,
+  PORTAL_TOKEN_SCHEME,
+  READS_EXTENSION,
 } from '@erxes/core-contract';
-import { type OpenAPI, OpenAPIGenerator } from '@orpc/openapi';
+import { SmartCoercionPlugin } from '@orpc/json-schema';
+import { type OpenAPI, OpenAPIGenerator, oo } from '@orpc/openapi';
+import { OpenAPIHandler } from '@orpc/openapi/node';
+import type { Context } from '@orpc/server';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 
 /** What `OpenAPIGenerator` documents: a router or a contract. */
@@ -23,7 +28,7 @@ export interface PluginOpenApiOptions {
   /**
    * The address the document's paths start from, which "try it" calls: the manifest's
    * `api.url` (`${publicUrl}/api`) for routes under it, or the plugin's public URL for routes
-   * outside it (a website's `/public/v1`, customers' `/customer`).
+   * outside it (the portal API's `/portal/v1`).
    */
   server: string;
   /**
@@ -39,7 +44,7 @@ const BEARER = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } as const;
 
 const customerToken = {
   ...BEARER,
-  description: `A customer's access token from core: \`POST ${CORE_API_PREFIX}/customer-auth/sign-in\` returns it (core's Customer API documents the sign-in).`,
+  description: `A customer's access token from core: \`POST ${CORE_API_PREFIX}/portal/auth/sign-in\` returns it (core's Portal API documents the sign-in).`,
 };
 
 /** How each audience signs in, for the document's security schemes. */
@@ -80,25 +85,91 @@ const securityOf = (plugin: string, audience: PluginApiAudience): Security => {
     };
   }
 
-  // A website's server sends the key the plugin issued; a signed-in visitor adds their token.
+  // A portal's server sends its portal token; a signed-in visitor adds their token.
   return {
     components: {
       securitySchemes: {
-        [WEBSITE_KEY_SCHEME]: {
+        [PORTAL_TOKEN_SCHEME]: {
           type: 'apiKey',
           in: 'header',
-          name: 'x-api-key',
-          description: "The website's key, from the plugin's settings. Keep it on the server.",
+          name: 'x-portal-token',
+          description:
+            "A 15-minute token from core's `POST /core/v1/portal-auth/token` for one of the portal's keys (Settings › API keys › Portal keys): a secret key on the portal's server, or a publishable key in its web and mobile apps. A server may name the visitor it calls for in `X-Visitor-Ip`.",
         },
         [CUSTOMER_TOKEN_SCHEME]: customerToken,
       },
     },
     security: [
-      { [WEBSITE_KEY_SCHEME]: [] },
-      { [WEBSITE_KEY_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
+      { [PORTAL_TOKEN_SCHEME]: [] },
+      { [PORTAL_TOKEN_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] },
     ],
   };
 };
+
+/** A portal API's `/me` routes are the signed-in customer's own (their orders, their profile). */
+const isMine = (path: string) => path === '/me' || path.startsWith('/me/');
+
+type PathItem = NonNullable<OpenAPI.Document['paths']>[string];
+
+const METHODS = ['get', 'put', 'post', 'delete', 'patch'] as const;
+
+/** Every operation of a `/me` path needs the customer's token along with the portal's. */
+const signedIn = (item: PathItem): PathItem => {
+  if (!item) return item;
+
+  const copy = { ...item };
+
+  for (const method of METHODS) {
+    const operation = copy[method];
+
+    if (operation) {
+      copy[method] = {
+        ...operation,
+        security: [{ [PORTAL_TOKEN_SCHEME]: [], [CUSTOMER_TOKEN_SCHEME]: [] }],
+      };
+    }
+  }
+
+  return copy;
+};
+
+/**
+ * Marks the middleware that checks a route's permission, or in a contract the error map item it
+ * refuses with: each route it is on lists `actions` in its operation's `x-erxes-permissions`, any
+ * one of which lets a member call it. Core's assistant, agents and MCP clients don't offer the
+ * route to a caller who holds none of them. With `reads`, the route's POST changes nothing
+ * (`x-erxes-reads`), so they run it as a read, without asking a person first.
+ *
+ *   const inOrg = (action: string, change: boolean) =>
+ *     checksPermission(base.middleware(({ context: { member }, next }) => { ... }), [action], { reads: !change });
+ *   oc.errors({ FORBIDDEN: checksPermission({ status: 403 }, ['sales.deal.view']) })
+ */
+export const checksPermission = <Check extends object>(
+  check: Check,
+  actions: readonly string[],
+  { reads = false }: { reads?: boolean } = {},
+) =>
+  actions.length || reads
+    ? oo.spec(check, (operation) => ({
+        ...operation,
+        ...(actions.length ? { [PERMISSIONS_EXTENSION]: [...actions] } : {}),
+        ...(reads ? { [READS_EXTENSION]: true } : {}),
+      }))
+    : check;
+
+type RestHandlerArgs<T extends Context> = ConstructorParameters<typeof OpenAPIHandler<T>>;
+
+export const pluginRestHandler = <T extends Context>(
+  router: RestHandlerArgs<T>[0],
+  options: RestHandlerArgs<T>[1] = {},
+) =>
+  new OpenAPIHandler(router, {
+    ...options,
+    plugins: [
+      new SmartCoercionPlugin({ schemaConverters: [new ZodToJsonSchemaConverter()] }),
+      ...(options.plugins ?? []),
+    ],
+  });
 
 /**
  * One OpenAPI document of a plugin's REST routes, for Settings › Developer › API reference:
@@ -124,7 +195,10 @@ export const pluginOpenApi = async (
   });
 
   doc.paths = Object.fromEntries(
-    Object.entries(doc.paths ?? {}).map(([path, item]) => [`${prefix}${path}`, item]),
+    Object.entries(doc.paths ?? {}).map(([path, item]) => [
+      `${prefix}${path}`,
+      audience === 'portal' && isMine(path) ? signedIn(item) : item,
+    ]),
   );
 
   return doc;

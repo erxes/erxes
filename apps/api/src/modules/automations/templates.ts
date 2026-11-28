@@ -4,8 +4,48 @@ const WHOLE = /^\{\{\s*([^{}]+?)\s*\}\}$/;
 const PART = /\{\{\s*([^{}]+?)\s*\}\}/g;
 const ALLOWED_ROOTS = new Set(['event', 'subject', 'steps', 'run']);
 
-const lookup = (context: Record<string, unknown>, path: string) =>
+const ownValue = (context: Record<string, unknown>, path: string) =>
   ALLOWED_ROOTS.has(path.split('.')[0] ?? '') ? valueAt(context, path) : undefined;
+
+const REFERENCE = '->';
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+export const referenceOf = (path: string) => {
+  const [idPath = '', rest = ''] = path.split(REFERENCE);
+  const [type = '', ...field] = rest.trim().split('.');
+
+  return { idPath: idPath.trim(), type, field: field.join('.') };
+};
+
+export const referenceKey = (type: string, id: unknown) => `${type}:${String(id)}`;
+
+const lookup = (context: Record<string, unknown>, path: string) => {
+  if (!path.includes(REFERENCE)) return ownValue(context, path);
+
+  const { idPath, type, field } = referenceOf(path);
+
+  const record: unknown =
+    context.refs instanceof Map
+      ? context.refs.get(referenceKey(type, ownValue(context, idPath)))
+      : undefined;
+
+  return isRecord(record) ? valueAt(record, field) : undefined;
+};
+
+export const referencesIn = (value: unknown): string[] => {
+  if (typeof value === 'string')
+    return [...value.matchAll(PART)].flatMap((match) => {
+      const path = (match[1] ?? '').split('|')[0]?.trim() ?? '';
+
+      return path.includes(REFERENCE) ? [path] : [];
+    });
+
+  if (Array.isArray(value)) return value.flatMap(referencesIn);
+
+  return value && typeof value === 'object' ? Object.values(value).flatMap(referencesIn) : [];
+};
 
 /** `name: "arg"` or `name: 3` or `name`. */
 const parseFilter = (raw: string) => {

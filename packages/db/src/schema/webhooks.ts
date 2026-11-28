@@ -3,13 +3,14 @@ import { check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 /**
  * Outgoing webhooks: an organisation's endpoint that receives its events
  * (`core.customer.created`, `hr.leave.approved`, prefixes like `core.*`),
- * signed with the endpoint's secret (stored encrypted).
+ * signed with the endpoint's secret.
  */
 export const webhooks = pgTable(
   'webhooks',
@@ -20,8 +21,7 @@ export const webhooks = pgTable(
     description: text(),
     /** Event types, `<prefix>.*`, or `*` for everything. */
     eventTypes: text().array().notNull(),
-    /** AES-GCM sealed signing secret (`src/lib/secrets.ts`). */
-    secretSealed: text().notNull(),
+    secretId: text().notNull(),
     status: text({ enum: WEBHOOK_STATUSES }).default('active').notNull(),
     /** Why it was turned off (`by member`, or after failing for days). */
     disabledReason: text(),
@@ -39,6 +39,11 @@ export const webhooks = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_webhooks_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.secretId],
+      foreignColumns: [secrets.id],
+      name: 'core_webhooks_secret_id_fkey',
+    }),
   ],
 );
 

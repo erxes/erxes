@@ -1,9 +1,9 @@
 import { db } from '@erxes/core-db';
 import {
-  addGateway,
   listGateways,
-  removeGateway,
-  updateGateway,
+  listQuickQrDistricts,
+  paymentSettings,
+  savePaymentSettings,
 } from '~/modules/payments/gateways.service';
 import {
   cancelInvoice,
@@ -12,22 +12,14 @@ import {
   listInvoices,
   payTestInvoice,
 } from '~/modules/payments/invoices.service';
-import {
-  listPluginSettings,
-  updatePluginSettings,
-} from '~/modules/payments/pluginSettings.service';
 import { recordPayment } from '~/modules/payments/recorded.service';
 import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
 import { scoped, unscoped } from '~/orpc';
 
 export const paymentsRouter = {
   gateways: scoped.payments.gateways.handler(() => listGateways(db())),
-  addGateway: scoped.payments.addGateway.handler(({ input }) => addGateway(db(), input)),
-  updateGateway: scoped.payments.updateGateway.handler(({ input: { id, ...changes } }) =>
-    updateGateway(db(), id, changes),
-  ),
-  removeGateway: scoped.payments.removeGateway.handler(({ input }) =>
-    removeGateway(db(), input.id),
+  quickQrDistricts: scoped.payments.quickQrDistricts.handler(({ input }) =>
+    listQuickQrDistricts(input.city),
   ),
   createInvoice: unscoped.payments.createInvoice.handler(({ input }) => createInvoice(input)),
   recordPayment: scoped.payments.recordPayment.handler(({ input }) => recordPayment(db(), input)),
@@ -36,9 +28,9 @@ export const paymentsRouter = {
   invoices: scoped.payments.invoices.handler(({ input }) => listInvoices(db(), input)),
   refund: scoped.payments.refund.handler(({ input }) => refundInvoice(db(), input)),
   refunds: scoped.payments.refunds.handler(({ input }) => listRefunds(db(), input.id)),
-  pluginSettings: scoped.payments.pluginSettings.handler(() => listPluginSettings(db())),
-  updatePluginSettings: scoped.payments.updatePluginSettings.handler(({ input }) =>
-    updatePluginSettings(db(), input),
+  settings: scoped.payments.settings.handler(() => paymentSettings(db())),
+  saveSettings: scoped.payments.saveSettings.handler(({ input }) =>
+    savePaymentSettings(db(), input),
   ),
   payTestInvoice: unscoped.payments.payTestInvoice.handler(({ input }) => payTestInvoice(input.id)),
 };

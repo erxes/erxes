@@ -1,3 +1,4 @@
+import type { JobRetry } from '@erxes/core-contract';
 import {
   connectionSettings,
   type Db,
@@ -33,15 +34,8 @@ export const queue = () => {
 /** pg-boss's statements on the caller's transaction (enqueue, settle, retry in one commit). */
 export const inTransaction = (client: Db) => ({ db: fromDrizzle(client, sql) });
 
-/** Attempts in all; the first retry waits `delay` seconds, each next one twice as long (with jitter) up to `maxDelay`. */
-interface Retry {
-  attempts: number;
-  delay: number;
-  maxDelay: number;
-}
-
 /** 30 s, 1 min, 2 min … up to 6 hours: about four hours over 8 attempts. */
-const DEFAULT_RETRY: Retry = { attempts: 8, delay: 30, maxDelay: 6 * 3600 };
+const DEFAULT_RETRY: JobRetry = { attempts: 8, delay: 30, maxDelay: 6 * 3600 };
 
 /** A queue and what works it: what `startJobs` creates, schedules and runs. */
 export interface JobQueue {
@@ -82,7 +76,7 @@ type Handler<P> =
 type Definition<P> = Handler<P> & {
   queue: string;
   /** Default: 8 attempts, 30 s first, up to 6 hours apart. */
-  retry?: Partial<Retry>;
+  retry?: Partial<JobRetry>;
   /** Longest an attempt may run (seconds) before it counts as failed. Default 2 minutes. */
   timeoutSeconds?: number;
   concurrency?: number;
@@ -156,7 +150,10 @@ export const storedError = (output: unknown) =>
   StoredError.safeParse(output).data?.message ?? 'the attempt timed out or its worker stopped';
 
 /** A queue's pg-boss settings: retries with backoff (core's default unless given) and its timeout. */
-export const queueOptions = (definition: { retry?: Partial<Retry>; timeoutSeconds?: number }) => {
+export const queueOptions = (definition: {
+  retry?: Partial<JobRetry>;
+  timeoutSeconds?: number;
+}) => {
   const retry = { ...DEFAULT_RETRY, ...definition.retry };
 
   return {

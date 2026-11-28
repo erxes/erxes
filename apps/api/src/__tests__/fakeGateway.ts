@@ -1,4 +1,4 @@
-import type { CreateInvoiceInput } from '@erxes/payment-gateways';
+import { type CreateInvoiceInput, GatewayError } from '@erxes/plugin-sdk/integrations';
 
 /** The address a `fetch` call asks for. */
 export const urlOf = (input: string | URL | Request) =>
@@ -9,25 +9,44 @@ interface GatewayCall {
   url: string;
   body: string;
   auth: string | null;
+  headers: Headers;
+  redirect: RequestInit['redirect'];
 }
+
+/** The GatewayError a gateway call fails with; any other outcome fails the test. */
+export const refusal = async (call: Promise<unknown>) => {
+  try {
+    await call;
+  } catch (error) {
+    if (error instanceof GatewayError) return error;
+
+    throw error;
+  }
+
+  throw new Error('The gateway call succeeded');
+};
 
 /**
  * A fake gateway: answers each request with the reply of the first route whose
- * text the URL contains (`'POST /invoice'` also matches the method), and keeps
- * what was sent. An unknown URL answers 404, as a real gateway would.
+ * text the URL contains (`'POST /invoice'` also matches the method), with the
+ * route's status (200 unless it names one), and keeps what was sent. An
+ * unknown URL answers 404, as a real gateway would.
  */
-export const fakeGateway = (routes: [string, unknown][]) => {
+export const fakeGateway = (routes: [string, unknown, number?][]) => {
   const calls: GatewayCall[] = [];
 
   const fetch = (input: string | URL | Request, init: RequestInit = {}) => {
     const url = urlOf(input);
     const method = init.method ?? 'GET';
+    const headers = new Headers(init.headers);
 
     calls.push({
       method,
       url,
       body: typeof init.body === 'string' ? init.body : '',
-      auth: new Headers(init.headers).get('authorization'),
+      auth: headers.get('authorization'),
+      headers,
+      redirect: init.redirect,
     });
 
     const route = routes.find(([match]) => {
@@ -38,7 +57,7 @@ export const fakeGateway = (routes: [string, unknown][]) => {
 
     return Promise.resolve(
       route
-        ? new Response(JSON.stringify(route[1]), { status: 200 })
+        ? new Response(JSON.stringify(route[1]), { status: route[2] ?? 200 })
         : new Response('{"error":"not found"}', { status: 404 }),
     );
   };

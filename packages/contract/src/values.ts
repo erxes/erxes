@@ -11,6 +11,7 @@ import {
   BROADCAST_STATUSES,
   CUSTOMER_SEXES,
   CUSTOMER_STATES,
+  DECISION_PROVIDERS,
   EBARIMT_PAPER_SIZES,
   EBARIMT_PRINT_BLOCKS,
   EBARIMT_RECEIPT_STATUSES,
@@ -25,13 +26,12 @@ import {
   SEARCH_RECORD_TYPES,
   SUPPRESSION_REASONS,
 } from '@erxes/core-db/enums';
+import { INTEGRATION_CATEGORIES, INTEGRATION_SCOPES } from '@erxes/core-db/integrationEnums';
 import {
   ASSISTANT_AVATAR_BODIES,
   ASSISTANT_AVATAR_COLORS,
   ASSISTANT_AVATAR_EXPRESSIONS,
   ASSISTANT_PROVIDERS,
-  ASSISTANT_QUESTION_COMPONENTS,
-  ASSISTANT_QUESTION_MODES,
   ASSISTANT_THINKING_LEVELS,
 } from '@erxes/core-db/assistantEnums';
 import {
@@ -163,9 +163,9 @@ export const API_KEY_AREA_INFO = {
   },
   settings: {
     label: 'Settings',
-    covers: 'Organisation, tags, fields, payment gateways',
+    covers: 'Organisation, tags, fields, payment gateways, exchange rates',
     read: ['settings.manage', 'integrations.manage', 'payments.manage'],
-    write: ['tags.manage', 'tags.delete', 'properties.manage'],
+    write: ['tags.manage', 'tags.delete', 'properties.manage', 'exchange_rates.manage'],
   },
 } as const satisfies Record<
   ApiKeyArea,
@@ -183,10 +183,12 @@ export const API_KEY_AREA_INFO = {
 /**
  * Who a plugin's API document is for (the manifest's `api.docs`): its team members in erxes
  * (with a plugin session token), employees in the plugin's own app (with a token the plugin
- * issues when they sign in, like HR's mobile app), customers (with a customer token from
- * core) or a website's server (with a key the plugin issues).
+ * issues when they sign in, like HR's mobile app) or a portal's apps and server (`/portal/v1`,
+ * with a portal token from core for one of the portal's keys, and the signed-in
+ * customer's token on `/me` routes). `customer` documents the older `/customer` routes, which
+ * plugins fold into `portal` as `/portal/v1/me`.
  */
-export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'website'] as const;
+export const PLUGIN_API_AUDIENCES = ['member', 'employee', 'customer', 'portal'] as const;
 
 export type PluginApiAudience = (typeof PLUGIN_API_AUDIENCES)[number];
 
@@ -200,13 +202,19 @@ export const EMPLOYEE_TOKEN_SCHEME = 'employeeToken';
 
 export const CUSTOMER_TOKEN_SCHEME = 'customerToken';
 
-export const WEBSITE_KEY_SCHEME = 'websiteKey';
+export const PORTAL_TOKEN_SCHEME = 'portalToken';
 
 /**
  * How an installation's granted scopes hold an approved read of another plugin's API
  * (the manifest's `pluginReads`): `reads:sales.deal.view`. The permission names its plugin.
  */
 export const pluginReadScope = (permission: string) => `reads:${permission}`;
+
+/**
+ * How an installation's granted scopes hold an approved use of the organisation's connections of
+ * one integration (the manifest's `connections`): `uses:facebook`.
+ */
+export const connectionUseScope = (integration: string) => `uses:${integration}`;
 
 // ─── Members ────────────────────────────────────────────────────────────────
 
@@ -260,6 +268,12 @@ export const ContactState = z.enum(CUSTOMER_STATES);
 export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
+
+/**
+ * In a list of branch or department ids to sum stock over, the stock with no branch (or no
+ * department), as 3.x's inventory keys named it.
+ */
+export const NO_PLACE = '_';
 
 /** Where a member works (`branch`) or what they do (`department`). */
 export const UnitKind = z.enum(ORG_UNIT_KINDS);
@@ -327,12 +341,69 @@ export type FieldValidation = z.infer<typeof FieldValidation>;
 
 export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 
+export const DecisionProvider = z.enum(DECISION_PROVIDERS);
+
+export type DecisionProvider = z.infer<typeof DecisionProvider>;
+
 /** Who changed what in core (owners and admins). */
 export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
-// ─── Payments (gateways: `./paymentGateways`) ───────────────────────────────
+// ─── Payments and integrations ──────────────────────────────────────────────
 
 export const InvoiceStatus = z.enum(INVOICE_STATUSES);
+
+export const IntegrationCategory = z.enum(INTEGRATION_CATEGORIES);
+
+export type IntegrationCategory = z.infer<typeof IntegrationCategory>;
+
+/** `org`: the whole organisation's connection; `personal`: only the member who added it. */
+export const IntegrationScope = z.enum(INTEGRATION_SCOPES);
+
+export type IntegrationScope = z.infer<typeof IntegrationScope>;
+
+/** An integration's key, core's (`qpay`) or one a plugin declares (`facebook`). */
+export const IntegrationKey = z
+  .string()
+  .regex(/^[a-z][a-z0-9-]{0,39}$/, 'lowercase letters, digits and dashes');
+
+export const appEventType = (app: string, trigger: string) =>
+  `app.${app.replaceAll('-', '_')}.${trigger}`;
+
+export const isAppEvent = (type: string) => type.startsWith('app.');
+
+/** Core's areas, by the second part of a type (`core.<area>.…`). */
+const CORE_AREAS: Record<string, string> = {
+  customer: 'customers',
+  lead: 'leads',
+  company: 'companies',
+  payment: 'payments',
+  ebarimt: 'payments',
+  product: 'products',
+  email: 'messages',
+  notification: 'messages',
+  broadcast: 'messages',
+  note: 'timeline',
+  webhook: 'integrations',
+  http: 'integrations',
+  integration: 'integrations',
+  automation: 'automations',
+};
+
+/**
+ * Where the builder files an event or action: `integration:<key>`, `plugin:<name>`, or
+ * `core:<area>` (`core:messages`).
+ */
+export const catalogCategory = (item: {
+  type: string;
+  source: string;
+  integration?: string | null;
+}) => {
+  if (item.integration) return `integration:${item.integration}`;
+
+  if (item.source !== 'core') return `plugin:${item.source}`;
+
+  return `core:${CORE_AREAS[item.type.split('.')[1] ?? ''] ?? 'general'}`;
+};
 
 // ─── Broadcasts ─────────────────────────────────────────────────────────────
 
@@ -387,6 +458,11 @@ export type BroadcastPlaceholder = (typeof BROADCAST_PLACEHOLDERS)[number];
 /** The nodes and marks an email's document may hold; the email editor offers only these. */
 export { EMAIL_MARK_TYPES, EMAIL_NODE_TYPES } from '@erxes/core-db/emailEnums';
 
+/** Who traded a portal token (`knd`): a portal key's kind, or core's agent. */
+export { PORTAL_KEY_KINDS, PORTAL_TOKEN_KINDS } from '@erxes/core-db/enums';
+
+export { AutomationDefinition } from '@erxes/core-db/automationDefinition';
+
 // ─── eBarimt ────────────────────────────────────────────────────────────────
 
 /** How eBarimt taxes a product's lines (Settings › Integrations › eBarimt). */
@@ -419,12 +495,6 @@ export type AssistantProvider = z.infer<typeof AssistantProvider>;
 export const AssistantThinkingLevel = z.enum(ASSISTANT_THINKING_LEVELS);
 
 export type AssistantThinkingLevel = z.infer<typeof AssistantThinkingLevel>;
-
-export const AssistantQuestionMode = z.enum(ASSISTANT_QUESTION_MODES);
-
-export const AssistantQuestionComponent = z.enum(ASSISTANT_QUESTION_COMPONENTS);
-
-export type AssistantQuestionComponent = z.infer<typeof AssistantQuestionComponent>;
 
 export const AssistantAvatarBody = z.enum(ASSISTANT_AVATAR_BODIES);
 

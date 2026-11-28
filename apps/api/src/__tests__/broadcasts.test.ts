@@ -1,3 +1,5 @@
+import { events } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
 import { loggedSms } from '~/modules/sms/sms';
 import {
@@ -5,13 +7,29 @@ import {
   emailDoc,
   emailsTo,
   field,
+  linkIn,
   linkTo,
   paragraph,
   say,
   useBroadcasts,
 } from './broadcasts.fixture';
-import { useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { makeDue, settle } from './settle';
+
+const suppressedOf = (address: string) =>
+  adminDb()
+    .select({
+      subjectType: events.subjectType,
+      subjectId: events.subjectId,
+      payload: events.payload,
+    })
+    .from(events)
+    .where(
+      and(
+        eq(events.type, 'core.broadcast.suppressed'),
+        sql`${events.payload}->>'address' = ${address}`,
+      ),
+    );
 
 /** Email and SMS to many customers at once (decision 47). */
 describe('broadcasts', { timeout: 300_000 }, () => {
@@ -313,5 +331,44 @@ describe('broadcasts', { timeout: 300_000 }, () => {
     });
 
     expect(await owner.broadcasts.remove({ id: draft.id })).toEqual({ ok: true });
+  });
+
+  it('publishes each new suppression once: unsubscribed by the person, or added by hand', async () => {
+    const owner = t.owner();
+
+    const [saraa] = await t.customersIn('quit', [
+      { firstName: 'Saraa', primaryEmail: 'saraa@quit.mn' },
+    ]);
+
+    const broadcast = await t.emailTo('quit');
+
+    await owner.broadcasts.send({ id: broadcast.id });
+    await settle();
+
+    const link = linkIn(emailsTo('saraa@quit.mn')[0]?.text ?? '', 'Unsubscribe');
+
+    expect((await fetch(t.url(link.pathname), { method: 'POST' })).status).toBe(200);
+    expect((await fetch(t.url(link.pathname), { method: 'POST' })).status).toBe(200);
+
+    expect(await suppressedOf('saraa@quit.mn')).toEqual([
+      {
+        subjectType: 'customer',
+        subjectId: saraa?.id,
+        payload: {
+          address: 'saraa@quit.mn',
+          channel: 'email',
+          reason: 'unsubscribed',
+          detail: null,
+          broadcastId: broadcast.id,
+          customerId: saraa?.id,
+        },
+      },
+    ]);
+
+    await owner.suppressions.add({ channel: 'email', addresses: ['hand@quit.mn'] });
+
+    expect(await suppressedOf('hand@quit.mn')).toMatchObject([
+      { subjectId: null, payload: { address: 'hand@quit.mn', reason: 'manual' } },
+    ]);
   });
 });

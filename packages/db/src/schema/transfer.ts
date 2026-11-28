@@ -29,6 +29,10 @@ export interface ExportQuery {
   search?: string;
   tagIds?: string[];
   ownerId?: string;
+  /** Only these records: the rows the member selected. */
+  ids?: string[];
+  /** A plugin list's own filter, passed to the plugin as it is. */
+  params?: Record<string, string | number | boolean | null | string[]>;
 }
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });

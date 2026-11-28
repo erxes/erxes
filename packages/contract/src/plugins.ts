@@ -1,9 +1,4 @@
-import {
-  AUTOMATION_SUBJECTS,
-  CONTENT_TYPES,
-  PLUGIN_SCOPES,
-  TAX_RECEIPT_ISSUERS,
-} from '@erxes/core-db/enums';
+import { CONTENT_TYPES, PLUGIN_SCOPES, TAX_RECEIPT_ISSUERS } from '@erxes/core-db/enums';
 import { pluginInstallations, plugins } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
@@ -11,13 +6,14 @@ import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { httpUrl, Id, isoDate, listOf } from './common';
-import { ActionFields, DataField } from './automationRuns';
-import { AppOrigin } from './customerAuth';
+import { DataField, PluginAction } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
-import { PluginAgents } from './agents';
+import { PluginName } from './values';
 import { PluginAssistant } from './pluginAssistant';
 import { PluginFields } from './pluginFields';
+import { PluginConnectionUse } from './connectionUse';
+import { PluginIntegrations } from './pluginIntegrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
@@ -28,7 +24,6 @@ import { PluginTranslations } from './pluginTranslations';
 import { PluginApiDocs } from './pluginApiDocs';
 import { PluginSearchSource } from './search';
 import { PluginRead, pluginReadsContract } from './pluginReads';
-import { PluginName } from './values';
 
 export { PLUGIN_SCOPES };
 
@@ -57,10 +52,27 @@ export const PluginManifest = z.object({
   countries: z.array(Country).max(250).optional(),
   /**
    * Who issues tax receipts for its invoices: core's integration (eBarimt,
-   * the default), or `own` when the plugin sends them itself. An `own`
-   * plugin can't be picked in core's eBarimt settings, so no invoice gets two.
+   * the default), or `own` when the plugin sends them itself. Core issues
+   * none for an `own` plugin's invoices, so no invoice gets two.
    */
   taxReceipts: z.enum(TAX_RECEIPT_ISSUERS).optional(),
+  /**
+   * Self-hosted, it runs only where the server's erxes license names it (`ERXES_LICENSE`):
+   * without one, members can't open it. On erxes.io the plan decides, as for every plugin.
+   */
+  requiresLicense: z.boolean().optional(),
+  /**
+   * Whose part it is: `core`, or the plugin it extends (`sales`, for sales' enterprise edition).
+   * Web lists its apps with that one's: with core's modules, or right after the plugin's.
+   */
+  extends: z.union([z.literal('core'), PluginName]).optional(),
+  /**
+   * A sign-in provider: members sign in with their account in another system (a company
+   * directory). The sign-in screen offers it under `label`; core POSTs what they type to
+   * `<api.url>/auth/sign-in` (`verifyCoreSignIn`) and the plugin answers who they are. Only where
+   * the owner granted `users:sign_in`.
+   */
+  signIn: z.object({ label: z.string().trim().min(1).max(60) }).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */
   ui: z
     .object({
@@ -93,13 +105,6 @@ export const PluginManifest = z.object({
     })
     .optional(),
   /**
-   * The plugin's app for customers (a shop, tracking, booking). It signs
-   * customers in by calling `/customer-auth/*` itself (decision 42); browsers
-   * may call `/customer-auth/*` and `/customer/*` only from these origins.
-   * Apps without an origin (mobile) are limited by rate instead.
-   */
-  customerApp: z.object({ origins: z.array(AppOrigin).min(1).max(20) }).optional(),
-  /**
    * Routes for callers outside erxes that can't sign in (a GitHub webhook, an app install's
    * redirect). Core serves `/core/v1/plugins/<name>/public/<orgId>/<path>` and forwards a call
    * whose path is one of these, or under one, to `<api.url>/public/<path>`, with a token naming
@@ -123,6 +128,13 @@ export const PluginManifest = z.object({
    * permissions its manifest declares.
    */
   pluginReads: z.array(PluginRead).max(20).optional(),
+  /**
+   * The organisation's connections of core's integrations it uses (`facebook`), and why. Like a
+   * new scope, each waits for the owner's approval; then `integrations.usable` lists them and
+   * `integrations.credentials` gives one's token, so the organisation connects an account once
+   * for core and every plugin.
+   */
+  connections: z.array(PluginConnectionUse).max(10).optional(),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
     .array(
@@ -154,32 +166,17 @@ export const PluginManifest = z.object({
     )
     .max(200)
     .optional(),
-  /**
-   * Actions automations can run (`hr.leave.create`): core POSTs
-   * `{ input, context }` to `<api.url>/automations/actions/<type>` with a
-   * core token and an `Idempotency-Key`; the JSON answer is the step's output.
-   * A `plugin_record` field's choices come from
-   * `GET <api.url>/automations/records/<recordType>?parent=<its dependsOn value>`,
-   * called with the member's session token, answering `[{ value, label }]`.
-   */
-  actions: z
-    .array(
-      z.object({
-        type: EventType,
-        label: z.string().trim().min(1).max(100),
-        description: z.string().trim().max(300).optional(),
-        subject: z.enum(AUTOMATION_SUBJECTS).optional(),
-        fields: ActionFields.default([]),
-        /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
-        outputs: z.array(DataField).max(50).optional(),
-      }),
-    )
-    .max(200)
-    .optional(),
+  /** Actions automations can run (`PluginAction`). */
+  actions: z.array(PluginAction).max(200).optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
   timelines: z.array(PluginTimeline).max(50).optional(),
   /** Its record types members may add fields to through Data Extensions (`PluginObjects`). */
   objects: PluginObjects.optional(),
+  /**
+   * Its integrations in Settings › Integrations (`PluginIntegration`), listed next to core's
+   * with the state it reports (`integrations.report`).
+   */
+  integrations: PluginIntegrations.optional(),
   /**
    * How its timeline entries look: a label, a colour and an icon per type —
    * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,
@@ -242,7 +239,6 @@ export const PluginManifest = z.object({
     .max(500)
     .optional(),
   assistant: PluginAssistant.optional(),
-  agents: PluginAgents.optional(),
 });
 
 export type PluginManifest = z.infer<typeof PluginManifest>;
@@ -267,10 +263,12 @@ export const Plugin = createSelectSchema(plugins, {
       version: true,
       description: true,
       countries: true,
+      extends: true,
       ui: true,
       api: true,
       search: true,
       pluginReads: true,
+      connections: true,
     }),
 })
   .pick({ name: true, manifest: true })
@@ -307,6 +305,7 @@ const {
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_INTEGRATION,
   UNKNOWN_PERMISSION,
 } = ERRORS;
 
@@ -321,6 +320,7 @@ const base = oc.errors({
   NAMESPACE_REQUIRED,
   NOT_INSTALLED,
   PLUGIN_NOT_FOUND,
+  UNKNOWN_INTEGRATION,
   UNKNOWN_PERMISSION,
 });
 
@@ -329,7 +329,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/token',
-      summary:
+      summary: 'Get a plugin token',
+      description:
         'Client credentials → a 15-minute token (ES256). With `org`: to act in an organisation that installed the plugin; without: to update the manifest',
     })
     .input(
@@ -345,7 +346,8 @@ export const pluginsContract = {
     .route({
       method: 'PUT',
       path: '/plugins/manifest',
-      summary:
+      summary: 'Register a plugin manifest',
+      description:
         "The calling plugin declares its UI, API, scopes, permissions, events, jobs and assistant skills. 400 INVALID_SCHEDULE when a job's cron doesn't parse",
     })
     .input(PluginManifest)
@@ -363,14 +365,16 @@ export const pluginsContract = {
     .route({
       method: 'GET',
       path: '/plugins',
-      summary: 'Plugins of this deployment, and which are installed here',
+      summary: 'List plugins',
+      description: 'Plugins of this deployment, and which are installed here',
     })
     .output(listOf(Plugin)),
   install: base
     .route({
       method: 'POST',
       path: '/plugins/{name}/install',
-      summary: 'Install (or approve the new scopes of) a plugin (owners)',
+      summary: 'Install a plugin',
+      description: 'Install (or approve the new scopes of) a plugin (owners)',
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
@@ -378,7 +382,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/{name}/uninstall',
-      summary: 'Uninstall a plugin: its tokens stop working at once (owners)',
+      summary: 'Uninstall a plugin',
+      description: 'Uninstall a plugin: its tokens stop working at once (owners)',
     })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
@@ -386,7 +391,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/{name}/session',
-      summary:
+      summary: 'Get a plugin session token',
+      description:
         "A 5-minute token for one plugin's API, for the signed-in member (plugin UIs send it as Bearer)",
     })
     .input(z.object({ name: PluginName }))
@@ -402,7 +408,8 @@ export const pluginsContract = {
     .route({
       method: 'POST',
       path: '/plugins/live',
-      summary:
+      summary: 'Tell a plugin’s screens to refresh',
+      description:
         "Tell the plugin's open UIs something changed (plugins with live:write); no data, UIs refetch",
     })
     .input(

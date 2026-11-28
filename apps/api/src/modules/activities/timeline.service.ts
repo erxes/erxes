@@ -37,15 +37,17 @@ const timelineScope = (client: Db, query: TimelineQuery): SQL => {
 
   if (!query.includeRelated || query.targetType !== 'company') return own;
 
+  // The people as an array, worked out once: `IN (subquery)` under the OR became a hashed
+  // subquery checked on every entry of the organisation; with an array each side of the OR
+  // reads the timeline index.
+  const people = client
+    .select({ id: customerCompanies.customerId })
+    .from(customerCompanies)
+    .where(eq(customerCompanies.companyId, query.targetId));
+
   const related = allOf(
     eq(activities.targetType, 'customer'),
-    inArray(
-      activities.targetId,
-      client
-        .select({ id: customerCompanies.customerId })
-        .from(customerCompanies)
-        .where(eq(customerCompanies.companyId, query.targetId)),
-    ),
+    sql`${activities.targetId} = any(array(${people}))`,
   );
 
   return anyOf(own, related);

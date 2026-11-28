@@ -4,13 +4,14 @@ import {
   newId,
   pluginInstallations,
   suppressions,
+  withOrg,
 } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
-import { seal } from '~/lib/secrets';
 import { loggedEmails } from '~/modules/email/email';
 import { forgetEntitlements } from '~/modules/saas/entitlements';
+import { saveSecret } from '~/modules/secrets/vault';
 import { adminDb, useTestDatabase } from './db';
 import { useEmailRamp } from './emailRamp.fixture';
 import { makeDue, settle } from './settle';
@@ -236,15 +237,14 @@ describe('email sending ramp', { timeout: 240_000 }, () => {
     });
 
     const own = (provider: 'smtp' | 'sendgrid') =>
-      adminDb()
-        .insert(emailSettings)
-        .values({
-          orgId: t.ids.org,
+      withOrg(t.ids.org, async (tx) => {
+        await tx.insert(emailSettings).values({
           provider,
           fromEmail: 'news@acme.mn',
           smtpHost: 'smtp.acme.mn',
-          secretSealed: seal('secret'),
+          secretId: await saveSecret(tx, 'secret'),
         });
+      });
 
     await own('sendgrid');
     expect(await t.owner().emails.setRamp({ enabled: false })).toMatchObject({

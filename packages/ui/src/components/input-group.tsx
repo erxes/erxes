@@ -19,7 +19,7 @@ const InputGroupRoot = ({ className, ...props }: React.ComponentProps<'div'>) =>
 );
 
 const addonVariants = cva(
-  'flex h-full shrink-0 items-center text-sm text-muted-foreground group-has-[>textarea]/input-group:h-auto group-has-[>textarea]/input-group:self-start group-has-[>textarea]/input-group:pt-1.5',
+  'flex h-full shrink-0 items-center text-sm text-muted-foreground [&>svg]:shrink-0 [&>svg:not([class*=size-])]:size-4 group-has-[>textarea]/input-group:h-auto group-has-[>textarea]/input-group:self-start group-has-[>textarea]/input-group:pt-1.5',
   {
     variants: {
       align: {

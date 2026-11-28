@@ -44,7 +44,11 @@ const organization: Organization = {
   name: 'Acme',
   country: 'MN',
   currency: 'MNT',
+  currencies: [],
   timezone: 'Asia/Ulaanbaatar',
+  phone: null,
+  email: null,
+  memberRestrictions: { enabled: false, allBranchesUserIds: [], allDepartmentsUserIds: [] },
   createdAt: new Date().toISOString(),
 };
 

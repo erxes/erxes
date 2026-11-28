@@ -1,46 +1,15 @@
 import { useDroppable } from '@dnd-kit/core';
 import { IconPlus } from '@tabler/icons-react';
-import { Children, type ReactNode, useEffect, useLayoutEffect, useRef } from 'react';
+import { Children, type ReactNode, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/button';
 import { Skeleton } from '../../components/skeleton';
 import { Tooltip } from '../../components/tooltip';
+import { type NextPage, useLoadOnScroll } from '../../hooks/use-load-on-scroll';
 import { cn } from '../../lib/utils';
 import { BoardColumnContext, useBoard } from './boardContext';
 
 const CARD_SKELETONS = ['first', 'second', 'third'];
-
-/** A column's next page, as an infinite query has it. */
-type ColumnPages = {
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  fetchNextPage: () => Promise<unknown>;
-};
-
-/** Loads the next page when the column's end scrolls into view. */
-const useLoadMore = (pages: ColumnPages | undefined) => {
-  const sentinel = useRef<HTMLDivElement>(null);
-  const { hasNextPage = false, isFetchingNextPage = false, fetchNextPage } = pages ?? {};
-
-  useEffect(() => {
-    const node = sentinel.current;
-
-    if (!node || !hasNextPage || !fetchNextPage) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting && !isFetchingNextPage) void fetchNextPage();
-      },
-      { rootMargin: '200px' },
-    );
-
-    observer.observe(node);
-
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  return sentinel;
-};
 
 const ColumnAdd = ({ label, onClick }: { label: string; onClick: () => void }) => (
   <Tooltip>
@@ -89,7 +58,7 @@ export const BoardColumn = ({
   loading?: boolean;
   error?: string;
   empty: string;
-  pages?: ColumnPages;
+  pages?: NextPage;
   children?: ReactNode;
 }) => {
   const { t } = useTranslation('views', { keyPrefix: 'board' });
@@ -98,7 +67,7 @@ export const BoardColumn = ({
 
   useLayoutEffect(() => cards.addColumn(id, title), [cards, id, title]);
 
-  const sentinel = useLoadMore(pages);
+  const sentinel = useLoadOnScroll(pages);
   const here = target?.columnId === id;
   const hasCards = Children.toArray(children).length > 0;
 

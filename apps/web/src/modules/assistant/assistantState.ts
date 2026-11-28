@@ -33,13 +33,18 @@ export const assistantActiveTabState = stored({
   initial: null,
 });
 
+/** The provider, model and thinking level the member picked; unset parts follow the defaults. */
+const PickedModel = z.object({
+  provider: AssistantProvider.optional(),
+  model: z.string().optional(),
+  thinkingLevel: AssistantThinkingLevel.optional(),
+});
+
+export type PickedModel = z.infer<typeof PickedModel>;
+
 export const assistantPickedModelState = stored({
   key: 'erxes:assistant:model',
-  schema: z.object({
-    provider: AssistantProvider.optional(),
-    model: z.string().optional(),
-    thinkingLevel: AssistantThinkingLevel.optional(),
-  }),
+  schema: PickedModel,
   initial: {},
 });
 
@@ -57,6 +62,22 @@ export const newChatAction = atom(null, (get, set) => {
   }
 
   const tab = blankTab();
+
+  set(assistantTabsState, [...tabs, tab]);
+  set(assistantActiveTabState, tab.key);
+});
+
+export const openThreadAction = atom(null, (get, set, threadId: string) => {
+  const tabs = get(assistantTabsState);
+  const open = tabs.find((tab) => tab.threadId === threadId);
+
+  if (open) {
+    set(assistantActiveTabState, open.key);
+
+    return;
+  }
+
+  const tab = { key: crypto.randomUUID(), threadId };
 
   set(assistantTabsState, [...tabs, tab]);
   set(assistantActiveTabState, tab.key);

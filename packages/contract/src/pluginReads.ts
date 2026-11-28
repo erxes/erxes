@@ -40,7 +40,8 @@ export const pluginReadsContract = {
     .route({
       method: 'POST',
       path: '/plugins/{name}/call-token',
-      summary:
+      summary: 'Get a token to call another plugin',
+      description:
         "A 5-minute token for another plugin's API (`aud` that plugin), for this organisation, with the permissions the owner approved in the manifest's `pluginReads`. 400 PLUGIN_NOT_INSTALLED when that plugin isn't installed here, 403 READ_NOT_APPROVED when nothing is approved, 502 PLUGIN_UNREACHABLE when it has no API address",
     })
     .input(z.object({ name: PluginName }))

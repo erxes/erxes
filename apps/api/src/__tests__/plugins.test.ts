@@ -167,6 +167,7 @@ describe('plugin connection (registry, installations, tokens)', () => {
         { key: 'a', label: 'A', type: 'plugin_record' as const, recordType: 'a', dependsOn: 'b' },
         { key: 'b', label: 'B', type: 'plugin_record' as const, recordType: 'b', dependsOn: 'a' },
       ],
+      [{ key: 'via', label: 'Via', type: 'connection' as const }],
     ]) {
       await expect(withFields(fields)).rejects.toMatchObject({ code: 'INVALID_INPUT' });
     }

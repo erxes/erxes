@@ -202,22 +202,36 @@ export const leadsContract = {
     .route({
       method: 'GET',
       path: '/lead-stages',
-      summary: 'The lead stages, in order, with how many leads each holds',
+      summary: 'List lead stages',
+      description: 'The lead stages, in order, with how many leads each holds',
     })
     .output(listOf(LeadStage)),
   createStage: base
-    .route({ method: 'POST', path: '/lead-stages', successStatus: 201 })
+    .route({
+      method: 'POST',
+      path: '/lead-stages',
+      successStatus: 201,
+      summary: 'Add a lead stage',
+      description: 'Add a stage at the end of the board; it is open unless `kind` says otherwise',
+    })
     .input(StageFields.required({ name: true }))
     .output(LeadStage),
   updateStage: base
-    .route({ method: 'PATCH', path: '/lead-stages/{id}' })
+    .route({
+      method: 'PATCH',
+      path: '/lead-stages/{id}',
+      summary: 'Change a lead stage',
+      description:
+        'Rename, recolour or change the kind of a stage. 409 LAST_OPEN_STAGE when it would leave no open stage',
+    })
     .input(StageFields.extend({ id: Id }))
     .output(LeadStage),
   reorderStages: base
     .route({
       method: 'POST',
       path: '/lead-stages/reorder',
-      summary: 'Every stage id, in the new order',
+      summary: 'Reorder lead stages',
+      description: 'Every stage id, in the new order',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(50) }))
     .output(z.object({ ok: z.literal(true) })),
@@ -225,7 +239,8 @@ export const leadsContract = {
     .route({
       method: 'POST',
       path: '/lead-stages/{id}/remove',
-      summary:
+      summary: 'Delete a lead stage',
+      description:
         'Delete a stage; its leads move to `moveTo` (required when it has any). The last open stage stays',
     })
     .input(z.object({ id: Id, moveTo: Id.optional() }))
@@ -234,7 +249,8 @@ export const leadsContract = {
     .route({
       method: 'POST',
       path: '/leads/move',
-      summary: 'Move leads to a stage (a disqualified stage takes a reason)',
+      summary: 'Move leads to a stage',
+      description: 'Move leads to a stage (a disqualified stage takes a reason)',
     })
     .input(
       z.object({
@@ -249,7 +265,8 @@ export const leadsContract = {
     .route({
       method: 'POST',
       path: '/leads/convert',
-      summary:
+      summary: 'Convert leads to customers',
+      description:
         'Leads become customers: optionally given an owner, and (people) linked to a company',
     })
     .input(
@@ -260,7 +277,8 @@ export const leadsContract = {
     .route({
       method: 'GET',
       path: '/leads/{id}/history',
-      summary: "A lead's journey, its last 200 steps: created, every stage, converted",
+      summary: 'Get a lead’s history',
+      description: "A lead's journey, its last 200 steps: created, every stage, converted",
     })
     .input(z.object({ ...RecordTypeInput, id: Id }))
     .output(z.object({ data: z.array(LeadEvent).max(200) })),
@@ -268,7 +286,8 @@ export const leadsContract = {
     .route({
       method: 'GET',
       path: '/leads/report',
-      summary:
+      summary: 'Get the leads report',
+      description:
         'Funnel, conversion, sources, owners and reasons for a period (default: last 30 days)',
     })
     .input(

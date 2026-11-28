@@ -10,6 +10,7 @@ import {
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
+import { pluginApps } from '~/modules/plugins/pluginConfig';
 import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
@@ -67,15 +68,24 @@ export const useNavApps = (): NavApp[] => {
 
       return app.id === 'reports' ? can('contacts.view') : true;
     }).map((app) => ({ ...app, label: coreLabel(app) })),
-    ...plugins.map(({ remote, config }): NavApp => ({
-      id: `plugin:${remote}`,
-      label: pluginName(text, config.name),
-      icon: config.icon ?? IconApps,
-      path: config.path.replace(/^\/+|\/+$/g, ''),
-      kind: 'plugin',
-    })),
+    ...plugins.flatMap(({ remote, config, extends: extended }) =>
+      pluginApps(config).map((app): NavApp => ({
+        id: app.name === config.name ? `plugin:${remote}` : `plugin:${remote}/${app.name}`,
+        label:
+          app.name === config.name
+            ? pluginName(text, config.name)
+            : text(config.name, capitalized(app.name)),
+        icon: app.icon ?? IconApps,
+        path: app.path.replace(/^\/+|\/+$/g, ''),
+        // A part of core (erxes' enterprise edition) sits with core's apps; usePlugins puts a
+        // plugin's own extension right after it.
+        kind: extended === 'core' ? 'core' : 'plugin',
+      })),
+    ),
   ];
 };
+
+const capitalized = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
 
 export const appOfPath = (apps: NavApp[], pathname: string) =>
   apps.find((app) => pathname === `/${app.path}` || pathname.startsWith(`/${app.path}/`));

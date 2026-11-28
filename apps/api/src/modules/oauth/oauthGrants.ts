@@ -4,13 +4,8 @@ import { memberOf } from '~/http/auth';
 import { sha256 } from '~/lib/crypto';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
-import {
-  clientTitle,
-  installed,
-  type OAuthClient,
-  sameHash,
-  splitCredential,
-} from './oauthClients';
+import { markClientUsed } from './oauthApps';
+import { type OAuthClient, sameHash, splitCredential, usable } from './oauthClients';
 import { issueTokens } from './oauthTokens';
 
 const log = logger.child({ component: 'oauth' });
@@ -26,7 +21,7 @@ const granted = (tokens: Tokens | null, refused: string): Grant =>
 /** Tokens for an authorization code: once, by the client it was given to, with the PKCE verifier. */
 export const exchangeCode = async (
   client: OAuthClient,
-  form: { code?: string; redirect_uri?: string; code_verifier?: string },
+  form: { code?: string; redirect_uri?: string; code_verifier?: string; resource?: string },
 ) => {
   const { id, secret } = splitCredential(form.code);
 
@@ -40,8 +35,9 @@ export const exchangeCode = async (
     !code ||
     !secret ||
     !sameHash(code.codeHash, secret) ||
-    code.clientId !== client.name ||
+    code.clientId !== client.id ||
     code.redirectUri !== form.redirect_uri ||
+    (form.resource !== undefined && form.resource !== code.resource) ||
     code.expiresAt.getTime() < Date.now()
   ) {
     return { refused: 'The code is not valid' };
@@ -59,7 +55,7 @@ export const exchangeCode = async (
       .returning({ id: oauthCodes.id });
 
     // A code works once.
-    if (!used || !(await installed(tx, client.name))) return null;
+    if (!used || !(await usable(tx, client))) return null;
 
     const issued = await issueTokens(tx, code);
     const member = issued && (await memberOf(code.orgId, code.userId));
@@ -67,10 +63,10 @@ export const exchangeCode = async (
     if (member) {
       await runAs(member, () =>
         recordAudit(tx, {
-          action: 'auth.oauth_signed_in',
-          targetType: 'plugin',
-          targetId: client.name,
-          targetLabel: clientTitle(client),
+          action: client.kind === 'app' ? 'auth.app_connected' : 'auth.oauth_signed_in',
+          targetType: client.kind,
+          targetId: client.id,
+          targetLabel: client.title,
         }),
       );
     }
@@ -78,11 +74,16 @@ export const exchangeCode = async (
     return issued;
   });
 
+  if (tokens && client.kind === 'app' && client.address === null) await markClientUsed(client.id);
+
   return granted(tokens, 'The code is not valid');
 };
 
 /** Rotates a refresh token; a reused one revokes its whole family. */
-export const refreshGrant = async (client: OAuthClient, form: { refresh_token?: string }) => {
+export const refreshGrant = async (
+  client: OAuthClient,
+  form: { refresh_token?: string; resource?: string },
+) => {
   const { id, secret } = splitCredential(form.refresh_token);
 
   const [token] = id
@@ -91,7 +92,13 @@ export const refreshGrant = async (client: OAuthClient, form: { refresh_token?: 
       )
     : [];
 
-  if (!token || !secret || !sameHash(token.tokenHash, secret) || token.clientId !== client.name) {
+  if (
+    !token ||
+    !secret ||
+    !sameHash(token.tokenHash, secret) ||
+    token.clientId !== client.id ||
+    (form.resource !== undefined && form.resource !== token.resource)
+  ) {
     return { refused: 'The refresh token is not valid' };
   }
 
@@ -117,7 +124,7 @@ export const refreshGrant = async (client: OAuthClient, form: { refresh_token?: 
           ),
         );
       log.warn(
-        { client: client.name, family: current.familyId },
+        { client: client.id, family: current.familyId },
         'oauth refresh token reused: family revoked',
       );
 
@@ -134,7 +141,7 @@ export const refreshGrant = async (client: OAuthClient, form: { refresh_token?: 
       current.expiresAt.getTime() < Date.now() ||
       user?.status !== 'active' ||
       user.version !== current.sessionVersion ||
-      !(await installed(tx, client.name))
+      !(await usable(tx, client))
     ) {
       return null;
     }

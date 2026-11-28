@@ -26,13 +26,20 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      and anything but `{ "allowed": true }` within 5 s is a 403;
    - `@erxes/plugin-sdk` and the plugin manifest (`PluginManifest`), with what core POSTs to a
      plugin's API: events to `/events`, actions to `/automations/actions/<type>`, jobs to
-     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`), and
-     transfer requests to `/transfer/export` and `/transfer/import` (below).
+     `/jobs/<name>` (`PluginJobDelivery` in `src/pluginJobs.ts`, checked by `verifyCoreJob`),
+     transfer requests to `/transfer/export` and `/transfer/import` (below), and, for a plugin
+     with `signIn` and the `users:sign_in` scope, a member's login and password to `/auth/sign-in`
+     (`PluginSignInRequest` in `src/pluginSignIn.ts`, checked by `verifyCoreSignIn`), answered
+     200 with a `PluginSignInIdentity` or 401. Core links the identity's `subject` to a member,
+     so a `subject` that changes signs the same person in as someone new.
      An action field `{ type: 'plugin_record', recordType, dependsOn?, multiple? }` (`ActionField` in
      `src/automationRuns.ts`) lets the member pick one of the plugin's records: web calls
      `GET <api.url>/automations/records/<recordType>?parent=<the dependsOn input's value>` with the
      member's session token and expects `[{ value, label }]`. Changing an input clears the inputs
-     that depend on it. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
+     that depend on it. An action may name one of the manifest's `integrations` (`integration`,
+     else 400 `UNKNOWN_INTEGRATION`): the catalog's `ActionInfo` carries it as
+     `integration: '<plugin>.<key>'` with `integrationName`, and the builder groups it there and
+     lists it on the integration's page. An action's `outputs` and an event's `fields` (`DataField`: `key`, `label`,
      `type`, `recordType?`) name what its answer or payload holds, under the event's `record`
      ("The order"); `registerManifest` answers `warnings` for what is missing. The builder offers
      them in "Insert data" as
@@ -56,13 +63,16 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      web calls `GET <api.url><path>?q=<text>&limit=<n>` with the member's session token and
      expects `PluginSearchResults` (`{ data: [{ id, title, subtitle?, recordType?, path? }] }`,
      `src/values.ts`); a hit opens in the side panel by `recordType`, else at `path`.
-     The assistant offers the routes of the `member` document in the manifest's `api.docs`
-     (`apps/api/src/modules/assistant/tools/pluginDocument.ts`): core reads `<api.url><path>`,
-     names each route `<plugin>:<operationId>` and calls it under the document's server, on
-     `api.url`'s origin, with the member's session token and no step in between. After a call
-     to a route that is not a GET, web reads the page's data again, and a route whose input
-     or answer names a credential is never offered. A route's `operationId`, method and path
-     are the contract;
+     The assistant, made agents and MCP clients offer the routes of the `member` document in
+     the manifest's `api.docs` (`apps/api/src/modules/apiTools/pluginDocument.ts`): core reads
+     `<api.url><path>`, names each route `<plugin>:<operationId>` and calls it under the
+     document's server, on `api.url`'s origin, with the member's session token and no step in
+     between. A route that is not a GET changes data, unless its route sets
+     `spec: readsByPost` (`x-erxes-reads` in the document); after a call to one, web reads the
+     page's data again. A route whose input or answer names a credential is never offered. A
+     route whose permission middleware the SDK's `checksPermission` wraps lists those permissions
+     in `x-erxes-permissions`, and is offered only to a member or key holding one of them. A
+     route's `operationId`, method, path, `x-erxes-reads` and `x-erxes-permissions` are the contract;
    - import and export (`packages/contract/src/pluginTransfer.ts`,
      `apps/api/src/modules/transfer/pluginTransfer.ts`): the manifest's `transfer` names record
      types (`<plugin>:<record>`) with their `columns` and an `exportPermission` and
@@ -71,9 +81,13 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      and active, and the file, the mapping, the check, the jobs and the history stay core's
      (Contacts › Settings › Import & export). Core POSTs `PluginExportRequest` (a page after
      `cursor`, answered `PluginExportPage`) and `PluginImportRequest` (a batch of rows, `dryRun`
-     for the check, answered `PluginImportResult`), signed with an `erxes-core-transfer+jwt`
+     for the check, answered `PluginImportResult`; a type's `batchStart` column keeps the rows
+     below a filled one in its batch), signed with an `erxes-core-transfer+jwt`
      token over the body's digest and checked by `verifyCoreTransfer`. A plugin's imports can't
-     be undone. The shapes, the token `typ` and the two paths are the contract;
+     be undone. A plugin page shows erxes-ui's `Import` and `Export` (web registers them with
+     `setTransferButtons`); `Export` sends the selected rows as `query.ids`, else the list's own
+     filter as `query.params`, which the export request hands the plugin as they are. The
+     shapes, the token `typ` and the two paths are the contract;
    - segments (`packages/contract/src/pluginFields.ts`, `apps/api/src/modules/views/pluginViews.ts`):
      the manifest's `fields` (`PluginFields`: `code`, `contentType`, `label`, `type`, `options`)
      become read-only custom fields of each organisation that has the plugin, with `plugin` set
@@ -103,13 +117,17 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
      plugin's own settings pages, drawn in its layout; core's settings sidebar links each plugin
      once, to its first page, else to its Properties, in "Plugin settings"
      (`apps/web/src/modules/settings/components/SettingsSidebar.tsx`). `integrations`
-     (`TPluginIntegration`: `key`, `name`, `summary`, `icon`, `category` from erxes-ui's
-     `INTEGRATION_CATEGORIES`, `countries`, `permission`, `tabs` of `{ value, label, component }`)
-     are tiles in core's Settings › Integrations next to core's own, for members with
-     `integrations.manage` and the tile's `permission` (one the manifest declares). Its page is
+     (`TPluginIntegration`: `key`, `icon`, `tabs` of `{ value, label, component }`) give the
+     icon and tabs of the integrations the manifest's `integrations` declare (`PluginIntegration`
+     in `packages/contract/src/integrations.ts`: `key`, `name`, `summary`, `category`,
+     `countries`, `permission`, one the manifest declares, else 400 `UNKNOWN_PERMISSION`).
+     `integrations.list` lists them next to core's with `plugin` set, for members with
+     `integrations.manage` and that `permission` while the plugin is installed, with the state
+     the plugin reports by `integrations.report` (`PUT /integrations/{key}/state`, the SDK's
+     `reportIntegration`; 404 for a key its manifest doesn't declare). Its page is
      `/settings/integrations/<name>.<key>`: core draws the header and tabs (`?tab=<value>`), each
      tab's `lazy` component its content (`apps/web/src/modules/settings/integrations/catalog.ts`).
-     A tile has no connected state, and renaming its key or a tab's value breaks links to it.
+     Renaming its key or a tab's value breaks links to it and drops its reported state.
      `dashboardWidgets`
      (`TDashboardWidget`: `name`, `title`, `icon`, `preview`, `size`, and the `component` core
      draws as the tile's body under its title) join core's home dashboard catalog under the

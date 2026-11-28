@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
   type UIEvent,
@@ -12,7 +13,11 @@ import { useDebouncedCallback } from 'use-debounce';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
 import { mergeRefs } from 'erxes-ui/lib/utils';
 import { useCursorScroll } from '../hooks/useCursorScroll';
-import { tablePositionState } from '../states/RecordTableCursorState';
+import {
+  TOP_POSITION,
+  tablePositionState,
+  tableViewportState,
+} from '../states/RecordTableCursorState';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 
@@ -23,6 +28,8 @@ interface CursorContext {
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
   loading?: boolean;
+  /** Rows loaded: the forward skeleton asks for more each time it grows while in view. */
+  dataLength?: number;
 }
 
 const RecordTableCursorContext = createContext<CursorContext | null>(null);
@@ -35,6 +42,29 @@ const useRecordTableCursorContext = () => {
   }
 
   return context;
+};
+
+/** Where rows start to show in the scrolling element: under its sticky header. */
+const rowsTop = (scroll: HTMLElement) =>
+  scroll.getBoundingClientRect().top +
+  (scroll.querySelector('thead')?.getBoundingClientRect().height ?? 0);
+
+/** The drawn rows with a record's cursor or id, which skeleton and spacer rows lack. */
+const recordRows = (scroll: HTMLElement) => [
+  ...scroll.querySelectorAll<HTMLElement>('tbody > tr[id]'),
+];
+
+/** The first record row the header doesn't cover, and how many pixels of it are under it. */
+const firstVisibleRow = (scroll: HTMLElement) => {
+  const top = rowsTop(scroll);
+
+  for (const row of recordRows(scroll)) {
+    const box = row.getBoundingClientRect();
+
+    if (box.bottom > top) return { row, offset: top - box.top };
+  }
+
+  return null;
 };
 
 /**
@@ -68,34 +98,58 @@ export const RecordTableCursorProvider = ({
   // Read and written through the store, so scrolling re-renders nothing.
   const store = useStore();
 
-  const remember = (part: { row: string } | { scroll: number }) => {
-    if (sessionKey) store.set(tablePositionState(sessionKey), (saved) => ({ ...saved, ...part }));
-  };
+  // Once the scrolling pauses, not on every scroll event: a scroll fires one per frame.
+  const rememberPosition = useDebouncedCallback((scroll: HTMLDivElement) => {
+    if (!sessionKey) return;
+    const first = firstVisibleRow(scroll);
 
-  const rememberScrollTop = useDebouncedCallback((scroll: number) => remember({ scroll }), 150);
+    store.set(tablePositionState(sessionKey), (saved) => ({
+      ...saved,
+      row: first?.row.id ?? '',
+      rowOffset: first?.offset ?? 0,
+      scroll: scroll.scrollTop,
+    }));
+  }, 150);
 
-  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-    const scroll = event.currentTarget;
-    const firstVisibleRow = scroll.querySelector('.in-view');
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => rememberPosition(event.currentTarget);
 
-    if (firstVisibleRow) remember({ row: firstVisibleRow.id });
-
-    rememberScrollTop(scroll.scrollTop);
-  };
+  // The list it last restored: once its rows are in, the position is the member's, so a page
+  // that loads while they scroll leaves it where it is.
+  const restoredFor = useRef<string | null>(null);
 
   useEffect(() => {
     const scroll = scrollRef.current;
 
-    if (!dataLength || loading || !scroll || !sessionKey) return;
+    if (!dataLength || loading || !scroll || !sessionKey || restoredFor.current === sessionKey) {
+      return;
+    }
 
-    const saved = store.get(tablePositionState(sessionKey)).scroll;
+    restoredFor.current = sessionKey;
 
-    if (saved) scroll.scrollTop = saved;
+    const saved = store.get(tablePositionState(sessionKey));
+    const row = recordRows(scroll).find((element) => saved.row && element.id === saved.row);
+
+    // The list may reopen at the remembered row rather than at the top, so the row places it;
+    // the offset does when the row isn't drawn.
+    if (row) {
+      scroll.scrollTop += row.getBoundingClientRect().top - rowsTop(scroll) + saved.rowOffset;
+    } else if (saved.scroll) {
+      scroll.scrollTop = saved.scroll;
+    }
   }, [loading, dataLength, scrollRef, sessionKey, store]);
 
+  // `useResetPosition` scrolls the list it names while it shows.
+  useEffect(() => {
+    if (!sessionKey || !viewport) return;
+
+    store.set(tableViewportState(sessionKey), viewport);
+
+    return () => store.set(tableViewportState(sessionKey), null);
+  }, [sessionKey, viewport, store]);
+
   const cursor = useMemo(
-    () => ({ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading }),
-    [viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading],
+    () => ({ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading, dataLength }),
+    [viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading, dataLength],
   );
 
   return (
@@ -137,7 +191,7 @@ export const RecordTableBackwardSkeleton = ({
 };
 
 export const RecordTableForwardSkeleton = ({ handleFetchMore }: { handleFetchMore: FetchMore }) => {
-  const { hasNextPage, loading, viewport } = useRecordTableCursorContext();
+  const { hasNextPage, loading, viewport, dataLength } = useRecordTableCursorContext();
 
   if (!hasNextPage || loading) return null;
 
@@ -145,7 +199,24 @@ export const RecordTableForwardSkeleton = ({ handleFetchMore }: { handleFetchMor
     <RecordTableRowSkeleton
       rows={1}
       root={viewport}
+      loaded={dataLength}
       handleInView={() => handleFetchMore({ direction: EnumCursorDirection.FORWARD })}
     />
   );
+};
+
+/**
+ * Forgets where a cursor-paged list was: the list under `sessionKey` opens at its first row and
+ * scrolls back to the top. 3.x's status links called it before they changed the list.
+ */
+export const useResetRecordTablePosition = (sessionKey: string) => {
+  const store = useStore();
+
+  return () => {
+    store.set(tablePositionState(sessionKey), TOP_POSITION);
+
+    const viewport = store.get(tableViewportState(sessionKey));
+
+    if (viewport) viewport.scrollTop = 0;
+  };
 };

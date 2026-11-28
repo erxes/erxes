@@ -1,342 +1,366 @@
-import { once } from 'node:events';
-import { createServer, type Server } from 'node:http';
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { hmacSha256 } from '~/lib/crypto';
-import { useAutomations } from './automations.fixture';
-import { useTestDatabase } from './db';
-import { settle } from './settle';
+import { newId, users } from '@erxes/core-db';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import { adminDb, useTestDatabase } from './db';
+import { fakeGateway } from './fakeGateway';
+import { QPAY_KEYS, qpayAnswers, qpayTokens } from './qpaySandbox';
+import { useTwoOrgs } from './support';
 
-const API_KEY = 'sk_live_boat_0123456789';
-
-const WEBHOOK_SECRET = 'whsec_boat_0123456789';
-
-interface Seen {
-  path: string;
-  authorization: string;
-  body: string;
-}
-
-describe('custom integrations', { timeout: 120_000 }, () => {
+describe('integrations', { timeout: 120_000 }, () => {
   useTestDatabase();
 
-  const t = useAutomations();
-  const seen: Seen[] = [];
-  let service: Server;
-  let host = '';
-  let integrationId = '';
+  const t = useTwoOrgs();
+  const ids = { both: newId(), payments: newId(), integrations: newId() };
+  const both = () => t.client({ user: ids.both, org: t.ids.org });
+  const paymentsOnly = () => t.client({ user: ids.payments, org: t.ids.org });
+  const integrationsOnly = () => t.client({ user: ids.integrations, org: t.ids.org });
 
-  const saveAction = (key: string, code: string) =>
-    t.owner().integrations.saveProgram({
-      integrationId,
-      kind: 'action',
-      key,
-      label: `Boat ${key}`,
-      fields: [{ key: 'name', label: 'Name', type: 'text', required: true }],
-      outputs: [{ key: 'id', label: 'Boat', type: 'text' }],
-      code,
-    });
+  const qpay = qpayTokens();
 
-  const named = { name: 'Ada' };
+  const keysOf = async (client: ReturnType<typeof both>) =>
+    (await client.integrations.list()).data.map((integration) => integration.key);
 
-  const callsTo = (path: string) => seen.filter((call) => call.path === path);
+  const statusOf = async (client: ReturnType<typeof both>, key: string) =>
+    (await client.integrations.list()).data.find((integration) => integration.key === key)?.status;
 
   beforeAll(async () => {
-    service = createServer((req, res) => {
-      const chunks: Buffer[] = [];
+    qpayAnswers(qpay.fetch);
 
-      req.on('data', (chunk: Buffer) => chunks.push(chunk));
-      req.on('end', () => {
-        const authorization = req.headers.authorization ?? '';
+    const role = async (name: string, permissions: string[]) =>
+      (await t.owner().roles.create({ name, permissions })).key;
 
-        seen.push({
-          path: req.url ?? '',
-          authorization,
-          body: Buffer.concat(chunks).toString('utf8'),
-        });
-        res.setHeader('content-type', 'application/json');
-        res.end(JSON.stringify({ id: 'boat_1', sent: authorization }));
-      });
-    }).listen(0, '127.0.0.1');
-    await once(service, 'listening');
-
-    const address = service.address();
-
-    if (!address || typeof address === 'string') throw new Error('not listening on a port');
-
-    host = `127.0.0.1:${address.port}`;
-
-    const integration = await t.owner().integrations.create({
-      key: 'boat',
-      name: 'Boat',
-      hosts: [host],
-    });
-
-    integrationId = integration.id;
-    await t.owner().integrations.setSecrets({
-      id: integrationId,
-      secrets: { apiKey: API_KEY, webhookSecret: WEBHOOK_SECRET },
-    });
-  });
-
-  afterAll(() => new Promise<void>((resolve) => service.close(() => resolve())));
-
-  it('runs as an automation step with the sealed key, which the program and the run never hold', async () => {
-    await saveAction(
-      'create',
-      `const res = await request({
-        method: 'POST',
-        url: 'http://${host}/boats',
-        headers: { Authorization: 'Bearer {{secret.apiKey}}' },
-        body: { name: input.name },
-      });
-      return { id: res.body.id, sent: res.body.sent };`,
-    );
-
-    const automationId = await t.active('Boat for Bold', {
-      trigger: {
-        kind: 'event',
-        event: 'core.customer.created',
-        conditions: {
-          match: 'all',
-          rules: [{ path: 'subject.firstName', op: 'eq', value: 'Bold' }],
-        },
-      },
-      steps: [
-        {
-          id: 'boat',
-          type: 'action',
-          action: 'integrations.boat.create',
-          input: { name: '{{subject.firstName}}' },
-        },
-      ],
-    });
-
-    await t.owner().customers.create({ firstName: 'Bold' });
-    await settle();
-
-    const [run] = await t.runsOf(automationId);
-    const detail = await t.owner().automations.run({ runId: run?.id ?? '' });
-
-    expect(detail.run.status).toBe('succeeded');
-    expect(callsTo('/boats')).toEqual([
-      { path: '/boats', authorization: `Bearer ${API_KEY}`, body: '{"name":"Bold"}' },
+    const [bothRole, paymentsRole, integrationsRole] = await Promise.all([
+      role('Finance and setup', ['payments.manage', 'integrations.manage']),
+      role('Finance', ['payments.manage']),
+      role('Setup', ['integrations.manage']),
     ]);
-    expect(detail.steps[0]?.output).toEqual({ id: 'boat_1', sent: 'Bearer [sealed]' });
-    expect(JSON.stringify(detail)).not.toContain(API_KEY);
+
+    await adminDb()
+      .insert(users)
+      .values([
+        { id: ids.both, orgId: t.ids.org, email: 'both@acme.mn', role: bothRole, status: 'active' },
+        {
+          id: ids.payments,
+          orgId: t.ids.org,
+          email: 'finance@acme.mn',
+          role: paymentsRole,
+          status: 'active',
+        },
+        {
+          id: ids.integrations,
+          orgId: t.ids.org,
+          email: 'setup@acme.mn',
+          role: integrationsRole,
+          status: 'active',
+        },
+      ]);
   });
 
-  it('never returns a sealed value, only its name', async () => {
-    const detail = await t.owner().integrations.get({ id: integrationId });
-
-    expect(detail.sealedNames).toEqual(['apiKey', 'webhookSecret']);
-    expect(JSON.stringify(detail)).not.toContain(API_KEY);
-    expect(JSON.stringify(await t.owner().integrations.list({}))).not.toContain(API_KEY);
+  afterAll(() => {
+    vi.unstubAllGlobals();
   });
 
-  it('refuses a host the member did not allow', async () => {
-    const program = await saveAction(
-      'leak',
-      `return request({ url: 'https://example.org/collect', headers: { 'X-Key': '{{secret.apiKey}}' } });`,
+  it('lists eBarimt and the gateways with their form fields, and a gateway goes from not set up to connected to off', async () => {
+    const listed = (await both().integrations.list()).data;
+
+    expect(listed.map((integration) => integration.key)).toEqual(
+      expect.arrayContaining(['ebarimt', 'qpay', 'test']),
     );
+    const listing = listed.find((integration) => integration.key === 'qpay');
 
-    const refused = await t.owner().integrations.testProgram({ id: program.id, input: named });
+    expect(listing?.permission).toBe('payments.manage');
+    expect(listing?.status).toEqual({ state: 'not-set-up', count: null });
+    expect(listing?.fields.map((field) => [field.key, field.type, field.optional])).toEqual([
+      ['clientId', 'text', false],
+      ['clientSecret', 'secret', false],
+      ['invoiceCode', 'text', false],
+      ['sandbox', 'switch', true],
+    ]);
 
-    expect(refused.ok).toBe(false);
-    expect(JSON.stringify(refused)).toContain("example.org is not one of Boat's hosts");
-    expect(seen.some((call) => call.path === '/collect')).toBe(false);
-  });
-
-  it('lists the action for automations and refuses one whose integration is gone', async () => {
-    const { actions } = await t.owner().automations.catalog({});
-
-    expect(actions.find((action) => action.type === 'integrations.boat.create')).toMatchObject({
-      label: 'Boat create',
-      source: 'Boat',
-      fields: [expect.objectContaining({ key: 'name', required: true })],
+    const connection = await both().integrations.connect({
+      key: 'qpay',
+      name: 'QPay',
+      keys: QPAY_KEYS,
     });
 
-    const draft = await t.owner().automations.create({
-      name: 'No such action',
-      definition: {
-        trigger: { kind: 'manual' },
-        steps: [{ id: 'gone', type: 'action', action: 'integrations.boat.nope', input: {} }],
-      },
-    });
+    expect(await statusOf(both(), 'qpay')).toEqual({ state: 'connected', count: 1 });
 
-    await expect(t.owner().automations.activate({ id: draft.id })).rejects.toThrow(
-      'unknown action integrations.boat.nope',
-    );
+    await both().integrations.update({ key: 'qpay', id: connection.id, status: 'disabled' });
+
+    expect(await statusOf(both(), 'qpay')).toEqual({ state: 'off', count: null });
   });
 
-  it('keeps each version and makes an earlier one live again', async () => {
-    const first = await saveAction('versioned', 'return { made: "first" };');
-    const second = await saveAction('versioned', 'return { made: "second" };');
+  it('lists only the integrations the member’s role manages', async () => {
+    const setup = await keysOf(integrationsOnly());
+    const finance = await keysOf(paymentsOnly());
 
-    expect([first.version, second.version]).toEqual([1, 2]);
-    const run = () => t.owner().integrations.testProgram({ id: first.id, input: named });
+    expect(setup).toContain('ebarimt');
+    expect(setup).not.toContain('qpay');
+    expect(setup).not.toContain('test');
+    expect(finance).toEqual(expect.arrayContaining(['qpay', 'test']));
+    expect(finance).not.toContain('ebarimt');
+  });
 
-    expect(await run()).toMatchObject({ result: { made: 'second' } });
+  it('refuses a gateway’s connections to a member who may not manage payments', async () => {
+    const gateway = await paymentsOnly().integrations.connect({
+      key: 'test',
+      name: 'Till',
+      keys: {},
+    });
 
-    const restored = await t.owner().integrations.restoreProgram({ id: first.id, version: 1 });
+    const refused = { status: 403, code: 'NOT_ALLOWED', data: { permission: 'payments.manage' } };
+    const setup = integrationsOnly().integrations;
 
-    expect(restored.version).toBe(3);
-    expect(await run()).toMatchObject({ result: { made: 'first' } });
+    await expect(setup.connections({ key: 'test' })).rejects.toMatchObject(refused);
+    await expect(setup.connect({ key: 'test', name: 'Mine', keys: {} })).rejects.toMatchObject(
+      refused,
+    );
+    await expect(
+      setup.update({ key: 'test', id: gateway.id, name: 'Renamed', status: 'disabled' }),
+    ).rejects.toMatchObject(refused);
+    await expect(setup.remove({ key: 'test', id: gateway.id })).rejects.toMatchObject(refused);
+
+    const kept = (await paymentsOnly().integrations.connections({ key: 'test' })).data;
+
+    expect(kept.map((row) => [row.name, row.status])).toEqual([['Till', 'active']]);
+  });
+
+  it('never sends a secret key back, but sends the other settings', async () => {
+    const connected = await both().integrations.connect({
+      key: 'qpay',
+      name: 'QPay main',
+      keys: QPAY_KEYS,
+    });
+
+    const settings = { clientId: 'acme-client', invoiceCode: 'ACME_INVOICE', sandbox: true };
+
+    expect(connected.settings).toEqual(settings);
+
+    const renamed = await both().integrations.update({
+      key: 'qpay',
+      id: connected.id,
+      name: 'QPay shop',
+    });
+
+    const listed = await both().integrations.connections({ key: 'qpay' });
+    const gateways = await both().payments.gateways();
+
+    expect(renamed.settings).toEqual(settings);
+    expect(listed.data.find((row) => row.id === connected.id)?.settings).toEqual(settings);
+    expect(gateways.data.find((row) => row.id === connected.id)?.settings).toEqual(settings);
+
+    for (const answer of [connected, renamed, listed, gateways])
+      expect(JSON.stringify(answer)).not.toContain('qpay-top-secret');
+  });
+
+  it('hides a connection from another organisation, which can neither change nor remove it', async () => {
+    const gateway = await t
+      .owner()
+      .integrations.connect({ key: 'test', name: 'Acme only', keys: {} });
+
+    const notFound = { status: 404, code: 'NOT_FOUND' };
+    const globex = t.other().integrations;
+
+    expect((await globex.connections({ key: 'test' })).data).toEqual([]);
+    expect(await statusOf(t.other(), 'test')).toEqual({ state: 'not-set-up', count: null });
+    await expect(
+      globex.update({ key: 'test', id: gateway.id, name: 'Taken', status: 'disabled' }),
+    ).rejects.toMatchObject(notFound);
+    await expect(globex.remove({ key: 'test', id: gateway.id })).rejects.toMatchObject(notFound);
+
+    const kept = (await t.owner().integrations.connections({ key: 'test' })).data;
+
+    expect(kept.find((row) => row.id === gateway.id)).toMatchObject({
+      name: 'Acme only',
+      status: 'active',
+    });
+  });
+
+  it('keeps many connections of one integration, each under a name no other of them has', async () => {
+    const owner = t.owner().integrations;
+    const shopA = await owner.connect({ key: 'test', name: 'Shop A', keys: {} });
+    const shopB = await owner.connect({ key: 'test', name: 'Shop B', keys: {} });
+    const taken = { status: 409, code: 'TAKEN', data: { field: 'name' } };
+
+    await expect(owner.connect({ key: 'test', name: 'shop a', keys: {} })).rejects.toMatchObject(
+      taken,
+    );
+    await expect(owner.update({ key: 'test', id: shopB.id, name: 'SHOP A' })).rejects.toMatchObject(
+      taken,
+    );
+    await expect(
+      owner.update({ key: 'test', id: shopA.id, name: 'Shop A' }),
+    ).resolves.toMatchObject({ name: 'Shop A' });
+
+    const elsewhere = await t
+      .other()
+      .integrations.connect({ key: 'test', name: 'Shop A', keys: {} });
+
+    expect(elsewhere.name).toBe('Shop A');
+    await t.other().integrations.remove({ key: 'test', id: elsewhere.id });
+
+    const names = (await owner.connections({ key: 'test' })).data.map((row) => row.name);
+
+    expect(names.filter((name) => name.toLowerCase().startsWith('shop '))).toEqual(
+      expect.arrayContaining(['Shop A', 'Shop B']),
+    );
+    expect(names.filter((name) => name.toLowerCase() === 'shop a')).toHaveLength(1);
+  });
+
+  it('refuses a connection under another integration’s key, and an integration that does not exist', async () => {
+    const gateway = await t.owner().integrations.connect({ key: 'test', name: 'Spare', keys: {} });
+    const owner = t.owner().integrations;
+    const changed = { status: 400, code: 'KIND_CHANGED' };
+
+    await expect(
+      owner.update({ key: 'qpay', id: gateway.id, keys: QPAY_KEYS }),
+    ).rejects.toMatchObject(changed);
+    await expect(owner.remove({ key: 'qpay', id: gateway.id })).rejects.toMatchObject(changed);
     expect(
-      (await t.owner().integrations.programVersions({ id: first.id })).data.map(
-        (version) => version.version,
-      ),
-    ).toEqual([3, 2, 1]);
-  });
+      (await owner.connections({ key: 'test' })).data.find((row) => row.id === gateway.id),
+    ).toMatchObject({ key: 'test', name: 'Spare' });
 
-  it('turns a signed incoming call into an event that starts an automation, once', async () => {
-    const program = await t.owner().integrations.saveProgram({
-      integrationId,
-      kind: 'incoming',
-      key: 'hook',
-      label: 'Boat events',
-      events: [
-        {
-          key: 'boat_created',
-          label: 'Boat created',
-          fields: [{ key: 'boatId', label: 'Boat', type: 'text' }],
-        },
-      ],
-      code: `const ok = await verify(incoming.headers['x-boat-signature'] ?? '', incoming.rawBody, 'webhookSecret');
-      if (!ok) return null;
-      return { event: 'boat_created', payload: { boatId: incoming.body.id }, dedupeKey: incoming.body.eventId };`,
-    });
-
-    const automationId = await t.active('Tell the service', {
-      trigger: { kind: 'event', event: 'integrations.boat.boat_created' },
-      steps: [
-        {
-          id: 'tell',
-          type: 'action',
-          action: 'core.webhook.post',
-          input: { url: `http://${host}/told`, body: { boat: '{{event.payload.boatId}}' } },
-        },
-      ],
-    });
-
-    const path = new URL(program.address ?? '').pathname;
-    const body = JSON.stringify({ id: 'boat_7', eventId: 'evt_1' });
-
-    const call = (signature: string) =>
-      fetch(t.url(path), {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-boat-signature': signature },
-        body,
-      });
-
-    const signed = `sha256=${hmacSha256(WEBHOOK_SECRET, body, 'hex')}`;
-
-    expect((await call('sha256=00')).status).toBe(200);
-    await settle();
-    expect(await t.runsOf(automationId)).toHaveLength(0);
-
-    expect((await call(signed)).status).toBe(200);
-    expect((await call(signed)).status).toBe(200);
-    await settle();
-
-    expect(await t.runsOf(automationId)).toHaveLength(1);
-    expect(callsTo('/told').map((told) => told.body)).toEqual(['{"boat":"boat_7"}']);
-  });
-
-  it('refuses an incoming address with a forged signature', async () => {
-    const detail = await t.owner().integrations.get({ id: integrationId });
-    const hook = detail.programs.find((program) => program.kind === 'incoming');
-    const path = new URL(hook?.address ?? '').pathname;
-
-    const forged = await fetch(t.url(`${path.slice(0, path.lastIndexOf('/'))}/forged`), {
-      method: 'POST',
-    });
-
-    expect(forged.status).toBe(403);
-  });
-
-  it("keeps another organisation out of an organisation's integrations", async () => {
-    const detail = await t.owner().integrations.get({ id: integrationId });
-    const [program] = detail.programs;
-
-    expect((await t.other().integrations.list({})).data).toEqual([]);
-    await expect(t.other().integrations.get({ id: integrationId })).rejects.toMatchObject({
+    await expect(owner.connections({ key: 'nope' })).rejects.toMatchObject({
       status: 404,
       code: 'NOT_FOUND',
     });
-    await expect(
-      t.other().integrations.testProgram({ id: program?.id ?? '' }),
-    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
-    await expect(
-      t.other().integrations.setSecrets({ id: integrationId, secrets: { apiKey: 'theirs' } }),
-    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
+    await expect(owner.connect({ key: 'nope', name: 'Nope', keys: {} })).rejects.toMatchObject({
+      status: 404,
+      code: 'NOT_FOUND',
+    });
+    await expect(owner.connect({ key: 'ebarimt', name: 'Tax', keys: {} })).rejects.toMatchObject({
+      status: 404,
+      code: 'NOT_FOUND',
+    });
   });
 
-  it('offers the declared outputs at once, then corrects them from what a run really answered', async () => {
-    const outputsOf = async () =>
-      (await t.owner().automations.catalog({})).actions.find(
-        (action) => action.type === 'integrations.boat.healed',
-      )?.outputs;
+  it('refuses keys that do not fit the integration’s form, naming each field under keys', async () => {
+    await expect(
+      both().integrations.connect({ key: 'qpay', name: 'Half', keys: { clientId: 'acme-client' } }),
+    ).rejects.toMatchObject({
+      status: 400,
+      code: 'INVALID_INPUT',
+      data: { issues: [{ path: ['keys', 'clientSecret'] }, { path: ['keys', 'invoiceCode'] }] },
+    });
+  });
 
-    const program = await t.owner().integrations.saveProgram({
-      integrationId,
-      kind: 'action',
-      key: 'healed',
-      label: 'Healed',
-      outputs: [{ key: 'id', label: 'Boat', type: 'number' }],
-      code: 'return { id: "boat_1", crewSize: 4, owner: { name: "Bold" } };',
+  it('checks new credentials with the gateway before saving them, and audits each change', async () => {
+    const shop = await both().integrations.connect({
+      key: 'qpay',
+      name: 'QPay audit',
+      keys: QPAY_KEYS,
     });
 
-    expect(await outputsOf()).toEqual([{ key: 'id', label: 'Boat', type: 'number' }]);
+    const changed = { ...QPAY_KEYS, invoiceCode: 'NEW_CODE' };
 
-    await t.owner().integrations.testProgram({ id: program.id });
+    qpayAnswers(fakeGateway([]).fetch);
 
-    expect(await outputsOf()).toEqual([
-      { key: 'id', label: 'Boat', type: 'text' },
-      { key: 'crewSize', label: 'Crew size', type: 'number' },
+    try {
+      await expect(
+        both().integrations.update({ key: 'qpay', id: shop.id, keys: changed }),
+      ).rejects.toMatchObject({ status: 400, code: 'GATEWAY_REFUSED' });
+    } finally {
+      qpayAnswers(qpay.fetch);
+    }
+
+    const settingsOf = async () =>
+      (await both().integrations.connections({ key: 'qpay' })).data.find(
+        (row) => row.id === shop.id,
+      )?.settings;
+
+    expect(await settingsOf()).toMatchObject({ invoiceCode: 'ACME_INVOICE' });
+    await both().integrations.update({
+      key: 'qpay',
+      id: shop.id,
+      keys: { invoiceCode: 'NEW_CODE' },
+    });
+    expect(await settingsOf()).toEqual({
+      clientId: 'acme-client',
+      invoiceCode: 'NEW_CODE',
+      sandbox: true,
+    });
+    await both().integrations.update({
+      key: 'qpay',
+      id: shop.id,
+      keys: { clientSecret: 'rotated-secret' },
+    });
+    await both().integrations.update({ key: 'qpay', id: shop.id, status: 'disabled' });
+    expect(await both().integrations.remove({ key: 'qpay', id: shop.id })).toEqual({ ok: true });
+
+    const audited = (await t.owner().audit.list({ targetId: shop.id })).data;
+
+    expect(
+      audited.map(({ action, targetType, metadata }) => [action, targetType, metadata]),
+    ).toEqual([
+      ['integration.removed', 'integration_connection', { key: 'qpay' }],
+      [
+        'integration.updated',
+        'integration_connection',
+        { key: 'qpay', credentialsChanged: false, status: 'disabled' },
+      ],
+      ['integration.updated', 'integration_connection', { key: 'qpay', credentialsChanged: true }],
+      [
+        'integration.updated',
+        'integration_connection',
+        { key: 'qpay', credentialsChanged: false, invoiceCode: 'NEW_CODE' },
+      ],
+      [
+        'integration.connected',
+        'integration_connection',
+        { key: 'qpay', clientId: 'acme-client', invoiceCode: 'ACME_INVOICE', sandbox: true },
+      ],
     ]);
   });
 
-  it('adds an event the code publishes without declaring it, with what it carried', async () => {
-    const program = await t.owner().integrations.saveProgram({
-      integrationId,
-      kind: 'incoming',
-      key: 'undeclared',
-      label: 'Undeclared',
-      code: 'return { event: "boat_sunk", payload: { boatId: incoming.body.id, depth: incoming.body.depth } };',
-    });
-
-    const sent = await fetch(t.url(new URL(program.address ?? '').pathname), {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id: 'boat_9', depth: 12 }),
-    });
-
-    expect(sent.status).toBe(200);
-    await settle();
-
-    const { triggers } = await t.owner().automations.catalog({});
-
-    expect(
-      triggers.find((trigger) => trigger.type === 'integrations.boat.boat_sunk'),
-    ).toMatchObject({
-      label: 'Boat sunk',
-      fields: [
-        { key: 'boatId', label: 'Boat id', type: 'text' },
-        { key: 'depth', label: 'Depth', type: 'number' },
-      ],
-    });
-  });
-
-  it('answers 409 TAKEN for a key another integration holds', async () => {
+  it('refuses a state report from a plugin whose manifest declares no integrations', async () => {
     await expect(
-      t.owner().integrations.create({ key: 'boat', name: 'Second boat', hosts: [host] }),
-    ).rejects.toMatchObject({ status: 409, code: 'TAKEN', data: { field: 'key' } });
+      t.hr().integrations.report({ key: 'facebook', state: 'connected' }),
+    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
   });
 
-  it('needs integrations.manage', async () => {
-    await expect(t.member().integrations.list({})).rejects.toMatchObject({
-      status: 403,
-      code: 'NOT_ALLOWED',
+  it('lists the connections of every integration the member manages, and none to another role or organisation', async () => {
+    const till = await both().integrations.connect({ key: 'test', name: 'Vault till', keys: {} });
+
+    const shop = await both().integrations.connect({
+      key: 'qpay',
+      name: 'Vault QPay',
+      keys: QPAY_KEYS,
     });
+
+    const listed = await both().integrations.connections({});
+    const keys = new Map(listed.data.map((row) => [row.id, row.key]));
+
+    expect(keys.get(till.id)).toBe('test');
+    expect(keys.get(shop.id)).toBe('qpay');
+    expect(JSON.stringify(listed)).not.toContain('qpay-top-secret');
+    expect((await integrationsOnly().integrations.connections({})).data).toEqual([]);
+    expect((await t.other().integrations.connections({})).data).toEqual([]);
+  });
+
+  it('names every plugin that takes payments on each gateway that is on, and none on one turned off', async () => {
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '2',
+      scopes: ['payments:read', 'payments:write'],
+    });
+
+    const owner = t.owner();
+    const open = await owner.integrations.connect({ key: 'test', name: 'Open till', keys: {} });
+    const spare = await owner.integrations.connect({ key: 'test', name: 'Spare till', keys: {} });
+
+    const usedBy = async (id: string) =>
+      (await owner.integrations.connections({})).data.find((row) => row.id === id)?.usedBy;
+
+    expect(await usedBy(open.id)).toEqual(['HR']);
+    expect(await usedBy(spare.id)).toEqual(['HR']);
+
+    await owner.payments.saveSettings({ defaultGatewayId: spare.id });
+
+    expect(await usedBy(open.id)).toEqual(['HR']);
+    expect(await usedBy(spare.id)).toEqual(['HR']);
+
+    await owner.integrations.update({ key: 'test', id: open.id, status: 'disabled' });
+
+    expect(await usedBy(open.id)).toEqual([]);
+    expect(await usedBy(spare.id)).toEqual(['HR']);
   });
 });

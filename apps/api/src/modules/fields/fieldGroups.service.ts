@@ -1,4 +1,5 @@
-import { isCoreFieldType } from '@erxes/core-contract';
+import { type coreContract, isCoreFieldType } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { type PropertyContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -82,13 +83,7 @@ const assertAppliesTo = (
 
 export const createFieldGroup = async (
   client: Db,
-  input: {
-    contentType: PropertyContentType;
-    name: string;
-    code?: string;
-    description?: string | null;
-    appliesTo?: Record<string, string[]>;
-  },
+  input: InferContractRouterInputs<typeof coreContract>['fieldGroups']['create'],
 ) => {
   await assertPropertyType(client, input.contentType);
   assertAppliesTo(input.contentType, input.appliesTo);
@@ -136,13 +131,7 @@ export const updateFieldGroup = async (
   {
     description,
     ...rest
-  }: {
-    name?: string;
-    code?: string;
-    description?: string | null;
-    order?: number;
-    appliesTo?: Record<string, string[]>;
-  },
+  }: Omit<InferContractRouterInputs<typeof coreContract>['fieldGroups']['update'], 'id'>,
 ) => {
   const group = await findGroup(client, id);
 

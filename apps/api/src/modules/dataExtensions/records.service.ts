@@ -1,4 +1,9 @@
-import { customObjectType, type CursorQuery } from '@erxes/core-contract';
+import {
+  customObjectType,
+  type CursorQuery,
+  type DataExtensionRecordCreate,
+} from '@erxes/core-contract';
+import type { z } from 'zod';
 import { caller, callerUserId, type Db, dataFields, newId } from '@erxes/core-db';
 import { compileFilter, FilterParam, invalidFilter, textArray } from '@erxes/plugin-sdk/filter';
 import { and, inArray, type SQL, sql } from 'drizzle-orm';
@@ -200,7 +205,7 @@ const writeOutside = (client: Db, prepared: PreparedValues, id: string) =>
 
 export const createRecord = async (
   client: Db,
-  input: { objectKey: string; values: Record<string, unknown>; position?: number },
+  input: z.infer<typeof DataExtensionRecordCreate>,
 ) => {
   const source = await recordSource(client, input.objectKey);
   const prepared = await prepareValues(client, source.fields, source.sides, input.values, true);

@@ -6,7 +6,7 @@ import {
   productCategories,
   products,
 } from '@erxes/core-db';
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { type ProductInfo } from './build';
 import { ownReceiptPlugins } from './plugins';
 
@@ -17,7 +17,11 @@ export type SettingsRow = typeof ebarimtSettings.$inferSelect;
 type InvoiceRow = typeof paymentInvoices.$inferSelect;
 
 /** PosAPI takes tögrög only. */
-const RECEIPT_CURRENCY = 'MNT';
+export const RECEIPT_CURRENCY = 'MNT';
+
+/** Why a turned-off config sent nothing: the receipt's error, and the 400's message. */
+export const configOff = (settings: Pick<SettingsRow, 'name'>) =>
+  `The eBarimt config "${settings.name}" is turned off (Settings › Integrations)`;
 
 /** The invoice's issued receipt: a put that succeeded and wasn't returned or replaced since. */
 export const activeReceipt = async (tx: Db, invoiceId: string) => {
@@ -38,26 +42,38 @@ export const activeReceipt = async (tx: Db, invoiceId: string) => {
   return row ?? null;
 };
 
-export const settingsOf = async (tx: Db) => {
-  const [row] = await tx.select().from(ebarimtSettings).limit(1);
+/** The organisation's configs, the default first, then oldest first. */
+export const listConfigs = (tx: Db) =>
+  tx
+    .select()
+    .from(ebarimtSettings)
+    .orderBy(desc(ebarimtSettings.isDefault), asc(ebarimtSettings.createdAt));
+
+/** The config with this id, else the default; null when there is none. */
+export const configOf = async (tx: Db, id?: string | null) => {
+  const [row] = await tx
+    .select()
+    .from(ebarimtSettings)
+    .where(id ? eq(ebarimtSettings.id, id) : eq(ebarimtSettings.isDefault, true))
+    .limit(1);
 
   return row ?? null;
 };
 
-/** Does the organisation issue receipts for this invoice? */
-const issuesFor = (
-  settings: SettingsRow | null,
-  invoice: Pick<InvoiceRow, 'source' | 'currency'>,
-): settings is SettingsRow =>
-  settings?.status === 'active' &&
-  settings.plugins.includes(invoice.source) &&
-  invoice.currency === RECEIPT_CURRENCY;
+/** True when any config sends receipts. */
+export const anyActive = async (tx: Db) => {
+  const [row] = await tx
+    .select({ id: ebarimtSettings.id })
+    .from(ebarimtSettings)
+    .where(eq(ebarimtSettings.status, 'active'))
+    .limit(1);
+
+  return Boolean(row);
+};
 
 /** What the invoice still holds: paid less refunded (nothing unless it was paid). */
 export const keptAmount = (invoice: InvoiceRow) =>
-  invoice.status === 'paid' || invoice.status === 'refunded'
-    ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount
-    : 0;
+  invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
 /** The products of the lines: code, barcode, unit and the categories they sit in. */
 const productInfo = async (tx: Db, ids: string[]) => {
@@ -112,11 +128,21 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
     .where(eq(paymentInvoices.id, invoiceId))
     .limit(1);
 
-  const settings = await settingsOf(tx);
+  if (!invoice) return null;
 
-  if (!invoice || !issuesFor(settings, invoice)) return null;
+  const active = await activeReceipt(tx, invoiceId);
+  // An issued receipt is replaced or returned through the config that sent it; a new one goes
+  // through the invoice's config, else the default.
+  const settings = await configOf(tx, active?.settingsId ?? invoice.ebarimtId);
 
-  // Picked before the plugin said it sends its own: the plugin's receipt stands.
+  if (!settings || invoice.currency !== RECEIPT_CURRENCY) return null;
+
+  // The default turned off is eBarimt off: nothing to send. A config the invoice names, or the
+  // one that issued its receipt, turned off leaves a receipt unsent: the sync keeps it as failed.
+  const off = settings.status !== 'active';
+
+  if (off && !invoice.ebarimtId && !active) return null;
+
   if ((await ownReceiptPlugins(tx, [invoice.source])).size) return null;
 
   const ids = [...new Set(invoice.lines.flatMap((line) => line.productId ?? []))];
@@ -124,7 +150,8 @@ export const readForSync = async (tx: Db, invoiceId: string) => {
   return {
     invoice,
     settings,
-    active: await activeReceipt(tx, invoiceId),
+    off,
+    active,
     products: await productInfo(tx, ids),
   };
 };

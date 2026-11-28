@@ -1,3 +1,4 @@
+import type { coreContract } from '@erxes/core-contract';
 import {
   actorOf,
   caller,
@@ -6,11 +7,13 @@ import {
   files,
   newId,
   requestOrgId,
+  secrets,
   sourceOf,
   withOrg,
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { config } from '~/config';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
@@ -23,9 +26,11 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { assertStreamable, queueCloudflareMove } from './cloudflareMove';
 import { fileWithUrl } from './fileColumns';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
-import { storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
+import { bucketAndSecret, storeOf, storeWith, uploadedTo, uploadStore } from './bucket';
+import { linkFor } from './pluginLink';
 import { canShowInline } from './storage';
 import { logger } from '~/logger';
+import { withSecret } from '~/modules/secrets/vault';
 import { guardDeletions } from '~/lib/deletionGuard';
 
 const log = logger.child({ component: 'files' });
@@ -55,7 +60,7 @@ const uploadedBy = () => {
  */
 export const createUpload = async (
   client: Db,
-  input: { name: string; contentType: string; size: number; public?: boolean },
+  input: InferContractRouterInputs<typeof coreContract>['files']['createUpload'],
 ) => {
   assertUploadAllowed(await fileSettingsOf(client), input);
   assertStreamable(input);
@@ -190,7 +195,7 @@ export const getFile = async (client: Db, id: string) => {
     return { ...row, downloadUrl: null };
   }
 
-  return { ...row, downloadUrl: await downloadUrlOf(client, row, false) };
+  return { ...row, downloadUrl: await linkFor(client, await downloadUrlOf(client, row, false)) };
 };
 
 export const downloadUrlOf = async (client: Db, row: FileRow, forceDownload: boolean) =>
@@ -299,9 +304,10 @@ export const removeFile = async (client: Db, id: string) => {
 export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   const rows = await withSystem('files: deletions to purge', (tx) =>
     tx
-      .select({ id: files.id, key: files.key, storage: files.storage, bucket: fileBuckets })
+      .select({ id: files.id, key: files.key, storage: files.storage, ...bucketAndSecret })
       .from(files)
       .leftJoin(fileBuckets, eq(fileBuckets.orgId, files.orgId))
+      .leftJoin(secrets, eq(secrets.id, fileBuckets.secretId))
       .where(
         and(
           eq(files.status, 'deleting'),
@@ -316,7 +322,7 @@ export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
   // One object at a time: the store never gets 500 deletes at once.
   await inOrder(rows, async (row) => {
     try {
-      await storeWith(row.storage, row.bucket).remove(row.key);
+      await storeWith(row.storage, withSecret(row.bucket, row.secret)).remove(row.key);
       removed.push(row.id);
     } catch (error) {
       log.error({ key: row.key, err: error }, 'could not delete stored file; will retry');

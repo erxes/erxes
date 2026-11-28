@@ -5,6 +5,29 @@ import { useTwoOrgs } from './support';
 /** What a member sends: defaults such as `reentry` may be left out. */
 export type DefinitionInput = z.input<typeof AutomationDefinition>;
 
+export type StepInput = DefinitionInput['steps'][number];
+
+/** Runs `steps` for each new customer called `firstName`. */
+export const forCustomer = (firstName: string, steps: StepInput[]): DefinitionInput => ({
+  trigger: {
+    kind: 'event',
+    event: 'core.customer.created',
+    conditions: {
+      match: 'all',
+      rules: [{ path: 'subject.firstName', op: 'eq', value: firstName }],
+    },
+  },
+  steps,
+});
+
+/** An action step. */
+export const action = (id: string, type: string, input: Record<string, unknown>): StepInput => ({
+  id,
+  type: 'action',
+  action: type,
+  input,
+});
+
 /** Acme and Globex (`useTwoOrgs`), with helpers to start automations as Acme's owner and read their runs. */
 export const useAutomations = () => {
   const t = useTwoOrgs();
@@ -24,5 +47,18 @@ export const useAutomations = () => {
   const stepsOf = async (runId: string) =>
     (await t.owner().automations.run({ runId })).steps.map((step) => step.stepId);
 
-  return { ...t, active, runsOf, stepsOf };
+  /** The automation's only run, with its steps. */
+  const onlyRun = async (id: string) => {
+    const [run] = await runsOf(id);
+
+    if (!run) throw new Error('no run started');
+
+    return t.owner().automations.run({ runId: run.id });
+  };
+
+  /** Each step of the automation's only run, by id, with its output. */
+  const outputsOf = async (id: string) =>
+    Object.fromEntries((await onlyRun(id)).steps.map((step) => [step.stepId, step.output]));
+
+  return { ...t, active, runsOf, stepsOf, onlyRun, outputsOf };
 };

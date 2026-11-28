@@ -1,7 +1,7 @@
 import type { EbarimtSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Checkbox, Input, Label, Spinner, useToast } from 'erxes-ui';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button, Input, Label, Spinner, useToast } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type DraftRule, draftRule, EbarimtRules } from './EbarimtRules';
@@ -22,12 +22,14 @@ const TAX_FIELDS = [
 ] as const;
 
 type TextKey =
+  | 'name'
   | 'posApiUrl'
   | (typeof BUSINESS_FIELDS)[number]['key']
   | (typeof TAX_FIELDS)[number]['key'];
 
 const draftOf = (saved: EbarimtSettings | null) => ({
   text: {
+    name: saved?.name ?? '',
     posApiUrl: saved?.posApiUrl ?? '',
     companyName: saved?.companyName ?? '',
     merchantTin: saved?.merchantTin ?? '',
@@ -38,66 +40,10 @@ const draftOf = (saved: EbarimtSettings | null) => ({
     vatPercent: String(saved?.vatPercent ?? 10),
     cityTaxPercent: String(saved?.cityTaxPercent ?? 0),
   } satisfies Record<TextKey, string>,
-  plugins: saved?.plugins ?? [],
   rules: (saved?.rules ?? []).map(draftRule),
 });
 
 type Draft = ReturnType<typeof draftOf>;
-
-/** The plugins that take payments here: each one's paid invoices may get receipts. */
-const PluginChoice = ({
-  value,
-  onChange,
-}: {
-  value: string[];
-  onChange: (plugins: string[]) => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const id = useId();
-  const plugins = useQuery(orpc.ebarimt.plugins.queryOptions());
-  const rows = plugins.data?.data ?? [];
-  const own = rows.filter((row) => row.ownReceipts);
-
-  return (
-    <div className="space-y-2">
-      <Label>{t('plugins', 'Issue receipts for invoices of')}</Label>
-      {plugins.isError && (
-        <p className="text-xs text-destructive-text">
-          {t('plugins-failed', 'Could not load the plugins that take payments.')}
-        </p>
-      )}
-      {plugins.isSuccess && !rows.length && (
-        <p className="text-xs text-muted-foreground">
-          {t('no-plugins', 'No installed plugin takes payments yet.')}
-        </p>
-      )}
-      <div className="flex flex-wrap gap-4">
-        {rows.map((row) => (
-          <span key={row.plugin} className="flex items-center gap-2 text-sm">
-            <Checkbox
-              id={`${id}-${row.plugin}`}
-              disabled={row.ownReceipts}
-              checked={value.includes(row.plugin)}
-              onCheckedChange={(on) =>
-                onChange(on ? [...value, row.plugin] : value.filter((name) => name !== row.plugin))
-              }
-            />
-            <label htmlFor={`${id}-${row.plugin}`}>{row.title}</label>
-          </span>
-        ))}
-      </div>
-      {own.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {t('own-receipts', {
-            defaultValue:
-              '{{plugins}} send their own eBarimt receipts, so core issues none for them.',
-            plugins: own.map((row) => row.title).join(', '),
-          })}
-        </p>
-      )}
-    </div>
-  );
-};
 
 /** Asks the PosAPI at the typed address for its state. */
 const TestConnection = ({ posApiUrl }: { posApiUrl: string }) => {
@@ -137,26 +83,26 @@ const TestConnection = ({ posApiUrl }: { posApiUrl: string }) => {
   );
 };
 
-const useSave = (onSaved?: () => void) => {
+/** Toasts what a save did, and refreshes the configs and the Integrations page. */
+const useConfigSaved = (onSaved?: (config: EbarimtSettings) => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
   const { toast } = useToast();
   const client = useQueryClient();
 
-  return useMutation(
-    orpc.ebarimt.saveSettings.mutationOptions({
-      onSuccess: () => {
-        void client.invalidateQueries({ queryKey: orpc.ebarimt.settings.key() });
-        toast({ title: t('saved', 'eBarimt settings saved') });
-        onSaved?.();
-      },
-      onError: (error) =>
-        toast({
-          variant: 'destructive',
-          title: t('save-failed', 'Could not save'),
-          description: messageOf(error),
-        }),
-    }),
-  );
+  return {
+    onSuccess: (config: EbarimtSettings) => {
+      void client.invalidateQueries({ queryKey: orpc.ebarimt.key() });
+      void client.invalidateQueries({ queryKey: orpc.integrations.list.key() });
+      toast({ title: t('saved', 'eBarimt settings saved') });
+      onSaved?.(config);
+    },
+    onError: (error: unknown) =>
+      toast({
+        variant: 'destructive',
+        title: t('save-failed', 'Could not save'),
+        description: messageOf(error),
+      }),
+  };
 };
 
 /** What the form sends: numbers parsed, and rules that name a category or product. */
@@ -164,13 +110,12 @@ const inputOf = (draft: Draft, rules: DraftRule[]) => ({
   ...draft.text,
   vatPercent: Number(draft.text.vatPercent || 0),
   cityTaxPercent: Number(draft.text.cityTaxPercent || 0),
-  plugins: draft.plugins,
   rules: rules
     .filter((rule) => rule.categoryIds.length || rule.productIds.length)
     .map(({ key: _key, ...rule }) => rule),
 });
 
-/** The form's groups: connection, business, taxes and plugins. */
+/** The form's groups: connection, business and taxes. */
 const FormSections = ({
   draft,
   onChange: setDraft,
@@ -204,6 +149,7 @@ const FormSections = ({
           'Receipts go to your PosAPI 3.0, which reports them to the tax office.',
         )}
       >
+        {field('name', 'Name', 'Main shop')}
         {field('posApiUrl', 'PosAPI address', 'https://posapi.example.mn')}
         <TestConnection posApiUrl={text.posApiUrl} />
       </FormSection>
@@ -227,52 +173,47 @@ const FormSections = ({
         </div>
         <EbarimtRules rules={draft.rules} onChange={(rules) => setDraft({ ...draft, rules })} />
       </FormSection>
-      <FormSection
-        title={t('section.plugins', 'Plugins')}
-        description={t(
-          'section.plugins-description',
-          'Paid invoices of these plugins get receipts, whether paid through a gateway or in cash.',
-        )}
-      >
-        <PluginChoice
-          value={draft.plugins}
-          onChange={(plugins) => setDraft({ ...draft, plugins })}
-        />
-      </FormSection>
     </>
   );
 };
 
-/** Sets eBarimt up, or changes its settings; the draft starts from `saved`. */
+/** Adds a config, or changes `saved`; the draft starts from it. */
 export const EbarimtForm = ({
   saved,
   onSaved,
 }: {
   saved: EbarimtSettings | null;
-  onSaved?: () => void;
+  onSaved?: (config: EbarimtSettings) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
   const [draft, setDraft] = useState(() => draftOf(saved));
-  const save = useSave(onSaved);
+  const saveOptions = useConfigSaved(onSaved);
+  const create = useMutation(orpc.ebarimt.createConfig.mutationOptions(saveOptions));
+  const update = useMutation(orpc.ebarimt.updateConfig.mutationOptions(saveOptions));
+  const pending = create.isPending || update.isPending;
   const { text } = draft;
 
   const incomplete =
-    !text.posApiUrl || !text.companyName || !text.merchantTin || !text.districtCode;
+    !text.name || !text.posApiUrl || !text.companyName || !text.merchantTin || !text.districtCode;
+
+  const submit = () => {
+    const input = inputOf(draft, draft.rules);
+
+    if (saved) update.mutate({ ...input, id: saved.id, status: saved.status });
+    else create.mutate(input);
+  };
 
   return (
     <div className="space-y-6">
       <FormSections draft={draft} onChange={setDraft} />
       <div className="flex justify-end">
-        <Button
-          disabled={save.isPending || incomplete}
-          onClick={() => save.mutate({ ...inputOf(draft, draft.rules), status: saved?.status })}
-        >
-          {save.isPending ? (
+        <Button disabled={pending || incomplete} onClick={submit}>
+          {pending ? (
             <Spinner size="sm" />
           ) : saved ? (
             t('save', 'Save changes')
           ) : (
-            t('set-up', 'Set up eBarimt')
+            t('create', 'Save config')
           )}
         </Button>
       </div>

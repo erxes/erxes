@@ -5,6 +5,7 @@ import {
   assistantTabsState,
   blankTab,
   newChatAction,
+  openThreadAction,
 } from './assistantState';
 
 export const useAssistantTabs = () => {
@@ -24,20 +25,7 @@ export const useAssistantTabs = () => {
 
   const newChat = useSetAtom(newChatAction);
 
-  const openThread = (threadId: string) => {
-    const open = tabs.find((tab) => tab.threadId === threadId);
-
-    if (open) {
-      setActiveKey(open.key);
-
-      return;
-    }
-
-    const tab = { key: crypto.randomUUID(), threadId };
-
-    setTabs([...tabs, tab]);
-    setActiveKey(tab.key);
-  };
+  const openThread = useSetAtom(openThreadAction);
 
   const closeTab = (key: string) => {
     const index = tabs.findIndex((tab) => tab.key === key);

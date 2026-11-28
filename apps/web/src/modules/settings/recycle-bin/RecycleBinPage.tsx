@@ -15,14 +15,14 @@ import {
   useConfirm,
   useMembersById,
   useToast,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { memberQueries, messageOf, orpc } from '@erxes/core-contract/client';
-import { actorLabel } from '~/lib/members';
+import { useActorLabel } from '~/modules/activity/useActorLabel';
 import { useCan } from '~/modules/auth/session';
 
 const useTrashActions = (onDone: () => void) => {
@@ -75,6 +75,7 @@ const TrashRow = ({
   onCheckedChange: (on: boolean) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'recycle-bin' });
+  const actorLabel = useActorLabel();
   const label = item.label ?? item.recordId;
 
   return (

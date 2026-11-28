@@ -1,5 +1,5 @@
-import { activities } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
+import { activities, events } from '@erxes/core-db';
+import { eq, inArray } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
@@ -203,5 +203,60 @@ describe('activity timeline', () => {
       targetType: 'customer',
       targetId: customer.id,
     });
+  });
+
+  it('publishes a note on a customer or company to automations, not one on a plugin record', async () => {
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '1',
+      scopes: ['activities:write'],
+      timelines: [{ type: 'hr.employee', label: 'Employee' }],
+    });
+
+    const customer = await t.owner().customers.create({ firstName: 'Evented' });
+    const company = await t.owner().companies.create({ primaryName: 'Evented LLC' });
+
+    const onCustomer = await t.member().activities.addNote({
+      targetType: 'customer',
+      targetId: customer.id,
+      body: 'Asked for a quote',
+    });
+
+    const onCompany = await t.owner().activities.addNote({
+      targetType: 'company',
+      targetId: company.id,
+      body: 'Signed the contract',
+    });
+
+    const onEmployee = await t.owner().activities.addNote({
+      targetType: 'hr.employee',
+      targetId: 'emp-evented',
+      body: 'Started today',
+    });
+
+    const published = await adminDb()
+      .select({
+        type: events.type,
+        subjectType: events.subjectType,
+        subjectId: events.subjectId,
+        payload: events.payload,
+      })
+      .from(events)
+      .where(inArray(events.entityId, [onCustomer.id, onCompany.id, onEmployee.id]));
+
+    expect(published.toSorted((a, b) => a.type.localeCompare(b.type))).toEqual([
+      {
+        type: 'core.company.note_added',
+        subjectType: 'company',
+        subjectId: company.id,
+        payload: { noteId: onCompany.id, body: 'Signed the contract', authorId: t.ids.owner },
+      },
+      {
+        type: 'core.customer.note_added',
+        subjectType: 'customer',
+        subjectId: customer.id,
+        payload: { noteId: onCustomer.id, body: 'Asked for a quote', authorId: t.ids.member },
+      },
+    ]);
   });
 });

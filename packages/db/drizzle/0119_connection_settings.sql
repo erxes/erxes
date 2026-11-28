@@ -1,0 +1,1 @@
+ALTER TABLE "core_integration_connections" ADD COLUMN "settings" jsonb DEFAULT '{}'::jsonb NOT NULL;

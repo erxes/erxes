@@ -1,4 +1,6 @@
-import type { Db, DataFieldOption, DataFieldSettings } from '@erxes/core-db';
+import type { DataExtensionFieldUpdate } from '@erxes/core-contract';
+import type { Db, DataFieldOption } from '@erxes/core-db';
+import type { z } from 'zod';
 import { dataFields } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { eq, sql } from 'drizzle-orm';
@@ -65,19 +67,7 @@ const syncUnique = async (client: Db, field: DataFieldRow, unique: boolean) => {
  */
 export const updateField = async (
   client: Db,
-  {
-    id,
-    ...changes
-  }: {
-    id: string;
-    key?: string;
-    label?: string;
-    description?: string | null;
-    icon?: string | null;
-    type?: Exclude<FieldType, 'relation'>;
-    options?: DataFieldOption[];
-    settings?: DataFieldSettings;
-  },
+  { id, ...changes }: z.infer<typeof DataExtensionFieldUpdate>,
 ) => {
   const field = await findField(client, id);
 

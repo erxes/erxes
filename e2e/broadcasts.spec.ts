@@ -68,6 +68,40 @@ test('a member writes an email broadcast, sends it to a filter and reads its num
   await expectAccessible(page);
 });
 
+test('a member keeps an email’s message as a template and starts another email from it', async ({
+  page,
+  api,
+}) => {
+  const suffix = unique();
+  const name = `Welcome ${suffix}`;
+  const source = await api.broadcasts.create({ name: `Source ${suffix}`, channel: 'email' });
+
+  await page.goto(`/broadcasts/${source.id}`);
+  const message = page.getByRole('group', { name: 'Message', exact: true });
+
+  await message.getByRole('textbox', { name: 'Message', exact: true }).click();
+  await page.keyboard.type(`Welcome aboard ${suffix}.`);
+  await message.getByRole('button', { name: 'Templates' }).click();
+  await page.getByPlaceholder('Find a template, or name a new one').fill(name);
+  await page.getByRole('option', { name: `Save this message as “${name}”` }).click();
+  await expect(page.getByText('Saved as a template')).toBeVisible();
+
+  await page.goto('/broadcasts/templates');
+  await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible();
+  await expectAccessible(page);
+
+  const next = await api.broadcasts.create({ name: `Next ${suffix}`, channel: 'email' });
+
+  await page.goto(`/broadcasts/${next.id}`);
+  const empty = page.getByRole('group', { name: 'Message', exact: true });
+
+  await empty.getByRole('button', { name: 'Templates' }).click();
+  await page.getByRole('option', { name, exact: true }).click();
+  await expect(empty.getByText(`Welcome aboard ${suffix}.`)).toBeVisible();
+  await expect(page.getByText('Unsaved changes')).toBeVisible();
+  await expectAccessible(page);
+});
+
 test('a member stops broadcasts to an address by hand and allows it again', async ({ page }) => {
   const address = `quiet-${unique()}@e2e.test`;
 
