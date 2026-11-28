@@ -1,7 +1,7 @@
-import { newId, paymentGateways } from '@erxes/core-db';
+import { integrationConnections, newId, withOrg } from '@erxes/core-db';
 import { describe, expect, it } from 'vite-plus/test';
-import { seal } from '~/lib/secrets';
-import { adminDb, useTestDatabase } from './db';
+import { saveSecret } from '~/modules/secrets/vault';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const order = { amount: 1250, description: 'Order #1', referenceType: 'order', referenceId: '1' };
@@ -23,15 +23,14 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
       sandbox: true,
     };
 
-    await adminDb()
-      .insert(paymentGateways)
-      .values({
+    await withOrg(t.ids.org, async (tx) => {
+      await tx.insert(integrationConnections).values({
         id,
-        orgId: t.ids.org,
-        kind: 'qpay',
+        key: 'qpay',
         name: 'QPay',
-        configSealed: seal(JSON.stringify(config)),
+        secretId: await saveSecret(tx, JSON.stringify(config)),
       });
+    });
 
     return id;
   };
@@ -73,6 +72,73 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
     expect((await t.other().organizations.current({})).currency).toBe('USD');
   });
 
+  it('keeps the other currencies an organisation trades in, which plugins read', async () => {
+    expect((await t.owner().organizations.current({})).currencies).toEqual([]);
+
+    expect(
+      await t.owner().organizations.update({ currencies: ['usd', 'CNY', 'EUR'] }),
+    ).toMatchObject({ currency: 'USD', currencies: ['USD', 'CNY', 'EUR'] });
+
+    // Changing anything else keeps them.
+    await t.owner().organizations.update({ name: 'Renamed' });
+    expect((await t.hr().organizations.current({})).currencies).toEqual(['USD', 'CNY', 'EUR']);
+
+    await expect(
+      t.owner().organizations.update({ currencies: ['USD', 'usd'] }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+    await expect(t.owner().organizations.update({ currencies: ['ABC'] })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    });
+    await expect(t.member().organizations.update({ currencies: [] })).rejects.toMatchObject({
+      status: 403,
+    });
+
+    const audit = await t.owner().audit.list({ action: 'organization.updated' });
+
+    expect(audit.data.map((entry) => entry.changes)).toContainEqual(
+      expect.objectContaining({ currencies: [[], ['USD', 'CNY', 'EUR']] }),
+    );
+
+    // The other organisation's list is its own.
+    expect((await t.other().organizations.current({})).currencies).toEqual([]);
+
+    expect(await t.owner().organizations.update({ currencies: [] })).toMatchObject({
+      currencies: [],
+    });
+  });
+
+  it('keeps a phone and email for its documents, which plugins read', async () => {
+    expect(await t.owner().organizations.current({})).toMatchObject({ phone: null, email: null });
+
+    expect(
+      await t.owner().organizations.update({ phone: ' +976 7000-1234 ', email: 'Info@Acme.MN' }),
+    ).toMatchObject({ phone: '+976 7000-1234', email: 'info@acme.mn' });
+
+    // Changing anything else keeps them; plugins read them.
+    await t.owner().organizations.update({ name: 'Renamed' });
+    expect(await t.hr().organizations.current({})).toMatchObject({
+      phone: '+976 7000-1234',
+      email: 'info@acme.mn',
+    });
+
+    await expect(t.owner().organizations.update({ email: 'not an email' })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    });
+    await expect(t.owner().organizations.update({ phone: 'call us' })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    });
+    await expect(t.member().organizations.update({ phone: null })).rejects.toMatchObject({
+      status: 403,
+    });
+
+    // null clears one; the other organisation has its own.
+    expect(await t.owner().organizations.update({ phone: null })).toMatchObject({
+      phone: null,
+      email: 'info@acme.mn',
+    });
+    expect(await t.other().organizations.current({})).toMatchObject({ phone: null, email: null });
+  });
+
   it('prices products and bills in the organisation currency, through gateways that take it', async () => {
     await t.owner().organizations.update({ country: 'MN' });
 
@@ -95,7 +161,7 @@ describe('countries and currencies', { timeout: 120_000 }, () => {
     });
 
     // A gateway that takes dollars is picked over the first one.
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     expect(await t.hr().payments.createInvoice(order)).toMatchObject({
       currency: 'USD',

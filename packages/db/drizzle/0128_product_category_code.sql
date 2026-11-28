@@ -1,0 +1,2 @@
+ALTER TABLE "core_product_categories" ADD COLUMN "code" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "core_product_categories_org_code_key" ON "core_product_categories" USING btree ("org_id",lower("code")) WHERE "core_product_categories"."code" IS NOT NULL;

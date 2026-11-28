@@ -29,3 +29,10 @@ export const Skeleton = ({
 }: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof skeletonVariants>) => {
   return <div className={cn(skeletonVariants({ radius }), className)} {...props} />;
 };
+
+/** `count` skeletons of the same size, for a list's rows while it loads. */
+export const SkeletonArray = ({
+  count,
+  ...props
+}: React.ComponentProps<typeof Skeleton> & { count: number }) =>
+  Array.from({ length: count }, (_, index) => <Skeleton key={index} {...props} />);

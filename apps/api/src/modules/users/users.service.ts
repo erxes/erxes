@@ -1,4 +1,4 @@
-import type { CursorQuery } from '@erxes/core-contract';
+import type { CursorQuery, UserFields } from '@erxes/core-contract';
 import { caller, db, type Db, users } from '@erxes/core-db';
 import { and, eq, ilike, inArray, ne, or, type SQL, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -10,7 +10,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertAssignable, assertNotAbove } from '~/modules/roles/roles.service';
-import { profileChanges, type UserChanges } from './userProfile';
+import { profileChanges } from './userProfile';
 import {
   allowedTo,
   assertTeamManager,
@@ -19,11 +19,12 @@ import {
   otherActiveOwners,
   type UserRow,
 } from './userRows';
+import { compileUserFilter } from './userFilter';
 import { asPlugin } from './withoutSignIn.service';
 
 type Status = UserRow['status'];
 
-/** Every word in the email, a name, the username or the employee id. */
+/** Every word in the email, a name, the username, the employee id or the code. */
 export const userSearch = (search: string) =>
   matchEveryWord(search, (pattern) =>
     or(
@@ -32,6 +33,7 @@ export const userSearch = (search: string) =>
       ilike(users.username, pattern),
       ilike(users.shortName, pattern),
       ilike(users.employeeId, pattern),
+      ilike(users.code, pattern),
     ),
   );
 
@@ -45,6 +47,7 @@ export const listUsers = async (
     permission?: string;
     canSignIn?: boolean;
     ids?: string[];
+    filter?: string;
   },
 ) => {
   const filters: (SQL | undefined)[] = [];
@@ -69,13 +72,16 @@ export const listUsers = async (
     filters.push(allowedTo(client, query.permission));
   }
 
-  if (query.ids) {
-    filters.push(inArray(users.id, query.ids.length ? query.ids : ['']));
-  }
+  // erxes support is not on the team, but records they touched still name them by id.
+  filters.push(
+    query.ids ? inArray(users.id, query.ids.length ? query.ids : ['']) : eq(users.isSupport, false),
+  );
 
   if (query.search) {
     filters.push(userSearch(query.search));
   }
+
+  filters.push(compileUserFilter(query.filter));
 
   return keysetPage(
     client,
@@ -102,6 +108,11 @@ const checkUserChange = async (
 ) => {
   const me = caller('user');
   const self = target.id === me.userId;
+
+  // erxes support's own address is erxes.io's: another one would get mail after the visit.
+  if (me.support && self && change.email !== undefined && change.email !== target.email) {
+    throw fail('NOT_ALLOWED', 'erxes support keeps the address erxes.io gave it');
+  }
 
   if (!self) {
     assertTeamManager();
@@ -171,7 +182,7 @@ const announceUserChange = async (tx: Db, before: UserRow, after: UserRow) => {
 };
 
 /** Saves profile, email and role changes; whoever signs in keeps an email. */
-const saveChanges = async (tx: Db, target: UserRow, input: UserChanges) => {
+const saveChanges = async (tx: Db, target: UserRow, input: UserFields) => {
   const email = input.email === null ? null : input.email?.trim().toLowerCase();
 
   if (email === null && target.canSignIn) {
@@ -196,7 +207,7 @@ const saveChanges = async (tx: Db, target: UserRow, input: UserChanges) => {
   return row;
 };
 
-export const updateUser = async (id: string, input: UserChanges) => {
+export const updateUser = async (id: string, input: UserFields) => {
   const tx = db();
 
   if (caller().type === 'plugin') {

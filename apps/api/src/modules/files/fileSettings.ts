@@ -1,4 +1,5 @@
-import type { FileSettings } from '@erxes/core-contract';
+import type { coreContract, FileSettings } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { type Db, organizations, type OrganizationSettings } from '@erxes/core-db';
 import { EMAIL_IMAGE_TYPES } from '@erxes/core-db/emailEnums';
 import { sql } from 'drizzle-orm';
@@ -89,7 +90,7 @@ const isEmailImage = (contentType: string) =>
  */
 export const assertUploadAllowed = (
   settings: Pick<FileSettings, 'maxSizeMb' | 'allowedTypes'>,
-  input: { name: string; contentType: string; size: number; public?: boolean },
+  input: InferContractRouterInputs<typeof coreContract>['files']['createUpload'],
 ) => {
   if (input.public && !isEmailImage(input.contentType)) {
     throw fail('FILE_TYPE_NOT_ALLOWED', 'Pictures in emails are PNG, JPEG, GIF or WebP', {

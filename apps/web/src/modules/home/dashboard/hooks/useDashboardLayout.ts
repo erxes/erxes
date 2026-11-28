@@ -4,21 +4,12 @@ import { RESET } from 'jotai/utils';
 import { z } from 'zod';
 import { useSession } from '~/modules/auth/session';
 import { DASHBOARD_DEFAULT_LAYOUT, DASHBOARD_MAX_ITEMS } from '../constants/dashboardGrid';
-import type { TDashboardItem } from '../types/dashboardTypes';
-
-const StoredItem = z.object({
-  id: z.string(),
-  type: z.string(),
-  x: z.int(),
-  y: z.int(),
-  w: z.int(),
-  h: z.int(),
-});
+import { DashboardItem, type TDashboardItem } from '../types/dashboardTypes';
 
 /** The layout is kept in this browser, per user: core has no API to save it. */
 const dashboardLayoutState = storedFamily({
   key: 'erxes:home:dashboard',
-  schema: z.array(StoredItem).max(DASHBOARD_MAX_ITEMS).nullable(),
+  schema: z.array(DashboardItem).max(DASHBOARD_MAX_ITEMS).nullable(),
   initial: null,
 });
 

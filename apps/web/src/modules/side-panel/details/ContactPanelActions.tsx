@@ -1,10 +1,11 @@
-import { IconArrowBackUp, IconDots, IconExternalLink, IconTrash } from '@tabler/icons-react';
-import { Button, Command, Popover, useConfirm, cn, buttonVariants } from 'erxes-ui';
+import { IconArrowBackUp, IconArrowMerge, IconExternalLink, IconTrash } from '@tabler/icons-react';
+import { Button, IconTip, useConfirm, cn, buttonVariants } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
 import { useCompaniesRemove, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
+import { ContactMergeDialog } from '~/modules/contacts/components/ContactMergeDialog';
 import { useCustomerEdit, useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
 import {
   getContactDetailPath,
@@ -111,8 +112,62 @@ const useMakeLead = (contentType: ContactType, contentId: string) => {
 };
 
 /**
- * The record's "more" menu: make a customer a lead again (editors), and
- * Delete (owners and admins).
+ * After a merge kept the other record, shows that one where this one was: its
+ * own page in place of this one's, or the panel's entry replaced.
+ */
+const useShowKept = (contentType: ContactType, contentId: string) => {
+  const { replaceRecord } = useSidePanel();
+  const navigate = useNavigate();
+
+  return (keptId: string) => {
+    if (keptId === contentId) return;
+
+    const { pathname, search } = window.location;
+
+    if (pathname === getContactDetailPath(contentType, contentId, pathname)) {
+      void navigate(
+        { pathname: getContactDetailPath(contentType, keptId, pathname), search },
+        { replace: true },
+      );
+
+      return;
+    }
+
+    replaceRecord({ contentType, contentId }, { contentType, contentId: keptId });
+  };
+};
+
+/** An icon button in the record's header, its name on hover. */
+const HeaderAction = ({
+  label,
+  tone = 'muted',
+  disabled,
+  onClick,
+  children,
+}: {
+  label: string;
+  tone?: 'muted' | 'destructive';
+  disabled?: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) => (
+  <IconTip label={label}>
+    <Button
+      variant="ghost"
+      size="icon"
+      tone={tone}
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </Button>
+  </IconTip>
+);
+
+/**
+ * The record's header actions, each an icon: make a customer a lead again
+ * (editors), Merge and Delete (owners and admins).
  */
 export const ContactPanelActions = ({
   contentType,
@@ -126,73 +181,51 @@ export const ContactPanelActions = ({
 }) => {
   const { t } = useTranslation('contact');
   const leadsT = useLeadsT();
-  const [open, setOpen] = useState(false);
+  const [merging, setMerging] = useState(false);
+  const showKept = useShowKept(contentType, contentId);
   const can = useCan();
   const canDelete = can('contacts.delete');
+  const canMerge = can('contacts.merge');
   const canReopen = state === 'customer' && can('contacts.edit');
   const makeLead = useMakeLead(contentType, contentId);
   const { deleteContact, deleting } = useDeleteContact(contentType, contentId);
 
-  if (!canDelete && !canReopen) return null;
+  if (!canDelete && !canMerge && !canReopen) return null;
 
   return (
     <section
-      className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1"
+      className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-0.5"
       aria-label={t('contact-actions', 'Contact actions')}
     >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Popover.Trigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              aria-label={t('actions', 'Actions')}
-              title={t('actions', 'Actions')}
-            />
-          }
+      {canReopen && (
+        <HeaderAction label={leadsT('actions.make-lead')} onClick={makeLead}>
+          <IconArrowBackUp />
+        </HeaderAction>
+      )}
+      {canMerge && (
+        <>
+          <HeaderAction label={t('merge.merge', 'Merge')} onClick={() => setMerging(true)}>
+            <IconArrowMerge />
+          </HeaderAction>
+          <ContactMergeDialog
+            contentType={contentType}
+            contentId={contentId}
+            open={merging}
+            onOpenChange={setMerging}
+            onMerged={showKept}
+          />
+        </>
+      )}
+      {canDelete && (
+        <HeaderAction
+          label={t('action-delete', 'Delete')}
+          tone="destructive"
+          disabled={deleting}
+          onClick={deleteContact}
         >
-          <IconDots className="size-4" />
-        </Popover.Trigger>
-        <Popover.Content
-          variant="flush"
-          className="min-w-70"
-          align="end"
-          side="bottom"
-          sideOffset={8}
-        >
-          <Command>
-            <Command.List>
-              <Command.Group>
-                {canReopen && (
-                  <Command.Item
-                    onSelect={() => {
-                      setOpen(false);
-                      makeLead();
-                    }}
-                  >
-                    <IconArrowBackUp />
-                    {leadsT('actions.make-lead')}
-                  </Command.Item>
-                )}
-                {canDelete && (
-                  <Command.Item
-                    variant="destructive"
-                    disabled={deleting}
-                    onSelect={() => {
-                      setOpen(false);
-                      deleteContact();
-                    }}
-                  >
-                    <IconTrash />
-                    {t('action-delete', 'Delete')}
-                  </Command.Item>
-                )}
-              </Command.Group>
-            </Command.List>
-          </Command>
-        </Popover.Content>
-      </Popover>
+          <IconTrash />
+        </HeaderAction>
+      )}
     </section>
   );
 };

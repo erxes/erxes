@@ -101,9 +101,9 @@ const sendCopy = async (
 
   try {
     if (!deliveryId) {
-      await deliverSms({ to: row.address, text: copy.text });
+      await deliverSms(broadcast.orgId, { to: row.address, text: copy.text });
     } else {
-      route = await routeFor(broadcast.orgId);
+      route = await routeFor(broadcast.orgId, broadcast.mailConnectionId);
       await route.send({
         to: row.address,
         subject: copy.subject ?? '',
@@ -111,6 +111,7 @@ const sendCopy = async (
         text: copy.text,
         headers: copy.headers,
         fromName: broadcast.fromName ?? undefined,
+        fromEmail: broadcast.fromEmail ?? undefined,
         files,
         replyTo: broadcast.replyTo ?? undefined,
         deliveryId,
@@ -153,7 +154,11 @@ const sendBlock = async (claimed: Claimed, files: FileAttachment[]) => {
   const holds = await withOrg(claimed.broadcast.orgId, (tx) =>
     queueDeliveries(
       tx,
-      { source: 'broadcast', sourceId: claimed.broadcast.id },
+      {
+        source: 'broadcast',
+        sourceId: claimed.broadcast.id,
+        connectionId: claimed.broadcast.mailConnectionId,
+      },
       prepared.flatMap(({ row, copy, deliveryId }) =>
         copy && deliveryId
           ? [

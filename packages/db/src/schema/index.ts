@@ -28,6 +28,10 @@ export * from './authTokens';
 
 export * from './oauth';
 
+export * from './banks';
+
+export * from './integrations';
+
 export * from './payments';
 
 export * from './trash';
@@ -50,6 +54,8 @@ export * from './products';
 
 export * from './customerAuth';
 
+export * from './portals';
+
 export * from './customerNotifications';
 
 export * from './rateLimits';
@@ -59,6 +65,8 @@ export * from './assistant';
 export * from './agent';
 
 export * from './dataExtensions';
+
+export * from './agents';
 
 export * from './orgUnits';
 
@@ -74,4 +82,12 @@ export * from './email';
 
 export * from './favorites';
 
-export * from './integrations';
+export * from './secrets';
+
+export * from './exchangeRates';
+
+export * from './supportVisits';
+
+export * from './identities';
+
+export * from './license';

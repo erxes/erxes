@@ -51,11 +51,22 @@ const FieldIdInput = z.object({ id: Id });
  */
 export const dataObjectsContract = {
   list: base
-    .route({ method: 'GET', path: '/data-objects', summary: 'Custom objects, by label' })
+    .route({
+      method: 'GET',
+      path: '/data-objects',
+      summary: 'List custom objects',
+      description:
+        'The organisation’s custom objects, by label. `archived: true` lists the archived ones instead.',
+    })
     .input(z.object({ archived: QueryBoolean.optional() }))
     .output(listOf(DataExtensionObject)),
   get: base
-    .route({ method: 'GET', path: '/data-objects/{key}', summary: 'One custom object' })
+    .route({
+      method: 'GET',
+      path: '/data-objects/{key}',
+      summary: 'Get a custom object',
+      description: 'One custom object by its key. 404 NOT_FOUND when there is none.',
+    })
     .input(ObjectKeyInput)
     .output(DataExtensionObject),
   create: base
@@ -63,8 +74,9 @@ export const dataObjectsContract = {
       method: 'POST',
       path: '/data-objects',
       successStatus: 201,
-      summary:
-        'Add a custom object and its table. 409 TAKEN when the key is; 400 LIMIT_EXCEEDED past 50',
+      summary: 'Add a custom object',
+      description:
+        'Adds a custom object and creates its table. 409 TAKEN when the key is taken; 400 LIMIT_EXCEEDED past 50 objects.',
     })
     .input(DataExtensionObjectCreate)
     .output(DataExtensionObject),
@@ -72,7 +84,9 @@ export const dataObjectsContract = {
     .route({
       method: 'PATCH',
       path: '/data-objects/{key}',
-      summary: 'Rename an object or pick its label field',
+      summary: 'Change a custom object',
+      description:
+        'Renames an object, changes its icon or picks the field that labels its records.',
     })
     .input(DataExtensionObjectUpdate)
     .output(DataExtensionObject),
@@ -80,7 +94,8 @@ export const dataObjectsContract = {
     .route({
       method: 'POST',
       path: '/data-objects/{key}/archive',
-      summary: 'Hide an object; its records stay',
+      summary: 'Archive a custom object',
+      description: 'Hides an object from menus and pickers. Its records and fields stay.',
     })
     .input(ObjectKeyInput)
     .output(DataExtensionObject),
@@ -88,7 +103,8 @@ export const dataObjectsContract = {
     .route({
       method: 'POST',
       path: '/data-objects/{key}/restore',
-      summary: 'Bring back an archived object',
+      summary: 'Restore an archived custom object',
+      description: 'Brings back an archived object with its records and fields.',
     })
     .input(ObjectKeyInput)
     .output(DataExtensionObject),
@@ -96,8 +112,9 @@ export const dataObjectsContract = {
     .route({
       method: 'DELETE',
       path: '/data-objects/{key}',
-      summary:
-        'Drop an archived object, its records and its relations. 409 ARCHIVE_FIRST when it is active',
+      summary: 'Delete an archived custom object',
+      description:
+        'Drops an archived object’s table, its records and the relations that point at it. 409 ARCHIVE_FIRST when the object is active.',
     })
     .input(ObjectKeyInput)
     .output(z.object({ key: DataExtensionObjectKey })),
@@ -109,7 +126,13 @@ export const dataObjectsContract = {
  */
 export const dataFieldsContract = {
   list: base
-    .route({ method: 'GET', path: '/data-fields', summary: 'Fields of a record type, in order' })
+    .route({
+      method: 'GET',
+      path: '/data-fields',
+      summary: 'List a record type’s fields',
+      description:
+        'The fields of a record type, in their order. `archived: true` lists the archived ones instead.',
+    })
     .input(z.object({ recordType: DataExtensionRecordType, archived: QueryBoolean.optional() }))
     .output(listOf(DataExtensionField)),
   create: base
@@ -117,8 +140,9 @@ export const dataFieldsContract = {
       method: 'POST',
       path: '/data-fields',
       successStatus: 201,
-      summary:
-        'Add a field and its column. 409 TAKEN when the key is; 400 LIMIT_EXCEEDED past 100; 400 INVALID_REFERENCE for an unknown record type',
+      summary: 'Add a field',
+      description:
+        'Adds a field to a record type and creates its column. 409 TAKEN when the key is taken; 400 LIMIT_EXCEEDED past 100 fields; 400 INVALID_REFERENCE for an unknown record type.',
     })
     .input(DataExtensionFieldCreate)
     .output(DataExtensionField),
@@ -127,8 +151,9 @@ export const dataFieldsContract = {
       method: 'POST',
       path: '/data-fields/relations',
       successStatus: 201,
-      summary:
-        'Link two record types: a field on each, made together. 400 INVALID_REFERENCE for an unknown type',
+      summary: 'Link two record types',
+      description:
+        'Adds a relation field on each of two record types, made together, and answers both. 400 INVALID_REFERENCE for an unknown record type.',
     })
     .input(DataExtensionRelationCreate)
     .output(z.object({ field: DataExtensionField, inverse: DataExtensionField })),
@@ -136,7 +161,9 @@ export const dataFieldsContract = {
     .route({
       method: 'PATCH',
       path: '/data-fields/{id}',
-      summary: 'Change a field. 400 INVALID_TYPE for a type change its values cannot make',
+      summary: 'Change a field',
+      description:
+        'Changes a field’s label, options, settings or type. 400 INVALID_TYPE for a type change its stored values can’t make.',
     })
     .input(DataExtensionFieldUpdate)
     .output(DataExtensionField),
@@ -144,7 +171,8 @@ export const dataFieldsContract = {
     .route({
       method: 'POST',
       path: '/data-fields/reorder',
-      summary: 'Put a record type’s fields in this order',
+      summary: 'Reorder a record type’s fields',
+      description: 'Puts a record type’s fields in the order of `ids` and answers them in it.',
     })
     .input(z.object({ recordType: DataExtensionRecordType, ids: z.array(Id).min(1).max(200) }))
     .output(listOf(DataExtensionField)),
@@ -152,7 +180,8 @@ export const dataFieldsContract = {
     .route({
       method: 'POST',
       path: '/data-fields/{id}/archive',
-      summary: 'Hide a field; its values stay',
+      summary: 'Archive a field',
+      description: 'Hides a field from forms, lists and filters. Its values stay.',
     })
     .input(FieldIdInput)
     .output(DataExtensionField),
@@ -160,7 +189,8 @@ export const dataFieldsContract = {
     .route({
       method: 'POST',
       path: '/data-fields/{id}/restore',
-      summary: 'Bring back an archived field',
+      summary: 'Restore an archived field',
+      description: 'Brings back an archived field with its values.',
     })
     .input(FieldIdInput)
     .output(DataExtensionField),
@@ -168,8 +198,9 @@ export const dataFieldsContract = {
     .route({
       method: 'DELETE',
       path: '/data-fields/{id}',
-      summary:
-        'Drop an archived field and its values; a relation drops both sides. 409 ARCHIVE_FIRST when it is active',
+      summary: 'Delete an archived field',
+      description:
+        'Drops an archived field’s column and its values; deleting a relation drops both sides. 409 ARCHIVE_FIRST when the field is active.',
     })
     .input(FieldIdInput)
     .output(z.object({ id: Id })),

@@ -17,7 +17,7 @@ export { Breadcrumb } from './components/breadcrumb';
 
 export { Button, type ButtonProps, buttonVariants } from './components/button';
 
-export { Calendar, type CalendarProps } from './components/calendar';
+export { type CalendarProps } from './components/calendar';
 
 export { Card } from './components/card';
 
@@ -73,7 +73,7 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector, Resizable, Slider } from './components/on-demand';
+export { Calendar, MultipleSelector, Resizable, Slider } from './components/on-demand';
 
 export { type MultiSelectOption } from './components/multiselect';
 
@@ -91,7 +91,7 @@ export { Sheet } from './components/sheet';
 
 export { Sidebar } from './components/sidebar';
 
-export { Skeleton } from './components/skeleton';
+export { Skeleton, SkeletonArray } from './components/skeleton';
 
 export { Spinner } from './components/spinner';
 
@@ -121,6 +121,8 @@ export { useConfirm } from './hooks/use-confirm';
 
 export { useItemKeys } from './hooks/use-item-keys';
 
+export { type NextPage, useLoadOnScroll } from './hooks/use-load-on-scroll';
+
 export { useMediaQuery } from './hooks/use-media-query';
 
 export { usePageHotkey } from './hooks/use-page-hotkey';
@@ -139,9 +141,24 @@ export { useUpload } from './hooks/use-upload';
 
 export { cn } from './lib/utils';
 
-export { LANGUAGES, formatter, localTimeZone, toIsoDay, useFormat, zoneOffset } from './lib/format';
+export {
+  displayNum,
+  formatAmount,
+  LANGUAGES,
+  formatter,
+  localTimeZone,
+  toIsoDay,
+  useFormat,
+  zoneOffset,
+} from './lib/format';
+
+export type { NumberDigits } from './lib/format';
 
 export { amountStep, formatMoney, fromAmountInput, toAmountInput, useMoney } from './lib/money';
+
+export { fixNum } from './lib/numbers';
+
+export { type CurrencyCode, isCurrencyCode } from './constants/currencyCode';
 
 export { stored, storedFamily } from './lib/stored';
 
@@ -165,11 +182,15 @@ export { Filter } from './modules/filter/components/Filter';
 
 export { useFilterContext } from './modules/filter/hooks/useFilterContext';
 
+export { parseDateRangeFromString } from './modules/filter/date-filter/parseDateRangeFromString';
+
 export { PopoverScoped } from './modules/hotkey/components/PopoverScoped';
 
 export { usePreviousHotkeyScope } from './modules/hotkey/hooks/usePreviousHotkeyScope';
 
 export { useScopedHotkeys } from './modules/hotkey/hooks/useScopedHotkeys';
+
+export { useSetHotkeyScope } from './modules/hotkey/hooks/useSetHotkeyScope';
 
 export { IconComponent } from './modules/icons/components/IconComponent';
 
@@ -185,13 +206,22 @@ export { PhoneField } from './modules/inputs/components/PhoneField';
 
 export { SexField } from './modules/inputs/components/SexField';
 
+export { CurrencyDisplay, CurrencyField, CurrencyFormatedDisplay } from './modules/inputs/currency';
+
 export { AppLayout, AppLayoutFooterLink } from './modules/layout/components/AppLayout';
 
 export { PageContainer, PageSubHeader } from './modules/layout/components/Page';
 
+export { AppBreadcrumb, type Crumb } from './modules/layout/components/AppBreadcrumb';
+
 export { PageHeader } from './modules/layout/components/PageHeader';
 
-export { NavigationMenuLinkItem } from './modules/navigation-menu/components/NavigationMenu';
+export {
+  NavigationMenuGroup,
+  NavigationMenuLinkItem,
+} from './modules/navigation-menu/components/NavigationMenu';
+
+export { ReportPageContainer, ReportTable } from './modules/report/Report';
 
 export { EntityPicker } from './modules/pickers/EntityPicker';
 
@@ -208,6 +238,7 @@ export { MemberInline, SelectMember } from './modules/pickers/SelectMember';
 
 export {
   LookupPicker,
+  useContactOptions,
   type Tag,
   type TagsQuery,
   useMemberOptions,
@@ -217,6 +248,8 @@ export {
 
 export {
   type ProductChoice,
+  type ProductQueries,
+  type ProductRecord,
   type ProductSearchQueries,
   productTitle,
 } from './modules/records/products';
@@ -248,6 +281,31 @@ export type {
 
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
+export { RecordTableTree, SelectTree } from './modules/tree/lazyTree';
+
+export {
+  BranchBadge,
+  BranchesInline,
+  CompaniesInline,
+  CustomersInline,
+  DepartmentBadge,
+  DepartmentsInline,
+  ProductsInline,
+  SelectBranches,
+  SelectCategory,
+  SelectCompany,
+  SelectCustomer,
+  SelectDepartments,
+  SelectProduct,
+  SelectProductsBulk,
+} from './modules/pickers/lazyPickers';
+
+export { useUnits } from './modules/pickers/useUnits';
+
+export { CustomerType } from './modules/pickers/customerType';
+
+export type { UnitChoice, UnitQueries } from './modules/records/units';
+
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';
 
 export {
@@ -277,6 +335,8 @@ export {
 
 export { ConditionsEditor } from './modules/conditions/LazyConditionsEditor';
 
+export { FieldIcon as FieldTypeIcon } from './modules/conditions/fieldIcons';
+
 export {
   ListViewsProvider,
   type TCheckedListType,
@@ -301,7 +361,26 @@ export { PanelSection } from './modules/record-panel/PanelSection';
 
 export { PanelExpansionContext, usePanelExpanded } from './modules/record-panel/panelExpansion';
 
+export {
+  CONNECTION_CONTENT_TYPE,
+  ConnectionPicker,
+  type ConnectionPickerProps,
+  setConnectionPicker,
+} from './modules/records/ConnectionPicker';
+
 export { ContactLink } from './modules/records/ContactLink';
+
+export {
+  ReceiptPrintSettings,
+  type ReceiptPrintSettingsProps,
+  setReceiptPrintSettings,
+} from './modules/records/ReceiptPrintSettings';
+
+export {
+  IntegrationLogo,
+  type IntegrationLogoProps,
+  setIntegrationLogo,
+} from './modules/records/IntegrationLogo';
 
 export {
   ContactRelationInput,
@@ -312,6 +391,10 @@ export {
 export { MEMBER_CONTENT_TYPE, MemberLink } from './modules/records/MemberLink';
 
 export { RecordChip } from './modules/records/RecordChip';
+
+export { Export, Import, setTransferButtons } from './modules/records/transfer';
+
+export { Can, HostSessionProvider, useHostSession, usePermissionCheck } from './utils/session';
 
 export {
   type CompanyContact,
@@ -332,6 +415,7 @@ export {
   RecordPanelProvider,
   type RecordRef,
   setRecordPage,
+  useCurrentRecord,
   useOpenRecord,
   useRecordPanel,
 } from './modules/records/openRecord';
@@ -342,12 +426,11 @@ export { SexCode } from './types/SexCode';
 
 export {
   DASHBOARD_WIDGET_PREVIEWS,
-  INTEGRATION_CATEGORIES,
   type IUIConfig,
   type TDashboardWidget,
   type TDashboardWidgetPreview,
-  type TIntegrationCategory,
   type TIntegrationTab,
+  type TIntegrationUI,
   type TPanelRecordType,
   type TPluginIntegration,
   type TPluginSettingsPage,
@@ -370,7 +453,11 @@ export { readImage } from './utils/core';
 
 export { type FileStorageAdapter, setFileStorage } from './utils/file-storage';
 
-export { formatPhoneNumber } from './utils/format/formatPhoneNumber';
+export {
+  formatPhoneNumber,
+  loadPhoneFormatter,
+  usePhoneFormatter,
+} from './utils/format/formatPhoneNumber';
 
 export { getPluginAssetsUrl } from './utils/getPluginAssetsUrl';
 
@@ -389,7 +476,7 @@ export {
 
 export { addPluginStyles } from './utils/plugin-styles';
 
-export { printHtml } from './utils/print';
+export { printElement, printHtml } from './utils/print';
 
 export {
   RecordTimeline,

@@ -1,9 +1,16 @@
 import type { CustomerTokens } from '@erxes/core-contract';
-import { customerSessions, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
+import {
+  customerAccounts,
+  customerSessions,
+  type Db,
+  newId,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { sha256 } from '~/lib/crypto';
-import { seal, unseal } from '~/lib/secrets';
+import { coreKey } from '~/lib/coreKey';
+import { hmacSha256, sha256 } from '~/lib/crypto';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
@@ -24,16 +31,22 @@ const CUSTOMER_ACCESS_SECONDS = 900;
  */
 const REUSE_GRACE_SECONDS = 60;
 
-interface CustomerSessionRef {
+const secretAfter = (sessionId: string, secret: string) =>
+  hmacSha256(coreKey('erxes-customer-refresh-v1'), `${sessionId}.${secret}`, 'base64url');
+
+/** Who a session signs in: the account, its portal and its customer. */
+export interface CustomerSessionRef {
   orgId: string;
   customerId: string;
+  accountId: string;
+  portalId: string;
   sessionId: string;
 }
 
-/** A 15-minute access token for core's `/customer/*` and every plugin's API. */
-const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
+/** A 15-minute access token for core's `/portal/me` and every plugin's portal API. */
+const customerAccessToken = (ref: CustomerSessionRef) =>
   signJwt(
-    { org: ref.orgId, client_id: clientId, sid: ref.sessionId },
+    { org: ref.orgId, pid: ref.portalId, sid: ref.sessionId },
     {
       typ: CUSTOMER_ACCESS_TYP,
       audience: CUSTOMER_AUDIENCE,
@@ -42,23 +55,37 @@ const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
     },
   );
 
+/**
+ * A 5-minute access token for an agent talking to a portal's customer: the portal's plugin
+ * routes take it as the customer's own (`sid` names the agent, not a session).
+ */
+export const agentCustomerToken = (
+  customer: Pick<CustomerSessionRef, 'orgId' | 'customerId' | 'portalId'>,
+  agentId: string,
+) =>
+  signJwt(
+    { org: customer.orgId, pid: customer.portalId, sid: `agent:${agentId}` },
+    {
+      typ: CUSTOMER_ACCESS_TYP,
+      audience: CUSTOMER_AUDIENCE,
+      subject: customer.customerId,
+      expiresInSeconds: 300,
+    },
+  );
+
 const tokensFor = async (
   ref: CustomerSessionRef,
-  clientId: string,
   refreshToken: string,
 ): Promise<CustomerTokens> => ({
-  accessToken: await customerAccessToken(ref, clientId),
+  accessToken: await customerAccessToken(ref),
   refreshToken,
   expiresIn: CUSTOMER_ACCESS_SECONDS,
 });
 
-/** A new session in the app (90 days from its last use) and its first tokens. */
+/** A new session for the account (90 days from its last use) and its first tokens. */
 export const createSession = async (
   tx: Db,
-  session: {
-    orgId: string;
-    customerId: string;
-    clientId: string;
+  session: Omit<CustomerSessionRef, 'sessionId'> & {
     userAgent?: string | null;
     ip?: string | null;
   },
@@ -68,19 +95,14 @@ export const createSession = async (
 
   await tx.insert(customerSessions).values({
     id,
-    customerId: session.customerId,
-    clientId: session.clientId,
+    accountId: session.accountId,
     tokenHash: sha256(secret),
     userAgent: session.userAgent?.slice(0, 500) ?? null,
     ip: session.ip ?? null,
     expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
   });
 
-  return tokensFor(
-    { orgId: session.orgId, customerId: session.customerId, sessionId: id },
-    session.clientId,
-    `${id}.${secret}`,
-  );
+  return tokensFor({ ...session, sessionId: id }, `${id}.${secret}`);
 };
 
 /** The session a refresh token names (any organisation: the token is all a caller has). */
@@ -90,7 +112,19 @@ export const sessionOf = async (token: string | undefined) => {
   if (!id || !secret) return null;
 
   const [row] = await withSystem('customer session lookup', (tx) =>
-    tx.select().from(customerSessions).where(eq(customerSessions.id, id)).limit(1),
+    tx
+      .select({
+        id: customerSessions.id,
+        orgId: customerSessions.orgId,
+        accountId: customerSessions.accountId,
+        portalId: customerAccounts.portalId,
+        tokenHash: customerSessions.tokenHash,
+        previousTokenHash: customerSessions.previousTokenHash,
+      })
+      .from(customerSessions)
+      .innerJoin(customerAccounts, eq(customerAccounts.id, customerSessions.accountId))
+      .where(eq(customerSessions.id, id))
+      .limit(1),
   );
 
   return row ? { row, secret } : null;
@@ -111,41 +145,47 @@ export const rotateSession = ({ row, secret }: FoundSession) =>
       .select({
         tokenHash: customerSessions.tokenHash,
         previousTokenHash: customerSessions.previousTokenHash,
-        tokenSealed: customerSessions.tokenSealed,
+        customerId: customerAccounts.customerId,
         live: sql<boolean>`${customerSessions.revokedAt} is null and ${customerSessions.expiresAt} > now()`,
         justRotated: sql<boolean>`coalesce(${customerSessions.rotatedAt} > now() - make_interval(secs => ${REUSE_GRACE_SECONDS}), false)`,
       })
       .from(customerSessions)
+      .innerJoin(customerAccounts, eq(customerAccounts.id, customerSessions.accountId))
       .where(eq(customerSessions.id, row.id))
-      .for('update')
+      .for('update', { of: customerSessions })
       .limit(1);
 
     if (!session?.live) return null;
 
-    const ref = { orgId: row.orgId, customerId: row.customerId, sessionId: row.id };
+    const ref = {
+      orgId: row.orgId,
+      customerId: session.customerId,
+      accountId: row.accountId,
+      portalId: row.portalId,
+      sessionId: row.id,
+    };
 
     if (sameHash(session.tokenHash, secret)) {
-      const next = newSecret();
+      const next = secretAfter(row.id, secret);
 
       await tx
         .update(customerSessions)
         .set({
           tokenHash: sha256(next),
           previousTokenHash: session.tokenHash,
-          tokenSealed: seal(next),
           rotatedAt: sql`now()`,
           lastUsedAt: sql`now()`,
           expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
         })
         .where(eq(customerSessions.id, row.id));
 
-      return tokensFor(ref, row.clientId, `${row.id}.${next}`);
+      return tokensFor(ref, `${row.id}.${next}`);
     }
 
     if (!session.previousTokenHash || !sameHash(session.previousTokenHash, secret)) return null;
 
-    if (session.justRotated && session.tokenSealed) {
-      return tokensFor(ref, row.clientId, `${row.id}.${unseal(session.tokenSealed)}`);
+    if (session.justRotated) {
+      return tokensFor(ref, `${row.id}.${secretAfter(row.id, secret)}`);
     }
 
     await tx
@@ -181,12 +221,12 @@ export const revokeSessionToken = async (token: string) => {
 const AccessClaims = z.object({
   sub: z.string().min(1),
   org: z.string().min(1),
-  client_id: z.string().min(1),
+  pid: z.string().min(1),
   sid: z.string().min(1),
 });
 
-/** The customer behind an access token, while its session lasts (signing out ends it here at once). */
-export const customerOfToken = async (token: string) => {
+/** The account behind an access token, while its session lasts (signing out ends it here at once). */
+export const customerOfToken = async (token: string): Promise<CustomerSessionRef | null> => {
   const claims = await verifyJwt(token, AccessClaims, {
     typ: CUSTOMER_ACCESS_TYP,
     audience: CUSTOMER_AUDIENCE,
@@ -196,12 +236,14 @@ export const customerOfToken = async (token: string) => {
 
   const [session] = await withOrg(claims.org, (tx) =>
     tx
-      .select({ id: customerSessions.id })
+      .select({ accountId: customerAccounts.id })
       .from(customerSessions)
+      .innerJoin(customerAccounts, eq(customerAccounts.id, customerSessions.accountId))
       .where(
         and(
           eq(customerSessions.id, claims.sid),
-          eq(customerSessions.customerId, claims.sub),
+          eq(customerAccounts.customerId, claims.sub),
+          eq(customerAccounts.portalId, claims.pid),
           isNull(customerSessions.revokedAt),
           gt(customerSessions.expiresAt, sql`now()`),
         ),
@@ -213,8 +255,9 @@ export const customerOfToken = async (token: string) => {
     ? {
         orgId: claims.org,
         customerId: claims.sub,
+        accountId: session.accountId,
+        portalId: claims.pid,
         sessionId: claims.sid,
-        clientId: claims.client_id,
       }
     : null;
 };

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
-import { usePosApi } from './posApi';
+import { saveEbarimt, usePosApi } from './posApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -14,9 +14,14 @@ describe('ebarimt', { timeout: 240_000 }, () => {
   const receiptsOf = async (invoiceId: string) =>
     (await t.owner().ebarimt.receipts({ invoiceId })).data;
 
+  /** eBarimt's state on the Integrations page. */
+  const statusOf = async () =>
+    (await t.owner().integrations.list()).data.find((integration) => integration.key === 'ebarimt')
+      ?.status;
+
   it('is set up by the owner and checked against PosAPI', async () => {
-    expect(await t.owner().ebarimt.settings({})).toBeNull();
-    await expect(t.member().ebarimt.saveSettings(settings())).rejects.toMatchObject({
+    expect((await t.owner().ebarimt.configs()).data).toEqual([]);
+    await expect(t.member().ebarimt.createConfig(settings())).rejects.toMatchObject({
       status: 403,
     });
     expect(await t.owner().ebarimt.testConnection({ posApiUrl: `${base()}/posapi` })).toMatchObject(
@@ -29,24 +34,25 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     config.outbound.allowPrivate = false;
 
     try {
-      await expect(t.owner().ebarimt.saveSettings(settings())).rejects.toMatchObject({
+      await expect(saveEbarimt(t.owner(), settings())).rejects.toMatchObject({
         code: 'INVALID_URL',
       });
     } finally {
       config.outbound.allowPrivate = true;
     }
 
-    expect(await t.owner().ebarimt.saveSettings(settings())).toMatchObject({
+    expect(await saveEbarimt(t.owner(), settings())).toMatchObject({
+      name: 'Main shop',
+      isDefault: true,
       status: 'active',
       vatPercent: 10,
-      plugins: ['hr'],
     });
     // The other organisation sees none of it.
-    expect(await t.other().ebarimt.settings({})).toBeNull();
+    expect((await t.other().ebarimt.configs()).data).toEqual([]);
   });
 
   it('issues a receipt when an invoice is paid, and replaces or returns it on refunds', async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
 
     const books = await t.owner().productCategories.create({ name: 'Books' });
     const phone = await t.owner().products.create({ kind: 'goods', name: 'Phone', code: 'P1' });
@@ -55,7 +61,7 @@ describe('ebarimt', { timeout: 240_000 }, () => {
       .owner()
       .products.create({ kind: 'goods', name: 'Book', categoryId: books.id });
 
-    await t.owner().ebarimt.saveSettings({
+    await saveEbarimt(t.owner(), {
       ...settings(),
       rules: [{ productIds: [], categoryIds: [books.id], taxType: 'VAT_FREE', taxCode: '305' }],
     });
@@ -204,18 +210,19 @@ describe('ebarimt', { timeout: 240_000 }, () => {
       return invoice;
     };
 
-    // Another currency, or a plugin eBarimt isn't on for: no receipt.
+    // Another currency, or eBarimt turned off: no receipt.
     const dollars = await paid('usd', 'USD');
 
-    await t.owner().ebarimt.saveSettings({ ...settings(), plugins: [] });
+    await saveEbarimt(t.owner(), { ...settings(), status: 'disabled' });
 
     const other = await paid('off');
 
     await settle();
     expect(await receiptsOf(dollars.id)).toEqual([]);
     expect(await receiptsOf(other.id)).toEqual([]);
+    expect(await statusOf()).toEqual({ state: 'off', count: null });
 
-    await t.owner().ebarimt.saveSettings(settings());
+    await saveEbarimt(t.owner(), { ...settings(), status: 'active' });
     fake.refuse = 'Invalid merchant';
 
     const invoice = await paid('o8');
@@ -224,16 +231,153 @@ describe('ebarimt', { timeout: 240_000 }, () => {
     expect(await receiptsOf(invoice.id)).toMatchObject([
       { status: 'failed', error: 'Invalid merchant', totalAmount: 5_000 },
     ]);
+    expect(await statusOf()).toEqual({ state: 'attention', count: 1 });
 
     fake.refuse = null;
     await t.owner().ebarimt.sync({ invoiceId: invoice.id });
     await settle();
     // The failed try gives way to the one that went through.
     expect(await receiptsOf(invoice.id)).toMatchObject([{ status: 'success' }]);
+    expect(await statusOf()).toEqual({ state: 'connected', count: null });
 
-    await t.owner().ebarimt.removeSettings({});
+    // Its receipts may still need returning: it can be turned off, not removed.
+    const [main] = (await t.owner().ebarimt.configs()).data;
+
+    await expect(t.owner().ebarimt.removeConfig({ id: main?.id ?? '' })).rejects.toMatchObject({
+      code: 'EBARIMT_CONFIG_IN_USE',
+    });
+    await saveEbarimt(t.owner(), { ...settings(), status: 'disabled' });
     await expect(t.owner().ebarimt.sync({ invoiceId: invoice.id })).rejects.toMatchObject({
       code: 'EBARIMT_NOT_SET_UP',
     });
+  });
+
+  it('issues a receipt only for a paid tögrög invoice while eBarimt is on when the sync runs', async () => {
+    await saveEbarimt(t.owner(), { ...settings(), status: 'active' });
+
+    const invoice = (referenceId: string, currency = 'MNT') =>
+      t.hr().payments.createInvoice({
+        amount: 4_000,
+        currency,
+        description: 'Ticket',
+        referenceType: 'order',
+        referenceId,
+      });
+
+    const dollars = await invoice('usd-on', 'USD');
+
+    await t.owner().payments.payTestInvoice({ id: dollars.id });
+    await settle();
+    expect(await receiptsOf(dollars.id)).toEqual([]);
+
+    const unpaid = await invoice('unpaid');
+
+    await t.owner().ebarimt.sync({ invoiceId: unpaid.id });
+    await settle();
+    expect(await receiptsOf(unpaid.id)).toEqual([]);
+
+    const late = await invoice('turned-off-later');
+
+    await t.owner().payments.payTestInvoice({ id: late.id });
+    await saveEbarimt(t.owner(), { ...settings(), status: 'disabled' });
+    await settle();
+    expect(await receiptsOf(late.id)).toEqual([]);
+  });
+
+  it('applies a category’s tax rule to products in its subcategories', async () => {
+    await saveEbarimt(t.owner(), { ...settings(), status: 'active' });
+
+    const books = await t.owner().productCategories.create({ name: 'Printed' });
+    const novels = await t.owner().productCategories.create({ name: 'Novels', parentId: books.id });
+
+    const novel = await t
+      .owner()
+      .products.create({ kind: 'goods', name: 'Novel', categoryId: novels.id });
+
+    await saveEbarimt(t.owner(), {
+      ...settings(),
+      rules: [{ productIds: [], categoryIds: [books.id], taxType: 'VAT_FREE', taxCode: '305' }],
+    });
+
+    const invoice = await t.hr().payments.createInvoice({
+      amount: 20_000,
+      currency: 'MNT',
+      description: 'Order #9',
+      referenceType: 'order',
+      referenceId: 'o9',
+      lines: [{ productId: novel.id, quantity: 1, unitPrice: 20_000 }],
+    });
+
+    await t.owner().payments.payTestInvoice({ id: invoice.id });
+    await settle();
+    expect(fake.puts.at(-1)).toMatchObject({
+      totalVAT: 0,
+      receipts: [{ taxType: 'VAT_FREE', items: [{ taxProductCode: '305' }] }],
+    });
+  });
+
+  it('keeps several configs: an invoice picks one, else the default issues', async () => {
+    await saveEbarimt(t.owner(), { ...settings(), status: 'active', rules: [] });
+
+    const airport = await t.owner().ebarimt.createConfig({
+      ...settings(),
+      name: 'Airport branch',
+      merchantTin: '12345678901',
+    });
+
+    expect(airport.isDefault).toBe(false);
+    // A plugin lists them, so its settings can pick one.
+    expect((await t.hr().ebarimt.configs()).data.map((row) => row.name)).toEqual([
+      'Main shop',
+      'Airport branch',
+    ]);
+
+    const pay = async (referenceId: string, ebarimtId?: string) => {
+      const invoice = await t.hr().payments.createInvoice({
+        amount: 9_000,
+        currency: 'MNT',
+        description: 'Ticket',
+        referenceType: 'order',
+        referenceId,
+        ebarimtId,
+      });
+
+      await t.owner().payments.payTestInvoice({ id: invoice.id });
+      await settle();
+
+      return { invoice, sent: fake.puts.at(-1), receipts: await receiptsOf(invoice.id) };
+    };
+
+    const atAirport = await pay('airport', airport.id);
+
+    expect(atAirport.invoice.ebarimtId).toBe(airport.id);
+    expect(atAirport.sent).toMatchObject({ merchantTin: '12345678901' });
+    expect(atAirport.receipts).toMatchObject([{ status: 'success', settingsId: airport.id }]);
+    expect((await pay('main')).sent).toMatchObject({ merchantTin: '37900846788' });
+
+    await expect(
+      t.hr().payments.createInvoice({
+        amount: 1_000,
+        currency: 'MNT',
+        description: 'Ticket',
+        referenceType: 'order',
+        referenceId: 'nowhere',
+        ebarimtId: 'no-such-config000',
+      }),
+    ).rejects.toMatchObject({ status: 404 });
+
+    // Moving the default leaves one; an unused config can go, the default moving with it.
+    await t.owner().ebarimt.updateConfig({ ...settings(), ...airport, isDefault: true });
+    expect(
+      (await t.owner().ebarimt.configs()).data.map((row) => [row.name, row.isDefault]),
+    ).toEqual([
+      ['Airport branch', true],
+      ['Main shop', false],
+    ]);
+
+    const spare = await t.owner().ebarimt.createConfig({ ...settings(), name: 'Spare' });
+
+    await t.owner().ebarimt.removeConfig({ id: spare.id });
+    expect((await t.owner().ebarimt.configs()).data).toHaveLength(2);
   });
 });

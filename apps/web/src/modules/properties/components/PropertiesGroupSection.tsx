@@ -37,7 +37,7 @@ const PropertiesGroupActions = ({
   group: FieldGroup;
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const setActivePropertyGroup = useSetAtom(activePropertyGroupState);
   const setLayoutGroup = useSetAtom(activeLayoutGroupState);
   const setArchiveTarget = useSetAtom(archiveTargetState);
@@ -94,7 +94,7 @@ type GroupShellProps = {
 
 /** A group's header and its fields table; `handle` and `actions` are the manager's controls. */
 const GroupShell = ({ name, fields, addPath, handle, actions }: GroupShellProps) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
   // Open while it has fields, until the user opens or closes it.
   const [toggled, setToggled] = useState<boolean>();
@@ -168,7 +168,7 @@ export const PropertiesGroupSection = ({
   fields: Field[];
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
 
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
@@ -225,7 +225,7 @@ export const PropertiesUngroupedSection = ({
   fields: Field[];
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <GroupShell

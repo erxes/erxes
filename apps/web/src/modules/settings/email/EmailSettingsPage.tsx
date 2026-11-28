@@ -2,15 +2,23 @@ import type { EmailSender, EmailSettings } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconMail } from '@tabler/icons-react';
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
-import { Button, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast } from 'erxes-ui';
+import {
+  Button,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Spinner,
+  Tabs,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { EmailSetupBanner, useProviderName } from '~/components/EmailSetupBanner';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
-import { useIntegrationsSaved } from '../integrations/customMutation';
+import { useIntegrationsSaved } from '../integrations/useIntegrationsSaved';
 import { DangerSection } from '../integrations/DangerSection';
 import { HowItWorks, OverviewSection, useIntegrationTab } from '../integrations/IntegrationLayout';
 import { IntegrationStatusBadge } from '../integrations/IntegrationStatusBadge';
@@ -22,6 +30,7 @@ import { EmailHaltNotice } from './EmailHaltBanner';
 import { EmailLimitsTab } from './EmailLimitsTab';
 import { ReplyTosSection } from './ReplyTosSection';
 import { ServerSender } from './ServerSender';
+import { VerifiedDomains } from './VerifiedDomains';
 
 /** Sends a test email to the member the way the organisation's go out, and says how it went. */
 const SendTest = () => {
@@ -77,14 +86,14 @@ const RemoveEmail = () => {
 };
 
 const HOW_IT_WORKS = [
-  ['all', 'Invitations, password resets, notifications, automations and broadcasts all use it.'],
+  ['all', 'Invitations, sign-in, notifications and any email with no Mail service use it.'],
   ['verify', 'SendGrid and Amazon SES only send from addresses or domains you verified with them.'],
   ['reply-to', 'Replies go only to the Reply-To addresses you confirmed.'],
   ['none', 'Without it, emails go out from erxes’s address.'],
 ] as const;
 
 const HOW_IT_WORKS_SERVER = [
-  ['all', 'Invitations, password resets, notifications, automations and broadcasts all use it.'],
+  ['all', 'Invitations, sign-in, notifications and any email with no Mail service use it.'],
   ['server', 'Every email goes out from erxes’ address under your organisation’s name.'],
   ['label', 'A broadcast or automation adds a label after the name, such as “Marketing”.'],
   ['reply-to', 'Replies go only to the Reply-To addresses you confirmed.'],
@@ -162,6 +171,7 @@ const Overview = ({ sender, saved }: { sender: EmailSender; saved: EmailSettings
           </p>
         </>
       )}
+      {saved && saved.provider !== 'smtp' && <VerifiedDomains saved={saved} />}
       {saved && <EventsHelp saved={saved} />}
       <HowItWorks
         title={t('how', 'How it works')}
@@ -246,7 +256,7 @@ const EmailPage = ({ sender, saved }: { sender: EmailSender; saved: EmailSetting
       <header className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold">{t('name.email', 'Email sending')}</h1>
+            <h1 className="text-xl font-semibold">{t('name.email', 'Organization email')}</h1>
             <IntegrationStatusBadge
               status={{
                 state:
@@ -259,7 +269,7 @@ const EmailPage = ({ sender, saved }: { sender: EmailSender; saved: EmailSetting
           <p className="text-sm text-muted-foreground">
             {t(
               'catalog.email',
-              'Invitations, notifications and broadcasts from your own address: SMTP, SendGrid or Amazon SES.',
+              'Invitations, sign-in codes, notifications and whatever else erxes emails under your organisation’s name. Websites, broadcasts and automations may send through a Mail service connection instead.',
             )}
           </p>
         </div>
@@ -281,7 +291,7 @@ const EmailPage = ({ sender, saved }: { sender: EmailSender; saved: EmailSetting
   );
 };
 
-/** Settings › Email sending: how the organisation's emails go out, and its settings. */
+/** Settings › Organization email: how erxes' own emails go out for the organisation, and its settings. */
 export const EmailSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const canManage = useCan()('integrations.manage');
@@ -302,7 +312,11 @@ export const EmailSettingsPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('name.email', 'Email sending'), to: paths.settings.email, icon: IconMail },
+              {
+                label: t('name.email', 'Organization email'),
+                to: paths.settings.email,
+                icon: IconMail,
+              },
             ]}
           />
         </PageHeader.Start>

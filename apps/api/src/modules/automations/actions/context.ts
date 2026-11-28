@@ -12,7 +12,7 @@ import type { RunContext, SubjectRef } from '../runs';
 export interface CallContext {
   orgId: string;
   automation: { id: string; name: string };
-  run: { id: string };
+  run: { id: string; depth: number };
   step: { id: string };
   subject: SubjectRef | null;
   /** The step's input with its placeholders filled. */
@@ -30,16 +30,24 @@ export interface ActionContext extends CallContext {
  * A core action. `run` changes core's data inside the step's transaction, so
  * the change and the run's progress commit together. `call` reaches another
  * system: it runs outside any transaction, may run more than once, and sends
- * `idempotencyKey(ctx)` so the other side does the work once.
+ * `idempotencyKey(ctx)` so the other side does the work once. A `slow` call may take minutes and
+ * runs once, never retried.
  */
-export type CoreAction = Omit<ActionInfo, 'source' | 'outputs'> &
+export type CoreAction = ActionSpec & {
+  type: string;
+  /** The integration it belongs to (`qpay`): listed only while that integration is connected. */
+  integration?: { key: string; name: string };
+} & (
+    | { run: (ctx: ActionContext) => Promise<unknown> }
+    | { call: (ctx: CallContext) => Promise<unknown>; slow?: true }
+  );
+
+/** What an action is, apart from its type and how it runs. */
+export type ActionSpec = Pick<ActionInfo, 'label' | 'description' | 'subject' | 'fields'> &
   Partial<Pick<ActionInfo, 'outputs'>> & {
     /** Problems with the step's input found when the automation is saved, beyond required fields. */
     check?: (input: Record<string, unknown>) => string[];
-  } & (
-    | { run: (ctx: ActionContext) => Promise<unknown> }
-    | { call: (ctx: CallContext) => Promise<unknown> }
-  );
+  };
 
 export const idempotencyKey = (ctx: CallContext) => `${ctx.run.id}:${ctx.step.id}`;
 
@@ -75,17 +83,17 @@ export const list = (value: unknown): string[] => {
  * The step's input for `schema` (which drops fields it doesn't declare):
  * empty values left out, and a members picker's list read as its first member.
  */
-export const parseInput = <T>(ctx: CallContext, schema: z.ZodType<T>, single: string[] = []) => {
-  const filled = Object.fromEntries(
+export const parseInput = <T>(ctx: CallContext, schema: z.ZodType<T>, single: string[] = []) =>
+  checked(schema, filledInput(ctx, single));
+
+export const filledInput = (ctx: CallContext, single: string[] = []) =>
+  Object.fromEntries(
     Object.entries(ctx.input).flatMap(([key, value]) => {
       if (value === undefined || value === null || value === '') return [];
 
       return [[key, single.includes(key) && Array.isArray(value) ? value[0] : value]];
     }),
   );
-
-  return checked(schema, filled);
-};
 
 /** `value` parsed by `schema`, or the step fails with what was wrong. */
 export const checked = <T>(schema: z.ZodType<T>, value: unknown): T => {
@@ -112,8 +120,25 @@ export const parseBody = (body: string) => {
 
 /** The subject's fields some actions read (its owner, its email). */
 const SubjectFields = z
-  .object({ ownerId: z.string().nullish(), primaryEmail: z.string().nullish() })
+  .object({
+    ownerId: z.string().nullish(),
+    primaryEmail: z.string().nullish(),
+    primaryPhone: z.string().nullish(),
+  })
   .nullish();
 
 export const subjectFields = (ctx: CallContext) =>
   SubjectFields.safeParse(ctx.context.subject).data ?? null;
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** A `recipients` input's addresses: the record's own email (`subject`), or those given. */
+export const recipientsOf = (ctx: CallContext, key: string) => {
+  const to = (text(ctx.input[key]) ?? '').trim();
+  const addresses = to === 'subject' ? [subjectFields(ctx)?.primaryEmail ?? ''] : to.split(',');
+
+  return addresses
+    .map((address) => address.trim())
+    .filter((address) => EMAIL.test(address))
+    .slice(0, 50);
+};

@@ -2,6 +2,7 @@ import {
   type AUTOMATION_FIELD_TYPES,
   type AUTOMATION_SUBJECTS,
   type DefaultGrantRole,
+  type INTEGRATION_CATEGORIES,
   type PLUGIN_FIELD_TYPES,
   PLUGIN_STATUSES,
   type RELATION_FIELD_TYPES,
@@ -58,21 +59,27 @@ export interface StoredPluginManifest {
   countries?: string[];
   /** `own`: it issues its invoices' tax receipts itself, so core's eBarimt never does. */
   taxReceipts?: (typeof TAX_RECEIPT_ISSUERS)[number];
+  /** Self-hosted, it runs only where the server's erxes license names it. */
+  requiresLicense?: boolean;
+  /** Whose part it is: `core`, or the plugin it extends; web lists its apps with that one's. */
+  extends?: string;
+  /** A sign-in provider: members sign in with their account in another system, shown as `label`. */
+  signIn?: { label: string };
   ui?: { remote: string; entry: string };
   /** `docs`: its OpenAPI documents' paths under `url`, one per audience, shown in the API reference. */
   api?: {
     url: string;
-    docs?: { audience: 'member' | 'employee' | 'customer' | 'website'; path: string }[];
+    docs?: { audience: 'member' | 'employee' | 'customer' | 'portal'; path: string }[];
   };
   /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */
   oauth?: { redirectUris: string[] };
-  /** Its app for customers: the web origins that may sign customers in (`{subdomain}` allowed). */
-  customerApp?: { origins: string[] };
   /** Paths under its API's `/public` that core forwards outside callers to (webhooks, redirects). */
   publicPaths?: string[];
   scopes: string[];
   /** Other plugins' APIs it reads, with their permissions: each waits for the owner's approval. */
   pluginReads?: { plugin: string; permissions: string[]; reason: string }[];
+  /** Core integrations whose connections it uses (`facebook`): each waits for the owner's approval. */
+  connections?: { integration: string; reason: string }[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   /** Ready-made bundles of its permissions, added to a role in one click. */
   permissionSets?: {
@@ -144,13 +151,27 @@ export interface StoredPluginManifest {
       default: boolean;
       aliases?: string[];
     }[];
+    /** The column whose filled rows start a batch (`PluginTransfer` in the contract). */
+    batchStart?: string;
   }[];
   activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
+  /** Its integrations in Settings › Integrations, next to core's; it reports each one's state. */
+  integrations?: {
+    key: string;
+    name: string;
+    summary: string;
+    category: (typeof INTEGRATION_CATEGORIES)[number];
+    countries?: string[];
+    permission: string;
+    /** The core integration its accounts connect through (`facebook`); it joins that one's page. */
+    connection?: string;
+  }[];
   actions?: {
     type: string;
     label: string;
     description?: string;
     subject?: (typeof AUTOMATION_SUBJECTS)[number];
+    integration?: string;
     fields: {
       key: string;
       label: string;
@@ -164,8 +185,6 @@ export interface StoredPluginManifest {
   assistant?: {
     skills: { name: string; description: string; instructions: string }[];
   };
-  /** Agents core runs for it, as `<plugin>.<name>`; `tools` are operationIds of its member API document. */
-  agents?: { name: string; description: string; instructions: string; tools: string[] }[];
 }
 
 /**

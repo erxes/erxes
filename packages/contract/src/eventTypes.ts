@@ -1,62 +1,151 @@
-import { CONTENT_TYPES } from '@erxes/core-db/enums';
-import { z } from 'zod';
-import { DataField } from './automationRuns';
+import { CONTACT_EVENT_TYPES } from './contactEventTypes';
+import {
+  APP_TRIGGER_FAILED_DATA,
+  AUTOMATION_FAILED_DATA,
+  INTEGRATION_CHANGED_DATA,
+  INVOICE_DATA,
+  INVOICE_PAID_DATA,
+  INVOICE_REFUNDED_DATA,
+  NOTE_DATA,
+  PRODUCT_DATA,
+  RECEIPT_DATA,
+  SUPPRESSION_DATA,
+} from './eventData';
+import { type CoreEventType, event } from './eventTypeInfo';
 
-/** What core's invoice events carry (`eventPayload` in the payments module). */
-const INVOICE_FIELDS = [
-  { key: 'invoiceId', label: 'Invoice', type: 'text' },
-  { key: 'amount', label: 'Amount', type: 'number' },
-  { key: 'currency', label: 'Currency', type: 'text' },
-  { key: 'method', label: 'Method', type: 'text' },
-  { key: 'source', label: 'Created by', type: 'text' },
-  { key: 'referenceType', label: 'For (record type)', type: 'text' },
-  { key: 'referenceId', label: 'For (record id)', type: 'text' },
-] as const satisfies readonly DataField[];
-
-/** An invoice event's record and values: cancelled and expired carry the invoice. */
-export const INVOICE_DATA = { record: 'Invoice', fields: INVOICE_FIELDS } as const;
-
-export const INVOICE_PAID_DATA = {
-  record: 'Invoice',
-  fields: [
-    ...INVOICE_FIELDS,
-    { key: 'paidAmount', label: 'Paid amount', type: 'number' },
-    { key: 'gateway', label: 'Paid through', type: 'text' },
-  ],
-} as const;
-
-export const INVOICE_REFUNDED_DATA = {
-  record: 'Invoice',
-  fields: [
-    ...INVOICE_FIELDS,
-    { key: 'refundAmount', label: 'Refunded now', type: 'number' },
-    { key: 'refundedAmount', label: 'Refunded in all', type: 'number' },
-  ],
-} as const;
-
-/** One of core's events (`CORE_EVENT_TYPES`). */
-export type CoreEventType = {
-  type: string;
-  label: string;
-  subject: (typeof CONTENT_TYPES)[number] | null;
-  description: string;
-  /** Like a plugin event's: the record it is about and the payload values automations insert. */
-  record?: string;
-  fields?: readonly DataField[];
-};
-
-export const EventTypeInfo = z.object({
-  type: z.string(),
-  label: z.string(),
-  description: z.string().nullable(),
-  /** `core` or the plugin that publishes it. */
-  source: z.string(),
-  /** The record it is about, when it is about a customer or company. */
-  subject: z.enum(CONTENT_TYPES).nullable(),
-  /** What it is about, as its publisher names it (`Invoice`, `Order`). */
-  record: z.string().nullable(),
-  /** Its payload's values automations insert (`{{event.payload.<key>}}`). */
-  fields: z.array(DataField),
-});
-
-export type EventTypeInfo = z.infer<typeof EventTypeInfo>;
+/**
+ * Events core publishes (plugins add theirs through their manifest). Webhooks
+ * subscribe to them; automations start from them.
+ */
+export const CORE_EVENT_TYPES = [
+  ...CONTACT_EVENT_TYPES,
+  {
+    ...event(
+      'core.product.created',
+      'Product added',
+      null,
+      'A product is added to the catalog (by a member or a plugin)',
+    ),
+    ...PRODUCT_DATA,
+  },
+  {
+    ...event(
+      'core.product.updated',
+      'Product updated',
+      null,
+      'A product’s fields, or the plugins that use it, change',
+    ),
+    ...PRODUCT_DATA,
+  },
+  {
+    ...event(
+      'core.product.archived',
+      'Product archived',
+      null,
+      'A product is taken out of lists; orders keep it',
+    ),
+    ...PRODUCT_DATA,
+  },
+  {
+    ...event(
+      'core.product.restored',
+      'Product restored',
+      null,
+      'An archived product is back in lists',
+    ),
+    ...PRODUCT_DATA,
+  },
+  {
+    ...event(
+      'core.customer.note_added',
+      'Note added to a customer',
+      'customer',
+      'A member adds a note to a person',
+    ),
+    ...NOTE_DATA,
+  },
+  {
+    ...event(
+      'core.company.note_added',
+      'Note added to a company',
+      'company',
+      'A member adds a note to a company',
+    ),
+    ...NOTE_DATA,
+  },
+  {
+    ...event(
+      'core.payment.created',
+      'Invoice created',
+      null,
+      'An invoice is opened, or a payment taken outside a gateway is recorded',
+    ),
+    ...INVOICE_DATA,
+  },
+  {
+    ...event('core.payment.paid', 'Invoice paid', null, 'An invoice is paid'),
+    ...INVOICE_PAID_DATA,
+  },
+  {
+    ...event('core.payment.cancelled', 'Invoice cancelled', null, 'An invoice is cancelled'),
+    ...INVOICE_DATA,
+  },
+  {
+    ...event('core.payment.expired', 'Invoice expired unpaid', null, 'An invoice expires unpaid'),
+    ...INVOICE_DATA,
+  },
+  {
+    ...event(
+      'core.payment.refunded',
+      'Payment refunded',
+      null,
+      'A payment is refunded, in part or in full',
+    ),
+    ...INVOICE_REFUNDED_DATA,
+  },
+  {
+    ...event(
+      'core.ebarimt.receipt_issued',
+      'Receipt issued',
+      null,
+      'An eBarimt receipt is issued for a paid invoice, or replaces one',
+    ),
+    ...RECEIPT_DATA,
+  },
+  {
+    ...event(
+      'core.broadcast.suppressed',
+      'Address suppressed',
+      'customer',
+      'An email or phone stops getting broadcasts: unsubscribed, bounced or added by hand',
+    ),
+    ...SUPPRESSION_DATA,
+  },
+  {
+    ...event(
+      'core.automation.failed',
+      'Automation failed',
+      null,
+      'A run of another automation fails at a step',
+    ),
+    ...AUTOMATION_FAILED_DATA,
+  },
+  {
+    ...event(
+      'core.integration.trigger_failed',
+      'App trigger stopped',
+      null,
+      'A connected app stops sending events: its webhook or polling keeps failing',
+    ),
+    ...APP_TRIGGER_FAILED_DATA,
+  },
+  {
+    ...event(
+      'core.integration.changed',
+      'App connection changed',
+      null,
+      'A connection is added, its keys or sign-in change, or it is turned off or removed (`change`): plugins that use it read it again',
+    ),
+    ...INTEGRATION_CHANGED_DATA,
+  },
+] satisfies readonly CoreEventType[];

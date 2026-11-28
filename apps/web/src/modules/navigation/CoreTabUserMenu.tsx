@@ -1,5 +1,12 @@
 import { paths } from '~/lib/paths';
-import { IconChevronRight, IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
+import {
+  IconChevronRight,
+  IconDeviceLaptop,
+  IconLayoutSidebarRight,
+  IconMaximize,
+  IconMoon,
+  IconSun,
+} from '@tabler/icons-react';
 import {
   Avatar,
   Button,
@@ -14,6 +21,11 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useSession, useSignOut } from '~/modules/auth/session';
+import {
+  RecordOpenMode,
+  recordOpenModeState,
+  type TRecordOpenMode,
+} from '~/modules/side-panel/useSidePanel';
 import { CoreTabTooltip } from './CoreTabTooltip';
 
 /** Name and email at the top of the menu. */
@@ -59,6 +71,45 @@ const ThemeSelector = () => {
           {options.map(({ value, label, icon: Icon }) => (
             <Tooltip key={value}>
               <ToggleGroup.Item render={<Tooltip.Trigger />} value={value}>
+                <Icon />
+              </ToggleGroup.Item>
+              <Tooltip.Content alignOffset={4}>{label}</Tooltip.Content>
+            </Tooltip>
+          ))}
+        </ToggleGroup>
+      </Tooltip.Provider>
+    </div>
+  );
+};
+
+/** Whether records open in the side panel or full screen, on their own page. */
+const RecordOpenModeSelector = () => {
+  const [mode, setMode] = useAtom(recordOpenModeState);
+  const { t } = useTranslation('organization');
+
+  const options: { value: TRecordOpenMode; label: string; icon: typeof IconSun }[] = [
+    { value: 'panel', label: t('open-in-side-panel'), icon: IconLayoutSidebarRight },
+    { value: 'page', label: t('open-full-screen'), icon: IconMaximize },
+  ];
+
+  return (
+    <div className="flex h-7 items-center gap-2 px-2 text-sm font-medium">
+      {t('open-records')}
+      <Tooltip.Provider delay={100}>
+        <ToggleGroup
+          variant="outline"
+          className="ml-auto"
+          onValueChange={([next]) => {
+            const option = RecordOpenMode.safeParse(next);
+
+            if (option.success) setMode(option.data);
+          }}
+          size="icon-sm"
+          value={[mode]}
+        >
+          {options.map(({ value, label, icon: Icon }) => (
+            <Tooltip key={value}>
+              <ToggleGroup.Item render={<Tooltip.Trigger />} value={value} aria-label={label}>
                 <Icon />
               </ToggleGroup.Item>
               <Tooltip.Content alignOffset={4}>{label}</Tooltip.Content>
@@ -130,6 +181,7 @@ export const CoreTabUserMenu = () => {
         </DropdownMenu.LinkItem>
         <DropdownMenu.Separator />
         <ThemeSelector />
+        <RecordOpenModeSelector />
         <SelectLanguages />
         <DropdownMenu.Separator />
         <DropdownMenu.Item

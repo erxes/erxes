@@ -30,6 +30,8 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
           sql`lower(${users.email}) = ${email}`,
           eq(users.status, 'active'),
           eq(users.canSignIn, true),
+          // erxes support has no password: it comes in only through erxes.io's link.
+          eq(users.isSupport, false),
           input.subdomain
             ? sql`lower(${organizations.subdomain}) = ${input.subdomain.toLowerCase()}`
             : undefined,

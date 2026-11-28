@@ -39,17 +39,23 @@ export const pluginItem = (
   tier: string,
   quantity = 1,
   endsAt?: number,
+  kind = 'plugin',
 ): StripeItem => ({
   quantity,
   metadata: endsAt ? { ends_at: String(endsAt) } : {},
-  price: { metadata: { kind: 'plugin', plugin_code: code, tier }, product: `prod_${code}` },
+  price: { metadata: { kind, plugin_code: code, tier }, product: `prod_${code}` },
 });
 
-export const bundleItem = (code: string, plugins: string, tiers: string): StripeItem => ({
+export const bundleItem = (
+  code: string,
+  plugins: string,
+  tiers: string,
+  kind = 'bundle',
+): StripeItem => ({
   quantity: 1,
   metadata: {},
   price: {
-    metadata: { kind: 'bundle', bundle_code: code, plugins, plugin_tiers: tiers },
+    metadata: { kind, bundle_code: code, plugins, plugin_tiers: tiers },
     product: `prod_${code}`,
   },
 });

@@ -132,75 +132,105 @@
     }
   },
   "agents": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/agents"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/agents/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/agents"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/agents/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/agents/{id}"
+        }
+      }
+    },
+    "try": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/agents/{id}/try"
+        }
+      }
+    },
+    "runs": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/agents/{id}/runs"
+        }
+      }
+    },
+    "restart": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/agents/{id}/conversations/{key}/restart"
+        }
+      }
+    },
     "submit": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/agents/{agent}/conversations/{key}/messages"
-        }
-      }
-    },
-    "models": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/agents/models"
-        }
-      }
-    },
-    "setModel": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/agents/{agent}/model"
+          "path": "/agents/{id}/conversations/{key}/messages"
         }
       }
     }
   },
   "assistant": {
-    "connections": {
+    "providers": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/assistant/connections"
-        }
-      }
-    },
-    "saveConnection": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/assistant/connections/{provider}"
-        }
-      }
-    },
-    "removeConnection": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/assistant/connections/{provider}"
-        }
-      }
-    },
-    "setDefaultProvider": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/assistant/default-provider"
+          "path": "/assistant/providers"
         }
       }
     },
@@ -211,16 +241,6 @@
         "route": {
           "method": "GET",
           "path": "/assistant/models"
-        }
-      }
-    },
-    "verifyModel": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/assistant/models/verify"
         }
       }
     },
@@ -518,13 +538,13 @@
         }
       }
     },
-    "stats": {
+    "saveSample": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
-          "method": "GET",
-          "path": "/automations/{id}/stats"
+          "method": "PUT",
+          "path": "/automations/{id}/sample"
         }
       }
     },
@@ -568,6 +588,16 @@
         }
       }
     },
+    "decisionModels": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/decision-models"
+        }
+      }
+    },
     "remove": {
       "~orpc": {
         "errorMap": {},
@@ -575,6 +605,26 @@
         "route": {
           "method": "DELETE",
           "path": "/automations/{id}"
+        }
+      }
+    },
+    "outputs": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/{id}/outputs"
+        }
+      }
+    },
+    "stats": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/automations/{id}/stats"
         }
       }
     },
@@ -759,6 +809,26 @@
         "route": {
           "method": "POST",
           "path": "/auth/sign-in"
+        }
+      }
+    },
+    "signInProviders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/auth/sign-in/providers"
+        }
+      }
+    },
+    "signInWithProvider": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/auth/sign-in/provider"
         }
       }
     },
@@ -1678,7 +1748,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/me"
+          "path": "/portal/me"
         }
       }
     },
@@ -1688,7 +1758,7 @@
         "meta": {},
         "route": {
           "method": "PATCH",
-          "path": "/customer/me"
+          "path": "/portal/me"
         }
       }
     },
@@ -1698,7 +1768,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/me/logins"
+          "path": "/portal/me/logins"
         }
       }
     },
@@ -1708,7 +1778,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/me/logins"
+          "path": "/portal/me/logins"
         }
       }
     },
@@ -1718,7 +1788,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/me/logins/confirm"
+          "path": "/portal/me/logins/confirm"
         }
       }
     },
@@ -1728,7 +1798,7 @@
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/customer/me/logins/{id}"
+          "path": "/portal/me/logins/{id}"
         }
       }
     },
@@ -1738,7 +1808,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/me/sessions"
+          "path": "/portal/me/sessions"
         }
       }
     },
@@ -1748,7 +1818,7 @@
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/customer/me/sessions/{id}"
+          "path": "/portal/me/sessions/{id}"
         }
       }
     },
@@ -1758,19 +1828,69 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/me/sign-out-everywhere"
+          "path": "/portal/me/sign-out-everywhere"
         }
       }
     }
   },
   "customerAuth": {
+    "methods": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/portal/auth/methods"
+        }
+      }
+    },
+    "social": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal/auth/social"
+        }
+      }
+    },
+    "fields": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/portal/auth/fields"
+        }
+      }
+    },
+    "signUp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal/auth/sign-up"
+        }
+      }
+    },
+    "confirmSignUp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal/auth/sign-up/confirm"
+        }
+      }
+    },
     "sendCode": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/code"
+          "path": "/portal/auth/code"
         }
       }
     },
@@ -1780,7 +1900,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/sign-in"
+          "path": "/portal/auth/sign-in"
         }
       }
     },
@@ -1790,7 +1910,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/refresh"
+          "path": "/portal/auth/refresh"
         }
       }
     },
@@ -1800,7 +1920,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer-auth/sign-out"
+          "path": "/portal/auth/sign-out"
         }
       }
     }
@@ -1822,7 +1942,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/notifications"
+          "path": "/portal/me/notifications"
         }
       }
     },
@@ -1832,7 +1952,7 @@
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/customer/notifications/unread-count"
+          "path": "/portal/me/notifications/unread-count"
         }
       }
     },
@@ -1842,7 +1962,7 @@
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/customer/notifications/read"
+          "path": "/portal/me/notifications/read"
         }
       }
     }
@@ -1855,6 +1975,16 @@
         "route": {
           "method": "POST",
           "path": "/emails"
+        }
+      }
+    },
+    "mailConnections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/emails/mail-connections"
         }
       }
     },
@@ -1895,6 +2025,16 @@
         "route": {
           "method": "POST",
           "path": "/email/settings/test"
+        }
+      }
+    },
+    "checkDomains": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email/settings/domains"
         }
       }
     },
@@ -2009,6 +2149,70 @@
       }
     }
   },
+  "emailTemplates": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email-templates"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/email-templates/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/email-templates"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/email-templates/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/email-templates/{id}"
+        }
+      }
+    }
+  },
+  "sms": {
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/sms"
+        }
+      }
+    }
+  },
   "events": {
     "publish": {
       "~orpc": {
@@ -2057,6 +2261,58 @@
         "route": {
           "method": "POST",
           "path": "/events/failures/dismiss"
+        }
+      }
+    }
+  },
+  "exchangeRates": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/exchange-rates"
+        }
+      }
+    },
+    "getActiveRate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/exchange-rates/active"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/exchange-rates"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/exchange-rates/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/exchange-rates/remove"
         }
       }
     }
@@ -2429,6 +2685,28 @@
       }
     }
   },
+  "license": {
+    "status": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/license"
+        }
+      }
+    },
+    "refresh": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/license/refresh"
+        }
+      }
+    }
+  },
   "notifications": {
     "list": {
       "~orpc": {
@@ -2501,6 +2779,28 @@
       }
     }
   },
+  "oauthConsent": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/oauth-consent"
+        }
+      }
+    },
+    "decide": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/oauth-consent"
+        }
+      }
+    }
+  },
   "organizations": {
     "current": {
       "~orpc": {
@@ -2531,36 +2831,6 @@
         "route": {
           "method": "GET",
           "path": "/payments/gateways"
-        }
-      }
-    },
-    "addGateway": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/payments/gateways"
-        }
-      }
-    },
-    "updateGateway": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PATCH",
-          "path": "/payments/gateways/{id}"
-        }
-      }
-    },
-    "removeGateway": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/payments/gateways/{id}"
         }
       }
     },
@@ -2624,23 +2894,23 @@
         }
       }
     },
-    "pluginSettings": {
+    "settings": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/payments/plugins"
+          "path": "/payments/settings"
         }
       }
     },
-    "updatePluginSettings": {
+    "saveSettings": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PUT",
-          "path": "/payments/plugins/{plugin}"
+          "path": "/payments/settings"
         }
       }
     },
@@ -2663,46 +2933,56 @@
           "path": "/payments/invoices/{id}/test-pay"
         }
       }
+    },
+    "quickQrDistricts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/payments/quickqr/districts/{city}"
+        }
+      }
     }
   },
   "ebarimt": {
-    "settings": {
+    "configs": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/ebarimt/settings"
+          "path": "/ebarimt/configs"
         }
       }
     },
-    "plugins": {
+    "createConfig": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
-          "method": "GET",
-          "path": "/ebarimt/plugins"
+          "method": "POST",
+          "path": "/ebarimt/configs"
         }
       }
     },
-    "saveSettings": {
+    "updateConfig": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PUT",
-          "path": "/ebarimt/settings"
+          "path": "/ebarimt/configs/{id}"
         }
       }
     },
-    "removeSettings": {
+    "removeConfig": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/ebarimt/settings"
+          "path": "/ebarimt/configs/{id}"
         }
       }
     },
@@ -2753,6 +3033,16 @@
         "route": {
           "method": "GET",
           "path": "/ebarimt/companies/{no}"
+        }
+      }
+    },
+    "recordReceipt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/ebarimt/receipts/recorded"
         }
       }
     },
@@ -2937,6 +3227,58 @@
         "route": {
           "method": "DELETE",
           "path": "/product-categories/{id}"
+        }
+      }
+    }
+  },
+  "productInventories": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/product-inventories"
+        }
+      }
+    },
+    "remainders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/product-inventories/remainders"
+        }
+      }
+    },
+    "stock": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/product-inventories/stock"
+        }
+      }
+    },
+    "set": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/product-inventories/set"
+        }
+      }
+    },
+    "increase": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/product-inventories/increase"
         }
       }
     }
@@ -3163,6 +3505,58 @@
       }
     }
   },
+  "supportAccess": {
+    "settings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/settings/support-access"
+        }
+      }
+    },
+    "updateSettings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/settings/support-access"
+        }
+      }
+    },
+    "visits": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/support-access/visits"
+        }
+      }
+    },
+    "active": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/support-access/active"
+        }
+      }
+    },
+    "endVisit": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/support-access/visits/{id}/end"
+        }
+      }
+    }
+  },
   "tags": {
     "list": {
       "~orpc": {
@@ -3206,6 +3600,36 @@
     }
   },
   "integrations": {
+    "authorize": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/{key}/authorize"
+        }
+      }
+    },
+    "setOAuthApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/{key}/oauth-app"
+        }
+      }
+    },
+    "removeOAuthApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integrations/{key}/oauth-app"
+        }
+      }
+    },
     "list": {
       "~orpc": {
         "errorMap": {},
@@ -3216,23 +3640,63 @@
         }
       }
     },
-    "get": {
+    "connections": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/integrations/{id}"
+          "path": "/integrations/connections"
         }
       }
     },
-    "create": {
+    "usable": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/usable"
+        }
+      }
+    },
+    "credentials": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/integrations"
+          "path": "/integrations/connections/{id}/credentials"
+        }
+      }
+    },
+    "subscriptions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/subscriptions"
+        }
+      }
+    },
+    "records": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/integrations/{key}/records/{recordType}"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/integrations/{key}/connections"
         }
       }
     },
@@ -3242,17 +3706,7 @@
         "meta": {},
         "route": {
           "method": "PATCH",
-          "path": "/integrations/{id}"
-        }
-      }
-    },
-    "setSecrets": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PUT",
-          "path": "/integrations/{id}/secrets"
+          "path": "/integrations/{key}/connections/{id}"
         }
       }
     },
@@ -3262,57 +3716,203 @@
         "meta": {},
         "route": {
           "method": "DELETE",
-          "path": "/integrations/{id}"
+          "path": "/integrations/{key}/connections/{id}"
         }
       }
     },
-    "saveProgram": {
+    "report": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "PUT",
-          "path": "/integrations/{integrationId}/programs"
+          "path": "/integrations/{key}/state"
         }
       }
-    },
-    "removeProgram": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/integrations/programs/{id}"
-        }
-      }
-    },
-    "programVersions": {
+    }
+  },
+  "githubApp": {
+    "app": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "GET",
-          "path": "/integrations/programs/{id}/versions"
+          "path": "/integrations/github/app"
         }
       }
     },
-    "restoreProgram": {
+    "setApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "removeApp": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/integrations/github/app"
+        }
+      }
+    },
+    "signIn": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/integrations/programs/{id}/restore"
+          "path": "/integrations/github/app/sign-in"
         }
       }
     },
-    "testProgram": {
+    "connect": {
       "~orpc": {
         "errorMap": {},
         "meta": {},
         "route": {
           "method": "POST",
-          "path": "/integrations/programs/{id}/test"
+          "path": "/integrations/github/app/connections"
+        }
+      }
+    }
+  },
+  "banks": {
+    "connections": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections"
+        }
+      }
+    },
+    "accounts": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts"
+        }
+      }
+    },
+    "account": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts/{account}"
+        }
+      }
+    },
+    "statement": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/accounts/{account}/statement"
+        }
+      }
+    },
+    "transfer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/banks/connections/{id}/transfers"
+        }
+      }
+    },
+    "transfers": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/transfers"
+        }
+      }
+    },
+    "taxpayer": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/taxes/taxpayer/{registrationNumber}"
+        }
+      }
+    },
+    "taxInvoices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/banks/connections/{id}/taxes/invoices"
+        }
+      }
+    }
+  },
+  "secrets": {
+    "holdings": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/secrets/holdings"
+        }
+      }
+    },
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/secrets"
+        }
+      }
+    },
+    "replace": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/secrets/{id}"
+        }
+      }
+    },
+    "read": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/secrets/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/secrets/{id}"
         }
       }
     }
@@ -3325,6 +3925,16 @@
         "route": {
           "method": "GET",
           "path": "/units"
+        }
+      }
+    },
+    "restrictions": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/units/restrictions"
         }
       }
     },
@@ -3867,6 +4477,154 @@
         "route": {
           "method": "POST",
           "path": "/webhooks/deliveries/{deliveryId}/redeliver"
+        }
+      }
+    }
+  },
+  "portals": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/portals"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/portals/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portals"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/portals/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/portals/{id}"
+        }
+      }
+    },
+    "save": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/portals/records/{recordId}"
+        }
+      }
+    },
+    "attach": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PUT",
+          "path": "/portals/{id}/plugins/{recordId}"
+        }
+      }
+    },
+    "detach": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/portals/records/{recordId}"
+        }
+      }
+    },
+    "keys": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/portals/keys"
+        }
+      }
+    },
+    "createKey": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portals/{id}/keys"
+        }
+      }
+    },
+    "removeKey": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/portals/{id}/keys/{keyId}"
+        }
+      }
+    }
+  },
+  "portalAuth": {
+    "token": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal-auth/token"
+        }
+      }
+    }
+  },
+  "portalContact": {
+    "send": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/portal/contact"
+        }
+      }
+    }
+  },
+  "customerAccounts": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/customers/{customerId}/accounts"
         }
       }
     }

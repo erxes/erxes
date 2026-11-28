@@ -66,6 +66,16 @@ export const CORE_PERMISSIONS = [
     group: 'Settings',
     label: 'Change organisation settings (file upload, …)',
   },
+  {
+    action: 'exchange_rates.manage',
+    group: 'Settings',
+    label: 'Add, change and delete exchange rates',
+  },
+  {
+    action: 'portals.manage',
+    group: 'Settings',
+    label: 'Add portals, set how customers sign in to them and make their portal keys',
+  },
   { action: 'audit.view', group: 'Security', label: 'See and export the audit log' },
   {
     action: 'events.view',
@@ -82,6 +92,16 @@ export const CORE_PERMISSIONS = [
     action: 'api_keys.manage',
     group: 'Integrations',
     label: "See and revoke everyone's API keys",
+  },
+  {
+    action: 'banks.view',
+    group: 'Banks',
+    label: "See the organisation's bank accounts, balances and statements",
+  },
+  {
+    action: 'banks.transfer',
+    group: 'Banks',
+    label: "Send money from the organisation's bank accounts",
   },
   {
     action: 'integrations.manage',
@@ -136,6 +156,12 @@ export const CORE_PERMISSIONS = [
     action: 'audit.stream',
     group: 'Security',
     label: 'Stream the audit log to a log service',
+    ownerOnly: true,
+  },
+  {
+    action: 'support.manage',
+    group: 'Security',
+    label: 'Let erxes support in, and see and end their visits',
     ownerOnly: true,
   },
   {
@@ -261,21 +287,24 @@ export const rolesContract = {
     .route({
       method: 'GET',
       path: '/roles',
-      summary: 'Roles of the organisation, with member counts',
+      summary: 'List roles',
+      description: 'Roles of the organisation, with member counts',
     })
     .output(listOf(Role)),
   permissions: base
     .route({
       method: 'GET',
       path: '/permissions',
-      summary: "Every action a role can include: core's and installed plugins'",
+      summary: 'List permissions',
+      description: "Every action a role can include: core's and installed plugins'",
     })
     .output(listOf(PermissionInfo)),
   permissionSets: base
     .route({
       method: 'GET',
       path: '/permission-sets',
-      summary: "Installed plugins' ready-made bundles of their permissions, to add to a role",
+      summary: 'List permission sets',
+      description: "Installed plugins' ready-made bundles of their permissions, to add to a role",
     })
     .output(listOf(PermissionSet)),
   create: base
@@ -283,7 +312,8 @@ export const rolesContract = {
       method: 'POST',
       path: '/roles',
       successStatus: 201,
-      summary: 'Create a role (roles.manage)',
+      summary: 'Create a role',
+      description: 'Create a role (roles.manage)',
     })
     .input(RoleFields.required({ name: true, permissions: true }))
     .output(Role),
@@ -291,7 +321,8 @@ export const rolesContract = {
     .route({
       method: 'PATCH',
       path: '/roles/{key}',
-      summary: 'Rename a role or change its permissions (roles.manage; not Owner or Admin)',
+      summary: 'Change a role',
+      description: 'Rename a role or change its permissions (roles.manage; not Owner or Admin)',
     })
     .input(RoleFields.extend({ key: RoleKey }))
     .output(Role),
@@ -299,7 +330,8 @@ export const rolesContract = {
     .route({
       method: 'DELETE',
       path: '/roles/{key}',
-      summary: 'Delete a custom role nobody has (roles.manage); 409 ROLE_IN_USE',
+      summary: 'Delete a role',
+      description: 'Delete a custom role nobody has (roles.manage); 409 ROLE_IN_USE',
     })
     .input(z.object({ key: RoleKey }))
     .output(z.object({ ok: z.literal(true) })),

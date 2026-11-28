@@ -1,0 +1,8 @@
+ALTER TABLE "core_ebarimt_receipts" ALTER COLUMN "invoice_id" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_ebarimt_receipts" ADD COLUMN "source" text;--> statement-breakpoint
+ALTER TABLE "core_ebarimt_receipts" ADD COLUMN "reference_type" text;--> statement-breakpoint
+ALTER TABLE "core_ebarimt_receipts" ADD COLUMN "reference_id" text;--> statement-breakpoint
+ALTER TABLE "core_ebarimt_receipts" ADD COLUMN "dedupe_key" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "core_ebarimt_receipts_dedupe_key" ON "core_ebarimt_receipts" USING btree ("org_id","source","dedupe_key") WHERE "core_ebarimt_receipts"."source" is not null;--> statement-breakpoint
+CREATE INDEX "core_ebarimt_receipts_reference_idx" ON "core_ebarimt_receipts" USING btree ("org_id","source","reference_id") WHERE "core_ebarimt_receipts"."source" is not null;--> statement-breakpoint
+ALTER TABLE "core_ebarimt_receipts" ADD CONSTRAINT "core_ebarimt_receipts_recorded_check" CHECK (("core_ebarimt_receipts"."source" is null and "core_ebarimt_receipts"."invoice_id" is not null and "core_ebarimt_receipts"."reference_type" is null and "core_ebarimt_receipts"."reference_id" is null and "core_ebarimt_receipts"."dedupe_key" is null) or ("core_ebarimt_receipts"."source" is not null and "core_ebarimt_receipts"."reference_type" is not null and "core_ebarimt_receipts"."reference_id" is not null and "core_ebarimt_receipts"."dedupe_key" is not null));

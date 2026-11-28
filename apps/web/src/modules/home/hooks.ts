@@ -10,8 +10,9 @@ const RECENT_LIMIT = 8;
 
 export type CountResult = { total: number; capped: boolean };
 
-const count = (page: { totalCount: number; totalCapped?: boolean }): CountResult => ({
-  total: page.totalCount,
+/** A first page (no cursor) always has its count. */
+const count = (page: { totalCount?: number; totalCapped?: boolean }): CountResult => ({
+  total: page.totalCount ?? 0,
   capped: page.totalCapped ?? false,
 });
 

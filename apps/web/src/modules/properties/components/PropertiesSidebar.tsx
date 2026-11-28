@@ -12,7 +12,7 @@ const ownerOf = (type: PropertyContentType) =>
 
 /** The "Properties" panel listing the record types that have properties, a group per owner. */
 export const PropertiesSidebar = ({ types }: { types: readonly PropertyContentType[] }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { type } = useParams<{ type: string }>();
   const typeLabel = usePropertyTypeLabel();

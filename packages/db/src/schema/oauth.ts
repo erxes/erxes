@@ -6,9 +6,22 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 /**
- * "Sign in with erxes" (OAuth 2.1 / OpenID Connect) for plugins' own apps.
- * Authorization codes live a minute, are used once and need the PKCE
- * verifier; only hashes are stored.
+ * Apps that registered themselves (RFC 7591 dynamic registration), such as an MCP client that
+ * doesn't publish a client metadata document. The deployment's, before any organisation; one
+ * never used is dropped a day after it registered.
+ */
+export const oauthClients = pgTable('oauth_clients', {
+  id: text().primaryKey(),
+  name: text().notNull(),
+  redirectUris: text().array().notNull(),
+  createdAt: createdAt(),
+  usedAt: timestamptz(),
+});
+
+/**
+ * "Sign in with erxes" (OAuth 2.1 / OpenID Connect) for plugins' own apps, and access for MCP
+ * clients. Authorization codes live a minute, are used once and need the PKCE verifier; only
+ * hashes are stored.
  */
 export const oauthCodes = pgTable(
   'oauth_codes',
@@ -21,6 +34,8 @@ export const oauthCodes = pgTable(
     redirectUri: text().notNull(),
     codeChallenge: text().notNull(),
     scope: text().notNull(),
+    /** The MCP server's address the tokens are for (RFC 8707); null for a plugin's own app. */
+    resource: text(),
     nonce: text(),
     expiresAt: timestamptz().notNull(),
     usedAt: timestamptz(),
@@ -50,6 +65,7 @@ export const oauthRefreshTokens = pgTable(
     familyId: text().notNull(),
     tokenHash: text().notNull(),
     scope: text().notNull(),
+    resource: text(),
     sessionVersion: integer().notNull(),
     expiresAt: timestamptz().notNull(),
     usedAt: timestamptz(),

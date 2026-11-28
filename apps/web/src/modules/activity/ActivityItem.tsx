@@ -35,11 +35,11 @@ import { Badge, cn, Skeleton, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChangeList, type Lookups } from '~/components/ChangeList';
-import { actorLabel } from '~/lib/members';
+import { useActorLabel } from './useActorLabel';
 import { usePluginText, usePluginTitle } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import type { ReactNode } from 'react';
-import { readChanges, verbOf } from './activityData';
+import { readChanges, readWroteIn, verbOf } from './activityData';
 import { LinkedRecord, Sentence, SentenceLine } from './ActivitySentence';
 import { NoteItem } from './NoteEntry';
 import { When } from './timelineTime';
@@ -56,6 +56,7 @@ const ICONS: Record<string, Icon> = {
   company_unlinked: IconLinkOff,
   customer_unlinked: IconLinkOff,
   lead: IconProgress,
+  wrote_in: IconMessage,
 };
 
 /**
@@ -142,6 +143,7 @@ const EventItem = ({
     : (ICONS[verbOf(activity)] ?? IconHistory);
 
   const changes = plugin ? null : readChanges(activity);
+  const wroteIn = activity.type === 'customer.wrote_in' ? readWroteIn(activity) : null;
 
   return (
     <li className="relative flex gap-3 pb-4">
@@ -166,6 +168,7 @@ const EventItem = ({
           <When iso={activity.occurredAt} className="ml-2" />
         </p>
         {changes && <ChangeList changes={changes} lookups={lookups} className="mt-1.5" />}
+        {wroteIn && <p className="mt-1 text-sm leading-6 whitespace-pre-line">{wroteIn.message}</p>}
         {(plugin || (activity.link && !own)) && (
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {plugin && <PluginMeta activity={activity} actor={actor} label={look?.label} />}
@@ -240,6 +243,8 @@ export const ActivityItem = ({
   /** The record whose timeline this is; entries of related records say whose they are. */
   pageTarget: { type: string; id: string };
 }) => {
+  const actorLabel = useActorLabel();
+
   const actor =
     activity.actorName ?? actorLabel(activity.actorType, activity.actorId, lookups.members);
 

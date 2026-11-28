@@ -1,4 +1,8 @@
-import { CORE_RECORD_TYPES, customObjectType, type RecordType } from '@erxes/core-contract';
+import {
+  CORE_RECORD_TYPES,
+  customObjectType,
+  type ExtendableRecordType,
+} from '@erxes/core-contract';
 import { caller, type Db, dataObjects, plugins } from '@erxes/core-db';
 import { asc, eq } from 'drizzle-orm';
 import { can } from '~/http/access';
@@ -12,7 +16,7 @@ const OBJECT_PERMISSIONS = { permission: 'objects.view', updatePermission: 'obje
  * The record types that can be extended: core's, the `objects` of each plugin installed here in
  * plugin order, then the organisation's active custom objects by label.
  */
-export const listRecordTypes = async (client: Db): Promise<RecordType[]> => {
+export const listRecordTypes = async (client: Db): Promise<ExtendableRecordType[]> => {
   const [rows, objects] = await Promise.all([
     installedPlugins(client).orderBy(asc(plugins.name)),
     client
@@ -62,7 +66,7 @@ export const findRecordType = async (client: Db, type: string) => {
  * records: a member whose role holds the type's permission, or the plugin that keeps them.
  * Their Data Extensions values follow the same rights.
  */
-export const assertRecordRight = (recordType: RecordType, right: 'read' | 'update') => {
+export const assertRecordRight = (recordType: ExtendableRecordType, right: 'read' | 'update') => {
   const action = right === 'read' ? recordType.permission : recordType.updatePermission;
   const who = caller();
 

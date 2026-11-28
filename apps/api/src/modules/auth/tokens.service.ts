@@ -1,4 +1,6 @@
+import type { coreContract } from '@erxes/core-contract';
 import type { AUTH_TOKEN_PURPOSES } from '@erxes/core-db/enums';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   authTokens,
   caller,
@@ -183,12 +185,9 @@ export const invitationInfo = async (token: string) => {
 };
 
 /** Joins: sets the password (and name), the member becomes active, the link is used up. */
-export const acceptInvitation = async (input: {
-  token: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-}) => {
+export const acceptInvitation = async (
+  input: InferContractRouterInputs<typeof coreContract>['auth']['acceptInvitation'],
+) => {
   const row = await redeem(input.token, 'invite');
   const passwordHash = await hashPassword(input.password);
 

@@ -1,6 +1,7 @@
-import { type Db, plugins } from '@erxes/core-db';
-import { and, inArray, sql } from 'drizzle-orm';
-import { listPluginSettings } from '~/modules/payments/pluginSettings.service';
+import { type Db, pluginInstallations, plugins } from '@erxes/core-db';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+
+const SENDS_OWN = sql`${plugins.manifest} ->> 'taxReceipts' = 'own'`;
 
 /** Of these plugins, those whose manifest says they issue their own tax receipts (`taxReceipts: 'own'`). */
 export const ownReceiptPlugins = async (client: Db, names: string[]) => {
@@ -9,21 +10,26 @@ export const ownReceiptPlugins = async (client: Db, names: string[]) => {
   const rows = await client
     .select({ name: plugins.name })
     .from(plugins)
-    .where(and(inArray(plugins.name, names), sql`${plugins.manifest} ->> 'taxReceipts' = 'own'`));
+    .where(and(inArray(plugins.name, names), SENDS_OWN));
 
   return new Set(rows.map((row) => row.name));
 };
 
-/** The plugins that take payments here; `ownReceipts`: it sends its own, so it can't be picked. */
-export const receiptPlugins = async (client: Db) => {
-  const { data } = await listPluginSettings(client);
+export const receiptSources = async (client: Db) => {
+  const installed = await client
+    .select({
+      plugin: pluginInstallations.plugin,
+      title: sql<string>`coalesce(${plugins.manifest} ->> 'title', ${pluginInstallations.plugin})`,
+    })
+    .from(pluginInstallations)
+    .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
+    .where(
+      and(
+        sql`'payments:write' = any(${pluginInstallations.grantedScopes})`,
+        sql`not coalesce(${SENDS_OWN}, false)`,
+      ),
+    )
+    .orderBy(pluginInstallations.plugin);
 
-  const own = await ownReceiptPlugins(
-    client,
-    data.map((row) => row.plugin),
-  );
-
-  return {
-    data: data.map(({ plugin, title }) => ({ plugin, title, ownReceipts: own.has(plugin) })),
-  };
+  return [{ plugin: 'core', title: 'Core' }, ...installed];
 };

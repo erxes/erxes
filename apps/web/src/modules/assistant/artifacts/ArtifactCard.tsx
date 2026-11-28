@@ -11,7 +11,7 @@ import { Button, Dialog, DropdownMenu, IconTip, useToast } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { type RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Reply } from '../Reply';
+import { Markdown } from '../Markdown';
 import { CsvTable, HtmlFrame } from './ArtifactPreview';
 import { csvRows } from './csvRows';
 import {
@@ -133,7 +133,7 @@ const Preview = ({
     case 'markdown':
       return (
         <div className="p-3">
-          <Reply text={artifact.content} streaming={false} />
+          <Markdown text={artifact.content} streaming={false} />
         </div>
       );
   }

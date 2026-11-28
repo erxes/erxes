@@ -1,4 +1,4 @@
-/** Email sending's value lists, kept as `./enums` is: one `as const` array each, no imports. */
+/** Email's value lists, kept as `./enums` is: one `as const` array each, no imports. */
 
 /** How an organisation sends its emails, when not through the server's (`EMAIL_SMTP_URL`). */
 export const EMAIL_PROVIDERS = ['smtp', 'sendgrid', 'ses'] as const;

@@ -6,9 +6,9 @@ import { Command } from 'erxes-ui/components/command';
 import { Input } from 'erxes-ui/components/input';
 import { Popover } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
-import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
-import { CountryPhoneCodes, type PhoneCountry } from 'erxes-ui/constants/CountryPhoneCodes';
-import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
+import type { CountryCode } from 'libphonenumber-js';
+import type { PhoneCountry } from 'erxes-ui/constants/CountryPhoneCodes';
+import { formatPhoneNumber, usePhoneLib } from 'erxes-ui/utils/format/formatPhoneNumber';
 import { phoneSchema } from 'erxes-ui/modules/inputs/validations/phoneValidation';
 
 interface PhoneInputProps extends Omit<
@@ -31,25 +31,30 @@ const withPlus = (value: string) => (value.startsWith('+') ? value : `+${value}`
 
 const withoutLetters = (value: string) => value.replace(/[a-zA-Z\s]/g, '');
 
-const findCountry = (code?: CountryCode) =>
-  CountryPhoneCodes.find((country) => country.code === code);
+type PhoneLib = NonNullable<ReturnType<typeof usePhoneLib>>;
+
+const findCountry = (lib: PhoneLib, code?: CountryCode) =>
+  lib.CountryPhoneCodes.find((country) => country.code === code);
 
 /** The country and formatted text the input starts with. */
-const parseInitialPhone = (value?: string, defaultCountry?: CountryCode) => {
+const parseInitialPhone = (lib: PhoneLib, value?: string, defaultCountry?: CountryCode) => {
   const text = value ? withPlus(value) : '';
-  const parsed = parsePhoneNumberFromString(text);
+  const parsed = lib.parsePhoneNumberFromString(text);
 
   return {
-    country: findCountry(parsed?.country ?? defaultCountry),
+    country: findCountry(lib, parsed?.country ?? defaultCountry),
     text: formatPhoneNumber({ value: parsed?.formatInternational() ?? text }),
   };
 };
 
 const CountrySelect = ({
+  countries,
   selected,
   onSelect,
   variant,
 }: {
+  /** Missing until the phone library loads: the picker's place stays empty. */
+  countries?: PhoneCountry[];
   selected?: PhoneCountry;
   onSelect: (country: PhoneCountry) => void;
   variant: PhoneInputProps['variant'];
@@ -58,6 +63,8 @@ const CountrySelect = ({
   const { t, i18n } = useTranslation('ui', { keyPrefix: 'phone' });
   const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
   const nameOf = (country: PhoneCountry) => regionNames.of(country.code) ?? country.name;
+
+  if (!countries) return <span className="w-8 shrink-0" aria-hidden="true" />;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -77,7 +84,7 @@ const CountrySelect = ({
           <Command.Input placeholder={t('search-country', 'Search country…')} className="h-9" />
           <Command.List className="max-h-75 overflow-auto">
             <Command.Group>
-              {CountryPhoneCodes.map((country) => (
+              {countries.map((country) => (
                 <Command.Item
                   key={country.code}
                   value={`${nameOf(country)} ${country.name}`}
@@ -130,9 +137,32 @@ const usePhoneValidation = (onValidationChange: PhoneInputProps['onValidationCha
 };
 
 /**
+ * The phone library, and the country and text the input shows: the stored number until the
+ * library is in, then the number read with its country and formatting.
+ */
+const usePhoneText = (value?: string, defaultCountry?: CountryCode) => {
+  const lib = usePhoneLib();
+  const [parsedWith, setParsedWith] = useState<PhoneLib | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<PhoneCountry>();
+  const [phoneNumber, setPhoneNumber] = useState(value ? withPlus(value) : '');
+
+  if (lib && parsedWith !== lib) {
+    const initial = parseInitialPhone(lib, value, defaultCountry);
+
+    setParsedWith(lib);
+    setSelectedCountry(initial.country);
+    setPhoneNumber(initial.text);
+  }
+
+  return { lib, selectedCountry, setSelectedCountry, phoneNumber, setPhoneNumber };
+};
+
+/**
  * A phone input with a country flag picker that formats as you type.
  * It validates on change and blur and reports through `onValidationChange`; `onChange` gets
- * the number and its country code.
+ * the number and its country code. The phone library loads with the first one shown: until it
+ * has, for a moment, the input shows the number as stored and takes no typing, and the flag
+ * picker appears beside it once it has.
  */
 export const PhoneInput = ({
   ref,
@@ -148,9 +178,11 @@ export const PhoneInput = ({
   variant,
   ...props
 }: PhoneInputProps & React.RefAttributes<HTMLInputElement>) => {
-  const [initial] = useState(() => parseInitialPhone(value, defaultCountry));
-  const [selectedCountry, setSelectedCountry] = useState(initial.country);
-  const [phoneNumber, setPhoneNumber] = useState(initial.text);
+  const { lib, selectedCountry, setSelectedCountry, phoneNumber, setPhoneNumber } = usePhoneText(
+    value,
+    defaultCountry,
+  );
+
   const { validationError, validate } = usePhoneValidation(onValidationChange);
 
   const handleSelect = (country: PhoneCountry) => {
@@ -163,8 +195,12 @@ export const PhoneInput = ({
   };
 
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!lib) return;
     const input = withPlus(event.target.value);
-    const country = findCountry(parsePhoneNumberFromString(input)?.country) ?? selectedCountry;
+
+    const country =
+      findCountry(lib, lib.parsePhoneNumberFromString(input)?.country) ?? selectedCountry;
+
     const phone = withoutLetters(input);
 
     setSelectedCountry(country);
@@ -187,10 +223,16 @@ export const PhoneInput = ({
 
   return (
     <div className={cn('flex items-center justify-start rounded gap-1', className)}>
-      <CountrySelect selected={selectedCountry} onSelect={handleSelect} variant={variant} />
+      <CountrySelect
+        countries={lib?.CountryPhoneCodes}
+        selected={selectedCountry}
+        onSelect={handleSelect}
+        variant={variant}
+      />
       <div className="flex-1">
         <Input
           {...props}
+          readOnly={!lib || props.readOnly}
           value={phoneNumber}
           onChange={handlePhoneChange}
           onBlur={handleBlur}

@@ -3,7 +3,9 @@ import type { i18n as I18n } from 'i18next';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
+import { z } from 'zod';
 import { pluginLabel } from '~/lib/members';
+import { matchSentence, type SentencePattern, sentencePatterns } from './pluginSentence';
 
 /** The registry `usePlugins` reads too: one request and cache entry. */
 const pluginsQuery = () => orpc.plugins.list.queryOptions({ staleTime: Infinity, retry: false });
@@ -19,6 +21,49 @@ export const usePluginText = () => {
 
   return (plugin: string, text: string): string =>
     t(text, { ns: plugin, defaultValue: text, nsSeparator: false, keySeparator: false });
+};
+
+const Bundle = z.record(z.string(), z.unknown());
+
+/** Each bundle's sentence patterns, worked out once per bundle. */
+const patternCache = new WeakMap<object, SentencePattern[]>();
+
+const patternsOf = (bundle: unknown) => {
+  const parsed = Bundle.safeParse(bundle);
+
+  if (!parsed.success) return [];
+
+  const cached = patternCache.get(parsed.data);
+
+  if (cached) return cached;
+
+  const patterns = sentencePatterns(Object.keys(parsed.data));
+
+  patternCache.set(parsed.data, patterns);
+
+  return patterns;
+};
+
+/**
+ * A line a plugin wrote (an activity's summary) in the member's language: its translation, else
+ * the plugin's translated sentence whose `{{slots}}` the line fills (`Order {{number}} shipped`
+ * reads `Order #1042 shipped`), with the line's values. Else the line as written.
+ */
+export const usePluginSentence = () => {
+  const { t, i18n } = useTranslation(undefined, { bindI18nStore: 'added' });
+
+  return (plugin: string, line: string): string => {
+    const options = { ns: plugin, nsSeparator: false, keySeparator: false } as const;
+
+    if (i18n.exists(line, options)) return t(line, options);
+
+    const language = i18n.resolvedLanguage ?? i18n.language;
+    const match = matchSentence(patternsOf(i18n.getResourceBundle(language, plugin)), line);
+
+    if (!match) return line;
+
+    return t(match.key, { ...options, ...match.values, interpolation: { escapeValue: false } });
+  };
 };
 
 /**

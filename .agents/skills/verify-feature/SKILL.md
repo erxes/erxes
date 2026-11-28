@@ -10,6 +10,9 @@ Use synthetic data only. Never point the app at a copy of production data.
    and returns once both answer, printing their URLs and the sign-in. Ports and the container
    name come from the checkout's path, so parallel checkouts never collide. `vp run dev:stack status`
    shows it again; `vp run dev:stack down` stops it when you are done. Logs are in `.scratch/dev-stack/`.
+   To run plugins beside it, name their checkouts: `vp run dev:stack up ../accounting ../sales`.
+   Each gets a database role and a secret, its API and UI dev servers, and an install in the e2e
+   organisation with its scopes granted.
 2. Run the daily flows: `pnpm exec playwright install chromium-headless-shell` once, then
    `E2E_BASE_URL=<the UI URL> pnpm e2e`. The setup project signs in as the stack's owner
    (`owner@e2e.test`, password `E2e-owner-pass-1`, in `e2e/owner.ts`), and every spec

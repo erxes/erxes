@@ -12,12 +12,12 @@ import {
   ScrollArea,
   Spinner,
   useToast,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSession, useSessionQuery, useSignOutEverywhere } from '~/modules/auth/session';

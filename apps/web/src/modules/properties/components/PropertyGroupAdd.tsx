@@ -15,7 +15,7 @@ export const AddPropertyGroup = ({
   onAdded?: (group: FieldGroup) => void;
   trigger?: ReactElement;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const [open, setOpen] = useState(false);
   const { mutate, isPending } = useAddPropertyGroup();
 

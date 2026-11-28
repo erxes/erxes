@@ -1,94 +1,46 @@
-import { db, requestOrgId, withOrg } from '@erxes/core-db';
+import { caller, db } from '@erxes/core-db';
+import { connectionCredentials, usableConnections } from '~/modules/integrations/connectionUse';
+import {
+  connect,
+  removeConnection,
+  updateConnection,
+} from '~/modules/integrations/integrations.service';
+import { integrationConnectionsOf, listIntegrations } from '~/modules/integrations/integrationList';
+import { reportIntegrationState } from '~/modules/integrations/pluginIntegrations';
+import { appSubscriptionsOf } from '~/modules/integrations/listeners';
+import { listAppRecords } from '~/modules/integrations/records';
+import { authorizeUrl } from '~/modules/integrations/oauth';
+import { removeOAuthApp, setOAuthApp } from '~/modules/integrations/oauthApps';
 import { audited, recordOf, scoped, unscoped } from '~/orpc';
-import { runAction } from './actions';
-import { runIncoming } from './incoming';
-import {
-  createIntegration,
-  getIntegration,
-  listIntegrations,
-  removeIntegration,
-  setIntegrationSecrets,
-  updateIntegration,
-} from './integrations.service';
-import {
-  loadProgram,
-  programVersions,
-  removeProgram,
-  restoreProgram,
-  saveProgram,
-} from './programs.service';
 
 export const integrationsRouter = {
   list: scoped.integrations.list.handler(() => listIntegrations(db())),
-  get: scoped.integrations.get.handler(({ input }) => getIntegration(db(), input.id)),
-  create: scoped.integrations.create.handler(({ input }) =>
+  connections: scoped.integrations.connections.handler(({ input }) =>
+    integrationConnectionsOf(db(), input.key),
+  ),
+  usable: scoped.integrations.usable.handler(({ input }) => usableConnections(db(), input.key)),
+  credentials: scoped.integrations.credentials.handler(({ input }) =>
     audited(
-      (tx) => createIntegration(tx, input),
-      (integration) => ({
-        ...recordOf('integration', 'created', integration.id, integration),
-        metadata: { hosts: integration.hosts },
+      (tx) => connectionCredentials(tx, input.id),
+      (credentials) => ({
+        ...recordOf('integration_connection', 'credentials_read', credentials.connectionId),
+        metadata: { key: credentials.key, plugin: caller('plugin').plugin },
       }),
     ),
   ),
-  update: scoped.integrations.update.handler(({ input: { id, ...changes } }) =>
-    audited(
-      (tx) => updateIntegration(tx, id, changes),
-      (integration) => ({
-        ...recordOf('integration', 'updated', id, integration),
-        metadata: changes,
-      }),
-    ),
+  subscriptions: scoped.integrations.subscriptions.handler(({ input }) =>
+    appSubscriptionsOf(db(), input.key),
   ),
-  setSecrets: scoped.integrations.setSecrets.handler(({ input }) =>
-    audited(
-      (tx) => setIntegrationSecrets(tx, input.id, input.secrets),
-      (integration) => ({
-        ...recordOf('integration', 'secrets_changed', input.id, integration),
-        metadata: { names: Object.keys(input.secrets) },
-      }),
-    ),
-  ),
+  records: unscoped.integrations.records.handler(({ input }) => listAppRecords(input)),
+  connect: unscoped.integrations.connect.handler(({ input }) => connect(input)),
+  update: unscoped.integrations.update.handler(({ input }) => updateConnection(input)),
   remove: scoped.integrations.remove.handler(({ input }) =>
-    audited(
-      (tx) => removeIntegration(tx, input.id),
-      () => recordOf('integration', 'deleted', input.id),
-    ),
+    removeConnection(db(), input.key, input.id),
   ),
-  saveProgram: scoped.integrations.saveProgram.handler(({ input }) =>
-    audited(
-      (tx) => saveProgram(tx, input),
-      (program) => ({
-        ...recordOf('integration_program', 'saved', program.id, program),
-        metadata: { kind: program.kind, key: program.key, version: program.version },
-      }),
-    ),
+  report: scoped.integrations.report.handler(({ input }) => reportIntegrationState(db(), input)),
+  authorize: scoped.integrations.authorize.handler(({ input }) => authorizeUrl(db(), input)),
+  setOAuthApp: scoped.integrations.setOAuthApp.handler(({ input }) => setOAuthApp(db(), input)),
+  removeOAuthApp: scoped.integrations.removeOAuthApp.handler(({ input }) =>
+    removeOAuthApp(db(), input.key),
   ),
-  removeProgram: scoped.integrations.removeProgram.handler(({ input }) =>
-    audited(
-      (tx) => removeProgram(tx, input.id),
-      () => recordOf('integration_program', 'deleted', input.id),
-    ),
-  ),
-  programVersions: scoped.integrations.programVersions.handler(({ input }) =>
-    programVersions(db(), input.id),
-  ),
-  restoreProgram: scoped.integrations.restoreProgram.handler(({ input }) =>
-    audited(
-      (tx) => restoreProgram(tx, input.id, input.version),
-      (program) => ({
-        ...recordOf('integration_program', 'restored', program.id, program),
-        metadata: { from: input.version, version: program.version },
-      }),
-    ),
-  ),
-  testProgram: unscoped.integrations.testProgram.handler(async ({ input }) => {
-    const loaded = await withOrg(requestOrgId(), (tx) => loadProgram(tx, input.id));
-
-    return loaded.program.kind === 'incoming'
-      ? runIncoming(loaded, input.incoming)
-      : runAction(requestOrgId(), loaded, {
-          input: input.input,
-          idempotencyKey: `test:${input.id}`,
-        });
-  }),
 };

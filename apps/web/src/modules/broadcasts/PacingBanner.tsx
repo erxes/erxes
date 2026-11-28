@@ -40,7 +40,7 @@ export const PacingBanner = ({ broadcast }: { broadcast: Broadcast }) => {
       {pacing.halted
         ? t(
             'pacing-halted',
-            'Sending halted by the bounce rate: {{count}} copies wait. An admin must resume it in Settings › Integrations › Email sending.',
+            'Sending halted by the bounce rate: {{count}} copies wait. An admin must resume it in Settings › Organization email.',
             { count: waiting },
           )
         : t('pacing-limit', 'Sending is paced: {{count}} held until {{when}}', {

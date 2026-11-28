@@ -46,14 +46,15 @@ export const EmailDelivery = createSelectSchema(emailDeliveries, {
 
 export type EmailDelivery = z.infer<typeof EmailDelivery>;
 
-/** Every email the organisation sent in the last 90 days (Settings › Integrations › Email sending). */
+/** Every email the organisation sent in the last 90 days (Settings › Organization email). */
 export const emailDeliveriesContract = {
   deliveries: oc
     .errors(COMMON_ERRORS)
     .route({
       method: 'GET',
       path: '/email/deliveries',
-      summary: 'Emails the organisation sent in the last 90 days, newest first',
+      summary: 'List sent emails',
+      description: 'Emails the organisation sent in the last 90 days, newest first',
     })
     .input(
       CursorQuery.extend({

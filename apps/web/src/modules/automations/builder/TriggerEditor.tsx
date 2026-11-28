@@ -1,22 +1,44 @@
-import type { AutomationTrigger, DataField } from '@erxes/core-contract';
-import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
-import { Badge, Button, cn } from 'erxes-ui';
+import { type AutomationTrigger, type DataField, isAppEvent } from '@erxes/core-contract';
+import { IconHandFinger } from '@tabler/icons-react';
+import { Badge, Button, ChoiceboxGroup, Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { Catalog } from '../automationQueries';
+import { TriggerIcon } from '../TemplatePicker';
+import { AppTriggerSettings } from './AppTriggerSettings';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { DateTriggerSettings } from './DateTriggerSettings';
 import { EventDataHint } from './EventDataHint';
+import { Field } from './Field';
 import { eventDataFields } from './flowChecks';
 import { RecordPicks } from './RecordPicks';
 import { joinPicks, splitPicks } from './pickRules';
 import { ScheduleTriggerSettings } from './ScheduleTriggerSettings';
-import { AudienceEditor, Field } from './triggerFields';
+import { AudienceEditor } from './triggerFields';
+import { type Hook, WebhookTriggerSettings } from './WebhookTriggerSettings';
 
 const KINDS = [
-  { kind: 'event', icon: IconBolt, label: 'Event', hint: 'When something happens' },
-  { kind: 'schedule', icon: IconClock, label: 'Schedule', hint: 'Every hour, day, week or month' },
-  { kind: 'date', icon: IconCalendarEvent, label: 'Date', hint: 'Before or after a record’s date' },
-  { kind: 'manual', icon: IconHandFinger, label: 'Manual', hint: 'You start it on chosen records' },
+  { kind: 'event', label: 'Event', hint: 'When something happens', comingSoon: false },
+  {
+    kind: 'schedule',
+    label: 'Schedule',
+    hint: 'Every few minutes, hours, days, weeks or months',
+    comingSoon: false,
+  },
+  { kind: 'date', label: 'Date', hint: 'Before or after a record’s date', comingSoon: false },
+  { kind: 'manual', label: 'Manual', hint: 'You start it on chosen records', comingSoon: false },
+  {
+    kind: 'webhook',
+    label: 'Webhook',
+    hint: 'When another system calls its address',
+    comingSoon: false,
+  },
+  {
+    kind: 'app',
+    label: 'App',
+    hint: 'When a connected app reports something',
+    comingSoon: true,
+  },
 ] as const;
 
 const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
@@ -34,8 +56,12 @@ const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger => {
         yearly: true,
         at: '09:00',
       };
-    default:
-      return { kind: 'manual', audience: { type: 'customer' } };
+    case 'webhook':
+      return { kind };
+    case 'manual':
+      return { kind, audience: { type: 'customer' } };
+    case 'app':
+      return { kind, app: '', trigger: '', connectionId: '', params: {} };
   }
 };
 
@@ -61,37 +87,42 @@ const KindPicker = ({
   const { t } = useTranslation('automations');
 
   return (
-    <div className="grid auto-rows-fr grid-cols-2 gap-2">
-      {KINDS.map(({ kind, icon: Icon, label, hint }) => (
-        <button
-          key={kind}
-          type="button"
-          disabled={disabled}
-          aria-pressed={value === kind}
-          onClick={() => value !== kind && onChange(defaults(kind))}
-          className={cn(
-            'flex min-w-0 items-start gap-2.5 rounded-lg border p-2.5 text-left transition-colors hover:bg-muted/60 disabled:opacity-60',
-            value === kind &&
-              'border-primary bg-primary/5 ring-1 ring-primary/20 hover:bg-primary/5',
-          )}
-        >
-          <span
-            className={cn(
-              'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
-              value === kind && 'bg-primary text-primary-foreground',
-            )}
-          >
-            <Icon className="size-4" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-medium">{t(`trigger-${kind}-title`, label)}</span>
-            <span className="line-clamp-2 block text-xs leading-snug text-muted-foreground">
-              {t(`trigger-${kind}-hint`, hint)}
-            </span>
-          </span>
-        </button>
-      ))}
-    </div>
+    <Tooltip.Provider delay={300}>
+      <ChoiceboxGroup
+        value={value}
+        disabled={disabled}
+        aria-label={t('trigger-type', 'Starts')}
+        className="grid grid-cols-3"
+        onValueChange={(next) => {
+          const picked = KINDS.find((item) => item.kind === next);
+
+          if (picked && !picked.comingSoon && picked.kind !== value)
+            onChange(defaults(picked.kind));
+        }}
+      >
+        {KINDS.map(({ kind, label, hint, comingSoon }) => (
+          <ChoiceboxGroup.Item key={kind} value={kind} disabled={Boolean(disabled) || comingSoon}>
+            <Tooltip>
+              <Tooltip.Trigger render={<span className="flex w-full items-center" />}>
+                <TriggerIcon kind={kind} className="mr-2 size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">{t(`trigger-${kind}-title`, label)}</span>
+                {comingSoon && (
+                  <Badge variant="muted" size="sm" className="ml-1 shrink-0">
+                    {t('coming-soon-short', 'Soon')}
+                  </Badge>
+                )}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom" className="max-w-56 whitespace-normal">
+                {comingSoon && (
+                  <span className="block font-medium">{t('coming-soon', 'Coming soon')}</span>
+                )}
+                {t(`trigger-${kind}-hint`, hint)}
+              </Tooltip.Content>
+            </Tooltip>
+          </ChoiceboxGroup.Item>
+        ))}
+      </ChoiceboxGroup>
+    </Tooltip.Provider>
   );
 };
 
@@ -99,11 +130,9 @@ const KindPicker = ({
 const EventData = ({ event }: { event: EventInfo }) => {
   const { t } = useTranslation('automations');
   const fields = (event.fields ?? []).filter((field) => !field.recordType);
+  const waiting = event.source !== 'core' && !event.seen && !event.fields?.length;
 
-  // Core's customer and company events carry that record, which steps use as the record.
-  if (!fields.length && event.source === 'core' && event.subject) return null;
-
-  if (!fields.length && event.fields?.length) return null;
+  if (!fields.length && !waiting) return null;
 
   return (
     <Field label={t('event-data', 'What steps can use from it')}>
@@ -161,14 +190,7 @@ const EventTriggerSettings = ({
         onChange={(next) => onChange({ ...trigger, conditions: joinPicks(next, rest) })}
       />
       {started && <EventData event={started} />}
-      <Field
-        label={t('only-if', 'Only if')}
-        hint={
-          rest?.rules.length
-            ? undefined
-            : t('only-if-empty', 'No conditions: every such event starts a run.')
-        }
-      >
+      <Field label={t('only-if', 'Only if')}>
         <ConditionsEditor
           subject={started?.subject ?? null}
           extraFields={eventFields.filter((field) => !recordFields.includes(field))}
@@ -183,16 +205,20 @@ const EventTriggerSettings = ({
   );
 };
 
-/** The trigger: an event, a schedule, a date on each record, or a manual start. */
+/** The trigger: an event, a schedule, a date on each record, a manual start, or a webhook. */
 export const TriggerEditor = ({
   trigger,
   events,
+  apps,
+  hook,
   onChange,
   disabled,
   onStartNow,
 }: {
   trigger: AutomationTrigger;
-  events: EventInfo[];
+  events: Catalog['triggers'];
+  apps: Catalog['apps'];
+  hook: Hook;
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;
@@ -201,13 +227,12 @@ export const TriggerEditor = ({
 
   return (
     <div className="space-y-5">
-      <Field label={t('trigger-type', 'Starts')}>
-        <KindPicker value={trigger.kind} disabled={disabled} onChange={onChange} />
-      </Field>
+      <KindPicker value={trigger.kind} disabled={disabled} onChange={onChange} />
+
       {trigger.kind === 'event' && (
         <EventTriggerSettings
           trigger={trigger}
-          events={events}
+          events={events.filter((event) => !isAppEvent(event.type))}
           disabled={disabled}
           onChange={onChange}
         />
@@ -217,6 +242,22 @@ export const TriggerEditor = ({
       )}
       {trigger.kind === 'date' && (
         <DateTriggerSettings trigger={trigger} disabled={disabled} onChange={onChange} />
+      )}
+      {trigger.kind === 'webhook' && (
+        <WebhookTriggerSettings
+          trigger={trigger}
+          hook={hook}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      )}
+      {trigger.kind === 'app' && (
+        <AppTriggerSettings
+          trigger={trigger}
+          catalog={{ apps, triggers: events }}
+          disabled={disabled}
+          onChange={onChange}
+        />
       )}
       {trigger.kind === 'manual' && (
         <>

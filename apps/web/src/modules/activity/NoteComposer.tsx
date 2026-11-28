@@ -1,8 +1,9 @@
-import type { User } from '@erxes/core-contract';
+import type { NoteInput, User } from '@erxes/core-contract';
 import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import { Button, cn, memberName, Spinner, Textarea } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { z } from 'zod';
 import { UserAvatar } from '~/components/UserAvatar';
 import { AttachButton, AttachedFiles, useAttachments } from './NoteAttachments';
 import { useMentions } from './useMentions';
@@ -10,11 +11,7 @@ import { useMentions } from './useMentions';
 /** ⌘ on Apple keyboards, Ctrl elsewhere (the shortcut accepts both). */
 const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);
 
-export interface NoteDraft {
-  body: string;
-  mentions: string[];
-  fileIds: string[];
-}
+export type NoteDraft = z.infer<typeof NoteInput>;
 
 const PLACEMENT = {
   below: 'top-full left-2 mt-1 w-64',

@@ -6,7 +6,8 @@ import {
   dataTables,
   newId,
 } from '@erxes/core-db';
-import type { DATA_EXTENSION_ON_DELETE } from '@erxes/core-db/dataExtensionEnums';
+import type { DataExtensionRelationCreate } from '@erxes/core-contract';
+import type { z } from 'zod';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { freeColumn, holdsLink, linkColumn, objectTable, pairsTable } from './columns';
@@ -21,22 +22,16 @@ import { assertRoom, extendableType, nextPosition, takenColumns } from './fieldR
  * clears it (or deletes this side's record, for `cascade` between custom objects).
  */
 
-type Kind = DataFieldRelation['kind'];
-
-interface Side {
-  id: string;
-  recordType: string;
-  key: string;
-  label: string;
+type Side = Pick<typeof dataFields.$inferSelect, 'id' | 'recordType' | 'key' | 'label'> & {
   relation: DataFieldRelation;
-}
+};
 
 /** Where a side keeps its link: its column (when it holds one), and the column's index. */
 const linkStorage = async (
   client: Db,
   side: Side,
   taken: Set<string>,
-  onDelete: (typeof DATA_EXTENSION_ON_DELETE)[number],
+  onDelete: RelationInput['onDelete'],
 ) => {
   if (!holdsLink(side.relation)) return null;
 
@@ -81,16 +76,7 @@ const pairsStorage = async (client: Db, source: Side) => {
   return table;
 };
 
-interface RelationInput {
-  recordType: string;
-  key: string;
-  label: string;
-  targetRecordType: string;
-  kind: Kind;
-  inverseKey: string;
-  inverseLabel: string;
-  onDelete: (typeof DATA_EXTENSION_ON_DELETE)[number];
-}
+type RelationInput = z.infer<typeof DataExtensionRelationCreate>;
 
 /** The relation's two sides, each pointing at the other. */
 const sidesOf = (input: RelationInput): [source: Side, inverse: Side] => {

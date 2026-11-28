@@ -1,11 +1,11 @@
-import type { AssistantThread } from '@erxes/core-contract';
+import type { AssistantThread, CursorQuery } from '@erxes/core-contract';
 import { IconHistory, IconMessage, IconPin } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { isToday, isYesterday, subDays } from 'date-fns';
 import { Button, Command, Spinner, useFormat } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
-import { type CursorParams, forwardPaging } from '~/lib/cursorList';
+import { forwardPaging } from '~/lib/cursorList';
 import { liveOptions } from '~/lib/live';
 import { threadTitle } from './useThread';
 
@@ -30,7 +30,7 @@ const periodOf = (thread: AssistantThread): Period => {
 const useThreadPages = () =>
   useInfiniteQuery(
     orpc.assistant.threads.infiniteOptions({
-      input: (page: CursorParams) => page,
+      input: (page: CursorQuery) => page,
       ...forwardPaging(PAGE),
       ...liveOptions(['assistant'], false),
     }),
@@ -53,7 +53,7 @@ const ThreadItem = ({ thread, onOpen }: { thread: AssistantThread; onOpen: () =>
   );
 };
 
-const HistoryList = ({ onOpen }: { onOpen: (id: string) => void }) => {
+export const HistoryList = ({ onOpen }: { onOpen: (id: string) => void }) => {
   const { t } = useTranslation('assistant');
   const query = useThreadPages();
   const threads = query.data?.pages.flatMap((page) => page.data) ?? [];

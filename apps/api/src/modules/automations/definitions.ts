@@ -4,53 +4,58 @@ import type {
   AutomationStep,
   ConditionGroup,
 } from '@erxes/core-contract';
-import { CONTENT_TYPES, type ContentType, type Db, fields } from '@erxes/core-db';
+import { isAppEvent } from '@erxes/core-contract';
+import {
+  CONTENT_TYPES,
+  type ContentType,
+  type Db,
+  fields,
+  integrationConnections,
+} from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
+import { manages } from '~/modules/integrations/connectable';
+import { allowsPersonal, usable } from '~/modules/integrations/scopes';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
+import { resolveAppTrigger } from '~/modules/integrations/subscriptions';
 import { subjectCompiler } from '~/modules/views/recordFilter';
 import { coreAction } from './actions/catalog';
+import { REPLY_ACTION } from './actions/reply';
 import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
-import { dateConditions } from './conditions';
+import { triggerConditions } from './conditions';
+import { eachStep } from './cursor';
+import { decisionProblems } from './decide';
+import { triggerFields } from './hooks';
+import { MAX_HOURS, MIN_MINUTES } from './schedule';
 
 type Catalog = Awaited<ReturnType<typeof automationCatalog>>;
 
 type SubjectKind = Catalog['triggers'][number]['subject'];
 
-const walk = (steps: AutomationStep[], visit: (step: AutomationStep) => void) => {
-  for (const step of steps) {
-    visit(step);
-
-    if (step.type === 'branch') {
-      walk(step.then, visit);
-      walk(step.else, visit);
-    }
-
-    if (step.type === 'switch') {
-      step.cases.forEach((item) => walk(item.steps, visit));
-      walk(step.otherwise, visit);
-    }
-
-    if (step.type === 'split') step.paths.forEach((path) => walk(path.steps, visit));
-  }
-};
+type Trigger = AutomationDefinition['trigger'];
 
 /** Which record runs are about, given the trigger (null: none). */
-const subjectOfTrigger = (
-  definition: AutomationDefinition,
-  triggers: Catalog['triggers'],
-): SubjectKind => {
-  const trigger = definition.trigger;
+const subjectOfTrigger = (trigger: Trigger, triggers: Catalog['triggers']): SubjectKind => {
+  switch (trigger.kind) {
+    case 'event': {
+      const event = triggers.find((item) => item.type === trigger.event);
 
-  if (trigger.kind === 'event')
-    return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
+      return event && !('subjectGone' in event && event.subjectGone) ? event.subject : null;
+    }
 
-  if (trigger.kind === 'date') return trigger.subject;
-
-  return trigger.audience?.type ?? null;
+    case 'date':
+      return trigger.subject;
+    case 'webhook':
+    case 'app':
+      return trigger.subject?.type ?? null;
+    case 'schedule':
+    case 'manual':
+      return trigger.audience?.type ?? null;
+  }
 };
 
 const isBlank = (value: unknown) =>
@@ -59,15 +64,40 @@ const isBlank = (value: unknown) =>
   value === '' ||
   (Array.isArray(value) && value.length === 0);
 
+const appsNotAllowed = (action: Catalog['actions'][number]) => {
+  const integration = INTEGRATIONS.find((item) => item.key === action.integration);
+
+  const own = integration?.keys
+    ? integration.actions?.some((item) => `${integration.key}.${item.key}` === action.type)
+    : false;
+
+  return integration && own && !manages(integration) && !allowsPersonal(integration)
+    ? [integration.name]
+    : [];
+};
+
 /** Problems with one action step: unknown, missing fields, or the wrong kind of record. */
 const actionProblems = (
   step: Extract<AutomationStep, { type: 'action' }>,
   catalog: Catalog,
   subject: SubjectKind,
+  trigger: Trigger,
 ) => {
   const action = catalog.actions.find((item) => item.type === step.action);
+  const owner = coreAction(step.action)?.integration;
+  const notConnected = `Step ${step.id}: ${owner?.name} is not connected: connect it in Settings › Integrations`;
 
-  if (!action) return [`Step ${step.id}: unknown action ${step.action}`];
+  if (!action) return [owner ? notConnected : `Step ${step.id}: unknown action ${step.action}`];
+
+  const refused = appsNotAllowed(action).map(
+    (name) => `Step ${step.id} (${action.label}): your role can't use ${name}`,
+  );
+
+  if (refused.length) return refused;
+
+  const connection = action.fields.find((field) => field.type === 'connection');
+
+  if (owner && connection && !connection.options?.length) return [notConnected];
 
   const problems = action.fields
     .filter((field) => field.required && isBlank(step.input[field.key]))
@@ -75,6 +105,16 @@ const actionProblems = (
 
   for (const problem of coreAction(step.action)?.check?.(step.input) ?? [])
     problems.push(`Step ${step.id} (${action.label}): ${problem}`);
+
+  for (const field of action.fields.filter((item) => item.type === 'connection')) {
+    const value = step.input[field.key];
+
+    if (!isBlank(value) && !field.options?.some((option) => option.value === value))
+      problems.push(`Step ${step.id} (${action.label}): that connection is not active`);
+  }
+
+  if (step.action === REPLY_ACTION && trigger.kind !== 'webhook')
+    problems.push(`Step ${step.id} (${action.label}) needs the webhook trigger`);
 
   if (action.subject && action.subject !== 'any' && subject && action.subject !== subject)
     problems.push(
@@ -90,23 +130,71 @@ const actionProblems = (
 };
 
 /** Problems with one step of any kind. */
-const stepProblems = (step: AutomationStep, catalog: Catalog, subject: SubjectKind) => {
+const stepProblems = (
+  step: AutomationStep,
+  catalog: Catalog,
+  subject: SubjectKind,
+  trigger: Trigger,
+) => {
+  if (step.type === 'delay' && step.until === '')
+    return [`Step ${step.id}: choose the date to wait until`];
+
   if (step.type === 'delay' && !step.until && !step.amount)
     return [`Step ${step.id}: how long to wait?`];
 
-  if (step.type === 'wait_for')
+  if (step.type === 'wait_for') {
+    const waited = catalog.triggers.find((item) => item.type === step.event);
+
     return [
       ...(subject
         ? []
         : [`Step ${step.id} waits for an event about the record, but runs aren't about one`]),
-      ...(catalog.triggers.some((item) => item.type === step.event)
-        ? []
-        : [`Step ${step.id}: unknown event ${step.event}`]),
+      ...(waited ? [] : [`Step ${step.id}: unknown event ${step.event}`]),
+      ...(subject && waited && waited.subject !== subject
+        ? [`Step ${step.id} waits for an event that is not about the ${subject} runs are about`]
+        : []),
     ];
+  }
 
-  if (step.type === 'action') return actionProblems(step, catalog, subject);
+  if (step.type === 'action') return actionProblems(step, catalog, subject, trigger);
 
   return [];
+};
+
+const scheduleProblems = (trigger: Extract<Trigger, { kind: 'schedule' }>) => {
+  const { every, interval } = trigger;
+
+  if (every === 'minute')
+    return interval && interval >= MIN_MINUTES
+      ? []
+      : [`A schedule in minutes runs every ${MIN_MINUTES} minutes or more`];
+
+  if (every === 'hour')
+    return (interval ?? 1) <= MAX_HOURS
+      ? []
+      : [`A schedule in hours runs every 1 to ${MAX_HOURS} hours`];
+
+  return interval ? ['Only schedules in minutes or hours take “every N”'] : [];
+};
+
+const appTriggerProblems = async (client: Db, trigger: Extract<Trigger, { kind: 'app' }>) => {
+  const resolved = resolveAppTrigger(trigger);
+
+  if (!resolved.ok) return [resolved.problem];
+
+  if (!manages(resolved.app) && !allowsPersonal(resolved.app))
+    return [`Your role can't use ${resolved.app.name} for the trigger`];
+
+  const [connection] = await client
+    .select({ key: integrationConnections.key, status: integrationConnections.status })
+    .from(integrationConnections)
+    .where(and(eq(integrationConnections.id, trigger.connectionId), usable(resolved.app)))
+    .limit(1);
+
+  if (connection?.key !== resolved.app.key)
+    return [`Pick a ${resolved.app.name} connection for the trigger`];
+
+  return connection.status === 'active' ? [] : [`The ${resolved.app.name} connection is off`];
 };
 
 const triggerProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
@@ -114,6 +202,13 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
   if (trigger.kind === 'event' && !catalog.triggers.some((item) => item.type === trigger.event))
     return [`Unknown trigger ${trigger.event}`];
+
+  if (trigger.kind === 'event' && isAppEvent(trigger.event))
+    return ['An app’s event starts an automation under App, with its connection'];
+
+  if (trigger.kind === 'schedule') return scheduleProblems(trigger);
+
+  if (trigger.kind === 'app') return appTriggerProblems(client, trigger);
 
   if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
 
@@ -128,10 +223,16 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
 /** Templates may only use filters that exist. */
 const templateProblems = (definition: AutomationDefinition) => {
+  const templates: unknown[] = [];
+
+  eachStep(definition.steps, (step) => {
+    if (step.type === 'action') templates.push(step.input);
+
+    if (step.type === 'decide') templates.push(step.question, step.state);
+  });
+
   try {
-    walk(definition.steps, (step) => {
-      if (step.type === 'action') render(step.input, {});
-    });
+    templates.forEach((template) => render(template, {}));
 
     return [];
   } catch (error) {
@@ -162,7 +263,11 @@ const COMMON_FIELDS: AutomationFieldPath[] = [
  * lists filter them (built-in, lead, custom, the company's, plugins' relations), so a condition
  * means the same as in a saved view. Placeholders insert only what the record itself holds.
  */
-export const automationFields = async (client: Db, subject?: ContentType) => {
+export const automationFields = async (
+  client: Db,
+  query: { subject?: ContentType; automation?: string },
+) => {
+  const { subject } = query;
   const types = subject ? [subject] : CONTENT_TYPES;
   const seen = new Set<string>();
   const record: AutomationFieldPath[] = [];
@@ -188,23 +293,18 @@ export const automationFields = async (client: Db, subject?: ContentType) => {
     }
   });
 
-  return { data: [...COMMON_FIELDS, ...record] };
+  const request = query.automation ? await triggerFields(client, query.automation) : [];
+
+  return { data: [...COMMON_FIELDS, ...request, ...record] };
 };
 
 /** Every condition group of a definition: the trigger's, the goal, and its steps'. */
 const conditionGroups = (definition: AutomationDefinition) => {
   const { trigger } = definition;
 
-  const groups: (ConditionGroup | undefined)[] = [
-    trigger.kind === 'event'
-      ? trigger.conditions
-      : trigger.kind === 'date'
-        ? dateConditions(trigger)
-        : trigger.audience?.conditions,
-    definition.goal,
-  ];
+  const groups: (ConditionGroup | undefined)[] = [triggerConditions(trigger), definition.goal];
 
-  walk(definition.steps, (step) => {
+  eachStep(definition.steps, (step) => {
     if (step.type === 'branch' || step.type === 'wait_for') groups.push(step.conditions);
 
     if (step.type === 'switch') groups.push(...step.cases.map((item) => item.conditions));
@@ -271,16 +371,17 @@ const conditionProblems = async (
  */
 export const definitionProblems = async (client: Db, definition: AutomationDefinition) => {
   const catalog = await automationCatalog(client);
-  const subject = subjectOfTrigger(definition, catalog.triggers);
+  const subject = subjectOfTrigger(definition.trigger, catalog.triggers);
   const problems = await triggerProblems(client, definition, catalog);
   const ids = new Set<string>();
 
-  walk(definition.steps, (step) => {
+  eachStep(definition.steps, (step) => {
     if (ids.has(step.id)) problems.push(`Two steps share the id ${step.id}`);
     ids.add(step.id);
-    problems.push(...stepProblems(step, catalog, subject));
+    problems.push(...stepProblems(step, catalog, subject, definition.trigger));
   });
   problems.push(...templateProblems(definition));
+  problems.push(...(await decisionProblems(client, definition.steps)));
   problems.push(...(await conditionProblems(client, definition, subject)));
 
   return problems;

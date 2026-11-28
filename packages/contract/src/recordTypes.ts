@@ -38,7 +38,7 @@ export const PluginObjects = z
  * A record type that can be extended: one of core's (`core.customer`), a plugin's
  * (`hr.employee`) or a custom object (`custom.project`).
  */
-export const RecordType = z.object({
+export const ExtendableRecordType = z.object({
   type: z.string(),
   /** The plugin that keeps the records; null for core's and custom objects. */
   plugin: z.string().nullable(),
@@ -51,10 +51,10 @@ export const RecordType = z.object({
   updatePermission: z.string().nullable(),
 });
 
-export type RecordType = z.infer<typeof RecordType>;
+export type ExtendableRecordType = z.infer<typeof ExtendableRecordType>;
 
 /** Core's record types others may extend. Leads are customers and companies in a lead stage. */
-export const CORE_RECORD_TYPES: readonly RecordType[] = [
+export const CORE_RECORD_TYPES: readonly ExtendableRecordType[] = [
   {
     type: 'core.customer',
     plugin: null,
@@ -100,8 +100,9 @@ export const recordTypesContract = {
     .route({
       method: 'GET',
       path: '/record-types',
-      summary:
-        "Record types that can be extended: core's, each installed plugin's manifest `objects`, then the active custom objects",
+      summary: 'List extendable record types',
+      description:
+        "Record types that can carry fields: core's, each installed plugin's manifest `objects`, then the active custom objects.",
     })
-    .output(listOf(RecordType)),
+    .output(listOf(ExtendableRecordType)),
 };

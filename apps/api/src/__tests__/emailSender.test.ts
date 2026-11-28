@@ -136,6 +136,8 @@ describe('email sender and Reply-To', () => {
       nameLocked: false,
       ownSending: true,
       provider: 'log',
+      // The server's sending has no provider of the organisation's own to vouch for domains.
+      domains: [],
       canDeliver: true,
     });
     expect(await testCopy({})).toMatchObject({ fromName: 'Acme' });

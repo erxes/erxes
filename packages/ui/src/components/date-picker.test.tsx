@@ -6,7 +6,7 @@ import type { DateRange } from 'react-day-picker';
 import { useForm } from 'react-hook-form';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { setupDomRender } from '../lib/render-in-dom';
+import { actUntil, setupDomRender } from '../lib/render-in-dom';
 import { PanelFormRow } from '../modules/record-panel/PanelForm';
 import { DatePicker } from './date-picker';
 import { DateInput, TimeField } from './date-time-input';
@@ -55,6 +55,9 @@ const settle = () =>
       }),
   );
 
+/** Waits for the calendar's days: its code loads on its first render. */
+const calendarShown = () => actUntil(() => document.querySelector('[data-day]') !== null);
+
 /** What a screen reader calls an element. */
 const nameOf = (element: Element | null | undefined) =>
   element ? computeAccessibleName(element) : undefined;
@@ -90,11 +93,13 @@ const BirthdayForm = () => {
 };
 
 describe('DatePicker', () => {
-  it("labels the calendar's buttons and months in the UI's language", () => {
+  it("labels the calendar's buttons and months in the UI's language", async () => {
     const container = inLanguage(
       'mn',
       <DatePicker inline mode="range" defaultMonth={NOVEMBER} onChange={() => undefined} />,
     );
+
+    await calendarShown();
 
     const next = container.querySelector('nav button:last-child');
 
@@ -102,7 +107,7 @@ describe('DatePicker', () => {
     expect(container.textContent).toContain('арван нэгдүгээр сар');
   });
 
-  it('starts a new range on a click after a whole range', () => {
+  it('starts a new range on a click after a whole range', async () => {
     const onChange = vi.fn<(range?: unknown) => void>();
     const range: DateRange = { from: new Date(2026, 10, 3), to: new Date(2026, 10, 5) };
 
@@ -111,6 +116,7 @@ describe('DatePicker', () => {
       <DatePicker inline mode="range" value={range} defaultMonth={NOVEMBER} onChange={onChange} />,
     );
 
+    await calendarShown();
     clickDay(container, '2026-11-20');
 
     expect(onChange).toHaveBeenLastCalledWith({ from: new Date(2026, 10, 20), to: undefined });

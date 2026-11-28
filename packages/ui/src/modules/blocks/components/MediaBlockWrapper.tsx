@@ -7,7 +7,9 @@ import { useBlockEditorEditable } from 'erxes-ui/modules/blocks/hooks/useBlockEd
 
 const MIN_WIDTH = 64;
 
-type ResizeSide = 'left' | 'right';
+const RESIZE_SIDES = ['left', 'right'] as const;
+
+type ResizeSide = (typeof RESIZE_SIDES)[number];
 
 type MediaBlock = {
   id: string;
@@ -113,7 +115,7 @@ export const MediaBlockWrapper = ({
         {/* An embedded player gets the pointer events over it, so hovering it shows nothing:
             the handles stay in place, invisible, and show when the pointer reaches one. */}
         {editable &&
-          (['left', 'right'] as const).map((side) => (
+          RESIZE_SIDES.map((side) => (
             <div
               key={side}
               className={cn(

@@ -32,6 +32,7 @@ const TYPE_NAME_CONTENT_TYPES: Record<string, string> = {
   company: 'core:company',
   product: 'core:product',
   member: 'core:user',
+  connection: 'core:connection',
 };
 
 const CONTENT_TYPE_TYPE_NAMES = Object.fromEntries(

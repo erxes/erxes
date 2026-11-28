@@ -24,7 +24,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { customFieldColumns } from '~/modules/properties/customFieldColumns';
 import { useFields } from '~/modules/properties/useFields';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import {
   ContactEmailsCell,
   ContactFieldCell,
@@ -41,7 +41,7 @@ import { withLifecycleColumns } from '~/modules/leads/leadColumns';
 const SCOPE = 'customers-table-inline-popover';
 
 const useOpenCustomer = () => {
-  const { openRecord } = useSidePanel();
+  const openRecord = useOpenPanelRecord();
 
   return (id: string) => openRecord({ contentType: 'core:customer', contentId: id });
 };

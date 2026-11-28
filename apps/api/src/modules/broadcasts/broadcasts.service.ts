@@ -14,8 +14,10 @@ import {
 import { and, eq, getTableColumns, ilike, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { containsPattern, keysetPage } from '~/lib/keyset';
+import { mailRoute, requireMailConnection } from '~/modules/email/mailConnections';
 import { isVerifiedReplyTo, requireReplyTo } from '~/modules/email/replyTos.service';
-import { requireDelivery } from '~/modules/email/sender';
+import { isAllowedFrom, requireDelivery, requireFromAddress } from '~/modules/email/sender';
+import { canDeliverSms } from '~/modules/sms/sms';
 import { assertAttachments } from './attachments';
 import { type Audience, audienceWhere, estimateAudience } from './audience';
 import { contentColumns } from './emailBody';
@@ -110,6 +112,8 @@ export const createBroadcast = async (
       name: string;
       channel: BroadcastRow['channel'];
       fromName?: string | null;
+      fromEmail?: string | null;
+      mailConnectionId?: string | null;
       replyTo?: string | null;
       attachmentIds?: string[];
     },
@@ -118,6 +122,8 @@ export const createBroadcast = async (
 
   await assertWritable(client, { ...input, ...columns }, input);
   await requireReplyTo(client, input.replyTo);
+  await requireFromAddress(client, input.fromEmail);
+  await requireMailConnection(client, input.mailConnectionId);
   await assertAttachments(client, input.channel, input.attachmentIds ?? []);
 
   const id = newId();
@@ -169,6 +175,8 @@ export const updateBroadcast = async (
     Audience & {
       name?: string;
       fromName?: string | null;
+      fromEmail?: string | null;
+      mailConnectionId?: string | null;
       replyTo?: string | null;
       attachmentIds?: string[];
     },
@@ -190,6 +198,10 @@ export const updateBroadcast = async (
   );
 
   if (changes.replyTo !== undefined) await requireReplyTo(client, changes.replyTo);
+
+  if (changes.fromEmail !== undefined) await requireFromAddress(client, changes.fromEmail);
+
+  await requireMailConnection(client, changes.mailConnectionId);
 
   if (changes.attachmentIds) {
     await assertAttachments(client, current.channel, changes.attachmentIds);
@@ -231,14 +243,20 @@ export const removeBroadcast = async (client: Db, id: string) => {
 
 /**
  * A new draft with the source's audience and content. Run state (status, schedule, counts, times,
- * error) starts fresh; a Reply-To taken off the verified list since is dropped, so the copy saves.
+ * error) starts fresh; a Reply-To taken off the verified list since, a From whose domain the
+ * provider no longer verifies, or a Mail service connection turned off, is dropped, so the copy
+ * saves.
  */
 export const duplicateBroadcast = async (client: Db, id: string) => {
   const source = await getBroadcast(client, id);
   const copy = newId();
+  const { connectionId: mailConnectionId } = await mailRoute(client, source.mailConnectionId);
 
   const replyTo =
     source.replyTo && (await isVerifiedReplyTo(client, source.replyTo)) ? source.replyTo : null;
+
+  const fromEmail =
+    source.fromEmail && (await isAllowedFrom(client, source.fromEmail)) ? source.fromEmail : null;
 
   await client.insert(broadcasts).values({
     id: copy,
@@ -252,6 +270,8 @@ export const duplicateBroadcast = async (client: Db, id: string) => {
     content: source.content,
     html: source.html,
     fromName: source.fromName,
+    fromEmail,
+    mailConnectionId,
     replyTo,
     attachmentIds: source.attachmentIds,
     createdBy: callerUserId(),
@@ -278,13 +298,32 @@ export const assertComplete = (broadcast: BroadcastRow) => {
 };
 
 /**
- * 409 EMAIL_NOT_CONFIGURED for an email broadcast while email would only reach the log;
- * 400 BROADCAST_ATTACHMENT_UNAVAILABLE when an attached file was deleted since.
+ * 409 EMAIL_NOT_CONFIGURED for an email broadcast through Organization email while it would
+ * only reach the log, SMS_NOT_CONFIGURED for a text one with no SMS connection in production;
+ * 400 INVALID_INPUT for a Reply-To no longer verified, a From whose domain the provider no
+ * longer verifies or a Mail service connection turned off; 400 BROADCAST_ATTACHMENT_UNAVAILABLE
+ * when an attached file was deleted since.
  */
 export const assertDeliverable = async (client: Db, broadcast: BroadcastRow) => {
-  if (broadcast.channel !== 'email') return;
+  if (broadcast.channel !== 'email') {
+    if (!(await canDeliverSms(client))) {
+      throw fail(
+        'SMS_NOT_CONFIGURED',
+        'Texts can’t go out: connect CallPro or Twilio in Settings › Integrations',
+      );
+    }
 
-  await requireDelivery(client);
+    return;
+  }
+
+  if (broadcast.mailConnectionId) {
+    await requireMailConnection(client, broadcast.mailConnectionId);
+  } else {
+    await requireDelivery(client);
+    await requireFromAddress(client, broadcast.fromEmail);
+  }
+
+  await requireReplyTo(client, broadcast.replyTo);
   await assertAttachments(client, broadcast.channel, broadcast.attachmentIds);
 };
 

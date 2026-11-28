@@ -1,7 +1,7 @@
 import type { InvoiceLineInput } from '@erxes/core-contract';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { useTestDatabase } from './db';
-import { usePosApi } from './posApi';
+import { saveEbarimt, usePosApi } from './posApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -13,8 +13,8 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
   const { fake, settings } = usePosApi();
 
   beforeAll(async () => {
-    await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
-    await t.owner().ebarimt.saveSettings(settings());
+    await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
+    await saveEbarimt(t.owner(), settings());
   });
 
   const order = (referenceId: string, lines?: InvoiceLineInput[]) =>
@@ -94,8 +94,30 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
     ]);
   });
 
+  it('issues receipts for every plugin’s invoices and core’s own, with no plugin picked', async () => {
+    const ours = await t.owner().payments.createInvoice({
+      amount: 30_000,
+      currency: 'MNT',
+      description: 'Walk-in',
+      referenceType: 'order',
+      referenceId: 'core1',
+    });
+
+    const theirs = await order('hr1');
+
+    await t.owner().payments.payTestInvoice({ id: ours.id });
+    await t.owner().payments.payTestInvoice({ id: theirs.id });
+    await settle();
+
+    for (const invoice of [ours, theirs]) {
+      expect((await t.owner().ebarimt.receipts({ invoiceId: invoice.id })).data).toMatchObject([
+        { kind: 'put', status: 'success', source: invoice.source },
+      ]);
+    }
+  });
+
   it('never issues receipts for a plugin that sends its own', async () => {
-    const picked = await order('own');
+    const invoice = await order('own');
 
     await t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'HR',
@@ -104,18 +126,29 @@ describe('ebarimt and plugins', { timeout: 240_000 }, () => {
       taxReceipts: 'own',
     });
 
-    await expect(t.member().ebarimt.plugins({})).rejects.toMatchObject({ status: 403 });
-    expect((await t.owner().ebarimt.plugins({})).data).toEqual([
-      { plugin: 'hr', title: 'HR', ownReceipts: true },
+    expect(await saveEbarimt(t.owner(), settings())).toMatchObject({ status: 'active' });
+    expect((await t.owner().ebarimt.printTemplates({})).data.map((row) => row.plugin)).toEqual([
+      'core',
     ]);
-    await expect(t.owner().ebarimt.saveSettings(settings())).rejects.toMatchObject({
-      status: 400,
-      code: 'INVALID_INPUT',
-    });
 
-    // Picked before the plugin said so: its invoices still get none.
-    await t.owner().payments.payTestInvoice({ id: picked.id });
+    await t.owner().payments.payTestInvoice({ id: invoice.id });
     await settle();
-    expect((await t.owner().ebarimt.receipts({ invoiceId: picked.id })).data).toEqual([]);
+    expect((await t.owner().ebarimt.receipts({ invoiceId: invoice.id })).data).toEqual([]);
+
+    // Core sends none for it, so a config that is off is no reason to refuse.
+    const closed = await t
+      .owner()
+      .ebarimt.createConfig({ ...settings(), name: 'Closed', status: 'disabled' });
+
+    expect(
+      await t.hr().payments.createInvoice({
+        amount: 30_000,
+        currency: 'MNT',
+        description: 'Tour',
+        referenceType: 'order',
+        referenceId: 'own-closed',
+        ebarimtId: closed.id,
+      }),
+    ).toMatchObject({ ebarimtId: closed.id });
   });
 });

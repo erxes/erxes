@@ -9,12 +9,12 @@ import {
   PageHeader,
   ScrollArea,
   useFormat,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import type { AuditEntry } from '@erxes/core-contract';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { type CursorPage, forwardPaging } from '~/lib/cursorList';
@@ -76,14 +76,13 @@ const Total = ({ first }: { first: CursorPage<AuditEntry> | undefined }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const fmt = useFormat();
 
-  if (!first) return null;
+  const total = first?.totalCount;
 
-  return first.totalCapped
-    ? t('count-capped', {
-        count: first.totalCount,
-        defaultValue: `${fmt.count(first.totalCount, true)} entries`,
-      })
-    : t('count', { count: first.totalCount, defaultValue: `${first.totalCount} entries` });
+  if (total === undefined) return null;
+
+  return first?.totalCapped
+    ? t('count-capped', { count: total, defaultValue: `${fmt.count(total, true)} entries` })
+    : t('count', { count: total, defaultValue: `${total} entries` });
 };
 
 /** Settings › Audit log: who changed what, in core and every plugin (owners and admins). */

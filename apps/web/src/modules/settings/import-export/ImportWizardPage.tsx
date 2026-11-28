@@ -9,10 +9,10 @@ import {
   Spinner,
   useConfirm,
   useToast,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { paths } from '~/lib/paths';
 import { importQuery, useTransferLabel } from '~/modules/transfer/useTransfer';
@@ -21,7 +21,7 @@ import { type ImportChanges, ImportMapping, ImportOptionsForm } from './ImportSe
 
 /** Every step answers with the import as it now stands. */
 const useImportActions = (id: string) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const { toast } = useToast();
   const client = useQueryClient();
 
@@ -52,7 +52,7 @@ const WizardActions = ({
   noun: string;
   actions: ReturnType<typeof useImportActions>;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const { confirm } = useConfirm();
   const { check, start, undo } = actions;
   const editable = imp.status === 'mapping' || imp.status === 'checked';
@@ -103,7 +103,7 @@ const WizardActions = ({
  */
 export const ImportWizardPage = () => {
   const { id = '' } = useParams();
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const query = useQuery(importQuery(id));
   const actions = useImportActions(id);
   const labelOf = useTransferLabel();

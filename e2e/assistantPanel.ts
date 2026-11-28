@@ -2,14 +2,24 @@ import type { Locator, Page } from '@playwright/test';
 import { MODEL_KEY } from './assistantModel';
 import { type coreClient, expect } from './fixtures';
 
+const FAKE_MODEL_HINT =
+  'Start the stack with ASSISTANT_KIMI_URL=http://127.0.0.1:3510/v1 so the API talks to the fake model';
+
 export const connectFakeModel = async ({ api }: { api: ReturnType<typeof coreClient> }) => {
-  await api.assistant.saveConnection({ provider: 'kimi', apiKey: MODEL_KEY });
+  const providers = (await api.assistant.providers()).data;
+
+  if (!providers.some((entry) => entry.provider === 'kimi')) {
+    await expect(
+      api.integrations.connect({ key: 'kimi', name: 'Kimi', keys: { apiKey: MODEL_KEY } }),
+      FAKE_MODEL_HINT,
+    ).resolves.toMatchObject({ key: 'kimi' });
+  }
 
   const { data } = await api.assistant.models();
 
   expect(
     data.find((entry) => entry.provider === 'kimi')?.error ?? null,
-    'Start the stack with ASSISTANT_KIMI_URL=http://127.0.0.1:3510/v1 so the API talks to the fake model',
+    FAKE_MODEL_HINT,
   ).toBeNull();
 };
 

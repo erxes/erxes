@@ -1,9 +1,8 @@
 import { paths } from '~/lib/paths';
 import { IconUserCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
+import { PageContainer, PageHeader, ScrollArea, AppBreadcrumb } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { useSession } from '~/modules/auth/session';

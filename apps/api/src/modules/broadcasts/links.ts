@@ -1,5 +1,5 @@
 import { hmacSha256, safeEqual } from '~/lib/crypto';
-import { coreKey } from '~/lib/secrets';
+import { coreKey } from '~/lib/coreKey';
 
 /**
  * A recipient's own addresses: unsubscribe, the open pixel and tracked links.

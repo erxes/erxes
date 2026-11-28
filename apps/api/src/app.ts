@@ -12,19 +12,24 @@ import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, publicFilesRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
-import { registerAgent } from '~/modules/agents/host';
+import { registerAgent, registerMadeAgents } from '~/modules/agents/host';
 import { assistantAgent } from '~/modules/assistant/agent';
-import { automationAgent } from '~/modules/agents/automationAgent';
+import { madeAgent } from '~/modules/agents/madeAgent';
 import { answerError, fail } from '~/http/errors';
 import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
-import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
-import { customerCors } from '~/modules/customerAuth/customerApps';
-import { integrationIncomingRouter } from '~/modules/integrations/incoming.http';
+import { mcpRoutes } from '~/modules/mcp/mcp.http';
+import { oauthRoutes } from '~/modules/oauth/oauth.http';
+import { customerCors } from '~/modules/customerAuth/customerPortals';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { broadcastLinksRouter } from '~/modules/broadcasts/broadcasts.http';
 import { emailEventsRouter } from '~/modules/email/events/events.http';
+import { automationHooksRouter } from '~/modules/automations/hooks.http';
+import { appHooksRouter } from '~/modules/integrations/appHooks.http';
+import { appWideHooksRouter } from '~/modules/integrations/appWideHooks.http';
+import { oauthCallbackRouter } from '~/modules/integrations/oauth.http';
+import { githubAppRouter } from '~/modules/integrations/githubApp.http';
 import { pluginPublicRouter } from '~/modules/plugins/pluginPublic.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -33,12 +38,22 @@ import { legacyFilesRouter } from './modules/files/legacyFiles.http';
 
 const REQUEST_ID = /^[\w.:-]{8,100}$/;
 
-/** Where customers ask for and type sign-in codes. */
+/** Where plugins, customers and portals' servers trade a secret or a token for a new token. */
+const TOKEN_PATHS = [
+  '/core/v1/plugins/token',
+  '/core/v1/portal/auth/refresh',
+  '/core/v1/portal/auth/social',
+  '/core/v1/portal-auth/token',
+];
+
+/** Where customers ask for and type sign-up and sign-in codes. */
 const CUSTOMER_CODE_PATHS = [
-  '/core/v1/customer-auth/code',
-  '/core/v1/customer-auth/sign-in',
-  '/core/v1/customer/me/logins',
-  '/core/v1/customer/me/logins/confirm',
+  '/core/v1/portal/auth/sign-up',
+  '/core/v1/portal/auth/sign-up/confirm',
+  '/core/v1/portal/auth/code',
+  '/core/v1/portal/auth/sign-in',
+  '/core/v1/portal/me/logins',
+  '/core/v1/portal/me/logins/confirm',
 ];
 
 /** The caller's `X-Request-Id` when it is a plain token, else a new one. Echoed on the response. */
@@ -51,8 +66,9 @@ const requestId = (req: IncomingMessage, res: ServerResponse) => {
   return id;
 };
 
-/** A signed file link is the permission itself, so its token stays out of the logs. */
-const SIGNED_LINK = /^(\/core\/v1\/files\/signed\/)[^/?]+/;
+/** A signed file link or webhook address is the permission itself, so its token stays out of the logs. */
+const SIGNED_LINK =
+  /^(\/core\/v1\/(?:files\/signed\/|automations\/hooks\/[^/?]+\/|integrations\/hooks\/[^/?]+\/|integrations\/apps\/[^/?]+\/hook\/[^/?]+\/))[^/?]+/;
 
 /**
  * One line per request when it ends, plus `req.log` for the route: a child
@@ -104,7 +120,7 @@ export const createApp = (log: Logger = logger): Express => {
   const limit = createRateLimits();
 
   registerAgent(assistantAgent);
-  registerAgent(automationAgent);
+  registerMadeAgents(madeAgent);
 
   app.disable('x-powered-by');
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
@@ -114,8 +130,9 @@ export const createApp = (log: Logger = logger): Express => {
   // Signed file links stream bytes: before the JSON parser and sign-in.
   app.use('/core/v1/files/signed', limit.upload, signedFilesRouter);
 
-  // Plugins' customer apps call these from their own origins (decision 42).
-  app.use(['/core/v1/customer-auth', '/core/v1/customer'], customerCors);
+  // Portals call these from their own origins (decision 42).
+  // A publishable portal key is traded from them too.
+  app.use(['/core/v1/portal', '/core/v1/portal-auth'], customerCors);
 
   // Guessing passwords and secrets: limited per address before anything else.
   app.use(
@@ -129,8 +146,9 @@ export const createApp = (log: Logger = logger): Express => {
     ],
     limit.signIn,
   );
-  app.use(['/core/v1/plugins/token', '/core/v1/customer-auth/refresh'], limit.token);
+  app.use(TOKEN_PATHS, limit.token);
   app.use(CUSTOMER_CODE_PATHS, limit.customerCode);
+  app.use('/core/v1/portal/contact', limit.portalContact);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
   // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).
@@ -142,10 +160,17 @@ export const createApp = (log: Logger = logger): Express => {
 
   // Callers outside erxes reaching a plugin for one organisation: their raw bodies, no sign-in.
   app.use('/core/v1', pluginPublicRouter(limit.pluginPublic));
-  app.use('/core/v1', integrationIncomingRouter(limit.integrationIncoming));
 
   // Email providers report bounces, complaints and deliveries: signed raw bodies, no sign-in.
   app.use('/core/v1', emailEventsRouter(limit.emailEvents));
+
+  app.use('/core/v1', automationHooksRouter(limit.automationHooks));
+
+  app.use('/core/v1', appHooksRouter(limit.appHooks));
+
+  app.use('/core/v1', appWideHooksRouter(limit.appWideHooks));
+
+  app.use('/core/v1', oauthCallbackRouter, githubAppRouter);
 
   app.use(express.json({ limit: '1mb' }));
 
@@ -178,7 +203,7 @@ export const createApp = (log: Logger = logger): Express => {
   app.get('/core/v1/openapi.json', openApiDocument);
   // The references Settings › Developer shows: what members, or customers, can call.
   app.get('/core/v1/openapi/member.json', apiReference('member'));
-  app.get('/core/v1/openapi/customer.json', apiReference('customer'));
+  app.get('/core/v1/openapi/portal.json', apiReference('portal'));
 
   // Core's public signing keys: plugins verify plugin tokens and auditors
   // verify audit checkpoints with them.
@@ -195,9 +220,10 @@ export const createApp = (log: Logger = logger): Express => {
   // Pictures in emails: files uploaded as public, which mail clients fetch with no sign-in.
   app.use('/core/v1', publicFilesRouter);
 
-  // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
-  app.use('/core/v1/oauth', limit.token, oauthRouter);
-  app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
+  // OAuth 2.1 / OpenID Connect, for plugins' own apps and MCP clients: its own authentication.
+  app.use(oauthRoutes({ register: limit.oauthRegister, token: limit.token }));
+  // The MCP server: apps and API keys acting as a member, signed in its own way.
+  app.use(mcpRoutes({ calls: limit.mcp }));
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
   app.use(

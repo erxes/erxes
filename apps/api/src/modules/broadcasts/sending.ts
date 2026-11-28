@@ -1,7 +1,6 @@
 import { broadcastRecipients, type Db, requestOrgId } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { fail } from '~/http/errors';
-import { requireReplyTo } from '~/modules/email/replyTos.service';
 import {
   assertComplete,
   assertDeliverable,
@@ -22,7 +21,6 @@ export const sendBroadcast = async (tx: Db, id: string) => {
 
   assertComplete(broadcast);
   await assertDeliverable(tx, broadcast);
-  await requireReplyTo(tx, broadcast.replyTo);
   await assertReachable(tx, broadcast);
 
   await moveBroadcast(tx, id, ['draft', 'scheduled'], {
@@ -54,7 +52,6 @@ export const scheduleBroadcast = async (tx: Db, id: string, at: Date) => {
 
   assertComplete(broadcast);
   await assertDeliverable(tx, broadcast);
-  await requireReplyTo(tx, broadcast.replyTo);
 
   await moveBroadcast(tx, id, ['draft', 'scheduled'], {
     status: 'scheduled',

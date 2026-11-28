@@ -1,33 +1,32 @@
-import type {
-  AssistantAttachment,
-  AssistantMention,
-  AssistantPage,
-  AssistantSelection,
+import {
+  ASSISTANT_TEXT_MAX,
+  type AssistantAttachment,
+  type AssistantMention,
+  type AssistantPage,
+  type AssistantSelection,
 } from '@erxes/core-contract';
-import { IconArrowUp, IconPlayerStopFilled } from '@tabler/icons-react';
+import { IconPlayerStopFilled, IconSend2 } from '@tabler/icons-react';
 import { Button, IconTip, Textarea } from 'erxes-ui';
 import { type ClipboardEvent, type DragEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { takeComposerFocus } from './assistantState';
 import { AttachButton, AttachmentTray, PickButton, PickHint } from './ComposerAttachments';
 import { MENTION_MENU_ID, MentionMenu } from './MentionMenu';
-import { ModelPicker, ThinkingPicker } from './ModelPicker';
+import { ModelPicker } from './ModelPicker';
 import { PageContextChip } from './PageContextChip';
 import { useAttachments } from './useAttachments';
 import { useComposerMentions } from './useComposerMentions';
 import type { ModelRunState } from './useModelRun';
 import { usePagePicker } from './usePagePicker';
 
-export type ComposerBlock = 'no-key' | 'question' | null;
+export type ComposerBlock = 'no-key' | null;
 
 const usePlaceholder = (block: ComposerBlock) => {
   const { t } = useTranslation('assistant');
 
   switch (block) {
     case 'no-key':
-      return t('composer.no-key', 'Add a provider key to start');
-    case 'question':
-      return t('composer.question', 'Answer the questions above first');
+      return t('composer.no-provider', 'Connect an AI provider to start');
     case null:
       return t('composer.placeholder', 'Ask anything, @ to mention a record');
   }
@@ -59,7 +58,7 @@ const SendButton = ({
   ) : (
     <IconTip label={t('composer.send', 'Send')} hotkey="Enter">
       <Button type="submit" size="icon" aria-label={t('composer.send', 'Send')} disabled={!canSend}>
-        <IconArrowUp className="size-4" />
+        <IconSend2 className="size-4" />
       </Button>
     </IconTip>
   );
@@ -74,6 +73,16 @@ export interface ComposerMessage {
 }
 
 const filesOf = (transfer: DataTransfer) => [...transfer.files];
+
+const pastedFiles = (event: ClipboardEvent<HTMLTextAreaElement>, name: string) => {
+  if (event.clipboardData.files.length) return filesOf(event.clipboardData);
+
+  const pasted = event.clipboardData.getData('text/plain');
+  const { value, selectionStart, selectionEnd } = event.currentTarget;
+  const length = value.length - (selectionEnd - selectionStart) + pasted.length;
+
+  return length > ASSISTANT_TEXT_MAX ? [new File([pasted], name, { type: 'text/plain' })] : [];
+};
 
 const useDraft = (
   canSend: boolean,
@@ -107,6 +116,7 @@ const useDraft = (
 };
 
 const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
+  const { t } = useTranslation('assistant');
   const [over, setOver] = useState(false);
 
   return {
@@ -130,11 +140,13 @@ const useFileDrop = (add: (files: File[]) => void, enabled: boolean) => {
       event.preventDefault();
       add(filesOf(event.dataTransfer));
     },
-    onPaste: (event: ClipboardEvent) => {
-      if (!enabled || !event.clipboardData.files.length) return;
+    onPaste: (event: ClipboardEvent<HTMLTextAreaElement>) => {
+      const files = enabled ? pastedFiles(event, `${t('attach.pasted', 'Pasted text')}.txt`) : [];
+
+      if (!files.length) return;
 
       event.preventDefault();
-      add(filesOf(event.clipboardData));
+      add(files);
     },
   };
 };
@@ -188,7 +200,7 @@ export const Composer = ({
     <form
       {...drop}
       data-dropping={over || undefined}
-      className="relative m-3 mt-0 flex flex-col gap-1 rounded-xl border bg-background p-2 shadow-xs focus-within:shadow-focus data-dropping:border-primary"
+      className="relative mx-auto flex w-full max-w-3xl flex-col gap-1 rounded-2xl border bg-background p-2 shadow-lg transition-shadow focus-within:shadow-focus data-dropping:border-primary"
       onSubmit={(event) => {
         event.preventDefault();
         draft.send();
@@ -209,6 +221,7 @@ export const Composer = ({
         disabled={locked}
         value={draft.text}
         rows={2}
+        maxLength={ASSISTANT_TEXT_MAX}
         className="max-h-48 min-h-14 resize-none"
         onPaste={onPaste}
         onChange={(event) => {
@@ -223,9 +236,8 @@ export const Composer = ({
       <div className="flex min-w-0 items-center gap-1">
         <AttachButton attachments={draft.attachments} disabled={locked} />
         <PickButton picker={draft.picker} disabled={locked} />
-        <ModelPicker state={model} disabled={busy || block === 'no-key'} />
-        <ThinkingPicker state={model} disabled={busy} />
         <span className="flex-1" />
+        <ModelPicker state={model} disabled={busy || block === 'no-key'} />
         <SendButton busy={busy} canSend={draft.ready} onStop={onStop} />
       </div>
     </form>

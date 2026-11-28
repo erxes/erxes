@@ -2,9 +2,11 @@ import type { ConditionGroup } from '@erxes/core-contract';
 import { memberQueries, messageOf, productSearchQueries } from '@erxes/core-contract/client';
 import { useQueries } from '@tanstack/react-query';
 import { ConditionsEditor as Conditions, pluginJson, type TConditionField } from 'erxes-ui';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { tagsQuery } from '~/modules/tags/useTags';
+import { BuilderContext } from './BuilderContext';
 import { StartFromView } from './StartFromView';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
@@ -16,14 +18,16 @@ const choicesOf = (options: string[] | undefined) =>
 /**
  * A field as erxes-ui's editor takes it: choices as `{ value, label }`, a relation's fields too.
  * One holding a plugin's record ids is a choice of those records (`records`), so a member picks
- * "Won" rather than typing a stage's id.
+ * "Won" rather than typing a stage's id. An app's record ids (a Facebook page) stay values.
  */
 const conditionField = (
   { options, relation, recordType, source, ...field }: FieldInfo,
   records?: Choices,
 ): TConditionField => ({
   ...field,
-  ...(recordType ? { type: 'select', options: records ?? [] } : { options: choicesOf(options) }),
+  ...(recordType && source
+    ? { type: 'select', options: records ?? [] }
+    : { options: choicesOf(options) }),
   relation: relation && {
     label: relation.label,
     fields: relation.fields.map((inner) => ({ ...inner, options: choicesOf(inner.options) })),
@@ -39,7 +43,7 @@ const recordsKey = (field: FieldInfo) => `${field.source}:${field.recordType}`;
  * all of them (no `parent`), as the plugin lists them for the member. Shared with the action
  * inputs that list the same records.
  */
-const useRecordChoices = (fields: FieldInfo[]) => {
+export const useRecordChoices = (fields: FieldInfo[]) => {
   const wanted = [
     ...new Map(
       fields.flatMap((field) =>
@@ -83,7 +87,7 @@ export const ConditionsEditor = ({
   /** The event's own values and earlier steps' outputs, offered next to the record's fields. */
   extraFields?: FieldInfo[];
 }) => {
-  const { fields } = useAutomationFields(subject);
+  const { fields } = useAutomationFields(subject, useContext(BuilderContext).automationId);
   // A trigger with no record has no record fields to test.
   const own = subject ? fields : fields.filter((field) => !field.path.startsWith('subject.'));
   const all = [...own, ...extraFields];

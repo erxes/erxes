@@ -110,6 +110,9 @@ describe('customers (/core/v1/customers)', () => {
 
     expect(first.totalCount).toBe(4);
     expect(first.pageInfo.hasNextPage).toBe(true);
+    // Only the page a list opens with counts; scrolling on doesn't count again.
+    expect(rest.totalCount).toBeUndefined();
+    expect(reopen.totalCount).toBe(4);
     expect(rest.data).toHaveLength(2);
     expect(rest.pageInfo).toMatchObject({ hasNextPage: false, hasPreviousPage: true });
     expect(reopen.data[0]?.id).toBe(cursor);

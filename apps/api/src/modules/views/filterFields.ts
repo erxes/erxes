@@ -31,6 +31,12 @@ const FILTER_TYPE: Record<string, FieldType> = {
   check: 'select',
 };
 
+/**
+ * A column that stores one of fixed lower-case values (a state, a source): "is" compares the
+ * value as stored instead of lower(column), so the column's index applies.
+ */
+const storedValues = (names: string[]) => textArray(names.map((name) => name.toLowerCase()));
+
 export const isCompanyList = (recordType: ViewRecordType) =>
   recordType === 'company' || recordType === 'company_lead';
 
@@ -43,6 +49,9 @@ const COMPANY_FIELDS: FieldSpec[] = [
   field('size', 'Employees', 'number', sql`${companies.size}`),
   field('businessType', 'Business type', 'text', sql`${companies.businessType}`),
   field('code', 'Code', 'text', sql`${companies.code}`),
+  // Every name and phone, the primary one first: "is" means it has that one.
+  field('names', 'Any name', 'text', sql`${companies.names}`, { array: true }),
+  field('phones', 'Any phone', 'text', sql`${companies.phones}`, { array: true }),
 ];
 
 const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
@@ -54,6 +63,7 @@ const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
     ? [
         field('state', 'State', 'select', sql`${customers.state}`, {
           options: ['lead', 'customer'],
+          lookup: storedValues,
         }),
       ]
     : []),
@@ -64,6 +74,9 @@ const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
   field('position', 'Position', 'text', sql`${customers.position}`),
   field('department', 'Department', 'text', sql`${customers.department}`),
   field('code', 'Code', 'text', sql`${customers.code}`),
+  // Every email and phone, the primary one first: "is" means it has that one.
+  field('emails', 'Any email', 'text', sql`${customers.emails}`, { array: true }),
+  field('phones', 'Any phone', 'text', sql`${customers.phones}`, { array: true }),
 ];
 
 /** People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them. */
@@ -76,12 +89,14 @@ const lifecycleFields = (recordType: ViewRecordType, stageNames: string[]): Fiel
           field('state', 'State', 'select', sql`${companies.state}`, {
             options: ['lead', 'customer'],
             group: 'lead',
+            lookup: storedValues,
           }),
         ]
       : []),
     field('source', 'Source', 'select', sql`${table.source}`, {
       options: [...LEAD_SOURCES],
       group: 'lead',
+      lookup: storedValues,
     }),
     field('convertedAt', 'Became a customer', 'date', sql`${table.convertedAt}`, {
       group: 'lead',
@@ -242,7 +257,7 @@ export const filterFields = async (
 };
 
 /** The records automations run on. */
-export type SubjectType = 'customer' | 'company';
+export type SubjectType = (typeof CONTENT_TYPES)[number];
 
 /**
  * Every field of one customer or company, whichever list shows it: a person has the customers

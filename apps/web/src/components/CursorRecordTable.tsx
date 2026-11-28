@@ -37,6 +37,7 @@ export const CursorRecordTable = <T extends { id: string }>({
   tableId,
   recordType,
   empty = <EmptyList />,
+  ownEmpty = false,
   children,
 }: {
   cursor: ReturnType<typeof useCursorList<T>>;
@@ -45,6 +46,8 @@ export const CursorRecordTable = <T extends { id: string }>({
   tableId: string;
   recordType?: ViewRecordType;
   empty?: ReactNode;
+  /** `empty` says itself what a search found, so it shows filtered or not (3.x's own words). */
+  ownEmpty?: boolean;
   children?: ReactNode;
 }) => {
   if (error) {
@@ -74,7 +77,9 @@ export const CursorRecordTable = <T extends { id: string }>({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      {!loading && !list.length && <FilteredEmpty recordType={recordType} fallback={empty} />}
+      {!loading &&
+        !list.length &&
+        (ownEmpty ? empty : <FilteredEmpty recordType={recordType} fallback={empty} />)}
       {children}
     </RecordTable.Provider>
   );

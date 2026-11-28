@@ -72,6 +72,8 @@ export const LevelPicker = ({
 export interface Pickable {
   name: string;
   label: string;
+  /** What it does beyond its label, in small type under it. */
+  description?: string | null;
   /** A short tag at the end of the line, such as the HTTP method. */
   tag?: string;
   /** Shown on hover and searched, such as the path. */
@@ -126,7 +128,14 @@ const PickGroup = ({
                 disabled={!item.allowed}
                 onCheckedChange={(next) => onChange([item.name], next)}
               />
-              <span className="min-w-0 flex-1">{item.label}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block">{item.label}</span>
+                {item.description && (
+                  <span className="line-clamp-2 text-xs text-muted-foreground">
+                    {item.description}
+                  </span>
+                )}
+              </span>
               {item.tag && (
                 <span className="mt-0.5 shrink-0 font-mono text-xs text-muted-foreground">
                   {item.tag}
@@ -159,7 +168,9 @@ export const Picker = ({
 
   const matches = (item: Pickable) =>
     words.every((word) =>
-      `${item.label} ${item.tag ?? ''} ${item.detail ?? ''}`.toLowerCase().includes(word),
+      `${item.label} ${item.description ?? ''} ${item.tag ?? ''} ${item.detail ?? ''}`
+        .toLowerCase()
+        .includes(word),
     );
 
   const toggle = (names: string[], on: boolean) =>

@@ -2,6 +2,7 @@ import { type ComponentType, useCallback } from 'react';
 import { getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
 import { findPluginRecordType, usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import { usePlugins } from '~/modules/plugins/usePlugins';
+import { i18n } from '~/i18n';
 import { paths } from '~/lib/paths';
 import { lazyPanelView } from './lazyPanelView';
 import type { IRecordViewProps } from './recordView';
@@ -28,9 +29,33 @@ const ProductPanelNew = lazyPanelView(
   async () => (await import('~/modules/products/panel/ProductPanelNew')).ProductPanelNew,
 );
 
-const MemberDetail = lazyPanelView(
-  async () => (await import('~/modules/settings/team-members/details/MemberDetail')).MemberDetail,
-);
+// A member opens from any page: the settings pages' words load beside its code.
+const MemberDetail = lazyPanelView(async () => {
+  const [detail] = await Promise.all([
+    import('~/modules/settings/team-members/details/MemberDetail'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return detail.MemberDetail;
+});
+
+const ConnectionPanel = lazyPanelView(async () => {
+  const [panel] = await Promise.all([
+    import('~/modules/settings/vault/ConnectionPanel'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return panel.ConnectionPanel;
+});
+
+const ConnectionPanelNew = lazyPanelView(async () => {
+  const [panel] = await Promise.all([
+    import('~/modules/settings/vault/ConnectionPanelNew'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return panel.ConnectionPanelNew;
+});
 
 const PluginRecordView = lazyPanelView(
   async () => (await import('~/modules/plugins/PluginRecordView')).PluginRecordView,
@@ -43,6 +68,8 @@ const PluginRecordNew = lazyPanelView(
 interface IPanelRecordType {
   /** What one is called, in English, for its draft's title: "New customer". */
   label: string;
+  /** A draft's whole title, when it isn't "New <label>"; in the same words as `label`. */
+  newTitle?: string;
   /** The plugin whose words `label` is (its i18n namespace); none: core's. */
   plugin?: string;
   /** A saved record: its header and tabs. */
@@ -82,6 +109,13 @@ const PANEL_RECORD_TYPES = {
     listPath: () => paths.settings.teamMembers,
     pagePath: paths.settings.teamMember,
   },
+  'core:connection': {
+    label: 'Connection',
+    View: ConnectionPanel,
+    New: ConnectionPanelNew,
+    listPath: () => paths.settings.integrations,
+    pagePath: paths.settings.integrationConnection,
+  },
 } satisfies Record<string, IPanelRecordType>;
 
 export type TPanelContentType = keyof typeof PANEL_RECORD_TYPES;
@@ -110,6 +144,7 @@ const pluginPanelType = (
   entry: NonNullable<ReturnType<typeof findPluginRecordType>>,
 ): IPanelRecordType => ({
   label: entry.type.title,
+  newTitle: entry.type.newTitle,
   plugin: entry.plugin,
   View: PluginRecordView,
   New: entry.type.New ? PluginRecordNew : undefined,

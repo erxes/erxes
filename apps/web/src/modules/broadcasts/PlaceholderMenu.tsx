@@ -1,6 +1,7 @@
 import { BROADCAST_PLACEHOLDERS, type BroadcastPlaceholder } from '@erxes/core-contract';
 import { IconBraces } from '@tabler/icons-react';
 import { Button, DropdownMenu, Label } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /** "Insert a field": a customer's value, filled in when the broadcast goes. */
@@ -24,18 +25,23 @@ const PlaceholderMenu = ({ onPick }: { onPick: (name: BroadcastPlaceholder) => v
   );
 };
 
-/** A field's label, with Insert a field at the end when `onPick` is given. */
+/** A field's label, with `children` and Insert a field (when `onPick` is given) at the end. */
 export const LabelRow = ({
   id,
   label,
   onPick,
+  children,
 }: {
   id?: string;
   label: string;
   onPick?: (name: BroadcastPlaceholder) => void;
+  children?: ReactNode;
 }) => (
-  <div className="flex min-h-8 items-center justify-between">
+  <div className="flex min-h-8 items-center justify-between gap-2">
     <Label htmlFor={id}>{label}</Label>
-    {onPick && <PlaceholderMenu onPick={onPick} />}
+    <div className="flex items-center">
+      {children}
+      {onPick && <PlaceholderMenu onPick={onPick} />}
+    </div>
   </div>
 );

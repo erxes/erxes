@@ -141,7 +141,16 @@ export const COMPARE: Partial<Record<ConditionRule['op'], string>> = {
 const monthDayOf = (day: SQL | Column) =>
   sql`((extract(month from ${day}) * 100 + extract(day from ${day}))::smallint)`;
 
-/** "Within the next n days, any year", over a month-day expression; the window may run past 31 December. */
+/** A month-day worked out once per query (a subquery), not once per row. */
+const once = (bound: SQL) => sql`(select (${bound})::smallint)`;
+
+/**
+ * "Within the next n days, any year", over a month-day expression; the window may run past 31
+ * December. Two ranges whose bounds depend only on today: from today to the window's end (or to
+ * 31 December when it wraps), and from 1 January to the window's end when it wraps (empty when
+ * it doesn't). Plain ranges let an index on the month-day serve them, and each bound is a
+ * subquery, worked out once per query instead of once per row.
+ */
 const anniversary = (monthDay: SQL, value: unknown) => {
   const days = number(spanOf(value).amount);
 
@@ -149,8 +158,10 @@ const anniversary = (monthDay: SQL, value: unknown) => {
 
   const from = monthDayOf(sql`current_date`);
   const to = monthDayOf(sql`(current_date + ${days}::int)`);
+  const wraps = sql`${to} < ${from}`;
 
-  return sql`(case when ${to} >= ${from} then ${monthDay} between ${from} and ${to} else (${monthDay} >= ${from} or ${monthDay} <= ${to}) end)`;
+  return sql`(${monthDay} between ${once(from)} and ${once(sql`case when ${wraps} then 1231 else ${to} end`)}
+    or ${monthDay} between 101::smallint and ${once(sql`case when ${wraps} then ${to} else 0 end`)})`;
 };
 
 /** Date rules. Day-only values compare with days, so an index on them applies. */

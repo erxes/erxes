@@ -5,6 +5,7 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
+import { MarkReadInput } from './notifications';
 import { AppLink, DedupeKey, EntityType, EventType } from './platform';
 
 export const CustomerNotificationChannel = z.enum(CUSTOMER_NOTIFICATION_CHANNELS);
@@ -22,7 +23,9 @@ export const CustomerNotification = createSelectSchema(customerNotifications, {
   kind: true,
   title: true,
   body: true,
-  /** A path in the plugin's customer app. */
+  /** The portal it is for; null: every portal. */
+  portalId: true,
+  /** A path on the portal. */
   link: true,
   data: true,
   entityType: true,
@@ -52,7 +55,7 @@ export const CustomerNotificationInput = createUpdateSchema(customerNotification
     kind: true,
     title: true,
     body: true,
-    /** A path in the plugin's customer app; emails link to it there. */
+    /** A path on `portalId`'s portal; emails link to it there. */
     link: true,
     data: true,
     /** Retry-safe: one notification per customer and key. */
@@ -62,9 +65,14 @@ export const CustomerNotificationInput = createUpdateSchema(customerNotification
   })
   .required({ kind: true, title: true })
   .extend({
+    /**
+     * One of the plugin's portals: the notification shows there only, `everyone` is its
+     * accounts, and emails link into it. Without one it shows on every portal.
+     */
+    portalId: Id.optional(),
     /** The customers to notify. */
     customerIds: z.array(Id).min(1).max(500).optional(),
-    /** Every customer who signs in to the organisation's customer apps; inbox only. */
+    /** Every customer with an account on the portal (or on any portal); inbox only. */
     everyone: z.literal(true).optional(),
     /** Also by email or SMS, to the customer's primary address, when they have one. */
     channels: z.array(CustomerNotificationChannel).max(2).default([]),
@@ -80,13 +88,17 @@ export const CustomerNotificationInput = createUpdateSchema(customerNotification
   .refine(
     (value) => (value.entityType === undefined) === (value.entityId === undefined),
     'entityType and entityId go together',
+  )
+  .refine(
+    (value) => value.link === undefined || value.portalId !== undefined,
+    'a link is a path on a portal: name portalId',
   );
 
 export type CustomerNotificationInput = z.infer<typeof CustomerNotificationInput>;
 
-const { INVALID_RECIPIENT, INVALID_TYPE } = ERRORS;
+const { INVALID_RECIPIENT, INVALID_TYPE, UNKNOWN_PORTAL } = ERRORS;
 
-const base = oc.errors({ ...COMMON_ERRORS, INVALID_RECIPIENT, INVALID_TYPE });
+const base = oc.errors({ ...COMMON_ERRORS, INVALID_RECIPIENT, INVALID_TYPE, UNKNOWN_PORTAL });
 
 /** Plugins notify customers; the customer reads them in the plugin's app (decision 45). */
 export const customerNotificationsContract = {
@@ -95,7 +107,8 @@ export const customerNotificationsContract = {
       method: 'POST',
       path: '/customer-notifications',
       successStatus: 201,
-      summary:
+      summary: 'Notify customers',
+      description:
         'Notify customers (plugins only), in their inbox and, with `channels`, by email or SMS. 400 INVALID_RECIPIENT for unknown customers',
     })
     .input(CustomerNotificationInput)
@@ -103,8 +116,9 @@ export const customerNotificationsContract = {
   list: base
     .route({
       method: 'GET',
-      path: '/customer/notifications',
-      summary: "The signed-in customer's notifications, newest first",
+      path: '/portal/me/notifications',
+      summary: 'List customer notifications',
+      description: "The signed-in customer's notifications, newest first",
     })
     .input(
       CursorQuery.extend({
@@ -116,23 +130,20 @@ export const customerNotificationsContract = {
   unreadCount: base
     .route({
       method: 'GET',
-      path: '/customer/notifications/unread-count',
-      summary: "The signed-in customer's unread notifications; `source` for one plugin's",
+      path: '/portal/me/notifications/unread-count',
+      summary: 'Count unread customer notifications',
+      description: "The signed-in customer's unread notifications; `source` for one plugin's",
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
     .output(z.object({ count: z.int() })),
   markRead: base
     .route({
       method: 'POST',
-      path: '/customer/notifications/read',
-      summary: 'Mark some (`ids`) or all of my notifications read, or unread with `read: false`',
+      path: '/portal/me/notifications/read',
+      summary: 'Mark customer notifications read',
+      description:
+        'Mark some (`ids`) or all of my notifications read, or unread with `read: false`',
     })
-    .input(
-      z.object({
-        ids: z.array(Id).max(200).optional(),
-        source: z.string().trim().max(40).optional(),
-        read: z.boolean().default(true),
-      }),
-    )
+    .input(MarkReadInput)
     .output(z.object({ updated: z.int() })),
 };

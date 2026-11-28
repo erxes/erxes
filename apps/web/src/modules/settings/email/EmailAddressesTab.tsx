@@ -70,12 +70,13 @@ const useReopen = () => {
 /** Proven, unknown, or suppressed with its reason. */
 const LaneBadge = ({ row }: { row: EmailAddressStanding }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
+  const { t: tWhy } = useTranslation('workspace', { keyPrefix: 'email-deliveries' });
   const lane = t(`addresses.lane.${row.lane}`, row.lane);
 
   return (
     <Badge variant={LANE_VARIANT[row.lane]} size="sm">
       {row.suppressionReason
-        ? `${lane} · ${t(`deliveries.reason.${row.suppressionReason}`, row.suppressionReason)}`
+        ? `${lane} · ${tWhy(`reason.${row.suppressionReason}`, row.suppressionReason)}`
         : lane}
     </Badge>
   );
