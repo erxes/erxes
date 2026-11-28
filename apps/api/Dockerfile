@@ -36,9 +36,9 @@ RUN pnpm --filter @erxes/api build \
 FROM node:26-bookworm-slim
 # The runtime only runs node; npm and corepack bring their own dependencies (and advisories).
 RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
-# Debian's fixes the base image doesn't carry yet (PAM: CVE-2025-6020).
+# Debian's fixes the base image doesn't carry yet (PAM: CVE-2025-6020; zstd: CVE-2026-124851).
 RUN apt-get update \
-  && apt-get install -y --only-upgrade --no-install-recommends libpam-modules libpam-modules-bin libpam-runtime libpam0g \
+  && apt-get install -y --only-upgrade --no-install-recommends libpam-modules libpam-modules-bin libpam-runtime libpam0g libzstd1 \
   && rm -rf /var/lib/apt/lists/*
 # The build this image is (CI passes its commit): what a self-hosted server tells erxes.io it runs.
 ARG VERSION=dev
