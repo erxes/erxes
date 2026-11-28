@@ -43,12 +43,7 @@ jobs:
           docker compose -f deploy/docker-compose.yml config --no-interpolate --format json |
             jq -e '[.services[] | select(.image | startswith("postgres")) | select(.ports or .network_mode == "host")] == []' > /dev/null ||
             { echo "::error file=deploy/docker-compose.yml::the postgres service publishes a port to the host"; exit 1; }
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - name: Format, lint, types, React Doctor and knip
         run: pnpm exec vp run check
       # A deliberate raise is a rule change in its own PR, labelled gate-change.
@@ -89,12 +84,7 @@ jobs:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
       - name: Migrated schema has forced row level security on every org_id table and core_ names
         if: matrix.shard == 1
@@ -182,12 +172,7 @@ jobs:
         run: deploy/smoke.sh http://localhost:8081
       - name: The web image reaches a recreated API at its new address
         run: deploy/web-proxy-test.sh "$WEB_IMAGE"
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - name: Chromium (headless shell) and its system libraries
         run: pnpm exec playwright install --with-deps --only-shell chromium
       - name: Wait for the stack
@@ -234,12 +219,7 @@ jobs:
       DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - name: Build and pack @erxes/ui, @erxes/core-contract, @erxes/plugin-sdk, @erxes/lint and create-erxes
         run: |
           filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk --filter @erxes/lint --filter create-erxes)
