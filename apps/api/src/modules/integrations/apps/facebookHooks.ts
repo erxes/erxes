@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { hmacSha256, safeEqual } from '~/lib/crypto';
 import {
+  type AppClient,
   type AppWideHooks,
   DeliveryRefused,
   digits,
@@ -42,6 +43,27 @@ const sharedFields = async (token: string, page: string, appId: string) => {
   });
 
   return data.find((app) => app.id === appId)?.subscribed_fields ?? [];
+};
+
+const AppSubscriptions = z.object({
+  data: z.array(
+    z.object({ object: z.string(), callback_url: z.string(), active: z.boolean().default(true) }),
+  ),
+});
+
+const appPath = (appId: string) => `/${encodeURIComponent(appId)}/subscriptions`;
+
+const claimPageHook = async (client: AppClient, url: string) => {
+  const token = appToken(client);
+  const { data } = await graph(appPath(client.clientId), AppSubscriptions, { token });
+  const taken = data.find((hook) => hook.object === 'page' && hook.active);
+
+  if (taken && new URL(taken.callback_url).pathname !== new URL(url).pathname)
+    throw new Error(
+      `This Facebook app already sends its events to ${new URL(taken.callback_url).host}: use a Facebook app of its own`,
+    );
+
+  return token;
 };
 
 const refused = (error: unknown) =>
@@ -105,8 +127,8 @@ export const facebookHooks: AppWideHooks<OAuthKeys, typeof pageScope> = {
 
     if (relay) await relay.route(scope.page, url);
     else
-      await graph(`/${encodeURIComponent(client.clientId)}/subscriptions`, Done, {
-        token: appToken(client),
+      await graph(appPath(client.clientId), Done, {
+        token: await claimPageHook(client, url),
         method: 'POST',
         body: {
           object: 'page',
@@ -127,19 +149,8 @@ export const facebookHooks: AppWideHooks<OAuthKeys, typeof pageScope> = {
       body: { subscribed_fields: [...fields].join(',') },
     });
   },
-  async unsubscribe({ keys, scope }) {
-    const relay = metaRelayFor('facebook');
-
-    if (relay) return relay.unroute(scope.page);
-
-    try {
-      await graph(pagePath(scope.page), Done, {
-        token: await pageToken(keys.accessToken, scope.page),
-        method: 'DELETE',
-      });
-    } catch (error) {
-      if (!refused(error)) throw error;
-    }
+  async unsubscribe({ scope }) {
+    await metaRelayFor('facebook')?.unroute(scope.page);
   },
   receive(delivery, { secret, verifyToken }) {
     if (delivery.method === 'GET') {

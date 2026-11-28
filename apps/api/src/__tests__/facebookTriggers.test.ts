@@ -44,7 +44,12 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
 
   const t = useAutomations();
 
+  const appHooks: { data: { object: string; callback_url: string; active: boolean }[] } = {
+    data: [],
+  };
+
   const facebook = fakeGateway([
+    [`GET ${GRAPH}/${APP_ID}/subscriptions`, appHooks],
     [`POST ${GRAPH}/oauth/access_token`, { access_token: 'short-token', expires_in: 5000 }],
     [`GET ${GRAPH}/me?fields=id,name`, { id: '1040', name: 'Dana Bat' }],
     [`GET ${GRAPH}/${PAGE}?fields=access_token`, { id: PAGE, access_token: 'page-token' }],
@@ -278,7 +283,7 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
     expect(await t.runsOf(leadsId)).toHaveLength(2);
   });
 
-  it('pausing one automation narrows the page’s fields; pausing the last removes the page subscription', async () => {
+  it('pausing one automation narrows the page’s fields; pausing the last leaves the page’s apps alone', async () => {
     await t.owner().automations.pause({ id: leadsId });
     await settle();
 
@@ -288,8 +293,40 @@ describe('Facebook Pages triggers', { timeout: 300_000 }, () => {
     await t.owner().automations.pause({ id: commentsId });
     await settle();
 
-    expect(calls('DELETE', `/${PAGE}/subscribed_apps`)).toHaveLength(1);
-    expect(calls('DELETE', `/${PAGE}/subscribed_apps`)[0]?.auth).toBe('Bearer page-token');
+    expect(calls('DELETE', `/${PAGE}/subscribed_apps`)).toEqual([]);
     expect((await t.owner().integrations.subscriptions({ key: 'facebook' })).data).toEqual([]);
+  });
+
+  it('an app whose page events go to another receiver keeps them: the automation fails and says where they go', async () => {
+    appHooks.data = [
+      { object: 'page', callback_url: 'https://relay.example.mn/meta/hook', active: true },
+    ];
+
+    const before = calls('POST', '').length;
+
+    await t.active('Chatbot', {
+      trigger: {
+        kind: 'app',
+        app: 'facebook',
+        trigger: 'comment_added',
+        connectionId,
+        params: { page: PAGE },
+      },
+      steps: [matches('event.payload.commentId', 'C1')],
+    });
+
+    await settle();
+    await settleRetries();
+
+    expect(calls('POST', '').slice(before)).toEqual([]);
+
+    const { data } = await t.owner().integrations.subscriptions({ key: 'facebook' });
+
+    expect(data.map((row) => [row.status, row.lastError])).toEqual([
+      [
+        'broken',
+        'This Facebook app already sends its events to relay.example.mn: use a Facebook app of its own',
+      ],
+    ]);
   });
 });
