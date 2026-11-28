@@ -9,7 +9,8 @@ test('a member links a contact to a company', async ({ page, api }) => {
   await page.getByRole('button', { name: 'Link a company' }).click();
   await page.keyboard.type(`Analytical Engines ${suffix}`);
   await page.getByRole('option', { name: `Analytical Engines ${suffix}` }).click();
-  await expect(page.getByRole('button', { name: `Analytical Engines ${suffix}` })).toBeVisible();
+  // The person lists the company, and their timeline's link entry names it.
+  await expect(page.getByRole('button', { name: `Analytical Engines ${suffix}` })).toHaveCount(2);
   await expectAccessible(page);
 
   await expect
