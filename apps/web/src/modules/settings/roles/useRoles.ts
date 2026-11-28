@@ -2,13 +2,13 @@ import type { Role } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { orpc } from '@erxes/core-contract/client';
-import enSettings from '~/i18n/locales/en/settings.json';
+import enWorkspace from '~/i18n/locales/en/workspace.json';
 
 /** The organisation's roles (built-in and custom). */
 export const rolesQuery = () => orpc.roles.list.queryOptions({ staleTime: 60_000 });
 
 /** The built-in roles' words as core seeds them, in English. */
-const SEEDED = enSettings.roles.builtin;
+const SEEDED = enWorkspace.roles.builtin;
 
 const isBuiltin = (key: string): key is keyof typeof SEEDED => Object.hasOwn(SEEDED, key);
 
@@ -17,7 +17,7 @@ const isBuiltin = (key: string): key is keyof typeof SEEDED => Object.hasOwn(SEE
  * language; words the organisation wrote itself as written.
  */
 export const useRoleText = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'roles.builtin' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'roles.builtin' });
 
   return (role: Role): Role => {
     if (!isBuiltin(role.key)) return role;
@@ -36,7 +36,7 @@ export const useRoleText = () => {
 /** The roles, as the member reads them, and a role's name by key. */
 export const useRoles = () => {
   const { data } = useQuery(rolesQuery());
-  const { t } = useTranslation('settings', { keyPrefix: 'roles.builtin' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'roles.builtin' });
   const roleText = useRoleText();
 
   const roles = (data?.data ?? []).map(roleText);

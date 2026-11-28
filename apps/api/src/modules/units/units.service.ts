@@ -1,4 +1,5 @@
-import type { UnitKind } from '@erxes/core-contract';
+import type { coreContract, UnitKind } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { actorOf, caller, type Db, newId, orgUnitMembers, orgUnits } from '@erxes/core-db';
 import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -164,7 +165,7 @@ export const removeUnit = async (client: Db, id: string) => {
 /** Puts a member in exactly these units of `kind`, out of the others of that kind. */
 export const assignUnits = async (
   client: Db,
-  input: { userId: string; kind: UnitKind; unitIds: string[] },
+  input: InferContractRouterInputs<typeof coreContract>['units']['assign'],
 ) => {
   await assertTeam(client, 'userId', [input.userId]);
 

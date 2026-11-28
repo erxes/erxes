@@ -51,14 +51,15 @@ export const EmailAddressStanding = createSelectSchema(emailAddresses, {
 
 export type EmailAddressStanding = z.infer<typeof EmailAddressStanding>;
 
-/** Each address's standing (Settings › Integrations › Email sending › Addresses). */
+/** Each address's standing (Settings › Organization email › Addresses). */
 export const emailAddressesContract = {
   addresses: oc
     .errors(COMMON_ERRORS)
     .route({
       method: 'GET',
       path: '/email/addresses',
-      summary:
+      summary: 'List emailed addresses',
+      description:
         'Addresses the organisation emailed or suppressed, newest first, each with its standing',
     })
     .input(

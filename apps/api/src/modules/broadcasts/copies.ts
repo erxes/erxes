@@ -5,7 +5,6 @@ import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { normalizePhone } from '~/lib/contacts';
 import { sendEmail } from '~/modules/email/email';
-import { requireReplyTo } from '~/modules/email/replyTos.service';
 import { sendSms } from '~/modules/sms/sms';
 import { firstOfAudience } from './audience';
 import { assertDeliverable, getBroadcast, organizationName, valuesOf } from './broadcasts.service';
@@ -69,6 +68,8 @@ export const testBroadcast = async (client: Db, id: string, to: string[]) => {
   const organization = await organizationName(client);
   const copy = renderCopy(broadcast, { ...SAMPLE_VALUES, organization }, null);
 
+  await assertDeliverable(client, broadcast);
+
   if (broadcast.channel === 'sms') {
     await sendSms(
       client,
@@ -76,8 +77,6 @@ export const testBroadcast = async (client: Db, id: string, to: string[]) => {
       addresses.map((address) => ({ to: address, text: `[Test] ${copy.text}` })),
     );
   } else {
-    await assertDeliverable(client, broadcast);
-    await requireReplyTo(client, broadcast.replyTo);
     await sendEmail(
       client,
       requestOrgId(),
@@ -86,10 +85,11 @@ export const testBroadcast = async (client: Db, id: string, to: string[]) => {
         template: 'rendered' as const,
         replyTo: broadcast.replyTo ?? undefined,
         fromName: broadcast.fromName ?? undefined,
+        fromEmail: broadcast.fromEmail ?? undefined,
         data: { subject: `[Test] ${copy.subject ?? ''}`, html: copy.html ?? '', text: copy.text },
         fileIds: broadcast.attachmentIds,
       })),
-      { source: 'broadcast', sourceId: broadcast.id },
+      { source: 'broadcast', sourceId: broadcast.id, connectionId: broadcast.mailConnectionId },
     );
   }
 

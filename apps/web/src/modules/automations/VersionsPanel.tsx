@@ -100,7 +100,7 @@ export const VersionsPanel = ({
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="min-h-0 overflow-y-auto">
+        <Sheet.Content>
           {open && <VersionList automationId={automationId} active={active} />}
         </Sheet.Content>
       </Sheet.View>

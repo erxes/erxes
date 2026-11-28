@@ -1,6 +1,7 @@
 import { db } from '@erxes/core-db';
 import { audited, recordOf, scoped } from '~/orpc';
 import { findUnit, unitRows } from './unitRows';
+import { memberRestrictionsOf } from './unitRestrictions';
 import { importUnits } from './units.import';
 import { assignUnits, createUnit, removeUnit, updateUnit } from './units.service';
 import {
@@ -14,6 +15,7 @@ import {
 /** Members with `structure.manage` and plugins with `units:write` change them; each write is audited. */
 export const unitsRouter = {
   list: scoped.units.list.handler(async ({ input }) => ({ data: await unitRows(db(), input) })),
+  restrictions: scoped.units.restrictions.handler(({ input }) => memberRestrictionsOf(db(), input)),
   get: scoped.units.get.handler(({ input }) => findUnit(db(), input.id)),
   create: scoped.units.create.handler(({ input }) =>
     audited(

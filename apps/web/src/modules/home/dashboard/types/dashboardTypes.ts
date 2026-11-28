@@ -1,17 +1,20 @@
 import type { TDashboardWidgetPreview } from 'erxes-ui';
 import type { ComponentType, ElementType } from 'react';
+import { z } from 'zod';
 
 type TDashboardGridSize = { w: number; h: number };
 
-// One tile as stored; x/y/w/h are grid units, not pixels.
-export type TDashboardItem = {
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-};
+/** One tile as stored; x/y/w/h are grid units, not pixels. */
+export const DashboardItem = z.object({
+  id: z.string(),
+  type: z.string(),
+  x: z.int(),
+  y: z.int(),
+  w: z.int(),
+  h: z.int(),
+});
+
+export type TDashboardItem = z.infer<typeof DashboardItem>;
 
 export type TDashboardWidgetDefinition = {
   type: string;

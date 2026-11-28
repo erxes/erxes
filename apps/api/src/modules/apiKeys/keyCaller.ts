@@ -1,4 +1,4 @@
-import { OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
+import { type KeyDecision, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
 import {
   type apiKeys,
   type Caller,
@@ -11,7 +11,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { BlockList, isIP } from 'node:net';
-import { areaPermissions, type KeyDecision } from '~/http/keyRules';
+import { areaPermissions } from '~/http/keyRules';
 
 type KeyRow = typeof apiKeys.$inferSelect;
 
@@ -104,7 +104,10 @@ export const keyCaller = async (
   }
 
   const [maker] = await client
-    .select({ role: users.role, permissions: roles.permissions })
+    .select({
+      role: users.role,
+      permissions: roles.permissions,
+    })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .where(eq(users.id, key.userId))

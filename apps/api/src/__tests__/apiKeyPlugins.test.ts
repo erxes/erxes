@@ -2,7 +2,7 @@ import { auditLogs, roles, users } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { decodeJwt } from 'jose';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { READ_CONTACTS } from './apiKeySupport';
+import { READ_CONTACTS, tryCall } from './apiKeySupport';
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
@@ -87,6 +87,7 @@ describe('API keys and plugins', () => {
 
     await expect(session(contacts.key)).rejects.toMatchObject({
       code: 'KEY_NOT_ALLOWED',
+      message: "This key doesn't open any plugin",
       data: { rule: 'plugins' },
     });
 
@@ -96,8 +97,14 @@ describe('API keys and plugins', () => {
       pluginAccess: { hr: 'read' },
     });
 
+    expect(await tryCall(t.owner(), { id: hr.apiKey.id }, 'plugins.session')).toMatchObject({
+      allowed: true,
+      rule: 'plugins',
+      reason: 'This key calls the plugins it opens',
+    });
     await expect(session(hr.key, 'ecom')).rejects.toMatchObject({
       code: 'KEY_NOT_ALLOWED',
+      message: "This key doesn't open ecom",
       data: { rule: 'plugin:ecom' },
     });
 

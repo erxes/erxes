@@ -1,121 +1,49 @@
 import type { AssistantProvider } from '@erxes/core-contract';
-import { assistantConnections, type Db, newId, requestOrgId } from '@erxes/core-db';
-import { asc, eq, sql } from 'drizzle-orm';
-import { fail, notFound } from '~/http/errors';
-import { wholeList } from '~/lib/keyset';
-import { lockKeys } from '~/lib/locks';
-import { seal, unseal } from '~/lib/secrets';
-import { unreadableKey } from './providers';
+import type { Db } from '@erxes/core-db';
+import { fail } from '~/http/errors';
+import { type ConnectedProvider, connectedProviders } from './connectedProviders';
+import { DEFAULT_MODELS, unreadableKey } from './providers';
+import { getSettings } from './settings.service';
 
-type ConnectionRow = typeof assistantConnections.$inferSelect;
-
-export const openKey = (sealed: string) => {
-  try {
-    return unseal(sealed);
-  } catch {
-    return null;
-  }
-};
-
-const orgRows = (client: Db) =>
-  wholeList((limit) =>
-    client
-      .select()
-      .from(assistantConnections)
-      .orderBy(asc(assistantConnections.createdAt), asc(assistantConnections.id))
-      .limit(limit),
-  );
-
-const effectiveDefault = (rows: ConnectionRow[]) => rows.find((row) => row.isDefault) ?? rows[0];
-
-const present = (rows: ConnectionRow[]) => {
-  const chosen = effectiveDefault(rows);
-
-  return rows.map((row) => ({
-    ...row,
-    isDefault: row === chosen,
-    hasKey: openKey(row.sealedKey) !== null,
-  }));
-};
-
-/** The organisation's keys, which every agent uses. */
-export const listConnections = async (client: Db) => ({ data: present(await orgRows(client)) });
-
-const lockKeysOfOrg = (client: Db) => lockKeys(client, [`assistant-connections:${requestOrgId()}`]);
-
-export const saveConnection = async (client: Db, provider: AssistantProvider, apiKey: string) => {
-  const sealedKey = seal(apiKey);
-
-  await lockKeysOfOrg(client);
-  await client
-    .insert(assistantConnections)
-    .values({ id: newId(), provider, sealedKey })
-    .onConflictDoUpdate({
-      target: [assistantConnections.orgId, assistantConnections.provider],
-      set: { sealedKey, updatedAt: sql`now()` },
-    });
-
-  const rows = present(await orgRows(client));
-  const saved = rows.find((row) => row.provider === provider);
-
-  if (!saved) throw notFound('Connection');
-
-  return saved;
-};
-
-export const removeConnection = async (client: Db, provider: AssistantProvider) => {
-  const removed = await client
-    .delete(assistantConnections)
-    .where(eq(assistantConnections.provider, provider))
-    .returning({ id: assistantConnections.id });
-
-  if (!removed.length) throw notFound('Connection');
-
-  return { ok: true as const };
-};
-
-export const setDefaultProvider = async (client: Db, provider: AssistantProvider | null) => {
-  await lockKeysOfOrg(client);
-
-  const rows = await orgRows(client);
-
-  if (provider && !rows.some((row) => row.provider === provider)) throw notFound('Connection');
-
-  await client
-    .update(assistantConnections)
-    .set({ isDefault: false })
-    .where(eq(assistantConnections.isDefault, true));
-
-  if (provider) {
-    await client
-      .update(assistantConnections)
-      .set({ isDefault: true })
-      .where(eq(assistantConnections.provider, provider));
-  }
-
-  return listConnections(client);
-};
-
-export const findConnection = async (client: Db, provider?: AssistantProvider) => {
-  const rows = await orgRows(client);
-
-  return provider ? rows.find((row) => row.provider === provider) : effectiveDefault(rows);
-};
-
-/** The organisation's key for `provider`, or its default one, opened; fails when there is none. */
-export const usableKey = async (client: Db, provider?: AssistantProvider) => {
-  const connection = await findConnection(client, provider);
-
-  if (!connection) {
+const usable = (connected: ConnectedProvider | undefined) => {
+  if (!connected) {
     throw fail(
       'ASSISTANT_NO_CONNECTION',
-      'An admin has to add a model provider key in Settings to use the assistant',
+      'Connect an AI provider in Settings › Integrations › AI Provider to use the assistant',
     );
   }
 
-  const apiKey = openKey(connection.sealedKey);
+  if (!connected.key) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connected.provider));
 
-  if (apiKey === null) throw fail('ASSISTANT_KEY_UNREADABLE', unreadableKey(connection.provider));
+  return connected.key;
+};
 
-  return { provider: connection.provider, apiKey };
+type Asked = { provider?: AssistantProvider | undefined; model?: string | undefined };
+
+/**
+ * The connection and model a run asks for, else the organisation's default provider and model;
+ * no connection when that provider isn't connected.
+ */
+export const chosenModel = async (client: Db, asked: Asked = {}) => {
+  const connected = await connectedProviders(client);
+  const settings = await getSettings(client);
+  const byDefault = connected.find((entry) => entry.provider === settings.defaultProvider);
+  const provider = asked.provider ?? (byDefault ?? connected[0])?.provider;
+
+  const fallback =
+    provider && provider === settings.defaultProvider && settings.defaultModel
+      ? settings.defaultModel
+      : provider && DEFAULT_MODELS[provider];
+
+  return {
+    connection: connected.find((entry) => entry.provider === provider),
+    model: asked.model ?? fallback,
+  };
+};
+
+export const modelKey = async (client: Db, asked: Asked = {}) => {
+  const { connection, model } = await chosenModel(client, asked);
+  const key = usable(connection);
+
+  return { ...key, model: model ?? DEFAULT_MODELS[key.provider] };
 };

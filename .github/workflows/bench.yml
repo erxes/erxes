@@ -19,6 +19,8 @@ on:
     paths:
       - .github/workflows/bench.yml
       - apps/api/scripts/bench-filters.ts
+      - apps/api/scripts/benchCases.ts
+      - apps/api/scripts/benchSeed.ts
       - apps/api/src/modules/views/recordFilter.ts
       - packages/db/drizzle/**
 

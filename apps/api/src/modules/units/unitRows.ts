@@ -74,7 +74,7 @@ export const teamMembers = async (client: Db, userIds: (string | null | undefine
 /** 400 INVALID_REFERENCE unless every user is on the team. */
 export const assertTeam = async (
   client: Db,
-  field: 'supervisorId' | 'memberIds' | 'userId',
+  field: 'supervisorId' | 'memberIds' | 'userId' | 'memberRestrictions',
   userIds: (string | null | undefined)[],
 ) => {
   const wanted = unique(userIds);

@@ -1,9 +1,4 @@
-import {
-  CORE_PERMISSION_AREAS,
-  PLUGIN_SCOPES,
-  type PluginManifest,
-  pluginReadScope,
-} from '@erxes/core-contract';
+import { CORE_PERMISSION_AREAS, type PluginManifest } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -25,10 +20,12 @@ import { oneRow } from '~/lib/rows';
 import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { licenseWarnings } from '~/modules/license/license';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { checkManifest } from './manifestChecks';
 import { manifestWarnings } from './manifestWarnings';
 import { queueInstallJobs, schedulePluginJobs } from './pluginJobs';
+import { requestedScopes } from './requestedScopes';
 
 type PluginRow = typeof plugins.$inferSelect;
 
@@ -39,26 +36,12 @@ const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 const SECRET_OVERLAP_HOURS = 24;
 
 /**
- * Scopes a plugin asks for: its manifest's, with each read of another plugin's API as
- * `reads:<permission>`, or (before it sent one) what plugins could always do.
- */
-export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
-  row.manifest
-    ? [
-        ...row.manifest.scopes,
-        ...(row.manifest.pluginReads ?? []).flatMap((read) =>
-          read.permissions.map(pluginReadScope),
-        ),
-      ]
-    : [...PLUGIN_SCOPES];
-
-/**
- * With auto-install the deployment decides the plugins, so a newer version's scopes are granted
- * where it is installed, as an owner approving them on Settings › Plugins would (that page is
- * hidden then); its `onInstall` jobs run for what it could not do before. Not on SaaS.
+ * With auto-install the deployment decides the plugins, and on SaaS the plan does, so a newer
+ * version's scopes are granted where it is installed, as an owner approving them on
+ * Settings › Plugins would; its `onInstall` jobs run for what it could not do before.
  */
 const approveNewScopes = async (tx: Db, plugin: string, manifest: PluginManifest) => {
-  if (!config.plugins.autoInstall || config.saas.enabled) return;
+  if (!config.plugins.autoInstall && !config.saas.enabled) return;
 
   const scopes = requestedScopes({ manifest });
 
@@ -292,5 +275,8 @@ export const registerManifest = async (manifest: PluginManifest) => {
     );
   });
 
-  return { ok: true as const, warnings: manifestWarnings(manifest) };
+  return {
+    ok: true as const,
+    warnings: [...manifestWarnings(manifest), ...(await licenseWarnings(plugin, manifest))],
+  };
 };

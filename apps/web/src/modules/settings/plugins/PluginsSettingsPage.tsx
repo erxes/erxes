@@ -1,10 +1,18 @@
 import { paths } from '~/lib/paths';
-import { type Plugin, pluginReadScope } from '@erxes/core-contract';
+import { connectionUseScope, type Plugin, pluginReadScope } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Empty, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  Empty,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { countryNames } from '~/lib/region';
@@ -19,7 +27,10 @@ const SCOPE_LABELS: Record<string, string> = {
   'emails:write': 'Send emails from erxes',
   'events:read': 'Receive core events',
   'events:write': 'Publish events (timelines, notifications, automations)',
+  'exchange_rates:read': 'Read exchange rates',
+  'exchange_rates:write': 'Add and change exchange rates',
   'fields:write': 'Keep its own properties on customers and companies',
+  'inventories:write': 'Set and change product stock',
   'files:read': 'Read files',
   'files:write': 'Upload and delete files',
   'live:write': 'Refresh its screens live',
@@ -28,10 +39,14 @@ const SCOPE_LABELS: Record<string, string> = {
   'payments:write': 'Create invoices and refunds',
   'products:read': 'Read the product catalog',
   'products:write': 'Create and edit products',
+  'secrets:write': 'Keep its passwords and keys in the vault',
+  'sms:write': 'Send texts from erxes',
+  'portals:write': 'Put its stores and sites on portals customers sign in to',
   'units:read': 'Read branches and departments',
   'units:write': 'Change branches and departments, and who is in them',
   'users:read': 'Read team members',
   'users:write': "Add team members who don't sign in, and change them",
+  'users:sign_in': 'Sign team members in with their account in another system',
   'views:read': "Use the team's shared views as segments",
 };
 
@@ -85,6 +100,16 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
           reason: read.reason,
         });
     }
+
+    const use = plugin.manifest?.connections?.find(
+      (item) => connectionUseScope(item.integration) === scope,
+    );
+
+    if (use)
+      return t('scope.uses', 'Use the organisation’s {{integration}} connections: {{reason}}', {
+        integration: use.integration,
+        reason: use.reason,
+      });
 
     return t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope);
   };

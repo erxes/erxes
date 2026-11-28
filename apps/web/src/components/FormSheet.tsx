@@ -38,7 +38,7 @@ export const FormSheet = ({
             </Sheet.Description>
             <Sheet.Close />
           </Sheet.Header>
-          <Sheet.Content className="min-h-0 overflow-y-auto">
+          <Sheet.Content>
             <div className="flex flex-col gap-4">{children}</div>
           </Sheet.Content>
           <Sheet.Footer className="flex items-center justify-end">

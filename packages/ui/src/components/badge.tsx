@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 /** The badge's classes by `variant` and `size`, to style another element. */
 export const badgeVariants = cva(
-  'inline-flex items-center rounded-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit border gap-1',
+  'inline-flex items-center rounded-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit border gap-1 [&>svg]:shrink-0 [&>svg:not([class*=size-])]:size-3.5',
   {
     variants: {
       variant: {
@@ -26,7 +26,7 @@ export const badgeVariants = cva(
       size: {
         default: 'h-6 px-2 text-xs',
         /** A tag inside a line of text: a source, a priority. */
-        sm: 'h-4 px-1.5 text-3xs',
+        sm: 'h-4 px-1.5 text-3xs [&>svg:not([class*=size-])]:size-2.5',
         lg: 'h-7 px-2.5 text-sm',
       },
     },

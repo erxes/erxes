@@ -28,7 +28,7 @@ describe('payments', { timeout: 240_000 }, () => {
       code: 'NO_GATEWAY',
     });
 
-    const gateway = await t.owner().payments.addGateway({ name: 'Test', config: { kind: 'test' } });
+    const gateway = await t.owner().integrations.connect({ key: 'test', name: 'Test', keys: {} });
     const input = { ...order('o1', 150_000), dedupeKey: 'order-o1' };
     const invoice = await t.hr().payments.createInvoice(input);
     const { id } = invoice;
@@ -59,9 +59,9 @@ describe('payments', { timeout: 240_000 }, () => {
     });
 
     // One with invoices can't be removed.
-    await expect(t.owner().payments.removeGateway({ id: gateway.id })).rejects.toMatchObject({
-      code: 'GATEWAY_IN_USE',
-    });
+    await expect(
+      t.owner().integrations.remove({ key: 'test', id: gateway.id }),
+    ).rejects.toMatchObject({ code: 'GATEWAY_IN_USE' });
 
     // Cancelling a pending one.
     const second = await t.hr().payments.createInvoice(order('o2'));
@@ -72,7 +72,7 @@ describe('payments', { timeout: 240_000 }, () => {
     });
   });
 
-  it('routes plugins to the gateways the owner chose, refunds safely, and delivers payment events to the plugin', async () => {
+  it('routes every invoice to the organisation’s default gateway, refunds safely, and delivers payment events to the plugin', async () => {
     const api = await pluginApi(t.url(''));
 
     try {
@@ -86,35 +86,31 @@ describe('payments', { timeout: 240_000 }, () => {
 
       const second = await t
         .owner()
-        .payments.addGateway({ name: 'Test B', config: { kind: 'test' } });
+        .integrations.connect({ key: 'test', name: 'Test B', keys: {} });
 
-      const third = await t
-        .owner()
-        .payments.addGateway({ name: 'Test C', config: { kind: 'test' } });
+      const third = await t.owner().integrations.connect({ key: 'test', name: 'Test C', keys: {} });
 
-      // Owner settings: hr may use B and C, B by default.
-      expect((await t.owner().payments.pluginSettings({})).data).toEqual([
-        expect.objectContaining({ plugin: 'hr', defaultGatewayId: null, allowedGatewayIds: [] }),
-      ]);
+      const elsewhere = await t
+        .other()
+        .integrations.connect({ key: 'test', name: 'Globex', keys: {} });
+
+      expect(await t.owner().payments.settings({})).toEqual({ defaultGatewayId: null });
       await expect(
-        t.owner().payments.updatePluginSettings({
-          plugin: 'hr',
-          defaultGatewayId: third.id,
-          allowedGatewayIds: [second.id],
-        }),
-      ).rejects.toMatchObject({ code: 'DEFAULT_NOT_ALLOWED' });
-      await t.owner().payments.updatePluginSettings({
-        plugin: 'hr',
+        t.member().payments.saveSettings({ defaultGatewayId: second.id }),
+      ).rejects.toMatchObject({ status: 403 });
+      await expect(
+        t.owner().payments.saveSettings({ defaultGatewayId: elsewhere.id }),
+      ).rejects.toMatchObject({ status: 400, code: 'NO_GATEWAY' });
+      expect(await t.owner().payments.saveSettings({ defaultGatewayId: second.id })).toEqual({
         defaultGatewayId: second.id,
-        allowedGatewayIds: [second.id, third.id],
       });
+      expect(await t.other().payments.settings({})).toEqual({ defaultGatewayId: null });
 
-      // The audit log shows the change as [before, after].
-      const changed = await t.owner().audit.list({ action: 'payment.plugin_settings_updated' });
+      const changed = await t.owner().audit.list({ action: 'payment.default_gateway_changed' });
 
-      expect(changed.data[0]?.changes).toEqual({
-        defaultGatewayId: [null, second.id],
-        allowedGatewayIds: [[], [second.id, third.id]],
+      expect(changed.data[0]).toMatchObject({
+        targetLabel: 'Test B',
+        changes: { defaultGatewayId: [null, second.id] },
       });
 
       const metadata = { orderId: 'o9', lines: [{ sku: 'A', qty: 2 }] };
@@ -127,13 +123,24 @@ describe('payments', { timeout: 240_000 }, () => {
         refundedAmount: 0,
         refundable: { amount: 0, gateway: 'partial' },
       });
+      expect((await t.owner().payments.createInvoice(order('core'))).gatewayId).toBe(second.id);
 
-      // Not one it's allowed: refused. The first gateway (not allowed) can't be named.
+      await t.owner().payments.saveSettings({ defaultGatewayId: third.id });
+      await t.owner().integrations.remove({ key: 'test', id: third.id });
+      expect(await t.owner().payments.settings({})).toEqual({ defaultGatewayId: null });
+
       const first = (await t.owner().payments.gateways({})).data.find((row) => row.name === 'Test');
 
-      await expect(
-        t.hr().payments.createInvoice({ ...order('x', 1), gatewayId: first?.id }),
-      ).rejects.toMatchObject({ code: 'GATEWAY_NOT_ALLOWED' });
+      // A plugin lists them too, to let its own settings pick one (`gatewayId`).
+      expect(
+        (await t.hr().payments.gateways({})).data.find((row) => row.id === second.id),
+      ).toMatchObject({ key: 'test', integrationName: 'Test', pays: 'test' });
+
+      expect((await t.hr().payments.createInvoice(order('oldest'))).gatewayId).toBe(first?.id);
+      expect(
+        (await t.hr().payments.createInvoice({ ...order('named'), gatewayId: second.id }))
+          .gatewayId,
+      ).toBe(second.id);
 
       // Nothing to refund before it's paid.
       await expect(t.hr().payments.refund({ id, reason: 'x' })).rejects.toMatchObject({
@@ -183,7 +190,7 @@ describe('payments', { timeout: 240_000 }, () => {
         'succeeded',
       ]);
 
-      // The plugin heard about its own invoice: paid, then two refunds (not the failed one).
+      // The plugin heard about its own invoice: created, paid, then two refunds (not the failed one).
       await settle();
       expect(api.rejected).toEqual([]);
 
@@ -191,6 +198,7 @@ describe('payments', { timeout: 240_000 }, () => {
       const ours = api.received.filter((event) => event.payload.invoiceId === id);
 
       expect(ours.map((event) => event.type).toSorted((a, b) => a.localeCompare(b))).toEqual([
+        'core.payment.created',
         'core.payment.paid',
         'core.payment.refunded',
         'core.payment.refunded',
@@ -209,6 +217,26 @@ describe('payments', { timeout: 240_000 }, () => {
     } finally {
       await api.close();
     }
+  });
+
+  it('expires a pending invoice once its time is up, and announces it once', async () => {
+    const invoice = await t.hr().payments.createInvoice(order('late'));
+
+    expect((await t.hr().payments.getInvoice({ id: invoice.id })).status).toBe('pending');
+
+    await adminDb()
+      .update(paymentInvoices)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(paymentInvoices.id, invoice.id));
+
+    expect((await t.hr().payments.getInvoice({ id: invoice.id })).status).toBe('expired');
+    expect((await t.hr().payments.getInvoice({ id: invoice.id })).status).toBe('expired');
+
+    const expired = (await t.owner().events.list({ type: 'core.payment.expired' })).data;
+
+    expect(expired.map(({ entityType, entityId }) => [entityType, entityId])).toEqual([
+      ['payment_invoice', invoice.id],
+    ]);
   });
 
   it('refuses tampered or misdirected event deliveries', async () => {

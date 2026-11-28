@@ -14,17 +14,19 @@ COPY patches patches
 # Every workspace manifest, so the frozen lockfile matches.
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY packages/assistant-catalog/package.json packages/assistant-catalog/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
+COPY packages/integrations/package.json packages/integrations/
 COPY packages/lint/package.json packages/lint/
-COPY packages/payment-gateways/package.json packages/payment-gateways/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --filter @erxes/api...
 COPY tsconfig.base.json ./
+COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
 COPY packages/db packages/db
-COPY packages/payment-gateways packages/payment-gateways
+COPY packages/integrations packages/integrations
 COPY packages/plugin-sdk packages/plugin-sdk
 COPY apps/api apps/api
 RUN pnpm --filter @erxes/api build \
@@ -34,7 +36,13 @@ RUN pnpm --filter @erxes/api build \
 FROM node:26-bookworm-slim
 # The runtime only runs node; npm and corepack bring their own dependencies (and advisories).
 RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
-ENV NODE_ENV=production PORT=3400
+# Debian's fixes the base image doesn't carry yet (PAM: CVE-2025-6020).
+RUN apt-get update \
+  && apt-get install -y --only-upgrade --no-install-recommends libpam-modules libpam-modules-bin libpam-runtime libpam0g \
+  && rm -rf /var/lib/apt/lists/*
+# The build this image is (CI passes its commit): what a self-hosted server tells erxes.io it runs.
+ARG VERSION=dev
+ENV NODE_ENV=production PORT=3400 VERSION=$VERSION
 WORKDIR /app
 COPY --from=build --chown=node:node /out/package.json ./
 COPY --from=build --chown=node:node /out/node_modules ./node_modules

@@ -46,13 +46,29 @@ const SortField = z.union([DataExtensionFieldKey, z.enum(DATA_EXTENSION_SORT_COL
 
 const RecordInput = z.object({ objectKey: DataExtensionObjectKey, id: Id });
 
+/** A new record of a custom object. */
+export const DataExtensionRecordCreate = z.object({
+  objectKey: DataExtensionObjectKey,
+  values: DataExtensionValuesInput,
+  position: z.number().optional(),
+});
+
+/** Values to write on one of core's or a plugin's records; null clears one. */
+export const DataExtensionValuesUpdate = z.object({
+  recordType: DataExtensionRecordType,
+  recordId: Id,
+  values: DataExtensionValuesInput,
+});
+
 /** Records of a custom object: `objects.view` reads them, `objects.edit` and `.delete` change them. */
 export const dataRecordsContract = {
   list: base
     .route({
       method: 'GET',
       path: '/data-objects/{objectKey}/records',
-      summary: 'Records of an object. 400 INVALID_FILTER for a filter its fields can’t take',
+      summary: 'List a custom object’s records',
+      description:
+        'A page of an object’s records, searched, filtered and sorted by its fields; `deleted: true` lists the recycle bin. 400 INVALID_FILTER for a filter or sort its fields can’t take.',
     })
     .input(
       CursorQuery.extend({
@@ -69,7 +85,13 @@ export const dataRecordsContract = {
     )
     .output(cursorPageOf(DataExtensionRecord)),
   get: base
-    .route({ method: 'GET', path: '/data-objects/{objectKey}/records/{id}', summary: 'One record' })
+    .route({
+      method: 'GET',
+      path: '/data-objects/{objectKey}/records/{id}',
+      summary: 'Get a custom record',
+      description:
+        'One record of a custom object, with its values. 404 NOT_FOUND when there is none.',
+    })
     .input(RecordInput)
     .output(DataExtensionRecord),
   create: base
@@ -77,21 +99,19 @@ export const dataRecordsContract = {
       method: 'POST',
       path: '/data-objects/{objectKey}/records',
       successStatus: 201,
-      summary: 'Add a record. 409 TAKEN when a unique field’s value is',
+      summary: 'Add a custom record',
+      description:
+        'Adds a record to a custom object with its values. 400 INVALID_INPUT for a value its field refuses; 409 TAKEN when a unique field’s value is taken.',
     })
-    .input(
-      z.object({
-        objectKey: DataExtensionObjectKey,
-        values: DataExtensionValuesInput,
-        position: z.number().optional(),
-      }),
-    )
+    .input(DataExtensionRecordCreate)
     .output(DataExtensionRecord),
   update: base
     .route({
       method: 'PATCH',
       path: '/data-objects/{objectKey}/records/{id}',
-      summary: 'Change some values; a value of null clears it. 409 TAKEN as on create',
+      summary: 'Change a custom record',
+      description:
+        'Changes the values given and keeps the rest; null clears a value. 409 TAKEN when a unique field’s value is taken.',
     })
     .input(
       RecordInput.extend({ values: DataExtensionValuesInput, position: z.number().optional() }),
@@ -101,7 +121,9 @@ export const dataRecordsContract = {
     .route({
       method: 'DELETE',
       path: '/data-objects/{objectKey}/records/{id}',
-      summary: 'Move a record to the recycle bin for 30 days',
+      summary: 'Move a custom record to the recycle bin',
+      description:
+        'Moves a record to the recycle bin, where it stays 30 days before it is deleted for good.',
     })
     .input(RecordInput)
     .output(DataExtensionRecord),
@@ -109,7 +131,8 @@ export const dataRecordsContract = {
     .route({
       method: 'POST',
       path: '/data-objects/{objectKey}/records/{id}/restore',
-      summary: 'Bring a record back from the recycle bin',
+      summary: 'Restore a custom record',
+      description: 'Brings a record back from the recycle bin with its values and links.',
     })
     .input(RecordInput)
     .output(DataExtensionRecord),
@@ -117,6 +140,18 @@ export const dataRecordsContract = {
 
 /** Values by field id, as a plugin keeps them in its records' `custom_fields`. */
 const ValuesById = z.record(Id, z.json());
+
+/** A plugin record's values to check before the plugin saves them. */
+export const DataExtensionValuesCheck = z.object({
+  recordType: DataExtensionRecordType,
+  /** The values the record holds now, by field id; empty for a new record. */
+  current: ValuesById.default({}),
+  patch: z.record(Id, z.json().nullable()),
+  /** A new record: every value is checked, and defaults fill the rest. */
+  create: z.boolean().default(false),
+  /** The member who made the change: their role must be allowed to change these fields. */
+  userId: Id.optional(),
+});
 
 /**
  * Values on core's and plugins' records. They follow the record's own rights: reading needs
@@ -129,7 +164,9 @@ export const dataValuesContract = {
     .route({
       method: 'GET',
       path: '/data-values/{recordType}/{recordId}',
-      summary: 'A record’s values, with its formulas’ and rollups’; a plugin’s read from its view',
+      summary: 'Get a record’s field values',
+      description:
+        'The Data Extensions values of one of core’s or a plugin’s records that the caller may see, with its formulas’ and rollups’. A plugin’s are read from its view.',
     })
     .input(z.object({ recordType: DataExtensionRecordType, recordId: Id }))
     .output(DataExtensionHostValues),
@@ -137,7 +174,9 @@ export const dataValuesContract = {
     .route({
       method: 'POST',
       path: '/data-values/{recordType}/lookup',
-      summary: 'Values of up to 100 records at once, for a list’s columns',
+      summary: 'Look up field values of many records',
+      description:
+        'The values of up to 100 records of one record type at once, for a list’s columns.',
     })
     .input(
       z.object({ recordType: DataExtensionRecordType, recordIds: z.array(Id).min(1).max(100) }),
@@ -147,35 +186,20 @@ export const dataValuesContract = {
     .route({
       method: 'PATCH',
       path: '/data-values/{recordType}/{recordId}',
-      summary:
-        'Change some of a core record’s values; null clears one. 409 TAKEN for a unique value; 400 INVALID_REFERENCE for a plugin’s record type, whose plugin keeps the values',
+      summary: 'Change a core record’s field values',
+      description:
+        'Changes the values given on one of core’s records and keeps the rest; null clears a value. 409 TAKEN when a unique field’s value is taken; 400 INVALID_REFERENCE for a plugin’s record type, whose plugin keeps the values.',
     })
-    .input(
-      z.object({
-        recordType: DataExtensionRecordType,
-        recordId: Id,
-        values: DataExtensionValuesInput,
-      }),
-    )
+    .input(DataExtensionValuesUpdate)
     .output(DataExtensionHostValues),
   check: base
     .route({
       method: 'POST',
       path: '/data-values/{recordType}/check',
-      summary:
-        'A plugin checks its own record’s values before it saves them: the record’s values after `patch` (null clears one), checked and normalised. 400 INVALID_INPUT names each value that isn’t valid or field id that isn’t active; 403 NOT_ALLOWED for another’s record type',
+      summary: 'Check a plugin record’s field values',
+      description:
+        'A plugin checks its own record’s values before it saves them: answers the record’s values after `patch` (null clears one), checked and normalised. 400 INVALID_INPUT names each value that isn’t valid or field id that isn’t active; 403 NOT_ALLOWED for another plugin’s record type.',
     })
-    .input(
-      z.object({
-        recordType: DataExtensionRecordType,
-        /** The values the record holds now, by field id; empty for a new record. */
-        current: ValuesById.default({}),
-        patch: z.record(Id, z.json().nullable()),
-        /** A new record: every value is checked, and defaults fill the rest. */
-        create: z.boolean().default(false),
-        /** The member who made the change: their role must be allowed to change these fields. */
-        userId: Id.optional(),
-      }),
-    )
+    .input(DataExtensionValuesCheck)
     .output(z.object({ values: ValuesById })),
 };

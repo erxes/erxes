@@ -1,130 +1,102 @@
-import type { Integration as CustomRecord } from '@erxes/core-contract';
+import {
+  DecisionProvider,
+  type Integration as ListedIntegration,
+  IntegrationCategory,
+} from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
-import { type Icon, IconApi, IconCreditCard, IconReceiptTax } from '@tabler/icons-react';
-import { skipToken, useQuery } from '@tanstack/react-query';
-import { INTEGRATION_CATEGORIES, type TIntegrationTab, type TPluginIntegration } from 'erxes-ui';
-import { paths } from '~/lib/paths';
+import { useQuery } from '@tanstack/react-query';
+import type { ComponentType } from 'react';
+import type { TIntegrationTab } from 'erxes-ui';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
+import { initialMark, logoOf, packageUiOf } from './logos';
 
-export const CATEGORIES = [...INTEGRATION_CATEGORIES, 'custom'] as const;
+export const CATEGORIES = IntegrationCategory.options;
 
-export type Category = (typeof CATEGORIES)[number];
+export type Category = IntegrationCategory;
 
-interface Base {
-  key: string;
-  /** Translated as `name.<key>`, a plugin's in its namespace. */
-  name: string;
-  /** One line on its tile, translated as `catalog.<key>`, a plugin's in its namespace. */
-  summary: string;
-  icon: Icon;
-  category: Category;
-  /** The countries it serves; empty: any. Others list it under other regions. */
-  countries: readonly string[];
-}
+const DECISION_KEYS = new Set<string>(DecisionProvider.options);
 
-/**
- * The outside services core connects to for an organisation. An integration
- * set up here has its page (`IntegrationPage`, by kind); one that has its own
- * settings page elsewhere (payment gateways on Settings › Payments) links there,
- * so each is connected in one place. A new one adds an entry here. A plugin's
- * come from its `./config` (`integrations`), keyed `<plugin>.<key>`, with
- * core's header over the plugin's tabs.
- */
-export type Integration =
-  | (Base & { kind: 'ebarimt' })
-  | (Base & { kind: 'gateways'; to: string })
-  | (Base & { kind: 'plugin'; plugin: string; permission: string; tabs: TIntegrationTab[] })
-  | (Base & { kind: 'custom'; record: CustomRecord });
+export const categoriesOf = (
+  integration: Pick<ListedIntegration, 'key' | 'category' | 'plugin'>,
+): Category[] =>
+  !integration.plugin && DECISION_KEYS.has(integration.key) && integration.category !== 'decision'
+    ? [integration.category, 'decision']
+    : [integration.category];
 
-const INTEGRATIONS: Integration[] = [
-  {
-    kind: 'ebarimt',
-    key: 'ebarimt',
-    name: 'eBarimt',
-    summary: 'Mongolian tax receipts for paid invoices, sent through your PosAPI.',
-    icon: IconReceiptTax,
-    category: 'tax',
-    countries: ['MN'],
-  },
-  {
-    kind: 'gateways',
-    key: 'payment-gateways',
-    name: 'Payment gateways',
-    summary: 'QPay, Stripe, PayPal and more: connected on Settings › Payments.',
-    icon: IconCreditCard,
-    category: 'payments',
-    countries: [],
-    to: paths.settings.payments,
-  },
-];
-
-/** A plugin's tile as the catalog lists it, keyed by the plugin's name and its key. */
-const pluginIntegration = (
-  plugin: string,
-  { key, countries = [], ...tile }: TPluginIntegration,
-): Integration => ({
-  ...tile,
-  kind: 'plugin',
-  key: `${plugin.toLowerCase()}.${key}`,
-  plugin,
-  countries,
-});
-
-const CUSTOM_PREFIX = 'custom.';
-
-export const customIntegrationKey = (key: string) => `${CUSTOM_PREFIX}${key}`;
-
-export const isCustomKey = (key: string) => key.startsWith(CUSTOM_PREFIX);
-
-const customIntegration = (record: CustomRecord): Integration => ({
-  kind: 'custom',
-  key: customIntegrationKey(record.key),
-  name: record.name,
-  summary: record.hosts.join(', '),
-  icon: IconApi,
-  category: 'custom',
-  countries: [],
-  record,
-});
-
-/**
- * Core's integrations, then the installed plugins', then the custom ones, that the member may
- * open: gateways need payments.manage, a plugin's the permission it names, custom ones
- * integrations.manage. `loading` until the plugin UIs have loaded, `loadingCustom` the custom ones.
- */
-export const useIntegrations = () => {
-  const { plugins, loading } = usePlugins();
-  const can = useCan();
-
-  const custom = useQuery(
-    orpc.integrations.list.queryOptions({ input: can('integrations.manage') ? {} : skipToken }),
-  );
-
-  const integrations = [
-    ...INTEGRATIONS,
-    ...plugins.flatMap(({ config }) =>
-      config.integrations.map((tile) => pluginIntegration(config.name, tile)),
-    ),
-    ...(custom.data?.data ?? []).map(customIntegration),
-  ].filter((integration) => {
-    if (integration.kind === 'gateways') return can('payments.manage');
-
-    return integration.kind !== 'plugin' || can(integration.permission);
-  });
-
-  return {
-    integrations,
-    loading,
-    loadingCustom: custom.isPending,
-    error: custom.error,
-    refetch: custom.refetch,
-  };
+/** A listed integration with its address (`qpay`, `frontline.meta`) and what its UI adds. */
+type Listed = ListedIntegration & {
+  slug: string;
+  icon: ComponentType<{ className?: string }>;
+  logo: boolean;
+  tabs: TIntegrationTab[];
 };
 
-/** Where its tile goes: its own page, or the settings page it has elsewhere. */
-export const integrationPath = (integration: Integration) =>
-  integration.kind === 'gateways' ? integration.to : paths.settings.integration(integration.key);
+/** One with its tile, and the plugins' integrations that connect through it (`joined`). */
+export type Integration = Listed & { joined: Listed[] };
+
+const URGENCY = { 'not-set-up': 0, ready: 1, off: 2, connected: 3, attention: 4 } as const;
+
+/** Its own state, unless one that joins it is in a more urgent one (a broken page). */
+const statusWith = (host: Listed, joined: Listed[]): Listed['status'] => {
+  const state = [host, ...joined]
+    .map((item) => item.status.state)
+    .reduce((most, next) => (URGENCY[next] > URGENCY[most] ? next : most));
+
+  return { ...host.status, state };
+};
+
+/**
+ * Each plugin integration that names a `connection` joins that core integration: it has no tile,
+ * its tabs show on the core one's page, and its state counts towards the core one's.
+ */
+const joinHosts = (all: Listed[]) => {
+  const hostOf = (item: Listed) =>
+    item.connection ? all.find((host) => !host.plugin && host.key === item.connection) : undefined;
+
+  return all.flatMap((item): Integration[] => {
+    if (hostOf(item)) return [];
+
+    const joined = all.filter((other) => hostOf(other) === item);
+
+    return [{ ...item, status: statusWith(item, joined), joined }];
+  });
+};
+
+/** The tab of its host's page a joined integration's `tab` shows in. */
+export const joinedTab = (joined: Pick<Listed, 'slug'>, tab: string) =>
+  tab.startsWith(`${joined.slug}.`) ? tab : `${joined.slug}.${tab}`;
+
+export const useMayOpenIntegrations = () => {
+  const can = useCan();
+
+  return can('integrations.manage') || can('payments.manage') || can('assistant.manage');
+};
+
+export const useIntegrations = () => {
+  const { plugins, loading } = usePlugins();
+  const listed = useQuery(orpc.integrations.list.queryOptions());
+
+  const uiOf = (plugin: string, key: string) =>
+    plugins
+      .find(({ config }) => config.name.toLowerCase() === plugin)
+      ?.config.integrations.find((integration) => integration.key === key);
+
+  const all = (listed.data?.data ?? []).map((integration): Listed => {
+    const ui = integration.plugin ? uiOf(integration.plugin, integration.key) : undefined;
+    const logo = integration.plugin ? null : logoOf(integration.key);
+
+    return {
+      ...integration,
+      slug: integration.plugin ? `${integration.plugin}.${integration.key}` : integration.key,
+      icon: ui?.icon ?? logo ?? initialMark(integration.name),
+      logo: !ui?.icon && logo !== null,
+      tabs: (integration.plugin ? ui?.tabs : packageUiOf(integration.key)?.tabs) ?? [],
+    };
+  });
+
+  return { integrations: joinHosts(all), loading: loading || listed.isPending, listed };
+};
 
 /** Serves the organisation's country, or any country. */
 export const servesCountry = (integration: Integration, country: string | null) =>

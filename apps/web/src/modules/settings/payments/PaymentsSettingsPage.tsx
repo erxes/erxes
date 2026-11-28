@@ -2,16 +2,22 @@ import { paths } from '~/lib/paths';
 import { type Invoice, InvoiceStatus } from '@erxes/core-contract';
 import { IconCash } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Badge, PageContainer, PageHeader, ScrollArea, Select, useMoney } from 'erxes-ui';
+import {
+  Badge,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Select,
+  useMoney,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '@erxes/core-contract/client';
 import { useCan, useSession } from '~/modules/auth/session';
-import { AddGateway } from './AddGateway';
-import { GatewayList, NoGateways, PluginGatewaySettings } from './Gateways';
+import { ConnectGateways, Gateways, NoGateways } from './Gateways';
 import { InvoiceDetails } from './InvoiceDetails';
 import { STATUS_BADGE } from './invoiceStatus';
 
@@ -136,7 +142,7 @@ const CurrencyNote = () => {
   );
 };
 
-/** Settings › Payments: gateway connections, and invoices plugins made through them. */
+/** Settings › Payments: the connected gateways and which is the default, and the invoices made. */
 export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const canManage = useCan()('payments.manage');
@@ -156,7 +162,7 @@ export const PaymentsSettingsPage = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          <AddGateway />
+          <ConnectGateways />
         </PageHeader.End>
       </PageHeader>
       <ScrollArea className="flex-1">
@@ -172,15 +178,7 @@ export const PaymentsSettingsPage = () => {
               </section>
             }
           >
-            {({ data }) => (
-              <>
-                <section className="space-y-2">
-                  <h2 className="text-sm font-medium">{t('gateways', 'Gateways')}</h2>
-                  <GatewayList gateways={data} />
-                </section>
-                <PluginGatewaySettings gateways={data} />
-              </>
-            )}
+            {({ data }) => <Gateways gateways={data} />}
           </QueryState>
           <Invoices />
         </div>

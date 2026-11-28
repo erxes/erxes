@@ -1,8 +1,8 @@
 import type { Matcher, PropsBase } from 'react-day-picker';
 import { useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Calendar } from './calendar';
 import { Button } from './button';
+import { Calendar, preloadCalendar } from './on-demand';
 import { Popover } from './popover';
 import { useFormat } from '../lib/format';
 import { cn } from '../lib/utils';
@@ -121,6 +121,9 @@ const PickerPopover = ({
       <div
         ref={anchorRef}
         className="relative inline-block w-full"
+        // The calendar's code loads on its first use; start it before the click that opens it.
+        onPointerEnter={() => void preloadCalendar()}
+        onFocus={() => void preloadCalendar()}
         // Tabbing from the typed date to another field closes the calendar its click opened.
         onBlur={(e) => {
           if (open && e.relatedTarget && !isInside(e.relatedTarget)) onOpenChange(false);
@@ -159,7 +162,7 @@ const PickerButton = ({
   control: ReturnType<typeof useResolvedProps>['control']['button'];
   shown: string | undefined;
   placeholder: string;
-  variant: DatePickerProps['variant'];
+  variant: 'outline' | 'default' | 'ghost';
   disabled: boolean;
   className?: string;
 }) => {
@@ -256,6 +259,7 @@ export const DatePicker = (props: DatePickerProps) => {
       isDisabled={isDisabled}
       placeholder={o.placeholder}
       className={o.className}
+      flat={o.variant === 'field'}
       control={o.control.input}
       inputRef={picker.inputRef}
       onClear={picker.handleClear}
@@ -305,7 +309,7 @@ export const DatePicker = (props: DatePickerProps) => {
             control={o.control.button}
             shown={describeValue(normalizedValue, fmt.date, o.formatMultiple)}
             placeholder={o.placeholder}
-            variant={o.variant}
+            variant={o.variant === 'field' ? 'ghost' : o.variant}
             disabled={isDisabled}
             className={o.className}
           />

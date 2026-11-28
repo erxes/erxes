@@ -1,11 +1,10 @@
 import { paths } from '~/lib/paths';
 import { IconWebhook } from '@tabler/icons-react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { Empty, PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
+import { Empty, PageContainer, PageHeader, ScrollArea, AppBreadcrumb } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { ShownOnce } from '~/components/ShownOnce';
 import { orpc } from '@erxes/core-contract/client';

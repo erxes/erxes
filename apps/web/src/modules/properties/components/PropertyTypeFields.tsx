@@ -7,7 +7,7 @@ import type { PropertyFormApi } from './propertyFormApi';
 
 /** Says why only similar types are offered. */
 const PropertyTypeUsageHint = ({ usage, failed }: { usage?: FieldUsage; failed: boolean }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   if (failed) {
     return (
@@ -44,7 +44,7 @@ export const PropertyTypeField = ({
   /** Shown when editing: why the types are limited. */
   hint?: { usage?: FieldUsage; failed: boolean };
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <Form.Field
@@ -99,7 +99,7 @@ const NONE = 'none';
 
 /** A text field's format check (none, number, email or date). */
 export const PropertyValidationField = ({ form }: { form: PropertyFormApi }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const type = useWatch({ control: form.control, name: 'type' });
 
   if (type !== 'text' && type !== 'textarea') return null;

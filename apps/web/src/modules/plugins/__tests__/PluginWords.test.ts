@@ -32,6 +32,17 @@ const CONFIGS: Record<string, unknown> = {
         New: DealNew,
         detailPath: (id: string) => `/sales/deals/${id}`,
       },
+      // An action recorded as a record: its draft is headed by what it does.
+      {
+        contentType: 'sales:handover',
+        title: 'Handover',
+        newTitle: 'Hand the deal over',
+        icon: Icon,
+        Title: Name,
+        Detail,
+        New: DealNew,
+        detailPath: (id: string) => `/sales/handovers/${id}`,
+      },
     ],
   },
 };
@@ -51,7 +62,12 @@ const ANSWERS: Record<string, unknown> = {
           title: 'Sales',
           version: '1.0.0',
           translations: {
-            mn: { Sales: 'Борлуулалт', Deal: 'Хэлцэл', 'Deal created': 'Хэлцэл үүссэн' },
+            mn: {
+              Sales: 'Борлуулалт',
+              Deal: 'Хэлцэл',
+              'Deal created': 'Хэлцэл үүссэн',
+              'Hand the deal over': 'Хэлцлийг шилжүүлэх',
+            },
           },
         },
         installation: {
@@ -112,11 +128,11 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-/** A plugin's list, which opens a new deal. */
-const DealsList = () => {
+/** A plugin's list, which opens a new deal, or a new record of `contentType`. */
+const DealsList = ({ contentType = 'sales:deal' }: { contentType?: string }) => {
   const { openNew } = useOpenRecord();
 
-  return createElement('button', { type: 'button', onClick: () => openNew('sales:deal') }, 'Add');
+  return createElement('button', { type: 'button', onClick: () => openNew(contentType) }, 'Add');
 };
 
 const render = async (url: string, children: ReactNode) => {
@@ -189,6 +205,21 @@ describe('the side panel in Mongolian', () => {
 
     await vi.waitFor(() =>
       expect(panel(container)?.querySelector('h2')?.textContent).toBe('Шинэ хэлцэл'),
+    );
+  });
+
+  it('heads a draft with the type’s own new title, in the plugin’s words', async () => {
+    const container = await render(
+      '/sales',
+      createElement(DealsList, { contentType: 'sales:handover' }),
+    );
+
+    await act(async () => {
+      container.querySelector('button')?.click();
+    });
+
+    await vi.waitFor(() =>
+      expect(panel(container)?.querySelector('h2')?.textContent).toBe('Хэлцлийг шилжүүлэх'),
     );
   });
 });

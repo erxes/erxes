@@ -29,4 +29,13 @@ export interface ExampleCopy {
   automation: { name: string; description: string };
   companies: { name: string; industry: string; website: string; size: number; partner?: boolean }[];
   people: Person[];
+  /** The product categories' names and what the sample goods and services are called, then a number. */
+  catalog: {
+    products: string;
+    finishedGoods: string;
+    otherGoods: string;
+    services: string;
+    product: string;
+    service: string;
+  };
 }

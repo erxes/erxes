@@ -17,7 +17,7 @@ const OptionRow = ({
   held: number;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <div className="flex gap-2">
@@ -67,7 +67,7 @@ export const PropertyOptionsField = ({
   /** Records holding a saved option (0 for new ones). */
   heldCount: (value: string) => number;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const type = useWatch({ control: form.control, name: 'type' });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'options' });
 

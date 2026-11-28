@@ -10,13 +10,12 @@ import {
 } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type ContactScope, isLimited, type Lifetime } from './keyDraft';
+import { CONTACT_SCOPES, type ContactScope, isLimited, type Lifetime } from './keyDraft';
 import type { DraftProps } from './keyParts';
 import { useKeyLookups } from './useKeyLookups';
 
 const NEVER = 'never';
 const KEEP = 'keep';
-const SCOPES = ['all', 'own', 'units'] as const satisfies readonly ContactScope[];
 
 const lifetimeOf = (value: string): Lifetime =>
   API_KEY_LIFETIMES.find((days) => String(days) === value) ?? null;
@@ -45,7 +44,7 @@ const ContactLimits = ({ draft, onChange }: DraftProps) => {
           }
           className="flex-col sm:flex-row"
         >
-          {SCOPES.map((scope) => (
+          {CONTACT_SCOPES.map((scope) => (
             <ChoiceboxGroup.Item key={scope} value={scope}>
               <span className="text-sm font-medium">{labels[scope]}</span>
             </ChoiceboxGroup.Item>

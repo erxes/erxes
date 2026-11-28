@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { postOutbound } from '~/lib/outbound';
 import { sendEmail } from '~/modules/email/email';
 import { suppressedOf } from '~/modules/email/addresses';
+import { requireMailConnection } from '~/modules/email/mailConnections';
 import { requireReplyTo } from '~/modules/email/replyTos.service';
-import { requireDelivery } from '~/modules/email/sender';
+import { requireDelivery, requireFromAddress } from '~/modules/email/sender';
 import { notify } from '~/modules/notifications/notifications.service';
 import {
   checked,
@@ -12,11 +13,10 @@ import {
   idempotencyKey,
   list,
   parseBody,
+  recipientsOf,
   subjectFields,
   text,
 } from './context';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** An email step's Cc: up to 5 addresses, copied on each of its emails. */
 const CcList = z
@@ -122,11 +122,26 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
         description: 'Shown with the organisation’s name, e.g. “MSM Group · Support”',
       },
       {
+        key: 'mailConnection',
+        label: 'Send through',
+        type: 'mail_connection',
+        required: false,
+        description:
+          'A Mail service connection in Settings › Integrations, from its address; empty: Organization email',
+      },
+      {
+        key: 'fromEmail',
+        label: 'From address',
+        type: 'from_address',
+        required: false,
+        description:
+          'Through Organization email: any address on a domain your email provider verified; empty: the address in Settings › Organization email',
+      },
+      {
         key: 'replyTo',
         label: 'Replies go to',
         type: 'reply_to',
         required: false,
-        description: 'One of the verified addresses in Settings › Email sending',
       },
     ],
     outputs: [
@@ -145,15 +160,10 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
     // Queues the emails in the step's transaction; the email job sends them.
     run: async (ctx) => {
       const to = (text(ctx.input.to) ?? '').trim();
-      const subjectEmail = subjectFields(ctx)?.primaryEmail;
-      const addresses = to === 'subject' ? [subjectEmail ?? ''] : to.split(',');
+      const recipients = recipientsOf(ctx, 'to');
 
-      const recipients = addresses
-        .map((address) => address.trim())
-        .filter((address) => EMAIL.test(address))
-        .slice(0, 50);
-
-      if (!recipients.length) return { sent: 0, reason: 'no email address' };
+      if (!recipients.length)
+        return { sent: 0, held: 0, suppressed: 0, reason: 'no email address' };
 
       const data = {
         subject: (text(ctx.input.subject) ?? '').slice(0, 200),
@@ -161,10 +171,19 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       };
 
       const fromName = text(ctx.input.fromName)?.trim() || undefined;
+      const fromEmail = text(ctx.input.fromEmail)?.trim().toLowerCase() || undefined;
       const replyTo = text(ctx.input.replyTo)?.trim().toLowerCase() || undefined;
+      const connectionId = text(ctx.input.mailConnection)?.trim() || null;
 
-      // Email that can't be delivered, or a Reply-To that isn't verified (any more), fails the step.
-      await requireDelivery(ctx.tx);
+      // A connection that is off, email that can't be delivered, or a Reply-To or From that
+      // isn't verified (any more), fails the step.
+      if (connectionId) {
+        await requireMailConnection(ctx.tx, connectionId, ['mailConnection']);
+      } else {
+        await requireDelivery(ctx.tx);
+        await requireFromAddress(ctx.tx, fromEmail, ['fromEmail']);
+      }
+
       await requireReplyTo(ctx.tx, replyTo, ['replyTo']);
 
       // A Cc that is also a recipient, or suppressed, is left out.
@@ -189,11 +208,12 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
           to: address,
           template: 'message',
           fromName,
+          fromEmail,
           replyTo,
           cc: cc.length ? cc : undefined,
           data,
         })),
-        { source: 'automation', sourceId: ctx.automation.id },
+        { source: 'automation', sourceId: ctx.automation.id, connectionId },
       );
 
       const reasons = [
@@ -229,16 +249,15 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
       {
         key: 'headers',
         label: 'Headers',
-        type: 'json',
+        type: 'key_values',
         required: false,
-        placeholder: '{ "Authorization": "Bearer …" }',
       },
       {
         key: 'body',
         label: 'Body',
         type: 'json',
         required: false,
-        description: 'JSON; leave empty to send the event and the record',
+        description: 'Empty: sends the event and the record',
       },
     ],
     outputs: [

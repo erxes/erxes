@@ -3,6 +3,7 @@ import { caller, db, pluginInstallations, plugins, requestOrgId } from '@erxes/c
 import { and, eq, inArray } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
+import { licenseAccess, stricter } from '~/modules/license/license';
 import { accessOf, planOfPlugin } from '~/modules/saas/access';
 import { entitlementsOf } from '~/modules/saas/entitlements';
 
@@ -77,7 +78,7 @@ export const pluginCallToken = async (name: string) => {
   if (!apiUrl) throw fail('PLUGIN_UNREACHABLE', `${name} has no API address`);
 
   const plan = await entitlementsOf(orgId);
-  const access = accessOf(plan, name);
+  const access = stricter(accessOf(plan, name), await licenseAccess(name, target.manifest));
 
   if (access === 'off') throw fail('NOT_IN_PLAN', `${name} is not in this organisation's plan`);
 

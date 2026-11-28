@@ -1,11 +1,11 @@
-import { type ComponentType, Suspense, useSyncExternalStore } from 'react';
+import { type ComponentType, type ReactNode, Suspense, useSyncExternalStore } from 'react';
 
 /**
  * A component the host app (web) provides at startup and plugin UIs render: core's timeline,
  * a record's own page, a list's filter. erxes-ui is a Module Federation singleton, so every
  * plugin gets the host's. Outside erxes nothing is registered and it renders nothing.
  */
-export const hostComponent = <P extends object>() => {
+export const hostComponent = <P extends object>(fallback: ReactNode = null) => {
   let registered: ComponentType<P> | null = null;
   const listeners = new Set<() => void>();
 
@@ -29,7 +29,7 @@ export const hostComponent = <P extends object>() => {
 
     // The host may load it on first use; the rest of the page doesn't wait for it.
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={fallback}>
         <Component {...props} />
       </Suspense>
     );

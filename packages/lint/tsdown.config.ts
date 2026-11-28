@@ -12,14 +12,17 @@ export default defineConfig({
     'src/erxes/index.ts',
     'src/check-escapes.ts',
     'src/check-docs.ts',
+    'src/check-copies.ts',
   ],
   platform: 'node',
   fixedExtension: false,
   dts: true,
-  deps: { onlyImport: ['@shadcn/lint', 'vite-plus', 'zod'] },
+  deps: { onlyImport: ['@shadcn/lint', 'oxc-parser', 'vite-plus', 'zod'] },
   exports: {
     devExports: true,
+    // Sorted, as the formatter sorts package.json.
     bin: {
+      'erxes-check-copies': './src/check-copies.ts',
       'erxes-check-docs': './src/check-docs.ts',
       'erxes-check-escapes': './src/check-escapes.ts',
     },

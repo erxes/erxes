@@ -14,7 +14,8 @@ import {
 import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserAvatar } from '~/components/UserAvatar';
-import { actorLabel, pluginLabel } from '~/lib/members';
+import { pluginLabel } from '~/lib/members';
+import { useActorLabel } from '~/modules/activity/useActorLabel';
 import { auditSentence } from './auditSentence';
 
 const isWarning = (action: string) =>
@@ -74,6 +75,7 @@ const EntryRow = ({
 }) => {
   const { t, i18n } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const fmt = useFormat();
+  const actorLabel = useActorLabel();
 
   const who = actorLabel(
     entry.actorType,

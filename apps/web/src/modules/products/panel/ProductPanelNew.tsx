@@ -83,6 +83,8 @@ const useProductSave = (form: UseFormReturn<TNewProduct>) => {
         categoryId: values.categoryId,
         price: fromAmountInput(values.price || '0', values.currency),
         currency: values.currency,
+        // In the member's language ("ш"), not the column's English default.
+        unit: t('fields.unit-default', 'pcs'),
       });
 
       showCreated(created.id);

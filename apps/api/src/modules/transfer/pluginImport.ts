@@ -2,11 +2,11 @@ import type { PluginImportResult } from '@erxes/core-contract';
 import { type Db, importRows, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { inOrder } from '~/lib/sequence';
+import { inOrder, repeatWhile } from '~/lib/sequence';
 import { defineJob } from '~/modules/jobs/jobs';
 import { afterBatch, batchRows, importer, stepKey } from './importJobs';
-import { fail, type ImportRow, importOrThrow, type Row } from './importState';
-import { importBatch, pluginTransfer } from './pluginTransfer';
+import { BATCH, fail, type ImportRow, importOrThrow, type Row } from './importState';
+import { importBatch, type PluginTransfer, pluginTransfer } from './pluginTransfer';
 
 type Payload = { importId: string; after: string | number };
 
@@ -20,6 +20,36 @@ const valuesOf = (mapping: ImportRow['mapping'], cells: string[]) =>
     }),
   );
 
+/** The most rows a batch grows by to keep its last group whole: 50 batches. */
+const MAX_TAIL_ROUNDS = 50;
+
+/**
+ * A full batch and, with the type's `batchStart`, the rows after it up to the next row where
+ * that column is filled: the lines of the batch's last group.
+ */
+const withGroupTail = async (tx: Db, imp: ImportRow, spec: PluginTransfer, rows: Row[]) => {
+  const index = Object.entries(imp.mapping).find(([, key]) => key === spec.batchStart)?.[0];
+  const last = rows.at(-1);
+
+  if (index === undefined || rows.length < BATCH || !last) return rows;
+
+  const starts = (row: Row) => !!(row.cells[Number(index)] ?? '').trim();
+  const tail: Row[] = [];
+  let after = last.rowNumber;
+
+  await repeatWhile(MAX_TAIL_ROUNDS, async () => {
+    const next = await batchRows(tx, imp.id, after);
+    const start = next.findIndex(starts);
+
+    tail.push(...(start === -1 ? next : next.slice(0, start)));
+    after = next.at(-1)?.rowNumber ?? after;
+
+    return start === -1 && next.length === BATCH;
+  });
+
+  return [...rows, ...tail];
+};
+
 /** The batch to send, or null when the import is no longer at this step. */
 const readBatch = async (tx: Db, payload: Payload, dry: boolean) => {
   const imp = await importOrThrow(tx, payload.importId);
@@ -30,11 +60,13 @@ const readBatch = async (tx: Db, payload: Payload, dry: boolean) => {
 
   if (!member) return null;
 
+  const spec = await pluginTransfer(tx, imp.recordType);
+
   return {
     imp,
     member,
-    rows: await batchRows(tx, imp.id, payload.after),
-    spec: await pluginTransfer(tx, imp.recordType),
+    rows: await withGroupTail(tx, imp, spec, await batchRows(tx, imp.id, payload.after)),
+    spec,
   };
 };
 

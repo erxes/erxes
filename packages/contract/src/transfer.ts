@@ -13,7 +13,7 @@ import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from '@erxes/core-db/automationDefinition';
-import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf, readsByPost } from './common';
 import { PluginListType } from './values';
 
 /** Customers, leads, companies, or an installed plugin's records (`frontline:ticket`, its manifest's `transfer`). */
@@ -122,12 +122,31 @@ export const ImportRow = createSelectSchema(importRows, {
   action: () => z.enum(IMPORT_ROW_ACTIONS),
 }).pick({ rowNumber: true, cells: true, action: true, error: true, recordId: true });
 
+/** One value of a plugin list's own filter, as its address keeps it. */
+const ExportParam = z.union([
+  z.string().max(1000),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.array(z.string().max(1000)).max(1000),
+]);
+
 /** What an export reproduces: the list's filters as the member sees them. */
 export const ExportQuery = z.object({
   filter: ConditionGroup.nullable().optional(),
   search: z.string().trim().max(100).optional(),
   tagIds: z.array(Id).max(50).optional(),
   ownerId: Id.optional(),
+  /** Only these records: the rows the member selected. */
+  ids: z.array(Id).min(1).max(1000).optional(),
+  /**
+   * A plugin list's own filter (`{ journal: 'main', status: ['draft'] }`), passed to the plugin
+   * as it is; core's own lists filter by the fields above and ignore it.
+   */
+  params: z
+    .record(z.string().max(100), ExportParam)
+    .refine((params) => Object.keys(params).length <= 50, 'at most 50 params')
+    .optional(),
 });
 
 export type ExportQuery = z.infer<typeof ExportQuery>;
@@ -158,39 +177,35 @@ export const Export = createSelectSchema(exports, {
 
 export type Export = z.infer<typeof Export>;
 
-/** Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of lists. */
-const {
-  CROSS_SITE,
-  IMPORT_LOCKED,
-  INVALID_COLUMNS,
-  INVALID_MAPPING,
-  INVALID_OPTIONS,
-  INVALID_RECIPIENT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOT_UNDOABLE,
-  TAG_LIMIT,
-  UNSUPPORTED_FILE,
-  UPLOAD_CHANGED,
-  UPLOAD_INCOMPLETE,
-} = ERRORS;
+/** A list to export: its record type, file format, columns and filters. */
+export const ExportRequest = z.object({
+  recordType: TransferRecordType,
+  format: z.enum(EXPORT_FORMATS).default('csv'),
+  columns: z.array(z.string().max(100)).min(1).max(200),
+  query: ExportQuery.default({}),
+});
 
-/** What these procedures answer with besides the common errors. */
+export type ExportRequest = z.infer<typeof ExportRequest>;
+
+/**
+ * Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of
+ * lists. `base` adds what these procedures answer with besides the common errors.
+ */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  CROSS_SITE,
-  IMPORT_LOCKED,
-  INVALID_COLUMNS,
-  INVALID_MAPPING,
-  INVALID_OPTIONS,
-  INVALID_RECIPIENT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOT_UNDOABLE,
-  TAG_LIMIT,
-  UNSUPPORTED_FILE,
-  UPLOAD_CHANGED,
-  UPLOAD_INCOMPLETE,
+  CROSS_SITE: ERRORS.CROSS_SITE,
+  IMPORT_LOCKED: ERRORS.IMPORT_LOCKED,
+  INVALID_COLUMNS: ERRORS.INVALID_COLUMNS,
+  INVALID_MAPPING: ERRORS.INVALID_MAPPING,
+  INVALID_OPTIONS: ERRORS.INVALID_OPTIONS,
+  INVALID_RECIPIENT: ERRORS.INVALID_RECIPIENT,
+  INVALID_TAG: ERRORS.INVALID_TAG,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOT_UNDOABLE: ERRORS.NOT_UNDOABLE,
+  TAG_LIMIT: ERRORS.TAG_LIMIT,
+  UNSUPPORTED_FILE: ERRORS.UNSUPPORTED_FILE,
+  UPLOAD_CHANGED: ERRORS.UPLOAD_CHANGED,
+  UPLOAD_INCOMPLETE: ERRORS.UPLOAD_INCOMPLETE,
 });
 
 export const transferContract = {
@@ -198,7 +213,8 @@ export const transferContract = {
     .route({
       method: 'GET',
       path: '/transfer/types',
-      summary:
+      summary: 'List importable record types',
+      description:
         "The record types the member may import or export: core's, and those of installed plugins whose permission they hold",
     })
     .output(listOf(TransferType)),
@@ -206,16 +222,27 @@ export const transferContract = {
     .route({
       method: 'GET',
       path: '/transfer/columns',
-      summary: 'What imports can fill and exports can write, for a record type',
+      summary: 'List import and export columns',
+      description: 'What imports can fill and exports can write, for a record type',
     })
     .input(z.object({ recordType: TransferRecordType }))
     .output(listOf(TransferColumn)),
   imports: base
-    .route({ method: 'GET', path: '/imports', summary: 'Imports, newest first' })
+    .route({
+      method: 'GET',
+      path: '/imports',
+      summary: 'List imports',
+      description: 'Imports, newest first',
+    })
     .input(TransferPage)
     .output(cursorPageOf(Import)),
   import: base
-    .route({ method: 'GET', path: '/imports/{id}' })
+    .route({
+      method: 'GET',
+      path: '/imports/{id}',
+      summary: 'Get an import',
+      description: 'One import and how far it got',
+    })
     .input(z.object({ id: Id }))
     .output(Import),
   createImport: base
@@ -223,7 +250,8 @@ export const transferContract = {
       method: 'POST',
       path: '/imports',
       successStatus: 201,
-      summary:
+      summary: 'Start an import',
+      description:
         'Start an import from an uploaded CSV or Excel file (≤ 100,000 rows): it is read, then columns are suggested',
     })
     .input(z.object({ recordType: TransferRecordType, fileId: Id }))
@@ -232,7 +260,9 @@ export const transferContract = {
     .route({
       method: 'PATCH',
       path: '/imports/{id}',
-      summary: 'Set the column mapping and options (before it runs); the check result is cleared',
+      summary: 'Change an import’s mapping',
+      description:
+        'Set the column mapping and options (before it runs); the check result is cleared',
     })
     .input(
       z.object({
@@ -246,7 +276,10 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/check',
-      summary: 'A dry run: what each row would do (create, update, skip, error), changing nothing',
+      spec: readsByPost,
+      summary: 'Check an import',
+      description:
+        'A dry run: what each row would do (create, update, skip, error), changing nothing',
     })
     .input(z.object({ id: Id }))
     .output(Import),
@@ -254,7 +287,8 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/start',
-      summary: 'Run it, in the background, in batches',
+      summary: 'Run an import',
+      description: 'Run it, in the background, in batches',
     })
     .input(z.object({ id: Id }))
     .output(Import),
@@ -262,7 +296,9 @@ export const transferContract = {
     .route({
       method: 'POST',
       path: '/imports/{id}/undo',
-      summary: 'Remove the records it created (to the recycle bin), within 30 days; updates stay',
+      summary: 'Undo an import',
+      description:
+        'Remove the records it created (to the recycle bin), within 30 days; updates stay',
     })
     .input(z.object({ id: Id }))
     .output(Import),
@@ -270,7 +306,8 @@ export const transferContract = {
     .route({
       method: 'GET',
       path: '/imports/{id}/rows',
-      summary: 'Rows of an import, by what they did (errors first for the report)',
+      summary: 'List an import’s rows',
+      description: 'Rows of an import, by what they did (errors first for the report)',
     })
     .input(
       z.object({
@@ -281,7 +318,12 @@ export const transferContract = {
     )
     .output(z.object({ data: z.array(ImportRow).max(1000) })),
   exports: base
-    .route({ method: 'GET', path: '/exports', summary: 'Exports, newest first' })
+    .route({
+      method: 'GET',
+      path: '/exports',
+      summary: 'List exports',
+      description: 'Exports, newest first',
+    })
     .input(TransferPage)
     .output(cursorPageOf(Export)),
   createExport: base
@@ -289,16 +331,10 @@ export const transferContract = {
       method: 'POST',
       path: '/exports',
       successStatus: 202,
-      summary:
+      summary: 'Export a list',
+      description:
         'Export a list (its filters) to CSV or Excel in the background; a notification says when it is ready',
     })
-    .input(
-      z.object({
-        recordType: TransferRecordType,
-        format: z.enum(EXPORT_FORMATS).default('csv'),
-        columns: z.array(z.string().max(100)).min(1).max(200),
-        query: ExportQuery.default({}),
-      }),
-    )
+    .input(ExportRequest)
     .output(Export),
 };

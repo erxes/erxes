@@ -21,23 +21,20 @@ test('pickers open at the top with the current value marked, and data follows th
 
   await page.goto(`/automations/${automation.id}`);
 
-  // The event picker opens at the categories, not inside Payments, with the event marked.
   await page.getByRole('button', { name: /^When Invoice paid/i }).click();
   await page
     .getByRole('button', { name: /Invoice paid/ })
     .last()
     .click();
-  await expect(page.getByText('Categories')).toBeVisible();
-  await expect(page.getByRole('option', { name: /Payments/ })).toHaveAttribute(
+  const events = page.getByRole('dialog', { name: 'Choose an event' });
+  await expect(events.getByRole('button', { name: /^Payments/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(events.getByRole('option', { name: /^Invoice paid/ })).toHaveAttribute(
     'aria-current',
     'true',
   );
-  await expect(page.getByRole('option', { name: /^Invoice paid/ })).toHaveAttribute(
-    'aria-current',
-    'true',
-  );
-  // The picker is a dialog named for what it picks.
-  await expect(page.getByRole('dialog', { name: 'Choose an event' })).toBeVisible();
   await expectAccessible(page);
   await page.keyboard.press('Escape');
 
@@ -50,14 +47,16 @@ test('pickers open at the top with the current value marked, and data follows th
   await expect(page.getByRole('option', { name: /^Company created/ })).toBeVisible();
   await page.keyboard.press('Escape');
 
-  // The action picker opens at the top too.
   await page.getByRole('button', { name: /^Do this Notify team members/i }).click();
   await page
     .getByRole('button', { name: /Notify team members/ })
     .last()
     .click();
-  await expect(page.getByText('Categories')).toBeVisible();
-  await expect(page.getByRole('dialog', { name: 'Choose an action' })).toBeVisible();
+  await expect(
+    page
+      .getByRole('dialog', { name: 'Choose an action' })
+      .getByRole('option', { name: /^Notify team members/ }),
+  ).toHaveAttribute('aria-current', 'true');
   await page.keyboard.press('Escape');
 
   // The data picker offers the invoice's values under its name, and no customer it isn't about.

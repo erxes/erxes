@@ -240,4 +240,19 @@ describe('files', () => {
       actorId: 'hr',
     });
   });
+
+  it("gives a plugin a link browsers open on erxes's address, not the plugin's", async () => {
+    const done = await uploaded(t.member(), 'photo.txt', 'text/plain', 'pixels');
+
+    // A member's browser opens the signed path on core's own origin…
+    expect((await t.member().files.get({ id: done.id })).downloadUrl).toMatch(
+      /^\/core\/v1\/files\/signed\//,
+    );
+
+    // …a plugin hands it to browsers on its own, so it gets the address under APP_URL.
+    const link = (await t.hr().files.get({ id: done.id })).downloadUrl ?? '';
+
+    expect(link).toMatch(/^https?:\/\/[^/]+\/core\/v1\/files\/signed\//);
+    expect(await (await fetch(t.url(new URL(link).pathname))).text()).toBe('pixels');
+  });
 });

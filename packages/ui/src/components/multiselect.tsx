@@ -164,6 +164,8 @@ export const MultipleSelector = ({
   return (
     <Combobox.Root
       multiple
+      // Typing highlights the first match, so Enter picks it instead of submitting the form.
+      autoHighlight
       items={choices}
       value={value}
       onValueChange={(next: Choice[]) =>

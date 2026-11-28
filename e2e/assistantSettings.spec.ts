@@ -1,5 +1,34 @@
-import { openAssistant } from './assistantPanel';
+import { connectFakeModel, openAssistant } from './assistantPanel';
 import { expect, expectAccessible, test } from './fixtures';
+
+test('an admin picks the default model, and the assistant starts on it', async ({ page, api }) => {
+  await connectFakeModel({ api });
+  await page.goto('/settings');
+  await page.getByRole('link', { name: 'Default model' }).click();
+
+  await expect(page).toHaveURL(/\/settings\/assistant-model$/);
+  await expect(page.getByText('Connected: Kimi Moonshot API.')).toBeVisible();
+  await expectAccessible(page);
+
+  const picker = page.getByRole('button', { name: 'Default model' });
+
+  await picker.click();
+  await page.getByRole('option', { name: 'Kimi K3' }).click();
+  await expect(page.getByText('Default model saved')).toBeVisible();
+  await expect(picker).toHaveText('Kimi Moonshot API · Kimi K3');
+  await expect.poll(async () => (await api.assistant.settings()).defaultModel).toBe('kimi-k3');
+
+  const panel = await openAssistant(page, '/settings/assistant-model');
+
+  await expect(
+    panel.getByRole('button', { name: 'Model: Kimi Moonshot API · Kimi K3' }),
+  ).toBeVisible();
+
+  await picker.click();
+  await page.getByRole('option', { name: 'Automatic' }).click();
+  await expect(picker).toHaveText('Automatic');
+  await expect.poll(async () => (await api.assistant.settings()).defaultProvider).toBeNull();
+});
 
 test('an admin turns on code mode and sees what a program may do', async ({ page }) => {
   await page.goto('/settings');
@@ -36,7 +65,7 @@ test('a member picks how the assistant looks, and it looks that way in the panel
     'aria-current',
     'page',
   );
-  await expect(sidebar.getByRole('link', { name: 'Provider keys' })).not.toHaveAttribute(
+  await expect(sidebar.getByRole('link', { name: 'Default model' })).not.toHaveAttribute(
     'aria-current',
   );
   await expect(page.getByRole('img', { name: 'Preview' })).toBeVisible();

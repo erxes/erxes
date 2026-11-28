@@ -1,7 +1,11 @@
-import { type AppliesTo, logicShows, groupApplies } from '@erxes/core-contract';
+import {
+  type AppliesTo,
+  logicShows,
+  groupApplies,
+  type PluginValuesCheck,
+} from '@erxes/core-contract';
 import {
   caller,
-  type PluginRecordType,
   type PropertyContentType,
   type CustomValue,
   type Db,
@@ -213,16 +217,7 @@ export const applyCustomFields = async (
  * `fields.check`: a plugin's record values after `patch`, for the plugin to save (it keeps the
  * values of its own record types; core stores nothing).
  */
-export const checkPluginValues = async (
-  client: Db,
-  input: {
-    contentType: PluginRecordType;
-    current: Record<string, CustomValue>;
-    patch: Record<string, CustomValue | null>;
-    appliesTo: AppliesTo;
-    create: boolean;
-  },
-) => {
+export const checkPluginValues = async (client: Db, input: PluginValuesCheck) => {
   const { plugin } = caller('plugin');
 
   if (!input.contentType.startsWith(`${plugin}.`))

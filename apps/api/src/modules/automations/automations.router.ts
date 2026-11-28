@@ -9,12 +9,15 @@ import {
   pauseAutomation,
   removeAutomation,
   restoreVersion,
+  saveSample,
   updateAutomation,
 } from '~/modules/automations/automations.service';
 import { automationCatalog } from '~/modules/automations/automationCatalog';
+import { listDecisionModels } from '~/modules/automations/decisionModels';
 import { automationFields, definitionProblems } from '~/modules/automations/definitions';
 import { testAutomation } from '~/modules/automations/dryRun';
 import {
+  automationOutputs,
   automationStats,
   cancelAutomationRun,
   getRun,
@@ -22,10 +25,10 @@ import {
   retryAutomationRun,
   startAutomation,
 } from '~/modules/automations/runs.service';
-import { scoped } from '~/orpc';
+import { scoped, unscoped } from '~/orpc';
 
 export const automationsRouter = {
-  catalog: scoped.automations.catalog.handler(() => automationCatalog(db())),
+  catalog: scoped.automations.catalog.handler(({ input }) => automationCatalog(db(), input)),
   list: scoped.automations.list.handler(({ input }) => listAutomations(db(), input)),
   get: scoped.automations.get.handler(({ input }) => getAutomation(db(), input.id)),
   create: scoped.automations.create.handler(({ input }) => createAutomation(db(), input)),
@@ -44,13 +47,20 @@ export const automationsRouter = {
   test: scoped.automations.test.handler(({ input: { id, ...rest } }) =>
     testAutomation(db(), id, rest),
   ),
+  saveSample: scoped.automations.saveSample.handler(({ input: { id, ...request } }) =>
+    saveSample(db(), id, request),
+  ),
+  outputs: scoped.automations.outputs.handler(({ input }) => automationOutputs(db(), input.id)),
   stats: scoped.automations.stats.handler(({ input }) => automationStats(db(), input.id)),
   versions: scoped.automations.versions.handler(({ input }) => listVersions(db(), input.id)),
   restoreVersion: scoped.automations.restoreVersion.handler(({ input }) =>
     restoreVersion(db(), input.id, input.version),
   ),
   templates: scoped.automations.templates.handler(() => ({ data: AUTOMATION_TEMPLATES })),
-  fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input.subject)),
+  fields: scoped.automations.fields.handler(({ input }) => automationFields(db(), input)),
+  decisionModels: unscoped.automations.decisionModels.handler(({ input }) =>
+    listDecisionModels(input),
+  ),
   runs: scoped.automations.runs.handler(({ input }) => listRuns(db(), input)),
   run: scoped.automations.run.handler(({ input }) => getRun(db(), input.runId)),
   retryRun: scoped.automations.retryRun.handler(({ input }) =>

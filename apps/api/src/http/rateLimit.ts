@@ -3,6 +3,7 @@ import { getTableName } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { RateLimiterPostgres, RateLimiterRes } from 'rate-limiter-flexible';
 import { fail } from '~/http/errors';
+import { sha256 } from '~/lib/crypto';
 
 /**
  * A fixed-window count per key in `core_rate_limits`, so every replica shares one count. Counts
@@ -67,6 +68,22 @@ const rateLimit = (options: {
 
 const ip = (req: Request) => req.ip ?? req.socket.remoteAddress ?? 'unknown';
 
+/** What apps acting as members (MCP clients) may do. */
+const appLimits = () => ({
+  /** MCP calls: 600 a minute per token or key, whoever holds it. */
+  mcp: rateLimit({
+    windowSeconds: 60,
+    max: 600,
+    key: (req) => `mcp:${sha256(req.headers.authorization ?? ip(req)).slice(0, 32)}`,
+  }),
+  /** Apps registering themselves for OAuth: 20 an hour per address. */
+  oauthRegister: rateLimit({
+    windowSeconds: 3600,
+    max: 20,
+    key: (req) => (req.method === 'POST' ? `oauth-register:${ip(req)}` : null),
+  }),
+});
+
 /** The app's limits, on the database `configureDb()` set up. */
 export const createRateLimits = () => ({
   /** Sign-in and first-run setup: 20 a minute per address. */
@@ -84,6 +101,16 @@ export const createRateLimits = () => ({
     max: 10,
     key: (req) => (req.method === 'POST' ? `customer-code:${ip(req)}` : null),
   }),
+  /**
+   * Portal contact form messages: 10 a minute per address (each email address on a portal is
+   * limited to 5 an hour too, `portalContact`).
+   */
+  portalContact: rateLimit({
+    windowSeconds: 60,
+    max: 10,
+    key: (req) => (req.method === 'POST' ? `portal-contact:${ip(req)}` : null),
+  }),
+  ...appLimits(),
   /** Plugin token requests: 120 a minute per address. */
   token: rateLimit({
     windowSeconds: 60,
@@ -119,11 +146,35 @@ export const createRateLimits = () => ({
       key: (req) => `email-events:${ip(req)}`,
     }),
   ],
-  integrationIncoming: [
+  automationHooks: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 3000,
+      key: (req) => `automation-hooks:${ip(req)}`,
+    }),
     rateLimit({
       windowSeconds: 60,
       max: 600,
-      key: (req) => `integration-incoming:${ip(req)}:${String(req.params.id)}`,
+      key: (req) => `automation-hooks:${ip(req)}:${String(req.params.id)}`,
+    }),
+  ],
+  appWideHooks: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 6000,
+      key: (req) => `app-wide-hooks:${ip(req)}:${String(req.params.app)}`,
+    }),
+  ],
+  appHooks: [
+    rateLimit({
+      windowSeconds: 60,
+      max: 6000,
+      key: (req) => `app-hooks:${ip(req)}`,
+    }),
+    rateLimit({
+      windowSeconds: 60,
+      max: 1200,
+      key: (req) => `app-hooks:${ip(req)}:${String(req.params.id)}`,
     }),
   ],
   /** Uploads through signed links: 120 a minute per address. */

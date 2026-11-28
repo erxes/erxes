@@ -1,4 +1,4 @@
-import type { CursorQuery, Notification } from '@erxes/core-contract';
+import type { CursorQuery, MarkReadInput, Notification } from '@erxes/core-contract';
 import { caller, type Db, notifications } from '@erxes/core-db';
 import { and, count, eq, inArray, isNotNull, isNull, like, sql } from 'drizzle-orm';
 import { notFound } from '~/http/errors';
@@ -77,10 +77,7 @@ export const unreadCount = async (client: Db, source?: string) => {
 };
 
 /** Marks the given (or all) of the member's notifications read or unread. */
-export const markRead = async (
-  client: Db,
-  input: { ids?: string[]; source?: string; read: boolean },
-) => {
+export const markRead = async (client: Db, input: MarkReadInput) => {
   if (input.ids && !input.ids.length) {
     return { updated: 0 };
   }

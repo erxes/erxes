@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Migrates a throwaway database on DATA_TEST_URL's server, runs the tenancy
-# guard (tools/check-rls.sql) on it and fails on any problem it lists.
+# guard (tools/check-rls.sql) and the vault guard (tools/check-secrets.sql) on it
+# and fails on any problem they list.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -26,4 +27,13 @@ if [[ -n "$problems" ]]; then
   exit 1
 fi
 
+problems=$(psql "$url" -qXAt -v ON_ERROR_STOP=1 -f tools/check-secrets.sql)
+
+if [[ -n "$problems" ]]; then
+  echo "$problems"
+  echo 'Vault guard failed (tools/check-secrets.sql).'
+  exit 1
+fi
+
 echo 'Every tenant table has forced row level security and only the core_tenant policy, every other table is listed, every name starts with core_.'
+echo 'Every column that keeps a secret id drops the secret with its row.'

@@ -88,7 +88,7 @@ for (const [, components = '', screen = ''] of pages) {
 
 // Where each export is listed, by the folder under packages/ui/src it lives in. First match wins.
 const sections = [
-  ['Page', ['modules/layout/', 'modules/navigation-menu/']],
+  ['Page', ['modules/layout/', 'modules/navigation-menu/', 'modules/report/']],
   [
     'Lists',
     [
@@ -96,10 +96,14 @@ const sections = [
       'modules/board/',
       'modules/record-list/',
       'modules/record-table/',
+      'modules/tree/',
       'modules/filter/',
     ],
   ],
-  ['Records', ['modules/record-panel/', 'modules/records/', 'utils/record-timeline']],
+  [
+    'Records',
+    ['modules/record-panel/', 'modules/records/', 'utils/record-timeline', 'utils/session'],
+  ],
   [
     'Fields and pickers',
     [

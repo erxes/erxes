@@ -177,6 +177,25 @@ describe('SaaS: what a Stripe customer grants', { timeout: 300_000 }, () => {
     expect(await refresh().then(() => hrPlan())).toMatchObject({ bundles: [TEN] });
   });
 
+  it("reads new.erxes.io's own catalog kinds (xos_bundle, xos_plugin) like erxes.io's", async () => {
+    saas.setStripe(
+      subscribed(
+        'active',
+        bundleItem(TEN, 'agent,frontline', 'frontline:plus', 'xos_bundle'),
+        pluginItem('sales', 'pro', 1, undefined, 'xos_plugin'),
+      ),
+    );
+
+    expect((await refresh()).body).toMatchObject({
+      plugins: [
+        { code: 'agent', tier: 'pro', status: 'active' },
+        { code: 'frontline', tier: 'plus', status: 'active' },
+        { code: 'sales', tier: 'pro', status: 'active' },
+      ],
+      bundles: [TEN],
+    });
+  });
+
   it('a workspace without a Stripe customer has no plugins, and Stripe is not asked', async () => {
     const calls = saas.calls.length;
 

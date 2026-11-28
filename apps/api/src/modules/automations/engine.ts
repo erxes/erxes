@@ -3,20 +3,20 @@ import {
   automationRunSteps,
   automations,
   type Db,
-  runAs,
+  enterScope,
   withOrg,
 } from '@erxes/core-db';
-import { isIntegrationType } from '@erxes/core-contract';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { defineJob } from '~/modules/jobs/jobs';
+import type { AutomationStep } from '@erxes/core-contract';
 import { coreAction } from './actions/catalog';
-import type { CallContext } from './actions/context';
-import { integrationForAction, runIntegrationAction } from '~/modules/integrations/actions';
+import { type CallContext, text } from './actions/context';
 import { pluginForAction, runPluginAction } from './actions/plugin';
 import { automationChecker } from './conditionCheck';
-import { rememberActionOutput } from './eventData';
-import { type Cursor, nextCursor, sameCursor, stepAt } from './cursor';
+import { type Cursor, enterArm, nextCursor, sameCursor, stepAt } from './cursor';
+import { type DecideStep, decide, decisionOutput } from './decide';
+import { rememberActionOutput, rememberStepOutput } from './eventData';
 import {
   ADVANCE_QUEUE,
   automationMember,
@@ -26,12 +26,13 @@ import {
   finishRun,
   lockLiveRun,
   queueAdvance,
+  type RunContext,
   RunPayload,
   type RunRow,
   subjectRefOf,
 } from './runs';
 import { subjectOf } from './subjects';
-import { armConditions, renderInput, runStep } from './steps';
+import { armConditions, finalError, renderInput, runStep } from './steps';
 
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
 const MAX_STEPS_PER_RUN = 500;
@@ -82,96 +83,182 @@ const CallPayload = RunPayload.extend({ cursor: z.array(z.union([z.number(), z.s
  * The call runs outside any transaction, so a slow remote holds no database
  * connection or row lock; then a short transaction records the answer and
  * moves the run on, unless it was cancelled or moved meanwhile. A retry sends
- * the same `Idempotency-Key`, so the remote does the work once.
+ * the same `Idempotency-Key`, so the remote does the work once. A slow action's call
+ * (`slowCallJob`) may take ten minutes and is never retried.
  */
-export const callJob = defineJob({
-  queue: 'automation.call',
-  payload: CallPayload,
-  timeoutSeconds: 120,
-  retry: RETRY,
-  async handle(job) {
-    const startedAt = new Date();
-    const prepared = await withOrg(job.orgId, (tx) => prepareCall(tx, job.orgId, job.payload));
+const callStep = async (job: {
+  orgId: string;
+  payload: z.output<typeof CallPayload>;
+  attempt: number;
+}) => {
+  const startedAt = new Date();
+  const prepared = await withOrg(job.orgId, (tx) => prepareCall(tx, job.orgId, job.payload));
 
-    if (!prepared) return;
+  if (!prepared) return;
 
-    const output = await prepared.call();
+  const answer = await prepared.call().catch((error: unknown) => {
+    const final = finalError(error);
 
-    await withOrg(job.orgId, async (tx) => {
-      if ('learnsOutput' in prepared) await rememberActionOutput(tx, prepared.step.action, output);
+    if (!final) throw error;
 
-      const run = await lockLiveRun(tx, job.payload.runId);
+    return { final };
+  });
 
-      if (run?.status !== 'running' || !sameCursor(run.cursor, job.payload.cursor)) return;
+  if ('final' in answer) {
+    await withOrg(job.orgId, (tx) => failRun(tx, job, answer.final));
 
-      const subject = await subjectOf(tx, run.subjectType, run.subjectId);
+    return;
+  }
 
-      await continueAfter(
-        tx,
-        run,
-        prepared.step,
-        { ...run.context, subject },
-        {
-          input: prepared.input,
-          output,
-          next: nextCursor(prepared.steps, run.cursor),
-          attempt: job.attempt,
-          startedAt,
-        },
-      );
-    });
-  },
-  onDead: (job, error, tx) => failRun(tx, job, error),
-});
+  const { output, next } = answer;
+
+  await withOrg(job.orgId, async (tx) => {
+    await prepared.remember?.(tx, output);
+
+    const run = await lockLiveRun(tx, job.payload.runId);
+
+    if (run?.status !== 'running' || !sameCursor(run.cursor, job.payload.cursor)) return;
+
+    const subject = await subjectOf(tx, run.subjectType, run.subjectId);
+
+    await continueAfter(
+      tx,
+      run,
+      prepared.step,
+      { ...run.context, subject },
+      { input: prepared.input, output, next, attempt: job.attempt, startedAt },
+    );
+  });
+};
+
+const callJobOn = (queue: string, timeoutSeconds: number, retry: typeof RETRY) =>
+  defineJob({
+    queue,
+    payload: CallPayload,
+    timeoutSeconds,
+    retry,
+    handle: callStep,
+    onDead: (job, error, tx) => failRun(tx, job, error),
+  });
+
+export const callJob = callJobOn('automation.call', 120, RETRY);
+
+export const slowCallJob = callJobOn('automation.call.slow', 600, { ...RETRY, attempts: 1 });
+
+const isSlow = (step: AutomationStep) => {
+  const action = step.type === 'action' ? coreAction(step.action) : undefined;
+
+  return action !== undefined && 'call' in action && action.slow === true;
+};
+
+interface PreparedCall {
+  step: AutomationStep;
+  input: unknown;
+  call(): Promise<{ output: unknown; next: Cursor | null }>;
+  remember?(tx: Db, output: unknown): Promise<void>;
+}
+
+interface CallSetup {
+  orgId: string;
+  run: RunRow;
+  automation: typeof automations.$inferSelect;
+  steps: AutomationStep[];
+  context: RunContext;
+  member: Awaited<ReturnType<typeof automationMember>>;
+}
+
+const prepareAction = async (
+  tx: Db,
+  { orgId, run, automation, steps, context, member }: CallSetup,
+  step: Extract<AutomationStep, { type: 'action' }>,
+): Promise<PreparedCall> => {
+  const ctx: CallContext = {
+    orgId,
+    automation: { id: automation.id, name: automation.name },
+    run: { id: run.id, depth: run.depth },
+    step: { id: step.id },
+    subject: subjectRefOf(run),
+    input: await renderInput(tx, step.input, context),
+    context,
+  };
+
+  const { send, learns } = await actionSender(tx, ctx, step.action);
+
+  return {
+    step,
+    input: ctx.input,
+    call: async () => ({
+      output: await enterScope(member, orgId, send),
+      next: nextCursor(steps, run.cursor),
+    }),
+    async remember(rememberTx, output) {
+      await rememberStepOutput(rememberTx, automation.id, step, output);
+
+      if (learns) await rememberActionOutput(rememberTx, step.action, output);
+    },
+  };
+};
+
+const actionSender = async (tx: Db, ctx: CallContext, type: string) => {
+  const action = coreAction(type);
+
+  if (action && 'call' in action) return { send: () => action.call(ctx), learns: false };
+
+  const plugin = await pluginForAction(tx, type);
+
+  return { send: () => runPluginAction(ctx, plugin, type), learns: true };
+};
+
+const prepareDecision = async (
+  tx: Db,
+  { orgId, run, steps, context, member }: CallSetup,
+  step: DecideStep,
+): Promise<PreparedCall> => {
+  const filled = await renderInput(tx, { question: step.question, state: step.state }, context);
+
+  const asked = {
+    question: text(filled.question) ?? '',
+    state: text(filled.state) || JSON.stringify({ subject: context.subject, event: context.event }),
+  };
+
+  return {
+    step,
+    input: asked,
+    call: async () => {
+      const decision = await enterScope(member, orgId, () => decide(orgId, step, asked));
+      const { arm, output } = decisionOutput(step, decision);
+
+      return { output, next: enterArm(steps, run.cursor, arm) };
+    },
+  };
+};
 
 /** What a call needs, read in a short transaction; null when the run moved on. */
-const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; cursor: Cursor }) => {
+const prepareCall = async (
+  tx: Db,
+  orgId: string,
+  payload: { runId: string; cursor: Cursor },
+): Promise<PreparedCall | null> => {
   const run = await lockLiveRun(tx, payload.runId);
 
   if (run?.status !== 'running' || !sameCursor(run.cursor, payload.cursor)) return null;
 
   const loaded = await loadStep(tx, run);
 
-  if (loaded?.step.type !== 'action') return null;
+  if (!loaded || (loaded.step.type !== 'action' && loaded.step.type !== 'decide')) return null;
 
-  const { automation, step } = loaded;
+  const { automation, step, steps } = loaded;
 
-  const context = {
-    ...run.context,
-    subject: await subjectOf(tx, run.subjectType, run.subjectId),
-  };
-
-  const member = await automationMember(orgId, automation.activatedBy);
-
-  const ctx: CallContext = {
+  const setup: CallSetup = {
     orgId,
-    automation: { id: automation.id, name: automation.name },
-    run: { id: run.id },
-    step: { id: step.id },
-    subject: subjectRefOf(run),
-    input: renderInput(step.input, context),
-    context,
+    run,
+    automation,
+    steps,
+    context: { ...run.context, subject: await subjectOf(tx, run.subjectType, run.subjectId) },
+    member: await automationMember(orgId, automation.activatedBy),
   };
 
-  const prepared = { step, steps: loaded.steps, input: ctx.input };
-  const action = coreAction(step.action);
-
-  if (action && 'call' in action)
-    return { ...prepared, call: () => runAs(member, () => action.call(ctx)) };
-
-  if (isIntegrationType(step.action)) {
-    const program = await integrationForAction(tx, step.action);
-
-    return { ...prepared, call: () => runAs(member, () => runIntegrationAction(ctx, program)) };
-  }
-
-  const plugin = await pluginForAction(tx, step.action);
-
-  return {
-    ...prepared,
-    call: () => runAs(member, () => runPluginAction(ctx, plugin, step.action)),
-    learnsOutput: true,
-  };
+  return step.type === 'decide' ? prepareDecision(tx, setup, step) : prepareAction(tx, setup, step);
 };
 
 /**
@@ -194,7 +281,7 @@ export const advanceJob = defineJob({
     if (!run || !loaded) return;
 
     if ((await stepCount(tx, run.id)) >= MAX_STEPS_PER_RUN) {
-      await finishRun(tx, run.id, 'failed', { error: `Stopped after ${MAX_STEPS_PER_RUN} steps` });
+      await failRun(tx, job, `Stopped after ${MAX_STEPS_PER_RUN} steps`);
 
       return;
     }
@@ -229,7 +316,7 @@ export const advanceJob = defineJob({
 
     if (outcome.kind === 'call') {
       // Keyed by this job: its retries queue one call, a later retry of the run a new one.
-      await callJob.enqueue(tx, {
+      await (isSlow(step) ? slowCallJob : callJob).enqueue(tx, {
         orgId: run.orgId,
         payload: { runId: run.id, cursor: run.cursor },
         dedupeKey: `call:${job.id}`,

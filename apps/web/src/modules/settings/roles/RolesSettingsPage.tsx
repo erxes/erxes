@@ -2,10 +2,18 @@ import { paths } from '~/lib/paths';
 import type { PermissionInfo, Role } from '@erxes/core-contract';
 import { IconLock, IconPlus, IconShieldHalf, IconUsers } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, cn, PageContainer, PageHeader, ScrollArea, useConfirm, useToast } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  useConfirm,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';

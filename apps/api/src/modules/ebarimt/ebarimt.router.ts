@@ -1,5 +1,4 @@
 import { db } from '@erxes/core-db';
-import { receiptPlugins } from '~/modules/ebarimt/plugins';
 import { findCompany } from '~/modules/ebarimt/posapi';
 import {
   listPrintTemplates,
@@ -10,23 +9,26 @@ import {
 } from '~/modules/ebarimt/printTemplates.service';
 import { emailReceipt } from '~/modules/ebarimt/receiptEmail.service';
 import { listReceipts, requestSync, setBuyer } from '~/modules/ebarimt/receipts.service';
+import { recordReceipt } from '~/modules/ebarimt/recordReceipt.service';
 import {
-  getSettings,
-  removeSettings,
-  saveSettings,
+  configs,
+  createConfig,
+  removeConfig,
   testConnection,
+  updateConfig,
 } from '~/modules/ebarimt/settings.service';
 import { scoped, unscoped } from '~/orpc';
 
 export const ebarimtRouter = {
-  settings: scoped.ebarimt.settings.handler(() => getSettings(db())),
-  plugins: scoped.ebarimt.plugins.handler(() => receiptPlugins(db())),
-  saveSettings: scoped.ebarimt.saveSettings.handler(({ input }) => saveSettings(db(), input)),
-  removeSettings: scoped.ebarimt.removeSettings.handler(() => removeSettings(db())),
+  configs: scoped.ebarimt.configs.handler(() => configs(db())),
+  createConfig: scoped.ebarimt.createConfig.handler(({ input }) => createConfig(db(), input)),
+  updateConfig: scoped.ebarimt.updateConfig.handler(({ input }) => updateConfig(db(), input)),
+  removeConfig: scoped.ebarimt.removeConfig.handler(({ input }) => removeConfig(db(), input.id)),
   testConnection: unscoped.ebarimt.testConnection.handler(({ input }) =>
     testConnection(input.posApiUrl),
   ),
   receipts: scoped.ebarimt.receipts.handler(({ input }) => listReceipts(db(), input)),
+  recordReceipt: scoped.ebarimt.recordReceipt.handler(({ input }) => recordReceipt(db(), input)),
   sync: scoped.ebarimt.sync.handler(({ input }) => requestSync(db(), input.invoiceId)),
   setBuyer: unscoped.ebarimt.setBuyer.handler(({ input }) => setBuyer(input)),
   findCompany: unscoped.ebarimt.findCompany.handler(({ input }) => findCompany(input.no)),

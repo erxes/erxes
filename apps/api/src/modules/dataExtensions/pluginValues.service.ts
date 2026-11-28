@@ -1,4 +1,5 @@
-import { DataExtensionValues } from '@erxes/core-contract';
+import { DataExtensionValues, type DataExtensionValuesCheck } from '@erxes/core-contract';
+import type { z } from 'zod';
 import { type Caller, caller, type Db, roles, runAs, users } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -71,16 +72,7 @@ const AT_PATCH: ValuePath = (field) => ['patch', field.id];
  * be allowed to change what the patch changes. 400 INVALID_INPUT names each value that isn't
  * valid, 403 NOT_ALLOWED for another's record type.
  */
-export const checkValues = async (
-  client: Db,
-  input: {
-    recordType: string;
-    current: Values;
-    patch: Values;
-    create?: boolean;
-    userId?: string;
-  },
-) => {
+export const checkValues = async (client: Db, input: z.infer<typeof DataExtensionValuesCheck>) => {
   await assertOwnType(client, input.recordType);
 
   const fields = await fieldsOf(client, input.recordType);
@@ -97,7 +89,7 @@ export const checkValues = async (
   }
 
   const sides = await relationSides(client, fields);
-  const create = input.create === true;
+  const create = input.create;
   const written = byKey(byId, create ? { ...input.current, ...input.patch } : input.patch);
   const check = () => prepareValues(client, fields, sides, written, create, AT_PATCH);
 

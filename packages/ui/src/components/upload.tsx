@@ -200,7 +200,7 @@ const UploadButton = ({
   ...props
 }: ButtonProps & { children?: ReactNode } & React.RefAttributes<HTMLButtonElement>) => {
   const { chooseFile } = useUploadContext();
-  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+  const { t } = useTranslation('ui', { keyPrefix: 'upload' });
 
   return (
     <Button ref={ref} className={cn('flex', className)} {...props} onClick={chooseFile}>

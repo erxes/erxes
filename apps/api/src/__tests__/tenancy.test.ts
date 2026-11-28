@@ -1,4 +1,12 @@
-import { db, rootDb, runtimeRole, savepoint, withOrg, withSystem } from '@erxes/core-db';
+import {
+  blockedIndexFunctions,
+  db,
+  rootDb,
+  runtimeRole,
+  savepoint,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { adminDb, dbError, useTestDatabase } from './db';
@@ -33,6 +41,24 @@ describe('tenant isolation (database)', () => {
 
   it('runs as a role that does not bypass row level security', async () => {
     expect((await runtimeRole()).bypassesRls).toBe(false);
+  });
+
+  it('serves email lookups from their index under row level security', async () => {
+    // lower, LIKE and ILIKE are LEAKPROOF, so their conditions may run before the policies.
+    expect(await blockedIndexFunctions()).toEqual([]);
+
+    const plan = await withOrg(t.ids.org, async (tx) => {
+      // A few rows would be read whole; the planner still shows which index it may use.
+      await tx.execute(sql`set local enable_seqscan = off`);
+
+      const { rows } = await tx.execute(
+        sql`explain select id from core_customers where lower(primary_email) = lower('ann@acme.mn')`,
+      );
+
+      return rows.map((row) => Object.values(row).join('')).join('\n');
+    });
+
+    expect(plan).toContain('core_customers_org_primary_email_key');
   });
 
   it('fails closed outside a scope, and keeps each scope to its organisation', async () => {

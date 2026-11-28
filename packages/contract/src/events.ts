@@ -150,7 +150,8 @@ export const eventsContract = {
       method: 'POST',
       path: '/events',
       successStatus: 201,
-      summary:
+      summary: 'Publish events',
+      description:
         'Publish events (plugins only, up to 100). Types start with the plugin name; a dedupe key makes retries safe',
     })
     .input(z.object({ events: z.array(EventInput).min(1).max(100) }))
@@ -159,7 +160,8 @@ export const eventsContract = {
     .route({
       method: 'GET',
       path: '/events',
-      summary: 'Recent events of the organisation (owners and admins)',
+      summary: 'List recent events',
+      description: 'Recent events of the organisation (owners and admins)',
     })
     .input(
       CursorQuery.extend({
@@ -175,7 +177,8 @@ export const eventsContract = {
     .route({
       method: 'GET',
       path: '/events/failures',
-      summary:
+      summary: 'List failed events',
+      description:
         'Events that could not be handled: retrying with backoff, or dead after the last attempt (owners and admins)',
     })
     .input(z.object({ status: EventFailureStatus.optional() }))
@@ -190,7 +193,8 @@ export const eventsContract = {
     .route({
       method: 'POST',
       path: '/events/failures/retry',
-      summary: 'Try failed events again now (owners and admins)',
+      summary: 'Retry failed events',
+      description: 'Try failed events again now (owners and admins)',
     })
     .input(
       z.object({
@@ -203,7 +207,8 @@ export const eventsContract = {
     .route({
       method: 'POST',
       path: '/events/failures/dismiss',
-      summary: 'Give up on failed events (owners and admins)',
+      summary: 'Dismiss failed events',
+      description: 'Give up on failed events (owners and admins)',
     })
     .input(z.object({ failures: z.array(FailureRef).min(1).max(200) }))
     .output(z.object({ dismissed: z.int() })),

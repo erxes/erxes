@@ -15,7 +15,7 @@ import {
 } from '@erxes/core-db';
 import { eq, inArray } from 'drizzle-orm';
 import { can } from '~/http/access';
-import { fail, notFound } from '~/http/errors';
+import { fail, notAllowed, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { logger } from '~/logger';
 import { installedPlugin } from '~/modules/plugins/installedPlugin';
@@ -135,9 +135,6 @@ export const onTimeline = async <T>(
 
   return withOrg(orgId, work);
 };
-
-const notAllowed = (permission: string) =>
-  fail('NOT_ALLOWED', "Your role doesn't allow this", { permission });
 
 /**
  * May this caller see (and note on) this timeline? Customers and companies

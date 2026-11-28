@@ -1,6 +1,6 @@
 {
   "name": "@erxes/lint",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": false,
   "description": "The lint rules erxes core and its plugins share, as one Vite+ (oxlint) preset",
   "license": "MIT",
@@ -10,6 +10,7 @@
     "directory": "packages/lint"
   },
   "bin": {
+    "erxes-check-copies": "./src/check-copies.ts",
     "erxes-check-docs": "./src/check-docs.ts",
     "erxes-check-escapes": "./src/check-escapes.ts"
   },
@@ -23,6 +24,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./anti-slop": "./src/anti-slop/index.ts",
+    "./check-copies": "./src/check-copies.ts",
     "./check-docs": "./src/check-docs.ts",
     "./check-escapes": "./src/check-escapes.ts",
     "./erxes": "./src/erxes/index.ts",
@@ -31,12 +33,14 @@
   },
   "publishConfig": {
     "bin": {
+      "erxes-check-copies": "./dist/check-copies.js",
       "erxes-check-docs": "./dist/check-docs.js",
       "erxes-check-escapes": "./dist/check-escapes.js"
     },
     "exports": {
       ".": "./dist/index.js",
       "./anti-slop": "./dist/anti-slop/index.js",
+      "./check-copies": "./dist/check-copies.js",
       "./check-docs": "./dist/check-docs.js",
       "./check-escapes": "./dist/check-escapes.js",
       "./erxes": "./dist/erxes/index.js",
@@ -52,6 +56,7 @@
   },
   "dependencies": {
     "@shadcn/lint": "0.2.5",
+    "oxc-parser": "^0.158.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

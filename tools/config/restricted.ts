@@ -75,6 +75,14 @@ const bcrypt = {
   message: 'Use verifyPassword from apps/api/src/lib/crypto.ts.',
 };
 
+// A secret is sealed in one place, the vault (core_secrets), so one key and one cipher cover all.
+const sealing = {
+  name: '~/lib/crypto',
+  importNames: ['encrypt', 'decrypt'],
+  message:
+    'Save a secret with saveSecret and read it with readSecret or openSecret (apps/api/src/modules/secrets/vault.ts).',
+};
+
 // Packages are shared with plugins and never reach into an app.
 const noApps = {
   group: ['@erxes/api', '@erxes/api/*', '@erxes/web', '@erxes/web/*', '**/apps/**'],
@@ -132,22 +140,53 @@ const noTimers = {
   message: 'Periodic work is a schedule: defineSchedule() in apps/api/src/modules/jobs.',
 };
 
+const ownConnection = {
+  group: [
+    '@erxes/core-db',
+    '@erxes/core-db/*',
+    '@erxes/core-contract/client',
+    'pg',
+    'pg/*',
+    'drizzle-orm',
+    'drizzle-orm/*',
+    'node:http',
+    'node:https',
+    'node:net',
+    'undici',
+    '~/*',
+  ],
+  message:
+    'An integration gets its own values and the fetch in ClientOptions (gatewayHttp from @erxes/plugin-sdk/integrations), never a database or another way out.',
+};
+
+const apiPaths = [routerBuilder, ...decided, ...nodeCrypto, bcrypt];
+
 export const restrictedRules = {
   'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }],
 } satisfies OxlintConfig['rules'];
 
 export const restrictedOverrides = [
   {
-    files: [
-      'packages/contract/**',
-      'packages/db/**',
-      'packages/plugin-sdk/**',
-      'packages/payment-gateways/**',
-    ],
+    files: ['packages/contract/**', 'packages/db/**', 'packages/plugin-sdk/**'],
     rules: {
       'no-restricted-imports': [
         'error',
         { paths: [routerBuilder, ...decided], patterns: [noApps] },
+      ],
+    },
+  },
+  {
+    files: ['packages/integrations/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { paths: [routerBuilder, ...decided], patterns: [noApps, ownConnection] },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'fetch', message: ownConnection.message },
+        { name: 'XMLHttpRequest', message: ownConnection.message },
+        { name: 'WebSocket', message: ownConnection.message },
       ],
     },
   },
@@ -205,13 +244,14 @@ export const restrictedOverrides = [
     // pg-boss schedules.
     files: ['apps/api/**'],
     rules: {
-      'no-restricted-imports': [
-        'error',
-        { paths: [routerBuilder, ...decided, ...nodeCrypto, bcrypt] },
-      ],
+      'no-restricted-imports': ['error', { paths: [...apiPaths, sealing] }],
       'no-restricted-properties': ['error', oneTransaction],
       'no-restricted-globals': ['error', noTimers],
     },
+  },
+  {
+    files: ['apps/api/src/modules/secrets/vault.ts'],
+    rules: { 'no-restricted-imports': ['error', { paths: apiPaths }] },
   },
   {
     // A live stream's heartbeat and member re-check belong to its connection and end with it.

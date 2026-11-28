@@ -35,6 +35,13 @@ const ActorSelect = ({ value, onChange }: { value: string; onChange: (id: string
   );
 };
 
+/** Where a change can come from: core, the MCP server, or a plugin. */
+const sourcesOf = (plugins: { config: { name: string } }[]) => [
+  'core',
+  'mcp',
+  ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase())),
+];
+
 /** Search, area, source, who, dates and IP; `total` on the right. */
 export const AuditFilterBar = ({
   filters,
@@ -47,7 +54,8 @@ export const AuditFilterBar = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const { plugins } = usePlugins();
-  const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
+
+  const sources = sourcesOf(plugins);
 
   return (
     <PageSubHeader>

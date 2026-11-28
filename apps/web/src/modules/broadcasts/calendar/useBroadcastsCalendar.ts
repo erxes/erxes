@@ -67,7 +67,8 @@ export const useBroadcastsCalendar = () => {
 
   const query = useInfiniteQuery(
     orpc.broadcasts.list.infiniteOptions({
-      ...forwardPaging(PAGE),
+      // It loads every page of the month anyway: coming back shows them all at once.
+      ...forwardPaging(PAGE, { keepPages: true }),
       input: (page) => ({ ...page, ...shared, ...range }),
       select: flattenPages,
       placeholderData: keepPreviousData,

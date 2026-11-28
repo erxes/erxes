@@ -1,3 +1,4 @@
+import { DEFAULT_CODE_MESSAGES, fillCodeMessage } from '@erxes/core-contract';
 import { z } from 'zod';
 
 const Button = z.object({ label: z.string(), link: z.string() });
@@ -48,10 +49,13 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string(),
     }),
   }),
-  /** A plugin's notification to a customer; the link opens the plugin's customer app. */
+  /** A plugin's notification to a customer; the link opens the portal, whose sender name it has. */
   z.object({
     to: z.string(),
     template: z.literal('customer_notification'),
+    fromName: z.string().optional(),
+    fromEmail: z.string().optional(),
+    replyTo: z.string().optional(),
     data: z.object({
       organization: z.string(),
       title: z.string(),
@@ -65,11 +69,23 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('reply_to_confirmation'),
     data: z.object({ organization: z.string(), link: z.string(), days: z.number() }),
   }),
-  /** A customer's one-time sign-in code. */
+  /**
+   * A customer's one-time sign-in code, from the portal's sender name, From and Reply-To, in its words
+   * (`subject`, `body`: `fillCodeMessage`) or the default.
+   */
   z.object({
     to: z.string(),
     template: z.literal('sign_in_code'),
-    data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
+    fromName: z.string().optional(),
+    fromEmail: z.string().optional(),
+    replyTo: z.string().optional(),
+    data: z.object({
+      organization: z.string(),
+      code: z.string(),
+      minutes: z.number(),
+      subject: z.string().optional(),
+      body: z.string().optional(),
+    }),
   }),
   /** An email rendered already (a broadcast's test copy). */
   z.object({
@@ -77,6 +93,8 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('rendered'),
     replyTo: z.string().optional(),
     fromName: z.string().optional(),
+    /** An address on a verified domain (`requireFromAddress`), else the settings' own. */
+    fromEmail: z.string().optional(),
     data: z.object({ subject: z.string(), html: z.string(), text: z.string() }),
     attachments: z.array(InlineImage).max(5).optional(),
     /** Stored files attached, read when it is sent. */
@@ -88,6 +106,8 @@ export const EmailPayload = z.discriminatedUnion('template', [
     template: z.literal('message'),
     replyTo: z.string().optional(),
     fromName: z.string().optional(),
+    /** An address on a verified domain (`requireFromAddress`), else the settings' own. */
+    fromEmail: z.string().optional(),
     /** Copied on every email of the step (automations). */
     cc: z.array(z.email()).max(5).optional(),
     data: z.object({ subject: z.string(), body: z.string(), button: Button.optional() }),
@@ -195,13 +215,13 @@ const contentOf = (email: Exclude<EmailPayload, { template: 'rendered' }>): Emai
     case 'sign_in_code': {
       const { data } = email;
 
+      const values = { code: data.code, minutes: data.minutes, portal: data.organization };
+      const { emailSubject, emailBody } = DEFAULT_CODE_MESSAGES.en;
+
       return {
-        subject: `${data.code} is your ${data.organization} code`,
+        subject: data.subject ?? fillCodeMessage(emailSubject, values),
         heading: data.code,
-        lines: [
-          `Enter this code to sign in to ${data.organization}. It works once, for ${data.minutes} minutes.`,
-          "If you didn't ask for it, ignore this email: nobody can sign in without the code.",
-        ],
+        lines: (data.body ?? fillCodeMessage(emailBody, values)).split(/\n{2,}/),
         button: null,
       };
     }

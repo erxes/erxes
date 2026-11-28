@@ -7,19 +7,24 @@ import {
   Badge,
   Button,
   cn,
+  Collapsible,
   Empty,
   RelativeDateDisplay,
   ScrollArea,
   useToast,
   useFormat,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
-import { runQuery, runsQuery } from './automationQueries';
+import { catalogQuery, runQuery, runsQuery } from './automationQueries';
+import { BuilderContext } from './builder/BuilderContext';
+import { findStep } from './builder/flowModel';
+import { JsonView } from './builder/JsonView';
+import { useStepText } from './builder/useStepText';
 
 const STATUS_VARIANT = {
   running: 'info',
@@ -31,6 +36,28 @@ const STATUS_VARIANT = {
 
 const STEP_VARIANT = { succeeded: 'success', failed: 'destructive' } as const;
 
+const useStartedBy = () => {
+  const { t } = useTranslation('automations');
+  const triggers = useQuery(catalogQuery()).data?.triggers ?? [];
+
+  return (run: AutomationRun) => {
+    if (run.eventId.startsWith('run:')) return t('started-by.automation', 'Another automation');
+
+    switch (run.eventType) {
+      case 'webhook':
+        return t('started-by.webhook', 'Webhook call');
+      case 'manual':
+        return t('started-by.manual', 'Started by hand');
+      case 'schedule':
+        return t('started-by.schedule', 'Schedule');
+      case 'date':
+        return t('started-by.date', 'Date');
+      default:
+        return triggers.find((item) => item.type === run.eventType)?.label ?? run.eventType;
+    }
+  };
+};
+
 const When = ({ value }: { value: string }) => (
   <RelativeDateDisplay value={value} render={<span />}>
     <RelativeDateDisplay.Value value={value} />
@@ -39,6 +66,10 @@ const When = ({ value }: { value: string }) => (
 
 const StepEntry = ({ step }: { step: RunStep }) => {
   const { t } = useTranslation('automations');
+  const { steps } = useContext(BuilderContext);
+
+  const title =
+    useStepText(findStep(steps, step.stepId))?.title ?? t(`step-type.${step.type}`, step.type);
 
   return (
     <li className="rounded-md border p-2 text-sm">
@@ -50,10 +81,9 @@ const StepEntry = ({ step }: { step: RunStep }) => {
               : 'secondary'
           }
         >
-          {step.status}
+          {t(`status.${step.status}`, step.status)}
         </Badge>
-        <span className="font-mono text-xs">{step.type}</span>
-        <span className="text-xs text-muted-foreground">#{step.stepId}</span>
+        <span className="min-w-0 truncate font-medium">{title}</span>
         {step.attempt > 1 && (
           <span className="text-xs text-muted-foreground">
             · {t('attempt', 'attempt {{n}}', { n: step.attempt })}
@@ -65,14 +95,17 @@ const StepEntry = ({ step }: { step: RunStep }) => {
       </div>
       {step.error && <p className="mt-1 font-mono text-xs text-destructive-text">{step.error}</p>}
       {(step.input !== null || step.output !== null) && (
-        <details className="mt-1">
-          <summary className="cursor-pointer text-xs text-muted-foreground">
+        <Collapsible className="mt-1">
+          <Collapsible.Trigger
+            render={<Button variant="ghost" size="sm" tone="muted" className="-ml-2" />}
+          >
+            <Collapsible.TriggerIcon className="size-3" />
             {t('details', 'Input and output')}
-          </summary>
-          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-2xs">
-            {JSON.stringify({ input: step.input, output: step.output }, null, 2)}
-          </pre>
-        </details>
+          </Collapsible.Trigger>
+          <Collapsible.Panel>
+            <JsonView value={{ input: step.input, output: step.output }} />
+          </Collapsible.Panel>
+        </Collapsible>
       )}
     </li>
   );
@@ -132,6 +165,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
   const { t } = useTranslation('automations');
   const fmt = useFormat();
   const canManage = useCan()('automations.manage');
+  const startedBy = useStartedBy();
 
   const detail = useQuery(runQuery(run));
 
@@ -153,7 +187,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
           </Link>
         )}
         <span className="text-xs text-muted-foreground">
-          {t('version', 'version {{version}}', { version: run.version })} · {run.eventType}
+          {t('version', 'version {{version}}', { version: run.version })} · {startedBy(run)}
         </span>
         {canManage && <RunActions run={run} />}
       </div>
@@ -204,6 +238,7 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
   const { t } = useTranslation('automations');
   const [selected, setSelected] = useState<string | null>(null);
   const current = runs.find((run) => run.id === selected) ?? runs[0];
+  const startedBy = useStartedBy();
 
   return (
     <div className="flex min-h-0 flex-1">
@@ -227,7 +262,7 @@ const RunList = ({ runs }: { runs: AutomationRun[] }) => {
                     {run.subjectType
                       ? (run.subjectName ??
                         t('deleted-subject', 'A deleted {{type}}', { type: run.subjectType }))
-                      : run.eventType}
+                      : startedBy(run)}
                   </span>
                   <span className="ml-auto text-xs text-muted-foreground">
                     <When value={run.startedAt} />

@@ -1,4 +1,10 @@
-import { FIELD_TYPE_FAMILIES, type FieldLogic } from '@erxes/core-contract';
+import {
+  FIELD_TYPE_FAMILIES,
+  type FieldCreate,
+  type FieldListQuery,
+  type FieldLogic,
+  type FieldUpdate,
+} from '@erxes/core-contract';
 import { type Db, type PropertyContentType, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -23,8 +29,6 @@ import {
   selectFields,
   usageOf,
 } from './fieldRows';
-
-type FieldValidation = NonNullable<FieldRow['validation']>;
 
 const TEXT_TYPES: readonly FieldType[] = ['text', 'textarea'];
 
@@ -64,10 +68,7 @@ const checkGroup = async (
   }
 };
 
-export const listFields = async (
-  client: Db,
-  input: { contentType: PropertyContentType; groupId?: string; archived?: boolean },
-) => {
+export const listFields = async (client: Db, input: FieldListQuery) => {
   assertPluginReads(input.contentType);
 
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
@@ -137,24 +138,18 @@ const checkLogic = async (
   }
 };
 
-export const createField = async (
-  client: Db,
-  input: {
-    contentType: PropertyContentType;
-    label: string;
-    type: FieldType;
-    options?: string[];
-    groupId?: string | null;
-    code?: string | null;
-    description?: string | null;
-    icon?: string | null;
-    validation?: FieldValidation | null;
-    isVisible?: boolean;
-    isRequired?: boolean;
-    isVisibleToCreate?: boolean;
-    logic?: FieldLogic | null;
-  },
-) => {
+/** Customers fill in customer fields only: anything else they can't reach. */
+const customersFill = (contentType: PropertyContentType, customerEditable = false) => {
+  if (customerEditable && contentType !== 'customer') {
+    throw fail('INVALID_INPUT', 'Only customer fields can be filled in by customers', {
+      issues: [{ path: ['customerEditable'], message: 'Customer fields only' }],
+    });
+  }
+
+  return customerEditable;
+};
+
+export const createField = async (client: Db, input: FieldCreate) => {
   await assertPropertyType(client, input.contentType);
   await checkGroup(client, input.contentType, input.groupId);
   await checkLogic(client, input.contentType, null, input.logic);
@@ -178,6 +173,7 @@ export const createField = async (
         isVisible: input.isVisible ?? true,
         isRequired: input.isRequired ?? false,
         isVisibleToCreate: input.isVisibleToCreate ?? true,
+        customerEditable: customersFill(input.contentType, input.customerEditable),
         logic: input.logic ?? null,
         order,
       })
@@ -187,21 +183,7 @@ export const createField = async (
   return fieldById(client, row.id);
 };
 
-interface FieldChanges {
-  label?: string;
-  type?: FieldType;
-  options?: string[];
-  order?: number;
-  groupId?: string | null;
-  code?: string | null;
-  description?: string | null;
-  icon?: string | null;
-  validation?: FieldValidation | null;
-  isVisible?: boolean;
-  isRequired?: boolean;
-  isVisibleToCreate?: boolean;
-  logic?: FieldLogic | null;
-}
+type FieldChanges = Omit<FieldUpdate, 'id'>;
 
 /** The type, options and validation a field ends up with; a type change must keep stored values readable. */
 const typeChange = async (client: Db, field: FieldRow, input: FieldChanges) => {
@@ -240,6 +222,8 @@ export const updateField = async (client: Db, id: string, input: FieldChanges) =
 
   const typed = await typeChange(client, field, input);
   const { code, description, icon, ...rest } = input;
+
+  customersFill(field.contentType, input.customerEditable);
 
   if (input.groupId !== undefined && input.groupId !== field.groupId) {
     await checkGroup(client, field.contentType, input.groupId);

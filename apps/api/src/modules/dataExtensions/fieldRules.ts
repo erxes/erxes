@@ -1,4 +1,4 @@
-import { dataExtensionValueSchema, type RecordType } from '@erxes/core-contract';
+import { dataExtensionValueSchema, type ExtendableRecordType } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -99,7 +99,7 @@ export const extendableType = async (
   client: Db,
   recordType: string,
   field = 'recordType',
-): Promise<RecordType> => {
+): Promise<ExtendableRecordType> => {
   const key = customKeyOf(recordType);
 
   if (key) await activeObject(client, key);

@@ -3,7 +3,7 @@ import { LookupPicker, pluginJson } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import type { Picks } from './pickRules';
-import { Field } from './triggerFields';
+import { Field } from './Field';
 import type { FieldInfo } from './useAutomationFields';
 
 const PluginRecords = z.array(z.object({ value: z.string(), label: z.string() }));

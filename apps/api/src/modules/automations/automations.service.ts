@@ -13,8 +13,12 @@ import { wholeList } from '~/lib/keyset';
 import { orgTimezone } from '~/lib/orgTime';
 import { notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { listenFor } from '~/modules/integrations/subscriptions';
 import { checkDefinition } from './definitions';
-import { firstRunAt, triggerKey } from './triggers';
+import { forgetAutomationData } from './eventData';
+import { saveHookSample, withHookUrls } from './hooks';
+import { triggerKey } from './triggerKey';
+import { firstRunAt } from './triggers';
 
 type AutomationRow = typeof automations.$inferSelect;
 
@@ -66,15 +70,28 @@ export const listAutomations = async (client: Db, query: { status?: AutomationRo
       .limit(limit),
   );
 
-  return { data: rows };
+  return { data: await withHookUrls(client, rows) };
 };
 
 export const getAutomation = async (client: Db, id: string) => {
-  const [row] = await selectAutomations(client).where(eq(automations.id, id)).limit(1);
+  const [row] = await withHookUrls(
+    client,
+    await selectAutomations(client).where(eq(automations.id, id)).limit(1),
+  );
 
   if (!row) throw notFound('Automation');
 
   return row;
+};
+
+export const saveSample = async (
+  client: Db,
+  id: string,
+  request: { body: unknown; query: Record<string, unknown> },
+) => {
+  await saveHookSample(client, await findAutomation(client, id), request);
+
+  return getAutomation(client, id);
 };
 
 export const createAutomation = async (
@@ -131,6 +148,9 @@ export const updateAutomation = async (
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));
+
+  if (published) await listenFor(client, id, published);
+
   await recordAudit(client, {
     action: 'automation.updated',
     targetType: 'automation',
@@ -161,6 +181,7 @@ export const activateAutomation = async (client: Db, id: string) => {
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id));
+  await listenFor(client, id, definition);
   await recordAudit(client, {
     action: 'automation.activated',
     targetType: 'automation',
@@ -180,6 +201,7 @@ export const pauseAutomation = async (client: Db, id: string) => {
     .update(automations)
     .set({ status: 'paused', nextRunAt: null, updatedAt: sql`now()` })
     .where(eq(automations.id, id));
+  await listenFor(client, id, null);
   await recordAudit(client, {
     action: 'automation.paused',
     targetType: 'automation',
@@ -193,7 +215,9 @@ export const pauseAutomation = async (client: Db, id: string) => {
 export const removeAutomation = async (client: Db, id: string) => {
   const row = await findAutomation(client, id);
 
+  await listenFor(client, id, null);
   await client.delete(automations).where(eq(automations.id, id));
+  await forgetAutomationData(client, id);
   await recordAudit(client, {
     action: 'automation.deleted',
     targetType: 'automation',

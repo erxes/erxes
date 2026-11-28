@@ -109,6 +109,55 @@ describe('companies and merge', () => {
       expect((await t.owner().customers.get({ id: keep.id })).primaryEmail).toBe('bat@a.mn');
     });
 
+    it('takes each picked field from the customer picked for it', async () => {
+      const keep = await t.owner().customers.create({
+        firstName: 'Bat',
+        lastName: 'Dorj',
+        position: 'CTO',
+        primaryEmail: 'pick@a.mn',
+      });
+
+      const other = await t.owner().customers.create({
+        firstName: 'Batbold',
+        lastName: 'Sukh',
+        position: 'CEO',
+        primaryEmail: 'pick@b.mn',
+      });
+
+      const ids = [keep.id, other.id];
+
+      await expect(
+        t.owner().customers.merge({ ids, keepId: keep.id, fields: { firstName: 'not-merged' } }),
+      ).rejects.toMatchObject({ status: 400 });
+      expect(
+        await t.owner().customers.merge({
+          ids,
+          keepId: keep.id,
+          fields: { lastName: other.id, primaryEmail: other.id, firstName: keep.id },
+        }),
+      ).toMatchObject({
+        id: keep.id,
+        firstName: 'Bat',
+        lastName: 'Sukh',
+        position: 'CTO',
+        primaryEmail: 'pick@b.mn',
+        emails: ['pick@b.mn', 'pick@a.mn'],
+      });
+    });
+
+    it('takes a company’s name and fields from the company picked', async () => {
+      const keep = await t.owner().companies.create({ primaryName: 'Nomin', website: 'a.mn' });
+      const other = await t.owner().companies.create({ primaryName: 'Nomin LLC', website: 'b.mn' });
+
+      expect(
+        await t.owner().companies.merge({
+          ids: [keep.id, other.id],
+          keepId: keep.id,
+          fields: { primaryName: other.id, website: other.id },
+        }),
+      ).toMatchObject({ primaryName: 'Nomin LLC', names: ['Nomin LLC', 'Nomin'], website: 'b.mn' });
+    });
+
     it('merges companies and keeps the other names', async () => {
       const keep = await t.owner().companies.create({ primaryName: 'Gobi', website: null });
 

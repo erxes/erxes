@@ -1,4 +1,6 @@
+import type { DataExtensionValuesUpdate } from '@erxes/core-contract';
 import { callerUserId, type Db } from '@erxes/core-db';
+import type { z } from 'zod';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -154,7 +156,7 @@ export const getValues = (client: Db, input: { recordType: string; recordId: str
  */
 export const updateValues = async (
   client: Db,
-  input: { recordType: string; recordId: string; values: Record<string, unknown> },
+  input: z.infer<typeof DataExtensionValuesUpdate>,
 ) => {
   const plugin = pluginOf(input.recordType);
 

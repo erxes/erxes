@@ -27,6 +27,38 @@ export const CUSTOMER_STATES = ['lead', 'customer'] as const;
 /** ISO/IEC 5218: not known, male, female, not applicable. */
 export const CUSTOMER_SEXES = [0, 1, 2, 9] as const;
 
+/** Customer fields a merge can take from any of the merged customers. */
+export const CUSTOMER_MERGE_FIELDS = [
+  'firstName',
+  'middleName',
+  'lastName',
+  'avatarUrl',
+  'primaryEmail',
+  'primaryPhone',
+  'sex',
+  'birthDate',
+  'position',
+  'department',
+  'code',
+  'description',
+  'ownerId',
+] as const;
+
+/** Company fields a merge can take from any of the merged companies. */
+export const COMPANY_MERGE_FIELDS = [
+  'primaryName',
+  'avatarUrl',
+  'primaryEmail',
+  'primaryPhone',
+  'website',
+  'industry',
+  'size',
+  'businessType',
+  'code',
+  'description',
+  'ownerId',
+] as const;
+
 /** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: not a fit (lost). */
 export const LEAD_STAGE_KINDS = ['open', 'qualified', 'disqualified'] as const;
 
@@ -211,6 +243,15 @@ export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
  */
 export const API_KEY_KINDS = ['member', 'regular', 'management'] as const;
 
+/** The templates an agent can start from (Settings › AI agents). */
+export const AGENT_TEMPLATES = ['shop', 'hotel', 'tours', 'support'] as const;
+
+/** The tools of an agent's calls its run log lists. */
+export const AGENT_API_TOOLS = ['searchApi', 'callApi'] as const;
+
+/** How an agent's run stands: still running, answered, or ended without an answer. */
+export const AGENT_RUN_STATUSES = ['running', 'done', 'failed'] as const;
+
 /** The areas a regular key works with: data. */
 export const API_KEY_DATA_AREAS = [
   'contacts',
@@ -234,8 +275,23 @@ export const LANGUAGES = ['en', 'mn'] as const;
 /** How a member gets one kind of notification. */
 export const NOTIFICATION_DELIVERIES = ['email', 'inbox', 'off'] as const;
 
-/** How a customer signs in: a code sent to an email address or a phone. */
-export const CUSTOMER_LOGIN_KINDS = ['email', 'phone'] as const;
+/** Where a customer proves they are themselves with a one-time code: an email address or a phone. */
+export const CUSTOMER_ADDRESS_KINDS = ['email', 'phone'] as const;
+
+/** Accounts at other services a customer signs in with, by a token from the service's own SDK. */
+export const CUSTOMER_SOCIAL_PROVIDERS = ['google', 'apple', 'facebook'] as const;
+
+/** How a portal's customers sign in with a phone: not at all, a code texted to them, or one they text. */
+export const PORTAL_PHONE_SIGN_IN = ['off', 'code', 'reply'] as const;
+
+/** The ways a customer can prove a phone on a portal: get a texted code, or text one (verify.mn). */
+export const PORTAL_PHONE_METHODS = ['code', 'reply'] as const;
+
+/** How a customer signs in: a code to an address, or an account at Google, Apple or Facebook. */
+export const CUSTOMER_LOGIN_KINDS = [
+  ...CUSTOMER_ADDRESS_KINDS,
+  ...CUSTOMER_SOCIAL_PROVIDERS,
+] as const;
 
 /** Where a customer notification also goes besides the customer's inbox. */
 export const CUSTOMER_NOTIFICATION_CHANNELS = ['email', 'sms'] as const;
@@ -272,8 +328,8 @@ export const BROADCAST_RECIPIENT_STATUSES = [
 /** Why an address gets no more broadcasts. */
 export const SUPPRESSION_REASONS = ['unsubscribed', 'bounced', 'complained', 'manual'] as const;
 
-/** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
-export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
+/** What a code is for: making an account, signing in to one, or adding a login to a signed-in one. */
+export const CUSTOMER_CODE_PURPOSES = ['sign_up', 'sign_in', 'add_login'] as const;
 
 export const ORGANIZATION_STATUSES = ['active', 'suspended', 'inactive'] as const;
 export const PLUGIN_TIERS = ['free', 'plus', 'pro'] as const;
@@ -291,20 +347,28 @@ export const PLUGIN_SCOPES = [
   'emails:write',
   'events:read',
   'events:write',
+  'exchange_rates:read',
+  'exchange_rates:write',
   'fields:write',
   'files:read',
   'files:write',
+  'inventories:write',
   'live:write',
   'notifications:write',
   'payments:read',
   'payments:write',
   'products:read',
   'products:write',
+  'secrets:write',
+  'sms:write',
   'units:read',
   'units:write',
   'users:read',
   'users:write',
+  /** Sign members in: the plugin vouches for who someone is (`manifest.signIn`). */
+  'users:sign_in',
   'views:read',
+  'portals:write',
 ] as const;
 
 /** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
@@ -394,76 +458,7 @@ export const IMPORT_MATCH_KEYS = ['email', 'phone', 'code', 'id', 'name'] as con
 /** What an import does with one row. */
 export const IMPORT_ROW_ACTIONS = ['create', 'update', 'skip', 'error'] as const;
 
-// ─── Automations ────────────────────────────────────────────────────────────
-
-export const AUTOMATION_STATUSES = ['draft', 'active', 'paused'] as const;
-export const FINISHED_RUN_STATUSES = ['succeeded', 'failed', 'cancelled'] as const;
-export const RUN_STATUSES = ['running', 'waiting', ...FINISHED_RUN_STATUSES] as const;
-export const RUN_STEP_STATUSES = ['succeeded', 'failed', 'skipped'] as const;
-
-/** Whether a record may enter an automation again: every time, once, or once a day. */
-export const REENTRY_RULES = ['always', 'once', 'daily'] as const;
-
-export const DELAY_UNITS = ['minutes', 'hours', 'days'] as const;
-
-/** How often a scheduled trigger fires. */
-export const SCHEDULE_INTERVALS = ['hour', 'day', 'week', 'month'] as const;
-
-/** How the values of a path conditions and placeholders read compare. */
-export const AUTOMATION_FIELD_TYPES = [
-  'text',
-  'number',
-  'date',
-  'boolean',
-  'list',
-  'member',
-  'tags',
-  'select',
-] as const;
-
-/**
- * What core remembers of an event type's payload: `seen` marks that the type happened at all,
- * the others how a key's values compare (each is one of `AUTOMATION_FIELD_TYPES`).
- */
-export const EVENT_DATA_KINDS = ['seen', 'text', 'number', 'boolean', 'list'] as const;
-
-/** The inputs an action's form shows. */
-export const ACTION_FIELD_TYPES = [
-  'text',
-  'longtext',
-  'number',
-  'boolean',
-  'date',
-  'select',
-  'members',
-  'tags',
-  'json',
-  'custom_field',
-  'lead_stage',
-  'recipients',
-  'plugin_record',
-  'reply_to',
-] as const;
-
 // ─── Payments ───────────────────────────────────────────────────────────────
-
-export const PAYMENT_GATEWAY_KINDS = [
-  'qpay',
-  'socialpay',
-  'monpay',
-  'storepay',
-  'pocket',
-  'toki',
-  'golomt',
-  'tdb',
-  'hipay',
-  'stripe',
-  'paypal',
-  'wechatpay',
-  'test',
-] as const;
-
-export const PAYMENT_GATEWAY_STATUSES = ['active', 'disabled'] as const;
 
 /**
  * How an invoice was paid: through its gateway, or recorded as taken outside
@@ -543,4 +538,20 @@ export const EBARIMT_PAPER_SIZES = ['58mm', '80mm', 'a4'] as const;
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;
 export const LOG_FORMATS = ['json', 'pretty'] as const;
 export const EMAIL_DRIVERS = ['smtp', 'log'] as const;
-export const SMS_DRIVERS = ['log'] as const;
+
+export * from './automationEnums';
+
+export * from './bankEnums';
+
+export * from './integrationEnums';
+
+/**
+ * A portal's customer key: `secret` for its server, `publishable` for its web and mobile apps
+ * (decision 42). A portal token also comes from core's `agent` talking to its customers.
+ */
+export const PORTAL_KEY_KINDS = ['secret', 'publishable'] as const;
+
+export const PORTAL_TOKEN_KINDS = [...PORTAL_KEY_KINDS, 'agent'] as const;
+
+/** The OAuth grants core's authorization server takes: the code flow and refresh. */
+export const OAUTH_GRANT_TYPES = ['authorization_code', 'refresh_token'] as const;

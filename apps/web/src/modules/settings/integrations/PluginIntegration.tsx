@@ -8,8 +8,10 @@ import { IntegrationLayout, useIntegrationTab } from './IntegrationLayout';
 /** A plugin's integration: core's header and tabs, the plugin's content in each tab. */
 export const PluginIntegration = ({
   integration,
+  plugin,
 }: {
-  integration: Extract<Integration, { kind: 'plugin' }>;
+  integration: Integration;
+  plugin: string;
 }) => {
   const text = usePluginText();
   const [tab, setTab] = useIntegrationTab(integration.tabs[0]?.value ?? '');
@@ -21,9 +23,9 @@ export const PluginIntegration = ({
       onTab={setTab}
       tabs={integration.tabs.map(({ value, label, component: Content }) => ({
         value,
-        label: text(integration.plugin, label),
+        label: text(plugin, label),
         content: (
-          <PluginBoundary name={integration.plugin} resetKey={value}>
+          <PluginBoundary name={plugin} resetKey={value}>
             <Suspense fallback={<Spinner />}>
               <Content />
             </Suspense>

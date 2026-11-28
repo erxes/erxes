@@ -3,7 +3,7 @@ import { Badge } from 'erxes-ui/components/badge';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
-import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
+import { usePhoneFormatter } from 'erxes-ui/utils/format/formatPhoneNumber';
 
 /**
  * A record's phones as chips, the primary one with its validation mark.
@@ -15,6 +15,7 @@ export const PhoneDisplay = ({
   phones,
   phoneValidationStatus,
 }: IPhoneFieldProps & { maxVisible?: number }) => {
+  const formatPhoneNumber = usePhoneFormatter();
   const formattedPhones = formatPhones(primaryPhone, phones, phoneValidationStatus);
 
   const values = formattedPhones.filter((item) => item.phone);

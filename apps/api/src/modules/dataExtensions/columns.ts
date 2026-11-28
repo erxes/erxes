@@ -4,7 +4,7 @@ import type {
   DATA_EXTENSION_COLUMN_TYPES,
   DATA_EXTENSION_FIELD_TYPES,
 } from '@erxes/core-db/dataExtensionEnums';
-import type { DataFieldRelation, DataFieldSettings } from '@erxes/core-db';
+import type { DataFieldRelation, dataFields } from '@erxes/core-db';
 
 /**
  * Where Data Extensions keeps things in an organisation's schema. The `core_data_*` functions
@@ -195,13 +195,12 @@ export const linkColumn = (column: string) => `${column}_id`;
  * plugin's record type has no table: its fields' columns name the parts of their values in
  * the plugin's `custom_fields` as core reads them.
  */
-export const columnsOf = (field: {
-  recordType: string;
-  type: FieldType;
-  column: string | null;
-  relation: DataFieldRelation | null;
-  settings: DataFieldSettings;
-}): FieldColumn[] => {
+export const columnsOf = (
+  field: Pick<
+    typeof dataFields.$inferSelect,
+    'recordType' | 'type' | 'column' | 'relation' | 'settings'
+  >,
+): FieldColumn[] => {
   const { type, column, relation, settings } = field;
 
   if (!column || isComputed(type)) return [];

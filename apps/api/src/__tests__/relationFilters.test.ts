@@ -276,7 +276,7 @@ describe('relation filters: customers by a plugin’s records', { timeout: 300_0
     ).rejects.toMatchObject({ code: 'NAMESPACE_REQUIRED' });
     await expect(
       service.plugins.registerManifest(withView('hr_customer_deals', 'hr.nope')),
-    ).rejects.toMatchObject({ code: 'UNKNOWN_PERMISSION' });
+    ).rejects.toMatchObject({ code: 'UNKNOWN_PERMISSION', data: { permissions: ['hr.nope'] } });
 
     const notReady = { code: 'INVALID_FILTER', message: "Deals can't be filtered by yet" };
 

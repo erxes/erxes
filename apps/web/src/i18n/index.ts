@@ -9,9 +9,9 @@ import enCommon from './locales/en/common.json';
 import enContact from './locales/en/contact.json';
 import enOrganization from './locales/en/organization.json';
 import enProduct from './locales/en/product.json';
-import enSettings from './locales/en/settings.json';
 import enUi from './locales/en/ui.json';
 import enViews from './locales/en/views.json';
+import enWorkspace from './locales/en/workspace.json';
 
 /*
  * erxes-ui and core's components translate through react-i18next. English is
@@ -44,7 +44,9 @@ export const i18nReady = i18n
       en: {
         common: enCommon,
         contact: enContact,
-        settings: enSettings,
+        // What screens outside Settings share with it: team members, properties, tags,
+        // import and export, built-in roles, the plan, emails' delivery words.
+        workspace: enWorkspace,
         organization: enOrganization,
         automations: enAutomations,
         product: enProduct,
@@ -57,8 +59,9 @@ export const i18nReady = i18n
     lng: store.get(languageState),
     fallbackLng: 'en',
     // Namespaces not listed here (`broadcasts`) load, in every language, when a page first uses
-    // them; until then the strings' defaults in the code show.
-    ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product', 'views', 'ui'],
+    // them; until then the strings' defaults in the code show. `settings` loads with the
+    // settings routes (AppRoutes waits for it), so only those pages may use it.
+    ns: ['common', 'contact', 'workspace', 'organization', 'automations', 'product', 'views', 'ui'],
     defaultNS: 'common',
     fallbackNS: 'common',
     interpolation: { escapeValue: false },

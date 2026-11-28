@@ -1,6 +1,13 @@
 import { Organization as OrganizationSchema, type PluginManifest } from '@erxes/core-contract';
 import type { CoreClient } from '@erxes/plugin-sdk';
-import { contactQueries } from '@erxes/core-contract/client';
+import {
+  contactQueries,
+  contactSearchQueries,
+  memberQueries,
+  productQueries,
+  productSearchQueries,
+  unitQueries,
+} from '@erxes/core-contract/client';
 import { type Icon, IconBox } from '@tabler/icons-react';
 import {
   Button,
@@ -14,7 +21,13 @@ import {
   PanelSection,
   pluginJson,
   RecordPage,
+  type ContactQueries,
+  type ContactSearchQueries,
   type IUIConfig,
+  type MemberQueries,
+  type ProductQueries,
+  type ProductSearchQueries,
+  type UnitQueries,
   type TRecordDraftProps,
   type TRecordSectionProps,
   type TRecordSlotProps,
@@ -43,6 +56,23 @@ export const wrongCurrency: Organization['currency'] = 1;
 export const wrongButton = <Button nope />;
 // @ts-expect-error a title is a string
 export const wrongTitle: PluginManifest['title'] = 1;
+
+// A plugin hands the contract's query options to erxes-ui's pickers as they are.
+export const pickerQueries = {
+  contactQueries,
+  contactSearchQueries,
+  memberQueries,
+  productQueries,
+  productSearchQueries,
+  unitQueries,
+} satisfies {
+  contactQueries: ContactQueries;
+  contactSearchQueries: ContactSearchQueries;
+  memberQueries: MemberQueries;
+  productQueries: ProductQueries;
+  productSearchQueries: ProductSearchQueries;
+  unitQueries: UnitQueries;
+};
 
 const Main = () => (
   <Button

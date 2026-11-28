@@ -81,7 +81,10 @@ export const AssistantCodeModePage = () => {
       {(settings) => (
         <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
           <p className="text-sm text-muted-foreground">
-            {t('code-mode-intro', 'This applies to every member. Off by default.')}
+            {t(
+              'code-mode-intro',
+              'This applies to every member, and to apps connected through the MCP server, whose programs only read. Off by default.',
+            )}
           </p>
           <QueryState query={settings}>
             {({ codeMode }) => <CodeModeSwitch enabled={codeMode} />}

@@ -9,11 +9,11 @@ import {
   PageHeader,
   PageSubHeader,
   RecordTable,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { FormSheet } from '~/components/FormSheet';
 import { messageOf } from '@erxes/core-contract/client';
 import { useCan } from '~/modules/auth/session';
@@ -23,7 +23,7 @@ import { ContentTypeSwitch, useContentTypeParam } from '../ContentTypeSwitch';
 import { ColorSwatches, tagColumns } from './tagColumns';
 
 const AddTag = ({ type, count }: { type: FieldContentType; count: number }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'tags' });
   const [open, setOpen] = useState(false);
 
   const form = useForm<{ name: string; colorCode: string }>({
@@ -100,7 +100,7 @@ const AddTag = ({ type, count }: { type: FieldContentType; count: number }) => {
 
 /** Settings › Tags: the tags for customers and for companies. */
 export const TagsSettingsPage = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'tags' });
   const [type] = useContentTypeParam();
   const { tags, loading, error } = useTags(type);
   const manager = useCan()('tags.delete');

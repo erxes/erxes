@@ -1,4 +1,5 @@
-import type { NotificationDelivery, NotificationSettings } from '@erxes/core-contract';
+import type { coreContract, NotificationSettings } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { CORE_NOTIFICATION_GROUPS } from '@erxes/core-contract';
 import {
   caller,
@@ -83,7 +84,7 @@ export const notificationSettings = async (client: Db): Promise<NotificationSett
  */
 export const updateNotificationSettings = async (
   client: Db,
-  input: { groups?: Record<string, NotificationDelivery>; email?: boolean; browser?: boolean },
+  input: InferContractRouterInputs<typeof coreContract>['notifications']['updateSettings'],
 ) => {
   const current = await notificationSettings(client);
 

@@ -161,6 +161,44 @@ describe('API key rules', () => {
     ).toMatchObject({ allowed: true, rule: 'area:contacts:write' });
   });
 
+  it('shows a tag key only contacts with its tags, customers and companies alike', async () => {
+    const owner = t.owner();
+    const vip = await owner.tags.create({ type: 'customer', name: 'Key VIP' });
+    const partner = await owner.tags.create({ type: 'company', name: 'Key partner' });
+    const tagged = await owner.customers.create({ firstName: 'Tagged', tagIds: [vip.id] });
+    const plain = await owner.customers.create({ firstName: 'Plain' });
+
+    const taggedCompany = await owner.companies.create({
+      primaryName: 'Tagged Co',
+      tagIds: [partner.id],
+    });
+
+    const plainCompany = await owner.companies.create({ primaryName: 'Plain Co' });
+
+    const { key } = await owner.apiKeys.create({
+      ...READ_CONTACTS,
+      name: 'Tagged only',
+      tagIds: [vip.id, partner.id],
+      lifetimeDays: 30,
+    });
+
+    const client = t.client(key);
+    const customerIds = (await client.customers.list({ limit: 100 })).data.map((row) => row.id);
+    const companyIds = (await client.companies.list({ limit: 100 })).data.map((row) => row.id);
+
+    expect(customerIds).toContain(tagged.id);
+    expect(customerIds).not.toContain(plain.id);
+    expect(companyIds).toEqual([taggedCompany.id]);
+    await expect(client.companies.get({ id: plainCompany.id })).rejects.toMatchObject({
+      status: 404,
+    });
+
+    // The member who made it, without a key, still sees every contact.
+    const all = (await owner.companies.list({ limit: 100 })).data.map((row) => row.id);
+
+    expect(all).toEqual(expect.arrayContaining([taggedCompany.id, plainCompany.id]));
+  });
+
   it('refuses a key from an address it doesn’t allow, and an expired one', async () => {
     const far = await t.owner().apiKeys.create({
       ...READ_CONTACTS,

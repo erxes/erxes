@@ -3,6 +3,7 @@ import { memberQueries, orpc } from '@erxes/core-contract/client';
 import { IconBox, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
+  AppBreadcrumb,
   Button,
   Empty,
   Kbd,
@@ -15,7 +16,6 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { CursorRecordTable } from '~/components/CursorRecordTable';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';

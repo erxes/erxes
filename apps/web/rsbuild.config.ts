@@ -12,6 +12,34 @@ import { pluginBundleBudget } from './bundleBudget';
 
 const ui = resolve(import.meta.dirname, '../../packages/ui/src');
 
+/**
+ * BlockNote's sheet styles ProseMirror's own classes (`.ProseMirror table`, the selected
+ * node's outline), so it also reached the broadcast email editor (maily, also ProseMirror)
+ * and, loading with the block editor's chunk, would beat maily's rules of the same
+ * specificity whenever it loaded after them. Those rules keep their specificity but match
+ * only inside BlockNote's editor, `.bn-editor` being its ProseMirror root. Tailwind has
+ * inlined BlockNote's sheet into erxes-ui's editor.css by the time this runs.
+ */
+const scopeBlockNoteProseMirror = {
+  postcssPlugin: 'erxes-scope-blocknote-prosemirror',
+  Once(root: {
+    source?: { input: { file?: string } };
+    walkRules: (visit: (rule: { selectors: string[] }) => void) => void;
+  }) {
+    if (!/[\\/]modules[\\/]blocks[\\/]editor\.css$/.test(root.source?.input.file ?? '')) return;
+
+    root.walkRules((rule) => {
+      rule.selectors = rule.selectors.map((selector) => {
+        if (selector.includes('bn-') || !selector.includes('.ProseMirror')) return selector;
+
+        return /^\.ProseMirror(?![\w-])/.test(selector)
+          ? selector.replace('.ProseMirror', '.ProseMirror:where(.bn-editor)')
+          : `:where(.bn-editor) ${selector}`;
+      });
+    });
+  },
+};
+
 // Scalar's prebuilt browser build, served as is under /static/scalar (Settings › API reference):
 // bundled, its Vue graph would share chunks with ours and move kilobytes into every route.
 const scalar = resolve(
@@ -24,7 +52,8 @@ const { WEB_PORT, CORE_API_URL } = process.env;
 
 /**
  * The erxes core UI (apps/web). Same-origin with the API: in development
- * the dev server forwards /core to apps/api; in production a reverse proxy
+ * the dev server forwards /core (and OAuth discovery under /.well-known) to apps/api; in
+ * production a reverse proxy
  * serves both under one address, so the session cookie stays first-party.
  * It is also the Module Federation host for plugin UIs (PUBLIC_PLUGINS).
  */
@@ -88,11 +117,15 @@ export default defineConfig({
   },
   server: {
     port: Number(WEB_PORT) || 3500,
+    // X-Forwarded-Host tells the API the address the browser used, as nginx's Host does.
     proxy: {
-      '/core': CORE_API_URL || 'http://localhost:3400',
+      '/core': { target: CORE_API_URL || 'http://localhost:3400', xfwd: true },
+      // OAuth discovery for MCP clients, at the root as in production (deploy/nginx.conf.template).
+      '/.well-known/oauth-': { target: CORE_API_URL || 'http://localhost:3400', xfwd: true },
     },
   },
   tools: {
-    postcss: (_options, { addPlugins }) => addPlugins(tailwindcss()),
+    postcss: (_options, { addPlugins }) => addPlugins([tailwindcss(), scopeBlockNoteProseMirror]),
+    rspack: { resolve: { fallback: { fs: false, path: false } } },
   },
 });

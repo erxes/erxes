@@ -1,160 +1,196 @@
-import type { ActionInfo, Automation } from '@erxes/core-contract';
-import { IconAdjustmentsHorizontal, IconBolt } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
-import { useContext } from 'react';
+import type { ActionInfo, Automation, AutomationStep } from '@erxes/core-contract';
+import { IconFlask, IconX } from '@tabler/icons-react';
+import { Button, cn } from 'erxes-ui';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Catalog } from './automationQueries';
-import { AutomationSettings, ProblemList } from './AutomationSettings';
-import type { FieldInfo } from './builder/useAutomationFields';
-import { findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
-import { describeStep } from './builder/flowText';
-import { BuilderContext } from './builder/BuilderContext';
+import { DataPanel } from './builder/DataPanel';
+import { DataTargetContext, dataTargets } from './builder/dataTarget';
+import { findStep, replaceStep } from './builder/flowModel';
+import { LOOK, type NodeIcon, useStepLook } from './builder/stepLook';
 import { TriggerEditor } from './builder/TriggerEditor';
-import { type Selection, StepInspector } from './StepInspector';
-import type { useAutomationDraft } from './useAutomationEditor';
+import type { useBuilder } from './builder/useBuilder';
+import { type Selection, StepHeader, StepInspector } from './StepInspector';
+import { TestPanel } from './TestPanel';
+import { TRIGGER_ICONS } from './TemplatePicker';
+import type { AutomationMutations } from './useAutomationEditor';
+import type { useFlowGuard } from './useFlowGuard';
 
 export interface InspectorProps {
   automation: Automation;
-  draft: ReturnType<typeof useAutomationDraft>;
+  draft: ReturnType<typeof useFlowGuard>;
+  mutations: AutomationMutations;
   catalog: Catalog;
-  actions: ActionInfo[];
-  fields: FieldInfo[];
-  fieldsError: Error | null;
-  subject: 'customer' | 'company';
-  hasSubject: boolean;
+  built: ReturnType<typeof useBuilder>;
   editable: boolean;
-  problems: Map<string, string[]>;
-  serverProblems: string[];
-  skippedByLimit: number;
   selected: Selection;
-  onSelect: (selection: Selection) => void;
-  onStartNow: (() => void) | undefined;
+  onSelect: (selection: Selection | null) => void;
+  /** The trigger in words, as its card shows it. */
+  trigger: { title: string };
 }
 
-const InspectorTabs = ({
-  selected,
-  onSelect,
-  stepType,
+const TriggerPanel = (props: InspectorProps) => {
+  const { automation, draft, mutations, editable } = props;
+  const { definition } = draft;
+
+  return (
+    <TriggerEditor
+      trigger={definition.trigger}
+      events={props.catalog.triggers}
+      apps={props.catalog.apps}
+      hook={{
+        url: automation.hookUrl,
+        on: automation.status === 'active',
+        sample: automation.hookSample,
+      }}
+      disabled={!editable}
+      onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}
+      onStartNow={
+        automation.status === 'active' && editable
+          ? () => mutations.start.mutate({ id: automation.id })
+          : undefined
+      }
+    />
+  );
+};
+
+/** The top of the panel: what is open, as its card on the canvas shows it. */
+const PanelHeader = ({
+  icon: Icon,
+  tone,
+  title,
+  kind,
+  onClose,
+  children,
 }: {
-  selected: Selection;
-  onSelect: (selection: Selection) => void;
-  stepType: keyof typeof STEP_TITLES | undefined;
+  icon: NodeIcon;
+  tone: string;
+  title: string;
+  kind: string;
+  onClose: () => void;
+  children?: ReactNode;
 }) => {
   const { t } = useTranslation('automations');
 
   return (
-    <div className="flex h-10 shrink-0 items-center gap-1 border-b px-3">
+    <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
+      <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tone)}>
+        <Icon className="size-4.5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">{title}</span>
+        <span className="block truncate text-xs text-muted-foreground">{kind}</span>
+      </span>
+      {children}
       <Button
-        size="sm"
-        variant={selected === 'settings' ? 'secondary' : 'ghost'}
-        className="h-7"
-        onClick={() => onSelect('settings')}
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        aria-label={t('close', 'Close')}
+        onClick={onClose}
       >
-        <IconAdjustmentsHorizontal />
-        {t('settings', 'Settings')}
+        <IconX className="size-4" />
       </Button>
-      <Button
-        size="sm"
-        variant={selected === 'trigger' ? 'secondary' : 'ghost'}
-        className="h-7"
-        onClick={() => onSelect('trigger')}
-      >
-        <IconBolt />
-        {t('trigger-kind', 'Trigger')}
-      </Button>
-      {stepType && (
-        <span className="ml-1 truncate text-xs text-muted-foreground">
-          › {t(`step-type.${stepType}`, STEP_TITLES[stepType])}
-        </span>
-      )}
     </div>
   );
 };
 
-const SettingsPanel = (props: InspectorProps) => {
-  const { draft, fields, problems, onSelect } = props;
-  const { events, outputsBefore, knownActions } = useContext(BuilderContext);
-
-  const stepProblems = [...problems.entries()].flatMap(([stepId, list]) => {
-    const step = findStep(draft.definition.steps, stepId);
-
-    return step
-      ? [
-          {
-            stepId,
-            first: list[0],
-            title: describeStep(step, {
-              actions: knownActions,
-              events,
-              fields: [...fields, ...outputsBefore(stepId)],
-            }).title,
-          },
-        ]
-      : [];
-  });
+const StepPanelHeader = ({
+  step,
+  actions,
+  onClose,
+  children,
+}: {
+  step: AutomationStep;
+  actions: ActionInfo[];
+  onClose: () => void;
+  children: ReactNode;
+}) => {
+  const look = useStepLook(step, actions);
 
   return (
-    <>
-      <ProblemList
-        serverProblems={props.serverProblems}
-        stepProblems={stepProblems}
-        onSelect={onSelect}
-      />
-      <AutomationSettings
-        draft={draft}
-        editable={props.editable}
-        subject={props.hasSubject ? props.subject : null}
-        skippedByLimit={props.skippedByLimit}
-        fieldsError={props.fieldsError}
-      />
-    </>
+    <PanelHeader
+      icon={look.icon}
+      tone={look.tone}
+      title={look.title || look.kind}
+      kind={look.kind}
+      onClose={onClose}
+    >
+      {children}
+    </PanelHeader>
   );
 };
 
-/** The right-hand panel: the automation's settings, its trigger, or the selected step. */
 export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
-  const { draft, selected, onSelect, editable } = props;
+  const { draft, selected, onSelect, editable, automation, built } = props;
+  const onClose = () => onSelect(null);
   const { definition } = draft;
+  const [targets] = useState(dataTargets);
 
-  const selectedStep =
-    selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
+  const step =
+    selected !== 'trigger' && selected !== 'test' ? findStep(definition.steps, selected) : null;
 
   return (
-    <aside className="flex w-110 shrink-0 flex-col border-l bg-background">
-      <InspectorTabs selected={selected} onSelect={onSelect} stepType={selectedStep?.type} />
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="space-y-5 p-4">
-          {selected === 'settings' && <SettingsPanel {...props} />}
-          {selected === 'trigger' && (
-            <TriggerEditor
-              trigger={definition.trigger}
-              events={props.catalog.triggers}
-              disabled={!editable}
-              onChange={(trigger) => draft.setDefinition({ ...definition, trigger })}
-              onStartNow={props.onStartNow}
-            />
-          )}
-          {selectedStep && (
-            <StepInspector
-              step={selectedStep}
-              actions={props.actions}
-              subject={props.subject}
-              disabled={!editable}
-              problems={props.problems.get(selectedStep.id) ?? []}
+    <DataTargetContext.Provider value={targets}>
+      {(step?.type === 'action' || step?.type === 'decide') && editable && (
+        <DataPanel key={step.id} step={step} subject={built.subject} />
+      )}
+      <aside className="flex w-136 shrink-0 flex-col border-l bg-background">
+        {selected === 'trigger' && (
+          <PanelHeader
+            tone={LOOK.trigger.tone}
+            icon={TRIGGER_ICONS[definition.trigger.kind]}
+            title={props.trigger.title}
+            kind={t('trigger-kind', 'When')}
+            onClose={onClose}
+          />
+        )}
+        {selected === 'test' && (
+          <PanelHeader
+            icon={IconFlask}
+            tone="bg-muted text-muted-foreground"
+            title={t('test', 'Test')}
+            kind={automation.name}
+            onClose={onClose}
+          />
+        )}
+        {step && (
+          <StepPanelHeader step={step} actions={built.actions} onClose={onClose}>
+            <StepHeader
+              step={step}
               steps={definition.steps}
-              onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
+              disabled={!editable}
+              problems={built.problems.get(step.id)?.length ?? 0}
               onSteps={draft.setSteps}
               onSelect={onSelect}
             />
-          )}
-          {selected !== 'settings' && selected !== 'trigger' && !selectedStep && (
-            <p className="text-sm text-muted-foreground">
-              {t('nothing-selected', 'Choose a step on the canvas.')}
-            </p>
-          )}
+          </StepPanelHeader>
+        )}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="space-y-5 p-4">
+            {selected === 'trigger' && <TriggerPanel {...props} />}
+            {selected === 'test' && (
+              <TestPanel
+                automation={automation}
+                definition={definition}
+                subject={built.hasSubject ? built.subject : null}
+                dirty={draft.dirty}
+              />
+            )}
+            {step && (
+              <StepInspector
+                step={step}
+                actions={built.actions}
+                subject={built.subject}
+                disabled={!editable}
+                problems={built.problems.get(step.id) ?? []}
+                onChange={(next) => draft.setSteps(replaceStep(definition.steps, next))}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </DataTargetContext.Provider>
   );
 };

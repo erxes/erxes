@@ -1,8 +1,16 @@
 {
+  "actor": {
+    "member": "A team member",
+    "plugin": "A plugin",
+    "customer": "A customer"
+  },
   "navigation": {
     "visited-pages": "Visited pages",
     "details": "Details",
     "close-tab": "Close {{page}} tab",
+    "close-unsaved": "Close with unsaved changes?",
+    "close-unsaved-description": "This page has changes that aren’t saved yet.",
+    "close-unsaved-ok": "Close",
     "next-tab": "Next tab",
     "previous-tab": "Previous tab",
     "close-current-tab": "Close current tab",
@@ -118,20 +126,36 @@
     "plugins": "Plugins",
     "roles": "Roles",
     "webhooks": "Webhooks",
+    "portals": "Portals",
     "api-reference": "API reference",
     "api-keys": "API keys",
+    "mcp": "MCP server",
     "payments": "Payments",
     "recycle-bin": "Recycle bin",
     "plan": "Plan",
+    "license": "License",
     "lead-stages": "Lead stages",
     "settings": "Settings",
     "contacts-settings": "Contacts settings",
     "assistant": "Assistant",
-    "assistant-keys": "Provider keys",
+    "assistant-model": "Default model",
     "assistant-code-mode": "Code mode",
     "assistant-appearance": "Appearance",
-    "email-sending": "Email sending",
-    "integrations": "Integrations"
+    "email-sending": "Organization email",
+    "integrations": "Integrations",
+    "exchange-rates": "Exchange Rates"
+  },
+  "connect": {
+    "title": "Allow {{app}} to use erxes as you?",
+    "subtitle": "In {{organisation}}",
+    "can": "It can read and change what you can in erxes, as your role allows, until you sign out everywhere.",
+    "verified": "Published by {{address}}",
+    "unverified": "This app registered itself: erxes can't confirm who made it.",
+    "returns-to": "You go back to {{host}} after you answer.",
+    "allow": "Allow",
+    "deny": "Don't allow",
+    "missing": "This link lost the app's request. Start again from the app.",
+    "failed": "This request can't be answered"
   },
   "auth": {
     "welcome": "Welcome",
@@ -157,6 +181,8 @@
     "enter-your-email": "Enter your email",
     "continue": "Continue",
     "or": "OR",
+    "provider-login": "Username or email",
+    "provider-login-required": "Enter your username",
     "success": "Success",
     "something-went-wrong-title": "Uh oh! Something went wrong.",
     "something-went-wrong": "Something went wrong",
@@ -662,7 +688,8 @@
       "Customer": "Customer",
       "Company": "Company",
       "Product": "Product",
-      "Team member": "Team member"
+      "Team member": "Team member",
+      "Connection": "Connection"
     }
   },
   "two-factor": {
@@ -798,6 +825,7 @@
       "email-complained": "Email marked as spam: <b>{{subject}}</b>",
       "email-suppressed": "Email not sent, the address is suppressed: <b>{{subject}}</b>",
       "email-held": "Email held by the sending limit: <b>{{subject}}</b>",
+      "wrote-in": "Wrote from <b>{{portal}}</b>: <b>{{subject}}</b>",
       "on-record": "· on <record/>"
     },
     "deleted": "a deleted record",
@@ -841,14 +869,25 @@
     "hint": "Only confirmed addresses.",
     "manage": "Manage addresses"
   },
+  "mail-connection": {
+    "organization": "Organization email",
+    "off-item": "A connection that is off",
+    "off": "This connection is off or was removed: turn it on, or choose another.",
+    "hint": "Connect SMTP, Amazon SES or SendGrid to send from your own account.",
+    "manage": "Mail service"
+  },
   "sender": {
     "label-placeholder": "Marketing",
-    "from-line": "{{name}} <{{address}}> · via {{provider}}"
+    "from-line": "{{name}} <{{address}}> · via {{provider}}",
+    "domain": "Domain",
+    "from-default": "Send from the default address",
+    "from-stale-title": "{{domain}} isn’t verified any more",
+    "from-stale": "{{provider}} no longer sends from this domain, so this email won’t go out. Verify the domain there and check again in Settings, or choose another one."
   },
   "email-setup": {
-    "title": "Email sending isn’t set up",
+    "title": "Organization email isn’t set up",
     "description": "Emails would only be written to the server’s log, so broadcasts, tests and automation emails are not sent. Set up a provider, or set EMAIL_SMTP_URL on the server.",
-    "link": "Settings › Integrations › Email sending",
+    "link": "Settings › Organization email",
     "via": {
       "smtp": "SMTP",
       "sendgrid": "SendGrid",

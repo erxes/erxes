@@ -55,7 +55,7 @@ const ChoiceboxItem = ({
       key={`${id}-${value}`}
       ref={ref}
       className={cn(
-        ' relative cursor-pointer justify-center  h-min rounded-sm  transition w-full outline-hidden bg-accent hover:bg-border has-data-checked:hover:bg-accent hover:cursor-pointer ',
+        ' relative cursor-pointer justify-center  h-min rounded-sm  transition w-full outline-hidden bg-accent hover:bg-border has-data-checked:hover:bg-accent hover:cursor-pointer has-data-disabled:cursor-not-allowed has-data-disabled:hover:cursor-not-allowed has-data-disabled:opacity-50 has-data-disabled:hover:bg-accent ',
       )}
     >
       <RadioGroup.Item

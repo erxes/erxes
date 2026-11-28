@@ -22,7 +22,7 @@ export const useTransferType = (recordType: TransferRecordType) =>
 
 /** What a record type's records are called, in the member's language. */
 export const useTransferLabel = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const pluginText = usePluginText();
   const types = useTransferTypes().data;
 

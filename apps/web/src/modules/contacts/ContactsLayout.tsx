@@ -62,7 +62,8 @@ const LeadsGroup = () => {
       {open && (
         <Sidebar.Sub>
           {LEAD_ITEMS.map(({ label, to, icon: Icon, views }) => (
-            <Sidebar.SubItem key={to}>
+            // Relative, so the views' fold chevron sits on this row.
+            <Sidebar.SubItem key={to} className="relative">
               <Sidebar.SubButton isActive={active === to} render={<Link to={to} />}>
                 <Icon />
                 <span>{leadsT(label)}</span>

@@ -86,6 +86,8 @@ type DateTextInputProps = DateDraftOptions & {
   isDisabled: boolean;
   placeholder: string;
   className?: string;
+  /** No drop shadow, as a value in a side panel row. */
+  flat?: boolean;
   /** The field's id and the name and state its form row or caller gives it. */
   control: Pick<
     ComponentProps<'input'>,
@@ -101,6 +103,7 @@ export const DateTextInput = ({
   isDisabled,
   placeholder,
   className,
+  flat,
   control,
   inputRef,
   onClear,
@@ -121,6 +124,7 @@ export const DateTextInput = ({
       className={cn(
         'relative flex h-7 w-full items-center rounded-sm bg-background text-sm text-foreground shadow-xs transition focus-within:shadow-focus',
         isDisabled && 'cursor-not-allowed opacity-50',
+        flat && 'shadow-none',
         className,
       )}
     >

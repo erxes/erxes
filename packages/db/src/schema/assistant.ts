@@ -19,32 +19,6 @@ import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
-/** The organisation's model provider keys, one per provider, which every agent uses. */
-export const assistantConnections = pgTable(
-  'assistant_connections',
-  {
-    id: text().primaryKey(),
-    orgId: orgIdColumn(),
-    provider: text({ enum: ASSISTANT_PROVIDERS }).notNull(),
-    sealedKey: text().notNull(),
-    isDefault: boolean().default(false).notNull(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    uniqueIndex('core_assistant_connections_provider_key').on(table.orgId, table.provider),
-    uniqueIndex('core_assistant_connections_default_key')
-      .on(table.orgId)
-      .where(sql`${table.isDefault}`),
-    check('core_assistant_connections_provider_check', inList(table.provider, ASSISTANT_PROVIDERS)),
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_assistant_connections_org_id_fkey',
-    }).onDelete('cascade'),
-  ],
-);
-
 export const assistantThreads = pgTable(
   'assistant_threads',
   {
@@ -110,9 +84,19 @@ export const assistantSettings = pgTable(
   {
     orgId: orgIdColumn().primaryKey(),
     codeMode: boolean().default(false).notNull(),
+    defaultProvider: text({ enum: ASSISTANT_PROVIDERS }),
+    defaultModel: text(),
     updatedAt: updatedAt(),
   },
   (table) => [
+    check(
+      'core_assistant_settings_default_provider_check',
+      inList(table.defaultProvider, ASSISTANT_PROVIDERS),
+    ),
+    check(
+      'core_assistant_settings_default_model_check',
+      sql`(${table.defaultProvider} is null) = (${table.defaultModel} is null)`,
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

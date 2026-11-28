@@ -8,16 +8,18 @@ import {
   sourceOf,
   withOrg,
 } from '@erxes/core-db';
-import { type CreateInvoiceInput, GatewayError } from '@erxes/payment-gateways';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { test } from '~/modules/integrations/gateways/test';
+import { type CreateInvoiceInput, GatewayError } from '@erxes/plugin-sdk/integrations';
 import { getOrganization } from '~/modules/organizations/organizations.service';
-import { driverOf, type GatewayRow, resolveGateway } from './gateways.service';
+import { gatewayAt, type GatewayRow, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
+import { ebarimtIdOf } from './taxConfig';
 import {
   callbackSignature,
   eventPayload,
@@ -55,6 +57,7 @@ interface InvoiceInput {
   lines?: InvoiceLineInput[];
   taxBuyer?: TaxBuyer;
   taxReceipt?: boolean;
+  ebarimtId?: string;
   payerPhone?: string;
   payerEmail?: string;
   returnUrl?: string;
@@ -63,7 +66,9 @@ interface InvoiceInput {
 /** The gateway's invoice; a refusal (a payer it can't bill, an amount it won't take) is a 400. */
 const openAtGateway = async (gateway: GatewayRow, input: CreateInvoiceInput) => {
   try {
-    return await driverOf(gateway).createInvoice(input);
+    const { payments, client } = await gatewayAt(gateway);
+
+    return await payments.createInvoice(client, input);
   } catch (error) {
     if (!(error instanceof GatewayError)) throw error;
 
@@ -80,12 +85,13 @@ const prepareInvoice = (orgId: string, input: InvoiceInput) =>
 
     const lines = await resolveInvoiceLines(tx, input.amount, input.lines ?? []);
     const currency = input.currency ?? (await getOrganization(tx)).currency;
+    const ebarimtId = await ebarimtIdOf(tx, { ...input, currency });
     const gateway = await resolveGateway(tx, currency, input.gatewayId);
     const id = newId();
     // Signed in the path: some gateways (WeChat Pay) take no query in a callback address.
     const path = `/core/v1/payments/callback/${id}/${callbackSignature(id)}`;
 
-    return { gateway, id, lines, currency, callbackUrl: await appLink(tx, path) };
+    return { gateway, id, lines, ebarimtId, currency, callbackUrl: await appLink(tx, path) };
   });
 
 /**
@@ -99,7 +105,7 @@ export const createInvoice = async (input: InvoiceInput) => {
 
   if (prepared.existing) return prepared.existing;
 
-  const { gateway, id, lines, currency, callbackUrl } = prepared;
+  const { gateway, id, lines, ebarimtId, currency, callbackUrl } = prepared;
 
   const created = await openAtGateway(gateway, {
     invoiceId: id,
@@ -133,6 +139,7 @@ export const createInvoice = async (input: InvoiceInput) => {
         lines,
         taxBuyer: input.taxBuyer ?? null,
         taxReceipt: input.taxReceipt ?? true,
+        ebarimtId,
       })
       .onConflictDoNothing()
       .returning();
@@ -145,6 +152,12 @@ export const createInvoice = async (input: InvoiceInput) => {
       return first;
     }
 
+    await publishCoreEvents(tx, {
+      type: 'core.payment.created',
+      entityType: 'payment_invoice',
+      entityId: row.id,
+      payload: eventPayload(row),
+    });
     await queueCheck(tx, row, 0);
 
     return shownInvoice(tx, row.id);
@@ -185,8 +198,14 @@ export const cancelInvoice = async (id: string) => {
     throw fail('NOT_PENDING', `The invoice is ${invoice.status}`);
   }
 
-  await driverOf(gateway)
-    .cancel(invoice.gatewayInvoiceId ?? '', invoice.amount, invoice.payment)
+  await gatewayAt(gateway)
+    .then(({ payments, client }) =>
+      payments.cancel(client, {
+        gatewayInvoiceId: invoice.gatewayInvoiceId ?? '',
+        amount: invoice.amount,
+        state: invoice.payment,
+      }),
+    )
     .catch((error: unknown) =>
       log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );
@@ -245,7 +264,7 @@ export const payTestInvoice = async (id: string) => {
   await withOrg(orgId, async (tx) => {
     const { gateway } = await invoiceWithGateway(tx, id);
 
-    if (gateway?.kind !== 'test')
+    if (gateway?.key !== test.key)
       throw fail('NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
     await tx

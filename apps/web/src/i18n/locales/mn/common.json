@@ -1,8 +1,16 @@
 {
+  "actor": {
+    "member": "Ажилтан",
+    "plugin": "Нэмэлт",
+    "customer": "Харилцагч"
+  },
   "navigation": {
     "visited-pages": "Зочилсон хуудсууд",
     "details": "Дэлгэрэнгүй",
     "close-tab": "{{page}} табыг хаах",
+    "close-unsaved": "Хадгалаагүй өөрчлөлттэй хаах уу?",
+    "close-unsaved-description": "Энэ хуудсанд хадгалаагүй өөрчлөлт байна.",
+    "close-unsaved-ok": "Хаах",
     "next-tab": "Дараагийн таб",
     "previous-tab": "Өмнөх таб",
     "close-current-tab": "Одоогийн табыг хаах",
@@ -128,20 +136,36 @@
     "plugins": "Плагинууд",
     "roles": "Үүргүүд",
     "webhooks": "Вэбхүүк",
+    "portals": "Порталууд",
     "api-reference": "API лавлах",
     "api-keys": "API түлхүүр",
+    "mcp": "MCP сервер",
     "payments": "Төлбөр",
     "recycle-bin": "Хогийн сав",
     "plan": "Багц",
+    "license": "Лиценз",
     "lead-stages": "Үе шатууд",
     "settings": "Тохиргоо",
     "contacts-settings": "Харилцагчийн тохиргоо",
     "assistant": "Туслах",
-    "assistant-keys": "Түлхүүрүүд",
+    "assistant-model": "Үндсэн загвар",
     "assistant-code-mode": "Код горим",
     "assistant-appearance": "Төрх",
-    "email-sending": "Имэйл илгээлт",
-    "integrations": "Холболтууд"
+    "email-sending": "Байгууллагын имэйл",
+    "integrations": "Холболтууд",
+    "exchange-rates": "Ханш"
+  },
+  "connect": {
+    "title": "{{app}}-д таны нэрээр erxes ашиглахыг зөвшөөрөх үү?",
+    "subtitle": "{{organisation}} дотор",
+    "can": "Та бүх төхөөрөмжөөс гарах хүртэл таны эрхийн хүрээнд erxes-ийн мэдээллийг уншиж, өөрчилж чадна.",
+    "verified": "{{address}} нийтэлсэн",
+    "unverified": "Энэ апп өөрөө бүртгүүлсэн тул хэн хийснийг erxes баталж чадахгүй.",
+    "returns-to": "Хариулсны дараа {{host}} руу буцна.",
+    "allow": "Зөвшөөрөх",
+    "deny": "Зөвшөөрөхгүй",
+    "missing": "Энэ холбоос аппын хүсэлтийг алдсан байна. Аппаас дахин эхлүүлнэ үү.",
+    "failed": "Энэ хүсэлтэд хариулах боломжгүй"
   },
   "auth": {
     "welcome": "Тавтай морил",
@@ -167,6 +191,8 @@
     "enter-your-email": "Имэйлээ оруулна уу",
     "continue": "Үргэлжлүүлэх",
     "or": "ЭСВЭЛ",
+    "provider-login": "Нэвтрэх нэр эсвэл имэйл",
+    "provider-login-required": "Нэвтрэх нэрээ оруулна уу",
     "success": "Амжилттай",
     "something-went-wrong-title": "Уучлаарай! Алдаа гарлаа.",
     "something-went-wrong": "Алдаа гарлаа",
@@ -672,7 +698,8 @@
       "Customer": "Харилцагч",
       "Company": "Компани",
       "Product": "Бүтээгдэхүүн",
-      "Team member": "Багийн гишүүн"
+      "Team member": "Багийн гишүүн",
+      "Connection": "Холболт"
     }
   },
   "two-factor": {
@@ -833,6 +860,7 @@
       "email-complained": "Имэйлийг spam гэж тэмдэглэсэн: <b>{{subject}}</b>",
       "email-suppressed": "Хаяг хаалттай тул имэйл илгээгээгүй: <b>{{subject}}</b>",
       "email-held": "Илгээлтийн хязгаараар имэйл хүлээлгэсэн: <b>{{subject}}</b>",
+      "wrote-in": "<b>{{portal}}</b> порталаас бичсэн: <b>{{subject}}</b>",
       "on-record": "· <record/> дээр"
     },
     "deleted": "устгасан бичлэг",
@@ -938,14 +966,25 @@
     "hint": "Зөвхөн баталгаажсан хаягууд.",
     "manage": "Хаягуудыг удирдах"
   },
+  "mail-connection": {
+    "organization": "Байгууллагын имэйл",
+    "off-item": "Унтраалттай холболт",
+    "off": "Энэ холболт унтарсан эсвэл устсан: асаах эсвэл өөрийг сонгоно уу.",
+    "hint": "Өөрийн бүртгэлээс илгээхийн тулд SMTP, Amazon SES эсвэл SendGrid холбоно уу.",
+    "manage": "Имэйл үйлчилгээ"
+  },
   "sender": {
     "label-placeholder": "Marketing",
-    "from-line": "{{name}} <{{address}}> · дамжуулагч: {{provider}}"
+    "from-line": "{{name}} <{{address}}> · дамжуулагч: {{provider}}",
+    "domain": "Domain",
+    "from-default": "Үндсэн хаягаас илгээх",
+    "from-stale-title": "{{domain}} баталгаажаагүй болсон байна",
+    "from-stale": "{{provider}} энэ domain-оос илгээхээ больсон тул энэ имэйл явахгүй. Domain-оо тэнд дахин баталгаажуулаад Settings-д дахин шалгана уу, эсвэл өөр domain сонгоно уу."
   },
   "email-setup": {
-    "title": "Имэйл илгээлт тохируулагдаагүй байна",
+    "title": "Байгууллагын имэйл тохируулагдаагүй байна",
     "description": "Имэйлүүд зөвхөн серверийн log-д бичигдэх тул broadcast, тест болон automation-ий имэйл илгээгдэхгүй. Provider тохируулах эсвэл сервер дээр EMAIL_SMTP_URL тохируулна уу.",
-    "link": "Тохиргоо › Integrations › Имэйл илгээлт",
+    "link": "Тохиргоо › Байгууллагын имэйл",
     "via": {
       "smtp": "SMTP",
       "sendgrid": "SendGrid",

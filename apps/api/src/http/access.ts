@@ -1,25 +1,42 @@
-import { coreContract, CORE_API_PREFIX, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
+import {
+  coreContract,
+  CORE_API_PREFIX,
+  type KeyDecision,
+  OWNER_ONLY_PERMISSIONS,
+} from '@erxes/core-contract';
 import { caller, type Caller, type KeyRules, scopedOrgId, withOrgDetached } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { fail } from './errors';
-import { decideKey, type KeyDecision } from './keyRules';
+import { decideKey } from './keyRules';
 import { ACCESS } from './policies';
 import type { Policy, ProcedurePath } from './policyRules';
 
 const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
 
+/**
+ * erxes support sets a client's workspace up as an owner. The one thing it never touches is
+ * the owners' own say over it: whether erxes support may come in, and its visits.
+ */
+const DENIED_TO_SUPPORT = new Set<string>(['support.manage']);
+
 type Member = Extract<Caller, { type: 'user' }>;
 
 /**
  * May the member do `action`? Owners may do everything; `*` grants every
- * action except owner-only ones; otherwise the role must list it. The router
+ * action except owner-only ones; otherwise the role must list it. erxes
+ * support is an owner without `DENIED_TO_SUPPORT`. The router
  * checks a procedure's permission (`ACCESS`); services call this only for
  * rules that depend on the record (an author's own note, a shared view).
  */
-export const can = (member: Pick<Member, 'role' | 'permissions' | 'key'>, action: string) => {
+export const can = (
+  member: Pick<Member, 'role' | 'permissions' | 'key' | 'support'>,
+  action: string,
+) => {
   // A key's permissions are spelled out (keyCaller): no role, no `*`.
   if (member.key) return member.permissions.includes(action);
+
+  if (member.support && DENIED_TO_SUPPORT.has(action)) return false;
 
   if (member.role === 'owner') return true;
 

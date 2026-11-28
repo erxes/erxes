@@ -1,13 +1,7 @@
-import {
-  callerUserId,
-  type Db,
-  type DataFieldOption,
-  type DataFieldSettings,
-  dataFields,
-  dataObjects,
-  newId,
-} from '@erxes/core-db';
+import type { DataExtensionFieldCreate } from '@erxes/core-contract';
+import { callerUserId, type Db, dataFields, dataObjects, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import type { z } from 'zod';
 import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
@@ -53,19 +47,7 @@ export const listFields = async (client: Db, recordType: string, archived = fals
   return { data: rows };
 };
 
-export const createField = async (
-  client: Db,
-  input: {
-    recordType: string;
-    key: string;
-    label: string;
-    description?: string;
-    icon?: string;
-    type: Exclude<DataFieldRow['type'], 'relation'>;
-    options?: DataFieldOption[];
-    settings?: DataFieldSettings;
-  },
-) => {
+export const createField = async (client: Db, input: z.infer<typeof DataExtensionFieldCreate>) => {
   const recordType = await extendableType(client, input.recordType);
 
   await assertRoom(client, input.recordType);

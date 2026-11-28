@@ -18,10 +18,13 @@ export const useCursorScroll = ({
   // Set while a backward page loads: the distance from the bottom and the row count before it.
   const backwardFetchRef = useRef<{ distanceFromBottom: number; dataLength?: number } | null>(null);
 
+  // Past the backward skeleton, but never back up over a position already restored below it.
   useEffect(() => {
-    if (scrollRef.current && hasPreviousPage !== undefined) {
-      scrollRef.current.scrollTop = hasPreviousPage ? offset : 0;
-    }
+    const scroll = scrollRef.current;
+
+    if (!scroll || hasPreviousPage === undefined) return;
+
+    scroll.scrollTop = hasPreviousPage ? Math.max(scroll.scrollTop, offset) : 0;
   }, [hasPreviousPage, offset]);
 
   useLayoutEffect(() => {

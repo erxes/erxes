@@ -1,19 +1,14 @@
 import { CUSTOMER_STATES, PRODUCT_KINDS, PRODUCT_STATUSES } from '@erxes/core-db/enums';
-import type { DATA_EXTENSION_NATIVE_TYPES } from '@erxes/core-db/dataExtensionEnums';
+import type { RecordNativeField } from './recordTypes';
 
 /**
  * The fields core's record types and custom objects have of their own, which formulas and
  * rollups read by key (`{firstName}`, `{price}`). A plugin's come from its manifest `objects`.
  */
 
-type NativeType = (typeof DATA_EXTENSION_NATIVE_TYPES)[number];
+type Native = RecordNativeField;
 
-interface Native {
-  key: string;
-  label: string;
-  type: NativeType;
-  options: string[];
-}
+type NativeType = Native['type'];
 
 const native = (
   key: string,

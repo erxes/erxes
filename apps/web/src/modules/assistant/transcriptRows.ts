@@ -1,10 +1,6 @@
-import {
-  AssistantArtifact,
-  type AssistantMessagePart,
-  AssistantQuestionComponent,
-  AssistantQuestionMode,
-} from '@erxes/core-contract';
+import { AssistantArtifact, type AssistantMessagePart } from '@erxes/core-contract';
 import { z } from 'zod';
+import { withoutUi } from './ui/blocks';
 
 /** The entry kind the server writes for a member's message; its `data` is the parts as sent. */
 const MEMBER_ENTRY = 'assistant.user';
@@ -14,6 +10,10 @@ const MEMBER_ENTRY = 'assistant.user';
  * builds schemas from tables, which stay out of the browser bundle.
  */
 const MemberParts = z.array(z.looseObject({ type: z.string() }));
+
+const Stamped = z.array(z.looseObject({ timestamp: z.number() }));
+
+const Timestamp = z.number().optional();
 
 const CallApiInput = z.object({
   procedure: z.string(),
@@ -31,20 +31,6 @@ const LoadSkillInput = z.object({ name: z.string() });
 const Refusal = z.object({ ok: z.literal(false), message: z.string() });
 
 const ChangedRecords = z.object({ changed: z.literal(true) });
-
-const Question = z.object({
-  question: z.string(),
-  options: z
-    .array(z.object({ label: z.string(), description: z.string().optional() }))
-    .optional()
-    .transform((options) => options ?? []),
-  selectionMode: AssistantQuestionMode.optional(),
-  component: AssistantQuestionComponent.optional(),
-});
-
-const AskUserInput = z.object({ questions: z.array(Question).min(1) });
-
-export type Question = z.infer<typeof Question>;
 
 const TextPart = z.object({ type: z.literal('text'), text: z.string() });
 
@@ -69,6 +55,7 @@ const known = (parts: unknown[]) => parts.flatMap((part) => Content.safeParse(pa
 const AssistantMessage = z.object({
   role: z.literal('assistant'),
   content: z.array(z.unknown()).transform(known),
+  timestamp: Timestamp,
 });
 
 const ToolResult = z.object({
@@ -76,6 +63,7 @@ const ToolResult = z.object({
   toolCallId: z.string(),
   content: z.array(z.looseObject({ type: z.string() })),
   isError: z.boolean(),
+  timestamp: Timestamp,
 });
 
 type ToolResult = z.infer<typeof ToolResult>;
@@ -104,7 +92,7 @@ const failureText = ({ reason, detail }: RunFailure) =>
     ? `Stopped after ${detail ?? 'too many turns'}, the most one reply may take. Send a message to go on.`
     : (detail ?? reason);
 
-export type StepStatus = 'running' | 'done' | 'failed';
+type StepStatus = 'running' | 'done' | 'failed';
 
 export interface Step {
   key: string;
@@ -116,18 +104,24 @@ export interface Step {
   input: unknown;
   output: unknown;
   error: string | null;
+  at: number | null;
 }
 
 export type TranscriptRow =
   | { kind: 'text'; key: string; text: string; streaming: boolean }
-  | { kind: 'thinking'; key: string; text: string; streaming: boolean }
+  | { kind: 'thinking'; key: string; text: string; streaming: boolean; at: number | null }
   | { kind: 'steps'; key: string; steps: Step[] }
-  | { kind: 'question'; key: string; questions: Question[] }
   | { kind: 'artifact'; key: string; artifact: AssistantArtifact };
 
 export type TranscriptMessage =
   | { role: 'user'; key: string; parts: AssistantMessagePart[] }
-  | { role: 'assistant'; key: string; rows: TranscriptRow[] };
+  | {
+      role: 'assistant';
+      key: string;
+      rows: TranscriptRow[];
+      startedAt: number | null;
+      endedAt: number | null;
+    };
 
 /** What a conversation view needs to have; the server's `ConversationView` is one. */
 export interface ViewLike {
@@ -162,7 +156,7 @@ const errorOf = (result: ToolResult | undefined, output: unknown) => {
   return result?.isError ? resultText(result) : null;
 };
 
-const stepOf = (call: ToolCall, result: ToolResult | undefined): Step => {
+const stepOf = (call: ToolCall, result: ToolResult | undefined, calledAt: number | null): Step => {
   const tool = call.name;
   const api = tool === 'callApi' ? CallApiInput.safeParse(call.arguments).data : undefined;
   const skill = tool === 'loadSkill' ? LoadSkillInput.safeParse(call.arguments).data : undefined;
@@ -179,6 +173,7 @@ const stepOf = (call: ToolCall, result: ToolResult | undefined): Step => {
     input: api?.input ?? call.arguments,
     output: result?.isError ? null : output,
     error: errorOf(result, output),
+    at: result?.timestamp ?? calledAt,
   };
 };
 
@@ -186,21 +181,17 @@ interface ReplyPart {
   part: Content;
   key: string;
   streaming: boolean;
+  at: number | null;
 }
 
-interface Context {
-  results: Map<string, ToolResult>;
-  latest: boolean;
-}
+type Results = Map<string, ToolResult>;
 
-const rowOfCall = (call: ToolCall, { results, latest }: Context): TranscriptRow | Step | null => {
-  if (call.name === 'ask_user') {
-    const asked = AskUserInput.safeParse(call.arguments).data;
-
-    return latest && asked ? { kind: 'question', key: call.id, questions: asked.questions } : null;
-  }
-
-  const step = stepOf(call, results.get(call.id));
+const rowOfCall = (
+  call: ToolCall,
+  results: Results,
+  calledAt: number | null,
+): TranscriptRow | Step => {
+  const step = stepOf(call, results.get(call.id), calledAt);
 
   if (call.name === 'createArtifact') {
     const artifact = AssistantArtifact.safeParse(step.output).data;
@@ -212,26 +203,28 @@ const rowOfCall = (call: ToolCall, { results, latest }: Context): TranscriptRow 
 };
 
 const rowOf = (
-  { part, key, streaming }: ReplyPart,
-  context: Context,
+  { part, key, streaming, at }: ReplyPart,
+  results: Results,
 ): TranscriptRow | Step | null => {
-  if (part.type === 'toolCall') return rowOfCall(part, context);
+  if (part.type === 'toolCall') return rowOfCall(part, results, at);
 
   if (part.type === 'text') {
     return part.text.trim() ? { kind: 'text', key, text: part.text, streaming } : null;
   }
 
-  return part.thinking.trim() ? { kind: 'thinking', key, text: part.thinking, streaming } : null;
+  return part.thinking.trim()
+    ? { kind: 'thinking', key, text: part.thinking, streaming, at }
+    : null;
 };
 
 const isStep = (row: TranscriptRow | Step): row is Step => !('kind' in row);
 
-const rowsOf = (parts: ReplyPart[], context: Context) => {
+const rowsOf = (parts: ReplyPart[], results: Results) => {
   const rows: TranscriptRow[] = [];
   let thought: Extract<TranscriptRow, { kind: 'thinking' }> | undefined;
 
   for (const part of parts) {
-    const row = rowOf(part, context);
+    const row = rowOf(part, results);
 
     if (!row) continue;
 
@@ -254,16 +247,29 @@ const rowsOf = (parts: ReplyPart[], context: Context) => {
   return rows;
 };
 
-type Item =
-  | { role: 'user'; key: string; parts: AssistantMessagePart[] }
-  | { role: 'assistant'; key: string; messages: { content: Content[]; streaming: boolean }[] };
+interface ReplyMessage {
+  content: Content[];
+  streaming: boolean;
+  at: number | null;
+}
 
-const replyParts = (key: string, messages: { content: Content[]; streaming: boolean }[]) =>
+type Item =
+  | { role: 'user'; key: string; parts: AssistantMessagePart[]; at: number | null }
+  | { role: 'assistant'; key: string; messages: ReplyMessage[]; endedAt: number | null };
+
+const replyParts = (key: string, messages: ReplyMessage[]) =>
   messages
-    .flatMap(({ content, streaming }) =>
-      content.map((part, at) => ({ part, streaming: streaming && at === content.length - 1 })),
+    .flatMap(({ content, streaming, at }) =>
+      content.map((part, index) => ({
+        part,
+        at,
+        streaming: streaming && index === content.length - 1,
+      })),
     )
     .map((part, index) => ({ ...part, key: `${key}-${index}` }));
+
+const later = (current: number | null, next: number | undefined) =>
+  next === undefined ? current : Math.max(current ?? next, next);
 
 const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
   const items: Item[] = [];
@@ -274,7 +280,12 @@ const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
 
     if (last?.role === 'assistant') return last;
 
-    const next: Item = { role: 'assistant', key: `reply-${last?.key ?? 'start'}`, messages: [] };
+    const next: Item = {
+      role: 'assistant',
+      key: `reply-${last?.key ?? 'start'}`,
+      messages: [],
+      endedAt: null,
+    };
 
     items.push(next);
 
@@ -286,22 +297,33 @@ const itemsOf = (view: ViewLike, streamed: Content[] | undefined) => {
 
     if (entry?.kind === MEMBER_ENTRY) {
       const parts = MemberParts.safeParse(entry.data).data ?? [];
+      const at = Stamped.safeParse(entry.model).data?.[0]?.timestamp ?? null;
 
-      items.push({ role: 'user', key: entry.id, parts });
+      items.push({ role: 'user', key: entry.id, parts, at });
     } else {
       for (const message of entry?.model ?? []) {
         const parsed = ModelMessage.safeParse(message).data;
 
-        if (parsed?.role === 'assistant') {
-          reply().messages.push({ content: parsed.content, streaming: false });
-        } else if (parsed) {
+        if (!parsed) continue;
+
+        const current = reply();
+
+        current.endedAt = later(current.endedAt, parsed.timestamp);
+
+        if (parsed.role === 'assistant') {
+          current.messages.push({
+            content: parsed.content,
+            streaming: false,
+            at: parsed.timestamp ?? null,
+          });
+        } else {
           results.set(parsed.toolCallId, parsed);
         }
       }
     }
   }
 
-  if (streamed) reply().messages.push({ content: streamed, streaming: true });
+  if (streamed) reply().messages.push({ content: streamed, streaming: true, at: null });
 
   return { items, results };
 };
@@ -319,7 +341,7 @@ const changedRecords = (message: TranscriptMessage | undefined) =>
 /**
  * A conversation view as the panel draws it: the member's messages, and one reply for each run of
  * assistant and tool messages between them, with the message being streamed now at the end. A
- * reply with nothing to show, such as questions the next member message answered, is left out.
+ * reply with nothing to show is left out.
  */
 export const transcriptOf = (view: ViewLike) => {
   const live = Live.safeParse(view.docs['pi.live'] ?? {}).data;
@@ -331,13 +353,19 @@ export const transcriptOf = (view: ViewLike) => {
 
   const { items, results } = itemsOf(view, streamed);
 
-  const messages = items.flatMap((item, index): TranscriptMessage[] => {
-    if (item.role === 'user') return [item];
+  let askedAt: number | null = null;
 
-    const context = { results, latest: index === items.length - 1 };
-    const rows = rowsOf(replyParts(item.key, item.messages), context);
+  const messages = items.flatMap((item): TranscriptMessage[] => {
+    if (item.role === 'user') {
+      askedAt = item.at;
 
-    return rows.length ? [{ role: 'assistant', key: item.key, rows }] : [];
+      return [{ role: 'user', key: item.key, parts: item.parts }];
+    }
+
+    const rows = rowsOf(replyParts(item.key, item.messages), results);
+    const { key, endedAt } = item;
+
+    return rows.length ? [{ role: 'assistant', key, rows, startedAt: askedAt, endedAt }] : [];
   });
 
   const last = messages.at(-1);
@@ -346,10 +374,6 @@ export const transcriptOf = (view: ViewLike) => {
   return {
     messages,
     running,
-    pending:
-      last?.role === 'assistant' && last.rows.some((row) => row.kind === 'question')
-        ? ('question' as const)
-        : null,
     changed: changedRecords(last),
     failure: failure && failure.reason !== 'aborted' ? failureText(failure) : null,
   };
@@ -363,15 +387,7 @@ export const userText = (parts: AssistantMessagePart[]) =>
 
 export const replyText = (rows: TranscriptRow[]) =>
   rows
-    .flatMap((row) => (row.kind === 'text' ? [row.text] : []))
+    .flatMap((row) => (row.kind === 'text' ? [withoutUi(row.text)] : []))
+    .filter(Boolean)
     .join('\n\n')
     .trim();
-
-const answerText = (answer: string | string[] | undefined) =>
-  Array.isArray(answer) ? answer.join(', ') : (answer ?? '');
-
-/** The message that answers the assistant's questions: one `question: answer` line each. */
-export const answerMessage = (questions: Question[], answers: (string | string[])[]) =>
-  questions
-    .map((question, index) => `${question.question}: ${answerText(answers[index])}`)
-    .join('\n');

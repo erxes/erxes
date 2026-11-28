@@ -2,15 +2,18 @@ import React from 'react';
 import { Separator as SeparatorPrimitive } from '@base-ui/react/separator';
 import { cn } from '../lib/utils';
 
+/** `variant="print"` prints in the text's colour, so the rule shows on paper (a report's header). */
 const SeparatorRoot = ({
   className,
   orientation = 'horizontal',
+  variant = 'default',
   ...props
-}: React.ComponentProps<typeof SeparatorPrimitive>) => (
+}: React.ComponentProps<typeof SeparatorPrimitive> & { variant?: 'default' | 'print' }) => (
   <SeparatorPrimitive
     orientation={orientation}
     className={cn(
       'shrink-0 bg-border',
+      variant === 'print' && 'print:bg-foreground',
       orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
       className,
     )}

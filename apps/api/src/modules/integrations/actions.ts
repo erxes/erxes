@@ -1,101 +1,190 @@
+import { type Db, integrationConnections, withOrg } from '@erxes/core-db';
+import { and, eq } from 'drizzle-orm';
+import { type AppAction, GatewayError } from '@erxes/plugin-sdk/integrations';
+import { fail } from '~/http/errors';
 import {
-  type ActionInfo,
-  type EventTypeInfo,
-  type IntegrationProgramRun,
-  integrationType,
-  LIST_MAX,
-} from '@erxes/core-contract';
-import { type Db, integrationPrograms, integrations, withOrg } from '@erxes/core-db';
-import { and, asc, eq } from 'drizzle-orm';
-import { type CallContext, idempotencyKey } from '~/modules/automations/actions/context';
-import { healedOutputs, inputProblem, saveOutputs } from './contract';
-import { type LoadedProgram, loadedPrograms } from './programs.service';
-import { runIntegrationProgram } from './sandbox';
+  type CallContext,
+  checked,
+  type CoreAction,
+  filledInput,
+  idempotencyKey,
+  text,
+} from '~/modules/automations/actions/context';
+import { getOrganization } from '~/modules/organizations/organizations.service';
+import { INVOICE_ACTIONS } from '~/modules/payments/invoiceActions';
+import { manages } from './connectable';
+import { allowsPersonal, ownFirst, usable, withinReach } from './scopes';
+import { clientOf, connectionsWithSecret } from './connections';
+import {
+  CONNECTION_FIELD,
+  type Integration,
+  type KeyedAction,
+  type KeyedIntegration,
+  type PagedIntegration,
+} from './define';
+import { INTEGRATIONS } from './registry';
 
-const catalogOf = (client: Db, kind: 'action' | 'incoming') =>
-  client
-    .select({
-      integrationKey: integrations.key,
-      source: integrations.name,
-      key: integrationPrograms.key,
-      label: integrationPrograms.label,
-      description: integrationPrograms.description,
-      fields: integrationPrograms.fields,
-      outputs: integrationPrograms.outputs,
-      events: integrationPrograms.events,
-    })
-    .from(integrationPrograms)
-    .innerJoin(integrations, eq(integrations.id, integrationPrograms.integrationId))
-    .where(eq(integrationPrograms.kind, kind))
-    .orderBy(asc(integrations.key), asc(integrationPrograms.key))
-    .limit(LIST_MAX);
+const RETRIED = new Set([408, 409, 425, 429]);
 
-export const integrationActions = async (client: Db): Promise<ActionInfo[]> =>
-  (await catalogOf(client, 'action')).map((program) => ({
-    type: integrationType(program.integrationKey, program.key),
-    label: program.label,
-    description: program.description,
-    source: program.source,
-    subject: null,
-    fields: program.fields,
-    outputs: program.outputs,
-  }));
+export const refused = (error: unknown): error is GatewayError =>
+  error instanceof GatewayError &&
+  error.status !== null &&
+  error.status >= 400 &&
+  error.status < 500 &&
+  !RETRIED.has(error.status);
 
-export const integrationEventTypes = async (client: Db): Promise<EventTypeInfo[]> =>
-  (await catalogOf(client, 'incoming')).flatMap((program) =>
-    program.events.map((event) => ({
-      type: integrationType(program.integrationKey, event.key),
-      label: event.label,
-      description: null,
-      source: program.source,
-      subject: null,
-      record: null,
-      fields: event.fields,
-    })),
-  );
+const keyedAction = (action: AppAction<unknown>): KeyedAction<unknown> => ({
+  key: action.key,
+  label: action.label,
+  description: action.description,
+  outputs: action.outputs,
+  subject: null,
+  fields: [CONNECTION_FIELD, ...action.fields],
+  async call(ctx) {
+    const input = filledInput(ctx);
 
-export const integrationForAction = async (client: Db, type: string) => {
-  const [, integrationKey = '', key = ''] = type.split('.');
+    checked(action.input, input);
 
-  const [loaded] = await loadedPrograms(client)
-    .where(
-      and(
-        eq(integrations.key, integrationKey),
-        eq(integrationPrograms.kind, 'action'),
-        eq(integrationPrograms.key, key),
-      ),
-    )
-    .limit(1);
+    const { client } = await ctx.connection();
 
-  if (!loaded) throw new Error(`No action ${type} (was its integration removed?)`);
+    try {
+      return await action.run({ client, input, idempotencyKey: idempotencyKey(ctx) });
+    } catch (error) {
+      if (refused(error)) throw fail('GATEWAY_REFUSED', error.message);
 
-  return loaded;
+      throw error;
+    }
+  },
+});
+
+/**
+ * The connection a step runs on: the one its `connection` input names, else the organisation's
+ * default gateway when it is one of the integration's, else the integration's oldest active one.
+ */
+export const connectionFor = async (tx: Db, integration: KeyedIntegration, requested?: string) => {
+  const active = await connectionsWithSecret(
+    tx,
+    and(
+      eq(integrationConnections.key, integration.key),
+      eq(integrationConnections.status, 'active'),
+      usable(integration),
+    ),
+  ).orderBy(ownFirst, integrationConnections.createdAt);
+
+  const preferred = requested ?? (await getOrganization(tx)).defaultGatewayId;
+  const row = active.find((item) => item.id === preferred) ?? (requested ? null : active[0]);
+
+  if (!row) {
+    throw fail(
+      'NOT_CONNECTED',
+      requested
+        ? `That ${integration.name} connection is gone or turned off`
+        : `${integration.name} is not connected: connect it in Settings › Integrations`,
+    );
+  }
+
+  return row;
 };
 
-export const runAction = async (
-  orgId: string,
-  loaded: LoadedProgram,
-  globals: { input: Record<string, unknown>; idempotencyKey: string },
-): Promise<IntegrationProgramRun> => {
-  const problem = inputProblem(loaded.program, globals.input);
+const open = (ctx: CallContext, integration: KeyedIntegration) =>
+  withOrg(ctx.orgId, async (tx) => {
+    const row = await connectionFor(tx, integration, text(ctx.input.connection));
 
-  if (problem) return { ok: false, code: 'INVALID_INPUT', message: problem };
-
-  const run = await runIntegrationProgram(loaded, globals);
-  const outputs = run.ok ? healedOutputs(loaded.program, run.result) : null;
-
-  if (outputs) await withOrg(orgId, (tx) => saveOutputs(tx, loaded.program.id, outputs));
-
-  return run;
-};
-
-export const runIntegrationAction = async (ctx: CallContext, loaded: LoadedProgram) => {
-  const run = await runAction(ctx.orgId, loaded, {
-    input: ctx.input,
-    idempotencyKey: idempotencyKey(ctx),
+    return { id: row.id, name: row.name, client: await clientOf(tx, integration, row) };
   });
 
-  if (!run.ok) throw new Error(`${loaded.program.label}: ${run.message}`);
+const permitted = (
+  integration: KeyedIntegration,
+  action: KeyedAction<unknown>,
+): KeyedAction<unknown> => ({
+  ...action,
+  call: (ctx) => {
+    if (!manages(integration) && !allowsPersonal(integration))
+      throw fail(
+        'NOT_ALLOWED',
+        `The member who turned this automation on may no longer use ${integration.name}`,
+        { permission: integration.permission },
+      );
 
-  return run.result;
+    return action.call(ctx);
+  },
+});
+
+const keyedActions = (integration: KeyedIntegration): CoreAction[] => {
+  const owner = { key: integration.key, name: integration.name };
+
+  return [
+    ...(integration.payments ? INVOICE_ACTIONS : []),
+    ...(integration.actions ?? []).map((action) => permitted(integration, keyedAction(action))),
+  ].map((action) => ({
+    type: `${integration.key}.${action.key}`,
+    label: action.label,
+    description: action.description,
+    subject: action.subject,
+    fields: action.fields,
+    outputs: action.outputs,
+    check: action.check,
+    integration: owner,
+    call: (ctx) =>
+      action.call({ ...ctx, integration: owner, connection: () => open(ctx, integration) }),
+  }));
+};
+
+const pagedActions = (integration: PagedIntegration): CoreAction[] =>
+  (integration.actions ?? []).map(({ key, ...action }) => ({
+    ...action,
+    type: `${integration.key}.${key}`,
+    integration: { key: integration.key, name: integration.name },
+  }));
+
+const actionsOf = (integration: Integration) =>
+  integration.keys ? keyedActions(integration) : pagedActions(integration);
+
+/** What core's integrations bring to automations, as `<integration>.<action>`. */
+export const INTEGRATION_ACTIONS = INTEGRATIONS.flatMap(actionsOf);
+
+type Choices = { value: string; label: string }[];
+
+/** Core's integrations connected here, by key, with their active connections as choices. */
+export type Connections = Map<string, Choices>;
+
+/**
+ * Core's integrations connected here, each with its active connections as a `connection`
+ * input's choices: a keyed one with at least one, one with its own page while it is on.
+ */
+export const connectedIntegrations = async (client: Db): Promise<Connections> => {
+  const rows = await client
+    .select({
+      key: integrationConnections.key,
+      id: integrationConnections.id,
+      name: integrationConnections.name,
+      ownerId: integrationConnections.ownerId,
+    })
+    .from(integrationConnections)
+    .where(withinReach(eq(integrationConnections.status, 'active')))
+    .orderBy(ownFirst, integrationConnections.createdAt);
+
+  const choicesOf = async (integration: Integration): Promise<Choices | null> => {
+    if (integration.keys) {
+      const own = rows.filter(
+        (row) => row.key === integration.key && (row.ownerId !== null || manages(integration)),
+      );
+
+      return own.length ? own.map((row) => ({ value: row.id, label: row.name })) : null;
+    }
+
+    if (!integration.actions?.length) return null;
+
+    const { state } = await integration.status(client);
+
+    return state === 'connected' || state === 'attention' ? [] : null;
+  };
+
+  const choices = await Promise.all(
+    INTEGRATIONS.map(
+      async (integration) => [integration.key, await choicesOf(integration)] as const,
+    ),
+  );
+
+  return new Map(choices.flatMap(([key, options]) => (options ? [[key, options] as const] : [])));
 };

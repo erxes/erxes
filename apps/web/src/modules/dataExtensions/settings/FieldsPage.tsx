@@ -1,4 +1,4 @@
-import type { RecordType } from '@erxes/core-contract';
+import type { ExtendableRecordType } from '@erxes/core-contract';
 import { IconLinkPlus, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, PageContainer, ScrollArea, Sidebar } from 'erxes-ui';
@@ -15,10 +15,16 @@ import { FieldList } from './FieldList';
 import { RelationDialog } from './RelationDialog';
 
 /** Who keeps a record type: core, the organisation (custom objects) or a plugin. */
-const ownerOf = (type: RecordType) => type.plugin ?? type.type.split('.')[0] ?? 'core';
+const ownerOf = (type: ExtendableRecordType) => type.plugin ?? type.type.split('.')[0] ?? 'core';
 
 /** The record types fields can go on, a group per owner. */
-const RecordTypeSidebar = ({ types, current }: { types: RecordType[]; current: string }) => {
+const RecordTypeSidebar = ({
+  types,
+  current,
+}: {
+  types: ExtendableRecordType[];
+  current: string;
+}) => {
   const { t } = useTranslation('data', { keyPrefix: 'fields' });
   const text = usePluginText();
   const owners = [...new Set(types.map(ownerOf))];
@@ -56,7 +62,13 @@ const RecordTypeSidebar = ({ types, current }: { types: RecordType[]; current: s
   );
 };
 
-const FieldsOf = ({ types, type }: { types: RecordType[]; type: RecordType }) => {
+const FieldsOf = ({
+  types,
+  type,
+}: {
+  types: ExtendableRecordType[];
+  type: ExtendableRecordType;
+}) => {
   const { t } = useTranslation('data', { keyPrefix: 'fields' });
   const [adding, setAdding] = useState(false);
   const [relating, setRelating] = useState(false);
